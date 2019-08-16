@@ -28,6 +28,8 @@
 #include <stdexcept>
 #include <utility>
 
+#include "helper_functions/crtp.hpp"
+
 namespace autoware
 {
 namespace common
@@ -61,7 +63,7 @@ using BinRange = std::pair<Index3, Index3>;
 /// \brief The base class for the configuration object for the SpatialHash class
 /// \tparam Derived The type of the derived class to support static polymorphism/CRTP
 template<typename Derived>
-class GEOMETRY_PUBLIC Config
+class GEOMETRY_PUBLIC Config : public autoware::common::helper_functions::crtp<Derived>
 {
 public:
   /// \brief Constructor for spatial hash
@@ -186,7 +188,7 @@ public:
   /// \return The combined index of the bin for a given point
   Index bin(const float32_t x, const float32_t y, const float32_t z) const
   {
-    return impl().bin_(x, y, z);
+    return this->impl().bin_(x, y, z);
   }
   /// \brief Compute whether the query bin and reference bin could possibly contain a pair of points
   ///        such that their distance is within a certain threshold
@@ -196,7 +198,7 @@ public:
   ///         another
   bool8_t is_candidate_bin(const details::Index3 & ref, const details::Index3 & query) const
   {
-    return impl().valid(ref, query);
+    return this->impl().valid(ref, query);
   }
   /// \brief Compute the decomposed index given a point
   /// \param[in] x The x component of the point
@@ -205,14 +207,14 @@ public:
   /// \return The decomposed index triple of the bin for the given point
   details::Index3 index3(const float32_t x, const float32_t y, const float32_t z) const
   {
-    return impl().index3_(x, y, z);
+    return this->impl().index3_(x, y, z);
   }
   /// \brief Compute the composed single index given a decomposed index
   /// \param[in] idx A decomposed index triple for a bin
   /// \return The composed bin index
   Index index(const details::Index3 & idx) const
   {
-    return impl().index_(idx);
+    return this->impl().index_(idx);
   }
   /// \brief Compute the squared distance between the two points
   /// \tparam PointT A point type with float members x, y and z, or point adapters defined
@@ -228,7 +230,7 @@ public:
     const float32_t z,
     const PointT & pt) const
   {
-    return impl().distance_squared_(x, y, z, pt);
+    return this->impl().distance_squared_(x, y, z, pt);
   }
 
 protected:
@@ -295,13 +297,6 @@ protected:
   }
 
 private:
-  const Derived & impl() const
-  {
-    // This is the CRTP pattern for static polymorphism: this is related, static_cast is the only
-    // way to do this
-    //lint -e{9005, 9176, 1939} NOLINT
-    return *static_cast<const Derived *>(this);
-  }
   /// \brief Sanity check a range in a basis direction
   /// \return The number of voxels in the given basis direction
   Index check_basis_direction(const float32_t min, const float32_t max) const
