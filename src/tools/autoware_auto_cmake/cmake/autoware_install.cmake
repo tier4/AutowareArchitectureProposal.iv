@@ -86,7 +86,7 @@ macro(autoware_install)
     # For launch directories
     install(
       DIRECTORY launch/
-      DESTINATION share/${PROJECT_NAME}/
+      DESTINATION share/${PROJECT_NAME}/launch/
     )
   endif()
 
@@ -94,7 +94,7 @@ macro(autoware_install)
     # For configuration files in the param folder
     install(
         DIRECTORY param/
-        DESTINATION share/${PROJECT_NAME}/
+        DESTINATION share/${PROJECT_NAME}/param/
     )
   endif()
 endmacro()
