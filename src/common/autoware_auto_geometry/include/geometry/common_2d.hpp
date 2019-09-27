@@ -46,7 +46,7 @@ namespace point_adapter
 /// \param[in] pt The point
 /// \tparam PointT The point type
 template<typename PointT>
-float32_t x_(const PointT & pt)
+inline auto x_(const PointT & pt)
 {
   return pt.x;
 }
@@ -55,7 +55,7 @@ float32_t x_(const PointT & pt)
 /// \param[in] pt The point
 /// \tparam PointT The point type
 template<typename PointT>
-float32_t y_(const PointT & pt)
+inline auto y_(const PointT & pt)
 {
   return pt.y;
 }
@@ -64,7 +64,7 @@ float32_t y_(const PointT & pt)
 /// \param[in] pt The point
 /// \tparam PointT The point type
 template<typename PointT>
-float32_t z_(const PointT & pt)
+inline auto z_(const PointT & pt)
 {
   return pt.z;
 }
@@ -73,7 +73,7 @@ float32_t z_(const PointT & pt)
 /// \param[in] pt The point
 /// \tparam PointT The point type
 template<typename PointT>
-float32_t & xr_(PointT & pt)
+inline auto & xr_(PointT & pt)
 {
   return pt.x;
 }
@@ -82,7 +82,7 @@ float32_t & xr_(PointT & pt)
 /// \param[in] pt The point
 /// \tparam PointT The point type
 template<typename PointT>
-float32_t & yr_(PointT & pt)
+inline auto & yr_(PointT & pt)
 {
   return pt.y;
 }
@@ -91,7 +91,7 @@ float32_t & yr_(PointT & pt)
 /// \param[in] pt The point
 /// \tparam PointT The point type
 template<typename PointT>
-float32_t & zr_(PointT & pt)
+inline auto & zr_(PointT & pt)
 {
   return pt.z;
 }

@@ -85,9 +85,9 @@ The primary method of introducing data into the data structure is via the
 # Outputs
 
 The primary method of retrieving data from the data structure is via the
-[near](@ref autoware::common::geometry::spatial_hash::SpatialHash<PointT, Config2d>::near)\(2D 
+[near](@ref autoware::common::geometry::spatial_hash::SpatialHash<PointT, Config2d>::near)\(2D
 configuration\) 
-or [near](@ref autoware::common::geometry::spatial_hash::SpatialHash<PointT, Config3d>::near) 
+or [near](@ref autoware::common::geometry::spatial_hash::SpatialHash<PointT, Config3d>::near)
 \(3D configuration\) method.
 
 The whole data structure can also be traversed using standard constant iterators.
