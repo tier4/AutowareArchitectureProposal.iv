@@ -1,0 +1,16 @@
+<library path="autoware_rviz_plugins">
+
+  <!-- Displays plugins -->
+
+  <class
+    name="autoware_rviz_plugins/BoundingBoxArray"
+    type="autoware::rviz_plugins::BoundingBoxArrayDisplay"
+    base_class_type="rviz_common::Display"
+  >
+    <description>
+      Convert an array of bounding boxes to markers and display them.
+    </description>
+    <message_type>autoware_auto_msgs/msg/BoundingBoxArray</message_type>
+  </class>
+
+</library>
