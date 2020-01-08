@@ -18,9 +18,13 @@
 #ifndef GEOMETRY__COMMON_2D_HPP_
 #define GEOMETRY__COMMON_2D_HPP_
 
+#include <common/types.hpp>
 #include <cmath>
 #include <limits>
 #include <stdexcept>
+
+using autoware::common::types::float32_t;
+using autoware::common::types::bool8_t;
 
 namespace autoware
 {
@@ -33,10 +37,6 @@ inline T clamp(const T val, const T min, const T max)
 {
   return (val < min) ? min : ((val > max) ? max : val);
 }
-// TODO(c.ho) replace types to be sized?
-using float32_t = float;
-using float64_t = double;
-using bool8_t = bool;
 
 /// \brief Temporary namespace for point adapter methods, for use with nonstandard point types
 namespace point_adapter
@@ -104,7 +104,7 @@ inline auto & zr_(PointT & pt)
 /// \param[in] q reference point
 /// \return whether angle formed is ccw. Three collinear points is considered ccw
 template<typename T>
-inline bool ccw(const T & pt, const T & q, const T & r)
+inline bool8_t ccw(const T & pt, const T & q, const T & r)
 {
   using point_adapter::x_;
   using point_adapter::y_;
@@ -117,7 +117,7 @@ inline bool ccw(const T & pt, const T & q, const T & r)
 /// \param[in] q second point
 /// \return 2d cross product
 template<typename T>
-inline float cross_2d(const T & pt, const T & q)
+inline float32_t cross_2d(const T & pt, const T & q)
 {
   using point_adapter::x_;
   using point_adapter::y_;
@@ -130,7 +130,7 @@ inline float cross_2d(const T & pt, const T & q)
 /// \param[in] q second point
 /// \return 2d scalar dot product
 template<typename T>
-inline float dot_2d(const T & pt, const T & q)
+inline float32_t dot_2d(const T & pt, const T & q)
 {
   using point_adapter::x_;
   using point_adapter::y_;
@@ -191,7 +191,7 @@ T plus_2d(const T & p, const T & q)
 /// \return A point with the scaled x and y fields, all other fields are default
 ///         initialized
 template<typename T>
-T times_2d(const T & p, const float a)
+T times_2d(const T & p, const float32_t a)
 {
   T r;
   point_adapter::xr_(r) = point_adapter::x_(p) * a;
@@ -212,9 +212,9 @@ T times_2d(const T & p, const float a)
 template<typename T>
 inline T intersection_2d(const T & pt, const T & u, const T & q, const T & v)
 {
-  const float num = cross_2d(minus_2d(pt, q), u);
-  float den = cross_2d(v, u);
-  constexpr auto FEPS = std::numeric_limits<float>::epsilon();
+  const float32_t num = cross_2d(minus_2d(pt, q), u);
+  float32_t den = cross_2d(v, u);
+  constexpr auto FEPS = std::numeric_limits<float32_t>::epsilon();
   if (fabsf(den) < FEPS) {
     if (fabsf(num) < FEPS) {
       // collinear case, anything is ok
@@ -235,10 +235,10 @@ inline T intersection_2d(const T & pt, const T & u, const T & q, const T & v)
 /// \param[in] cos_th precomputed cosine value
 /// \param[in] sin_th precompined sine value
 template<typename T>
-inline void rotate_2d(T & pt, const float cos_th, const float sin_th)
+inline void rotate_2d(T & pt, const float32_t cos_th, const float32_t sin_th)
 {
-  const float x = point_adapter::x_(pt);
-  const float y = point_adapter::y_(pt);
+  const float32_t x = point_adapter::x_(pt);
+  const float32_t y = point_adapter::y_(pt);
   point_adapter::xr_(pt) = (cos_th * x) - (sin_th * y);
   point_adapter::yr_(pt) = (sin_th * x) + (cos_th * y);
 }
@@ -249,11 +249,11 @@ inline void rotate_2d(T & pt, const float cos_th, const float sin_th)
 /// \param[in] th_rad angle by which to rotate point
 /// \return rotated point
 template<typename T>
-inline T rotate_2d(const T & pt, const float th_rad)
+inline T rotate_2d(const T & pt, const float32_t th_rad)
 {
   T q(pt);  // It's reasonable to expect a copy constructor
-  const float s = sinf(th_rad);
-  const float c = cosf(th_rad);
+  const float32_t s = sinf(th_rad);
+  const float32_t c = cosf(th_rad);
   rotate_2d(q, c, s);
   return q;
 }
@@ -277,7 +277,7 @@ inline T get_normal(const T & pt)
 /// \param[in] pt point to get magnitude of
 /// \return magitude of x and y components together
 template<typename T>
-inline float norm_2d(const T & pt)
+inline float32_t norm_2d(const T & pt)
 {
   return sqrtf(dot_2d(pt, pt));
 }
@@ -294,10 +294,10 @@ template<typename T>
 inline T closest_segment_point_2d(const T & p, const T & q, const T & r)
 {
   const T qp = minus_2d(q, p);
-  const float len2 = dot_2d(qp, qp);
+  const float32_t len2 = dot_2d(qp, qp);
   T ret = p;
-  if (len2 > std::numeric_limits<float>::epsilon()) {
-    const float t = clamp(dot_2d(minus_2d(r, p), qp) / len2, 0.0F, 1.0F);
+  if (len2 > std::numeric_limits<float32_t>::epsilon()) {
+    const float32_t t = clamp(dot_2d(minus_2d(r, p), qp) / len2, 0.0F, 1.0F);
     ret = plus_2d(p, times_2d(qp, t));
   }
   return ret;
@@ -310,7 +310,7 @@ inline T closest_segment_point_2d(const T & p, const T & q, const T & r)
 /// \param[in] r Reference point to find the distance from the line segment to
 /// \return Distance from point r to line segment p-q
 template<typename T>
-inline float point_line_segment_distance_2d(const T & p, const T & q, const T & r)
+inline float32_t point_line_segment_distance_2d(const T & p, const T & q, const T & r)
 {
   const T pq_r = minus_2d(closest_segment_point_2d(p, q, r), r);
   return norm_2d(pq_r);

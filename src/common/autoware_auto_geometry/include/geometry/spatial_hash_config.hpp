@@ -19,6 +19,7 @@
 #ifndef GEOMETRY__SPATIAL_HASH_CONFIG_HPP_
 #define GEOMETRY__SPATIAL_HASH_CONFIG_HPP_
 
+#include <common/types.hpp>
 #include <geometry/visibility_control.hpp>
 #include <geometry/common_2d.hpp>
 
@@ -29,6 +30,10 @@
 #include <utility>
 
 #include "helper_functions/crtp.hpp"
+
+using autoware::common::types::float64_t;
+using autoware::common::types::float32_t;
+using autoware::common::types::bool8_t;
 
 namespace autoware
 {

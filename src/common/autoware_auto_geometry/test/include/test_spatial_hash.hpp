@@ -19,9 +19,9 @@
 #include <geometry_msgs/msg/point32.hpp>
 #include "geometry/spatial_hash.hpp"
 
-using autoware::common::geometry::float32_t;
-using autoware::common::geometry::float64_t;
-using autoware::common::geometry::bool8_t;
+using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
+using autoware::common::types::bool8_t;
 using autoware::common::geometry::spatial_hash::Config2d;
 using autoware::common::geometry::spatial_hash::Config3d;
 using autoware::common::geometry::spatial_hash::SpatialHash;
@@ -47,16 +47,16 @@ protected:
     SpatialHash<PointT, Cfg> & hash,
     const uint32_t points_per_ring,
     const uint32_t num_rings,
-    const float dr,
-    const float dx = 0.0F,
-    const float dy = 0.0F)
+    const float32_t dr,
+    const float32_t dx = 0.0F,
+    const float32_t dy = 0.0F)
   {
-    const float dth = 2.0F * 3.14159F / points_per_ring;
+    const float32_t dth = 2.0F * 3.14159F / points_per_ring;
 
     // insert
-    float r = dr;
+    float32_t r = dr;
     for (uint32_t rdx = 0U; rdx < num_rings; ++rdx) {
-      float th = 0.0F;
+      float32_t th = 0.0F;
       for (uint32_t pdx = 0U; pdx < points_per_ring; ++pdx) {
         PointT pt;
         pt.x = r * cosf(th) + dx;
@@ -69,7 +69,7 @@ protected:
     }
   }
   PointT ref;
-  const float EPS;
+  const float32_t EPS;
 };  // SpatialHash
 // test struct
 
@@ -85,7 +85,7 @@ TYPED_TEST_CASE(TypedSpatialHashTest, PointTypes);
 TYPED_TEST(TypedSpatialHashTest, one_bin)
 {
   using PointT = TypeParam;
-  const float dr = 1.0F;
+  const float32_t dr = 1.0F;
   Config2d cfg{-10.0F, 10.0F, -10.0F, 10.0F, dr + this->EPS, 1024U};
   SpatialHash2d<PointT> hash{cfg};
 
@@ -99,7 +99,7 @@ TYPED_TEST(TypedSpatialHashTest, one_bin)
   uint32_t points_seen = 0U;
   for (const auto & itd : neighbors) {
     const PointT & pt = itd;
-    const float dist = sqrtf((pt.x * pt.x) + (pt.y * pt.y));
+    const float32_t dist = sqrtf((pt.x * pt.x) + (pt.y * pt.y));
     ASSERT_LT(dist, dr + this->EPS);
     ASSERT_FLOAT_EQ(dist, itd.get_distance());
     ++points_seen;
@@ -129,7 +129,7 @@ TYPED_TEST(TypedSpatialHashTest, one_bin)
 TYPED_TEST(TypedSpatialHashTest, oob)
 {
   using PointT = TypeParam;
-  const float dr = 20.0F;
+  const float32_t dr = 20.0F;
   Config2d cfg{-2.0F, 2.0F, -2.0F, 2.0F, dr + this->EPS, 1024U};
   SpatialHash2d<PointT> hash{cfg};
 
@@ -138,13 +138,13 @@ TYPED_TEST(TypedSpatialHashTest, oob)
   this->add_points(hash, PTS_PER_RING, 1U, dr);
 
   // loop through all points
-  float r = dr + this->EPS;
+  float32_t r = dr + this->EPS;
   const uint32_t n_pts = PTS_PER_RING;
   const auto & nbrs = hash.near(this->ref);
   uint32_t points_seen = 0U;
   for (const auto itd : nbrs) {
     const PointT & pt = itd;
-    const float dist = sqrtf((pt.x * pt.x) + (pt.y * pt.y));
+    const float32_t dist = sqrtf((pt.x * pt.x) + (pt.y * pt.y));
     ASSERT_LT(dist, r);
     ASSERT_GT(dist, 10.0F * sqrtf(2.0F));
     ASSERT_FLOAT_EQ(dist, itd.get_distance());
@@ -164,14 +164,14 @@ TYPED_TEST(TypedSpatialHashTest, 3d)
   // build concentric rings around origin
   const uint32_t points_per_ring = 32U;
   const uint32_t num_rings = 5U;
-  const float dth = 2.0F * 3.14159F / points_per_ring;
+  const float32_t dth = 2.0F * 3.14159F / points_per_ring;
   std::vector<PointT> pts{};
 
   // insert
-  const float r = 10.0F;
-  float phi = 0.0f;
+  const float32_t r = 10.0F;
+  float32_t phi = 0.0f;
   for (uint32_t rdx = 0U; rdx < num_rings; ++rdx) {
-    float th = 0.0F;
+    float32_t th = 0.0F;
     for (uint32_t pdx = 0U; pdx < points_per_ring; ++pdx) {
       PointT pt;
       pt.x = r * cosf(th) * cosf(phi);
@@ -193,7 +193,7 @@ TYPED_TEST(TypedSpatialHashTest, 3d)
   uint32_t points_seen = 0U;
   for (const auto & itd : neighbors) {
     const PointT & pt = itd;
-    const float dist = sqrtf((pt.x * pt.x) + (pt.y * pt.y) + (pt.z * pt.z));
+    const float32_t dist = sqrtf((pt.x * pt.x) + (pt.y * pt.y) + (pt.z * pt.z));
     ASSERT_LT(dist, r + this->EPS);
     ASSERT_FLOAT_EQ(dist, itd.get_distance());
     ++points_seen;

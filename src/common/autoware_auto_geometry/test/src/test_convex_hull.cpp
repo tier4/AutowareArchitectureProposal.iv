@@ -17,6 +17,10 @@
 #include <geometry_msgs/msg/point32.hpp>
 #include "geometry/convex_hull.hpp"
 
+using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
+using autoware::common::types::bool8_t;
+
 template<typename PointT>
 class TypedConvexHullTest : public ::testing::Test
 {
@@ -32,14 +36,14 @@ protected:
   void check_hull(
     const typename std::list<PointT>::const_iterator last,
     const std::vector<PointT> & expect,
-    const bool strict = true)
+    const bool8_t strict = true)
   {
     uint32_t items = 0U;
     for (auto & pt : expect) {
-      bool found = false;
+      bool8_t found = false;
       auto it = list.begin();
       while (it != last) {
-        constexpr float TOL = 1.0E-6F;
+        constexpr float32_t TOL = 1.0E-6F;
         if (fabsf(pt.x - it->x) <= TOL &&
           fabsf(pt.y - it->y) <= TOL &&
           (fabsf(pt.z - it->z) <= TOL || !strict))  // TODO z if only strict
@@ -57,7 +61,7 @@ protected:
     }
   }
 
-  PointT make(const float x, const float y, const float z)
+  PointT make(const float32_t x, const float32_t y, const float32_t z)
   {
     PointT ret;
     ret.x = x;
@@ -156,15 +160,15 @@ TYPED_TEST(TypedConvexHullTest, hull)
 {
   const uint32_t HULL_SIZE = 13U;
   const uint32_t FUZZ_SIZE = 50U;
-  const float dth = 1.133729384F; // some weird irrational(ish) number
-  const float r_hull = 20.0F;
-  const float r_fuzz = 10.0F;
+  const float32_t dth = 1.133729384F; // some weird irrational(ish) number
+  const float32_t r_hull = 20.0F;
+  const float32_t r_fuzz = 10.0F;
   ASSERT_LT(r_fuzz, r_hull);
 
   std::vector<TypeParam> hull;
 
   uint32_t hull_pts = 0U;
-  float th = 0.0F;
+  float32_t th = 0.0F;
   // hull part 1
   for (uint32_t idx = 0U; idx < HULL_SIZE / 3U; ++idx) {
     const auto pt = this->make(r_hull * cosf(th), r_hull * sinf(th), th);

@@ -20,6 +20,7 @@
 #ifndef GEOMETRY__CONVEX_HULL_HPP_
 #define GEOMETRY__CONVEX_HULL_HPP_
 
+#include <common/types.hpp>
 #include <geometry/common_2d.hpp>
 
 //lint -e537 NOLINT pclint vs cpplint
@@ -28,6 +29,8 @@
 #include <list>
 #include <limits>
 #include <utility>
+
+using autoware::common::types::float32_t;
 
 namespace autoware
 {
@@ -53,7 +56,7 @@ void form_lower_hull(std::list<PointT> & points, std::list<PointT> & hull)
   const auto iters = points.size();
   for (auto idx = decltype(iters) {0}; idx < iters; ++idx) {
     // splice points from tail of hull to tail of list until point from head of list satisfies ccw
-    bool is_ccw = true;
+    bool8_t is_ccw = true;
     while ((hull.cbegin() != hull_it) && is_ccw) {
       const auto current_hull_it = hull_it;
       --hull_it;
@@ -94,7 +97,7 @@ void form_upper_hull(std::list<PointT> & points, std::list<PointT> & hull)
   const auto iters = points.size();
   for (auto idx = decltype(iters) {0}; idx < iters; ++idx) {
     // splice points from tail of hull to head of list until ccw is satisfied with tail of list
-    bool is_ccw = true;
+    bool8_t is_ccw = true;
     while ((lower_hull_end != hull_it) && is_ccw) {
       const auto current_hull_it = hull_it;
       --hull_it;
@@ -127,11 +130,11 @@ template<typename PointT>
 typename std::list<PointT>::const_iterator convex_hull_impl(std::list<PointT> & list)
 {
   // Functor that return whether a <= b in the lexical sense (a.x < b.x), sort by y if tied
-  const auto lexical_comparator = [](const PointT & a, const PointT & b) -> bool
+  const auto lexical_comparator = [](const PointT & a, const PointT & b) -> bool8_t
     {
       using point_adapter::x_;
       using point_adapter::y_;
-      constexpr auto FEPS = std::numeric_limits<float>::epsilon();
+      constexpr auto FEPS = std::numeric_limits<float32_t>::epsilon();
       return (fabsf(x_(a) - x_(b)) > FEPS) ?
              (x_(a) < x_(b)) : (y_(a) < y_(b));
     };

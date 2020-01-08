@@ -19,11 +19,15 @@
 #ifndef GEOMETRY__SPATIAL_HASH_HPP_
 #define GEOMETRY__SPATIAL_HASH_HPP_
 
+#include <common/types.hpp>
 #include <geometry/spatial_hash_config.hpp>
 #include <geometry/visibility_control.hpp>
 #include <vector>
 #include <unordered_map>
 #include <utility>
+
+using autoware::common::types::float32_t;
+using autoware::common::types::bool8_t;
 
 namespace autoware
 {
