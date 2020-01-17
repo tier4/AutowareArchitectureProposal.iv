@@ -29,6 +29,8 @@ namespace common
 {
 namespace types
 {
+using bool8_t = bool;
+using char8_t = char;
 using float32_t = float;
 using float64_t = double;
 using bool8_t = bool;
