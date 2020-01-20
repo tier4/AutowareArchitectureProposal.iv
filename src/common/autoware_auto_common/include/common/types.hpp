@@ -18,6 +18,11 @@
 #ifndef COMMON__TYPES_HPP_
 #define COMMON__TYPES_HPP_
 
+#include <cstdint>
+#include <vector>
+
+#include "common/visibility_control.hpp"
+
 namespace autoware
 {
 namespace common
@@ -27,6 +32,27 @@ namespace types
 using float32_t = float;
 using float64_t = double;
 using bool8_t = bool;
+
+/// pi = tau / 2
+constexpr float PI = 3.14159265359F;
+/// pi/2
+constexpr float PI_2 = 1.5707963267948966F;
+/// tau = 2 pi
+constexpr float TAU = 6.283185307179586476925286766559F;
+/// arbitrary small constant: 1.0E-6F
+constexpr float FEPS = 0.000001F;
+
+struct COMMON_PUBLIC PointXYZIF
+{
+  float x, y, z, intensity;
+  uint16_t id;
+  static constexpr uint16_t END_OF_SCAN_ID = 65535u;
+};
+
+using PointBlock = std::vector<PointXYZIF>;
+/// \brief Stores basic configuration information, does some simple validity checking
+static constexpr uint16_t POINT_BLOCK_CAPACITY = 512U;
+
 }  // namespace types
 }  // namespace common
 }  // namespace autoware
