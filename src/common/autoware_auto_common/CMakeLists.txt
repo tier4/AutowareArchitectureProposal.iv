@@ -20,6 +20,7 @@ project(autoware_auto_common)
 ## dependencies
 find_package(ament_cmake REQUIRED)
 find_package(autoware_auto_cmake REQUIRED)
+find_package(motion_common REQUIRED) # TODO ament_auto
 
 if(BUILD_TESTING)
   # Unit tests
@@ -27,14 +28,17 @@ if(BUILD_TESTING)
   set(TEST_BYTE_READER_EXE test_byte_reader)
   ament_add_gtest(${TEST_BYTE_READER_EXE}
           test/gtest_main.cpp
+          test/lookup_table.cpp
           test/test_byte_reader.cpp)
   target_include_directories(${TEST_BYTE_READER_EXE} PRIVATE include)
   target_link_libraries(${TEST_BYTE_READER_EXE} ${TEST_LIB} util)
+  ament_target_dependencies(${TEST_BYTE_READER_EXE} motion_common)
 
   # run linters
   autoware_static_code_analysis()
 endif()
 
 # Ament Exporting
+ament_export_dependencies(motion_common)
 autoware_install(HAS_INCLUDE)
 ament_package()
