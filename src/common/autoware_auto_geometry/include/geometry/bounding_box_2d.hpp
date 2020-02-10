@@ -29,5 +29,5 @@ namespace geometry
 {
 }  // namespace geometry
 }  // namespace common
-}  // namespace apex_auto
+}  // namespace autoware
 #endif  // GEOMETRY__BOUNDING_BOX_2D_HPP_
