@@ -13,4 +13,15 @@
     <message_type>autoware_auto_msgs/msg/BoundingBoxArray</message_type>
   </class>
 
+  <class
+    name="autoware_rviz_plugins/Trajectory"
+    type="autoware::rviz_plugins::TrajectoryDisplay"
+    base_class_type="rviz_common::Display"
+  >
+    <description>
+      Convert a trajectory to markers and display them.
+    </description>
+    <message_type>autoware_auto_msgs/msg/Trajectory</message_type>
+  </class>
+
 </library>

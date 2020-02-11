@@ -11,26 +11,26 @@ find_package(autoware_auto_msgs REQUIRED)
 find_package(rviz_common REQUIRED)
 find_package(rviz_default_plugins REQUIRED)
 
-# includes
-include_directories(include)
-
 set(OD_PLUGIN_LIB_SRC
-        src/object_detection/bounding_box_array_display.cpp
+  src/object_detection/bounding_box_array_display.cpp
+  src/planning/trajectory_display.cpp
 )
 
 set(OD_PLUGIN_LIB_HEADERS
-    include/visibility_control.hpp
-        include/object_detection/bounding_box_array_display.hpp)
+  include/visibility_control.hpp
+  include/object_detection/bounding_box_array_display.hpp
+  include/planning/trajectory_display.hpp
+)
 
-add_library(
-${PROJECT_NAME} SHARED
-        ${OD_PLUGIN_LIB_HEADERS}
-        ${OD_PLUGIN_LIB_SRC}
+add_library(${PROJECT_NAME} SHARED
+  ${OD_PLUGIN_LIB_HEADERS}
+  ${OD_PLUGIN_LIB_SRC}
 )
 
 target_link_libraries(${PROJECT_NAME}
   rviz_common::rviz_common
 )
+target_include_directories(${PROJECT_NAME} PRIVATE include)
 
 autoware_set_compile_options(${PROJECT_NAME})
 ament_target_dependencies(${PROJECT_NAME} "rviz_common" "rviz_default_plugins" "autoware_auto_msgs")
