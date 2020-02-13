@@ -25,14 +25,15 @@ find_package(motion_common REQUIRED) # TODO ament_auto
 if(BUILD_TESTING)
   # Unit tests
   find_package(ament_cmake_gtest REQUIRED)
-  set(TEST_BYTE_READER_EXE test_byte_reader)
-  ament_add_gtest(${TEST_BYTE_READER_EXE}
+  set(TEST_COMMON test_common_gtest)
+  ament_add_gtest(${TEST_COMMON}
           test/gtest_main.cpp
           test/lookup_table.cpp
-          test/test_byte_reader.cpp)
-  target_include_directories(${TEST_BYTE_READER_EXE} PRIVATE include)
-  target_link_libraries(${TEST_BYTE_READER_EXE} ${TEST_LIB} util)
-  ament_target_dependencies(${TEST_BYTE_READER_EXE} motion_common)
+          test/test_byte_reader.cpp
+          test/test_message_field_adapters.cpp)
+  target_include_directories(${TEST_COMMON} PRIVATE include)
+  target_link_libraries(${TEST_COMMON} ${TEST_LIB} util)
+  ament_target_dependencies(${TEST_COMMON} motion_common)
 
   # run linters
   autoware_static_code_analysis()
