@@ -44,6 +44,7 @@ void BoundingBoxArrayDisplay::load(const rviz_common::Config & config)
 void BoundingBoxArrayDisplay::processMessage(
   autoware_auto_msgs::msg::BoundingBoxArray::ConstSharedPtr msg)
 {
+  m_marker_common->clearMarkers();
   for (auto idx = 0U; idx < msg->boxes.size(); idx++) {
     const auto marker_ptr = get_marker(msg->boxes[idx]);
     marker_ptr->ns = "bounding_box";
