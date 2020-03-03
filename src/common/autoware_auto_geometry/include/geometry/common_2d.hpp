@@ -302,6 +302,31 @@ inline T closest_segment_point_2d(const T & p, const T & q, const T & r)
   }
   return ret;
 }
+//
+/// \tparam T point type. Must have point adapters defined or have float members x and y
+/// \brief Compute the closest point on the line going through p-q to point r
+//         Obtained by simplifying closest_segment_point_2d.
+/// \param[in] p First point defining the line
+/// \param[in] q Second point defining the line
+/// \param[in] r Reference point to find the closest point to
+/// \return Closest point on line p-q to point r
+/// \throw std::runtime_error if the two points coincide and hence don't uniquely
+//         define a line
+template<typename T>
+inline T closest_line_point_2d(const T & p, const T & q, const T & r)
+{
+  const T qp = minus_2d(q, p);
+  const float32_t len2 = dot_2d(qp, qp);
+  T ret = p;
+  if (len2 > std::numeric_limits<float32_t>::epsilon()) {
+    const float32_t t = dot_2d(minus_2d(r, p), qp) / len2;
+    ret = plus_2d(p, times_2d(qp, t));
+  } else {
+    throw std::runtime_error(
+            "closet_line_point_2d: line ill-defined because given points coincide");
+  }
+  return ret;
+}
 
 /// \tparam T point type. Must have point adapters defined or have float members x and y
 /// \brief Compute the distance from line segment p-q to point r

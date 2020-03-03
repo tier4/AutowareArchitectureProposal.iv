@@ -28,8 +28,10 @@ find_package(geometry_msgs REQUIRED)
 add_library(${PROJECT_NAME} SHARED
   include/geometry/spatial_hash.hpp
   include/geometry/spatial_hash_config.hpp
+  include/geometry/vehicle_bounding_box.hpp
   src/spatial_hash.cpp
-  src/bounding_box.cpp)
+  src/bounding_box.cpp
+  src/vehicle_bounding_box.cpp)
 ament_target_dependencies(${PROJECT_NAME}
   "autoware_auto_common"
   "autoware_auto_msgs"

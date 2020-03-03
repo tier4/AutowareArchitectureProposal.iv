@@ -156,6 +156,30 @@ TYPED_TEST(BoxTest, point_segment_distance)
   ASSERT_FLOAT_EQ(point_line_segment_distance_2d(p, q, r), 4.0F);
 }
 
+TYPED_TEST(BoxTest, closest_point_on_line)
+{
+  using autoware::common::geometry::closest_line_point_2d;
+  // normal case
+  TypeParam p = this->make(-1.0F, 0.0F);
+  TypeParam q = this->make(-1.0F, 2.0F);
+  TypeParam r = this->make(1.0F, 1.0F);
+  TypeParam t = closest_line_point_2d(p, q, r);
+  ASSERT_FLOAT_EQ(x_(t), -1.0F);
+  ASSERT_FLOAT_EQ(y_(t), 1.0F);
+  // out-of-boundary case
+  p = this->make(1.0F, 0.0F);
+  q = this->make(-2.0F, 0.0F);
+  r = this->make(-5.0F, 0.0F);
+  t = closest_line_point_2d(p, q, r);
+  ASSERT_FLOAT_EQ(x_(t), -5.0F);
+  ASSERT_NEAR(y_(t), 0.0F, autoware::common::types::FEPS);
+  // singular case
+  p = this->make(1.0F, 5.0F);
+  q = this->make(1.0F, 5.0F);
+  r = this->make(1.0F, 1.0F);
+  EXPECT_THROW(t = closest_line_point_2d(p, q, r), std::runtime_error);
+}
+
 ////////////////////////////////////////////////
 
 TYPED_TEST(BoxTest, basic)
