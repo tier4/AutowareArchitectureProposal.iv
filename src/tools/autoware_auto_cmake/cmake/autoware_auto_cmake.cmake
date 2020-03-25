@@ -80,7 +80,7 @@ else()
     target_compile_options(${target} PRIVATE -Wlogical-op -frecord-gcc-switches)
   endif()
 
-  if(CMAKE_BUILD_TYPE EQUAL "Debug")
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
       set_target_properties(${target} PROPERTIES COMPILE_FLAGS "-Og")
   else()
       set_target_properties(${target} PROPERTIES COMPILE_FLAGS "-O3 -ftree-vectorize")

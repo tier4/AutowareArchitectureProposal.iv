@@ -46,8 +46,11 @@ constexpr float FEPS = 0.000001F;
 
 struct COMMON_PUBLIC PointXYZIF
 {
-  float32_t x, y, z, intensity;
-  uint16_t id;
+  float32_t x{0};
+  float32_t y{0};
+  float32_t z{0};
+  float32_t intensity{0};
+  uint16_t id{0};
   static constexpr uint16_t END_OF_SCAN_ID = 65535u;
 };
 
