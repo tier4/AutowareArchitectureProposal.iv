@@ -19,9 +19,9 @@
 #ifndef HELPER_FUNCTIONS__HELPER_FUNCTIONS_HPP_
 #define HELPER_FUNCTIONS__HELPER_FUNCTIONS_HPP_
 
-#include <cmath>
+#include <common/types.hpp>
 
-#include "common/types.hpp"
+#include <cmath>
 
 namespace autoware
 {
@@ -31,6 +31,9 @@ namespace common
 ///        throughout the codebase.
 namespace helper_functions
 {
+
+using autoware::common::types::float32_t;
+
 /// \brief th_deg - phi_deg, normalized to +/- 180 deg
 /// \param[in] th_deg the reference angle
 /// \param[in] phi_deg the test angle

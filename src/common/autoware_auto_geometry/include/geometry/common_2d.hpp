@@ -340,6 +340,20 @@ inline float32_t point_line_segment_distance_2d(const T & p, const T & q, const 
   const T pq_r = minus_2d(closest_segment_point_2d(p, q, r), r);
   return norm_2d(pq_r);
 }
+
+/// \brief Make a 2D unit vector given an angle.
+/// \tparam T Point type. Must have point adapters defined or have float members x and y
+/// \param th Angle in radians
+/// \return Unit vector in the direction of the given angle.
+template<typename T>
+inline T make_unit_vector2d(float th)
+{
+  T r;
+  point_adapter::xr_(r) = std::cos(th);
+  point_adapter::yr_(r) = std::sin(th);
+  return r;
+}
+
 }  // namespace geometry
 }  // namespace common
 }  // namespace autoware
