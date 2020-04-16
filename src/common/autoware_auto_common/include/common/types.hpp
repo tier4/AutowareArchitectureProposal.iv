@@ -31,9 +31,9 @@ namespace types
 {
 using bool8_t = bool;
 using char8_t = char;
+using uchar8_t = unsigned char;
 using float32_t = float;
 using float64_t = double;
-using bool8_t = bool;
 
 /// pi = tau / 2
 constexpr float PI = 3.14159265359F;
