@@ -14,7 +14,11 @@
 // limitations under the License.
 
 #include <object_detection/bounding_box_array_display.hpp>
+#include <common/types.hpp>
 #include <memory>
+
+using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
 
 namespace autoware
 {
@@ -96,22 +100,22 @@ visualization_msgs::msg::Marker::SharedPtr BoundingBoxArrayDisplay::get_marker(
       break;
   }
 
-  marker->pose.position.x = static_cast<double>(box.centroid.x);
-  marker->pose.position.y = static_cast<double>(box.centroid.y);
-  marker->pose.position.z = static_cast<double>(box.centroid.z);
-  marker->pose.orientation.x = static_cast<double>(box.orientation.x);
-  marker->pose.orientation.y = static_cast<double>(box.orientation.y);
-  marker->pose.orientation.z = static_cast<double>(box.orientation.z);
-  marker->pose.orientation.w = static_cast<double>(box.orientation.w);
-  marker->scale.y = static_cast<double>(box.size.x);
-  marker->scale.x = static_cast<double>(box.size.y);
-  marker->scale.z = static_cast<double>(box.size.z);
+  marker->pose.position.x = static_cast<float64_t>(box.centroid.x);
+  marker->pose.position.y = static_cast<float64_t>(box.centroid.y);
+  marker->pose.position.z = static_cast<float64_t>(box.centroid.z);
+  marker->pose.orientation.x = static_cast<float64_t>(box.orientation.x);
+  marker->pose.orientation.y = static_cast<float64_t>(box.orientation.y);
+  marker->pose.orientation.z = static_cast<float64_t>(box.orientation.z);
+  marker->pose.orientation.w = static_cast<float64_t>(box.orientation.w);
+  marker->scale.y = static_cast<float64_t>(box.size.x);
+  marker->scale.x = static_cast<float64_t>(box.size.y);
+  marker->scale.z = static_cast<float64_t>(box.size.z);
 
   return marker;
 }
 
 
-void BoundingBoxArrayDisplay::update(float wall_dt, float ros_dt)
+void BoundingBoxArrayDisplay::update(float32_t wall_dt, float32_t ros_dt)
 {
   m_marker_common->update(wall_dt, ros_dt);
 }

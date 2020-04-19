@@ -6,10 +6,13 @@ project(autoware_rviz_plugins)
 
 #dependencies
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_auto REQUIRED)
 find_package(autoware_auto_cmake REQUIRED)
+find_package(autoware_auto_common REQUIRED)
 find_package(autoware_auto_msgs REQUIRED)
 find_package(rviz_common REQUIRED)
 find_package(rviz_default_plugins REQUIRED)
+ament_auto_find_build_dependencies()
 
 set(OD_PLUGIN_LIB_SRC
   src/object_detection/bounding_box_array_display.cpp
@@ -33,7 +36,7 @@ target_link_libraries(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 
 autoware_set_compile_options(${PROJECT_NAME})
-ament_target_dependencies(${PROJECT_NAME} "rviz_common" "rviz_default_plugins" "autoware_auto_msgs")
+ament_target_dependencies(${PROJECT_NAME} "rviz_common" "rviz_default_plugins" "autoware_auto_msgs" "autoware_auto_common")
 
 # Settings to improve the build as suggested on https://github.com/ros2/rviz/blob/ros2/docs/plugin_development.md
 target_compile_definitions(${PROJECT_NAME} PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")

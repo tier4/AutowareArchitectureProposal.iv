@@ -21,7 +21,10 @@
 #include <rviz_default_plugins/displays/marker_array/marker_array_display.hpp>
 #include <autoware_auto_msgs/msg/bounding_box_array.hpp>
 #include <visibility_control.hpp>
+#include <common/types.hpp>
 #include <memory>
+
+using autoware::common::types::float32_t;
 
 namespace autoware
 {
@@ -40,7 +43,7 @@ public:
   BoundingBoxArrayDisplay();
   void onInitialize() override;
   void load(const rviz_common::Config & config) override;
-  void update(float wall_dt, float ros_dt) override;
+  void update(float32_t wall_dt, float32_t ros_dt) override;
   void reset() override;
 
 private:
