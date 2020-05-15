@@ -19,11 +19,13 @@
 
 #include <tf2/convert.h>
 #include <tf2/time.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <autoware_auto_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_msgs/msg/bounding_box.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <autoware_auto_msgs/msg/quaternion32.hpp>
 #include <geometry_msgs/msg/point32.hpp>
+#include <kdl/frames.hpp>
 #include <common/types.hpp>
 #include <string>
 
