@@ -12,6 +12,7 @@ find_package(autoware_auto_common REQUIRED)
 find_package(autoware_auto_msgs REQUIRED)
 find_package(rviz_common REQUIRED)
 find_package(rviz_default_plugins REQUIRED)
+find_package(Qt5 REQUIRED COMPONENTS Widgets)
 ament_auto_find_build_dependencies()
 
 set(OD_PLUGIN_LIB_SRC
@@ -22,16 +23,24 @@ set(OD_PLUGIN_LIB_SRC
 set(OD_PLUGIN_LIB_HEADERS
   include/visibility_control.hpp
   include/object_detection/bounding_box_array_display.hpp
+)
+set(OD_PLUGIN_LIB_HEADERS_TO_WRAP
   include/planning/trajectory_display.hpp
 )
 
+foreach(header "${OD_PLUGIN_LIB_HEADERS_TO_WRAP}")
+  qt5_wrap_cpp(OD_PLUGIN_LIB_HEADERS_MOC "${header}")
+endforeach()
+
 add_library(${PROJECT_NAME} SHARED
   ${OD_PLUGIN_LIB_HEADERS}
+  ${OD_PLUGIN_LIB_HEADERS_MOC}
   ${OD_PLUGIN_LIB_SRC}
 )
 
 target_link_libraries(${PROJECT_NAME}
   rviz_common::rviz_common
+  Qt5::Widgets
 )
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 
