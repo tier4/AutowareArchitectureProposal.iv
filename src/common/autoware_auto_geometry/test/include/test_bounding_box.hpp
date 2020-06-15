@@ -1,5 +1,4 @@
 // Copyright 2017-2019 Apex.AI, Inc.
-// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #ifndef TEST_BOUNDING_BOX_HPP_
 #define TEST_BOUNDING_BOX_HPP_
@@ -118,7 +119,8 @@ protected:
 };  // BoxTest
 
 // Instantiate tests for given types, add more types here as they are used
-using PointTypesBoundingBox = ::testing::Types<geometry_msgs::msg::Point32, autoware::common::types::PointXYZIF>;
+using PointTypesBoundingBox =
+  ::testing::Types<geometry_msgs::msg::Point32, autoware::common::types::PointXYZIF>;
 TYPED_TEST_CASE(BoxTest, PointTypesBoundingBox);
 /// NOTE: This is the older version due to 1.8.0 of GTest. v1.8.1 uses TYPED_TEST_SUITE
 
@@ -516,7 +518,6 @@ TYPED_TEST(BoxTest, eigenbox2)
   diag_corners{this->make(4, 4), this->make(0, 4), this->make(0, -4), this->make(4, -4)};
   // rotating calipers should produce a aabb
   this->minimum_area_bounding_box();
-  const float r = 4.0F;
   this->check(2.0F, 0.0F, 8, 4, 32);
   this->test_corners(diag_corners);
   this->test_orientation(0.0F, 0.001F);
@@ -608,12 +609,12 @@ TYPED_TEST(BoxTest, intersect_fail)
 TYPED_TEST(BoxTest, eig_underflow)
 {
   using autoware::common::geometry::bounding_box::details::Covariance2d;
-  auto discriminant = [](const Covariance2d cov) -> float32_t {
-      // duplicated raw math
-      const float32_t tr_2 = (cov.xx + cov.yy) * 0.5F;
-      const float32_t det = (cov.xx * cov.yy) - (cov.xy * cov.xy);
-      return (tr_2 * tr_2) - det;
-    };
+  // auto discriminant = [](const Covariance2d cov) -> float32_t {
+  //     // duplicated raw math
+  //     const float32_t tr_2 = (cov.xx + cov.yy) * 0.5F;
+  //     const float32_t det = (cov.xx * cov.yy) - (cov.xy * cov.xy);
+  //     return (tr_2 * tr_2) - det;
+  //   };
   TypeParam u, v;
   const Covariance2d c1{0.0300002, 0.0300002, 5.46677e-08, 0U};
   // EXPECT_LT(discriminant(c1), 0.0F);

@@ -1,5 +1,4 @@
 // Copyright 2019 Apex.AI, Inc.
-// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#ifndef TEST_SPATIAL_HASH_H_
-#define TEST_SPATIAL_HASH_H_
+#ifndef TEST_SPATIAL_HASH_HPP_
+#define TEST_SPATIAL_HASH_HPP_
 
 #include <geometry_msgs/msg/point32.hpp>
+#include <vector>
+#include <limits>
 #include "geometry/spatial_hash.hpp"
 
 using autoware::common::types::float32_t;
@@ -229,17 +232,24 @@ TEST(SpatialHashConfig, bad_cases)
   // min_y >= max_y
   EXPECT_THROW(Config2d({-30.0F, 30.0F, 30.1F, 30.0F, 1.0F, 1024U}), std::domain_error);
   // min_z >= max_z
-  EXPECT_THROW(Config3d({-30.0F, 30.0F, -30.0F, 30.0F, 31.0F, 30.0F, 1.0F, 1024U}), std::domain_error);
+  EXPECT_THROW(Config3d({-30.0F, 30.0F, -30.0F, 30.0F, 31.0F, 30.0F, 1.0F, 1024U}),
+    std::domain_error);
   // floating point limit
   constexpr float32_t max_float = std::numeric_limits<float32_t>::max();
   EXPECT_THROW(Config2d({-max_float, max_float, -30.0F, 30.0F, 1.0F, 1024U}), std::domain_error);
-  EXPECT_THROW(Config3d({-30.0F, 30.0F, -max_float, max_float, -30.0F, 30.0F, 1.0F, 1024U}), std::domain_error);
-  EXPECT_THROW(Config3d({-30.0F, 30.0F, -30.0F, 30.0F, -max_float, max_float, 1.0F, 1024U}), std::domain_error);
+  EXPECT_THROW(Config3d({-30.0F, 30.0F, -max_float, max_float, -30.0F, 30.0F, 1.0F, 1024U}),
+    std::domain_error);
+  EXPECT_THROW(Config3d({-30.0F, 30.0F, -30.0F, 30.0F, -max_float, max_float, 1.0F, 1024U}),
+    std::domain_error);
   // y would overflow
-  // constexpr float32_t big_float = static_cast<float32_t>(std::numeric_limits<uint64_t>::max() / 4UL);
-  // EXPECT_THROW(Config({-big_float, big_float, -big_float, big_float, 0.001F, 1024U}), std::domain_error);
+  // constexpr float32_t big_float =
+  //   static_cast<float32_t>(std::numeric_limits<uint64_t>::max() / 4UL);
+  // EXPECT_THROW(Config({-big_float, big_float, -big_float, big_float, 0.001F, 1024U}),
+  //   std::domain_error);
   // z would overflow
-  // EXPECT_THROW(Config3d({-30.0F, 30.0F, -99999.0F, 99999.0F, -99999.0F, 99999.0F, 0.001F, 1024U}), std::domain_error);
+  // EXPECT_THROW(
+  //   Config3d({-30.0F, 30.0F, -99999.0F, 99999.0F, -99999.0F, 99999.0F, 0.001F, 1024U}),
+  //   std::domain_error);
   // TODO(c.ho) re-enable test when we can actually check unsigned integer multiplication overflow
 }
-#endif  // TEST_SPATIAL_HASH_H_
+#endif  // TEST_SPATIAL_HASH_HPP_

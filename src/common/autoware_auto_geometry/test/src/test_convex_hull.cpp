@@ -1,5 +1,4 @@
 // Copyright 2017-2019 Apex.AI, Inc.
-// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,9 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <gtest/gtest.h>
 #include <geometry_msgs/msg/point32.hpp>
+#include <list>
+#include <vector>
 #include "geometry/convex_hull.hpp"
 
 using autoware::common::types::float32_t;
@@ -46,7 +49,7 @@ protected:
         constexpr float32_t TOL = 1.0E-6F;
         if (fabsf(pt.x - it->x) <= TOL &&
           fabsf(pt.y - it->y) <= TOL &&
-          (fabsf(pt.z - it->z) <= TOL || !strict))  // TODO z if only strict
+          (fabsf(pt.z - it->z) <= TOL || !strict))  // TODO(@estive): z if only strict
         {
           found = true;
           break;
@@ -94,9 +97,9 @@ TYPED_TEST(TypedConvexHullTest, triangle)
   ASSERT_EQ(this->list.size(), 3U);
   // check order
   auto it = this->list.begin();
-  ASSERT_FLOAT_EQ(it->x, 1); ++it; // node 1
-  ASSERT_FLOAT_EQ(it->x, 3); ++it; // node 2
-  ASSERT_FLOAT_EQ(it->x, 2); ++it; // node 3
+  ASSERT_FLOAT_EQ(it->x, 1); ++it;  // node 1
+  ASSERT_FLOAT_EQ(it->x, 3); ++it;  // node 2
+  ASSERT_FLOAT_EQ(it->x, 2); ++it;  // node 3
   ASSERT_EQ(it, last);
 }
 /*
@@ -121,10 +124,10 @@ TYPED_TEST(TypedConvexHullTest, quadrilateral)
 
   // check for order
   auto it = this->list.begin();
-  ASSERT_FLOAT_EQ(it->x, -6); ++it; // node 4
-  ASSERT_FLOAT_EQ(it->x, -2); ++it; // node 3
-  ASSERT_FLOAT_EQ(it->x, -1); ++it; // node 1
-  ASSERT_FLOAT_EQ(it->x, -5); ++it; // node 2
+  ASSERT_FLOAT_EQ(it->x, -6); ++it;  // node 4
+  ASSERT_FLOAT_EQ(it->x, -2); ++it;  // node 3
+  ASSERT_FLOAT_EQ(it->x, -1); ++it;  // node 1
+  ASSERT_FLOAT_EQ(it->x, -5); ++it;  // node 2
   ASSERT_EQ(it, last);
 }
 
@@ -147,10 +150,10 @@ TYPED_TEST(TypedConvexHullTest, quadhull)
 
   // check for order
   auto it = this->list.begin();
-  ASSERT_FLOAT_EQ(it->x, 1); ++it; // node 1
-  ASSERT_FLOAT_EQ(it->x, 5); ++it; // node 2
-  ASSERT_FLOAT_EQ(it->x, 6); ++it; // node 4
-  ASSERT_FLOAT_EQ(it->x, 2); ++it; // node 3
+  ASSERT_FLOAT_EQ(it->x, 1); ++it;  // node 1
+  ASSERT_FLOAT_EQ(it->x, 5); ++it;  // node 2
+  ASSERT_FLOAT_EQ(it->x, 6); ++it;  // node 4
+  ASSERT_FLOAT_EQ(it->x, 2); ++it;  // node 3
   ASSERT_EQ(it, last);
 }
 
@@ -160,7 +163,7 @@ TYPED_TEST(TypedConvexHullTest, hull)
 {
   const uint32_t HULL_SIZE = 13U;
   const uint32_t FUZZ_SIZE = 50U;
-  const float32_t dth = 1.133729384F; // some weird irrational(ish) number
+  const float32_t dth = 1.133729384F;  // some weird irrational(ish) number
   const float32_t r_hull = 20.0F;
   const float32_t r_fuzz = 10.0F;
   ASSERT_LT(r_fuzz, r_hull);
@@ -229,7 +232,7 @@ TYPED_TEST(TypedConvexHullTest, collinear)
     this->make(1, 0, 6),
     this->make(1, 2, 5),
     this->make(1, 1, 0)
-    });
+  });
   const std::vector<TypeParam> expect{{data[0], data[2], data[3], data[5]}};
   this->list.insert(this->list.begin(), data.begin(), data.end());
 
@@ -240,10 +243,10 @@ TYPED_TEST(TypedConvexHullTest, collinear)
 
   // check for order
   auto it = this->list.begin();
-  ASSERT_FLOAT_EQ(it->z, 1); ++it; // node 1
-  ASSERT_FLOAT_EQ(it->z, 3); ++it; // node 1
-  ASSERT_FLOAT_EQ(it->z, 7); ++it; // node 2
-  ASSERT_FLOAT_EQ(it->z, 4); ++it; // node 3
+  ASSERT_FLOAT_EQ(it->z, 1); ++it;  // node 1
+  ASSERT_FLOAT_EQ(it->z, 3); ++it;  // node 1
+  ASSERT_FLOAT_EQ(it->z, 7); ++it;  // node 2
+  ASSERT_FLOAT_EQ(it->z, 4); ++it;  // node 3
   ASSERT_EQ(it, last);
 }
 
@@ -273,12 +276,12 @@ TYPED_TEST(TypedConvexHullTest, overlapping_points)
 TYPED_TEST(TypedConvexHullTest, line)
 {
   std::vector<TypeParam> data({
-    this->make(-3 ,  3, 1),
-    this->make(-2 ,  2, 2),
-    this->make(-1 ,  1, 3),
-    this->make(-8 ,  8, 4),
-    this->make(-6 ,  6, 8),
-    this->make(-4 ,  4, 7),
+    this->make(-3, 3, 1),
+    this->make(-2, 2, 2),
+    this->make(-1, 1, 3),
+    this->make(-8, 8, 4),
+    this->make(-6, 6, 8),
+    this->make(-4, 4, 7),
     this->make(-10, 10, 6),
     this->make(-12, 12, 5),
     this->make(-11, 11, 0)
@@ -293,8 +296,8 @@ TYPED_TEST(TypedConvexHullTest, line)
 
   // check for order: this part is a little loose
   auto it = this->list.begin();
-  ASSERT_FLOAT_EQ(it->z, 5); ++it; // node 8
-  ASSERT_FLOAT_EQ(it->z, 3); ++it; // node 3
+  ASSERT_FLOAT_EQ(it->z, 5); ++it;  // node 8
+  ASSERT_FLOAT_EQ(it->z, 3); ++it;  // node 3
   ASSERT_EQ(it, last);
 }
 
@@ -308,10 +311,10 @@ TYPED_TEST(TypedConvexHullTest, line)
 TYPED_TEST(TypedConvexHullTest, lower_hull)
 {
   const std::vector<TypeParam> data({
-    this->make(1,  3, 1),
+    this->make(1, 3, 1),
     this->make(2, -2, 2),
     this->make(3, -1, 3),
-    this->make(4,  1, 4),
+    this->make(4, 1, 4),
   });
   this->list.insert(this->list.begin(), data.begin(), data.end());
 
@@ -339,12 +342,12 @@ TYPED_TEST(TypedConvexHullTest, lower_hull)
 TYPED_TEST(TypedConvexHullTest, root)
 {
   const std::vector<TypeParam> data({
-    this->make(0,  0, 1),
+    this->make(0, 0, 1),
     this->make(1, -1, 2),
     this->make(3, -2, 3),
-    this->make(4,  0, 4),
-    this->make(3,  1, 5),
-    this->make(1,  0, 6),
+    this->make(4, 0, 4),
+    this->make(3, 1, 5),
+    this->make(1, 0, 6),
   });
   const std::vector<TypeParam> expect{{data[0], data[1], data[2], data[3], data[4]}};
   this->list.insert(this->list.begin(), data.begin(), data.end());
@@ -366,4 +369,3 @@ TYPED_TEST(TypedConvexHullTest, root)
 }
 
 // TODO(c.ho) random input, fuzzing, stress tests
-
