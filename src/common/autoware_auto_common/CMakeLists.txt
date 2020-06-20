@@ -17,14 +17,24 @@ cmake_minimum_required(VERSION 3.5)
 ### Export headers
 project(autoware_auto_common)
 
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
 ## dependencies
-find_package(ament_cmake REQUIRED)
-find_package(autoware_auto_cmake REQUIRED)
-find_package(motion_common REQUIRED) # TODO ament_auto
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
 if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+
   # Unit tests
-  find_package(ament_cmake_gtest REQUIRED)
   set(TEST_COMMON test_common_gtest)
   ament_add_gtest(${TEST_COMMON}
           test/gtest_main.cpp
@@ -34,12 +44,7 @@ if(BUILD_TESTING)
   target_include_directories(${TEST_COMMON} PRIVATE include)
   target_link_libraries(${TEST_COMMON} ${TEST_LIB} util)
   ament_target_dependencies(${TEST_COMMON} motion_common)
-
-  # run linters
-  autoware_static_code_analysis()
 endif()
 
 # Ament Exporting
-ament_export_dependencies(motion_common)
-autoware_install(HAS_INCLUDE)
-ament_package()
+ament_auto_package()

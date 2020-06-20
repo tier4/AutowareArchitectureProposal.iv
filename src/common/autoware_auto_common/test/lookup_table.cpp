@@ -1,5 +1,4 @@
 // Copyright 2017-2020 Apex.AI, Inc.
-// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,24 +11,29 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <gtest/gtest.h>
 
 #include <helper_functions/lookup_table.hpp>
+#include <common/types.hpp>
 
 #include <memory>
 #include <vector>
 
 using autoware::common::helper_functions::lookup_1d;
 using autoware::common::helper_functions::LookupTable1D;
+using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
 
 template<typename T>
 class bad_case : public ::testing::Test
 {
 };
 
-using BadTypes = ::testing::Types<float, double, int32_t, uint32_t>;
-TYPED_TEST_CASE(bad_case, BadTypes);
+using BadTypes = ::testing::Types<float32_t, float64_t, int32_t, uint32_t>;
+TYPED_TEST_CASE(bad_case, BadTypes, );
 
 // Empty domain/range
 TYPED_TEST(bad_case, empty)
@@ -87,8 +91,8 @@ protected:
   std::unique_ptr<LookupTable1D<Type>> table_{};
 };
 
-using NormalTypes = ::testing::Types<float, double, int32_t, uint32_t>;
-TYPED_TEST_CASE(sanity_check, NormalTypes);
+using NormalTypes = ::testing::Types<float32_t, float64_t, int32_t, uint32_t>;
+TYPED_TEST_CASE(sanity_check, NormalTypes, );
 
 TYPED_TEST(sanity_check, exact)
 {

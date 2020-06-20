@@ -1,5 +1,4 @@
 // Copyright 2019 Apex.AI, Inc.
-// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,9 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+#include <vector>
 #include "gtest/gtest.h"
 #include "helper_functions/byte_reader.hpp"
+#include "common/types.hpp"
+
+using autoware::common::types::float64_t;
 
 namespace
 {
@@ -24,7 +29,7 @@ class byte_reader : public ::testing::Test
 }  // namespace
 
 
-//tests serial_driver_node's get_packet function which receives serial packages
+// tests serial_driver_node's get_packet function which receives serial packages
 TEST_F(byte_reader, basic)
 {
   std::vector<uint8_t> data = {
@@ -35,9 +40,9 @@ TEST_F(byte_reader, basic)
 
   uint32_t a = 0;
   byte_reader.read(a);
-  ASSERT_EQ(a, 23);
+  ASSERT_EQ(a, 23U);
 
-  double b = 0;
+  float64_t b = 0;
   byte_reader.read(b);
   ASSERT_EQ(b, 12.34);
 
