@@ -38,6 +38,8 @@ if(BUILD_TESTING)
   set(TEST_COMMON test_common_gtest)
   ament_add_gtest(${TEST_COMMON}
           test/gtest_main.cpp
+          test/test_float_comparisons.cpp
+          test/test_bool_comparisons.cpp
           test/lookup_table.cpp
           test/test_byte_reader.cpp
           test/test_message_field_adapters.cpp)
