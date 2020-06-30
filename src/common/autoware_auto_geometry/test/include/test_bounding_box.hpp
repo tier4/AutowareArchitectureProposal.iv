@@ -24,11 +24,8 @@
 
 #include "geometry/bounding_box/rotating_calipers.hpp"
 #include "geometry/bounding_box/lfit.hpp"
-#include "helper_functions/helper_functions.hpp"
 
 using autoware_auto_msgs::msg::BoundingBox;
-using autoware::common::helper_functions::angle_distance_deg;
-using autoware::common::helper_functions::rad2deg;
 using autoware::common::geometry::point_adapter::x_;
 using autoware::common::geometry::point_adapter::y_;
 using autoware::common::geometry::point_adapter::xr_;
@@ -102,6 +99,18 @@ protected:
       }
       ASSERT_TRUE(found) << idx << ": " << box.corners[idx].x << ", " << box.corners[idx].y;
     }
+  }
+
+  /// \brief th_deg - phi_deg, normalized to +/- 180 deg
+  float32_t angle_distance_deg(const float th_deg, const float phi_deg) const
+  {
+    return fmodf((th_deg - phi_deg) + 540.0F, 360.0F) - 180.0F;
+  }
+
+  /// \brief converts a radian value to a degree value
+  float32_t rad2deg(const float rad_val) const
+  {
+    return rad_val * 57.2958F;
   }
 
   void test_orientation(
@@ -253,7 +262,7 @@ TYPED_TEST(BoxTest, hull)
       this->make(dx + rx, dy - ry)},
     TOL_M);
 
-  this->test_orientation(autoware::common::helper_functions::rad2deg(dth), 1.0F);
+  this->test_orientation(this->rad2deg(dth), 1.0F);
   // allow 1 degree of tolerance
 
   ASSERT_LT(fabsf(this->box.size.y - 2.0F * rx), TOL_M);
@@ -304,14 +313,14 @@ TYPED_TEST(BoxTest, line1)
   this->minimum_area_bounding_box();
 
   this->check(-20.0F, 15.0F, 1.0E-6F, 40.0F, 4.0E-5F);
-  this->test_orientation(autoware::common::helper_functions::rad2deg(atan2f(3, -4)));
+  this->test_orientation(this->rad2deg(atan2f(3, -4)));
   this->test_corners({this->make(-4, 3), this->make(-30, 27), this->make(-4, 3), this->make(-36,
       27)});
 
   this->minimum_perimeter_bounding_box();
 
   this->check(-20.0F, 15.0F, 1.0E-6F, 40.0F, 40.00001F);
-  this->test_orientation(autoware::common::helper_functions::rad2deg(atan2f(3, -4)));
+  this->test_orientation(this->rad2deg(atan2f(3, -4)));
   this->test_corners({this->make(-4, 3), this->make(-30, 27), this->make(-4, 3), this->make(-36,
       27)});
 }
@@ -356,7 +365,7 @@ TYPED_TEST(BoxTest, line3)
   this->minimum_area_bounding_box();
 
   this->check(20.0F, 15.0F, 1.0E-6F, 40.0F, 4.0E-5F);
-  this->test_orientation(autoware::common::helper_functions::rad2deg(atan2f(3, 4)));
+  this->test_orientation(this->rad2deg(atan2f(3, 4)));
   this->test_corners({this->make(4, 3), this->make(36, 27), this->make(4, 3), this->make(36, 27)});
 }
 
@@ -376,7 +385,7 @@ TYPED_TEST(BoxTest, subopt_init)
   this->minimum_area_bounding_box();
 
   this->check(12.5F, 7.5F, 15.0F, 25.0F, 375.0F);
-  this->test_orientation(autoware::common::helper_functions::rad2deg(atan2f(15, 8)));
+  this->test_orientation(this->rad2deg(atan2f(15, 8)));
   // these are approximate.
   this->test_corners({this->make(0, 0), this->make(25, 15),
       this->make(11.7647F, 22.0588F), this->make(13.2353F, -7.05882F)},
