@@ -7,7 +7,8 @@
   <maintainer email="opensource@apex.ai">Apex.AI, Inc.</maintainer>
   <license>Apache 2.0</license>
 
-  <buildtool_depend>ament_cmake_core</buildtool_depend>
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
+  <buildtool_depend>ament_cmake_lint_cmake</buildtool_depend>
 
   <buildtool_export_depend>ament_cmake_core</buildtool_export_depend>
   <buildtool_export_depend>ament_cmake_lint_cmake</buildtool_export_depend>
