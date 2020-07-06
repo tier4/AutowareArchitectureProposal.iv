@@ -14,4 +14,3 @@
 # limitations under the License.
 
 include("${autoware_auto_cmake_DIR}/autoware_auto_cmake.cmake")
-include("${autoware_auto_cmake_DIR}/autoware_install.cmake")

@@ -87,21 +87,3 @@ else()
   endif()
 endif()
 endfunction()
-
-### Apply ament linters
-macro(autoware_static_code_analysis)
-    find_package(ament_cmake_lint_cmake REQUIRED)
-    find_package(ament_cmake_copyright REQUIRED)
-    find_package(ament_cmake_cppcheck REQUIRED)
-    find_package(ament_cmake_cpplint REQUIRED)
-    find_package(ament_cmake_uncrustify REQUIRED)
-
-    # by default add 'src' and 'include'
-    set(LINT_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/src")
-    # Disabled until Apex.AI + TierIV copyright can be properly linted
-    # ament_copyright(${LINT_DIRECTORIES} "${CMAKE_CURRENT_SOURCE_DIR}/test")
-    ament_cppcheck(${LINT_DIRECTORIES} LANGUAGE "c++")
-    ament_cpplint(${LINT_DIRECTORIES})
-    ament_lint_cmake(${CMAKE_CURRENT_SOURCE_DIR})
-    ament_uncrustify(${LINT_DIRECTORIES})
-endmacro()
