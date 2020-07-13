@@ -53,6 +53,7 @@ if(BUILD_TESTING)
   set(GEOMETRY_GTEST geometry_gtest)
   set(GEOMETRY_SRC test/src/test_geometry.cpp
     test/src/test_convex_hull.cpp
+    test/src/test_interval.cpp
   )
   ament_add_gtest(${GEOMETRY_GTEST} ${GEOMETRY_SRC})
   target_include_directories(${GEOMETRY_GTEST} PRIVATE "test/include" "include")
