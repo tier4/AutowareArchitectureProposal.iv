@@ -10,10 +10,10 @@
   <arg name="enable_slope_compensation" default="false" />
   <arg name="enable_pub_debug" default="true" />
 
-
+  <arg name="velocity_controller_param_path" default="$(find velocity_controller)/config/velocity_controller_param.yaml" />
 
   <node pkg="velocity_controller" type="velocity_controller" name="velocity_controller" output="screen">
-    <rosparam command="load" file="$(find velocity_controller)/config/velocity_controller_param.yaml" />
+    <rosparam command="load" file="$(arg velocity_controller_param_path)" />
 
     <remap from="~current_velocity" to="/localization/twist"/>
     <remap from="~control_cmd" to="longitudinal/control_cmd"/>
