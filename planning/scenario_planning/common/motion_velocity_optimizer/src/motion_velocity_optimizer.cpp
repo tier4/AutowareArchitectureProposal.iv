@@ -164,6 +164,8 @@ void MotionVelocityOptimizer::updateCurrentPose()
 
 void MotionVelocityOptimizer::run()
 {
+  std::lock_guard<std::mutex> lock(mutex_);
+
   auto t_start = std::chrono::system_clock::now();
   ROS_DEBUG("============================== run() start ==============================");
 

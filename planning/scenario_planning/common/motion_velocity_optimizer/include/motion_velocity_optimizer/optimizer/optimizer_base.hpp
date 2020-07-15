@@ -26,6 +26,11 @@ public:
     const double initial_vel, const double initial_acc, const int closest,
     const autoware_planning_msgs::Trajectory & input,
     autoware_planning_msgs::Trajectory * output) = 0;
+
+  virtual void setAccel(const double max_accel) = 0;
+
+  virtual void setDecel(const double min_decel) = 0;
+
 };
 
 #endif  // MOTION_VELOCITY_OPTIMIZER_OPTIMIZER_BASE_HPP

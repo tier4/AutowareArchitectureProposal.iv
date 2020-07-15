@@ -43,6 +43,10 @@ public:
     const autoware_planning_msgs::Trajectory & input,
     autoware_planning_msgs::Trajectory * output) override;
 
+  void setAccel(const double max_accel) override;
+
+  void setDecel(const double min_decel) override;
+
 private:
   OptimizerParam param_;
   osqp::OSQPInterface qp_solver_;

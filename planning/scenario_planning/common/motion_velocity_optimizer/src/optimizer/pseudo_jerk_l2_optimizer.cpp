@@ -24,6 +24,16 @@ L2PseudoJerkOptimizer::L2PseudoJerkOptimizer(const L2PseudoJerkOptimizer::Optimi
   param_ = p;
 }
 
+void L2PseudoJerkOptimizer::setAccel(const double max_accel)
+{
+  param_.max_accel = max_accel;
+}
+
+void L2PseudoJerkOptimizer::setDecel(const double min_decel)
+{
+  param_.min_decel = min_decel;
+}
+
 bool L2PseudoJerkOptimizer::solve(
   const double initial_vel, const double initial_acc, const int closest,
   const autoware_planning_msgs::Trajectory & input, autoware_planning_msgs::Trajectory * output)

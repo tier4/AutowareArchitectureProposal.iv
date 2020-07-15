@@ -24,6 +24,7 @@
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <string>
+#include <mutex>
 
 #include <dynamic_reconfigure/server.h>
 #include <motion_velocity_optimizer/MotionVelocityOptimizerConfig.h>
@@ -48,6 +49,7 @@ private:
   tf2_ros::Buffer tf_buffer_;                    //!< @brief tf butter
   tf2_ros::TransformListener tf_listener_;       //!< @brief tf listener
   ros::Timer timer_;
+  std::mutex mutex_;
 
   geometry_msgs::PoseStamped::ConstPtr current_pose_ptr_;           // current vehicle pose
   geometry_msgs::TwistStamped::ConstPtr current_velocity_ptr_;      // current vehicle twist
@@ -153,6 +155,7 @@ private:
   void dynamicRecofCallback(
     motion_velocity_optimizer::MotionVelocityOptimizerConfig & config, uint32_t level)
   {
+    std::lock_guard<std::mutex> lock(mutex_);
     planning_param_.max_velocity = config.max_velocity;
     planning_param_.max_accel = config.max_accel;
     planning_param_.min_decel = config.min_decel;
@@ -174,6 +177,9 @@ private:
     planning_param_.max_trajectory_length = config.max_trajectory_length;
     planning_param_.min_trajectory_length = config.min_trajectory_length;
     planning_param_.min_trajectory_interval_distance = config.min_trajectory_interval_distance;
+
+    optimizer_->setAccel(config.max_accel);
+    optimizer_->setDecel(config.min_decel);
   }
 
   /* debug */
