@@ -16,6 +16,7 @@
   <depend>geometry_msgs</depend>
   <depend>autoware_planning_msgs</depend>
   <depend>autoware_control_msgs</depend>
+  <depend>dynamic_reconfigure</depend>
 
   <buildtool_depend>catkin</buildtool_depend>
 

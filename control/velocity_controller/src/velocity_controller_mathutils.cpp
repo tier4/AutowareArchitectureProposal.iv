@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "velocity_controller_mathutils.h"
+#include <velocity_controller/velocity_controller_mathutils.h>
 
 namespace vcutils
 {

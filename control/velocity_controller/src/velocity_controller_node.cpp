@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "velocity_controller.h"
+#include <velocity_controller/velocity_controller.h>
 
 int main(int argc, char * argv[])
 {

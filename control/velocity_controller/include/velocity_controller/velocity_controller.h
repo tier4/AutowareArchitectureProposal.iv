@@ -18,6 +18,8 @@
 #define AUTOWARE_CONTROL_VELOCITY_CONTROLLER_H
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
@@ -38,6 +40,9 @@
 #include "lowpass_filter.h"
 #include "pid.h"
 #include "velocity_controller_mathutils.h"
+
+#include <dynamic_reconfigure/server.h>
+#include "velocity_controller/VelocityControllerConfig.h"
 
 struct CtrlCmd
 {
@@ -121,8 +126,12 @@ private:
   // velocity feedback
   double current_vel_threshold_pid_integrate_;
 
-  //buffer of send command
+  // buffer of send command
   std::vector<autoware_control_msgs::ControlCommandStamped> ctrl_cmd_vec_;
+
+  // dynamic reconfigure
+  dynamic_reconfigure::Server<velocity_controller::VelocityControllerConfig>
+    dynamic_reconfigure_srv_;
 
   // controller mode (0: init check, 1: PID, 2: Stop, 3: Smooth stop, 4: Emergency stop, 5: Error)
   enum class ControlMode {
@@ -169,6 +178,8 @@ private:
   void callbackCurrentVelocity(const geometry_msgs::TwistStamped::ConstPtr & msg);
   void callbackTrajectory(const autoware_planning_msgs::TrajectoryConstPtr & msg);
   void callbackTimerControl(const ros::TimerEvent & event);
+  void callbackConfig(
+    const velocity_controller::VelocityControllerConfig & config, const uint32_t level);
 
   bool updateCurrentPose(const double timeout_sec);
   bool getCurretPoseFromTF(const double timeout_sec, geometry_msgs::PoseStamped & ps);

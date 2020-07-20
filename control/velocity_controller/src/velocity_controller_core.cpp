@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "velocity_controller.h"
+#include <velocity_controller/velocity_controller.h>
 
 VelocityController::VelocityController()
 : nh_(""),
@@ -92,6 +92,10 @@ VelocityController::VelocityController()
   pub_debug_ = pnh_.advertise<std_msgs::Float32MultiArray>("debug_values", 1);
   timer_control_ = nh_.createTimer(
     ros::Duration(1.0 / control_rate_), &VelocityController::callbackTimerControl, this);
+
+  // dynamic reconfigure
+  dynamic_reconfigure_srv_.setCallback(
+    boost::bind(&VelocityController::callbackConfig, this, _1, _2));
 
   // initialize PID gain
   {
@@ -204,6 +208,61 @@ void VelocityController::callbackTimerControl(const ros::TimerEvent & event)
 
   /* reset parameters depending on the current control mode */
   resetHandling(controller_mode_);
+}
+
+void VelocityController::callbackConfig(
+  const velocity_controller::VelocityControllerConfig & config, const uint32_t level)
+{
+  // closest waypoint threshold
+  closest_dist_thr_ = config.closest_waypoint_distance_threshold;
+  closest_angle_thr_ = config.closest_waypoint_angle_threshold;
+
+  // stop state
+  stop_state_vel_ = config.stop_state_velocity;
+  stop_state_acc_ = config.stop_state_acc;
+  stop_state_entry_ego_speed_ = config.stop_state_entry_ego_speed;
+  stop_state_entry_target_speed_ = config.stop_state_entry_target_speed;
+
+  // delay compensation
+  delay_compensation_time_ = config.delay_compensation_time;
+
+  // emergency stop by this controller
+  emergency_stop_acc_ = config.emergency_stop_acc;
+  emergency_stop_jerk_ = config.emergency_stop_jerk;
+
+  // smooth stop
+  smooth_stop_param_.exit_ego_speed = config.exit_ego_speed;
+  smooth_stop_param_.entry_ego_speed = config.entry_ego_speed;
+  smooth_stop_param_.exit_target_speed = config.exit_target_speed;
+  smooth_stop_param_.entry_target_speed = config.entry_target_speed;
+  smooth_stop_param_.weak_brake_time = config.weak_brake_time;
+  smooth_stop_param_.weak_brake_acc = config.weak_brake_acc;
+  smooth_stop_param_.increasing_brake_time = config.increasing_brake_time;
+  smooth_stop_param_.increasing_brake_gradient = config.increasing_brake_gradient;
+  smooth_stop_param_.stop_brake_time = config.stop_brake_time;
+  smooth_stop_param_.stop_brake_acc = config.stop_brake_acc;
+
+  // acceleration limit
+  max_acc_ = config.max_acc;
+  min_acc_ = config.min_acc;
+
+  // jerk limit
+  max_jerk_ = config.max_jerk;
+  min_jerk_ = config.min_jerk;
+
+  // slope compensation
+  max_pitch_rad_ = config.max_pitch_rad;
+  min_pitch_rad_ = config.min_pitch_rad;
+  current_vel_threshold_pid_integrate_ = config.current_velocity_threshold_pid_integration;
+
+  lpf_pitch_.init(config.lpf_pitch_gain);
+
+  // velocity feedback
+  pid_vel_.setGains(config.kp, config.ki, config.kd);
+  pid_vel_.setLimits(
+    config.max_out, config.min_out, config.max_p_effort, config.min_p_effort, config.max_i_effort,
+    config.min_i_effort, config.max_d_effort, config.min_d_effort);
+  lpf_vel_error_.init(config.lpf_velocity_error_gain);
 }
 
 CtrlCmd VelocityController::calcCtrlCmd()
@@ -362,15 +421,15 @@ void VelocityController::resetHandling(const ControlMode control_mode)
 
 void VelocityController::storeAccelCmd(const double accel)
 {
-  //convert format
+  // convert format
   autoware_control_msgs::ControlCommandStamped cmd;
   cmd.header.stamp = ros::Time::now();
   cmd.control.acceleration = accel;
 
-  //store published ctrl cmd
+  // store published ctrl cmd
   ctrl_cmd_vec_.emplace_back(cmd);
 
-  //remove unused ctrl cmd
+  // remove unused ctrl cmd
   if (ctrl_cmd_vec_.size() <= 2) {
     return;
   }
@@ -466,7 +525,7 @@ double VelocityController::calcFilteredAcc(
     applyRateFilter(acc_max_filtered, prev_acc_cmd_, dt, max_jerk_, min_jerk_);
   debug_values_.data.at(DBGVAL::ACCCMD_JERK_LIMITED) = acc_jerk_filtered;
 
-  //store ctrl cmd without slope filter
+  // store ctrl cmd without slope filter
   storeAccelCmd(acc_jerk_filtered);
 
   double acc_slope_filtered = applySlopeCompensation(acc_jerk_filtered, pitch, shift);
@@ -540,7 +599,7 @@ double VelocityController::calcStopDistance(
 
   // search forward
   if (std::fabs(origin_velocity) > zero_velocity) {
-    for (int i = origin + 1; i < (int)trajectory.points.size() - 1; ++i) {
+    for (int i = origin + 1; i < static_cast<int>(trajectory.points.size()) - 1; ++i) {
       const auto & p0 = trajectory.points.at(i);
       const auto & p1 = trajectory.points.at(i - 1);
       stop_dist += vcutils::calcDistance2D(p0.pose, p1.pose);
@@ -568,7 +627,7 @@ double VelocityController::predictedVelocityInTargetPoint(
 {
   if (ctrl_cmd_vec_.size() == 0) {
     const double pred_vel = current_vel + closest_acc * delay_compensation_time;
-    //avoid to change sign of current_vel and pred_vel
+    // avoid to change sign of current_vel and pred_vel
     return current_vel * pred_vel > 0 ? pred_vel : 0.0;
   }
 
@@ -578,10 +637,10 @@ double VelocityController::predictedVelocityInTargetPoint(
   for (int i = 0; i < ctrl_cmd_vec_.size(); i++) {
     if ((ros::Time::now() - ctrl_cmd_vec_.at(i).header.stamp).toSec() < delay_compensation_time_) {
       if (i == 0) {
-        //lack of data
+        // lack of data
         return current_vel + ctrl_cmd_vec_.at(i).control.acceleration * delay_compensation_time;
       }
-      //add velocity to accel * dt
+      // add velocity to accel * dt
       const double current_acc = ctrl_cmd_vec_.at(i - 1).control.acceleration;
       const double time_to_next_acc = std::min(
         ctrl_cmd_vec_.at(i).header.stamp.toSec() - ctrl_cmd_vec_.at(i - 1).header.stamp.toSec(),
@@ -595,7 +654,7 @@ double VelocityController::predictedVelocityInTargetPoint(
     (ros::Time::now() - ctrl_cmd_vec_.at(ctrl_cmd_vec_.size() - 1).header.stamp).toSec();
   pred_vel += last_acc * time_to_current;
 
-  //avoid to change sign of current_vel and pred_vel
+  // avoid to change sign of current_vel and pred_vel
   return current_vel * pred_vel > 0 ? pred_vel : 0.0;
 }
 
@@ -633,7 +692,7 @@ double VelocityController::calcInterpolatedTargetValue(
       return closest_value;
     }
     closest_second = 1;
-  } else if (closest == (int)traj.points.size() - 1) {
+  } else if (closest == static_cast<int>(traj.points.size()) - 1) {
     if (rel_pos.x * current_vel >= 0.0) {
       return closest_value;
     }

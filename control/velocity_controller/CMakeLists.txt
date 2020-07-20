@@ -13,6 +13,11 @@ find_package(
   geometry_msgs
   autoware_planning_msgs
   autoware_control_msgs
+  dynamic_reconfigure
+)
+
+generate_dynamic_reconfigure_options(
+  cfg/VelocityController.cfg
 )
 
 catkin_package(
@@ -31,7 +36,7 @@ catkin_package(
 ###########
 
 include_directories(
-  include/velocity_controller
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
