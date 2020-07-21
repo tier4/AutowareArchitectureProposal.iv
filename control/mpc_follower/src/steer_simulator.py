@@ -6,11 +6,11 @@ import math
 from autoware_vehicle_msgs.msg import VehicleCommand
 from autoware_vehicle_msgs.msg import Steering
 
-# delay_compensation_time = 0.2 #TODO: ->rosparam (subscribe?)
-# steer_tau = 0.35 #TODO ->rosparam (subscribe?)
 
-delay_compensation_time = rospy.get_param("/control/mpc_follower/input_delay")
-steer_tau = rospy.get_param("/control/mpc_follower/vehicle_model_steer_tau")
+def wait_for_param(key):
+    while not rospy.has_param(key):
+        rospy.loginfo("waiting for parameter: {}".format(key))
+        rospy.sleep(1.0)
 
 
 class SimulateSteer():
@@ -20,17 +20,25 @@ class SimulateSteer():
         self.current_time = None
         self.command_array = []
 
+        input_delay_param_name = rospy.get_param("~mpc_input_delay_param")
+        steer_tau_param_name = rospy.get_param("~mpc_steer_tau_param")
+
+        wait_for_param(input_delay_param_name)
+        wait_for_param(steer_tau_param_name)
+        self.delay_compensation_time = rospy.get_param(input_delay_param_name)
+        self.steer_tau = rospy.get_param(steer_tau_param_name)
+
         # steering command from Autoware
         self.subcmd = rospy.Subscriber(
-            "/control/vehicle_cmd", VehicleCommand, self.CallBackVehicleCmd, queue_size=1, tcp_nodelay=True)
+            "input/vehicle_cmd", VehicleCommand, self.CallBackVehicleCmd, queue_size=1, tcp_nodelay=True)
 
         # current steering from vehicle
         self.substatus = rospy.Subscriber(
-            "/vehicle/status/steering", Steering, self.CallBackSteering, queue_size=1, tcp_nodelay=True)
+            "input/steering", Steering, self.CallBackSteering, queue_size=1, tcp_nodelay=True)
 
         # simulated steering
         self.pubstatus = rospy.Publisher(
-            "/debug/mpc_predicted_steering", Steering, queue_size=1)
+            "output/predicted_steering", Steering, queue_size=1)
 
     def CallBackVehicleCmd(self, cmdmsg):
         steercmd = cmdmsg.control.steering_angle
@@ -44,34 +52,36 @@ class SimulateSteer():
             self.current_time = rospy.Time.now().to_sec()
 
     def StackCurrentSteer(self, steercmd, current_time):
-        self.command_array.append([steercmd, current_time+delay_compensation_time])
+        self.command_array.append(
+            [steercmd, current_time+self.delay_compensation_time])
 
-        while(True):#remove unused command
-            if len(self.command_array)<2 or self.current_time is None:
+        while(True):  # remove unused command
+            if len(self.command_array) < 2 or self.current_time is None:
                 break
-            next_oldest_cmd = self.command_array[1]#oldest_cmd = self.command_array[0]
+            # oldest_cmd = self.command_array[0]
+            next_oldest_cmd = self.command_array[1]
             cmd_time = next_oldest_cmd[1]
-            if self.current_time  > cmd_time:
-                self.command_array.pop(0)#pop oldest_cmd
+            if self.current_time > cmd_time:
+                self.command_array.pop(0)  # pop oldest_cmd
             else:
                 break
 
     def CalcCurrentSteer(self):
         if self.current_time is None:
-            #no ready
+            # no ready
             return False
 
         target_time = rospy.Time.now().to_sec()
         if target_time < self.current_time:
-            #error case
+            # error case
             return False
 
-        #calculation
+        # calculation
         mpc_calc_time = self.current_time
 
         array_oldest_time = self.command_array[0][1]
         if mpc_calc_time < array_oldest_time:
-            #not ready 
+            #not ready
             self.current_time = None
 
         steer = self.current_steer
@@ -82,12 +92,14 @@ class SimulateSteer():
                 pass
             else:
                 if next_command_time > target_time:
-                    steer = self.OneStepForwardSteer(steer, command_steer, mpc_calc_time, target_time)
+                    steer = self.OneStepForwardSteer(
+                        steer, command_steer, mpc_calc_time, target_time)
                     mpc_calc_time = target_time
-                    break#finish calculation
+                    break  # finish calculation
                 else:
-                    steer = self.OneStepForwardSteer(steer, command_steer, mpc_calc_time, next_command_time)
-                    mpc_calc_time =  next_command_time
+                    steer = self.OneStepForwardSteer(
+                        steer, command_steer, mpc_calc_time, next_command_time)
+                    mpc_calc_time = next_command_time
 
         self.UpdateState(steer, target_time)
         self.PublishSteer()
@@ -98,8 +110,10 @@ class SimulateSteer():
             print("Error")
             return steer
         else:
-            #next_steer = steer + (cmd_steer - steer) * (diff_time / steer_tau) #1d approximation
-            next_steer = steer + (cmd_steer - steer) * (1 - math.exp(-diff_time/steer_tau)) #exponential
+            # next_steer = steer + (cmd_steer - steer) * (diff_time / self.steer_tau) #1d approximation
+            next_steer = steer + \
+                (cmd_steer - steer) * \
+                (1 - math.exp(-diff_time/self.steer_tau))  # exponential
             return next_steer
 
     def UpdateState(self, steer, steer_time):
@@ -108,9 +122,10 @@ class SimulateSteer():
 
     def PublishSteer(self):
         steermsg = Steering()
-        steermsg.header.stamp = rospy.Time.now()#self.current_time?
+        steermsg.header.stamp = rospy.Time.now()  # self.current_time?
         steermsg.data = self.current_steer
         self.pubstatus.publish(steermsg)
+
 
 def main():
     rospy.init_node("mpc_steer_simulator")
