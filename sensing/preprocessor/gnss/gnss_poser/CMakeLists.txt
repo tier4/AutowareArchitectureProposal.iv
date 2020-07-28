@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   geometry_msgs
   ublox_msgs
-  gnss
+  geo_pos_conv
 )
 
 find_package(PkgConfig)

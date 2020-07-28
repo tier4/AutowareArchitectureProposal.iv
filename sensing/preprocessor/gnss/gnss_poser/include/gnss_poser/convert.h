@@ -21,7 +21,7 @@
 
 #include "gnss_poser/gnss_stat.h"
 
-#include <gnss/geo_pos_conv.hpp>
+#include <geo_pos_conv/geo_pos_conv.hpp>
 
 namespace GNSSPoser
 {
