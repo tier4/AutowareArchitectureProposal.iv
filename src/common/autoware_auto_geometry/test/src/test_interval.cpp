@@ -75,29 +75,29 @@ TEST(Geometry_Interval, is_subset_eq) {
 
 //------------------------------------------------------------------------------
 
-TEST(Geometry_Interval, project_to) {
+TEST(Geometry_Interval, clamp_to) {
   const auto i = Interval_d(-1.0, 1.0);
   {
     const auto val = 0.0;
-    const auto p = Interval_d::project_to(i, val);
+    const auto p = Interval_d::clamp_to(i, val);
     EXPECT_EQ(p, val);
   }
 
   {
     const auto val = -3.4;
-    const auto p = Interval_d::project_to(i, val);
+    const auto p = Interval_d::clamp_to(i, val);
     EXPECT_EQ(p, Interval_d::min(i));
   }
 
   {
     const auto val = 2.7;
-    const auto p = Interval_d::project_to(i, val);
+    const auto p = Interval_d::clamp_to(i, val);
     EXPECT_EQ(p, Interval_d::max(i));
   }
 
   const auto val = 1.0;
   const auto empty_interval = Interval_d();
-  const auto projected = Interval_d::project_to(empty_interval, val);
+  const auto projected = Interval_d::clamp_to(empty_interval, val);
   EXPECT_TRUE(std::isnan(projected));
 }
 

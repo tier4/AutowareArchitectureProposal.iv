@@ -183,11 +183,11 @@ public:
   static Interval intersect(const Interval & i1, const Interval & i2);
 
   /**
-   * @brief Project a scalar 'val' onto 'interval'.
+   * @brief Clamp a scalar 'val' onto 'interval'.
    * @return If 'val' in 'interval', return 'val'; otherwise return the nearer
    * interval bound.
    */
-  static T project_to(const Interval & i, T val);
+  static T clamp_to(const Interval & i, T val);
 
   /**
    * @brief Constructor: initialize an empty interval with members set to NaN.
@@ -208,7 +208,7 @@ private:
   static constexpr T NaN = std::numeric_limits<T>::quiet_NaN();
 
   /**
-   * @brief Scalar interval minimum bounds: min, max.
+   * @defgroup bounds Scalar interval minimum bounds: min, max.
    * @{
    */
   T min_;
@@ -346,7 +346,7 @@ Interval<T> Interval<T>::intersect(const Interval & i1, const Interval & i2)
 //------------------------------------------------------------------------------
 
 template<typename T>
-T Interval<T>::project_to(const Interval & i, T val)
+T Interval<T>::clamp_to(const Interval & i, T val)
 {
   // clamp val to min
   val = std::max(val, Interval::min(i));
