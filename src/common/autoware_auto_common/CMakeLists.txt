@@ -44,7 +44,6 @@ if(BUILD_TESTING)
           test/test_byte_reader.cpp
           test/test_message_field_adapters.cpp)
   target_include_directories(${TEST_COMMON} PRIVATE include)
-  target_link_libraries(${TEST_COMMON} ${TEST_LIB} util)
   ament_target_dependencies(${TEST_COMMON} motion_common)
 endif()
 
