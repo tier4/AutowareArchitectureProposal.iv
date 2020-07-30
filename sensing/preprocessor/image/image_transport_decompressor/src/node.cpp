@@ -13,13 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include <nodelet/loader.h>
 #include <ros/ros.h>
-#include "traffic_light_classifier/node.hpp"
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "traffic_light_classifier_node");
-  traffic_light::TrafficLightClassifierNode node;
+  ros::init(argc, argv, "image_transport_decompressor_node");
+  ros::NodeHandle private_nh("~");
+
+  nodelet::Loader nodelet;
+  nodelet::M_string remap(ros::names::getRemappings());
+  nodelet::V_string nargv;
+  std::string nodelet_name = ros::this_node::getName();
+  nodelet.load(nodelet_name, "image_preprocessor/image_transport_decompressor_nodelet", remap, nargv);
+
   ros::spin();
   return 0;
 }
