@@ -102,7 +102,7 @@ VelocityController::VelocityController()
     double kp, ki, kd;
     pnh_.param("pid_controller/kp", kp, 0.0);
     pnh_.param("pid_controller/ki", ki, 0.0);
-    pnh_.param("pid_controllerd/kd", kd, 0.0);
+    pnh_.param("pid_controller/kd", kd, 0.0);
     pid_vel_.setGains(kp, ki, kd);
   }
 
