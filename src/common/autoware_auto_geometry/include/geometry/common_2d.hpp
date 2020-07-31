@@ -24,6 +24,8 @@
 #include <limits>
 #include <stdexcept>
 
+#include "geometry/interval.hpp"
+
 using autoware::common::types::float32_t;
 using autoware::common::types::bool8_t;
 
@@ -33,11 +35,6 @@ namespace common
 {
 namespace geometry
 {
-template<typename T>
-inline T clamp(const T val, const T min, const T max)
-{
-  return (val < min) ? min : ((val > max) ? max : val);
-}
 
 /// \brief Temporary namespace for point adapter methods, for use with nonstandard point types
 namespace point_adapter
@@ -298,7 +295,9 @@ inline T closest_segment_point_2d(const T & p, const T & q, const T & r)
   const float32_t len2 = dot_2d(qp, qp);
   T ret = p;
   if (len2 > std::numeric_limits<float32_t>::epsilon()) {
-    const float32_t t = clamp(dot_2d(minus_2d(r, p), qp) / len2, 0.0F, 1.0F);
+    const Interval_f unit_interval(0.0f, 1.0f);
+    const float32_t val = dot_2d(minus_2d(r, p), qp) / len2;
+    const float32_t t = Interval_f::clamp_to(unit_interval, val);
     ret = plus_2d(p, times_2d(qp, t));
   }
   return ret;
