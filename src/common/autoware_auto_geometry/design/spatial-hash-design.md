@@ -1,4 +1,4 @@
-spatial_hash
+Spatial hash {#geometry-spatial-hash}
 ============
 
 The spatial hash is a data structure designed for efficient fixed-radius near-neighbor queries in
@@ -86,7 +86,7 @@ The primary method of introducing data into the data structure is via the
 
 The primary method of retrieving data from the data structure is via the
 [near](@ref autoware::common::geometry::spatial_hash::SpatialHash<PointT, Config2d>::near)\(2D
-configuration\) 
+configuration\)
 or [near](@ref autoware::common::geometry::spatial_hash::SpatialHash<PointT, Config3d>::near)
 \(3D configuration\) method.
 

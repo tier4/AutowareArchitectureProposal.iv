@@ -1,4 +1,4 @@
-Helper Functions: Comparisons
+Comparisons {#helper-comparisons}
 ============
 
 The `float_comparisons.hpp` library is a simple set of functions for performing approximate numerical comparisons.

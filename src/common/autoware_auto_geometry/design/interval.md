@@ -1,4 +1,4 @@
-Geometry: Interval
+Interval {#geometry-interval}
 ============
 
 The interval is a standard 1D real-valued interval.

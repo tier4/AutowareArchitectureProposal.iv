@@ -207,13 +207,8 @@ public:
 private:
   static constexpr T NaN = std::numeric_limits<T>::quiet_NaN();
 
-  /**
-   * @defgroup bounds Scalar interval minimum bounds: min, max.
-   * @{
-   */
   T min_;
   T max_;
-  /** @} */
 
   /**
    * @brief Verify that the bounds are valid in an interval.
