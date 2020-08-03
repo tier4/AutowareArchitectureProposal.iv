@@ -35,10 +35,8 @@ ament_auto_find_build_dependencies()
 ament_auto_add_library(${PROJECT_NAME} SHARED
   include/geometry/spatial_hash.hpp
   include/geometry/spatial_hash_config.hpp
-  include/geometry/vehicle_bounding_box.hpp
   src/spatial_hash.cpp
-  src/bounding_box.cpp
-  src/vehicle_bounding_box.cpp)
+  src/bounding_box.cpp)
 autoware_set_compile_options(${PROJECT_NAME})
 
 # static allocators from containers package need this
