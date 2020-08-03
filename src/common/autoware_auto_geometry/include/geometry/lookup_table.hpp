@@ -17,8 +17,8 @@
 /// \file
 /// \brief This file contains a 1D linear lookup table implementation
 
-#ifndef HELPER_FUNCTIONS__LOOKUP_TABLE_HPP_
-#define HELPER_FUNCTIONS__LOOKUP_TABLE_HPP_
+#ifndef GEOMETRY__LOOKUP_TABLE_HPP_
+#define GEOMETRY__LOOKUP_TABLE_HPP_
 
 #include <motion_common/motion_common.hpp>
 
@@ -165,4 +165,4 @@ private:
 }  // namespace autoware
 
 
-#endif  // HELPER_FUNCTIONS__LOOKUP_TABLE_HPP_
+#endif  // GEOMETRY__LOOKUP_TABLE_HPP_

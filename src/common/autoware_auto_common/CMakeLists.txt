@@ -40,11 +40,10 @@ if(BUILD_TESTING)
           test/gtest_main.cpp
           test/test_float_comparisons.cpp
           test/test_bool_comparisons.cpp
-          test/lookup_table.cpp
           test/test_byte_reader.cpp
           test/test_message_field_adapters.cpp)
   target_include_directories(${TEST_COMMON} PRIVATE include)
-  ament_target_dependencies(${TEST_COMMON} motion_common)
+  ament_target_dependencies(${TEST_COMMON} builtin_interfaces)
 endif()
 
 # Ament Exporting

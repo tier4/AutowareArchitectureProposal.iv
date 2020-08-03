@@ -16,7 +16,7 @@
 
 #include <gtest/gtest.h>
 
-#include <helper_functions/lookup_table.hpp>
+#include <geometry/lookup_table.hpp>
 #include <common/types.hpp>
 
 #include <memory>

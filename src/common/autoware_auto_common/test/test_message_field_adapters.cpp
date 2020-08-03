@@ -18,17 +18,27 @@
 
 #include <helper_functions/message_adapters.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
-#include <time_utils/time_utils.hpp>
 #include <memory>
 #include <vector>
 
 using autoware::common::helper_functions::message_field_adapters::get_stamp;
 using autoware::common::helper_functions::message_field_adapters::get_frame_id;
 
+namespace
+{
+builtin_interfaces::msg::Time get_stamp_msg(int t)
+{
+  builtin_interfaces::msg::Time stamp;
+  stamp.sec = 0;
+  stamp.nanosec = t;
+  return stamp;
+}
+}  // namespace
+
 TEST(MessageFieldAdapterTest, const_header_tests) {
   using Message = geometry_msgs::msg::TransformStamped;
 
-  const auto stamp = ::time_utils::to_message(std::chrono::system_clock::now());
+  const auto stamp = get_stamp_msg(0);
   const auto frame_id = "MessageFieldAdapterTest_frame";
 
   std_msgs::msg::Header header;
@@ -43,10 +53,9 @@ TEST(MessageFieldAdapterTest, const_header_tests) {
 TEST(MessageFieldAdapterTest, nonconst_header_tests) {
   using Message = geometry_msgs::msg::TransformStamped;
 
-  const auto stamp = ::time_utils::to_message(std::chrono::system_clock::now());
+  const auto stamp = get_stamp_msg(0);
   const auto frame_id = "MessageFieldAdapterTest_frame";
-  const auto stamp2 = ::time_utils::to_message(std::chrono::system_clock::now() +
-      std::chrono::milliseconds{500});
+  const auto stamp2 = get_stamp_msg(500);
   const auto frame_id2 = "MessageFieldAdapterTest_frame2";
 
   ASSERT_NE(stamp, stamp2);
