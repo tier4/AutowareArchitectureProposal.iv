@@ -190,6 +190,13 @@ public:
   static T clamp_to(const Interval & i, T val);
 
   /**
+   * @brief Compute a scaling between min/max bounds of the interval according to scaling
+   * @note scaling is clamped to be in the interval [0, 1]
+   * @return If interval 'i' is empty, NaN is returned; otherwise the scaled value.
+   */
+  static T interpolate(const Interval & i, T scaling);
+
+  /**
    * @brief Constructor: initialize an empty interval with members set to NaN.
    */
   Interval();
@@ -350,6 +357,19 @@ T Interval<T>::clamp_to(const Interval & i, T val)
   val = std::min(val, Interval::max(i));
 
   return Interval::empty(i) ? Interval::NaN : val;
+}
+
+//------------------------------------------------------------------------------
+
+template<typename T>
+T Interval<T>::interpolate(const Interval & i, T scaling)
+{
+  static const Interval<T> UNIT_INTERVAL(static_cast<T>(0), static_cast<T>(1));
+
+  scaling = Interval<T>::clamp_to(UNIT_INTERVAL, scaling);
+  const auto m = Interval<T>::measure(i);
+  const auto offset = (m * scaling);
+  return Interval<T>::min(i) + offset;
 }
 
 //------------------------------------------------------------------------------
