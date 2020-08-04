@@ -16,6 +16,14 @@
 
 #include <velocity_controller/velocity_controller.h>
 
+namespace
+{
+double lowpass_filter(const double current_value, const double prev_value, const double gain)
+{
+  return gain * prev_value + (1.0 - gain) * current_value;
+}
+}  // namespace
+
 VelocityController::VelocityController()
 : nh_(""),
   pnh_("~"),
@@ -449,6 +457,19 @@ void VelocityController::publishCtrlCmd(const double vel, const double acc)
   cmd.control.velocity = vel;
   cmd.control.acceleration = acc;
   pub_control_cmd_.publish(cmd);
+
+  // calculate accleration from velocity
+  if (prev_vel_ptr_) {
+    const double dv = current_vel_ptr_->twist.linear.x - prev_vel_ptr_->twist.linear.x;
+    const double dt =
+      std::max((current_vel_ptr_->header.stamp - prev_vel_ptr_->header.stamp).toSec(), 1e-03);
+    const double accel = dv / dt;
+    // apply lowpass filter
+    const double lowpass_accel = lowpass_filter(accel, prev_accel_, accel_lowpass_gain_);
+    prev_accel_ = lowpass_accel;
+    debug_values_.data.at(DBGVAL::CALCULATED_ACC) = lowpass_accel;
+  }
+  prev_vel_ptr_ = current_vel_ptr_;
 
   // debug
   debug_values_.data.at(DBGVAL::CTRL_MODE) = static_cast<double>(controller_mode_);

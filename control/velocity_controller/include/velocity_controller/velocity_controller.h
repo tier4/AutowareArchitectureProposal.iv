@@ -149,6 +149,11 @@ private:
   std::shared_ptr<geometry_msgs::TwistStamped> current_vel_ptr_;
   std::shared_ptr<autoware_planning_msgs::Trajectory> trajectory_ptr_;
 
+  // calculate acc
+  std::shared_ptr<geometry_msgs::TwistStamped> prev_vel_ptr_;
+  double prev_accel_ = 0.0;
+  const double accel_lowpass_gain_ = 0.2;
+
   // calculate dt
   std::shared_ptr<ros::Time> prev_control_time_;
 
@@ -252,8 +257,9 @@ private:
     FLAG_SMOOTH_STOP = 22,
     FLAG_EMERGENCY_STOP = 23,
     PREDICTED_V = 24,
+    CALCULATED_ACC = 25,
   };
-  static constexpr unsigned int num_debug_values_ = 25;
+  static constexpr unsigned int num_debug_values_ = 26;
 
   void writeDebugValues(
     const double dt, const double current_velocity, const double predicted_velocity,
