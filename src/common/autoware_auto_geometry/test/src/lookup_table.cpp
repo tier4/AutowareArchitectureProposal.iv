@@ -23,6 +23,7 @@
 #include <vector>
 
 using autoware::common::helper_functions::lookup_1d;
+using autoware::common::helper_functions::interpolate;
 using autoware::common::helper_functions::LookupTable1D;
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
@@ -125,6 +126,38 @@ TYPED_TEST(sanity_check, below_range)
   ASSERT_LT(x, this->domain_.front());  // domain is known to be sorted
   const auto result = this->table_->lookup(x);
   this->check(result, this->range_.front());
+}
+
+TEST(lookup_table_helpers, interpolate) {
+  {
+    const auto scaling = 0.0f;
+    EXPECT_EQ(interpolate(0.0f, 1.0f, scaling), 0.0f);
+    EXPECT_EQ(interpolate(2.0f, 3.5f, scaling), 2.0f);
+  }
+
+  {
+    const auto scaling = 1.0f;
+    EXPECT_EQ(interpolate(0.0f, 1.0f, scaling), 1.0f);
+    EXPECT_EQ(interpolate(2.0f, 3.5f, scaling), 3.5f);
+  }
+
+  {
+    const auto scaling = -1.0f;
+    EXPECT_EQ(interpolate(0.0f, 1.0f, scaling), 0.0f);
+    EXPECT_EQ(interpolate(2.0f, 3.5f, scaling), 2.0f);
+  }
+
+  {
+    const auto scaling = 2.0f;
+    EXPECT_EQ(interpolate(0.0f, 1.0f, scaling), 1.0f);
+    EXPECT_EQ(interpolate(2.0f, 3.5f, scaling), 3.5f);
+  }
+
+  {
+    const auto scaling = 0.75f;
+    EXPECT_EQ(interpolate(0.0f, 1.0f, scaling), 0.75f);
+    EXPECT_EQ(interpolate(2.0f, 3.5f, scaling), 3.125f);
+  }
 }
 
 // TODO(c.ho) check with more interesting functions

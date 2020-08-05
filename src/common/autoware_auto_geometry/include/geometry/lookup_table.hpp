@@ -20,13 +20,12 @@
 #ifndef GEOMETRY__LOOKUP_TABLE_HPP_
 #define GEOMETRY__LOOKUP_TABLE_HPP_
 
-#include <motion_common/motion_common.hpp>
-
 #include <cmath>
 #include <stdexcept>
 #include <vector>
 
 #include "common/types.hpp"
+#include "geometry/interval.hpp"
 
 namespace autoware
 {
@@ -37,6 +36,22 @@ namespace helper_functions
 
 namespace
 {
+
+/**
+ * @brief Compute a scaling between 'a' and 'b'
+ * @note scaling is clamped to be in the interval [0, 1]
+ */
+template<typename T, typename U>
+T interpolate(const T & a, const T & b, U scaling)
+{
+  static const geometry::Interval<U> UNIT_INTERVAL(static_cast<U>(0), static_cast<U>(1));
+  scaling = geometry::Interval<U>::clamp_to(UNIT_INTERVAL, scaling);
+
+  const auto m = (b - a);
+  const auto offset = static_cast<U>(m) * scaling;
+  return a + static_cast<T>(offset);
+}
+
 // TODO(c.ho) support more forms of interpolation as template functor
 // Actual lookup logic, assuming all invariants hold:
 // Throw if value is not finite
@@ -65,7 +80,8 @@ T lookup_impl_1d(const std::vector<T> & domain, const std::vector<T> & range, co
   const auto num = static_cast<double>(value - domain[second_idx - 1U]);
   const auto den = static_cast<double>(domain[second_idx] - domain[second_idx - 1U]);
   const auto t = num / den;
-  return ::motion::motion_common::interpolate(range[second_idx - 1U], range[second_idx], t);
+  const auto val = interpolate(range[second_idx - 1U], range[second_idx], t);
+  return static_cast<T>(val);
 }
 
 // Check invariants for table lookup:
