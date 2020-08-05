@@ -23,8 +23,8 @@
 #include <tf2_ros/transform_listener.h>
 #include <boost/shared_ptr.hpp>
 #include <iostream>
-#include <string>
 #include <mutex>
+#include <string>
 
 #include <dynamic_reconfigure/server.h>
 #include <motion_velocity_optimizer/MotionVelocityOptimizerConfig.h>

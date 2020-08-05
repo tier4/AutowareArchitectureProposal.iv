@@ -24,15 +24,9 @@ L2PseudoJerkOptimizer::L2PseudoJerkOptimizer(const L2PseudoJerkOptimizer::Optimi
   param_ = p;
 }
 
-void L2PseudoJerkOptimizer::setAccel(const double max_accel)
-{
-  param_.max_accel = max_accel;
-}
+void L2PseudoJerkOptimizer::setAccel(const double max_accel) { param_.max_accel = max_accel; }
 
-void L2PseudoJerkOptimizer::setDecel(const double min_decel)
-{
-  param_.min_decel = min_decel;
-}
+void L2PseudoJerkOptimizer::setDecel(const double min_decel) { param_.min_decel = min_decel; }
 
 bool L2PseudoJerkOptimizer::solve(
   const double initial_vel, const double initial_acc, const int closest,
@@ -171,8 +165,7 @@ bool L2PseudoJerkOptimizer::solve(
 
   /* execute optimization */
   auto ts2 = std::chrono::system_clock::now();
-  std::tuple<std::vector<double>, std::vector<double>, int> result =
-    qp_solver_.optimize(P, A, q, lower_bound, upper_bound);
+  const auto result = qp_solver_.optimize(P, A, q, lower_bound, upper_bound);
 
   // [b0, b1, ..., bN, |  a0, a1, ..., aN, | delta0, delta1, ..., deltaN, | sigma0, sigme1, ..., sigmaN]
   const std::vector<double> optval = std::get<0>(result);

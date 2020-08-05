@@ -56,8 +56,8 @@ void calcTrajectoryArclength(
 void calcTrajectoryIntervalDistance(
   const autoware_planning_msgs::Trajectory & trajectory, std::vector<double> & intervals);
 void setZeroVelocity(autoware_planning_msgs::Trajectory & trajectory);
-double  getMaxVelocity(const autoware_planning_msgs::Trajectory & trajectory);
-double  getMaxAbsVelocity(const autoware_planning_msgs::Trajectory & trajectory);
+double getMaxVelocity(const autoware_planning_msgs::Trajectory & trajectory);
+double getMaxAbsVelocity(const autoware_planning_msgs::Trajectory & trajectory);
 void mininumVelocityFilter(const double & min_vel, autoware_planning_msgs::Trajectory & trajectory);
 void maximumVelocityFilter(const double & max_vel, autoware_planning_msgs::Trajectory & trajectory);
 void multiplyConstantToTrajectoryVelocity(

@@ -30,7 +30,6 @@ public:
   virtual void setAccel(const double max_accel) = 0;
 
   virtual void setDecel(const double min_decel) = 0;
-
 };
 
 #endif  // MOTION_VELOCITY_OPTIMIZER_OPTIMIZER_BASE_HPP
