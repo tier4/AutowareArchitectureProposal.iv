@@ -38,7 +38,7 @@ VelocityController::VelocityController()
   // parameters to enable functions
   pnh_.param("enable_smooth_stop", enable_smooth_stop_, true);
   pnh_.param("enable_overshoot_emergency", enable_overshoot_emergency_, true);
-  pnh_.param("enable_slope_compensation", enable_slope_compensation_, true);
+  pnh_.param("enable_slope_compensation", enable_slope_compensation_, false);
 
   // parameters to find a closest waypoint
   pnh_.param("closest_waypoint_distance_threshold", closest_dist_thr_, 3.0);
