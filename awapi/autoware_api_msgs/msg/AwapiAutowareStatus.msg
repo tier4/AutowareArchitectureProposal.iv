@@ -6,3 +6,4 @@ bool emergency_stopped
 autoware_planning_msgs/StopReasonArray stop_reason
 diagnostic_msgs/DiagnosticStatus[] diagnostics
 bool autonomous_overriden
+bool arrived_goal
