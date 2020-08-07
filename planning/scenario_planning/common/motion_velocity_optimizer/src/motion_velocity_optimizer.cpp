@@ -404,24 +404,33 @@ void MotionVelocityOptimizer::calcInitialMotion(
 
   /* if current vehicle velocity is low && base_desired speed is high, use engage_velocity for engage vehicle */
   const double engage_vel_thr = planning_param_.engage_velocity * planning_param_.engage_exit_ratio;
-  if (vehicle_speed < engage_vel_thr && target_vel > planning_param_.engage_velocity) {
-    int idx = 0;
-    const bool ret = vpu::searchZeroVelocityIdx(reference_traj, idx);
-    const bool exist_stop_point = (idx >= reference_traj_closest) ? ret : false;
+  if (vehicle_speed < engage_vel_thr) {
+    if (target_vel >= planning_param_.engage_velocity) {
+      int idx = 0;
+      const bool ret = vpu::searchZeroVelocityIdx(reference_traj, idx);
+      const bool exist_stop_point = (idx >= reference_traj_closest) ? ret : false;
 
-    const double stop_dist = vpu::calcDist2d(
-      reference_traj.points.at(idx), reference_traj.points.at(reference_traj_closest));
-    if (!exist_stop_point || stop_dist > planning_param_.stop_dist_to_prohibit_engage) {
-      initialize_type_ = InitializeType::ENGAGING;
-      initial_vel = planning_param_.engage_velocity;
-      initial_acc = planning_param_.engage_acceleration;
-      ROS_DEBUG(
-        "[calcInitialMotion]: vehicle speed is low (%.3f), and desired speed is high (%.3f). Use "
-        "engage speed (%.3f) until vehicle speed reaches engage_vel_thr (%.3f). stop_dist = %.3f",
-        vehicle_speed, target_vel, planning_param_.engage_velocity, engage_vel_thr, stop_dist);
-      return;
-    } else {
-      ROS_DEBUG("[calcInitialMotion]: stop point is close (%.3f[m]). no engage.", stop_dist);
+      const double stop_dist = vpu::calcDist2d(
+        reference_traj.points.at(idx), reference_traj.points.at(reference_traj_closest));
+      if (!exist_stop_point || stop_dist > planning_param_.stop_dist_to_prohibit_engage) {
+        initialize_type_ = InitializeType::ENGAGING;
+        initial_vel = planning_param_.engage_velocity;
+        initial_acc = planning_param_.engage_acceleration;
+        ROS_DEBUG(
+          "[calcInitialMotion]: vehicle speed is low (%.3f), and desired speed is high (%.3f). Use "
+          "engage speed (%.3f) until vehicle speed reaches engage_vel_thr (%.3f). stop_dist = %.3f",
+          vehicle_speed, target_vel, planning_param_.engage_velocity, engage_vel_thr, stop_dist);
+        return;
+      } else {
+        ROS_WARN_THROTTLE(
+          3.0, "[calcInitialMotion]: stop point is close (%.3f[m]). no engage.", stop_dist);
+      }
+    } else if (target_vel > 0.0) {
+      ROS_WARN_THROTTLE(
+        3.0,
+        "[calcInitialMotion]: target velocity(%.3f[m/s]) is lower than engage "
+        "velocity(%.3f[m/s]). ",
+        target_vel, planning_param_.engage_velocity);
     }
   }
 
