@@ -201,7 +201,7 @@ void VelocityController::callbackTimerControl(const ros::TimerEvent & event)
       "Waiting topics, Publish stop command. pose_update: %d, pose: %d, vel: %d, trajectory: %d",
       is_pose_updated, current_pose_ptr_ != nullptr, current_vel_ptr_ != nullptr,
       trajectory_ptr_ != nullptr);
-    controller_mode_ = ControlMode::INIT;
+    control_mode_ = ControlMode::INIT;
     publishCtrlCmd(stop_state_vel_, stop_state_acc_);
     return;
   }
@@ -215,7 +215,7 @@ void VelocityController::callbackTimerControl(const ros::TimerEvent & event)
   debug_values_.data.at(DBGVAL::FLAG_EMERGENCY_STOP) = is_emergency_stop_;
 
   /* reset parameters depending on the current control mode */
-  resetHandling(controller_mode_);
+  resetHandling(control_mode_);
 }
 
 void VelocityController::callbackConfig(
@@ -292,7 +292,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
         *trajectory_ptr_, current_pose, closest_angle_thr_, closest_dist_thr_, closest_idx)) {
     double vel_cmd = applyRateFilter(0.0, prev_vel_cmd_, dt, emergency_stop_acc_);
     double acc_cmd = applyRateFilter(emergency_stop_acc_, prev_acc_cmd_, dt, emergency_stop_jerk_);
-    controller_mode_ = ControlMode::ERROR;
+    control_mode_ = ControlMode::ERROR;
     ROS_ERROR_DELAYED_THROTTLE(
       5.0, "closest not found. Emergency Stop! (dist_thr: %.3f [m], angle_thr = %.3f [rad])",
       closest_dist_thr_, closest_angle_thr_);
@@ -338,7 +338,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
    */
   if (checkIsStopped(current_vel, target_vel)) {
     double acc_cmd = calcFilteredAcc(stop_state_acc_, pitch_filtered, dt, shift);
-    controller_mode_ = ControlMode::STOPPED;
+    control_mode_ = ControlMode::STOPPED;
     ROS_DEBUG("[Stopped]. vel: %3.3f, acc: %3.3f", stop_state_vel_, acc_cmd);
     return CtrlCmd{stop_state_vel_, acc_cmd};
   }
@@ -357,7 +357,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
   if (is_emergency_stop_) {
     double vel_cmd = applyRateFilter(0.0, prev_vel_cmd_, dt, emergency_stop_acc_);
     double acc_cmd = applyRateFilter(emergency_stop_acc_, prev_acc_cmd_, dt, emergency_stop_jerk_);
-    controller_mode_ = ControlMode::EMERGENCY_STOP;
+    control_mode_ = ControlMode::EMERGENCY_STOP;
     ROS_ERROR("[Emergency stop] vel: %3.3f, acc: %3.3f", 0.0, acc_cmd);
     return CtrlCmd{vel_cmd, acc_cmd};
   }
@@ -378,7 +378,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
     }
     double smooth_stop_acc_cmd = calcSmoothStopAcc();
     double acc_cmd = calcFilteredAcc(smooth_stop_acc_cmd, pitch_filtered, dt, shift);
-    controller_mode_ = ControlMode::SMOOTH_STOP;
+    control_mode_ = ControlMode::SMOOTH_STOP;
     ROS_WARN_THROTTLE(
       0.5, "[smooth stop]: Smooth stopping. vel: %3.3f, acc: %3.3f", target_vel, acc_cmd);
     return CtrlCmd{target_vel, acc_cmd};
@@ -394,7 +394,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
    */
   double feedback_acc_cmd = applyVelocityFeedback(target_acc, target_vel, dt, pred_vel_in_target);
   double acc_cmd = calcFilteredAcc(feedback_acc_cmd, pitch_filtered, dt, shift);
-  controller_mode_ = ControlMode::PID_CONTROL;
+  control_mode_ = ControlMode::PID_CONTROL;
   ROS_DEBUG(
     "[feedback control]  vel: %3.3f, acc: %3.3f, dt: %3.3f, vcurr: %3.3f, vref: %3.3f "
     "feedback_acc_cmd: %3.3f, shift: %d",
@@ -472,7 +472,7 @@ void VelocityController::publishCtrlCmd(const double vel, const double acc)
   prev_vel_ptr_ = current_vel_ptr_;
 
   // debug
-  debug_values_.data.at(DBGVAL::CTRL_MODE) = static_cast<double>(controller_mode_);
+  debug_values_.data.at(DBGVAL::CTRL_MODE) = static_cast<double>(control_mode_);
   debug_values_.data.at(DBGVAL::ACCCMD_PUBLISHED) = acc;
   pub_debug_.publish(debug_values_);
   debug_values_.data.clear();
@@ -502,6 +502,9 @@ bool VelocityController::checkSmoothStop(const int closest, const double target_
 bool VelocityController::checkIsStopped(double current_vel, double target_vel) const
 {
   if (is_smooth_stop_) return false;  // stopping.
+
+  // Prevent a direct transition from PID_CONTROL to STOPPED without going through SMOOTH_STOP.
+  if (control_mode_ == ControlMode::PID_CONTROL) return false;
 
   if (
     std::fabs(current_vel) < stop_state_entry_ego_speed_ &&

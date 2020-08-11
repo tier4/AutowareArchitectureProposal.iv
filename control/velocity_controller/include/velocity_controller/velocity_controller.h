@@ -142,7 +142,7 @@ private:
     EMERGENCY_STOP = 4,
     ERROR = 5,
   };
-  ControlMode controller_mode_;
+  ControlMode control_mode_;
 
   // variables
   std::shared_ptr<geometry_msgs::PoseStamped> current_pose_ptr_;
