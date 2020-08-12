@@ -314,7 +314,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
   double target_acc =
     calcInterpolatedTargetValue(*trajectory_ptr_, target_pose, closest_vel, target_idx, "accel");
   const double pred_vel_in_target =
-    predictedVelocityInTargetPoint(current_vel, closest_acc, delay_compensation_time_);
+    predictedVelocityInTargetPoint(current_vel, prev_accel_, delay_compensation_time_);
 
   /* shift check */
   const Shift shift = getCurrentShift(target_vel);
@@ -429,13 +429,18 @@ void VelocityController::resetHandling(const ControlMode control_mode)
 
 void VelocityController::storeAccelCmd(const double accel)
 {
-  // convert format
-  autoware_control_msgs::ControlCommandStamped cmd;
-  cmd.header.stamp = ros::Time::now();
-  cmd.control.acceleration = accel;
+  if (control_mode_ == ControlMode::PID_CONTROL) {
+    // convert format
+    autoware_control_msgs::ControlCommandStamped cmd;
+    cmd.header.stamp = ros::Time::now();
+    cmd.control.acceleration = accel;
 
-  // store published ctrl cmd
-  ctrl_cmd_vec_.emplace_back(cmd);
+    // store published ctrl cmd
+    ctrl_cmd_vec_.emplace_back(cmd);
+  } else {
+    //reset command
+    ctrl_cmd_vec_.clear();
+  }
 
   // remove unused ctrl cmd
   if (ctrl_cmd_vec_.size() <= 2) {
@@ -545,16 +550,17 @@ double VelocityController::calcFilteredAcc(
   double acc_max_filtered = applyLimitFilter(raw_acc, max_acc_, min_acc_);
   debug_values_.data.at(DBGVAL::ACCCMD_ACC_LIMITED) = acc_max_filtered;
 
+  // store ctrl cmd without slope filter
+  storeAccelCmd(acc_max_filtered);
+
+  double acc_slope_filtered = applySlopeCompensation(acc_max_filtered, pitch, shift);
+  debug_values_.data.at(DBGVAL::ACCCMD_SLOPE_APPLIED) = acc_slope_filtered;
+
   double acc_jerk_filtered =
-    applyRateFilter(acc_max_filtered, prev_acc_cmd_, dt, max_jerk_, min_jerk_);
+    applyRateFilter(acc_slope_filtered, prev_acc_cmd_, dt, max_jerk_, min_jerk_);
   debug_values_.data.at(DBGVAL::ACCCMD_JERK_LIMITED) = acc_jerk_filtered;
 
-  // store ctrl cmd without slope filter
-  storeAccelCmd(acc_jerk_filtered);
-
-  double acc_slope_filtered = applySlopeCompensation(acc_jerk_filtered, pitch, shift);
-  debug_values_.data.at(DBGVAL::ACCCMD_SLOPE_APPLIED) = acc_slope_filtered;
-  return acc_slope_filtered;
+  return acc_jerk_filtered;
 }
 
 double VelocityController::getDt()
@@ -647,10 +653,10 @@ double VelocityController::calcStopDistance(
 }
 
 double VelocityController::predictedVelocityInTargetPoint(
-  const double current_vel, const double closest_acc, const double delay_compensation_time)
+  const double current_vel, const double current_acc, const double delay_compensation_time)
 {
   if (ctrl_cmd_vec_.size() == 0) {
-    const double pred_vel = current_vel + closest_acc * delay_compensation_time;
+    const double pred_vel = current_vel + current_acc * delay_compensation_time;
     // avoid to change sign of current_vel and pred_vel
     return current_vel * pred_vel > 0 ? pred_vel : 0.0;
   }
@@ -665,11 +671,11 @@ double VelocityController::predictedVelocityInTargetPoint(
         return current_vel + ctrl_cmd_vec_.at(i).control.acceleration * delay_compensation_time;
       }
       // add velocity to accel * dt
-      const double current_acc = ctrl_cmd_vec_.at(i - 1).control.acceleration;
+      const double acc = ctrl_cmd_vec_.at(i - 1).control.acceleration;
       const double time_to_next_acc = std::min(
         ctrl_cmd_vec_.at(i).header.stamp.toSec() - ctrl_cmd_vec_.at(i - 1).header.stamp.toSec(),
         ctrl_cmd_vec_.at(i).header.stamp.toSec() - past_delay_time);
-      pred_vel += current_acc * time_to_next_acc;
+      pred_vel += acc * time_to_next_acc;
     }
   }
 

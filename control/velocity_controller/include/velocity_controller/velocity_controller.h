@@ -208,7 +208,7 @@ private:
   void storeAccelCmd(const double accel);
   void publishCtrlCmd(const double vel, const double acc);
   double predictedVelocityInTargetPoint(
-    const double current_vel, const double closest_acc, const double delay_compensation_time);
+    const double current_vel, const double current_acc, const double delay_compensation_time);
   double getPointValue(
     const autoware_planning_msgs::TrajectoryPoint & point, const std::string & value_type);
   double calcInterpolatedTargetValue(
