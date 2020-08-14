@@ -123,8 +123,13 @@ bool LinfPseudoJerkOptimizer::solve(
     const int j = 2 * N + i;
     A(i, i) = 1.0;   // a_i
     A(i, j) = -1.0;  // -sigma_i
-    upper_bound[i] = amax;
-    lower_bound[i] = amin;
+    if (i != N && vmax[i - N] < std::numeric_limits<double>::epsilon()) {
+      upper_bound[i] = 0.0;
+      lower_bound[i] = 0.0;
+    } else {
+      upper_bound[i] = amax;
+      lower_bound[i] = amin;
+    }
   }
 
   // b' = 2a
@@ -153,20 +158,19 @@ bool LinfPseudoJerkOptimizer::solve(
 
   // constraint for slack variable (a[i+1] - a[i] <= psi[i], a[i] - a[i+1] <= psi[i])
   for (unsigned int i = 3 * N + 1; i < 4 * N; ++i) {
-    const double vel = initial_vel;
     const unsigned int ia = i - (3 * N + 1) + N;
     const unsigned int ip = 4 * N;
     const unsigned int j = i - 3 * N + 1;
     const double dsinv = 1.0 / std::max(interval_dist_arr.at(j), 0.0001);
 
-    A(i, ia) = -dsinv * vel;
-    A(i, ia + 1) = dsinv * vel;
+    A(i, ia) = -dsinv;
+    A(i, ia + 1) = dsinv;
     A(i, ip) = -1;
     lower_bound[i] = -OSQP_INFTY;
     upper_bound[i] = 0;
 
-    A(i + N - 1, ia) = dsinv * vel;
-    A(i + N - 1, ia + 1) = -dsinv * vel;
+    A(i + N - 1, ia) = dsinv;
+    A(i + N - 1, ia + 1) = -dsinv;
     A(i + N - 1, ip) = -1;
     lower_bound[i + N - 1] = -OSQP_INFTY;
     upper_bound[i + N - 1] = 0;

@@ -92,12 +92,10 @@ bool L2PseudoJerkOptimizer::solve(
     q[i] = -1.0;                          // |vmax^2 - b| -> minimize (-bi)
   }
 
-  // pseudo jerk: d(ai)/ds -> minimize weight * (a1 - a0)^2 * curr_v^2
+  // pseudo jerk: d(ai)/ds -> minimize weight * (a1 - a0)^2
   for (unsigned int i = N; i < 2 * N - 1; ++i) {
     unsigned int j = i - N;
-    const double vel = initial_vel;
-    const double w_x_dsinv =
-      smooth_weight * (1.0 / std::max(interval_dist_arr.at(j), 0.0001)) * vel * vel;
+    const double w_x_dsinv = smooth_weight * (1.0 / std::max(interval_dist_arr.at(j), 0.0001));
     P(i, i) += w_x_dsinv;
     P(i, i + 1) -= w_x_dsinv;
     P(i + 1, i) -= w_x_dsinv;
@@ -132,8 +130,13 @@ bool L2PseudoJerkOptimizer::solve(
     const int j = 2 * N + i;
     A(i, i) = 1.0;   // a_i
     A(i, j) = -1.0;  // -sigma_i
-    upper_bound[i] = amax;
-    lower_bound[i] = amin;
+    if (i != N && vmax[i - N] < std::numeric_limits<double>::epsilon()) {
+      upper_bound[i] = 0.0;
+      lower_bound[i] = 0.0;
+    } else {
+      upper_bound[i] = amax;
+      lower_bound[i] = amin;
+    }
   }
 
   // b' = 2a

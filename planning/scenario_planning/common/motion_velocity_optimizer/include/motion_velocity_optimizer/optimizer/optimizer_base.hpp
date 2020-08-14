@@ -17,6 +17,7 @@
 #ifndef MOTION_VELOCITY_OPTIMIZER_OPTIMIZER_BASE_HPP
 #define MOTION_VELOCITY_OPTIMIZER_OPTIMIZER_BASE_HPP
 #include <autoware_planning_msgs/Trajectory.h>
+#include <limits>
 #include <vector>
 
 class OptimizerBase
