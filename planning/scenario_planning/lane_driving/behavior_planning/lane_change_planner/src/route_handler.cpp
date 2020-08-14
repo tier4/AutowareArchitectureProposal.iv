@@ -751,7 +751,7 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
                                      0.5 * acceleration * std::pow(lane_change_prepare_duration, 2);
     double lane_change_distance =
       v1 * lane_changing_duration + 0.5 * acceleration * std::pow(lane_changing_duration, 2);
-    lane_change_distance = std::max(lane_change_distance, minimum_lane_change_length + buffer);
+    lane_change_distance = std::max(lane_change_distance, minimum_lane_change_length);
 
     PathWithLaneId reference_path1;
     {
@@ -770,7 +770,7 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
       double s_start = arc_position.length + straight_distance + lane_change_distance;
       s_start = std::min(s_start, lane_length - num * minimum_lane_change_length);
       double s_end = s_start + forward_path_length;
-      s_end = std::min(s_end, lane_length - num * minimum_lane_change_length);
+      s_end = std::min(s_end, lane_length - num * (minimum_lane_change_length + buffer));
       s_end = std::max(s_end, s_start + std::numeric_limits<double>::epsilon());
       reference_path2 = getReferencePath(target_lanelets, s_start, s_end);
     }
