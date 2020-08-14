@@ -374,7 +374,7 @@ bool lerpByTimeStamp(
   for (size_t i = 1; i < path.path.size(); i++) {
     const auto & pt = path.path.at(i);
     const auto & prev_pt = path.path.at(i - 1);
-    if (t < pt.header.stamp) {
+    if (t <= pt.header.stamp) {
       const ros::Duration duration = safeSubtraction(pt.header.stamp, prev_pt.header.stamp);
       const auto offset = t - prev_pt.header.stamp;
       const auto ratio = offset.toSec() / duration.toSec();
