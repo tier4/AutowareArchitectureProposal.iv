@@ -46,14 +46,14 @@ void TrafficLightRoiImageSaver::imageRoiCallback(
     cv_ptr = cv_bridge::toCvCopy(input_image_msg, sensor_msgs::image_encodings::BGR8);
     for (size_t i = 0; i < input_tl_roi_msg->rois.size(); ++i) {
       const sensor_msgs::RegionOfInterest & roi = input_tl_roi_msg->rois.at(i).roi;
-      cv::Mat cliped_image(
+      cv::Mat clipped_image(
         cv_ptr->image, cv::Rect(roi.x_offset, roi.y_offset, roi.width, roi.height));
       std::stringstream save_fine_name_stream;
       save_fine_name_stream << std::fixed << save_dir_ << "/" << input_tl_roi_msg->rois.at(i).id
                             << "_" << current_time.toSec() << ".png";
       std::string save_fine_name;
       save_fine_name_stream >> save_fine_name;
-      cv::imwrite(save_fine_name, cliped_image);
+      cv::imwrite(save_fine_name, clipped_image);
       ROS_INFO("%s", save_fine_name.c_str());
     }
   } catch (cv_bridge::Exception & e) {
