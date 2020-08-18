@@ -655,20 +655,28 @@ double VelocityController::calcStopDistance(
 double VelocityController::predictedVelocityInTargetPoint(
   const double current_vel, const double current_acc, const double delay_compensation_time)
 {
+  if (std::fabs(current_vel) < 1e-01) {
+    //when velocity is low, no prediction
+    return current_vel;
+  }
+
+  const double current_vel_abs = std::fabs(current_vel);
   if (ctrl_cmd_vec_.size() == 0) {
     const double pred_vel = current_vel + current_acc * delay_compensation_time;
     // avoid to change sign of current_vel and pred_vel
-    return current_vel * pred_vel > 0 ? pred_vel : 0.0;
+    return pred_vel > 0 ? std::copysign(pred_vel, current_vel) : 0.0;
   }
 
-  double pred_vel = current_vel;
+  double pred_vel = current_vel_abs;
 
   const double past_delay_time = ros::Time::now().toSec() - delay_compensation_time;
   for (int i = 0; i < ctrl_cmd_vec_.size(); i++) {
     if ((ros::Time::now() - ctrl_cmd_vec_.at(i).header.stamp).toSec() < delay_compensation_time_) {
       if (i == 0) {
         // lack of data
-        return current_vel + ctrl_cmd_vec_.at(i).control.acceleration * delay_compensation_time;
+        pred_vel =
+          current_vel_abs + ctrl_cmd_vec_.at(i).control.acceleration * delay_compensation_time;
+        return pred_vel > 0 ? std::copysign(pred_vel, current_vel) : 0.0;
       }
       // add velocity to accel * dt
       const double acc = ctrl_cmd_vec_.at(i - 1).control.acceleration;
@@ -685,7 +693,7 @@ double VelocityController::predictedVelocityInTargetPoint(
   pred_vel += last_acc * time_to_current;
 
   // avoid to change sign of current_vel and pred_vel
-  return current_vel * pred_vel > 0 ? pred_vel : 0.0;
+  return pred_vel > 0 ? std::copysign(pred_vel, current_vel) : 0.0;
 }
 
 double VelocityController::getPointValue(
