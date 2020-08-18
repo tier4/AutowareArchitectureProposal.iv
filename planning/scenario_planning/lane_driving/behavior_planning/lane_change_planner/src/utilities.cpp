@@ -425,11 +425,16 @@ std::vector<size_t> filterObjectsByLanelets(
 {
   std::vector<size_t> indices;
   if (target_lanelets.empty()) {
-    return indices;
+    return {};
   }
   const auto polygon =
     lanelet::utils::getPolygonFromArcLength(target_lanelets, start_arc_length, end_arc_length);
   const auto polygon2d = lanelet::utils::to2D(polygon).basicPolygon();
+  if (polygon2d.empty()) {
+    // no lanelet polygon
+    return {};
+  }
+
   for (size_t i = 0; i < objects.objects.size(); i++) {
     const auto obj = objects.objects.at(i);
     // create object polygon
@@ -442,6 +447,7 @@ std::vector<size_t> filterObjectsByLanelets(
     for (const auto & lanelet_point : polygon2d) {
       lanelet_polygon.outer().push_back(Point(lanelet_point.x(), lanelet_point.y()));
     }
+
     lanelet_polygon.outer().push_back(lanelet_polygon.outer().front());
 
     // check the object does not intersect the lanelet
@@ -480,6 +486,7 @@ std::vector<size_t> filterObjectsByLanelets(
         lanelet_polygon.outer().push_back(
           boost::geometry::make<Point>(lanelet_point.x(), lanelet_point.y()));
       }
+
       lanelet_polygon.outer().push_back(lanelet_polygon.outer().front());
 
       // check the object does not intersect the lanelet
