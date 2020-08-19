@@ -37,6 +37,8 @@
 #include <lanelet2_routing/RoutingGraph.h>
 #include <lanelet2_routing/RoutingGraphContainer.h>
 
+#include <lane_change_planner/route_handler.h>
+
 #include <limits>
 #include <vector>
 
@@ -117,9 +119,13 @@ autoware_planning_msgs::PathWithLaneId refinePath(
 autoware_planning_msgs::PathWithLaneId removeOverlappingPoints(
   const autoware_planning_msgs::PathWithLaneId & input_path);
 
-nav_msgs::OccupancyGrid convertLanesToDrivableArea(
+bool containsGoal(const lanelet::ConstLanelets & lanes, const lanelet::Id & goal_id);
+
+nav_msgs::OccupancyGrid generateDrivableArea(
   const lanelet::ConstLanelets & lanes, const geometry_msgs::PoseStamped & current_pose,
-  const double width, const double height, const double resolution);
+  const double width, const double height, const double resolution, const double vehicle_length,
+  const RouteHandler & route_handler);
+
 double getDistanceToEndOfLane(
   const geometry_msgs::Pose & current_pose, const lanelet::ConstLanelets & lanelets);
 

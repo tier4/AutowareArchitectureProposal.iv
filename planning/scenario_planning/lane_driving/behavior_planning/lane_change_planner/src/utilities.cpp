@@ -762,10 +762,29 @@ PathWithLaneId refinePath(
   }
 }
 
-nav_msgs::OccupancyGrid convertLanesToDrivableArea(
-  const lanelet::ConstLanelets & lanes, const geometry_msgs::PoseStamped & current_pose,
-  const double width, const double height, const double resolution)
+bool containsGoal(const lanelet::ConstLanelets & lanes, const lanelet::Id & goal_id)
 {
+  for (const auto & lane : lanes) {
+    if (lane.id() == goal_id) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// input lanes must be in sequence
+nav_msgs::OccupancyGrid generateDrivableArea(
+  const lanelet::ConstLanelets & lanes, const geometry_msgs::PoseStamped & current_pose,
+  const double width, const double height, const double resolution, const double vehicle_length,
+  const RouteHandler & route_handler)
+{
+  // get drivable lanes
+  lanelet::ConstLanelets drivable_lanes = lanes;
+  if (containsGoal(lanes, route_handler.getGoalLaneId())) {
+    const auto lanes_after_goal = route_handler.getLanesAfterGoal(vehicle_length);
+    drivable_lanes.insert(drivable_lanes.end(), lanes_after_goal.begin(), lanes_after_goal.end());
+  }
+
   nav_msgs::OccupancyGrid occupancy_grid;
   geometry_msgs::PoseStamped grid_origin;
 
@@ -812,13 +831,13 @@ nav_msgs::OccupancyGrid convertLanesToDrivableArea(
     // convert lane polygons into cv type
     cv::Mat cv_image(
       occupancy_grid.info.width, occupancy_grid.info.height, CV_8UC1, cv::Scalar(occupied_space));
-    for (std::size_t i = 0; i < lanes.size(); i++) {
-      const auto lane = lanes.at(i);
+    for (std::size_t i = 0; i < drivable_lanes.size(); i++) {
+      const auto lane = drivable_lanes.at(i);
 
       // skip if it overlaps with past lane
       bool overlaps_with_past_lane = false;
       for (std::size_t j = 0; j < i; j++) {
-        const auto past_lane = lanes.at(j);
+        const auto past_lane = drivable_lanes.at(j);
         if (boost::geometry::overlaps(
               lane.polygon2d().basicPolygon(), past_lane.polygon2d().basicPolygon())) {
           overlaps_with_past_lane = true;

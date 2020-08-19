@@ -55,8 +55,9 @@ void ForcingLaneChangeState::update()
     const double width = ros_parameters_.drivable_area_width;
     const double height = ros_parameters_.drivable_area_height;
     const double resolution = ros_parameters_.drivable_area_resolution;
-    status_.lane_change_path.path.drivable_area =
-      util::convertLanesToDrivableArea(lanes, current_pose_, width, height, resolution);
+    status_.lane_change_path.path.drivable_area = util::generateDrivableArea(
+      lanes, current_pose_, width, height, resolution, ros_parameters_.vehicle_length,
+      *route_handler_ptr_);
   }
 }
 

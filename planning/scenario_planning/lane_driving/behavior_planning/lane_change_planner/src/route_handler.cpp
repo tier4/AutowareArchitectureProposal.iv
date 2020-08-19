@@ -22,6 +22,7 @@
 #include <lanelet2_core/geometry/Lanelet.h>
 #include <lanelet2_core/primitives/LaneletSequence.h>
 #include <lanelet2_extension/utility/message_conversion.h>
+#include <lanelet2_extension/utility/query.h>
 #include <lanelet2_extension/utility/utilities.h>
 
 #include <ros/ros.h>
@@ -270,6 +271,24 @@ void RouteHandler::setRouteLanelets()
     }
   }
   is_handler_ready_ = true;
+}
+
+std::vector<lanelet::ConstLanelet> RouteHandler::getLanesAfterGoal(
+  const double vehicle_length) const
+{
+  lanelet::ConstLanelet goal_lanelet;
+  if (getGoalLanelet(&goal_lanelet)) {
+    const double min_succeeding_length = vehicle_length * 2;
+    const auto succeeding_lanes_vec = lanelet::utils::query::getSucceedingLaneletSequences(
+      routing_graph_ptr_, goal_lanelet, min_succeeding_length);
+    if (succeeding_lanes_vec.empty()) {
+      return std::vector<lanelet::ConstLanelet>{};
+    } else {
+      return succeeding_lanes_vec.front();
+    }
+  } else {
+    return std::vector<lanelet::ConstLanelet>{};
+  }
 }
 
 lanelet::ConstLanelets RouteHandler::getRouteLanelets() const { return route_lanelets_; }
@@ -775,8 +794,7 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
       reference_path2 = getReferencePath(target_lanelets, s_start, s_end);
     }
 
-    if(reference_path1.points.empty() || reference_path2.points.empty())
-    {
+    if (reference_path1.points.empty() || reference_path2.points.empty()) {
       ROS_ERROR_STREAM("reference path is empty!! something wrong...");
       continue;
     }
@@ -877,7 +895,7 @@ lanelet::ConstLanelets RouteHandler::getCheckTargetLanesFromPath(
   }
 
   const auto sequences = lanelet::utils::query::getPreceedingLaneletSequences(
-    routing_graph_ptr_, root_lanelet, check_length + lanelet::utils::getLaneletLength3d(root_lanelet));
+    routing_graph_ptr_, root_lanelet, check_length);
   lanelet::ConstLanelets check_lanelets;
   for (const auto & sequence : sequences) {
     for (const auto & llt : sequence) {

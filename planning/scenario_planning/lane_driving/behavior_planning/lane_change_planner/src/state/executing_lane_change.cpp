@@ -67,8 +67,9 @@ void ExecutingLaneChangeState::update()
     const double width = ros_parameters_.drivable_area_width;
     const double height = ros_parameters_.drivable_area_height;
     const double resolution = ros_parameters_.drivable_area_resolution;
-    status_.lane_change_path.path.drivable_area =
-      util::convertLanesToDrivableArea(lanes, current_pose_, width, height, resolution);
+    status_.lane_change_path.path.drivable_area = util::generateDrivableArea(
+      lanes, current_pose_, width, height, resolution, ros_parameters_.vehicle_length,
+      *route_handler_ptr_);
   }
 }
 
@@ -124,8 +125,8 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
     const auto & path = status_.lane_change_path;
     const double check_distance_with_path =
       check_distance + path.preparation_length + path.lane_change_length;
-    const auto check_lanes =
-      route_handler_ptr_->getCheckTargetLanesFromPath(path.path, target_lanes_, check_distance_with_path);
+    const auto check_lanes = route_handler_ptr_->getCheckTargetLanesFromPath(
+      path.path, target_lanes_, check_distance_with_path);
 
     is_path_safe = state_machine::common_functions::isLaneChangePathSafe(
       path.path, original_lanes_, check_lanes, dynamic_objects_, current_pose_.pose,

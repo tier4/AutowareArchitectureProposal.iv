@@ -33,6 +33,7 @@ struct LaneChangerParameters
   double drivable_area_width;
   double drivable_area_height;
   double vehicle_width;
+  double vehicle_length;
   double base_link2front;
   double static_obstacle_velocity_thresh;
   double maximum_deceleration;

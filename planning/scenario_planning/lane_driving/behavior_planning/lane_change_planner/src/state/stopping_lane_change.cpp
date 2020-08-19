@@ -91,9 +91,12 @@ bool StoppingLaneChangeState::isVehicleInOriginalLanes() const
     current_pose_.pose, ros_parameters_.vehicle_width, ros_parameters_.base_link2front);
 
   std::vector<lanelet::BasicPolygon2d> intersection_poly;
-  boost::geometry::intersection(lanelet::utils::to2D(vehicle_poly).basicPolygon(), lanelet::utils::to2D(lane_poly).basicPolygon(), intersection_poly);
-  
-  const double vehicle_area = boost::geometry::area(lanelet::utils::to2D(vehicle_poly).basicPolygon());
+  boost::geometry::intersection(
+    lanelet::utils::to2D(vehicle_poly).basicPolygon(),
+    lanelet::utils::to2D(lane_poly).basicPolygon(), intersection_poly);
+
+  const double vehicle_area =
+    boost::geometry::area(lanelet::utils::to2D(vehicle_poly).basicPolygon());
   const double intersection_area = boost::geometry::area(intersection_poly.at(0));
 
   return intersection_area / vehicle_area > 0.9;
