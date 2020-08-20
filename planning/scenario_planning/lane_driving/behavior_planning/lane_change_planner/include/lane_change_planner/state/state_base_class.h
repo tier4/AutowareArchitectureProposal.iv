@@ -18,6 +18,7 @@
 #define LANE_CHANGE_PLANNER_STATE_STATE_BASE_CLASS_H
 
 #include <autoware_planning_msgs/PathWithLaneId.h>
+#include <geometry_msgs/Point.h>
 #include <lane_change_planner/data_manager.h>
 #include <lane_change_planner/parameters.h>
 #include <lane_change_planner/route_handler.h>
@@ -52,6 +53,7 @@ struct DebugData
   std::vector<LaneChangePath> lane_change_candidate_paths;
   autoware_planning_msgs::PathWithLaneId selected_path;
   autoware_planning_msgs::PathPointWithLaneId stop_point;
+  geometry_msgs::Point stop_factor_point;
 };
 
 class StateBase

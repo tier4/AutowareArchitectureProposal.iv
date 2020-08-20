@@ -110,6 +110,8 @@ void LaneChanger::init()
     pnh_.advertise<autoware_planning_msgs::Path>("debug/lane_change_candidate_path", 1);
   path_marker_publisher_ =
     pnh_.advertise<visualization_msgs::MarkerArray>("debug/predicted_path_markers", 1);
+  stop_reason_publisher_ =
+    pnh_.advertise<autoware_planning_msgs::StopReasonArray>("output/stop_reasons", 1);
   drivable_area_publisher_ = pnh_.advertise<nav_msgs::OccupancyGrid>("debug/drivable_area", 1);
   lane_change_ready_publisher_ = pnh_.advertise<std_msgs::Bool>("output/lane_change_ready", 1);
   lane_change_available_publisher_ =
@@ -205,6 +207,7 @@ void LaneChanger::publishDebugMarkers()
   const double prediction_duration = ros_parameters.prediction_duration;
 
   visualization_msgs::MarkerArray debug_markers;
+  autoware_planning_msgs::StopReasonArray stop_reason_array;
   // get ego vehicle path marker
   const auto & status = state_machine_ptr_->getStatus();
   if (!status.lane_change_path.path.points.empty()) {
@@ -314,7 +317,61 @@ void LaneChanger::publishDebugMarkers()
     }
   }
 
+  //create stop reason array from debug_data and state
+  stop_reason_array = makeStopReasonArray(debug_data, state_machine_ptr_->getState());
+
   path_marker_publisher_.publish(debug_markers);
+  stop_reason_publisher_.publish(stop_reason_array);
+}
+
+autoware_planning_msgs::StopReasonArray LaneChanger::makeStopReasonArray(
+  const DebugData & debug_data, const State & state)
+{
+  //create header
+  std_msgs::Header header;
+  header.frame_id = "map";
+  header.stamp = ros::Time::now();
+
+  //create stop reason array
+  autoware_planning_msgs::StopReasonArray stop_reason_array;
+  stop_reason_array.header = header;
+
+  //create stop reason stamped
+  autoware_planning_msgs::StopReason stop_reason_msg;
+  autoware_planning_msgs::StopFactor stop_factor;
+
+  if (state == lane_change_planner::State::BLOCKED_BY_OBSTACLE) {
+    stop_reason_msg.reason = autoware_planning_msgs::StopReason::BLOCKED_BY_OBSTACLE;
+  } else if (state == lane_change_planner::State::STOPPING_LANE_CHANGE) {
+    stop_reason_msg.reason = autoware_planning_msgs::StopReason::STOPPING_LANE_CHANGE;
+  } else {
+    //not stop. return empty reason_point
+    stop_reason_array.stop_reasons = makeEmptyStopReasons();
+    return stop_reason_array;
+  }
+
+  stop_factor.stop_pose = debug_data.stop_point.point.pose;
+  if (state == lane_change_planner::State::BLOCKED_BY_OBSTACLE) {
+    stop_factor.stop_factor_points.emplace_back(debug_data.stop_factor_point);
+  }
+  // STOPPING_LANE_CHANGE: no stop factor points
+  stop_reason_msg.stop_factors.emplace_back(stop_factor);
+
+  stop_reason_array.stop_reasons.emplace_back(stop_reason_msg);
+  return stop_reason_array;
+}
+
+std::vector<autoware_planning_msgs::StopReason> LaneChanger::makeEmptyStopReasons()
+{
+  autoware_planning_msgs::StopReason stop_reason_blocked;
+  stop_reason_blocked.reason = autoware_planning_msgs::StopReason::BLOCKED_BY_OBSTACLE;
+  autoware_planning_msgs::StopReason stop_reason_stopping;
+  stop_reason_stopping.reason = autoware_planning_msgs::StopReason::STOPPING_LANE_CHANGE;
+
+  std::vector<autoware_planning_msgs::StopReason> stop_reasons;
+  stop_reasons.emplace_back(stop_reason_blocked);
+  stop_reasons.emplace_back(stop_reason_stopping);
+  return stop_reasons;
 }
 
 }  // namespace lane_change_planner

@@ -27,6 +27,7 @@
 #include <autoware_perception_msgs/DynamicObjectArray.h>
 #include <autoware_planning_msgs/PathWithLaneId.h>
 #include <autoware_planning_msgs/Route.h>
+#include <autoware_planning_msgs/StopReasonArray.h>
 
 #include <lane_change_planner/data_manager.h>
 #include <lane_change_planner/route_handler.h>
@@ -49,6 +50,7 @@ private:
   ros::Publisher path_publisher_;
   ros::Publisher candidate_path_publisher_;
   ros::Publisher path_marker_publisher_;
+  ros::Publisher stop_reason_publisher_;
   ros::Publisher drivable_area_publisher_;
   ros::Publisher lane_change_ready_publisher_;
   ros::Publisher lane_change_available_publisher_;
@@ -73,6 +75,9 @@ private:
   void run(const ros::TimerEvent & event);
   void publishDebugMarkers();
   void publishDrivableArea(const autoware_planning_msgs::PathWithLaneId & path);
+  autoware_planning_msgs::StopReasonArray makeStopReasonArray(
+    const DebugData & debug_data, const State & state);
+  std::vector<autoware_planning_msgs::StopReason> makeEmptyStopReasons();
   void waitForData();
 
 public:

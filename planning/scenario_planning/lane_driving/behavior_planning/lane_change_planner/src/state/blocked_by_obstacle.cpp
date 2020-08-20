@@ -239,6 +239,7 @@ autoware_planning_msgs::PathWithLaneId BlockedByObstacleState::setStopPointFromO
     closest_distance - ros_parameters_.minimum_lane_change_length - ros_parameters_.base_link2front;
   stop_insert_length = std::max(stop_insert_length, 0.0);
   autoware_planning_msgs::PathWithLaneId modified_path = path;
+  debug_data_.stop_factor_point = closest_object.state.pose_covariance.pose.position;
   debug_data_.stop_point = util::insertStopPoint(stop_insert_length, &modified_path);
   return modified_path;
 }
