@@ -86,6 +86,7 @@ private:
   double stop_state_acc_;
   double stop_state_entry_ego_speed_;
   double stop_state_entry_target_speed_;
+  double stop_state_keep_stopping_dist_;
 
   // delay compensation
   double delay_compensation_time_;
@@ -193,8 +194,10 @@ private:
   double getDt();
   enum Shift getCurrentShift(const double target_velocity) const;
 
+  void setToIsStopped();
+
   /* check condition */
-  bool checkIsStopped(double current_vel, double target_vel) const;
+  bool checkIsStopped(double current_vel, double target_vel, int closest) const;
   bool checkSmoothStop(const int closest, const double target_vel) const;
   bool checkEmergency(int closest, double target_vel) const;
 

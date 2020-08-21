@@ -49,6 +49,7 @@ VelocityController::VelocityController()
   pnh_.param("stop_state_acc", stop_state_acc_, -2.0);                               // [m/s^2]
   pnh_.param("stop_state_entry_ego_speed", stop_state_entry_ego_speed_, 0.2);        // [m/s]
   pnh_.param("stop_state_entry_target_speed", stop_state_entry_target_speed_, 0.1);  // [m/s]
+  pnh_.param("stop_state_keep_stopping_dist", stop_state_keep_stopping_dist_, 0.5);  // [m/s]
 
   // parameters for delay compensation
   pnh_.param("delay_compensation_time", delay_compensation_time_, 0.17);  // [sec]
@@ -230,6 +231,7 @@ void VelocityController::callbackConfig(
   stop_state_acc_ = config.stop_state_acc;
   stop_state_entry_ego_speed_ = config.stop_state_entry_ego_speed;
   stop_state_entry_target_speed_ = config.stop_state_entry_target_speed;
+  stop_state_keep_stopping_dist_ = config.stop_state_keep_stopping_dist;
 
   // delay compensation
   delay_compensation_time_ = config.delay_compensation_time;
@@ -336,7 +338,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
    * Output acceleration : "stop_state_acc_" with max_jerk limit. (depending on the vehicle interface)
    *
    */
-  if (checkIsStopped(current_vel, target_vel)) {
+  if (checkIsStopped(current_vel, target_vel, closest_idx)) {
     double acc_cmd = calcFilteredAcc(stop_state_acc_, pitch_filtered, dt, shift);
     control_mode_ = ControlMode::STOPPED;
     ROS_DEBUG("[Stopped]. vel: %3.3f, acc: %3.3f", stop_state_vel_, acc_cmd);
@@ -493,7 +495,7 @@ bool VelocityController::checkSmoothStop(const int closest, const double target_
   bool is_large_target_speed = std::fabs(target_vel) > smooth_stop_param_.entry_target_speed;
   bool is_large_ego_speed =
     std::fabs(current_vel_ptr_->twist.linear.x) > smooth_stop_param_.entry_ego_speed;
-  if (is_large_target_speed || is_large_ego_speed) {
+  if (control_mode_ != ControlMode::SMOOTH_STOP && (is_large_target_speed || is_large_ego_speed)) {
     return false;
   }
 
@@ -504,12 +506,22 @@ bool VelocityController::checkSmoothStop(const int closest, const double target_
   return false;
 }
 
-bool VelocityController::checkIsStopped(double current_vel, double target_vel) const
+bool VelocityController::checkIsStopped(double current_vel, double target_vel, int closest) const
 {
   if (is_smooth_stop_) return false;  // stopping.
 
   // Prevent a direct transition from PID_CONTROL to STOPPED without going through SMOOTH_STOP.
   if (control_mode_ == ControlMode::PID_CONTROL) return false;
+
+  if (control_mode_ == ControlMode::STOPPED) {
+    double dist = calcStopDistance(*trajectory_ptr_, closest);
+    if (dist < stop_state_keep_stopping_dist_) {
+      ROS_DEBUG(
+        "stop_dist = %f < %f : stop_state_keep_stopping_dist_. keep stopping.", dist,
+        stop_state_keep_stopping_dist_);
+      return true;
+    }
+  }
 
   if (
     std::fabs(current_vel) < stop_state_entry_ego_speed_ &&
@@ -615,6 +627,7 @@ double VelocityController::calcSmoothStopAcc()
     acc_cmd = smooth_stop_param_.stop_brake_acc;
     ROS_DEBUG("[VC Smooth Stop] finish smooth stopping! acc = %f", acc_cmd);
     resetSmoothStop();
+    control_mode_ = ControlMode::STOPPED;  // set to STOPPED when smooth stop finished.
   }
 
   return acc_cmd;
@@ -623,7 +636,7 @@ double VelocityController::calcSmoothStopAcc()
 double VelocityController::calcStopDistance(
   const autoware_planning_msgs::Trajectory & trajectory, const int origin) const
 {
-  constexpr double zero_velocity = 0.01;
+  constexpr double zero_velocity = std::numeric_limits<double>::epsilon();
   const double origin_velocity = trajectory.points.at(origin).twist.linear.x;
   double stop_dist = 0.0;
 
