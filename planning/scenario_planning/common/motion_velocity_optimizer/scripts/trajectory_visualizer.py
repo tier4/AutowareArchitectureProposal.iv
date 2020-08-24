@@ -13,6 +13,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-l', '--length', help='max arclength in plot')
+parser.add_argument('-t', '--type', help='Options  VEL(default): show velocity only, VEL_ACC_JERK: show vel & acc & jerk')
 
 args = parser.parse_args()
 
@@ -23,8 +24,16 @@ else:
 print('max arclength = ' + str(PLOT_MAX_ARCLENGTH))
 
 
-# PLOT_TYPE = "VEL_ACC_JERK"
-PLOT_TYPE = "VEL_ONLY"
+if args.type == None:
+    PLOT_TYPE = "VEL"
+elif args.type == "VEL":
+    PLOT_TYPE = "VEL"
+elif args.type == "VEL_ACC_JERK":
+    PLOT_TYPE = "VEL_ACC_JERK"
+else:
+    print("invalid type. set default VEL.")
+    PLOT_TYPE = "VEL"
+print('plot type = ' + PLOT_TYPE)
 
 PATH_ORIGIN_FRAME = "map"
 SELF_POSE_FRAME = "base_link"
@@ -111,52 +120,55 @@ class TrajectoryVisualizer():
 
         rospy.loginfo("plot called")
 
-        x = self.CalcArcLengthPathWLid(self.lane_change_path)
-        y = self.ToVelListPathWLid(self.lane_change_path)
-        if len(x) == len(y):
-            ax1.plot(x, y, label="0: lane_change_path", marker="")
+        # copy
+        lane_change_path = self.lane_change_path
+        behavior_path = self.behavior_path
+        obstacle_avoid_traj = self.obstacle_avoid_traj
+        obstacle_stop_traj = self.obstacle_stop_traj
+        trajectory_raw = self.trajectory_raw
+        trajectory_external_velocity_limitted = self.trajectory_external_velocity_limitted
+        trajectory_lateral_acc_filtered = self.trajectory_lateral_acc_filtered
+        trajectory_time_resamped = self.trajectory_time_resamped
+        trajectory_final = self.trajectory_final
 
-        x = self.CalcArcLengthPath(self.behavior_path)
-        y = self.ToVelListPath(self.behavior_path)
-        if len(x) == len(y):
-            ax1.plot(x, y, label="1: behavior_path", marker="", ls="--")
 
-        x = self.CalcArcLength(self.obstacle_avoid_traj)
-        y = self.ToVelList(self.obstacle_avoid_traj)
-        if len(x) == len(y):
-            ax1.plot(x, y, label="2: obstacle_avoid_traj", marker="", ls="-.")
+        x = self.CalcArcLengthPathWLid(lane_change_path)
+        y = self.ToVelListPathWLid(lane_change_path)
+        ax1.plot(x, y, label="0: lane_change_path", marker="")
 
-        x = self.CalcArcLength(self.obstacle_stop_traj)
-        y = self.ToVelList(self.obstacle_stop_traj)
-        if len(x) == len(y):
-            ax1.plot(x, y, label="3: obstacle_stop_traj", marker="", ls="--")
+        x = self.CalcArcLengthPath(behavior_path)
+        y = self.ToVelListPath(behavior_path)
+        ax1.plot(x, y, label="1: behavior_path", marker="", ls="--")
 
-        x = self.CalcArcLength(self.trajectory_raw)
-        y = self.ToVelList(self.trajectory_raw)
-        if len(x) == len(y):
-            ax1.plot(x, y, label="4-1: opt input", marker="", ls="--")
+        x = self.CalcArcLength(obstacle_avoid_traj)
+        y = self.ToVelList(obstacle_avoid_traj)
+        ax1.plot(x, y, label="2: obstacle_avoid_traj", marker="", ls="-.")
 
-        x = self.CalcArcLength(self.trajectory_external_velocity_limitted)
-        y = self.ToVelList(self.trajectory_external_velocity_limitted)
-        if len(x) == len(y):
-            ax1.plot(x, y, label="4-2: opt external_velocity_limitted", marker="", ls="--")
+        x = self.CalcArcLength(obstacle_stop_traj)
+        y = self.ToVelList(obstacle_stop_traj)
+        ax1.plot(x, y, label="3: obstacle_stop_traj", marker="", ls="--")
 
-        x = self.CalcArcLength(self.trajectory_lateral_acc_filtered)
-        y = self.ToVelList(self.trajectory_lateral_acc_filtered)
-        if len(x) == len(y):
-            ax1.plot(x, y, label="4-3: opt lat_acc_filtered", marker="*", ls="--")
+        x = self.CalcArcLength(trajectory_raw)
+        y = self.ToVelList(trajectory_raw)
+        ax1.plot(x, y, label="4-1: opt input", marker="", ls="--")
 
-        x = self.CalcArcLength(self.trajectory_time_resamped)
-        y = self.ToVelList(self.trajectory_time_resamped)
-        if len(x) == len(y):
-            ax1.plot(x, y, label="4-4: opt time_resamped", marker="*", ls="--")
+        x = self.CalcArcLength(trajectory_external_velocity_limitted)
+        y = self.ToVelList(trajectory_external_velocity_limitted)
+        ax1.plot(x, y, label="4-2: opt external_velocity_limitted", marker="", ls="--")
 
-        x = self.CalcArcLength(self.trajectory_final)
-        y = self.ToVelList(self.trajectory_final)
-        if len(x) == len(y):
-            ax1.plot(x, y, label="4-5: opt final", marker="*", ls="--")
+        x = self.CalcArcLength(trajectory_lateral_acc_filtered)
+        y = self.ToVelList(trajectory_lateral_acc_filtered)
+        ax1.plot(x, y, label="4-3: opt lat_acc_filtered", marker="*", ls="--")
 
-        closest = self.calcClosestTrajectory(self.trajectory_final)
+        x = self.CalcArcLength(trajectory_time_resamped)
+        y = self.ToVelList(trajectory_time_resamped)
+        ax1.plot(x, y, label="4-4: opt time_resamped", marker="*", ls="--")
+
+        x = self.CalcArcLength(trajectory_final)
+        y = self.ToVelList(trajectory_final)
+        ax1.plot(x, y, label="4-5: opt final", marker="*", ls="--")
+
+        closest = self.calcClosestTrajectory(trajectory_final)
         if closest >= 0:
             x_closest = x[closest]
             ax1.plot(x_closest, self.localization_twist.linear.x, label="localization twist vx", color="r", marker="*", ls=":", markersize=10)
@@ -169,7 +181,7 @@ class TrajectoryVisualizer():
         ax1.set_xlim([0, PLOT_MAX_ARCLENGTH])
         ax1.set_ylabel("vel [m/s]")
 
-        plt.pause(.01)
+        plt.pause(0.01)
 
 
     def CalcArcLength(self, traj):
@@ -295,43 +307,47 @@ class TrajectoryVisualizer():
         return j_arr
 
     def plotTrajectory(self):
+
+        # copy
+        trajectory_raw = self.trajectory_raw
+        trajectory_external_velocity_limitted = self.trajectory_external_velocity_limitted
+        trajectory_lateral_acc_filtered = self.trajectory_lateral_acc_filtered
+        trajectory_time_resamped = self.trajectory_time_resamped
+        trajectory_final = self.trajectory_final
+
+
         plt.clf()
         ax1 = plt.subplot(3,1,1)#row, col, index(<raw*col)
-        x = self.CalcArcLength(self.trajectory_raw)
-        y = self.ToVelList(self.trajectory_raw)
-        if len(x) == len(y):
-            ax1.plot(x, y, label="0: raw", marker="")
+        x = self.CalcArcLength(trajectory_raw)
+        y = self.ToVelList(trajectory_raw)
+        ax1.plot(x, y, label="0: raw", marker="")
 
-        x = self.CalcArcLength(self.trajectory_external_velocity_limitted)
-        y = self.ToVelList(self.trajectory_external_velocity_limitted)
-        if len(x) == len(y):
-            ax1.plot(x, y, label="1: external_velocity_limitted", marker="")
+        x = self.CalcArcLength(trajectory_external_velocity_limitted)
+        y = self.ToVelList(trajectory_external_velocity_limitted)
+        ax1.plot(x, y, label="1: external_velocity_limitted", marker="")
 
-        x = self.CalcArcLength(self.trajectory_lateral_acc_filtered)
-        y = self.ToVelList(self.trajectory_lateral_acc_filtered)
-        if len(x) == len(y):
-            ax1.plot(x, y, label="2: lateral_acc_filtered", marker="*")
+        x = self.CalcArcLength(trajectory_lateral_acc_filtered)
+        y = self.ToVelList(trajectory_lateral_acc_filtered)
+        ax1.plot(x, y, label="2: lateral_acc_filtered", marker="*")
 
-        x = self.CalcArcLength(self.trajectory_time_resamped)
-        y = self.ToVelList(self.trajectory_time_resamped)
-        if len(x) == len(y):
-            ax1.plot(x, y, label="3: time_resamped", marker="*")
+        x = self.CalcArcLength(trajectory_time_resamped)
+        y = self.ToVelList(trajectory_time_resamped)
+        ax1.plot(x, y, label="3: time_resamped", marker="*")
 
-        x = self.CalcArcLength(self.trajectory_final)
-        y = self.ToVelList(self.trajectory_final)
-        if len(x) == len(y):
-            ax1.plot(x, y, label="4: final", marker="*")
+        x = self.CalcArcLength(trajectory_final)
+        y = self.ToVelList(trajectory_final)
+        ax1.plot(x, y, label="4: final", marker="*")
         ax1.set_title("trajectorys velocity")
         ax1.legend()
-        ax1.set_xlim([0, 200])
+        ax1.set_xlim([0, PLOT_MAX_ARCLENGTH])
         ax1.set_ylabel("vel [m/s]")
 
         ax2 = plt.subplot(3,1,2)
-        x = self.CalcArcLength(self.trajectory_final)
-        y = self.CalcAcceleration(self.trajectory_final)
+        x = self.CalcArcLength(trajectory_final)
+        y = self.CalcAcceleration(trajectory_final)
         if len(x) == len(y):
             ax2.plot(x, y, label="final")
-            ax2.set_xlim([0, 200])
+            ax2.set_xlim([0, PLOT_MAX_ARCLENGTH])
             ax2.set_ylim([-5, 5])
         ax2.set_ylabel("acc [m/ss]")
 
@@ -339,11 +355,11 @@ class TrajectoryVisualizer():
         # ax2.legend()
 
         ax3 = plt.subplot(3,1,3)
-        x = self.CalcArcLength(self.trajectory_final)
-        y = self.CalcJerk(self.trajectory_final)
+        x = self.CalcArcLength(trajectory_final)
+        y = self.CalcJerk(trajectory_final)
         if len(x) == len(y):
             ax3.plot(x, y, label="final")
-            ax3.set_xlim([0, 200])
+            ax3.set_xlim([0, PLOT_MAX_ARCLENGTH])
             ax3.set_ylim([-2, 2])
         ax3.set_xlabel("arclength [m]")
         ax3.set_ylabel("jerk [m/sss]")
