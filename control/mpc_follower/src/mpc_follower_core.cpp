@@ -197,10 +197,15 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::ControlCommand * ctrl_cmd)
     return false;
   }
 
+  /* recalculate velocity from ego-velocity with dynamics */
+  MPCTrajectory reference_trajectory = calcActualVelocity(ref_traj_);
+
   int nearest_idx;
   double nearest_time, steer, lat_err, yaw_err;
   geometry_msgs::Pose nearest_pose;
-  if (!getVar(&nearest_idx, &nearest_time, &nearest_pose, &steer, &lat_err, &yaw_err)) {
+  if (!getVar(
+        reference_trajectory, &nearest_idx, &nearest_time, &nearest_pose, &steer, &lat_err,
+        &yaw_err)) {
     return false;
   }
 
@@ -208,19 +213,16 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::ControlCommand * ctrl_cmd)
   Eigen::VectorXd x0 = getInitialState(lat_err, yaw_err, steer);
 
   /* delay compensation */
-  if (!updateStateForDelayCompensation(nearest_time, &x0)) {
+  if (!updateStateForDelayCompensation(reference_trajectory, nearest_time, &x0)) {
     ROS_WARN_DELAYED_THROTTLE(
       1.0, "[MPC] updateStateForDelayCompensation failed. stop computation.");
     return false;
   }
 
-  /* overwrite trajectory velocity with current velocity */
-  MPCTrajectory ref_traj_actvel = calcActualVelocity(nearest_idx, ref_traj_);
-
   /* resample ref_traj with mpc sampling time */
   MPCTrajectory mpc_resampled_ref_traj;
   const double mpc_start_time = nearest_time + mpc_param_.input_delay;
-  if (!resampleMPCTrajectoryByTime(mpc_start_time, ref_traj_actvel, &mpc_resampled_ref_traj)) {
+  if (!resampleMPCTrajectoryByTime(mpc_start_time, reference_trajectory, &mpc_resampled_ref_traj)) {
     return false;
   }
 
@@ -278,9 +280,10 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::ControlCommand * ctrl_cmd)
   {
     double curr_v = current_velocity_ptr_->twist.linear.x;
     double nearest_k = 0.0;
-    LinearInterpolate::interpolate(ref_traj_.relative_time, ref_traj_.k, nearest_time, nearest_k);
+    LinearInterpolate::interpolate(
+      reference_trajectory.relative_time, reference_trajectory.k, nearest_time, nearest_k);
 
-    MPCTrajectory tmp_traj = ref_traj_;
+    MPCTrajectory tmp_traj = reference_trajectory;
     MPCUtils::calcTrajectoryCurvature(1, &tmp_traj);
     double curvature_raw = tmp_traj.k[nearest_idx];
     double steer_cmd = ctrl_cmd->steering_angle;
@@ -322,11 +325,11 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::ControlCommand * ctrl_cmd)
 }
 
 bool MPCFollower::getVar(
-  int * nearest_idx, double * nearest_time, geometry_msgs::Pose * nearest_pose, double * steer,
-  double * lat_err, double * yaw_err)
+  const MPCTrajectory & traj, int * nearest_idx, double * nearest_time,
+  geometry_msgs::Pose * nearest_pose, double * steer, double * lat_err, double * yaw_err)
 {
   if (!MPCUtils::calcNearestPoseInterp(
-        ref_traj_, current_pose_ptr_->pose, nearest_pose, nearest_idx, nearest_time)) {
+        traj, current_pose_ptr_->pose, nearest_pose, nearest_idx, nearest_time)) {
     ROS_WARN_DELAYED_THROTTLE(
       5.0, "[MPC] calculateMPC: error in calculating nearest pose. stop mpc.");
     return false;
@@ -352,8 +355,7 @@ bool MPCFollower::getVar(
     return false;
   }
   /* check trajectory time length */
-  if (
-    *nearest_time + mpc_param_.input_delay + getPredictionTime() > ref_traj_.relative_time.back()) {
+  if (*nearest_time + mpc_param_.input_delay + getPredictionTime() > traj.relative_time.back()) {
     ROS_WARN_DELAYED_THROTTLE(1.0, "[MPC] path is too short for prediction.");
     return false;
   }
@@ -405,7 +407,8 @@ Eigen::VectorXd MPCFollower::getInitialState(
   return x0;
 }
 
-bool MPCFollower::updateStateForDelayCompensation(const double & start_time, Eigen::VectorXd * x)
+bool MPCFollower::updateStateForDelayCompensation(
+  const MPCTrajectory & traj, const double & start_time, Eigen::VectorXd * x)
 {
   const int DIM_X = vehicle_model_ptr_->getDimX();
   const int DIM_U = vehicle_model_ptr_->getDimU();
@@ -422,8 +425,8 @@ bool MPCFollower::updateStateForDelayCompensation(const double & start_time, Eig
     double k = 0.0;
     double v = 0.0;
     if (
-      !LinearInterpolate::interpolate(ref_traj_.relative_time, ref_traj_.k, mpc_curr_time, k) ||
-      !LinearInterpolate::interpolate(ref_traj_.relative_time, ref_traj_.vx, mpc_curr_time, v)) {
+      !LinearInterpolate::interpolate(traj.relative_time, traj.k, mpc_curr_time, k) ||
+      !LinearInterpolate::interpolate(traj.relative_time, traj.vx, mpc_curr_time, v)) {
       ROS_ERROR(
         "[MPC] mpc resample error at delay compensation, stop mpc calculation. check code!");
       return false;
@@ -442,16 +445,17 @@ bool MPCFollower::updateStateForDelayCompensation(const double & start_time, Eig
   return true;
 }
 
-MPCTrajectory MPCFollower::calcActualVelocity(const int nearest, const MPCTrajectory & input)
+MPCTrajectory MPCFollower::calcActualVelocity(const MPCTrajectory & input)
 {
+  int nearest_idx = MPCUtils::calcNearestIndex(input, current_pose_ptr_->pose);
+  if (nearest_idx < 0) return input;
+
   MPCTrajectory output = input;
-  const double tau_velocity = 0.01;
-  const double acc_lim_velocity = 3.0;
   MPCUtils::dynamicSmoothingVelocity(
-    nearest, current_velocity_ptr_->twist.linear.x, acc_lim_velocity, tau_velocity, &output);
-  const double predict_time = (mpc_param_.prediction_horizon + 1) * mpc_param_.prediction_dt +
-                              mpc_param_.input_delay + ctrl_period_;
-  const double t_end = output.relative_time.back() + predict_time;
+    nearest_idx, current_velocity_ptr_->twist.linear.x, mpc_param_.acceleration_limit,
+    mpc_param_.velocity_time_constant, &output);
+  const double t_ext = 100.0;  // extra time to prevent mpc calculation failure due to short time
+  const double t_end = output.relative_time.back() + getPredictionTime() + t_ext;
   const double v_end = 0.0;
   output.vx.back() = v_end;  // set for end point
   output.push_back(
@@ -497,14 +501,18 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
   Eigen::MatrixXd Cd(DIM_Y, DIM_X);
   Eigen::MatrixXd Uref(DIM_U, 1);
 
+  constexpr double ep = 1.0e-3;  // large enough to ingore velocity noise
+  const double curr_vel = current_velocity_ptr_->twist.linear.x;
+  const double sign_curr_vx = curr_vel > ep ? 1 : (curr_vel < -ep ? -1 : 0);
+
   /* predict dynamics for N times */
   for (int i = 0; i < N; ++i) {
-    const double ep = 1.0e-3;
-    const double sign_vx =
-      reference_trajectory.vx[i] > ep ? 1 : (reference_trajectory.vx[i] < -ep ? -1 : 0);
-    const double ref_k = reference_trajectory.k[i] * sign_vx;
     const double ref_vx = reference_trajectory.vx[i];
     const double ref_vx_squared = ref_vx * ref_vx;
+    const double sign_vx = ref_vx > ep ? 1 : (ref_vx < -ep ? -1 : sign_curr_vx);
+
+    // curvature will be 0 when vehicle stops
+    const double ref_k = reference_trajectory.k[i] * sign_vx;
 
     /* get discrete state matrix A, B, C, W */
     vehicle_model_ptr_->setVelocity(ref_vx);
@@ -785,8 +793,9 @@ void MPCFollower::callbackTrajectory(const autoware_planning_msgs::Trajectory::C
   MPCUtils::calcTrajectoryCurvature(curvature_smoothing_num_, &mpc_traj_smoothed);
 
   /* add end point with vel=0 on traj for mpc prediction */
+  const double t_ext = 100.0;  // extra time to prevent mpc calculation failure due to short time
   const double t_end =
-    mpc_traj_smoothed.relative_time.back() + getPredictionTime() + mpc_param_.input_delay + 100.0;
+    mpc_traj_smoothed.relative_time.back() + getPredictionTime() + mpc_param_.input_delay + t_ext;
   const double v_end = 0.0;
   mpc_traj_smoothed.vx.back() = v_end;  // set for end point
   mpc_traj_smoothed.push_back(

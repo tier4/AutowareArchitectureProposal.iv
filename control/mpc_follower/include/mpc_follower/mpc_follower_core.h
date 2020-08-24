@@ -138,7 +138,9 @@ private:
     double weight_terminal_lat_error;      //< @brief terminal lateral error weight in matrix Q
     double weight_terminal_heading_error;  //< @brief terminal heading error weight in matrix Q
     double zero_ff_steer_deg;              //< @brief threshold that feed-forward angle becomes zero
-    double input_delay;  //< @brief delay time for steering input to be compensated
+    double input_delay;             //< @brief delay time for steering input to be compensated
+    double acceleration_limit;      //< @brief for trajectory velocity calculation
+    double velocity_time_constant;  //< @brief for trajectory velocity calculation
   };
   MPCParam mpc_param_;  // for mpc design parameter
 
@@ -197,8 +199,8 @@ private:
    * @brief get varables for mpc calculation
    */
   bool getVar(
-    int * closest_idx, double * closest_time, geometry_msgs::Pose * closest_pose, double * steer,
-    double * lat_err, double * yaw_err);
+    const MPCTrajectory & traj, int * closest_idx, double * closest_time,
+    geometry_msgs::Pose * closest_pose, double * steer, double * lat_err, double * yaw_err);
 
   /**
    * @brief set curent_steer with receved message
@@ -235,7 +237,8 @@ private:
    * @param [in] start_time start time for update
    * @param [out] x updated state at delayed_time
    */
-  bool updateStateForDelayCompensation(const double & start_time, Eigen::VectorXd * x);
+  bool updateStateForDelayCompensation(
+    const MPCTrajectory & traj, const double & start_time, Eigen::VectorXd * x);
 
   /**
    * @brief generate MPC matrix with trajectory and vehicle model
@@ -257,7 +260,7 @@ private:
 
   bool resampleMPCTrajectoryByTime(
     double start_time, const MPCTrajectory & input, MPCTrajectory * output) const;
-  MPCTrajectory calcActualVelocity(const int closest, const MPCTrajectory & trajectory);
+  MPCTrajectory calcActualVelocity(const MPCTrajectory & trajectory);
   double getPredictionTime() const;
   void addSteerWeightR(Eigen::MatrixXd * R) const;
   void addSteerWeightF(Eigen::MatrixXd * f) const;
@@ -279,6 +282,8 @@ private:
     mpc_param_.weight_terminal_lat_error = config.mpc_weight_terminal_lat_error;
     mpc_param_.weight_terminal_heading_error = config.mpc_weight_terminal_heading_error;
     mpc_param_.zero_ff_steer_deg = config.mpc_zero_ff_steer_deg;
+    mpc_param_.acceleration_limit = config.acceleration_limit;
+    mpc_param_.velocity_time_constant = config.velocity_time_constant;
   }
 
   /* ---------- debug ---------- */
