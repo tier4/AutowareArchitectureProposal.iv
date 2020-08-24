@@ -29,6 +29,7 @@ bool selectLaneChangePath(
   const lanelet::routing::RoutingGraphContainer & overall_graphs,
   const autoware_perception_msgs::DynamicObjectArray::ConstPtr & dynamic_objects,
   const geometry_msgs::Pose & current_pose, const geometry_msgs::Twist & current_twist,
+  const bool isInGoalRouteSection, const geometry_msgs::Pose & goal_pose,
   const LaneChangerParameters & ros_parameters, LaneChangePath * selected_path)
 {
   for (const auto & path : paths) {
@@ -37,7 +38,9 @@ bool selectLaneChangePath(
           ros_parameters, true, path.acceleration)) {
       continue;
     }
-    if (!hasEnoughDistance(path, current_lanes, target_lanes, current_pose, overall_graphs)) {
+    if (!hasEnoughDistance(
+          path, current_lanes, target_lanes, current_pose, isInGoalRouteSection, goal_pose,
+          overall_graphs)) {
       continue;
     }
     *selected_path = path;
@@ -56,6 +59,7 @@ bool selectLaneChangePath(
 bool hasEnoughDistance(
   const LaneChangePath & path, const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes, const geometry_msgs::Pose & current_pose,
+  const bool isInGoalRouteSection, const geometry_msgs::Pose & goal_pose,
   const lanelet::routing::RoutingGraphContainer & overall_graphs)
 {
   const double lane_change_prepare_distance = path.preparation_length;
@@ -68,6 +72,12 @@ bool hasEnoughDistance(
 
   if (
     lane_change_total_distance > util::getDistanceToNextIntersection(current_pose, current_lanes)) {
+    return false;
+  }
+
+  if (
+    isInGoalRouteSection &&
+    lane_change_total_distance > util::getSignedDistance(current_pose, goal_pose, current_lanes)) {
     return false;
   }
 

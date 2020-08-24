@@ -973,6 +973,16 @@ double getDistanceToCrosswalk(
   return std::numeric_limits<double>::max();
 }
 
+double getSignedDistance(
+  const geometry_msgs::Pose & current_pose, const geometry_msgs::Pose & goal_pose,
+  const lanelet::ConstLanelets & lanelets)
+{
+  const auto arc_current = lanelet::utils::getArcCoordinates(lanelets, current_pose);
+  const auto arc_goal = lanelet::utils::getArcCoordinates(lanelets, goal_pose);
+
+  return arc_goal.length - arc_current.length;
+}
+
 std::vector<uint64_t> getIds(const lanelet::ConstLanelets & lanelets)
 {
   std::vector<uint64_t> ids;

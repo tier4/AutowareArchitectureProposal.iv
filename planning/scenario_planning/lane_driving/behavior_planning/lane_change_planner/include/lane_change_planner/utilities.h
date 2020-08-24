@@ -134,6 +134,9 @@ double getDistanceToNextIntersection(
 double getDistanceToCrosswalk(
   const geometry_msgs::Pose & current_pose, const lanelet::ConstLanelets & lanelets,
   const lanelet::routing::RoutingGraphContainer & overall_graphs);
+double getSignedDistance(
+  const geometry_msgs::Pose & current_pose, const geometry_msgs::Pose & goal_pose,
+  const lanelet::ConstLanelets & lanelets);
 
 std::vector<uint64_t> getIds(const lanelet::ConstLanelets & lanelets);
 

@@ -110,8 +110,9 @@ void FollowingLaneState::update()
       LaneChangePath selected_path;
       if (state_machine::common_functions::selectLaneChangePath(
             lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
-            dynamic_objects_, current_pose_.pose, current_twist_->twist, ros_parameters_,
-            &selected_path)) {
+            dynamic_objects_, current_pose_.pose, current_twist_->twist,
+            route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
+            route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path)) {
         found_safe_path = true;
       }
       debug_data_.selected_path = selected_path.path;
