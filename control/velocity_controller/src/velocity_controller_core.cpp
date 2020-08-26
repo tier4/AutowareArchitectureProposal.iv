@@ -62,6 +62,7 @@ VelocityController::VelocityController()
   // parameters for smooth stop
   {
     auto & p = smooth_stop_param_;
+    pnh_.param("smooth_stop/stop_dist", p.stop_dist_, 3.0);                         // [m/s^2]
     pnh_.param("smooth_stop/exit_ego_speed", p.exit_ego_speed, 2.0);                // [m/s]
     pnh_.param("smooth_stop/exit_target_speed", p.exit_target_speed, 2.0);          // [m/s]
     pnh_.param("smooth_stop/entry_ego_speed", p.entry_ego_speed, 1.0);              // [m/s]
@@ -73,7 +74,6 @@ VelocityController::VelocityController()
       "smooth_stop/increasing_brake_gradient", p.increasing_brake_gradient, -0.05);  // [m/s^3]
     pnh_.param("smooth_stop/stop_brake_time", p.stop_brake_time, 2.0);               // [sec]
     pnh_.param("smooth_stop/stop_brake_acc", p.stop_brake_acc, -1.7);                // [m/s^2]
-    pnh_.param("smooth_stop/stop_dist_", p.stop_dist_, 3.0);                         // [m/s^2]
   }
 
   // parameters for acceleration limit
