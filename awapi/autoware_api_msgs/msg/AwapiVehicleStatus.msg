@@ -8,7 +8,7 @@ float64 steering
 float64 steering_velocity
 float64 angular_velocity
 int32 gear
-float64 distance_to_empty
+float32 energy_level
 int32 turn_signal
 float64 target_velocity
 float64 target_acceleration
