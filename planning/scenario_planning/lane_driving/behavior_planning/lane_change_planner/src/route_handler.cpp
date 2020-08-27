@@ -130,7 +130,12 @@ PathWithLaneId combineReferencePath(
       //set position and other data
       for (size_t i = 0; i < inner_s.size(); ++i) {
         PathPointWithLaneId inner_point;
-        inner_point.lane_ids = path1.points.back().lane_ids;
+        inner_point.lane_ids.insert(
+          inner_point.lane_ids.end(), path1.points.back().lane_ids.begin(),
+          path1.points.back().lane_ids.end());
+        inner_point.lane_ids.insert(
+          inner_point.lane_ids.end(), path2.points.front().lane_ids.begin(),
+          path2.points.front().lane_ids.end());
         inner_point.point.type = path1.points.back().point.type;
         inner_point.point.twist = path1.points.back().point.twist;
         inner_point.point.pose.position.x = inner_x.at(i);
