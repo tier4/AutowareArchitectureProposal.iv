@@ -379,11 +379,11 @@ CtrlCmd VelocityController::calcCtrlCmd()
       start_time_smooth_stop_ = std::make_shared<ros::Time>(ros::Time::now());
     }
     double smooth_stop_acc_cmd = calcSmoothStopAcc();
+    double vel_cmd = 0.0;
     double acc_cmd = calcFilteredAcc(smooth_stop_acc_cmd, pitch_filtered, dt, shift);
     control_mode_ = ControlMode::SMOOTH_STOP;
-    ROS_WARN_THROTTLE(
-      0.5, "[smooth stop]: Smooth stopping. vel: %3.3f, acc: %3.3f", target_vel, acc_cmd);
-    return CtrlCmd{target_vel, acc_cmd};
+    ROS_DEBUG("[smooth stop]: Smooth stopping. vel: %3.3f, acc: %3.3f", vel_cmd, acc_cmd);
+    return CtrlCmd{vel_cmd, acc_cmd};
   }
 
   /* ===== FEEDBACK CONTROL =====
@@ -521,6 +521,7 @@ bool VelocityController::checkIsStopped(double current_vel, double target_vel, i
         stop_state_keep_stopping_dist_);
       return true;
     }
+    ROS_DEBUG("stop_dist = %f release stopping.", dist);
   }
 
   if (
