@@ -33,16 +33,16 @@ struct DiagStamped
   diagnostic_msgs::DiagnosticStatus status;
 };
 
-using RequiredConditions = std::vector<std::string>;
+using RequiredModules = std::vector<std::string>;
 using DiagBuffer = std::deque<DiagStamped>;
 
 struct KeyName
 {
-  static constexpr const char * manual_driving = "/manual_driving";
-  static constexpr const char * autonomous_driving = "/autonomous_driving";
-  static constexpr const char * remote_control = "/remote_control";
-  static constexpr const char * safe_stop = "/safe_stop";
-  static constexpr const char * emergency_stop = "/emergency_stop";
+  static constexpr const char * manual_driving = "manual_driving";
+  static constexpr const char * autonomous_driving = "autonomous_driving";
+  static constexpr const char * remote_control = "remote_control";
+  static constexpr const char * safe_stop = "safe_stop";
+  static constexpr const char * emergency_stop = "emergency_stop";
 };
 
 class AutowareErrorMonitorNode
@@ -57,9 +57,9 @@ private:
 
   // Parameter
   double update_rate_;
-  std::unordered_map<std::string, RequiredConditions> required_conditions_map_;
+  std::unordered_map<std::string, RequiredModules> required_modules_map_;
 
-  void loadRequiredConditions(const std::string & key);
+  void loadRequiredModules(const std::string & key);
 
   // Timer
   ros::Timer timer_;
