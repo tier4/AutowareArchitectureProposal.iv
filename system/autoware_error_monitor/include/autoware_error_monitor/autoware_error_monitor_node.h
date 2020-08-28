@@ -30,7 +30,7 @@ struct DiagStamped
   diagnostic_msgs::msg::DiagnosticStatus status;
 };
 
-using RequiredConditions = std::vector<std::string>;
+using RequiredModules = std::vector<std::string>;
 using DiagBuffer = std::deque<DiagStamped>;
 
 struct KeyName
@@ -50,9 +50,9 @@ public:
 private:
   // Parameter
   int update_rate_;
-  std::unordered_map<std::string, RequiredConditions> required_conditions_map_;
+  std::unordered_map<std::string, RequiredConditions> required_modules_map_;
 
-  void loadRequiredConditions(const std::string & key);
+  void loadRequiredModules(const std::string & key);
 
   // Timer
   rclcpp::TimerBase::SharedPtr timer_;

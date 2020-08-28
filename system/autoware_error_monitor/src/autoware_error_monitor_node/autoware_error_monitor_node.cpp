@@ -21,11 +21,11 @@ AutowareErrorMonitor::AutowareErrorMonitor()
   update_rate_(declare_parameter("update_rate", 10))
 {
   // Parameter
-  loadRequiredConditions(KeyName::manual_driving);
-  loadRequiredConditions(KeyName::autonomous_driving);
-  loadRequiredConditions(KeyName::remote_control);
-  loadRequiredConditions(KeyName::safe_stop);
-  loadRequiredConditions(KeyName::emergency_stop);
+  loadRequiredModules(KeyName::manual_driving);
+  loadRequiredModules(KeyName::autonomous_driving);
+  loadRequiredModules(KeyName::remote_control);
+  loadRequiredModules(KeyName::safe_stop);
+  loadRequiredModules(KeyName::emergency_stop);
 
   // Subscriber
   sub_diag_array_ = create_subscription<diagnostic_msgs::msg::DiagnosticArray>(
@@ -47,18 +47,18 @@ AutowareErrorMonitor::AutowareErrorMonitor()
   this->get_node_timers_interface()->add_timer(timer_, nullptr);
 }
 
-void AutowareErrorMonitor::loadRequiredConditions(const std::string & key)
+void AutowareErrorMonitor::loadRequiredModules(const std::string & key)
 {
-  const auto param_key = std::string("required_conditions.") + key;
+  const auto param_key = std::string("required_modules.") + key;
 
   this->declare_parameter(param_key);
 
-  RequiredConditions value = this->get_parameter(param_key).as_string_array();
+  RequiredModules value = this->get_parameter(param_key).as_string_array();
   if (value.size() == 0) {
     throw std::runtime_error(fmt::format("no parameter found: {}", param_key));
   }
 
-  required_conditions_map_.insert(std::make_pair(key, value));
+  required_modules_map_.insert(std::make_pair(key, value));
 }
 
 void AutowareErrorMonitor::onDiagArray(
@@ -95,8 +95,8 @@ void AutowareErrorMonitor::onTimer()
 
 bool AutowareErrorMonitor::judgeCapability(const std::string & key)
 {
-  for (const std::string & required_condition : required_conditions_map_.at(key)) {
-    const auto diag_name = fmt::format("/{}", required_condition);
+  for (const std::string & required_module : required_modules_map_.at(key)) {
+    const auto diag_name = required_module;
     const auto & latest_diag = getLatestDiag(diag_name);
 
     if (!latest_diag) {
