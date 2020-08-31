@@ -26,6 +26,7 @@ void EmergencyHandlerNode::onDrivingCapability(
   const autoware_system_msgs::DrivingCapability::ConstPtr & msg)
 {
   driving_capability_ = msg;
+  heartbeat_received_time_ = ros::Time::now();
 }
 
 // To be replaced by ControlCommand
@@ -78,6 +79,10 @@ void EmergencyHandlerNode::onTimer(const ros::TimerEvent & event)
     return;
   }
 
+  // Heartbeat
+  const auto time_from_last_heartbeat = ros::Time::now() - heartbeat_received_time_;
+  is_heartbeat_timeout_ = time_from_last_heartbeat.toSec() > heartbeat_timeout_;
+
   // Create timestamp
   const auto stamp = ros::Time::now();
 
@@ -123,6 +128,12 @@ bool EmergencyHandlerNode::isStopped()
 
 bool EmergencyHandlerNode::isEmergency()
 {
+  // Check timeout
+  if (is_heartbeat_timeout_) {
+    ROS_WARN_THROTTLE(1.0, "heartbeat is timeout");
+    return true;
+  }
+
   using autoware_control_msgs::GateMode;
   using autoware_system_msgs::AutowareState;
 
@@ -190,6 +201,7 @@ EmergencyHandlerNode::EmergencyHandlerNode()
 {
   // Parameter
   private_nh_.param("update_rate", update_rate_, 10.0);
+  private_nh_.param("heartbeat_timeout", heartbeat_timeout_, 0.5);
   private_nh_.param("use_parking_after_stopped", use_parking_after_stopped_, false);
 
   // Subscriber

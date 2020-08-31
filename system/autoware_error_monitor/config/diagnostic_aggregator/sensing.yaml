@@ -7,6 +7,7 @@ analyzers:
         type: diagnostic_aggregator/GenericAnalyzer
         path: topic_status
         contains: ": sensing_topic_status"
+        timeout: 1.0
         num_items: 0
 
       velodyne:

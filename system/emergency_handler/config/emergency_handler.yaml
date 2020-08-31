@@ -1,2 +1,3 @@
 update_rate: 10
+heartbeat_timeout: 0.5
 use_parking_after_stopped: false
