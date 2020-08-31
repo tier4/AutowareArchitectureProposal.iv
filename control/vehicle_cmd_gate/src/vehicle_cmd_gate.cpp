@@ -117,6 +117,7 @@ VehicleCmdGate::VehicleCmdGate()
   // Parameter
   update_period_ = 1.0 / declare_parameter("update_rate", 10.0);
   use_emergency_handling_ = declare_parameter("use_emergency_handling", false);
+  emergency_heartbeat_timeout_ = declare_parameter("emergency_heartbeat_timeout", 0.5);
 
   // Vehicle Parameter
   double wheel_base = declare_parameter("/vehicle_info/wheel_base", 2.79);
@@ -207,6 +208,18 @@ void VehicleCmdGate::onEmergencyShiftCmd(
 
 void VehicleCmdGate::onTimer()
 {
+  // Check emergency heartbeat
+  {
+    const auto time_from_last_heartbeat = ros::Time::now() - emergency_heartbeat_received_time_;
+    is_emergency_heartbeat_timeout_ =
+      time_from_last_heartbeat.toSec() > emergency_heartbeat_timeout_;
+    if (use_emergency_handling_ && is_emergency_heartbeat_timeout_) {
+      ROS_WARN_THROTTLE(1.0, "emergency heartbeat is timeout.");
+      publishEmergencyControlCommands();
+      return;
+    }
+  }
+
   // Select commands
   autoware_vehicle_msgs::msg::TurnSignal turn_signal;
   autoware_vehicle_msgs::msg::ShiftStamped shift;
@@ -235,6 +248,10 @@ void VehicleCmdGate::onTimer()
 
 void VehicleCmdGate::publishControlCommands(const Commands & commands)
 {
+  if (use_emergency_handling_ && is_emergency_heartbeat_timeout_) {
+    return;
+  }
+
   Commands filtered_commands;
 
   // Set default commands
@@ -245,7 +262,7 @@ void VehicleCmdGate::publishControlCommands(const Commands & commands)
 
   // Check emergency
   if (use_emergency_handling_ && is_emergency_) {
-    RCLCPP_INFO_THROTTLE(
+    RCLCPP_WARN_THROTTLE(
       get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(), "Emergency!");
     filtered_commands.control = emergency_commands_.control;
     filtered_commands.shift = emergency_commands_.shift;  // tmp
@@ -278,6 +295,38 @@ void VehicleCmdGate::publishControlCommands(const Commands & commands)
   prev_control_cmd_ = filtered_commands.control.control;
 }
 
+void VehicleCmdGate::publishEmergencyControlCommands()
+{
+  const auto stamp = this->now();
+
+  // ControlCommand
+  autoware_control_msgs::msg::ControlCommandStamped control_cmd;
+  control_cmd.header.stamp = stamp;
+  control_cmd.control = createEmergencyStopControlCmd();
+
+  // Shift
+  autoware_vehicle_msgs::msg::ShiftStamped shift;
+  shift.header.stamp = stamp;
+  shift.shift.data = autoware_vehicle_msgs::msg::Shift::NONE;
+
+  // TurnSignal
+  autoware_vehicle_msgs::msg::TurnSignal turn_signal;
+  turn_signal.header.stamp = stamp;
+  turn_signal.data = autoware_vehicle_msgs::msg::TurnSignal::HAZARD;
+
+  autoware_vehicle_msgs::msg::VehicleCommand vehicle_cmd;
+  vehicle_cmd.header.stamp = stamp;
+  vehicle_cmd.control = control_cmd.control;
+  vehicle_cmd.shift = shift.shift;
+  vehicle_cmd.emergency = true;
+
+  vehicle_cmd_pub_->publish(vehicle_cmd);
+  control_cmd_pub_->publish(control_cmd);
+  gate_mode_pub_->publish(current_gate_mode_);
+  turn_signal_cmd_pub_->publish(turn_signal);
+  shift_cmd_pub_->publish(shift);
+}
+
 autoware_control_msgs::msg::ControlCommand VehicleCmdGate::filterControlCommand(
   const autoware_control_msgs::msg::ControlCommand & in)
 {
@@ -306,6 +355,18 @@ autoware_control_msgs::msg::ControlCommand VehicleCmdGate::createStopControlCmd(
   return cmd;
 }
 
+autoware_control_msgs::msg::ControlCommand VehicleCmdGate::createEmergencyStopControlCmd() const
+{
+  autoware_control_msgs::msg::ControlCommand cmd;
+
+  cmd.steering_angle = prev_control_cmd_.steering_angle;
+  cmd.steering_angle_velocity = prev_control_cmd_.steering_angle_velocity;
+  cmd.velocity = 0.0;
+  cmd.acceleration = -2.5;
+
+  return cmd;
+}
+
 void VehicleCmdGate::onEngage(autoware_control_msgs::msg::EngageMode::ConstSharedPtr msg)
 {
   is_engaged_ = msg->is_engaged;
@@ -314,6 +375,7 @@ void VehicleCmdGate::onEngage(autoware_control_msgs::msg::EngageMode::ConstShare
 void VehicleCmdGate::onEmergency(autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg)
 {
   is_emergency_ = msg->is_emergency;
+  emergency_heartbeat_received_time_ = this->now();
 }
 
 void VehicleCmdGate::onGateMode(autoware_control_msgs::msg::GateMode::ConstSharedPtr msg)

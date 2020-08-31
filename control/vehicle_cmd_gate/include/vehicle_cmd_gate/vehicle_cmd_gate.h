@@ -62,7 +62,11 @@ private:
   bool is_emergency_;
   autoware_control_msgs::msg::GateMode current_gate_mode_;
 
-  // Subscription for auto
+  // Heartbeat
+  rclcpp::Time emergency_heartbeat_received_time_;
+  bool is_emergency_heartbeat_timeout_ = false;
+
+  // Subscriber for auto
   Commands auto_commands_;
   rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
     auto_control_cmd_sub_;
@@ -98,16 +102,19 @@ private:
   // Parameter
   double update_period_;
   bool use_emergency_handling_;
+  double emergency_heartbeat_timeout_;
 
   // Timer / Event
   rclcpp::TimerBase::SharedPtr timer_;
 
   void onTimer();
   void publishControlCommands(const Commands & input_msg);
+  void publishEmergencyControlCommands();
 
   // Algorithm
   autoware_control_msgs::msg::ControlCommand prev_control_cmd_;
   autoware_control_msgs::msg::ControlCommand createStopControlCmd() const;
+  autoware_control_msgs::msg::ControlCommand createEmergencyStopControlCmd() const;
 
   std::shared_ptr<rclcpp::Time> prev_time_;
   double getDt();
