@@ -59,21 +59,23 @@ DetectionAreaModuleManager::DetectionAreaModuleManager(rclcpp::Node & node)
 {
   const std::string ns(getModuleName());
   planner_param_.stop_margin = node.declare_parameter(ns + "/stop_margin", 0.0);
+  planner_param_.use_dead_line = node.declare_parameter(ns + "/use_dead_line", false);
+  planner_param_.dead_line_margin = node.declare_parameter(ns + "/dead_line_margin", 5.0);
+  planner_param_.use_pass_judge_line = node.declare_parameter(ns + "/use_pass_judge_line", false);
+  planner_param_.state_clear_time = node.declare_parameter(ns + "/state_clear_time", 2.0);
 }
 
 void DetectionAreaModuleManager::launchNewModules(
   const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   for (const auto & detection_area_reg_elem :
-    getDetectionAreaRegElemsOnPath(path, planner_data_->lanelet_map))
-  {
+       getDetectionAreaRegElemsOnPath(path, planner_data_->lanelet_map)) {
     // Use lanelet_id to unregister module when the route is changed
     const auto module_id = detection_area_reg_elem.first;
     if (!isModuleRegistered(module_id)) {
-      registerModule(
-        std::make_shared<DetectionAreaModule>(
-          module_id, *(detection_area_reg_elem.second), planner_param_,
-          logger_.get_child("detection_area_module"), clock_));
+      registerModule(std::make_shared<DetectionAreaModule>(
+        module_id, *(detection_area_reg_elem.second), planner_param_,
+        logger_.get_child("detection_area_module"), clock_));
     }
   }
 }
@@ -85,6 +87,6 @@ DetectionAreaModuleManager::getModuleExpiredFunction(
   const auto lanelet_id_set = getLaneletIdSetOnPath(path, planner_data_->lanelet_map);
 
   return [lanelet_id_set](const std::shared_ptr<SceneModuleInterface> & scene_module) {
-           return lanelet_id_set.count(scene_module->getModuleId()) == 0;
-         };
+    return lanelet_id_set.count(scene_module->getModuleId()) == 0;
+  };
 }
