@@ -24,6 +24,7 @@ void EmergencyHandler::onDrivingCapability(
   const autoware_system_msgs::msg::DrivingCapability::ConstSharedPtr msg)
 {
   driving_capability_ = msg;
+  heartbeat_received_time_ = this->now();
 }
 
 // To be replaced by ControlCommand
@@ -86,6 +87,10 @@ void EmergencyHandler::onTimer()
     return;
   }
 
+  // Heartbeat
+  const auto time_from_last_heartbeat = this->now() - heartbeat_received_time_;
+  is_heartbeat_timeout_ = time_from_last_heartbeat.seconds() > heartbeat_timeout_;
+
   // Create timestamp
   const auto stamp = this->get_clock()->now();
 
@@ -131,6 +136,14 @@ bool EmergencyHandler::isStopped()
 
 bool EmergencyHandler::isEmergency()
 {
+  // Check timeout
+  if (is_heartbeat_timeout_) {
+    RCLCPP_WARN_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
+      "heartbeat is timeout");
+    return true;
+  }
+
   using autoware_control_msgs::msg::GateMode;
   using autoware_system_msgs::msg::AutowareState;
 
@@ -207,6 +220,7 @@ autoware_control_msgs::msg::ControlCommand EmergencyHandler::selectAlternativeCo
 EmergencyHandler::EmergencyHandler()
 : Node("emergency_handler"),
   update_rate_(declare_parameter<int>("update_rate", 10)),
+  heartbeat_timeout_(declare_parameter<double>("heartbeat_timeout", 0.5)),
   use_parking_after_stopped_(declare_parameter<bool>("use_parking_after_stopped", false))
 {
   // Subscriber

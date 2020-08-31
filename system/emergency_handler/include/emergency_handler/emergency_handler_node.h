@@ -73,10 +73,15 @@ private:
 
   // Parameters
   int update_rate_;
+  double heartbeat_timeout_;
   bool use_parking_after_stopped_;
 
   bool isDataReady();
   void onTimer();
+
+  // Heartbeat
+  ros::Time heartbeat_received_time_;
+  bool is_heartbeat_timeout_ = false;
 
   // Algorithm
   bool isStopped();
