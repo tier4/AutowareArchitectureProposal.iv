@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>velodyne_monitor</name>
+  <version>0.1.0</version>
+  <description>The velodyne_monitor package</description>
+  <maintainer email="fumihito.ito@tier4.jp">Fumihito Ito</maintainer>
+
+  <license>Apache 2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>crypto++</depend>
+  <depend>diagnostic_msgs</depend>
+  <depend>diagnostic_updater</depend>
+  <depend>fmt</depend>
+  <depend>libcpprest-dev</depend>
+  <depend>roscpp</depend>
+  <depend>roslint</depend>
+  <depend>std_msgs</depend>
+
+</package>
