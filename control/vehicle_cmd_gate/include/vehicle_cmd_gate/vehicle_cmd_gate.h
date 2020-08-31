@@ -66,6 +66,10 @@ private:
   bool is_emergency_;
   autoware_control_msgs::GateMode current_gate_mode_;
 
+  // Heartbeat
+  ros::Time emergency_heartbeat_received_time_;
+  bool is_emergency_heartbeat_timeout_ = false;
+
   // Subscriber for auto
   Commands auto_commands_;
   ros::Subscriber auto_control_cmd_sub_;
@@ -96,16 +100,19 @@ private:
   // Parameter
   double update_rate_;
   bool use_emergency_handling_;
+  double emergency_heartbeat_timeout_;
 
   // Timer / Event
   ros::Timer timer_;
 
   void onTimer(const ros::TimerEvent & event);
   void publishControlCommands(const Commands & input_msg);
+  void publishEmergencyControlCommands();
 
   // Algorithm
   autoware_control_msgs::ControlCommand prev_control_cmd_;
   autoware_control_msgs::ControlCommand createStopControlCmd() const;
+  autoware_control_msgs::ControlCommand createEmergencyStopControlCmd() const;
 
   std::shared_ptr<ros::Time> prev_time_;
   double getDt();

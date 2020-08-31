@@ -94,6 +94,7 @@ VehicleCmdGate::VehicleCmdGate() : nh_(""), pnh_("~"), is_engaged_(false), is_em
   // Parameter
   pnh_.param("update_rate", update_rate_, 10.0);
   pnh_.param("use_emergency_handling", use_emergency_handling_, false);
+  pnh_.param("emergency_heartbeat_timeout", emergency_heartbeat_timeout_, 0.5);
 
   // Vehicle Parameter
   double wheel_base, vel_lim, lon_acc_lim, lon_jerk_lim, lat_acc_lim, lat_jerk_lim;
@@ -177,6 +178,18 @@ void VehicleCmdGate::onEmergencyShiftCmd(const autoware_vehicle_msgs::ShiftStamp
 
 void VehicleCmdGate::onTimer(const ros::TimerEvent & event)
 {
+  // Check emergency heartbeat
+  {
+    const auto time_from_last_heartbeat = ros::Time::now() - emergency_heartbeat_received_time_;
+    is_emergency_heartbeat_timeout_ =
+      time_from_last_heartbeat.toSec() > emergency_heartbeat_timeout_;
+    if (use_emergency_handling_ && is_emergency_heartbeat_timeout_) {
+      ROS_WARN_THROTTLE(1.0, "emergency heartbeat is timeout.");
+      publishEmergencyControlCommands();
+      return;
+    }
+  }
+
   // Select commands
   autoware_vehicle_msgs::TurnSignal turn_signal;
   autoware_vehicle_msgs::ShiftStamped shift;
@@ -205,6 +218,10 @@ void VehicleCmdGate::onTimer(const ros::TimerEvent & event)
 
 void VehicleCmdGate::publishControlCommands(const Commands & commands)
 {
+  if (use_emergency_handling_ && is_emergency_heartbeat_timeout_) {
+    return;
+  }
+
   Commands filtered_commands;
 
   // Set default commands
@@ -215,7 +232,7 @@ void VehicleCmdGate::publishControlCommands(const Commands & commands)
 
   // Check emergency
   if (use_emergency_handling_ && is_emergency_) {
-    ROS_INFO_THROTTLE(1.0, "Emergency!");
+    ROS_WARN_THROTTLE(1.0, "Emergency!");
     filtered_commands.control = emergency_commands_.control;
     filtered_commands.shift = emergency_commands_.shift;  // tmp
   }
@@ -247,6 +264,38 @@ void VehicleCmdGate::publishControlCommands(const Commands & commands)
   prev_control_cmd_ = filtered_commands.control.control;
 }
 
+void VehicleCmdGate::publishEmergencyControlCommands()
+{
+  const auto stamp = ros::Time::now();
+
+  // ControlCommand
+  autoware_control_msgs::ControlCommandStamped control_cmd;
+  control_cmd.header.stamp = stamp;
+  control_cmd.control = createEmergencyStopControlCmd();
+
+  // Shift
+  autoware_vehicle_msgs::ShiftStamped shift;
+  shift.header.stamp = stamp;
+  shift.shift.data = autoware_vehicle_msgs::Shift::NONE;
+
+  // TurnSignal
+  autoware_vehicle_msgs::TurnSignal turn_signal;
+  turn_signal.header.stamp = stamp;
+  turn_signal.data = autoware_vehicle_msgs::TurnSignal::HAZARD;
+
+  autoware_vehicle_msgs::VehicleCommand vehicle_cmd;
+  vehicle_cmd.header.stamp = stamp;
+  vehicle_cmd.control = control_cmd.control;
+  vehicle_cmd.shift = shift.shift;
+  vehicle_cmd.emergency = true;
+
+  vehicle_cmd_pub_.publish(vehicle_cmd);
+  control_cmd_pub_.publish(control_cmd);
+  gate_mode_pub_.publish(current_gate_mode_);
+  turn_signal_cmd_pub_.publish(turn_signal);
+  shift_cmd_pub_.publish(shift);
+}
+
 autoware_control_msgs::ControlCommand VehicleCmdGate::filterControlCommand(
   const autoware_control_msgs::ControlCommand & in)
 {
@@ -275,9 +324,25 @@ autoware_control_msgs::ControlCommand VehicleCmdGate::createStopControlCmd() con
   return cmd;
 }
 
+autoware_control_msgs::ControlCommand VehicleCmdGate::createEmergencyStopControlCmd() const
+{
+  autoware_control_msgs::ControlCommand cmd;
+
+  cmd.steering_angle = prev_control_cmd_.steering_angle;
+  cmd.steering_angle_velocity = prev_control_cmd_.steering_angle_velocity;
+  cmd.velocity = 0.0;
+  cmd.acceleration = -2.5;
+
+  return cmd;
+}
+
 void VehicleCmdGate::onEngage(const std_msgs::Bool::ConstPtr msg) { is_engaged_ = msg->data; }
 
-void VehicleCmdGate::onEmergency(const std_msgs::Bool::ConstPtr msg) { is_emergency_ = msg->data; }
+void VehicleCmdGate::onEmergency(const std_msgs::Bool::ConstPtr msg)
+{
+  is_emergency_ = msg->data;
+  emergency_heartbeat_received_time_ = ros::Time::now();
+}
 
 void VehicleCmdGate::onGateMode(const autoware_control_msgs::GateMode::ConstPtr & msg)
 {

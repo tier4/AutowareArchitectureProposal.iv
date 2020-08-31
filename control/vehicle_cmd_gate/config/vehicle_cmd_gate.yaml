@@ -1,5 +1,6 @@
 update_rate: 10
 use_emergency_handling: false
+emergency_heartbeat_timeout: 0.5
 
 vel_lim: 25.0
 lon_acc_lim: 5.0
