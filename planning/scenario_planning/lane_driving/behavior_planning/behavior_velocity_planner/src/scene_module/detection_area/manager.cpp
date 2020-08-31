@@ -54,6 +54,10 @@ DetectionAreaModuleManager::DetectionAreaModuleManager()
   const std::string ns(getModuleName());
   auto & p = planner_param_;
   pnh.param(ns + "/stop_margin", p.stop_margin, 0.0);
+  pnh.param(ns + "/use_dead_line", p.use_dead_line, false);
+  pnh.param(ns + "/dead_line_margin", p.dead_line_margin, 5.0);
+  pnh.param(ns + "/use_pass_judge_line", p.use_pass_judge_line, false);
+  pnh.param(ns + "/state_clear_time", p.state_clear_time, 2.0);
 }
 
 void DetectionAreaModuleManager::launchNewModules(

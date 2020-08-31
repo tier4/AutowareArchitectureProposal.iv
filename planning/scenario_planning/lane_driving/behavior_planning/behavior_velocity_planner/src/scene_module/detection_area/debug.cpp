@@ -116,7 +116,7 @@ visualization_msgs::MarkerArray DetectionAreaModule::createDebugMarkerArray()
 {
   visualization_msgs::MarkerArray debug_marker_array;
 
-  appendMarkerArray(createMarkerArray(debug_data_, module_id_), &debug_marker_array);
+  appendMarkerArray(createMarkerArray(debug_data_, getModuleId()), &debug_marker_array);
 
   return debug_marker_array;
 }
