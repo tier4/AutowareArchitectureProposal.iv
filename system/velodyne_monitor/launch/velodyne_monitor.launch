@@ -1,0 +1,10 @@
+<launch>
+  <arg name="config_file" default="$(find velodyne_monitor)/config/velodyne_monitor.yaml"/>
+  <arg name="ip_address" default="192.168.1.201" />
+  <arg name="output" default="log"/>
+
+  <node pkg="velodyne_monitor" type="velodyne_monitor" name="velodyne_monitor" output="$(arg output)" respawn="true">
+    <rosparam command="load" file="$(arg config_file)"/>
+    <param name="ip_address" value="$(arg ip_address)" />
+  </node>/>
+</launch>
