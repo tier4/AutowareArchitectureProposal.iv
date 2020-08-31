@@ -101,6 +101,15 @@ bool StopLineModule::modifyPathVelocity(
       for (size_t j = insert_stop_point_idx; j < path->points.size(); ++j) {
         path->points.at(j).point.twist.linear.x = 0.0;
       }
+
+      // get stop point and stop factor
+      if (state_ != State::START) {
+        autoware_planning_msgs::msg::StopFactor stop_factor;
+        stop_factor.stop_pose = debug_data_.first_stop_pose;
+        stop_factor.stop_factor_points.emplace_back(getCenterOfStopLine(stop_line_));
+        planning_utils::appendStopReason(stop_factor, stop_reason);
+      }
+
       break;
     }
 
@@ -113,12 +122,7 @@ bool StopLineModule::modifyPathVelocity(
       state_ = State::STOP;
     }
   } else if (state_ == State::STOP) {
-    if (!planner_data_->isVehicleStopping()) {state_ = State::START;}
-    /* get stop point and stop factor */
-    autoware_planning_msgs::msg::StopFactor stop_factor;
-    stop_factor.stop_pose = debug_data_.first_stop_pose;
-    stop_factor.stop_factor_points.emplace_back(getCenterOfStopLine(stop_line_));
-    planning_utils::appendStopReason(stop_factor, stop_reason);
+    if (!planner_data_->isVehicleStopping()) state_ = State::START;
   }
   return true;
 }
