@@ -571,6 +571,7 @@ void ObstacleStopPlannerNode::pathCallback(
         }
         debug_ptr_->pushPose(slow_down_start_trajectory_point.pose, PoseType::SlowDownStart);
         debug_ptr_->pushPose(slow_down_end_trajectory_point.pose, PoseType::SlowDownEnd);
+        break;
       }
     }
   }
