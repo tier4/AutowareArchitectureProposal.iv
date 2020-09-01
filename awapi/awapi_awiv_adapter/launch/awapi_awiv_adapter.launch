@@ -43,9 +43,13 @@
   <arg name="output_force_obstacle_avoid" default="tmp" /> <!-- not implemented -->
   <arg name="output_overwrite_traffic_light_state" default="tmp" /> <!-- not implemented -->
 
-  <arg name="use_emergency_handling" default="false" />
+  <arg name="node_emergency_handling" default="/control/vehicle_cmd_gate" />
+  <arg name="param_emergency_handling" default="use_emergency_handling" />
+  <arg name="node_max_velocity" default="/planning/scenario_planning/motion_velocity_optimizer" />
+  <arg name="param_max_velocity" default="max_velocity" />
 
-  <arg name="set_upper_velocity" default="vehicle/put/velocity" />
+  <arg name="set_max_velocity" default="vehicle/put/velocity" />
+  <arg name="set_temporary_stop" default="vehicle/put/stop" />
   <arg name="set_gate_mode" default="autoware/put/gate_mode" />
   <arg name="set_emergency" default="autoware/put/emergency" />
   <arg name="set_engage" default="autoware/put/engage" />
@@ -85,7 +89,11 @@
       <remap from="output/autoware_status" to="$(var output_autoware_status)" />
       <remap from="output/lane_change_status" to="$(var output_lane_change_status)" />
       <remap from="output/obstacle_avoid_status" to="$(var output_obstacle_avoid_status)" />
-      <param name="use_emergency_handling" value="$(var use_emergency_handling)" />
+      <remap from="output/max_velocity" to="$(var output_max_velocity)" />
+      <param name="node/emergency_handling" value="$(var node_emergency_handling)" />
+      <param name="param/emergency_handling" value="$(var param_emergency_handling)" />
+      <param name="node/max_velocity" value="$(var node_max_velocity)" />
+      <param name="param/max_velocity" value="$(var param_max_velocity)" />
       <param name="status_pub_hz" value="$(var status_pub_hz)" />
     </node>
 
@@ -102,11 +110,6 @@
     </node>
 
     <!-- relay put topic -->
-    <node pkg="topic_tools" exec="relay" name="upper_vel_relay" output="log" >
-      <param name="input_topic" value="$(var set_upper_velocity)" />
-      <param name="output_topic" value="$(var output_max_velocity)" />
-      <param name="type" value="std_msgs/msg/Float32" />
-    </node>
     <node pkg="topic_tools" exec="relay" name="gate_mode_relay" output="log" >
       <param name="input_topic" value="$(var set_gate_mode)" />
       <param name="output_topic" value="$(var output_gate_mode)" />

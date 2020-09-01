@@ -21,6 +21,7 @@ ament_auto_add_executable(awapi_awiv_adapter
   src/awapi_stop_reason_aggregator.cpp
   src/awapi_lane_change_state_publisher.cpp
   src/awapi_obstacle_avoidance_state_publisher.cpp
+  src/awapi_max_velocity_publisher.cpp
   src/awapi_autoware_util.cpp
 )
 

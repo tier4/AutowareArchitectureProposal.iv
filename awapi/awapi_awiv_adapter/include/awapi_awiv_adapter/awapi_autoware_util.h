@@ -17,9 +17,6 @@
 #ifndef AWAPI_AUTOWARE_UTIL_H
 #define AWAPI_AUTOWARE_UTIL_H
 
-#include "tf2/utils.h"
-#include "tf2_ros/transform_broadcaster.h"
-#include "tf2_ros/transform_listener.h"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "pacmod_msgs/msg/global_rpt.hpp"
@@ -27,6 +24,9 @@
 #include "sensor_msgs/msg/nav_sat_fix.hpp"
 #include "std_msgs/msg/bool.hpp"
 #include "std_msgs/msg/float32.hpp"
+#include "tf2/utils.h"
+#include "tf2_ros/transform_broadcaster.h"
+#include "tf2_ros/transform_listener.h"
 
 #include "autoware_control_msgs/msg/emergency_mode.hpp"
 #include "autoware_control_msgs/msg/gate_mode.hpp"
@@ -65,7 +65,35 @@ struct AutowareInfo
   autoware_planning_msgs::msg::Path::ConstSharedPtr lane_change_candidate_ptr;
   std_msgs::msg::Bool::ConstSharedPtr obstacle_avoid_ready_ptr;
   autoware_planning_msgs::msg::Trajectory::ConstSharedPtr obstacle_avoid_candidate_ptr;
+  std_msgs::msg::Float32::ConstSharedPtr max_velocity_ptr;
+  std_msgs::msg::Bool::ConstSharedPtr temporary_stop_ptr;
 };
+
+template <class T>
+T waitForParam(
+  rclcpp::Node * node, const std::string & remote_node_name, const std::string & param_name)
+{
+  using namespace std::chrono_literals;
+
+  auto param_client = std::make_shared<rclcpp::SyncParametersClient>(node, remote_node_name);
+
+  while (!param_client->wait_for_service(1s)) {
+    if (!rclcpp::ok()) {
+      RCLCPP_ERROR(node->get_logger(), "Interrupted while waiting for the service.");
+      return {};
+    }
+    RCLCPP_INFO_THROTTLE(
+      node->get_logger(), *node->get_clock(), 1000 /* ms */,
+      "waiting for node: %s, param: %s\n",
+      remote_node_name.c_str(), param_name.c_str());
+  }
+
+  if (param_client->has_parameter(param_name)) {
+    return param_client->get_parameter<T>(param_name);
+  }
+
+  return {};
+}
 
 double lowpass_filter(const double current_value, const double prev_value, const double gain);
 

@@ -25,18 +25,24 @@ AutowareIvAdapter::AutowareIvAdapter()
   // get param
   status_pub_hz_ = this->declare_parameter("status_pub_hz", 5.0);
   stop_reason_timeout_ = this->declare_parameter("stop_reason_timeout", 0.5);
-  const bool em_handle_param = this->declare_parameter("use_emergency_handling").get<bool>();
+  const double default_max_velocity = waitForParam<double>(
+    this, declare_parameter("node/max_velocity", ""),
+    declare_parameter("param/max_velocity", ""));
+  const bool em_handle_param = waitForParam<bool>(
+    this, declare_parameter("node/emergency_handling", ""),
+    declare_parameter("param/emergency_handling", ""));
   emergencyParamCheck(em_handle_param);
 
   // setup instance
   vehicle_state_publisher_ = std::make_unique<AutowareIvVehicleStatePublisher>(*this);
   autoware_state_publisher_ = std::make_unique<AutowareIvAutowareStatePublisher>(*this);
-  stop_reason_aggreagator_ = std::make_unique<AutowareIvStopReasonAggregator>(
-    *this,
-    stop_reason_timeout_);
+  stop_reason_aggreagator_ =
+    std::make_unique<AutowareIvStopReasonAggregator>(*this, stop_reason_timeout_);
   lane_change_state_publisher_ = std::make_unique<AutowareIvLaneChangeStatePublisher>(*this);
   obstacle_avoidance_state_publisher_ =
     std::make_unique<AutowareIvObstacleAvoidanceStatePublisher>(*this);
+  max_velocity_publisher_ =
+    std::make_unique<AutowareIvMaxVelocityPublisher>(*this, default_max_velocity);
 
   // subscriber
   sub_steer_ = this->create_subscription<autoware_vehicle_msgs::msg::Steering>(
@@ -80,8 +86,12 @@ AutowareIvAdapter::AutowareIvAdapter()
     std::bind(&AutowareIvAdapter::callbackLaneObstacleAvoidReady, this, _1));
   sub_obstacle_avoid_candidate_ =
     this->create_subscription<autoware_planning_msgs::msg::Trajectory>(
-    "input/obstacle_avoid_candidate_path", 1,
-    std::bind(&AutowareIvAdapter::callbackLaneObstacleAvoidCandidatePath, this, _1));
+      "input/obstacle_avoid_candidate_path", 1,
+      std::bind(&AutowareIvAdapter::callbackLaneObstacleAvoidCandidatePath, this, _1));
+  sub_max_velocity_ = this->create_subscription<std_msgs::msg::Float32>(
+    "input/max_velocity", 1, std::bind(&AutowareIvAdapter::callbackMaxVelocity, this, _1));
+  sub_temporary_stop_ = this->create_subscription<std_msgs::msg::Bool>(
+    "input/temporary_stop", 1, std::bind(&AutowareIvAdapter::callbackTemporaryStop, this, _1));
 
   // timer
   auto timer_callback = std::bind(&AutowareIvAdapter::timerCallback, this);
@@ -172,8 +182,7 @@ void AutowareIvAdapter::getCurrentPose()
     aw_info_.current_pose_ptr = std::make_shared<geometry_msgs::msg::PoseStamped>(ps);
   } catch (tf2::TransformException & ex) {
     RCLCPP_DEBUG_STREAM_THROTTLE(
-      get_logger(),
-      *this->get_clock(), 2000 /* ms */, "cannot get self pose");
+      get_logger(), *this->get_clock(), 2000 /* ms */, "cannot get self pose");
   }
 }
 
@@ -244,6 +253,25 @@ void AutowareIvAdapter::callbackLaneObstacleAvoidCandidatePath(
   const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr)
 {
   aw_info_.obstacle_avoid_candidate_ptr = msg_ptr;
+}
+
+void AutowareIvAdapter::callbackMaxVelocity(const std_msgs::msg::Float32::ConstSharedPtr msg_ptr)
+{
+  aw_info_.max_velocity_ptr = msg_ptr;
+  max_velocity_publisher_->statePublisher(aw_info_);
+}
+
+void AutowareIvAdapter::callbackTemporaryStop(const std_msgs::msg::Bool::ConstSharedPtr msg_ptr)
+{
+  if (aw_info_.temporary_stop_ptr) {
+    if (aw_info_.temporary_stop_ptr->data == msg_ptr->data) {
+      //if same value as last time is sent, ignore msg.
+      return;
+    }
+  }
+
+  aw_info_.temporary_stop_ptr = msg_ptr;
+  max_velocity_publisher_->statePublisher(aw_info_);
 }
 
 }  // namespace autoware_api
