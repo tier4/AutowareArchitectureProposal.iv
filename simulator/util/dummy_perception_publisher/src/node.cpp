@@ -323,6 +323,19 @@ void DummyPerceptionPublisherNode::objectCallback(
       dummy_perception_publisher::Object object;
       object = *msg;
       tf2::toMsg(tf_map2object_origin, object.initial_state.pose_covariance.pose);
+
+      // Use base_link Z
+      geometry_msgs::TransformStamped ros_map2base_link;
+      try {
+        ros_map2base_link =
+          tf_buffer_.lookupTransform("map", "base_link", ros::Time(0), ros::Duration(0.5));
+        object.initial_state.pose_covariance.pose.position.z =
+          ros_map2base_link.transform.translation.z;
+      } catch (tf2::TransformException & ex) {
+        ROS_WARN_THROTTLE(5.0, "%s", ex.what());
+        return;
+      }
+
       objects_.push_back(object);
       break;
     }
