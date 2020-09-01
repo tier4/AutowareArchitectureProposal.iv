@@ -105,6 +105,21 @@
 | --- | :--------------- | :--- | :--- | :----------- |
 | ✓   | std_msgs/Float32 |      |      | max velocity |
 
+### /awapi/vehicle/put/stop
+
+- set temporary stop signal
+- MessageType: std_msgs/bool
+- Specification
+
+  - send True: send upper velocity to 0
+  - send False: resend last received upper velocity
+    - (if upper velocity have never received, send _default_max_velocity_ value.)
+    - _default_max_velocity_ refers to the param: _/planning/scenario_planning/motion_velocity_optimizer/max_velocity_
+
+  | ✓   | type          | name | unit | note |
+  | --- | :------------ | :--- | :--- | :--- |
+  | ✓   | std_msgs/Bool |      |      |      |
+
 ### /awapi/autoware/put/gate_mode
 
 - send gate mode (auto/remote)

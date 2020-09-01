@@ -17,6 +17,7 @@
 #include <awapi_awiv_adapter/awapi_autoware_state_publisher.h>
 #include <awapi_awiv_adapter/awapi_autoware_util.h>
 #include <awapi_awiv_adapter/awapi_lane_change_state_publisher.h>
+#include <awapi_awiv_adapter/awapi_max_velocity_publisher.h>
 #include <awapi_awiv_adapter/awapi_obstacle_avoidance_state_publisher.h>
 #include <awapi_awiv_adapter/awapi_stop_reason_aggregator.h>
 #include <awapi_awiv_adapter/awapi_vehicle_state_publisher.h>
@@ -53,6 +54,8 @@ private:
   ros::Subscriber sub_lane_change_candidate_;
   ros::Subscriber sub_obstacle_avoid_ready_;
   ros::Subscriber sub_obstacle_avoid_candidate_;
+  ros::Subscriber sub_max_velocity_;
+  ros::Subscriber sub_temporary_stop_;
   // timer
   ros::Timer timer_;
 
@@ -81,6 +84,8 @@ private:
   void callbackLaneObstacleAvoidReady(const std_msgs::Bool::ConstPtr & msg_ptr);
   void callbackLaneObstacleAvoidCandidatePath(
     const autoware_planning_msgs::Trajectory::ConstPtr & msg_ptr);
+  void callbackMaxVelocity(const std_msgs::Float32::ConstPtr & msg_ptr);
+  void callbackTemporaryStop(const std_msgs::Bool::ConstPtr & msg_ptr);
 
   // timer function
   void timerCallback(const ros::TimerEvent & e);
@@ -95,8 +100,10 @@ private:
   std::unique_ptr<AutowareIvStopReasonAggregator> stop_reason_aggreagator_;
   std::unique_ptr<AutowareIvLaneChangeStatePublisher> lane_change_state_publisher_;
   std::unique_ptr<AutowareIvObstacleAvoidanceStatePublisher> obstacle_avoidance_state_publisher_;
+  std::unique_ptr<AutowareIvMaxVelocityPublisher> max_velocity_publisher_;
   double status_pub_hz_;
   double stop_reason_timeout_;
+  double default_max_velocity;
 };
 
 }  // namespace autoware_api

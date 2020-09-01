@@ -66,6 +66,8 @@ struct AutowareInfo
   autoware_planning_msgs::Path::ConstPtr lane_change_candidate_ptr;
   std_msgs::Bool::ConstPtr obstacle_avoid_ready_ptr;
   autoware_planning_msgs::Trajectory::ConstPtr obstacle_avoid_candidate_ptr;
+  std_msgs::Float32::ConstPtr max_velocity_ptr;
+  std_msgs::Bool::ConstPtr temporary_stop_ptr;
 };
 
 template <class T>

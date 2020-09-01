@@ -23,6 +23,7 @@ AutowareIvAdapter::AutowareIvAdapter() : nh_(), pnh_("~"), tf_listener_(tf_buffe
   // get param
   pnh_.param<double>("status_pub_hz", status_pub_hz_, 5.0);
   pnh_.param<double>("stop_reason_timeout", stop_reason_timeout_, 0.5);
+  const double default_max_velocity = waitForParam<double>(pnh_, "param/default_max_velocity");
   const bool em_handle_param = waitForParam<bool>(pnh_, "param/emergency_handling");
   emergencyParamCheck(em_handle_param);
 
@@ -33,6 +34,7 @@ AutowareIvAdapter::AutowareIvAdapter() : nh_(), pnh_("~"), tf_listener_(tf_buffe
   lane_change_state_publisher_ = std::make_unique<AutowareIvLaneChangeStatePublisher>();
   obstacle_avoidance_state_publisher_ =
     std::make_unique<AutowareIvObstacleAvoidanceStatePublisher>();
+  max_velocity_publisher_ = std::make_unique<AutowareIvMaxVelocityPublisher>(default_max_velocity);
 
   // subscriber
   sub_steer_ = pnh_.subscribe("input/steer", 1, &AutowareIvAdapter::callbackSteer, this);
@@ -69,6 +71,10 @@ AutowareIvAdapter::AutowareIvAdapter() : nh_(), pnh_("~"), tf_listener_(tf_buffe
   sub_obstacle_avoid_candidate_ = pnh_.subscribe(
     "input/obstacle_avoid_candidate_path", 1,
     &AutowareIvAdapter::callbackLaneObstacleAvoidCandidatePath, this);
+  sub_max_velocity_ =
+    pnh_.subscribe("input/max_velocity", 1, &AutowareIvAdapter::callbackMaxVelocity, this);
+  sub_temporary_stop_ =
+    pnh_.subscribe("input/temporary_stop", 1, &AutowareIvAdapter::callbackTemporaryStop, this);
 
   // timer
   timer_ =
@@ -217,6 +223,25 @@ void AutowareIvAdapter::callbackLaneObstacleAvoidCandidatePath(
   const autoware_planning_msgs::Trajectory::ConstPtr & msg_ptr)
 {
   aw_info_.obstacle_avoid_candidate_ptr = msg_ptr;
+}
+
+void AutowareIvAdapter::callbackMaxVelocity(const std_msgs::Float32::ConstPtr & msg_ptr)
+{
+  aw_info_.max_velocity_ptr = msg_ptr;
+  max_velocity_publisher_->statePublisher(aw_info_);
+}
+
+void AutowareIvAdapter::callbackTemporaryStop(const std_msgs::Bool::ConstPtr & msg_ptr)
+{
+  if (aw_info_.temporary_stop_ptr) {
+    if (aw_info_.temporary_stop_ptr->data == msg_ptr->data) {
+      //if same value as last time is sent, ignore msg.
+      return;
+    }
+  }
+
+  aw_info_.temporary_stop_ptr = msg_ptr;
+  max_velocity_publisher_->statePublisher(aw_info_);
 }
 
 }  // namespace autoware_api

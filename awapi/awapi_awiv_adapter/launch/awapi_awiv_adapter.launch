@@ -44,8 +44,10 @@
   <arg name="output_overwrite_traffic_light_state" default="tmp" /> <!-- not implemented -->
 
   <arg name="param_emergency_handling" default="/control/vehicle_cmd_gate/use_emergency_handling" />
+  <arg name="param_max_velocity" default="/planning/scenario_planning/motion_velocity_optimizer/max_velocity" />
 
-  <arg name="set_upper_velocity" default="vehicle/put/velocity" />
+  <arg name="set_max_velocity" default="vehicle/put/velocity" />
+  <arg name="set_temporary_stop" default="vehicle/put/stop" />
   <arg name="set_gate_mode" default="autoware/put/gate_mode" />
   <arg name="set_emergency" default="autoware/put/emergency" />
   <arg name="set_engage" default="autoware/put/engage" />
@@ -81,11 +83,15 @@
       <remap from="~input/lane_change_candidate_path" to="$(arg input_lane_change_candidate_path)" />
       <remap from="~input/obstacle_avoid_ready" to="$(arg input_obstacle_avoid_ready)" />
       <remap from="~input/obstacle_avoid_candidate_path" to="$(arg input_obstacle_avoid_candidate_path)" />
+      <remap from="~input/max_velocity" to="$(arg set_max_velocity)" />
+      <remap from="~input/temporary_stop" to="$(arg set_temporary_stop)" />
       <remap from="~output/vehicle_status" to="$(arg output_vehicle_status)" />
       <remap from="~output/autoware_status" to="$(arg output_autoware_status)" />
       <remap from="~output/lane_change_status" to="$(arg output_lane_change_status)" />
       <remap from="~output/obstacle_avoid_status" to="$(arg output_obstacle_avoid_status)" />
+      <remap from="~output/max_velocity" to="$(arg output_max_velocity)" />
       <remap from="~param/emergency_handling" to="$(arg param_emergency_handling)" />
+      <remap from="~param/default_max_velocity" to="$(arg param_max_velocity)" />
       <param name="status_pub_hz" value="$(arg status_pub_hz)" />
     </node>
 
@@ -94,7 +100,6 @@
     <node pkg="topic_tools" type="relay" name="predict_object_relay" args="$(arg input_object) $(arg get_predicted_object)" output="$(arg relay_output)" />
 
     <!-- relay put topic -->
-    <node pkg="topic_tools" type="relay" name="upper_vel_relay" args="$(arg set_upper_velocity) $(arg output_max_velocity)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="gate_mode_relay" args="$(arg set_gate_mode) $(arg output_gate_mode)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="emergency_relay" args="$(arg set_emergency) $(arg output_emergency)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="autoware_engage_relay" args="$(arg set_engage) $(arg output_autoware_engage)" output="$(arg relay_output)" />
