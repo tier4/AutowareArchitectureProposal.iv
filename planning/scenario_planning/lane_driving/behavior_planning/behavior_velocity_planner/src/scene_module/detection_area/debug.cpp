@@ -82,7 +82,7 @@ visualization_msgs::msg::MarkerArray createMarkerArray(
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "map";
     marker.ns = "factor_text";
-    marker.id = j;
+    marker.id = uid + j;
     marker.lifetime = rclcpp::Duration::from_seconds(0.5);
     marker.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
     marker.action = visualization_msgs::msg::Marker::ADD;
