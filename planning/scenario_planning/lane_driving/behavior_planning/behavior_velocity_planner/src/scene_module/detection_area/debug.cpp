@@ -87,7 +87,7 @@ visualization_msgs::MarkerArray createMarkerArray(
     marker.header.frame_id = "map";
     marker.header.stamp = current_time;
     marker.ns = "factor_text";
-    marker.id = j;
+    marker.id = uid + j;
     marker.lifetime = ros::Duration(0.5);
     marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
     marker.action = visualization_msgs::Marker::ADD;
