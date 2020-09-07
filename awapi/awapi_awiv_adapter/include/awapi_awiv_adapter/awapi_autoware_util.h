@@ -68,6 +68,7 @@ struct AutowareInfo
   autoware_planning_msgs::Trajectory::ConstPtr obstacle_avoid_candidate_ptr;
   std_msgs::Float32::ConstPtr max_velocity_ptr;
   std_msgs::Bool::ConstPtr temporary_stop_ptr;
+  autoware_planning_msgs::Trajectory::ConstPtr autoware_planning_traj_ptr;
 };
 
 template <class T>
@@ -98,6 +99,30 @@ T waitForParam(const ros::NodeHandle & nh, const std::string & key)
 }
 
 double lowpass_filter(const double current_value, const double prev_value, const double gain);
+
+namespace planning_util
+{
+bool calcClosestIndex(
+  const autoware_planning_msgs::Trajectory & traj, const geometry_msgs::Pose & pose, int & closest,
+  const double dist_thr = 10.0, const double angle_thr = M_PI / 2.0);
+
+inline geometry_msgs::Pose getPose(const autoware_planning_msgs::Trajectory & traj, const int idx)
+{
+  return traj.points.at(idx).pose;
+}
+
+inline double calcDist2d(const geometry_msgs::Point & a, const geometry_msgs::Point & b)
+{
+  return std::hypot((a.x - b.x), (a.y - b.y));
+}
+
+double normalizeEulerAngle(double euler);
+
+double calcArcLengthFromWayPoint(
+  const autoware_planning_msgs::Trajectory & input_path, const size_t src_idx,
+  const size_t dst_idx);
+
+}  // namespace planning_util
 
 }  // namespace autoware_api
 

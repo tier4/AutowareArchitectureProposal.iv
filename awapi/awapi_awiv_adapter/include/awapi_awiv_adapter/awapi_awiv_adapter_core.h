@@ -56,6 +56,7 @@ private:
   ros::Subscriber sub_obstacle_avoid_candidate_;
   ros::Subscriber sub_max_velocity_;
   ros::Subscriber sub_temporary_stop_;
+  ros::Subscriber sub_autoware_traj_;
   // timer
   ros::Timer timer_;
 
@@ -86,6 +87,7 @@ private:
     const autoware_planning_msgs::Trajectory::ConstPtr & msg_ptr);
   void callbackMaxVelocity(const std_msgs::Float32::ConstPtr & msg_ptr);
   void callbackTemporaryStop(const std_msgs::Bool::ConstPtr & msg_ptr);
+  void callbackAutowareTrajectory(const autoware_planning_msgs::Trajectory::ConstPtr & msg_ptr);
 
   // timer function
   void timerCallback(const ros::TimerEvent & e);
@@ -104,6 +106,7 @@ private:
   double status_pub_hz_;
   double stop_reason_timeout_;
   double default_max_velocity;
+  double stop_reason_thresh_dist_;
 };
 
 }  // namespace autoware_api

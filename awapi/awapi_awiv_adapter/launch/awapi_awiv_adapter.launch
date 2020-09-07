@@ -3,6 +3,7 @@
   <arg name="relay_output" default="log" />
   <arg name="status_pub_hz" default="5.0" />
   <arg name="stop_reason_timeout" default="0.5" />
+  <arg name="stop_reason_thresh_dist" default="100" />
 
   <arg name="input_steer" default="/vehicle/status/steering" />
   <arg name="input_vehicle_cmd" default="/control/vehicle_cmd" />
@@ -26,6 +27,7 @@
   <arg name="input_route" default="/planning/mission_planning/route" />
   <arg name="input_object" default="/perception/object_recognition/objects" />
   <arg name="input_traffic_light_state" default="/perception/traffic_light_recognition/traffic_light_states" />
+  <arg name="input_trajectory" default="/planning/scenario_planning/trajectory" />
 
   <arg name="output_vehicle_status" default="vehicle/get/status" />
   <arg name="output_autoware_status" default="autoware/get/status" />
@@ -85,6 +87,7 @@
       <remap from="~input/obstacle_avoid_candidate_path" to="$(arg input_obstacle_avoid_candidate_path)" />
       <remap from="~input/max_velocity" to="$(arg set_max_velocity)" />
       <remap from="~input/temporary_stop" to="$(arg set_temporary_stop)" />
+      <remap from="~input/autoware_trajectory" to="$(arg input_trajectory)" />
       <remap from="~output/vehicle_status" to="$(arg output_vehicle_status)" />
       <remap from="~output/autoware_status" to="$(arg output_autoware_status)" />
       <remap from="~output/lane_change_status" to="$(arg output_lane_change_status)" />
@@ -93,6 +96,8 @@
       <remap from="~param/emergency_handling" to="$(arg param_emergency_handling)" />
       <remap from="~param/default_max_velocity" to="$(arg param_max_velocity)" />
       <param name="status_pub_hz" value="$(arg status_pub_hz)" />
+      <param name="stop_reason_timeout" value="$(arg stop_reason_timeout)" />
+      <param name="stop_reason_thresh_dist" value="$(arg stop_reason_thresh_dist)" />
     </node>
 
     <!-- relay get topic -->
