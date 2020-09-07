@@ -165,6 +165,14 @@ private:
     const double extra_dist, const double ignore_dist) const;
 
   /**
+   * @brief triming the path with target lane id
+   * @param path           ego-car lane
+   * @return generated path
+   */
+  autoware_planning_msgs::PathWithLaneId trimPathWithLaneId(
+    const autoware_planning_msgs::PathWithLaneId & path);
+
+  /**
    * @brief Modify objects predicted path. remove path point if the time exceeds timer_thr.
    * @param objects_ptr target objects
    * @param time_thr    time threshold to cut path

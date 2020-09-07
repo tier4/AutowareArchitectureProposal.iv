@@ -217,8 +217,9 @@ bool generateStopLine(
   const int lane_id, const std::vector<lanelet::CompoundPolygon3d> detection_areas,
   const std::shared_ptr<const PlannerData> & planner_data,
   const IntersectionModule::PlannerParam & planner_param,
-  autoware_planning_msgs::PathWithLaneId * path, int * stop_line_idx, int * pass_judge_line_idx,
-  int * first_idx_inside_lane)
+  autoware_planning_msgs::PathWithLaneId * original_path,
+  const autoware_planning_msgs::PathWithLaneId & target_path, int * stop_line_idx,
+  int * pass_judge_line_idx, int * first_idx_inside_lane)
 {
   /* set judge line dist */
   const double current_vel = planner_data->current_velocity->twist.linear.x;
@@ -236,7 +237,7 @@ bool generateStopLine(
 
   /* spline interpolation */
   autoware_planning_msgs::PathWithLaneId path_ip;
-  if (!util::splineInterpolate(*path, interval, &path_ip)) return false;
+  if (!util::splineInterpolate(target_path, interval, &path_ip)) return false;
 
   /* generate stop point */
   // If a stop_line is defined in lanelet_map, use it.
@@ -256,7 +257,8 @@ bool generateStopLine(
     }
     // only for visualization
     const auto first_inside_point = path_ip.points.at(first_idx_ip_inside_lane).point.pose;
-    planning_utils::calcClosestIndex(*path, first_inside_point, *first_idx_inside_lane, 10.0);
+    planning_utils::calcClosestIndex(
+      *original_path, first_inside_point, *first_idx_inside_lane, 10.0);
     if (*first_idx_inside_lane == 0) {
       ROS_DEBUG(
         "[Intersection Util] path[0] is already in the detection area. This happens if you have "
@@ -271,12 +273,12 @@ bool generateStopLine(
 
   /* insert stop_point */
   const auto inserted_stop_point = path_ip.points.at(stop_idx_ip).point.pose;
-  *stop_line_idx = util::insertPoint(inserted_stop_point, path);
+  *stop_line_idx = util::insertPoint(inserted_stop_point, original_path);
 
   /* if another stop point exist before intersection stop_line, disable judge_line. */
   bool has_prior_stopline = false;
   for (int i = 0; i < *stop_line_idx; ++i) {
-    if (std::fabs(path->points.at(i).point.twist.linear.x) < 0.1) {
+    if (std::fabs(original_path->points.at(i).point.twist.linear.x) < 0.1) {
       has_prior_stopline = true;
       break;
     }
@@ -288,7 +290,7 @@ bool generateStopLine(
     *pass_judge_line_idx = *stop_line_idx;
   } else {
     const auto inserted_pass_judge_point = path_ip.points.at(pass_judge_idx_ip).point.pose;
-    *pass_judge_line_idx = util::insertPoint(inserted_pass_judge_point, path);
+    *pass_judge_line_idx = util::insertPoint(inserted_pass_judge_point, original_path);
     ++(*stop_line_idx);  // stop index is incremented by judge line insertion
   }
 

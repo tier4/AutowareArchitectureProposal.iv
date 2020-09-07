@@ -75,8 +75,9 @@ bool IntersectionModule::modifyPathVelocity(
   int stop_line_idx = -1;
   int pass_judge_line_idx = -1;
   int first_idx_inside_lane = -1;
+  const auto target_path = trimPathWithLaneId(*path);
   if (!util::generateStopLine(
-        lane_id_, detection_areas, planner_data_, planner_param_, path, &stop_line_idx,
+        lane_id_, detection_areas, planner_data_, planner_param_, path, target_path, &stop_line_idx,
         &pass_judge_line_idx, &first_idx_inside_lane)) {
     ROS_WARN_DELAYED_THROTTLE(1.0, "[IntersectionModule::run] setStopLineIdx fail");
     ROS_DEBUG("[intersection] ===== plan end =====");
@@ -226,6 +227,21 @@ bool IntersectionModule::checkCollision(
   }
 
   return collision_detected;
+}
+
+autoware_planning_msgs::PathWithLaneId IntersectionModule::trimPathWithLaneId(
+  const autoware_planning_msgs::PathWithLaneId & path)
+{
+  autoware_planning_msgs::PathWithLaneId trimmed_path;
+  trimmed_path.header = path.header;
+  trimmed_path.drivable_area = path.drivable_area;
+
+  for (const auto & point : path.points) {
+    if (util::hasLaneId(point, lane_id_)) {
+      trimmed_path.points.emplace_back(point);
+    }
+  }
+  return trimmed_path;
 }
 
 Polygon2d IntersectionModule::generateEgoIntersectionLanePolygon(
