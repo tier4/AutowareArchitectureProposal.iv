@@ -134,6 +134,9 @@ void MissionPlannerLanelet2::mapCallback(const autoware_lanelet2_msgs::MapBin & 
   lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(
     msg, lanelet_map_ptr_, &traffic_rules_ptr_, &routing_graph_ptr_);
+  lanelet::ConstLanelets all_lanelets = lanelet::utils::query::laneletLayer(lanelet_map_ptr_);
+  road_lanelets_ = lanelet::utils::query::roadLanelets(all_lanelets);
+
   is_graph_ready_ = true;
 }
 
@@ -189,7 +192,7 @@ void MissionPlannerLanelet2::visualizeRoute(const autoware_planning_msgs::Route 
 bool MissionPlannerLanelet2::isGoalValid() const
 {
   lanelet::Lanelet closest_lanelet;
-  if (!getClosestLanelet(goal_pose_.pose, lanelet_map_ptr_, &closest_lanelet)) {
+  if (!lanelet::utils::query::getClosestLanelet(road_lanelets_, goal_pose_.pose, &closest_lanelet)) {
     return false;
   }
   const auto goal_lanelet_pt = lanelet::utils::conversion::toLaneletPoint(goal_pose_.pose.position);
@@ -273,11 +276,11 @@ bool MissionPlannerLanelet2::planPathBetweenCheckpoints(
   lanelet::ConstLanelets * path_lanelets_ptr) const
 {
   lanelet::Lanelet start_lanelet;
-  if (!getClosestLanelet(start_checkpoint.pose, lanelet_map_ptr_, &start_lanelet)) {
+  if (!lanelet::utils::query::getClosestLanelet(road_lanelets_, start_checkpoint.pose, &start_lanelet)) {
     return false;
   }
   lanelet::Lanelet goal_lanelet;
-  if (!getClosestLanelet(goal_checkpoint.pose, lanelet_map_ptr_, &goal_lanelet)) {
+  if (!lanelet::utils::query::getClosestLanelet(road_lanelets_, goal_checkpoint.pose, &goal_lanelet)) {
     return false;
   }
 

@@ -44,7 +44,4 @@ void setColor(std_msgs::ColorRGBA * cl, double r, double g, double b, double a);
 void insertMarkerArray(
   visualization_msgs::MarkerArray * a1, const visualization_msgs::MarkerArray & a2);
 std::string toString(const geometry_msgs::Pose & pose);
-bool getClosestLanelet(
-  const geometry_msgs::Pose & search_pose, const lanelet::LaneletMapPtr & lanelet_map,
-  lanelet::Lanelet * closest_lanelet, double distance_thresh = 10.0);
 #endif  // MISSION_PLANNER_LANELET2_IMPL_UTILITY_FUNCTIONS_H
