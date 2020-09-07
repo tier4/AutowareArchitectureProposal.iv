@@ -25,6 +25,7 @@ AutowareIvAdapter::AutowareIvAdapter()
   // get param
   status_pub_hz_ = this->declare_parameter("status_pub_hz", 5.0);
   stop_reason_timeout_ = this->declare_parameter("stop_reason_timeout", 0.5);
+  stop_reason_thresh_dist_ = this->declare_parameter("stop_reason_thresh_dist", 100.0);
   const double default_max_velocity = waitForParam<double>(
     this, declare_parameter("node/max_velocity", ""),
     declare_parameter("param/max_velocity", ""));
@@ -37,7 +38,7 @@ AutowareIvAdapter::AutowareIvAdapter()
   vehicle_state_publisher_ = std::make_unique<AutowareIvVehicleStatePublisher>(*this);
   autoware_state_publisher_ = std::make_unique<AutowareIvAutowareStatePublisher>(*this);
   stop_reason_aggreagator_ =
-    std::make_unique<AutowareIvStopReasonAggregator>(*this, stop_reason_timeout_);
+    std::make_unique<AutowareIvStopReasonAggregator>(*this, stop_reason_timeout_, stop_reason_thresh_dist_);
   lane_change_state_publisher_ = std::make_unique<AutowareIvLaneChangeStatePublisher>(*this);
   obstacle_avoidance_state_publisher_ =
     std::make_unique<AutowareIvObstacleAvoidanceStatePublisher>(*this);
@@ -92,6 +93,10 @@ AutowareIvAdapter::AutowareIvAdapter()
     "input/max_velocity", 1, std::bind(&AutowareIvAdapter::callbackMaxVelocity, this, _1));
   sub_temporary_stop_ = this->create_subscription<std_msgs::msg::Bool>(
     "input/temporary_stop", 1, std::bind(&AutowareIvAdapter::callbackTemporaryStop, this, _1));
+  sub_autoware_traj_ =
+    this->create_subscription<autoware_planning_msgs::msg::Trajectory>(
+      "input/autoware_trajectory", 1,
+      std::bind(&AutowareIvAdapter::callbackAutowareTrajectory, this, _1));
 
   // timer
   auto timer_callback = std::bind(&AutowareIvAdapter::timerCallback, this);
@@ -212,7 +217,7 @@ void AutowareIvAdapter::callbackIsEmergency(
 void AutowareIvAdapter::callbackStopReason(
   const autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr msg_ptr)
 {
-  aw_info_.stop_reason_ptr = stop_reason_aggreagator_->updateStopReasonArray(msg_ptr);
+  aw_info_.stop_reason_ptr = stop_reason_aggreagator_->updateStopReasonArray(msg_ptr, aw_info_);
 }
 
 void AutowareIvAdapter::callbackDiagnostics(
@@ -272,6 +277,12 @@ void AutowareIvAdapter::callbackTemporaryStop(const std_msgs::msg::Bool::ConstSh
 
   aw_info_.temporary_stop_ptr = msg_ptr;
   max_velocity_publisher_->statePublisher(aw_info_);
+}
+
+void AutowareIvAdapter::callbackAutowareTrajectory(
+  const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr)
+{
+  aw_info_.autoware_planning_traj_ptr = msg_ptr;
 }
 
 }  // namespace autoware_api

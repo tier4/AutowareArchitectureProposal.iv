@@ -44,6 +44,11 @@
 | ✓   | diagnostic_msgs/DiagnosticStatus[]     | diagnostics       |                                                | output only diag. of leaf node (diag. of parent node are cut)                                                                                                               |
 | ✓   | bool                                   | arrived_goal      |                                                | True if the autoware_state is changed from Driving to ArrivedGoal or WairingForRoute. False if the autoware_state is changed to WaitingForEngage or Driving. Default False. |
 
+- specification of stop_reason
+  - stop_reason is output only when the following conditions are met.
+    - stop_point in stop_reason is close to /planning/scenario_planning/trajectory (within 10m).
+    - The distance between current position and stop_point is less than stop_reason_thresh_dist.
+
 ### /awapi/autoware/get/route
 
 - get route

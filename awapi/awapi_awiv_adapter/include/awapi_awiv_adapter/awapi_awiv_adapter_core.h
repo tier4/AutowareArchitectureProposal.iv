@@ -69,6 +69,8 @@ private:
     sub_obstacle_avoid_candidate_;
   rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr sub_max_velocity_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sub_temporary_stop_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr
+    sub_autoware_traj_;
   // timer
   rclcpp::TimerBase::SharedPtr timer_;
 
@@ -102,6 +104,7 @@ private:
     const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr);
   void callbackMaxVelocity(const std_msgs::msg::Float32::ConstSharedPtr msg_ptr);
   void callbackTemporaryStop(const std_msgs::msg::Bool::ConstSharedPtr msg_ptr);
+  void callbackAutowareTrajectory(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr);
 
   // timer function
   void timerCallback();
@@ -120,6 +123,7 @@ private:
   double status_pub_hz_;
   double stop_reason_timeout_;
   double default_max_velocity;
+  double stop_reason_thresh_dist_;
 };
 
 }  // namespace autoware_api

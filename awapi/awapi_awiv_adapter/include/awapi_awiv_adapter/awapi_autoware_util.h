@@ -67,6 +67,7 @@ struct AutowareInfo
   autoware_planning_msgs::msg::Trajectory::ConstSharedPtr obstacle_avoid_candidate_ptr;
   std_msgs::msg::Float32::ConstSharedPtr max_velocity_ptr;
   std_msgs::msg::Bool::ConstSharedPtr temporary_stop_ptr;
+  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr autoware_planning_traj_ptr;
 };
 
 template <class T>
@@ -96,6 +97,30 @@ T waitForParam(
 }
 
 double lowpass_filter(const double current_value, const double prev_value, const double gain);
+
+namespace planning_util
+{
+bool calcClosestIndex(
+  const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & pose, int & closest,
+  const double dist_thr = 10.0, const double angle_thr = M_PI / 2.0);
+
+inline geometry_msgs::msg::Pose getPose(const autoware_planning_msgs::msg::Trajectory & traj, const int idx)
+{
+  return traj.points.at(idx).pose;
+}
+
+inline double calcDist2d(const geometry_msgs::msg::Point & a, const geometry_msgs::msg::Point & b)
+{
+  return std::hypot((a.x - b.x), (a.y - b.y));
+}
+
+double normalizeEulerAngle(double euler);
+
+double calcArcLengthFromWayPoint(
+  const autoware_planning_msgs::msg::Trajectory & input_path, const size_t src_idx,
+  const size_t dst_idx);
+
+}  // namespace planning_util
 
 }  // namespace autoware_api
 
