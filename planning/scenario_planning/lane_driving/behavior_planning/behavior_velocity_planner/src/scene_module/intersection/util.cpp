@@ -109,8 +109,7 @@ bool splineInterpolate(
     !spline.interpolate(
       base_s, base_y, resampled_s, resampled_y, spline_interpolation::Method::PCG) ||
     !spline.interpolate(
-      base_s, base_z, resampled_s, resampled_z, spline_interpolation::Method::PCG))
-  {
+      base_s, base_z, resampled_s, resampled_z, spline_interpolation::Method::PCG)) {
     RCLCPP_ERROR(logger, "spline interpolation failed.");
     return false;
   }
@@ -193,7 +192,9 @@ bool isAheadOf(const geometry_msgs::msg::Pose & target, const geometry_msgs::msg
 bool hasLaneId(const autoware_planning_msgs::msg::PathPointWithLaneId & p, const int id)
 {
   for (const auto & pid : p.lane_ids) {
-    if (pid == id) {return true;}
+    if (pid == id) {
+      return true;
+    }
   }
   return false;
 }
@@ -214,7 +215,9 @@ int getFirstPointInsidePolygons(
         break;
       }
     }
-    if (is_in_lanelet) {break;}
+    if (is_in_lanelet) {
+      break;
+    }
   }
   return first_idx_inside_lanelet;
 }
@@ -223,7 +226,8 @@ bool generateStopLine(
   const int lane_id, const std::vector<lanelet::CompoundPolygon3d> detection_areas,
   const std::shared_ptr<const PlannerData> & planner_data,
   const IntersectionModule::PlannerParam & planner_param,
-  autoware_planning_msgs::msg::PathWithLaneId * path, int * stop_line_idx,
+  autoware_planning_msgs::msg::PathWithLaneId * original_path,
+  const autoware_planning_msgs::msg::PathWithLaneId & target_path, int * stop_line_idx,
   int * pass_judge_line_idx, int * first_idx_inside_lane, const rclcpp::Logger logger)
 {
   /* set judge line dist */
@@ -243,7 +247,9 @@ bool generateStopLine(
 
   /* spline interpolation */
   autoware_planning_msgs::msg::PathWithLaneId path_ip;
-  if (!util::splineInterpolate(*path, interval, &path_ip, logger)) {return false;}
+  if (!util::splineInterpolate(target_path, interval, &path_ip, logger)) {
+    return false;
+  }
 
   /* generate stop point */
   // If a stop_line is defined in lanelet_map, use it.
@@ -263,7 +269,8 @@ bool generateStopLine(
     }
     // only for visualization
     const auto first_inside_point = path_ip.points.at(first_idx_ip_inside_lane).point.pose;
-    planning_utils::calcClosestIndex(*path, first_inside_point, *first_idx_inside_lane, 10.0);
+    planning_utils::calcClosestIndex(
+      *original_path, first_inside_point, *first_idx_inside_lane, 10.0);
     if (*first_idx_inside_lane == 0) {
       RCLCPP_DEBUG(
         logger,
@@ -278,12 +285,12 @@ bool generateStopLine(
 
   /* insert stop_point */
   const auto inserted_stop_point = path_ip.points.at(stop_idx_ip).point.pose;
-  *stop_line_idx = util::insertPoint(inserted_stop_point, path);
+  *stop_line_idx = util::insertPoint(inserted_stop_point, original_path);
 
   /* if another stop point exist before intersection stop_line, disable judge_line. */
   bool has_prior_stopline = false;
   for (int i = 0; i < *stop_line_idx; ++i) {
-    if (std::fabs(path->points.at(i).point.twist.linear.x) < 0.1) {
+    if (std::fabs(original_path->points.at(i).point.twist.linear.x) < 0.1) {
       has_prior_stopline = true;
       break;
     }
@@ -295,7 +302,7 @@ bool generateStopLine(
     *pass_judge_line_idx = *stop_line_idx;
   } else {
     const auto inserted_pass_judge_point = path_ip.points.at(pass_judge_idx_ip).point.pose;
-    *pass_judge_line_idx = util::insertPoint(inserted_pass_judge_point, path);
+    *pass_judge_line_idx = util::insertPoint(inserted_pass_judge_point, original_path);
     ++(*stop_line_idx);  // stop index is incremented by judge line insertion
   }
 
@@ -323,7 +330,9 @@ bool getStopPoseFromMap(
       break;  // only one stop_line exists.
     }
   }
-  if (stop_line.empty()) {return false;}
+  if (stop_line.empty()) {
+    return false;
+  }
 
   const auto p_start = stop_line.front().front();
   const auto p_end = stop_line.front().back();
@@ -429,11 +438,11 @@ bool getObjectivePolygons(
     }
   }
   RCLCPP_DEBUG(
-    logger, "getObjectivePolygons() conflict = %s yield = %s ego = %s",
-    ss_c.str().c_str(), ss_y.str().c_str(), ss_e.str().c_str());
+    logger, "getObjectivePolygons() conflict = %s yield = %s ego = %s", ss_c.str().c_str(),
+    ss_y.str().c_str(), ss_e.str().c_str());
   RCLCPP_DEBUG(
-    logger, "getObjectivePolygons() object = %s object_sequences = %s",
-    ss_o.str().c_str(), ss_os.str().c_str());
+    logger, "getObjectivePolygons() object = %s object_sequences = %s", ss_o.str().c_str(),
+    ss_os.str().c_str());
   return true;
 }
 
