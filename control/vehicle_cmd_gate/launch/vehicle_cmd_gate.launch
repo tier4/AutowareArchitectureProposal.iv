@@ -1,5 +1,6 @@
 <launch>
   <arg name="vehicle_param_file" />
+  <arg name="use_emergency_handling" default="false" />
 
   <node pkg="vehicle_cmd_gate" exec="vehicle_cmd_gate" name="vehicle_cmd_gate" output="screen">
     <param from="$(var vehicle_param_file)" />
@@ -26,6 +27,7 @@
     <remap from="output/gate_mode" to="/control/current_gate_mode"/>
 
     <param from="$(find-pkg-share vehicle_cmd_gate)/config/vehicle_cmd_gate.param.yaml" />
+    <param name="use_emergency_handling" value="$(var use_emergency_handling)" />
   </node>
 
 </launch>
