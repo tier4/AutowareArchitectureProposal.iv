@@ -1,4 +1,5 @@
 <launch>
+  <arg name="use_emergency_handling" default="false" />
 
   <node pkg="vehicle_cmd_gate" type="vehicle_cmd_gate" name="vehicle_cmd_gate" output="screen">
     <remap from="~input/engage" to="/autoware/engage"/>
@@ -24,6 +25,7 @@
     <remap from="~output/gate_mode" to="/control/current_gate_mode"/>
 
     <rosparam command="load" file="$(find vehicle_cmd_gate)/config/vehicle_cmd_gate.yaml" />
+    <param name="use_emergency_handling" value="$(arg use_emergency_handling)" />
   </node>
 
 </launch>
