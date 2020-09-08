@@ -96,7 +96,7 @@ struct ConstraintMatrix
 
 struct MPTParam
 {
-  bool is_hard_fix_terminal_point;
+  bool is_hard_fixing_terminal_point;
   int num_curvature_sampling_points;
   double base_point_dist_from_base_link;
   double top_point_dist_from_base_link;

@@ -215,7 +215,8 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
   pnh_.param<double>("steer_tau", vehicle_param_->steer_tau, 0.1);
 
   // mpt param
-  pnh_.param<bool>("is_hard_fix_terminal_point", mpt_param_->is_hard_fix_terminal_point, true);
+  pnh_.param<bool>(
+    "is_hard_fixing_terminal_point", mpt_param_->is_hard_fixing_terminal_point, true);
   pnh_.param<int>("num_curvature_sampling_points", mpt_param_->num_curvature_sampling_points, 5);
   pnh_.param<double>("base_point_weight", mpt_param_->base_point_weight, 2000);
   pnh_.param<double>("top_point_weight", mpt_param_->top_point_weight, 1000);
