@@ -195,8 +195,9 @@ bool TrafficLightModule::modifyPathVelocity(
         }
         // judge pass or stop
         if (
-          (calcSignedArcLength(input_path, self_pose.pose, stop_line_point) <
-           pass_judge_line_distance + planner_data_->base_link2front) &&
+          (planner_param_.enable_pass_judge &&
+           calcSignedArcLength(input_path, self_pose.pose, stop_line_point) <
+             pass_judge_line_distance + planner_data_->base_link2front) &&
           (3.0 /* =10.8km/h */ < self_twist_ptr->twist.linear.x)) {
           ROS_WARN_THROTTLE(
             1.0, "[traffic_light] vehicle is over stop border (%f m)",

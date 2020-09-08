@@ -57,6 +57,7 @@ public:
   {
     double stop_margin;
     double tl_state_timeout;
+    bool enable_pass_judge;
   };
 
 public:
