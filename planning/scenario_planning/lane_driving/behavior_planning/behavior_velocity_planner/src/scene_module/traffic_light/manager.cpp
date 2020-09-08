@@ -62,6 +62,7 @@ TrafficLightModuleManager::TrafficLightModuleManager(rclcpp::Node & node)
   const std::string ns(getModuleName());
   planner_param_.stop_margin = node.declare_parameter(ns + "/stop_margin", 0.0);
   planner_param_.tl_state_timeout = node.declare_parameter(ns + "/tl_state_timeout", 1.0);
+  planner_param_.enable_pass_judge = node.declare_parameter(ns + "/enable_pass_judge", true);
   pub_tl_state_ = node.create_publisher<autoware_perception_msgs::msg::TrafficLightStateStamped>(
     "output/traffic_light_state", 1);
 }
@@ -86,8 +87,7 @@ void TrafficLightModuleManager::modifyPathVelocity(
       first_stop_path_point_index_ = traffc_light_scene_module->getFirstStopPathPointIndex();
       if (
         traffc_light_scene_module->getTrafficLightModuleState() !=
-        TrafficLightModule::State::GO_OUT)
-      {
+        TrafficLightModule::State::GO_OUT) {
         tl_state = traffc_light_scene_module->getTrafficLightState();
       }
     }
@@ -108,8 +108,7 @@ void TrafficLightModuleManager::launchNewModules(
   const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   for (const auto & traffic_light_reg_elem :
-    getTrafficLightRegElemsOnPath(path, planner_data_->lanelet_map))
-  {
+       getTrafficLightRegElemsOnPath(path, planner_data_->lanelet_map)) {
     const auto stop_line = traffic_light_reg_elem.first->stopLine();
 
     if (!stop_line) {
@@ -122,10 +121,9 @@ void TrafficLightModuleManager::launchNewModules(
     // Use lanelet_id to unregister module when the route is changed
     const auto module_id = traffic_light_reg_elem.second.id();
     if (!isModuleRegistered(module_id)) {
-      registerModule(
-        std::make_shared<TrafficLightModule>(
-          module_id, *(traffic_light_reg_elem.first), traffic_light_reg_elem.second, planner_param_,
-          logger_.get_child("traffic_light_module"), clock_));
+      registerModule(std::make_shared<TrafficLightModule>(
+        module_id, *(traffic_light_reg_elem.first), traffic_light_reg_elem.second, planner_param_,
+        logger_.get_child("traffic_light_module"), clock_));
     }
   }
 }
@@ -137,6 +135,6 @@ TrafficLightModuleManager::getModuleExpiredFunction(
   const auto lanelet_id_set = getLaneletIdSetOnPath(path, planner_data_->lanelet_map);
 
   return [lanelet_id_set](const std::shared_ptr<SceneModuleInterface> & scene_module) {
-           return lanelet_id_set.count(scene_module->getModuleId()) == 0;
-         };
+    return lanelet_id_set.count(scene_module->getModuleId()) == 0;
+  };
 }
