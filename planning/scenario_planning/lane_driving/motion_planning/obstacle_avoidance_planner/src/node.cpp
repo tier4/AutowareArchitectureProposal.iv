@@ -597,9 +597,12 @@ void ObstacleAvoidancePlanner::publishingDebugData(
   is_avoidance_possible_pub_.publish(is_avoidance_possible);
 
   std::vector<autoware_planning_msgs::TrajectoryPoint> traj_points_debug = traj_points;
-  const int idx = util::getNearestIdx(
-    path.points, traj_points.back().pose, 0, traj_param_->delta_yaw_threshold_for_closest_point);
-  traj_points_debug.back().pose.position.z = path.points.at(idx).pose.position.z + 1.0;
+  // Add z infomation for virtual wall
+  if (!traj_points_debug.empty()) {
+    const int idx = util::getNearestIdx(
+      path.points, traj_points.back().pose, 0, traj_param_->delta_yaw_threshold_for_closest_point);
+    traj_points_debug.back().pose.position.z = path.points.at(idx).pose.position.z + 1.0;
+  }
 
   debug_markers_pub_.publish(getDebugVisualizationMarker(debug_data, traj_points_debug));
   if (is_publishing_area_with_objects_) {
