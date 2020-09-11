@@ -14,10 +14,10 @@
 
 #include "scene_module/blind_spot/manager.hpp"
 
-#include <vector>
+#include <memory>
 #include <set>
 #include <string>
-#include <memory>
+#include <vector>
 
 #include "lanelet2_core/primitives/BasicRegulatoryElements.h"
 
@@ -60,6 +60,8 @@ BlindSpotModuleManager::BlindSpotModuleManager(rclcpp::Node & node)
   const std::string ns(getModuleName());
   planner_param_.stop_line_margin = node.declare_parameter(ns + "/stop_line_margin", 1.0);
   planner_param_.backward_length = node.declare_parameter(ns + "/backward_length", 15.0);
+  planner_param_.ignore_width_from_center_line =
+    node.declare_parameter(ns + "/ignore_width_from_center_line", 1.0);
   planner_param_.max_future_movement_time =
     node.declare_parameter(ns + "/max_future_movement_time", 10.0);
 }
@@ -81,10 +83,9 @@ void BlindSpotModuleManager::launchNewModules(
       continue;
     }
 
-    registerModule(
-      std::make_shared<BlindSpotModule>(
-        module_id, lane_id, planner_data_, planner_param_, logger_.get_child("blind_spot_module"),
-        clock_));
+    registerModule(std::make_shared<BlindSpotModule>(
+      module_id, lane_id, planner_data_, planner_param_, logger_.get_child("blind_spot_module"),
+      clock_));
   }
 }
 
@@ -95,6 +96,6 @@ BlindSpotModuleManager::getModuleExpiredFunction(
   const auto lane_id_set = getLaneIdSetOnPath(path);
 
   return [lane_id_set](const std::shared_ptr<SceneModuleInterface> & scene_module) {
-           return lane_id_set.count(scene_module->getModuleId()) == 0;
-         };
+    return lane_id_set.count(scene_module->getModuleId()) == 0;
+  };
 }
