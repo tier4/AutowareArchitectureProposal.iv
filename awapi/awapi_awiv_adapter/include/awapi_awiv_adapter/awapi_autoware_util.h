@@ -101,8 +101,8 @@ double lowpass_filter(const double current_value, const double prev_value, const
 namespace planning_util
 {
 bool calcClosestIndex(
-  const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & pose, int & closest,
-  const double dist_thr = 10.0, const double angle_thr = M_PI / 2.0);
+  const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & pose,
+  size_t & output_closest_idx, const double dist_thr = 10.0, const double angle_thr = M_PI / 2.0);
 
 inline geometry_msgs::msg::Pose getPose(const autoware_planning_msgs::msg::Trajectory & traj, const int idx)
 {
@@ -119,6 +119,10 @@ double normalizeEulerAngle(double euler);
 double calcArcLengthFromWayPoint(
   const autoware_planning_msgs::msg::Trajectory & input_path, const size_t src_idx,
   const size_t dst_idx);
+
+double calcDistanceAlongTrajectory(
+  const autoware_planning_msgs::msg::Trajectory & trajectory, const geometry_msgs::msg::Pose & current_pose,
+  const geometry_msgs::msg::Pose & target_pose);
 
 }  // namespace planning_util
 
