@@ -115,8 +115,10 @@ private:
     wheelbase_;  //!< @brief vehicle wheelbase length [m] to convert steering angle to angular velocity
 
   /* parameters for path smoothing */
-  bool enable_path_smoothing_;      //< @brief flag for path smoothing
-  bool enable_yaw_recalculation_;   //< @brief flag for recalculation of yaw angle after resampling
+  bool enable_path_smoothing_;     //< @brief flag for path smoothing
+  bool enable_yaw_recalculation_;  //< @brief flag for recalculation of yaw angle after resampling
+  bool
+    use_steer_prediction_;  //< @brief flag for using steer prediction (do not use steer measurement)
   int path_filter_moving_ave_num_;  //< @brief param of moving average filter for path smoothing
   int
     curvature_smoothing_num_;  //< @brief point-to-point index distance used in curvature calculation
@@ -141,6 +143,7 @@ private:
     double input_delay;             //< @brief delay time for steering input to be compensated
     double acceleration_limit;      //< @brief for trajectory velocity calculation
     double velocity_time_constant;  //< @brief for trajectory velocity calculation
+    double steer_tau;               //< @brief time constant for steer model
   };
   MPCParam mpc_param_;  // for mpc design parameter
 
@@ -172,6 +175,12 @@ private:
   double lateral_error_prev_;  //< @brief previous lateral error for derivative
   double yaw_error_prev_;      //< @brief previous lateral error for derivative
 
+  bool is_steer_prediction_initialized_ = false;
+  double steer_prediction_prev_ = 0.0;
+  double time_prev_ = 0.0;
+  std::vector<autoware_control_msgs::ControlCommandStamped>
+    ctrl_cmd_vec_;  //!< buffer of send command
+
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;  //!< @brief tf listener
 
@@ -201,6 +210,10 @@ private:
   bool getVar(
     const MPCTrajectory & traj, int * closest_idx, double * closest_time,
     geometry_msgs::Pose * closest_pose, double * steer, double * lat_err, double * yaw_err);
+
+  double calcSteerPrediction();
+  double getSteerCmdSum(const double t_start, const double t_end, const double time_constant);
+  void storeSteerCmd(const double steer);
 
   /**
    * @brief set curent_steer with receved message

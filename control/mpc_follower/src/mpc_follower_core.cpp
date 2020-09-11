@@ -25,6 +25,7 @@ MPCFollower::MPCFollower() : nh_(""), pnh_("~"), tf_listener_(tf_buffer_)
   pnh_.param<double>("ctrl_period", ctrl_period_, 0.03);
   pnh_.param<bool>("enable_path_smoothing", enable_path_smoothing_, true);
   pnh_.param<bool>("enable_yaw_recalculation", enable_yaw_recalculation_, false);
+  pnh_.param<bool>("use_steer_prediction", use_steer_prediction_, false);
   pnh_.param<int>("path_filter_moving_ave_num", path_filter_moving_ave_num_, 35);
   pnh_.param<int>("curvature_smoothing_num", curvature_smoothing_num_, 35);
   pnh_.param<double>("traj_resample_dist", traj_resample_dist_, 0.1);  // [m]
@@ -42,11 +43,10 @@ MPCFollower::MPCFollower() : nh_(""), pnh_("~"), tf_listener_(tf_buffer_)
   /* vehicle model setup */
   pnh_.param("vehicle_model_type", vehicle_model_type_, std::string("kinematics"));
   if (vehicle_model_type_ == "kinematics") {
-    double steer_tau;
-    pnh_.param<double>("vehicle_model_steer_tau", steer_tau, 0.1);
+    pnh_.param<double>("vehicle_model_steer_tau", mpc_param_.steer_tau, 0.1);
 
     vehicle_model_ptr_ =
-      std::make_shared<KinematicsBicycleModel>(wheelbase_, steer_lim_, steer_tau);
+      std::make_shared<KinematicsBicycleModel>(wheelbase_, steer_lim_, mpc_param_.steer_tau);
     ROS_INFO("[MPC] set vehicle_model = kinematics");
   } else if (vehicle_model_type_ == "kinematics_no_delay") {
     vehicle_model_ptr_ = std::make_shared<KinematicsBicycleModelNoDelay>(wheelbase_, steer_lim_);
@@ -209,8 +209,21 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::ControlCommand * ctrl_cmd)
     return false;
   }
 
+  if (!is_steer_prediction_initialized_) {
+    steer_prediction_prev_ = steer;
+    is_steer_prediction_initialized_ = true;
+  }
+
+  const double steer_pred = calcSteerPrediction();
+  steer_prediction_prev_ = steer_pred;
+
   /* define initial state for error dynamics */
-  Eigen::VectorXd x0 = getInitialState(lat_err, yaw_err, steer);
+  Eigen::VectorXd x0;
+  if (use_steer_prediction_) {
+    x0 = getInitialState(lat_err, yaw_err, steer_pred);
+  } else {
+    x0 = getInitialState(lat_err, yaw_err, steer);
+  }
 
   /* delay compensation */
   if (!updateStateForDelayCompensation(reference_trajectory, nearest_time, &x0)) {
@@ -246,6 +259,8 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::ControlCommand * ctrl_cmd)
   ctrl_cmd->velocity = ref_traj_.vx[nearest_idx];
   ctrl_cmd->acceleration =
     (ref_traj_.vx[nearest_idx] - ref_traj_.vx[prev_idx]) / mpc_param_.prediction_dt;
+
+  storeSteerCmd(u_filtered);
 
   /* save input to buffer for delay compensation*/
   input_buffer_.push_back(ctrl_cmd->steering_angle);
@@ -310,6 +325,9 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::ControlCommand * ctrl_cmd)
       curr_v * nearest_k);                       // [13] angvel from path curvature (Path angvel)
     debug_values.data.push_back(nearest_k);      // [14] nearest path curvature (used for control)
     debug_values.data.push_back(curvature_raw);  // [15] nearest path curvature (not smoothed)
+    debug_values.data.push_back(steer_pred);     // [16] steer prediction
+    debug_values.data.push_back(
+      curr_v * tan(steer_pred) / wheelbase_);  // [17] angvel from steer prediction
     pub_debug_values_.publish(debug_values);
   }
 
@@ -360,6 +378,76 @@ bool MPCFollower::getVar(
     return false;
   }
   return true;
+}
+
+double MPCFollower::calcSteerPrediction()
+{
+  const double t_start = time_prev_;
+  const double t_end = ros::Time::now().toSec();
+  time_prev_ = t_end;
+
+  const double duration = t_end - t_start;
+  const double time_constant = mpc_param_.steer_tau;
+
+  const double initial_response = std::exp(-duration / time_constant) * steer_prediction_prev_;
+
+  if (ctrl_cmd_vec_.size() <= 2) return initial_response;
+
+  return initial_response + getSteerCmdSum(t_start, t_end, time_constant);
+}
+
+double MPCFollower::getSteerCmdSum(
+  const double t_start, const double t_end, const double time_constant)
+{
+  if (ctrl_cmd_vec_.size() <= 2) return 0.0;
+
+  // Find first index of control command container
+  size_t idx = 1;
+  while (t_start > ctrl_cmd_vec_.at(idx).header.stamp.toSec()) {
+    if ((idx + 1) > ctrl_cmd_vec_.size()) return 0.0;
+    ++idx;
+  }
+
+  // Compute steer command input response
+  double steer_sum = 0.0;
+  double t = t_start;
+  while (t_end > ctrl_cmd_vec_.at(idx).header.stamp.toSec()) {
+    const double duration = ctrl_cmd_vec_.at(idx).header.stamp.toSec() - t;
+    t = ctrl_cmd_vec_.at(idx).header.stamp.toSec();
+    steer_sum +=
+      (1 - std::exp(-duration / time_constant)) * ctrl_cmd_vec_.at(idx - 1).control.steering_angle;
+    ++idx;
+    if (idx >= ctrl_cmd_vec_.size()) break;
+  }
+
+  const double duration = t_end - t;
+  steer_sum +=
+    (1 - std::exp(-duration / time_constant)) * ctrl_cmd_vec_.at(idx - 1).control.steering_angle;
+
+  return steer_sum;
+}
+
+void MPCFollower::storeSteerCmd(const double steer)
+{
+  const auto time_delayed = ros::Time::now() + ros::Duration(mpc_param_.input_delay);
+  autoware_control_msgs::ControlCommandStamped cmd;
+  cmd.header.stamp = time_delayed;
+  cmd.control.steering_angle = steer;
+
+  // store published ctrl cmd
+  ctrl_cmd_vec_.emplace_back(cmd);
+
+  if (ctrl_cmd_vec_.size() <= 2) {
+    return;
+  }
+
+  // remove unused ctrl cmd
+  constexpr double store_time = 0.3;
+  if (
+    (time_delayed - ctrl_cmd_vec_.at(1).header.stamp).toSec() >
+    mpc_param_.input_delay + store_time) {
+    ctrl_cmd_vec_.erase(ctrl_cmd_vec_.begin());
+  }
 }
 
 bool MPCFollower::resampleMPCTrajectoryByTime(
