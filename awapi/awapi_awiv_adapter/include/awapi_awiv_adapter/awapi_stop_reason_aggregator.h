@@ -41,6 +41,10 @@ private:
     autoware_planning_msgs::StopReasonArray * stop_reason_array, const AutowareInfo & aw_info);
   autoware_planning_msgs::StopReasonArray::ConstPtr makeStopReasonArray(
     const AutowareInfo & aw_info);
+  autoware_planning_msgs::StopReason inputStopDistToStopReason(
+    const autoware_planning_msgs::StopReason & stop_reason, const AutowareInfo & aw_info);
+  double calcStopDistToStopFactor(
+    const autoware_planning_msgs::StopFactor & stop_factor, const AutowareInfo & aw_info);
   autoware_planning_msgs::StopReason getNearStopReason(
     const autoware_planning_msgs::StopReason & stop_reason, const AutowareInfo & aw_info);
 

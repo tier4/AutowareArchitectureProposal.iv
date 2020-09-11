@@ -26,12 +26,12 @@ double lowpass_filter(const double current_value, const double prev_value, const
 namespace planning_util
 {
 bool calcClosestIndex(
-  const autoware_planning_msgs::Trajectory & traj, const geometry_msgs::Pose & pose, int & closest,
-  const double dist_thr, const double angle_thr)
+  const autoware_planning_msgs::Trajectory & traj, const geometry_msgs::Pose & pose,
+  size_t & output_closest_idx, const double dist_thr, const double angle_thr)
 {
   double dist_min = std::numeric_limits<double>::max();
   const double yaw_pose = tf2::getYaw(pose.orientation);
-  closest = -1;
+  int closest_idx = -1;
 
   for (int i = 0; i < static_cast<int>(traj.points.size()); ++i) {
     const double dist = calcDist2d(getPose(traj, i).position, pose.position);
@@ -47,11 +47,13 @@ bool calcClosestIndex(
 
     if (dist < dist_min) {
       dist_min = dist;
-      closest = i;
+      closest_idx = i;
     }
   }
 
-  return (closest != -1);
+  output_closest_idx = static_cast<size_t>(closest_idx);
+
+  return (closest_idx != -1);
 }
 
 double normalizeEulerAngle(double euler)
@@ -79,6 +81,21 @@ double calcArcLengthFromWayPoint(
     length += std::hypot(dx_wp, dy_wp);
   }
   return length;
+}
+
+double calcDistanceAlongTrajectory(
+  const autoware_planning_msgs::Trajectory & trajectory, const geometry_msgs::Pose & current_pose,
+  const geometry_msgs::Pose & target_pose)
+{
+  size_t self_idx;
+  size_t stop_idx;
+  if (
+    !calcClosestIndex(trajectory, current_pose, self_idx) ||
+    !calcClosestIndex(trajectory, target_pose, stop_idx)) {
+    return std::numeric_limits<double>::max();
+  }
+  const double dist_to_stop_pose = calcArcLengthFromWayPoint(trajectory, self_idx, stop_idx);
+  return dist_to_stop_pose;
 }
 
 }  // namespace planning_util
