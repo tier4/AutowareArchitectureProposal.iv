@@ -511,7 +511,7 @@ bool VelocityController::checkIsStopped(double current_vel, double target_vel, i
   if (is_smooth_stop_) return false;  // stopping.
 
   // Prevent a direct transition from PID_CONTROL to STOPPED without going through SMOOTH_STOP.
-  if (control_mode_ == ControlMode::PID_CONTROL) return false;
+  if (control_mode_ == ControlMode::PID_CONTROL && enable_smooth_stop_) return false;
 
   if (control_mode_ == ControlMode::STOPPED) {
     double dist = calcStopDistance(*trajectory_ptr_, closest);
