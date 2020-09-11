@@ -275,7 +275,39 @@ lanelet::LineString3d generateFineCenterline(
   return centerline;
 }
 
-void overwriteLaneletsCenterline(lanelet::LaneletMapPtr lanelet_map, const double resolution, const bool force_overwrite)
+lanelet::ConstLineString3d getCenterlineWithOffset(
+  const lanelet::ConstLanelet & lanelet_obj, const double offset, const double resolution)
+{
+  // Get length of longer border
+  const double left_length = lanelet::geometry::length(lanelet_obj.leftBound());
+  const double right_length = lanelet::geometry::length(lanelet_obj.rightBound());
+  const double longer_distance = (left_length > right_length) ? left_length : right_length;
+  const int num_segments = std::max(static_cast<int>(ceil(longer_distance / resolution)), 1);
+
+  // Resample points
+  const auto left_points = lanelet::utils::resamplePoints(lanelet_obj.leftBound(), num_segments);
+  const auto right_points = resamplePoints(lanelet_obj.rightBound(), num_segments);
+
+  // Create centerline
+  lanelet::LineString3d centerline(lanelet::utils::getId());
+  for (int i = 0; i < num_segments + 1; i++) {
+    // Add ID for the average point of left and right
+    const auto center_basic_point = (right_points.at(i) + left_points.at(i)) / 2;
+
+    const auto vec_right_2_left = (left_points.at(i) - right_points.at(i)).normalized();
+
+    const auto offset_center_basic_point = center_basic_point + vec_right_2_left * offset;
+
+    const lanelet::Point3d center_point(
+      lanelet::utils::getId(), offset_center_basic_point.x(), offset_center_basic_point.y(),
+      offset_center_basic_point.z());
+    centerline.push_back(center_point);
+  }
+  return static_cast<lanelet::ConstLineString3d>(centerline);
+}
+
+void overwriteLaneletsCenterline(
+  lanelet::LaneletMapPtr lanelet_map, const double resolution, const bool force_overwrite)
 {
   for (auto & lanelet_obj : lanelet_map->laneletLayer) {
     if (force_overwrite || !lanelet_obj.hasCustomCenterline()) {

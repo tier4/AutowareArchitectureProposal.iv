@@ -56,6 +56,7 @@ BlindSpotModuleManager::BlindSpotModuleManager() : SceneModuleManagerInterface(g
   auto & p = planner_param_;
   pnh.param(ns + "/stop_line_margin", p.stop_line_margin, 1.0);
   pnh.param(ns + "/backward_length", p.backward_length, 15.0);
+  pnh.param(ns + "/ignore_width_from_center_line", p.ignore_width_from_center_line, 1.0);
   pnh.param(ns + "/max_future_movement_time", p.max_future_movement_time, 10.0);
 }
 

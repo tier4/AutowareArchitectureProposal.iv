@@ -101,6 +101,7 @@ public:
     double stop_line_margin;  //! distance from auto-generated stopline to detection_area boundary
     double
       backward_length;  //! distance[m] from closest path point to the edge of beginning point in area
+    double ignore_width_from_center_line;  //! ignore width from center line from detection_area
     double
       max_future_movement_time;  //! maximum time[second] for considering future movement of object
   };

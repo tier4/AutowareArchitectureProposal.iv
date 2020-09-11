@@ -304,10 +304,15 @@ lanelet::ConstLanelet BlindSpotModule::generateHalfLanelet(
 {
   lanelet::Points3d lefts, rights;
 
+  const double offset = (turn_direction_ == TurnDirection::LEFT)
+                          ? planner_param_.ignore_width_from_center_line
+                          : -planner_param_.ignore_width_from_center_line;
+  const auto offset_centerline = lanelet::utils::getCenterlineWithOffset(lanelet, offset);
+
   const auto original_left_bound =
-    (turn_direction_ == TurnDirection::LEFT) ? lanelet.leftBound() : lanelet.centerline();
+    (turn_direction_ == TurnDirection::LEFT) ? lanelet.leftBound() : offset_centerline;
   const auto original_right_bound =
-    (turn_direction_ == TurnDirection::LEFT) ? lanelet.centerline() : lanelet.rightBound();
+    (turn_direction_ == TurnDirection::LEFT) ? offset_centerline : lanelet.rightBound();
 
   for (const auto & pt : original_left_bound) {
     lefts.push_back(lanelet::Point3d(pt));
