@@ -65,6 +65,11 @@ topic_configs:
     warn_rate: 5.0
 
   - module: "control"
+    name: "/control/trajectory_follower/control_cmd"
+    timeout: 1.0
+    warn_rate: 5.0
+
+  - module: "control"
     name: "/control/vehicle_cmd"
     timeout: 1.0
     warn_rate: 5.0
