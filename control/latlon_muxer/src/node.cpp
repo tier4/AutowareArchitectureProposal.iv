@@ -35,11 +35,30 @@ LatLonMuxer::LatLonMuxer(const rclcpp::NodeOptions & node_options)
     create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
     "input/longitudinal/control_cmd", rclcpp::QoS{1},
     std::bind(&LatLonMuxer::lonCtrlCmdCallback, this, std::placeholders::_1));
+  pnh_.param<double>("timeout_thr_sec", timeout_thr_sec_, 0.5);
+}
+
+bool LatLonMuxer::checkTimeout() const
+{
+  const auto now = ros::Time::now();
+  if ((now - lat_cmd_->header.stamp).toSec() > timeout_thr_sec_) {
+    ROS_ERROR("[latlon_muxer] lat_cmd_ timeout failed.");
+    return false;
+  }
+  if ((now - lon_cmd_->header.stamp).toSec() > timeout_thr_sec_) {
+    ROS_ERROR("[latlon_muxer] lon_cmd_ timeout failed.");
+    return false;
+  }
+  return true;
 }
 
 void LatLonMuxer::publishCmd()
 {
   if (!lat_cmd_ || !lon_cmd_) {
+    return;
+  }
+  if (!checkTimeout()) {
+    ROS_ERROR("[latlon_muxer] timeout failed. stop publish command.");
     return;
   }
 
