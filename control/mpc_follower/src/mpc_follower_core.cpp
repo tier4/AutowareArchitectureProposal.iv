@@ -590,17 +590,15 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
   Eigen::MatrixXd Uref(DIM_U, 1);
 
   constexpr double ep = 1.0e-3;  // large enough to ingore velocity noise
-  const double curr_vel = current_velocity_ptr_->twist.linear.x;
-  const double sign_curr_vx = curr_vel > ep ? 1 : (curr_vel < -ep ? -1 : 0);
 
   /* predict dynamics for N times */
   for (int i = 0; i < N; ++i) {
     const double ref_vx = reference_trajectory.vx[i];
     const double ref_vx_squared = ref_vx * ref_vx;
-    const double sign_vx = ref_vx > ep ? 1 : (ref_vx < -ep ? -1 : sign_curr_vx);
+    sign_vx_ = ref_vx > ep ? 1 : (ref_vx < -ep ? -1 : sign_vx_);
 
     // curvature will be 0 when vehicle stops
-    const double ref_k = reference_trajectory.k[i] * sign_vx;
+    const double ref_k = reference_trajectory.k[i] * sign_vx_;
 
     /* get discrete state matrix A, B, C, W */
     vehicle_model_ptr_->setVelocity(ref_vx);

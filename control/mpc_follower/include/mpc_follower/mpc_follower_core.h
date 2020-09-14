@@ -178,6 +178,8 @@ private:
   bool is_steer_prediction_initialized_ = false;
   double steer_prediction_prev_ = 0.0;
   double time_prev_ = 0.0;
+  double sign_vx_ =
+    0.0;  //!< @brief previous value of the target speed to calculate curvature when the target speed is zero.
   std::vector<autoware_control_msgs::ControlCommandStamped>
     ctrl_cmd_vec_;  //!< buffer of send command
 
