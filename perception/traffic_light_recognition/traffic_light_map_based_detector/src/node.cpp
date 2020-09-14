@@ -376,7 +376,7 @@ void MapBasedDetector::publishVisibleTrafficLights(
     marker.points.push_back(point);
 
     marker.lifetime = ros::Duration(0.2);
-    marker.color.a = 1.0;  // Don't forget to set the alpha!
+    marker.color.a = 0.999;  // Don't forget to set the alpha!
     marker.color.r = 0.0;
     marker.color.g = 1.0;
     marker.color.b = 0.0;
