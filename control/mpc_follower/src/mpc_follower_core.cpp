@@ -404,7 +404,7 @@ double MPCFollower::getSteerCmdSum(
   // Find first index of control command container
   size_t idx = 1;
   while (t_start > ctrl_cmd_vec_.at(idx).header.stamp.toSec()) {
-    if ((idx + 1) > ctrl_cmd_vec_.size()) return 0.0;
+    if ((idx + 1) >= ctrl_cmd_vec_.size()) return 0.0;
     ++idx;
   }
 
