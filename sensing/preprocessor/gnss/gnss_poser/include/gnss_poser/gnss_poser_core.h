@@ -53,7 +53,7 @@ private:
   geometry_msgs::Point getMedianPosition(
     const boost::circular_buffer<geometry_msgs::Point> & position_buffer);
   geometry_msgs::Quaternion getQuaternionByHeading(const int heading);
-  geometry_msgs::Quaternion getQuaternionByPositionDiffence(
+  geometry_msgs::Quaternion getQuaternionByPositionDifference(
     const geometry_msgs::Point & point, const geometry_msgs::Point & prev_point);
 
   bool getTransform(

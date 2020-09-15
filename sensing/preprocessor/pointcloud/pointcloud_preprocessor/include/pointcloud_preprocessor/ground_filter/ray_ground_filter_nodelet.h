@@ -82,7 +82,7 @@ class RayGroundFilterNodelet : public pointcloud_preprocessor::Filter
     float radius;  // cylindric coords on XY Plane
     float theta;   // angle deg on XY plane
 
-    size_t radial_div;      // index of the radial divsion to which this point belongs to
+    size_t radial_div;      // index of the radial division to which this point belongs to
     size_t concentric_div;  // index of the concentric division to which this points belongs to
 
     size_t red;    // Red component  [0-255]
@@ -142,8 +142,8 @@ private:
    * @param[in] in_target_frame Coordinate system to perform transform
    * @param[in] in_cloud_ptr PointCloud to perform transform
    * @param[out] out_cloud_ptr Resulting transformed PointCloud
-   * @retval true transform successed
-   * @retval false transform faild
+   * @retval true transform succeeded
+   * @retval false transform failed
    */
   bool TransformPointCloud(
     const std::string & in_target_frame, const sensor_msgs::PointCloud2::ConstPtr & in_cloud_ptr,
@@ -162,7 +162,7 @@ private:
     std::vector<PointCloudXYZRTColor> & out_radial_ordered_clouds);
 
   /*!
-   * Classifies Points in the PointCoud as Ground and Not Ground
+   * Classifies Points in the PointCloud as Ground and Not Ground
    * @param in_radial_ordered_clouds Vector of an Ordered PointsCloud ordered by radial distance from the origin
    * @param out_ground_indices Returns the indices of the points classified as ground in the original PointCloud
    * @param out_no_ground_indices Returns the indices of the points classified as not ground in the original PointCloud
