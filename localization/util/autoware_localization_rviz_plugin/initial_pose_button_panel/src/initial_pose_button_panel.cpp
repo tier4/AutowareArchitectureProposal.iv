@@ -62,7 +62,7 @@ InitialPoseButtonPanel::InitialPoseButtonPanel(QWidget * parent) : rviz_common::
   initialize_button_->setEnabled(false);
   connect(initialize_button_, SIGNAL(clicked(bool)), SLOT(pushInitializeButton()));
 
-  status_label_ = new QLabel("Not Initialze");
+  status_label_ = new QLabel("Not Initialize");
   status_label_->setAlignment(Qt::AlignCenter);
   status_label_->setStyleSheet("QLabel { background-color : gray;}");
 
