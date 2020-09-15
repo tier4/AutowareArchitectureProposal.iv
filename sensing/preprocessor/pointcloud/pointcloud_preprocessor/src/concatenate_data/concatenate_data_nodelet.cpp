@@ -194,7 +194,7 @@ void PointCloudConcatenateDataSynchronizerComponent::combineClouds(
     if (std::fabs(dt) > 0.1) {
       RCLCPP_WARN_STREAM_THROTTLE(
         get_logger(), *get_clock(), std::chrono::milliseconds(10000).count(),
-        "Time difference is too large. Cloud not interpolate. Please comfirm twist topic and "
+        "Time difference is too large. Cloud not interpolate. Please confirm twist topic and "
         "timestamp");
       break;
     }
