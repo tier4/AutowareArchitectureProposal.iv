@@ -149,6 +149,13 @@ private:
     const int prev_out_closest, const autoware_planning_msgs::Trajectory & prev_output,
     const int output_closest, autoware_planning_msgs::Trajectory & output) const;
 
+  std_msgs::Float32 createFloat32Msg(const double value)
+  {
+    std_msgs::Float32 msg;
+    msg.data = value;
+    return msg;
+  }
+
   /* dynamic reconfigure */
   dynamic_reconfigure::Server<motion_velocity_optimizer::MotionVelocityOptimizerConfig>
     dyncon_server_;
@@ -185,6 +192,7 @@ private:
   /* debug */
   ros::Publisher pub_dist_to_stopline_;  //!< @brief publisher for stop distance
   ros::Publisher pub_trajectory_raw_;
+  ros::Publisher pub_velocity_limit_;
   ros::Publisher pub_trajectory_vel_lim_;
   ros::Publisher pub_trajectory_latcc_filtered_;
   ros::Publisher pub_trajectory_resampled_;
