@@ -183,9 +183,7 @@ bool IntersectionModule::checkCollision(
   autoware_perception_msgs::msg::DynamicObjectArray target_objects;
   for (const auto & object : objects_ptr->objects) {
     // ignore non-vehicle type objects, such as pedestrian.
-    if (!isTargetVehicleType(object)) {
-      continue;
-    }
+    if (!isTargetCollisionVehicleType(object)) continue;
 
     // ignore vehicle in ego-lane. (TODO update check algorithm)
     const auto object_pose = object.state.pose_covariance.pose;
@@ -358,7 +356,7 @@ bool IntersectionModule::checkStuckVehicleInIntersection(
   debug_data_.stuck_vehicle_detect_area = toGeomMsg(stuck_vehicle_detect_area);
 
   for (const auto & object : objects_ptr->objects) {
-    if (!isTargetVehicleType(object)) {
+    if (!isTargetStuckVehicleType(object)) {
       continue;  // not target vehicle type
     }
     const auto obj_v = std::fabs(object.state.twist_covariance.twist.linear.x);
@@ -375,7 +373,7 @@ bool IntersectionModule::checkStuckVehicleInIntersection(
   return false;
 }
 
-bool IntersectionModule::isTargetVehicleType(
+bool IntersectionModule::isTargetCollisionVehicleType(
   const autoware_perception_msgs::msg::DynamicObject & object) const
 {
   if (
@@ -389,6 +387,18 @@ bool IntersectionModule::isTargetVehicleType(
   return false;
 }
 
+bool IntersectionModule::isTargetStuckVehicleType(
+  const autoware_perception_msgs::msg::DynamicObject & object) const
+{
+  if (
+    object.semantic.type == autoware_perception_msgs::msg::Semantic::CAR ||
+    object.semantic.type == autoware_perception_msgs::msg::Semantic::BUS ||
+    object.semantic.type == autoware_perception_msgs::msg::Semantic::TRUCK ||
+    object.semantic.type == autoware_perception_msgs::msg::Semantic::MOTORBIKE) {
+    return true;
+  }
+  return false;
+}
 void IntersectionModule::StateMachine::setStateWithMarginTime(
   State state, rclcpp::Logger logger, rclcpp::Clock & clock)
 {

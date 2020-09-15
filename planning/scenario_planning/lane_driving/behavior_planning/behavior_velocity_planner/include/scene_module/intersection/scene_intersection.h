@@ -33,8 +33,7 @@
 class IntersectionModule : public SceneModuleInterface
 {
 public:
-  enum class State
-  {
+  enum class State {
     STOP = 0,
     GO,
   };
@@ -54,7 +53,7 @@ public:
    */
   class StateMachine
   {
-public:
+  public:
     StateMachine()
     {
       state_ = State::GO;
@@ -65,7 +64,7 @@ public:
     void setMarginTime(const double t);
     State getState();
 
-private:
+  private:
     State state_;                               //! current state
     double margin_time_;                        //! margin time when transit to Go from Stop
     std::shared_ptr<rclcpp::Time> start_time_;  //! first time received GO when STOP state
@@ -193,11 +192,19 @@ private:
     const int objective_lane_id) const;
 
   /**
-   * @brief check if the object has a terget type
+   * @brief check if the object has a terget type for collision check
    * @param object target object
    * @return true if the object has a target type
    */
-  bool isTargetVehicleType(const autoware_perception_msgs::msg::DynamicObject & object) const;
+  bool isTargetCollisionVehicleType(
+    const autoware_perception_msgs::msg::DynamicObject & object) const;
+
+  /**
+   * @brief check if the object has a terget type for stuck check
+   * @param object target object
+   * @return true if the object has a target type
+   */
+  bool isTargetStuckVehicleType(const autoware_perception_msgs::msg::DynamicObject & object) const;
 
   StateMachine state_machine_;  //! for state
 
