@@ -14,10 +14,10 @@
 
 #include "steering_angle.hpp"
 #include "OgreHardwarePixelBuffer.h"
+#include "QPainter"
 #include "ament_index_cpp/get_package_share_directory.hpp"
 #include "rviz_common/display_context.hpp"
 #include "rviz_common/uniform_string_stream.hpp"
-#include "QPainter"
 
 namespace rviz_plugins
 {
@@ -55,9 +55,10 @@ std::unique_ptr<Ogre::ColourValue> SteeringAngleDisplay::setColorDependsOnVeloci
 }
 
 SteeringAngleDisplay::SteeringAngleDisplay()
-: handle_image_(
-    std::string(ament_index_cpp::get_package_share_directory("autoware_vehicle_rviz_plugin")
-      + "/images/handle.png").c_str())
+: handle_image_(std::string(
+                  ament_index_cpp::get_package_share_directory("autoware_vehicle_rviz_plugin") +
+                  "/images/handle.png")
+                  .c_str())
 {
   property_text_color_ = new rviz_common::properties::ColorProperty(
     "Text Color", QColor(25, 255, 240), "text color", this, SLOT(updateVisualization()), this);
@@ -74,6 +75,9 @@ SteeringAngleDisplay::SteeringAngleDisplay()
   property_value_height_offset_ = new rviz_common::properties::IntProperty(
     "Value height offset", 0, "Height offset of the plotter window", this,
     SLOT(updateVisualization()));
+  property_value_scale_ = new rviz_common::properties::FloatProperty(
+    "Value Scale", 1.0 / 15.0, "Value scale", this, SLOT(updateVisualization()), this);
+  property_value_scale_->setMin(0.01);
   property_handle_angle_scale_ = new rviz_common::properties::FloatProperty(
     "Scale", 3.0, "Scale is steering andle to handle angle ", this, SLOT(updateVisualization()),
     this);
@@ -129,7 +133,8 @@ void SteeringAngleDisplay::onDisable()
   overlay_->hide();
 }
 
-void SteeringAngleDisplay::processMessage(const autoware_vehicle_msgs::msg::Steering::ConstSharedPtr msg_ptr)
+void SteeringAngleDisplay::processMessage(
+  const autoware_vehicle_msgs::msg::Steering::ConstSharedPtr msg_ptr)
 {
   if (!isEnabled()) {
     return;
@@ -169,7 +174,7 @@ void SteeringAngleDisplay::processMessage(const autoware_vehicle_msgs::msg::Stee
     0, 0, property_length_->getInt(), property_length_->getInt(), rotate_handle_image);
 
   QFont font = painter.font();
-  font.setPointSize(std::max(int(double(w) / 15.0), 1));
+  font.setPointSize(std::max(int(double(w) * property_value_scale_->getFloat()), 1));
   font.setBold(true);
   painter.setFont(font);
   std::ostringstream steering_angle_ss;
