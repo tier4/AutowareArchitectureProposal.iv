@@ -69,15 +69,15 @@ void MultiObjectTrackerNode::measurementCallback(
   }
 
   /* tracker prediction */
-  ros::Time measuremet_time = input_objects_msg->header.stamp;
+  ros::Time measurement_time = input_objects_msg->header.stamp;
   for (auto itr = list_tracker_.begin(); itr != list_tracker_.end(); ++itr) {
-    (*itr)->predict(measuremet_time);
+    (*itr)->predict(measurement_time);
   }
 
   /* life cycle check */
   // TODO
 
-  /* global nearest neighboor */
+  /* global nearest neighbor */
   std::unordered_map<int, int> direct_assignment;
   std::unordered_map<int, int> reverse_assignment;
   Eigen::MatrixXd score_matrix = data_association_.calcScoreMatrix(
@@ -94,7 +94,7 @@ void MultiObjectTrackerNode::measurementCallback(
         ->updateWithMeasurement(
           input_transformed_objects.feature_objects.at(direct_assignment.find(tracker_idx)->second)
             .object,
-          measuremet_time);
+          measurement_time);
     } else  // not found
     {
       (*(tracker_itr))->updateWithoutMeasurement();
@@ -114,19 +114,19 @@ void MultiObjectTrackerNode::measurementCallback(
       input_transformed_objects.feature_objects.at(i).object.semantic.type ==
         autoware_perception_msgs::Semantic::BUS) {
       list_tracker_.push_back(std::make_shared<VehicleTracker>(
-        measuremet_time, input_transformed_objects.feature_objects.at(i).object));
+        measurement_time, input_transformed_objects.feature_objects.at(i).object));
     } else if (
       input_transformed_objects.feature_objects.at(i).object.semantic.type ==
       autoware_perception_msgs::Semantic::PEDESTRIAN) {
       list_tracker_.push_back(std::make_shared<PedestrianTracker>(
-        measuremet_time, input_transformed_objects.feature_objects.at(i).object));
+        measurement_time, input_transformed_objects.feature_objects.at(i).object));
     } else if (
       input_transformed_objects.feature_objects.at(i).object.semantic.type ==
         autoware_perception_msgs::Semantic::BICYCLE ||
       input_transformed_objects.feature_objects.at(i).object.semantic.type ==
         autoware_perception_msgs::Semantic::MOTORBIKE) {
       list_tracker_.push_back(std::make_shared<BicycleTracker>(
-        measuremet_time, input_transformed_objects.feature_objects.at(i).object));
+        measurement_time, input_transformed_objects.feature_objects.at(i).object));
     } else {
       // list_tracker_.push_back(std::make_shared<PedestrianTracker>(input_transformed_objects.feature_objects.at(i).object));
     }

@@ -100,7 +100,7 @@ void VoxelGridBasedEuclideanClusterNodelet::pointcloudCallback(
     ++cluster_idx;
   }
 
-  // create vector of point cloud cluster. vecter index is voxel grid index.
+  // create vector of point cloud cluster. vector index is voxel grid index.
   std::vector<pcl::PointCloud<pcl::PointXYZ>> v_cluster;
   v_cluster.resize(cluster_idx);
   for (size_t i = 0; i < raw_pointcloud_ptr->points.size(); ++i) {

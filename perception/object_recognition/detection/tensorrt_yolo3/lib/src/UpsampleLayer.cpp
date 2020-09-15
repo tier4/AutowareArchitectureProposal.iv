@@ -97,7 +97,7 @@ Dims UpsampleLayerPlugin::getOutputDimensions(int index, const Dims * inputs, in
   mCHW = inputs[0];
   mOutputHeight = inputs[0].d[1] * mScale;
   mOutputWidth = inputs[0].d[2] * mScale;
-  // std::cout << "ouputDims:" << mCHW.d[0] << " " << mOutputHeight << " " << mOutputWidth << std::endl;
+  // std::cout << "outputDims:" << mCHW.d[0] << " " << mOutputHeight << " " << mOutputWidth << std::endl;
   return Dims3(mCHW.d[0], mOutputHeight, mOutputWidth);
 }
 }  // namespace nvinfer1
