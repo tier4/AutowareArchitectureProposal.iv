@@ -72,6 +72,7 @@ protected:
   rviz::IntProperty * property_length_;
   rviz::FloatProperty * property_handle_angle_scale_;
   rviz::IntProperty * property_value_height_offset_;
+  rviz::FloatProperty * property_value_scale_;
   QPixmap handle_image_;
   // QImage hud_;
 
