@@ -80,7 +80,7 @@ Simulator::Simulator() : nh_(""), pnh_("~"), tf_listener_(tf_buffer_), is_initia
   /* set vehicle model parameters */
   double tread_length, angvel_lim, vel_lim, steer_lim, accel_rate, angvel_rate, steer_rate_lim,
     vel_time_delay, acc_time_delay, vel_time_constant, steer_time_delay, steer_time_constant,
-    angvel_time_delay, angvel_time_constant, acc_time_constant;
+    angvel_time_delay, angvel_time_constant, acc_time_constant, deadzone_delta_steer;
   pnh_.param("tread_length", tread_length, double(1.0));
   pnh_.param("angvel_lim", angvel_lim, double(3.0));
   pnh_.param("vel_lim", vel_lim, double(10.0));
@@ -97,6 +97,7 @@ Simulator::Simulator() : nh_(""), pnh_("~"), tf_listener_(tf_buffer_), is_initia
   pnh_.param("acc_time_delay", acc_time_delay, double(0.3));
   pnh_.param("acc_time_constant", acc_time_constant, double(0.3));
   pnh_.param("initial_engage_state", simulator_engage_, bool(true));
+  pnh_.param("deadzone_delta_steer", deadzone_delta_steer, 0.001);
   const double dt = 1.0 / loop_rate_;
 
   /* set vehicle model type */
@@ -110,12 +111,12 @@ Simulator::Simulator() : nh_(""), pnh_("~"), tf_listener_(tf_buffer_), is_initia
     vehicle_model_type_ = VehicleModelType::DELAY_STEER;
     vehicle_model_ptr_ = std::make_shared<SimModelTimeDelaySteer>(
       vel_lim, steer_lim, accel_rate, steer_rate_lim, wheelbase_, dt, vel_time_delay,
-      vel_time_constant, steer_time_delay, steer_time_constant);
+      vel_time_constant, steer_time_delay, steer_time_constant, deadzone_delta_steer);
   } else if (vehicle_model_type_str == "DELAY_STEER_ACC") {
     vehicle_model_type_ = VehicleModelType::DELAY_STEER_ACC;
     vehicle_model_ptr_ = std::make_shared<SimModelTimeDelaySteerAccel>(
       vel_lim, steer_lim, accel_rate, steer_rate_lim, wheelbase_, dt, acc_time_delay,
-      acc_time_constant, steer_time_delay, steer_time_constant);
+      acc_time_constant, steer_time_delay, steer_time_constant, deadzone_delta_steer);
   } else {
     ROS_ERROR("Invalid vehicle_model_type. Initialization failed.");
   }
