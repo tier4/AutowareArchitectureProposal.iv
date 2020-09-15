@@ -40,6 +40,7 @@
 #include "autoware_vehicle_msgs/msg/turn_signal.hpp"
 #include "autoware_vehicle_msgs/msg/vehicle_command.hpp"
 #include "diagnostic_msgs/msg/diagnostic_array.hpp"
+#include "pacmod_msgs/msg/system_rpt_int.hpp"
 
 namespace autoware_api
 {
@@ -68,6 +69,7 @@ struct AutowareInfo
   std_msgs::msg::Float32::ConstSharedPtr max_velocity_ptr;
   std_msgs::msg::Bool::ConstSharedPtr temporary_stop_ptr;
   autoware_planning_msgs::msg::Trajectory::ConstSharedPtr autoware_planning_traj_ptr;
+  pacmod_msgs::msg::SystemRptInt::ConstSharedPtr door_state_ptr;
 };
 
 template <class T>

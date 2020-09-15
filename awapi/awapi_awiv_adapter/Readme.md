@@ -61,11 +61,11 @@
 ### /awapi/prediction/get/objects
 
 - get predicted object
-- MessageType: autoware_perception_msgs/DynamicObjectArray
+- MessageType: autoware_api_msgs/DynamicObjectArray
 
-| ✓   | type                                        | name | unit | note |
-| --- | :------------------------------------------ | :--- | :--- | :--- |
-| ✓   | autoware_perception_msgs/DynamicObjectArray |      |      |      |
+| ✓   | type                                 | name | unit | note |
+| --- | :----------------------------------- | :--- | :--- | :--- |
+| ✓   | autoware_api_msgs/DynamicObjectArray |      |      |      |
 
 ### /awapi/lane_change/get/status
 
@@ -93,11 +93,25 @@
 ### /awapi/traffic_light/get/status
 
 - get recognition result of traffic light
-- MessageType: autoware_perception_msgs/TrafficLightStateArray
+- MessageType: autoware_api_msgs/TrafficLightStateArray
 
-| ✓   | type                                            | name | unit | note |
-| --- | :---------------------------------------------- | :--- | :--- | :--- |
-|     | autoware_perception_msgs/TrafficLightStateArray |      |      |      |
+| ✓   | type                                     | name | unit | note |
+| --- | :--------------------------------------- | :--- | :--- | :--- |
+|     | autoware_api_msgs/TrafficLightStateArray |      |      |      |
+
+### /awapi/vehicle/get/door
+
+- get door status
+- MessageType: autoware_api_msgs/DoorStatus.msg
+
+| ✓   | type                         | name   | unit                                                                                     | note                                        |
+| --- | :--------------------------- | :----- | :--------------------------------------------------------------------------------------- | :------------------------------------------ |
+|     | autoware_api_msgs/DoorStatus | status | 0:UNKNOWN, 1:DOOR_OPENED, 2:DOOR_CLOSED 3:DOOR_OPENING, 4:DOOR_CLOSING, 5:NOT_APPLICABLE | available only for the vehicle using pacmod |
+
+- Now, availale stauts is following: (0:UNKNOWN, 1:DOOR_OPENED, 2:DOOR_CLOSED, 5:NOT_APPLICABLE ).
+- 5 (NOT_APPLICABLE) is published if the pacmod does not used
+- Due to the specifications of pacmod, the last door open / close command is published as the status.
+- The status is 0 (UNKNOWN) until the door open / close command is published once.
 
 ## put topic
 
@@ -208,3 +222,14 @@
 | ✓   | type | name | unit | note |
 | --- | :--- | :--- | :--- | :--- |
 
+
+### /awapi/vehicle/put/door
+
+- send door command
+- MessageType: std_msgs/Bool
+  - send True: open door
+  - send False: close door
+
+| ✓   | type          | name | unit | note                                        |
+| --- | :------------ | :--- | :--- | :------------------------------------------ |
+|     | std_msgs/Bool |      |      | available only for the vehicle using pacmod |

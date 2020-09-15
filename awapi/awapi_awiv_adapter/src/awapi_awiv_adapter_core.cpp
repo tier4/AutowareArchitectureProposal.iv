@@ -45,6 +45,10 @@ AutowareIvAdapter::AutowareIvAdapter()
   max_velocity_publisher_ =
     std::make_unique<AutowareIvMaxVelocityPublisher>(*this, default_max_velocity);
 
+  // publisher
+  pub_door_control_ = this->create_publisher<pacmod_msgs::msg::SystemCmdInt>("output/door_control", 1);
+  pub_door_status_ = this->create_publisher<autoware_api_msgs::msg::DoorStatus>("output/door_status", 1);
+
   // subscriber
   sub_steer_ = this->create_subscription<autoware_vehicle_msgs::msg::Steering>(
     "input/steer", 1, std::bind(&AutowareIvAdapter::callbackSteer, this, _1));
@@ -97,6 +101,10 @@ AutowareIvAdapter::AutowareIvAdapter()
     this->create_subscription<autoware_planning_msgs::msg::Trajectory>(
       "input/autoware_trajectory", 1,
       std::bind(&AutowareIvAdapter::callbackAutowareTrajectory, this, _1));
+  sub_door_control_ = this->create_subscription<std_msgs::msg::Bool>(
+    "input/door_control", 1, std::bind(&AutowareIvAdapter::callbackDoorControl, this, _1));
+  sub_door_status_ = this->create_subscription<pacmod_msgs::msg::SystemRptInt>(
+    "input/door_status", 1, std::bind(&AutowareIvAdapter::callbackDoorStatus, this, _1));
 
   // timer
   auto timer_callback = std::bind(&AutowareIvAdapter::timerCallback, this);
@@ -132,6 +140,9 @@ void AutowareIvAdapter::timerCallback()
 
   // publish obstacle_avoidance state
   obstacle_avoidance_state_publisher_->statePublisher(aw_info_);
+
+  // publish pacmod door status
+  pub_door_status_->publish(pacmod_util::getDoorStatusMsg(aw_info_.door_state_ptr));
 }
 
 void AutowareIvAdapter::callbackSteer(
@@ -283,6 +294,20 @@ void AutowareIvAdapter::callbackAutowareTrajectory(
   const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr)
 {
   aw_info_.autoware_planning_traj_ptr = msg_ptr;
+}
+
+void AutowareIvAdapter::callbackDoorControl(
+  const std_msgs::msg::Bool::ConstSharedPtr msg_ptr)
+{
+  pub_door_control_->publish(pacmod_util::createClearOverrideDoorCommand(this->get_clock()));
+  rclcpp::Rate(10.0).sleep();  //avoid message loss
+  pub_door_control_->publish(pacmod_util::createDoorCommand(this->get_clock(), msg_ptr));
+}
+
+void AutowareIvAdapter::callbackDoorStatus(
+  const pacmod_msgs::msg::SystemRptInt::ConstSharedPtr msg_ptr)
+{
+  aw_info_.door_state_ptr = msg_ptr;
 }
 
 }  // namespace autoware_api
