@@ -28,6 +28,7 @@
   <arg name="input_object" default="/perception/object_recognition/objects" />
   <arg name="input_traffic_light_state" default="/perception/traffic_light_recognition/traffic_light_states" />
   <arg name="input_trajectory" default="/planning/scenario_planning/trajectory" />
+  <arg name="input_door_status" default="/pacmod/parsed_tx/rear_pass_door_rpt" />
 
   <arg name="output_vehicle_status" default="vehicle/get/status" />
   <arg name="output_autoware_status" default="autoware/get/status" />
@@ -42,6 +43,7 @@
   <arg name="output_lane_change_approval" default="/planning/scenario_planning/lane_driving/lane_change_approval" />
   <arg name="output_force_lane_change" default="/planning/scenario_planning/lane_driving/force_lane_change" />
   <arg name="output_obstacle_avoid_approval" default="/planning/scenario_planning/lane_driving/obstacle_avoidance_approval" />
+  <arg name="output_door_control" default="/pacmod/as_rx/rear_pass_door_cmd" />
   <arg name="output_force_obstacle_avoid" default="tmp" /> <!-- not implemented -->
   <arg name="output_overwrite_traffic_light_state" default="tmp" /> <!-- not implemented -->
 
@@ -59,9 +61,11 @@
   <arg name="set_obstacle_avoid_approval" default="object_avoidance/put/approval" />
   <arg name="set_force_obstacle_avoid" default="object_avoidance/put/force" />
   <arg name="set_overwrite_traffic_light_state" default="traffic_light/put/traffic_light" />
+  <arg name="set_door_control" default="vehicle/put/door" />
 
   <arg name="get_route" default="autoware/get/route" />
   <arg name="get_predicted_object" default="prediction/get/objects" />
+  <arg name="get_door_status" default="vehicle/get/door" />
 
 
   <group ns="awapi">
@@ -88,11 +92,15 @@
       <remap from="~input/max_velocity" to="$(arg set_max_velocity)" />
       <remap from="~input/temporary_stop" to="$(arg set_temporary_stop)" />
       <remap from="~input/autoware_trajectory" to="$(arg input_trajectory)" />
+      <remap from="~input/door_control" to="$(arg set_door_control)" />
+      <remap from="~input/door_status" to="$(arg input_door_status)" />
       <remap from="~output/vehicle_status" to="$(arg output_vehicle_status)" />
       <remap from="~output/autoware_status" to="$(arg output_autoware_status)" />
       <remap from="~output/lane_change_status" to="$(arg output_lane_change_status)" />
       <remap from="~output/obstacle_avoid_status" to="$(arg output_obstacle_avoid_status)" />
       <remap from="~output/max_velocity" to="$(arg output_max_velocity)" />
+      <remap from="~output/door_control" to="$(arg output_door_control)" />
+      <remap from="~output/door_status" to="$(arg get_door_status)" />
       <remap from="~param/emergency_handling" to="$(arg param_emergency_handling)" />
       <remap from="~param/default_max_velocity" to="$(arg param_max_velocity)" />
       <param name="status_pub_hz" value="$(arg status_pub_hz)" />

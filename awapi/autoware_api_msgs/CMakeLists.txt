@@ -19,6 +19,7 @@ add_message_files(
     AwapiAutowareStatus.msg
     LaneChangeStatus.msg
     ObstacleAvoidanceStatus.msg
+    DoorStatus.msg
 )
 
 generate_messages(

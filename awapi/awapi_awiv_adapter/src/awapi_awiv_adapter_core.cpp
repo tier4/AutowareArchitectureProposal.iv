@@ -38,6 +38,10 @@ AutowareIvAdapter::AutowareIvAdapter() : nh_(), pnh_("~"), tf_listener_(tf_buffe
     std::make_unique<AutowareIvObstacleAvoidanceStatePublisher>();
   max_velocity_publisher_ = std::make_unique<AutowareIvMaxVelocityPublisher>(default_max_velocity);
 
+  // publisher
+  pub_door_control_ = pnh_.advertise<pacmod_msgs::SystemCmdInt>("output/door_control", 1);
+  pub_door_status_ = pnh_.advertise<autoware_api_msgs::DoorStatus>("output/door_status", 1);
+
   // subscriber
   sub_steer_ = pnh_.subscribe("input/steer", 1, &AutowareIvAdapter::callbackSteer, this);
   sub_vehicle_cmd_ =
@@ -79,6 +83,10 @@ AutowareIvAdapter::AutowareIvAdapter() : nh_(), pnh_("~"), tf_listener_(tf_buffe
     pnh_.subscribe("input/temporary_stop", 1, &AutowareIvAdapter::callbackTemporaryStop, this);
   sub_autoware_traj_ = pnh_.subscribe(
     "input/autoware_trajectory", 1, &AutowareIvAdapter::callbackAutowareTrajectory, this);
+  sub_door_control_ =
+    pnh_.subscribe("input/door_control", 1, &AutowareIvAdapter::callbackDoorControl, this);
+  sub_door_status_ =
+    pnh_.subscribe("input/door_status", 1, &AutowareIvAdapter::callbackDoorStatus, this);
 
   // timer
   timer_ =
@@ -109,6 +117,9 @@ void AutowareIvAdapter::timerCallback(const ros::TimerEvent & e)
 
   // publish obstacle_avoidance state
   obstacle_avoidance_state_publisher_->statePublisher(aw_info_);
+
+  // publish pacmod door status
+  pub_door_status_.publish(pacmod_util::getDoorStatusMsg(aw_info_.door_state_ptr));
 }
 
 void AutowareIvAdapter::callbackSteer(const autoware_vehicle_msgs::Steering::ConstPtr & msg_ptr)
@@ -252,6 +263,18 @@ void AutowareIvAdapter::callbackAutowareTrajectory(
   const autoware_planning_msgs::Trajectory::ConstPtr & msg_ptr)
 {
   aw_info_.autoware_planning_traj_ptr = msg_ptr;
+}
+
+void AutowareIvAdapter::callbackDoorControl(const std_msgs::Bool::ConstPtr & msg_ptr)
+{
+  pub_door_control_.publish(pacmod_util::createClearOverrideDoorCommand());
+  ros::Duration(0.1).sleep();  //avoid message loss
+  pub_door_control_.publish(pacmod_util::createDoorCommand(msg_ptr));
+}
+
+void AutowareIvAdapter::callbackDoorStatus(const pacmod_msgs::SystemRptInt::ConstPtr & msg_ptr)
+{
+  aw_info_.door_state_ptr = msg_ptr;
 }
 
 }  // namespace autoware_api

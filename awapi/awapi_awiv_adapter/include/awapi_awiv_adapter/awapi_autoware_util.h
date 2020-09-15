@@ -41,6 +41,7 @@
 #include <autoware_vehicle_msgs/TurnSignal.h>
 #include <autoware_vehicle_msgs/VehicleCommand.h>
 #include <diagnostic_msgs/DiagnosticArray.h>
+#include <pacmod_msgs/SystemRptInt.h>
 
 namespace autoware_api
 {
@@ -69,6 +70,7 @@ struct AutowareInfo
   std_msgs::Float32::ConstPtr max_velocity_ptr;
   std_msgs::Bool::ConstPtr temporary_stop_ptr;
   autoware_planning_msgs::Trajectory::ConstPtr autoware_planning_traj_ptr;
+  pacmod_msgs::SystemRptInt::ConstPtr door_state_ptr;
 };
 
 template <class T>

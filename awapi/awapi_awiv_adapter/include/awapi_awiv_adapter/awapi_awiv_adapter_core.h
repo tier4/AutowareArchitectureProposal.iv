@@ -19,6 +19,7 @@
 #include <awapi_awiv_adapter/awapi_lane_change_state_publisher.h>
 #include <awapi_awiv_adapter/awapi_max_velocity_publisher.h>
 #include <awapi_awiv_adapter/awapi_obstacle_avoidance_state_publisher.h>
+#include <awapi_awiv_adapter/awapi_pacmod_util.h>
 #include <awapi_awiv_adapter/awapi_stop_reason_aggregator.h>
 #include <awapi_awiv_adapter/awapi_vehicle_state_publisher.h>
 
@@ -57,6 +58,13 @@ private:
   ros::Subscriber sub_max_velocity_;
   ros::Subscriber sub_temporary_stop_;
   ros::Subscriber sub_autoware_traj_;
+  ros::Subscriber sub_door_control_;
+  ros::Subscriber sub_door_status_;
+
+  // publisher
+  ros::Publisher pub_door_control_;
+  ros::Publisher pub_door_status_;
+
   // timer
   ros::Timer timer_;
 
@@ -88,6 +96,8 @@ private:
   void callbackMaxVelocity(const std_msgs::Float32::ConstPtr & msg_ptr);
   void callbackTemporaryStop(const std_msgs::Bool::ConstPtr & msg_ptr);
   void callbackAutowareTrajectory(const autoware_planning_msgs::Trajectory::ConstPtr & msg_ptr);
+  void callbackDoorControl(const std_msgs::Bool::ConstPtr & msg_ptr);
+  void callbackDoorStatus(const pacmod_msgs::SystemRptInt::ConstPtr & msg_ptr);
 
   // timer function
   void timerCallback(const ros::TimerEvent & e);
