@@ -95,7 +95,7 @@ void MapBasedDetector::cameraInfoCallback(
   } catch (tf2::TransformException & ex) {
     RCLCPP_WARN_THROTTLE(
       get_logger(), *get_clock(), 5000,
-      "cannot get transform frome map frame to camera frame");
+      "cannot get transform from map frame to camera frame");
     return;
   }
 
@@ -221,7 +221,7 @@ void MapBasedDetector::mapCallback(
 
     auto lights = tl->trafficLights();
     for (auto lsp : lights) {
-      if (!lsp.isLineString()) { // traffic ligths must be linestrings
+      if (!lsp.isLineString()) { // traffic lights must be linestrings
         continue;
       }
       all_traffic_lights_ptr_->insert(static_cast<lanelet::ConstLineString3d>(lsp));
@@ -233,7 +233,7 @@ void MapBasedDetector::routeCallback(
   const autoware_planning_msgs::msg::Route::ConstSharedPtr input_msg)
 {
   if (lanelet_map_ptr_ == nullptr) {
-    RCLCPP_WARN(get_logger(), "cannot set traffic light in route because don't recieve map");
+    RCLCPP_WARN(get_logger(), "cannot set traffic light in route because don't receive map");
     return;
   }
   lanelet::ConstLanelets route_lanelets;
@@ -252,7 +252,7 @@ void MapBasedDetector::routeCallback(
 
     auto lights = tl->trafficLights();
     for (auto lsp : lights) {
-      if (!lsp.isLineString()) { // traffic ligths must be linestrings
+      if (!lsp.isLineString()) { // traffic lights must be linestrings
         continue;
       }
       route_traffic_lights_ptr_->insert(static_cast<lanelet::ConstLineString3d>(lsp));
