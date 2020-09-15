@@ -192,11 +192,18 @@ private:
     const int objective_lane_id) const;
 
   /**
-   * @brief check if the object has a terget type
+   * @brief check if the object has a terget type for collision check
    * @param object target object
    * @return true if the object has a target type
    */
-  bool isTargetVehicleType(const autoware_perception_msgs::DynamicObject & object) const;
+  bool isTargetCollisionVehicleType(const autoware_perception_msgs::DynamicObject & object) const;
+
+  /**
+   * @brief check if the object has a terget type for stuck check
+   * @param object target object
+   * @return true if the object has a target type
+   */
+  bool isTargetStuckVehicleType(const autoware_perception_msgs::DynamicObject & object) const;
 
   StateMachine state_machine_;  //! for state
 
