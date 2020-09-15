@@ -108,7 +108,7 @@ void MultiObjectTracker::measurementCallback(
   /* life cycle check */
   // TODO
 
-  /* global nearest neighboor */
+  /* global nearest neighbor */
   std::unordered_map<int, int> direct_assignment;
   std::unordered_map<int, int> reverse_assignment;
   Eigen::MatrixXd score_matrix = data_association_.calcScoreMatrix(
