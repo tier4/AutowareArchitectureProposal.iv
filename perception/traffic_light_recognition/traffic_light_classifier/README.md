@@ -7,11 +7,11 @@ If you use CNN, the trained file are automatically downloaded when you build.
 The model  used in this package was trained by [AutowareMLPlatform/classification_2d](https://github.com/tier4/AutowareMLPlatform/tree/master/tasks/classification_2d)
 
 ## model detail
-**TODO1: atach AWS URL here for quick reference when, where and how the model was trained.**\
+**TODO1: attach AWS URL here for quick reference when, where and how the model was trained.**\
 **TODO2: label file should be link to trained model.**
 
 ## label support
-By default, this package only support typical type of traffic light in Japan. so only basic type of lamp is supported. please reffer [LampState](https://github.com/tier4/autoware.iv/blob/master/common/msgs/autoware_perception_msgs/msg/traffic_light_recognition/LampState.msg)
+By default, this package only support typical type of traffic light in Japan. so only basic type of lamp is supported. please refer [LampState](https://github.com/tier4/autoware.iv/blob/master/common/msgs/autoware_perception_msgs/msg/traffic_light_recognition/LampState.msg)
 
 label names are assumed to be comma-separated to represent each lamp.\
 For example, the traffic light with red and right arrow lit are represented by label such as `"red,right"`, which are converted to the string array `["red", "right"]` in cnn_classifier, and finally array is converted to [LampState](https://github.com/tier4/autoware.iv/blob/master/common/msgs/autoware_perception_msgs/msg/traffic_light_recognition/LampState.msg) array.
