@@ -42,6 +42,7 @@ struct LaneChangerParameters
   double abort_lane_change_angle_thresh;
   double abort_lane_change_distance_thresh;
   bool enable_abort_lane_change;
+  double refine_goal_search_radius_range;
 };
 
 #endif

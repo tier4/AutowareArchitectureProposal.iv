@@ -79,6 +79,8 @@ void LaneChanger::init()
     0.174533);  // 10 deg
   pnh_.param(
     "abort_lane_change_distance_thresh", parameters.abort_lane_change_distance_thresh, 0.3);
+  pnh_.param(
+    "refine_goal_search_radius_range", parameters.refine_goal_search_radius_range, 7.5);
 
   // validation of parameters
   if (parameters.lane_change_sampling_num < 1) {
@@ -161,7 +163,8 @@ void LaneChanger::run(const ros::TimerEvent & event)
     }
   }
 
-  auto refined_path = util::refinePath(7.5, M_PI * 0.5, path, refined_goal, goal_lane_id);
+  const auto ros_parameters = data_manager_ptr_->getLaneChangerParameters();
+  auto refined_path = util::refinePath(ros_parameters.refine_goal_search_radius_range, M_PI * 0.5, path, refined_goal, goal_lane_id);
   refined_path.header.frame_id = "map";
   refined_path.header.stamp = ros::Time::now();
 
