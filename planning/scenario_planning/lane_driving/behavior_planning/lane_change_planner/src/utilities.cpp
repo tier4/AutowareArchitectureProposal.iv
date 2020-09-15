@@ -242,8 +242,8 @@ PredictedPath convertToPredictedPath(
     if (accelerated_velocity < min_speed) {
       travel_distance = min_speed * resolution;
     } else {
-      travel_distance = prev_vehicle_speed + prev_vehicle_speed * resolution +
-                        0.5 * acceleration * resolution * resolution;
+      travel_distance =
+        prev_vehicle_speed * resolution + 0.5 * acceleration * resolution * resolution;
     }
 
     length += travel_distance;
