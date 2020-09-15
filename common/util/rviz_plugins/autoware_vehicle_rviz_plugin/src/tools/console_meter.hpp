@@ -70,8 +70,8 @@ protected:
   rviz::IntProperty * property_left_;
   rviz::IntProperty * property_top_;
   rviz::IntProperty * property_length_;
-  rviz::FloatProperty * property_handle_angle_scale_;
   rviz::IntProperty * property_value_height_offset_;
+  rviz::FloatProperty * property_value_scale_;
   // QImage hud_;
 
 private:

@@ -77,10 +77,9 @@ ConsoleMeterDisplay::ConsoleMeterDisplay()
   property_value_height_offset_ = new rviz::IntProperty(
     "Value height offset", 0, "Height offset of the plotter window", this,
     SLOT(updateVisualization()));
-  property_handle_angle_scale_ = new rviz::FloatProperty(
-    "Scale", 3.0, "Scale is steering andle to handle angle ", this, SLOT(updateVisualization()),
-    this);
-  property_handle_angle_scale_->setMin(0.1);
+  property_value_scale_ = new rviz::FloatProperty(
+    "Value Scale", 1.0 / 15.0, "Value scale", this, SLOT(updateVisualization()), this);
+  property_value_scale_->setMin(0.01);
 }
 
 ConsoleMeterDisplay::~ConsoleMeterDisplay()
@@ -148,8 +147,9 @@ void ConsoleMeterDisplay::processMessage(const geometry_msgs::TwistStampedConstP
   QPainter painter(&hud);
   painter.setRenderHint(QPainter::Antialiasing, true);
 
-  int w = overlay_->getTextureWidth();
-  int h = overlay_->getTextureHeight();
+  const int line_width = 2;
+  int w = overlay_->getTextureWidth() - line_width;
+  int h = overlay_->getTextureHeight() - line_width;
 
   // meter
   QColor white_color(Qt::white);
@@ -162,24 +162,30 @@ void ConsoleMeterDisplay::processMessage(const geometry_msgs::TwistStampedConstP
     (velocity_ratio * (meter_max_angle_ - meter_min_angle_)) + meter_min_angle_ + M_PI_2;
   const double min_range_theta = meter_max_angle_ + M_PI_2;
   const double max_range_theta = meter_min_angle_ + M_PI_2;
-  painter.setPen(QPen(white_color, int(4), Qt::SolidLine));
+
+  const int hand_width = 4;
+  painter.setPen(QPen(white_color, int(hand_width), Qt::SolidLine));
   painter.drawLine(
-    w / 2, h / 2, (w / 2) + ((double)w / 2.0) * std::cos(theta),
-    (h / 2) + ((double)h / 2.0) * std::sin(theta));
+    w * 0.5, h * 0.5, (w * 0.5) + ((double)w * 0.5 - ((double)hand_width * 0.5)) * std::cos(theta),
+    (h * 0.5) + ((double)h * 0.5 - ((double)hand_width * 0.5)) * std::sin(theta));
+  painter.setPen(QPen(white_color, int(line_width), Qt::SolidLine));
+  painter.drawLine(
+    (w * 0.5) + line_width * 0.5 + ((double)w / 8.0) * std::cos(min_range_theta),
+    (h * 0.5) + line_width * 0.5 + ((double)h / 8.0) * std::sin(min_range_theta),
+    (w * 0.5) + line_width * 0.5 +
+      ((double)w / 2.0 - (line_width * 0.5)) * std::cos(min_range_theta),
+    (h * 0.5) + line_width * 0.5 +
+      ((double)h / 2.0 - (line_width * 0.5)) * std::sin(min_range_theta));
   painter.setPen(QPen(white_color, int(2), Qt::SolidLine));
   painter.drawLine(
-    (w / 2) + ((double)w / 8.0) * std::cos(min_range_theta),
-    (h / 2) + ((double)h / 8.0) * std::sin(min_range_theta),
-    (w / 2) + ((double)w / 2.0) * std::cos(min_range_theta),
-    (h / 2) + ((double)h / 2.0) * std::sin(min_range_theta));
-  painter.setPen(QPen(white_color, int(2), Qt::SolidLine));
-  painter.drawLine(
-    (w / 2) + ((double)w / 8.0) * std::cos(max_range_theta),
-    (h / 2) + ((double)h / 8.0) * std::sin(max_range_theta),
-    (w / 2) + ((double)w / 2.0) * std::cos(max_range_theta),
-    (h / 2) + ((double)h / 2.0) * std::sin(max_range_theta));
+    (w * 0.5) + line_width * 0.5 + ((double)w / 8.0) * std::cos(max_range_theta),
+    (h * 0.5) + line_width * 0.5 + ((double)h / 8.0) * std::sin(max_range_theta),
+    (w * 0.5) + line_width * 0.5 +
+      ((double)w / 2.0 - (line_width * 0.5)) * std::cos(max_range_theta),
+    (h * 0.5) + line_width * 0.5 +
+      ((double)h / 2.0 - (line_width * 0.5)) * std::sin(max_range_theta));
   painter.drawArc(
-    0, 0, w, h, 16 * ((min_range_theta - M_PI) * 180.0 / M_PI),
+    line_width * 0.5, line_width * 0.5, w, h, 16 * ((min_range_theta - M_PI) * 180.0 / M_PI),
     16 * ((max_range_theta - min_range_theta) * 180.0 / M_PI));
   painter.drawArc(
     w * 3 / 8, h * 3 / 8, w / 4, h / 4, 16 * ((min_range_theta - M_PI) * 180.0 / M_PI),
@@ -190,7 +196,7 @@ void ConsoleMeterDisplay::processMessage(const geometry_msgs::TwistStampedConstP
   text_color.setAlpha(255);
   painter.setPen(QPen(text_color, int(2), Qt::SolidLine));
   QFont font = painter.font();
-  font.setPointSize(std::max(int(double(w) / 15.0), 1));
+  font.setPointSize(std::max(int(double(w) * property_value_scale_->getFloat()), 1));
   font.setBold(true);
   painter.setFont(font);
   std::ostringstream velocity_ss;
