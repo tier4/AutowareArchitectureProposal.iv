@@ -168,6 +168,14 @@ private:
     const int prev_out_closest, const autoware_planning_msgs::msg::Trajectory & prev_output,
     const int output_closest, autoware_planning_msgs::msg::Trajectory & output) const;
 
+  autoware_planning_msgs::msg::VelocityLimit createVelocityLimitMsg(const double value)
+  {
+    autoware_planning_msgs::msg::VelocityLimit msg;
+    msg.data = value;
+    msg.stamp = now();
+    return msg;
+  }
+
   /* parameter update */
   OnSetParametersCallbackHandle::SharedPtr set_param_res_;
   rcl_interfaces::msg::SetParametersResult paramCallback(
@@ -179,6 +187,7 @@ private:
   // publisher for stop distance
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub_dist_to_stopline_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_raw_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::VelocityLimit>::SharedPtr pub_velocity_limit_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_vel_lim_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr
     pub_trajectory_latcc_filtered_;

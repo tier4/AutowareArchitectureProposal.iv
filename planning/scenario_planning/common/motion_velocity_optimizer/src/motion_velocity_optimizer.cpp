@@ -83,6 +83,13 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
 
   pub_trajectory_ =
     create_publisher<autoware_planning_msgs::msg::Trajectory>("output/trajectory", rclcpp::QoS{1});
+
+  rclcpp::QoS durable_qos(1);
+  durable_qos.transient_local();
+  pub_velocity_limit_ =
+    create_publisher<autoware_planning_msgs::msg::VelocityLimit>("output/current_velocity_limit_mps", durable_qos);
+  pub_velocity_limit_->publish(createVelocityLimitMsg(p.max_velocity));  // publish default max velocity
+
   pub_dist_to_stopline_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
     "distance_to_stopline", rclcpp::QoS{1});
   sub_current_trajectory_ = create_subscription<autoware_planning_msgs::msg::Trajectory>(
@@ -92,7 +99,7 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
     "/localization/twist", 1,
     std::bind(&MotionVelocityOptimizer::callbackCurrentVelocity, this, _1));
   sub_external_velocity_limit_ = create_subscription<autoware_planning_msgs::msg::VelocityLimit>(
-    "external_velocity_limit_mps", 1,
+    "input/external_velocity_limit_mps", 1,
     std::bind(&MotionVelocityOptimizer::callbackExternalVelocityLimit, this, _1));
 
   if (p.algorithm_type == "L2") {
@@ -174,6 +181,7 @@ void MotionVelocityOptimizer::callbackExternalVelocityLimit(
   const autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr msg)
 {
   external_velocity_limit_ptr_ = msg;
+  pub_velocity_limit_->publish(*msg);
 }
 
 void MotionVelocityOptimizer::updateCurrentPose()
