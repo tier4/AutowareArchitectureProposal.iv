@@ -368,7 +368,7 @@ void EKFLocalizer::predictKinematicsModel()
    *     [ 0, 0,                 0,                 0,             0,  1]
    */
 
-  Eigen::MatrixXd X_curr(dim_x_, 1);  // curent state
+  Eigen::MatrixXd X_curr(dim_x_, 1);  // current state
   Eigen::MatrixXd X_next(dim_x_, 1);  // predicted state
   ekf_.getLatestX(X_curr);
   DEBUG_PRINT_MAT(X_curr.transpose());
@@ -431,7 +431,7 @@ void EKFLocalizer::measurementUpdatePose(const geometry_msgs::PoseStamped & pose
       2, "pose frame_id is %s, but pose_frame is set as %s. They must be same.",
       pose.header.frame_id.c_str(), pose_frame_id_.c_str());
   }
-  Eigen::MatrixXd X_curr(dim_x_, 1);  // curent state
+  Eigen::MatrixXd X_curr(dim_x_, 1);  // current state
   ekf_.getLatestX(X_curr);
   DEBUG_PRINT_MAT(X_curr.transpose());
 
@@ -498,7 +498,7 @@ void EKFLocalizer::measurementUpdatePose(const geometry_msgs::PoseStamped & pose
   C(1, IDX::Y) = 1.0;    // for pos y
   C(2, IDX::YAW) = 1.0;  // for yaw
 
-  /* Set measurement noise covariancs */
+  /* Set measurement noise covariance */
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(dim_y, dim_y);
   if (use_pose_with_covariance_) {
     R(0, 0) = current_pose_covariance_.at(0);   // x - x
@@ -522,7 +522,7 @@ void EKFLocalizer::measurementUpdatePose(const geometry_msgs::PoseStamped & pose
     R(2, 2) = (pose_stddev_yaw_ * pose_stddev_yaw_) + cov_tu_yaw;  // yaw
   }
 
-  /* In order to avoid a large change at the time of updating, measuremeent update is performed by dividing at every
+  /* In order to avoid a large change at the time of updating, measurement update is performed by dividing at every
    * step. */
   R *= (ekf_rate_ / pose_rate_);
 
@@ -544,7 +544,7 @@ void EKFLocalizer::measurementUpdateTwist(const geometry_msgs::TwistStamped & tw
     ROS_WARN_DELAYED_THROTTLE(2.0, "twist frame_id must be base_link");
   }
 
-  Eigen::MatrixXd X_curr(dim_x_, 1);  // curent state
+  Eigen::MatrixXd X_curr(dim_x_, 1);  // current state
   ekf_.getLatestX(X_curr);
   DEBUG_PRINT_MAT(X_curr.transpose());
 
@@ -603,7 +603,7 @@ void EKFLocalizer::measurementUpdateTwist(const geometry_msgs::TwistStamped & tw
   C(0, IDX::VX) = 1.0;  // for vx
   C(1, IDX::WZ) = 1.0;  // for wz
 
-  /* Set measurement noise covariancs */
+  /* Set measurement noise covariance */
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(dim_y, dim_y);
   if (use_twist_with_covariance_) {
     R(0, 0) = current_twist_covariance_.at(0);   // vx - vx

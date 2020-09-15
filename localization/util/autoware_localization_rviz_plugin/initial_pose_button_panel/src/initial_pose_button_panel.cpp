@@ -59,9 +59,9 @@ InitialPoseButtonPanel::InitialPoseButtonPanel(QWidget * parent) : rviz::Panel(p
 
   initialize_button_ = new QPushButton("Wait for subscribe topic");
   initialize_button_->setEnabled(false);
-  connect(initialize_button_, SIGNAL(clicked(bool)), SLOT(pushInitialzeButton()));
+  connect(initialize_button_, SIGNAL(clicked(bool)), SLOT(pushInitializeButton()));
 
-  status_label_ = new QLabel("Not Initialze");
+  status_label_ = new QLabel("Not Initialize");
   status_label_->setAlignment(Qt::AlignCenter);
   status_label_->setStyleSheet("QLabel { background-color : gray;}");
 
@@ -103,13 +103,13 @@ void InitialPoseButtonPanel::editTopic()
   initialize_button_->setEnabled(false);
 }
 
-void InitialPoseButtonPanel::pushInitialzeButton()
+void InitialPoseButtonPanel::pushInitializeButton()
 {
   // lock button
   initialize_button_->setEnabled(false);
 
   status_label_->setStyleSheet("QLabel { background-color : dodgerblue;}");
-  status_label_->setText("Initialzing...");
+  status_label_->setText("Initializing...");
 
   std::thread thread([this] {
     autoware_localization_srvs::PoseWithCovarianceStamped srv;
@@ -119,7 +119,7 @@ void InitialPoseButtonPanel::pushInitialzeButton()
       status_label_->setText("OK!!!");
     } else {
       status_label_->setStyleSheet("QLabel { background-color : red;}");
-      status_label_->setText("Faild!");
+      status_label_->setText("Failed!");
     }
     // unlock button
     initialize_button_->setEnabled(true);

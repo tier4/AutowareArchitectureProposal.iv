@@ -31,7 +31,7 @@ public:
   {
     sub_twist = nh_.subscribe("/ekf_twist", 1, &EKFLocalizerTestSuite::callbackTwist, this);
     sub_pose = nh_.subscribe("/ekf_pose", 1, &EKFLocalizerTestSuite::callbackPose, this);
-    tiemr_ = nh_.createTimer(ros::Duration(0.1), &EKFLocalizerTestSuite::timerCallback, this);
+    timer_ = nh_.createTimer(ros::Duration(0.1), &EKFLocalizerTestSuite::timerCallback, this);
   }
   ~EKFLocalizerTestSuite() {}
 
@@ -43,7 +43,7 @@ public:
   ros::Subscriber sub_twist;
   ros::Subscriber sub_pose;
 
-  ros::Timer tiemr_;
+  ros::Timer timer_;
 
   std::shared_ptr<geometry_msgs::PoseStamped> current_pose_ptr_;
   std::shared_ptr<geometry_msgs::TwistStamped> current_twist_ptr_;
@@ -52,24 +52,24 @@ public:
   {
     /* !!! this should be defined before sendTransform() !!! */
     static tf2_ros::TransformBroadcaster br;
-    geometry_msgs::TransformStamped sended;
+    geometry_msgs::TransformStamped sent;
 
     ros::Time current_time = ros::Time::now();
 
-    sended.header.stamp = current_time;
-    sended.header.frame_id = frame_id_a_;
-    sended.child_frame_id = frame_id_b_;
-    sended.transform.translation.x = -7.11;
-    sended.transform.translation.y = 0.0;
-    sended.transform.translation.z = 0.0;
+    sent.header.stamp = current_time;
+    sent.header.frame_id = frame_id_a_;
+    sent.child_frame_id = frame_id_b_;
+    sent.transform.translation.x = -7.11;
+    sent.transform.translation.y = 0.0;
+    sent.transform.translation.z = 0.0;
     tf2::Quaternion q;
     q.setRPY(0, 0, 0.5);
-    sended.transform.rotation.x = q.x();
-    sended.transform.rotation.y = q.y();
-    sended.transform.rotation.z = q.z();
-    sended.transform.rotation.w = q.w();
+    sent.transform.rotation.x = q.x();
+    sent.transform.rotation.y = q.y();
+    sent.transform.rotation.z = q.z();
+    sent.transform.rotation.w = q.w();
 
-    br.sendTransform(sended);
+    br.sendTransform(sent);
   };
 
   void callbackPose(const geometry_msgs::PoseStamped::ConstPtr & pose)
@@ -106,7 +106,7 @@ TEST_F(EKFLocalizerTestSuite, measurementUpdatePose)
 
   /* test for valid value */
   const double pos_x = 12.3;
-  in_pose.pose.position.x = pos_x;  // for vaild value
+  in_pose.pose.position.x = pos_x;  // for valid value
 
   for (int i = 0; i < 20; ++i) {
     in_pose.header.stamp = ros::Time::now();
@@ -148,7 +148,7 @@ TEST_F(EKFLocalizerTestSuite, measurementUpdateTwist)
 
   /* test for valid value */
   const double vx = 12.3;
-  in_twist.twist.linear.x = vx;  // for vaild value
+  in_twist.twist.linear.x = vx;  // for valid value
   for (int i = 0; i < 20; ++i) {
     in_twist.header.stamp = ros::Time::now();
     pub_twist.publish(in_twist);
@@ -204,7 +204,7 @@ TEST_F(EKFLocalizerTestSuite, measurementUpdatePoseWithCovariance)
 
   /* test for valid value */
   const double pos_x = 99.3;
-  in_pose.pose.pose.position.x = pos_x;  // for vaild value
+  in_pose.pose.pose.position.x = pos_x;  // for valid value
 
   for (int i = 0; i < 20; ++i) {
     in_pose.header.stamp = ros::Time::now();
@@ -247,7 +247,7 @@ TEST_F(EKFLocalizerTestSuite, measurementUpdateTwistWithCovariance)
 
   /* test for valid value */
   const double vx = 12.3;
-  in_twist.twist.twist.linear.x = vx;  // for vaild value
+  in_twist.twist.twist.linear.x = vx;  // for valid value
   for (int i = 0; i < 36; ++i) {
     in_twist.twist.covariance[i] = 0.1;
   }
