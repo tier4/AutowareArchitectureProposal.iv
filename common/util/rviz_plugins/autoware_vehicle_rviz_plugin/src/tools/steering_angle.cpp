@@ -80,7 +80,7 @@ SteeringAngleDisplay::SteeringAngleDisplay()
     "Value Scale", 1.0 / 15.0, "Value scale", this, SLOT(updateVisualization()), this);
   property_value_scale_->setMin(0.01);
   property_handle_angle_scale_ = new rviz::FloatProperty(
-    "Scale", 3.0, "Scale is steering andle to handle angle ", this, SLOT(updateVisualization()),
+    "Scale", 3.0, "Scale is steering angle to handle angle ", this, SLOT(updateVisualization()),
     this);
   property_handle_angle_scale_->setMin(0.1);
 }
