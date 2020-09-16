@@ -50,6 +50,11 @@ void EmergencyHandlerNode::onTwist(const geometry_msgs::TwistStamped::ConstPtr &
 
 bool EmergencyHandlerNode::isDataReady()
 {
+  if (!autoware_state_) {
+    ROS_DEBUG_THROTTLE(1.0, "waiting for autoware_state msg...");
+    return false;
+  }
+
   if (!driving_capability_) {
     ROS_DEBUG_THROTTLE(1.0, "waiting for driving_capability msg...");
     return false;
