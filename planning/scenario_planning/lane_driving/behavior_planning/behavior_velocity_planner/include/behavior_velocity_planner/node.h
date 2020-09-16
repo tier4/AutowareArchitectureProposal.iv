@@ -46,6 +46,8 @@ private:
   rclcpp::Subscription<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr sub_lanelet_map_;
   rclcpp::Subscription<autoware_perception_msgs::msg::TrafficLightStateArray>::SharedPtr
     sub_traffic_light_states_;
+  rclcpp::Subscription<autoware_perception_msgs::msg::TrafficLightStateArray>::SharedPtr
+    sub_external_traffic_light_states_;
 
   void onTrigger(const autoware_planning_msgs::msg::PathWithLaneId::ConstSharedPtr input_path_msg);
   void onDynamicObjects(
@@ -54,6 +56,8 @@ private:
   void onVehicleVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
   void onLaneletMap(const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr msg);
   void onTrafficLightStates(
+    const autoware_perception_msgs::msg::TrafficLightStateArray::ConstSharedPtr msg);
+  void onExternalTrafficLightStates(
     const autoware_perception_msgs::msg::TrafficLightStateArray::ConstSharedPtr msg);
 
   // publisher

@@ -39,14 +39,15 @@ class TrafficLightModule : public SceneModuleInterface
 {
 public:
   enum class State { APPROACH, GO_OUT };
+  enum class Input { PERCEPTION, EXTERNAL, NONE };  // EXTERNAL: FOA, V2X, etc.
 
   struct DebugData
   {
     double base_link2front;
     std::vector<std::tuple<
-        std::shared_ptr<const lanelet::TrafficLight>,
-        autoware_perception_msgs::msg::TrafficLightState>>
-    tl_state;    // TODO: replace tuple with struct
+      std::shared_ptr<const lanelet::TrafficLight>,
+      autoware_perception_msgs::msg::TrafficLightState>>
+      tl_state;  // TODO: replace tuple with struct
     std::vector<geometry_msgs::msg::Pose> stop_poses;
     geometry_msgs::msg::Pose first_stop_pose;
     std::vector<geometry_msgs::msg::Pose> dead_line_poses;
@@ -57,6 +58,7 @@ public:
   {
     double stop_margin;
     double tl_state_timeout;
+    double external_tl_state_timeout;
     bool enable_pass_judge;
   };
 
@@ -76,7 +78,8 @@ public:
   {
     return tl_state_;
   }
-  inline State getTrafficLightModuleState() const {return state_;}
+  inline State getTrafficLightModuleState() const { return state_; }
+  inline Input getTrafficLightModuleInput() const { return input_; };
 
 private:
   int64_t lane_id_;
@@ -89,7 +92,7 @@ private:
   bool insertTargetVelocityPoint(
     const autoware_planning_msgs::msg::PathWithLaneId & input,
     const boost::geometry::model::linestring<boost::geometry::model::d2::point_xy<double>> &
-    stop_line,
+      stop_line,
     const double & margin, const double & velocity,
     autoware_planning_msgs::msg::PathWithLaneId & output);
 
@@ -108,7 +111,7 @@ private:
   bool createTargetPoint(
     const autoware_planning_msgs::msg::PathWithLaneId & input,
     const boost::geometry::model::linestring<boost::geometry::model::d2::point_xy<double>> &
-    stop_line,
+      stop_line,
     const double & margin, size_t & target_point_idx, Eigen::Vector2d & target_point);
 
   bool hasLamp(
@@ -117,12 +120,20 @@ private:
   geometry_msgs::msg::Point getTrafficLightPosition(
     const lanelet::ConstLineStringOrPolygon3d traffic_light);
 
+  bool getExternalTrafficLightState(
+    const lanelet::ConstLineStringsOrPolygons3d & traffic_lights,
+    autoware_perception_msgs::msg::TrafficLightStateStamped & external_tl_state);
+
+
   // Key Feature
   const lanelet::TrafficLight & traffic_light_reg_elem_;
   lanelet::ConstLanelet lane_;
 
   // State
   State state_;
+
+  // Input
+  Input input_;
 
   // Parameter
   PlannerParam planner_param_;

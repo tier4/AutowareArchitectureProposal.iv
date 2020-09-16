@@ -39,8 +39,7 @@
 
 struct PlannerData
 {
-  PlannerData(rclcpp::Node & node)
-  : vehicle_info_(vehicle_info_util::VehicleInfo::create(node))
+  PlannerData(rclcpp::Node & node) : vehicle_info_(vehicle_info_util::VehicleInfo::create(node))
   {
     max_stop_acceleration_threshold_ = node.declare_parameter(
       "max_accel", -5.0);  // TODO read min_acc in velocity_controller_param.yaml?
@@ -57,6 +56,8 @@ struct PlannerData
 
   // other internal data
   std::map<int, autoware_perception_msgs::msg::TrafficLightStateStamped> traffic_light_id_map_;
+  std::map<int, autoware_perception_msgs::msg::TrafficLightStateStamped>
+    external_traffic_light_id_map_;
   lanelet::traffic_rules::TrafficRulesPtr traffic_rules;
   lanelet::routing::RoutingGraphPtr routing_graph;
   std::shared_ptr<const lanelet::routing::RoutingGraphContainer> overall_graphs;
@@ -70,7 +71,9 @@ struct PlannerData
 
   bool isVehicleStopping() const
   {
-    if (!current_velocity) {return false;}
+    if (!current_velocity) {
+      return false;
+    }
     return current_velocity->twist.linear.x < 0.1;
   }
 
@@ -82,5 +85,15 @@ struct PlannerData
     }
     return std::make_shared<autoware_perception_msgs::msg::TrafficLightStateStamped>(
       traffic_light_id_map_.at(id));
+  }
+
+  std::shared_ptr<autoware_perception_msgs::msg::TrafficLightStateStamped> getExternalTrafficLightState(
+    const int id) const
+  {
+    if (external_traffic_light_id_map_.count(id) == 0) {
+      return {};
+    }
+    return std::make_shared<autoware_perception_msgs::msg::TrafficLightStateStamped>(
+      external_traffic_light_id_map_.at(id));
   }
 };
