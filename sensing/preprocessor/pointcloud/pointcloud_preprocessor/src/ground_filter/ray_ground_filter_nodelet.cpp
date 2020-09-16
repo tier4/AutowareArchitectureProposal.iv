@@ -45,9 +45,17 @@ RayGroundFilterComponent::RayGroundFilterComponent(const rclcpp::NodeOptions & o
     grid_precision_ = 0.2;
     ray_ground_filter::generateColors(colors_, color_num_);
 
+    min_x_ = declare_parameter("min_x", -0.01);
+    max_x_ = declare_parameter("max_x", 0.01);
+    min_y_ = declare_parameter("min_y", -0.01);
+    max_y_ = declare_parameter("max_y", 0.01);
+
+    setVehicleFootprint(min_x_, max_x_, min_y_, max_y_);
+
     base_frame_ = declare_parameter("base_frame", "base_link");
     general_max_slope_ = declare_parameter("general_max_slope", 8.0);
     local_max_slope_ = declare_parameter("local_max_slope", 6.0);
+    initial_max_slope_ = declare_parameter("initial_max_slope", 3.0);
     radial_divider_angle_ = declare_parameter("radial_divider_angle", 0.08);
     min_height_threshold_ = declare_parameter("min_height_threshold", 0.15);
     concentric_divider_distance_ = declare_parameter("concentric_divider_distance", 0.0);
@@ -141,6 +149,35 @@ void RayGroundFilterComponent::ConvertXYZIToRTZColor(
   }
 }
 
+boost::optional<float> RayGroundFilterComponent::calcPointVehicleIntersection(
+  const Point& point)
+{
+  float distance_to_intersection_point = 0.0;
+  if (base_frame_ != "base_link") {
+    return distance_to_intersection_point;
+  }
+  bg::model::linestring<Point> ls = {{0.0, 0.0}, point};
+  std::vector<Point> collision_points;
+  bg::intersection(ls, vehicle_footprint_, collision_points);
+
+  if (collision_points.size() < 1) {
+    return {};
+  }
+  return bg::distance(Point(0,0), collision_points.front());
+}
+
+void RayGroundFilterComponent::setVehicleFootprint(
+  const double min_x, const double max_x, const double min_y, const double max_y)
+{
+  // create vehicle footprint polygon
+  vehicle_footprint_.outer().clear();
+  vehicle_footprint_.outer().push_back(Point(min_x, min_y)); // left back
+  vehicle_footprint_.outer().push_back(Point(min_x, max_y)); // right back
+  vehicle_footprint_.outer().push_back(Point(max_x, max_y)); // right front
+  vehicle_footprint_.outer().push_back(Point(max_x, min_y)); // left front
+  vehicle_footprint_.outer().push_back(Point(min_x, min_y)); // left back
+}
+
 void RayGroundFilterComponent::ClassifyPointCloud(
   std::vector<PointCloudXYZRTColor> & in_radial_ordered_clouds,
   pcl::PointIndices & out_ground_indices, pcl::PointIndices & out_no_ground_indices)
@@ -158,8 +195,25 @@ void RayGroundFilterComponent::ClassifyPointCloud(
     for (size_t j = 0; j < in_radial_ordered_clouds[i].size();
       j++)     // loop through each point in the radial div
     {
+      double local_max_slope = local_max_slope_;
+      if (j == 0) {
+        // calc intersection of vehicle footprint and initial point vector
+        const auto radius = calcPointVehicleIntersection(
+          Point{in_radial_ordered_clouds[i][j].point.x, in_radial_ordered_clouds[i][j].point.y});
+        if (radius) {
+          prev_radius = *radius;
+        } else {
+          // This case may happen if point was detected inside vehicle footprint for example
+          RCLCPP_ERROR(
+            this->get_logger(),
+            "failed to find intersection of initial point line and vehicle footprint");
+          continue;
+        }
+        local_max_slope = initial_max_slope_;
+      }
+
       float points_distance = in_radial_ordered_clouds[i][j].radius - prev_radius;
-      float height_threshold = tan(DEG2RAD(local_max_slope_)) * points_distance;
+      float height_threshold = tan(DEG2RAD(local_max_slope)) * points_distance;
       float current_height = in_radial_ordered_clouds[i][j].point.z;
       float general_height_threshold =
         tan(DEG2RAD(general_max_slope_)) * in_radial_ordered_clouds[i][j].radius;
@@ -307,6 +361,21 @@ rcl_interfaces::msg::SetParametersResult RayGroundFilterComponent::paramCallback
 {
   boost::mutex::scoped_lock lock(mutex_);
 
+  if (get_param(p, "min_x", min_x_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting min_x to: %s.", min_x_);
+  }
+  if (get_param(p, "max_x", max_x_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting max_x to: %s.", max_x_);
+  }
+  if (get_param(p, "min_y", min_y_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting min_y to: %s.", min_y_);
+  }
+  if (get_param(p, "max_y", max_y_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting max_y to: %s.", max_y_);
+  }
+
+  setVehicleFootprint(min_x_, max_x_, min_y_, max_y_);
+
   if (get_param(p, "base_frame", base_frame_)) {
     RCLCPP_DEBUG(get_logger(), "Setting base_frame to: %s.", base_frame_);
   }
@@ -315,6 +384,9 @@ rcl_interfaces::msg::SetParametersResult RayGroundFilterComponent::paramCallback
   }
   if (get_param(p, "local_max_slope", local_max_slope_)) {
     RCLCPP_DEBUG(get_logger(), "Setting local_max_slope to: %f.", local_max_slope_);
+  }
+  if (get_param(p, "initial_max_slope", initial_max_slope_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting initial_max_slope to: %f.", initial_max_slope_);
   }
   if (get_param(p, "radial_divider_angle", radial_divider_angle_)) {
     RCLCPP_DEBUG(get_logger(), "Setting radial_divider_angle to: %f.", radial_divider_angle_);
