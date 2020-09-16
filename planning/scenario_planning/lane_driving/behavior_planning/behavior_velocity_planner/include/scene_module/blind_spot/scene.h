@@ -89,7 +89,7 @@ public:
     geometry_msgs::Pose virtual_wall_pose;
     geometry_msgs::Pose stop_point_pose;
     geometry_msgs::Pose judge_point_pose;
-    lanelet::CompoundPolygon3d confict_area_for_blind_spot;
+    lanelet::CompoundPolygon3d conflict_area_for_blind_spot;
     lanelet::CompoundPolygon3d detection_area_for_blind_spot;
     autoware_planning_msgs::PathWithLaneId spline_path;
     autoware_perception_msgs::DynamicObjectArray conflicting_targets;
@@ -131,8 +131,8 @@ private:
   /**
    * @brief Check obstacle is in blind spot areas.
    * Condition1: Object's position is in broad blind spot area.
-   * Condition2: Object's predicted postition is in narrow blind spot area.
-   * If both coditions are met, return true
+   * Condition2: Object's predicted position is in narrow blind spot area.
+   * If both conditions are met, return true
    * @param path path information associated with lane id
    * @param objects_ptr dynamic objects
    * @param closest_idx closest path point index from ego car in path points
@@ -183,7 +183,7 @@ private:
   bool isTargetObjectType(const autoware_perception_msgs::DynamicObject & object) const;
 
   /**
-   * @brief Check if at least one of object's predicted poistion is in area
+   * @brief Check if at least one of object's predicted position is in area
    * @param object Dynamic object
    * @param area Area defined by polygon
    * @return True when at least one of object's predicted position is in area
@@ -208,7 +208,7 @@ private:
   /**
    * @brief Calculate first path index that is conflicting lanelets.
    * @param path     target path
-   * @param laneletss target lanelets
+   * @param lanelets target lanelets
    * @return path point index
    */
   boost::optional<int> getFirstPointConflictingLanelets(

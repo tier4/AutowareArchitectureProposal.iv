@@ -60,11 +60,11 @@ private:
   double wheel_base_;
   double front_overhang_;
 
-  ros::Time prev_collsion_point_time_;
-  pcl::PointXYZ prev_collsion_point_;
+  ros::Time prev_collision_point_time_;
+  pcl::PointXYZ prev_collision_point_;
   double prev_target_vehicle_time_ = 0.0;
   double prev_target_vehicle_dist_ = 0.0;
-  bool prev_collsion_point_valid_ = false;
+  bool prev_collision_point_valid_ = false;
   std::vector<geometry_msgs::TwistStamped> est_vel_que_;
   double prev_upper_velocity_ = 0.0;
 
@@ -100,7 +100,7 @@ private:
     //!< @brief Minimum value of valid speed estimation results in speed estimation using a point cloud
     double valid_est_vel_min;
 
-    //!< @brief Embed a stop line if the maximum speed calculated by ACC is lowar than this speed
+    //!< @brief Embed a stop line if the maximum speed calculated by ACC is lower than this speed
     double thresh_vel_to_stop;
 
     /* parameter for acc */
@@ -163,7 +163,7 @@ private:
     const geometry_msgs::Pose & self_pose, const pcl::PointXYZ & nearest_collision_point,
     double * distance);
   double calcTrajYaw(
-    const autoware_planning_msgs::Trajectory & trajectory, const int collsion_point_idx);
+    const autoware_planning_msgs::Trajectory & trajectory, const int collision_point_idx);
   bool estimatePointVelocityFromObject(
     const autoware_perception_msgs::DynamicObjectArray::ConstPtr object_ptr, const double traj_yaw,
     const pcl::PointXYZ & nearest_collision_point, double * velocity);
@@ -180,7 +180,7 @@ private:
     const double current_vel, const double current_dist, const double obj_vel);
 
   void insertMaxVelocityToPath(
-    const double current_vel, const double target_vel, const double dist_to_collsion_point,
+    const double current_vel, const double target_vel, const double dist_to_collision_point,
     autoware_planning_msgs::Trajectory * output_trajectory);
   void registerQueToVelocity(const double vel, const ros::Time & vel_time);
 

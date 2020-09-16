@@ -75,15 +75,15 @@ private:
   {
     double max_velocity;                 // max velocity [m/s]
     double max_accel;                    // max acceleration in planning [m/s2] > 0
-    double min_decel;                    // min deceltion in planning [m/s2] < 0
-    double max_lateral_accel;            // max lateral acceleartion [m/ss] > 0
+    double min_decel;                    // min deceleration in planning [m/s2] < 0
+    double max_lateral_accel;            // max lateral acceleration [m/ss] > 0
     double min_curve_velocity;           // min velocity at curve [m/s]
     double decel_distance_before_curve;  // distance before slow down for lateral acc at a curve
     double decel_distance_after_curve;   // distance after slow down for lateral acc at a curve
     double replan_vel_deviation;  // if speed error exceeds this [m/s], replan from current velocity
     double engage_velocity;       // use this speed when start moving [m/s]
     double engage_acceleration;   // use this acceleration when start moving [m/ss]
-    double engage_exit_ratio;     // exit engage sequence when the speed exceeds ratio x engege_vel.
+    double engage_exit_ratio;     // exit engage sequence when the speed exceeds ratio x engage_vel.
     double extract_ahead_dist;    // forward waypoints distance from current position [m]
     double extract_behind_dist;   // backward waypoints distance from current position [m]
     double max_trajectory_length;             // max length of the objective trajectory for resample

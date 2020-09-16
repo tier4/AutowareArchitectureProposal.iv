@@ -77,7 +77,7 @@ autoware_planning_msgs::Path interpolatePath(
       try {
         path_point.type = path.points.at(checkpoint_idx).type;
       } catch (std::out_of_range & ex) {
-        ROS_ERROR_STREAM("failed to find correct checkpoint to refere point type " << ex.what());
+        ROS_ERROR_STREAM("failed to find correct checkpoint to refer point type " << ex.what());
       }
       const double yaw = spline_ptr->calc_yaw(s_t);
       tf2::Quaternion tf2_quaternion;

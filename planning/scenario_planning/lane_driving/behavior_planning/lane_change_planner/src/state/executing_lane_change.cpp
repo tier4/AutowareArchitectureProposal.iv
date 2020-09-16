@@ -178,7 +178,7 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
       return true;
     }
     ROS_WARN_STREAM_THROTTLE(
-      1, "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be catious");
+      1, "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be cautious");
   }
 
   return false;

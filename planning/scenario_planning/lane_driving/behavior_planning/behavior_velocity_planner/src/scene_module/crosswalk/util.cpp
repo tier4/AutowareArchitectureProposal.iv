@@ -37,7 +37,7 @@ using Point = bg::model::d2::point_xy<double>;
 using Polygon = bg::model::polygon<Point, false>;
 using Line = bg::model::linestring<Point>;
 
-bool getBackwordPointFromBasePoint(
+bool getBackwardPointFromBasePoint(
   const Eigen::Vector2d & line_point1, const Eigen::Vector2d & line_point2,
   const Eigen::Vector2d & base_point, const double backward_length, Eigen::Vector2d & output_point)
 {
@@ -111,7 +111,7 @@ bool insertTargetVelocityPoint(
     // create target point
     Eigen::Vector2d target_point;
     autoware_planning_msgs::PathPointWithLaneId target_point_with_lane_id;
-    getBackwordPointFromBasePoint(point2, point1, point2, length_sum - target_length, target_point);
+    getBackwardPointFromBasePoint(point2, point1, point2, length_sum - target_length, target_point);
     const int target_velocity_point_idx =
       std::max(static_cast<int>(insert_target_point_idx) - 1, 0);
     target_point_with_lane_id = output.points.at(target_velocity_point_idx);

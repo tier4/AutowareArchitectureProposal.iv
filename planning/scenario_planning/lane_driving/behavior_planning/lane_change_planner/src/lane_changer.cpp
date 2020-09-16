@@ -94,7 +94,7 @@ void LaneChanger::init()
     ROS_FATAL_STREAM(
       "maximum_deceleration cannot be negative value. Given parameter: "
       << parameters.maximum_deceleration << std::endl
-      << "Terminating the progam...");
+      << "Terminating the program...");
     exit(EXIT_FAILURE);
   }
   data_manager_ptr_->setLaneChangerParameters(parameters);

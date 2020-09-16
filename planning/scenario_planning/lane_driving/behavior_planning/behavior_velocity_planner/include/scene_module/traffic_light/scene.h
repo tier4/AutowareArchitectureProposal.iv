@@ -83,7 +83,7 @@ public:
 private:
   int64_t lane_id_;
 
-  bool getBackwordPointFromBasePoint(
+  bool getBackwardPointFromBasePoint(
     const Eigen::Vector2d & line_point1, const Eigen::Vector2d & line_point2,
     const Eigen::Vector2d & base_point, const double backward_length,
     Eigen::Vector2d & output_point);

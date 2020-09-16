@@ -167,7 +167,7 @@ PathWithLaneId combineReferencePath(
       path.points.insert(path.points.end(), inner_points.begin(), inner_points.end());
 
     } else {
-      ROS_WARN("[LaneChageModule::splineInterpolate] spline interpolation failed.");
+      ROS_WARN("[LaneChangeModule::splineInterpolate] spline interpolation failed.");
     }
   }
   path.points.insert(path.points.end(), path2.points.begin(), path2.points.end());

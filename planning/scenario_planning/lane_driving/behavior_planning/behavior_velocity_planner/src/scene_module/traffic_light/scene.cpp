@@ -464,14 +464,14 @@ bool TrafficLightModule::createTargetPoint(
       }
     }
     // create target point
-    getBackwordPointFromBasePoint(
+    getBackwardPointFromBasePoint(
       point2, point1, point2, std::fabs(length_sum - target_length), target_point);
     return true;
   }
   return false;
 }
 
-bool TrafficLightModule::getBackwordPointFromBasePoint(
+bool TrafficLightModule::getBackwardPointFromBasePoint(
   const Eigen::Vector2d & line_point1, const Eigen::Vector2d & line_point2,
   const Eigen::Vector2d & base_point, const double backward_length, Eigen::Vector2d & output_point)
 {

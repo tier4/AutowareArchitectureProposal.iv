@@ -262,7 +262,7 @@ bool BlindSpotModule::checkObstacleInBlindSpot(
   const auto areas =
     generateBlindSpotPolygons(lanelet_map_ptr, routing_graph_ptr, path, closest_idx);
   debug_data_.detection_area_for_blind_spot = areas.detection_area;
-  debug_data_.confict_area_for_blind_spot = areas.conflict_area;
+  debug_data_.conflict_area_for_blind_spot = areas.conflict_area;
 
   autoware_perception_msgs::DynamicObjectArray objects = *objects_ptr;
   cutPredictPathWithDuration(&objects, planner_param_.max_future_movement_time);

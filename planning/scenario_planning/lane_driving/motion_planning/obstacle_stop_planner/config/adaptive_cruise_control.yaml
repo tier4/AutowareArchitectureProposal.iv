@@ -22,11 +22,11 @@ d_coefficient_positive: 0.0 # coefficient D in PID control (used when delta_dist
 d_coefficient_negative: 0.2 # coefficient D in PID control (used when delta_dist <0) [-]
 
 # parameter for object velocity estimation
-obect_polygon_length_margin: 2.0 # The distance to extend the polygon length the object in pointcloud-object matching [m]
-obect_polygon_width_margin: 0.5 # The distance to extend the polygon width the object in pointcloud-object matching [m]
+object_polygon_length_margin: 2.0 # The distance to extend the polygon length the object in pointcloud-object matching [m]
+object_polygon_width_margin: 0.5 # The distance to extend the polygon width the object in pointcloud-object matching [m]
 valid_estimated_vel_diff_time: 1.0 # Maximum time difference treated as continuous points in speed estimation using a point cloud [s]
 valid_vel_que_time: 0.5 # Time width of information used for speed estimation in speed estimation using a point cloud [s]
 valid_estimated_vel_max: 20.0 # Maximum value of valid speed estimation results in speed estimation using a point cloud [m/s]
 valid_estimated_vel_min: -20.0 # Minimum value of valid speed estimation results in speed estimation using a point cloud [m/s]
-thresh_vel_to_stop: 1.5 # Embed a stop line if the maximum speed calculated by ACC is lowar than this speed [m/s]
+thresh_vel_to_stop: 1.5 # Embed a stop line if the maximum speed calculated by ACC is lower than this speed [m/s]
 lowpass_gain_of_upper_velocity: 0.75 #Lowpass-gain of upper velocity

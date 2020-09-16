@@ -46,10 +46,10 @@ class TrajectoryVisualizer():
         self.localization_twist = Twist()
         self.vehicle_twist = Twist()
 
-        self.trajectory_external_velocity_limitted = Trajectory()
+        self.trajectory_external_velocity_limited = Trajectory()
         self.trajectory_lateral_acc_filtered = Trajectory()
         self.trajectory_raw = Trajectory()
-        self.trajectory_time_resamped = Trajectory()
+        self.trajectory_time_resampled = Trajectory()
         self.trajectory_final = Trajectory()
 
         self.lane_change_path = PathWithLaneId()
@@ -61,7 +61,7 @@ class TrajectoryVisualizer():
         self.sub_localization_twist = rospy.Subscriber("/localization/twist", TwistStamped, self.CallbackLocalizationTwist, queue_size=1, tcp_nodelay=True)
         self.sub_vehicle_twist = rospy.Subscriber("/vehicle/status/twist", TwistStamped, self.CallbackVehicleTwist, queue_size=1, tcp_nodelay=True)
 
-        self.substatus1 = rospy.Subscriber("/planning/scenario_planning/motion_velocity_optimizer/debug/trajectory_external_velocity_limitted", Trajectory, self.CallBackTrajExVelLim, queue_size=1, tcp_nodelay=True)
+        self.substatus1 = rospy.Subscriber("/planning/scenario_planning/motion_velocity_optimizer/debug/trajectory_external_velocity_limited", Trajectory, self.CallBackTrajExVelLim, queue_size=1, tcp_nodelay=True)
         self.substatus2 = rospy.Subscriber("/planning/scenario_planning/motion_velocity_optimizer/debug/trajectory_lateral_acc_filtered", Trajectory, self.CallBackTrajLatAccFiltered, queue_size=1, tcp_nodelay=True)
         self.substatus3 = rospy.Subscriber("/planning/scenario_planning/motion_velocity_optimizer/debug/trajectory_raw", Trajectory, self.CallBackTrajRaw, queue_size=1, tcp_nodelay=True)
         self.substatus4 = rospy.Subscriber("/planning/scenario_planning/motion_velocity_optimizer/debug/trajectory_time_resampled", Trajectory, self.CallBackTrajTimeResampled, queue_size=1, tcp_nodelay=True)
@@ -81,7 +81,7 @@ class TrajectoryVisualizer():
         self.vehicle_twist = cmd.twist
 
     def CallBackTrajExVelLim(self, cmd):
-        self.trajectory_external_velocity_limitted = cmd
+        self.trajectory_external_velocity_limited = cmd
 
     def CallBackTrajLatAccFiltered(self, cmd):
         self.trajectory_lateral_acc_filtered = cmd
@@ -90,7 +90,7 @@ class TrajectoryVisualizer():
         self.trajectory_raw = cmd
 
     def CallBackTrajTimeResampled(self, cmd):
-        self.trajectory_time_resamped = cmd
+        self.trajectory_time_resampled = cmd
 
     def CallBackTrajFinal(self, cmd):
         self.trajectory_final = cmd
@@ -126,9 +126,9 @@ class TrajectoryVisualizer():
         obstacle_avoid_traj = self.obstacle_avoid_traj
         obstacle_stop_traj = self.obstacle_stop_traj
         trajectory_raw = self.trajectory_raw
-        trajectory_external_velocity_limitted = self.trajectory_external_velocity_limitted
+        trajectory_external_velocity_limited = self.trajectory_external_velocity_limited
         trajectory_lateral_acc_filtered = self.trajectory_lateral_acc_filtered
-        trajectory_time_resamped = self.trajectory_time_resamped
+        trajectory_time_resampled = self.trajectory_time_resampled
         trajectory_final = self.trajectory_final
 
 
@@ -152,17 +152,17 @@ class TrajectoryVisualizer():
         y = self.ToVelList(trajectory_raw)
         ax1.plot(x, y, label="4-1: opt input", marker="", ls="--")
 
-        x = self.CalcArcLength(trajectory_external_velocity_limitted)
-        y = self.ToVelList(trajectory_external_velocity_limitted)
-        ax1.plot(x, y, label="4-2: opt external_velocity_limitted", marker="", ls="--")
+        x = self.CalcArcLength(trajectory_external_velocity_limited)
+        y = self.ToVelList(trajectory_external_velocity_limited)
+        ax1.plot(x, y, label="4-2: opt external_velocity_limited", marker="", ls="--")
 
         x = self.CalcArcLength(trajectory_lateral_acc_filtered)
         y = self.ToVelList(trajectory_lateral_acc_filtered)
         ax1.plot(x, y, label="4-3: opt lat_acc_filtered", marker="*", ls="--")
 
-        x = self.CalcArcLength(trajectory_time_resamped)
-        y = self.ToVelList(trajectory_time_resamped)
-        ax1.plot(x, y, label="4-4: opt time_resamped", marker="*", ls="--")
+        x = self.CalcArcLength(trajectory_time_resampled)
+        y = self.ToVelList(trajectory_time_resampled)
+        ax1.plot(x, y, label="4-4: opt time_resampled", marker="*", ls="--")
 
         x = self.CalcArcLength(trajectory_final)
         y = self.ToVelList(trajectory_final)
@@ -310,9 +310,9 @@ class TrajectoryVisualizer():
 
         # copy
         trajectory_raw = self.trajectory_raw
-        trajectory_external_velocity_limitted = self.trajectory_external_velocity_limitted
+        trajectory_external_velocity_limited = self.trajectory_external_velocity_limited
         trajectory_lateral_acc_filtered = self.trajectory_lateral_acc_filtered
-        trajectory_time_resamped = self.trajectory_time_resamped
+        trajectory_time_resampled = self.trajectory_time_resampled
         trajectory_final = self.trajectory_final
 
 
@@ -322,17 +322,17 @@ class TrajectoryVisualizer():
         y = self.ToVelList(trajectory_raw)
         ax1.plot(x, y, label="0: raw", marker="")
 
-        x = self.CalcArcLength(trajectory_external_velocity_limitted)
-        y = self.ToVelList(trajectory_external_velocity_limitted)
-        ax1.plot(x, y, label="1: external_velocity_limitted", marker="")
+        x = self.CalcArcLength(trajectory_external_velocity_limited)
+        y = self.ToVelList(trajectory_external_velocity_limited)
+        ax1.plot(x, y, label="1: external_velocity_limited", marker="")
 
         x = self.CalcArcLength(trajectory_lateral_acc_filtered)
         y = self.ToVelList(trajectory_lateral_acc_filtered)
         ax1.plot(x, y, label="2: lateral_acc_filtered", marker="*")
 
-        x = self.CalcArcLength(trajectory_time_resamped)
-        y = self.ToVelList(trajectory_time_resamped)
-        ax1.plot(x, y, label="3: time_resamped", marker="*")
+        x = self.CalcArcLength(trajectory_time_resampled)
+        y = self.ToVelList(trajectory_time_resampled)
+        ax1.plot(x, y, label="3: time_resampled", marker="*")
 
         x = self.CalcArcLength(trajectory_final)
         y = self.ToVelList(trajectory_final)

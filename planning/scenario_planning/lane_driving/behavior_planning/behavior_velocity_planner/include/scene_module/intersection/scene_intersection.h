@@ -90,8 +90,8 @@ public:
 public:
   struct PlannerParam
   {
-    double state_transit_mergin_time;
-    double decel_velocoity;    //! used when in straight and traffic_light lane
+    double state_transit_margin_time;
+    double decel_velocity;    //! used when in straight and traffic_light lane
     double path_expand_width;  //! path width to calculate the edge line for both side
     double stop_line_margin;   //! distance from auto-generated stopline to detection_area boundary
     double
@@ -129,7 +129,7 @@ private:
    * @brief check collision for all lanelet area & dynamic objects (call checkPathCollision() as
    * actual collision check algorithm inside this function)
    * @param path             ego-car lane
-   * @param detection_areas  collidion check is performed for vehicles that exist in this area
+   * @param detection_areas  collision check is performed for vehicles that exist in this area
    * @param objects_ptr      target objects
    * @param closest_idx      ego-car position index on the lane
    * @return true if collision is detected
@@ -165,7 +165,7 @@ private:
     const double extra_dist, const double ignore_dist) const;
 
   /**
-   * @brief triming the path with target lane id
+   * @brief trimming the path with target lane id
    * @param path           ego-car lane
    * @return generated path
    */
@@ -192,7 +192,7 @@ private:
     const int objective_lane_id) const;
 
   /**
-   * @brief check if the object has a terget type for collision check
+   * @brief check if the object has a target type for collision check
    * @param object target object
    * @return true if the object has a target type
    */

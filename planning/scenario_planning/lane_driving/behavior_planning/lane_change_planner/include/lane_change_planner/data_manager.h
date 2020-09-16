@@ -42,10 +42,10 @@
 
 namespace lane_change_planner
 {
-class SelfPoseLinstener
+class SelfPoseListener
 {
 public:
-  SelfPoseLinstener();
+  SelfPoseListener();
   bool getSelfPose(geometry_msgs::PoseStamped & self_pose);
   bool isSelfPoseReady();
 
@@ -78,9 +78,9 @@ private:
   bool is_parameter_set_;
 
   /*
-   * SelfPoseLinstener
+   * SelfPoseListener
    */
-  std::shared_ptr<SelfPoseLinstener> self_pose_listener_ptr_;
+  std::shared_ptr<SelfPoseListener> self_pose_listener_ptr_;
 
 public:
   DataManager();

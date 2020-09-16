@@ -78,7 +78,7 @@ bool StopLineModule::modifyPathVelocity(
 
       // create stop point
       autoware_planning_msgs::PathPointWithLaneId stop_point_with_lane_id;
-      getBackwordPointFromBasePoint(point2, point1, point2, length_sum - stop_length, stop_point);
+      getBackwardPointFromBasePoint(point2, point1, point2, length_sum - stop_length, stop_point);
       const int stop_point_idx = std::max(static_cast<int>(insert_stop_point_idx - 1), 0);
       stop_point_with_lane_id = path->points.at(stop_point_idx);
       stop_point_with_lane_id.point.pose.position.x = stop_point.x();
@@ -123,7 +123,7 @@ bool StopLineModule::modifyPathVelocity(
   }
 }
 
-bool StopLineModule::getBackwordPointFromBasePoint(
+bool StopLineModule::getBackwardPointFromBasePoint(
   const Eigen::Vector2d & line_point1, const Eigen::Vector2d & line_point2,
   const Eigen::Vector2d & base_point, const double backward_length, Eigen::Vector2d & output_point)
 {

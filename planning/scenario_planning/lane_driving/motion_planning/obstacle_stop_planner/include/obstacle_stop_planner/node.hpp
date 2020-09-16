@@ -106,12 +106,12 @@ private:
     const pcl::PointCloud<pcl::PointXYZ>::Ptr input_pointcloud_ptr,
     pcl::PointCloud<pcl::PointXYZ>::Ptr output_pointcloud_ptr);
   void createOneStepPolygon(
-    const geometry_msgs::Pose base_stap_pose, const geometry_msgs::Pose next_step_pose,
+    const geometry_msgs::Pose base_step_pose, const geometry_msgs::Pose next_step_pose,
     std::vector<cv::Point2d> & polygon, const double expand_width = 0.0);
   bool getSelfPose(
     const std_msgs::Header & header, const tf2_ros::Buffer & tf_buffer,
     geometry_msgs::Pose & self_pose);
-  bool getBackwordPointFromBasePoint(
+  bool getBackwardPointFromBasePoint(
     const Eigen::Vector2d & line_point1, const Eigen::Vector2d & line_point2,
     const Eigen::Vector2d & base_point, const double backward_length,
     Eigen::Vector2d & output_point);

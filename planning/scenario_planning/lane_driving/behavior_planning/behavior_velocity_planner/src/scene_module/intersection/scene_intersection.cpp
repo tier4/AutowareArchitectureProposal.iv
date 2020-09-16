@@ -127,7 +127,7 @@ bool IntersectionModule::modifyPathVelocity(
   /* set stop speed : TODO behavior on straight lane should be improved*/
   if (state_machine_.getState() == State::STOP) {
     constexpr double stop_vel = 0.0;
-    const double decel_vel = planner_param_.decel_velocoity;
+    const double decel_vel = planner_param_.decel_velocity;
     double v =
       (!is_stuck && has_traffic_light_ && turn_direction_ == "straight") ? decel_vel : stop_vel;
     util::setVelocityFrom(stop_line_idx, v, path);
@@ -173,7 +173,7 @@ bool IntersectionModule::checkCollision(
     path, closest_idx, closest_idx, 0.0, 0.0);  // TODO use Lanelet
   debug_data_.ego_lane_polygon = toGeomMsg(ego_poly);
 
-  /* extruct target objects */
+  /* extract target objects */
   autoware_perception_msgs::DynamicObjectArray target_objects;
   for (const auto & object : objects_ptr->objects) {
     // ignore non-vehicle type objects, such as pedestrian.
@@ -278,7 +278,7 @@ Polygon2d IntersectionModule::generateEgoIntersectionLanePolygon(
 
   size_t ego_area_end_idx = assigned_lane_end_idx;
   {
-    //decide end idx with cosidering extra_dist
+    //decide end idx with considering extra_dist
     double dist_sum = 0.0;
     for (size_t i = assigned_lane_end_idx + 1; i < path.points.size(); ++i) {
       dist_sum += planning_utils::calcDist2d(path.points.at(i), path.points.at(i - 1));

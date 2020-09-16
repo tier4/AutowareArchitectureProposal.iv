@@ -59,8 +59,8 @@ IntersectionModuleManager::IntersectionModuleManager()
   ros::NodeHandle pnh("~");
   const std::string ns(getModuleName());
   auto & p = planner_param_;
-  pnh.param(ns + "/state_transit_mergin_time", p.state_transit_mergin_time, 2.0);
-  pnh.param(ns + "/decel_velocoity", p.decel_velocoity, 30.0 / 3.6);
+  pnh.param(ns + "/state_transit_margin_time", p.state_transit_margin_time, 2.0);
+  pnh.param(ns + "/decel_velocity", p.decel_velocity, 30.0 / 3.6);
   pnh.param(ns + "/path_expand_width", p.path_expand_width, 2.0);
   pnh.param(ns + "/stop_line_margin", p.stop_line_margin, 1.0);
   pnh.param(ns + "/stuck_vehicle_detect_dist", p.stuck_vehicle_detect_dist, 5.0);
