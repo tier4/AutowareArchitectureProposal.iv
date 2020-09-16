@@ -61,7 +61,7 @@ void calcTrajectoryIntervalDistance(
 void setZeroVelocity(autoware_planning_msgs::msg::Trajectory & trajectory);
 double getMaxVelocity(const autoware_planning_msgs::msg::Trajectory & trajectory);
 double getMaxAbsVelocity(const autoware_planning_msgs::msg::Trajectory & trajectory);
-void mininumVelocityFilter(
+void minimumVelocityFilter(
   const double & min_vel,
   autoware_planning_msgs::msg::Trajectory & trajectory);
 void maximumVelocityFilter(

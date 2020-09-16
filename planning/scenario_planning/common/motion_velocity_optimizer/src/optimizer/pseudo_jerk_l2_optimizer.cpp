@@ -71,7 +71,7 @@ bool L2PseudoJerkOptimizer::solve(
   }
 
   /*
-   * x = [b0, b1, ..., bN, |  a0, a1, ..., aN, | delta0, delta1, ..., deltaN, | sigma0, sigme1, ..., sigmaN] in R^{4N}
+   * x = [b0, b1, ..., bN, |  a0, a1, ..., aN, | delta0, delta1, ..., deltaN, | sigma0, sigma1, ..., sigmaN] in R^{4N}
    * b: velocity^2
    * a: acceleration
    * delta: 0 < bi < vmax^2 + delta
@@ -123,7 +123,7 @@ bool L2PseudoJerkOptimizer::solve(
   // 0 < b - delta < vmax^2
   // NOTE: The delta allows b to be negative. This is actually invalid because the definition is
   // b=v^2. But mathematically, the strict b>0 constraint may make the problem infeasible, such as
-  // the case of v=0 & a<0. To avoid the infesibility, we allow b<0. The negative b is dealt as b=0
+  // the case of v=0 & a<0. To avoid the infeasibility, we allow b<0. The negative b is dealt as b=0
   // when it is converted to v with sqrt. If the weight of delta^2 is large (the value of delta is
   // very small), b is almost 0, and is not a big problem.
   for (unsigned int i = 0; i < N; ++i) {

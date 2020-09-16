@@ -228,7 +228,7 @@ double getMaxAbsVelocity(const autoware_planning_msgs::msg::Trajectory & traject
   return max_vel;
 }
 
-void mininumVelocityFilter(
+void minimumVelocityFilter(
   const double & min_vel,
   autoware_planning_msgs::msg::Trajectory & trajectory)
 {
@@ -319,7 +319,7 @@ bool calcTrajectoryCurvatureFrom3Points(
   if (k_arr.size() == 0) {
     RCLCPP_ERROR(
       rclcpp::get_logger("motion_velocity_optimizer_utils"),
-      "[calcTrajectoryCurvatureFrom3Points] k_arr.size() = 0, somthing wrong. pls check.");
+      "[calcTrajectoryCurvatureFrom3Points] k_arr.size() = 0, something wrong. pls check.");
     return false;
   }
 

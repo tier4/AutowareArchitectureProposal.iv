@@ -130,7 +130,7 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
   pub_trajectory_raw_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
     "debug/trajectory_raw", rclcpp::QoS{1});
   pub_trajectory_vel_lim_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
-    "debug/trajectory_external_velocity_limitted", rclcpp::QoS{1});
+    "debug/trajectory_external_velocity_limited", rclcpp::QoS{1});
   pub_trajectory_latcc_filtered_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
     "debug/trajectory_lateral_acc_filtered", rclcpp::QoS{1});
   pub_trajectory_resampled_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
@@ -255,24 +255,24 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
     return prev_output_;
   }
 
-  autoware_planning_msgs::msg::Trajectory traj_extracted;    // extructed around current_position
-  autoware_planning_msgs::msg::Trajectory traj_vel_limtted;  // external velocity limitted
+  autoware_planning_msgs::msg::Trajectory traj_extracted;    // extracted around current_position
+  autoware_planning_msgs::msg::Trajectory traj_vel_limited;  // external velocity limited
   autoware_planning_msgs::msg::Trajectory
-    traj_latacc_filtered;  // max lateral acceleration limitted
+    traj_latacc_filtered;  // max lateral acceleration limited
   autoware_planning_msgs::msg::Trajectory
     traj_resampled;                                // resampled depending on the current_velocity
   autoware_planning_msgs::msg::Trajectory output;  // velocity is optimized by qp solver
 
-  /* Extract trajectory around self-position with desired forward-backwaed length*/
+  /* Extract trajectory around self-position with desired forward-backward length*/
   if (!extractPathAroundIndex(traj_input, input_closest, /* out */ traj_extracted)) {
     return prev_output_;
   }
 
   /* Apply external velocity limit */
-  externalVelocityLimitFilter(traj_extracted, /* out */ traj_vel_limtted);
+  externalVelocityLimitFilter(traj_extracted, /* out */ traj_vel_limited);
 
-  /* Lateral acceleration limt */
-  if (!lateralAccelerationFilter(traj_vel_limtted, /* out */ traj_latacc_filtered)) {
+  /* Lateral acceleration limit */
+  if (!lateralAccelerationFilter(traj_vel_limited, /* out */ traj_latacc_filtered)) {
     return prev_output_;
   }
 
@@ -328,7 +328,7 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
   publishStopDistance(output, traj_resampled_closest);
   if (publish_debug_trajs_) {
     pub_trajectory_raw_->publish(traj_extracted);
-    pub_trajectory_vel_lim_->publish(traj_vel_limtted);
+    pub_trajectory_vel_lim_->publish(traj_vel_limited);
     pub_trajectory_latcc_filtered_->publish(traj_latacc_filtered);
     pub_trajectory_resampled_->publish(traj_resampled);
   }
@@ -569,7 +569,7 @@ bool MotionVelocityOptimizer::lateralAccelerationFilter(
   if (!vpu::linearInterpTrajectory(in_arclength, input, out_arclength, output)) {
     RCLCPP_WARN(
       get_logger(),
-      "[motion_velocity_optimizer]: interpolation failed at lateral acceleraion filter.");
+      "[motion_velocity_optimizer]: interpolation failed at lateral acceleration filter.");
     return false;
   }
   output.points.back().twist = input.points.back().twist;  // keep the final speed.
@@ -685,7 +685,7 @@ bool MotionVelocityOptimizer::extractPathAroundIndex(
     }
   }
 
-  // extruct trajectory
+  // extract trajectory
   output.points.clear();
   for (int i = behind_index; i < ahead_index + 1; ++i) {
     output.points.push_back(input.points.at(i));
