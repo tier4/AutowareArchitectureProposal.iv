@@ -245,7 +245,7 @@ void SurroundObstacleCheckerNode::getNearestObstacle(
 void SurroundObstacleCheckerNode::getNearestObstacleByPointCloud(
   double * min_dist_to_obj, geometry_msgs::msg::Point * nearest_obj_point)
 {
-  // waint to transform pointcloud
+  // wait to transform pointcloud
   geometry_msgs::msg::TransformStamped transform_stamped;
   try {
     transform_stamped = tf_buffer_.lookupTransform(
