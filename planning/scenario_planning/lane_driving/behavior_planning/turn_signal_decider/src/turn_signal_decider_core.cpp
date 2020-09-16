@@ -97,7 +97,7 @@ void TurnSignalDecider::onTurnSignalTimer()
     return;
   }
 
-  // set turn signals according to closest manuevers
+  // set turn signals according to closest maneuvers
   TurnSignal turn_signal, lane_change_signal, intersection_signal;
   double distance_to_lane_change, distance_to_intersection;
   double min_distance = std::numeric_limits<double>::max();
@@ -131,7 +131,7 @@ lanelet::routing::RelationType TurnSignalDecider::getRelation(
     return relation.get();
   }
 
-  // check if lane change extends across muliple lanes
+  // check if lane change extends across multiple lanes
   const auto shortest_path = routing_graph_ptr->shortestPath(prev_lane, next_lane);
   if (shortest_path) {
     auto prev_llt = shortest_path->front();

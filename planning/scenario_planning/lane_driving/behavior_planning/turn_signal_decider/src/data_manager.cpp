@@ -114,12 +114,12 @@ void DataManager::onVehiclePoseUpdate()
       vehicle_pose_.header.stamp = current_time;
       is_pose_ready_ = true;
     } catch (tf2::TransformException & ex) {
-      // if pose has never arrived before, then wait for localizatioon
+      // if pose has never arrived before, then wait for localizatioo
       if (!is_pose_ready_) {
         RCLCPP_WARN_STREAM_THROTTLE(
           node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
           ex.what());
-      } else {  // if tf suddenly stops comming, then there must be something wrong.
+      } else {  // if tf suddenly stops coming, then there must be something wrong.
         RCLCPP_ERROR_STREAM_THROTTLE(
           node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
           ex.what());
