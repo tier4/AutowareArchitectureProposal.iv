@@ -50,6 +50,11 @@ void EmergencyHandler::onTwist(const geometry_msgs::msg::TwistStamped::ConstShar
 
 bool EmergencyHandler::isDataReady()
 {
+  if (!autoware_state_) {
+    ROS_DEBUG_THROTTLE(1.0, "waiting for autoware_state msg...");
+    return false;
+  }
+
   if (!driving_capability_) {
     RCLCPP_DEBUG_THROTTLE(
       this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
