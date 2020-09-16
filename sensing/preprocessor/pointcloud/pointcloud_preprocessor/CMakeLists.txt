@@ -22,6 +22,7 @@ generate_dynamic_reconfigure_options(
   cfg/VoxelGridOutlierFilter.cfg
   cfg/RingOutlierFilter.cfg
   cfg/VoxelGridDownsampleFilter.cfg
+  cfg/RandomDownsampleFilter.cfg
   cfg/PointcloudAccumulator.cfg
   cfg/PassThroughFilter.cfg
   cfg/PassThroughFilterUInt16.cfg
@@ -137,6 +138,7 @@ add_dependencies(ring_outlier_filter_node ${catkin_EXPORTED_TARGETS} ${PROJECT_N
 # Downsample Filter
 add_library(downsample_filter
             src/downsample_filter/voxel_grid_downsample_filter_nodelet.cpp
+            src/downsample_filter/random_downsample_filter_nodelet.cpp
             src/filter.cpp # copy from pcl_ros https://github.com/ros-
                            # perception/perception_pcl/issues/9
             )
@@ -151,6 +153,14 @@ target_link_libraries(voxel_grid_downsample_filter_node
                       ${Boost_LIBRARIES}
                       ${catkin_LIBRARIES})
 add_dependencies(voxel_grid_downsample_filter_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
+
+add_executable(random_downsample_filter_node
+               src/downsample_filter/random_downsample_filter_node.cpp)
+target_link_libraries(random_downsample_filter_node
+                      downsample_filter
+                      ${Boost_LIBRARIES}
+                      ${catkin_LIBRARIES})
+add_dependencies(random_downsample_filter_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
 
 
 # Pointcloud Accumulator
@@ -285,6 +295,7 @@ install(
   TARGETS
     crop_box_filter_node
     voxel_grid_downsample_filter_node
+    random_downsample_filter_node
     passthrough_filter_uint16_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

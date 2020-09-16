@@ -7,4 +7,12 @@
       voxel grid filter.
     </description>
   </class>
+
+  <class name="pointcloud_preprocessor/random_downsample_filter_nodelet"
+	 type="pointcloud_preprocessor::RandomDownsampleFilterNodelet"
+	 base_class_type="nodelet::Nodelet">
+    <description>
+      random filter.
+    </description>
+  </class>
 </library>
