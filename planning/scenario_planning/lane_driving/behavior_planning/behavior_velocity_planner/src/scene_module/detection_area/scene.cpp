@@ -238,7 +238,7 @@ geometry_msgs::msg::Pose calcTargetPose(
   const auto p_eigen_front = Eigen::Vector2d(p_front.x, p_front.y);
   const auto p_eigen_back = Eigen::Vector2d(p_back.x, p_back.y);
 
-  // Calcurate direction vector
+  // Calculate direction vector
   const auto direction_vector = (p_eigen_back - p_eigen_front).normalized();
 
   // Add offset to front point
@@ -403,7 +403,7 @@ std::vector<geometry_msgs::msg::Point> DetectionAreaModule::getObstaclePoints() 
 
 bool DetectionAreaModule::canClearStopState() const
 {
-  // vehicle can clear stop state if theobstacle has never appeared in detection area
+  // vehicle can clear stop state if the obstacle has never appeared in detection area
   if (!last_obstacle_found_time_) {
     return true;
   }

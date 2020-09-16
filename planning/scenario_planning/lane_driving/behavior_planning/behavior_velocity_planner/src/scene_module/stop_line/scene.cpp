@@ -53,10 +53,12 @@ bool StopLineModule::modifyPathVelocity(
       bg::model::linestring<Point> line = {
         {path->points.at(i).point.pose.position.x, path->points.at(i).point.pose.position.y},
         {path->points.at(i + 1).point.pose.position.x,
-          path->points.at(i + 1).point.pose.position.y}};
+         path->points.at(i + 1).point.pose.position.y}};
       std::vector<Point> collision_points;
       bg::intersection(stop_line, line, collision_points);
-      if (collision_points.empty()) {continue;}
+      if (collision_points.empty()) {
+        continue;
+      }
 
       // search stop point index
       size_t insert_stop_point_idx = 0;
@@ -82,7 +84,7 @@ bool StopLineModule::modifyPathVelocity(
 
       // create stop point
       autoware_planning_msgs::msg::PathPointWithLaneId stop_point_with_lane_id;
-      getBackwordPointFromBasePoint(point2, point1, point2, length_sum - stop_length, stop_point);
+      getBackwardPointFromBasePoint(point2, point1, point2, length_sum - stop_length, stop_point);
       const int stop_point_idx = std::max(static_cast<int>(insert_stop_point_idx - 1), 0);
       stop_point_with_lane_id = path->points.at(stop_point_idx);
       stop_point_with_lane_id.point.pose.position.x = stop_point.x();
@@ -127,7 +129,7 @@ bool StopLineModule::modifyPathVelocity(
   return true;
 }
 
-bool StopLineModule::getBackwordPointFromBasePoint(
+bool StopLineModule::getBackwardPointFromBasePoint(
   const Eigen::Vector2d & line_point1, const Eigen::Vector2d & line_point2,
   const Eigen::Vector2d & base_point, const double backward_length, Eigen::Vector2d & output_point)
 {
