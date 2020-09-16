@@ -122,7 +122,8 @@ TrafficLightModule::TrafficLightModule(
   traffic_light_reg_elem_(traffic_light_reg_elem),
   lane_(lane),
   lane_id_(lane.id()),
-  state_(State::APPROACH)
+  state_(State::APPROACH),
+  input_(Input::PERCEPTION)
 {
   planner_param_ = planner_param;
 }
@@ -155,8 +156,13 @@ bool TrafficLightModule::modifyPathVelocity(
   if (state_ == State::GO_OUT) {
     return true;
   } else if (state_ == State::APPROACH) {
-    if (!getHighestConfidenceTrafficLightState(traffic_lights, tl_state_)) {
+    if (getExternalTrafficLightState(traffic_lights, tl_state_)) {
+      input_ = Input::EXTERNAL;
+    } else if (getHighestConfidenceTrafficLightState(traffic_lights, tl_state_)) {
+      input_ = Input::PERCEPTION;
+    } else {
       // Don't stop when UNKNOWN or TIMEOUT as discussed at #508
+      input_ = Input::NONE;
       return true;
     }
 
@@ -195,7 +201,7 @@ bool TrafficLightModule::modifyPathVelocity(
         }
         // judge pass or stop
         if (
-          (planner_param_.enable_pass_judge &&
+          (planner_param_.enable_pass_judge && input_ == Input::PERCEPTION &&
            calcSignedArcLength(input_path, self_pose.pose, stop_line_point) <
              pass_judge_line_distance + planner_data_->base_link2front) &&
           (3.0 /* =10.8km/h */ < self_twist_ptr->twist.linear.x)) {
@@ -495,4 +501,43 @@ geometry_msgs::Point TrafficLightModule::getTrafficLightPosition(
     tl_center.z += tl_point.z() / (*traffic_light.lineString()).size();
   }
   return tl_center;
+}
+
+bool TrafficLightModule::getExternalTrafficLightState(
+  const lanelet::ConstLineStringsOrPolygons3d & traffic_lights,
+  autoware_perception_msgs::TrafficLightStateStamped & external_tl_state)
+{
+  // search traffic light state
+  bool found = false;
+  std::string reason;
+  for (const auto & traffic_light : traffic_lights) {
+    // traffic light must be linestrings
+    if (!traffic_light.isLineString()) {
+      reason = "NotLineString";
+      continue;
+    }
+
+    const int id = static_cast<lanelet::ConstLineString3d>(traffic_light).id();
+    const auto tl_state_stamped = planner_data_->getExternalTrafficLightState(id);
+    if (!tl_state_stamped) {
+      reason = "TrafficLightStateNotFound";
+      continue;
+    }
+
+    const auto header = tl_state_stamped->header;
+    const auto tl_state = tl_state_stamped->state;
+    if (!((ros::Time::now() - header.stamp).toSec() < planner_param_.external_tl_state_timeout)) {
+      reason = "TimeOut";
+      continue;
+    }
+
+    external_tl_state = *tl_state_stamped;
+    found = true;
+  }
+  if (!found) {
+    ROS_WARN_THROTTLE(
+      1.0, "[traffic_light] cannot find external traffic light lamp state (%s).", reason.c_str());
+    return false;
+  }
+  return true;
 }

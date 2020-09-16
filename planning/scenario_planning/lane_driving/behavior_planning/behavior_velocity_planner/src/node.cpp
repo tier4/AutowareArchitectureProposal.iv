@@ -133,6 +133,8 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode()
     pnh_.subscribe("input/vector_map", 10, &BehaviorVelocityPlannerNode::onLaneletMap, this);
   sub_traffic_light_states_ = pnh_.subscribe(
     "input/traffic_light_states", 10, &BehaviorVelocityPlannerNode::onTrafficLightStates, this);
+  sub_external_traffic_light_states_ = pnh_.subscribe(
+    "input/external_traffic_light_states", 10, &BehaviorVelocityPlannerNode::onExternalTrafficLightStates, this);
 
   // Publishers
   path_pub_ = pnh_.advertise<autoware_planning_msgs::Path>("output/path", 1);
@@ -264,6 +266,17 @@ void BehaviorVelocityPlannerNode::onTrafficLightStates(
     traffic_light_state.header = msg->header;
     traffic_light_state.state = state;
     planner_data_.traffic_light_id_map_[state.id] = traffic_light_state;
+  }
+}
+
+void BehaviorVelocityPlannerNode::onExternalTrafficLightStates(
+  const autoware_perception_msgs::TrafficLightStateArray::ConstPtr & msg)
+{
+  for (const auto & state : msg->states) {
+    autoware_perception_msgs::TrafficLightStateStamped traffic_light_state;
+    traffic_light_state.header = msg->header;
+    traffic_light_state.state = state;
+    planner_data_.external_traffic_light_id_map_[state.id] = traffic_light_state;
   }
 }
 

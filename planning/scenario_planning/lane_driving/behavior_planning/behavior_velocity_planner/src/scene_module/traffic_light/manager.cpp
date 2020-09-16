@@ -58,6 +58,7 @@ TrafficLightModuleManager::TrafficLightModuleManager()
   auto & p = planner_param_;
   pnh.param(ns + "/stop_margin", p.stop_margin, 0.0);
   pnh.param(ns + "/tl_state_timeout", p.tl_state_timeout, 1.0);
+  pnh.param(ns + "/external_tl_state_timeout", p.external_tl_state_timeout, 1.0);
   pnh.param(ns + "/enable_pass_judge", p.enable_pass_judge, true);
   pub_tl_state_ = pnh.advertise<autoware_perception_msgs::TrafficLightStateStamped>(
     "output/traffic_light_state", 1);
