@@ -98,14 +98,23 @@ rclcpp_components_register_node(crop_box_filter
 
 
 # ========== Down Sampler Filter ==========
-ament_auto_add_library(downsample_filter SHARED
+# -- Voxel Grid Downsample Filter --
+ament_auto_add_library(voxel_grid_downsample_filter SHARED
   src/downsample_filter/voxel_grid_downsample_filter_nodelet.cpp
   )
-target_link_libraries(downsample_filter pointcloud_preprocessor_filter_base ${Boost_LIBRARIES} ${PCL_LIBRARIES})
-rclcpp_components_register_node(downsample_filter
+target_link_libraries(voxel_grid_downsample_filter pointcloud_preprocessor_filter_base ${Boost_LIBRARIES} ${PCL_LIBRARIES})
+rclcpp_components_register_node(voxel_grid_downsample_filter
   PLUGIN "pointcloud_preprocessor::VoxelGridDownsampleFilterComponent"
-  EXECUTABLE downsample_filter_node)
+  EXECUTABLE voxel_grid_downsample_filter_node)
 
+# -- Random Downsample Filter --
+ament_auto_add_library(random_downsample_filter SHARED
+  src/downsample_filter/random_downsample_filter_nodelet.cpp
+  )
+target_link_libraries(random_downsample_filter pointcloud_preprocessor_filter_base ${Boost_LIBRARIES} ${PCL_LIBRARIES})
+rclcpp_components_register_node(random_downsample_filter
+  PLUGIN "pointcloud_preprocessor::RandomDownsampleFilterComponent"
+  EXECUTABLE random_downsample_filter_node)
 
 # ========== Ray Ground Filter ==========
 ament_auto_add_library(ray_ground_filter SHARED
