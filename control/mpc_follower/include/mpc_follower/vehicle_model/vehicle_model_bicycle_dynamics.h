@@ -102,8 +102,8 @@ public:
 
 private:
   double wheelbase_;  //!< @brief wheelbase length [m]
-  double lf_;         //!< @brief length from centor of mass to front wheel [m]
-  double lr_;         //!< @brief length from centor of mass to rear wheel [m]
+  double lf_;         //!< @brief length from center of mass to front wheel [m]
+  double lr_;         //!< @brief length from center of mass to rear wheel [m]
   double mass_;       //!< @brief total mass of vehicle [kg]
   double iz_;         //!< @brief moment of inertia [kg * m2]
   double cf_;         //!< @brief front cornering power [N/rad]

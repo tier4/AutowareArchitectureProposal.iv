@@ -178,7 +178,7 @@ boost::optional<TargetValues> PurePursuitNode::calcTargetValues() const
   const double target_vel = target_point->twist.linear.x;
   const double target_acc = target_point->accel.linear.x;
 
-  // Calculate lookahead ditance
+  // Calculate lookahead distance
   const bool is_reverse = (target_vel < 0);
   const double min_lookahead_distance =
     is_reverse ? param_.reverse_min_lookahead_distance : param_.min_lookahead_distance;

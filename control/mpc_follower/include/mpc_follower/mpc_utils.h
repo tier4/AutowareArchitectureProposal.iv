@@ -48,7 +48,7 @@ geometry_msgs::Quaternion getQuaternionFromYaw(const double & yaw);
 double normalizeRadian(const double angle);
 
 /**
- * @brief convert eular angle vector including +-2pi to 0 jump to continuous series data
+ * @brief convert euler angle vector including +-2pi to 0 jump to continuous series data
  * @param [out] a input angle vector
  */
 void convertEulerAngleToMonotonic(std::vector<double> * a);
@@ -103,7 +103,7 @@ bool calcNearestPoseInterp(
 int calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::Pose & self_pose);
 
 /**
- * @brief convert MPCTraj to visualizaton marker for visualization
+ * @brief convert MPCTraj to visualization marker for visualization
  */
 visualization_msgs::MarkerArray convertTrajToMarker(
   const MPCTrajectory & traj, std::string ns, double r, double g, double b, double z,

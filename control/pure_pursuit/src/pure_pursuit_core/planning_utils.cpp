@@ -186,7 +186,7 @@ double normalizeEulerAngle(const double euler)
 }
 
 // ref: http://www.mech.tohoku-gakuin.ac.jp/rde/contents/course/robotics/coordtrans.html
-// (pu, pv): retative, (px, py): absolute, (ox, oy): origin
+// (pu, pv): relative, (px, py): absolute, (ox, oy): origin
 // (px, py) = rot * (pu, pv) + (ox, oy)
 geometry_msgs::Point transformToAbsoluteCoordinate2D(
   const geometry_msgs::Point & point, const geometry_msgs::Pose & origin)
@@ -207,7 +207,7 @@ geometry_msgs::Point transformToAbsoluteCoordinate2D(
 }
 
 // ref: http://www.mech.tohoku-gakuin.ac.jp/rde/contents/course/robotics/coordtrans.html
-// (pu, pv): retative, (px, py): absolute, (ox, oy): origin
+// (pu, pv): relative, (px, py): absolute, (ox, oy): origin
 // (pu, pv) = rot^-1 * {(px, py) - (ox, oy)}
 geometry_msgs::Point transformToRelativeCoordinate2D(
   const geometry_msgs::Point & point, const geometry_msgs::Pose & origin)

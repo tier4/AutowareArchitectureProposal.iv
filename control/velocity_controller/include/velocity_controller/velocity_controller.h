@@ -188,7 +188,7 @@ private:
     const velocity_controller::VelocityControllerConfig & config, const uint32_t level);
 
   bool updateCurrentPose(const double timeout_sec);
-  bool getCurretPoseFromTF(const double timeout_sec, geometry_msgs::PoseStamped & ps);
+  bool getCurrentPoseFromTF(const double timeout_sec, geometry_msgs::PoseStamped & ps);
 
   double getPitch(const geometry_msgs::Quaternion & quaternion) const;
   double getDt();

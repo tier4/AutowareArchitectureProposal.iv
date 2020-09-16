@@ -85,21 +85,21 @@ private:
   ros::Publisher pub_ctrl_cmd_;         //!< @brief topic publisher for control command
   ros::Publisher pub_debug_steer_cmd_;  //!< @brief topic publisher for control command
   ros::Subscriber sub_ref_path_;        //!< @brief topic subscriber for reference waypoints
-  ros::Subscriber sub_steering_;        //!< @brief subscriber for currrent steering
-  ros::Subscriber sub_current_vel_;     //!< @brief subscriber for currrent velocity
+  ros::Subscriber sub_steering_;        //!< @brief subscriber for current steering
+  ros::Subscriber sub_current_vel_;     //!< @brief subscriber for current velocity
   ros::Timer timer_control_;            //!< @brief timer for control command computation
 
   MPCTrajectory ref_traj_;                //!< @brief reference trajectory to be followed
   Butterworth2dFilter lpf_steering_cmd_;  //!< @brief lowpass filter for steering command
   Butterworth2dFilter
-    lpf_lateral_error_;  //!< @brief lowpass filter for lateral error to calculate derivatie
+    lpf_lateral_error_;  //!< @brief lowpass filter for lateral error to calculate derivative
   Butterworth2dFilter
-    lpf_yaw_error_;  //!< @brief lowpass filter for heading error to calculate derivatie
+    lpf_yaw_error_;  //!< @brief lowpass filter for heading error to calculate derivative
   std::string vehicle_model_type_;                            //!< @brief vehicle model type for MPC
   std::shared_ptr<VehicleModelInterface> vehicle_model_ptr_;  //!< @brief vehicle model for MPC
   std::shared_ptr<QPSolverInterface> qpsolver_ptr_;           //!< @brief qp solver for MPC
   std::deque<double>
-    input_buffer_;  //!< @brief control input (mpc_output) buffer for delay time conpemsation
+    input_buffer_;  //!< @brief control input (mpc_output) buffer for delay time compensation
 
   /* parameters for control*/
   double ctrl_period_;  //!< @brief control frequency [s]
@@ -127,7 +127,7 @@ private:
   struct MPCParam
   {
     int prediction_horizon;                   //< @brief prediction horizon step
-    double prediction_dt;                     //< @brief prediction horizon sampleing time
+    double prediction_dt;                     //< @brief prediction horizon sampling time
     double weight_lat_error;                  //< @brief lateral error weight in matrix Q
     double weight_heading_error;              //< @brief heading error weight in matrix Q
     double weight_heading_error_squared_vel;  //< @brief heading error * velocity weight in matrix Q
@@ -165,7 +165,7 @@ private:
     current_velocity_ptr_;                     //!< @brief current measured velocity
   std::shared_ptr<double> current_steer_ptr_;  //!< @brief current measured steering
   std::shared_ptr<autoware_planning_msgs::Trajectory>
-    current_trajectory_ptr_;  //!< @brief referece trajectory
+    current_trajectory_ptr_;  //!< @brief reference trajectory
 
   double raw_steer_cmd_prev_;  //< @brief steering command calculated by mpc in previous period
   double
@@ -192,7 +192,7 @@ private:
   void timerCallback(const ros::TimerEvent &);
 
   /**
-   * @brief set current_trajectory_ with receved message
+   * @brief set current_trajectory_ with received message
    */
   void callbackTrajectory(const autoware_planning_msgs::Trajectory::ConstPtr &);
 
@@ -207,7 +207,7 @@ private:
   bool checkData();
 
   /**
-   * @brief get varables for mpc calculation
+   * @brief get variables for mpc calculation
    */
   bool getVar(
     const MPCTrajectory & traj, int * closest_idx, double * closest_time,
@@ -218,12 +218,12 @@ private:
   void storeSteerCmd(const double steer);
 
   /**
-   * @brief set curent_steer with receved message
+   * @brief set current_steer with received message
    */
   void callbackSteering(const autoware_vehicle_msgs::Steering & msg);
 
   /**
-   * @brief set current_velocity with receved message
+   * @brief set current_velocity with received message
    */
   void callbackCurrentVelocity(const geometry_msgs::TwistStamped::ConstPtr & msg);
 
