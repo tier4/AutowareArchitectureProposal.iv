@@ -94,25 +94,20 @@ private:
   Butterworth2dFilter
     lpf_lateral_error_;  //!< @brief lowpass filter for lateral error to calculate derivative
   Butterworth2dFilter
-    lpf_yaw_error_;  //!< @brief lowpass filter for heading error to calculate derivatie
+    lpf_yaw_error_;  //!< @brief lowpass filter for heading error to calculate derivative
   std::string vehicle_model_type_;                            //!< @brief vehicle model type for MPC
   std::shared_ptr<VehicleModelInterface> vehicle_model_ptr_;  //!< @brief vehicle model for MPC
   std::shared_ptr<QPSolverInterface> qpsolver_ptr_;           //!< @brief qp solver for MPC
-  std::deque<double>
-  input_buffer_;    //!< @brief control input (mpc_output) buffer for delay time conpemsation
+  std::deque<double> input_buffer_;   //!< @brief control input buffer for delay time conpemsation
 
   /* parameters for control*/
   double ctrl_period_;  //!< @brief control frequency [s]
-  double
-    steering_lpf_cutoff_hz_;  //!< @brief cutoff frequency of lowpass filter for steering command [Hz]
-  double
-    admisible_position_error_;  //!< @brief stop MPC calculation when lateral error is large than this value [m]
-  double
-    admisible_yaw_error_;  //!< @brief stop MPC calculation when heading error is large than this value [rad]
+  double steering_lpf_cutoff_hz_;  //!< @brief cutoff frequency of LPF for steering command [Hz]
+  double admisible_position_error_;  //!< @brief threshold for lateral error to stop MPC calculation [m]
+  double admisible_yaw_error_;  //!< @brief threshold for heading error to stop MPC calculation [rad]
   double steer_lim_;       //!< @brief steering command limit [rad]
   double steer_rate_lim_;  //!< @brief steering rate limit [rad/s]
-  double
-    wheelbase_;  //!< @brief vehicle wheelbase length [m] to convert steering angle to angular velocity
+  double wheelbase_;  //!< @brief vehicle wheelbase length to convert steering to angular velocity [m]
 
   /* parameters for path smoothing */
   bool enable_path_smoothing_;     //< @brief flag for path smoothing
@@ -127,7 +122,7 @@ private:
   struct MPCParam
   {
     int prediction_horizon;                   //< @brief prediction horizon step
-    double prediction_dt;                     //< @brief prediction horizon sampleing time
+    double prediction_dt;                     //< @brief prediction horizon sampling time
     double weight_lat_error;                  //< @brief lateral error weight in matrix Q
     double weight_heading_error;              //< @brief heading error weight in matrix Q
     double weight_heading_error_squared_vel;  //< @brief heading error * velocity weight in matrix Q
@@ -207,7 +202,7 @@ private:
   bool checkData();
 
   /**
-   * @brief get varables for mpc calculation
+   * @brief get variables for mpc calculation
    */
   bool getVar(
     const MPCTrajectory & traj, int * closest_idx, double * closest_time,

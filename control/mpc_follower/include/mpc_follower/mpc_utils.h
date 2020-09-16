@@ -111,7 +111,7 @@ bool calcNearestPoseInterp(
 int calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose);
 
 /**
- * @brief convert MPCTraj to visualizaton marker for visualization
+ * @brief convert MPCTraj to visualization marker for visualization
  */
 visualization_msgs::msg::MarkerArray convertTrajToMarker(
   const MPCTrajectory & traj, std::string ns, double r, double g, double b, double z,

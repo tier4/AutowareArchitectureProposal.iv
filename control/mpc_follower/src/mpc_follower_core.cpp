@@ -123,10 +123,10 @@ MPCFollower::MPCFollower()
 
   /* initialize lowpass filter */
   const double steering_lpf_cutoff_hz = declare_parameter("steering_lpf_cutoff_hz", 3.0);
-  const double error_deriv_lpf_curoff_hz = declare_parameter("error_deriv_lpf_curoff_hz", 5.0);
+  const double error_deriv_lpf_cutoff_hz = declare_parameter("error_deriv_lpf_cutoff_hz", 5.0);
   lpf_steering_cmd_.initialize(ctrl_period_, steering_lpf_cutoff_hz);
-  lpf_lateral_error_.initialize(ctrl_period_, error_deriv_lpf_curoff_hz);
-  lpf_yaw_error_.initialize(ctrl_period_, error_deriv_lpf_curoff_hz);
+  lpf_lateral_error_.initialize(ctrl_period_, error_deriv_lpf_cutoff_hz);
+  lpf_yaw_error_.initialize(ctrl_period_, error_deriv_lpf_cutoff_hz);
 
   /* set up ros system */
   initTimer(ctrl_period_);
@@ -344,10 +344,10 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::msg::ControlCommand * ctrl
       tf2::getYaw(current_pose_ptr_->pose.orientation));                 // [6] current_pose yaw
     debug_values.data.push_back(tf2::getYaw(nearest_pose.orientation));  // [7] nearest_pose yaw
     debug_values.data.push_back(yaw_err);                                // [8] yaw error
-    debug_values.data.push_back(ctrl_cmd->velocity);                     // [9] command velocitys
+    debug_values.data.push_back(ctrl_cmd->velocity);                     // [9] command velocities
     debug_values.data.push_back(current_velocity_ptr_->twist.linear.x);  // [10] measured velocity
     debug_values.data.push_back(
-      curr_v * tan(steer_cmd) / wheelbase_);  // [11] angvel from steer comand (MPC assumes)
+      curr_v * tan(steer_cmd) / wheelbase_);  // [11] angvel from steer command (MPC assumes)
     debug_values.data.push_back(
       curr_v * tan(steer) / wheelbase_);  // [12] angvel from measured steer
     debug_values.data.push_back(
@@ -629,7 +629,7 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
   Eigen::MatrixXd Cd(DIM_Y, DIM_X);
   Eigen::MatrixXd Uref(DIM_U, 1);
 
-  constexpr double ep = 1.0e-3;  // large enough to ingore velocity noise
+  constexpr double ep = 1.0e-3;  // large enough to ignore velocity noise
 
   /* predict dynamics for N times */
   for (int i = 0; i < N; ++i) {
@@ -893,7 +893,7 @@ void MPCFollower::callbackTrajectory(autoware_planning_msgs::msg::Trajectory::Sh
 
   MPCTrajectory mpc_traj_raw;        // received raw trajectory
   MPCTrajectory mpc_traj_resampled;  // resampled trajectory
-  MPCTrajectory mpc_traj_smoothed;   // smooth fitltered trajectory
+  MPCTrajectory mpc_traj_smoothed;   // smooth filtered trajectory
 
   /* resampling */
   MPCUtils::convertToMPCTrajectory(*current_trajectory_ptr_, &mpc_traj_raw);
