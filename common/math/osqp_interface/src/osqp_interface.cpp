@@ -67,7 +67,7 @@ c_int OSQPInterface::initializeProblem(
   /*******************
    * SET UP MATRICES
    *******************/
-  CSC_Matrix P_csc = calCSCMatrixTrapesoidal(P);
+  CSC_Matrix P_csc = calCSCMatrixTrapezoidal(P);
   CSC_Matrix A_csc = calCSCMatrix(A);
   // Dynamic float arrays
   std::vector<double> q_tmp(q.begin(), q.end());
@@ -86,7 +86,7 @@ c_int OSQPInterface::initializeProblem(
   param_n = P.rows();
 
   /*****************
-   * POLULATE DATA
+   * POPULATE DATA
    *****************/
   data->m = constr_m;
   data->n = param_n;
@@ -100,7 +100,7 @@ c_int OSQPInterface::initializeProblem(
   data->l = l_dyn;
   data->u = u_dyn;
 
-  // For deconstructor
+  // For destructor
   problem_in_memory = true;
 
   // Setup workspace
@@ -128,7 +128,7 @@ OSQPInterface::~OSQPInterface()
 void OSQPInterface::updateP(const Eigen::MatrixXd & P_new)
 {
   /*
-  // Transform 'P' into an 'upper trapesoidal matrix'
+  // Transform 'P' into an 'upper trapezoidal matrix'
   Eigen::MatrixXd P_trap = P_new.triangularView<Eigen::Upper>();
   // Transform 'P' into a sparse matrix and extract data as dynamic arrays
   Eigen::SparseMatrix<double> P_sparse = P_trap.sparseView();
@@ -136,7 +136,7 @@ void OSQPInterface::updateP(const Eigen::MatrixXd & P_new)
   // Convert dynamic 'int' arrays to 'c_int' arrays (OSQP input type)
   c_int P_elem_N = P_sparse.nonZeros();
   */
-  CSC_Matrix P_csc = calCSCMatrixTrapesoidal(P_new);
+  CSC_Matrix P_csc = calCSCMatrixTrapezoidal(P_new);
   osqp_update_P(work, P_csc.vals.data(), OSQP_NULL, P_csc.vals.size());
 }
 

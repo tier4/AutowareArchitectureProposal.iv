@@ -33,7 +33,7 @@ namespace osqp
 /**
  * Implementation of a native C++ interface for the OSQP solver.
  *
- * The interface takes in the problem formalation as Eigen matrices and vectors, converts these objects into C-style
+ * The interface takes in the problem formulation as Eigen matrices and vectors, converts these objects into C-style
  * CSC matrices and dynamic arrays, loads the data into the OSQP workspace dataholder, and runs the optimizer.
  *
  * The optimization results are return as a vector tuple by the optimization function.
