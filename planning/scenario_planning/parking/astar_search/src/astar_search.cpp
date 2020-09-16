@@ -67,7 +67,7 @@ geometry_msgs::msg::Pose calcRelativePose(
   return transformed.pose;
 }
 
-int descretizeAngle(const double theta, const int theta_size)
+int discretizeAngle(const double theta, const int theta_size)
 {
   const double one_angle_range = 2.0 * M_PI / theta_size;
   return static_cast<int>(normalizeRadian(theta, 0, 2 * M_PI) / one_angle_range) % theta_size;
@@ -103,7 +103,7 @@ IndexXYT pose2index(
 {
   const int index_x = pose_local.position.x / costmap.info.resolution;
   const int index_y = pose_local.position.y / costmap.info.resolution;
-  const int index_theta = descretizeAngle(tf2::getYaw(pose_local.orientation), theta_size);
+  const int index_theta = discretizeAngle(tf2::getYaw(pose_local.orientation), theta_size);
   return {index_x, index_y, index_theta};
 }
 
@@ -156,7 +156,7 @@ AstarSearch::TransitionTable createTransitionTable(
   // NodeUpdate actions
   const NodeUpdate forward_straight{step, 0.0, 0.0, step, false, false};
   const NodeUpdate forward_left{R * sin(dtheta), R * (1 - cos(dtheta)), dtheta, step, true, false};
-  const NodeUpdate forward_right = forward_left.fliped();
+  const NodeUpdate forward_right = forward_left.flipped();
   const NodeUpdate backward_straight = forward_straight.reversed();
   const NodeUpdate backward_left = forward_left.reversed();
   const NodeUpdate backward_right = forward_right.reversed();
@@ -307,7 +307,7 @@ bool AstarSearch::search()
     }
 
     // Transit
-    const auto index_theta = descretizeAngle(current_node->theta, astar_param_.theta_size);
+    const auto index_theta = discretizeAngle(current_node->theta, astar_param_.theta_size);
     for (const auto & transition : transition_table_[index_theta]) {
       const bool is_turning_point = transition.is_back != current_node->is_back;
       const double move_cost =
