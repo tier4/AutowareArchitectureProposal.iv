@@ -104,7 +104,7 @@ void CarInitialPoseTool::onPoseSet(double x, double y, double theta)
   output_msg.shape.dimensions.y = width;
   output_msg.shape.dimensions.z = 2.0;
 
-  // inital state
+  // initial state
   // pose
   output_msg.initial_state.pose_covariance.pose.position.x = x;
   output_msg.initial_state.pose_covariance.pose.position.y = y;
