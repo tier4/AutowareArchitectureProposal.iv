@@ -138,6 +138,9 @@ private:
   // Debug
   DebugData debug_data_;
 
+  // prevent paththrough chattering
+  bool is_prev_state_stop_;
+
   // Traffic Light State
   autoware_perception_msgs::TrafficLightStateStamped tl_state_;
 };
