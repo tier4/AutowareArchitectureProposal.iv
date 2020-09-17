@@ -295,8 +295,11 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::ControlCommand * ctrl_cmd)
   {
     double curr_v = current_velocity_ptr_->twist.linear.x;
     double nearest_k = 0.0;
-    LinearInterpolate::interpolate(
-      reference_trajectory.relative_time, reference_trajectory.k, nearest_time, nearest_k);
+    if (!LinearInterpolate::interpolate(
+          reference_trajectory.relative_time, reference_trajectory.k, nearest_time, nearest_k)) {
+      ROS_WARN("[mpc] interpolate error in debug. ignore.");
+      return true;
+    }
 
     MPCTrajectory tmp_traj = reference_trajectory;
     MPCUtils::calcTrajectoryCurvature(1, &tmp_traj);
