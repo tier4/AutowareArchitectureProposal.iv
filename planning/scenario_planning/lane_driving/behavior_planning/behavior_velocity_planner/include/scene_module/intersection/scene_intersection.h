@@ -206,6 +206,13 @@ private:
    */
   bool isTargetStuckVehicleType(const autoware_perception_msgs::DynamicObject & object) const;
 
+  /**
+   * @brief convert object to footprint polygon
+   * @param object detected object
+   * @return 2d polygon of the object footprint
+   */
+  Polygon2d toFootprintPolygon(const autoware_perception_msgs::DynamicObject & object) const;
+
   StateMachine state_machine_;  //! for state
 
   // Debug

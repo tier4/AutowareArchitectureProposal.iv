@@ -149,7 +149,9 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode()
   // Vehicle Parameters
   planner_data_.wheel_base = waitForParam<double>(pnh_, "/vehicle_info/wheel_base");
   planner_data_.front_overhang = waitForParam<double>(pnh_, "/vehicle_info/front_overhang");
+  planner_data_.rear_overhang = waitForParam<double>(pnh_, "/vehicle_info/rear_overhang");
   planner_data_.vehicle_width = waitForParam<double>(pnh_, "/vehicle_info/vehicle_width");
+  planner_data_.vehicle_length = waitForParam<double>(pnh_, "/vehicle_info/vehicle_length");
   // Additional Vehicle Parameters
   pnh_.param(
     "max_accel", planner_data_.max_stop_acceleration_threshold_,

@@ -59,8 +59,10 @@ struct PlannerData
   // parameters
   double wheel_base;
   double front_overhang;
+  double rear_overhang;
   double vehicle_width;
   double base_link2front;
+  double vehicle_length;
 
   // additional parameters
   double max_stop_acceleration_threshold_;

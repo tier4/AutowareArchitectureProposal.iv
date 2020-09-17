@@ -187,13 +187,7 @@ bool IntersectionModule::checkCollision(
     }
 
     // keep vehicle in detection_area
-    Polygon2d obj_poly;
-    if (object.shape.type == autoware_perception_msgs::Shape::POLYGON) {
-      obj_poly = toBoostPoly(object.shape.footprint);
-    } else {
-      // cylinder type is treated as square-polygon
-      obj_poly = obj2polygon(object_pose, object.shape.dimensions);
-    }
+    const Polygon2d obj_poly = toFootprintPolygon(object);
 
     for (const auto & detection_area : detection_areas) {
       const auto detection_poly = lanelet::utils::to2D(detection_area).basicPolygon();
@@ -347,9 +341,10 @@ bool IntersectionModule::checkStuckVehicleInIntersection(
   const autoware_planning_msgs::PathWithLaneId & path, const int closest_idx, const int stop_idx,
   const autoware_perception_msgs::DynamicObjectArray::ConstPtr objects_ptr) const
 {
+  const double detect_length =
+    planner_param_.stuck_vehicle_detect_dist + planner_data_->vehicle_length;
   const Polygon2d stuck_vehicle_detect_area = generateEgoIntersectionLanePolygon(
-    path, closest_idx, stop_idx, planner_param_.stuck_vehicle_detect_dist,
-    planner_param_.stuck_vehicle_ignore_dist);
+    path, closest_idx, stop_idx, detect_length, planner_param_.stuck_vehicle_ignore_dist);
   debug_data_.stuck_vehicle_detect_area = toGeomMsg(stuck_vehicle_detect_area);
 
   for (const auto & object : objects_ptr->objects) {
@@ -360,14 +355,30 @@ bool IntersectionModule::checkStuckVehicleInIntersection(
     if (obj_v > planner_param_.stuck_vehicle_vel_thr) {
       continue;  // not stop vehicle
     }
-    const auto object_pos = object.state.pose_covariance.pose.position;
-    if (bg::within(to_bg2d(object_pos), stuck_vehicle_detect_area)) {
+
+    // check if the footprint is in the stuck detect area
+    const Polygon2d obj_footprint = toFootprintPolygon(object);
+    const bool is_in_stuck_area = !bg::disjoint(obj_footprint, stuck_vehicle_detect_area);
+    if (is_in_stuck_area) {
       ROS_DEBUG("[intersection] stuck vehicle found.");
       debug_data_.stuck_targets.objects.push_back(object);
       return true;
     }
   }
   return false;
+}
+
+Polygon2d IntersectionModule::toFootprintPolygon(
+  const autoware_perception_msgs::DynamicObject & object) const
+{
+  Polygon2d obj_footprint;
+  if (object.shape.type == autoware_perception_msgs::Shape::POLYGON) {
+    obj_footprint = toBoostPoly(object.shape.footprint);
+  } else {
+    // cylinder type is treated as square-polygon
+    obj_footprint = obj2polygon(object.state.pose_covariance.pose, object.shape.dimensions);
+  }
+  return obj_footprint;
 }
 
 bool IntersectionModule::isTargetCollisionVehicleType(
