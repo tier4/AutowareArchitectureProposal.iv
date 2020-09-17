@@ -128,23 +128,6 @@ void RayGroundFilterNodelet::ConvertXYZIToRTZColor(
   }
 }
 
-boost::optional<float> RayGroundFilterNodelet::calcPointVehicleIntersection(
-  const Point& point)
-{
-  float distance_to_intersection_point = 0.0;
-  if (base_frame_ != "base_link") {
-    return distance_to_intersection_point;
-  }
-  bg::model::linestring<Point> ls = {{0.0, 0.0}, point};
-  std::vector<Point> collision_points;
-  bg::intersection(ls, vehicle_footprint_, collision_points);
-
-  if (collision_points.size() < 1) {
-    return {};
-  }
-  return bg::distance(Point(0,0), collision_points.front());
-}
-
 void RayGroundFilterNodelet::ClassifyPointCloud(
   std::vector<PointCloudXYZRTColor> & in_radial_ordered_clouds,
   pcl::PointIndices & out_ground_indices, pcl::PointIndices & out_no_ground_indices)
@@ -162,23 +145,8 @@ void RayGroundFilterNodelet::ClassifyPointCloud(
     for (size_t j = 0; j < in_radial_ordered_clouds[i].size();
          j++)  // loop through each point in the radial div
     {
-      double local_max_slope = local_max_slope_;
-      if (j == 0) {
-        // calc intersection of vehicle footprint and initial point vector
-        const auto radius = calcPointVehicleIntersection(
-          Point{in_radial_ordered_clouds[i][j].point.x, in_radial_ordered_clouds[i][j].point.y});
-        if (radius) {
-          prev_radius = *radius;
-        } else {
-          // This case may happen if point was detected inside vehicle footprint for example
-          ROS_ERROR("failed to find intersection of initial point line and vehicle footprint");
-          continue;
-        }
-        local_max_slope = initial_max_slope_;
-      }
-
       float points_distance = in_radial_ordered_clouds[i][j].radius - prev_radius;
-      float height_threshold = tan(DEG2RAD(local_max_slope)) * points_distance;
+      float height_threshold = tan(DEG2RAD(local_max_slope_)) * points_distance;
       float current_height = in_radial_ordered_clouds[i][j].point.z;
       float general_height_threshold =
         tan(DEG2RAD(general_max_slope_)) * in_radial_ordered_clouds[i][j].radius;
@@ -321,14 +289,6 @@ void RayGroundFilterNodelet::config_callback(
 {
   boost::mutex::scoped_lock lock(mutex_);
 
-  // create vehicle footprint polygon
-  vehicle_footprint_.outer().clear();
-  vehicle_footprint_.outer().push_back(Point(config.min_x, config.min_y)); // left back
-  vehicle_footprint_.outer().push_back(Point(config.min_x, config.max_y)); // right back
-  vehicle_footprint_.outer().push_back(Point(config.max_x, config.max_y)); // right front
-  vehicle_footprint_.outer().push_back(Point(config.max_x, config.min_y)); // left front
-  vehicle_footprint_.outer().push_back(Point(config.min_x, config.min_y)); // left back
-
   if (base_frame_ != config.base_frame) {
     base_frame_ = config.base_frame;
     NODELET_DEBUG(
@@ -346,12 +306,6 @@ void RayGroundFilterNodelet::config_callback(
     NODELET_DEBUG(
       "[%s::config_callback] Setting local_max_slope to: %f.", getName().c_str(),
       config.local_max_slope);
-  }
-  if (initial_max_slope_ != config.initial_max_slope) {
-    initial_max_slope_ = config.initial_max_slope;
-    NODELET_DEBUG(
-      "[%s::config_callback] Setting initial_max_slope to: %f.", getName().c_str(),
-      config.initial_max_slope);
   }
   if (radial_divider_angle_ != config.radial_divider_angle) {
     radial_divider_angle_ = config.radial_divider_angle;

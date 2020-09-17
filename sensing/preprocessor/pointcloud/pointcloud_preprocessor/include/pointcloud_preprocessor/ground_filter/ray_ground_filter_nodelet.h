@@ -63,18 +63,9 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/optional.hpp>
-
 #include "pointcloud_preprocessor/RayGroundFilterConfig.h"
 #include "pointcloud_preprocessor/filter.h"
 #include "pointcloud_preprocessor/ground_filter/gencolors.hpp"
-
-namespace bg = boost::geometry;
-using Point = bg::model::d2::point_xy<double>;
-using Polygon = bg::model::polygon<Point>;
 
 namespace pointcloud_preprocessor
 {
@@ -124,7 +115,6 @@ private:
   std::string base_frame_ = "base_link";
   double general_max_slope_;            // degrees
   double local_max_slope_;              // degrees
-  double initial_max_slope_;              // degrees
   double radial_divider_angle_;         // distance in rads between dividers
   double concentric_divider_distance_;  // distance in meters between concentric divisions
   double
@@ -140,8 +130,6 @@ private:
   double grid_precision_;
   cv::Mat previous_occupancy_mat_;
   cv::Mat accumulated_occupancy_mat_;
-
-  Polygon vehicle_footprint_;
 
   std::vector<cv::Scalar> colors_;
   const size_t color_num_ = 10;  // different number of color to generate
@@ -195,9 +183,6 @@ private:
     const pcl::PointCloud<PointType_>::Ptr in_cloud_ptr, const pcl::PointIndices & in_indices,
     pcl::PointCloud<PointType_>::Ptr out_only_indices_cloud_ptr,
     pcl::PointCloud<PointType_>::Ptr out_removed_indices_cloud_ptr);
-
-
-  boost::optional<float> calcPointVehicleIntersection(const Point& point);
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
