@@ -119,6 +119,7 @@ TrafficLightModule::TrafficLightModule(
   traffic_light_reg_elem_(traffic_light_reg_elem),
   lane_(lane),
   state_(State::APPROACH),
+  is_prev_state_stop_(false),
   input_(Input::PERCEPTION)
 {
   planner_param_ = planner_param;
@@ -201,7 +202,7 @@ bool TrafficLightModule::modifyPathVelocity(
           planner_param_.enable_pass_judge && input_ == Input::PERCEPTION &&
           (calcSignedArcLength(input_path, self_pose.pose, stop_line_point) <
            pass_judge_line_distance + planner_data_->vehicle_info_.max_longitudinal_offset_m_) &&
-          (3.0 /* =10.8km/h */ < self_twist_ptr->twist.linear.x)) {
+          (3.0 /* =10.8km/h */ < self_twist_ptr->twist.linear.x && !is_prev_state_stop_)) {
           RCLCPP_WARN_THROTTLE(
             logger_, *clock_, 1000 /* ms */, "vehicle is over stop border (%f m)",
             pass_judge_line_distance + planner_data_->vehicle_info_.max_longitudinal_offset_m_);
@@ -213,6 +214,7 @@ bool TrafficLightModule::modifyPathVelocity(
             RCLCPP_WARN(logger_, "cannot insert stop waypoint");
             continue;
           }
+          is_prev_state_stop_ = true;
         }
 
         /* get stop point and stop factor */
@@ -223,6 +225,7 @@ bool TrafficLightModule::modifyPathVelocity(
         return true;
       }
     } else {
+      is_prev_state_stop_ = false;
       return true;
     }
   }
