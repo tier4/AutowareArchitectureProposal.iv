@@ -89,7 +89,7 @@ public:
   struct PlannerParam
   {
     double state_transit_margin_time;
-    double decel_velocity;    //! used when in straight and traffic_light lane
+    double decel_velocity;     //! used when in straight and traffic_light lane
     double path_expand_width;  //! path width to calculate the edge line for both side
     double stop_line_margin;   //! distance from auto-generated stopline to detection_area boundary
     double
@@ -206,6 +206,13 @@ private:
    * @return true if the object has a target type
    */
   bool isTargetStuckVehicleType(const autoware_perception_msgs::msg::DynamicObject & object) const;
+
+  /**
+   * @brief convert object to footprint polygon
+   * @param object detected object
+   * @return 2d polygon of the object footprint
+   */
+  Polygon2d toFootprintPolygon(const autoware_perception_msgs::msg::DynamicObject & object) const;
 
   StateMachine state_machine_;  //! for state
 

@@ -67,7 +67,7 @@ IntersectionModuleManager::IntersectionModuleManager(rclcpp::Node & node)
   p.decel_velocity = node.declare_parameter(ns + "/decel_velocity", 30.0 / 3.6);
   p.path_expand_width = node.declare_parameter(ns + "/path_expand_width", 2.0);
   p.stop_line_margin = node.declare_parameter(ns + "/stop_line_margin", 1.0);
-  p.stuck_vehicle_detect_dist = node.declare_parameter(ns + "/stuck_vehicle_detect_dist", 5.0);
+  p.stuck_vehicle_detect_dist = node.declare_parameter(ns + "/stuck_vehicle_detect_dist", 3.0);
   p.stuck_vehicle_ignore_dist = node.declare_parameter(ns + "/stuck_vehicle_ignore_dist", 5.0) +
                                 vehicle_info.max_longitudinal_offset_m_;
   p.stuck_vehicle_vel_thr = node.declare_parameter(ns + "/stuck_vehicle_vel_thr", 3.0 / 3.6);
