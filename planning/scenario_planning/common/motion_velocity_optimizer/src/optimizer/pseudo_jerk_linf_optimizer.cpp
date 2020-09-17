@@ -160,7 +160,7 @@ bool LinfPseudoJerkOptimizer::solve(
   for (unsigned int i = 3 * N + 1; i < 4 * N; ++i) {
     const unsigned int ia = i - (3 * N + 1) + N;
     const unsigned int ip = 4 * N;
-    const unsigned int j = i - 3 * N + 1;
+    const unsigned int j = i - (3 * N + 1);
     const double dsinv = 1.0 / std::max(interval_dist_arr.at(j), 0.0001);
 
     A(i, ia) = -dsinv;
