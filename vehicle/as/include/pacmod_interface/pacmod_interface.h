@@ -48,7 +48,6 @@ class PacmodInterface : public rclcpp::Node
 {
 public:
   PacmodInterface();
-  ~PacmodInterface();
 
 private:
   typedef message_filters::sync_policies::ApproximateTime<
@@ -56,6 +55,7 @@ private:
       pacmod_msgs::msg::SystemRptFloat, pacmod_msgs::msg::SystemRptFloat,
       pacmod_msgs::msg::SystemRptInt, pacmod_msgs::msg::SystemRptInt, pacmod_msgs::msg::GlobalRpt>
     PacmodFeedbacksSyncPolicy;
+
 
   /* subscribers */
   // From Autoware
@@ -75,6 +75,7 @@ private:
   std::unique_ptr<message_filters::Subscriber<pacmod_msgs::msg::SystemRptInt>> turn_rpt_sub_;
   std::unique_ptr<message_filters::Subscriber<pacmod_msgs::msg::GlobalRpt>> global_rpt_sub_;
   std::unique_ptr<message_filters::Synchronizer<PacmodFeedbacksSyncPolicy>> pacmod_feedbacks_sync_;
+
 
   /* publishers */
   // To Pacmod
@@ -96,10 +97,10 @@ private:
   /* ros param */
   std::string base_frame_id_;
   int command_timeout_ms_;  // vehicle_cmd timeout [ms]
-  bool is_pacmod_rpt_received_;
-  bool is_pacmod_enabled_;
-  bool is_clear_override_needed_;
-  bool prev_override_;
+  bool is_pacmod_rpt_received_ = false;
+  bool is_pacmod_enabled_ = false;
+  bool is_clear_override_needed_ = false;
+  bool prev_override_ = false;
   double loop_rate_;           // [Hz]
   double tire_radius_;         // [m]
   double wheel_base_;          // [m]
@@ -131,8 +132,7 @@ private:
   pacmod_msgs::msg::SystemRptFloat::ConstSharedPtr brake_rpt_ptr_;  // [m/s]
   pacmod_msgs::msg::SystemRptInt::ConstSharedPtr shift_rpt_ptr_;    // [m/s]
   pacmod_msgs::msg::GlobalRpt::ConstSharedPtr global_rpt_ptr_;      // [m/s]
-  bool engage_cmd_;
-  bool prev_engage_cmd_;
+  bool engage_cmd_ = false;
   rclcpp::Time vehicle_command_received_time_;
 
   /* callbacks */
