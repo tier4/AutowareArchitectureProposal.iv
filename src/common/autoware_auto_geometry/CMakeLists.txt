@@ -51,6 +51,7 @@ if(BUILD_TESTING)
   set(GEOMETRY_GTEST geometry_gtest)
   set(GEOMETRY_SRC test/src/test_geometry.cpp
     test/src/test_convex_hull.cpp
+    test/src/test_hull_pockets.cpp
     test/src/test_interval.cpp
     test/src/lookup_table.cpp
   )
