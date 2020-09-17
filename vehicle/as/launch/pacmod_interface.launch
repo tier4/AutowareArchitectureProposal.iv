@@ -4,7 +4,6 @@
   <arg name="base_frame_id" default="base_link"/>
   <arg name="command_timeout_ms" default="1000"/>
   <arg name="loop_rate" default="30.0"/>
-  <arg name="show_debug_info" default="false"/>
 
   <arg name="emergency_brake" default="0.7"/>
   <arg name="max_throttle" default="0.4"/>
@@ -28,7 +27,6 @@
     <param name="base_frame_id" value="$(arg base_frame_id)" />
     <param name="command_timeout_ms" value="$(arg command_timeout_ms)" />
     <param name="loop_rate" value="$(arg loop_rate)" />
-    <param name="show_debug_info" value="$(arg show_debug_info)" />
 
     <param name="emergency_brake" value="$(arg emergency_brake)" />
     <param name="max_steering_wheel" value="$(arg max_steering_wheel)" />

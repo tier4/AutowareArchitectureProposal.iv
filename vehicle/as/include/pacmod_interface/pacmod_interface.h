@@ -48,20 +48,18 @@ class PacmodInterface
 {
 public:
   PacmodInterface();
-  ~PacmodInterface();
 
   void run();
 
 private:
-  typedef message_filters::sync_policies::ApproximateTime<
+  using PacmodFeedbacksSyncPolicy = message_filters::sync_policies::ApproximateTime<
     pacmod_msgs::SystemRptFloat, pacmod_msgs::WheelSpeedRpt, pacmod_msgs::SystemRptFloat,
     pacmod_msgs::SystemRptFloat, pacmod_msgs::SystemRptInt, pacmod_msgs::SystemRptInt,
-    pacmod_msgs::GlobalRpt>
-    PacmodFeedbacksSyncPolicy;
+    pacmod_msgs::GlobalRpt>;
 
   /* handle */
-  ros::NodeHandle nh_;
-  ros::NodeHandle private_nh_;
+  ros::NodeHandle nh_{};
+  ros::NodeHandle private_nh_{"~"};
 
   /* subscribers */
   // From Autoware
@@ -70,14 +68,15 @@ private:
   ros::Subscriber engage_cmd_sub_;
 
   // From Pacmod
-  message_filters::Subscriber<pacmod_msgs::SystemRptFloat> * steer_wheel_rpt_sub_;
-  message_filters::Subscriber<pacmod_msgs::WheelSpeedRpt> * wheel_speed_rpt_sub_;
-  message_filters::Subscriber<pacmod_msgs::SystemRptFloat> * accel_rpt_sub_;
-  message_filters::Subscriber<pacmod_msgs::SystemRptFloat> * brake_rpt_sub_;
-  message_filters::Subscriber<pacmod_msgs::SystemRptInt> * shift_rpt_sub_;
-  message_filters::Subscriber<pacmod_msgs::SystemRptInt> * turn_rpt_sub_;
-  message_filters::Subscriber<pacmod_msgs::GlobalRpt> * global_rpt_sub_;
-  message_filters::Synchronizer<PacmodFeedbacksSyncPolicy> * pacmod_feedbacks_sync_;
+  message_filters::Subscriber<pacmod_msgs::SystemRptFloat> steer_wheel_rpt_sub_;
+  message_filters::Subscriber<pacmod_msgs::WheelSpeedRpt> wheel_speed_rpt_sub_;
+  message_filters::Subscriber<pacmod_msgs::SystemRptFloat> accel_rpt_sub_;
+  message_filters::Subscriber<pacmod_msgs::SystemRptFloat> brake_rpt_sub_;
+  message_filters::Subscriber<pacmod_msgs::SystemRptInt> shift_rpt_sub_;
+  message_filters::Subscriber<pacmod_msgs::SystemRptInt> turn_rpt_sub_;
+  message_filters::Subscriber<pacmod_msgs::GlobalRpt> global_rpt_sub_;
+  message_filters::Synchronizer<PacmodFeedbacksSyncPolicy> pacmod_feedbacks_sync_{
+    PacmodFeedbacksSyncPolicy(10)};
 
   /* publishers */
   // To Pacmod
@@ -95,14 +94,12 @@ private:
   ros::Publisher turn_signal_status_pub_;
 
   /* ros param */
-  ros::Rate * rate_;
   std::string base_frame_id_;
   int command_timeout_ms_;  // vehicle_cmd timeout [ms]
-  bool is_pacmod_rpt_received_;
-  bool is_pacmod_enabled_;
-  bool is_clear_override_needed_;
-  bool prev_override_;
-  bool show_debug_info_;
+  bool is_pacmod_rpt_received_ = false;
+  bool is_pacmod_enabled_ = false;
+  bool is_clear_override_needed_ = false;
+  bool prev_override_ = false;
   double loop_rate_;           // [Hz]
   double tire_radius_;         // [m]
   double wheel_base_;          // [m]
@@ -122,17 +119,16 @@ private:
   bool enable_steering_rate_control_;  // use steering angle speed for command [rad/s]
 
   /* input values */
-  std::shared_ptr<autoware_vehicle_msgs::RawVehicleCommand> raw_vehicle_cmd_ptr_;
-  std::shared_ptr<autoware_vehicle_msgs::TurnSignal> turn_signal_cmd_ptr_;
+  autoware_vehicle_msgs::RawVehicleCommand::ConstPtr raw_vehicle_cmd_ptr_;
+  autoware_vehicle_msgs::TurnSignal::ConstPtr turn_signal_cmd_ptr_;
 
-  std::shared_ptr<pacmod_msgs::SystemRptFloat> steer_wheel_rpt_ptr_;  // [rad]
-  std::shared_ptr<pacmod_msgs::WheelSpeedRpt> wheel_speed_rpt_ptr_;   // [m/s]
-  std::shared_ptr<pacmod_msgs::SystemRptFloat> accel_rpt_ptr_;
-  std::shared_ptr<pacmod_msgs::SystemRptFloat> brake_rpt_ptr_;  // [m/s]
-  std::shared_ptr<pacmod_msgs::SystemRptInt> shift_rpt_ptr_;    // [m/s]
-  std::shared_ptr<pacmod_msgs::GlobalRpt> global_rpt_ptr_;      // [m/s]
-  bool engage_cmd_;
-  bool prev_engage_cmd_;
+  pacmod_msgs::SystemRptFloat::ConstPtr steer_wheel_rpt_ptr_;  // [rad]
+  pacmod_msgs::WheelSpeedRpt::ConstPtr wheel_speed_rpt_ptr_;   // [m/s]
+  pacmod_msgs::SystemRptFloat::ConstPtr accel_rpt_ptr_;
+  pacmod_msgs::SystemRptFloat::ConstPtr brake_rpt_ptr_;  // [m/s]
+  pacmod_msgs::SystemRptInt::ConstPtr shift_rpt_ptr_;    // [m/s]
+  pacmod_msgs::GlobalRpt::ConstPtr global_rpt_ptr_;      // [m/s]
+  bool engage_cmd_ = false;
   ros::Time vehicle_command_received_time_;
 
   /* callbacks */
