@@ -58,6 +58,11 @@ bool splineInterpolate(
 {
   *output = input;
 
+  if (input.points.size() <= 1) {
+    ROS_WARN("Do not interpolate because path size is 1.");
+    return false;
+  }
+
   static constexpr double ep = 1.0e-8;
 
   // calc arclength for path
