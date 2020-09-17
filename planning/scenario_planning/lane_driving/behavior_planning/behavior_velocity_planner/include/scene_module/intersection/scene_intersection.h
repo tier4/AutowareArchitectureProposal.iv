@@ -100,6 +100,7 @@ public:
       stuck_vehicle_ignore_dist;  //! distance from intersection start point to start stuck vehicle check
     double stuck_vehicle_vel_thr;  //! Threshold of the speed to be recognized as stopped
     double intersection_velocity;  //! used for intersection passing time
+    double intersection_max_acc;   //! used for calculating intersection velocity
     double detection_area_length;  //! used to create detection area polygon
   };
 

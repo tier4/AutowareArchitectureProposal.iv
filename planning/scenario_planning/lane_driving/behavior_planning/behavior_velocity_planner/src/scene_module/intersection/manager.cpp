@@ -68,6 +68,7 @@ IntersectionModuleManager::IntersectionModuleManager()
     planner_data_->base_link2front;
   pnh.param(ns + "/stuck_vehicle_vel_thr", p.stuck_vehicle_vel_thr, 3.0 / 3.6);
   pnh.param(ns + "/intersection_velocity", p.intersection_velocity, 10.0 / 3.6);
+  pnh.param(ns + "/intersection_max_accel", p.intersection_max_acc, 0.5);
   pnh.param(ns + "/detection_area_length", p.detection_area_length, 200.0);
 }
 

@@ -310,11 +310,25 @@ double IntersectionModule::calcIntersectionPassingTime(
   const autoware_planning_msgs::PathWithLaneId & path, const int closest_idx,
   const int objective_lane_id) const
 {
+  double closest_vel =
+    (std::max(1e-01, std::fabs(planner_data_->current_velocity->twist.linear.x)));
   double dist_sum = 0.0;
+  double passing_time = 0.0;
   int assigned_lane_found = false;
 
   for (int i = closest_idx + 1; i < path.points.size(); ++i) {
-    dist_sum += planning_utils::calcDist2d(path.points.at(i - 1), path.points.at(i));
+    const double dist = planning_utils::calcDist2d(path.points.at(i - 1), path.points.at(i));
+    dist_sum += dist;
+    // calc vel in idx i+1 (v_{i+1}^2 - v_{i}^2 = 2ax)
+    const double next_vel = std::min(
+      std::sqrt(std::pow(closest_vel, 2.0) + 2.0 * planner_param_.intersection_max_acc * dist),
+      planner_param_.intersection_velocity);
+    // calc average vel in idx i~i+1
+    const double average_vel =
+      std::min((closest_vel + next_vel) / 2.0, planner_param_.intersection_velocity);
+    passing_time += dist / average_vel;
+    closest_vel = next_vel;
+
     bool has_objective_lane_id = util::hasLaneId(path.points.at(i), objective_lane_id);
 
     if (assigned_lane_found && !has_objective_lane_id) {
@@ -323,9 +337,6 @@ double IntersectionModule::calcIntersectionPassingTime(
     assigned_lane_found = has_objective_lane_id;
   }
   if (!assigned_lane_found) return 0.0;  // has already passed the intersection.
-
-  // TODO set to be reasonable
-  const double passing_time = dist_sum / planner_param_.intersection_velocity;
 
   ROS_DEBUG("[intersection] intersection dist = %f, passing_time = %f", dist_sum, passing_time);
 
