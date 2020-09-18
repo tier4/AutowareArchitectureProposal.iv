@@ -393,8 +393,8 @@ Polygon2d SurroundObstacleCheckerNode::createSelfPolygon()
 {
   double front = front_overhang_ + wheel_base_;
   double rear = -rear_overhang_;
-  double left = wheel_tread_ / 2.0 + left_overhang_ / 2.0;
-  double right = -(wheel_tread_ / 2.0 + right_overhang_ / 2.0);
+  double left = wheel_tread_ / 2.0 + left_overhang_;
+  double right = -(wheel_tread_ / 2.0 + right_overhang_);
 
   Polygon2d poly;
   boost::geometry::exterior_ring(poly) = boost::assign::list_of<Point2d>(front, left)(front, right)(
