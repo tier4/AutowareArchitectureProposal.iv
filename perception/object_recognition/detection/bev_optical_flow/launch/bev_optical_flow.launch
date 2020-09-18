@@ -1,0 +1,38 @@
+<launch>
+  <arg name="input_cloud" default="/sensing/lidar/no_ground/pointcloud" />
+
+  <arg name="grid_size" default="0.4" />
+  <arg name="point_radius" default="50" />
+  <arg name="z_max" default="1" />
+  <arg name="z_min" default="0" />
+  <arg name="debug" default="false" />
+  <arg name="world_frame" default="map" />
+  <arg name="target_frame" default="base_link" />
+
+  <arg name="quality_level" default="0.1" />
+  <arg name="min_distance" default="10" />
+  <arg name="block_size" default="3" />
+  <arg name="harris_k" default="0.04" />
+  <arg name="max_corners" default="200" />
+
+  <node name="optical_flow_node"
+        pkg="bev_optical_flow" type="optical_flow_node"
+        output="screen">
+    <remap from="~input_cloud" to="$(arg input_cloud)" />
+    <rosparam subst_value="true">
+      debug: $(arg debug)
+      grid_size: $(arg grid_size)
+      point_radius: $(arg point_radius)
+      z_max: $(arg z_max)
+      z_min: $(arg z_min)
+      world_frame: $(arg world_frame)
+      target_frame: $(arg target_frame)
+      quality_level: $(arg quality_level)
+      min_distance: $(arg min_distance)
+      block_size: $(arg block_size)
+      harris_k: $(arg harris_k)
+      max_corners: $(arg max_corners)
+    </rosparam>
+  </node>
+
+</launch>
