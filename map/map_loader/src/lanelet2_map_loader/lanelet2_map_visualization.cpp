@@ -76,7 +76,7 @@ void binMapCallback(autoware_lanelet2_msgs::MapBin msg)
   lanelet::ConstPolygons3d parking_lots = lanelet::utils::query::getAllParkingLots(viz_lanelet_map);
 
   std_msgs::ColorRGBA cl_road, cl_cross, cl_ll_borders, cl_stoplines, cl_trafficlights,
-    cl_detection_areas, cl_parking_lots, cl_parking_spaces;
+    cl_detection_areas, cl_parking_lots, cl_parking_spaces, cl_lanelet_id;
   setColor(&cl_road, 0.2, 0.7, 0.7, 0.3);
   setColor(&cl_cross, 0.2, 0.7, 0.2, 0.3);
   setColor(&cl_ll_borders, 1.0, 1.0, 1.0, 0.999);
@@ -85,6 +85,7 @@ void binMapCallback(autoware_lanelet2_msgs::MapBin msg)
   setColor(&cl_detection_areas, 0.7, 0.7, 0.7, 0.3);
   setColor(&cl_parking_lots, 0.7, 0.7, 0.0, 0.3);
   setColor(&cl_parking_spaces, 1.0, 0.647, 0.0, 0.6);
+  setColor(&cl_lanelet_id, 0.8, 0.2, 0.2, 0.999);
 
   visualization_msgs::MarkerArray map_marker_array;
 
@@ -117,6 +118,16 @@ void binMapCallback(autoware_lanelet2_msgs::MapBin msg)
   insertMarkerArray(
     &map_marker_array,
     lanelet::visualization::parkingSpacesAsMarkerArray(parking_spaces, cl_parking_spaces));
+  ros::NodeHandle pnh("~");
+  bool visualize_lanlet_id = false;
+  pnh.param<bool>("visualize_lanlet_id", visualize_lanlet_id, false);
+  if(visualize_lanlet_id)
+  {
+    std::cout << "test" << std::endl;
+    insertMarkerArray(
+      &map_marker_array,
+      lanelet::visualization::generateLaneletIdMarker(road_lanelets, cl_lanelet_id));
+  }
 
   g_map_pub.publish(map_marker_array);
 }
