@@ -86,7 +86,7 @@ void FollowingLaneState::update()
     const double minimum_lane_change_length = ros_parameters_.minimum_lane_change_length;
     status_.lane_follow_path = route_handler_ptr_->getReferencePath(
       current_lanes_, current_pose_.pose, backward_path_length, forward_path_length,
-      minimum_lane_change_length);
+      ros_parameters_);
 
     if (!lane_change_lanes_.empty()) {
       // find candidate paths

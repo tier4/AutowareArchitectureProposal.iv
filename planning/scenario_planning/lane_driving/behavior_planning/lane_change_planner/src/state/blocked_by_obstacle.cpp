@@ -89,7 +89,7 @@ void BlockedByObstacleState::update()
   {
     status_.lane_follow_path = route_handler_ptr_->getReferencePath(
       current_lanes_, current_pose_.pose, backward_path_length, forward_path_length,
-      minimum_lane_change_length);
+      ros_parameters_);
     status_.lane_follow_path = setStopPointFromObstacle(status_.lane_follow_path);
     status_.lane_follow_lane_ids = util::getIds(current_lanes_);
   }
