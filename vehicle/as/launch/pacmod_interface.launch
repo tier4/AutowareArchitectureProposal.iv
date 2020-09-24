@@ -48,4 +48,5 @@
     <param from="$(var vehicle_info_param)" />
 
   </node>
+
 </launch>
