@@ -126,9 +126,10 @@ public:
   autoware_planning_msgs::PathWithLaneId getReferencePath(
     const lanelet::ConstLanelets & lanelet_sequence, const geometry_msgs::Pose & pose,
     const double backward_path_length, const double forward_path_length,
-    const double minimum_lane_change_length) const;
+    const LaneChangerParameters & parameter) const;
   autoware_planning_msgs::PathWithLaneId getReferencePath(
     const lanelet::ConstLanelets & lanelet_sequence, const double s_start, const double s_end,
+    const double lane_change_prepare_duration, const double lane_change_buffer,
     bool use_exact = true) const;
   autoware_planning_msgs::PathWithLaneId updatePathTwist(
     const autoware_planning_msgs::PathWithLaneId & path) const;
