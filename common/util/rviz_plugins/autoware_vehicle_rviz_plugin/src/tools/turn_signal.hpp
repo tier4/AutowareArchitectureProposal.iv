@@ -62,10 +62,10 @@ private Q_SLOTS:
 protected:
   void processMessage(const autoware_vehicle_msgs::TurnSignalConstPtr & msg_ptr) override;
   jsk_rviz_plugins::OverlayObject::Ptr overlay_;
-  rviz::IntProperty * property_left_;
-  rviz::IntProperty * property_top_;
-  rviz::IntProperty * property_width_;
-  rviz::IntProperty * property_height_;
+  std::shared_ptr<rviz::IntProperty> property_left_;
+  std::shared_ptr<rviz::IntProperty> property_top_;
+  std::shared_ptr<rviz::IntProperty> property_width_;
+  std::shared_ptr<rviz::IntProperty> property_height_;
   // QImage hud_;
 
 private:
