@@ -18,6 +18,7 @@
   <depend>geometry_msgs</depend>
   <depend>message_filters</depend>
   <depend>pacmod_msgs</depend>
+  <depend>can_msgs</depend>
   <depend>roscpp</depend>
   <depend>std_msgs</depend>
 
