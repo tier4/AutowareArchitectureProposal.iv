@@ -16,7 +16,7 @@
 
 /**
  * @file sim_model_constant_acceleration.hpp
- * @brief simple planning simulator model with constant acceleration for velocity & steeiring
+ * @brief simple planning simulator model with constant acceleration for velocity & steering
  * @author Takamasa Horibe
  * @date 2019.08.17
  */

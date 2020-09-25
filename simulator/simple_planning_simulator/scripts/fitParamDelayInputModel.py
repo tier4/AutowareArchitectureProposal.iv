@@ -121,7 +121,7 @@ if __name__ == '__main__':
     topics = [ 'vehicle_cmd/ctrl_cmd/steering_angle', 'vehicle_status/angle', \
                'vehicle_cmd/ctrl_cmd/linear_velocity', 'vehicle_status/speed']
     pd_data = [None] * len(topics)
-    parser = argparse.ArgumentParser(description='Paramter fitting for Input Delay Model (First Order System with Dead Time) with rosbag file input')
+    parser = argparse.ArgumentParser(description='Parameter fitting for Input Delay Model (First Order System with Dead Time) with rosbag file input')
     parser.add_argument('--bag_file', '-b', required=True, type=str, help='rosbag file', metavar='file')
     parser.add_argument('--cutoff_time', default=1.0, type=float, help='Cutoff time[sec], Parameter fitting will only consider data from t= cutoff_time to the end of the bag file (default is 1.0)')
     parser.add_argument('--cutoff_freq', default=0.1, type=float, help='Cutoff freq for low-pass filter[Hz], negative value will disable low-pass filter (default is 0.1)')

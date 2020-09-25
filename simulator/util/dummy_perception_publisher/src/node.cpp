@@ -152,10 +152,10 @@ void DummyPerceptionPublisherNode::timerCallback(const ros::TimerEvent &)
       pcl::PointCloud<pcl::PointXYZ>::Ptr ray_traced_pointcloud_ptr(
         new pcl::PointCloud<pcl::PointXYZ>);
       for (size_t j = 0; j < v_pointcloud.at(i)->size(); ++j) {
-        Eigen::Vector3i grid_cordinates = ray_tracing_filter.getGridCoordinates(
+        Eigen::Vector3i grid_coordinates = ray_tracing_filter.getGridCoordinates(
           v_pointcloud.at(i)->at(j).x, v_pointcloud.at(i)->at(j).y, v_pointcloud.at(i)->at(j).z);
         int grid_state;
-        if (ray_tracing_filter.occlusionEstimation(grid_state, grid_cordinates) != 0)
+        if (ray_tracing_filter.occlusionEstimation(grid_state, grid_coordinates) != 0)
           ROS_ERROR("ray tracing failed");
         if (grid_state == 1) {  // occluded
           continue;

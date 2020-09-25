@@ -38,7 +38,7 @@
     </group>
   </group>
 
-  <!-- preception module -->
+  <!-- perception module -->
   <group ns="perception">
     <!-- object recognition module -->
     <group ns="object_recognition">
