@@ -63,7 +63,7 @@ public:
   }
 
   /**
-   * @brief set dagnostics status
+   * @brief set diagnostics status
    * @param [in] status Diagnostics error level
    * @param [in] message Diagnostics status message
    */

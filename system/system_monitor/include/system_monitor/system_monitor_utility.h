@@ -48,9 +48,9 @@ class SystemMonitorUtility
 {
 public:
   /**
-   * @brief get thermal zone informaton
+   * @brief get thermal zone information
    * @param [in] t thermal zone name
-   * @param [in] pointer to thermal zone informaton
+   * @param [in] pointer to thermal zone information
    */
   static void getThermalZone(const std::string & t, std::vector<thermal_zone> * therm)
   {
