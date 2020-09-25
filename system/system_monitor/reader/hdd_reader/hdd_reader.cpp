@@ -68,7 +68,7 @@ typedef struct
 {
   uint8_t operation_code_;      //!< @brief OPERATION CODE (A1h)
   uint8_t reserved0_ : 1;       //!< @brief Reserved
-  uint8_t protool_ : 4;         //!< @brief PROTOCOL
+  uint8_t protocol_ : 4;         //!< @brief PROTOCOL
   uint8_t multiple_count_ : 3;  //!< @brief MULTIPLE_COUNT
   uint8_t t_length_ : 2;        //!< @brief T_LENGTH
   uint8_t byt_blok_ : 1;        //!< @brief BYT_BLOK
@@ -97,7 +97,7 @@ typedef struct __attribute__((packed))  // Minimize total struct memory 16 to 12
 {
   uint8_t attribute_id_;  //!< @brief Attribute ID
   //  Flags
-  uint16_t sarranty_ : 1;           //!< @brief Bit 0 – Warranty
+  uint16_t warranty_ : 1;           //!< @brief Bit 0 – Warranty
   uint16_t offline_ : 1;            //!< @brief Bit 1 – Offline
   uint16_t performance_ : 1;        //!< @brief Bit 2 – Performance
   uint16_t error_rate_ : 1;         //!< @brief Bit 3 – Error rate
@@ -194,7 +194,7 @@ int get_ata_identify(int fd, HDDInfo * info)
   // Create a command descriptor block(CDB)
   memset(&ata, 0, sizeof(ata));
   ata.operation_code_ = 0xA1;  // ATA PASS-THROUGH (12) command
-  ata.protool_ = 0x4;          // PIO Data-In
+  ata.protocol_ = 0x4;          // PIO Data-In
   ata.t_dir_ = 0x1;            // from the ATA device to the application client
   ata.byt_blok_ = 0x1;         // the number of blocks specified in the T_LENGTH field
   ata.t_length_ = 0x2;         // length is specified in the SECTOR_COUNT field
@@ -258,7 +258,7 @@ int get_ata_SMARTData(int fd, HDDInfo * info)
   // Create a command descriptor block(CDB)
   memset(&ata, 0, sizeof(ata));
   ata.operation_code_ = 0xA1;  // ATA PASS-THROUGH (12) command
-  ata.protool_ = 0x4;          // PIO Data-In
+  ata.protocol_ = 0x4;          // PIO Data-In
   ata.t_dir_ = 0x1;            // from the ATA device to the application client
   ata.byt_blok_ = 0x1;         // the number of blocks specified in the T_LENGTH field
   ata.t_length_ = 0x2;         // length is specified in the SECTOR_COUNT field
