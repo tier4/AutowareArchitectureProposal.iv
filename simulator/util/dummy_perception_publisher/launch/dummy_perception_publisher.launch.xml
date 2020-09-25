@@ -39,7 +39,7 @@
     </group>
   </group>
 
-  <!-- preception module -->
+  <!-- perception module -->
   <group>
     <push-ros-namespace namespace="perception"/>
     <!-- object recognition module -->
