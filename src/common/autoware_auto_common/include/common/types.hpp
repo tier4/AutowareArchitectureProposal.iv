@@ -1,4 +1,4 @@
-// Copyright 2017-2019 Apex.AI, Inc.
+// Copyright 2017-2020 Apex.AI, Inc., Arm Limited
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,7 +55,17 @@ struct COMMON_PUBLIC PointXYZIF
   static constexpr uint16_t END_OF_SCAN_ID = 65535u;
 };
 
+struct COMMON_PUBLIC PointXYZF
+{
+  float32_t x{0};
+  float32_t y{0};
+  float32_t z{0};
+  uint16_t id{0};
+  static constexpr uint16_t END_OF_SCAN_ID = 65535u;
+};
+
 using PointBlock = std::vector<PointXYZIF>;
+using PointPtrBlock = std::vector<const PointXYZIF *>;
 /// \brief Stores basic configuration information, does some simple validity checking
 static constexpr uint16_t POINT_BLOCK_CAPACITY = 512U;
 
