@@ -27,6 +27,7 @@ struct TurnSignalParameters
 {
   double lane_change_search_distance;  // TODO: change this to time based threshold
   double intersection_search_distance;
+  double base_link2front;
 };
 
 class TurnSignalDecider
