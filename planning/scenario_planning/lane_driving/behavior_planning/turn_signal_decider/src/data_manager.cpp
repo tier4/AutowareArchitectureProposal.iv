@@ -114,7 +114,7 @@ void DataManager::onVehiclePoseUpdate()
       vehicle_pose_.header.stamp = current_time;
       is_pose_ready_ = true;
     } catch (tf2::TransformException & ex) {
-      // if pose has never arrived before, then wait for localizatioo
+      // if pose has never arrived before, then wait for localization
       if (!is_pose_ready_) {
         RCLCPP_WARN_STREAM_THROTTLE(
           node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),

@@ -63,6 +63,9 @@ TurnSignalDecider::TurnSignalDecider(
   parameters_.intersection_search_distance =
     this->declare_parameter("intersection_search_distance", static_cast<double>(30));
 
+  vehicle_info_util::VehicleInfo vehicle_info = vehicle_info_util::VehicleInfo::create(*this);
+  parameters_.base_link2front = vehicle_info.wheel_base_m_ + vehicle_info.front_overhang_m_;
+
   // set publishers
   turn_signal_publisher_ =
     this->create_publisher<TurnSignal>("output/turn_signal_cmd", rclcpp::QoS{1});
@@ -177,8 +180,9 @@ bool TurnSignalDecider::isChangingLane(
     accumulated_distance +=
       getDistance3d(prev_point.point.pose.position, path_point.point.pose.position);
     prev_point = path_point;
-    const double distance_from_vehicle = accumulated_distance - vehicle_pose_frenet.length;
-    if (distance_from_vehicle < 0) {
+    const double distance_from_vehicle_front =
+      accumulated_distance - vehicle_pose_frenet.length - parameters_.base_link2front;
+    if (distance_from_vehicle_front < 0.0) {
       continue;
     }
     for (const auto & lane_id : path_point.lane_ids) {
@@ -194,17 +198,17 @@ bool TurnSignalDecider::isChangingLane(
       const auto relation = getRelation(prev_lane, lane);
       if (relation == lanelet::routing::RelationType::Left) {
         signal_state_ptr->data = TurnSignal::LEFT;
-        *distance_ptr = distance_from_vehicle;
+        *distance_ptr = distance_from_vehicle_front;
         return true;
       }
       if (relation == lanelet::routing::RelationType::Right) {
         signal_state_ptr->data = TurnSignal::RIGHT;
-        *distance_ptr = distance_from_vehicle;
+        *distance_ptr = distance_from_vehicle_front;
         return true;
       }
     }
 
-    if (distance_from_vehicle > parameters_.lane_change_search_distance) {
+    if (distance_from_vehicle_front > parameters_.lane_change_search_distance) {
       return false;
     }
   }
@@ -232,8 +236,9 @@ bool TurnSignalDecider::isTurning(
     accumulated_distance +=
       getDistance3d(prev_point.point.pose.position, path_point.point.pose.position);
     prev_point = path_point;
-    const double distance_from_vehicle = accumulated_distance - vehicle_pose_frenet.length;
-    if (distance_from_vehicle < 0) {
+    const double distance_from_vehicle_front =
+      accumulated_distance - vehicle_pose_frenet.length - parameters_.base_link2front;
+    if (distance_from_vehicle_front < 0.0) {
       continue;
     }
     for (const auto & lane_id : path_point.lane_ids) {
@@ -243,18 +248,23 @@ bool TurnSignalDecider::isTurning(
       prev_lane_id = lane_id;
 
       const auto & lane = data_.getLaneFromId(lane_id);
+      if (
+        lane.attributeOr("turn_signal_distance", std::numeric_limits<double>::max()) <
+        distance_from_vehicle_front) {
+        if (1 < path_point.lane_ids.size() && lane_id == path_point.lane_ids.back()) continue;
+      }
       if (lane.attributeOr("turn_direction", std::string("none")) == "left") {
         signal_state_ptr->data = TurnSignal::LEFT;
-        *distance_ptr = distance_from_vehicle;
+        *distance_ptr = distance_from_vehicle_front;
         return true;
       }
       if (lane.attributeOr("turn_direction", std::string("none")) == "right") {
         signal_state_ptr->data = TurnSignal::RIGHT;
-        *distance_ptr = distance_from_vehicle;
+        *distance_ptr = distance_from_vehicle_front;
         return true;
       }
     }
-    if (distance_from_vehicle > parameters_.intersection_search_distance) {
+    if (distance_from_vehicle_front > parameters_.intersection_search_distance) {
       return false;
     }
   }
