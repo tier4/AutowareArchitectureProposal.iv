@@ -24,6 +24,26 @@ double getDistance3d(const geometry_msgs::Point & p1, const geometry_msgs::Point
 {
   return std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2) + std::pow(p1.z - p2.z, 2));
 }
+
+template <class T>
+T waitForParam(const ros::NodeHandle & nh, const std::string & key)
+{
+  T value;
+
+  ros::Rate rate(1.0);
+  while (ros::ok()) {
+    const auto result = nh.getParam(key, value);
+    if (result) {
+      return value;
+    }
+
+    ROS_INFO("waiting for parameter `%s` ...", key.c_str());
+    rate.sleep();
+  }
+
+  return {};
+}
+
 }  // namespace
 
 namespace turn_signal_decider
@@ -41,6 +61,8 @@ TurnSignalDecider::TurnSignalDecider() : pnh_("~")
   // get ROS parameters
   pnh_.param<double>("lane_change_search_distance", parameters_.lane_change_search_distance, 30);
   pnh_.param<double>("intersection_search_distance", parameters_.intersection_search_distance, 30);
+  parameters_.base_link2front = waitForParam<double>(pnh_, "/vehicle_info/wheel_base") +
+                                waitForParam<double>(pnh_, "/vehicle_info/front_overhang");
 
   // set publishers
   turn_signal_publisher_ = pnh_.advertise<TurnSignal>("output/turn_signal_cmd", 1, false);
@@ -143,8 +165,9 @@ bool TurnSignalDecider::isChangingLane(
     accumulated_distance +=
       getDistance3d(prev_point.point.pose.position, path_point.point.pose.position);
     prev_point = path_point;
-    const double distance_from_vehicle = accumulated_distance - vehicle_pose_frenet.length;
-    if (distance_from_vehicle < 0) {
+    const double distance_from_vehicle_front =
+      accumulated_distance - vehicle_pose_frenet.length - parameters_.base_link2front;
+    if (distance_from_vehicle_front < 0.0) {
       continue;
     }
     for (const auto & lane_id : path_point.lane_ids) {
@@ -160,17 +183,17 @@ bool TurnSignalDecider::isChangingLane(
       const auto relation = getRelation(prev_lane, lane);
       if (relation == lanelet::routing::RelationType::Left) {
         signal_state_ptr->data = TurnSignal::LEFT;
-        *distance_ptr = distance_from_vehicle;
+        *distance_ptr = distance_from_vehicle_front;
         return true;
       }
       if (relation == lanelet::routing::RelationType::Right) {
         signal_state_ptr->data = TurnSignal::RIGHT;
-        *distance_ptr = distance_from_vehicle;
+        *distance_ptr = distance_from_vehicle_front;
         return true;
       }
     }
 
-    if (distance_from_vehicle > parameters_.lane_change_search_distance) {
+    if (distance_from_vehicle_front > parameters_.lane_change_search_distance) {
       return false;
     }
   }
@@ -197,8 +220,9 @@ bool TurnSignalDecider::isTurning(
     accumulated_distance +=
       getDistance3d(prev_point.point.pose.position, path_point.point.pose.position);
     prev_point = path_point;
-    const double distance_from_vehicle = accumulated_distance - vehicle_pose_frenet.length;
-    if (distance_from_vehicle < 0) {
+    const double distance_from_vehicle_front =
+      accumulated_distance - vehicle_pose_frenet.length - parameters_.base_link2front;
+    if (distance_from_vehicle_front < 0.0) {
       continue;
     }
     for (const auto & lane_id : path_point.lane_ids) {
@@ -208,18 +232,23 @@ bool TurnSignalDecider::isTurning(
       prev_lane_id = lane_id;
 
       const auto & lane = data_.getLaneFromId(lane_id);
+      if (
+        lane.attributeOr("turn_signal_distance", std::numeric_limits<double>::max()) <
+        distance_from_vehicle_front) {
+        if (1 < path_point.lane_ids.size() && lane_id == path_point.lane_ids.back()) continue;
+      }
       if (lane.attributeOr("turn_direction", std::string("none")) == "left") {
         signal_state_ptr->data = TurnSignal::LEFT;
-        *distance_ptr = distance_from_vehicle;
+        *distance_ptr = distance_from_vehicle_front;
         return true;
       }
       if (lane.attributeOr("turn_direction", std::string("none")) == "right") {
         signal_state_ptr->data = TurnSignal::RIGHT;
-        *distance_ptr = distance_from_vehicle;
+        *distance_ptr = distance_from_vehicle_front;
         return true;
       }
     }
-    if (distance_from_vehicle > parameters_.intersection_search_distance) {
+    if (distance_from_vehicle_front > parameters_.intersection_search_distance) {
       return false;
     }
   }
