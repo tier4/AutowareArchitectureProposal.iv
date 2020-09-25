@@ -410,7 +410,7 @@ void Simulator::publishPoseTwist(
 {
   ros::Time current_time = ros::Time::now();
 
-  // simulatied pose
+  // simulated pose
   geometry_msgs::PoseStamped ps;
   ps.header.frame_id = map_frame_id_;
   ps.header.stamp = current_time;
@@ -442,7 +442,7 @@ void Simulator::publishTF(const geometry_msgs::Pose & pose)
 
 double Simulator::getPosZFromTrajectory(const double x, const double y)
 {
-  // calculae cloest point on trajectory
+  // calculate closest point on trajectory
   /*
          write me...
   */

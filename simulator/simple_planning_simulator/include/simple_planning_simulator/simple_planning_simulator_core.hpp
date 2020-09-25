@@ -79,7 +79,7 @@ private:
 
   ros::Subscriber sub_vehicle_cmd_;      //!< @brief topic subscriber for vehicle_cmd
   ros::Subscriber sub_turn_signal_cmd_;  //!< @brief topic subscriber for turn_signal_cmd
-  ros::Subscriber sub_trajectory_;   //!< @brief topic subscriber for trajectory used for z ppsition
+  ros::Subscriber sub_trajectory_;   //!< @brief topic subscriber for trajectory used for z position
   ros::Subscriber sub_initialpose_;  //!< @brief topic subscriber for initialpose topic
   ros::Subscriber sub_initialtwist_;  //!< @brief topic subscriber for initialtwist topic
   ros::Subscriber sub_engage_;        //!< @brief topic subscriber for engage topic
@@ -111,9 +111,9 @@ private:
   std::string map_frame_id_;  //!< @brief map frame_id
 
   /* simple_planning_simulator parameters */
-  double loop_rate_;  //!< @brief frequency to calculate vehicle model & pubish result
+  double loop_rate_;  //!< @brief frequency to calculate vehicle model & publish result
   double wheelbase_;  //!< @brief wheelbase length to convert angular-velocity & steering
-  double sim_steering_gear_ratio_;  //!< @brief for steering wheel angle calcultion
+  double sim_steering_gear_ratio_;  //!< @brief for steering wheel angle calculation
 
   /* flags */
   bool is_initialized_;         //!< @brief flag to check the initial position is set
@@ -242,7 +242,7 @@ private:
   double getPosZFromTrajectory(const double x, const double y);
 
   /**
-   * @brief convert roll-pitch-yaw Eular angle to ros Quaternion
+   * @brief convert roll-pitch-yaw Euler angle to ros Quaternion
    * @param [in] roll roll angle [rad]
    * @param [in] pitch pitch angle [rad]
    * @param [in] yaw yaw angle [rad]
