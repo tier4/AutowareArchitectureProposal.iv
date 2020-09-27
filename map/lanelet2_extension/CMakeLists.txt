@@ -53,9 +53,9 @@ include_directories(
   ${PUGIXML_INCLUDE_DIRS}
 )
 
-add_definitions (${GeographicLib_DEFINITIONS})
+add_definitions(${GeographicLib_DEFINITIONS})
 
-add_library( lanelet2_extension_lib
+add_library(lanelet2_extension_lib
   lib/autoware_osm_parser.cpp
   lib/autoware_traffic_light.cpp
   lib/detection_area.cpp
