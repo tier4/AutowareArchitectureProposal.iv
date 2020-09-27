@@ -62,8 +62,7 @@ void binMapCallback(const autoware_lanelet2_msgs::msg::MapBin::SharedPtr msg)
   lanelet::ConstLanelets road_lanelets = lanelet::utils::query::roadLanelets(all_lanelets);
   lanelet::ConstLanelets crosswalk_lanelets =
     lanelet::utils::query::crosswalkLanelets(all_lanelets);
-  lanelet::ConstLanelets walkway_lanelets =
-    lanelet::utils::query::walkwayLanelets(all_lanelets);
+  lanelet::ConstLanelets walkway_lanelets = lanelet::utils::query::walkwayLanelets(all_lanelets);
   std::vector<lanelet::ConstLineString3d> stop_lines =
     lanelet::utils::query::stopLinesLanelets(road_lanelets);
   std::vector<lanelet::TrafficLightConstPtr> tl_reg_elems =
@@ -119,16 +118,9 @@ void binMapCallback(const autoware_lanelet2_msgs::msg::MapBin::SharedPtr msg)
   insertMarkerArray(
     &map_marker_array,
     lanelet::visualization::parkingSpacesAsMarkerArray(parking_spaces, cl_parking_spaces));
-  ros::NodeHandle pnh("~");
-  bool visualize_lanlet_id = false;
-  pnh.param<bool>("visualize_lanlet_id", visualize_lanlet_id, false);
-  if(visualize_lanlet_id)
-  {
-    std::cout << "test" << std::endl;
-    insertMarkerArray(
-      &map_marker_array,
-      lanelet::visualization::generateLaneletIdMarker(road_lanelets, cl_lanelet_id));
-  }
+  insertMarkerArray(
+    &map_marker_array,
+    lanelet::visualization::generateLaneletIdMarker(road_lanelets, cl_lanelet_id));
 
   g_map_pub->publish(map_marker_array);
 }
