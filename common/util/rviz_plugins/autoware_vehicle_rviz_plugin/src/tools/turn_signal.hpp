@@ -68,6 +68,8 @@ protected:
   // QImage hud_;
 
 private:
+  QPointF right_arrow_polygon_[7];
+  QPointF left_arrow_polygon_[7];
   autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr last_msg_ptr_;
 };
 

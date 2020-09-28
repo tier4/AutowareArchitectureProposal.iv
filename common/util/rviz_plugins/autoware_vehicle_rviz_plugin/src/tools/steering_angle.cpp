@@ -155,8 +155,8 @@ void SteeringAngleDisplay::processMessage(
   text_color.setAlpha(255);
   painter.setPen(QPen(text_color, int(2), Qt::SolidLine));
 
-  int w = overlay_->getTextureWidth();
-  int h = overlay_->getTextureHeight();
+  const int w = overlay_->getTextureWidth();
+  const int h = overlay_->getTextureHeight();
 
   QMatrix rotation_matrix;
   rotation_matrix.rotate(static_cast<qreal>(

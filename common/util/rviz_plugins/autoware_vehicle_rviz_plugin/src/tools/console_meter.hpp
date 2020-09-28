@@ -35,6 +35,7 @@
 #include <iomanip>
 #include <memory>
 
+#include "autoware_utils/autoware_utils.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 
 #include "jsk_overlay_utils.hpp"
@@ -60,10 +61,6 @@ private Q_SLOTS:
 
 protected:
   void processMessage(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg_ptr) override;
-  std::unique_ptr<Ogre::ColourValue> setColorDependsOnVelocity(
-    const double vel_max, const double cmd_vel);
-  std::unique_ptr<Ogre::ColourValue> gradation(
-    const QColor & color_min, const QColor & color_max, const double ratio);
   jsk_rviz_plugins::OverlayObject::Ptr overlay_;
   rviz_common::properties::ColorProperty * property_text_color_;
   rviz_common::properties::IntProperty * property_left_;
@@ -74,10 +71,27 @@ protected:
   // QImage hud_;
 
 private:
-  const double meter_min_velocity_;
-  const double meter_max_velocity_;
-  const double meter_min_angle_;
-  const double meter_max_angle_;
+  static constexpr float meter_min_velocity_ = autoware_utils::kmph2mps(0.f);
+  static constexpr float meter_max_velocity_ = autoware_utils::kmph2mps(60.f);
+  static constexpr float meter_min_angle_ = autoware_utils::deg2rad(40.f);
+  static constexpr float meter_max_angle_ = autoware_utils::deg2rad(320.f);
+  static constexpr int line_width_ = 2;
+  static constexpr int hand_width_ = 4;
+  struct Line  // for drawLine
+  {
+    int x0, y0;
+    int x1, y1;
+  };
+  Line min_range_line_;
+  Line max_range_line_;
+  struct Arc  // for drawArc
+  {
+    int x0, y0;
+    int x1, y1;
+    float start_angle, end_angle;
+  };
+  Arc inner_arc_;
+  Arc outer_arc_;
   geometry_msgs::msg::TwistStamped::ConstSharedPtr last_msg_ptr_;
 };
 
