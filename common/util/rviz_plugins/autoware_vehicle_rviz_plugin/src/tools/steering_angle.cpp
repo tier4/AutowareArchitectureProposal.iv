@@ -77,7 +77,7 @@ SteeringAngleDisplay::SteeringAngleDisplay()
     "Value height offset", 0, "Height offset of the plotter window", this,
     SLOT(updateVisualization()));
   property_value_scale_ = new rviz::FloatProperty(
-    "Value Scale", 1.0 / 15.0, "Value scale", this, SLOT(updateVisualization()), this);
+    "Value Scale", 1.0 / 6.667, "Value scale", this, SLOT(updateVisualization()), this);
   property_value_scale_->setMin(0.01);
   property_handle_angle_scale_ = new rviz::FloatProperty(
     "Scale", 3.0, "Scale is steering angle to handle angle ", this, SLOT(updateVisualization()),
@@ -172,7 +172,7 @@ void SteeringAngleDisplay::processMessage(const autoware_vehicle_msgs::SteeringC
     0, 0, property_length_->getInt(), property_length_->getInt(), rotate_handle_image);
 
   QFont font = painter.font();
-  font.setPointSize(std::max(int(double(w) * property_value_scale_->getFloat()), 1));
+  font.setPixelSize(std::max(int(double(w) * property_value_scale_->getFloat()), 1));
   font.setBold(true);
   painter.setFont(font);
   std::ostringstream steering_angle_ss;

@@ -41,7 +41,7 @@ ConsoleMeterDisplay::ConsoleMeterDisplay()
     "Value height offset", 0, "Height offset of the plotter window", this,
     SLOT(updateVisualization()));
   property_value_scale_ = new rviz::FloatProperty(
-    "Value Scale", 1.0 / 15.0, "Value scale", this, SLOT(updateVisualization()), this);
+    "Value Scale", 1.0 / 6.667, "Value scale", this, SLOT(updateVisualization()), this);
   property_value_scale_->setMin(0.01);
 }
 
@@ -143,7 +143,7 @@ void ConsoleMeterDisplay::processMessage(const geometry_msgs::TwistStampedConstP
   text_color.setAlpha(255);
   painter.setPen(QPen(text_color, int(2), Qt::SolidLine));
   QFont font = painter.font();
-  font.setPointSize(std::max(int(double(w) * property_value_scale_->getFloat()), 1));
+  font.setPixelSize(std::max(int(double(w) * property_value_scale_->getFloat()), 1));
   font.setBold(true);
   painter.setFont(font);
   std::ostringstream velocity_ss;
