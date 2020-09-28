@@ -40,10 +40,16 @@ ConsoleMeterDisplay::ConsoleMeterDisplay()
   property_value_height_offset_ = new rviz::IntProperty(
     "Value height offset", 0, "Height offset of the plotter window", this,
     SLOT(updateVisualization()));
+<<<<<<< HEAD
   property_handle_angle_scale_ = new rviz::FloatProperty(
     "Scale", 3.0, "Scale is steering andle to handle angle ", this, SLOT(updateVisualization()),
     this);
   property_handle_angle_scale_->setMin(0.1);
+=======
+  property_value_scale_ = new rviz::FloatProperty(
+    "Value Scale", 1.0 / 6.667, "Value scale", this, SLOT(updateVisualization()), this);
+  property_value_scale_->setMin(0.01);
+>>>>>>> f10d559e... change font size independency desplay (#946)
 }
 
 ConsoleMeterDisplay::~ConsoleMeterDisplay()
@@ -144,7 +150,11 @@ void ConsoleMeterDisplay::processMessage(const geometry_msgs::TwistStampedConstP
   text_color.setAlpha(255);
   painter.setPen(QPen(text_color, int(2), Qt::SolidLine));
   QFont font = painter.font();
+<<<<<<< HEAD
   font.setPointSize(std::max(int(double(w) / 15.0), 1));
+=======
+  font.setPixelSize(std::max(int(double(w) * property_value_scale_->getFloat()), 1));
+>>>>>>> f10d559e... change font size independency desplay (#946)
   font.setBold(true);
   painter.setFont(font);
   std::ostringstream velocity_ss;
