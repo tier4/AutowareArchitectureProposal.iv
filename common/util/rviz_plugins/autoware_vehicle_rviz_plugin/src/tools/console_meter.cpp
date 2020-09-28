@@ -23,44 +23,7 @@
 
 namespace rviz_plugins
 {
-std::unique_ptr<Ogre::ColourValue> ConsoleMeterDisplay::gradation(
-  const QColor & color_min, const QColor & color_max, const double ratio)
-{
-  std::unique_ptr<Ogre::ColourValue> color_ptr(new Ogre::ColourValue);
-  color_ptr->g = color_max.greenF() * ratio + color_min.greenF() * (1.0 - ratio);
-  color_ptr->r = color_max.redF() * ratio + color_min.redF() * (1.0 - ratio);
-  color_ptr->b = color_max.blueF() * ratio + color_min.blueF() * (1.0 - ratio);
-
-  return color_ptr;
-}
-
-std::unique_ptr<Ogre::ColourValue> ConsoleMeterDisplay::setColorDependsOnVelocity(
-  const double vel_max, const double cmd_vel)
-{
-  const double cmd_vel_abs = std::fabs(cmd_vel);
-  const double vel_min = 0.0;
-
-  std::unique_ptr<Ogre::ColourValue> color_ptr(new Ogre::ColourValue());
-  if (vel_min < cmd_vel_abs && cmd_vel_abs <= (vel_max / 2.0)) {
-    double ratio = (cmd_vel_abs - vel_min) / (vel_max / 2.0 - vel_min);
-    color_ptr = gradation(Qt::red, Qt::yellow, ratio);
-  } else if ((vel_max / 2.0) < cmd_vel_abs && cmd_vel_abs <= vel_max) {
-    double ratio = (cmd_vel_abs - vel_max / 2.0) / (vel_max - vel_max / 2.0);
-    color_ptr = gradation(Qt::yellow, Qt::green, ratio);
-  } else if (vel_max < cmd_vel_abs) {
-    *color_ptr = Ogre::ColourValue::Green;
-  } else {
-    *color_ptr = Ogre::ColourValue::Red;
-  }
-
-  return color_ptr;
-}
-
 ConsoleMeterDisplay::ConsoleMeterDisplay()
-: meter_min_velocity_(0.0 / 3.6 /* 0.0kmph */),
-  meter_max_velocity_(60.0 / 3.6 /* 60.0kmph */),
-  meter_min_angle_(0.698132 /* 40deg */),
-  meter_max_angle_(5.58505 /* 320deg */)
 {
   property_text_color_ = new rviz::ColorProperty(
     "Text Color", QColor(25, 255, 240), "text color", this, SLOT(updateVisualization()), this);
@@ -147,49 +110,33 @@ void ConsoleMeterDisplay::processMessage(const geometry_msgs::TwistStampedConstP
   QPainter painter(&hud);
   painter.setRenderHint(QPainter::Antialiasing, true);
 
-  const int line_width = 2;
-  int w = overlay_->getTextureWidth() - line_width;
-  int h = overlay_->getTextureHeight() - line_width;
+  int w = overlay_->getTextureWidth() - line_width_;
+  int h = overlay_->getTextureHeight() - line_width_;
 
   // meter
   QColor white_color(Qt::white);
   white_color.setAlpha(255);
-  const double velocity_ratio = std::min(
+  const float velocity_ratio = std::min(
     std::max(std::fabs(msg_ptr->twist.linear.x) - meter_min_velocity_, 0.0) /
       (meter_max_velocity_ - meter_min_velocity_),
     1.0);
-  const double theta =
+  const float theta =
     (velocity_ratio * (meter_max_angle_ - meter_min_angle_)) + meter_min_angle_ + M_PI_2;
-  const double min_range_theta = meter_max_angle_ + M_PI_2;
-  const double max_range_theta = meter_min_angle_ + M_PI_2;
 
-  const int hand_width = 4;
-  painter.setPen(QPen(white_color, int(hand_width), Qt::SolidLine));
+  painter.setPen(QPen(white_color, int(hand_width_), Qt::SolidLine));
   painter.drawLine(
-    w * 0.5, h * 0.5, (w * 0.5) + ((double)w * 0.5 - ((double)hand_width * 0.5)) * std::cos(theta),
-    (h * 0.5) + ((double)h * 0.5 - ((double)hand_width * 0.5)) * std::sin(theta));
-  painter.setPen(QPen(white_color, int(line_width), Qt::SolidLine));
-  painter.drawLine(
-    (w * 0.5) + line_width * 0.5 + ((double)w / 8.0) * std::cos(min_range_theta),
-    (h * 0.5) + line_width * 0.5 + ((double)h / 8.0) * std::sin(min_range_theta),
-    (w * 0.5) + line_width * 0.5 +
-      ((double)w / 2.0 - (line_width * 0.5)) * std::cos(min_range_theta),
-    (h * 0.5) + line_width * 0.5 +
-      ((double)h / 2.0 - (line_width * 0.5)) * std::sin(min_range_theta));
-  painter.setPen(QPen(white_color, int(2), Qt::SolidLine));
-  painter.drawLine(
-    (w * 0.5) + line_width * 0.5 + ((double)w / 8.0) * std::cos(max_range_theta),
-    (h * 0.5) + line_width * 0.5 + ((double)h / 8.0) * std::sin(max_range_theta),
-    (w * 0.5) + line_width * 0.5 +
-      ((double)w / 2.0 - (line_width * 0.5)) * std::cos(max_range_theta),
-    (h * 0.5) + line_width * 0.5 +
-      ((double)h / 2.0 - (line_width * 0.5)) * std::sin(max_range_theta));
+    w * 0.5, h * 0.5, (w * 0.5) + ((float)w * 0.5 - ((float)hand_width_ * 0.5)) * std::cos(theta),
+    (h * 0.5) + ((float)h * 0.5 - ((float)hand_width_ * 0.5)) * std::sin(theta));
+
+  painter.setPen(QPen(white_color, int(line_width_), Qt::SolidLine));
+  painter.drawLine(min_range_line_.x0, min_range_line_.y0, min_range_line_.x1, min_range_line_.y1);
+  painter.drawLine(max_range_line_.x0, max_range_line_.y0, max_range_line_.x1, max_range_line_.y1);
   painter.drawArc(
-    line_width * 0.5, line_width * 0.5, w, h, 16 * ((min_range_theta - M_PI) * 180.0 / M_PI),
-    16 * ((max_range_theta - min_range_theta) * 180.0 / M_PI));
+    outer_arc_.x0, outer_arc_.y0, outer_arc_.x1, outer_arc_.y1, outer_arc_.start_angle * 16,
+    outer_arc_.end_angle * 16);
   painter.drawArc(
-    w * 3 / 8, h * 3 / 8, w / 4, h / 4, 16 * ((min_range_theta - M_PI) * 180.0 / M_PI),
-    16 * ((max_range_theta - min_range_theta) * 180.0 / M_PI));
+    inner_arc_.x0, inner_arc_.y0, inner_arc_.x1, inner_arc_.y1, inner_arc_.start_angle * 16,
+    inner_arc_.end_angle * 16);
 
   // text
   QColor text_color(property_text_color_->getColor());
@@ -214,19 +161,36 @@ void ConsoleMeterDisplay::updateVisualization()
   overlay_->updateTextureSize(property_length_->getInt(), property_length_->getInt());
   overlay_->setPosition(property_left_->getInt(), property_top_->getInt());
   overlay_->setDimensions(overlay_->getTextureWidth(), overlay_->getTextureHeight());
+  const float min_range_theta = meter_max_angle_ + M_PI_2;
+  const float max_range_theta = meter_min_angle_ + M_PI_2;
+  const int w = overlay_->getTextureWidth() - line_width_;
+  const int h = overlay_->getTextureHeight() - line_width_;
 
-  // QColor background_color;
-  // background_color.setAlpha(0);
-  // jsk_rviz_plugins::ScopedPixelBuffer buffer = overlay_->getBuffer();
-  // hud_ = buffer.getQImage(*overlay_);
-  // for (int i = 0; i < overlay_->getTextureWidth(); i++)
-  // {
-  //   for (int j = 0; j < overlay_->getTextureHeight(); j++)
-  //   {
-  //     hud_.setPixel(i, j, background_color.rgba());
-  //   }
-  // }
-
+  min_range_line_.x0 = (w / 2.0) + line_width_ / 2.0 + ((float)w / 8.0) * std::cos(min_range_theta);
+  min_range_line_.y0 = (h / 2.0) + line_width_ / 2.0 + ((float)h / 8.0) * std::sin(min_range_theta);
+  min_range_line_.x1 = (w / 2.0) + line_width_ / 2.0 +
+                       ((float)w / 2.0 - (line_width_ / 2.0)) * std::cos(min_range_theta);
+  min_range_line_.y1 = (h / 2.0) + line_width_ / 2.0 +
+                       ((float)h / 2.0 - (line_width_ / 2.0)) * std::sin(min_range_theta);
+  max_range_line_.x0 = (w / 2.0) + line_width_ / 2.0 + ((float)w / 8.0) * std::cos(max_range_theta);
+  max_range_line_.y0 = (h / 2.0) + line_width_ / 2.0 + ((float)h / 8.0) * std::sin(max_range_theta);
+  max_range_line_.x1 = (w * 0.5) + line_width_ * 0.5 +
+                       ((float)w / 2.0 - (line_width_ * 0.5)) * std::cos(max_range_theta);
+  max_range_line_.y1 = (h * 0.5) + line_width_ * 0.5 +
+                       ((float)h / 2.0 - (line_width_ * 0.5)) * std::sin(max_range_theta);
+  inner_arc_.x0 = line_width_ / 2.0;
+  inner_arc_.y0 = line_width_ / 2.0;
+  inner_arc_.x1 = w;
+  inner_arc_.y1 = h;
+  inner_arc_.start_angle = autoware_utils::deg2rad(min_range_theta - M_PI);
+  inner_arc_.end_angle = autoware_utils::deg2rad(max_range_theta - min_range_theta);
+  outer_arc_.x0 = w * 3 / 8;
+  outer_arc_.y0 = h * 3 / 8;
+  outer_arc_.x1 = w / 4;
+  outer_arc_.y1 = h / 4;
+  outer_arc_.start_angle = autoware_utils::deg2rad(min_range_theta - M_PI);
+  outer_arc_.end_angle = autoware_utils::deg2rad(max_range_theta - min_range_theta);
+  
   if (last_msg_ptr_ != nullptr) processMessage(last_msg_ptr_);
 }
 

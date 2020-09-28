@@ -12,12 +12,14 @@
   <build_depend>qtbase5-dev</build_depend>
   <build_depend>rviz</build_depend>
   <build_depend>autoware_vehicle_msgs</build_depend>
+  <build_depend>autoware_utils</build_depend>
 
   <exec_depend>libqt5-core</exec_depend>
   <exec_depend>libqt5-gui</exec_depend>
   <exec_depend>libqt5-widgets</exec_depend>
   <exec_depend>rviz</exec_depend>
   <exec_depend>autoware_vehicle_msgs</exec_depend>
+  <exec_depend>autoware_utils</exec_depend>
 
   <export>
     <rviz plugin="${prefix}/plugins/plugin_description.xml"/>
