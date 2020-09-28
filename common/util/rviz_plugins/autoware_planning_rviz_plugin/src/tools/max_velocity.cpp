@@ -40,7 +40,7 @@ MaxVelocityDisplay::MaxVelocityDisplay()
     "Length", 96, "Length of the plotter window", this, SLOT(updateVisualization()), this);
   property_length_->setMin(10);
   property_value_scale_ = new rviz_common::properties::FloatProperty(
-    "Value Scale", 1.0 / 10.0, "Value scale", this, SLOT(updateVisualization()), this);
+    "Value Scale", 1.0 / 4.0, "Value scale", this, SLOT(updateVisualization()), this);
   property_value_scale_->setMin(0.01);
 }
 
@@ -152,7 +152,7 @@ void MaxVelocityDisplay::processMessage(const std_msgs::msg::Float32::ConstShare
   text_color.setAlpha(255);
   painter.setPen(QPen(text_color, int(2), Qt::SolidLine));
   QFont font = painter.font();
-  font.setPointSize(std::max(int(double(w) * property_value_scale_->getFloat()), 1));
+  font.setPixelSize(std::max(int(double(w) * property_value_scale_->getFloat()), 1));
   font.setBold(true);
   painter.setFont(font);
   std::ostringstream velocity_ss;
