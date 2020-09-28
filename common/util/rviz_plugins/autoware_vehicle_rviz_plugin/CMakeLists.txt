@@ -1,16 +1,17 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(autoware_vehicle_rviz_plugin)
 
-add_compile_options(-std=c++14)
+set(CMAKE_CXX_STANDARD 14)
 
 find_package(catkin REQUIRED COMPONENTS
   rviz
   autoware_vehicle_msgs
+  autoware_utils
 )
 
 catkin_package(
   LIBRARIES autoware_vehicle_rviz_plugin
-  CATKIN_DEPENDS rviz autoware_vehicle_msgs
+  CATKIN_DEPENDS rviz autoware_vehicle_msgs autoware_utils
 )
 
 include_directories(
