@@ -127,6 +127,8 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
     create_publisher<autoware_debug_msgs::msg::Float32Stamped>("closest_velocity", rclcpp::QoS{1});
   debug_closest_acc_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
     "closest_acceleration", rclcpp::QoS{1});
+  debug_closest_jerk_ =
+    create_publisher<autoware_debug_msgs::msg::Float32Stamped>("closest_jerk", rclcpp::QoS{1});
   pub_trajectory_raw_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
     "debug/trajectory_raw", rclcpp::QoS{1});
   pub_trajectory_vel_lim_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
@@ -326,6 +328,7 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
   publishFloat(output.points.at(traj_resampled_closest).twist.linear.x, debug_closest_velocity_);
   publishFloat(output.points.at(traj_resampled_closest).accel.linear.x, debug_closest_acc_);
   publishStopDistance(output, traj_resampled_closest);
+  publishClosestJerk(output.points.at(traj_resampled_closest).accel.linear.x);
   if (publish_debug_trajs_) {
     pub_trajectory_raw_->publish(traj_extracted);
     pub_trajectory_vel_lim_->publish(traj_vel_limited);
@@ -803,6 +806,21 @@ rcl_interfaces::msg::SetParametersResult MotionVelocityOptimizer::paramCallback(
   }
 
   return result;
+}
+
+void MotionVelocityOptimizer::publishClosestJerk(const double curr_acc)
+{
+  if (!prev_time_) {
+    prev_time_ = std::make_shared<rclcpp::Time>(this->now());
+    prev_acc_ = curr_acc;
+    return;
+  }
+  rclcpp::Time curr_time = this->now();
+  double dt = (curr_time - *prev_time_).seconds();
+  double curr_jerk = (curr_acc - prev_acc_) / dt;
+  publishFloat(curr_jerk, debug_closest_jerk_);
+  prev_acc_ = curr_acc;
+  *prev_time_ = curr_time;
 }
 
 int main(int argc, char ** argv)

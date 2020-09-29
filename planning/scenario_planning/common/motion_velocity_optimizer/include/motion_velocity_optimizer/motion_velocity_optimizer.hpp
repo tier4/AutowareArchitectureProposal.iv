@@ -32,6 +32,7 @@
 
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp/time.hpp"
 #include "tf2/utils.h"
 #include "tf2_ros/transform_listener.h"
 
@@ -198,6 +199,12 @@ private:
     const double & data,
     const rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub)
   const;
+
+  // jerk calc
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr debug_closest_jerk_;
+  std::shared_ptr<rclcpp::Time> prev_time_;
+  double prev_acc_;
+  void publishClosestJerk(const double curr_acc);
 };
 
 #endif  // MOTION_VELOCITY_OPTIMIZER__MOTION_VELOCITY_OPTIMIZER_HPP_
