@@ -130,7 +130,7 @@ void AutowareIvVehicleStatePublisher::getTurnSignalInfo(
     return;
   }
 
-  //get turn singnal
+  //get turn signal
   status->turn_signal = turn_signal_ptr->data;
 }
 
@@ -149,7 +149,7 @@ void AutowareIvVehicleStatePublisher::getTwistInfo(
 
   // get accel
   if (previous_twist_ptr_) {
-    //calculate accleration from velocity
+    //calculate acceleration from velocity
     const double dv = twist_ptr->twist.linear.x - previous_twist_ptr_->twist.linear.x;
     const double dt =
       std::max((twist_ptr->header.stamp - previous_twist_ptr_->header.stamp).toSec(), 1e-03);

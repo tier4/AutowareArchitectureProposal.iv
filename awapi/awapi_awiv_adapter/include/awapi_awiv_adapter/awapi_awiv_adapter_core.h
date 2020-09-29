@@ -109,7 +109,7 @@ private:
   AutowareInfo aw_info_;
   std::unique_ptr<AutowareIvVehicleStatePublisher> vehicle_state_publisher_;
   std::unique_ptr<AutowareIvAutowareStatePublisher> autoware_state_publisher_;
-  std::unique_ptr<AutowareIvStopReasonAggregator> stop_reason_aggreagator_;
+  std::unique_ptr<AutowareIvStopReasonAggregator> stop_reason_aggregator_;
   std::unique_ptr<AutowareIvLaneChangeStatePublisher> lane_change_state_publisher_;
   std::unique_ptr<AutowareIvObstacleAvoidanceStatePublisher> obstacle_avoidance_state_publisher_;
   std::unique_ptr<AutowareIvMaxVelocityPublisher> max_velocity_publisher_;
