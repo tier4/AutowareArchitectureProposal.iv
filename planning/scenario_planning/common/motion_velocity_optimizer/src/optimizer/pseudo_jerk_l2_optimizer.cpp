@@ -19,14 +19,9 @@
 #include <motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp>
 #include <motion_velocity_optimizer/optimizer/l2_pseudo_jerk_optimizer.hpp>
 
-L2PseudoJerkOptimizer::L2PseudoJerkOptimizer(const L2PseudoJerkOptimizer::OptimizerParam & p)
-{
-  param_ = p;
-}
+L2PseudoJerkOptimizer::L2PseudoJerkOptimizer(const OptimizerParam & p) { param_ = p; }
 
-void L2PseudoJerkOptimizer::setAccel(const double max_accel) { param_.max_accel = max_accel; }
-
-void L2PseudoJerkOptimizer::setDecel(const double min_decel) { param_.min_decel = min_decel; }
+void L2PseudoJerkOptimizer::setParam(const OptimizerParam & param) { param_ = param; }
 
 bool L2PseudoJerkOptimizer::solve(
   const double initial_vel, const double initial_acc, const int closest,

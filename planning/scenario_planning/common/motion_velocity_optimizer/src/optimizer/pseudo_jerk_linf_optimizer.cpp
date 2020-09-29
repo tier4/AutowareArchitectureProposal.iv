@@ -18,14 +18,9 @@
 #include <motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp>
 #include <motion_velocity_optimizer/optimizer/linf_pseudo_jerk_optimizer.hpp>
 
-LinfPseudoJerkOptimizer::LinfPseudoJerkOptimizer(const LinfPseudoJerkOptimizer::OptimizerParam & p)
-{
-  param_ = p;
-}
+LinfPseudoJerkOptimizer::LinfPseudoJerkOptimizer(const OptimizerParam & p) { param_ = p; }
 
-void LinfPseudoJerkOptimizer::setAccel(const double max_accel) { param_.max_accel = max_accel; }
-
-void LinfPseudoJerkOptimizer::setDecel(const double min_decel) { param_.min_decel = min_decel; }
+void LinfPseudoJerkOptimizer::setParam(const OptimizerParam & param) { param_ = param; }
 
 bool LinfPseudoJerkOptimizer::solve(
   const double initial_vel, const double initial_acc, const int closest,

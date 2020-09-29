@@ -70,7 +70,7 @@ MotionVelocityOptimizer::MotionVelocityOptimizer() : nh_(""), pnh_("~"), tf_list
     this);
 
   if (p.algorithm_type == "L2") {
-    L2PseudoJerkOptimizer::OptimizerParam param;
+    OptimizerParam param;
     param.max_accel = p.max_accel;
     param.min_decel = p.min_decel;
     pnh_.param<double>("pseudo_jerk_weight", param.pseudo_jerk_weight, 100.0);
@@ -78,7 +78,7 @@ MotionVelocityOptimizer::MotionVelocityOptimizer() : nh_(""), pnh_("~"), tf_list
     pnh_.param<double>("over_a_weight", param.over_a_weight, 1000.0);
     optimizer_ = boost::make_shared<L2PseudoJerkOptimizer>(param);
   } else if (p.algorithm_type == "Linf") {
-    LinfPseudoJerkOptimizer::OptimizerParam param;
+    OptimizerParam param;
     param.max_accel = p.max_accel;
     param.min_decel = p.min_decel;
     pnh_.param<double>("pseudo_jerk_weight", param.pseudo_jerk_weight, 200.0);

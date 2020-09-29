@@ -185,8 +185,13 @@ private:
     planning_param_.min_trajectory_length = config.min_trajectory_length;
     planning_param_.min_trajectory_interval_distance = config.min_trajectory_interval_distance;
 
-    optimizer_->setAccel(config.max_accel);
-    optimizer_->setDecel(config.min_decel);
+    OptimizerParam p;
+    p.max_accel = config.max_accel;
+    p.min_decel = config.min_decel;
+    p.pseudo_jerk_weight = config.pseudo_jerk_weight;
+    p.over_v_weight = config.over_v_weight;
+    p.over_a_weight = config.over_a_weight;
+    optimizer_->setParam(p);
   }
 
   /* debug */
