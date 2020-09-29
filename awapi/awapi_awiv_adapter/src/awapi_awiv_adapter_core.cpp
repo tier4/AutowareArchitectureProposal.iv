@@ -37,7 +37,7 @@ AutowareIvAdapter::AutowareIvAdapter()
   // setup instance
   vehicle_state_publisher_ = std::make_unique<AutowareIvVehicleStatePublisher>(*this);
   autoware_state_publisher_ = std::make_unique<AutowareIvAutowareStatePublisher>(*this);
-  stop_reason_aggreagator_ =
+  stop_reason_aggregator_ =
     std::make_unique<AutowareIvStopReasonAggregator>(*this, stop_reason_timeout_, stop_reason_thresh_dist_);
   lane_change_state_publisher_ = std::make_unique<AutowareIvLaneChangeStatePublisher>(*this);
   obstacle_avoidance_state_publisher_ =
@@ -228,7 +228,7 @@ void AutowareIvAdapter::callbackIsEmergency(
 void AutowareIvAdapter::callbackStopReason(
   const autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr msg_ptr)
 {
-  aw_info_.stop_reason_ptr = stop_reason_aggreagator_->updateStopReasonArray(msg_ptr, aw_info_);
+  aw_info_.stop_reason_ptr = stop_reason_aggregator_->updateStopReasonArray(msg_ptr, aw_info_);
 }
 
 void AutowareIvAdapter::callbackDiagnostics(
