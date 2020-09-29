@@ -40,8 +40,8 @@ public:
 private:
   ros::NodeHandle nh_;            //!< @brief ros node handle
   ros::NodeHandle pnh_;           //!< @brief private ros node handle
-  ros::Publisher pub_cmd_;        //!< @brief topic publisher for tlow level vehicle command
-  ros::Subscriber sub_velocity_;  //!< @brief subscriber for currrent velocity
+  ros::Publisher pub_cmd_;        //!< @brief topic publisher for low level vehicle command
+  ros::Subscriber sub_velocity_;  //!< @brief subscriber for current velocity
   ros::Subscriber sub_cmd_;       //!< @brief subscriber for vehicle command
 
   std::shared_ptr<double> current_velocity_ptr_;  // [m/s]
