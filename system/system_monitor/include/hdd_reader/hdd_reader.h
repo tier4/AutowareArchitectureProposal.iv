@@ -35,7 +35,8 @@ struct HDDInfo
   int error_code_;      //!< @brief error code, 0 on success, otherwise error
   std::string model_;   //!< @brief Model number
   std::string serial_;  //!< @brief Serial number
-  int temp_;            //!< @brief temperature(DegC)
+  uint8_t temp_;        //!< @brief temperature(DegC)
+    // Lowest byte of the raw value contains the exact temperature value (Celsius degrees) in S.M.A.R.T. information.
 
   /**
    * @brief Load or save data members.
