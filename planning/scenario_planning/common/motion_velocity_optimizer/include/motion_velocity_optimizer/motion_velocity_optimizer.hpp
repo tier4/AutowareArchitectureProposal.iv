@@ -204,4 +204,11 @@ private:
   ros::Publisher debug_closest_velocity_;
   ros::Publisher debug_closest_acc_;
   void publishFloat(const double & data, const ros::Publisher & pub) const;
+
+  // jerk calc
+  ros::Publisher debug_closest_jerk_;
+  std::shared_ptr<ros::Time> prev_time_;
+  double prev_acc_;
+  void publishClosestJerk(const double curr_acc);
+
 };

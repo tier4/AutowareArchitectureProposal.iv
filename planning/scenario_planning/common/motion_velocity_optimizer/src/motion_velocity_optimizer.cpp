@@ -98,6 +98,7 @@ MotionVelocityOptimizer::MotionVelocityOptimizer() : nh_(""), pnh_("~"), tf_list
   /* debug */
   debug_closest_velocity_ = pnh_.advertise<std_msgs::Float32>("closest_velocity", 1);
   debug_closest_acc_ = pnh_.advertise<std_msgs::Float32>("closest_acceleration", 1);
+  debug_closest_jerk_ = pnh_.advertise<std_msgs::Float32>("closest_jerk", 1);
   pub_trajectory_raw_ =
     pnh_.advertise<autoware_planning_msgs::Trajectory>("debug/trajectory_raw", 1);
   pub_trajectory_vel_lim_ = pnh_.advertise<autoware_planning_msgs::Trajectory>(
@@ -278,6 +279,7 @@ autoware_planning_msgs::Trajectory MotionVelocityOptimizer::calcTrajectoryVeloci
   publishFloat(output.points.at(traj_resampled_closest).twist.linear.x, debug_closest_velocity_);
   publishFloat(output.points.at(traj_resampled_closest).accel.linear.x, debug_closest_acc_);
   publishStopDistance(output, traj_resampled_closest);
+  publishClosestJerk(output.points.at(traj_resampled_closest).accel.linear.x);
   if (publish_debug_trajs_) {
     pub_trajectory_raw_.publish(traj_extracted);
     pub_trajectory_vel_lim_.publish(traj_vel_limited);
@@ -669,6 +671,21 @@ void MotionVelocityOptimizer::timerCallback(const ros::TimerEvent & e)
 {
   const double dt = (e.current_expected - e.last_expected).toSec();
   updateExternalVelocityLimit(dt);
+}
+
+void MotionVelocityOptimizer::publishClosestJerk(const double curr_acc)
+{
+  if (!prev_time_) {
+    prev_time_ = std::make_shared<ros::Time>(ros::Time::now());
+    prev_acc_ = curr_acc;
+    return;
+  }
+  ros::Time curr_time = ros::Time::now();
+  double dt = (curr_time - *prev_time_).toSec();
+  double curr_jerk = (curr_acc - prev_acc_) / dt;
+  publishFloat(curr_jerk, debug_closest_jerk_);
+  prev_acc_ = curr_acc;
+  *prev_time_ = curr_time;
 }
 
 int main(int argc, char ** argv)
