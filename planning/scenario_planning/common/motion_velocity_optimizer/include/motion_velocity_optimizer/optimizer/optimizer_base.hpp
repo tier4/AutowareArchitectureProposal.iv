@@ -20,6 +20,15 @@
 #include <limits>
 #include <vector>
 
+struct OptimizerParam
+{
+  double max_accel;
+  double min_decel;
+  double pseudo_jerk_weight;
+  double over_v_weight;
+  double over_a_weight;
+};
+
 class OptimizerBase
 {
 public:
@@ -28,9 +37,7 @@ public:
     const autoware_planning_msgs::Trajectory & input,
     autoware_planning_msgs::Trajectory * output) = 0;
 
-  virtual void setAccel(const double max_accel) = 0;
-
-  virtual void setDecel(const double min_decel) = 0;
+  virtual void setParam(const OptimizerParam & param) = 0;
 };
 
 #endif  // MOTION_VELOCITY_OPTIMIZER_OPTIMIZER_BASE_HPP
