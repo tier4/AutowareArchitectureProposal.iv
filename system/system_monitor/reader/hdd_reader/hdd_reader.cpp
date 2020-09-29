@@ -286,7 +286,7 @@ int get_ata_SMARTData(int fd, HDDInfo * info)
   // Retrieve C2h Enclosure Temperature
   for (int i = 0; i < 30; ++i) {
     if (data.attribute_entry_[i].attribute_id_ == 0xC2) {
-      info->temp_ = data.attribute_entry_[i].data_;
+      info->temp_ = static_cast<uint8_t>(data.attribute_entry_[i].data_);
       return EXIT_SUCCESS;
     }
   }
@@ -370,7 +370,7 @@ int get_nvme_SMARTData(int fd, HDDInfo * info)
   // Bytes 2:1 Composite Temperature
   // Convert kelvin to celsius
   unsigned int temperature = ((data[2] << 8) | data[1]) - 273;
-  info->temp_ = temperature;
+  info->temp_ = static_cast<uint8_t>(temperature);
 
   return EXIT_SUCCESS;
 }
