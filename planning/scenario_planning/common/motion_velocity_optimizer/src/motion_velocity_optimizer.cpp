@@ -28,7 +28,7 @@
 
 using std::placeholders::_1;
 
-#define UPDATE_PARAM(NAME) update_param(parameters, #NAME, planning_param_.NAME);
+#define UPDATE_PARAM(PARAM_STRUCT, NAME) update_param(parameters, #NAME, PARAM_STRUCT.NAME);
 namespace
 {
 template<typename T>
@@ -103,7 +103,7 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
     std::bind(&MotionVelocityOptimizer::callbackExternalVelocityLimit, this, _1));
 
   if (p.algorithm_type == "L2") {
-    L2PseudoJerkOptimizer::OptimizerParam param;
+    OptimizerParam param;
     param.max_accel = p.max_accel;
     param.min_decel = p.min_decel;
     param.pseudo_jerk_weight = declare_parameter("pseudo_jerk_weight", 100.0);
@@ -111,7 +111,7 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
     param.over_a_weight = declare_parameter("over_a_weight", 1000.0);
     optimizer_ = std::make_shared<L2PseudoJerkOptimizer>(param);
   } else if (p.algorithm_type == "Linf") {
-    LinfPseudoJerkOptimizer::OptimizerParam param;
+    OptimizerParam param;
     param.max_accel = p.max_accel;
     param.min_decel = p.min_decel;
     param.pseudo_jerk_weight = declare_parameter("pseudo_jerk_weight", 200.0);
@@ -764,31 +764,39 @@ rcl_interfaces::msg::SetParametersResult MotionVelocityOptimizer::paramCallback(
   result.successful = true;
   result.reason = "success";
 
+  MotionVelocityOptimizerParam param = planning_param_;
+  OptimizerParam optimizer_param;
   try {
-    UPDATE_PARAM(max_velocity);
-    UPDATE_PARAM(max_accel);
-    UPDATE_PARAM(min_decel);
-    UPDATE_PARAM(max_lateral_accel);
-    UPDATE_PARAM(min_curve_velocity);
-    UPDATE_PARAM(decel_distance_before_curve);
-    UPDATE_PARAM(decel_distance_after_curve);
-    UPDATE_PARAM(replan_vel_deviation);
-    UPDATE_PARAM(engage_velocity);
-    UPDATE_PARAM(engage_acceleration);
-    UPDATE_PARAM(engage_exit_ratio);
-    UPDATE_PARAM(extract_ahead_dist);
-    UPDATE_PARAM(extract_behind_dist);
-    UPDATE_PARAM(stop_dist_to_prohibit_engage);
-    UPDATE_PARAM(delta_yaw_threshold);
+    UPDATE_PARAM(param, max_velocity);
+    UPDATE_PARAM(param, max_accel);
+    UPDATE_PARAM(param, min_decel);
+    UPDATE_PARAM(param, max_lateral_accel);
+    UPDATE_PARAM(param, min_curve_velocity);
+    UPDATE_PARAM(param, decel_distance_before_curve);
+    UPDATE_PARAM(param, decel_distance_after_curve);
+    UPDATE_PARAM(param, replan_vel_deviation);
+    UPDATE_PARAM(param, engage_velocity);
+    UPDATE_PARAM(param, engage_acceleration);
+    UPDATE_PARAM(param, engage_exit_ratio);
+    UPDATE_PARAM(param, extract_ahead_dist);
+    UPDATE_PARAM(param, extract_behind_dist);
+    UPDATE_PARAM(param, stop_dist_to_prohibit_engage);
+    UPDATE_PARAM(param, delta_yaw_threshold);
 
-    UPDATE_PARAM(resample_time);
-    UPDATE_PARAM(resample_dt);
-    UPDATE_PARAM(max_trajectory_length);
-    UPDATE_PARAM(min_trajectory_length);
-    UPDATE_PARAM(min_trajectory_interval_distance);
+    UPDATE_PARAM(param, resample_time);
+    UPDATE_PARAM(param, resample_dt);
+    UPDATE_PARAM(param, max_trajectory_length);
+    UPDATE_PARAM(param, min_trajectory_length);
+    UPDATE_PARAM(param, min_trajectory_interval_distance);
 
-    optimizer_->setAccel(planning_param_.max_accel);
-    optimizer_->setDecel(planning_param_.min_decel);
+    optimizer_param.max_accel = param.max_accel;
+    optimizer_param.min_decel = param.min_decel;
+    UPDATE_PARAM(optimizer_param, pseudo_jerk_weight);
+    UPDATE_PARAM(optimizer_param, over_v_weight);
+    UPDATE_PARAM(optimizer_param, over_a_weight);
+
+    planning_param_ = param;
+    optimizer_->setParam(optimizer_param);
   } catch (const rclcpp::exceptions::InvalidParameterTypeException & e) {
     result.successful = false;
     result.reason = e.what();
