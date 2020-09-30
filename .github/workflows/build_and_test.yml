@@ -21,4 +21,5 @@ jobs:
     - name: Run Tests
       uses: ros-tooling/action-ros-ci@0.0.19
       with:
+        package-name: autoware_control_msgs autoware_lanelet2_msgs autoware_perception_msgs autoware_planning_msgs autoware_system_msgs autoware_vehicle_msgs simple_planning_simulator
         target-ros2-distro: foxy
