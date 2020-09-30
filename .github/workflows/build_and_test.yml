@@ -1,0 +1,5 @@
+steps:
+  - uses: ros-tooling/setup-ros@0.0.25
+  - uses: ros-tooling/action-ros-ci@0.0.18
+    with:
+      target-ros2-distro: foxy
