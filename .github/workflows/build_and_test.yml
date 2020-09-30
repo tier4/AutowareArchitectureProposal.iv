@@ -19,7 +19,7 @@ jobs:
           required-ros-distributions: foxy
 
     - name: Install missing dependencies
-      run: rosdep update && DEBIAN_FRONTEND=noninteractive sudo rosdep install --from-paths . --ignore-src --rosdistro foxy -y
+      run: sudo rosdep update && DEBIAN_FRONTEND=noninteractive sudo rosdep install --from-paths . --ignore-src --rosdistro foxy -y
 
     - name: Build
       run: source /opt/ros/foxy/setup.bash && colcon build --event-handlers console_cohesion+
