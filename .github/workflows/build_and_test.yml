@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - name: Setup ROS 2
       uses: ros-tooling/setup-ros@0.0.25
