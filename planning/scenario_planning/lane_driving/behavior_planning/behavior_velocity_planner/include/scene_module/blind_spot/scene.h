@@ -206,6 +206,17 @@ private:
     int * stop_line_idx, int * pass_judge_line_idx) const;
 
   /**
+   * @brief Insert a point to target path
+   * @param insert_idx_ip insert point index in path_ip
+   * @param path_ip interpolated path
+   * @param path target path for inserting a point
+   * @return inserted point idx in target path, return -1 when could not find valid index
+   */
+  int insertPoint(
+    const int insert_idx_ip, const autoware_planning_msgs::PathWithLaneId path_ip,
+    autoware_planning_msgs::PathWithLaneId * path) const;
+
+  /**
    * @brief Calculate first path index that is conflicting lanelets.
    * @param path     target path
    * @param lanelets target lanelets

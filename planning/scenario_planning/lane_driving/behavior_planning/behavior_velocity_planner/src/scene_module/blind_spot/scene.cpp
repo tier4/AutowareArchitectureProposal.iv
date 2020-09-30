@@ -200,8 +200,7 @@ bool BlindSpotModule::generateStopLine(
   }
 
   /* insert stop_point */
-  const auto inserted_stop_point = path_ip.points.at(stop_idx_ip).point.pose;
-  *stop_line_idx = util::insertPoint(inserted_stop_point, path);
+  *stop_line_idx = insertPoint(stop_idx_ip, path_ip, path);
 
   /* if another stop point exist before intersection stop_line, disable judge_line. */
   bool has_prior_stopline = false;
@@ -245,6 +244,36 @@ void BlindSpotModule::cutPredictPathWithDuration(
       predicted_path.path = vp;
     }
   }
+}
+
+int BlindSpotModule::insertPoint(
+  const int insert_idx_ip, const autoware_planning_msgs::PathWithLaneId path_ip,
+  autoware_planning_msgs::PathWithLaneId * inout_path) const
+{
+  double insert_point_s = 0.0;
+  for (int i = 1; i <= insert_idx_ip; i++) {
+    insert_point_s += planning_utils::calcDist2d(
+      path_ip.points[i].point.pose.position, path_ip.points[i - 1].point.pose.position);
+  }
+  int insert_idx = -1;
+  // initialize with epsilon so that comparison with insert_point_s = 0.0 would work
+  double accum_s = 1e-6;
+  for (int i = 1; i < inout_path->points.size(); i++) {
+    accum_s += planning_utils::calcDist2d(
+      inout_path->points[i].point.pose.position, inout_path->points[i - 1].point.pose.position);
+    if (accum_s > insert_point_s) {
+      insert_idx = i;
+      break;
+    }
+  }
+  if (insert_idx >= 0) {
+    const auto it = inout_path->points.begin() + insert_idx;
+    autoware_planning_msgs::PathPointWithLaneId inserted_point;
+    inserted_point = inout_path->points.at(insert_idx);
+    inserted_point.point.pose = path_ip.points[insert_idx_ip].point.pose;
+    inout_path->points.insert(it, inserted_point);
+  }
+  return insert_idx;
 }
 
 bool BlindSpotModule::checkObstacleInBlindSpot(
