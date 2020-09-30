@@ -18,6 +18,9 @@ jobs:
       with:
           required-ros-distributions: foxy
 
+    - name: Update rosdep
+      run: rosdep update
+
     - name: Install missing dependencies
       run: DEBIAN_FRONTEND=noninteractive rosdep install --ignore-src --rosdistro foxy -y
 
