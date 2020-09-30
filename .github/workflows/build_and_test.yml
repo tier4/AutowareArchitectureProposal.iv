@@ -19,3 +19,4 @@ jobs:
       uses: ros-tooling/action-ros-ci@0.0.18
       with:
         package-name: mpc_follower
+        target-ros2-distro: foxy
