@@ -38,6 +38,9 @@ MotionVelocityOptimizer::MotionVelocityOptimizer() : nh_(""), pnh_("~"), tf_list
   pnh_.param<double>("engage_exit_ratio", p.engage_exit_ratio, 0.5);
   p.engage_exit_ratio = std::min(std::max(p.engage_exit_ratio, 0.0), 1.0);
 
+  pnh_.param<double>("stopping_velocity", p.stopping_velocity, 2.778);  // 10kmph
+  pnh_.param<double>("stopping_distance", p.stopping_distance, 0.0);
+
   pnh_.param<double>("extract_ahead_dist", p.extract_ahead_dist, 200.0);
   pnh_.param<double>("extract_behind_dist", p.extract_behind_dist, 3.0);
   pnh_.param<double>("max_trajectory_length", p.max_trajectory_length, 200.0);
@@ -259,6 +262,9 @@ autoware_planning_msgs::Trajectory MotionVelocityOptimizer::calcTrajectoryVeloci
   ROS_DEBUG(
     "[calcClosestWaypoint] base_resampled.size() = %lu, prev_planned_closest_ = %d",
     traj_resampled.points.size(), prev_output_closest);
+
+  /* Apply stopping velocity */
+  applyStoppingVelocity(&traj_resampled);
 
   /* Optimize velocity */
   output =
@@ -631,6 +637,22 @@ bool MotionVelocityOptimizer::extractPathAroundIndex(
     "[extractPathAroundIndex] : input.size() = %lu, extract_base_index = %d, output.size() = %lu",
     input.points.size(), index, output.points.size());
   return true;
+}
+
+void MotionVelocityOptimizer::applyStoppingVelocity(autoware_planning_msgs::Trajectory * traj) const
+{
+  int stop_idx;
+  if (!vpu::searchZeroVelocityIdx(*traj, stop_idx)) return;  // no stop point.
+
+  double distance_sum = 0.0;
+  for (int i = stop_idx - 1; i >= 0; --i) {  // search backward
+    distance_sum += vpu::calcDist2d(traj->points.at(i), traj->points.at(i + 1));
+    if (distance_sum > planning_param_.stopping_distance) break;
+    if (traj->points.at(i).twist.linear.x > planning_param_.stopping_velocity) {
+      traj->points.at(i).twist.linear.x = planning_param_.stopping_velocity;
+    }
+  }
+  return;
 }
 
 void MotionVelocityOptimizer::publishFloat(const double & data, const ros::Publisher & pub) const
