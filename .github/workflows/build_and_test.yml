@@ -16,7 +16,7 @@ jobs:
           required-ros-distributions: foxy
 
     - name: Run Tests
-      uses: ros-tooling/action-ros-ci@0.0.18
+      uses: ros-tooling/action-ros-ci@0.0.19
       with:
         package-name: mpc_follower
         target-ros2-distro: foxy
