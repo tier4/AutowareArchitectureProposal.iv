@@ -19,7 +19,7 @@ jobs:
       run: rosdep update && DEBIAN_FRONTEND=noninteractive sudo rosdep install --from-paths . --ignore-src --rosdistro foxy -y
 
     - name: Build
-      run: colcon build --event-handlers console_cohesion+
+      run: source /opt/ros/foxy/setup.bash && colcon build --event-handlers console_cohesion+
 
     - name: Run tests
-      run: colcon test --event-handlers console_cohesion+
+      run: source /opt/ros/foxy/setup.bash && colcon test --event-handlers console_cohesion+
