@@ -9,20 +9,17 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-20.04
+    container: ros:foxy
+
     steps:
     - name: Check out repo
       uses: actions/checkout@v2
 
-    - name: Setup ROS 2
-      uses: ros-tooling/setup-ros@0.0.25
-      with:
-          required-ros-distributions: foxy
-
     - name: Install missing dependencies
-      run: sudo rosdep update && DEBIAN_FRONTEND=noninteractive sudo rosdep install --from-paths . --ignore-src --rosdistro foxy -y
+      run: rosdep update && DEBIAN_FRONTEND=noninteractive sudo rosdep install --from-paths . --ignore-src --rosdistro foxy -y
 
     - name: Build
-      run: source /opt/ros/foxy/setup.bash && colcon build --event-handlers console_cohesion+
+      run: colcon build --event-handlers console_cohesion+
 
     - name: Run tests
-      run: source /opt/ros/foxy/setup.bash && colcon test --event-handlers console_cohesion+
+      run: colcon test --event-handlers console_cohesion+
