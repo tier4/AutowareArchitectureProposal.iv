@@ -10,6 +10,9 @@ jobs:
   build-and-test:
     runs-on: ubuntu-20.04
     steps:
+    - name: Check out repo
+      uses: actions/checkout@v2
+
     - name: Setup ROS 2
       uses: ros-tooling/setup-ros@0.0.25
       with:
