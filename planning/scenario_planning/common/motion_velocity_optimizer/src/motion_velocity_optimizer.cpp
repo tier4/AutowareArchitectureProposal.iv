@@ -63,6 +63,9 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
   p.engage_exit_ratio = declare_parameter("engage_exit_ratio", 0.5);
   p.engage_exit_ratio = std::min(std::max(p.engage_exit_ratio, 0.0), 1.0);
 
+  p.stopping_velocity = declare_parameter("stopping_velocity", 2.778);  // 10kmph
+  p.stopping_distance = declare_parameter("stopping_distance", 0.0);
+
   p.extract_ahead_dist = declare_parameter("extract_ahead_dist", 200.0);
   p.extract_behind_dist = declare_parameter("extract_behind_dist", 3.0);
   p.max_trajectory_length = declare_parameter("max_trajectory_length", 200.0);
@@ -308,6 +311,9 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
   RCLCPP_DEBUG(
     get_logger(), "[calcClosestWaypoint] base_resampled.size() = %lu, prev_planned_closest_ = %d",
     traj_resampled.points.size(), prev_output_closest);
+
+  /* Apply stopping velocity */
+  applyStoppingVelocity(&traj_resampled);
 
   /* Optimize velocity */
   output =
@@ -702,6 +708,22 @@ bool MotionVelocityOptimizer::extractPathAroundIndex(
   return true;
 }
 
+void MotionVelocityOptimizer::applyStoppingVelocity(autoware_planning_msgs::msg::Trajectory * traj) const
+{
+  int stop_idx;
+  if (!vpu::searchZeroVelocityIdx(*traj, stop_idx)) return;  // no stop point.
+
+  double distance_sum = 0.0;
+  for (int i = stop_idx - 1; i >= 0; --i) {  // search backward
+    distance_sum += vpu::calcDist2d(traj->points.at(i), traj->points.at(i + 1));
+    if (distance_sum > planning_param_.stopping_distance) break;
+    if (traj->points.at(i).twist.linear.x > planning_param_.stopping_velocity) {
+      traj->points.at(i).twist.linear.x = planning_param_.stopping_velocity;
+    }
+  }
+  return;
+}
+
 void MotionVelocityOptimizer::publishFloat(
   const double & data,
   const rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub) const
@@ -781,6 +803,8 @@ rcl_interfaces::msg::SetParametersResult MotionVelocityOptimizer::paramCallback(
     UPDATE_PARAM(param, engage_velocity);
     UPDATE_PARAM(param, engage_acceleration);
     UPDATE_PARAM(param, engage_exit_ratio);
+    UPDATE_PARAM(param, stopping_velocity);
+    UPDATE_PARAM(param, stopping_distance);
     UPDATE_PARAM(param, extract_ahead_dist);
     UPDATE_PARAM(param, extract_behind_dist);
     UPDATE_PARAM(param, stop_dist_to_prohibit_engage);

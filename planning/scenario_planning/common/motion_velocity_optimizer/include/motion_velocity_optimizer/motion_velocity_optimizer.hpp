@@ -99,6 +99,8 @@ private:
     double engage_velocity;       // use this speed when start moving [m/s]
     double engage_acceleration;   // use this acceleration when start moving [m/ss]
     double engage_exit_ratio;     // exit engage sequence when the speed exceeds ratio x engage_vel.
+    double stopping_velocity;     // change target velocity to this value before v=0 point.
+    double stopping_distance;     // distance for the stopping_velocity
     double extract_ahead_dist;    // forward waypoints distance from current position [m]
     double extract_behind_dist;   // backward waypoints distance from current position [m]
     double max_trajectory_length;             // max length of the objective trajectory for resample
@@ -168,6 +170,8 @@ private:
   void insertBehindVelocity(
     const int prev_out_closest, const autoware_planning_msgs::msg::Trajectory & prev_output,
     const int output_closest, autoware_planning_msgs::msg::Trajectory & output) const;
+
+  void applyStoppingVelocity(autoware_planning_msgs::msg::Trajectory * traj) const;
 
   autoware_planning_msgs::msg::VelocityLimit createVelocityLimitMsg(const double value)
   {
