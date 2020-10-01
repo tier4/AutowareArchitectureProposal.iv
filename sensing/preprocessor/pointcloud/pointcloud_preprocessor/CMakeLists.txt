@@ -151,6 +151,15 @@ rclcpp_components_register_node(voxel_grid_outlier_filter
   PLUGIN "pointcloud_preprocessor::VoxelGridOutlierFilterComponent"
   EXECUTABLE voxel_grid_outlier_filter_node)
 
+# -- Radius Search 2D Outlier Filter --
+ament_auto_add_library(radius_search_2d_outlier_filter SHARED
+  src/outlier_filter/radius_search_2d_outlier_filter_nodelet.cpp
+  )
+target_link_libraries(radius_search_2d_outlier_filter pointcloud_preprocessor_filter_base ${Boost_LIBRARIES} ${PCL_LIBRARIES})
+rclcpp_components_register_node(radius_search_2d_outlier_filter
+  PLUGIN "pointcloud_preprocessor::RadiusSearch2DOutlierFilterComponent"
+  EXECUTABLE radius_search_2d_outlier_filter_node)
+
 
 # ========== Passthrough Filter ==========
 # -- Passthrough Filter --
