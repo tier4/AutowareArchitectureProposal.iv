@@ -1,0 +1,25 @@
+name: Build and test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - ros2-porting-test
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    container: ros:foxy
+
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v2
+
+    - name: Install missing dependencies
+      run: rosdep update && DEBIAN_FRONTEND=noninteractive sudo rosdep install --from-paths . --ignore-src --rosdistro foxy -y
+
+    - name: Build
+      run: . /opt/ros/foxy/setup.sh && colcon build --event-handlers console_cohesion+
+
+    - name: Run tests
+      run: . /opt/ros/foxy/setup.sh && colcon test --event-handlers console_cohesion+
