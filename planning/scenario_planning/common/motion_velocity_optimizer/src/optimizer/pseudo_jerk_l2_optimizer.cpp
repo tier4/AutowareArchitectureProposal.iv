@@ -90,7 +90,8 @@ bool L2PseudoJerkOptimizer::solve(
   // pseudo jerk: d(ai)/ds -> minimize weight * (a1 - a0)^2
   for (unsigned int i = N; i < 2 * N - 1; ++i) {
     unsigned int j = i - N;
-    const double w_x_dsinv = smooth_weight * (1.0 / std::max(interval_dist_arr.at(j), 0.0001));
+    const double w_x_dsinv =
+      smooth_weight * (1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001));
     P(i, i) += w_x_dsinv;
     P(i, i + 1) -= w_x_dsinv;
     P(i + 1, i) -= w_x_dsinv;
@@ -134,13 +135,13 @@ bool L2PseudoJerkOptimizer::solve(
     }
   }
 
-  // b' = 2a
+  // b' = 2a ... (b(i+1) - b(i)) / ds = 2a(i)
   for (unsigned int i = 2 * N; i < 3 * N - 1; ++i) {
     const unsigned int j = i - 2 * N;
-    const double dsinv = 1.0 / std::max(interval_dist_arr.at(j), 0.0001);
-    A(i, j) = -dsinv;
-    A(i, j + 1) = dsinv;
-    A(i, j + N) = -2.0;
+    const double dsinv = 1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001);
+    A(i, j) = -dsinv;     // b(i)
+    A(i, j + 1) = dsinv;  //b(i+1)
+    A(i, j + N) = -2.0;   // a(i)
     upper_bound[i] = 0.0;
     lower_bound[i] = 0.0;
   }

@@ -130,7 +130,7 @@ bool LinfPseudoJerkOptimizer::solve(
   // b' = 2a
   for (unsigned int i = 2 * N; i < 3 * N - 1; ++i) {
     const unsigned int j = i - 2 * N;
-    const double dsinv = 1.0 / std::max(interval_dist_arr.at(j), 0.0001);
+    const double dsinv = 1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001);
     A(i, j) = -dsinv;
     A(i, j + 1) = dsinv;
     A(i, j + N) = -2.0;
@@ -155,8 +155,8 @@ bool LinfPseudoJerkOptimizer::solve(
   for (unsigned int i = 3 * N + 1; i < 4 * N; ++i) {
     const unsigned int ia = i - (3 * N + 1) + N;
     const unsigned int ip = 4 * N;
-    const unsigned int j = i - 3 * N + 1;
-    const double dsinv = 1.0 / std::max(interval_dist_arr.at(j), 0.0001);
+    const unsigned int j = i - (3 * N + 1);
+    const double dsinv = 1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001);
 
     A(i, ia) = -dsinv;
     A(i, ia + 1) = dsinv;
