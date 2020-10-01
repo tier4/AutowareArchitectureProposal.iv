@@ -8,6 +8,14 @@
     </description>
   </class>
 
+  <class name="pointcloud_preprocessor/radius_search_2d_outlier_filter_nodelet"
+	 type="pointcloud_preprocessor::RadiusSearch2DOutlierFilterNodelet"
+	 base_class_type="nodelet::Nodelet">
+    <description>
+      radius search 2d filter.
+    </description>
+  </class>
+
   <class name="pointcloud_preprocessor/ring_outlier_filter_nodelet"
 	 type="pointcloud_preprocessor::RingOutlierFilterNodelet"
 	 base_class_type="nodelet::Nodelet">
