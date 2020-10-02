@@ -81,8 +81,8 @@ PathWithLaneId combineReferencePath(
     std::vector<double> base_x;
     std::vector<double> base_y;
     std::vector<double> base_z;
-    int n_sample_path1 = 0;
 
+    int n_sample_path1 = 0;
     for (size_t i = 0; i < N_sample; ++i) {
       const int idx = static_cast<int>(path1.points.size()) - N_sample + i;
       if (idx < 0) {
@@ -93,6 +93,7 @@ PathWithLaneId combineReferencePath(
       base_z.push_back(path1.points.at(idx).point.pose.position.z);
       n_sample_path1++;
     }
+
     int n_sample_path2 = 0;
     for (size_t i = 0; i < N_sample; ++i) {
       if (i >= path2.points.size()) {
@@ -503,27 +504,39 @@ bool RouteHandler::getLeftLaneletWithinRoute(
 }
 
 bool RouteHandler::getLaneChangeTarget(
-  const lanelet::ConstLanelet & lanelet, lanelet::ConstLanelet * target_lanelet) const
+  const lanelet::ConstLanelets & lanelets, lanelet::ConstLanelet * target_lanelet) const
 {
-  int num = getNumLaneToPreferredLane(lanelet);
-  if (num == 0) {
-    *target_lanelet = lanelet;
-    return false;
-  }
-  if (num < 0) {
-    auto right_lanelet = (!!routing_graph_ptr_->right(lanelet))
-                           ? routing_graph_ptr_->right(lanelet)
-                           : routing_graph_ptr_->adjacentRight(lanelet);
-    *target_lanelet = right_lanelet.get();
+  for (auto it = lanelets.begin(); it != lanelets.end(); ++it) {
+    const auto lanelet = *it;
+
+    int num = getNumLaneToPreferredLane(lanelet);
+    if (num == 0) {
+      continue;
+    }
+
+    if (num < 0) {
+      if (!!routing_graph_ptr_->right(lanelet)) {
+        auto right_lanelet = routing_graph_ptr_->right(lanelet);
+        *target_lanelet = right_lanelet.get();
+        return true;
+      } else {
+        continue;
+      }
+    }
+
+    if (num > 0) {
+      if (!!routing_graph_ptr_->left(lanelet)) {
+        auto left_lanelet = routing_graph_ptr_->left(lanelet);
+        *target_lanelet = left_lanelet.get();
+        return true;
+      } else {
+        continue;
+      }
+    }
   }
 
-  if (num > 0) {
-    auto left_lanelet = (!!routing_graph_ptr_->left(lanelet))
-                          ? routing_graph_ptr_->left(lanelet)
-                          : routing_graph_ptr_->adjacentLeft(lanelet);
-    *target_lanelet = left_lanelet.get();
-  }
-  return true;
+  *target_lanelet = lanelets.front();
+  return false;
 }
 
 lanelet::ConstLanelets RouteHandler::getClosestLaneletSequence(
@@ -779,6 +792,9 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
   constexpr double buffer = 1.0;  // buffer for min_lane_change_length
   const double acceleration_resolution = std::abs(maximum_deceleration) / lane_change_sampling_num;
 
+  const double target_distance =
+    util::getArcLengthToTargetLanelet(original_lanelets, target_lanelets.front(), pose);
+
   for (double acceleration = 0.0; acceleration >= -maximum_deceleration;
        acceleration -= acceleration_resolution) {
     PathWithLaneId reference_path;
@@ -794,6 +810,8 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
     double lane_change_distance =
       v1 * lane_changing_duration + 0.5 * acceleration * std::pow(lane_changing_duration, 2);
     lane_change_distance = std::max(lane_change_distance, minimum_lane_change_length);
+
+    if (straight_distance < target_distance) continue;
 
     PathWithLaneId reference_path1;
     {
