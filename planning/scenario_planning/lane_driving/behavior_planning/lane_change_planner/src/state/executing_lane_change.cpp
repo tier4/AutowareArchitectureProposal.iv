@@ -61,9 +61,6 @@ void ExecutingLaneChangeState::update()
     lanes.insert(lanes.end(), original_lanes_.begin(), original_lanes_.end());
     lanes.insert(lanes.end(), target_lanes_.begin(), target_lanes_.end());
 
-    status_.lane_change_path.path =
-      route_handler_ptr_->updatePathTwist(status_.lane_change_path.path);
-
     const double width = ros_parameters_.drivable_area_width;
     const double height = ros_parameters_.drivable_area_height;
     const double resolution = ros_parameters_.drivable_area_resolution;

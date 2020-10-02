@@ -43,7 +43,7 @@ void StoppingLaneChangeState::entry()
 
 autoware_planning_msgs::PathWithLaneId StoppingLaneChangeState::getPath() const
 {
-  return status_.lane_change_path.path;
+  return isVehicleInOriginalLanes() ? status_.lane_change_path.path : stop_path_;
 }
 
 void StoppingLaneChangeState::update()
@@ -51,9 +51,8 @@ void StoppingLaneChangeState::update()
   current_twist_ = data_manager_ptr_->getCurrentSelfVelocity();
   current_pose_ = data_manager_ptr_->getCurrentSelfPose();
   dynamic_objects_ = data_manager_ptr_->getDynamicObjects();
-
   if (isVehicleInOriginalLanes()) {
-    status_.lane_change_path.path = setStopPoint(status_.lane_change_path.path);
+    stop_path_ = setStopPoint(status_.lane_change_path.path);
   }
 }
 
