@@ -128,6 +128,7 @@ private:
   double max_y_;
 
   Polygon vehicle_footprint_;
+  bool use_vehicle_footprint_;
 
   std::vector<cv::Scalar> colors_;
   const size_t color_num_ = 10;  // different number of color to generate

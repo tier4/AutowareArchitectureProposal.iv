@@ -52,6 +52,8 @@ RayGroundFilterComponent::RayGroundFilterComponent(const rclcpp::NodeOptions & o
 
     setVehicleFootprint(min_x_, max_x_, min_y_, max_y_);
 
+    use_vehicle_footprint_ = declare_parameter("use_vehicle_footprint", false);
+
     base_frame_ = declare_parameter("base_frame", "base_link");
     general_max_slope_ = declare_parameter("general_max_slope", 8.0);
     local_max_slope_ = declare_parameter("local_max_slope", 6.0);
@@ -197,19 +199,21 @@ void RayGroundFilterComponent::ClassifyPointCloud(
     {
       double local_max_slope = local_max_slope_;
       if (j == 0) {
-        // calc intersection of vehicle footprint and initial point vector
-        const auto radius = calcPointVehicleIntersection(
-          Point{in_radial_ordered_clouds[i][j].point.x, in_radial_ordered_clouds[i][j].point.y});
-        if (radius) {
-          prev_radius = *radius;
-        } else {
-          // This case may happen if point was detected inside vehicle footprint for example
-          RCLCPP_ERROR(
-            this->get_logger(),
-            "failed to find intersection of initial point line and vehicle footprint");
-          continue;
-        }
         local_max_slope = initial_max_slope_;
+        if (use_vehicle_footprint_) {
+          // calc intersection of vehicle footprint and initial point vector
+          const auto radius = calcPointVehicleIntersection(
+            Point{in_radial_ordered_clouds[i][j].point.x, in_radial_ordered_clouds[i][j].point.y});
+          if (radius) {
+            prev_radius = *radius;
+          } else {
+            // This case may happen if point was detected inside vehicle footprint for example
+            // RCLCPP_ERROR(
+            //   this->get_logger(),
+            //   "failed to find intersection of initial point line and vehicle footprint");
+            continue;
+          }
+        }
       }
 
       float points_distance = in_radial_ordered_clouds[i][j].radius - prev_radius;
@@ -362,16 +366,16 @@ rcl_interfaces::msg::SetParametersResult RayGroundFilterComponent::paramCallback
   boost::mutex::scoped_lock lock(mutex_);
 
   if (get_param(p, "min_x", min_x_)) {
-    RCLCPP_DEBUG(get_logger(), "Setting min_x to: %s.", min_x_);
+    RCLCPP_DEBUG(get_logger(), "Setting min_x to: %f.", min_x_);
   }
   if (get_param(p, "max_x", max_x_)) {
-    RCLCPP_DEBUG(get_logger(), "Setting max_x to: %s.", max_x_);
+    RCLCPP_DEBUG(get_logger(), "Setting max_x to: %f.", max_x_);
   }
   if (get_param(p, "min_y", min_y_)) {
-    RCLCPP_DEBUG(get_logger(), "Setting min_y to: %s.", min_y_);
+    RCLCPP_DEBUG(get_logger(), "Setting min_y to: %f.", min_y_);
   }
   if (get_param(p, "max_y", max_y_)) {
-    RCLCPP_DEBUG(get_logger(), "Setting max_y to: %s.", max_y_);
+    RCLCPP_DEBUG(get_logger(), "Setting max_y to: %f.", max_y_);
   }
 
   setVehicleFootprint(min_x_, max_x_, min_y_, max_y_);
@@ -401,6 +405,10 @@ rcl_interfaces::msg::SetParametersResult RayGroundFilterComponent::paramCallback
   if (get_param(p, "reclass_distance_threshold", reclass_distance_threshold_)) {
     RCLCPP_DEBUG(
       get_logger(), "Setting reclass_distance_threshold to: %f.", reclass_distance_threshold_);
+  }
+  if (get_param(p, "use_vehicle_footprint", use_vehicle_footprint_)) {
+    RCLCPP_DEBUG(
+      get_logger(), "Setting use_vehicle_footprint to: %f.", use_vehicle_footprint_);
   }
 
   rcl_interfaces::msg::SetParametersResult result;
