@@ -110,12 +110,16 @@ private:
   double accel_pedal_offset_;  // offset of accel pedal value
   double brake_pedal_offset_;  // offset of brake pedal value
 
-  double emergency_brake_;             // brake command when emergency [m/s^2]
-  double max_throttle_;                // max throttle [0~1]
-  double max_brake_;                   // max throttle [0~1]
-  double max_steering_wheel_;          // max steering wheel angle [rad]
-  double max_steering_wheel_rate_;     // [rad/s]
-  double min_steering_wheel_rate_;     // [rad/s]
+  double emergency_brake_;              // brake command when emergency [m/s^2]
+  double max_throttle_;                 // max throttle [0~1]
+  double max_brake_;                    // max throttle [0~1]
+  double max_steering_wheel_;           // max steering wheel angle [rad]
+  double max_steering_wheel_rate_;      // [rad/s]
+  double min_steering_wheel_rate_;      // [rad/s]
+  double steering_wheel_rate_low_vel_;  // [rad/s]
+  double steering_wheel_rate_stopped_;  // [rad/s]
+  double low_vel_thresh_;               // [m/s]
+
   bool enable_steering_rate_control_;  // use steering angle speed for command [rad/s]
 
   /* input values */
