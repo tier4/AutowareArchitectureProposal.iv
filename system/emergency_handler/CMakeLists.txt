@@ -43,8 +43,8 @@ include_directories(include)
 
 ### Target executable
 add_executable(${PROJECT_NAME}_exe
-  src/emergency_handler_node/main.cpp
   src/emergency_handler_node/emergency_handler_node.cpp
+  src/emergency_handler_node/emergency_handler_core.cpp
 )
 
 # Add dependencies. use target_link_libaries() before Crystal
