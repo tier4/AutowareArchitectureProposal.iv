@@ -178,8 +178,7 @@ visualization_msgs::MarkerArray parkingSpacesAsMarkerArray(
  * @return visualization_msgs::MarkerArray 
  */
 visualization_msgs::MarkerArray generateLaneletIdMarker(
-  const lanelet::ConstLanelets road_lanelets,
-  const std_msgs::ColorRGBA c,
+  const lanelet::ConstLanelets road_lanelets, const std_msgs::ColorRGBA c,
   const double scale = 0.5);
 
 }  // namespace visualization

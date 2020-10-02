@@ -601,13 +601,10 @@ visualization_msgs::MarkerArray visualization::parkingSpacesAsMarkerArray(
 }
 
 visualization_msgs::MarkerArray visualization::generateLaneletIdMarker(
-  const lanelet::ConstLanelets road_lanelets,
-  const std_msgs::ColorRGBA c,
-  const double scale)
+  const lanelet::ConstLanelets road_lanelets, const std_msgs::ColorRGBA c, const double scale)
 {
   visualization_msgs::MarkerArray markers;
-  for (const auto & ll : road_lanelets)
-  {
+  for (const auto & ll : road_lanelets) {
     visualization_msgs::Marker marker;
     marker.header.frame_id = "map";
     marker.header.stamp = ros::Time::now();

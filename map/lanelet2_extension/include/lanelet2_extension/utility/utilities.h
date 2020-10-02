@@ -33,7 +33,7 @@ namespace utils
 {
 lanelet::LineString3d generateFineCenterline(
   const lanelet::ConstLanelet & lanelet_obj, const double resolution = 5.0);
-  lanelet::ConstLineString3d getCenterlineWithOffset(
+lanelet::ConstLineString3d getCenterlineWithOffset(
   const lanelet::ConstLanelet & lanelet_obj, const double offset, const double resolution = 5.0);
 
 /**
@@ -41,7 +41,8 @@ lanelet::LineString3d generateFineCenterline(
  * doesn't have enough quality
  */
 void overwriteLaneletsCenterline(
-  lanelet::LaneletMapPtr lanelet_map, const double resolution = 5.0, const bool force_overwrite = false);
+  lanelet::LaneletMapPtr lanelet_map, const double resolution = 5.0,
+  const bool force_overwrite = false);
 
 lanelet::ConstLanelets getConflictingLanelets(
   const lanelet::routing::RoutingGraphConstPtr & graph, const lanelet::ConstLanelet & lanelet);
@@ -64,6 +65,7 @@ lanelet::CompoundPolygon3d getPolygonFromArcLength(
   const lanelet::ConstLanelets & lanelets, const double s1, const double s2);
 double getLaneletAngle(
   const lanelet::ConstLanelet & lanelet, const geometry_msgs::Point & search_point);
+bool isInLanelet(const geometry_msgs::Pose & current_pose, const lanelet::ConstLanelet & lanelet);
 
 }  // namespace utils
 }  // namespace lanelet

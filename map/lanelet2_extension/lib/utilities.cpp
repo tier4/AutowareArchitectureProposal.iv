@@ -494,5 +494,14 @@ double getLaneletAngle(
     segment.back().y() - segment.front().y(), segment.back().x() - segment.front().x());
 }
 
+bool isInLanelet(const geometry_msgs::Pose & current_pose, const lanelet::ConstLanelet & lanelet)
+{
+  const lanelet::BasicPoint2d p(current_pose.position.x, current_pose.position.y);
+  if (boost::geometry::within(p, lanelet.polygon2d().basicPolygon())) {
+    return true;
+  }
+  return false;
+}
+
 }  // namespace utils
 }  // namespace lanelet
