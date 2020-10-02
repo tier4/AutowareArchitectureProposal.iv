@@ -1072,6 +1072,41 @@ autoware_planning_msgs::PathPointWithLaneId insertStopPoint(
   return stop_point;
 }
 
+double getArcLengthToTargetLanelet(
+  const lanelet::ConstLanelets & current_lanes, const lanelet::ConstLanelet & target_lane,
+  const geometry_msgs::Pose & pose)
+{
+  const auto arc_pose = lanelet::utils::getArcCoordinates(current_lanes, pose);
+
+  const auto target_center_line = target_lane.centerline().basicLineString();
+
+  geometry_msgs::Pose front_pose, back_pose;
+
+  {
+    const auto front_point = lanelet::utils::conversion::toGeomMsgPt(target_center_line.front());
+    const double front_yaw = lanelet::utils::getLaneletAngle(target_lane, front_point);
+    front_pose.position = front_point;
+    tf2::Quaternion tf_quat;
+    tf_quat.setRPY(0, 0, front_yaw);
+    front_pose.orientation = tf2::toMsg(tf_quat);
+  }
+
+  {
+    const auto back_point = lanelet::utils::conversion::toGeomMsgPt(target_center_line.back());
+    const double back_yaw = lanelet::utils::getLaneletAngle(target_lane, back_point);
+    back_pose.position = back_point;
+    tf2::Quaternion tf_quat;
+    tf_quat.setRPY(0, 0, back_yaw);
+    back_pose.orientation = tf2::toMsg(tf_quat);
+  }
+
+  const auto arc_front = lanelet::utils::getArcCoordinates(current_lanes, front_pose);
+  const auto arc_back = lanelet::utils::getArcCoordinates(current_lanes, back_pose);
+
+  return std::max(
+    std::min(arc_front.length - arc_pose.length, arc_back.length - arc_pose.length), 0.0);
+}
+
 /*
  * spline interpolation
  */

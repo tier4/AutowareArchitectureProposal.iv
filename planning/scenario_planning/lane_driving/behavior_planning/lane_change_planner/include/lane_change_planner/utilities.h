@@ -150,6 +150,10 @@ lanelet::Polygon3d getVehiclePolygon(
 autoware_planning_msgs::PathPointWithLaneId insertStopPoint(
   double length, autoware_planning_msgs::PathWithLaneId * path);
 
+double getArcLengthToTargetLanelet(
+  const lanelet::ConstLanelets & current_lanes, const lanelet::ConstLanelet & target_lane,
+  const geometry_msgs::Pose & pose);
+
 class SplineInterpolate
 {
   bool initialized_;

@@ -69,8 +69,11 @@ void FollowingLaneState::update()
     }
     current_lanes_ = route_handler_ptr_->getLaneletSequence(
       current_lane, current_pose_.pose, backward_path_length, forward_path_length);
+    const double lane_change_prepare_length = current_twist_->twist.linear.x * ros_parameters_.lane_change_prepare_duration;
+    lanelet::ConstLanelets current_check_lanes = route_handler_ptr_->getLaneletSequence(
+      current_lane, current_pose_.pose, 0.0, lane_change_prepare_length);
     lanelet::ConstLanelet lane_change_lane;
-    if (route_handler_ptr_->getLaneChangeTarget(current_lane, &lane_change_lane)) {
+    if (route_handler_ptr_->getLaneChangeTarget(current_check_lanes, &lane_change_lane)) {
       constexpr double lane_change_lane_length = 100.0;
       lane_change_lanes_ = route_handler_ptr_->getLaneletSequence(
         lane_change_lane, current_pose_.pose, lane_change_lane_length, lane_change_lane_length);
