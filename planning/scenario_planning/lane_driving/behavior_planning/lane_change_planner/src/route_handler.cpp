@@ -136,8 +136,8 @@ PathWithLaneId combineReferencePath(
         inner_point.lane_ids.insert(
           inner_point.lane_ids.end(), path2.points.front().lane_ids.begin(),
           path2.points.front().lane_ids.end());
-        inner_point.point.type = path1.points.back().point.type;
-        inner_point.point.twist = path1.points.back().point.twist;
+        inner_point.point.type = path2.points.front().point.type;
+        inner_point.point.twist = path2.points.front().point.twist;
         inner_point.point.pose.position.x = inner_x.at(i);
         inner_point.point.pose.position.y = inner_y.at(i);
         inner_point.point.pose.position.z = inner_z.at(i);
@@ -804,6 +804,12 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
       reference_path1 = getReferencePath(original_lanelets, s_start, s_end, 0.0, 0.0);
     }
 
+    for (auto & point : reference_path1.points) {
+      point.point.twist.linear.x = std::min(
+        point.point.twist.linear.x,
+        std::max(straight_distance / lane_change_prepare_duration, 10.0 / 3.6));
+    }
+
     PathWithLaneId reference_path2;
     {
       const double lane_length = lanelet::utils::getLaneletLength2d(target_lanelets);
@@ -815,6 +821,11 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
       s_end = std::min(s_end, lane_length - num * (minimum_lane_change_length + buffer));
       s_end = std::max(s_end, s_start + std::numeric_limits<double>::epsilon());
       reference_path2 = getReferencePath(target_lanelets, s_start, s_end, 0.0, 0.0);
+    }
+
+    for (auto & point : reference_path2.points) {
+      point.point.twist.linear.x =
+        std::min(point.point.twist.linear.x, lane_change_distance / lane_changing_duration);
     }
 
     if (reference_path1.points.empty() || reference_path2.points.empty()) {

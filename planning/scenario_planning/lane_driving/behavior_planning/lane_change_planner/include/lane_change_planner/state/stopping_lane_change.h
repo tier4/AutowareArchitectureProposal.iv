@@ -30,6 +30,8 @@ private:
 
   lanelet::ConstLanelets original_lanes_;
   lanelet::ConstLanelets target_lanes_;
+
+  autoware_planning_msgs::PathWithLaneId stop_path_;
   // State transition conditions
   bool isSafe() const;
   bool isVehicleInOriginalLanes() const;
