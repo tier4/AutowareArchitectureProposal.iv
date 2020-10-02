@@ -432,7 +432,7 @@ bool MPCUtils::calcNearestPoseInterp(
 
 visualization_msgs::MarkerArray MPCUtils::convertTrajToMarker(
   const MPCTrajectory & traj, std::string ns, double r, double g, double b, double z,
-  std::string & frame_id)
+  const std::string & frame_id)
 {
   visualization_msgs::MarkerArray markers;
 
