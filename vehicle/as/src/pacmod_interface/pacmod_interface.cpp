@@ -51,6 +51,9 @@ PacmodInterface::PacmodInterface()
   max_steering_wheel_ = declare_parameter("max_steering_wheel", 2.7 * M_PI);
   max_steering_wheel_rate_ = declare_parameter("max_steering_wheel_rate", 6.6);
   min_steering_wheel_rate_ = declare_parameter("min_steering_wheel_rate", 0.5);
+  steering_wheel_rate_low_vel_ = declare_parameter("steering_wheel_rate_low_vel", 5.0);
+  steering_wheel_rate_stopped_ = declare_parameter("steering_wheel_rate_stopped", 5.0);
+  low_vel_thresh_ = declare_parameter("low_vel_thresh", 1.389);  // 5.0kmh
 
   /* subscribers */
   using std::placeholders::_1;
@@ -385,6 +388,16 @@ void PacmodInterface::publishCommands()
 
 double PacmodInterface::calcSteerWheelRateCmd(const double gear_ratio)
 {
+  const auto current_vel =
+    std::fabs(calculateVehicleVelocity(*wheel_speed_rpt_ptr_, *shift_rpt_ptr_));
+
+  // send low steer rate at low speed
+  if (current_vel < std::numeric_limits<double>::epsilon()) {
+    return steering_wheel_rate_stopped_;
+  } else if (current_vel < low_vel_thresh_) {
+    return steering_wheel_rate_low_vel_;
+  }
+
   if (!enable_steering_rate_control_) {
     return max_steering_wheel_rate_;
   }
