@@ -107,6 +107,6 @@ int calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::Pose & sel
  */
 visualization_msgs::MarkerArray convertTrajToMarker(
   const MPCTrajectory & traj, std::string ns, double r, double g, double b, double z,
-  std::string & frame_id);
+  const std::string & frame_id);
 
 };  // namespace MPCUtils

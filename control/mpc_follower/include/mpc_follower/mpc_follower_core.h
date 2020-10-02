@@ -66,6 +66,17 @@
  * @class MPC-based waypoints follower class
  * @brief calculate control command to follow reference waypoints
  */
+
+struct MPCData
+{
+  int nearest_idx;
+  double nearest_time;
+  geometry_msgs::Pose nearest_pose;
+  double steer;
+  double predicted_steer;
+  double lateral_err;
+  double yaw_err;
+};
 class MPCFollower
 {
 public:
@@ -89,58 +100,56 @@ private:
   ros::Subscriber sub_current_vel_;     //!< @brief subscriber for currrent velocity
   ros::Timer timer_control_;            //!< @brief timer for control command computation
 
-  MPCTrajectory ref_traj_;                //!< @brief reference trajectory to be followed
-  Butterworth2dFilter lpf_steering_cmd_;  //!< @brief lowpass filter for steering command
-  Butterworth2dFilter
-    lpf_lateral_error_;  //!< @brief lowpass filter for lateral error to calculate derivatie
-  Butterworth2dFilter
-    lpf_yaw_error_;  //!< @brief lowpass filter for heading error to calculate derivatie
-  std::string vehicle_model_type_;                            //!< @brief vehicle model type for MPC
+  MPCTrajectory ref_traj_;                 //!< @brief reference trajectory to be followed
+  Butterworth2dFilter lpf_steering_cmd_;   //!< @brief lowpass filter for steering command
+  Butterworth2dFilter lpf_lateral_error_;  //!< @brief lowpass filter for lateral error
+  Butterworth2dFilter lpf_yaw_error_;      //!< @brief lowpass filter for heading error
+  std::string vehicle_model_type_;         //!< @brief vehicle model type for MPC
   std::shared_ptr<VehicleModelInterface> vehicle_model_ptr_;  //!< @brief vehicle model for MPC
   std::shared_ptr<QPSolverInterface> qpsolver_ptr_;           //!< @brief qp solver for MPC
-  std::deque<double>
-    input_buffer_;  //!< @brief control input (mpc_output) buffer for delay time conpemsation
+  std::deque<double> input_buffer_;  //!< @brief mpc_output buffer for delay time compensation
 
   /* parameters for control*/
-  double ctrl_period_;  //!< @brief control frequency [s]
-  double
-    steering_lpf_cutoff_hz_;  //!< @brief cutoff frequency of lowpass filter for steering command [Hz]
-  double
-    admisible_position_error_;  //!< @brief stop MPC calculation when lateral error is large than this value [m]
-  double
-    admisible_yaw_error_;  //!< @brief stop MPC calculation when heading error is large than this value [rad]
-  double steer_lim_;       //!< @brief steering command limit [rad]
-  double steer_rate_lim_;  //!< @brief steering rate limit [rad/s]
-  double
-    wheelbase_;  //!< @brief vehicle wheelbase length [m] to convert steering angle to angular velocity
+  double ctrl_period_;               //!< @brief control frequency [s]
+  double steering_lpf_cutoff_hz_;    //!< @brief cutoff frequency for steering command [Hz]
+  double admisible_position_error_;  //!< @brief use stop cmd when lateral error exceeds this [m]
+  double admisible_yaw_error_;       //!< @briefuse stop cmd when yaw error exceeds this [rad]
+  double steer_lim_;                 //!< @brief steering command limit [rad]
+  double steer_rate_lim_;            //!< @brief steering rate limit [rad/s]
+  double wheelbase_;                 //!< @brief vehicle wheelbase length [m]
 
   /* parameters for path smoothing */
-  bool enable_path_smoothing_;      //< @brief flag for path smoothing
-  bool enable_yaw_recalculation_;   //< @brief flag for recalculation of yaw angle after resampling
-  int path_filter_moving_ave_num_;  //< @brief param of moving average filter for path smoothing
-  int
-    curvature_smoothing_num_;  //< @brief point-to-point index distance used in curvature calculation
-  double traj_resample_dist_;  //< @brief path resampling interval [m]
+  bool enable_path_smoothing_;      //!< @brief flag for path smoothing
+  bool enable_yaw_recalculation_;   //!< @brief flag for recalculation of yaw angle after resampling
+  bool use_steer_prediction_;       //< @brief flag to use predicted steer, not measured steer.
+  int path_filter_moving_ave_num_;  //!< @brief param of moving average filter for path smoothing
+  int curvature_smoothing_num_;  //!< @brief point-to-point index distance for curvature calculation
+  double traj_resample_dist_;    //!< @brief path resampling interval [m]
 
   struct MPCParam
   {
-    int prediction_horizon;                   //< @brief prediction horizon step
-    double prediction_dt;                     //< @brief prediction horizon sampleing time
-    double weight_lat_error;                  //< @brief lateral error weight in matrix Q
-    double weight_heading_error;              //< @brief heading error weight in matrix Q
-    double weight_heading_error_squared_vel;  //< @brief heading error * velocity weight in matrix Q
-    double weight_steering_input;             //< @brief steering error weight in matrix R
-    double
-      weight_steering_input_squared_vel;   //< @brief steering error * velocity weight in matrix R
-    double weight_lat_jerk;                //< @brief lateral jerk weight in matrix R
-    double weight_steer_rate;              //< @brief steering rate weight in matrix R
-    double weight_steer_acc;               //< @brief steering angle acceleration weight in matrix R
-    double weight_terminal_lat_error;      //< @brief terminal lateral error weight in matrix Q
-    double weight_terminal_heading_error;  //< @brief terminal heading error weight in matrix Q
-    double zero_ff_steer_deg;              //< @brief threshold that feed-forward angle becomes zero
-    double input_delay;             //< @brief delay time for steering input to be compensated
-    double acceleration_limit;      //< @brief for trajectory velocity calculation
-    double velocity_time_constant;  //< @brief for trajectory velocity calculation
+    int prediction_horizon;       //!< @brief prediction horizon step
+    double prediction_dt;         //!< @brief prediction horizon sampling time
+
+    double zero_ff_steer_deg;       //!< @brief threshold that feed-forward angle becomes zero
+    double input_delay;             //!< @brief delay time for steering input to be compensated
+    double acceleration_limit;      //!< @brief for trajectory velocity calculation
+    double velocity_time_constant;  //!< @brief for trajectory velocity calculation
+    double steer_tau;               //!< @brief time constant for steer model
+
+    // for weight matrix Q
+    double weight_lat_error;                  //!< @brief lateral error weight
+    double weight_heading_error;              //!< @brief heading error weight
+    double weight_heading_error_squared_vel;  //!< @brief heading error * velocity weight
+    double weight_terminal_lat_error;         //!< @brief terminal lateral error weight
+    double weight_terminal_heading_error;     //!< @brief terminal heading error weight
+
+    // for weight matrix R
+    double weight_steering_input;              //!< @brief steering error weight
+    double weight_steering_input_squared_vel;  //!< @brief steering error * velocity weight
+    double weight_lat_jerk;                    //!< @brief lateral jerk weight
+    double weight_steer_rate;                  //!< @brief steering rate weight
+    double weight_steer_acc;                   //!< @brief steering angle acceleration weight
   };
   MPCParam mpc_param_;  // for mpc design parameter
 
@@ -157,20 +166,23 @@ private:
     Eigen::MatrixXd Yrefex;
   };
 
-  std::shared_ptr<geometry_msgs::PoseStamped> current_pose_ptr_;  //!< @brief current measured pose
-  std::shared_ptr<geometry_msgs::TwistStamped>
-    current_velocity_ptr_;                     //!< @brief current measured velocity
-  std::shared_ptr<double> current_steer_ptr_;  //!< @brief current measured steering
-  std::shared_ptr<autoware_planning_msgs::Trajectory>
-    current_trajectory_ptr_;  //!< @brief referece trajectory
+  geometry_msgs::PoseStamped::ConstPtr current_pose_ptr_;        //!< @brief measured pose
+  geometry_msgs::TwistStamped::ConstPtr current_velocity_ptr_;   //!< @brief measured velocity
+  autoware_vehicle_msgs::Steering::ConstPtr current_steer_ptr_;  //!< @brief measured steering
+  autoware_planning_msgs::Trajectory::ConstPtr
+    current_trajectory_ptr_;  //!< @brief reference trajectory
 
-  double raw_steer_cmd_prev_;  //< @brief steering command calculated by mpc in previous period
-  double
-    raw_steer_cmd_pprev_;  //< @brief steering command calculated by mpc in two times previous period
-  double
-    steer_cmd_prev_;  //< @brief steering command calculated by mpc and some filters in previous period
-  double lateral_error_prev_;  //< @brief previous lateral error for derivative
-  double yaw_error_prev_;      //< @brief previous lateral error for derivative
+  double raw_steer_cmd_prev_ = 0.0;   //!< @brief mpc raw output in previous period
+  double raw_steer_cmd_pprev_ = 0.0;  //!< @brief mpc raw output in two times previous period
+  double steer_cmd_prev_ = 0.0;       //!< @brief mpc filtered output in previous period
+  double lateral_error_prev_ = 0.0;   //!< @brief previous lateral error for derivative
+  double yaw_error_prev_ = 0.0;       //!< @brief previous lateral error for derivative
+
+  std::shared_ptr<double> steer_prediction_prev_;
+  double time_prev_ = 0.0;
+  double sign_vx_ = 0.0;  //!< @brief sign of previous target speed to calculate curvature when the target speed is 0.
+  std::vector<autoware_control_msgs::ControlCommandStamped>
+    ctrl_cmd_vec_;  //!< buffer of send command
 
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;  //!< @brief tf listener
@@ -178,12 +190,12 @@ private:
   /**
    * @brief compute and publish control command for path follow with a constant control period
    */
-  void timerCallback(const ros::TimerEvent &);
+  void onTimer(const ros::TimerEvent &);
 
   /**
    * @brief set current_trajectory_ with receved message
    */
-  void callbackTrajectory(const autoware_planning_msgs::Trajectory::ConstPtr &);
+  void onTrajectory(const autoware_planning_msgs::Trajectory::ConstPtr &);
 
   /**
    * @brief update current_pose from tf
@@ -198,19 +210,17 @@ private:
   /**
    * @brief get varables for mpc calculation
    */
-  bool getVar(
-    const MPCTrajectory & traj, int * closest_idx, double * closest_time,
-    geometry_msgs::Pose * closest_pose, double * steer, double * lat_err, double * yaw_err);
+  bool getData(const MPCTrajectory & traj, MPCData * data);
 
   /**
    * @brief set curent_steer with receved message
    */
-  void callbackSteering(const autoware_vehicle_msgs::Steering & msg);
+  void onSteering(const autoware_vehicle_msgs::Steering::ConstPtr & msg);
 
   /**
    * @brief set current_velocity with receved message
    */
-  void callbackCurrentVelocity(const geometry_msgs::TwistStamped::ConstPtr & msg);
+  void onVelocity(const geometry_msgs::TwistStamped::ConstPtr & msg);
 
   /**
    * @brief publish control command as autoware_msgs/ControlCommand type
@@ -226,11 +236,9 @@ private:
 
   /**
    * @brief set initial condition for mpc
-   * @param [in] lat_err lateral error
-   * @param [in] yaw_err yaw error
+   * @param [in] mpc data
    */
-  Eigen::VectorXd getInitialState(
-    const double & lat_err, const double & yaw_err, const double & steer);
+  Eigen::VectorXd getInitialState(const MPCData & data);
 
   /**
    * @brief update status for delay compensation
@@ -258,17 +266,42 @@ private:
    */
   autoware_control_msgs::ControlCommand getStopControlCommand() const;
 
+  /**
+   * @brief resample trajectory with mpc resampling time
+   */
   bool resampleMPCTrajectoryByTime(
     double start_time, const MPCTrajectory & input, MPCTrajectory * output) const;
-  MPCTrajectory calcActualVelocity(const MPCTrajectory & trajectory);
+
+  /**
+   * @brief apply velocity dynamics filter with v0 from closest index
+   */
+  MPCTrajectory applyVelocityDynamicsFilter(const MPCTrajectory & trajectory, const double v0);
+
+  /**
+   * @brief get total prediction time of mpc
+   */
   double getPredictionTime() const;
+
+  /**
+   * @brief add weights related to lateral_jerk, steering_rate, steering_acc into R
+   */
   void addSteerWeightR(Eigen::MatrixXd * R) const;
+
+  /**
+   * @brief add weights related to lateral_jerk, steering_rate, steering_acc into f
+   */
   void addSteerWeightF(Eigen::MatrixXd * f) const;
+
+  /**
+   * @brief check if the matrix has invalid value
+   */
+  bool isValid(const MPCMatrix & m) const;
 
   /* dynamic reconfigure */
   dynamic_reconfigure::Server<mpc_follower::MPCFollowerConfig> dyncon_server_;
   void dynamicRecofCallback(mpc_follower::MPCFollowerConfig & config, uint32_t level)
   {
+    // set for mpc parameters
     mpc_param_.prediction_horizon = config.mpc_prediction_horizon;
     mpc_param_.prediction_dt = config.mpc_prediction_dt;
     mpc_param_.weight_lat_error = config.mpc_weight_lat_error;
@@ -284,13 +317,23 @@ private:
     mpc_param_.zero_ff_steer_deg = config.mpc_zero_ff_steer_deg;
     mpc_param_.acceleration_limit = config.acceleration_limit;
     mpc_param_.velocity_time_constant = config.velocity_time_constant;
+
+    constexpr double DEG2RAD = 3.1415926535 / 180.0;
+    steer_rate_lim_ = config.steer_rate_lim_dps * DEG2RAD;
+    steer_lim_ = config.steer_lim_deg * DEG2RAD;
+
+    // initialize input buffer
+    const int delay_step = std::round(config.input_delay / ctrl_period_);
+    const double delay = delay_step * ctrl_period_;
+    if (mpc_param_.input_delay != delay) {
+      const int delay_step = std::round(config.input_delay / ctrl_period_);
+      mpc_param_.input_delay = delay;
+      input_buffer_ = std::deque<double>(delay_step, 0.0);
+    }
   }
 
   /* ---------- debug ---------- */
-  bool show_debug_info_;  //!< @brief flag to display debug info
   ros::Publisher pub_debug_marker_;
-  ros::Publisher pub_debug_values_;             //!< @brief publisher for debug info
-  ros::Publisher pub_debug_mpc_calc_time_;      //!< @brief publisher for debug info
-  ros::Subscriber sub_estimate_twist_;          //!< @brief subscriber for /estimate_twist for debug
-  geometry_msgs::TwistStamped estimate_twist_;  //!< @brief received /estimate_twist for debug
+  ros::Publisher pub_debug_values_;         //!< @brief publisher for debug info
+  ros::Publisher pub_debug_mpc_calc_time_;  //!< @brief publisher for debug info
 };
