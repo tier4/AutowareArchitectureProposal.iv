@@ -18,8 +18,7 @@
 
 #include <string>
 
-#include <ros/ros.h>
-
+// #include <ros/ros.h>
 #include <autoware_control_msgs/ControlCommandStamped.h>
 #include <autoware_control_msgs/GateMode.h>
 #include <autoware_system_msgs/AutowareState.h>
@@ -28,6 +27,8 @@
 #include <autoware_vehicle_msgs/TurnSignal.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <std_msgs/Bool.h>
+
+#include <rclcpp/rclcpp.hpp>
 
 // tmp
 #include <autoware_vehicle_msgs/VehicleCommand.h>
