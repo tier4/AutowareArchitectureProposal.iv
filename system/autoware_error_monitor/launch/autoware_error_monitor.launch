@@ -6,7 +6,6 @@
       <param name="pub_rate" value="10"/>
       <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/_discard.yaml" />
       <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/control.yaml" />
-      <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/emergency_system.yaml" />
       <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/localization.yaml" />
       <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/map.yaml" />
       <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/perception.yaml" />
@@ -14,6 +13,7 @@
       <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/remote_control.yaml" />
       <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/safety.yaml" />
       <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/sensing.yaml" />
+      <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/system.yaml" />
       <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/vehicle.yaml" />
     </node>
   </group>

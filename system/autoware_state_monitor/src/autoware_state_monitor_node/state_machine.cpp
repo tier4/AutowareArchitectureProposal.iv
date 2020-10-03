@@ -16,7 +16,7 @@
 
 #include <autoware_state_monitor/state_machine.h>
 
-#include <autoware_state_monitor/rosconsole_wrapper.h>
+#include <fmt/format.h>
 
 namespace
 {
@@ -64,17 +64,6 @@ std::vector<T> filterConfigByModuleName(const std::vector<T> & configs, const ch
 }
 
 }  // namespace
-
-struct ModuleName
-{
-  static constexpr const char * map = "map";
-  static constexpr const char * sensing = "sensing";
-  static constexpr const char * localization = "localization";
-  static constexpr const char * perception = "perception";
-  static constexpr const char * planning = "planning";
-  static constexpr const char * control = "control";
-  static constexpr const char * vehicle = "vehicle";
-};
 
 bool StateMachine::isModuleInitialized(const char * module_name) const
 {
