@@ -14,6 +14,7 @@
       <param from="$(find-pkg-share autoware_error_monitor)/config/diagnostic_aggregator/remote_control.yaml" />
       <param from="$(find-pkg-share autoware_error_monitor)/config/diagnostic_aggregator/safety.yaml" />
       <param from="$(find-pkg-share autoware_error_monitor)/config/diagnostic_aggregator/sensing.yaml" />
+      <param from="$(find-pkg-share autoware_error_monitor)/config/diagnostic_aggregator/system.yaml" />
       <param from="$(find-pkg-share autoware_error_monitor)/config/diagnostic_aggregator/vehicle.yaml" />
     </node>
   </group>

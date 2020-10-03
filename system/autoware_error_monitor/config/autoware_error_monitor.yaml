@@ -20,7 +20,7 @@
         '/autoware/vehicle'
       ]
       safe_stop: ['/autoware/map',
-        '/autoware/emergency_system',
+        '/autoware/system',
         '/autoware/vehicle'
       ]
       emergency_stop: ['/autoware/vehicle']
