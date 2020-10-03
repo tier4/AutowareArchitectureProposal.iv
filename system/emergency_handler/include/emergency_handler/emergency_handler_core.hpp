@@ -22,6 +22,7 @@
 
 // ROS2 core
 #include <geometry_msgs/msg/twist_stamped.hpp>
+#include <rclcpp/create_timer.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/bool.hpp>
 
@@ -45,11 +46,13 @@ private:
   // ros::NodeHandle private_nh_{"~"};
 
   // Subscribers
-  // ros::Subscriber sub_autoware_state_;
-  // ros::Subscriber sub_driving_capability_;
-  // ros::Subscriber sub_prev_control_command_;
-  // ros::Subscriber sub_current_gate_mode_;
-  // ros::Subscriber sub_twist_;
+  rclcpp::Subscription<autoware_system_msgs::msg::AutowareState>::SharedPtr sub_autoware_state_;
+  rclcpp::Subscription<autoware_system_msgs::msg::DrivingCapability>::SharedPtr
+    sub_driving_capability_;
+  rclcpp::Subscription<autoware_vehicle_msgs::msg::VehicleCommand>::SharedPtr
+    sub_prev_control_command_;
+  rclcpp::Subscription<autoware_control_msgs::msg::GateMode>::SharedPtr sub_current_gate_mode_;
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
 
   autoware_system_msgs::msg::AutowareState::ConstSharedPtr autoware_state_;
   autoware_system_msgs::msg::DrivingCapability::ConstSharedPtr driving_capability_;
@@ -65,20 +68,21 @@ private:
   void onTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
 
   // Publisher
-  // ros::Publisher pub_control_command_;
-  // ros::Publisher pub_shift_;
-  // ros::Publisher pub_turn_signal_;
-  // ros::Publisher pub_is_emergency_;
+  rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
+    pub_control_command_;
+  rclcpp::Publisher<autoware_vehicle_msgs::msg::ShiftStamped>::SharedPtr pub_shift_;
+  rclcpp::Publisher<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr pub_turn_signal_;
+  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr pub_is_emergency_;
 
   // Timer
-  // ros::Timer timer_;
+  rclcpp::TimerBase::SharedPtr timer_;
 
   // Parameters
-  double update_rate_;
+  int update_rate_;
   bool use_parking_after_stopped_;
 
   bool isDataReady();
-  // void onTimer(const ros::TimerEvent & event);
+  void onTimer();
 
   // Algorithm
   bool isStopped();

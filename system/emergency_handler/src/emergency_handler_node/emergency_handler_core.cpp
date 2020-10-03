@@ -53,66 +53,69 @@ bool EmergencyHandler::isDataReady()
 {
   if (!driving_capability_) {
     // ROS_DEBUG_THROTTLE(1.0, "waiting for driving_capability msg...");
+    RCLCPP_DEBUG(this->get_logger(), "waiting for driving_capability msg...");
     return false;
   }
 
   if (!prev_control_command_) {
     // ROS_DEBUG_THROTTLE(1.0, "waiting for prev_control_command msg...");
+    RCLCPP_DEBUG(this->get_logger(), "waiting for prev_control_command msg...");
     return false;
   }
 
   if (!current_gate_mode_) {
     // ROS_DEBUG_THROTTLE(1.0, "waiting for current_gate_mode msg...");
+    RCLCPP_DEBUG(this->get_logger(), "waiting for current_gate_mode msg...");
     return false;
   }
 
   if (!twist_) {
     // ROS_DEBUG_THROTTLE(1.0, "waiting for twist msg...");
+    RCLCPP_DEBUG(this->get_logger(), "waiting for twist msg...");
     return false;
   }
 
   return true;
 }
 
-// void EmergencyHandler::onTimer(const ros::TimerEvent & event)
-// {
-//   if (!isDataReady()) {
-//     return;
-//   }
+void EmergencyHandler::onTimer()
+{
+  if (!isDataReady()) {
+    return;
+  }
 
-//   // Create timestamp
-//   // const auto stamp = ros::Time::now();
-//   const auto stamp = rclcpp::Node::now();
+  // Create timestamp
+  const auto stamp = rclcpp::Node::now();
 
-//   // Check if emergency
-//   {
-//     std_msgs::Bool is_emergency;
-//     is_emergency.data = isEmergency();
-//     // pub_is_emergency_.publish(is_emergency);
-//   }
+  // Check if emergency
+  {
+    std_msgs::msg::Bool is_emergency;
+    is_emergency.data = isEmergency();
+    pub_is_emergency_->publish(is_emergency);
+  }
 
-//   // Select ControlCommand
-//   autoware_control_msgs::ControlCommandStamped emergency_control_command;
-//   emergency_control_command.header.stamp = stamp;
-//   emergency_control_command.control = selectAlternativeControlCommand();
-//   // pub_control_command_.publish(emergency_control_command);
+  // Select ControlCommand
+  autoware_control_msgs::msg::ControlCommandStamped emergency_control_command;
+  emergency_control_command.header.stamp = stamp;
+  emergency_control_command.control = selectAlternativeControlCommand();
+  pub_control_command_->publish(emergency_control_command);
 
-//   // TurnSignal
-//   {
-//     autoware_vehicle_msgs::TurnSignal turn_signal;
-//     turn_signal.header.stamp = stamp;
-//     turn_signal.data = autoware_vehicle_msgs::TurnSignal::HAZARD;
-//     // pub_turn_signal_.publish(turn_signal);
-//   }
+  // TurnSignal
+  {
+    autoware_vehicle_msgs::msg::TurnSignal turn_signal;
+    turn_signal.header.stamp = stamp;
+    turn_signal.data = autoware_vehicle_msgs::msg::TurnSignal::HAZARD;
+    pub_turn_signal_->publish(turn_signal);
+  }
 
-//   // Shift
-//   if (use_parking_after_stopped_ && isStopped()) {
-//     autoware_vehicle_msgs::ShiftStamped shift;
-//     shift.header.stamp = stamp;
-//     shift.shift.data = autoware_vehicle_msgs::Shift::PARKING;
-//     // pub_shift_.publish(shift);
-//   }
-// }
+  // Shift
+  if (use_parking_after_stopped_ && isStopped()) {
+    autoware_vehicle_msgs::msg::ShiftStamped shift;
+    shift.header.stamp = stamp;
+    shift.shift.data = autoware_vehicle_msgs::msg::Shift::PARKING;
+    pub_shift_->publish(shift);
+  }
+}
 
 bool EmergencyHandler::isStopped()
 {
@@ -137,6 +140,7 @@ bool EmergencyHandler::isEmergency()
 
     if (is_in_target_state && !driving_capability_->autonomous_driving) {
       // ROS_WARN_THROTTLE(1.0, "autonomous_driving is failed");
+      RCLCPP_WARN(this->get_logger(), "autonomous_driving is failed");
       return true;
     }
   }
@@ -144,24 +148,28 @@ bool EmergencyHandler::isEmergency()
   if (current_gate_mode_->data == GateMode::REMOTE) {
     if (!driving_capability_->remote_control) {
       // ROS_WARN_THROTTLE(1.0, "remote_control is failed");
+      RCLCPP_WARN(this->get_logger(), "remote_control is failed");
       return true;
     }
   }
 
   if (!driving_capability_->manual_driving) {
     // ROS_WARN_THROTTLE(1.0, "manual_driving is failed");
+    RCLCPP_WARN(this->get_logger(), "manual_driving is failed");
     return true;
   }
 
   /* Currently not supported */
   // if (!driving_capability_->safe_stop) {
-  //   ROS_WARN_THROTTLE(1.0, "safe_stop is failed");
+  // //   ROS_WARN_THROTTLE(1.0, "safe_stop is failed");
+  //   RCLCPP_WARN(this->get_logger(), "safe_stop is failed");
   //   return true;
   // }
   /* Currently not supported */
 
   if (!driving_capability_->emergency_stop) {
     // ROS_WARN_THROTTLE(1.0, "emergency_stop is failed");
+    RCLCPP_WARN(this->get_logger(), "emergency_stop is failed");
     return true;
   }
 
@@ -193,31 +201,34 @@ EmergencyHandler::EmergencyHandler(
   const std::string & node_name, const rclcpp::NodeOptions & options)
 : Node(node_name, options)
 {
-  // // Parameter
-  // private_nh_.param("update_rate", update_rate_, 10.0);
-  // private_nh_.param("use_parking_after_stopped", use_parking_after_stopped_, false);
+  // Subscriber
+  sub_autoware_state_ = create_subscription<autoware_system_msgs::msg::AutowareState>(
+    "input/autoware_state", rclcpp::QoS{1},
+    std::bind(&EmergencyHandler::onAutowareState, this, std::placeholders::_1));
+  sub_driving_capability_ = create_subscription<autoware_system_msgs::msg::DrivingCapability>(
+    "input/driving_capability", rclcpp::QoS{1},
+    std::bind(&EmergencyHandler::onDrivingCapability, this, std::placeholders::_1));
+  sub_prev_control_command_ = create_subscription<autoware_vehicle_msgs::msg::VehicleCommand>(
+    "input/prev_control_command", rclcpp::QoS{1},
+    std::bind(&EmergencyHandler::onPrevControlCommand, this, std::placeholders::_1));
+  sub_current_gate_mode_ = create_subscription<autoware_control_msgs::msg::GateMode>(
+    "input/current_gate_mode", rclcpp::QoS{1},
+    std::bind(&EmergencyHandler::onCurrentGateMode, this, std::placeholders::_1));
+  sub_twist_ = create_subscription<geometry_msgs::msg::TwistStamped>(
+    "input/twist", rclcpp::QoS{1},
+    std::bind(&EmergencyHandler::onTwist, this, std::placeholders::_1));
 
-  // // Subscriber
-  // sub_autoware_state_ =
-  //   private_nh_.subscribe("input/autoware_state", 1, &EmergencyHandlerNode::onAutowareState,
-  //   this);
-  // sub_driving_capability_ = private_nh_.subscribe(
-  //   "input/driving_capability", 1, &EmergencyHandlerNode::onDrivingCapability, this);
-  // sub_prev_control_command_ = private_nh_.subscribe(
-  //   "input/prev_control_command", 1, &EmergencyHandlerNode::onPrevControlCommand, this);
-  // sub_current_gate_mode_ = private_nh_.subscribe(
-  //   "input/current_gate_mode", 1, &EmergencyHandlerNode::onCurrentGateMode, this);
-  // sub_twist_ = private_nh_.subscribe("input/twist", 1, &EmergencyHandlerNode::onTwist, this);
+  // Publisher
+  pub_control_command_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
+    "output/control_command", rclcpp::QoS{1});
+  pub_shift_ =
+    create_publisher<autoware_vehicle_msgs::msg::ShiftStamped>("output/shift", rclcpp::QoS{1});
+  pub_turn_signal_ =
+    create_publisher<autoware_vehicle_msgs::msg::TurnSignal>("output/turn_signal", rclcpp::QoS{1});
+  pub_is_emergency_ = create_publisher<std_msgs::msg::Bool>("output/is_emergency", rclcpp::QoS{1});
 
-  // // Publisher
-  // pub_control_command_ = private_nh_.advertise<autoware_control_msgs::ControlCommandStamped>(
-  //   "output/control_command", 1);
-  // pub_shift_ = private_nh_.advertise<autoware_vehicle_msgs::ShiftStamped>("output/shift", 1);
-  // pub_turn_signal_ =
-  //   private_nh_.advertise<autoware_vehicle_msgs::TurnSignal>("output/turn_signal", 1);
-  // pub_is_emergency_ = private_nh_.advertise<std_msgs::Bool>("output/is_emergency", 1);
-
-  // // Timer
-  // timer_ = private_nh_.createTimer(ros::Rate(update_rate_), &EmergencyHandlerNode::onTimer,
-  // this);
+  // Timer
+  timer_ = rclcpp::create_timer(
+    this, rclcpp::Node::get_clock(), rclcpp::Duration(std::chrono::nanoseconds(update_rate_)),
+    std::bind(&EmergencyHandler::onTimer, this));
 }
