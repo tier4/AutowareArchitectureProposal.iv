@@ -21,7 +21,7 @@ required_modules:
 
   safe_stop:
     - "/map"
-    - "/emergency_system"
+    - "/system"
     - "/vehicle"
 
   emergency_stop:

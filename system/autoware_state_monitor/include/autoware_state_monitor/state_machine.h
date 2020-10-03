@@ -30,6 +30,7 @@
 
 #include <autoware_state_monitor/autoware_state.h>
 #include <autoware_state_monitor/config.h>
+#include <autoware_state_monitor/module_name.h>
 
 struct StateInput
 {

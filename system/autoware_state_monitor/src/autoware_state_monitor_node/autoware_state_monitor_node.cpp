@@ -25,8 +25,6 @@
 
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-#include <autoware_state_monitor/rosconsole_wrapper.h>
-
 namespace
 {
 template <class Config>

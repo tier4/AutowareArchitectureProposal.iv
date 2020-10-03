@@ -6,7 +6,7 @@ module_names:
   - "planning"
   - "control"
   - "vehicle"
-  - "emergency_system"
+  - "system"
 
 # Topic Config
 ## module: string
@@ -36,16 +36,6 @@ topic_configs:
 
   - module: "localization"
     name: "/localization/pose_twist_fusion_filter/pose"
-    timeout: 1.0
-    warn_rate: 5.0
-
-  - module: "perception"
-    name: "/perception/object_recognition/detection/objects"
-    timeout: 1.0
-    warn_rate: 5.0
-
-  - module: "perception"
-    name: "/perception/object_recognition/tracking/objects"
     timeout: 1.0
     warn_rate: 5.0
 
@@ -84,7 +74,7 @@ topic_configs:
     timeout: 1.0
     warn_rate: 5.0
 
-  - module: "emergency_system"
+  - module: "system"
     name: "/system/emergency/control_cmd"
     timeout: 1.0
     warn_rate: 5.0
