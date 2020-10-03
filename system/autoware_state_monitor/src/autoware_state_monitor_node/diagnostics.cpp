@@ -25,6 +25,8 @@
 #define FMT_HEADER_ONLY
 #include "fmt/format.h"
 
+#include "autoware_state_monitor/module_name.hpp"
+
 void AutowareStateMonitorNode::setupDiagnosticUpdater()
 {
   updater_.setHardwareID("autoware_state_monitor");
@@ -141,6 +143,18 @@ void AutowareStateMonitorNode::checkTFStatus(
 
     const auto name = fmt::format("{}2{}", tf_config.from, tf_config.to);
     stat.add(fmt::format("{} status", name), "OK");
+  }
+
+  // Check tf received
+  for (const auto & tf_config : tf_stats.non_received_list) {
+    if (tf_config.module != module_name) {
+      continue;
+    }
+
+    const auto name = fmt::format("{}2{}", tf_config.from, tf_config.to);
+    stat.add(fmt::format("{} status", name), "Not Received");
+
+    level = diagnostic_msgs::msg::DiagnosticStatus::ERROR;
   }
 
   // Check tf timeout

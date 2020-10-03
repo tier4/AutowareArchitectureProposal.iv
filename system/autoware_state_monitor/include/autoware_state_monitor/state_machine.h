@@ -31,6 +31,7 @@
 
 #include "autoware_state_monitor/autoware_state.hpp"
 #include "autoware_state_monitor/config.hpp"
+#include "autoware_state_monitor/module_name.hpp"
 
 struct StateInput
 {
