@@ -16,102 +16,105 @@
 
 #include <emergency_handler/emergency_handler_core.hpp>
 
-void EmergencyHandlerNode::onAutowareState(
-  const autoware_system_msgs::AutowareState::ConstPtr & msg)
+void EmergencyHandler::onAutowareState(
+  const autoware_system_msgs::msg::AutowareState::ConstSharedPtr msg)
 {
   autoware_state_ = msg;
 }
 
-void EmergencyHandlerNode::onDrivingCapability(
-  const autoware_system_msgs::DrivingCapability::ConstPtr & msg)
+void EmergencyHandler::onDrivingCapability(
+  const autoware_system_msgs::msg::DrivingCapability::ConstSharedPtr msg)
 {
   driving_capability_ = msg;
 }
 
 // To be replaced by ControlCommand
-void EmergencyHandlerNode::onPrevControlCommand(
-  const autoware_vehicle_msgs::VehicleCommand::ConstPtr & msg)
+void EmergencyHandler::onPrevControlCommand(
+  const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr msg)
 {
-  const auto control_command = new autoware_control_msgs::ControlCommand();
+  const auto control_command = new autoware_control_msgs::msg::ControlCommand();
   *control_command = msg->control;
-  prev_control_command_ = autoware_control_msgs::ControlCommand::ConstPtr(control_command);
+  prev_control_command_ =
+    autoware_control_msgs::msg::ControlCommand::ConstSharedPtr(control_command);
 }
 
-void EmergencyHandlerNode::onCurrentGateMode(const autoware_control_msgs::GateMode::ConstPtr & msg)
+void EmergencyHandler::onCurrentGateMode(
+  const autoware_control_msgs::msg::GateMode::ConstSharedPtr msg)
 {
   current_gate_mode_ = msg;
 }
 
-void EmergencyHandlerNode::onTwist(const geometry_msgs::TwistStamped::ConstPtr & msg)
+void EmergencyHandler::onTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
 {
   twist_ = msg;
 }
 
-bool EmergencyHandlerNode::isDataReady()
+bool EmergencyHandler::isDataReady()
 {
   if (!driving_capability_) {
-    ROS_DEBUG_THROTTLE(1.0, "waiting for driving_capability msg...");
+    // ROS_DEBUG_THROTTLE(1.0, "waiting for driving_capability msg...");
     return false;
   }
 
   if (!prev_control_command_) {
-    ROS_DEBUG_THROTTLE(1.0, "waiting for prev_control_command msg...");
+    // ROS_DEBUG_THROTTLE(1.0, "waiting for prev_control_command msg...");
     return false;
   }
 
   if (!current_gate_mode_) {
-    ROS_DEBUG_THROTTLE(1.0, "waiting for current_gate_mode msg...");
+    // ROS_DEBUG_THROTTLE(1.0, "waiting for current_gate_mode msg...");
     return false;
   }
 
   if (!twist_) {
-    ROS_DEBUG_THROTTLE(1.0, "waiting for twist msg...");
+    // ROS_DEBUG_THROTTLE(1.0, "waiting for twist msg...");
     return false;
   }
 
   return true;
 }
 
-void EmergencyHandlerNode::onTimer(const ros::TimerEvent & event)
-{
-  if (!isDataReady()) {
-    return;
-  }
+// void EmergencyHandler::onTimer(const ros::TimerEvent & event)
+// {
+//   if (!isDataReady()) {
+//     return;
+//   }
 
-  // Create timestamp
-  const auto stamp = ros::Time::now();
+//   // Create timestamp
+//   // const auto stamp = ros::Time::now();
+//   const auto stamp = rclcpp::Node::now();
 
-  // Check if emergency
-  {
-    std_msgs::Bool is_emergency;
-    is_emergency.data = isEmergency();
-    pub_is_emergency_.publish(is_emergency);
-  }
+//   // Check if emergency
+//   {
+//     std_msgs::Bool is_emergency;
+//     is_emergency.data = isEmergency();
+//     // pub_is_emergency_.publish(is_emergency);
+//   }
 
-  // Select ControlCommand
-  autoware_control_msgs::ControlCommandStamped emergency_control_command;
-  emergency_control_command.header.stamp = stamp;
-  emergency_control_command.control = selectAlternativeControlCommand();
-  pub_control_command_.publish(emergency_control_command);
+//   // Select ControlCommand
+//   autoware_control_msgs::ControlCommandStamped emergency_control_command;
+//   emergency_control_command.header.stamp = stamp;
+//   emergency_control_command.control = selectAlternativeControlCommand();
+//   // pub_control_command_.publish(emergency_control_command);
 
-  // TurnSignal
-  {
-    autoware_vehicle_msgs::TurnSignal turn_signal;
-    turn_signal.header.stamp = stamp;
-    turn_signal.data = autoware_vehicle_msgs::TurnSignal::HAZARD;
-    pub_turn_signal_.publish(turn_signal);
-  }
+//   // TurnSignal
+//   {
+//     autoware_vehicle_msgs::TurnSignal turn_signal;
+//     turn_signal.header.stamp = stamp;
+//     turn_signal.data = autoware_vehicle_msgs::TurnSignal::HAZARD;
+//     // pub_turn_signal_.publish(turn_signal);
+//   }
 
-  // Shift
-  if (use_parking_after_stopped_ && isStopped()) {
-    autoware_vehicle_msgs::ShiftStamped shift;
-    shift.header.stamp = stamp;
-    shift.shift.data = autoware_vehicle_msgs::Shift::PARKING;
-    pub_shift_.publish(shift);
-  }
-}
+//   // Shift
+//   if (use_parking_after_stopped_ && isStopped()) {
+//     autoware_vehicle_msgs::ShiftStamped shift;
+//     shift.header.stamp = stamp;
+//     shift.shift.data = autoware_vehicle_msgs::Shift::PARKING;
+//     // pub_shift_.publish(shift);
+//   }
+// }
 
-bool EmergencyHandlerNode::isStopped()
+bool EmergencyHandler::isStopped()
 {
   constexpr auto th_stopped_velocity = 0.1;
   if (twist_->twist.linear.x < th_stopped_velocity) {
@@ -121,32 +124,32 @@ bool EmergencyHandlerNode::isStopped()
   return false;
 }
 
-bool EmergencyHandlerNode::isEmergency()
+bool EmergencyHandler::isEmergency()
 {
-  using autoware_control_msgs::GateMode;
-  using autoware_system_msgs::AutowareState;
+  using autoware_control_msgs::msg::GateMode;
+  using autoware_system_msgs::msg::AutowareState;
 
   if (current_gate_mode_->data == GateMode::AUTO) {
     const auto is_in_target_state =
-      (autoware_state_->state != AutowareState::InitializingVehicle) &&
-      (autoware_state_->state != AutowareState::WaitingForRoute) &&
-      (autoware_state_->state != AutowareState::Planning);
+      (autoware_state_->state != AutowareState::INITIALIZING_VEHICLE) &&
+      (autoware_state_->state != AutowareState::WAITING_FOR_ROUTE) &&
+      (autoware_state_->state != AutowareState::PLANNING);
 
     if (is_in_target_state && !driving_capability_->autonomous_driving) {
-      ROS_WARN_THROTTLE(1.0, "autonomous_driving is failed");
+      // ROS_WARN_THROTTLE(1.0, "autonomous_driving is failed");
       return true;
     }
   }
 
   if (current_gate_mode_->data == GateMode::REMOTE) {
     if (!driving_capability_->remote_control) {
-      ROS_WARN_THROTTLE(1.0, "remote_control is failed");
+      // ROS_WARN_THROTTLE(1.0, "remote_control is failed");
       return true;
     }
   }
 
   if (!driving_capability_->manual_driving) {
-    ROS_WARN_THROTTLE(1.0, "manual_driving is failed");
+    // ROS_WARN_THROTTLE(1.0, "manual_driving is failed");
     return true;
   }
 
@@ -158,14 +161,14 @@ bool EmergencyHandlerNode::isEmergency()
   /* Currently not supported */
 
   if (!driving_capability_->emergency_stop) {
-    ROS_WARN_THROTTLE(1.0, "emergency_stop is failed");
+    // ROS_WARN_THROTTLE(1.0, "emergency_stop is failed");
     return true;
   }
 
   return false;
 }
 
-autoware_control_msgs::ControlCommand EmergencyHandlerNode::selectAlternativeControlCommand()
+autoware_control_msgs::msg::ControlCommand EmergencyHandler::selectAlternativeControlCommand()
 {
   /* Currently not supported */
   // Safe Stop
@@ -176,7 +179,7 @@ autoware_control_msgs::ControlCommand EmergencyHandlerNode::selectAlternativeCon
 
   // Emergency Stop
   {
-    autoware_control_msgs::ControlCommand emergency_stop_cmd;
+    autoware_control_msgs::msg::ControlCommand emergency_stop_cmd;
     emergency_stop_cmd.steering_angle = prev_control_command_->steering_angle;
     emergency_stop_cmd.steering_angle_velocity = prev_control_command_->steering_angle_velocity;
     emergency_stop_cmd.velocity = 0.0;
@@ -186,31 +189,35 @@ autoware_control_msgs::ControlCommand EmergencyHandlerNode::selectAlternativeCon
   }
 }
 
-EmergencyHandlerNode::EmergencyHandlerNode()
+EmergencyHandler::EmergencyHandler(
+  const std::string & node_name, const rclcpp::NodeOptions & options)
+: Node(node_name, options)
 {
-  // Parameter
-  private_nh_.param("update_rate", update_rate_, 10.0);
-  private_nh_.param("use_parking_after_stopped", use_parking_after_stopped_, false);
+  // // Parameter
+  // private_nh_.param("update_rate", update_rate_, 10.0);
+  // private_nh_.param("use_parking_after_stopped", use_parking_after_stopped_, false);
 
-  // Subscriber
-  sub_autoware_state_ =
-    private_nh_.subscribe("input/autoware_state", 1, &EmergencyHandlerNode::onAutowareState, this);
-  sub_driving_capability_ = private_nh_.subscribe(
-    "input/driving_capability", 1, &EmergencyHandlerNode::onDrivingCapability, this);
-  sub_prev_control_command_ = private_nh_.subscribe(
-    "input/prev_control_command", 1, &EmergencyHandlerNode::onPrevControlCommand, this);
-  sub_current_gate_mode_ = private_nh_.subscribe(
-    "input/current_gate_mode", 1, &EmergencyHandlerNode::onCurrentGateMode, this);
-  sub_twist_ = private_nh_.subscribe("input/twist", 1, &EmergencyHandlerNode::onTwist, this);
+  // // Subscriber
+  // sub_autoware_state_ =
+  //   private_nh_.subscribe("input/autoware_state", 1, &EmergencyHandlerNode::onAutowareState,
+  //   this);
+  // sub_driving_capability_ = private_nh_.subscribe(
+  //   "input/driving_capability", 1, &EmergencyHandlerNode::onDrivingCapability, this);
+  // sub_prev_control_command_ = private_nh_.subscribe(
+  //   "input/prev_control_command", 1, &EmergencyHandlerNode::onPrevControlCommand, this);
+  // sub_current_gate_mode_ = private_nh_.subscribe(
+  //   "input/current_gate_mode", 1, &EmergencyHandlerNode::onCurrentGateMode, this);
+  // sub_twist_ = private_nh_.subscribe("input/twist", 1, &EmergencyHandlerNode::onTwist, this);
 
-  // Publisher
-  pub_control_command_ = private_nh_.advertise<autoware_control_msgs::ControlCommandStamped>(
-    "output/control_command", 1);
-  pub_shift_ = private_nh_.advertise<autoware_vehicle_msgs::ShiftStamped>("output/shift", 1);
-  pub_turn_signal_ =
-    private_nh_.advertise<autoware_vehicle_msgs::TurnSignal>("output/turn_signal", 1);
-  pub_is_emergency_ = private_nh_.advertise<std_msgs::Bool>("output/is_emergency", 1);
+  // // Publisher
+  // pub_control_command_ = private_nh_.advertise<autoware_control_msgs::ControlCommandStamped>(
+  //   "output/control_command", 1);
+  // pub_shift_ = private_nh_.advertise<autoware_vehicle_msgs::ShiftStamped>("output/shift", 1);
+  // pub_turn_signal_ =
+  //   private_nh_.advertise<autoware_vehicle_msgs::TurnSignal>("output/turn_signal", 1);
+  // pub_is_emergency_ = private_nh_.advertise<std_msgs::Bool>("output/is_emergency", 1);
 
-  // Timer
-  timer_ = private_nh_.createTimer(ros::Rate(update_rate_), &EmergencyHandlerNode::onTimer, this);
+  // // Timer
+  // timer_ = private_nh_.createTimer(ros::Rate(update_rate_), &EmergencyHandlerNode::onTimer,
+  // this);
 }

@@ -14,73 +14,76 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef EMERGENCY_HANDLER_CORE_H_
+#define EMERGENCY_HANDLER_CORE_H_
 
+// Core
 #include <string>
 
-// #include <ros/ros.h>
-#include <autoware_control_msgs/ControlCommandStamped.h>
-#include <autoware_control_msgs/GateMode.h>
-#include <autoware_system_msgs/AutowareState.h>
-#include <autoware_system_msgs/DrivingCapability.h>
-#include <autoware_vehicle_msgs/ShiftStamped.h>
-#include <autoware_vehicle_msgs/TurnSignal.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <std_msgs/Bool.h>
-
+// ROS2 core
+#include <geometry_msgs/msg/twist_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/bool.hpp>
 
-// tmp
-#include <autoware_vehicle_msgs/VehicleCommand.h>
+// Autoware
+#include <autoware_control_msgs/msg/control_command_stamped.hpp>
+#include <autoware_control_msgs/msg/gate_mode.hpp>
+#include <autoware_system_msgs/msg/autoware_state.hpp>
+#include <autoware_system_msgs/msg/driving_capability.hpp>
+#include <autoware_vehicle_msgs/msg/shift_stamped.hpp>
+#include <autoware_vehicle_msgs/msg/turn_signal.hpp>
+#include <autoware_vehicle_msgs/msg/vehicle_command.hpp>
 
-class EmergencyHandlerNode
+class EmergencyHandler : public rclcpp::Node
 {
 public:
-  EmergencyHandlerNode();
+  EmergencyHandler(const std::string & node_name, const rclcpp::NodeOptions & options);
 
 private:
   // NodeHandle
-  ros::NodeHandle nh_{""};
-  ros::NodeHandle private_nh_{"~"};
+  // ros::NodeHandle nh_{""};
+  // ros::NodeHandle private_nh_{"~"};
 
-  // Parameter
+  // Subscribers
+  // ros::Subscriber sub_autoware_state_;
+  // ros::Subscriber sub_driving_capability_;
+  // ros::Subscriber sub_prev_control_command_;
+  // ros::Subscriber sub_current_gate_mode_;
+  // ros::Subscriber sub_twist_;
+
+  autoware_system_msgs::msg::AutowareState::ConstSharedPtr autoware_state_;
+  autoware_system_msgs::msg::DrivingCapability::ConstSharedPtr driving_capability_;
+  autoware_control_msgs::msg::ControlCommand::ConstSharedPtr prev_control_command_;
+  autoware_control_msgs::msg::GateMode::ConstSharedPtr current_gate_mode_;
+  geometry_msgs::msg::TwistStamped::ConstSharedPtr twist_;
+
+  void onAutowareState(const autoware_system_msgs::msg::AutowareState::ConstSharedPtr msg);
+  void onDrivingCapability(const autoware_system_msgs::msg::DrivingCapability::ConstSharedPtr msg);
+  // To be replaced by ControlCommand
+  void onPrevControlCommand(const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr msg);
+  void onCurrentGateMode(const autoware_control_msgs::msg::GateMode::ConstSharedPtr msg);
+  void onTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
+
+  // Publisher
+  // ros::Publisher pub_control_command_;
+  // ros::Publisher pub_shift_;
+  // ros::Publisher pub_turn_signal_;
+  // ros::Publisher pub_is_emergency_;
+
+  // Timer
+  // ros::Timer timer_;
+
+  // Parameters
   double update_rate_;
   bool use_parking_after_stopped_;
 
-  // Subscriber
-  ros::Subscriber sub_autoware_state_;
-  ros::Subscriber sub_driving_capability_;
-  ros::Subscriber sub_prev_control_command_;
-  ros::Subscriber sub_current_gate_mode_;
-  ros::Subscriber sub_twist_;
-
-  autoware_system_msgs::AutowareState::ConstPtr autoware_state_;
-  autoware_system_msgs::DrivingCapability::ConstPtr driving_capability_;
-  autoware_control_msgs::ControlCommand::ConstPtr prev_control_command_;
-  autoware_control_msgs::GateMode::ConstPtr current_gate_mode_;
-  geometry_msgs::TwistStamped::ConstPtr twist_;
-
-  void onAutowareState(const autoware_system_msgs::AutowareState::ConstPtr & msg);
-  void onDrivingCapability(const autoware_system_msgs::DrivingCapability::ConstPtr & msg);
-  // To be replaced by ControlCommand
-  void onPrevControlCommand(const autoware_vehicle_msgs::VehicleCommand::ConstPtr & msg);
-  void onCurrentGateMode(const autoware_control_msgs::GateMode::ConstPtr & msg);
-  void onTwist(const geometry_msgs::TwistStamped::ConstPtr & msg);
-
-  // Publisher
-  ros::Publisher pub_control_command_;
-  ros::Publisher pub_shift_;
-  ros::Publisher pub_turn_signal_;
-  ros::Publisher pub_is_emergency_;
-
-  // Timer
-  ros::Timer timer_;
-
   bool isDataReady();
-  void onTimer(const ros::TimerEvent & event);
+  // void onTimer(const ros::TimerEvent & event);
 
   // Algorithm
   bool isStopped();
   bool isEmergency();
-  autoware_control_msgs::ControlCommand selectAlternativeControlCommand();
+  autoware_control_msgs::msg::ControlCommand selectAlternativeControlCommand();
 };
+
+#endif
