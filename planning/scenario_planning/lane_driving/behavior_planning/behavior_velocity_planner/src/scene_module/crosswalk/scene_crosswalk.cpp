@@ -197,10 +197,20 @@ bool CrosswalkModule::checkStopArea(
   if (!pedestrian_found && !object_found) return true;
 
   // insert stop point
-  if (!insertTargetVelocityPoint(
-        input, crosswalk_polygon, planner_param_.stop_margin, 0.0, *planner_data_, output,
-        debug_data_, first_stop_path_point_index_)) {
-    return false;
+  lanelet::Optional<lanelet::ConstLineString3d> stop_line_opt =
+    getStopLineFromMap(module_id_, planner_data_, "crosswalk_id");
+  if (!!stop_line_opt) {
+    if (!insertTargetVelocityPoint(
+          input, stop_line_opt.get(), planner_param_.stop_margin, 0.0, *planner_data_, output,
+          debug_data_, first_stop_path_point_index_)) {
+      return false;
+    }
+  } else {
+    if (!insertTargetVelocityPoint(
+          input, crosswalk_polygon, planner_param_.stop_margin, 0.0, *planner_data_, output,
+          debug_data_, first_stop_path_point_index_)) {
+      return false;
+    }
   }
   *insert_stop = true;
   return true;
@@ -238,10 +248,19 @@ bool CrosswalkModule::checkSlowArea(
   if (!pedestrian_found) return true;
 
   // insert slow point
-  if (!insertTargetVelocityPoint(
-        input, polygon, planner_param_.slow_margin, planner_param_.slow_velocity, *planner_data_,
-        output, debug_data_, first_stop_path_point_index_))
-    return false;
+  lanelet::Optional<lanelet::ConstLineString3d> stop_line_opt =
+    getStopLineFromMap(module_id_, planner_data_, "crosswalk_id");
+  if (!!stop_line_opt) {
+    if (!insertTargetVelocityPoint(
+          input, stop_line_opt.get(), planner_param_.slow_margin, planner_param_.slow_velocity,
+          *planner_data_, output, debug_data_, first_stop_path_point_index_))
+      return false;
+  } else {
+    if (!insertTargetVelocityPoint(
+          input, polygon, planner_param_.slow_margin, planner_param_.slow_velocity, *planner_data_,
+          output, debug_data_, first_stop_path_point_index_))
+      return false;
+  }
   return true;
 }
 

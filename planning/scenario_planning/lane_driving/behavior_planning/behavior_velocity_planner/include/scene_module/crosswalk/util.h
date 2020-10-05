@@ -54,3 +54,13 @@ bool insertTargetVelocityPoint(
   const double & margin, const double & velocity, const PlannerData & planner_data,
   autoware_planning_msgs::PathWithLaneId & output, DebugData & debug_data,
   boost::optional<int> & first_stop_path_point_index);
+
+lanelet::Optional<lanelet::ConstLineString3d> getStopLineFromMap(
+  const int lane_id, const std::shared_ptr<const PlannerData> & planner_data,
+  const std::string & attribute_name);
+
+bool insertTargetVelocityPoint(
+  const autoware_planning_msgs::PathWithLaneId & input,
+  const lanelet::ConstLineString3d & stop_line, const double & margin, const double & velocity,
+  const PlannerData & planner_data, autoware_planning_msgs::PathWithLaneId & output,
+  DebugData & debug_data, boost::optional<int> & first_stop_path_point_index);
