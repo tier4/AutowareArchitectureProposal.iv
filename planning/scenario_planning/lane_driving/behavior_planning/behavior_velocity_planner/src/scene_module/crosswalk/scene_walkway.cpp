@@ -50,10 +50,21 @@ bool WalkwayModule::modifyPathVelocity(
     }
     polygon.outer().push_back(polygon.outer().front());
 
-    if (!insertTargetVelocityPoint(
-          input, polygon, planner_param_.stop_margin, 0.0, *planner_data_, *path, debug_data_,
-          first_stop_path_point_index_))
-      return false;
+    lanelet::Optional<lanelet::ConstLineString3d> stop_line_opt =
+      getStopLineFromMap(module_id_, planner_data_, "walkway_id");
+    if (!!stop_line_opt) {
+      if (!insertTargetVelocityPoint(
+            input, stop_line_opt.get(), planner_param_.stop_margin, 0.0, *planner_data_, *path,
+            debug_data_, first_stop_path_point_index_)) {
+        return false;
+      }
+    } else {
+      if (!insertTargetVelocityPoint(
+            input, polygon, planner_param_.stop_margin, 0.0, *planner_data_, *path, debug_data_,
+            first_stop_path_point_index_)) {
+        return false;
+      }
+    }
 
     // update state
     const Point self_pose = {
