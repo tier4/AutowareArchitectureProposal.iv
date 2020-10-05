@@ -1,30 +1,36 @@
-// Copyright 2020 Autoware Foundation
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+/*
+ * Copyright 2020 Autoware Foundation. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-#include "gtest/gtest.h"
-#include "msr_reader/msr_reader.hpp"
 #include "pthread.h"
-#include "ros/ros.h"
-#include "system_monitor/cpu_monitor/intel_cpu_monitor.hpp"
-#include "boost/algorithm/string.hpp"
-#include "boost/archive/text_oarchive.hpp"
-#include "boost/filesystem.hpp"
-#include "boost/format.hpp"
-#include "boost/process.hpp"
+
 #include <fstream>
 #include <string>
 #include <vector>
+
+#include "boost/algorithm/string.hpp"
+#include "boost/archive/text_oarchive.hpp"
+#include "boost/filesystem.hpp"
+#include "boost/process.hpp"
+
+#include "fmt/format.h"
+#include "gtest/gtest.h"
+#include "ros/ros.h"
+
+#include "msr_reader/msr_reader.hpp"
+#include "system_monitor/cpu_monitor/intel_cpu_monitor.hpp"
 
 static constexpr const char * TEST_FILE = "test";
 static constexpr const char * DOCKER_ENV = "/.dockerenv";
@@ -142,7 +148,7 @@ protected:
     // Modify PATH temporarily
     auto env = boost::this_process::environment();
     std::string new_path = env["PATH"].to_string();
-    new_path.insert(0, (boost::format("%1%:") % exe_dir_).str());
+    new_path.insert(0, fmt::format("{}:", exe_dir_));
     env["PATH"] = new_path;
   }
 };

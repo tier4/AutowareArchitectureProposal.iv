@@ -17,15 +17,18 @@
  * @brief CPU monitor base class
  */
 
-#include "system_monitor/cpu_monitor/cpu_monitor_base.hpp"
 #include <algorithm>
+#include <regex>
+#include <string>
+
 #include "boost/filesystem.hpp"
 #include "boost/process.hpp"
 #include "boost/property_tree/json_parser.hpp"
 #include "boost/property_tree/ptree.hpp"
-#include "boost/regex.hpp"
-#include "boost/thread.hpp"
-#include <string>
+
+#include "fmt/format.h"
+
+#include "system_monitor/cpu_monitor/cpu_monitor_base.hpp"
 
 namespace bp = boost::process;
 namespace fs = boost::filesystem;
@@ -170,11 +173,11 @@ void CPUMonitorBase::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & st
             level = DiagStatus::WARN;
           }
 
-          stat.add((boost::format("CPU %1%: status") % cpu_name).str(), load_dict_.at(level));
-          stat.addf((boost::format("CPU %1%: usr") % cpu_name).str(), "%.2f%%", usr);
-          stat.addf((boost::format("CPU %1%: nice") % cpu_name).str(), "%.2f%%", nice);
-          stat.addf((boost::format("CPU %1%: sys") % cpu_name).str(), "%.2f%%", sys);
-          stat.addf((boost::format("CPU %1%: idle") % cpu_name).str(), "%.2f%%", idle);
+          stat.add(fmt::format("CPU {}: status", cpu_name), load_dict_.at(level));
+          stat.addf(fmt::format("CPU {}: usr", cpu_name), "%.2f%%", usr);
+          stat.addf(fmt::format("CPU {}: nice", cpu_name), "%.2f%%", nice);
+          stat.addf(fmt::format("CPU {}: sys", cpu_name), "%.2f%%", sys);
+          stat.addf(fmt::format("CPU {}: idle", cpu_name), "%.2f%%", idle);
 
           if (usage_avg_ == true) {
             if (cpu_name == "all") {whole_level = level;}
@@ -236,7 +239,7 @@ void CPUMonitorBase::checkFrequency(diagnostic_updater::DiagnosticStatusWrapper 
       std::string line;
       if (std::getline(ifs, line)) {
         stat.addf(
-          (boost::format("CPU %1%: clock") % itr->index_).str(), "%d MHz", std::stoi(line) / 1000);
+          (fmt::format("CPU %1%: clock") % itr->index_), "%d MHz", std::stoi(line) / 1000);
       }
     }
     ifs.close();
@@ -259,12 +262,11 @@ void CPUMonitorBase::getFreqNames(void)
   {
     if (!fs::is_directory(path)) {continue;}
 
-    boost::smatch match;
-    const boost::regex filter(".*cpu(\\d+)");
-    const std::string cpu_dir = path.generic_string();
+    std::cmatch match;
+    const char * cpu_dir = path.generic_string().c_str();
 
     // /sys/devices/system/cpu[0-9] ?
-    if (!boost::regex_match(cpu_dir, match, filter)) {continue;}
+    if (!std::regex_match(cpu_dir, match, std::regex(".*cpu(\\d+)"))) {continue;}
 
     // /sys/devices/system/cpu[0-9]/cpufreq/scaling_cur_freq
     cpu_freq_info freq;

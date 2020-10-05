@@ -16,6 +16,8 @@ ament_auto_find_build_dependencies()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(NVML)
+find_package(fmt REQUIRED)
+set(LIBRARIES fmt)
 
 ###########
 ## Build ##
@@ -144,20 +146,21 @@ find_package(Boost REQUIRED COMPONENTS
 )
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(cpu_monitor ${Boost_LIBRARIES})
-target_link_libraries(hdd_monitor ${Boost_LIBRARIES})
-target_link_libraries(net_monitor ${NL_LIBS})
-target_link_libraries(ntp_monitor ${Boost_LIBRARIES})
-target_link_libraries(process_monitor ${Boost_LIBRARIES})
-target_link_libraries(gpu_monitor ${GPU_LIBRARY})
-target_link_libraries(msr_reader ${Boost_LIBRARIES})
-target_link_libraries(hdd_reader ${Boost_LIBRARIES})
+target_link_libraries(cpu_monitor ${Boost_LIBRARIES} ${LIBRARIES})
+target_link_libraries(hdd_monitor ${Boost_LIBRARIES} ${LIBRARIES})
+target_link_libraries(mem_monitor ${LIBRARIES})
+target_link_libraries(net_monitor ${NL_LIBS} ${LIBRARIES})
+target_link_libraries(ntp_monitor ${LIBRARIES})
+target_link_libraries(process_monitor ${LIBRARIES})
+target_link_libraries(gpu_monitor ${GPU_LIBRARY} ${LIBRARIES})
+target_link_libraries(msr_reader ${Boost_LIBRARIES} ${LIBRARIES})
+target_link_libraries(hdd_reader ${Boost_LIBRARIES} ${LIBRARIES})
 
 # TODO(yunus.caliskan): Port the tests to ROS2, robustify the tests.
-if(BUILD_TESTING)                                                                                                                                                                                                  
-  find_package(ament_lint_auto REQUIRED)                                                                                                                                                                           
-  ament_lint_auto_find_test_dependencies()                                                                                                                                                                         
-endif()  
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 #############
 ## Install ##
