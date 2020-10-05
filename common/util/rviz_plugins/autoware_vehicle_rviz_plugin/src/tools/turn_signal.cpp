@@ -15,9 +15,6 @@
  */
 
 #include "turn_signal.hpp"
-#include <OGRE/OgreHardwarePixelBuffer.h>
-#include <ros/package.h>
-#include <rviz/display_context.h>
 #include <rviz/uniform_string_stream.h>
 #include <QPainter>
 
@@ -25,17 +22,17 @@ namespace rviz_plugins
 {
 TurnSignalDisplay::TurnSignalDisplay()
 {
-  property_left_ = std::make_shared<rviz::IntProperty>(
+  property_left_ = new rviz::IntProperty(
     "Left", 128, "Left of the plotter window", this, SLOT(updateVisualization()), this);
   property_left_->setMin(0);
-  property_top_ = std::make_shared<rviz::IntProperty>(
+  property_top_ = new rviz::IntProperty(
     "Top", 128, "Top of the plotter window", this, SLOT(updateVisualization()));
   property_top_->setMin(0);
 
-  property_width_ = std::make_shared<rviz::IntProperty>(
+  property_width_ = new rviz::IntProperty(
     "Width", 256, "Width of the plotter window", this, SLOT(updateVisualization()), this);
   property_width_->setMin(10);
-  property_height_ = std::make_shared<rviz::IntProperty>(
+  property_height_ = new rviz::IntProperty(
     "Height", 256, "Width of the plotter window", this, SLOT(updateVisualization()), this);
   property_height_->setMin(10);
 }
@@ -92,9 +89,6 @@ void TurnSignalDisplay::processMessage(const autoware_vehicle_msgs::TurnSignalCo
 
   QPainter painter(&hud);
   painter.setRenderHint(QPainter::Antialiasing, true);
-
-  int w = overlay_->getTextureWidth();
-  int h = overlay_->getTextureHeight();
 
   // turn signal color
   QColor white_color(Qt::white);

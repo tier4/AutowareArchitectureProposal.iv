@@ -18,9 +18,9 @@
 
 #ifndef Q_MOC_RUN
 #include <ros/ros.h>
-#include <rviz/message_filter_display.h>
 #include <rviz/display_context.h>
 #include <rviz/frame_manager.h>
+#include <rviz/message_filter_display.h>
 #include <rviz/properties/bool_property.h>
 #include <rviz/properties/color_property.h>
 #include <rviz/properties/enum_property.h>
@@ -36,8 +36,8 @@
 #include <deque>
 #include <memory>
 
-#include "geometry_msgs/TwistStamped.h"
 #include "autoware_utils/autoware_utils.h"
+#include "geometry_msgs/TwistStamped.h"
 
 #include "jsk_overlay_utils.hpp"
 #endif
@@ -50,7 +50,7 @@ class ConsoleMeterDisplay : public rviz::MessageFilterDisplay<geometry_msgs::Twi
 
 public:
   ConsoleMeterDisplay();
-  virtual ~ConsoleMeterDisplay();
+  ~ConsoleMeterDisplay() override;
 
   void onInitialize() override;
   void onDisable() override;
@@ -77,14 +77,14 @@ private:
   static constexpr float meter_max_angle_ = autoware_utils::deg2rad(320.f);
   static constexpr int line_width_ = 2;
   static constexpr int hand_width_ = 4;
-  struct Line // for drawLine
+  struct Line  // for drawLine
   {
     int x0, y0;
     int x1, y1;
   };
   Line min_range_line_;
   Line max_range_line_;
-  struct Arc // for drawArc
+  struct Arc  // for drawArc
   {
     int x0, y0;
     int x1, y1;
