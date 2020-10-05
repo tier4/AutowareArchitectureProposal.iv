@@ -56,11 +56,20 @@ bool WalkwayModule::modifyPathVelocity(
     }
     polygon.outer().push_back(polygon.outer().front());
 
-    if (!insertTargetVelocityPoint(
-        input, polygon, planner_param_.stop_margin, 0.0, *planner_data_, *path, debug_data_,
-        first_stop_path_point_index_))
-    {
-      return false;
+    lanelet::Optional<lanelet::ConstLineString3d> stop_line_opt =
+      getStopLineFromMap(module_id_, planner_data_, "walkway_id");
+    if (!!stop_line_opt) {
+      if (!insertTargetVelocityPoint(
+            input, stop_line_opt.get(), planner_param_.stop_margin, 0.0, *planner_data_, *path,
+            debug_data_, first_stop_path_point_index_)) {
+        return false;
+      }
+    } else {
+      if (!insertTargetVelocityPoint(
+            input, polygon, planner_param_.stop_margin, 0.0, *planner_data_, *path, debug_data_,
+            first_stop_path_point_index_)) {
+        return false;
+      }
     }
 
     // update state
@@ -69,7 +78,9 @@ bool WalkwayModule::modifyPathVelocity(
     const double distance = bg::distance(polygon, self_pose);
     const double distance_threshold =
       planner_param_.stop_margin + planner_data_->vehicle_info_.max_longitudinal_offset_m_ + 1.0;
-    if (distance < distance_threshold && planner_data_->isVehicleStopping()) {state_ = State::STOP;}
+    if (distance < distance_threshold && planner_data_->isVehicleStopping()) {
+      state_ = State::STOP;
+    }
   } else if (state_ == State::STOP) {
     /* get stop point and stop factor */
     autoware_planning_msgs::msg::StopFactor stop_factor;
