@@ -24,6 +24,7 @@
 #include "motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp"
 #include "motion_velocity_optimizer/optimizer/optimizer_base.hpp"
 
+#include "autoware_debug_msgs/msg/bool_stamped.hpp"
 #include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
 #include "autoware_debug_msgs/msg/float32_stamped.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
@@ -45,6 +46,8 @@ public:
 private:
   // publisher for output trajectory
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_;
+  // publisher for over stop velocity warning
+  rclcpp::Publisher<autoware_debug_msgs::msg::BoolStamped>::SharedPtr pub_over_stop_velocity_; 
   // subscriber for current velocity
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_velocity_;
   // subscriber for reference trajectory
@@ -85,6 +88,8 @@ private:
   std::shared_ptr<OptimizerBase> optimizer_;
 
   bool publish_debug_trajs_;  // publish planned trajectories
+
+  double over_stop_velocity_warn_thr_;  // threshold to publish over velocity warn
 
   struct MotionVelocityOptimizerParam
   {
@@ -172,6 +177,10 @@ private:
     const int output_closest, autoware_planning_msgs::msg::Trajectory & output) const;
 
   void applyStoppingVelocity(autoware_planning_msgs::msg::Trajectory * traj) const;
+
+  void overwriteStopPoint(
+    const autoware_planning_msgs::msg::Trajectory & input,
+    autoware_planning_msgs::msg::Trajectory * output) const;
 
   autoware_planning_msgs::msg::VelocityLimit createVelocityLimitMsg(const double value)
   {

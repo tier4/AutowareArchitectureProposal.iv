@@ -76,6 +76,8 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
   p.stop_dist_to_prohibit_engage = declare_parameter("stop_dist_to_prohibit_engage", 1.5);
   p.delta_yaw_threshold = declare_parameter("delta_yaw_threshold", M_PI / 3.0);
 
+  over_stop_velocity_warn_thr_ = declare_parameter("over_stop_velocity_warn_thr", 1.389);  // 5kmph
+
   p.algorithm_type = declare_parameter("algorithm_type", "L2");
   if (p.algorithm_type != "L2" && p.algorithm_type != "Linf") {
     RCLCPP_WARN(get_logger(), "[MotionVelocityOptimizer] undesired algorithm is selected. set L2.");
@@ -95,6 +97,8 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
 
   pub_dist_to_stopline_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
     "distance_to_stopline", rclcpp::QoS{1});
+  pub_over_stop_velocity_ = create_publisher<autoware_debug_msgs::msg::BoolStamped>(
+    "stop_speed_exceeded", rclcpp::QoS{1});
   sub_current_trajectory_ = create_subscription<autoware_planning_msgs::msg::Trajectory>(
     "input/trajectory", 1,
     std::bind(&MotionVelocityOptimizer::callbackCurrentTrajectory, this, _1));
@@ -536,12 +540,8 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::optimizeVelocit
     // RCLCPP_WARN(get_logger(), "[optimizeVelocity] fail to solve optimization.");
   }
 
-  /* find stop point for stopVelocityFilter */
-  int stop_idx = -1;
-  bool stop_point_exists = vpu::searchZeroVelocityIdx(input, stop_idx);
-  RCLCPP_DEBUG(
-    get_logger(), "[replan]: target_vel = %f, stop_idx = %d, closest = %d, stop_point_exists = %d",
-    target_vel, stop_idx, input_closest, static_cast<int>(stop_point_exists));
+  /* set 0 velocity after input-stop-point */
+  overwriteStopPoint(input, &optimized_traj);
 
   /* for the endpoint of the trajectory */
   if (optimized_traj.points.size() > 0) {
@@ -552,6 +552,38 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::optimizeVelocit
   RCLCPP_DEBUG(
     get_logger(), "[optimizeVelocity]: optimized_traj.size() = %lu", optimized_traj.points.size());
   return optimized_traj;
+}
+
+void MotionVelocityOptimizer::overwriteStopPoint(
+  const autoware_planning_msgs::msg::Trajectory & input,
+  autoware_planning_msgs::msg::Trajectory * output) const
+{
+  int stop_idx = -1;
+  bool stop_point_exists = vpu::searchZeroVelocityIdx(input, stop_idx);
+
+  // check over velocity
+  bool is_stop_velocity_exceeded = false;
+  if (stop_point_exists) {
+    double optimized_stop_point_vel = output->points.at(stop_idx).twist.linear.x;
+    is_stop_velocity_exceeded = (optimized_stop_point_vel > over_stop_velocity_warn_thr_);
+  }
+  {
+    autoware_debug_msgs::msg::BoolStamped msg;
+    msg.data = is_stop_velocity_exceeded;
+    msg.stamp = this->now();
+    pub_over_stop_velocity_->publish(msg);
+  }
+
+  {
+    double input_stop_vel = stop_point_exists ? input.points.at(stop_idx).twist.linear.x : -1.0;
+    double output_stop_vel = stop_point_exists ? output->points.at(stop_idx).twist.linear.x : -1.0;
+    RCLCPP_DEBUG(
+      get_logger(), "[replan]: input_stop_idx = %d, stop velocity : input = %f, output = %f, thr = %f", 
+      stop_idx, input_stop_vel, output_stop_vel, over_stop_velocity_warn_thr_);
+  }
+
+  // keep stop point at the same position
+  vpu::insertZeroVelocityAfterIdx(stop_idx, *output);
 }
 
 bool MotionVelocityOptimizer::lateralAccelerationFilter(
