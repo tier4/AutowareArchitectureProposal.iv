@@ -6,7 +6,8 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
+  add_compile_options(-std=c++14 -Wno-unused-parameter -Wall -Wextra -Wpedantic 
+  )
 endif()
 
 ### Dependencies 
@@ -32,8 +33,8 @@ find_package(fmt REQUIRED)
 
 include_directories(
   include
-  # ${catkin_INCLUDE_DIRS}
 )
+
 
 # Target
 ## autoware_error_monitor_node
@@ -46,14 +47,10 @@ set(AUTOWARE_ERROR_MONITOR_DEPENDENCIES
   rclcpp
   diagnostic_msgs
   autoware_system_msgs
-  fmt
 )
-ament_target_dependencies(autoware_error_monitor_exe ${AUTOWARE_ERROR_MONITOR_DEPENDENCIES})
-
-# target_link_libraries(autoware_error_monitor
-#   fmt
-#   ${catkin_LIBRARIES}
-# )
+ament_target_dependencies(autoware_error_monitor_exe ${AUTOWARE_ERROR_MONITOR_DEPENDENCIES} 
+  PRIVATE fmt::fmt-header-only
+)
 
 # add_dependencies(autoware_error_monitor
 #   ${${PROJECT_NAME}_EXPORTED_TARGETS}

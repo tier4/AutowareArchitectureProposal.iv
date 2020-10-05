@@ -13,24 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include <autoware_error_monitor/autoware_error_monitor_node.h>
+#define FMT_HEADER_ONLY
 
 #include <fmt/format.h>
 
-void AutowareErrorMonitorNode::loadRequiredConditions(const std::string & key)
+#include <autoware_error_monitor/autoware_error_monitor_core.hpp>
+
+AutowareErrorMonitor::AutowareErrorMonitor(
+  const std::string & node_name, const rclcpp::NodeOptions & options)
+: Node(node_name, options)
+{
+  // Parameter
+  update_rate_ = declare_parameter("update_rate").get<int>();
+  loadRequiredConditions(KeyName::manual_driving);
+  loadRequiredConditions(KeyName::autonomous_driving);
+  loadRequiredConditions(KeyName::remote_control);
+  loadRequiredConditions(KeyName::safe_stop);
+  loadRequiredConditions(KeyName::emergency_stop);
+
+  // Subscriber
+  sub_diag_array_ = create_subscription<diagnostic_msgs::msg::DiagnosticArray>(
+    "input/diag_array", rclcpp::QoS{1},
+    std::bind(&AutowareErrorMonitor::onDiagArray, this, std::placeholders::_1));
+
+  // Publisher
+  pub_driving_capability_ = create_publisher<autoware_system_msgs::msg::DrivingCapability>(
+    "output/driving_capability", rclcpp::QoS{1});
+
+  // Timer
+  timer_ = rclcpp::create_timer(
+    this, rclcpp::Node::get_clock(), rclcpp::Duration(std::chrono::nanoseconds(update_rate_)),
+    std::bind(&AutowareErrorMonitor::onTimer, this));
+}
+
+void AutowareErrorMonitor::loadRequiredConditions(const std::string & key)
 {
   const auto param_key = std::string("required_conditions") + key;
 
+  this->declare_parameter(param_key);
+
   RequiredConditions value;
-  if (!private_nh_.getParam(param_key, value)) {
+  if (!this->get_parameter(param_key, value)) {
     throw std::runtime_error(fmt::format("no parameter found: {}", param_key));
   }
 
   required_conditions_map_.insert(std::make_pair(key, value));
 }
 
-void AutowareErrorMonitorNode::onDiagArray(const diagnostic_msgs::DiagnosticArray::ConstPtr & msg)
+void AutowareErrorMonitor::onDiagArray(
+  const diagnostic_msgs::msg::DiagnosticArray::ConstSharedPtr msg)
 {
   const auto & header = msg->header;
 
@@ -48,9 +79,9 @@ void AutowareErrorMonitorNode::onDiagArray(const diagnostic_msgs::DiagnosticArra
   }
 }
 
-void AutowareErrorMonitorNode::onTimer(const ros::TimerEvent & event)
+void AutowareErrorMonitor::onTimer()
 {
-  autoware_system_msgs::DrivingCapability driving_capability;
+  autoware_system_msgs::msg::DrivingCapability driving_capability;
 
   driving_capability.manual_driving = judgeCapability(KeyName::manual_driving);
   driving_capability.autonomous_driving = judgeCapability(KeyName::autonomous_driving);
@@ -58,12 +89,12 @@ void AutowareErrorMonitorNode::onTimer(const ros::TimerEvent & event)
   driving_capability.safe_stop = judgeCapability(KeyName::safe_stop);
   driving_capability.emergency_stop = judgeCapability(KeyName::emergency_stop);
 
-  pub_driving_capability_.publish(driving_capability);
+  pub_driving_capability_->publish(driving_capability);
 }
 
-bool AutowareErrorMonitorNode::judgeCapability(const std::string & key)
+bool AutowareErrorMonitor::judgeCapability(const std::string & key)
 {
-  for (const auto & required_condition : required_conditions_map_.at(key)) {
+  for (const std::string & required_condition : required_conditions_map_.at(key)) {
     const auto diag_name = fmt::format("/{}", required_condition);
     const auto & latest_diag = getLatestDiag(diag_name);
 
@@ -71,12 +102,12 @@ bool AutowareErrorMonitorNode::judgeCapability(const std::string & key)
       return false;
     }
 
-    if (latest_diag->status.level != diagnostic_msgs::DiagnosticStatus::OK) {
+    if (latest_diag->status.level != diagnostic_msgs::msg::DiagnosticStatus::OK) {
       return false;
     }
 
-    const auto time_diff = ros::Time::now() - latest_diag->header.stamp;
-    if (time_diff.toSec() > diag_timeout_sec_) {
+    const auto time_diff = rclcpp::Node::now() - latest_diag->header.stamp;
+    if (time_diff.seconds() > diag_timeout_sec_) {
       return false;
     }
   }
@@ -84,7 +115,7 @@ bool AutowareErrorMonitorNode::judgeCapability(const std::string & key)
   return true;
 }
 
-boost::optional<DiagStamped> AutowareErrorMonitorNode::getLatestDiag(const std::string & diag_name)
+boost::optional<DiagStamped> AutowareErrorMonitor::getLatestDiag(const std::string & diag_name)
 {
   if (diag_buffer_map_.count(diag_name) == 0) {
     return {};
@@ -97,27 +128,4 @@ boost::optional<DiagStamped> AutowareErrorMonitorNode::getLatestDiag(const std::
   }
 
   return diag_buffer.back();
-}
-
-AutowareErrorMonitorNode::AutowareErrorMonitorNode()
-{
-  // Parameter
-  private_nh_.param("update_rate", update_rate_, 10.0);
-  loadRequiredConditions(KeyName::manual_driving);
-  loadRequiredConditions(KeyName::autonomous_driving);
-  loadRequiredConditions(KeyName::remote_control);
-  loadRequiredConditions(KeyName::safe_stop);
-  loadRequiredConditions(KeyName::emergency_stop);
-
-  // Subscriber
-  sub_diag_array_ =
-    private_nh_.subscribe("input/diag_array", 1, &AutowareErrorMonitorNode::onDiagArray, this);
-
-  // Publisher
-  pub_driving_capability_ =
-    private_nh_.advertise<autoware_system_msgs::DrivingCapability>("output/driving_capability", 1);
-
-  // Timer
-  timer_ =
-    private_nh_.createTimer(ros::Rate(update_rate_), &AutowareErrorMonitorNode::onTimer, this);
 }
