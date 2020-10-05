@@ -51,6 +51,8 @@ MotionVelocityOptimizer::MotionVelocityOptimizer() : nh_(""), pnh_("~"), tf_list
   pnh_.param<double>("stop_dist_to_prohibit_engage", p.stop_dist_to_prohibit_engage, 1.5);
   pnh_.param<double>("delta_yaw_threshold", p.delta_yaw_threshold, M_PI / 3.0);
 
+  pnh_.param<double>("over_stop_velocity_warn_thr", over_stop_velocity_warn_thr_, 1.389);  // 5kmph
+
   pnh_.param<std::string>("algorithm_type", p.algorithm_type, "L2");
   if (p.algorithm_type != "L2" && p.algorithm_type != "Linf") {
     ROS_WARN("[MotionVelocityOptimizer] undesired algorithm is selected. set L2.");
@@ -64,6 +66,7 @@ MotionVelocityOptimizer::MotionVelocityOptimizer() : nh_(""), pnh_("~"), tf_list
     pnh_.advertise<std_msgs::Float32>("output/current_velocity_limit_mps", 1, true);
   pub_velocity_limit_.publish(createFloat32Msg(p.max_velocity));  // publish default max velocity
   pub_dist_to_stopline_ = pnh_.advertise<std_msgs::Float32>("distance_to_stopline", 1);
+  pub_over_stop_velocity_ = pnh_.advertise<std_msgs::Bool>("stop_speed_exceeded", 1);
   sub_current_trajectory_ = pnh_.subscribe(
     "input/trajectory", 1, &MotionVelocityOptimizer::callbackCurrentTrajectory, this);
   sub_current_velocity_ = pnh_.subscribe(
@@ -475,12 +478,8 @@ autoware_planning_msgs::Trajectory MotionVelocityOptimizer::optimizeVelocity(
     // ROS_WARN("[optimizeVelocity] fail to solve optimization.");
   }
 
-  /* find stop point for stopVelocityFilter */
-  int stop_idx = -1;
-  bool stop_point_exists = vpu::searchZeroVelocityIdx(input, stop_idx);
-  ROS_DEBUG(
-    "[replan]: target_vel = %f, stop_idx = %d, closest = %d, stop_point_exists = %d", target_vel,
-    stop_idx, input_closest, (int)stop_point_exists);
+  /* set 0 velocity after input-stop-point */
+  overwriteStopPoint(input, &optimized_traj);
 
   /* for the endpoint of the trajectory */
   if (optimized_traj.points.size() > 0) {
@@ -490,6 +489,37 @@ autoware_planning_msgs::Trajectory MotionVelocityOptimizer::optimizeVelocity(
   /* set output trajectory */
   ROS_DEBUG("[optimizeVelocity]: optimized_traj.size() = %lu", optimized_traj.points.size());
   return optimized_traj;
+}
+
+void MotionVelocityOptimizer::overwriteStopPoint(
+  const autoware_planning_msgs::Trajectory & input,
+  autoware_planning_msgs::Trajectory * output) const
+{
+  int stop_idx = -1;
+  bool stop_point_exists = vpu::searchZeroVelocityIdx(input, stop_idx);
+
+  // check over velocity
+  bool is_stop_velocity_exceeded = false;
+  if (stop_point_exists) {
+    double optimized_stop_point_vel = output->points.at(stop_idx).twist.linear.x;
+    is_stop_velocity_exceeded = (optimized_stop_point_vel > over_stop_velocity_warn_thr_);
+  }
+  {
+    std_msgs::Bool msg;
+    msg.data = is_stop_velocity_exceeded;
+    pub_over_stop_velocity_.publish(msg);
+  }
+
+  {
+    double input_stop_vel = stop_point_exists ? input.points.at(stop_idx).twist.linear.x : -1.0;
+    double output_stop_vel = stop_point_exists ? output->points.at(stop_idx).twist.linear.x : -1.0;
+    ROS_DEBUG(
+      "[replan]: input_stop_idx = %d, stop velocity : input = %f, output = %f, thr = %f", stop_idx,
+      input_stop_vel, output_stop_vel, over_stop_velocity_warn_thr_);
+  }
+
+  // keep stop point at the same position
+  vpu::insertZeroVelocityAfterIdx(stop_idx, *output);
 }
 
 bool MotionVelocityOptimizer::lateralAccelerationFilter(

@@ -29,6 +29,9 @@ resample_time: 10.0                   # resample total time [s]
 resample_dt: 0.1                      # resample time interval [s]
 min_trajectory_interval_distance: 0.1 # resample points-interval length [m]
 
+# system
+over_stop_velocity_warn_thr: 1.389  # used to check if the optimization exceeds the input velocity on the stop point
+
 # default weights
 # L2: jerk = 100.0, v_weight = 100000.0, a_weight = 1000.0
 # Linf: jerk = 200.0, v_weight = 100000.0, a_weight = 5000.0

@@ -42,9 +42,10 @@ public:
 private:
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;
-  ros::Publisher pub_trajectory_;                //!< @brief publisher for output trajectory
-  ros::Subscriber sub_current_velocity_;         //!< @brief subscriber for current velocity
-  ros::Subscriber sub_current_trajectory_;       //!< @brief subscriber for reference trajectory
+  ros::Publisher pub_trajectory_;           //!< @brief publisher for output trajectory
+  ros::Publisher pub_over_stop_velocity_;   //!< @brief publisher for over stop velocity warning
+  ros::Subscriber sub_current_velocity_;    //!< @brief subscriber for current velocity
+  ros::Subscriber sub_current_trajectory_;  //!< @brief subscriber for reference trajectory
   ros::Subscriber sub_external_velocity_limit_;  //!< @brief subscriber for external velocity limit
   tf2_ros::Buffer tf_buffer_;                    //!< @brief tf butter
   tf2_ros::TransformListener tf_listener_;       //!< @brief tf listener
@@ -70,6 +71,8 @@ private:
   boost::shared_ptr<OptimizerBase> optimizer_;
 
   bool publish_debug_trajs_;  // publish planned trajectories
+
+  double over_stop_velocity_warn_thr_;  // threshold to publish over velocity warn
 
   struct MotionVelocityOptimizerParam
   {
@@ -153,6 +156,9 @@ private:
 
   void applyStoppingVelocity(autoware_planning_msgs::Trajectory * traj) const;
 
+  void overwriteStopPoint(
+    const autoware_planning_msgs::Trajectory & input,
+    autoware_planning_msgs::Trajectory * output) const;
 
   std_msgs::Float32 createFloat32Msg(const double value)
   {
@@ -217,5 +223,4 @@ private:
   std::shared_ptr<ros::Time> prev_time_;
   double prev_acc_;
   void publishClosestJerk(const double curr_acc);
-
 };
