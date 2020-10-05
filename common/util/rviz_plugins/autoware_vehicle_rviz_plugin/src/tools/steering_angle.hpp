@@ -49,7 +49,7 @@ class SteeringAngleDisplay
 
 public:
   SteeringAngleDisplay();
-  virtual ~SteeringAngleDisplay();
+  ~SteeringAngleDisplay() override;
 
   void onInitialize() override;
   void onDisable() override;

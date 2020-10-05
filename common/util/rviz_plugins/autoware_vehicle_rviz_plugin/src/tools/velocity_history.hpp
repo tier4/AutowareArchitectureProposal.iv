@@ -38,13 +38,14 @@
 
 namespace rviz_plugins
 {
-class VelocityHistoryDisplay : public rviz_common::MessageFilterDisplay<geometry_msgs::msg::TwistStamped>
+class VelocityHistoryDisplay
+: public rviz_common::MessageFilterDisplay<geometry_msgs::msg::TwistStamped>
 {
   Q_OBJECT
 
 public:
   VelocityHistoryDisplay();
-  virtual ~VelocityHistoryDisplay();
+  ~VelocityHistoryDisplay() override;
 
   void onInitialize() override;
   void reset() override;
@@ -60,7 +61,6 @@ protected:
     const QColor & color_min, const QColor & color_max, const double ratio);
   Ogre::ManualObject * velocity_manual_object_;
   rviz_common::properties::FloatProperty * property_velocity_timeout_;
-  rviz_common::properties::FloatProperty * property_path_alpha_;
   rviz_common::properties::FloatProperty * property_velocity_alpha_;
   rviz_common::properties::FloatProperty * property_velocity_scale_;
   rviz_common::properties::BoolProperty * property_velocity_color_view_;
@@ -68,7 +68,8 @@ protected:
   rviz_common::properties::FloatProperty * property_vel_max_;
 
 private:
-  std::deque<std::tuple<geometry_msgs::msg::TwistStamped::ConstSharedPtr, Ogre::Vector3>> history_;
+  std::deque<std::tuple<geometry_msgs::msg::TwistStamped::ConstSharedPtr, Ogre::Vector3>>
+    histories_;
   bool validateFloats(const geometry_msgs::msg::TwistStamped::ConstSharedPtr & msg_ptr);
 };
 

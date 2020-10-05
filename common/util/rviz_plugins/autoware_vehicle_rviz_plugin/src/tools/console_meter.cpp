@@ -13,9 +13,7 @@
 // limitations under the License.
 
 #include "console_meter.hpp"
-#include "OgreHardwarePixelBuffer.h"
 #include "QPainter"
-#include "rviz_common/display_context.hpp"
 #include "rviz_common/uniform_string_stream.hpp"
 
 namespace rviz_plugins
@@ -110,8 +108,8 @@ void ConsoleMeterDisplay::processMessage(
   QPainter painter(&hud);
   painter.setRenderHint(QPainter::Antialiasing, true);
 
-  int w = overlay_->getTextureWidth() - line_width_;
-  int h = overlay_->getTextureHeight() - line_width_;
+  const int w = overlay_->getTextureWidth() - line_width_;
+  const int h = overlay_->getTextureHeight() - line_width_;
 
   // meter
   QColor white_color(Qt::white);
@@ -123,12 +121,12 @@ void ConsoleMeterDisplay::processMessage(
   const float theta =
     (velocity_ratio * (meter_max_angle_ - meter_min_angle_)) + meter_min_angle_ + M_PI_2;
 
-  painter.setPen(QPen(white_color, int(hand_width_), Qt::SolidLine));
+  painter.setPen(QPen(white_color, hand_width_, Qt::SolidLine));
   painter.drawLine(
     w * 0.5, h * 0.5, (w * 0.5) + ((float)w * 0.5 - ((float)hand_width_ * 0.5)) * std::cos(theta),
     (h * 0.5) + ((float)h * 0.5 - ((float)hand_width_ * 0.5)) * std::sin(theta));
 
-  painter.setPen(QPen(white_color, int(line_width_), Qt::SolidLine));
+  painter.setPen(QPen(white_color, line_width_, Qt::SolidLine));
   painter.drawLine(min_range_line_.x0, min_range_line_.y0, min_range_line_.x1, min_range_line_.y1);
   painter.drawLine(max_range_line_.x0, max_range_line_.y0, max_range_line_.x1, max_range_line_.y1);
   painter.drawArc(

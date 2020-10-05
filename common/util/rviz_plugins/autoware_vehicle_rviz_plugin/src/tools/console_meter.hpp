@@ -50,7 +50,7 @@ class ConsoleMeterDisplay
 
 public:
   ConsoleMeterDisplay();
-  virtual ~ConsoleMeterDisplay();
+  ~ConsoleMeterDisplay() override;
 
   void onInitialize() override;
   void onDisable() override;

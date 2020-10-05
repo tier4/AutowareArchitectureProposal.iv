@@ -48,7 +48,7 @@ class TurnSignalDisplay
 
 public:
   TurnSignalDisplay();
-  virtual ~TurnSignalDisplay();
+  ~TurnSignalDisplay() override;
 
   void onInitialize() override;
   void onDisable() override;
@@ -61,10 +61,10 @@ protected:
   void processMessage(
     const autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr msg_ptr) override;
   jsk_rviz_plugins::OverlayObject::Ptr overlay_;
-  std::shared_ptr<rviz_common::properties::IntProperty> property_left_;
-  std::shared_ptr<rviz_common::properties::IntProperty> property_top_;
-  std::shared_ptr<rviz_common::properties::IntProperty> property_width_;
-  std::shared_ptr<rviz_common::properties::IntProperty> property_height_;
+  rviz_common::properties::IntProperty * property_left_;
+  rviz_common::properties::IntProperty * property_top_;
+  rviz_common::properties::IntProperty * property_width_;
+  rviz_common::properties::IntProperty * property_height_;
   // QImage hud_;
 
 private:

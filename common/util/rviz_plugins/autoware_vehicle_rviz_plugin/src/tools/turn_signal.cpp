@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "turn_signal.hpp"
-#include "OgreHardwarePixelBuffer.h"
 #include "QPainter"
 #include "ament_index_cpp/get_package_share_directory.hpp"
 #include "rviz_common/uniform_string_stream.hpp"
@@ -22,17 +21,17 @@ namespace rviz_plugins
 {
 TurnSignalDisplay::TurnSignalDisplay()
 {
-  property_left_ = std::make_shared<rviz_common::properties::IntProperty>(
+  property_left_ = new rviz_common::properties::IntProperty(
     "Left", 128, "Left of the plotter window", this, SLOT(updateVisualization()), this);
   property_left_->setMin(0);
-  property_top_ = std::make_shared<rviz_common::properties::IntProperty>(
+  property_top_ = new rviz_common::properties::IntProperty(
     "Top", 128, "Top of the plotter window", this, SLOT(updateVisualization()));
   property_top_->setMin(0);
 
-  property_width_ = std::make_shared<rviz_common::properties::IntProperty>(
+  property_width_ = new rviz_common::properties::IntProperty(
     "Width", 256, "Width of the plotter window", this, SLOT(updateVisualization()), this);
   property_width_->setMin(10);
-  property_height_ = std::make_shared<rviz_common::properties::IntProperty>(
+  property_height_ = new rviz_common::properties::IntProperty(
     "Height", 256, "Width of the plotter window", this, SLOT(updateVisualization()), this);
   property_height_->setMin(10);
 }
