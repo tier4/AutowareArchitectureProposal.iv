@@ -21,13 +21,13 @@
  * @brief System Monitor Utility class
  */
 
-#include <boost/filesystem.hpp>
-#include <boost/foreach.hpp>
-#include <boost/format.hpp>
-#include <boost/range.hpp>
-#include <boost/regex.hpp>
+#include <regex>
 #include <string>
 #include <vector>
+
+#include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
+#include <boost/range.hpp>
 
 namespace fs = boost::filesystem;
 
@@ -64,12 +64,11 @@ public:
          boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator())) {
       if (!fs::is_directory(path)) continue;
 
-      boost::smatch match;
-      const boost::regex filter(".*/thermal_zone(\\d+)");
-      const std::string therm_dir = path.generic_string();
+      std::cmatch match;
+      const char * therm_dir = path.generic_string().c_str();
 
       // not thermal_zone[0-9]
-      if (!boost::regex_match(therm_dir, match, filter)) continue;
+      if (!std::regex_match(therm_dir, match, std::regex(".*/thermal_zone(\\d+)"))) continue;
 
       std::string type;
       const fs::path type_path = path / "type";

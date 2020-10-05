@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
-#include <ros/ros.h>
-#include <system_monitor/ntp_monitor/ntp_monitor.h>
+#include <string>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/format.hpp>
 #include <boost/process.hpp>
-#include <string>
+
+#include <fmt/format.h>
+#include <gtest/gtest.h>
+#include <ros/ros.h>
+
+#include <system_monitor/ntp_monitor/ntp_monitor.h>
 
 namespace fs = boost::filesystem;
 using DiagStatus = diagnostic_msgs::DiagnosticStatus;
@@ -118,7 +121,7 @@ protected:
     // Modify PATH temporarily
     auto env = boost::this_process::environment();
     std::string new_path = env["PATH"].to_string();
-    new_path.insert(0, (boost::format("%1%:") % exe_dir_).str());
+    new_path.insert(0, fmt::format("{}:", exe_dir_));
     env["PATH"] = new_path;
   }
 };

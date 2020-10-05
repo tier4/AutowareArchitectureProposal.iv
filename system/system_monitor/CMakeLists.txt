@@ -16,6 +16,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(NVML)
+find_package(fmt REQUIRED)
+set(LIBRARIES fmt)
 
 set(ROSLINT_CPP_OPTS "--filter=-build/c++14")
 roslint_cpp()
@@ -160,13 +162,13 @@ find_package(Boost REQUIRED COMPONENTS
 )
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(cpu_monitor ${catkin_LIBRARIES} ${Boost_LIBRARIES})
-target_link_libraries(hdd_monitor ${catkin_LIBRARIES} ${Boost_LIBRARIES})
-target_link_libraries(mem_monitor ${catkin_LIBRARIES})
-target_link_libraries(net_monitor ${catkin_LIBRARIES} ${NL_LIBS})
-target_link_libraries(ntp_monitor ${catkin_LIBRARIES})
-target_link_libraries(process_monitor ${catkin_LIBRARIES})
-target_link_libraries(gpu_monitor ${catkin_LIBRARIES} ${GPU_LIBRARY})
+target_link_libraries(cpu_monitor ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${LIBRARIES})
+target_link_libraries(hdd_monitor ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${LIBRARIES})
+target_link_libraries(mem_monitor ${catkin_LIBRARIES} ${LIBRARIES})
+target_link_libraries(net_monitor ${catkin_LIBRARIES} ${NL_LIBS} ${LIBRARIES})
+target_link_libraries(ntp_monitor ${catkin_LIBRARIES} ${LIBRARIES})
+target_link_libraries(process_monitor ${catkin_LIBRARIES} ${LIBRARIES})
+target_link_libraries(gpu_monitor ${catkin_LIBRARIES} ${GPU_LIBRARY} ${LIBRARIES})
 target_link_libraries(msr_reader ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 target_link_libraries(hdd_reader ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
@@ -217,21 +219,21 @@ if (CATKIN_ENABLE_TESTING)
     test/src/cpu_monitor/test_${CMAKE_CPU_PLATFORM}_cpu_monitor.cpp
     ${CPU_MONITOR_SOURCE}
   )
-  target_link_libraries(test_cpu_monitor ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+  target_link_libraries(test_cpu_monitor ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${LIBRARIES})
 
   add_rostest_gtest(test_hdd_monitor
     test/test_hdd_monitor.test
     test/src/hdd_monitor/test_hdd_monitor.cpp
     src/hdd_monitor/hdd_monitor.cpp
   )
-  target_link_libraries(test_hdd_monitor ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+  target_link_libraries(test_hdd_monitor ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${LIBRARIES})
 
   add_rostest_gtest(test_mem_monitor
     test/test_mem_monitor.test
     test/src/mem_monitor/test_mem_monitor.cpp
     src/mem_monitor/mem_monitor.cpp
   )
-  target_link_libraries(test_mem_monitor ${catkin_LIBRARIES})
+  target_link_libraries(test_mem_monitor ${catkin_LIBRARIES} ${LIBRARIES})
 
   add_rostest_gtest(test_net_monitor
     test/test_net_monitor.test
@@ -239,28 +241,28 @@ if (CATKIN_ENABLE_TESTING)
     src/net_monitor/net_monitor.cpp
     src/net_monitor/nl80211.cpp
   )
-  target_link_libraries(test_net_monitor ${catkin_LIBRARIES} ${NL_LIBS})
+  target_link_libraries(test_net_monitor ${catkin_LIBRARIES} ${NL_LIBS} ${LIBRARIES})
 
   add_rostest_gtest(test_ntp_monitor
     test/test_ntp_monitor.test
     test/src/ntp_monitor/test_ntp_monitor.cpp
     src/ntp_monitor/ntp_monitor.cpp
   )
-  target_link_libraries(test_ntp_monitor ${catkin_LIBRARIES})
+  target_link_libraries(test_ntp_monitor ${catkin_LIBRARIES} ${LIBRARIES})
 
   add_rostest_gtest(test_process_monitor
     test/test_process_monitor.test
     test/src/process_monitor/test_process_monitor.cpp
     src/process_monitor/process_monitor.cpp
   )
-  target_link_libraries(test_process_monitor ${catkin_LIBRARIES})
+  target_link_libraries(test_process_monitor ${catkin_LIBRARIES} ${LIBRARIES})
 
   add_rostest_gtest(test_gpu_monitor
     test/test_gpu_monitor.test
     test/src/gpu_monitor/test_${CMAKE_GPU_PLATFORM}_gpu_monitor.cpp
     ${GPU_MONITOR_SOURCE}
   )
-  target_link_libraries(test_gpu_monitor ${catkin_LIBRARIES} ${GPU_LIBRARY})
+  target_link_libraries(test_gpu_monitor ${catkin_LIBRARIES} ${GPU_LIBRARY} ${LIBRARIES})
 
   # Dummy executables
   add_executable(mpstat1 test/src/cpu_monitor/mpstat1.cpp)

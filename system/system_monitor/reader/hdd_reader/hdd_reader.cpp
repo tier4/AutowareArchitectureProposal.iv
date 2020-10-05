@@ -19,10 +19,14 @@
  * @brief HDD information read class
  */
 
+#include <algorithm>
+#include <regex>
+#include <string>
+#include <vector>
+
 #include <errno.h>
 #include <fcntl.h>
 #include <getopt.h>
-#include <hdd_reader/hdd_reader.h>
 #include <linux/nvme_ioctl.h>
 #include <netinet/in.h>
 #include <scsi/sg.h>
@@ -33,15 +37,13 @@
 #include <sys/socket.h>
 #include <syslog.h>
 #include <unistd.h>
-#include <algorithm>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/regex.hpp>
-#include <string>
-#include <vector>
+
+#include <hdd_reader/hdd_reader.h>
 
 namespace fs = boost::filesystem;
 
@@ -549,13 +551,13 @@ int main(int argc, char ** argv)
 
   for (const fs::path & path :
        boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator())) {
-    boost::smatch match;
-    const boost::regex fsd("sd([a-z]+)");
-    const boost::regex fnvme("nvme(\\d+)");
-    const std::string dir = path.filename().generic_string();
+    std::cmatch match;
+    const std::regex fsd("sd([a-z]+)");
+    const std::regex fnvme("nvme(\\d+)");
+    const char * dir = path.filename().generic_string().c_str();
 
     // /dev/sd[a-z] or /dev/nvme[0-9] ?
-    if (boost::regex_match(dir, match, fsd) || boost::regex_match(dir, match, fnvme)) {
+    if (std::regex_match(dir, match, fsd) || std::regex_match(dir, match, fnvme)) {
       HDDInfo info = {0};
       list.insert(std::make_pair(path.generic_string(), info));
     }

@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-#include <gtest/gtest.h>
-#include <ros/ros.h>
-#include <system_monitor/cpu_monitor/tegra_cpu_monitor.h>
+#include <fstream>
+#include <string>
+#include <vector>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
 #include <boost/process.hpp>
-#include <fstream>
-#include <string>
-#include <vector>
+
+#include <fmt/format.h>
+#include <gtest/gtest.h>
+#include <ros/ros.h>
+
+#include <system_monitor/cpu_monitor/tegra_cpu_monitor.h>
 
 static constexpr const char * TEST_FILE = "test";
 
@@ -137,7 +141,7 @@ protected:
     // Modify PATH temporarily
     auto env = boost::this_process::environment();
     std::string new_path = env["PATH"].to_string();
-    new_path.insert(0, (boost::format("%1%:") % exe_dir_).str());
+    new_path.insert(0, fm::format("{}:", exe_dir_));
     env["PATH"] = new_path;
   }
 };
