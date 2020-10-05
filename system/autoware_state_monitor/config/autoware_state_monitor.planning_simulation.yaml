@@ -29,6 +29,11 @@ topic_configs:
     timeout: 1.0
     warn_rate: 5.0
 
+  - module: "localization"
+    name: "/initialpose"
+    timeout: 0.0
+    warn_rate: 0.0
+
   - module: "planning"
     name: "/planning/mission_planning/route"
     timeout: 0.0

@@ -35,6 +35,11 @@ topic_configs:
     warn_rate: 5.0
 
   - module: "localization"
+    name: "/initialpose3d"
+    timeout: 0.0
+    warn_rate: 0.0
+
+  - module: "localization"
     name: "/localization/pose_twist_fusion_filter/pose"
     timeout: 1.0
     warn_rate: 5.0
