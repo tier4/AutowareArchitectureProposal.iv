@@ -19,18 +19,22 @@
  * @brief  CPU monitor class
  */
 
-#include <msr_reader/msr_reader.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include <system_monitor/cpu_monitor/intel_cpu_monitor.h>
+
 #include <algorithm>
+#include <regex>
+#include <string>
+#include <vector>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/format.hpp>
-#include <boost/regex.hpp>
-#include <string>
-#include <vector>
+
+#include <fmt/format.h>
+
+#include <msr_reader/msr_reader.h>
+#include <system_monitor/cpu_monitor/intel_cpu_monitor.h>
 
 namespace fs = boost::filesystem;
 
@@ -132,7 +136,7 @@ void CPUMonitor::checkThrottling(diagnostic_updater::DiagnosticStatusWrapper & s
     else
       level = DiagStatus::OK;
 
-    stat.add((boost::format("CPU %1%: Pkg Thermal Status") % index).str(), thermal_dict_.at(level));
+    stat.add(fmt::format("CPU {}: Pkg Thermal Status", index), thermal_dict_.at(level));
 
     whole_level = std::max(whole_level, level);
   }
@@ -148,12 +152,11 @@ void CPUMonitor::getTempNames(void)
          fs::recursive_directory_iterator(root), fs::recursive_directory_iterator())) {
     if (fs::is_directory(path)) continue;
 
-    boost::smatch match;
-    boost::regex filter(".*temp(\\d+)_input");
-    std::string temp_input = path.generic_string();
+    std::cmatch match;
+    const std::string temp_input = path.generic_string();
 
     // /sys/devices/platform/coretemp.0/hwmon/hwmon[0-9]/temp[0-9]_input ?
-    if (!boost::regex_match(temp_input, match, filter)) continue;
+    if (!std::regex_match(temp_input.c_str(), match, std::regex(".*temp(\\d+)_input"))) continue;
 
     cpu_temp_info temp;
     temp.path_ = temp_input;
@@ -171,12 +174,12 @@ void CPUMonitor::getTempNames(void)
   }
 
   std::sort(temps_.begin(), temps_.end(), [](const cpu_temp_info & c1, const cpu_temp_info & c2) {
-    boost::smatch match;
-    boost::regex filter(".*temp(\\d+)_input");
+    std::cmatch match;
+    const std::regex filter(".*temp(\\d+)_input");
     int n1 = 0;
     int n2 = 0;
-    if (boost::regex_match(c1.path_, match, filter)) n1 = std::stoi(match[1].str());
-    if (boost::regex_match(c2.path_, match, filter)) n2 = std::stoi(match[1].str());
+    if (std::regex_match(c1.path_.c_str(), match, filter)) n1 = std::stoi(match[1].str());
+    if (std::regex_match(c2.path_.c_str(), match, filter)) n2 = std::stoi(match[1].str());
     return n1 < n2;
   });  // NOLINT
 }
