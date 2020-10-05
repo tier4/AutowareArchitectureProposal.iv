@@ -21,14 +21,7 @@
 
 #include "eigen3/Eigen/Core"
 
-LinfPseudoJerkOptimizer::LinfPseudoJerkOptimizer(const OptimizerParam & p) {
-  param_ = p;
-  qp_solver_.updateMaxIter(20000);
-  qp_solver_.updateRhoInterval(5000);
-  qp_solver_.updateEpsRel(1.0e-4);  // def: 1.0e-4
-  qp_solver_.updateEpsAbs(1.0e-8);  // def: 1.0e-4
-  qp_solver_.updateVerbose(false);
-}
+LinfPseudoJerkOptimizer::LinfPseudoJerkOptimizer(const OptimizerParam & p) { param_ = p; }
 
 void LinfPseudoJerkOptimizer::setParam(const OptimizerParam & param) { param_ = param; }
 
@@ -210,13 +203,6 @@ bool LinfPseudoJerkOptimizer::solve(
   for (unsigned int i = N + closest; i < output->points.size(); ++i) {
     output->points.at(i).twist.linear.x = 0.0;
     output->points.at(i).accel.linear.x = 0.0;
-  }
-
-  const int status_val = std::get<3>(result);
-  if (status_val != 1) {
-    RCLCPP_WARN(rclcpp::get_logger("LinfPseudoJerkOptimizer"),
-      "[motion_velocity_optimizer] optimization failed : %s",
-      qp_solver_.getStatusMessage().c_str());
   }
 
   auto tf2 = std::chrono::system_clock::now();
