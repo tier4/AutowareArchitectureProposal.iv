@@ -17,7 +17,6 @@
 #include "velocity_history.hpp"
 #define EIGEN_MPL2_ONLY
 #include <Eigen/Core>
-#include <Eigen/Geometry>
 
 namespace rviz_plugins
 {
@@ -126,13 +125,13 @@ void VelocityHistoryDisplay::processMessage(const geometry_msgs::TwistStampedCon
       qPrintable(fixed_frame_));
   }
 
-  history_.push_back(std::make_tuple(msg_ptr, position));
+  histories_.emplace_back(msg_ptr, position);
   updateVisualization();
 }
 
 void VelocityHistoryDisplay::updateVisualization()
 {
-  if (history_.empty()) return;
+  if (histories_.empty()) return;
   velocity_manual_object_->clear();
 
   Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName(
@@ -141,39 +140,39 @@ void VelocityHistoryDisplay::updateVisualization()
   material->setDepthWriteEnabled(false);
   ros::Time current_time = ros::Time::now();
 
-  while (!history_.empty()) {
+  while (!histories_.empty()) {
     if (
       property_velocity_timeout_->getFloat() <
-      (current_time - std::get<0>(history_.front())->header.stamp).toSec())
-      history_.pop_front();
+      (current_time - std::get<0>(histories_.front())->header.stamp).toSec())
+      histories_.pop_front();
     else
       break;
   }
 
-  // std::cout << __LINE__ << ":" <<std::get<1>(history_.front()) <<std::endl;
-  velocity_manual_object_->estimateVertexCount(history_.size());
+  // std::cout << __LINE__ << ":" <<std::get<1>(histories_.front()) <<std::endl;
+  velocity_manual_object_->estimateVertexCount(histories_.size());
   velocity_manual_object_->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_POINT_LIST);
 
-  for (size_t i = 0; i < history_.size(); ++i) {
+  for (auto & history : histories_) {
     Ogre::ColourValue color;
     if (property_velocity_color_view_->getBool()) {
       color = rviz::qtToOgre(property_velocity_color_->getColor());
     } else {
       /* color change depending on velocity */
       std::unique_ptr<Ogre::ColourValue> dynamic_color_ptr = setColorDependsOnVelocity(
-        property_vel_max_->getFloat(), std::get<0>(history_.at(i))->twist.linear.x);
+        property_vel_max_->getFloat(), std::get<0>(history)->twist.linear.x);
       color = *dynamic_color_ptr;
     }
-    color.a = 1.0 - (current_time - std::get<0>(history_.at(i))->header.stamp).toSec() /
+    color.a = 1.0 - (current_time - std::get<0>(history)->header.stamp).toSec() /
                       property_velocity_timeout_->getFloat();
-    color.a = std::min(std::max(color.a, float(0.0)), float(1.0));
-    // std::cout << __LINE__ << ":" <<std::get<1>(history_.front()) <<std::endl;
+    color.a = std::min(std::max(color.a, 0.0f), 1.0f);
+    // std::cout << __LINE__ << ":" <<std::get<1>(histories_.front()) <<std::endl;
 
     // color.a = property_velocity_alpha_->getFloat();
     velocity_manual_object_->position(
-      std::get<1>(history_.at(i)).x, std::get<1>(history_.at(i)).y,
-      std::get<1>(history_.at(i)).z +
-        std::get<0>(history_.at(i))->twist.linear.x * property_velocity_scale_->getFloat());
+      std::get<1>(history).x, std::get<1>(history).y,
+      std::get<1>(history).z +
+        std::get<0>(history)->twist.linear.x * property_velocity_scale_->getFloat());
     velocity_manual_object_->colour(color);
   }
   velocity_manual_object_->end();

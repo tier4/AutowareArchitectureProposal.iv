@@ -15,9 +15,7 @@
  */
 
 #include "steering_angle.hpp"
-#include <OGRE/OgreHardwarePixelBuffer.h>
 #include <ros/package.h>
-#include <rviz/display_context.h>
 #include <rviz/uniform_string_stream.h>
 #include <QPainter>
 

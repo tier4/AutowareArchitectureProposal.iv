@@ -50,7 +50,7 @@ class SteeringAngleDisplay : public rviz::MessageFilterDisplay<autoware_vehicle_
 
 public:
   SteeringAngleDisplay();
-  virtual ~SteeringAngleDisplay();
+  ~SteeringAngleDisplay() override;
 
   void onInitialize() override;
   void onDisable() override;
