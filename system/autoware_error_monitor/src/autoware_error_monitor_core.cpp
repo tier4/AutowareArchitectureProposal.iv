@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 #define FMT_HEADER_ONLY
-
 #include <fmt/format.h>
 
 #include <autoware_error_monitor/autoware_error_monitor_core.hpp>
@@ -44,6 +43,8 @@ AutowareErrorMonitor::AutowareErrorMonitor(
   timer_ = rclcpp::create_timer(
     this, rclcpp::Node::get_clock(), rclcpp::Duration(std::chrono::nanoseconds(update_rate_)),
     std::bind(&AutowareErrorMonitor::onTimer, this));
+
+  RCLCPP_DEBUG(this->get_logger(), "Finished initialization of the AutowareErrorMonitor node");
 }
 
 void AutowareErrorMonitor::loadRequiredConditions(const std::string & key)
@@ -52,8 +53,8 @@ void AutowareErrorMonitor::loadRequiredConditions(const std::string & key)
 
   this->declare_parameter(param_key);
 
-  RequiredConditions value;
-  if (!this->get_parameter(param_key, value)) {
+  RequiredConditions value = this->get_parameter(param_key).as_string_array();
+  if (value.size() == 0) {
     throw std::runtime_error(fmt::format("no parameter found: {}", param_key));
   }
 

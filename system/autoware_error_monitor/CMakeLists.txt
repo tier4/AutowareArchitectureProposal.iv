@@ -39,8 +39,8 @@ include_directories(
 # Target
 ## autoware_error_monitor_node
 add_executable(autoware_error_monitor_exe
-  src/autoware_error_monitor_node/autoware_error_monitor_node.cpp
-  src/autoware_error_monitor_node/autoware_error_monitor_core.cpp)
+  src/autoware_error_monitor_node.cpp
+  src/autoware_error_monitor_core.cpp)
 
 # Add dependencies
 set(AUTOWARE_ERROR_MONITOR_DEPENDENCIES
