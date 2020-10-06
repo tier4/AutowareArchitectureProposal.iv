@@ -66,7 +66,7 @@ struct MPCData
 {
   int nearest_idx;
   double nearest_time;
-  geometry_msgs::Pose nearest_pose;
+  geometry_msgs::msg::Pose nearest_pose;
   double steer;
   double predicted_steer;
   double lateral_err;
@@ -141,6 +141,9 @@ private:
     double weight_heading_error_squared_vel;  //!< @brief heading error * velocity weight
     double weight_terminal_lat_error;         //!< @brief terminal lateral error weight
     double weight_terminal_heading_error;     //!< @brief terminal heading error weight
+    double low_curvature_weight_lat_error;  //!< @brief lateral error weight in matrix Q in low curvature point
+    double low_curvature_weight_heading_error;  //!< @brief heading error weight in matrix Q in low curvature point
+    double low_curvature_weight_heading_error_squared_vel;  //!< @brief heading error * velocity weight in matrix Q in low curvature point
 
     // for weight matrix R
     double weight_steering_input;              //!< @brief steering error weight
@@ -148,6 +151,13 @@ private:
     double weight_lat_jerk;                    //!< @brief lateral jerk weight
     double weight_steer_rate;                  //!< @brief steering rate weight
     double weight_steer_acc;                   //!< @brief steering angle acceleration weight
+    double low_curvature_weight_steering_input;  //!< @brief steering error weight in matrix R in low curvature point
+    double low_curvature_weight_steering_input_squared_vel;  //!< @brief steering error * velocity weight in matrix R in low curvature point
+    double low_curvature_weight_lat_jerk;  //!< @brief lateral jerk weight in matrix R in low curvature point
+    double low_curvature_weight_steer_rate;  //!< @brief steering rate weight in matrix R in low curvature point
+    double low_curvature_weight_steer_acc;  //!< @brief steering angle acceleration weight in matrix R in low curvature
+
+    double low_curvature_thresh_curvature;  //!< @brief threshold of curvature to use "low curvature" parameter
   };
   MPCParam mpc_param_;  // for mpc design parameter
 
@@ -178,9 +188,8 @@ private:
 
   std::shared_ptr<double> steer_prediction_prev_;
   double time_prev_ = 0.0;
-  double sign_vx_ =
-    0.0;  //!< @brief sign of previous target speed to calculate curvature when the target speed is 0.
-  std::vector<autoware_control_msgs::ControlCommandStamped>
+  double sign_vx_ = 0.0;  //!< @brief sign of previous target speed to calculate curvature when the target speed is 0.
+  std::vector<autoware_control_msgs::msg::ControlCommandStamped>
     ctrl_cmd_vec_;  //!< buffer of send command
 
   tf2_ros::Buffer tf_buffer_;
@@ -312,6 +321,59 @@ private:
    */
   rcl_interfaces::msg::SetParametersResult paramCallback(
     const std::vector<rclcpp::Parameter> & parameters);
+
+  bool isLowCurvature(const double curvature)
+  {
+    return std::fabs(curvature) < mpc_param_.low_curvature_thresh_curvature;
+  }
+
+  double getWeightLatError(const double curvature)
+  {
+    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_lat_error
+                                     : mpc_param_.weight_lat_error;
+  }
+
+  double getWeightHeadingError(const double curvature)
+  {
+    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_heading_error
+                                     : mpc_param_.weight_heading_error;
+  }
+
+  double getWeightHeadingErrorSqVel(const double curvature)
+  {
+    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_heading_error_squared_vel
+                                     : mpc_param_.weight_heading_error_squared_vel;
+  }
+
+  double getWeightSteerInput(const double curvature)
+  {
+    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_steering_input
+                                     : mpc_param_.weight_steering_input;
+  }
+
+  double getWeightSteerInputSqVel(const double curvature)
+  {
+    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_steering_input_squared_vel
+                                     : mpc_param_.low_curvature_weight_steering_input_squared_vel;
+  }
+
+  double getWeightLatJerk(const double curvature)
+  {
+    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_lat_jerk
+                                     : mpc_param_.weight_lat_jerk;
+  }
+
+  double getWeightSteerRate(const double curvature)
+  {
+    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_steer_rate
+                                     : mpc_param_.weight_steer_rate;
+  }
+
+  double getWeightSteerAcc(const double curvature)
+  {
+    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_steer_acc
+                                     : mpc_param_.weight_steer_acc;
+  }
 
   /* ---------- debug ---------- */
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_debug_marker_;

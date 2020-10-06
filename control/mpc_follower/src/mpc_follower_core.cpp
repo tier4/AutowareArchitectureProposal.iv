@@ -604,9 +604,6 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
   MatrixXd R = MatrixXd::Zero(DIM_U, DIM_U);
   MatrixXd Q_adaptive = MatrixXd::Zero(DIM_Y, DIM_Y);
   MatrixXd R_adaptive = MatrixXd::Zero(DIM_U, DIM_U);
-  Q(0, 0) = mpc_param_.weight_lat_error;
-  Q(1, 1) = mpc_param_.weight_heading_error;
-  R(0, 0) = mpc_param_.weight_steering_input;
 
   MatrixXd Ad(DIM_X, DIM_X);
   MatrixXd Bd(DIM_X, DIM_U);
@@ -620,7 +617,6 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
   for (int i = 0; i < N; ++i) {
     const double ref_vx = reference_trajectory.vx[i];
     const double ref_vx_squared = ref_vx * ref_vx;
-    sign_vx_ = ref_vx > ep ? 1 : (ref_vx < -ep ? -1 : sign_vx_);
 
     // curvature will be 0 when vehicle stops
     const double ref_k = reference_trajectory.k[i] * sign_vx_;
@@ -630,14 +626,20 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
     vehicle_model_ptr_->setCurvature(ref_k);
     vehicle_model_ptr_->calculateDiscreteMatrix(Ad, Bd, Cd, Wd, DT);
 
+    Q = Eigen::MatrixXd::Zero(DIM_Y, DIM_Y);
+    R = Eigen::MatrixXd::Zero(DIM_U, DIM_U);
+    Q(0, 0) = getWeightLatError(ref_k);
+    Q(1, 1) = getWeightHeadingError(ref_k);
+    R(0, 0) = getWeightSteerInput(ref_k);
+
     Q_adaptive = Q;
     R_adaptive = R;
     if (i == N - 1) {
       Q_adaptive(0, 0) = mpc_param_.weight_terminal_lat_error;
       Q_adaptive(1, 1) = mpc_param_.weight_terminal_heading_error;
     }
-    Q_adaptive(1, 1) += ref_vx_squared * mpc_param_.weight_heading_error_squared_vel;
-    R_adaptive(0, 0) += ref_vx_squared * mpc_param_.weight_steering_input_squared_vel;
+    Q_adaptive(1, 1) += ref_vx_squared * getWeightHeadingErrorSqVel(ref_k);
+    R_adaptive(0, 0) += ref_vx_squared * getWeightSteerInputSqVel(ref_k);
 
     /* update mpc matrix */
     int idx_x_i = i * DIM_X;
@@ -672,8 +674,10 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
 
   /* add lateral jerk : weight for (v * {u(i) - u(i-1)} )^2 */
   for (int i = 0; i < N - 1; ++i) {
-    const double v = reference_trajectory.vx[i];
-    const double j = v * v * mpc_param_.weight_lat_jerk / (DT * DT);  // lateral jerk rate
+    const double ref_vx = reference_trajectory.vx[i];
+    sign_vx_ = ref_vx > ep ? 1 : (ref_vx < -ep ? -1 : sign_vx_);
+    const double ref_k = reference_trajectory.k[i] * sign_vx_;
+    const double j = ref_vx * ref_vx * getWeightLatJerk(ref_k) / (DT * DT);  // lateral jerk weight
     const Eigen::Matrix2d J = (Eigen::Matrix2d() << j, -j, -j, j).finished();
     m.R2ex.block(i, i, 2, 2) += J;
   }
@@ -1019,6 +1023,15 @@ void MPCFollower::declareMPCparameters()
   DECLARE_MPC_PARAM(mpc_param_, weight_lat_jerk, 0.0);
   DECLARE_MPC_PARAM(mpc_param_, weight_steer_rate, 0.0);
   DECLARE_MPC_PARAM(mpc_param_, weight_steer_acc, 0.000001);
+  DECLARE_MPC_PARAM(mpc_param_, low_curvature_weight_lat_error, 0.1);
+  DECLARE_MPC_PARAM(mpc_param_, low_curvature_weight_heading_error, 0.0);
+  DECLARE_MPC_PARAM(mpc_param_, low_curvature_weight_heading_error_squared_vel, 0.3);
+  DECLARE_MPC_PARAM(mpc_param_, low_curvature_weight_steering_input, 1.0);
+  DECLARE_MPC_PARAM(mpc_param_, low_curvature_weight_steering_input_squared_vel, 0.25);
+  DECLARE_MPC_PARAM(mpc_param_, low_curvature_weight_lat_jerk, 0.0);
+  DECLARE_MPC_PARAM(mpc_param_, low_curvature_weight_steer_rate, 0.0);
+  DECLARE_MPC_PARAM(mpc_param_, low_curvature_weight_steer_acc, 0.000001);
+  DECLARE_MPC_PARAM(mpc_param_, low_curvature_thresh_curvature, 0.0);
   DECLARE_MPC_PARAM(mpc_param_, weight_terminal_lat_error, 1.0);
   DECLARE_MPC_PARAM(mpc_param_, weight_terminal_heading_error, 0.1);
   DECLARE_MPC_PARAM(mpc_param_, zero_ff_steer_deg, 0.5);
@@ -1046,11 +1059,29 @@ rcl_interfaces::msg::SetParametersResult MPCFollower::paramCallback(
     UPDATE_MPC_PARAM(param, weight_lat_jerk);
     UPDATE_MPC_PARAM(param, weight_steer_rate);
     UPDATE_MPC_PARAM(param, weight_steer_acc);
+    UPDATE_MPC_PARAM(param, low_curvature_weight_lat_error);
+    UPDATE_MPC_PARAM(param, low_curvature_weight_heading_error);
+    UPDATE_MPC_PARAM(param, low_curvature_weight_heading_error_squared_vel);
+    UPDATE_MPC_PARAM(param, low_curvature_weight_steering_input);
+    UPDATE_MPC_PARAM(param, low_curvature_weight_steering_input_squared_vel);
+    UPDATE_MPC_PARAM(param, low_curvature_weight_lat_jerk);
+    UPDATE_MPC_PARAM(param, low_curvature_weight_steer_rate);
+    UPDATE_MPC_PARAM(param, low_curvature_weight_steer_acc);
+    UPDATE_MPC_PARAM(param, low_curvature_thresh_curvature);
     UPDATE_MPC_PARAM(param, weight_terminal_lat_error);
     UPDATE_MPC_PARAM(param, weight_terminal_heading_error);
     UPDATE_MPC_PARAM(param, zero_ff_steer_deg);
     UPDATE_MPC_PARAM(param, acceleration_limit);
     UPDATE_MPC_PARAM(param, velocity_time_constant);
+
+    // initialize input buffer
+    const int delay_step = std::round(config.input_delay / ctrl_period_);
+    const double delay = delay_step * ctrl_period_;
+    if (mpc_param_.input_delay != delay) {
+      const int delay_step = std::round(config.input_delay / ctrl_period_);
+      mpc_param_.input_delay = delay;
+      input_buffer_ = std::deque<double>(delay_step, 0.0);
+    }
 
     // transaction succeeds, now assign values
     mpc_param_ = param;
