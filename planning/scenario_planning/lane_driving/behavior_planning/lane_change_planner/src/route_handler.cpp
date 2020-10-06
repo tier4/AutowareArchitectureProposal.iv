@@ -783,6 +783,7 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
   const double lane_change_prepare_duration = parameter.lane_change_prepare_duration;
   const double lane_changing_duration = parameter.lane_changing_duration;
   const double minimum_lane_change_length = parameter.minimum_lane_change_length;
+  const double minimum_lane_change_velocity = parameter.minimum_lane_change_velocity;
   const double maximum_deceleration = parameter.maximum_deceleration;
   const int lane_change_sampling_num = parameter.lane_change_sampling_num;
 
@@ -825,7 +826,7 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
     for (auto & point : reference_path1.points) {
       point.point.twist.linear.x = std::min(
         point.point.twist.linear.x,
-        std::max(straight_distance / lane_change_prepare_duration, 10.0 / 3.6));
+        std::max(straight_distance / lane_change_prepare_duration, minimum_lane_change_velocity));
     }
 
     PathWithLaneId reference_path2;
@@ -842,8 +843,9 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
     }
 
     for (auto & point : reference_path2.points) {
-      point.point.twist.linear.x =
-        std::min(point.point.twist.linear.x, lane_change_distance / lane_changing_duration);
+      point.point.twist.linear.x = std::min(
+        point.point.twist.linear.x,
+        std::max(lane_change_distance / lane_changing_duration, minimum_lane_change_velocity));
     }
 
     if (reference_path1.points.empty() || reference_path2.points.empty()) {
