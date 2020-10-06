@@ -20,6 +20,8 @@ add_message_files(
     LaneChangeStatus.msg
     ObstacleAvoidanceStatus.msg
     DoorStatus.msg
+    CrosswalkStatus.msg
+    IntersectionStatus.msg
 )
 
 generate_messages(

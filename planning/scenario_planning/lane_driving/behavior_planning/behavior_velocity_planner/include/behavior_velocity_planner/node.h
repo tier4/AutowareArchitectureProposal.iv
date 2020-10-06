@@ -18,6 +18,8 @@
 #include <memory>
 #include <string>
 
+#include <autoware_api_msgs/CrosswalkStatus.h>
+#include <autoware_api_msgs/IntersectionStatus.h>
 #include <autoware_lanelet2_msgs/MapBin.h>
 #include <autoware_perception_msgs/DynamicObjectArray.h>
 #include <autoware_planning_msgs/Path.h>
@@ -48,6 +50,8 @@ private:
   ros::Subscriber sub_no_ground_pointcloud_;
   ros::Subscriber sub_vehicle_velocity_;
   ros::Subscriber sub_traffic_light_states_;
+  ros::Subscriber sub_external_crosswalk_states_;
+  ros::Subscriber sub_external_intersection_states_;
   ros::Subscriber sub_external_traffic_light_states_;
   ros::Subscriber sub_lanelet_map_;
 
@@ -57,6 +61,8 @@ private:
   void onVehicleVelocity(const geometry_msgs::TwistStamped::ConstPtr & msg);
   void onLaneletMap(const autoware_lanelet2_msgs::MapBin::ConstPtr & msg);
   void onTrafficLightStates(const autoware_perception_msgs::TrafficLightStateArray::ConstPtr & msg);
+  void onExternalCrosswalkStates(const autoware_api_msgs::CrosswalkStatus::ConstPtr & msg);
+  void onExternalIntersectionStates(const autoware_api_msgs::IntersectionStatus::ConstPtr & msg);
   void onExternalTrafficLightStates(const autoware_perception_msgs::TrafficLightStateArray::ConstPtr & msg);
 
   // publisher

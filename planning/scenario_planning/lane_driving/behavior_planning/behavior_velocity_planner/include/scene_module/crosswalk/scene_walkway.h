@@ -54,6 +54,7 @@ public:
   struct PlannerParam
   {
     double stop_margin;
+    double external_input_timeout;
   };
   WalkwayModule(
     const int64_t module_id, const lanelet::ConstLanelet & walkway,

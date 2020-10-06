@@ -55,6 +55,7 @@ public:
     double slow_margin;
     double slow_velocity;
     double stop_dynamic_object_prediction_time_margin;
+    double external_input_timeout;
   };
 
   CrosswalkModule(
@@ -87,6 +88,7 @@ private:
     autoware_planning_msgs::PathWithLaneId & output, bool * insert_stop);
 
   bool isTargetType(const autoware_perception_msgs::DynamicObject & obj);
+  bool isTargetExternalInputStatus(const int target_status);
 
   enum class State { APPROACH, INSIDE, GO_OUT };
 

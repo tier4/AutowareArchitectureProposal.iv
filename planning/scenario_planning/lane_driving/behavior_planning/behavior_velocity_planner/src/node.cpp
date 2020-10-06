@@ -133,6 +133,10 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode()
     pnh_.subscribe("input/vector_map", 10, &BehaviorVelocityPlannerNode::onLaneletMap, this);
   sub_traffic_light_states_ = pnh_.subscribe(
     "input/traffic_light_states", 10, &BehaviorVelocityPlannerNode::onTrafficLightStates, this);
+  sub_external_crosswalk_states_ = pnh_.subscribe(
+    "input/external_crosswalk_states", 10, &BehaviorVelocityPlannerNode::onExternalCrosswalkStates, this);
+  sub_external_intersection_states_ = pnh_.subscribe(
+    "input/external_intersection_states", 10, &BehaviorVelocityPlannerNode::onExternalIntersectionStates, this);
   sub_external_traffic_light_states_ = pnh_.subscribe(
     "input/external_traffic_light_states", 10, &BehaviorVelocityPlannerNode::onExternalTrafficLightStates, this);
 
@@ -269,6 +273,18 @@ void BehaviorVelocityPlannerNode::onTrafficLightStates(
     traffic_light_state.state = state;
     planner_data_.traffic_light_id_map_[state.id] = traffic_light_state;
   }
+}
+
+void BehaviorVelocityPlannerNode::onExternalCrosswalkStates(
+  const autoware_api_msgs::CrosswalkStatus::ConstPtr & msg)
+{
+  planner_data_.external_crosswalk_status_input = *msg;
+}
+
+void BehaviorVelocityPlannerNode::onExternalIntersectionStates(
+  const autoware_api_msgs::IntersectionStatus::ConstPtr & msg)
+{
+  planner_data_.external_intersection_status_input = *msg;
 }
 
 void BehaviorVelocityPlannerNode::onExternalTrafficLightStates(

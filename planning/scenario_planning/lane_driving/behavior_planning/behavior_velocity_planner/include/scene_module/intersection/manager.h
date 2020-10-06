@@ -22,6 +22,7 @@
 
 #include <ros/ros.h>
 
+#include <autoware_api_msgs/IntersectionStatus.h>
 #include <autoware_perception_msgs/DynamicObject.h>
 #include <autoware_perception_msgs/DynamicObjectArray.h>
 #include <autoware_planning_msgs/PathWithLaneId.h>

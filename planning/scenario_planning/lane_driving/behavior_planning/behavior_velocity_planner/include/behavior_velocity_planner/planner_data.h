@@ -18,12 +18,15 @@
 
 #include <map>
 #include <memory>
+#include <boost/optional.hpp>
 
 #include <tf2_ros/transform_listener.h>
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
+#include <autoware_api_msgs/CrosswalkStatus.h>
+#include <autoware_api_msgs/IntersectionStatus.h>
 #include <autoware_lanelet2_msgs/MapBin.h>
 #include <autoware_perception_msgs/DynamicObjectArray.h>
 #include <autoware_perception_msgs/TrafficLightStateArray.h>
@@ -51,10 +54,14 @@ struct PlannerData
 
   // other internal data
   std::map<int, autoware_perception_msgs::TrafficLightStateStamped> traffic_light_id_map_;
-  std::map<int, autoware_perception_msgs::TrafficLightStateStamped> external_traffic_light_id_map_;
   lanelet::traffic_rules::TrafficRulesPtr traffic_rules;
   lanelet::routing::RoutingGraphPtr routing_graph;
   std::shared_ptr<const lanelet::routing::RoutingGraphContainer> overall_graphs;
+
+  // external data
+  std::map<int, autoware_perception_msgs::TrafficLightStateStamped> external_traffic_light_id_map_;
+  boost::optional<autoware_api_msgs::CrosswalkStatus> external_crosswalk_status_input;
+  boost::optional<autoware_api_msgs::IntersectionStatus> external_intersection_status_input;
 
   // parameters
   double wheel_base;

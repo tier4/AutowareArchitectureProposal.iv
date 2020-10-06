@@ -101,6 +101,10 @@ bool CrosswalkModule::checkStopArea(
   *insert_stop = false;
   bool pedestrian_found = false;
   bool object_found = false;
+  const bool external_slowdown =
+    isTargetExternalInputStatus(autoware_api_msgs::CrosswalkStatus::SLOWDOWN);
+  const bool external_stop = isTargetExternalInputStatus(autoware_api_msgs::CrosswalkStatus::STOP);
+  const bool external_go = isTargetExternalInputStatus(autoware_api_msgs::CrosswalkStatus::GO);
   ros::Time current_time = ros::Time::now();
 
   // create stop area
@@ -194,25 +198,33 @@ bool CrosswalkModule::checkStopArea(
     }
   }
 
-  if (!pedestrian_found && !object_found) return true;
+  bool stop = false;
+
+  if (pedestrian_found || object_found) stop = true;
+  if (external_go || external_slowdown)
+    stop = false;
+  else if (external_stop)
+    stop = true;
 
   // insert stop point
-  lanelet::Optional<lanelet::ConstLineString3d> stop_line_opt =
-    getStopLineFromMap(module_id_, planner_data_, "crosswalk_id");
-  if (!!stop_line_opt) {
-    if (!insertTargetVelocityPoint(
-          input, stop_line_opt.get(), planner_param_.stop_margin, 0.0, *planner_data_, output,
-          debug_data_, first_stop_path_point_index_)) {
-      return false;
-    }
-  } else {
-    if (!insertTargetVelocityPoint(
-          input, crosswalk_polygon, planner_param_.stop_margin, 0.0, *planner_data_, output,
-          debug_data_, first_stop_path_point_index_)) {
-      return false;
+  if (stop) {
+    lanelet::Optional<lanelet::ConstLineString3d> stop_line_opt =
+      getStopLineFromMap(module_id_, planner_data_, "crosswalk_id");
+    if (!!stop_line_opt) {
+      if (!insertTargetVelocityPoint(
+            input, stop_line_opt.get(), planner_param_.stop_margin, 0.0, *planner_data_, output,
+            debug_data_, first_stop_path_point_index_)) {
+        return false;
+      }
+    } else {
+      if (!insertTargetVelocityPoint(
+            input, crosswalk_polygon, planner_param_.stop_margin, 0.0, *planner_data_, output,
+            debug_data_, first_stop_path_point_index_)) {
+        return false;
+      }
+      *insert_stop = stop;
     }
   }
-  *insert_stop = true;
   return true;
 }
 
@@ -224,6 +236,11 @@ bool CrosswalkModule::checkSlowArea(
 {
   output = input;
   bool pedestrian_found = false;
+  const bool external_slowdown =
+    isTargetExternalInputStatus(autoware_api_msgs::CrosswalkStatus::SLOWDOWN);
+  const bool external_stop = isTargetExternalInputStatus(autoware_api_msgs::CrosswalkStatus::STOP);
+  const bool external_go = isTargetExternalInputStatus(autoware_api_msgs::CrosswalkStatus::GO);
+
   for (size_t i = 0; i < objects_ptr->objects.size(); ++i) {
     if (isTargetType(objects_ptr->objects.at(i))) {
       Point point(
@@ -245,21 +262,30 @@ bool CrosswalkModule::checkSlowArea(
   debug_data_.slow_polygons.push_back(points);
   // ----------------
 
-  if (!pedestrian_found) return true;
+
+  bool slowdown = false;
+
+  if (pedestrian_found) slowdown = true;
+  if (external_go || external_stop)
+    slowdown = false;
+  else if (external_slowdown)
+    slowdown = true;
 
   // insert slow point
-  lanelet::Optional<lanelet::ConstLineString3d> stop_line_opt =
-    getStopLineFromMap(module_id_, planner_data_, "crosswalk_id");
-  if (!!stop_line_opt) {
-    if (!insertTargetVelocityPoint(
-          input, stop_line_opt.get(), planner_param_.slow_margin, planner_param_.slow_velocity,
-          *planner_data_, output, debug_data_, first_stop_path_point_index_))
-      return false;
-  } else {
-    if (!insertTargetVelocityPoint(
-          input, polygon, planner_param_.slow_margin, planner_param_.slow_velocity, *planner_data_,
-          output, debug_data_, first_stop_path_point_index_))
-      return false;
+  if (slowdown) {
+    lanelet::Optional<lanelet::ConstLineString3d> stop_line_opt =
+      getStopLineFromMap(module_id_, planner_data_, "crosswalk_id");
+    if (!!stop_line_opt) {
+      if (!insertTargetVelocityPoint(
+            input, stop_line_opt.get(), planner_param_.slow_margin, planner_param_.slow_velocity,
+            *planner_data_, output, debug_data_, first_stop_path_point_index_))
+        return false;
+    } else {
+      if (!insertTargetVelocityPoint(
+            input, polygon, planner_param_.slow_margin, planner_param_.slow_velocity,
+            *planner_data_, output, debug_data_, first_stop_path_point_index_))
+        return false;
+    }
   }
   return true;
 }
@@ -272,4 +298,12 @@ bool CrosswalkModule::isTargetType(const autoware_perception_msgs::DynamicObject
     return true;
   }
   return false;
+}
+
+bool CrosswalkModule::isTargetExternalInputStatus(const int target_status)
+{
+  return planner_data_->external_crosswalk_status_input &&
+         planner_data_->external_crosswalk_status_input.get().status == target_status &&
+         (ros::Time::now() - planner_data_->external_crosswalk_status_input.get().header.stamp)
+             .toSec() < planner_param_.external_input_timeout;
 }

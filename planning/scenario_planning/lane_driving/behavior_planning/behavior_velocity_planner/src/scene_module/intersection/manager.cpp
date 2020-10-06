@@ -70,6 +70,7 @@ IntersectionModuleManager::IntersectionModuleManager()
   pnh.param(ns + "/intersection_velocity", p.intersection_velocity, 10.0 / 3.6);
   pnh.param(ns + "/intersection_max_accel", p.intersection_max_acc, 0.5);
   pnh.param(ns + "/detection_area_length", p.detection_area_length, 200.0);
+  pnh.param(ns + "/walkway/external_input_timeout", p.external_input_timeout, 1.0);
 }
 
 void IntersectionModuleManager::launchNewModules(
