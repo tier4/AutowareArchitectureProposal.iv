@@ -45,6 +45,7 @@ public:
     double slow_margin;
     double slow_velocity;
     double stop_dynamic_object_prediction_time_margin;
+    double external_input_timeout;
   };
 
   CrosswalkModule(
@@ -64,7 +65,7 @@ private:
   bool checkSlowArea(
     const autoware_planning_msgs::msg::PathWithLaneId & input,
     const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>, false> &
-    polygon,
+      polygon,
     const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & objects_ptr,
     const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
     autoware_planning_msgs::msg::PathWithLaneId & output);
@@ -72,12 +73,13 @@ private:
   bool checkStopArea(
     const autoware_planning_msgs::msg::PathWithLaneId & input,
     const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>, false> &
-    polygon,
+      polygon,
     const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & objects_ptr,
     const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
     autoware_planning_msgs::msg::PathWithLaneId & output, bool * insert_stop);
 
   bool isTargetType(const autoware_perception_msgs::msg::DynamicObject & obj);
+  bool isTargetExternalInputStatus(const int target_status);
 
   enum class State { APPROACH, INSIDE, GO_OUT };
 

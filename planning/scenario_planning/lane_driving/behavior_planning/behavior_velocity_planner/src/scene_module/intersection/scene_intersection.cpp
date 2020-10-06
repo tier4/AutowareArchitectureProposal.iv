@@ -47,6 +47,10 @@ bool IntersectionModule::modifyPathVelocity(
   autoware_planning_msgs::msg::PathWithLaneId * path,
   autoware_planning_msgs::msg::StopReason * stop_reason)
 {
+  const bool external_go =
+    isTargetExternalInputStatus(autoware_api_msgs::msg::IntersectionStatus::GO);
+  const bool external_stop =
+    isTargetExternalInputStatus(autoware_api_msgs::msg::IntersectionStatus::STOP);
   RCLCPP_DEBUG(logger_, "===== plan start =====");
   debug_data_ = DebugData();
   *stop_reason =
@@ -113,7 +117,7 @@ bool IntersectionModule::modifyPathVelocity(
     geometry_msgs::msg::Pose pass_judge_line = path->points.at(pass_judge_line_idx).point.pose;
     is_over_pass_judge_line = util::isAheadOf(current_pose.pose, pass_judge_line);
   }
-  if (current_state == State::GO && is_over_pass_judge_line) {
+  if (current_state == State::GO && is_over_pass_judge_line && !external_stop) {
     RCLCPP_DEBUG(logger_, "over the pass judge line. no plan needed.");
     RCLCPP_DEBUG(logger_, "===== plan end =====");
     return true;  // no plan needed.
@@ -126,6 +130,10 @@ bool IntersectionModule::modifyPathVelocity(
   bool has_collision = checkCollision(*path, detection_areas, objects_ptr, closest_idx);
   bool is_stuck = checkStuckVehicleInIntersection(*path, closest_idx, stop_line_idx, objects_ptr);
   bool is_entry_prohibited = (has_collision || is_stuck);
+  if (external_go)
+    is_entry_prohibited = false;
+  else if (external_stop)
+    is_entry_prohibited = true;
   state_machine_.setStateWithMarginTime(
     is_entry_prohibited ? State::STOP : State::GO, logger_.get_child("state_machine"), *clock_);
 
@@ -460,3 +468,11 @@ void IntersectionModule::StateMachine::setState(State state) { state_ = state; }
 void IntersectionModule::StateMachine::setMarginTime(const double t) { margin_time_ = t; }
 
 IntersectionModule::State IntersectionModule::StateMachine::getState() { return state_; }
+
+bool IntersectionModule::isTargetExternalInputStatus(const int target_status)
+{
+  return planner_data_->external_intersection_status_input &&
+         planner_data_->external_intersection_status_input.get().status == target_status &&
+         (clock_->now() - planner_data_->external_intersection_status_input.get().header.stamp)
+             .seconds() < planner_param_.external_input_timeout;
+}

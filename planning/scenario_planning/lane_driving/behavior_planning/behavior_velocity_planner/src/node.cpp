@@ -92,6 +92,14 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode()
     this->create_subscription<autoware_perception_msgs::msg::TrafficLightStateArray>(
       "input/traffic_light_states", 10,
       std::bind(&BehaviorVelocityPlannerNode::onTrafficLightStates, this, _1));
+  sub_external_crosswalk_states_ =
+    this->create_subscription<autoware_api_msgs::msg::CrosswalkStatus>(
+      "input/external_crosswalk_states", 10,
+      std::bind(&BehaviorVelocityPlannerNode::onExternalCrosswalkStates, this, _1));
+  sub_external_intersection_states_ =
+    this->create_subscription<autoware_api_msgs::msg::IntersectionStatus>(
+      "input/external_intersection_states", 10,
+      std::bind(&BehaviorVelocityPlannerNode::onExternalIntersectionStates, this, _1));
   sub_external_traffic_light_states_ =
     this->create_subscription<autoware_perception_msgs::msg::TrafficLightStateArray>(
       "input/external_traffic_light_states", 10,
@@ -229,6 +237,18 @@ void BehaviorVelocityPlannerNode::onTrafficLightStates(
     traffic_light_state.state = state;
     planner_data_.traffic_light_id_map_[state.id] = traffic_light_state;
   }
+}
+
+void BehaviorVelocityPlannerNode::onExternalCrosswalkStates(
+  const autoware_api_msgs::msg::CrosswalkStatus::ConstSharedPtr msg)
+{
+  planner_data_.external_crosswalk_status_input = *msg;
+}
+
+void BehaviorVelocityPlannerNode::onExternalIntersectionStates(
+  const autoware_api_msgs::msg::IntersectionStatus::ConstSharedPtr msg)
+{
+  planner_data_.external_intersection_status_input = *msg;
 }
 
 void BehaviorVelocityPlannerNode::onExternalTrafficLightStates(

@@ -16,6 +16,8 @@
 #include <memory>
 #include <string>
 
+#include "autoware_api_msgs/msg/crosswalk_status.hpp"
+#include "autoware_api_msgs/msg/intersection_status.hpp"
 #include "autoware_lanelet2_msgs/msg/map_bin.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_planning_msgs/msg/path.hpp"
@@ -46,6 +48,10 @@ private:
   rclcpp::Subscription<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr sub_lanelet_map_;
   rclcpp::Subscription<autoware_perception_msgs::msg::TrafficLightStateArray>::SharedPtr
     sub_traffic_light_states_;
+  rclcpp::Subscription<autoware_api_msgs::msg::CrosswalkStatus>::SharedPtr
+    sub_external_crosswalk_states_;
+  rclcpp::Subscription<autoware_api_msgs::msg::IntersectionStatus>::SharedPtr
+    sub_external_intersection_states_;
   rclcpp::Subscription<autoware_perception_msgs::msg::TrafficLightStateArray>::SharedPtr
     sub_external_traffic_light_states_;
 
@@ -59,6 +65,9 @@ private:
     const autoware_perception_msgs::msg::TrafficLightStateArray::ConstSharedPtr msg);
   void onExternalTrafficLightStates(
     const autoware_perception_msgs::msg::TrafficLightStateArray::ConstSharedPtr msg);
+  void onExternalCrosswalkStates(const autoware_api_msgs::msg::CrosswalkStatus::ConstSharedPtr msg);
+  void onExternalIntersectionStates(
+    const autoware_api_msgs::msg::IntersectionStatus::ConstSharedPtr msg);
 
   // publisher
   rclcpp::Publisher<autoware_planning_msgs::msg::Path>::SharedPtr path_pub_;

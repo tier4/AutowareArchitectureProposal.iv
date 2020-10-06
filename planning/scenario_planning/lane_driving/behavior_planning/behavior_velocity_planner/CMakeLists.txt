@@ -22,6 +22,7 @@ find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
 set(BEHAVIOR_VELOCITY_PLANNER_DEPENDENCIES
+  autoware_api_msgs
   autoware_perception_msgs
   autoware_planning_msgs
   Boost

@@ -14,10 +14,10 @@
 
 #include "scene_module/crosswalk/manager.hpp"
 
-#include <vector>
 #include <memory>
 #include <set>
 #include <string>
+#include <vector>
 
 namespace
 {
@@ -69,31 +69,30 @@ CrosswalkModuleManager::CrosswalkModuleManager(rclcpp::Node & node)
   cp.slow_velocity = node.declare_parameter(ns + "/crosswalk/slow_velocity", 5.0 / 3.6);
   cp.stop_dynamic_object_prediction_time_margin =
     node.declare_parameter(ns + "/crosswalk/stop_dynamic_object_prediction_time_margin", 3.0);
+  cp.external_input_timeout = node.declare_parameter(ns + "/crosswalk/external_input_timeout", 1.0);
 
   // for walkway parameters
   walkway_planner_param_.stop_margin = node.declare_parameter(ns + "/walkway/stop_margin", 1.0);
+  walkway_planner_param_.external_input_timeout =
+    node.declare_parameter(ns + "/walkway/external_input_timeout", 1.0);
 }
 
 void CrosswalkModuleManager::launchNewModules(
   const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   for (const auto & crosswalk :
-    getCrosswalksOnPath(path, planner_data_->lanelet_map, planner_data_->overall_graphs))
-  {
+       getCrosswalksOnPath(path, planner_data_->lanelet_map, planner_data_->overall_graphs)) {
     const auto module_id = crosswalk.id();
     if (!isModuleRegistered(module_id)) {
-      registerModule(
-        std::make_shared<CrosswalkModule>(
-          module_id, crosswalk, crosswalk_planner_param_, logger_.get_child("crosswalk_module"),
-          clock_));
+      registerModule(std::make_shared<CrosswalkModule>(
+        module_id, crosswalk, crosswalk_planner_param_, logger_.get_child("crosswalk_module"),
+        clock_));
       if (
         crosswalk.attributeOr(lanelet::AttributeNamesString::Subtype, std::string("")) ==
-        lanelet::AttributeValueString::Walkway)
-      {
-        registerModule(
-          std::make_shared<WalkwayModule>(
-            module_id, crosswalk, walkway_planner_param_, logger_.get_child("walkway_module"),
-            clock_));
+        lanelet::AttributeValueString::Walkway) {
+        registerModule(std::make_shared<WalkwayModule>(
+          module_id, crosswalk, walkway_planner_param_, logger_.get_child("walkway_module"),
+          clock_));
       }
     }
   }
@@ -107,6 +106,6 @@ CrosswalkModuleManager::getModuleExpiredFunction(
     getCrosswalkIdSetOnPath(path, planner_data_->lanelet_map, planner_data_->overall_graphs);
 
   return [crosswalk_id_set](const std::shared_ptr<SceneModuleInterface> & scene_module) {
-           return crosswalk_id_set.count(scene_module->getModuleId()) == 0;
-         };
+    return crosswalk_id_set.count(scene_module->getModuleId()) == 0;
+  };
 }

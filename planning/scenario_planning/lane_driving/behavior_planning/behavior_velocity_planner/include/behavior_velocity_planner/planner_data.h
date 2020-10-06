@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include <boost/optional.hpp>
 #include <map>
 #include <memory>
 
@@ -22,6 +23,8 @@
 #include "pcl/point_cloud.h"
 #include "pcl/point_types.h"
 
+#include "autoware_api_msgs/msg/crosswalk_status.hpp"
+#include "autoware_api_msgs/msg/intersection_status.hpp"
 #include "autoware_lanelet2_msgs/msg/map_bin.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_perception_msgs/msg/traffic_light_state_array.hpp"
@@ -56,11 +59,15 @@ struct PlannerData
 
   // other internal data
   std::map<int, autoware_perception_msgs::msg::TrafficLightStateStamped> traffic_light_id_map_;
-  std::map<int, autoware_perception_msgs::msg::TrafficLightStateStamped>
-    external_traffic_light_id_map_;
   lanelet::traffic_rules::TrafficRulesPtr traffic_rules;
   lanelet::routing::RoutingGraphPtr routing_graph;
   std::shared_ptr<const lanelet::routing::RoutingGraphContainer> overall_graphs;
+
+  // external data
+  std::map<int, autoware_perception_msgs::msg::TrafficLightStateStamped>
+    external_traffic_light_id_map_;
+  boost::optional<autoware_api_msgs::msg::CrosswalkStatus> external_crosswalk_status_input;
+  boost::optional<autoware_api_msgs::msg::IntersectionStatus> external_intersection_status_input;
 
   // parameters
   vehicle_info_util::VehicleInfo vehicle_info_;
@@ -87,8 +94,8 @@ struct PlannerData
       traffic_light_id_map_.at(id));
   }
 
-  std::shared_ptr<autoware_perception_msgs::msg::TrafficLightStateStamped> getExternalTrafficLightState(
-    const int id) const
+  std::shared_ptr<autoware_perception_msgs::msg::TrafficLightStateStamped>
+  getExternalTrafficLightState(const int id) const
   {
     if (external_traffic_light_id_map_.count(id) == 0) {
       return {};

@@ -16,6 +16,7 @@
 #include <functional>
 #include <memory>
 
+#include "autoware_api_msgs/msg/intersection_status.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "rclcpp/rclcpp.hpp"
 
@@ -28,7 +29,7 @@ class IntersectionModuleManager : public SceneModuleManagerInterface
 public:
   IntersectionModuleManager(rclcpp::Node & node);
 
-  const char * getModuleName() override {return "intersection";}
+  const char * getModuleName() override { return "intersection"; }
 
 private:
   IntersectionModule::PlannerParam planner_param_;
