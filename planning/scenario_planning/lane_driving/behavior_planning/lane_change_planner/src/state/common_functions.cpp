@@ -111,12 +111,6 @@ bool isLaneChangePathSafe(
   // parameters
   const double time_resolution = ros_parameters.prediction_time_resolution;
   const double prediction_duration = ros_parameters.prediction_duration;
-  const double current_lane_check_start_time = 0.0;
-  const double current_lane_check_end_time =
-    ros_parameters.lane_change_prepare_duration + ros_parameters.lane_changing_duration;
-  const double target_lane_check_start_time = 0.0;
-  const double target_lane_check_end_time =
-    ros_parameters.lane_change_prepare_duration + ros_parameters.lane_changing_duration;
   const double min_thresh = ros_parameters.min_stop_distance;
   const double stop_time = ros_parameters.stop_time;
   const double vehicle_width = ros_parameters.vehicle_width;
@@ -128,6 +122,16 @@ bool isLaneChangePathSafe(
   } else {
     buffer = 0.0;
     lateral_buffer = 0.0;
+  }
+  double current_lane_check_start_time = 0.0;
+  const double current_lane_check_end_time =
+    ros_parameters.lane_change_prepare_duration + ros_parameters.lane_changing_duration;
+  double target_lane_check_start_time = 0.0;
+  const double target_lane_check_end_time =
+    ros_parameters.lane_change_prepare_duration + ros_parameters.lane_changing_duration;
+  if (!ros_parameters.enable_collision_check_at_prepare_phase) {
+    current_lane_check_start_time = ros_parameters.lane_change_prepare_duration;
+    target_lane_check_start_time = ros_parameters.lane_change_prepare_duration;
   }
 
   // find obstacle in lane change target lanes
@@ -145,12 +149,24 @@ bool isLaneChangePathSafe(
   const auto & vehicle_predicted_path = util::convertToPredictedPath(
     path, current_twist, current_pose, target_lane_check_end_time, time_resolution, acceleration);
 
+  // Collision check for objects in current lane
   for (const auto & i : current_lane_object_indices) {
     const auto & obj = dynamic_objects->objects.at(i);
-    for (const auto & obj_path : obj.state.predicted_paths) {
+    std::vector<autoware_perception_msgs::PredictedPath> predicted_paths;
+    if (ros_parameters.use_all_predicted_path) {
+      predicted_paths = obj.state.predicted_paths;
+    } else {
+      auto & max_confidence_path = *(std::max_element(
+        obj.state.predicted_paths.begin(), obj.state.predicted_paths.end(),
+        [](const auto & path1, const auto & path2) {
+          return path1.confidence > path2.confidence;
+        }));
+      predicted_paths.push_back(max_confidence_path);
+    }
+    for (const auto & obj_path : predicted_paths) {
       double distance = util::getDistanceBetweenPredictedPaths(
-        obj_path, vehicle_predicted_path, target_lane_check_start_time, target_lane_check_end_time,
-        time_resolution);
+        obj_path, vehicle_predicted_path, current_lane_check_start_time,
+        current_lane_check_end_time, time_resolution);
       double thresh;
       if (isObjectFront(current_pose, obj.state.pose_covariance.pose)) {
         thresh = util::l2Norm(current_twist.linear) * stop_time;
@@ -165,19 +181,56 @@ bool isLaneChangePathSafe(
     }
   }
 
+  // Collision check for objects in lane change target lane
   for (const auto & i : target_lane_object_indices) {
     const auto & obj = dynamic_objects->objects.at(i);
-    for (const auto & obj_path : obj.state.predicted_paths) {
-      double distance = util::getDistanceBetweenPredictedPaths(
-        obj_path, vehicle_predicted_path, target_lane_check_start_time, target_lane_check_end_time,
-        time_resolution);
-      double thresh;
-      if (isObjectFront(current_pose, obj.state.pose_covariance.pose)) {
-        thresh = util::l2Norm(current_twist.linear) * stop_time;
-      } else {
-        thresh = util::l2Norm(obj.state.twist_covariance.twist.linear) * stop_time;
+    std::vector<autoware_perception_msgs::PredictedPath> predicted_paths;
+    if (ros_parameters.use_all_predicted_path) {
+      predicted_paths = obj.state.predicted_paths;
+    } else {
+      auto & max_confidence_path = *(std::max_element(
+        obj.state.predicted_paths.begin(), obj.state.predicted_paths.end(),
+        [](const auto & path1, const auto & path2) {
+          return path1.confidence > path2.confidence;
+        }));
+      predicted_paths.push_back(max_confidence_path);
+    }
+
+    bool is_object_in_target = false;
+    if (ros_parameters.use_predicted_path_outside_lanelet) {
+      is_object_in_target = true;
+    } else {
+      for (const auto & llt : target_lanes) {
+        if (lanelet::utils::isInLanelet(obj.state.pose_covariance.pose, llt))
+          is_object_in_target = true;
       }
-      thresh = std::max(thresh, min_thresh);
+    }
+
+    if (is_object_in_target) {
+      for (const auto & obj_path : predicted_paths) {
+        const double distance = util::getDistanceBetweenPredictedPaths(
+          obj_path, vehicle_predicted_path, target_lane_check_start_time,
+          target_lane_check_end_time, time_resolution);
+        double thresh;
+        if (isObjectFront(current_pose, obj.state.pose_covariance.pose)) {
+          thresh = util::l2Norm(current_twist.linear) * stop_time;
+        } else {
+          thresh = util::l2Norm(obj.state.twist_covariance.twist.linear) * stop_time;
+        }
+        thresh = std::max(thresh, min_thresh);
+        thresh += buffer;
+        if (distance < thresh) {
+          return false;
+        }
+      }
+    } else {
+      const double distance = util::getDistanceBetweenPredictedPathAndObject(
+        obj, vehicle_predicted_path, target_lane_check_start_time, target_lane_check_end_time,
+        time_resolution);
+      double thresh = min_thresh;
+      if (isObjectFront(current_pose, obj.state.pose_covariance.pose)) {
+        thresh = std::max(thresh, util::l2Norm(current_twist.linear) * stop_time);
+      }
       thresh += buffer;
       if (distance < thresh) {
         return false;

@@ -70,6 +70,12 @@ void LaneChanger::init()
   pnh_.param("maximum_deceleration", parameters.maximum_deceleration, 1.0);
   pnh_.param("lane_change_sampling_num", parameters.lane_change_sampling_num, 10);
   pnh_.param("enable_abort_lane_change", parameters.enable_abort_lane_change, true);
+  pnh_.param(
+    "enable_collision_check_at_prepare_phase", parameters.enable_collision_check_at_prepare_phase,
+    true);
+  pnh_.param(
+    "use_predicted_path_outside_lanelet", parameters.use_predicted_path_outside_lanelet, true);
+  pnh_.param("use_all_predicted_path", parameters.use_all_predicted_path, false);
   pnh_.param("/vehicle_info/vehicle_width", parameters.vehicle_width, 2.8);
   pnh_.param("/vehicle_info/vehicle_length", parameters.vehicle_length, 5.0);
   pnh_.param("/vehicle_info/max_longitudinal_offset", parameters.base_link2front, 3.74);
@@ -251,7 +257,18 @@ void LaneChanger::publishDebugMarkers()
     const auto object_indices = util::filterObjectsByLanelets(*dynamic_objects, check_lanes);
     for (const auto & i : object_indices) {
       const auto & obj = dynamic_objects->objects.at(i);
-      for (const auto & obj_path : obj.state.predicted_paths) {
+      std::vector<autoware_perception_msgs::PredictedPath> predicted_paths;
+      if (ros_parameters.use_all_predicted_path) {
+        predicted_paths = obj.state.predicted_paths;
+      } else {
+        auto & max_confidence_path = *(std::max_element(
+          obj.state.predicted_paths.begin(), obj.state.predicted_paths.end(),
+          [](const auto & path1, const auto & path2) {
+            return path1.confidence > path2.confidence;
+          }));
+        predicted_paths.push_back(max_confidence_path);
+      }
+      for (const auto & obj_path : predicted_paths) {
         const auto & resampled_path =
           util::resamplePredictedPath(obj_path, time_resolution, prediction_duration);
         double radius = util::l2Norm(obj.state.twist_covariance.twist.linear) * stop_time;
