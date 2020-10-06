@@ -417,6 +417,34 @@ double getDistanceBetweenPredictedPaths(
   return min_distance;
 }
 
+double getDistanceBetweenPredictedPathAndObject(
+  const autoware_perception_msgs::DynamicObject & object, const PredictedPath & ego_path,
+  const double start_time, const double end_time, const double resolution)
+{
+  ros::Duration t_delta(resolution);
+  double min_distance = std::numeric_limits<double>::max();
+  ros::Time ros_start_time = ros::Time::now() + ros::Duration(start_time);
+  ros::Time ros_end_time = ros::Time::now() + ros::Duration(end_time);
+  const auto ego_path_point_array = convertToGeometryPointArray(ego_path);
+  Polygon obj_polygon;
+  if (!calcObjectPolygon(object, &obj_polygon)) {
+    return min_distance;
+  }
+  for (auto t = ros_start_time; t < ros_end_time; t += t_delta) {
+    geometry_msgs::Pose ego_pose;
+    if (!lerpByTimeStamp(ego_path, t, &ego_pose)) {
+      continue;
+    }
+    Point ego_point = boost::geometry::make<Point>(ego_pose.position.x, ego_pose.position.y);
+
+    double distance = boost::geometry::distance(obj_polygon, ego_point);
+    if (distance < min_distance) {
+      min_distance = distance;
+    }
+  }
+  return min_distance;
+}
+
 // only works with consecutive lanes
 std::vector<size_t> filterObjectsByLanelets(
   const autoware_perception_msgs::DynamicObjectArray & objects,
