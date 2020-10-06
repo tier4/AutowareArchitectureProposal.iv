@@ -44,6 +44,11 @@
 | ✓   | diagnostic_msgs/DiagnosticStatus[]     | diagnostics       |                                                | output only diag. of leaf node (diag. of parent node are cut)                                                                                                               |
 | ✓   | bool                                   | arrived_goal      |                                                | True if the autoware_state is changed from Driving to ArrivedGoal or WaitingForRoute. False if the autoware_state is changed to WaitingForEngage or Driving. Default False. |
 
+- specification of stop_reason
+  - stop_reason is output only when the following conditions are met.
+    - stop_point in stop_reason is close to /planning/scenario_planning/trajectory (within 10m).
+    - The distance between current position and stop_point is less than stop_reason_thresh_dist.
+
 ### /awapi/autoware/get/route
 
 - get route
@@ -67,11 +72,11 @@
 ### /awapi/prediction/get/objects
 
 - get predicted object
-- MessageType: autoware_perception_msgs/DynamicObjectArray
+- MessageType: autoware_api_msgs/DynamicObjectArray
 
-| ✓   | type                                        | name | unit | note |
-| --- | :------------------------------------------ | :--- | :--- | :--- |
-| ✓   | autoware_perception_msgs/DynamicObjectArray |      |      |      |
+| ✓   | type                                 | name | unit | note |
+| --- | :----------------------------------- | :--- | :--- | :--- |
+| ✓   | autoware_api_msgs/DynamicObjectArray |      |      |      |
 
 ### /awapi/lane_change/get/status
 
@@ -99,7 +104,16 @@
 ### /awapi/traffic_light/get/status
 
 - get recognition result of traffic light
-- MessageType: autoware_perception_msgs/TrafficLightStateArray
+- MessageType: autoware_api_msgs/TrafficLightStateArray
+
+| ✓   | type                                     | name | unit | note |
+| --- | :--------------------------------------- | :--- | :--- | :--- |
+|     | autoware_api_msgs/TrafficLightStateArray |      |      |      |
+
+### /awapi/vehicle/get/door
+
+- get door status
+- MessageType: autoware_api_msgs/DoorStatus.msg
 
 | ✓   | type                         | name   | unit                                                                                     | note                                        |
 | --- | :--------------------------- | :----- | :--------------------------------------------------------------------------------------- | :------------------------------------------ |
@@ -120,6 +134,21 @@
 | ✓   | type             | name | unit | note         |
 | --- | :--------------- | :--- | :--- | :----------- |
 | ✓   | std_msgs/Float32 |      |      | max velocity |
+
+### /awapi/vehicle/put/stop
+
+- set temporary stop signal
+- MessageType: std_msgs/bool
+- Specification
+
+  - send True: send upper velocity to 0
+  - send False: resend last received upper velocity
+    - (if upper velocity have never received, send _default_max_velocity_ value.)
+    - _default_max_velocity_ refers to the param: _/planning/scenario_planning/motion_velocity_optimizer/max_velocity_
+
+  | ✓   | type          | name | unit | note |
+  | --- | :------------ | :--- | :--- | :--- |
+  | ✓   | std_msgs/Bool |      |      |      |
 
 ### /awapi/autoware/put/gate_mode
 
@@ -204,3 +233,36 @@
 | ✓   | type | name | unit | note |
 | --- | :--- | :--- | :--- | :--- |
 
+
+### /awapi/vehicle/put/door
+
+- send door command
+- MessageType: std_msgs/Bool
+  - send True: open door
+  - send False: close door
+
+| ✓   | type          | name | unit | note                                        |
+| --- | :------------ | :--- | :--- | :------------------------------------------ |
+|     | std_msgs/Bool |      |      | available only for the vehicle using pacmod |
+
+### /awapi/autoware/put/crosswalk_states
+
+- send crosswalk status
+  - forcibly rewrite the internal state of crosswalk module
+- MessageType: autoware_api_msgs/CrossWalkStatus
+
+| ✓   | type            | name   | unit                     | note |
+| --- | :-------------- | :----- | :----------------------- | :--- |
+|     | std_msgs/Header | header |                          |      |
+|     | int32           | status | 0:STOP, 1:GO, 2:SLOWDOWN |      |
+
+### /awapi/autoware/put/intersection_states
+
+- send intersection status
+  - forcibly rewrite the internal state of intersection module
+- MessageType: autoware_api_msgs/CrosswalkStatus
+
+| ✓   | type            | name   | unit         | note |
+| --- | :-------------- | :----- | :----------- | :--- |
+|     | std_msgs/Header | header |              |      |
+|     | int32           | status | 0:STOP, 1:GO |      |
