@@ -24,6 +24,7 @@ MPCFollower::MPCFollower() : nh_(""), pnh_("~"), tf_listener_(tf_buffer_)
   pnh_.param<double>("ctrl_period", ctrl_period_, 0.03);
   pnh_.param<bool>("enable_path_smoothing", enable_path_smoothing_, true);
   pnh_.param<bool>("enable_yaw_recalculation", enable_yaw_recalculation_, false);
+  pnh_.param<bool>("use_steer_prediction", use_steer_prediction_, false);
   pnh_.param<int>("path_filter_moving_ave_num", path_filter_moving_ave_num_, 35);
   pnh_.param<int>("curvature_smoothing_num", curvature_smoothing_num_, 35);
   pnh_.param<double>("traj_resample_dist", traj_resample_dist_, 0.1);  // [m]
@@ -99,7 +100,7 @@ MPCFollower::MPCFollower() : nh_(""), pnh_("~"), tf_listener_(tf_buffer_)
       tf_buffer_.lookupTransform("map", "base_link", ros::Time::now(), ros::Duration(5.0));
       break;
     } catch (tf2::TransformException & ex) {
-      ROS_INFO("[mpc_follower] is waitting to get map to base_link transform. %s", ex.what());
+      ROS_INFO("[mpc_follower] is waiting to get map to base_link transform. %s", ex.what());
       continue;
     }
   }
@@ -222,6 +223,8 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::ControlCommand * ctrl_cmd)
     ctrl_cmd->velocity = ref_traj_.vx[mpc_data.nearest_idx];
     ctrl_cmd->acceleration = (ref_traj_.vx[mpc_data.nearest_idx] - ref_traj_.vx[prev_idx]) / dt;
   }
+
+  storeSteerCmd(u_filtered);
 
   /* save input to buffer for delay compensation*/
   input_buffer_.push_back(ctrl_cmd->steering_angle);
@@ -551,9 +554,6 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
   MatrixXd R = MatrixXd::Zero(DIM_U, DIM_U);
   MatrixXd Q_adaptive = MatrixXd::Zero(DIM_Y, DIM_Y);
   MatrixXd R_adaptive = MatrixXd::Zero(DIM_U, DIM_U);
-  Q(0, 0) = mpc_param_.weight_lat_error;
-  Q(1, 1) = mpc_param_.weight_heading_error;
-  R(0, 0) = mpc_param_.weight_steering_input;
 
   MatrixXd Ad(DIM_X, DIM_X);
   MatrixXd Bd(DIM_X, DIM_U);
@@ -561,23 +561,26 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
   MatrixXd Cd(DIM_Y, DIM_X);
   MatrixXd Uref(DIM_U, 1);
 
-  constexpr double ep = 1.0e-3;  // large enough to ingore velocity noise
-  const double curr_vel = current_velocity_ptr_->twist.linear.x;
-  const double sign_curr_vx = curr_vel > ep ? 1 : (curr_vel < -ep ? -1 : 0);
+  constexpr double ep = 1.0e-3;  // large enough to ignore velocity noise
 
   /* predict dynamics for N times */
   for (int i = 0; i < N; ++i) {
     const double ref_vx = reference_trajectory.vx[i];
     const double ref_vx_squared = ref_vx * ref_vx;
-    const double sign_vx = ref_vx > ep ? 1 : (ref_vx < -ep ? -1 : sign_curr_vx);
 
     // curvature will be 0 when vehicle stops
-    const double ref_k = reference_trajectory.k[i] * sign_vx;
+    const double ref_k = reference_trajectory.k[i] * sign_vx_;
 
     /* get discrete state matrix A, B, C, W */
     vehicle_model_ptr_->setVelocity(ref_vx);
     vehicle_model_ptr_->setCurvature(ref_k);
     vehicle_model_ptr_->calculateDiscreteMatrix(Ad, Bd, Cd, Wd, DT);
+
+    Q = Eigen::MatrixXd::Zero(DIM_Y, DIM_Y);
+    R = Eigen::MatrixXd::Zero(DIM_U, DIM_U);
+    Q(0, 0) = getWeightLatError(ref_k);
+    Q(1, 1) = getWeightHeadingError(ref_k);
+    R(0, 0) = getWeightSteerInput(ref_k);
 
     Q_adaptive = Q;
     R_adaptive = R;
@@ -585,8 +588,8 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
       Q_adaptive(0, 0) = mpc_param_.weight_terminal_lat_error;
       Q_adaptive(1, 1) = mpc_param_.weight_terminal_heading_error;
     }
-    Q_adaptive(1, 1) += ref_vx_squared * mpc_param_.weight_heading_error_squared_vel;
-    R_adaptive(0, 0) += ref_vx_squared * mpc_param_.weight_steering_input_squared_vel;
+    Q_adaptive(1, 1) += ref_vx_squared * getWeightHeadingErrorSqVel(ref_k);
+    R_adaptive(0, 0) += ref_vx_squared * getWeightSteerInputSqVel(ref_k);
 
     /* update mpc matrix */
     int idx_x_i = i * DIM_X;
@@ -621,8 +624,10 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
 
   /* add lateral jerk : weight for (v * {u(i) - u(i-1)} )^2 */
   for (int i = 0; i < N - 1; ++i) {
-    const double v = reference_trajectory.vx[i];
-    const double j = v * v * mpc_param_.weight_lat_jerk / (DT * DT);  // lateral jerk rate
+    const double ref_vx = reference_trajectory.vx[i];
+    sign_vx_ = ref_vx > ep ? 1 : (ref_vx < -ep ? -1 : sign_vx_);
+    const double ref_k = reference_trajectory.k[i] * sign_vx_;
+    const double j = ref_vx * ref_vx * getWeightLatJerk(ref_k) / (DT * DT);  // lateral jerk weight
     const Eigen::Matrix2d J = (Eigen::Matrix2d() << j, -j, -j, j).finished();
     m.R2ex.block(i, i, 2, 2) += J;
   }
@@ -817,7 +822,7 @@ void MPCFollower::onTrajectory(const autoware_planning_msgs::Trajectory::ConstPt
 
   MPCTrajectory mpc_traj_raw;        // received raw trajectory
   MPCTrajectory mpc_traj_resampled;  // resampled trajectory
-  MPCTrajectory mpc_traj_smoothed;   // smooth fitltered trajectory
+  MPCTrajectory mpc_traj_smoothed;   // smooth filtered trajectory
 
   /* resampling */
   MPCUtils::convertToMPCTrajectory(*current_trajectory_ptr_, &mpc_traj_raw);
