@@ -5,6 +5,7 @@ project(behavior_velocity_planner)
 add_compile_options(-std=c++14)
 
 find_package(catkin REQUIRED COMPONENTS
+  autoware_api_msgs
   autoware_perception_msgs
   autoware_planning_msgs
   autoware_perception_msgs
@@ -27,6 +28,7 @@ catkin_package(
   INCLUDE_DIRS
     include
   CATKIN_DEPENDS
+    autoware_api_msgs
     autoware_perception_msgs
     autoware_planning_msgs
     autoware_perception_msgs

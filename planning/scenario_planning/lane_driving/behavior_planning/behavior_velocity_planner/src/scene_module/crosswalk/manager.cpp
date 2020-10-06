@@ -64,10 +64,12 @@ CrosswalkModuleManager::CrosswalkModuleManager() : SceneModuleManagerInterface(g
   pnh.param(
     ns + "/crosswalk/stop_dynamic_object_prediction_time_margin",
     cp.stop_dynamic_object_prediction_time_margin, 3.0);
+  pnh.param(ns + "/crosswalk/external_input_timeout", cp.external_input_timeout, 1.0);
 
   // for walkway parameters
   auto & wp = walkway_planner_param_;
   pnh.param(ns + "/walkway/stop_margin", wp.stop_margin, 1.0);
+  pnh.param(ns + "/walkway/external_input_timeout", wp.external_input_timeout, 1.0);
 }
 
 void CrosswalkModuleManager::launchNewModules(const autoware_planning_msgs::PathWithLaneId & path)

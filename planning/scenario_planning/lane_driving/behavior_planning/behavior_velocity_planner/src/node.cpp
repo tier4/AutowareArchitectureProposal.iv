@@ -133,6 +133,12 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode()
     pnh_.subscribe("input/vector_map", 10, &BehaviorVelocityPlannerNode::onLaneletMap, this);
   sub_traffic_light_states_ = pnh_.subscribe(
     "input/traffic_light_states", 10, &BehaviorVelocityPlannerNode::onTrafficLightStates, this);
+  sub_external_crosswalk_states_ = pnh_.subscribe(
+    "input/external_crosswalk_states", 10, &BehaviorVelocityPlannerNode::onExternalCrosswalkStates, this);
+  sub_external_intersection_states_ = pnh_.subscribe(
+    "input/external_intersection_states", 10, &BehaviorVelocityPlannerNode::onExternalIntersectionStates, this);
+  sub_external_traffic_light_states_ = pnh_.subscribe(
+    "input/external_traffic_light_states", 10, &BehaviorVelocityPlannerNode::onExternalTrafficLightStates, this);
 
   // Publishers
   path_pub_ = pnh_.advertise<autoware_planning_msgs::Path>("output/path", 1);
@@ -147,7 +153,9 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode()
   // Vehicle Parameters
   planner_data_.wheel_base = waitForParam<double>(pnh_, "/vehicle_info/wheel_base");
   planner_data_.front_overhang = waitForParam<double>(pnh_, "/vehicle_info/front_overhang");
+  planner_data_.rear_overhang = waitForParam<double>(pnh_, "/vehicle_info/rear_overhang");
   planner_data_.vehicle_width = waitForParam<double>(pnh_, "/vehicle_info/vehicle_width");
+  planner_data_.vehicle_length = waitForParam<double>(pnh_, "/vehicle_info/vehicle_length");
   // Additional Vehicle Parameters
   pnh_.param(
     "max_accel", planner_data_.max_stop_acceleration_threshold_,
@@ -264,6 +272,29 @@ void BehaviorVelocityPlannerNode::onTrafficLightStates(
     traffic_light_state.header = msg->header;
     traffic_light_state.state = state;
     planner_data_.traffic_light_id_map_[state.id] = traffic_light_state;
+  }
+}
+
+void BehaviorVelocityPlannerNode::onExternalCrosswalkStates(
+  const autoware_api_msgs::CrosswalkStatus::ConstPtr & msg)
+{
+  planner_data_.external_crosswalk_status_input = *msg;
+}
+
+void BehaviorVelocityPlannerNode::onExternalIntersectionStates(
+  const autoware_api_msgs::IntersectionStatus::ConstPtr & msg)
+{
+  planner_data_.external_intersection_status_input = *msg;
+}
+
+void BehaviorVelocityPlannerNode::onExternalTrafficLightStates(
+  const autoware_perception_msgs::TrafficLightStateArray::ConstPtr & msg)
+{
+  for (const auto & state : msg->states) {
+    autoware_perception_msgs::TrafficLightStateStamped traffic_light_state;
+    traffic_light_state.header = msg->header;
+    traffic_light_state.state = state;
+    planner_data_.external_traffic_light_id_map_[state.id] = traffic_light_state;
   }
 }
 

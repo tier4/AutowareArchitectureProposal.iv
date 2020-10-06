@@ -101,6 +101,7 @@ public:
     double stuck_vehicle_vel_thr;  //! Threshold of the speed to be recognized as stopped
     double intersection_velocity;  //! used for intersection passing time
     double detection_area_length;  //! used to create detection area polygon
+    double external_input_timeout;  //! used to disenable external input
   };
 
   IntersectionModule(
@@ -189,6 +190,13 @@ private:
    * @return true if the object has a target type
    */
   bool isTargetVehicleType(const autoware_perception_msgs::DynamicObject & object) const;
+
+  /**
+   * @brief Whether target autoware_api_msgs::Intersection::status is valid or not
+   * @param target_status target autoware_api_msgs::Intersection::status
+   * @return rue if the object has a target type
+   */
+  bool isTargetExternalInputStatus(const int target_status);
 
   StateMachine state_machine_;  //! for state
 
