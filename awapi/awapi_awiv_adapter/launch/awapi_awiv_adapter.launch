@@ -29,6 +29,7 @@
   <arg name="input_traffic_light_state" default="/perception/traffic_light_recognition/traffic_light_states" />
   <arg name="input_trajectory" default="/planning/scenario_planning/trajectory" />
   <arg name="input_door_status" default="/pacmod/parsed_tx/rear_pass_door_rpt" />
+  <arg name="input_stop_speed_exceeded" default="/planning/scenario_planning/motion_velocity_optimizer/stop_speed_exceeded" />
 
   <arg name="output_vehicle_status" default="vehicle/get/status" />
   <arg name="output_autoware_status" default="autoware/get/status" />
@@ -66,7 +67,7 @@
   <arg name="get_route" default="autoware/get/route" />
   <arg name="get_predicted_object" default="prediction/get/objects" />
   <arg name="get_door_status" default="vehicle/get/door" />
-
+  <arg name="get_stop_speed_exceeded" default="autoware/get/stop_speed_exceeded" />
 
   <group ns="awapi">
     <node pkg="awapi_awiv_adapter" type="awapi_awiv_adapter" name="awapi_awiv_adapter" output="$(arg adapter_output)">
@@ -123,6 +124,7 @@
     <node pkg="topic_tools" type="relay" name="obstacle_avoid_approval_relay" args="$(arg set_obstacle_avoid_approval) $(arg output_obstacle_avoid_approval)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="force_obstacle_avoid_relay" args="$(arg set_force_obstacle_avoid) $(arg output_force_obstacle_avoid)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="overwrite_traffic_light_state_relay" args="$(arg set_overwrite_traffic_light_state) $(arg output_overwrite_traffic_light_state)" output="$(arg relay_output)" />
+    <node pkg="topic_tools" type="relay" name="speed_exceeded_relay" args="$(arg input_stop_speed_exceeded) $(arg get_stop_speed_exceeded)" output="$(arg relay_output)" />
 
   </group>
 

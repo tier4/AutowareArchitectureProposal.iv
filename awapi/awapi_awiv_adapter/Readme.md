@@ -58,6 +58,17 @@
 | --- | :--------------------------- | :--- | :--- | :--- |
 | ✓   | autoware_planning_msgs/Route |      |      |      |
 
+### /awapi/autoware/get/route
+
+- get flag of exceeding stop speed or not
+  - True: exceed the stop speed ( = "cannot stop before the stop line")
+  - False: not exceed the stop speed ( = "no stop line in the trajectory" or "possible to stop before the stop line" )
+- MessageType: std_msgs/Bool
+
+| ✓   | type          | name | unit | note |
+| --- | :------------ | :--- | :--- | :--- |
+|     | std_msgs/Bool |      | -    |      |
+
 ### /awapi/prediction/get/objects
 
 - get predicted object
