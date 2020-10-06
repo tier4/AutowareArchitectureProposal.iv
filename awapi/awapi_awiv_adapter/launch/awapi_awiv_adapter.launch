@@ -30,6 +30,8 @@
   <arg name="input_trajectory" default="/planning/scenario_planning/trajectory" />
   <arg name="input_door_status" default="/pacmod/parsed_tx/rear_pass_door_rpt" />
   <arg name="input_stop_speed_exceeded" default="/planning/scenario_planning/motion_velocity_optimizer/stop_speed_exceeded" />
+  <arg name="input_external_crosswalk_status" default="/planning/scenario_planning/lane_driving/behavior_planning/behavior_velocity_planner/input/external_crosswalk_states" />
+  <arg name="input_external_intersection_status" default="/planning/scenario_planning/lane_driving/behavior_planning/behavior_velocity_planner/input/external_intersection_states" />
 
   <arg name="output_vehicle_status" default="vehicle/get/status" />
   <arg name="output_autoware_status" default="autoware/get/status" />
@@ -63,6 +65,8 @@
   <arg name="set_force_obstacle_avoid" default="object_avoidance/put/force" />
   <arg name="set_overwrite_traffic_light_state" default="traffic_light/put/traffic_light" />
   <arg name="set_door_control" default="vehicle/put/door" />
+  <arg name="set_crosswalk_status" default="autoware/put/crosswalk_states" />
+  <arg name="set_intersection_status" default="autoware/put/intersection_states" />
 
   <arg name="get_route" default="autoware/get/route" />
   <arg name="get_predicted_object" default="prediction/get/objects" />
@@ -125,6 +129,8 @@
     <node pkg="topic_tools" type="relay" name="force_obstacle_avoid_relay" args="$(arg set_force_obstacle_avoid) $(arg output_force_obstacle_avoid)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="overwrite_traffic_light_state_relay" args="$(arg set_overwrite_traffic_light_state) $(arg output_overwrite_traffic_light_state)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="speed_exceeded_relay" args="$(arg input_stop_speed_exceeded) $(arg get_stop_speed_exceeded)" output="$(arg relay_output)" />
+    <node pkg="topic_tools" type="relay" name="crosswalk_status_relay" args="$(arg set_crosswalk_status) $(arg input_external_crosswalk_status)" output="$(arg relay_output)" />
+    <node pkg="topic_tools" type="relay" name="intersection_status_relay" args="$(arg set_intersection_status) $(arg input_external_intersection_status)" output="$(arg relay_output)" />
 
   </group>
 

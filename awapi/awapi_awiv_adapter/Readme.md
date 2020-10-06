@@ -244,3 +244,25 @@
 | ✓   | type          | name | unit | note                                        |
 | --- | :------------ | :--- | :--- | :------------------------------------------ |
 |     | std_msgs/Bool |      |      | available only for the vehicle using pacmod |
+
+### /awapi/autoware/put/crosswalk_states
+
+- send crosswalk status
+  - forcibly rewrite the internal state of crosswalk module
+- MessageType: autoware_api_msgs/CrossWalkStatus
+
+| ✓   | type            | name   | unit                     | note |
+| --- | :-------------- | :----- | :----------------------- | :--- |
+|     | std_msgs/Header | header |                          |      |
+|     | int32           | status | 0:STOP, 1:GO, 2:SLOWDOWN |      |
+
+### /awapi/autoware/put/intersection_states
+
+- send intersection status
+  - forcibly rewrite the internal state of intersection module
+- MessageType: autoware_api_msgs/CrosswalkStatus
+
+| ✓   | type            | name   | unit         | note |
+| --- | :-------------- | :----- | :----------- | :--- |
+|     | std_msgs/Header | header |              |      |
+|     | int32           | status | 0:STOP, 1:GO |      |
