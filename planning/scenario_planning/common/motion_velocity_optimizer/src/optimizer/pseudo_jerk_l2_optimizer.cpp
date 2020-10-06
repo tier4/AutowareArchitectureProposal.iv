@@ -22,7 +22,14 @@
 
 #include "eigen3/Eigen/Core"
 
-L2PseudoJerkOptimizer::L2PseudoJerkOptimizer(const OptimizerParam & p) { param_ = p; }
+L2PseudoJerkOptimizer::L2PseudoJerkOptimizer(const OptimizerParam & p) {
+  param_ = p;
+  qp_solver_.updateMaxIter(4000);
+  qp_solver_.updateRhoInterval(0);  // 0 means automoatic
+  qp_solver_.updateEpsRel(1.0e-4);  // def: 1.0e-4
+  qp_solver_.updateEpsAbs(1.0e-4);  // def: 1.0e-4
+  qp_solver_.updateVerbose(false);
+}
 
 void L2PseudoJerkOptimizer::setParam(const OptimizerParam & param) { param_ = param; }
 
@@ -193,6 +200,13 @@ bool L2PseudoJerkOptimizer::solve(
   for (unsigned int i = N + closest; i < output->points.size(); ++i) {
     output->points.at(i).twist.linear.x = 0.0;
     output->points.at(i).accel.linear.x = 0.0;
+  }
+
+  const int status_val = std::get<3>(result);
+  if (status_val != 1) {
+    ROS_WARN(
+      "[motion_velocity_optimizer] optimization failed : %s",
+      qp_solver_.getStatusMessage().c_str());
   }
 
   auto tf2 = std::chrono::system_clock::now();
