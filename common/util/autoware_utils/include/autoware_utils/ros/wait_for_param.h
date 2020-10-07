@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 TierIV. All rights reserved.
+ * Copyright 2020 Tier IV, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,25 @@
 
 #pragma once
 
-#include <autoware_utils/constants.h>
+#include <string>
 
-namespace autoware_utils
+#include <ros/ros.h>
+
+template <class T>
+T waitForParam(const ros::NodeHandle & nh, const std::string & key)
 {
-constexpr double deg2rad(const double deg) { return deg * pi / 180.0; }
-constexpr double rad2deg(const double rad) { return rad * 180.0 / pi; }
+  T value;
 
-constexpr double kmph2mps(const double kmph) { return kmph * 1000.0 / 3600.0; }
-constexpr double mps2kmph(const double mps) { return mps * 3600.0 / 1000.0; }
-}  // namespace autoware_utils
+  ros::Rate rate(1.0);
+  while (ros::ok()) {
+    const auto result = nh.getParam(key, value);
+    if (result) {
+      return value;
+    }
+
+    ROS_INFO("waiting for parameter `%s`...", key.c_str());
+    rate.sleep();
+  }
+
+  return {};
+}
