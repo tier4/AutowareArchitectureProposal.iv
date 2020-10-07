@@ -23,6 +23,12 @@ set(LATLON_MUXER_DEPENDENCIES
 
 ament_target_dependencies(latlon_muxer ${LATLON_MUXER_DEPENDENCIES})
 target_include_directories(latlon_muxer PRIVATE include)
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
 install(
   TARGETS latlon_muxer
   ARCHIVE DESTINATION lib/${PROJECT_NAME}
