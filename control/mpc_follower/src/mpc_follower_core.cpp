@@ -120,6 +120,8 @@ MPCFollower::MPCFollower()
 
   pub_ctrl_cmd_ =
     create_publisher<autoware_control_msgs::msg::ControlCommandStamped>("output/control_raw", 1);
+  pub_predicted_traj_ =
+    create_publisher<autoware_planning_msgs::msg::Trajectory>("output/predicted_trajectory", 1);
   sub_ref_path_ = create_subscription<autoware_planning_msgs::msg::Trajectory>(
     "input/reference_trajectory", rclcpp::QoS{1},
     std::bind(&MPCFollower::callbackTrajectory, this, _1));
@@ -276,7 +278,7 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::msg::ControlCommand * ctrl
   /* publish predicted trajectory */
   {
     Eigen::VectorXd Xex = mpc_matrix.Aex * x0 + mpc_matrix.Bex * Uex + mpc_matrix.Wex;
-    MPCTrajectory predicted_traj;
+    MPCTrajectory mpc_predicted_traj;
     const auto & traj = mpc_resampled_ref_traj;
     for (int i = 0; i < mpc_param_.prediction_horizon; ++i) {
       const int DIM_X = vehicle_model_ptr_->getDimX();
@@ -284,10 +286,22 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::msg::ControlCommand * ctrl
       const double yaw_error = Xex(i * DIM_X + 1);
       const double x = traj.x[i] - std::sin(traj.yaw[i]) * lat_error;
       const double y = traj.y[i] + std::cos(traj.yaw[i]) * lat_error;
-      predicted_traj.push_back(x, y, traj.z[i], traj.yaw[i] + yaw_error, 0, 0, 0);
+      const double z = traj.z[i];
+      const double yaw = traj.yaw[i] + yaw_error;
+      const double vx = traj.vx[i];
+      const double k = traj.k[i];
+      const double relative_time = traj.relative_time[i];
+      mpc_predicted_traj.push_back(x, y, z, yaw, vx, k, relative_time);
     }
+
+    autoware_planning_msgs::Trajectory predicted_traj;
+    predicted_traj.header.stamp = current_trajectory_ptr_->header.stamp;
+    predicted_traj.header.frame_id = current_trajectory_ptr_->header.frame_id;
+    MPCUtils::convertToAutowareTrajectory(mpc_predicted_traj, &predicted_traj);
+    pub_predicted_traj_->publish(predicted_traj);
+
     auto markers = MPCUtils::convertTrajToMarker(
-      predicted_traj, "predicted_trajectory", 0.99, 0.99, 0.99, 0.2,
+      mpc_predicted_traj, "predicted_trajectory", 0.99, 0.99, 0.99, 0.2,
       current_trajectory_ptr_->header.frame_id, stamp);
     pub_debug_marker_->publish(markers);
   }

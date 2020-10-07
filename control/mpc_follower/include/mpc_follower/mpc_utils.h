@@ -65,6 +65,8 @@ double calcLateralError(
 
 bool convertToMPCTrajectory(
   const autoware_planning_msgs::msg::Trajectory & input, MPCTrajectory * output);
+bool convertToAutowareTrajectory(
+  const MPCTrajectory & input, autoware_planning_msgs::msg::Trajectory * output);
 void calcMPCTrajectoryArclength(const MPCTrajectory & trajectory, std::vector<double> * arclength);
 bool resampleMPCTrajectoryByDistance(
   const MPCTrajectory & input, const double resample_interval_dist, MPCTrajectory * output);

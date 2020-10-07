@@ -88,6 +88,8 @@ public:
 private:
   rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
     pub_ctrl_cmd_;  //!< @brief topic publisher for control command
+  rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
+    pub_predicted_traj_;  //!< @brief topic publisher for predicted trajectory
   rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr
     sub_ref_path_;  //!< @brief topic subscription for reference waypoints
   rclcpp::Subscription<autoware_vehicle_msgs::msg::Steering>::SharedPtr
