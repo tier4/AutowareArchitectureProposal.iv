@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 Autoware Foundation. All rights reserved.
+ * Copyright 2015-2010 Autoware Foundation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include <ros/ros.h>
 #include "latlon_muxer/node.hpp"
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "latlon_muxer");
+  rclcpp::init(argc, argv);
+  rclcpp::NodeOptions options;
+  const auto node = std::make_shared<LatLonMuxer>("latlon_muxer", options);
+  rclcpp::spin(node);
+  rclcpp::shutdown();
 
-  LatLonMuxer obj;
-
-  ros::spin();
   return 0;
 }

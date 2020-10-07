@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 Autoware Foundation. All rights reserved.
+ * Copyright 2015-2020 Autoware Foundation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 #include <memory>
 
-#include <autoware_control_msgs/ControlCommandStamped.h>
+#include <autoware_control_msgs/control_command_stamped.h>
 #include <ros/ros.h>
 
 class LatLonMuxer
