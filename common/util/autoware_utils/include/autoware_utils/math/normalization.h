@@ -14,13 +14,34 @@
 
 #pragma once
 
-#include "autoware_utils/constants.hpp"
+#include <cmath>
+
+#include "autoware_utils/math/constants.hpp"
 
 namespace autoware_utils
 {
-constexpr double deg2rad(const double deg) {return deg * pi / 180.0;}
-constexpr double rad2deg(const double rad) {return rad * 180.0 / pi;}
+constexpr double normalizeDegree(const double deg, const double min_deg = -180)
+{
+  const auto max_deg = min_deg + 360.0;
 
-constexpr double kmph2mps(const double kmph) {return kmph * 1000.0 / 3600.0;}
-constexpr double mps2kmph(const double mps) {return mps * 3600.0 / 1000.0;}
+  const auto value = std::fmod(deg, 360.0);
+  if (min_deg <= value && value < max_deg) {
+    return value;
+  } else {
+    return value - std::copysign(360.0, value);
+  }
+}
+
+constexpr double normalizeRadian(const double rad, const double min_rad = -pi)
+{
+  const auto max_rad = min_rad + 2 * pi;
+
+  const auto value = std::fmod(rad, 2 * pi);
+  if (min_rad <= value && value < max_rad) {
+    return value;
+  } else {
+    return value - std::copysign(2 * pi, value);
+  }
+}
+
 }  // namespace autoware_utils
