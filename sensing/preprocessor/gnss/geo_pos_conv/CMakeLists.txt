@@ -29,8 +29,10 @@ target_include_directories(geo_pos_conv
 ament_target_dependencies(geo_pos_conv rclcpp)
 
 ### Install library
-ament_export_interfaces(geo_pos_conv HAS_LIBRARY_TARGET)
+ament_export_targets(geo_pos_conv HAS_LIBRARY_TARGET)
 ament_export_dependencies(rclcpp)
+# ament_export_include_directories(include)
+# ament_export_libraries(geo_pos_conv)
 
 install(
   DIRECTORY include/
