@@ -16,33 +16,42 @@
 
 #include <shift_decider/shift_decider.h>
 
-ShiftDecider::ShiftDecider()
+#include <cstddef>
+#include <functional>
+
+ShiftDecider::ShiftDecider() : Node("shift_decider")
 {
-  pub_shift_cmd_ = pnh_.advertise<autoware_vehicle_msgs::ShiftStamped>("output/shift_cmd", 1, true);
-  sub_control_cmd_ = pnh_.subscribe("input/control_cmd", 1, &ShiftDecider::onControlCmd, this);
-  timer_ = nh_.createTimer(ros::Duration(0.1), &ShiftDecider::onTimer, this);
+  using std::placeholders::_1;
+
+  static constexpr std::size_t queue_size = 1;
+  rclcpp::QoS durable_qos(queue_size);
+  durable_qos.transient_local();
+
+  pub_shift_cmd_ = create_publisher<autoware_vehicle_msgs::msg::ShiftStamped>("output/shift_cmd", durable_qos);
+  sub_control_cmd_ = create_subscription<autoware_control_msgs::msg::ControlCommandStamped>("input/control_cmd", queue_size, std::bind(&ShiftDecider::onControlCmd, this, _1));
+  timer_ = create_wall_timer(std::chrono::duration<double>(0.1), std::bind(&ShiftDecider::onTimer, this));
 }
 
-void ShiftDecider::onControlCmd(const autoware_control_msgs::ControlCommandStamped::ConstPtr msg)
+void ShiftDecider::onControlCmd(autoware_control_msgs::msg::ControlCommandStamped::SharedPtr msg)
 {
   control_cmd_ = msg;
 }
 
-void ShiftDecider::onTimer(const ros::TimerEvent & e)
+void ShiftDecider::onTimer()
 {
   if (!control_cmd_) return;
 
   updateCurrentShiftCmd();
-  pub_shift_cmd_.publish(shift_cmd_);
+  pub_shift_cmd_->publish(shift_cmd_);
 }
 
 void ShiftDecider::updateCurrentShiftCmd()
 {
-  shift_cmd_.header.stamp = ros::Time::now();
-  constexpr double vel_threshold = 0.01;  // to prevent chattering
+  shift_cmd_.header.stamp = now();
+  static constexpr double vel_threshold = 0.01;  // to prevent chattering
   if (control_cmd_->control.velocity > vel_threshold) {
-    shift_cmd_.shift.data = autoware_vehicle_msgs::Shift::DRIVE;
+    shift_cmd_.shift.data = autoware_vehicle_msgs::msg::Shift::DRIVE;
   } else if (control_cmd_->control.velocity < -vel_threshold) {
-    shift_cmd_.shift.data = autoware_vehicle_msgs::Shift::REVERSE;
+    shift_cmd_.shift.data = autoware_vehicle_msgs::msg::Shift::REVERSE;
   }
 }
