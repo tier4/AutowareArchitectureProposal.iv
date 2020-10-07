@@ -19,28 +19,25 @@
 
 #include <memory>
 
-#include <autoware_control_msgs/control_command_stamped.h>
-#include <ros/ros.h>
+#include <autoware_control_msgs/msg/control_command_stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
 
-class LatLonMuxer
+class LatLonMuxer : public rclcpp::Node
 {
 public:
-  LatLonMuxer();
-  ~LatLonMuxer() = default;
+  explicit LatLonMuxer(const std::string & node_name, const rclcpp::NodeOptions & options);
 
 private:
-  void latCtrlCmdCallback(const autoware_control_msgs::ControlCommandStamped::ConstPtr msg);
-  void lonCtrlCmdCallback(const autoware_control_msgs::ControlCommandStamped::ConstPtr msg);
+  void latCtrlCmdCallback(const autoware_control_msgs::msg::ControlCommandStamped::SharedPtr msg);
+  void lonCtrlCmdCallback(const autoware_control_msgs::msg::ControlCommandStamped::SharedPtr msg);
   void publishCmd();
 
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
-  ros::Publisher control_cmd_pub_;
-  ros::Subscriber lat_control_cmd_sub_;
-  ros::Subscriber lon_control_cmd_sub_;
+  rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr control_cmd_pub_;
+  rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr lat_control_cmd_sub_;
+  rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr lon_control_cmd_sub_;
 
-  std::shared_ptr<autoware_control_msgs::ControlCommandStamped> lat_cmd_;
-  std::shared_ptr<autoware_control_msgs::ControlCommandStamped> lon_cmd_;
+  std::shared_ptr<autoware_control_msgs::msg::ControlCommandStamped> lat_cmd_;
+  std::shared_ptr<autoware_control_msgs::msg::ControlCommandStamped> lon_cmd_;
 };
 
 #endif  // CONTROL_LATLON_MUXER_INCLUDE_LATLON_MUXER_NODE_HPP_

@@ -22,7 +22,7 @@ set(LATLON_MUXER_DEPENDENCIES
 )
 
 ament_target_dependencies(latlon_muxer ${LATLON_MUXER_DEPENDENCIES})
-
+target_include_directories(latlon_muxer PRIVATE include)
 install(
   TARGETS latlon_muxer
   ARCHIVE DESTINATION lib/${PROJECT_NAME}
@@ -32,9 +32,5 @@ install(
 
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION include)
-
-install(DIRECTORY config launch
-  DESTINATION share/${PROJECT_NAME}
-)
 
 ament_package()
