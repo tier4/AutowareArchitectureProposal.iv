@@ -16,16 +16,32 @@
 
 #pragma once
 
-#include <autoware_utils/geometry/boost_geometry.h>
-#include <autoware_utils/geometry/geometry.h>
+#include <cmath>
+
 #include <autoware_utils/math/constants.h>
-#include <autoware_utils/math/normalization.h>
-#include <autoware_utils/math/unit_conversion.h>
-#include <autoware_utils/ros/debug_publisher.h>
-#include <autoware_utils/ros/marker_helper.h>
-#include <autoware_utils/ros/processing_time_publisher.h>
-#include <autoware_utils/ros/self_pose_listener.h>
-#include <autoware_utils/ros/transform_listener.h>
-#include <autoware_utils/ros/vehicle_info.h>
-#include <autoware_utils/ros/wait_for_param.h>
-#include <autoware_utils/system/stop_watch.h>
+
+namespace autoware_utils
+{
+constexpr double normalizeDegree(const double deg, const double min_deg = -180)
+{
+  const auto max_deg = min_deg + 360.0;
+
+  const auto value = std::fmod(deg, 360.0);
+  if (min_deg <= value && value < max_deg)
+    return value;
+  else
+    return value - std::copysign(360.0, value);
+}
+
+constexpr double normalizeRadian(const double rad, const double min_rad = -pi)
+{
+  const auto max_rad = min_rad + 2 * pi;
+
+  const auto value = std::fmod(rad, 2 * pi);
+  if (min_rad <= value && value < max_rad)
+    return value;
+  else
+    return value - std::copysign(2 * pi, value);
+}
+
+}  // namespace autoware_utils
