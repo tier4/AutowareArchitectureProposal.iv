@@ -16,19 +16,22 @@
 
 #pragma once
 
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/TwistStamped.h>
+#include <cmath>
+#include <vector>
+
 #include <ros/ros.h>
-#include <std_msgs/Float64MultiArray.h>
+
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <visualization_msgs/MarkerArray.h>
-#include <cmath>
 #include <eigen3/Eigen/Core>
-#include <vector>
-#include "autoware_planning_msgs/Trajectory.h"
-#include "mpc_follower/interpolate.h"
 
+#include <autoware_planning_msgs/Trajectory.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/TwistStamped.h>
+#include <std_msgs/Float64MultiArray.h>
+#include <visualization_msgs/MarkerArray.h>
+
+#include "mpc_follower/interpolate.h"
 #include "mpc_follower/mpc_trajectory.h"
 
 namespace MPCUtils
@@ -61,6 +64,8 @@ double calcLateralError(const geometry_msgs::Pose & ego_pose, const geometry_msg
 
 bool convertToMPCTrajectory(
   const autoware_planning_msgs::Trajectory & input, MPCTrajectory * output);
+bool convertToAutowareTrajectory(
+  const MPCTrajectory & input, autoware_planning_msgs::Trajectory * output);
 void calcMPCTrajectoryArclength(const MPCTrajectory & trajectory, std::vector<double> * arclength);
 bool resampleMPCTrajectoryByDistance(
   const MPCTrajectory & input, const double resample_interval_dist, MPCTrajectory * output);
