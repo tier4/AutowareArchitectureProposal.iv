@@ -10,6 +10,7 @@
     <remap from="~input/current_steering" to="/vehicle/status/steering"/>
     <remap from="~output/twist_raw" to="lateral/twist_raw"/>
     <remap from="~output/control_raw" to="lateral/control_cmd"/>
+    <remap from="~output/predicted_trajectory" to="predicted_trajectory"/>
   </node>
 
   <!-- steering dynamics simulator for turning -->

@@ -291,6 +291,26 @@ bool MPCUtils::convertToMPCTrajectory(
   return true;
 }
 
+bool MPCUtils::convertToAutowareTrajectory(
+  const MPCTrajectory & input, autoware_planning_msgs::Trajectory * output)
+{
+  if (!output) {
+    return false;
+  }
+
+  output->points.clear();
+  for (size_t i = 0; i < input.size(); ++i) {
+    autoware_planning_msgs::TrajectoryPoint p;
+    p.pose.position.x = input.x.at(i);
+    p.pose.position.y = input.y.at(i);
+    p.pose.position.z = input.z.at(i);
+    p.pose.orientation = getQuaternionFromYaw(input.yaw.at(i));
+    p.twist.linear.x = input.vx.at(i);
+    output->points.push_back(p);
+  }
+  return true;
+}
+
 bool MPCUtils::calcMPCTrajectoryTime(MPCTrajectory * traj)
 {
   if (!traj) {

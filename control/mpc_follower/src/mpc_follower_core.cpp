@@ -93,6 +93,8 @@ MPCFollower::MPCFollower() : nh_(""), pnh_("~"), tf_listener_(tf_buffer_)
   sub_steering_ = pnh_.subscribe("input/current_steering", 1, &MPCFollower::onSteering, this);
   pub_ctrl_cmd_ =
     pnh_.advertise<autoware_control_msgs::ControlCommandStamped>("output/control_raw", 1);
+  pub_predicted_traj_ =
+    pnh_.advertise<autoware_planning_msgs::Trajectory>("output/predicted_trajectory", 1);
 
   /* wait to get vehicle position */
   while (ros::ok()) {
@@ -232,12 +234,10 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::ControlCommand * ctrl_cmd)
   raw_steer_cmd_pprev_ = raw_steer_cmd_prev_;
   raw_steer_cmd_prev_ = Uex(0);
 
-  /* ---------- DEBUG ---------- */
-
   /* publish predicted trajectory */
   {
     Eigen::VectorXd Xex = mpc_matrix.Aex * x0 + mpc_matrix.Bex * Uex + mpc_matrix.Wex;
-    MPCTrajectory predicted_traj;
+    MPCTrajectory mpc_predicted_traj;
     const auto & traj = mpc_resampled_ref_traj;
     for (int i = 0; i < mpc_param_.prediction_horizon; ++i) {
       const int DIM_X = vehicle_model_ptr_->getDimX();
@@ -245,10 +245,22 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::ControlCommand * ctrl_cmd)
       const double yaw_error = Xex(i * DIM_X + 1);
       const double x = traj.x[i] - std::sin(traj.yaw[i]) * lat_error;
       const double y = traj.y[i] + std::cos(traj.yaw[i]) * lat_error;
-      predicted_traj.push_back(x, y, traj.z[i], traj.yaw[i] + yaw_error, 0, 0, 0);
+      const double z = traj.z[i];
+      const double yaw = traj.yaw[i] + yaw_error;
+      const double vx = traj.vx[i];
+      const double k = traj.k[i];
+      const double relative_time = traj.relative_time[i];
+      mpc_predicted_traj.push_back(x, y, z, yaw, vx, k, relative_time);
     }
-    auto markers = MPCUtils::convertTrajToMarker(
-      predicted_traj, "predicted_trajectory", 0.99, 0.99, 0.99, 0.2,
+
+    autoware_planning_msgs::Trajectory predicted_traj;
+    predicted_traj.header.stamp = current_trajectory_ptr_->header.stamp;
+    predicted_traj.header.frame_id = current_trajectory_ptr_->header.frame_id;
+    MPCUtils::convertToAutowareTrajectory(mpc_predicted_traj, &predicted_traj);
+    pub_predicted_traj_.publish(predicted_traj);
+
+    visualization_msgs::MarkerArray markers = MPCUtils::convertTrajToMarker(
+      mpc_predicted_traj, "predicted_trajectory", 0.99, 0.99, 0.99, 0.2,
       current_trajectory_ptr_->header.frame_id);
     pub_debug_marker_.publish(markers);
   }
