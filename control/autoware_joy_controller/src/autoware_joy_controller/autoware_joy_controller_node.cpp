@@ -15,8 +15,8 @@
  */
 
 #include <autoware_joy_controller/autoware_joy_controller.h>
-#include <autoware_joy_controller/joy_converter/g29_joy_converter.h>
 #include <autoware_joy_controller/joy_converter/ds4_joy_converter.h>
+#include <autoware_joy_controller/joy_converter/g29_joy_converter.h>
 
 namespace
 {
@@ -82,6 +82,12 @@ const char * getGateModeName(const GateModeType & gate_mode)
   if (gate_mode == GateMode::REMOTE) return "REMOTE";
 
   return "NOT_SUPPORTED";
+}
+
+double calcMapping(const double input, const double sensitivity)
+{
+  const double exponent = 1.0 / (std::max(0.001, std::min(1.0, sensitivity)));
+  return std::pow(input, exponent);
 }
 
 }  // namespace
@@ -218,8 +224,9 @@ void AutowareJoyControllerNode::publishRawControlCommand()
 
     cmd.steering_angle = steer_ratio_ * joy_->steer();
     cmd.steering_angle_velocity = steering_angle_velocity_;
-    cmd.throttle = accel_ratio_ * joy_->accel();
-    cmd.brake = brake_ratio_ * joy_->brake();
+    cmd.throttle =
+      accel_ratio_ * calcMapping(static_cast<double>(joy_->accel()), accel_sensitivity_);
+    cmd.brake = brake_ratio_ * calcMapping(static_cast<double>(joy_->brake()), brake_sensitivity_);
   }
 
   pub_raw_control_command_.publish(cmd_stamped);
@@ -383,6 +390,8 @@ AutowareJoyControllerNode::AutowareJoyControllerNode()
   private_nh_.param("brake_ratio", brake_ratio_, 5.0);
   private_nh_.param("steer_ratio", steer_ratio_, 0.5);
   private_nh_.param("steering_angle_velocity", steering_angle_velocity_, 0.1);
+  private_nh_.param("accel_sensitivity", accel_sensitivity_, 1.0);
+  private_nh_.param("brake_sensitivity", brake_sensitivity_, 1.0);
   private_nh_.param("control_command/velocity_gain", velocity_gain_, 3.0);
   private_nh_.param("control_command/max_forward_velocity", max_forward_velocity_, 20.0);
   private_nh_.param("control_command/max_backward_velocity", max_backward_velocity_, 3.0);
