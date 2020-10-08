@@ -20,28 +20,26 @@
 #include <memory>
 #include <string>
 
-#include <geometry_msgs/TwistStamped.h>
-#include <ros/ros.h>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
 
-#include <autoware_vehicle_msgs/RawVehicleCommand.h>
-#include <autoware_vehicle_msgs/Shift.h>
-#include <autoware_vehicle_msgs/VehicleCommand.h>
+#include <autoware_vehicle_msgs/msg/raw_vehicle_command.hpp>
+#include <autoware_vehicle_msgs/msg/shift.hpp>
+#include <autoware_vehicle_msgs/msg/vehicle_command.hpp>
 
 #include <raw_vehicle_cmd_converter/accel_map.h>
 #include <raw_vehicle_cmd_converter/brake_map.h>
 
-class AccelMapConverter
+class AccelMapConverter : public rclcpp::Node
 {
 public:
   AccelMapConverter();
   ~AccelMapConverter() = default;
 
 private:
-  ros::NodeHandle nh_;            //!< @brief ros node handle
-  ros::NodeHandle pnh_;           //!< @brief private ros node handle
-  ros::Publisher pub_cmd_;        //!< @brief topic publisher for tlow level vehicle command
-  ros::Subscriber sub_velocity_;  //!< @brief subscriber for currrent velocity
-  ros::Subscriber sub_cmd_;       //!< @brief subscriber for vehicle command
+  rclcpp::Publisher<autoware_vehicle_msgs::msg::RawVehicleCommand>::SharedPtr pub_cmd_;        //!< @brief topic publisher for tlow level vehicle command
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_velocity_;  //!< @brief subscriber for currrent velocity
+  rclcpp::Subscription<autoware_vehicle_msgs::msg::VehicleCommand>::SharedPtr sub_cmd_;       //!< @brief subscriber for vehicle command
 
   std::shared_ptr<double> current_velocity_ptr_;  // [m/s]
 
@@ -51,8 +49,8 @@ private:
   double max_throttle_;
   double max_brake_;
 
-  void callbackVehicleCmd(const autoware_vehicle_msgs::VehicleCommandConstPtr vehicle_cmd_ptr);
-  void callbackVelocity(const geometry_msgs::TwistStampedConstPtr msg);
+  void callbackVehicleCmd(const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr vehicle_cmd_ptr);
+  void callbackVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
   void calculateAccelMap(
     const double current_velocity, const double desired_acc, double * desired_throttle,
     double * desired_brake);

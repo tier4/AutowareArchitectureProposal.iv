@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include "raw_vehicle_cmd_converter/csv_loader.h"
 #include "raw_vehicle_cmd_converter/interpolate.h"
@@ -30,7 +30,7 @@
 class BrakeMap
 {
 public:
-  BrakeMap();
+  BrakeMap(const rclcpp::Logger & logger);
   ~BrakeMap();
 
   bool readBrakeMapFromCSV(std::string csv_path);
@@ -38,6 +38,8 @@ public:
   bool getAcceleration(double throttle, double vel, double & acc);
 
 private:
+  rclcpp::Logger logger_;
+  rclcpp::Clock logger_ros_clock_;
   std::string vehicle_name_;
   std::vector<double> vel_index_;
   std::vector<double> brake_index_;
