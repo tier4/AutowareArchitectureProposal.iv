@@ -82,6 +82,12 @@ const char * getGateModeName(const GateModeType & gate_mode)
   return "NOT_SUPPORTED";
 }
 
+double calcMapping(const double input, const double sensitivity)
+{
+  const double exponent = 1.0 / (std::max(0.001, std::min(1.0, sensitivity)));
+  return std::pow(input, exponent);
+}
+
 }  // namespace
 
 void AutowareJoyControllerNode::onJoy(const sensor_msgs::msg::Joy::ConstSharedPtr msg)
@@ -224,8 +230,9 @@ void AutowareJoyControllerNode::publishRawControlCommand()
 
     cmd.steering_angle = steer_ratio_ * joy_->steer();
     cmd.steering_angle_velocity = steering_angle_velocity_;
-    cmd.throttle = accel_ratio_ * joy_->accel();
-    cmd.brake = brake_ratio_ * joy_->brake();
+    cmd.throttle =
+      accel_ratio_ * calcMapping(static_cast<double>(joy_->accel()), accel_sensitivity_);
+    cmd.brake = brake_ratio_ * calcMapping(static_cast<double>(joy_->brake()), brake_sensitivity_);
   }
 
   pub_raw_control_command_->publish(cmd_stamped);
@@ -401,6 +408,8 @@ AutowareJoyControllerNode::AutowareJoyControllerNode()
   brake_ratio_ = declare_parameter("brake_ratio", 5.0);
   steer_ratio_ = declare_parameter("steer_ratio", 0.5);
   steering_angle_velocity_ = declare_parameter("steering_angle_velocity", 0.1);
+  accel_sensitivity_ = declare_parameter("accel_sensitivity", 1.0);
+  brake_sensitivity_ = declare_parameter("brake_sensitivity", 1.0);
   velocity_gain_ = declare_parameter("control_command/velocity_gain", 3.0);
   max_forward_velocity_ = declare_parameter("control_command/max_forward_velocity", 20.0);
   max_backward_velocity_ = declare_parameter("control_command/max_backward_velocity", 3.0);

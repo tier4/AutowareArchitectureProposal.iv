@@ -49,6 +49,8 @@ private:
   double brake_ratio_;
   double steer_ratio_;
   double steering_angle_velocity_;
+  double accel_sensitivity_;
+  double brake_sensitivity_;
 
   // ControlCommand Parameter
   double velocity_gain_;
