@@ -1,0 +1,19 @@
+<launch>
+  <arg name="input/twist" default="/localization/twist" />
+  <arg name="input/lanelet_map_bin" default="/map/vector_map" />
+  <arg name="input/route" default="/planning/mission_planning/route" />
+  <arg name="input/reference_trajectory" default="/planning/scenario_planning/trajectory" />
+  <arg name="input/predicted_trajectory" default="/control/trajectory_follower/predicted_trajectory" />
+
+  <arg name="config_file" default="$(find lane_departure_checker)/config/lane_departure_checker.yaml" />
+
+  <node pkg="lane_departure_checker" type="lane_departure_checker_node" name="lane_departure_checker_node" output="screen">
+    <remap from="~input/twist" to="$(arg input/twist)"/>
+    <remap from="~input/lanelet_map_bin" to="$(arg input/lanelet_map_bin)"/>
+    <remap from="~input/route" to="$(arg input/route)"/>
+    <remap from="~input/reference_trajectory" to="$(arg input/reference_trajectory)"/>
+    <remap from="~input/predicted_trajectory" to="$(arg input/predicted_trajectory)"/>
+
+    <rosparam command="load" file="$(arg config_file)" />
+  </node>
+</launch>
