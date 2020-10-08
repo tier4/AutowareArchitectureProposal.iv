@@ -638,6 +638,25 @@ visualization_msgs::MarkerArray visualization::generateLaneletIdMarker(
   return markers;
 }
 
+visualization_msgs::MarkerArray visualization::obstaclePolygonsAsMarkerArray(
+  const lanelet::ConstPolygons3d & obstacle_polygons, const std_msgs::ColorRGBA & c)
+{
+  visualization_msgs::MarkerArray marker_array;
+
+  if (obstacle_polygons.empty()) {
+    return marker_array;
+  }
+
+  for (const auto & polygon : obstacle_polygons) {
+    visualization_msgs::Marker marker = polygonAsMarker(polygon, "obstacles", c);
+    marker.id = polygon.id();
+    if (!marker.points.empty()) {
+      marker_array.markers.push_back(marker);
+    }
+  }
+  return marker_array;
+}
+
 visualization_msgs::msg::MarkerArray visualization::lineStringsAsMarkerArray(
   const std::vector<lanelet::ConstLineString3d> line_strings, const std::string name_space,
   const std_msgs::msg::ColorRGBA c, const double lss)
