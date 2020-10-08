@@ -5,7 +5,6 @@ add_compile_options(-std=c++14)
 find_package(
   catkin REQUIRED COMPONENTS
   roscpp
-  std_msgs
   autoware_vehicle_msgs
   geometry_msgs
 )
@@ -13,7 +12,7 @@ find_package(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES accel_map_converter
-  CATKIN_DEPENDS roscpp std_msgs autoware_vehicle_msgs geometry_msgs
+  CATKIN_DEPENDS roscpp autoware_vehicle_msgs geometry_msgs
 )
 
 include_directories(

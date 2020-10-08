@@ -22,7 +22,6 @@
 
 #include <geometry_msgs/TwistStamped.h>
 #include <ros/ros.h>
-#include <std_msgs/Bool.h>
 
 #include <autoware_vehicle_msgs/RawVehicleCommand.h>
 #include <autoware_vehicle_msgs/Shift.h>
