@@ -181,6 +181,9 @@ visualization_msgs::MarkerArray generateLaneletIdMarker(
   const lanelet::ConstLanelets road_lanelets, const std_msgs::ColorRGBA c,
   const double scale = 0.5);
 
+visualization_msgs::MarkerArray obstaclePolygonsAsMarkerArray(
+  const lanelet::ConstPolygons3d & obstacle_polygons, const std_msgs::ColorRGBA & c);
+
 }  // namespace visualization
 }  // namespace lanelet
 
