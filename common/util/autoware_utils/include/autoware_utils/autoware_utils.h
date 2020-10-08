@@ -18,6 +18,7 @@
 
 #include <autoware_utils/geometry/boost_geometry.h>
 #include <autoware_utils/geometry/geometry.h>
+#include <autoware_utils/geometry/pose_deviation.h>
 #include <autoware_utils/math/constants.h>
 #include <autoware_utils/math/normalization.h>
 #include <autoware_utils/math/unit_conversion.h>
