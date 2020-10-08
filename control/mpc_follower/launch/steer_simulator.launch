@@ -1,0 +1,13 @@
+<launch>
+  <arg name="mpc_input_delay_param" default="/control/trajectory_follower/mpc_follower/input_delay"/>
+  <arg name="mpc_steer_tau_param" default="/control/trajectory_follower/mpc_follower/vehicle_model_steer_tau"/>
+
+  <!-- steering dynamics simulator for turning -->
+  <node pkg="mpc_follower" type="steer_simulator.py" name="steer_simulator" output="screen">
+    <param name="mpc_input_delay_param" value="$(arg mpc_input_delay_param)" />
+    <param name="mpc_steer_tau_param" value="$(arg mpc_steer_tau_param)" />
+    <remap from="input/vehicle_cmd" to="/control/vehicle_cmd" />
+    <remap from="input/steering" to="/vehicle/status/steering" />
+    <remap from="output/predicted_steering" to="/mpc_follower/debug/mpc_predicted_steering" />
+  </node>
+</launch>
