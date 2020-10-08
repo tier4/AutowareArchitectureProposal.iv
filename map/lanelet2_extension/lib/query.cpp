@@ -188,6 +188,19 @@ std::vector<lanelet::DetectionAreaConstPtr> query::detectionAreas(
   return da_reg_elems;
 }
 
+lanelet::ConstPolygons3d query::getAllObstaclePolygons(
+  const lanelet::LaneletMapConstPtr & lanelet_map_ptr)
+{
+  lanelet::ConstPolygons3d obstacle_polygons;
+  for (const auto & poly : lanelet_map_ptr->polygonLayer) {
+    const std::string type = poly.attributeOr(lanelet::AttributeName::Type, "none");
+    if (type.compare("obstacle") == 0) {
+      obstacle_polygons.push_back(poly);
+    }
+  }
+  return obstacle_polygons;
+}
+
 lanelet::ConstPolygons3d query::getAllParkingLots(
   const lanelet::LaneletMapConstPtr & lanelet_map_ptr)
 {
