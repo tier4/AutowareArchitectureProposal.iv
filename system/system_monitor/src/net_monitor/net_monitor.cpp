@@ -112,10 +112,16 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
     fd = socket(AF_INET, SOCK_DGRAM, 0);
     strncpy(ifrm.ifr_name, ifa->ifa_name, IFNAMSIZ - 1);
     if (ioctl(fd, SIOCGIFMTU, &ifrm) < 0) {
-      stat.add(fmt::format("Network {}: status", index), "Error");
+      if (errno == ENOTSUP) {
+        stat.add(fmt::format("Network {}: status", index), "Not Supported");
+      } else {
+        stat.add(fmt::format("Network {}: status", index), "Error");
+        error_str = "ioctl error";
+      }
+
       stat.add(fmt::format("Network {}: interface name", index), ifa->ifa_name);
       stat.add("ioctl(SIOCGIFMTU)", strerror(errno));
-      error_str = "ioctl error";
+
       ++index;
       continue;
     }
@@ -129,10 +135,16 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
       // possibly wireless connection, get bitrate(MBit/s)
       speed = nl80211_.getBitrate(ifa->ifa_name);
       if (speed <= 0) {
-        stat.add(fmt::format("Network {}: status", index), "Error");
+        if (errno == ENOTSUP) {
+          stat.add(fmt::format("Network {}: status", index), "Not Supported");
+        } else {
+          stat.add(fmt::format("Network {}: status", index), "Error");
+          error_str = "ioctl error";
+        }
+
         stat.add(fmt::format("Network {}: interface name", index), ifa->ifa_name);
         stat.add("ioctl(SIOCETHTOOL)", strerror(errno));
-        error_str = "ioctl error";
+
         ++index;
         continue;
       }

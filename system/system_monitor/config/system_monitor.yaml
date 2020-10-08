@@ -1,7 +1,7 @@
 cpu_monitor:
   temp_warn: 90.0
   temp_error: 95.0
-  usage_warn:  0.90
+  usage_warn: 0.90
   usage_error: 1.00
   usage_avg: true
   load1_warn: 0.90
@@ -10,19 +10,16 @@ cpu_monitor:
 hdd_monitor:
   hdd_reader_port: 7635
   disks:
-  - name: /dev/sda
-    temp_warn: 55.0
-    temp_error: 70.0
-  - name: /dev/nvme0
-    temp_warn: 55.0
-    temp_error: 70.0
+    - name: /dev/sda
+      temp_warn: 55.0
+      temp_error: 70.0
   usage_warn: 0.95
   usage_error: 0.99
 mem_monitor:
   usage_warn: 0.95
   usage_error: 0.99
 net_monitor:
-  devices: [ '*' ]
+  devices: ["*"]
   usage_warn: 0.95
 ntp_monitor:
   server: ntp.nict.jp
@@ -33,7 +30,7 @@ process_monitor:
 gpu_monitor:
   temp_warn: 90.0
   temp_error: 95.0
-  gpu_usage_warn:  0.90
+  gpu_usage_warn: 0.90
   gpu_usage_error: 1.00
   memory_usage_warn: 0.95
   memory_usage_error: 0.99
