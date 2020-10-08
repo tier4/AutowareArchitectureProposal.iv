@@ -64,15 +64,6 @@ protected:
     diagnostic_updater::DiagnosticStatusWrapper & stat);  // NOLINT(runtime/references)
 
   /**
-   * @brief check the voltage of the input power
-   * @param [out] stat diagnostic message passed directly to diagnostic publish calls
-   * @note NOLINT syntax is needed since diagnostic_updater asks for a non-const reference
-   * to pass diagnostic message updated in this function to diagnostic publish calls.
-   */
-  void checkVoltageInput(
-    diagnostic_updater::DiagnosticStatusWrapper & stat);  // NOLINT(runtime/references)
-
-  /**
    * @brief check the motor rpm
    * @param [out] stat diagnostic message passed directly to diagnostic publish calls
    * @note NOLINT syntax is needed since diagnostic_updater asks for a non-const reference
@@ -100,20 +91,6 @@ protected:
   float convertTemperature(int raw);
 
   /**
-   * @brief convert raw diagnostic data to usable voltage value
-   * @param [in] raw raw diagnostic data
-   * @return usable voltage value
-   */
-  float convertVoltage(int raw);
-
-  /**
-   * @brief convert raw diagnostic data to usable ampere value
-   * @param [in] raw raw diagnostic data
-   * @return usable voltage value
-   */
-  float convertAmpere(int raw);
-
-  /**
    * @brief timer callback
    * @param [in] event timing information
    */
@@ -132,22 +109,12 @@ protected:
 
   std::string ip_address_;  //!< @brief Network IP address of sensor
   double timeout_;          //!< @brief timeout parameter
-  float v_in_warn_;         //!< @brief the input voltage threshold to generate a warning
-  float v_in_error_;        //!< @brief the input voltage threshold to generate an error
   float temp_cold_warn_;    //!< @brief the cold temperature threshold to generate a warning
   float temp_cold_error_;   //!< @brief the cold temperature threshold to generate an error
   float temp_hot_warn_;     //!< @brief the hot temperature threshold to generate a warning
   float temp_hot_error_;    //!< @brief the hot temperature threshold to generate an error
   float rpm_ratio_warn_;    //!< @brief the rpm threshold(%) to generate a warning
   float rpm_ratio_error_;   //!< @brief the rpm threshold(%) to generate an error
-
-  /**
-   * @brief Voltage status messages
-   */
-  const std::map<int, const char *> voltage_dict_ = {
-    {DiagStatus::OK, "OK"},
-    {DiagStatus::WARN, "Input voltage low"},
-    {DiagStatus::ERROR, "Input voltage too low"}};
 
   /**
    * @brief RPM status messages
