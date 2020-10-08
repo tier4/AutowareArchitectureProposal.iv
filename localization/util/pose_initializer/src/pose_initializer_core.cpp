@@ -86,8 +86,7 @@ void PoseInitializer::serviceInitial(
   const std::shared_ptr<autoware_localization_srvs::srv::PoseWithCovarianceStamped::Request> req,
   std::shared_ptr<autoware_localization_srvs::srv::PoseWithCovarianceStamped::Response> res)
 {
-  // TODO(nikolai)
-  // gnss_pose_sub_.shutdown();  // get only first topic
+  gnss_pose_sub_ = nullptr;  // get only first topic
 
   auto add_height_pose_msg_ptr = std::make_shared<geometry_msgs::msg::PoseWithCovarianceStamped>();
   getHeight(req->pose_with_cov, add_height_pose_msg_ptr);
@@ -113,8 +112,7 @@ void PoseInitializer::serviceInitial(
 void PoseInitializer::callbackInitialPose(
   geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr pose_cov_msg_ptr)
 {
-  // TODO(nikolai)
-  // gnss_pose_sub_.shutdown();  // get only first topic
+  gnss_pose_sub_ = nullptr;  // get only first topic
 
   auto add_height_pose_msg_ptr = std::make_shared<geometry_msgs::msg::PoseWithCovarianceStamped>();
   getHeight(*pose_cov_msg_ptr, add_height_pose_msg_ptr);
@@ -139,8 +137,7 @@ void PoseInitializer::callbackInitialPose(
 void PoseInitializer::callbackGNSSPoseCov(
   geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr pose_cov_msg_ptr)
 {
-  // TODO(nikolai)
-  // gnss_pose_sub_.shutdown();  // get only first topic
+  gnss_pose_sub_ = nullptr;  // get only first topic
 
   // TODO check service is available
 
