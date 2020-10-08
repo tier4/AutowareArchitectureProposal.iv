@@ -608,7 +608,7 @@ PathWithLaneId RouteHandler::getReferencePath(
   const double s_backward = std::max(0., s - backward_path_length);
   double s_forward = s + forward_path_length;
 
-  constexpr double buffer = 1.0;  // buffer for min_lane_change_length
+  const double buffer = parameter.backward_length_buffer_for_end_of_lane;  // buffer for min_lane_change_length
   const int num_lane_change = std::abs(getNumLaneToPreferredLane(lanelet_sequence.back()));
   const double lane_length = lanelet::utils::getLaneletLength2d(lanelet_sequence);
   const double lane_change_buffer =
