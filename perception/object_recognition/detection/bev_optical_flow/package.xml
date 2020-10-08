@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>bev_optical_flow</name>
+  <version>0.1.0</version>
+  <description>The bev_optical_flow package</description>
+
+  <maintainer email="taichi.higashide@tier4.jp">Taichi Higashide</maintainer>
+  <license>Apache2</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>image_transport</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>pcl_conversions</exec_depend>
+  <exec_depend>pcl_ros</exec_depend>
+  <exec_depend>tf</exec_depend>
+  <exec_depend>autoware_perception_msgs</exec_depend>
+  <exec_depend>eigen_conversions</exec_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>cv_bridge</build_depend>
+  <build_depend>image_transport</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>pcl_conversions</build_depend>
+  <build_depend>pcl_ros</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>autoware_perception_msgs</build_depend>
+  <build_depend>eigen_conversions</build_depend>
+
+  <export>
+  </export>
+
+</package>

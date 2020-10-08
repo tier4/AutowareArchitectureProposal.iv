@@ -1,0 +1,19 @@
+<launch>
+  <arg name="input_object" default="labeled_clusters" />
+  <arg name="input_flows" default="optical_flow_node/output/flows" />
+  <arg name="use_flow_pose" default="false" />
+  <arg name="flow_vel_thresh" default="10.0" />
+
+  <node name="object_flow_fusion_node"
+        pkg="object_flow_fusion" type="object_flow_fusion_node"
+        output="screen">
+    <remap from="~input_object" to="$(arg input_object)" />
+    <remap from="~input_flow" to="$(arg input_flows)" />
+    <rosparam subst_value="true">
+      is_approximate_sync: true
+      use_flow_pose: $(arg use_flow_pose)
+      flow_vel_thresh: $(arg flow_vel_thresh)
+    </rosparam>
+  </node>
+
+</launch>
