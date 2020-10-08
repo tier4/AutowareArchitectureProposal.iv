@@ -27,8 +27,6 @@ VelodyneMonitor::VelodyneMonitor()
 {
   pnh_.param<double>("timeout", timeout_, 0.05);
   pnh_.param<std::string>("ip_address", ip_address_, "192.168.1.201");
-  pnh_.param<float>("v_in_warn", v_in_warn_, 11.0);
-  pnh_.param<float>("v_in_error", v_in_error_, 9.0);
   pnh_.param<float>("temp_cold_warn", temp_cold_warn_, -5.0);
   pnh_.param<float>("temp_cold_error", temp_cold_error_, -10.0);
   pnh_.param<float>("temp_hot_warn", temp_hot_warn_, 75.0);
@@ -38,7 +36,6 @@ VelodyneMonitor::VelodyneMonitor()
 
   updater_.add("velodyne_connection", this, &VelodyneMonitor::checkConnection);
   updater_.add("velodyne_temperature", this, &VelodyneMonitor::checkTemperature);
-  updater_.add("velodyne_input", this, &VelodyneMonitor::checkVoltageInput);
   updater_.add("velodyne_rpm", this, &VelodyneMonitor::checkMotorRpm);
 
   auto config = client::http_client_config();
@@ -137,29 +134,6 @@ void VelodyneMonitor::checkTemperature(diagnostic_updater::DiagnosticStatusWrapp
   stat.summary(std::max(level_top, level_bot), boost::algorithm::join(msg, ", "));
 }
 
-void VelodyneMonitor::checkVoltageInput(diagnostic_updater::DiagnosticStatusWrapper & stat)
-{
-  int level = DiagStatus::OK;
-
-  if (!diag_json_received_) {
-    stat.summary(DiagStatus::ERROR, "Connection error");
-    return;
-  }
-
-  const float v_in = convertVoltage(diag_json_["volt_temp"]["bot"]["pwr_v_in"].as_integer());
-  const float i_out = convertAmpere(diag_json_["volt_temp"]["bot"]["i_out"].as_integer());
-
-  if (v_in < v_in_error_)
-    level = DiagStatus::ERROR;
-  else if (v_in < v_in_warn_)
-    level = DiagStatus::WARN;
-
-  stat.addf("V in", "%.3lf V", v_in);
-  stat.addf("I out", "%.3lf A", i_out);
-
-  stat.summary(level, voltage_dict_.at(level));
-}
-
 void VelodyneMonitor::checkMotorRpm(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   int level = DiagStatus::OK;
@@ -222,16 +196,6 @@ bool VelodyneMonitor::requestGET(
 float VelodyneMonitor::convertTemperature(int raw)
 {
   return std::sqrt(2.1962e6 + (1.8639 - static_cast<float>(raw) * 5.0 / 4096) / 3.88e-6) - 1481.96;
-}
-
-float VelodyneMonitor::convertVoltage(int raw)
-{
-  return 11.0 * static_cast<float>(raw) * 5.0 / 4096;
-}
-
-float VelodyneMonitor::convertAmpere(int raw)
-{
-  return 10.0 * (static_cast<float>(raw) * 5.0 / 4096 - 2.5);
 }
 
 void VelodyneMonitor::onTimer(const ros::TimerEvent & event) { updater_.force_update(); }
