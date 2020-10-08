@@ -6,7 +6,6 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  # add_compile_options(-Wall -Wextra -Wpedantic)
   add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
 endif()
 
@@ -31,8 +30,6 @@ ament_target_dependencies(geo_pos_conv rclcpp)
 ### Install library
 ament_export_targets(geo_pos_conv HAS_LIBRARY_TARGET)
 ament_export_dependencies(rclcpp)
-# ament_export_include_directories(include)
-# ament_export_libraries(geo_pos_conv)
 
 install(
   DIRECTORY include/
