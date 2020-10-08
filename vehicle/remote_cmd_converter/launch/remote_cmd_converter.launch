@@ -10,6 +10,8 @@
     <param name="csv_path_accel_map" value="$(arg csv_path_accel_map)" />
     <param name="csv_path_brake_map" value="$(arg csv_path_brake_map)" />
 
+    <param name="ref_vel_gain" value="$(arg ref_vel_gain)" />
+
     <remap from="~in/raw_control_cmd" to="/remote/raw_control_cmd" />
     <remap from="~in/shift_cmd" to="/remote/shift_cmd" />
     <remap from="~in/emergency" to="/remote/emergency" />
