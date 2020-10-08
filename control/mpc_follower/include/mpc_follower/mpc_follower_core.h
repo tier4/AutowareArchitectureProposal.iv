@@ -21,36 +21,8 @@
  * @date 2019.05.01
  */
 
+// TODO run linter or change guard manually according to google style
 #pragma once
-#include <unistd.h>
-#include <chrono>
-#include <deque>
-#include <iostream>
-#include <limits>
-#include <memory>
-#include <string>
-#include <vector>
-
-#include <geometry_msgs/Pose.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <ros/ros.h>
-#include <std_msgs/Float32.h>
-#include <std_msgs/Float32MultiArray.h>
-#include <std_msgs/Float64.h>
-#include <tf2/utils.h>
-#include <tf2_ros/transform_listener.h>
-#include <visualization_msgs/Marker.h>
-#include <visualization_msgs/MarkerArray.h>
-
-#include <dynamic_reconfigure/server.h>
-#include <mpc_follower/MPCFollowerConfig.h>
-
-#include <osqp_interface/osqp_interface.h>
-
-#include <autoware_control_msgs/ControlCommandStamped.h>
-#include <autoware_planning_msgs/Trajectory.h>
-#include <autoware_vehicle_msgs/Steering.h>
 
 #include "mpc_follower/interpolate.h"
 #include "mpc_follower/lowpass_filter.h"
@@ -62,11 +34,43 @@
 #include "mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics.h"
 #include "mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.h"
 
+#include <geometry_msgs/msg/pose.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/float32.hpp>
+#include <std_msgs/msg/float32_multi_array.hpp>
+#include <std_msgs/msg/float64.hpp>
+#include <tf2/utils.h>
+#include <tf2_ros/transform_listener.h>
+#include <visualization_msgs/msg/marker.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
+
+// TODO remove
+// #include <dynamic_reconfigure/server.h>
+// #include <mpc_follower/MPCFollowerConfig.h>
+
+#include <osqp_interface/osqp_interface.h>
+
+#include <autoware_control_msgs/msg/control_command_stamped.hpp>
+#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include <autoware_vehicle_msgs/msg/steering.hpp>
+
+// TODO don't think all of that is needed here, perhaps in implementation file
+#include <chrono>
+#include <deque>
+#include <iostream>
+#include <limits>
+#include <memory>
+#include <string>
+#include <unistd.h>
+#include <vector>
+
 /**
  * @class MPC-based waypoints follower class
  * @brief calculate control command to follow reference waypoints
  */
-class MPCFollower
+class MPCFollower : public rclcpp::Node
 {
 public:
   /**
@@ -77,17 +81,18 @@ public:
   /**
    * @brief destructor
    */
-  ~MPCFollower();
+  virtual ~MPCFollower();
 
 private:
-  ros::NodeHandle nh_;                  //!< @brief ros node handle
-  ros::NodeHandle pnh_;                 //!< @brief private ros node handle
-  ros::Publisher pub_ctrl_cmd_;         //!< @brief topic publisher for control command
-  ros::Publisher pub_debug_steer_cmd_;  //!< @brief topic publisher for control command
-  ros::Subscriber sub_ref_path_;        //!< @brief topic subscriber for reference waypoints
-  ros::Subscriber sub_steering_;        //!< @brief subscriber for currrent steering
-  ros::Subscriber sub_current_vel_;     //!< @brief subscriber for currrent velocity
-  ros::Timer timer_control_;            //!< @brief timer for control command computation
+  // TODO call clang-format when code builds
+  rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr pub_ctrl_cmd_;         //!< @brief topic publisher for control command
+  rclcpp::Publisher<autoware_vehicle_msgs::msg::Steering>::SharedPtr pub_debug_steer_cmd_;  //!< @brief topic publisher for control command
+  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_ref_path_;        //!< @brief topic subscription for reference waypoints
+  rclcpp::Subscription<autoware_vehicle_msgs::msg::Steering>::SharedPtr sub_steering_;        //!< @brief subscription for currrent steering
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_vel_;     //!< @brief subscription for currrent velocity
+
+  rclcpp::TimerBase::SharedPtr timer_;  //!< @brief timer to update after a given interval
+  void initTimer(double period_s);   //!< initialize timer to work in real, simulation, and replay
 
   MPCTrajectory ref_traj_;                //!< @brief reference trajectory to be followed
   Butterworth2dFilter lpf_steering_cmd_;  //!< @brief lowpass filter for steering command
@@ -157,11 +162,11 @@ private:
     Eigen::MatrixXd Yrefex;
   };
 
-  std::shared_ptr<geometry_msgs::PoseStamped> current_pose_ptr_;  //!< @brief current measured pose
-  std::shared_ptr<geometry_msgs::TwistStamped>
+  std::shared_ptr<geometry_msgs::msg::PoseStamped> current_pose_ptr_;  //!< @brief current measured pose
+  std::shared_ptr<geometry_msgs::msg::TwistStamped>
     current_velocity_ptr_;                     //!< @brief current measured velocity
   std::shared_ptr<double> current_steer_ptr_;  //!< @brief current measured steering
-  std::shared_ptr<autoware_planning_msgs::Trajectory>
+  std::shared_ptr<autoware_planning_msgs::msg::Trajectory>
     current_trajectory_ptr_;  //!< @brief referece trajectory
 
   double raw_steer_cmd_prev_;  //< @brief steering command calculated by mpc in previous period
@@ -178,12 +183,12 @@ private:
   /**
    * @brief compute and publish control command for path follow with a constant control period
    */
-  void timerCallback(const ros::TimerEvent &);
+  void timerCallback();
 
   /**
-   * @brief set current_trajectory_ with receved message
+   * @brief set current_trajectory_ with received message
    */
-  void callbackTrajectory(const autoware_planning_msgs::Trajectory::ConstPtr &);
+  void callbackTrajectory(autoware_planning_msgs::msg::Trajectory::SharedPtr);
 
   /**
    * @brief update current_pose from tf
@@ -200,29 +205,29 @@ private:
    */
   bool getVar(
     const MPCTrajectory & traj, int * closest_idx, double * closest_time,
-    geometry_msgs::Pose * closest_pose, double * steer, double * lat_err, double * yaw_err);
+    geometry_msgs::msg::Pose * closest_pose, double * steer, double * lat_err, double * yaw_err);
 
   /**
-   * @brief set curent_steer with receved message
+   * @brief set current_steer with received message
    */
-  void callbackSteering(const autoware_vehicle_msgs::Steering & msg);
+  void callbackSteering(autoware_vehicle_msgs::msg::Steering::SharedPtr msg);
 
   /**
-   * @brief set current_velocity with receved message
+   * @brief set current_velocity with received message
    */
-  void callbackCurrentVelocity(const geometry_msgs::TwistStamped::ConstPtr & msg);
+  void callbackCurrentVelocity(geometry_msgs::msg::TwistStamped::SharedPtr msg);
 
   /**
    * @brief publish control command as autoware_msgs/ControlCommand type
    * @param [in] cmd published control command
    */
-  void publishCtrlCmd(const autoware_control_msgs::ControlCommand & cmd);
+  void publishCtrlCmd(const autoware_control_msgs::msg::ControlCommand & cmd);
 
   /**
    * @brief calculate control command by MPC algorithm
    * @param [out] cmd calculated control command with mpc algorithm
    */
-  bool calculateMPC(autoware_control_msgs::ControlCommand * cmd);
+  bool calculateMPC(autoware_control_msgs::msg::ControlCommand * cmd);
 
   /**
    * @brief set initial condition for mpc
@@ -256,7 +261,7 @@ private:
   /**
    * @brief get stop command
    */
-  autoware_control_msgs::ControlCommand getStopControlCommand() const;
+  autoware_control_msgs::msg::ControlCommand getStopControlCommand() const;
 
   bool resampleMPCTrajectoryByTime(
     double start_time, const MPCTrajectory & input, MPCTrajectory * output) const;
@@ -265,32 +270,32 @@ private:
   void addSteerWeightR(Eigen::MatrixXd * R) const;
   void addSteerWeightF(Eigen::MatrixXd * f) const;
 
+  // TODO reenable and keep member variables but drop dynamic_reconfigure::Server
   /* dynamic reconfigure */
-  dynamic_reconfigure::Server<mpc_follower::MPCFollowerConfig> dyncon_server_;
-  void dynamicRecofCallback(mpc_follower::MPCFollowerConfig & config, uint32_t level)
-  {
-    mpc_param_.prediction_horizon = config.mpc_prediction_horizon;
-    mpc_param_.prediction_dt = config.mpc_prediction_dt;
-    mpc_param_.weight_lat_error = config.mpc_weight_lat_error;
-    mpc_param_.weight_heading_error = config.mpc_weight_heading_error;
-    mpc_param_.weight_heading_error_squared_vel = config.mpc_weight_heading_error_squared_vel;
-    mpc_param_.weight_steering_input = config.mpc_weight_steering_input;
-    mpc_param_.weight_steering_input_squared_vel = config.mpc_weight_steering_input_squared_vel;
-    mpc_param_.weight_lat_jerk = config.mpc_weight_lat_jerk;
-    mpc_param_.weight_steer_rate = config.mpc_weight_steer_rate;
-    mpc_param_.weight_steer_acc = config.mpc_weight_steer_acc;
-    mpc_param_.weight_terminal_lat_error = config.mpc_weight_terminal_lat_error;
-    mpc_param_.weight_terminal_heading_error = config.mpc_weight_terminal_heading_error;
-    mpc_param_.zero_ff_steer_deg = config.mpc_zero_ff_steer_deg;
-    mpc_param_.acceleration_limit = config.acceleration_limit;
-    mpc_param_.velocity_time_constant = config.velocity_time_constant;
-  }
+  // dynamic_reconfigure::Server<mpc_follower::MPCFollowerConfig> dyncon_server_;
+  // void dynamicRecofCallback(mpc_follower::MPCFollowerConfig & config, uint32_t level)
+  // {
+  //   mpc_param_.prediction_horizon = config.mpc_prediction_horizon;
+  //   mpc_param_.prediction_dt = config.mpc_prediction_dt;
+  //   mpc_param_.weight_lat_error = config.mpc_weight_lat_error;
+  //   mpc_param_.weight_heading_error = config.mpc_weight_heading_error;
+  //   mpc_param_.weight_heading_error_squared_vel = config.mpc_weight_heading_error_squared_vel;
+  //   mpc_param_.weight_steering_input = config.mpc_weight_steering_input;
+  //   mpc_param_.weight_steering_input_squared_vel = config.mpc_weight_steering_input_squared_vel;
+  //   mpc_param_.weight_lat_jerk = config.mpc_weight_lat_jerk;
+  //   mpc_param_.weight_steer_rate = config.mpc_weight_steer_rate;
+  //   mpc_param_.weight_steer_acc = config.mpc_weight_steer_acc;
+  //   mpc_param_.weight_terminal_lat_error = config.mpc_weight_terminal_lat_error;
+  //   mpc_param_.weight_terminal_heading_error = config.mpc_weight_terminal_heading_error;
+  //   mpc_param_.zero_ff_steer_deg = config.mpc_zero_ff_steer_deg;
+  //   mpc_param_.acceleration_limit = config.acceleration_limit;
+  //   mpc_param_.velocity_time_constant = config.velocity_time_constant;
+  // }
 
   /* ---------- debug ---------- */
   bool show_debug_info_;  //!< @brief flag to display debug info
-  ros::Publisher pub_debug_marker_;
-  ros::Publisher pub_debug_values_;             //!< @brief publisher for debug info
-  ros::Publisher pub_debug_mpc_calc_time_;      //!< @brief publisher for debug info
-  ros::Subscriber sub_estimate_twist_;          //!< @brief subscriber for /estimate_twist for debug
-  geometry_msgs::TwistStamped estimate_twist_;  //!< @brief received /estimate_twist for debug
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_debug_marker_;
+  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr pub_debug_values_;             //!< @brief publisher for debug info
+  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr pub_debug_mpc_calc_time_;      //!< @brief publisher for debug info
+  geometry_msgs::msg::TwistStamped estimate_twist_;  //!< @brief received /estimate_twist for debug
 };

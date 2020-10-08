@@ -18,8 +18,8 @@
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "mpc_follower");
-  MPCFollower obj;
-  ros::spin();
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<MPCFollower>());
+  rclcpp::shutdown();
   return 0;
-};
+}

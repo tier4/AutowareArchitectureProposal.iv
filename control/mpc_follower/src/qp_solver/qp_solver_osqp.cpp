@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 #include "mpc_follower/qp_solver/qp_solver_osqp.h"
-#include <ros/ros.h>
 
-QPSolverOSQP::QPSolverOSQP() {}
+QPSolverOSQP::QPSolverOSQP(const rclcpp::Logger & logger)  : logger_{logger} {}
 bool QPSolverOSQP::solve(
   const Eigen::MatrixXd & Hmat, const Eigen::MatrixXd & fvec, const Eigen::MatrixXd & A,
   const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lbA,
@@ -47,7 +46,7 @@ bool QPSolverOSQP::solve(
   osqpA << I, A;
 
   /* execute optimization */
-  auto result = osqpsolver.optimize(Hmat, osqpA, f, lower_bound, upper_bound);
+  auto result = osqpsolver_.optimize(Hmat, osqpA, f, lower_bound, upper_bound);
 
   std::vector<double> U_osqp = std::get<0>(result);
   U = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1> >(&U_osqp[0], U_osqp.size(), 1);
@@ -55,11 +54,11 @@ bool QPSolverOSQP::solve(
   // polish status: successful (1), unperformed (0), (-1) unsuccessful
   int status_polish = std::get<2>(result);
   if (status_polish == -1) {
-    ROS_WARN("osqp status_polish = %d (unsuccessful)", status_polish);
+    RCLCPP_WARN(logger_, "osqp status_polish = %d (unsuccessful)", status_polish);
     return false;
   }
   if (status_polish == 0) {
-    ROS_WARN("osqp status_polish = %d (unperformed)", status_polish);
+    RCLCPP_WARN(logger_, "osqp status_polish = %d (unperformed)", status_polish);
     return true;
   }
   return true;

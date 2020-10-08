@@ -23,12 +23,13 @@
 
 #pragma once
 
-#include <osqp_interface/osqp_interface.h>
-#include <cmath>
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Dense>
-#include <eigen3/Eigen/LU>
 #include "mpc_follower/qp_solver/qp_solver_interface.h"
+#include <osqp_interface/osqp_interface.h>
+#include <rclcpp/rclcpp.hpp>
+#include <eigen3/Eigen/Core> // TODO needed here?
+#include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/LU> // TODO not needed here
+#include <cmath> // TODO not needed here
 
 class QPSolverOSQP : public QPSolverInterface
 {
@@ -36,12 +37,12 @@ public:
   /**
    * @brief constructor
    */
-  QPSolverOSQP();
+  QPSolverOSQP(const rclcpp::Logger & logger);
 
   /**
    * @brief destructor
    */
-  ~QPSolverOSQP() = default;
+  virtual ~QPSolverOSQP() = default;
 
   /**
    * @brief solve QP problem : minimize J = U' * Hmat * U + fvec' * U without constraint
@@ -61,5 +62,6 @@ public:
     const Eigen::VectorXd & ubA, Eigen::VectorXd & U) override;
 
 private:
-  osqp::OSQPInterface osqpsolver;
+  osqp::OSQPInterface osqpsolver_;
+  rclcpp::Logger logger_;
 };

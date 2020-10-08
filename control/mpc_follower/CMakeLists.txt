@@ -1,46 +1,25 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(mpc_follower)
 
-add_compile_options(-std=c++14 -Wall -Werror)
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
-find_package(
-  catkin REQUIRED COMPONENTS
-  geometry_msgs
-  roscpp
-  rostest
-  rosunit
-  std_msgs
-  tf2
-  tf2_ros
-  autoware_planning_msgs
-  autoware_control_msgs
-  autoware_vehicle_msgs
-  osqp_interface
-  dynamic_reconfigure
-)
+# add_compile_options(-std=c++14 -Wall -Werror)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  # TODO add -Werror after all else builds
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
-generate_dynamic_reconfigure_options(cfg/MPCFollower.cfg)
+# TODO dynamic_reconfigure not part of dependencies in XML
+# generate_dynamic_reconfigure_options(cfg/MPCFollower.cfg)
 
-catkin_package(
-  INCLUDE_DIRS include
-  CATKIN_DEPENDS
-    geometry_msgs
-    roscpp
-    std_msgs
-    tf2
-    tf2_ros
-    autoware_planning_msgs
-    autoware_control_msgs
-    autoware_vehicle_msgs
-    osqp_interface
-)
-
-SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
-
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-)
+# TODO These flags shouldn't be set here but in the cmake release type. And they definitely shouldn't be set without checking the compiler; i.e., that would just fail on windows
+# SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
 
 set(MPC_FOLLOWER_SRC
   src/mpc_utils.cpp
@@ -55,30 +34,24 @@ set(MPC_FOLLOWER_SRC
   src/qp_solver/qp_solver_osqp.cpp
 )
 
-add_executable(mpc_follower src/mpc_follower_node.cpp src/mpc_follower_core.cpp ${MPC_FOLLOWER_SRC})
-add_dependencies(mpc_follower ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} mpc_follower_gencfg)
-target_link_libraries(mpc_follower ${catkin_LIBRARIES})
+# TODO remove when OSQP in CI and osqp_interface merged
+# ----
+find_package(osqp REQUIRED)
+get_target_property(osqp_INCLUDE_DIR osqp::osqpstatic INTERFACE_INCLUDE_DIRECTORIES)
+include_directories(
+  ${osqp_INCLUDE_DIR}
+  )
+# ---
 
-install(
-  TARGETS mpc_follower
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+ament_auto_add_executable(mpc_follower src/mpc_follower_node.cpp src/mpc_follower_core.cpp ${MPC_FOLLOWER_SRC})
 
-catkin_install_python(
-  PROGRAMS src/steer_simulator.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+# TODO do we need to do anything manually? check install/
+# catkin_install_python(
+#   PROGRAMS src/steer_simulator.py
+#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
 
-install(
-  DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-)
-
-install(
-  DIRECTORY
+ament_auto_package(
+  INSTALL_TO_SHARE
     launch
-    config
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

@@ -15,7 +15,7 @@
  */
 
 #include <gtest/gtest.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <amathutils_lib/amathutils.hpp>
 #include <cmath>
 #include "mpc_follower/mpc_utils.h"
@@ -147,8 +147,8 @@ TEST(TestSuite, TestCalcNearestPose)
   traj.push_back(1.0, 1.0, 0.0, M_PI / 4.0, 1.0, 0.0, 1.0);
   traj.push_back(2.0, 2.0, 0.0, M_PI / 4.0, 1.0, 0.0, 2.0);
 
-  geometry_msgs::Pose self_pose;
-  geometry_msgs::Pose nearest_pose;
+  geometry_msgs::msg::Pose self_pose;
+  geometry_msgs::msg::Pose nearest_pose;
   unsigned int nearest_index;
   double min_dist_error, nearest_yaw_error, nearest_time;
 
@@ -292,6 +292,6 @@ TEST(TestSuite, TestMPCTrajSize)
 int main(int argc, char ** argv)
 {
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "TestNode");
+  rclcpp::init(argc, argv, "TestNode");
   return RUN_ALL_TESTS();
 }

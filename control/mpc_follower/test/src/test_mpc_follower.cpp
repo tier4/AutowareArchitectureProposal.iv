@@ -15,13 +15,13 @@
  */
 
 #include <gtest/gtest.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <cmath>
 #include <iostream>
 
-#include <autoware_msgs/ControlCommand.h>
-#include <autoware_msgs/Lane.h>
-#include <autoware_msgs/VehicleStatus.h>
+#include <autoware_msgs/msg/ControlCommand.hpp>
+#include <autoware_msgs/msg/Lane.hpp>
+#include <autoware_msgs/msg/VehicleStatus.hpp>
 #include <amathutils_lib/amathutils.hpp>
 #include "amathutils_lib/amathutils.hpp"
 #include "mpc_follower/mpc_follower_core.h"
@@ -32,10 +32,10 @@ class TestSuite : public ::testing::Test
 public:
   TestSuite() : nh_(""), pnh_("~")
   {
-    pub_pose_ = nh_.advertise<geometry_msgs::PoseStamped>("current_pose", 1);
-    pub_vs_ = nh_.advertise<autoware_msgs::VehicleStatus>("vehicle_status", 1);
-    pub_lane_ = nh_.advertise<autoware_msgs::Lane>("base_waypoints", 1);
-    pub_estimate_twist_ = nh_.advertise<geometry_msgs::TwistStamped>("estimate_twist", 1);
+    pub_pose_ = nh_.advertise<geometry_msgs::msg::PoseStamped>("current_pose", 1);
+    pub_vs_ = nh_.advertise<autoware_msgs::msg::VehicleStatus>("vehicle_status", 1);
+    pub_lane_ = nh_.advertise<autoware_msgs::msg::Lane>("base_waypoints", 1);
+    pub_estimate_twist_ = nh_.advertise<geometry_msgs::msg::TwistStamped>("estimate_twist", 1);
     sub_twist_ = nh_.subscribe("twist_raw", 1, &TestSuite::callbackTwistRaw, this);
     sub_ctrl_cmd_ = nh_.subscribe("ctrl_raw", 1, &TestSuite::callbackCtrlCmd, this);
     spin_duration_ = 0.05;
@@ -43,38 +43,38 @@ public:
   }
   ~TestSuite() {}
 
-  ros::NodeHandle nh_, pnh_;
-  ros::Subscriber sub_twist_, sub_ctrl_cmd_;
-  ros::Publisher pub_pose_, pub_vs_, pub_lane_, pub_estimate_twist_;
-  geometry_msgs::TwistStamped twist_raw_;
-  autoware_msgs::ControlCommandStamped ctrl_cmd_;
+  rclcpp::NodeHandle nh_, pnh_;
+  rclcpp::Subscriber sub_twist_, sub_ctrl_cmd_;
+  rclcpp::Publisher pub_pose_, pub_vs_, pub_lane_, pub_estimate_twist_;
+  geometry_msgs::msg::TwistStamped twist_raw_;
+  autoware_msgs::msg::ControlCommandStamped ctrl_cmd_;
   double spin_duration_;
   int spin_loopnum_;
 
-  void callbackTwistRaw(const geometry_msgs::TwistStamped & twist) { twist_raw_ = twist; }
-  void callbackCtrlCmd(const autoware_msgs::ControlCommandStamped & cmd) { ctrl_cmd_ = cmd; }
+  void callbackTwistRaw(const geometry_msgs::msg::TwistStamped & twist) { twist_raw_ = twist; }
+  void callbackCtrlCmd(const autoware_msgs::msg::ControlCommandStamped & cmd) { ctrl_cmd_ = cmd; }
 
   void publishEstimateTwist()
   {
-    geometry_msgs::TwistStamped twist;
+    geometry_msgs::msg::TwistStamped twist;
     twist.header.frame_id = "base_link";
     for (int i = 0; i < spin_loopnum_; ++i) {
-      twist.header.stamp = ros::Time::now();
+      twist.header.stamp = rclcpp::Time::now();
       pub_estimate_twist_.publish(twist);
-      ros::spinOnce();
-      ros::Duration(spin_duration_).sleep();
+      rclcpp::spinOnce();
+      rclcpp::Duration(spin_duration_).sleep();
     }
   }
 
   void publishMsgs(
-    geometry_msgs::PoseStamped & pose, autoware_msgs::VehicleStatus & vs, double wp_vx,
+    geometry_msgs::msg::PoseStamped & pose, autoware_msgs::msg::VehicleStatus & vs, double wp_vx,
     double wp_wz, double wp_dt, double wp_x_ini, double wp_y_ini, double wp_yaw_ini)
   {
     double x = wp_x_ini;
     double y = wp_y_ini;
     double yaw = wp_yaw_ini;
-    autoware_msgs::Lane lane;
-    autoware_msgs::Waypoint wp;
+    autoware_msgs::msg::Lane lane;
+    autoware_msgs::msg::Waypoint wp;
     for (int i = 0; i < 50; ++i) {
       wp.pose.pose.position.x = x;
       wp.pose.pose.position.y = y;
@@ -88,15 +88,15 @@ public:
     }
 
     for (int i = 0; i < spin_loopnum_; ++i) {
-      ros::Time current_time = ros::Time::now();
+      rclcpp::Time current_time = rclcpp::Time::now();
       pose.header.stamp = current_time;
       vs.header.stamp = current_time;
       lane.header.stamp = current_time;
       pub_pose_.publish(pose);
       pub_vs_.publish(vs);
       pub_lane_.publish(lane);
-      ros::spinOnce();
-      ros::Duration(spin_duration_).sleep();
+      rclcpp::spinOnce();
+      rclcpp::Duration(spin_duration_).sleep();
     }
   }
 
@@ -104,16 +104,16 @@ public:
   {
     MPCFollower mpc_follower;
 
-    geometry_msgs::PoseStamped current_pose;
+    geometry_msgs::msg::PoseStamped current_pose;
     current_pose.pose.position.y =
       1.0;  // vehicle position is on the RIGHT side of the path -> turning LEFT
     current_pose.pose.orientation.w = 1.0;
 
-    autoware_msgs::VehicleStatus vs;
+    autoware_msgs::msg::VehicleStatus vs;
     vs.speed = 0.0;
     vs.angle = 0.0;
 
-    // autoware_msgs::Lane lane;
+    // autoware_msgs::msg::Lane lane;
     const double vx = 1.0;
     const double wz = 0.1;
     const double dt = 1.0;
@@ -131,16 +131,16 @@ public:
   {
     MPCFollower mpc_follower;
 
-    geometry_msgs::PoseStamped current_pose;
+    geometry_msgs::msg::PoseStamped current_pose;
     current_pose.pose.position.y =
       -1.0;  // vehicle position is on the LEFT side of the path -> turning RIGHT
     current_pose.pose.orientation.w = 1.0;
 
-    autoware_msgs::VehicleStatus vs;
+    autoware_msgs::msg::VehicleStatus vs;
     vs.speed = 0.0;
     vs.angle = 0.0;
 
-    // autoware_msgs::Lane lane;
+    // autoware_msgs::msg::Lane lane;
     const double vx = 1.0;
     const double wz = -0.1;
     const double dt = 1.0;
@@ -163,15 +163,15 @@ TEST_F(TestSuite, TestMPCFollower)
 
     publishEstimateTwist();
 
-    geometry_msgs::PoseStamped current_pose;
+    geometry_msgs::msg::PoseStamped current_pose;
     current_pose.pose.position.y = 1.0;
     current_pose.pose.orientation.w = 1.0;
 
-    autoware_msgs::VehicleStatus vs;
+    autoware_msgs::msg::VehicleStatus vs;
     vs.speed = 0.0;
     vs.angle = 0.0;
 
-    // autoware_msgs::Lane lane;
+    // autoware_msgs::msg::Lane lane;
     const double vx = 1.0;
     const double wz = 0.1;
     const double dt = 1.0;
@@ -181,11 +181,11 @@ TEST_F(TestSuite, TestMPCFollower)
     publishMsgs(current_pose, vs, vx, wz, dt, x, y, yaw);
 
     // then, publish invalid path
-    autoware_msgs::Lane empty_lane;
+    autoware_msgs::msg::Lane empty_lane;
     for (int i = 0; i < spin_loopnum_; ++i) {
       pub_lane_.publish(empty_lane);
-      ros::spinOnce();
-      ros::Duration(spin_duration_).sleep();
+      rclcpp::spinOnce();
+      rclcpp::Duration(spin_duration_).sleep();
     }
 
     ASSERT_TRUE(std::isfinite(twist_raw_.twist.linear.x))
@@ -202,17 +202,17 @@ TEST_F(TestSuite, TestMPCFollower)
   {
     MPCFollower mpc_follower;
 
-    geometry_msgs::PoseStamped current_pose;
+    geometry_msgs::msg::PoseStamped current_pose;
     current_pose.pose.position.y = 1.0;  // first publish valid value
     current_pose.pose.orientation.w = 1.0;
 
-    autoware_msgs::VehicleStatus vs;
+    autoware_msgs::msg::VehicleStatus vs;
     vs.speed = 0.0;
     vs.speed = 0.0;
     vs.speed = 0.0;
     vs.angle = 0.0;
 
-    // autoware_msgs::Lane lane;
+    // autoware_msgs::msg::Lane lane;
     const double vx = 1.0;
     const double wz = 0.1;
     const double dt = 1.0;
@@ -243,19 +243,19 @@ TEST_F(TestSuite, TestMPCFollower)
 
     MPCFollower mpc_follower;
 
-    geometry_msgs::PoseStamped current_pose;
+    geometry_msgs::msg::PoseStamped current_pose;
     current_pose.pose.position.y = 1.0;
     current_pose.pose.position.y = 1.0;
     current_pose.pose.position.y = 1.0;
     current_pose.pose.orientation.w = 1.0;
 
-    autoware_msgs::VehicleStatus vs;
+    autoware_msgs::msg::VehicleStatus vs;
     vs.speed = 0.0;
     vs.speed = 0.0;
     vs.speed = 0.0;
     vs.angle = 0.0;  // first publish valid value
 
-    // autoware_msgs::Lane lane;
+    // autoware_msgs::msg::Lane lane;
     const double vx = 3.28;
     const double wz = 0.1;
     const double dt = 1.0;
@@ -279,8 +279,8 @@ TEST_F(TestSuite, TestMPCFollower)
   {
     MPCFollower mpc_follower;
     for (int i = 0; i < spin_loopnum_; ++i) {
-      ros::spinOnce();
-      ros::Duration(spin_duration_).sleep();
+      rclcpp::spinOnce();
+      rclcpp::Duration(spin_duration_).sleep();
     }
     ASSERT_DOUBLE_EQ(0.0, twist_raw_.twist.linear.x)
       << "no messages published, zero speed command is expected";
@@ -321,6 +321,6 @@ TEST_F(TestSuite, TestMPCFollower)
 int main(int argc, char ** argv)
 {
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "TestNode");
+  rclcpp::init(argc, argv, "TestNode");
   return RUN_ALL_TESTS();
 }

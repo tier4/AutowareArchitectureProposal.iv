@@ -15,7 +15,7 @@
  */
 
 #include <gtest/gtest.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <cmath>
 #include <iostream>
 
@@ -71,6 +71,6 @@ TEST_F(TestSuite, TestButterworthFilter)
 int main(int argc, char ** argv)
 {
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "TestNode");
+  rclcpp::init(argc, argv, "TestNode");
   return RUN_ALL_TESTS();
 }
