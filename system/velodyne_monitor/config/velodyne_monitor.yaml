@@ -1,6 +1,4 @@
 timeout: 0.05
-v_in_warn: 11.0
-v_in_error: 9.0
 temp_cold_warn: -5.0
 temp_cold_error: -10.0
 temp_hot_warn: 75.0
