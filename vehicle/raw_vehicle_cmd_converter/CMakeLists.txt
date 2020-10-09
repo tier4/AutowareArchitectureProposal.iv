@@ -10,10 +10,6 @@ endif()
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-include_directories(
-  include
-)
-
 ament_auto_add_library(accel_map_converter SHARED
   src/accel_map.cpp
   src/brake_map.cpp
