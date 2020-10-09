@@ -50,7 +50,7 @@ class InitialPoseButtonPanel : public rviz_common::Panel
 {
   Q_OBJECT
 public:
-  InitialPoseButtonPanel(QWidget * parent = 0);
+  InitialPoseButtonPanel(QWidget * parent = nullptr);
   void callbackPoseCov(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg);
 
 public Q_SLOTS:
@@ -66,8 +66,6 @@ protected:
   QLineEdit * topic_edit_;
   QPushButton * initialize_button_;
   QLabel * status_label_;
-
-  rviz_common::properties::RosTopicProperty * property_topic_;
 
   geometry_msgs::msg::PoseWithCovarianceStamped pose_cov_msg_;
 };
