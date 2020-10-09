@@ -22,7 +22,8 @@
 GNSSPoser::GNSSPoser()
 : Node("gnss_poser"),
   tf2_listener_(tf2_buffer_),
-  tf2_broadcaster_(this)
+  tf2_broadcaster_(this),
+  clock_(RCL_ROS_TIME)
 {
   int coordinate_system = declare_parameter("coordinate_system", static_cast<int>(CoordinateSystem::MGRS));
   coordinate_system_ = static_cast<CoordinateSystem>(coordinate_system);
@@ -63,7 +64,7 @@ void GNSSPoser::callbackNavSatFix(const sensor_msgs::msg::NavSatFix::ConstShared
   fixed_pub_->publish(is_fixed_msg);
 
   if (!is_fixed) {
-    // ROS_WARN_STREAM_THROTTLE(1, "Not Fixed Topic. Skipping Calculate.");
+    RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), clock_, 1, "Not Fixed Topic. Skipping Calculate.");
     return;
   }
 
@@ -74,7 +75,7 @@ void GNSSPoser::callbackNavSatFix(const sensor_msgs::msg::NavSatFix::ConstShared
   // calc median position
   position_buffer_.push_front(position);
   if (!position_buffer_.full()) {
-    // ROS_WARN_STREAM_THROTTLE(1, "Buffering Position. Output Skipped.");
+    RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), clock_, 1, "Buffering Position. Output Skipped.");
     return;
   }
   const auto median_position = getMedianPosition(position_buffer_);
@@ -152,13 +153,13 @@ GNSSStat GNSSPoser::convert(
 {
   GNSSStat gnss_stat;
   if (coordinate_system == CoordinateSystem::UTM) {
-    gnss_stat = NavSatFix2UTM(nav_sat_fix_msg);
+    gnss_stat = NavSatFix2UTM(nav_sat_fix_msg, this->get_logger());
   } else if (coordinate_system == CoordinateSystem::MGRS) {
-    gnss_stat = NavSatFix2MGRS(nav_sat_fix_msg, MGRSPrecision::_100MICRO_METER);
+    gnss_stat = NavSatFix2MGRS(nav_sat_fix_msg, MGRSPrecision::_100MICRO_METER, this->get_logger());
   } else if (coordinate_system == CoordinateSystem::PLANE) {
-    gnss_stat = NavSatFix2PLANE(nav_sat_fix_msg, plane_zone_);
+    gnss_stat = NavSatFix2PLANE(nav_sat_fix_msg, plane_zone_, this->get_logger());
   } else {
-    // ROS_ERROR_STREAM_THROTTLE(1, "Unknown Coordinate System");
+    RCLCPP_ERROR_STREAM_THROTTLE(this->get_logger(), clock_, 1, "Unknown Coordinate System");
   }
   return gnss_stat;
 }
@@ -248,9 +249,9 @@ bool GNSSPoser::getTransform(
     *transform_stamped_ptr =
       tf2_buffer_.lookupTransform(target_frame, source_frame, tf2::TimePointZero);
   } catch (tf2::TransformException & ex) {
-    // ROS_WARN_STREAM_THROTTLE(1, ex.what());
-    // ROS_WARN_STREAM_THROTTLE(
-    //   1, "Please publish TF " << target_frame.c_str() << " to " << source_frame.c_str());
+    RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), clock_, 1, ex.what());
+    RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), clock_,
+      1, "Please publish TF " << target_frame.c_str() << " to " << source_frame.c_str());
 
     transform_stamped_ptr->header.stamp = rclcpp::Node::now();
     transform_stamped_ptr->header.frame_id = target_frame;
@@ -293,9 +294,9 @@ bool GNSSPoser::getStaticTransform(
       std::chrono::nanoseconds(stamp.nanosec)
     ));
   } catch (tf2::TransformException & ex) {
-    // ROS_WARN_STREAM_THROTTLE(1, ex.what());
-    // ROS_WARN_STREAM_THROTTLE(
-    //   1, "Please publish TF " << target_frame.c_str() << " to " << source_frame.c_str());
+    RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), clock_, 1, ex.what());
+    RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), clock_, 
+      1, "Please publish TF " << target_frame.c_str() << " to " << source_frame.c_str());
 
     transform_stamped_ptr->header.stamp = stamp;
     transform_stamped_ptr->header.frame_id = target_frame;
