@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#pragma once
+#ifndef GNSS_STAT_HPP_
+#define GNSS_STAT_HPP_
 
-namespace GNSSPoser
-{
 enum class CoordinateSystem {
   UTM = 0,
   MGRS = 1,
@@ -49,4 +48,4 @@ struct GNSSStat
   double altitude;
 };
 
-}  // namespace GNSSPoser
+#endif
