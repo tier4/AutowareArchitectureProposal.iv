@@ -45,9 +45,9 @@ private:
 
   AccelMap accel_map_;
   BrakeMap brake_map_;
-  bool acc_map_initialized_;
-  double max_throttle_;
-  double max_brake_;
+  bool acc_map_initialized_;  //!< @brief flag to manage validity of imported accel map files
+  double max_throttle_;  //!< @brief maximum throttle that can be passed to low level controller. In general [0.0, 1.0]
+  double max_brake_;  //!< @brief maximum brake value that can be passed to low level controller. In general [0.0, 1.0]
 
   void callbackVehicleCmd(const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr vehicle_cmd_ptr);
   void callbackVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
