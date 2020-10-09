@@ -164,10 +164,10 @@ void MissionPlannerLanelet2::visualizeRoute(const autoware_planning_msgs::Route 
   }
 
   std_msgs::ColorRGBA cl_route, cl_ll_borders, cl_end, cl_normal, cl_goal;
-  setColor(&cl_route, 0.0, 0.7, 0.2, 0.2);
-  setColor(&cl_goal, 0.0, 0.7, 0.7, 0.2);
-  setColor(&cl_end, 0.0, 0.2, 0.7, 0.2);
-  setColor(&cl_normal, 0.0, 0.7, 0.2, 0.2);
+  setColor(&cl_route, 0.2, 0.4, 0.2, 0.05);
+  setColor(&cl_goal, 0.2, 0.4, 0.4, 0.05);
+  setColor(&cl_end, 0.2, 0.2, 0.4, 0.05);
+  setColor(&cl_normal, 0.2, 0.4, 0.2, 0.05);
   setColor(&cl_ll_borders, 1.0, 1.0, 1.0, 0.999);
 
   visualization_msgs::MarkerArray route_marker_array;

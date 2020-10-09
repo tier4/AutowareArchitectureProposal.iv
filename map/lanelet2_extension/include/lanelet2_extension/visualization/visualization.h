@@ -62,14 +62,14 @@ void lanelet2Polygon(const lanelet::ConstLanelet & ll, geometry_msgs::Polygon * 
 /**
  * [lineString2Marker creates marker to visualize shape of linestring]
  * @param ls         [input linestring]
- * @param line_strip [output marker message]
+ * @param marker [output marker message]
  * @param frame_id   [frame id of the marker]
  * @param ns         [namespace of the marker]
  * @param c          [color of the marker]
  * @param lss        [thickness of the marker]
  */
 void lineString2Marker(
-  const lanelet::ConstLineString3d ls, visualization_msgs::Marker * line_strip,
+  const lanelet::ConstLineString3d ls, visualization_msgs::Marker * marker,
   const std::string frame_id, const std::string ns, const std_msgs::ColorRGBA c,
   const float lss = 0.1);
 /**
