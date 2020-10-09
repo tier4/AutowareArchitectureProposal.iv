@@ -22,36 +22,34 @@
 GNSSPoser::GNSSPoser()
 : Node("gnss_poser"),
   tf2_listener_(tf2_buffer_),
-  tf2_broadcaster_(this),
-  coordinate_system_(CoordinateSystem::MGRS),
-  base_frame_("base_link"),
-  gnss_frame_("gnss"),
-  gnss_base_frame_("gnss_base_link"),
-  map_frame_("map"),
-  use_ublox_receiver_(false),
-  plane_zone_(9)
+  tf2_broadcaster_(this)
 {
-  int coordinate_system = static_cast<int>(coordinate_system_);
-  // private_nh_.getParam("coordinate_system", coordinate_system);
+  int coordinate_system = declare_parameter("coordinate_system", static_cast<int>(CoordinateSystem::MGRS));
   coordinate_system_ = static_cast<CoordinateSystem>(coordinate_system);
 
-  // private_nh_.getParam("base_frame", base_frame_);
-  // private_nh_.getParam("gnss_frame", gnss_frame_);
-  // private_nh_.getParam("gnss_base_frame", gnss_base_frame_);
-  // private_nh_.getParam("map_frame", map_frame_);
-  // private_nh_.getParam("use_ublox_receiver", use_ublox_receiver_);
-  // private_nh_.getParam("plane_zone", plane_zone_);
+  base_frame_ = declare_parameter("base_frame", "base_link");
+  gnss_frame_ = declare_parameter("gnss_frame", "gnss");
+  gnss_base_frame_ = declare_parameter("gnss_base_frame", "gnss_base_link");
+  map_frame_ = declare_parameter("map_frame", "map");
+  use_ublox_receiver_ = declare_parameter("use_ublox_receiver", false);
+  plane_zone_ = declare_parameter("plane_zone", 9);
 
-  int buff_epoch = 1;
-  // private_nh_.getParam("buff_epoch", buff_epoch);
+  int buff_epoch = declare_parameter("buff_epoch", 1);
   position_buffer_.set_capacity(buff_epoch);
 
-  // nav_sta_fix_sub_ = nh_.subscribe("fix", 10, &GNSSPoser::callbackNavSatFix, this);
-  // nav_pvt_sub_ = nh_.subscribe("navpvt", 10, &GNSSPoser::callbackNavPVT, this);
+  nav_sat_fix_sub_ = create_subscription<sensor_msgs::msg::NavSatFix>(
+    "fix", rclcpp::QoS{1}, 
+    std::bind(&GNSSPoser::callbackNavSatFix, this, std::placeholders::_1));
+  nav_pvt_sub_ = create_subscription<ublox_msgs::msg::NavPVT>(
+    "navpvt", rclcpp::QoS{1}, 
+    std::bind(&GNSSPoser::callbackNavPVT, this, std::placeholders::_1));
 
-  // pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("gnss_pose", 10);
-  // pose_cov_pub_ = nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>("gnss_pose_cov", 10);
-  // fixed_pub_ = nh_.advertise<std_msgs::Bool>("gnss_fixed", 10);
+  pose_pub_ = create_publisher<geometry_msgs::msg::PoseStamped>(
+    "gnss_pose", rclcpp::QoS{1});
+  pose_cov_pub_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
+    "gnss_pose_cov", rclcpp::QoS{1});
+  fixed_pub_ = create_publisher<std_msgs::msg::Bool>(
+    "gnss_fixed", rclcpp::QoS{1});
 }
 
 void GNSSPoser::callbackNavSatFix(const sensor_msgs::msg::NavSatFix::ConstSharedPtr nav_sat_fix_msg_ptr)
@@ -62,7 +60,7 @@ void GNSSPoser::callbackNavSatFix(const sensor_msgs::msg::NavSatFix::ConstShared
   // publish is_fixed topic
   std_msgs::msg::Bool is_fixed_msg;
   is_fixed_msg.data = is_fixed;
-  // fixed_pub_.publish(is_fixed_msg);
+  fixed_pub_->publish(is_fixed_msg);
 
   if (!is_fixed) {
     // ROS_WARN_STREAM_THROTTLE(1, "Not Fixed Topic. Skipping Calculate.");
@@ -113,7 +111,7 @@ void GNSSPoser::callbackNavSatFix(const sensor_msgs::msg::NavSatFix::ConstShared
   gnss_base_pose_msg.header.frame_id = map_frame_;
 
   // publish gnss_base_link pose in map frame
-  // pose_pub_.publish(gnss_base_pose_msg);
+  pose_pub_->publish(gnss_base_pose_msg);
 
   // publish gnss_base_link pose_cov in map frame
   geometry_msgs::msg::PoseWithCovarianceStamped gnss_base_pose_cov_msg;
@@ -128,7 +126,7 @@ void GNSSPoser::callbackNavSatFix(const sensor_msgs::msg::NavSatFix::ConstShared
   gnss_base_pose_cov_msg.pose.covariance[6 * 3 + 3] = 0.1;
   gnss_base_pose_cov_msg.pose.covariance[6 * 4 + 4] = 0.1;
   gnss_base_pose_cov_msg.pose.covariance[6 * 5 + 5] = 1.0;
-  // pose_cov_pub_.publish(gnss_base_pose_cov_msg);
+  pose_cov_pub_->publish(gnss_base_pose_cov_msg);
 
   // broadcast map to gnss_base_link
   publishTF(map_frame_, gnss_base_frame_, gnss_base_pose_msg);

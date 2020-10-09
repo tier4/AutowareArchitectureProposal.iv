@@ -63,19 +63,16 @@ private:
     const std::string & frame_id, const std::string & child_frame_id,
     const geometry_msgs::msg::PoseStamped & pose_msg);
 
-  // ros::NodeHandle nh_;
-  // ros::NodeHandle private_nh_;
-
   tf2::BufferCore tf2_buffer_;
   tf2_ros::TransformListener tf2_listener_;
   tf2_ros::TransformBroadcaster tf2_broadcaster_;
 
-  // ros::Subscriber nav_sta_fix_sub_;
-  // ros::Subscriber nav_pvt_sub_;
+  rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr nav_sat_fix_sub_;
+  rclcpp::Subscription<ublox_msgs::msg::NavPVT>::SharedPtr nav_pvt_sub_;
 
-  // ros::Publisher pose_pub_;
-  // ros::Publisher pose_cov_pub_;
-  // ros::Publisher fixed_pub_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_pub_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_cov_pub_;
+  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr fixed_pub_;
 
   CoordinateSystem coordinate_system_;
   std::string base_frame_;
