@@ -181,21 +181,21 @@ void laneletDirectionAsMarker(
   double turn_dir = 0;
 
   std_msgs::ColorRGBA c;
-  c.r = 0.0;
-  c.g = 0.0;
-  c.b = 1.0;
-  c.a = 0.6;
+  c.r = 0.5;
+  c.g = 0.5;
+  c.b = 0.5;
+  c.a = 0.5;
 
   if (isLaneletAttributeValue(ll, "turn_direction", "right")) {
     turn_dir = -M_PI / 2.0;
-    c.r = 1.0;
-    c.g = 0.0;
-    c.b = 1.0;
+    c.r = 0.5;
+    c.g = 0.5;
+    c.b = 0.6;
   } else if (isLaneletAttributeValue(ll, "turn_direction", "left")) {
     turn_dir = M_PI / 2.0;
-    c.r = 0.0;
-    c.g = 1.0;
-    c.b = 1.0;
+    c.r = 0.5;
+    c.g = 0.6;
+    c.b = 0.6;
   }
 
   for (int ci = 0; ci < center_ls.size() - 1;) {
@@ -552,7 +552,7 @@ visualization_msgs::MarkerArray visualization::detectionAreasAsMarkerArray(
     ls_c.b = 1;
     ls_c.a = 0.999;
     visualization::lineString2Marker(
-      da_reg_elem->stopLine(), &ls_marker, "map", "detection_area", ls_c, 0.1);
+      da_reg_elem->stopLine(), &ls_marker, "map", "detection_area", ls_c, 0.5);
     marker_array.markers.push_back(ls_marker);
   }  // for regulatory elements
 
@@ -660,7 +660,7 @@ visualization_msgs::MarkerArray visualization::lineStringsAsMarkerArray(
     const lanelet::ConstLineString3d & ls = *i;
     if (!exists(added, ls.id())) {
       visualization_msgs::Marker ls_marker;
-      visualization::lineString2Marker(ls, &ls_marker, "map", name_space, c, 0.1);
+      visualization::lineString2Marker(ls, &ls_marker, "map", name_space, c, lss);
       ls_marker_array.markers.push_back(ls_marker);
       added.insert(ls.id());
     }
@@ -672,7 +672,7 @@ visualization_msgs::MarkerArray visualization::lineStringsAsMarkerArray(
 visualization_msgs::MarkerArray visualization::laneletsBoundaryAsMarkerArray(
   const lanelet::ConstLanelets & lanelets, const std_msgs::ColorRGBA c, const bool viz_centerline)
 {
-  double lss = 0.05;  // line string size
+  double lss = 0.1;  // line string size
   std::unordered_set<lanelet::Id> added;
   visualization_msgs::MarkerArray marker_array;
   for (auto li = lanelets.begin(); li != lanelets.end(); li++) {
@@ -696,7 +696,7 @@ visualization_msgs::MarkerArray visualization::laneletsBoundaryAsMarkerArray(
     }
     if (viz_centerline && !exists(added, center_ls.id())) {
       visualization::lineString2Marker(
-        center_ls, &center_line_strip, "map", "center_lane_line", c, std::max(lss * 0.1, 0.01));
+        center_ls, &center_line_strip, "map", "center_lane_line", c, std::max(lss * 0.1, 0.02));
       marker_array.markers.push_back(center_line_strip);
       added.insert(center_ls.id());
     }
@@ -864,36 +864,68 @@ void visualization::trafficLight2TriangleMarker(
 }
 
 void visualization::lineString2Marker(
-  const lanelet::ConstLineString3d ls, visualization_msgs::Marker * line_strip,
+  const lanelet::ConstLineString3d ls, visualization_msgs::Marker * marker,
   const std::string frame_id, const std::string ns, const std_msgs::ColorRGBA c, const float lss)
 {
-  if (line_strip == nullptr) {
-    ROS_ERROR_STREAM(__FUNCTION__ << ": line_strip is null pointer!");
+  if (marker == nullptr) {
+    ROS_ERROR_STREAM(__FUNCTION__ << ": marker is null pointer!");
     return;
   }
 
-  line_strip->header.frame_id = frame_id;
-  line_strip->header.stamp = ros::Time();
-  line_strip->frame_locked = true;
-  line_strip->ns = ns;
-  line_strip->action = visualization_msgs::Marker::ADD;
-  line_strip->type = visualization_msgs::Marker::LINE_STRIP;
+  marker->header.frame_id = frame_id;
+  marker->header.stamp = ros::Time();
+  marker->frame_locked = true;
+  marker->ns = ns;
+  marker->action = visualization_msgs::Marker::ADD;
+  marker->type = visualization_msgs::Marker::TRIANGLE_LIST;
 
-  line_strip->id = ls.id();
-  line_strip->pose.orientation.x = 0.0;
-  line_strip->pose.orientation.y = 0.0;
-  line_strip->pose.orientation.z = 0.0;
-  line_strip->pose.orientation.w = 1.0;
-  line_strip->scale.x = lss;
-  line_strip->color = c;
+  marker->id = ls.id();
+  marker->pose.orientation.x = 0.0;
+  marker->pose.orientation.y = 0.0;
+  marker->pose.orientation.z = 0.0;
+  marker->pose.orientation.w = 1.0;
+  marker->scale.x = 1.0;
+  marker->scale.y = 1.0;
+  marker->scale.z = 1.0;
+  marker->color = c;
 
   // fill out lane line
-  for (auto i = ls.begin(); i != ls.end(); i++) {
+  if (ls.size() < 2){
+    ROS_ERROR_STREAM(__FUNCTION__ << ": marker line size is 1 or 0!");
+    return;
+  }
+  for (auto i = ls.begin(); i + 1 != ls.end(); i++) {
     geometry_msgs::Point p;
-    p.x = (*i).x();
-    p.y = (*i).y();
+    const float heading = std::atan2((*(i + 1)).y() - (*i).y(), (*(i + 1)).x() - (*i).x());
+    const float x_offset = lss *0.5 * std::sin(heading);
+    const float y_offset = lss *0.5 * std::cos(heading);
+  
+    p.x = (*i).x() + x_offset;
+    p.y = (*i).y() - y_offset;
     p.z = (*i).z();
-    line_strip->points.push_back(p);
+    marker->points.push_back(p);
+    p.x = (*i).x() - x_offset;
+    p.y = (*i).y() + y_offset;
+    p.z = (*i).z();
+    marker->points.push_back(p);
+    p.x = (*(i + 1)).x() + x_offset;
+    p.y = (*(i + 1)).y() - y_offset;
+    p.z = (*(i + 1)).z();
+    marker->points.push_back(p);
+    marker->colors.push_back(c);
+    p.x = (*(i + 1)).x() + x_offset;
+    p.y = (*(i + 1)).y() - y_offset;
+    p.z = (*(i + 1)).z();
+    marker->points.push_back(p);
+    p.x = (*(i + 1)).x() - x_offset;
+    p.y = (*(i + 1)).y() + y_offset;
+    p.z = (*(i + 1)).z();
+    marker->points.push_back(p);
+    p.x = (*i).x() - x_offset;
+    p.y = (*i).y() + y_offset;
+    p.z = (*i).z();
+    marker->points.push_back(p);
+    marker->colors.push_back(c);
   }
 }
 
