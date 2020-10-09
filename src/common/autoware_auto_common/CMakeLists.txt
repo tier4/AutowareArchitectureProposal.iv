@@ -32,7 +32,31 @@ ament_auto_find_build_dependencies()
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
+
+  # Temporarily disable cpplint and uncrustify
+  list(APPEND AMENT_LINT_AUTO_EXCLUDE
+    ament_cmake_cpplint
+    ament_cmake_uncrustify
+  )
+
   ament_lint_auto_find_test_dependencies()
+
+  file(GLOB_RECURSE FILES_MINUS_SOME
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/*
+  )
+
+  list(FILTER FILES_MINUS_SOME EXCLUDE REGEX ".*filesystem.hpp")
+
+  # Re-enable cpplint
+  set(ament_cmake_cpplint_FOUND FALSE)
+  find_package(ament_cmake_cpplint)
+  ament_cpplint(${FILES_MINUS_SOME})
+
+  # Re-enable uncrustify
+  set(ament_cmake_uncrustify_FOUND FALSE)
+  find_package(ament_cmake_uncrustify)
+  ament_uncrustify(${FILES_MINUS_SOME})
 
   # Unit tests
   set(TEST_COMMON test_common_gtest)
