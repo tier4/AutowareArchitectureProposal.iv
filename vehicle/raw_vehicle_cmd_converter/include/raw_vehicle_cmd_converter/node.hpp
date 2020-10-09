@@ -38,7 +38,7 @@ public:
 
 private:
   rclcpp::Publisher<autoware_vehicle_msgs::msg::RawVehicleCommand>::SharedPtr pub_cmd_;        //!< @brief topic publisher for low-level vehicle command
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_velocity_;  //!< @brief subscriber for currrent velocity
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_velocity_;  //!< @brief subscriber for current velocity
   rclcpp::Subscription<autoware_vehicle_msgs::msg::VehicleCommand>::SharedPtr sub_cmd_;       //!< @brief subscriber for vehicle command
 
   std::shared_ptr<double> current_velocity_ptr_;  // [m/s]
