@@ -37,7 +37,7 @@ public:
   ~AccelMapConverter() = default;
 
 private:
-  rclcpp::Publisher<autoware_vehicle_msgs::msg::RawVehicleCommand>::SharedPtr pub_cmd_;        //!< @brief topic publisher for tlow level vehicle command
+  rclcpp::Publisher<autoware_vehicle_msgs::msg::RawVehicleCommand>::SharedPtr pub_cmd_;        //!< @brief topic publisher for low-level vehicle command
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_velocity_;  //!< @brief subscriber for currrent velocity
   rclcpp::Subscription<autoware_vehicle_msgs::msg::VehicleCommand>::SharedPtr sub_cmd_;       //!< @brief subscriber for vehicle command
 
