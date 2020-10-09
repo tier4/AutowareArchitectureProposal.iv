@@ -16,8 +16,9 @@
 
 #include "raw_vehicle_cmd_converter/node.hpp"
 
-#include <functional>
 #include <rclcpp/logging.hpp>
+
+#include <functional>
 
 using std::placeholders::_1;
 
