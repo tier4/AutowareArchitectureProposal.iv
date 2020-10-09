@@ -26,9 +26,9 @@ set(GeographicLib_INCLUDE_DIRS ${GeographicLib_INCLUDE_DIR})
 
 find_library(GeographicLib_LIBRARIES NAMES Geographic)
 
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(GeographicLib DEFAULT_MSG GeographicLib_LIBRARIES GeographicLib_INCLUDE_DIRS)
-mark_as_advanced(GeographicLib_LIBRARIES GeographicLib_INCLUDE_DIRS)
+# include(FindPackageHandleStandardArgs)
+# find_package_handle_standard_args(GeographicLib DEFAULT_MSG GeographicLib_LIBRARIES GeographicLib_INCLUDE_DIRS)
+# mark_as_advanced(GeographicLib_LIBRARIES GeographicLib_INCLUDE_DIRS)
 
 ###########
 ## Build ##
@@ -63,7 +63,7 @@ set(GNSS_POSER_DEPENDENCIES
 ament_target_dependencies(gnss_poser_exe ${GNSS_POSER_DEPENDENCIES})
 
 target_link_libraries(gnss_poser_exe
-  GeographicLib_LIBRARIES
+  Geographic
 )
 
 #############
@@ -81,7 +81,7 @@ install(TARGETS gnss_poser_exe
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION include)
 
-install(DIRECTORY config launch
+install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}
 )
 

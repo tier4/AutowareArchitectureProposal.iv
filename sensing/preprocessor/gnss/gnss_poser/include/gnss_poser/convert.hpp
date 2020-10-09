@@ -25,6 +25,7 @@
 
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
 
+namespace{
 enum class MGRSPrecision {
   _10_KIRO_METER = 1,
   _1_KIRO_METER = 2,
@@ -119,5 +120,6 @@ GNSSStat NavSatFix2PLANE(const sensor_msgs::msg::NavSatFix & nav_sat_fix_msg, co
   plane.z = EllipsoidHeight2OrthometricHeight(nav_sat_fix_msg);
   return plane;
 }
+} // namespace
 
 #endif

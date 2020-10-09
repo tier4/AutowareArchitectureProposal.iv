@@ -13,20 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <ros/ros.h>
-
-#include "gnss_poser/gnss_poser_core.h"
+#include <rclcpp/rclcpp.hpp>
+#include <gnss_poser/gnss_poser_core.hpp>
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "gnss_poser");
-
-  ros::NodeHandle nh;
-  ros::NodeHandle private_nh("~");
-
-  GNSSPoser::GNSSPoser node(nh, private_nh);
-
-  ros::spin();
-
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<GNSSPoser>());
+  rclcpp::shutdown();
   return 0;
 }
