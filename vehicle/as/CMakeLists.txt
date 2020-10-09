@@ -1,66 +1,68 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(as)
 add_compile_options(-std=c++14)
 
-find_package(
-  catkin REQUIRED COMPONENTS
-  roscpp
-  message_filters
-  std_msgs
-  geometry_msgs
-  automotive_platform_msgs
-  automotive_navigation_msgs
-  pacmod_msgs
-  autoware_control_msgs
-  autoware_vehicle_msgs
-)
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(message_filters REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(automotive_platform_msgs REQUIRED)
+find_package(automotive_navigation_msgs REQUIRED)
+find_package(pacmod_msgs REQUIRED)
+find_package(autoware_control_msgs REQUIRED)
+find_package(autoware_vehicle_msgs REQUIRED)
 
-catkin_package(
-  CATKIN_DEPENDS
-  roscpp
-  message_filters
-  std_msgs
-  geometry_msgs
-  automotive_platform_msgs
-  automotive_navigation_msgs
-  pacmod_msgs
-  autoware_control_msgs
-  autoware_vehicle_msgs
-)
 
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
 )
 
+set(AS_DEPENDENCIES
+  rclcpp
+  message_filters
+  std_msgs
+  geometry_msgs
+  automotive_platform_msgs
+  automotive_navigation_msgs
+  pacmod_msgs
+  autoware_control_msgs
+  autoware_vehicle_msgs
+)
+
 add_executable(ssc_interface
   src/ssc_interface/ssc_interface_node.cpp
   src/ssc_interface/ssc_interface.cpp
 )
-target_link_libraries(ssc_interface ${catkin_LIBRARIES})
-add_dependencies(ssc_interface ${catkin_EXPORTED_TARGETS})
+ament_target_dependencies(ssc_interface ${AS_DEPENDENCIES})
+ament_export_dependencies(${AS_DEPENDENCIES})
+
 
 add_executable(pacmod_interface
   src/pacmod_interface/pacmod_interface.cpp
   src/pacmod_interface/pacmod_interface_node.cpp
 )
-target_link_libraries(pacmod_interface ${catkin_LIBRARIES})
-add_dependencies(pacmod_interface ${catkin_EXPORTED_TARGETS})
+ament_target_dependencies(pacmod_interface ${AS_DEPENDENCIES})
+ament_export_dependencies(${AS_DEPENDENCIES})
+
 
 install(TARGETS ssc_interface
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  ARCHIVE DESTINATION lib/${PROJECT_NAME}
+  LIBRARY DESTINATION lib/${PROJECT_NAME}
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 install(TARGETS pacmod_interface
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  ARCHIVE DESTINATION lib/${PROJECT_NAME}
+  LIBRARY DESTINATION lib/${PROJECT_NAME}
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 install(
   DIRECTORY
     launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DESTINATION share/${PROJECT_NAME}
 )
+
+ament_package()
