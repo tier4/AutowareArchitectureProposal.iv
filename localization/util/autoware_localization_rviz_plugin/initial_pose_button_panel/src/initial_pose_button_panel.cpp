@@ -27,9 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdio.h>
-#include <algorithm>
-#include <sstream>
 #include <string>
 #include <thread>
 #include <vector>
@@ -37,13 +34,8 @@
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLineEdit>
-#include <QMap>
 #include <QPainter>
 #include <QPushButton>
-#include <QSignalMapper>
-#include <QStandardPaths>
-#include <QTimer>
-#include <QVBoxLayout>
 
 #include "initial_pose_button_panel.h"
 
@@ -65,14 +57,14 @@ InitialPoseButtonPanel::InitialPoseButtonPanel(QWidget * parent) : rviz::Panel(p
   status_label_->setAlignment(Qt::AlignCenter);
   status_label_->setStyleSheet("QLabel { background-color : gray;}");
 
-  QSizePolicy * q_size_policy = new QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  initialize_button_->setSizePolicy(*q_size_policy);
+  QSizePolicy q_size_policy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  initialize_button_->setSizePolicy(q_size_policy);
 
-  QHBoxLayout * topic_layout = new QHBoxLayout;
+  auto * topic_layout = new QHBoxLayout;
   topic_layout->addWidget(topic_label_);
   topic_layout->addWidget(topic_edit_);
 
-  QVBoxLayout * v_layout = new QVBoxLayout;
+  auto * v_layout = new QVBoxLayout;
   v_layout->addLayout(topic_layout);
   v_layout->addWidget(initialize_button_);
   v_layout->addWidget(status_label_);

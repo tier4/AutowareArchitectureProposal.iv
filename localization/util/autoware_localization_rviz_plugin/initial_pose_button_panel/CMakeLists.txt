@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(initial_pose_button_panel)
 
-add_compile_options(-std=c++14)
+set(CMAKE_CXX_STANDARD 14)
 
 find_package(catkin REQUIRED COMPONENTS
   rviz
@@ -27,7 +27,6 @@ catkin_package(
 include_directories(
   ${catkin_INCLUDE_DIRS}
 )
-SET(CMAKE_CXX_FLAGS "-O2 -g -Wall -Wno-unused-result -DROS ${CMAKE_CXX_FLAGS}")
 
 
 add_definitions(-DQT_NO_KEYWORDS -g)
