@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+route=$(rostopic echo -n1 /planning/mission_planning/route)
+
+frame_id=$(echo "$route" | grep "frame_id:" | sed -r "s/.*frame_id: (.+)/\1/g" | sed "s/\"//g")
+
+goal_pose=$(echo "$route" | grep -A9 "goal_pose:")
+position=$(echo "$goal_pose" | grep -A3 "position:")
+orientation=$(echo "$goal_pose" | grep -A4 "orientation:")
+
+p_x=$(echo "$position" | grep -A3 "position:" | grep "x:" | sed -r "s/.*: (.+)/\1/g")
+p_y=$(echo "$position" | grep -A3 "position:" | grep "y:" | sed -r "s/.*: (.+)/\1/g")
+p_z=$(echo "$position" | grep -A3 "position:" | grep "z:" | sed -r "s/.*: (.+)/\1/g")
+
+o_x=$(echo "$orientation" | grep "x:" | sed -r "s/.*: (.+)/\1/g")
+o_y=$(echo "$orientation" | grep "y:" | sed -r "s/.*: (.+)/\1/g")
+o_z=$(echo "$orientation" | grep "z:" | sed -r "s/.*: (.+)/\1/g")
+o_w=$(echo "$orientation" | grep "w:" | sed -r "s/.*: (.+)/\1/g")
+
+echo "rostopic pub /planning/mission_planning/goal geometry_msgs/PoseStamped \
+\"header:
+  seq: 0
+  stamp:
+    secs: 0
+    nsecs: 0
+  frame_id: '$frame_id'
+pose:
+  position:
+    x: $p_x
+    y: $p_y
+    z: $p_z
+  orientation:
+    x: $o_x
+    y: $o_y
+    z: $o_z
+    w: $o_w\"
+"

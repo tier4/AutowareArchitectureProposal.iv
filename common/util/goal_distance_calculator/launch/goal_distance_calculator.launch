@@ -1,0 +1,10 @@
+<launch>
+  <arg name="oneshot" default="false" />
+
+  <arg name="config_file" default="$(find goal_distance_calculator)/config/goal_distance_calculator.yaml" />
+
+  <node pkg="goal_distance_calculator" type="goal_distance_calculator_node" name="goal_distance_calculator_node" output="screen">
+    <rosparam command="load" file="$(arg config_file)" />
+    <param name="oneshot" value="$(arg oneshot)" />
+  </node>
+</launch>
