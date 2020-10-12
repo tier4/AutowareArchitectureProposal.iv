@@ -1,57 +1,76 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(multi_object_tracker)
 
-add_compile_options(-std=c++14)
+### Compile options
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
+### Find Packages
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(autoware_perception_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(unique_identifier_msgs REQUIRED)
+# find_package(uuid_msgs REQUIRED)
+
+## Find Eigen Dependencies
+find_package(eigen3_cmake_module REQUIRED)
+find_package(Eigen3)
+
+include_directories(
+  include
+  # ${EIGEN3_INCLUDE_DIR}
+)
+
+# Generate exe file
+set(MULTI_OBJECT_TRACKER_SRC
+  src/multi_object_tracker_core.cpp
+  src/utils/utils.cpp
+  # src/tracker/model/tracker_base.cpp
+  # src/tracker/model/vehicle_tracker.cpp
+  # src/tracker/model/bicycle_tracker.cpp
+  # src/tracker/model/pedestrian_tracker.cpp
+  # src/data_association/data_association.cpp
+  # src/data_association/successive_shortest_path/successive_shortest_path.cpp
+)
+
+add_executable(${PROJECT_NAME}_exe
+  src/multi_object_tracker_node.cpp
+  ${MULTI_OBJECT_TRACKER_SRC}
+)
+
+# Add dependencies. use target_link_libaries() before Crystal
+set(MULTI_OBJECT_TRACKER_DEPENDENCIES
+  rclcpp
   autoware_perception_msgs
-  roscpp
   tf2
   tf2_ros
-  unique_id
-  uuid_msgs
+  unique_identifier_msgs
+  # uuid_msgs
+  Eigen3
 )
 
-find_package(Eigen3 REQUIRED)
+ament_target_dependencies(${PROJECT_NAME}_exe ${MULTI_OBJECT_TRACKER_DEPENDENCIES})
 
-catkin_package(
-  CATKIN_DEPENDS
-    autoware_perception_msgs
-    roscpp
-    tf2
-    tf2_ros
-    unique_id
-    uuid_msgs
+## Install executables and/or libraries
+install(TARGETS ${PROJECT_NAME}_exe
+  ARCHIVE DESTINATION lib/${PROJECT_NAME}
+  LIBRARY DESTINATION lib/${PROJECT_NAME}
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
-include_directories(include ${catkin_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
+## Install project namespaced headers
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION include)
 
-add_executable(multi_object_tracker_node
-  src/main.cpp
-  src/node.cpp
-  src/utils/utils.cpp
-  src/tracker/model/tracker_base.cpp
-  src/tracker/model/vehicle_tracker.cpp
-  src/tracker/model/bicycle_tracker.cpp
-  src/tracker/model/pedestrian_tracker.cpp
-  src/data_association/data_association.cpp
-  src/data_association/successive_shortest_path/successive_shortest_path.cpp
+install(DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
 )
 
-add_dependencies(multi_object_tracker_node
-  ${${PROJECT_NAME}_EXPORTED_TARGETS}
-  ${catkin_EXPORTED_TARGETS}
-)
-
-target_link_libraries(multi_object_tracker_node ${catkin_LIBRARIES})
-
-install(TARGETS multi_object_tracker_node
-        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-
-install(
-  DIRECTORY
-    launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
+# set at the end of cmakelists
+ament_package()

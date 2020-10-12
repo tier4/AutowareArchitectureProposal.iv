@@ -17,8 +17,7 @@
  * v1.0 Yukihiro Saito
  */
 
-#include <ros/ros.h>
-#include "multi_object_tracker/node.hpp"
+#include "multi_object_tracker/multi_object_tracker_core.hpp"
 
 // #include "multi_object_tracker/data_association/data_association.hpp"
 
@@ -32,11 +31,9 @@ int main(int argc, char ** argv)
   //     10, 1, 0,
   //     0, 100, 0;
   // DataAssociation::assign(score, direct_assignment, reverse_assignment);
-#if 1
-  ros::init(argc, argv, "multi_object_tracker");
-  MultiObjectTrackerNode node;
-  ros::spin();
-#endif
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<MultiObjectTracker>());
+  rclcpp::shutdown();
 
   return 0;
 }
