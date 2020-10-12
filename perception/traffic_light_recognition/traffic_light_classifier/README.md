@@ -3,9 +3,6 @@ There's an implementation of CNN and HSV filter versions.
 
 If you use CNN, the trained file are automatically downloaded when you build.
 
-## Training
-The model  used in this package was trained by [AutowareMLPlatform/classification_2d](https://github.com/tier4/AutowareMLPlatform/tree/master/tasks/classification_2d)
-
 ## model detail
 **TODO1: atach AWS URL here for quick reference when, where and how the model was trained.**\
 **TODO2: label file should be link to trained model.**
