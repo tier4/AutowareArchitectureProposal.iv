@@ -34,14 +34,14 @@ add_library(ndt_omp
   src/ndt_omp/ndt_omp.cpp
 )
 
-set(NDT_OMP_DEPENDENCIES
-  PCL
-  OpenMP
-)
-
 # pcl 1.7 causes a segfault without -O2 (or -O3) flag
 target_compile_options(ndt_omp PUBLIC
   $<$<CONFIG:Debug>:-O2 -g>
+)
+
+set(NDT_OMP_DEPENDENCIES
+  PCL
+  OpenMP
 )
 
 ament_target_dependencies(ndt_omp ${NDT_OMP_DEPENDENCIES}) 
@@ -51,8 +51,6 @@ ament_export_dependencies(${NDT_OMP_DEPENDENCIES})
 add_executable(align
   apps/align.cpp
 )
-
-# get_target_property(FRED_PCL_LINK_LIBRARIES PCL::pcl LINK_INTERFACE_LIBRARIES)
 
 # ament_target_dependencies can't depend on targets, i.e. ndt_omp
 target_link_libraries(align PUBLIC
