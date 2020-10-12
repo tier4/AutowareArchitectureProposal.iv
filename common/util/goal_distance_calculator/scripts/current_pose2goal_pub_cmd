@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+tfs=$(rostopic echo -n10 /tf)
+tf_map2base_link=$(echo "$tfs" | grep -m1 -A11 'frame_id: "map"')
+
+translation=$(echo "$tf_map2base_link" | grep -A3 "translation:")
+rotation=$(echo "$tf_map2base_link" | grep -A4 "rotation:")
+
+p_x=$(echo "$translation" | grep -A3 "translation:" | grep "x:" | sed -r "s/.*: (.+)/\1/g")
+p_y=$(echo "$translation" | grep -A3 "translation:" | grep "y:" | sed -r "s/.*: (.+)/\1/g")
+p_z=$(echo "$translation" | grep -A3 "translation:" | grep "z:" | sed -r "s/.*: (.+)/\1/g")
+
+o_x=$(echo "$rotation" | grep "x:" | sed -r "s/.*: (.+)/\1/g")
+o_y=$(echo "$rotation" | grep "y:" | sed -r "s/.*: (.+)/\1/g")
+o_z=$(echo "$rotation" | grep "z:" | sed -r "s/.*: (.+)/\1/g")
+o_w=$(echo "$rotation" | grep "w:" | sed -r "s/.*: (.+)/\1/g")
+
+echo "rostopic pub /planning/mission_planning/goal geometry_msgs/PoseStamped \
+\"header:
+  seq: 0
+  stamp:
+    secs: 0
+    nsecs: 0
+  frame_id: 'map'
+pose:
+  position:
+    x: $p_x
+    y: $p_y
+    z: $p_z
+  orientation:
+    x: $o_x
+    y: $o_y
+    z: $o_z
+    w: $o_w\"
+"
