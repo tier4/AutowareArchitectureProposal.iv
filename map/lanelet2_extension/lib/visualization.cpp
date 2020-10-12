@@ -554,9 +554,9 @@ visualization_msgs::msg::MarkerArray visualization::detectionAreasAsMarkerArray(
     // stop line visualization
     visualization_msgs::msg::Marker ls_marker;
     std_msgs::msg::ColorRGBA ls_c;
-    ls_c.r = 1;
-    ls_c.g = 1;
-    ls_c.b = 1;
+    ls_c.r = 0.5;
+    ls_c.g = 0.5;
+    ls_c.b = 0.5;
     ls_c.a = 0.999;
     visualization::lineString2Marker(
       da_reg_elem->stopLine(), &ls_marker, "map", "detection_area", ls_c, 0.5);
