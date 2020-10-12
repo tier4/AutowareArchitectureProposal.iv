@@ -200,6 +200,27 @@ lanelet::ConstPoint3d get3DPointFrom2DArcLength(
   return lanelet::ConstPoint3d();
 }
 
+bool isPathInLanelets(
+  const autoware_planning_msgs::PathWithLaneId & path,
+  const lanelet::ConstLanelets & original_lanelets, const lanelet::ConstLanelets & target_lanelets)
+{
+  for (const auto & pt : path.points) {
+    bool is_in_lanelet = false;
+    for (const auto & llt : original_lanelets) {
+      if (lanelet::utils::isInLanelet(pt.point.pose, llt, 0.1)) {
+        is_in_lanelet = true;
+      }
+    }
+    for (const auto & llt : target_lanelets) {
+      if (lanelet::utils::isInLanelet(pt.point.pose, llt, 0.1)) {
+        is_in_lanelet = true;
+      }
+    }
+    if (!is_in_lanelet) return false;
+  }
+  return true;
+}
+
 }  // namespace
 
 namespace lane_change_planner
@@ -608,7 +629,8 @@ PathWithLaneId RouteHandler::getReferencePath(
   const double s_backward = std::max(0., s - backward_path_length);
   double s_forward = s + forward_path_length;
 
-  const double buffer = parameter.backward_length_buffer_for_end_of_lane;  // buffer for min_lane_change_length
+  const double buffer =
+    parameter.backward_length_buffer_for_end_of_lane;  // buffer for min_lane_change_length
   const int num_lane_change = std::abs(getNumLaneToPreferredLane(lanelet_sequence.back()));
   const double lane_length = lanelet::utils::getLaneletLength2d(lanelet_sequence);
   const double lane_change_buffer =
@@ -858,6 +880,9 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
     candidate_path.preparation_length = straight_distance;
     candidate_path.lane_change_length = lane_change_distance;
     candidate_path.path = combineReferencePath(reference_path1, reference_path2, 5.0, 2);
+
+    // check candidate path is in lanelet
+    if (!isPathInLanelets(candidate_path.path, original_lanelets, target_lanelets)) continue;
 
     // set fixed flag
     for (auto & pt : candidate_path.path.points) {
