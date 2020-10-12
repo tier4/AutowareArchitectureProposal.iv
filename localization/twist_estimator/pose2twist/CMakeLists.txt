@@ -1,43 +1,53 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(pose2twist)
 
-add_compile_options(-std=c++14)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  tf2_geometry_msgs
-  std_msgs
-  geometry_msgs
-)
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
-catkin_package(
-  INCLUDE_DIRS include
-)
-
-include_directories(include ${catkin_INCLUDE_DIRS})
 
 add_executable(pose2twist
   src/pose2twist_node.cpp
   src/pose2twist_core.cpp
 )
 
-add_dependencies(pose2twist
-  ${${PROJECT_NAME}_EXPORTED_TARGETS}
-  ${catkin_EXPORTED_TARGETS}
+ament_target_dependencies(pose2twist rclcpp 
+  tf2_geometry_msgs 
+  std_msgs geometry_msgs
 )
-
-target_link_libraries(pose2twist ${catkin_LIBRARIES})
 
 install(
   TARGETS
-    pose2twist
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  pose2twist
+  ARCHIVE DESTINATION lib/${PROJECT_NAME}
+  LIBRARY DESTINATION lib/${PROJECT_NAME}
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
+
+include_directories(
+  include
 )
 
 install(
-  DIRECTORY
-    launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
 )
+install(
+  DIRECTORY include/${PROJECT_NAME}
+  DESTINATION include
+)
+
+ament_export_include_directories(include)
+ament_export_dependencies(std_msgs)
+ament_export_dependencies(tf2_geometry_msgs)
+ament_export_dependencies(geometry_msgs)
+ament_package()
