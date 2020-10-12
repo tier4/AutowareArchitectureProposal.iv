@@ -16,6 +16,8 @@
 
 #include <shift_decider/shift_decider.h>
 
+#include <rclcpp/timer.hpp>
+
 #include <cstddef>
 #include <functional>
 
@@ -27,9 +29,12 @@ ShiftDecider::ShiftDecider() : Node("shift_decider")
   rclcpp::QoS durable_qos(queue_size);
   durable_qos.transient_local();
 
-  pub_shift_cmd_ = create_publisher<autoware_vehicle_msgs::msg::ShiftStamped>("output/shift_cmd", durable_qos);
-  sub_control_cmd_ = create_subscription<autoware_control_msgs::msg::ControlCommandStamped>("input/control_cmd", queue_size, std::bind(&ShiftDecider::onControlCmd, this, _1));
-  timer_ = create_wall_timer(std::chrono::duration<double>(0.1), std::bind(&ShiftDecider::onTimer, this));
+  pub_shift_cmd_ =
+    create_publisher<autoware_vehicle_msgs::msg::ShiftStamped>("output/shift_cmd", durable_qos);
+  sub_control_cmd_ = create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
+    "input/control_cmd", queue_size, std::bind(&ShiftDecider::onControlCmd, this, _1));
+
+  initTimer(0.1);
 }
 
 void ShiftDecider::onControlCmd(autoware_control_msgs::msg::ControlCommandStamped::SharedPtr msg)
@@ -54,4 +59,15 @@ void ShiftDecider::updateCurrentShiftCmd()
   } else if (control_cmd_->control.velocity < -vel_threshold) {
     shift_cmd_.shift.data = autoware_vehicle_msgs::msg::Shift::REVERSE;
   }
+}
+
+void ShiftDecider::initTimer(double period_s)
+{
+  auto timer_callback = std::bind(&ShiftDecider::onTimer, this);
+  const auto period_ns =
+    std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::duration<double>(period_s));
+  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
+    this->get_clock(), period_ns, std::move(timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(timer_, nullptr);
 }

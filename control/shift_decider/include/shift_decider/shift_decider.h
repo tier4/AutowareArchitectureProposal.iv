@@ -33,9 +33,11 @@ private:
   void onTimer();
   void onControlCmd(autoware_control_msgs::msg::ControlCommandStamped::SharedPtr msg);
   void updateCurrentShiftCmd();
+  void initTimer(double period_s);
 
   rclcpp::Publisher<autoware_vehicle_msgs::msg::ShiftStamped>::SharedPtr pub_shift_cmd_;
-  rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr sub_control_cmd_;
+  rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
+    sub_control_cmd_;
   rclcpp::TimerBase::SharedPtr timer_;
 
   autoware_control_msgs::msg::ControlCommandStamped::SharedPtr control_cmd_;
