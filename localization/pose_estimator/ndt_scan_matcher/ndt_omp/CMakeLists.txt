@@ -27,6 +27,7 @@ endif()
 
 include_directories(
   include
+  ${PCL_COMMON_INCLUDE_DIRS}
 )
 
 add_library(ndt_omp
@@ -52,13 +53,13 @@ add_executable(align
   apps/align.cpp
 )
 
-target_link_libraries(align
-  rclcpp
+# get_target_property(FRED_PCL_LINK_LIBRARIES PCL::pcl LINK_INTERFACE_LIBRARIES)
+
+# ament_target_dependencies can't depend on targets, i.e. ndt_omp
+target_link_libraries(align PUBLIC
   ndt_omp
-  PCL
+  ${PCL_LIBRARIES}
 )
-
-
 
 install(TARGETS ndt_omp
   DESTINATION lib/${PROJECT_NAME}
@@ -66,7 +67,7 @@ install(TARGETS ndt_omp
 
 ## Install project namespaced headers
 install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION share/${PROJECT_NAME}
+  DESTINATION install/${PROJECT_NAME}
 )
 
 ament_package()
