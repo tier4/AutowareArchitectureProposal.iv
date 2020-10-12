@@ -133,8 +133,13 @@ VehicleCmdGate::VehicleCmdGate()
   current_gate_mode_.data = autoware_control_msgs::msg::GateMode::AUTO;
 
   // Timer
-  timer_ = this->create_wall_timer(
-    std::chrono::duration<double>(update_period_), std::bind(&VehicleCmdGate::onTimer, this));
+  auto timer_callback = std::bind(&VehicleCmdGate::onTimer, this);
+  auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<double>(update_period_));
+  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
+    this->get_clock(), period, std::move(timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(timer_, nullptr);
 }
 
 // for auto
