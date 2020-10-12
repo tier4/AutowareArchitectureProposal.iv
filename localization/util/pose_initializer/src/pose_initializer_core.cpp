@@ -99,14 +99,7 @@ void PoseInitializer::serviceInitial(
   add_height_pose_msg_ptr->pose.covariance[4 * 6 + 4] = 0.01;
   add_height_pose_msg_ptr->pose.covariance[5 * 6 + 5] = 1.0;
 
-  auto aligned_pose_msg_ptr = std::make_shared<geometry_msgs::msg::PoseWithCovarianceStamped>();
-  const bool succeeded_align = callAlignService(add_height_pose_msg_ptr, aligned_pose_msg_ptr);
-
-  if (succeeded_align) {
-    initial_pose_pub_->publish(*aligned_pose_msg_ptr);
-  } else {
-    throw std::runtime_error("Aligning poses did not succeed.");
-  }
+  callAlignServiceAndPublishResult(add_height_pose_msg_ptr);
 }
 
 void PoseInitializer::callbackInitialPose(
@@ -125,12 +118,7 @@ void PoseInitializer::callbackInitialPose(
   add_height_pose_msg_ptr->pose.covariance[4 * 6 + 4] = 0.01;
   add_height_pose_msg_ptr->pose.covariance[5 * 6 + 5] = 0.3;
 
-  auto aligned_pose_msg_ptr = std::make_shared<geometry_msgs::msg::PoseWithCovarianceStamped>();
-  const bool succeeded_align = callAlignService(add_height_pose_msg_ptr, aligned_pose_msg_ptr);
-
-  if (succeeded_align) {
-    initial_pose_pub_->publish(*aligned_pose_msg_ptr);
-  }
+  callAlignServiceAndPublishResult(add_height_pose_msg_ptr);
 }
 
 // NOTE Still not usable callback
@@ -152,12 +140,7 @@ void PoseInitializer::callbackGNSSPoseCov(
   add_height_pose_msg_ptr->pose.covariance[4 * 6 + 4] = 0.01;
   add_height_pose_msg_ptr->pose.covariance[5 * 6 + 5] = 3.14;
 
-  auto aligned_pose_msg_ptr = std::make_shared<geometry_msgs::msg::PoseWithCovarianceStamped>();
-  const bool succeeded_align = callAlignService(add_height_pose_msg_ptr, aligned_pose_msg_ptr);
-
-  if (succeeded_align) {
-    initial_pose_pub_->publish(*aligned_pose_msg_ptr);
-  }
+  callAlignServiceAndPublishResult(add_height_pose_msg_ptr);
 }
 
 bool PoseInitializer::getHeight(
@@ -191,9 +174,8 @@ bool PoseInitializer::getHeight(
   return true;
 }
 
-bool PoseInitializer::callAlignService(
-  const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr input_pose_msg,
-  const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr output_pose_msg_ptr)
+void PoseInitializer::callAlignServiceAndPublishResult(
+  const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr input_pose_msg)
 {
   auto req =
     std::make_shared<autoware_localization_srvs::srv::PoseWithCovarianceStamped::Request>();
@@ -201,24 +183,19 @@ bool PoseInitializer::callAlignService(
 
   RCLCPP_INFO(get_logger(), "call NDT Align Server");
 
-  auto result = ndt_client_->async_send_request(req);
-  // Wait for the result. `shared_from_this` is fine since this class is only used with `make_shared`.
-  if (
-    rclcpp::spin_until_future_complete(this->shared_from_this(), result) ==
-    rclcpp::FutureReturnCode::SUCCESS) {
-    RCLCPP_INFO(get_logger(), "called NDT Align Server");
-    // NOTE temporary cov
-    geometry_msgs::msg::PoseWithCovarianceStamped & pose_with_cov = result.get()->pose_with_cov;
-    pose_with_cov.pose.covariance[0] = 1.0;
-    pose_with_cov.pose.covariance[1 * 6 + 1] = 1.0;
-    pose_with_cov.pose.covariance[2 * 6 + 2] = 0.01;
-    pose_with_cov.pose.covariance[3 * 6 + 3] = 0.01;
-    pose_with_cov.pose.covariance[4 * 6 + 4] = 0.01;
-    pose_with_cov.pose.covariance[5 * 6 + 5] = 0.2;
-    *output_pose_msg_ptr = pose_with_cov;
-    return true;
-  } else {
-    RCLCPP_ERROR(get_logger(), "could not call NDT Align Server");
-    return false;
-  }
+  ndt_client_->async_send_request(
+    req,
+    [this](rclcpp::Client<autoware_localization_srvs::srv::PoseWithCovarianceStamped>::SharedFuture
+             result) {
+      RCLCPP_INFO(get_logger(), "called NDT Align Server");
+      // NOTE temporary cov
+      geometry_msgs::msg::PoseWithCovarianceStamped & pose_with_cov = result.get()->pose_with_cov;
+      pose_with_cov.pose.covariance[0] = 1.0;
+      pose_with_cov.pose.covariance[1 * 6 + 1] = 1.0;
+      pose_with_cov.pose.covariance[2 * 6 + 2] = 0.01;
+      pose_with_cov.pose.covariance[3 * 6 + 3] = 0.01;
+      pose_with_cov.pose.covariance[4 * 6 + 4] = 0.01;
+      pose_with_cov.pose.covariance[5 * 6 + 5] = 0.2;
+      initial_pose_pub_->publish(pose_with_cov);
+    });
 }
