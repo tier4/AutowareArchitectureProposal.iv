@@ -15,14 +15,23 @@ ament_auto_find_build_dependencies()
 find_package(Eigen3 REQUIRED)
 
 find_package(osqp REQUIRED)
-get_target_property(osqp_INCLUDE_DIR osqp::osqpstatic INTERFACE_INCLUDE_DIRECTORIES)
+get_target_property(OSQP_INCLUDE_DIR osqp::osqpstatic INTERFACE_INCLUDE_DIRECTORIES)
 
-include_directories(
-  ${EIGEN3_INCLUDE_DIR}
-  ${osqp_INCLUDE_DIR}
+set(EXTERNAL_INCLUDE_DIRS
+  "${EIGEN3_INCLUDE_DIR}"
+  "${OSQP_INCLUDE_DIR}"
   )
 
-ament_auto_add_library(osqp_interface src/osqp_interface.cpp src/csc_matrix_conv.cpp)
+ament_auto_add_library(osqp_interface
+  src/osqp_interface.cpp
+  src/csc_matrix_conv.cpp
+  include/osqp_interface/osqp_interface.h
+  include/osqp_interface/csc_matrix_conv.h
+  )
 target_link_libraries(osqp_interface osqp::osqpstatic)
+
+target_include_directories(osqp_interface PUBLIC "${EXTERNAL_INCLUDE_DIRS}")
+# needed so clients of this package don't need to worry about includes of this package
+ament_export_include_directories("${EXTERNAL_INCLUDE_DIRS}")
 
 ament_auto_package()
