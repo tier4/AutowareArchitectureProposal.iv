@@ -17,6 +17,7 @@
 
 #include <autoware_perception_msgs/DynamicObjectArray.h>
 #include <autoware_planning_msgs/Trajectory.h>
+#include <diagnostic_msgs/DiagnosticStatus.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
@@ -34,6 +35,19 @@
 
 namespace motion_planning
 {
+struct StopPoint
+{
+  size_t index;
+  Eigen::Vector2d point;
+};
+
+struct SlowDownPoint
+{
+  size_t index;
+  Eigen::Vector2d point;
+  double velocity;
+};
+
 class ObstacleStopPlannerNode
 {
 public:
@@ -122,5 +136,35 @@ private:
     const pcl::PointCloud<pcl::PointXYZ> & pointcloud, const geometry_msgs::Pose & base_pose,
     pcl::PointXYZ * lateral_nearest_point, double * deviation);
   geometry_msgs::Pose getVehicleCenterFromBase(const geometry_msgs::Pose & base_pose);
+
+  void insertStopPoint(
+    const StopPoint & stop_point, const autoware_planning_msgs::Trajectory & base_path,
+    autoware_planning_msgs::Trajectory & output_path,
+    diagnostic_msgs::DiagnosticStatus & stop_reason_diag);
+
+  StopPoint searchInsertPoint(
+    const int idx, const autoware_planning_msgs::Trajectory & base_path,
+    const Eigen::Vector2d & trajectory_vec, const Eigen::Vector2d & collision_point_vec);
+
+  StopPoint createTargetPoint(
+    const int idx, const double margin, const Eigen::Vector2d & trajectory_vec,
+    const Eigen::Vector2d & collision_point_vec,
+    const autoware_planning_msgs::Trajectory & base_path);
+
+  SlowDownPoint createSlowDownStartPoint(
+    const int idx, const double margin, const double slow_down_target_vel,
+    const Eigen::Vector2d & trajectory_vec, const Eigen::Vector2d & slow_down_point_vec,
+    const autoware_planning_msgs::Trajectory & base_path);
+
+  void insertSlowDownStartPoint(
+    const SlowDownPoint & slow_down_start_point,
+    const autoware_planning_msgs::Trajectory & base_path,
+    autoware_planning_msgs::Trajectory & output_path);
+
+  void insertSlowDownVelocity(
+    const size_t slow_down_start_point_idx, const double slow_down_target_vel, double slow_down_vel,
+    autoware_planning_msgs::Trajectory & output_path);
+
+  double calcSlowDownTargetVel(const double lateral_deviation);
 };
 }  // namespace motion_planning
