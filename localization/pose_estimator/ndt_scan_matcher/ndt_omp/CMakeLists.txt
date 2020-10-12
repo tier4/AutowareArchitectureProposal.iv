@@ -13,7 +13,6 @@ set(CMAKE_CXX_FLAGS "-std=c++14 -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2")
 # endif()
 
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
 find_package(PCL REQUIRED)
 find_package(OpenMP)
 if (OPENMP_FOUND)
