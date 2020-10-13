@@ -27,8 +27,10 @@
 #include <string>
 #include <vector>
 
-#include <cpprest/http_client.h>
 #include <diagnostic_updater/diagnostic_updater.h>
+
+// Include after diagnostic_updater because it causes errors
+#include <cpprest/http_client.h>
 
 namespace http = web::http;
 namespace client = web::http::client;
