@@ -161,6 +161,8 @@ AdaptiveCruiseController::AdaptiveCruiseController(
   param_.valid_est_vel_max = declare_parameter("valid_estimated_vel_max", 20.0);
   param_.valid_est_vel_min = declare_parameter("valid_estimated_vel_min", -20.0);
   param_.thresh_vel_to_stop = declare_parameter("thresh_vel_to_stop", 0.5);
+  param_.use_rough_est_vel = declare_parameter("use_rough_velocity_estimation", false);
+  param_.rough_velocity_rate = declare_parameter("rough_velocity_rate", 0.9);
 
   /* publisher */
   pub_debug_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>(
@@ -214,6 +216,11 @@ void AdaptiveCruiseController::insertAdaptiveCruiseVelocity(
     }
   }
 
+  if (param_.use_rough_est_vel && !success_estm_vel) {
+    point_velocity = estimateRoughPointVelocity(current_velocity);
+    success_estm_vel = true;
+  }
+
   if (!success_estm_vel) {
     // if failed to estimate velocity, need to stop
     RCLCPP_DEBUG_THROTTLE(
@@ -236,7 +243,6 @@ void AdaptiveCruiseController::insertAdaptiveCruiseVelocity(
       get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(),
       "Upper velocity is too low. Insert stop line.");
     *need_to_stop = true;
-    prev_upper_velocity_ = current_velocity;  // reset prev_upper_velocity
     return;
   }
 
@@ -391,8 +397,21 @@ bool AdaptiveCruiseController::estimatePointVelocityFromPcl(
 
   prev_collision_point_time_ = nearest_collision_point_time;
   prev_collision_point_ = nearest_collision_point;
+  prev_target_velocity_ = *velocity;
   prev_collision_point_valid_ = true;
   return true;
+}
+
+double AdaptiveCruiseController::estimateRoughPointVelocity(double current_vel)
+{
+  const double p_dt = rclcpp::Clock().now().seconds() - prev_collision_point_time_.seconds();
+  if (param_.valid_est_vel_diff_time >= p_dt) {
+    //use previous estimated velocity
+    return prev_target_velocity_;
+  }
+
+  //use current velocity * rough velocity rate
+  return current_vel * param_.rough_velocity_rate;
 }
 
 double AdaptiveCruiseController::calcUpperVelocity(
@@ -416,7 +435,8 @@ double AdaptiveCruiseController::calcUpperVelocity(
     return 0.0;
   }
 
-  const double upper_velocity = calcTargetVelocityByPID(self_vel, dist_to_col, obj_vel);
+  const double upper_velocity =
+    std::max(0.0, calcTargetVelocityByPID(self_vel, dist_to_col, obj_vel));
   const double lowpass_upper_velocity =
     lowpass_filter(upper_velocity, prev_upper_velocity_, param_.lowpass_gain_);
   prev_upper_velocity_ = lowpass_upper_velocity;
