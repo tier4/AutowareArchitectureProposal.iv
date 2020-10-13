@@ -14,13 +14,14 @@
 
 #include "latlon_muxer/node.hpp"
 
+#include <rclcpp_components/register_node_macro.hpp>
 #include <rclcpp/time.hpp>
 
 #include <string>
 #include <memory>
 
-LatLonMuxer::LatLonMuxer(const std::string & node_name, const rclcpp::NodeOptions & options)
-: rclcpp::Node(node_name, options)
+LatLonMuxer::LatLonMuxer(const rclcpp::NodeOptions & node_options)
+: rclcpp::Node("latlon_muxer", node_options)
 {
   control_cmd_pub_ =
     create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
@@ -66,3 +67,5 @@ void LatLonMuxer::lonCtrlCmdCallback(
   lon_cmd_ = std::make_shared<autoware_control_msgs::msg::ControlCommandStamped>(*input_msg);
   publishCmd();
 }
+
+RCLCPP_COMPONENTS_REGISTER_NODE(LatLonMuxer)

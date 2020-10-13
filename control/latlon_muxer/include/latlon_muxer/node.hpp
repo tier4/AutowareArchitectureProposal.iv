@@ -24,7 +24,7 @@
 class LatLonMuxer : public rclcpp::Node
 {
 public:
-  explicit LatLonMuxer(const std::string & node_name, const rclcpp::NodeOptions & options);
+  explicit LatLonMuxer(const rclcpp::NodeOptions & node_options);
 
 private:
   void latCtrlCmdCallback(const autoware_control_msgs::msg::ControlCommandStamped::SharedPtr msg);
