@@ -29,4 +29,6 @@ valid_vel_que_time: 0.5 # Time width of information used for speed estimation in
 valid_estimated_vel_max: 20.0 # Maximum value of valid speed estimation results in speed estimation using a point cloud [m/s]
 valid_estimated_vel_min: -20.0 # Minimum value of valid speed estimation results in speed estimation using a point cloud [m/s]
 thresh_vel_to_stop: 1.5 # Embed a stop line if the maximum speed calculated by ACC is lower than this speed [m/s]
-lowpass_gain_of_upper_velocity: 0.75 #Lowpass-gain of upper velocity
+lowpass_gain_of_upper_velocity: 0.75 # Lowpass-gain of upper velocity
+use_rough_velocity_estimation: false # Use rough estimated velocity if the velocity estimation is failed (#### If this parameter is true, the vehicle may collide with the front car. Be careful. ####)
+rough_velocity_rate: 0.9 # In the rough velocity estimation, the velocity of front car is estimated as self current velocity * this value

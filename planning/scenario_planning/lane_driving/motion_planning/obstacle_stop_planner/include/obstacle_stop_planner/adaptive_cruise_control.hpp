@@ -64,6 +64,7 @@ private:
   pcl::PointXYZ prev_collision_point_;
   double prev_target_vehicle_time_ = 0.0;
   double prev_target_vehicle_dist_ = 0.0;
+  double prev_target_velocity_ = 0.0;
   bool prev_collision_point_valid_ = false;
   std::vector<geometry_msgs::TwistStamped> est_vel_que_;
   double prev_upper_velocity_ = 0.0;
@@ -137,6 +138,12 @@ private:
     //!< @brief gain of lowpass filter of upper velocity
     double lowpass_gain_;
 
+    //!< @brief when failed to estimate velocity, use rough velocity estimation or not
+    bool use_rough_est_vel;
+
+    //!< @brief in rough velocity estimation, front car velocity is estimated as self current velocity * this value
+    double rough_velocity_rate;
+
     /* parameter for pid used in acc */
     //!< @brief coefficient P in PID control (used when target dist -current_dist >=0)
     double p_coeff_pos;
@@ -170,6 +177,7 @@ private:
   bool estimatePointVelocityFromPcl(
     const double traj_yaw, const pcl::PointXYZ & nearest_collision_point,
     const ros::Time & nearest_collision_point_time, double * velocity);
+  double estimateRoughPointVelocity(double current_vel);
   double calcUpperVelocity(const double dist_to_col, const double obj_vel, const double self_vel);
   double calcThreshDistToForwardObstacle(const double current_vel, const double obj_vel);
   double calcBaseDistToForwardObstacle(const double current_vel, const double obj_vel);
