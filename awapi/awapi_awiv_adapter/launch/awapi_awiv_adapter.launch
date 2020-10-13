@@ -27,6 +27,7 @@
   <arg name="input_route" default="/planning/mission_planning/route" />
   <arg name="input_object" default="/perception/object_recognition/objects" />
   <arg name="input_traffic_light_state" default="/perception/traffic_light_recognition/traffic_light_states" />
+  <arg name="input_nearest_traffic_light_state" default="/planning/scenario_planning/lane_driving/behavior_planning/debug/traffic_light_state" />
   <arg name="input_trajectory" default="/planning/scenario_planning/trajectory" />
   <arg name="input_door_status" default="/pacmod/parsed_tx/rear_pass_door_rpt" />
   <arg name="input_stop_speed_exceeded" default="/planning/scenario_planning/motion_velocity_optimizer/stop_speed_exceeded" />
@@ -48,7 +49,7 @@
   <arg name="output_obstacle_avoid_approval" default="/planning/scenario_planning/lane_driving/obstacle_avoidance_approval" />
   <arg name="output_door_control" default="/pacmod/as_rx/rear_pass_door_cmd" />
   <arg name="output_force_obstacle_avoid" default="tmp" /> <!-- not implemented -->
-  <arg name="output_overwrite_traffic_light_state" default="tmp" /> <!-- not implemented -->
+  <arg name="output_overwrite_traffic_light_state" default="/foa/traffic_light_recognition/traffic_light_states" />
 
   <arg name="node_emergency_handling" default="/control/vehicle_cmd_gate" />
   <arg name="param_emergency_handling" default="use_emergency_handling" />
@@ -65,7 +66,7 @@
   <arg name="set_force_lane_change" default="lane_change/put/force" />
   <arg name="set_obstacle_avoid_approval" default="object_avoidance/put/approval" />
   <arg name="set_force_obstacle_avoid" default="object_avoidance/put/force" />
-  <arg name="set_overwrite_traffic_light_state" default="traffic_light/put/traffic_light" />
+  <arg name="set_overwrite_traffic_light_state" default="traffic_light/put/traffic_light_status" />
   <arg name="set_door_control" default="vehicle/put/door" />
   <arg name="set_crosswalk_status" default="autoware/put/crosswalk_states" />
   <arg name="set_intersection_status" default="autoware/put/intersection_states" />
@@ -74,6 +75,8 @@
   <arg name="get_predicted_object" default="prediction/get/objects" />
   <arg name="get_door_status" default="vehicle/get/door" />
   <arg name="get_stop_speed_exceeded" default="autoware/get/stop_speed_exceeded" />
+  <arg name="get_traffic_light_status" default="traffic_light/get/status" />
+  <arg name="get_nearest_traffic_light_status" default="traffic_light/get/nearest_traffic_light_status" />
 
   <group ns="awapi">
     <node pkg="awapi_awiv_adapter" exec="awapi_awiv_adapter" output="screen">
@@ -115,7 +118,7 @@
     </node>
 
     <!-- relay get topic -->
-     <node pkg="topic_tools" exec="relay" name="route_relay" output="log" >
+    <node pkg="topic_tools" exec="relay" name="route_relay" output="log" >
       <param name="input_topic" value="$(var input_route)" />
       <param name="output_topic" value="$(var get_route)" />
       <param name="type" value="autoware_planning_msgs/msg/Route" />
@@ -124,6 +127,11 @@
       <param name="input_topic" value="$(var input_object)" />
       <param name="output_topic" value="$(var get_predicted_object)" />
       <param name="type" value="autoware_perception_msgs/msg/DynamicObjectArray" />
+    </node>
+    <node pkg="topic_tools" exec="relay" name="nearest_traffic_light_relay" output="log" >
+      <param name="input_topic" value="$(var input_nearest_traffic_light_state)" />
+      <param name="output_topic" value="$(var get_nearest_traffic_light_status)" />
+      <param name="type" value="autoware_perception_msgs/msg/TrafficLightStateStamped" />
     </node>
 
     <!-- relay put topic -->
@@ -172,12 +180,12 @@
       <param name="input_topic" value="$(var set_force_obstacle_avoid)" />
       <param name="output_topic" value="$(var output_force_obstacle_avoid)" />
       <param name="type" value="" />
-    </node>
-    <node pkg="topic_tools" exec="relay" name="overwrite_traffic_light_state_relay" output="log" >
-      <param name="input_topic" value="$(var set_overwrite_traffic_light_state)" />
-      <param name="output_topic" value="$(var output_overwrite_traffic_light_state)" />
-      <param name="type" value="" />
     </node> -->
+    <node pkg="topic_tools" exec="relay" name="traffic_light_relay" output="log" >
+      <param name="input_topic" value="$(var input_traffic_light_state)" />
+      <param name="output_topic" value="$(var get_traffic_light_status)" />
+      <param name="type" value="autoware_perception_msgs/msg/TrafficLightStateArray" />
+    </node>
     <node pkg="topic_tools" exec="relay" name="speed_exceeded_relay" output="log" >
       <param name="input_topic" value="$(var input_stop_speed_exceeded)" />
       <param name="output_topic" value="$(var get_stop_speed_exceeded)" />

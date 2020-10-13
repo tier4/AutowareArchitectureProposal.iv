@@ -110,6 +110,15 @@
 | --- | :--------------------------------------- | :--- | :--- | :--- |
 |     | autoware_api_msgs/TrafficLightStateArray |      |      |      |
 
+### /awapi/traffic_light/get/nearest_traffic_light_status
+
+- get recognition result of nearest traffic light
+- MessageType: autoware_perception_msgs/TrafficLightStateStamped
+
+| ✓   | type                                              | name | unit | note |
+| --- | :------------------------------------------------ | :--- | :--- | :--- |
+|     | autoware_perception_msgs/TrafficLightStateStamped |      |      |      |
+
 ### /awapi/vehicle/get/door
 
 - get door status
@@ -228,11 +237,11 @@
 ### /awapi/traffic_light/put/traffic_light
 
 - Overwrite the recognition result of traffic light
-- <font color="Red">**not implemented (Autoware does not have corresponded topic)**</font>
+- MessageType: autoware_perception_msgs/TrafficLightStateArray
 
-| ✓   | type | name | unit | note |
-| --- | :--- | :--- | :--- | :--- |
-
+| ✓   | type                                            | name | unit | note |
+| --- | :---------------------------------------------- | :--- | :--- | :--- |
+|     | autoware_perception_msgs/TrafficLightStateArray |      |      |      |
 
 ### /awapi/vehicle/put/door
 
