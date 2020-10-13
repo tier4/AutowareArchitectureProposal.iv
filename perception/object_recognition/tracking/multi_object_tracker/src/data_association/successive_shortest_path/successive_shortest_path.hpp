@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef SUCCESSIVE_SHORTEST_PATH_HPP_
 #define SUCCESSIVE_SHORTEST_PATH_HPP_
 

@@ -17,16 +17,9 @@
   <depend>autoware_perception_msgs</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
-  <depend>unique_identifier_msgs</depend>
+  <!-- <depend>unique_identifier_msgs</depend> -->
   <!-- <depend>unique_identifier</depend> -->
-  <!-- <depend>uuid_msgs</depend> -->
   <depend>eigen</depend>
-
-  <!-- <build_export_depend>autoware_perception_msgs</build_export_depend>
-  <build_export_depend>tf2</build_export_depend>
-  <build_export_depend>tf2_ros</build_export_depend>
-  <build_export_depend>unique_id</build_export_depend>
-  <build_export_depend>uuid_msgs</build_export_depend> -->
 
   <exec_depend>rclcpp</exec_depend>
   <exec_depend>rclcpp_components</exec_depend>

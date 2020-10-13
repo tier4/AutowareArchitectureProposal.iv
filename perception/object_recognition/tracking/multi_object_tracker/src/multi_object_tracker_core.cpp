@@ -16,13 +16,14 @@
  *
  * v1.0 Yukihiro Saito
  */
-#include <string>
 
-#include "multi_object_tracker/multi_object_tracker_core.hpp"
+#include <string>
 
 #define EIGEN_MPL2_ONLY
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+
+#include "multi_object_tracker/multi_object_tracker_core.hpp"
 
 MultiObjectTracker::MultiObjectTracker() : Node("multi_object_tracker"), tf_listener_(tf_buffer_)
 {
@@ -59,7 +60,7 @@ void MultiObjectTracker::measurementCallback(
   /* transform to world coordinate */
   if (input_objects_msg->header.frame_id != world_frame_id_) {
     tf2::Transform tf_world2objects_world;
-    tf2::Transform tf_world2objets;
+    tf2::Transform tf_world2objects;
     tf2::Transform tf_objects_world2objects;
     try {
       geometry_msgs::msg::TransformStamped ros_world2objects_world;
@@ -73,6 +74,11 @@ void MultiObjectTracker::measurementCallback(
       //     std::chrono::seconds(input_transformed_objects.header.stamp.sec) +
       //     std::chrono::nanoseconds(input_transformed_objects.header.stamp.nanosec)),
       //   tf2::durationFromSec(0.5));
+      ros_world2objects_world = tf_buffer_.lookupTransform(
+        world_frame_id_, input_transformed_objects.header.frame_id,
+        tf2::TimePoint(
+          std::chrono::seconds(input_transformed_objects.header.stamp.sec) +
+          std::chrono::nanoseconds(input_transformed_objects.header.stamp.nanosec)));
       tf2::fromMsg(ros_world2objects_world.transform, tf_world2objects_world);
     } catch (tf2::TransformException & ex) {
       RCLCPP_WARN(this->get_logger(), "%s", ex.what());
@@ -82,9 +88,9 @@ void MultiObjectTracker::measurementCallback(
       tf2::fromMsg(
         input_transformed_objects.feature_objects.at(i).object.state.pose_covariance.pose,
         tf_objects_world2objects);
-      tf_world2objets = tf_world2objects_world * tf_objects_world2objects;
+      tf_world2objects = tf_world2objects_world * tf_objects_world2objects;
       tf2::toMsg(
-        tf_world2objets,
+        tf_world2objects,
         input_transformed_objects.feature_objects.at(i).object.state.pose_covariance.pose);
     }
   }

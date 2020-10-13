@@ -15,11 +15,12 @@
  *
  * v1.0 Yukihiro Saito
  */
+
 #ifndef MULTI_OBJECT_TRACKER_PEDESTRIAN_TRACKER_HPP_
 #define MULTI_OBJECT_TRACKER_PEDESTRIAN_TRACKER_HPP_
 
 #include "autoware_perception_msgs/msg/dynamic_object.hpp"
-#include "tracker_base.hpp"
+#include "multi_object_tracker/tracker/model/tracker_base.hpp"
 
 class PedestrianTracker : public Tracker
 {

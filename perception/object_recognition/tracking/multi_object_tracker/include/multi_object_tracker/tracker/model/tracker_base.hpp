@@ -15,11 +15,13 @@
  *
  * v1.0 Yukihiro Saito
  */
+
 #ifndef MULTI_OBJECT_TRACKER_TRACKER_BASE_HPP_
 #define MULTI_OBJECT_TRACKER_TRACKER_BASE_HPP_
 
 #include <geometry_msgs/msg/point.hpp>
 #include <rclcpp/rclcpp.hpp>
+
 #include "autoware_perception_msgs/msg/dynamic_object.hpp"
 
 // #include <unique_id/unique_id.h>

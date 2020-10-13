@@ -15,6 +15,7 @@
  *
  * v1.0 Yukihiro Saito
  */
+
 #ifndef MULTI_OBJECT_TRACKER_UTILS_HPP_
 #define MULTI_OBJECT_TRACKER_UTILS_HPP_
 
