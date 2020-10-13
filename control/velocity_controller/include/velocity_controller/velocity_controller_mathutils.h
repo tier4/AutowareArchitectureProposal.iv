@@ -19,21 +19,22 @@
 
 #include <cmath>
 
-#include <geometry_msgs/Pose.h>
-#include <ros/ros.h>
 #include <tf2/utils.h>
-#include "autoware_planning_msgs/Trajectory.h"
+#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include <geometry_msgs/msg/pose.hpp>
+
+#include <rclcpp/rclcpp.hpp>
 
 namespace vcutils
 {
-double calcDistance2D(const geometry_msgs::Pose & p1, const geometry_msgs::Pose & p2);
-double calcDistSquared2D(const geometry_msgs::Pose & p1, const geometry_msgs::Pose & p2);
+double calcDistance2D(const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Pose & p2);
+double calcDistSquared2D(const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Pose & p2);
 double normalizeEulerAngle(double euler);
 bool calcClosestWithThr(
-  const autoware_planning_msgs::Trajectory & trajectory, const geometry_msgs::Pose & pose,
+  const autoware_planning_msgs::msg::Trajectory & trajectory, const geometry_msgs::msg::Pose & pose,
   const double angle_thr, const double dist_thr, int32_t & closest_idx);
-geometry_msgs::Point transformToRelativeCoordinate2D(
-  const geometry_msgs::Point & point, const geometry_msgs::Pose & origin);
+geometry_msgs::msg::Point transformToRelativeCoordinate2D(
+  const geometry_msgs::msg::Point & point, const geometry_msgs::msg::Pose & origin);
 }  // namespace vcutils
 
 #endif
