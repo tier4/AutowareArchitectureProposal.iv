@@ -91,9 +91,9 @@ void MultiObjectTracker::measurementCallback(
 
   /* tracker prediction */
   rclcpp::Time measurement_time = input_objects_msg->header.stamp;
-  // for (auto itr = list_tracker_.begin(); itr != list_tracker_.end(); ++itr) {
-  //   (*itr)->predict(measurement_time);
-  // }
+  for (auto itr = list_tracker_.begin(); itr != list_tracker_.end(); ++itr) {
+    (*itr)->predict(measurement_time);
+  }
 
   /* life cycle check */
   // TODO
@@ -101,26 +101,26 @@ void MultiObjectTracker::measurementCallback(
   /* global nearest neighboor */
   std::unordered_map<int, int> direct_assignment;
   std::unordered_map<int, int> reverse_assignment;
-  // Eigen::MatrixXd score_matrix = data_association_.calcScoreMatrix(
-  //   input_transformed_objects, list_tracker_);  // row : tracker, col : measurement
-  // data_association_.assign(score_matrix, direct_assignment, reverse_assignment);
+  Eigen::MatrixXd score_matrix = data_association_.calcScoreMatrix(
+    input_transformed_objects, list_tracker_);  // row : tracker, col : measurement
+  data_association_.assign(score_matrix, direct_assignment, reverse_assignment);
 
   /* tracker measurement update */
-  // int tracker_idx = 0;
-  // for (auto tracker_itr = list_tracker_.begin(); tracker_itr != list_tracker_.end();
-  //      ++tracker_itr, ++tracker_idx) {
-  //   if (direct_assignment.find(tracker_idx) != direct_assignment.end())  // found
-  //   {
-  //     (*(tracker_itr))
-  //       ->updateWithMeasurement(
-  //         input_transformed_objects.feature_objects.at(direct_assignment.find(tracker_idx)->second)
-  //           .object,
-  //         measurement_time);
-  //   } else  // not found
-  //   {
-  //     (*(tracker_itr))->updateWithoutMeasurement();
-  //   }
-  // }
+  int tracker_idx = 0;
+  for (auto tracker_itr = list_tracker_.begin(); tracker_itr != list_tracker_.end();
+       ++tracker_itr, ++tracker_idx) {
+    if (direct_assignment.find(tracker_idx) != direct_assignment.end())  // found
+    {
+      (*(tracker_itr))
+        ->updateWithMeasurement(
+          input_transformed_objects.feature_objects.at(direct_assignment.find(tracker_idx)->second)
+            .object,
+          measurement_time);
+    } else  // not found
+    {
+      (*(tracker_itr))->updateWithoutMeasurement();
+    }
+  }
 
   /* new tracker */
   for (size_t i = 0; i < input_transformed_objects.feature_objects.size(); ++i) {
@@ -134,20 +134,20 @@ void MultiObjectTracker::measurementCallback(
         autoware_perception_msgs::msg::Semantic::TRUCK ||
       input_transformed_objects.feature_objects.at(i).object.semantic.type ==
         autoware_perception_msgs::msg::Semantic::BUS) {
-      // list_tracker_.push_back(std::make_shared<VehicleTracker>(
-      //   measurement_time, input_transformed_objects.feature_objects.at(i).object));
+      list_tracker_.push_back(std::make_shared<VehicleTracker>(
+        measurement_time, input_transformed_objects.feature_objects.at(i).object));
     } else if (
       input_transformed_objects.feature_objects.at(i).object.semantic.type ==
       autoware_perception_msgs::msg::Semantic::PEDESTRIAN) {
-      // list_tracker_.push_back(std::make_shared<PedestrianTracker>(
-      //   measurement_time, input_transformed_objects.feature_objects.at(i).object));
+      list_tracker_.push_back(std::make_shared<PedestrianTracker>(
+        measurement_time, input_transformed_objects.feature_objects.at(i).object));
     } else if (
       input_transformed_objects.feature_objects.at(i).object.semantic.type ==
         autoware_perception_msgs::msg::Semantic::BICYCLE ||
       input_transformed_objects.feature_objects.at(i).object.semantic.type ==
         autoware_perception_msgs::msg::Semantic::MOTORBIKE) {
-      // list_tracker_.push_back(std::make_shared<BicycleTracker>(
-      //   measurement_time, input_transformed_objects.feature_objects.at(i).object));
+      list_tracker_.push_back(std::make_shared<BicycleTracker>(
+        measurement_time, input_transformed_objects.feature_objects.at(i).object));
     } else {
       // list_tracker_.push_back(std::make_shared<PedestrianTracker>(input_transformed_objects.feature_objects.at(i).object));
     }
@@ -160,25 +160,25 @@ void MultiObjectTracker::publishTimerCallback()
   if (dynamic_object_pub_->get_subscription_count() < 1) return;
 
   /* life cycle check */
-  // for (auto itr = list_tracker_.begin(); itr != list_tracker_.end(); ++itr) {
-  //   if (1.0 < (*itr)->getElapsedTimeFromLastUpdate()) {
-  //     auto erase_itr = itr;
-  //     --itr;
-  //     list_tracker_.erase(erase_itr);
-  //   }
-  // }
+  for (auto itr = list_tracker_.begin(); itr != list_tracker_.end(); ++itr) {
+    if (1.0 < (*itr)->getElapsedTimeFromLastUpdate(rclcpp::Node::now())) {
+      auto erase_itr = itr;
+      --itr;
+      list_tracker_.erase(erase_itr);
+    }
+  }
 
   // Create output msg
   rclcpp::Time current_time = rclcpp::Node::now();
   autoware_perception_msgs::msg::DynamicObjectArray output_msg;
   output_msg.header.frame_id = world_frame_id_;
   output_msg.header.stamp = current_time;
-  // for (auto itr = list_tracker_.begin(); itr != list_tracker_.end(); ++itr) {
-  //   if ((*itr)->getTotalMeasurementCount() < 3) continue;
-  //   autoware_perception_msgs::DynamicObject object;
-  //   (*itr)->getEstimatedDynamicObject(current_time, object);
-  //   output_msg.objects.push_back(object);
-  // }
+  for (auto itr = list_tracker_.begin(); itr != list_tracker_.end(); ++itr) {
+    if ((*itr)->getTotalMeasurementCount() < 3) continue;
+    autoware_perception_msgs::msg::DynamicObject object;
+    (*itr)->getEstimatedDynamicObject(current_time, object);
+    output_msg.objects.push_back(object);
+  }
 
   // Publish
   dynamic_object_pub_->publish(output_msg);
