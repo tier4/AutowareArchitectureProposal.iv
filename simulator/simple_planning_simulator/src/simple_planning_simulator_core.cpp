@@ -64,16 +64,16 @@ Simulator::Simulator(const std::string & node_name, const rclcpp::NodeOptions & 
     std::bind(&Simulator::callbackInitialPoseWithCov, this, std::placeholders::_1));
 
   const double dt = 1.0 / loop_rate_;
-  const int dt_ms = static_cast<int>(dt * 1000.0);
-  timer_simulation_ = create_wall_timer(
-    std::chrono::milliseconds(dt_ms), std::bind(&Simulator::timerCallbackSimulation, this));
 
-  bool use_trajectory_for_z_position_source =
-    declare_parameter("use_trajectory_for_z_position_source", true);
-  if (use_trajectory_for_z_position_source) {
-    sub_trajectory_ = create_subscription<autoware_planning_msgs::msg::Trajectory>(
-      "base_trajectory", rclcpp::QoS{1},
-      std::bind(&Simulator::callbackTrajectory, this, std::placeholders::_1));
+  /* Timer */
+  {
+    auto timer_callback = std::bind(&Simulator::timerCallbackSimulation, this);
+    auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+      std::chrono::duration<double>(dt));
+    timer_simulation_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
+      this->get_clock(), period, std::move(timer_callback),
+      this->get_node_base_interface()->get_context());
+    this->get_node_timers_interface()->add_timer(timer_simulation_, nullptr);
   }
 
   /* tf setting */
