@@ -116,6 +116,7 @@ ObstacleStopPlannerNode::ObstacleStopPlannerNode() : nh_(), pnh_("~"), tf_listen
   max_deceleration_ = getParam<double>(pnh_, "max_deceleration", 2.0);
   enable_slow_down_ = getParam<bool>(pnh_, "enable_slow_down", false);
   step_length_ = getParam<double>(pnh_, "step_length", 1.0);
+  extend_distance_ = getParam<double>(pnh_, "extend_distance", 0.0);
   stop_margin_ += wheel_base_ + front_overhang_;
   min_behavior_stop_margin_ += wheel_base_ + front_overhang_;
   slow_down_margin_ += wheel_base_ + front_overhang_;
@@ -177,7 +178,15 @@ void ObstacleStopPlannerNode::pathCallback(
     return;
   }
 
-  const autoware_planning_msgs::Trajectory base_path = *input_msg;
+  const geometry_msgs::Pose goal_pose = input_msg->points.back().pose;
+
+  /*
+   * extend trajectory to consider obstacles after the goal
+   */
+  autoware_planning_msgs::Trajectory extended_trajectory;
+  extendTrajectory(*input_msg, extend_distance_, extended_trajectory);
+
+  const autoware_planning_msgs::Trajectory base_path = extended_trajectory;
   autoware_planning_msgs::Trajectory output_msg = *input_msg;
   diagnostic_msgs::DiagnosticStatus stop_reason_diag;
   const double epsilon = 0.00001;
@@ -393,7 +402,9 @@ void ObstacleStopPlannerNode::pathCallback(
         (i + 1 == base_path.points.size() && 0.0 < trajectory_vec.dot(collision_point_vec))) {
         const auto stop_point =
           searchInsertPoint(i, base_path, trajectory_vec, collision_point_vec);
-        insertStopPoint(stop_point, base_path, output_msg, stop_reason_diag);
+        if (stop_point.index <= output_msg.points.size()) {
+          insertStopPoint(stop_point, base_path, output_msg, stop_reason_diag);
+        }
         break;
       }
     }
@@ -423,14 +434,17 @@ void ObstacleStopPlannerNode::pathCallback(
           i, slow_down_margin_, slow_down_target_vel, trajectory_vec, slow_down_point_vec,
           base_path);
 
-        insertSlowDownStartPoint(slow_down_start_point, base_path, output_msg);
-        insertSlowDownVelocity(
-          slow_down_start_point.index, slow_down_target_vel, slow_down_start_point.velocity,
-          output_msg);
+        if (slow_down_start_point.index <= output_msg.points.size()) {
+          insertSlowDownStartPoint(slow_down_start_point, base_path, output_msg);
+          insertSlowDownVelocity(
+            slow_down_start_point.index, slow_down_target_vel, slow_down_start_point.velocity,
+            output_msg);
+        }
         break;
       }
     }
   }
+
   path_pub_.publish(output_msg);
   stop_reason_diag_pub_.publish(stop_reason_diag);
   debug_ptr_->publish();
@@ -616,6 +630,47 @@ bool ObstacleStopPlannerNode::decimateTrajectory(
 {
   std::map<size_t /* decimate */, size_t /* origin */> index_map;
   decimateTrajectory(input_trajectory, step_length, output_trajectory, index_map);
+}
+
+autoware_planning_msgs::TrajectoryPoint ObstacleStopPlannerNode::getExtendTrajectoryPoint(
+  const double extend_distance, const autoware_planning_msgs::TrajectoryPoint & goal_point)
+{
+  tf2::Transform map2goal;
+  tf2::fromMsg(goal_point.pose, map2goal);
+  tf2::Transform local_extend_point;
+  local_extend_point.setOrigin(tf2::Vector3(extend_distance, 0.0, 0.0));
+  tf2::Quaternion q;
+  q.setRPY(0, 0, 0);
+  local_extend_point.setRotation(q);
+  const auto map2extend_point = map2goal * local_extend_point;
+  geometry_msgs::Pose extend_pose;
+  tf2::toMsg(map2extend_point, extend_pose);
+  autoware_planning_msgs::TrajectoryPoint extend_trajectory_point;
+  extend_trajectory_point.pose = extend_pose;
+  extend_trajectory_point.twist = goal_point.twist;
+  extend_trajectory_point.accel = goal_point.accel;
+  return extend_trajectory_point;
+}
+
+bool ObstacleStopPlannerNode::extendTrajectory(
+  const autoware_planning_msgs::Trajectory & input_trajectory,
+  const double extend_distance,
+  autoware_planning_msgs::Trajectory & output_trajectory)
+{
+  output_trajectory = input_trajectory;
+  const auto goal_point = input_trajectory.points.back();
+  double interpolation_distance = 0.1;
+
+  double extend_sum = 0.0;
+  while (extend_sum <= (extend_distance - interpolation_distance)) {
+    const auto extend_trajectory_point = getExtendTrajectoryPoint(extend_sum, goal_point);
+    output_trajectory.points.push_back(extend_trajectory_point);
+    extend_sum += interpolation_distance;
+  }
+  const auto extend_trajectory_point = getExtendTrajectoryPoint(extend_distance, goal_point);
+  output_trajectory.points.push_back(extend_trajectory_point);
+
+  return true;
 }
 
 bool ObstacleStopPlannerNode::decimateTrajectory(

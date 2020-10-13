@@ -89,6 +89,7 @@ private:
   double min_slow_down_vel_;
   double max_deceleration_;
   bool enable_slow_down_;
+  double extend_distance_;
   double step_length_;
   double stop_search_radius_;
   double slow_down_search_radius_;
@@ -166,5 +167,13 @@ private:
     autoware_planning_msgs::Trajectory & output_path);
 
   double calcSlowDownTargetVel(const double lateral_deviation);
+  bool extendTrajectory(
+    const autoware_planning_msgs::Trajectory & input_trajectory,
+    const double extend_distance,
+    autoware_planning_msgs::Trajectory & output_trajectory);
+
+  autoware_planning_msgs::TrajectoryPoint getExtendTrajectoryPoint(
+    double extend_distance, const autoware_planning_msgs::TrajectoryPoint & goal_point);
+
 };
 }  // namespace motion_planning
