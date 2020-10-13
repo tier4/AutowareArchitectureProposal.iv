@@ -18,6 +18,7 @@
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
   <depend>unique_identifier_msgs</depend>
+  <!-- <depend>unique_identifier</depend> -->
   <!-- <depend>uuid_msgs</depend> -->
   <depend>eigen</depend>
 

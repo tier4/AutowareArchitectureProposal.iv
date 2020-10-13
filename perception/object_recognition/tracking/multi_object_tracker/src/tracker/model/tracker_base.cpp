@@ -20,8 +20,8 @@
 #include "multi_object_tracker/tracker/model/tracker_base.hpp"
 #include "multi_object_tracker/utils/utils.hpp"
 
-Tracker::Tracker(const ros::Time & time, const int type)
-: uuid_(unique_id::fromRandom()),
+Tracker::Tracker(const rclcpp::Time & time, const int type)
+:  // uuid_(unique_id::fromRandom()),
   type_(type),
   no_measurement_count_(0),
   total_measurement_count_(1),
@@ -30,7 +30,8 @@ Tracker::Tracker(const ros::Time & time, const int type)
 }
 
 bool Tracker::updateWithMeasurement(
-  const autoware_perception_msgs::DynamicObject & object, const ros::Time & measurement_time)
+  const autoware_perception_msgs::msg::DynamicObject & object,
+  const rclcpp::Time & measurement_time)
 {
   no_measurement_count_ = 0;
   ++total_measurement_count_;
@@ -45,20 +46,20 @@ bool Tracker::updateWithoutMeasurement()
   return true;
 }
 
-geometry_msgs::Point Tracker::getPosition(const ros::Time & time)
+geometry_msgs::msg::Point Tracker::getPosition(const rclcpp::Time & time)
 {
-  autoware_perception_msgs::DynamicObject object;
+  autoware_perception_msgs::msg::DynamicObject object;
   getEstimatedDynamicObject(time, object);
-  geometry_msgs::Point position;
+  geometry_msgs::msg::Point position;
   position.x = object.state.pose_covariance.pose.position.x;
   position.y = object.state.pose_covariance.pose.position.y;
   position.z = object.state.pose_covariance.pose.position.z;
   return position;
 }
 
-double Tracker::getArea(const ros::Time & time)
+double Tracker::getArea(const rclcpp::Time & time)
 {
-  autoware_perception_msgs::DynamicObject object;
+  autoware_perception_msgs::msg::DynamicObject object;
   getEstimatedDynamicObject(time, object);
   return utils::getArea(object.shape);
 }

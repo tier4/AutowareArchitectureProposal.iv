@@ -34,7 +34,7 @@
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
 // #include "multi_object_tracker/data_association/data_association.hpp"
-// #include "multi_object_tracker/tracker/model/tracker_base.hpp"
+#include "multi_object_tracker/tracker/model/tracker_base.hpp"
 
 class MultiObjectTracker : public rclcpp::Node
 {
@@ -59,7 +59,7 @@ private:
   void publishTimerCallback();
 
   std::string world_frame_id_;  // tracking frame
-  // std::list<std::shared_ptr<Tracker>> list_tracker_;
+  std::list<std::shared_ptr<Tracker>> list_tracker_;
   // DataAssociation data_association_;
 };
 

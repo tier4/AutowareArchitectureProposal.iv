@@ -15,8 +15,8 @@ find_package(rclcpp REQUIRED)
 find_package(autoware_perception_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
-find_package(unique_identifier_msgs REQUIRED)
-# find_package(uuid_msgs REQUIRED)
+# find_package(unique_identifier REQUIRED)
+# find_package(unique_identifier_msgs REQUIRED)
 
 ## Find Eigen Dependencies
 find_package(eigen3_cmake_module REQUIRED)
@@ -31,12 +31,12 @@ include_directories(
 set(MULTI_OBJECT_TRACKER_SRC
   src/multi_object_tracker_core.cpp
   src/utils/utils.cpp
-  # src/tracker/model/tracker_base.cpp
-  # src/tracker/model/vehicle_tracker.cpp
-  # src/tracker/model/bicycle_tracker.cpp
-  # src/tracker/model/pedestrian_tracker.cpp
-  # src/data_association/data_association.cpp
-  # src/data_association/successive_shortest_path/successive_shortest_path.cpp
+  src/tracker/model/tracker_base.cpp
+  src/tracker/model/vehicle_tracker.cpp
+  src/tracker/model/bicycle_tracker.cpp
+  src/tracker/model/pedestrian_tracker.cpp
+  src/data_association/data_association.cpp
+  src/data_association/successive_shortest_path/successive_shortest_path.cpp
 )
 
 add_executable(${PROJECT_NAME}_exe
@@ -50,7 +50,7 @@ set(MULTI_OBJECT_TRACKER_DEPENDENCIES
   autoware_perception_msgs
   tf2
   tf2_ros
-  unique_identifier_msgs
+  # unique_identifier_msgs
   # uuid_msgs
   Eigen3
 )
