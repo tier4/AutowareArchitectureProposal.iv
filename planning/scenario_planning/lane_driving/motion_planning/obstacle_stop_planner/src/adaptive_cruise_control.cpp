@@ -441,7 +441,7 @@ double AdaptiveCruiseController::calcUpperVelocity(
   }
 
   const double upper_velocity =
-    std::max(0.0, calcTargetVelocityByPID(self_vel, dist_to_col, obj_vel));
+    std::max(1e-01, calcTargetVelocityByPID(self_vel, dist_to_col, obj_vel));
   const double lowpass_upper_velocity =
     lowpass_filter(upper_velocity, prev_upper_velocity_, param_.lowpass_gain_);
   prev_upper_velocity_ = lowpass_upper_velocity;
