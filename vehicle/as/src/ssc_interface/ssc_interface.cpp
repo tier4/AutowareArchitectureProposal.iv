@@ -114,15 +114,19 @@ SSCInterface::SSCInterface() : Node("ssc_interface")
   gear_pub_ =
     create_publisher<automotive_platform_msgs::msg::GearCommand>("as/gear_select", rclcpp::QoS{10});
 
-  int dt_ms = static_cast<int>((1.0 / loop_rate_) * 1000);
-  timer_ = rclcpp::create_timer(
-    this, get_clock(), rclcpp::Duration(std::chrono::milliseconds(dt_ms)),
-    std::bind(&SSCInterface::run, this));
+  // Timer
+  auto timer_callback = std::bind(&SSCInterface::onTimer, this);
+  auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<double>(1.0 / loop_rate_));
+  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
+    this->get_clock(), period, std::move(timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(timer_, nullptr);
 }
 
 SSCInterface::~SSCInterface() {}
 
-void SSCInterface::run() { publishCommand(); }
+void SSCInterface::onTimer() { publishCommand(); }
 
 void SSCInterface::callbackFromVehicleCmd(
   const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr msg)

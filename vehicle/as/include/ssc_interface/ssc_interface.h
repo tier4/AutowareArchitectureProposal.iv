@@ -60,7 +60,7 @@ public:
   SSCInterface();
   ~SSCInterface();
 
-  void run();
+  void onTimer();
 
 private:
   typedef message_filters::sync_policies::ApproximateTime<

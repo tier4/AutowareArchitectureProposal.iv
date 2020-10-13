@@ -120,15 +120,19 @@ PacmodInterface::PacmodInterface()
   turn_signal_status_pub_ = create_publisher<autoware_vehicle_msgs::msg::TurnSignal>(
     "/vehicle/status/turn_signal", rclcpp::QoS{1});
 
-  int dt_ms = static_cast<int>((1.0 / loop_rate_) * 1000);
-  timer_ = rclcpp::create_timer(
-    this, get_clock(), rclcpp::Duration(std::chrono::milliseconds(dt_ms)),
-    std::bind(&PacmodInterface::run, this));
+  // Timer
+  auto timer_callback = std::bind(&PacmodInterface::onTimer, this);
+  auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<double>(1.0 / loop_rate_));
+  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
+    this->get_clock(), period, std::move(timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(timer_, nullptr);
 }
 
 PacmodInterface::~PacmodInterface() {}
 
-void PacmodInterface::run() { publishCommands(); }
+void PacmodInterface::onTimer() { publishCommands(); }
 
 void PacmodInterface::callbackVehicleCmd(
   const autoware_vehicle_msgs::msg::RawVehicleCommand::ConstSharedPtr msg)
