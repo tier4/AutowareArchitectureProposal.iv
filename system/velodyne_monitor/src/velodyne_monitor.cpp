@@ -19,13 +19,15 @@
  * @brief Velodyne monitor class
  */
 
-#include <fmt/format.h>
-
 #include <velodyne_monitor/velodyne_monitor.h>
+
+#include <boost/algorithm/string/join.hpp>
+
+#include <fmt/format.h>
 
 VelodyneMonitor::VelodyneMonitor()
 {
-  pnh_.param<double>("timeout", timeout_, 0.05);
+  pnh_.param<double>("timeout", timeout_, 0.5);
   pnh_.param<std::string>("ip_address", ip_address_, "192.168.1.201");
   pnh_.param<float>("temp_cold_warn", temp_cold_warn_, -5.0);
   pnh_.param<float>("temp_cold_error", temp_cold_error_, -10.0);
