@@ -245,6 +245,9 @@ void PacmodInterface::publishCommands()
 
   double desired_throttle = raw_vehicle_cmd_ptr_->control.throttle + accel_pedal_offset_;
   double desired_brake = raw_vehicle_cmd_ptr_->control.brake + brake_pedal_offset_;
+  if (raw_vehicle_cmd_ptr_->control.brake <= std::numeric_limits<double>::epsilon()) {
+    desired_brake = 0.0;
+  }
 
   /* check emergency and timeout */
   const bool emergency = (raw_vehicle_cmd_ptr_->emergency == 1);
