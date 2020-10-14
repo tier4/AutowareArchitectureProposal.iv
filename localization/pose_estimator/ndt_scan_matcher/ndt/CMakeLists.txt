@@ -12,7 +12,7 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_auto REQUIRED)
 find_package(ndt_pcl_modified REQUIRED)
 find_package(ndt_omp REQUIRED)
-find_package(PCL REQUIRED COMPONENTS common)
+find_package(PCL REQUIRED COMPONENTS common registration io)
 
 add_library(ndt
   src/base.cpp
