@@ -111,7 +111,8 @@ bool calcNearestPoseInterp(
   rclcpp::Logger logger, rclcpp::Clock & clock);
 
 int calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose);
-
+int calcNearestIndex(
+  const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose);
 /**
  * @brief convert MPCTraj to visualization marker for visualization
  */
