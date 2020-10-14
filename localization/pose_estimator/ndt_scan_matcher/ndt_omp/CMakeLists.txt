@@ -13,8 +13,10 @@ set(CMAKE_CXX_FLAGS "-std=c++14 -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2")
 # endif()
 
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_auto REQUIRED)
 find_package(PCL REQUIRED)
 find_package(OpenMP)
+
 if (OPENMP_FOUND)
   set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -24,14 +26,15 @@ endif()
 ## Build ##
 ###########
 
-include_directories(
-  include
-  ${PCL_COMMON_INCLUDE_DIRS}
-)
-
 add_library(ndt_omp
   src/ndt_omp/voxel_grid_covariance_omp.cpp
   src/ndt_omp/ndt_omp.cpp
+)
+
+target_include_directories(ndt_omp
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include> 
 )
 
 # pcl 1.7 causes a segfault without -O2 (or -O3) flag
@@ -45,26 +48,12 @@ set(NDT_OMP_DEPENDENCIES
 )
 
 ament_target_dependencies(ndt_omp ${NDT_OMP_DEPENDENCIES}) 
-ament_export_dependencies(${NDT_OMP_DEPENDENCIES})
 
 
 add_executable(align
   apps/align.cpp
 )
 
-# ament_target_dependencies can't depend on targets, i.e. ndt_omp
-target_link_libraries(align PUBLIC
-  ndt_omp
-  ${PCL_LIBRARIES}
-)
+ament_target_dependencies(ndt_omp ${NDT_OMP_DEPENDENCIES}) 
 
-install(TARGETS ndt_omp
-  DESTINATION lib/${PROJECT_NAME}
-)
-
-## Install project namespaced headers
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION install/${PROJECT_NAME}
-)
-
-ament_package()
+ament_auto_package()
