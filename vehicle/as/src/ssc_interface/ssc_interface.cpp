@@ -25,8 +25,8 @@ SSCInterface::SSCInterface() : Node("ssc_interface")
   use_adaptive_gear_ratio_ = declare_parameter("use_adaptive_gear_ratio", true);
   command_timeout_ = declare_parameter("command_timeout", 1000);
   loop_rate_ = declare_parameter("loop_rate", 30.0);
-  tire_radius_ = declare_parameter("vehicle_info.wheel_radius").get<double>();
-  wheel_base_ = declare_parameter("vehicle_info.wheel_base").get<double>();
+  tire_radius_ = declare_parameter("vehicle_info.wheel_radius", 0.5);
+  wheel_base_ = declare_parameter("vehicle_info.wheel_base", 4.0);
   ssc_gear_ratio_ = declare_parameter("ssc_gear_ratio", 16.135);
   acceleration_limit_ = declare_parameter("acceleration_limit", 3.0);
   deceleration_limit_ = declare_parameter("deceleration_limit", 3.0);
