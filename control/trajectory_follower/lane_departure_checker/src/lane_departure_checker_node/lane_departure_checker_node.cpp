@@ -39,6 +39,50 @@ std::array<geometry_msgs::Point, 3> triangle2points(const geometry_msgs::Polygon
   }
   return points;
 }
+
+lanelet::ConstLanelets getRouteLanelets(
+  const lanelet::LaneletMap & lanelet_map, const lanelet::routing::RoutingGraphPtr & routing_graph,
+  const std::vector<autoware_planning_msgs::RouteSection> & route_sections,
+  const double vehicle_length)
+{
+  lanelet::ConstLanelets route_lanelets;
+
+  // Add preceding lanes of front route_section to prevent detection errors
+  {
+    const auto extention_length = 2 * vehicle_length;
+
+    for (const auto & lane_id : route_sections.front().lane_ids) {
+      for (const auto & lanelet_sequence : lanelet::utils::query::getPrecedingLaneletSequences(
+             routing_graph, lanelet_map.laneletLayer.get(lane_id), extention_length)) {
+        for (const auto & preceding_lanelet : lanelet_sequence) {
+          route_lanelets.push_back(preceding_lanelet);
+        }
+      }
+    }
+  }
+
+  for (const auto & route_section : route_sections) {
+    for (const auto & lane_id : route_section.lane_ids) {
+      route_lanelets.push_back(lanelet_map.laneletLayer.get(lane_id));
+    }
+  }
+
+  // Add succeeding lanes of last route_section to prevent detection errors
+  {
+    const auto extention_length = 2 * vehicle_length;
+
+    for (const auto & lane_id : route_sections.back().lane_ids) {
+      for (const auto & lanelet_sequence : lanelet::utils::query::getSucceedingLaneletSequences(
+             routing_graph, lanelet_map.laneletLayer.get(lane_id), extention_length)) {
+        for (const auto & succeeding_lanelet : lanelet_sequence) {
+          route_lanelets.push_back(succeeding_lanelet);
+        }
+      }
+    }
+  }
+
+  return route_lanelets;
+}
 }  // namespace
 
 namespace lane_departure_checker
@@ -187,27 +231,8 @@ void LaneDepartureCheckerNode::onTimer(const ros::TimerEvent & event)
 
   // In order to wait for both of map and route will be ready, write this not in callback but here
   if (last_route_ != route_) {
-    route_lanelets_ = {};
-    for (const auto & route_section : route_->route_sections) {
-      for (const auto & lane_id : route_section.lane_ids) {
-        route_lanelets_.push_back(lanelet_map_->laneletLayer.get(lane_id));
-      }
-    }
-
-    // Add succeeding lanes of last route_section to prevent detection errors
-    {
-      const auto extention_length = 2 * param_.vehicle_info.vehicle_length;
-
-      for (const auto & lane_id : route_->route_sections.back().lane_ids) {
-        for (const auto & lanelet_sequence : lanelet::utils::query::getSucceedingLaneletSequences(
-               routing_graph_, lanelet_map_->laneletLayer.get(lane_id), extention_length)) {
-          for (const auto & succeeding_lanelet : lanelet_sequence) {
-            route_lanelets_.push_back(succeeding_lanelet);
-          }
-        }
-      }
-    }
-
+    route_lanelets_ = getRouteLanelets(
+      *lanelet_map_, routing_graph_, route_->route_sections, param_.vehicle_info.vehicle_length);
     last_route_ = route_;
   }
 
