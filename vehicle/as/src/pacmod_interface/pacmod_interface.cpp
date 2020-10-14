@@ -281,9 +281,23 @@ void PacmodInterface::publishCommands()
 
   /* make engage cmd false when a driver overrides vehicle control */
   if (!prev_override_ && global_rpt_ptr_->override_active) {
+    ROS_WARN_THROTTLE(1.0, "Pacmod is overrided, enable flag is back to false");
     engage_cmd_ = false;
   }
   prev_override_ = global_rpt_ptr_->override_active;
+
+  /* make engage cmd false when vehicle report is timeouted, e.g. E-stop is depressed */
+  const bool report_timeouted = ((ros::Time::now() - global_rpt_ptr_->header.stamp).toSec() > 1.0);
+  if (report_timeouted) {
+    ROS_WARN_THROTTLE(1.0, "Pacmod report is timeouted, enable flag is back to false");
+    engage_cmd_ = false;
+  }
+
+  /* make engage cmd false when vehicle fault is active */
+  if (global_rpt_ptr_->fault_active) {
+    ROS_WARN_THROTTLE(1.0, "Pacmod fault is active, enable flag is back to false");
+    engage_cmd_ = false;
+  }
 
   ROS_DEBUG(
     "[pacmod] is_pacmod_enabled_ = %d, is_clear_override_needed_ = %d, clear_override = %d",
