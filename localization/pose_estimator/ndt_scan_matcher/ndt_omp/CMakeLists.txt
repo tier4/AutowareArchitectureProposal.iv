@@ -54,6 +54,6 @@ add_executable(align
   apps/align.cpp
 )
 
-ament_target_dependencies(ndt_omp ${NDT_OMP_DEPENDENCIES}) 
+target_link_libraries(align ndt_omp ${PCL_LIBRARIES})
 
 ament_auto_package()
