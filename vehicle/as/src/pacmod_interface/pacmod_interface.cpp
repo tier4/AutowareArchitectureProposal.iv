@@ -27,8 +27,8 @@ PacmodInterface::PacmodInterface()
 {
   /* setup parameters */
   base_frame_id_ = declare_parameter("base_frame_id", "base_link");
-  int command_timeout_ms_ = declare_parameter("command_timeout_ms", 1000);
-  double loop_rate_ = declare_parameter("loop_rate", 30.0);
+  command_timeout_ms_ = declare_parameter("command_timeout_ms", 1000);
+  loop_rate_ = declare_parameter("loop_rate", 30.0);
 
   /* parameters for vehicle specifications */
   tire_radius_ = declare_parameter("vehicle_info.wheel_radius").get<double>();
@@ -37,7 +37,7 @@ PacmodInterface::PacmodInterface()
   enable_steering_rate_control_ = declare_parameter("enable_steering_rate_control", false);
 
   /* parameters for emergency stop */
-  double emergency_brake_ = declare_parameter("emergency_brake", 0.7);
+  emergency_brake_ = declare_parameter("emergency_brake", 0.7);
 
   /* vehicle parameters */
   vgr_coef_a_ = declare_parameter("vgr_coef_a", 15.713);

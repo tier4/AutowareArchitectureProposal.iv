@@ -21,20 +21,20 @@ SSCInterface::SSCInterface() : Node("ssc_interface")
   using std::placeholders::_1;
 
   // setup parameters
-  bool use_rear_wheel_speed_ = declare_parameter("use_rear_wheel_speed", true);
-  bool use_adaptive_gear_ratio_ = declare_parameter("use_adaptive_gear_ratio", true);
-  double command_timeout_ = declare_parameter("command_timeout", 1000);
-  double loop_rate_ = declare_parameter("loop_rate", 30.0);
-  double tire_radius_ = declare_parameter("vehicle_info.wheel_radius").get<double>();
-  double wheel_base_ = declare_parameter("vehicle_info.wheel_base").get<double>();
-  double ssc_gear_ratio_ = declare_parameter("ssc_gear_ratio", 16.135);
-  double acceleration_limit_ = declare_parameter("acceleration_limit", 3.0);
-  double deceleration_limit_ = declare_parameter("deceleration_limit", 3.0);
-  double max_curvature_rate_ = declare_parameter("max_curvature_rate", 0.15);
-  double agr_coef_a_ = declare_parameter("agr_coef_a", 15.713);
-  double agr_coef_b_ = declare_parameter("agr_coef_b", 0.053);
-  double agr_coef_c_ = declare_parameter("agr_coef_c", 0.042);
-  double steering_offset_ = declare_parameter("steering_offset", 0.0);
+  use_rear_wheel_speed_ = declare_parameter("use_rear_wheel_speed", true);
+  use_adaptive_gear_ratio_ = declare_parameter("use_adaptive_gear_ratio", true);
+  command_timeout_ = declare_parameter("command_timeout", 1000);
+  loop_rate_ = declare_parameter("loop_rate", 30.0);
+  tire_radius_ = declare_parameter("vehicle_info.wheel_radius").get<double>();
+  wheel_base_ = declare_parameter("vehicle_info.wheel_base").get<double>();
+  ssc_gear_ratio_ = declare_parameter("ssc_gear_ratio", 16.135);
+  acceleration_limit_ = declare_parameter("acceleration_limit", 3.0);
+  deceleration_limit_ = declare_parameter("deceleration_limit", 3.0);
+  max_curvature_rate_ = declare_parameter("max_curvature_rate", 0.15);
+  agr_coef_a_ = declare_parameter("agr_coef_a", 15.713);
+  agr_coef_b_ = declare_parameter("agr_coef_b", 0.053);
+  agr_coef_c_ = declare_parameter("agr_coef_c", 0.042);
+  steering_offset_ = declare_parameter("steering_offset", 0.0);
 
   // subscribers from autoware
   vehicle_cmd_sub_ = create_subscription<autoware_vehicle_msgs::msg::VehicleCommand>(
