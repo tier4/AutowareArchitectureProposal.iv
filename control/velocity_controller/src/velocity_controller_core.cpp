@@ -150,6 +150,10 @@ VelocityController::VelocityController() : Node("velocity_controller")
   debug_values_.data.clear();
   debug_values_.data.resize(num_debug_values_, 0.0);
 
+  // set parameter callback
+  set_param_res_ =
+    this->add_on_set_parameters_callback(std::bind(&VelocityController::paramCallback, this, _1));
+
   // wait to get vehicle position
   while (rclcpp::ok()) {
     if (!updateCurrentPose(5.0)) {
@@ -184,7 +188,6 @@ bool VelocityController::getCurretPoseFromTF(
       get_logger(), *get_clock(), 3.0, "cannot get map to base_link transform. %s", ex.what());
     return false;
   }
-
 
   ps.header = transform.header;
   ps.pose.position.x = transform.transform.translation.x;
