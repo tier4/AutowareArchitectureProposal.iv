@@ -31,8 +31,8 @@ PacmodInterface::PacmodInterface()
   loop_rate_ = declare_parameter("loop_rate", 30.0);
 
   /* parameters for vehicle specifications */
-  tire_radius_ = declare_parameter("vehicle_info.wheel_radius").get<double>();
-  wheel_base_ = declare_parameter("vehicle_info.wheel_base").get<double>();
+  tire_radius_ = declare_parameter("vehicle_info.wheel_radius", 0.5);
+  wheel_base_ = declare_parameter("vehicle_info.wheel_base", 4.0);
   steering_offset_ = declare_parameter("steering_offset", 0.0);
   enable_steering_rate_control_ = declare_parameter("enable_steering_rate_control", false);
 
