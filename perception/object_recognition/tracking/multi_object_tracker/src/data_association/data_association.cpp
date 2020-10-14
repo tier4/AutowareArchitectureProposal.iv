@@ -30,7 +30,7 @@ DataAssociation::DataAssociation()
     autoware_perception_msgs::msg::Semantic::UNKNOWN) = 0;
   can_assgin_matrix_(
     autoware_perception_msgs::msg::Semantic::CAR,
-    autoware_perception_msgs::msg::Semantic::UNKNOWN) = 0;
+    autoware_perception_msgs::msg::Semantic::UNKNOWN) = 1;
   can_assgin_matrix_(
     autoware_perception_msgs::msg::Semantic::CAR, autoware_perception_msgs::msg::Semantic::TRUCK) =
     1;
@@ -38,7 +38,7 @@ DataAssociation::DataAssociation()
     autoware_perception_msgs::msg::Semantic::CAR, autoware_perception_msgs::msg::Semantic::BUS) = 1;
   can_assgin_matrix_(
     autoware_perception_msgs::msg::Semantic::TRUCK,
-    autoware_perception_msgs::msg::Semantic::UNKNOWN) = 0;
+    autoware_perception_msgs::msg::Semantic::UNKNOWN) = 1;
   can_assgin_matrix_(
     autoware_perception_msgs::msg::Semantic::TRUCK, autoware_perception_msgs::msg::Semantic::CAR) =
     1;
@@ -47,7 +47,7 @@ DataAssociation::DataAssociation()
     1;
   can_assgin_matrix_(
     autoware_perception_msgs::msg::Semantic::BUS,
-    autoware_perception_msgs::msg::Semantic::UNKNOWN) = 0;
+    autoware_perception_msgs::msg::Semantic::UNKNOWN) = 1;
   can_assgin_matrix_(
     autoware_perception_msgs::msg::Semantic::BUS, autoware_perception_msgs::msg::Semantic::CAR) = 1;
   can_assgin_matrix_(
