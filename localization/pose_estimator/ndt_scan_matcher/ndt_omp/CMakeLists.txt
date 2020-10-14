@@ -1,16 +1,14 @@
 cmake_minimum_required(VERSION 3.5)
 project(ndt_omp)
 
-# -mavx causes a lot of errors!!
-add_definitions(-std=c++14 -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2)
-set(CMAKE_CXX_FLAGS "-std=c++14 -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2")
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
 
 # warn performance issue of ndt_omp which is NOT built in release mode
-# string(TOUPPER ${CMAKE_BUILD_TYPE} uppercase_CMAKE_BUILD_TYPE)
-# if (NOT (${uppercase_CMAKE_BUILD_TYPE} STREQUAL "RELEASE"))
-#   message(WARNING
-#     "CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} may cause a serious performance degradation. Please configure with -DCMAKE_BUILD_TYPE=Release.")
-# endif()
+if (NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Release"))
+  message(WARNING "CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} may cause a serious performance degradation. Please configure with -DCMAKE_BUILD_TYPE=Release.")
+endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_auto REQUIRED)
@@ -38,8 +36,12 @@ target_include_directories(ndt_omp
 )
 
 # pcl 1.7 causes a segfault without -O2 (or -O3) flag
-target_compile_options(ndt_omp PUBLIC
-  $<$<CONFIG:Debug>:-O2 -g>
+target_compile_options(ndt_omp
+  PUBLIC
+    $<$<CONFIG:Debug>:-O2 -g>
+  PRIVATE
+    # -mavx causes a lot of errors!!
+    -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2
 )
 
 set(NDT_OMP_DEPENDENCIES
