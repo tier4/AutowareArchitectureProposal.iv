@@ -89,6 +89,7 @@ void EuclideanClusterNodelet::pointcloudCallback(const sensor_msgs::msg::PointCl
       pcl::toROSMsg(*cloud_cluster, ros_pointcloud);
       ros_pointcloud.header = input_msg->header;
       feature_object.feature.cluster = ros_pointcloud;
+      feature_object.object.state.pose_covariance.pose.position = getCentroid(ros_pointcloud);
       output.feature_objects.push_back(feature_object);
     }
     cluster_pub_->publish(output);
@@ -121,6 +122,26 @@ void EuclideanClusterNodelet::pointcloudCallback(const sensor_msgs::msg::PointCl
     pointcloud_output.header = input_msg->header;
     debug_pub_->publish(pointcloud_output);
   }
+}
+
+geometry_msgs::msg::Point EuclideanClusterNodelet::getCentroid(
+  const sensor_msgs::msg::PointCloud2 & pointcloud)
+{
+  geometry_msgs::msg::Point centroid;
+  centroid.x = 0.f;
+  centroid.y = 0.f;
+  centroid.z = 0.f;
+  for (sensor_msgs::msg::PointCloud2ConstIterator<float> iter_x(pointcloud, "x"),
+       iter_y(pointcloud, "y"), iter_z(pointcloud, "z");
+       iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
+    centroid.x += *iter_x;
+    centroid.y += *iter_y;
+    centroid.z += *iter_z;
+  }
+  centroid.x = centroid.x / ((float)pointcloud.height * (float)pointcloud.width);
+  centroid.y = centroid.y / ((float)pointcloud.height * (float)pointcloud.width);
+  centroid.z = centroid.z / ((float)pointcloud.height * (float)pointcloud.width);
+  return centroid;
 }
 
 }  // namespace euclidean_cluster
