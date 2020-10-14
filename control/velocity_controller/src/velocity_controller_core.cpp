@@ -235,62 +235,6 @@ void VelocityController::callbackTimerControl()
   resetHandling(control_mode_);
 }
 
-// void VelocityController::callbackConfig(
-//   const velocity_controller::VelocityControllerConfig & config, const uint32_t level)
-// {
-//   // closest waypoint threshold
-//   closest_dist_thr_ = config.closest_waypoint_distance_threshold;
-//   closest_angle_thr_ = config.closest_waypoint_angle_threshold;
-
-//   // stop state
-//   stop_state_vel_ = config.stop_state_velocity;
-//   stop_state_acc_ = config.stop_state_acc;
-//   stop_state_entry_ego_speed_ = config.stop_state_entry_ego_speed;
-//   stop_state_entry_target_speed_ = config.stop_state_entry_target_speed;
-//   stop_state_keep_stopping_dist_ = config.stop_state_keep_stopping_dist;
-
-//   // delay compensation
-//   delay_compensation_time_ = config.delay_compensation_time;
-
-//   // emergency stop by this controller
-//   emergency_stop_acc_ = config.emergency_stop_acc;
-//   emergency_stop_jerk_ = config.emergency_stop_jerk;
-
-//   // smooth stop
-//   smooth_stop_param_.exit_ego_speed = config.exit_ego_speed;
-//   smooth_stop_param_.entry_ego_speed = config.entry_ego_speed;
-//   smooth_stop_param_.exit_target_speed = config.exit_target_speed;
-//   smooth_stop_param_.entry_target_speed = config.entry_target_speed;
-//   smooth_stop_param_.weak_brake_time = config.weak_brake_time;
-//   smooth_stop_param_.weak_brake_acc = config.weak_brake_acc;
-//   smooth_stop_param_.increasing_brake_time = config.increasing_brake_time;
-//   smooth_stop_param_.increasing_brake_gradient = config.increasing_brake_gradient;
-//   smooth_stop_param_.stop_brake_time = config.stop_brake_time;
-//   smooth_stop_param_.stop_brake_acc = config.stop_brake_acc;
-
-//   // acceleration limit
-//   max_acc_ = config.max_acc;
-//   min_acc_ = config.min_acc;
-
-//   // jerk limit
-//   max_jerk_ = config.max_jerk;
-//   min_jerk_ = config.min_jerk;
-
-//   // slope compensation
-//   max_pitch_rad_ = config.max_pitch_rad;
-//   min_pitch_rad_ = config.min_pitch_rad;
-//   current_vel_threshold_pid_integrate_ = config.current_velocity_threshold_pid_integration;
-
-//   lpf_pitch_.init(config.lpf_pitch_gain);
-
-//   // velocity feedback
-//   pid_vel_.setGains(config.kp, config.ki, config.kd);
-//   pid_vel_.setLimits(
-//     config.max_out, config.min_out, config.max_p_effort, config.min_p_effort, config.max_i_effort,
-//     config.min_i_effort, config.max_d_effort, config.min_d_effort);
-//   lpf_vel_error_.init(config.lpf_velocity_error_gain);
-// }
-
 CtrlCmd VelocityController::calcCtrlCmd()
 {
   /* initialize parameters */
