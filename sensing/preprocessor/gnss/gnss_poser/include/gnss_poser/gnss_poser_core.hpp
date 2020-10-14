@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef GNSS_POSER_GNSS_POSER_NODE_HPP_
-#define GNSS_POSER_GNSS_POSER_NODE_HPP_
+#ifndef GNSS_POSER_GNSS_POSER_CORE_HPP_
+#define GNSS_POSER_GNSS_POSER_CORE_HPP_
 
 #include "gnss_poser/convert.hpp"
 #include "gnss_poser/gnss_stat.hpp"

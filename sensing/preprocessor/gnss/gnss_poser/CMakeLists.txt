@@ -32,7 +32,7 @@ ament_auto_find_build_dependencies()
 ## Build ##
 ###########
 
-ament_auto_add_library(gnss_poser_node src/gnss_poser_node.cpp)
+ament_auto_add_library(gnss_poser_node SHARED src/gnss_poser_core.cpp)
 
 rclcpp_components_register_node(gnss_poser_node
   PLUGIN "GNSSPoser"

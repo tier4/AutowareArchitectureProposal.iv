@@ -19,7 +19,7 @@
   <arg name="use_ublox_receiver" default="false" />
   <arg name="plane_zone" default="9" />
 
-  <node pkg="gnss_poser" exec="gnss_poser_exe" name="gnss_poser" output="screen" >
+  <node pkg="gnss_poser" exec="gnss_poser" name="gnss_poser" output="screen" >
 
     <remap from="fix" to="$(var input_topic_fix)" />
     <remap from="navpvt" to="$(var input_topic_navpvt)" />
