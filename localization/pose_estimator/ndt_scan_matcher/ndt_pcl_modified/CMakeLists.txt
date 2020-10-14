@@ -5,37 +5,22 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-  add_compile_options(-Wno-unused-parameter)
+  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic -Werror)
 endif()
 
-find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_auto REQUIRED)
 find_package(PCL REQUIRED COMPONENTS common)
-
-include_directories(include ${PCL_INCLUDE_DIRS})
-link_directories(${PCL_LIBRARY_DIRS})
-add_definitions(${PCL_DEFINITIONS})
 
 add_library(ndt_pcl_modified
   src/ndt.cpp
 )
 
-target_link_libraries(ndt_pcl_modified ${PCL_LIBRARIES})
-
-ament_export_dependencies(PCL)
-ament_export_include_directories(include)
-ament_export_libraries(ndt_pcl_modified)
-
-install(
-  TARGETS
-    ndt_pcl_modified
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
+target_include_directories(ndt_pcl_modified
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
 )
 
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION include/${PROJECT_NAME}
-)
+ament_target_dependencies(ndt_pcl_modified PCL)
 
-ament_package()
+ament_auto_package()
