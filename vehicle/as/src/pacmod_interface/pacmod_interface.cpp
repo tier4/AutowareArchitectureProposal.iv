@@ -18,12 +18,12 @@
 
 PacmodInterface::PacmodInterface()
 : Node("pacmod_interface"),
-  engage_cmd_(false),
-  prev_engage_cmd_(false),
   is_pacmod_rpt_received_(false),
   is_pacmod_enabled_(false),
   is_clear_override_needed_(false),
-  prev_override_(true)
+  prev_override_(true),
+  engage_cmd_(false),
+  prev_engage_cmd_(false)
 {
   /* setup parameters */
   base_frame_id_ = declare_parameter("base_frame_id", "base_link");
@@ -328,7 +328,6 @@ void PacmodInterface::publishCommands()
 
   /* publish steering cmd */
   pacmod_msgs::msg::SteerSystemCmd steer_cmd;
-  double desired_rotation_rate;  // [rad/s]
 
   steer_cmd.header.frame_id = base_frame_id_;
   steer_cmd.header.stamp = current_time;
