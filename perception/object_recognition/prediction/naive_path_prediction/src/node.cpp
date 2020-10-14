@@ -27,7 +27,7 @@
 NaivePathPredictionNode::NaivePathPredictionNode() : nh_(""), pnh_("~")
 {
   sub_ = nh_.subscribe("input", 1, &NaivePathPredictionNode::callback, this);
-  pub_ = nh_.advertise<autoware_perception_msgs::DynamicObjectArray>("output", 1, true);
+  pub_ = nh_.advertise<autoware_perception_msgs::DynamicObjectArray>("objects", 1, true);
 }
 
 void NaivePathPredictionNode::callback(
