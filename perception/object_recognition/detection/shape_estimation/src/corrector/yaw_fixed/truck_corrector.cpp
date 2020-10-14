@@ -21,10 +21,10 @@ namespace yaw_fixed {
 bool TruckCorrector::correct(
   autoware_perception_msgs::Shape & shape_output, geometry_msgs::Pose & pose_output)
 {
-  double min_width = 1.5;
-  double max_width = 2.9;
-  double min_length = 4.0;
-  double max_length = 7.9;
+  const double min_width = 1.5;
+  const double max_width = 2.9;
+  const double min_length = 4.0;
+  const double max_length = 7.9;
 
   /*
     c1 is nearest point and other points are arranged like below

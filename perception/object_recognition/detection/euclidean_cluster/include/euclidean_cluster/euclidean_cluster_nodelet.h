@@ -35,6 +35,7 @@ private:
   virtual void onInit();
 
   void pointcloudCallback(const sensor_msgs::PointCloud2ConstPtr & input_msg);
+  geometry_msgs::Point getCentroid(const sensor_msgs::PointCloud2 & pointcloud);
 
   ros::NodeHandle nh_, private_nh_;
   ros::Subscriber pointcloud_sub_;
