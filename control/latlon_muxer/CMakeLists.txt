@@ -12,7 +12,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter -Werror)
 endif()
 
-ament_auto_add_library(latlon_muxer_node src/node.cpp)
+ament_auto_add_library(latlon_muxer_node SHARED src/node.cpp)
 
 rclcpp_components_register_node(latlon_muxer_node
   PLUGIN "LatLonMuxer"
