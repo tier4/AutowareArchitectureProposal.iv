@@ -21,10 +21,10 @@ namespace yaw_fixed {
 bool CarCorrector::correct(
   autoware_perception_msgs::Shape & shape_output, geometry_msgs::Pose & pose_output)
 {
-  double min_width = 1.2;
-  double max_width = 2.2;
-  double min_length = 3.0;
-  double max_length = 5.0;
+  const double min_width = 1.2;
+  const double max_width = 2.2;
+  const double min_length = 3.0;
+  const double max_length = 5.0;
 
   /*
     c1 is nearest point and other points are arranged like below

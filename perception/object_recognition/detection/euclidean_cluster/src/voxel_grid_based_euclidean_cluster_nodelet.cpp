@@ -59,7 +59,6 @@ void VoxelGridBasedEuclideanClusterNodelet::pointcloudCallback(
   pcl::PointCloud<pcl::PointXYZ>::Ptr voxel_map_ptr(new pcl::PointCloud<pcl::PointXYZ>);
   voxel_grid_.setLeafSize(voxel_leaf_size_, voxel_leaf_size_, 100000.0);
   voxel_grid_.setMinimumPointsNumberPerVoxel(min_points_number_per_voxel_);
-  ;
   voxel_grid_.setInputCloud(raw_pointcloud_ptr);
   voxel_grid_.setSaveLeafLayout(true);
   voxel_grid_.filter(*voxel_map_ptr);
@@ -118,23 +117,23 @@ void VoxelGridBasedEuclideanClusterNodelet::pointcloudCallback(
     for (std::vector<pcl::PointCloud<pcl::PointXYZ>>::const_iterator cluster_itr =
            v_cluster.begin();
          cluster_itr != v_cluster.end(); ++cluster_itr) {
+      if (!(min_cluster_size_ <= cluster_itr->points.size() &&
+            cluster_itr->points.size() <= max_cluster_size_))
+        continue;
       pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZ>);
       for (pcl::PointCloud<pcl::PointXYZ>::const_iterator point_itr = cluster_itr->points.begin();
            point_itr != cluster_itr->points.end(); ++point_itr) {
         cloud_cluster->points.push_back(*point_itr);
       }
-      if (
-        min_cluster_size_ <= cloud_cluster->points.size() &&
-        cloud_cluster->points.size() <= max_cluster_size_)
-        continue;
       cloud_cluster->width = cloud_cluster->points.size();
       cloud_cluster->height = 1;
-      cloud_cluster->is_dense = true;
+      cloud_cluster->is_dense = false;
       sensor_msgs::PointCloud2 ros_pointcloud;
       autoware_perception_msgs::DynamicObjectWithFeature feature_object;
       pcl::toROSMsg(*cloud_cluster, ros_pointcloud);
       ros_pointcloud.header = input_msg->header;
       feature_object.feature.cluster = ros_pointcloud;
+      feature_object.object.state.pose_covariance.pose.position = getCentroid(ros_pointcloud);
       output.feature_objects.push_back(feature_object);
     }
     cluster_pub_.publish(output);
@@ -150,24 +149,47 @@ void VoxelGridBasedEuclideanClusterNodelet::pointcloudCallback(
     for (std::vector<pcl::PointCloud<pcl::PointXYZ>>::const_iterator cluster_itr =
            v_cluster.begin();
          cluster_itr != v_cluster.end(); ++cluster_itr) {
+      if (!(min_cluster_size_ <= cluster_itr->points.size() &&
+            cluster_itr->points.size() <= max_cluster_size_))
+        continue;
       for (pcl::PointCloud<pcl::PointXYZ>::const_iterator point_itr = cluster_itr->points.begin();
            point_itr != cluster_itr->points.end(); ++point_itr) {
         pcl::PointXYZI point;
         point.x = point_itr->x;
         point.y = point_itr->y;
         point.z = point_itr->z;
-        point.intensity = (float)i * 1.0 / (float)v_cluster.size();
+        point.intensity = (float)(((i % 10) + 1) / 10.f);
         cloud_cluster->points.push_back(point);
       }
       cloud_cluster->width = cloud_cluster->points.size();
       cloud_cluster->height = 1;
-      cloud_cluster->is_dense = true;
+      cloud_cluster->is_dense = false;
       ++i;
     }
     pcl::toROSMsg(*cloud_cluster, pointcloud_output);
     pointcloud_output.header = input_msg->header;
     debug_pub_.publish(pointcloud_output);
   }
+}
+
+geometry_msgs::Point VoxelGridBasedEuclideanClusterNodelet::getCentroid(
+  const sensor_msgs::PointCloud2 & pointcloud)
+{
+  geometry_msgs::Point centroid;
+  centroid.x = 0.f;
+  centroid.y = 0.f;
+  centroid.z = 0.f;
+  for (sensor_msgs::PointCloud2ConstIterator<float> iter_x(pointcloud, "x"),
+       iter_y(pointcloud, "y"), iter_z(pointcloud, "z");
+       iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
+    centroid.x += *iter_x;
+    centroid.y += *iter_y;
+    centroid.z += *iter_z;
+  }
+  centroid.x = centroid.x / ((float)pointcloud.height * (float)pointcloud.width);
+  centroid.y = centroid.y / ((float)pointcloud.height * (float)pointcloud.width);
+  centroid.z = centroid.z / ((float)pointcloud.height * (float)pointcloud.width);
+  return centroid;
 }
 
 }  // namespace euclidean_cluster

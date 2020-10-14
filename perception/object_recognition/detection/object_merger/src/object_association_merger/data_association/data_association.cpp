@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Autoware Foundation. All rights reserved.
+ * Copyright 2020 Tier IV, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,34 +12,32 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- *
- * v1.0 Yukihiro Saito
  */
 
-#include "multi_object_tracker/data_association/data_association.hpp"
-#include "multi_object_tracker/utils/utils.hpp"
+#include "object_association_merger/data_association.hpp"
+#include <sensor_msgs/point_cloud2_iterator.h>
+#include "object_association_merger/utils/utils.hpp"
 #include "successive_shortest_path/successive_shortest_path.h"
 
 DataAssociation::DataAssociation() : score_threshold_(0.1)
 {
   can_assgin_matrix_ = Eigen::MatrixXi::Identity(20, 20);
   can_assgin_matrix_(
-    autoware_perception_msgs::Semantic::UNKNOWN, autoware_perception_msgs::Semantic::UNKNOWN) = 0;
+    autoware_perception_msgs::Semantic::UNKNOWN, autoware_perception_msgs::Semantic::UNKNOWN) = 1;
   can_assgin_matrix_(
-    autoware_perception_msgs::Semantic::CAR, autoware_perception_msgs::Semantic::UNKNOWN) = 1;
+    autoware_perception_msgs::Semantic::CAR, autoware_perception_msgs::Semantic::UNKNOWN) = 0;
   can_assgin_matrix_(
     autoware_perception_msgs::Semantic::CAR, autoware_perception_msgs::Semantic::TRUCK) = 1;
   can_assgin_matrix_(
     autoware_perception_msgs::Semantic::CAR, autoware_perception_msgs::Semantic::BUS) = 1;
   can_assgin_matrix_(
-    autoware_perception_msgs::Semantic::TRUCK, autoware_perception_msgs::Semantic::UNKNOWN) = 1;
+    autoware_perception_msgs::Semantic::TRUCK, autoware_perception_msgs::Semantic::UNKNOWN) = 0;
   can_assgin_matrix_(
     autoware_perception_msgs::Semantic::TRUCK, autoware_perception_msgs::Semantic::CAR) = 1;
   can_assgin_matrix_(
     autoware_perception_msgs::Semantic::TRUCK, autoware_perception_msgs::Semantic::BUS) = 1;
   can_assgin_matrix_(
-    autoware_perception_msgs::Semantic::BUS, autoware_perception_msgs::Semantic::UNKNOWN) = 1;
+    autoware_perception_msgs::Semantic::BUS, autoware_perception_msgs::Semantic::UNKNOWN) = 0;
   can_assgin_matrix_(
     autoware_perception_msgs::Semantic::BUS, autoware_perception_msgs::Semantic::CAR) = 1;
   can_assgin_matrix_(
@@ -61,40 +59,40 @@ DataAssociation::DataAssociation() : score_threshold_(0.1)
   max_dist_matrix_(
     autoware_perception_msgs::Semantic::CAR, autoware_perception_msgs::Semantic::UNKNOWN) = 4.0;
   max_dist_matrix_(
-    autoware_perception_msgs::Semantic::CAR, autoware_perception_msgs::Semantic::CAR) = 4.5;
+    autoware_perception_msgs::Semantic::CAR, autoware_perception_msgs::Semantic::CAR) = 3.0;
   max_dist_matrix_(
-    autoware_perception_msgs::Semantic::CAR, autoware_perception_msgs::Semantic::TRUCK) = 4.5;
+    autoware_perception_msgs::Semantic::CAR, autoware_perception_msgs::Semantic::TRUCK) = 3.0;
   max_dist_matrix_(
-    autoware_perception_msgs::Semantic::CAR, autoware_perception_msgs::Semantic::BUS) = 4.5;
+    autoware_perception_msgs::Semantic::CAR, autoware_perception_msgs::Semantic::BUS) = 3.0;
   max_dist_matrix_(
-    autoware_perception_msgs::Semantic::TRUCK, autoware_perception_msgs::Semantic::UNKNOWN) = 4.0;
+    autoware_perception_msgs::Semantic::TRUCK, autoware_perception_msgs::Semantic::UNKNOWN) = 3.0;
   max_dist_matrix_(
-    autoware_perception_msgs::Semantic::TRUCK, autoware_perception_msgs::Semantic::CAR) = 4.0;
+    autoware_perception_msgs::Semantic::TRUCK, autoware_perception_msgs::Semantic::CAR) = 3.0;
   max_dist_matrix_(
-    autoware_perception_msgs::Semantic::TRUCK, autoware_perception_msgs::Semantic::TRUCK) = 4.0;
+    autoware_perception_msgs::Semantic::TRUCK, autoware_perception_msgs::Semantic::TRUCK) = 3.0;
   max_dist_matrix_(
-    autoware_perception_msgs::Semantic::TRUCK, autoware_perception_msgs::Semantic::BUS) = 4.0;
+    autoware_perception_msgs::Semantic::TRUCK, autoware_perception_msgs::Semantic::BUS) = 3.0;
   max_dist_matrix_(
-    autoware_perception_msgs::Semantic::BUS, autoware_perception_msgs::Semantic::UNKNOWN) = 4.0;
+    autoware_perception_msgs::Semantic::BUS, autoware_perception_msgs::Semantic::UNKNOWN) = 3.0;
   max_dist_matrix_(
-    autoware_perception_msgs::Semantic::BUS, autoware_perception_msgs::Semantic::CAR) = 4.0;
+    autoware_perception_msgs::Semantic::BUS, autoware_perception_msgs::Semantic::CAR) = 3.0;
   max_dist_matrix_(
-    autoware_perception_msgs::Semantic::BUS, autoware_perception_msgs::Semantic::TRUCK) = 4.0;
+    autoware_perception_msgs::Semantic::BUS, autoware_perception_msgs::Semantic::TRUCK) = 3.0;
   max_dist_matrix_(
-    autoware_perception_msgs::Semantic::BUS, autoware_perception_msgs::Semantic::BUS) = 4.0;
+    autoware_perception_msgs::Semantic::BUS, autoware_perception_msgs::Semantic::BUS) = 3.0;
   max_dist_matrix_(
-    autoware_perception_msgs::Semantic::BICYCLE, autoware_perception_msgs::Semantic::UNKNOWN) = 3.0;
+    autoware_perception_msgs::Semantic::BICYCLE, autoware_perception_msgs::Semantic::UNKNOWN) = 2.0;
   max_dist_matrix_(
-    autoware_perception_msgs::Semantic::BICYCLE, autoware_perception_msgs::Semantic::BICYCLE) = 3.0;
+    autoware_perception_msgs::Semantic::BICYCLE, autoware_perception_msgs::Semantic::BICYCLE) = 2.0;
   max_dist_matrix_(
     autoware_perception_msgs::Semantic::BICYCLE, autoware_perception_msgs::Semantic::MOTORBIKE) =
-    3.0;
+    2.0;
   max_dist_matrix_(
     autoware_perception_msgs::Semantic::MOTORBIKE, autoware_perception_msgs::Semantic::UNKNOWN) =
-    3.0;
+    2.0;
   max_dist_matrix_(
     autoware_perception_msgs::Semantic::MOTORBIKE, autoware_perception_msgs::Semantic::BICYCLE) =
-    3.0;
+    2.0;
   max_dist_matrix_(
     autoware_perception_msgs::Semantic::MOTORBIKE, autoware_perception_msgs::Semantic::MOTORBIKE) =
     2.0;
@@ -105,8 +103,11 @@ DataAssociation::DataAssociation() : score_threshold_(0.1)
     autoware_perception_msgs::Semantic::PEDESTRIAN,
     autoware_perception_msgs::Semantic::PEDESTRIAN) = 2.0;
   max_dist_matrix_(
-    autoware_perception_msgs::Semantic::ANIMAL, autoware_perception_msgs::Semantic::UNKNOWN) = 1.0;
+    autoware_perception_msgs::Semantic::ANIMAL, autoware_perception_msgs::Semantic::UNKNOWN) = 2.0;
   max_area_matrix_ = Eigen::MatrixXd::Constant(20, 20, /* large number */ 10000.0);
+  max_area_matrix_(
+    autoware_perception_msgs::Semantic::UNKNOWN, autoware_perception_msgs::Semantic::UNKNOWN) =
+    5.0 * 5.0;
   max_area_matrix_(
     autoware_perception_msgs::Semantic::CAR, autoware_perception_msgs::Semantic::UNKNOWN) =
     2.2 * 5.5;
@@ -250,57 +251,64 @@ bool DataAssociation::assign(
 }
 
 Eigen::MatrixXd DataAssociation::calcScoreMatrix(
-  const autoware_perception_msgs::DynamicObjectWithFeatureArray & measurements,
-  const std::list<std::shared_ptr<Tracker>> & trackers)
+  const autoware_perception_msgs::DynamicObjectWithFeatureArray & object0,
+  const autoware_perception_msgs::DynamicObjectWithFeatureArray & object1)
 {
   Eigen::MatrixXd score_matrix =
-    Eigen::MatrixXd::Zero(trackers.size(), measurements.feature_objects.size());
-  size_t tracker_idx = 0;
-  for (auto tracker_itr = trackers.begin(); tracker_itr != trackers.end();
-       ++tracker_itr, ++tracker_idx) {
-    for (size_t measurement_idx = 0; measurement_idx < measurements.feature_objects.size();
-         ++measurement_idx) {
+    Eigen::MatrixXd::Zero(object1.feature_objects.size(), object0.feature_objects.size());
+  for (size_t object1_idx = 0; object1_idx < object1.feature_objects.size(); ++object1_idx) {
+    for (size_t object0_idx = 0; object0_idx < object0.feature_objects.size(); ++object0_idx) {
       double score = 0.0;
       if (can_assgin_matrix_(
-            (*tracker_itr)->getType(),
-            measurements.feature_objects.at(measurement_idx).object.semantic.type)) {
-        double max_dist = max_dist_matrix_(
-          (*tracker_itr)->getType(),
-          measurements.feature_objects.at(measurement_idx).object.semantic.type);
-        double max_area = max_area_matrix_(
-          (*tracker_itr)->getType(),
-          measurements.feature_objects.at(measurement_idx).object.semantic.type);
-        double min_area = min_area_matrix_(
-          (*tracker_itr)->getType(),
-          measurements.feature_objects.at(measurement_idx).object.semantic.type);
-        double dist = getDistance(
-          measurements.feature_objects.at(measurement_idx)
-            .object.state.pose_covariance.pose.position,
-          (*tracker_itr)->getPosition(measurements.header.stamp));
-        double area = utils::getArea(measurements.feature_objects.at(measurement_idx).object.shape);
+            object1.feature_objects.at(object1_idx).object.semantic.type,
+            object0.feature_objects.at(object0_idx).object.semantic.type)) {
+        const double max_dist = max_dist_matrix_(
+          object1.feature_objects.at(object1_idx).object.semantic.type,
+          object0.feature_objects.at(object0_idx).object.semantic.type);
+        const double max_area = max_area_matrix_(object1.feature_objects.at(object1_idx).object.semantic.type,
+                                           object0.feature_objects.at(object0_idx).object.semantic.type);
+        const double min_area = min_area_matrix_(object1.feature_objects.at(object1_idx).object.semantic.type,
+                                           object0.feature_objects.at(object0_idx).object.semantic.type);
+        const double dist = getDistance(
+          object0.feature_objects.at(object0_idx).object.state.pose_covariance.pose.position,
+          object1.feature_objects.at(object1_idx).object.state.pose_covariance.pose.position);
+        const double area0 = utils::getArea(object0.feature_objects.at(object0_idx).object.shape);
+        const double area1 = utils::getArea(object1.feature_objects.at(object1_idx).object.shape);
         score = (max_dist - std::min(dist, max_dist)) / max_dist;
-
         if (max_dist < dist) score = 0.0;
-        if (area < min_area || max_area < area) score = 0.0;
-        // if ((*tracker_itr)->getType() == measurements.feature_objects.at(measurement_idx).object.semantic.type &&
-        //     measurements.feature_objects.at(measurement_idx).object.semantic.type !=
-        //     autoware_perception_msgs::Semantic::UNKNOWN) score += 1.0;
-        // if (measurements.feature_objects.at(measurement_idx).object.semantic.type !=
-        // autoware_perception_msgs::Semantic::UNKNOWN)
-        //     score += 1.0;
+        if (area0 < min_area || max_area < area0) score = 0.0;
+        if (area1 < min_area || max_area < area1) score = 0.0;
       }
-      score_matrix(tracker_idx, measurement_idx) = score;
+      score_matrix(object1_idx, object0_idx) = score;
     }
   }
-
   return score_matrix;
 }
 
 double DataAssociation::getDistance(
-  const geometry_msgs::Point & measurement, const geometry_msgs::Point & tracker)
+  const geometry_msgs::Point & point0, const geometry_msgs::Point & point1)
 {
-  const double diff_x = tracker.x - measurement.x;
-  const double diff_y = tracker.y - measurement.y;
-  // const double diff_z = tracker.z - measurement.z;
+  const double diff_x = point1.x - point0.x;
+  const double diff_y = point1.y - point0.y;
+  // const double diff_z = point1.z - point0.z;
   return std::sqrt(diff_x * diff_x + diff_y * diff_y);
+}
+
+geometry_msgs::Point DataAssociation::getCentroid(const sensor_msgs::PointCloud2 & pointcloud)
+{
+  geometry_msgs::Point centroid;
+  centroid.x = 0;
+  centroid.y = 0;
+  centroid.z = 0;
+  for (sensor_msgs::PointCloud2ConstIterator<float> iter_x(pointcloud, "x"),
+       iter_y(pointcloud, "y"), iter_z(pointcloud, "z");
+       iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
+    centroid.x += *iter_x;
+    centroid.y += *iter_y;
+    centroid.z += *iter_z;
+  }
+  centroid.x = centroid.x / ((double)pointcloud.height * (double)pointcloud.width);
+  centroid.y = centroid.y / ((double)pointcloud.height * (double)pointcloud.width);
+  centroid.z = centroid.z / ((double)pointcloud.height * (double)pointcloud.width);
+  return centroid;
 }
