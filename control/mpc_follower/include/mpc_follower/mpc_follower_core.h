@@ -127,6 +127,11 @@ private:
   int curvature_smoothing_num_;  //!< @brief point-to-point index distance for curvature calculation
   double traj_resample_dist_;    //!< @brief path resampling interval [m]
 
+  /* parameters for stop state */
+  double stop_state_entry_ego_speed_;
+  double stop_state_entry_target_speed_;
+  double stop_state_keep_stopping_dist_;
+
   struct MPCParam
   {
     int prediction_horizon;  //!< @brief prediction horizon step
@@ -204,6 +209,9 @@ private:
     0.0;  //!< @brief sign of previous target speed to calculate curvature when the target speed is 0.
   std::vector<autoware_control_msgs::ControlCommandStamped>
     ctrl_cmd_vec_;  //!< buffer of send command
+
+  bool is_ctrl_cmd_prev_initialized_ = false;  //!< @brief flag of ctrl_cmd_prev_ initialization
+  autoware_control_msgs::ControlCommand ctrl_cmd_prev_;  //!< @brief previous control command
 
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;  //!< @brief tf listener
@@ -290,6 +298,21 @@ private:
    * @brief get stop command
    */
   autoware_control_msgs::ControlCommand getStopControlCommand() const;
+
+  /**
+   * @brief get initial command
+   */
+  autoware_control_msgs::ControlCommand getInitialControlCommand() const;
+
+  /**
+   * @brief check ego car stopped
+   */
+  bool checkIsStopped() const;
+
+  /**
+   * @brief calculate distance to stop point
+   */
+  double calcStopDistance(const int origin) const;
 
   /**
    * @brief resample trajectory with mpc resampling time

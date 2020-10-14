@@ -50,3 +50,8 @@ velocity_time_constant: 0.3      # velocity dynamics time constant  for trajecto
 
 # -- lowpass filter for noise reduction --
 steering_lpf_cutoff_hz: 3.0 # cutoff frequency of lowpass filter for steering command [Hz]
+
+# stop state
+stop_state_entry_ego_speed: 0.2
+stop_state_entry_target_speed: 0.5
+stop_state_keep_stopping_dist: 0.5

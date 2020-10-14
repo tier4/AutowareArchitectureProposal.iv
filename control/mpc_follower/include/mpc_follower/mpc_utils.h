@@ -106,6 +106,8 @@ bool calcNearestPoseInterp(
   const MPCTrajectory & traj, const geometry_msgs::Pose & self_pose,
   geometry_msgs::Pose * nearest_pose, int * nearest_index, double * nearest_time);
 int calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::Pose & self_pose);
+int calcNearestIndex(
+  const autoware_planning_msgs::Trajectory & traj, const geometry_msgs::Pose & self_pose);
 
 /**
  * @brief convert MPCTraj to visualization marker for visualization
