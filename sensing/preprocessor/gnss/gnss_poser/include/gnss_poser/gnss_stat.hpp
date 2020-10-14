@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef GNSS_STAT_HPP_
-#define GNSS_STAT_HPP_
+#ifndef GNSS_POSER_GNSS_STAT_HPP_
+#define GNSS_POSER_GNSS_STAT_HPP_
 
 enum class CoordinateSystem {
   UTM = 0,
