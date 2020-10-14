@@ -32,6 +32,13 @@ MPCFollower::MPCFollower() : nh_(""), pnh_("~"), tf_listener_(tf_buffer_)
   pnh_.param<double>("admisible_yaw_error", admisible_yaw_error_, M_PI_2);
   pnh_.param<double>("vehicle_model_steer_tau", mpc_param_.steer_tau, 0.1);
 
+  /* stop state parameters */
+  pnh_.param<double>("stop_state_entry_ego_speed", stop_state_entry_ego_speed_, 0.2);  // [m/s]
+  pnh_.param<double>(
+    "stop_state_entry_target_speed", stop_state_entry_target_speed_, 0.1);  // [m/s]
+  pnh_.param<double>(
+    "stop_state_keep_stopping_dist", stop_state_keep_stopping_dist_, 0.5);  // [m/s]
+
   /* mpc parameters */
   pnh_.param<double>("/vehicle_info/wheel_base", wheelbase_, 2.9);
 
@@ -133,6 +140,17 @@ void MPCFollower::onTimer(const ros::TimerEvent & te)
   }
 
   autoware_control_msgs::ControlCommand ctrl_cmd;
+
+  if (!is_ctrl_cmd_prev_initialized_) {
+    ctrl_cmd_prev_ = getInitialControlCommand();
+    is_ctrl_cmd_prev_initialized_ = true;
+  }
+
+  if (checkIsStopped()) {
+    publishCtrlCmd(ctrl_cmd_prev_);
+    return;
+  }
+
   const bool is_mpc_solved = calculateMPC(&ctrl_cmd);
 
   if (!is_mpc_solved) {
@@ -140,6 +158,7 @@ void MPCFollower::onTimer(const ros::TimerEvent & te)
     ctrl_cmd = getStopControlCommand();
   }
 
+  ctrl_cmd_prev_ = ctrl_cmd;
   publishCtrlCmd(ctrl_cmd);
 }
 
@@ -936,6 +955,73 @@ autoware_control_msgs::ControlCommand MPCFollower::getStopControlCommand() const
   cmd.velocity = 0.0;
   cmd.acceleration = -1.5;
   return cmd;
+}
+
+autoware_control_msgs::ControlCommand MPCFollower::getInitialControlCommand() const
+{
+  autoware_control_msgs::ControlCommand cmd;
+  cmd.steering_angle = current_steer_ptr_->data;
+  cmd.steering_angle_velocity = 0.0;
+  cmd.velocity = 0.0;
+  cmd.acceleration = -1.5;
+  return cmd;
+}
+
+bool MPCFollower::checkIsStopped() const
+{
+  const int nearest = MPCUtils::calcNearestIndex(*current_trajectory_ptr_, current_pose_ptr_->pose);
+  // If the nearest index is not found, publish previous command
+  if (nearest < 0) return true;
+  const double dist = calcStopDistance(nearest);
+  if (dist < stop_state_keep_stopping_dist_) {
+    ROS_DEBUG(
+      "stop_dist = %f < %f : stop_state_keep_stopping_dist_. keep stopping.", dist,
+      stop_state_keep_stopping_dist_);
+    return true;
+  }
+  ROS_DEBUG("stop_dist = %f release stopping.", dist);
+
+  const double current_vel = current_velocity_ptr_->twist.linear.x;
+  const double target_vel = current_trajectory_ptr_->points.at(nearest).twist.linear.x;
+  if (
+    std::fabs(current_vel) < stop_state_entry_ego_speed_ &&
+    std::fabs(target_vel) < stop_state_entry_target_speed_) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+double MPCFollower::calcStopDistance(const int origin) const
+{
+  constexpr double zero_velocity = std::numeric_limits<double>::epsilon();
+  const double origin_velocity = current_trajectory_ptr_->points.at(origin).twist.linear.x;
+  double stop_dist = 0.0;
+
+  // search forward
+  if (std::fabs(origin_velocity) > zero_velocity) {
+    for (int i = origin + 1; i < static_cast<int>(current_trajectory_ptr_->points.size()) - 1;
+         ++i) {
+      const auto & p0 = current_trajectory_ptr_->points.at(i);
+      const auto & p1 = current_trajectory_ptr_->points.at(i - 1);
+      stop_dist += MPCUtils::calcDist2d(p0.pose, p1.pose);
+      if (std::fabs(p0.twist.linear.x) < zero_velocity) {
+        break;
+      }
+    }
+    return stop_dist;
+  }
+
+  // search backward
+  for (int i = origin - 1; 0 < i; --i) {
+    const auto & p0 = current_trajectory_ptr_->points.at(i);
+    const auto & p1 = current_trajectory_ptr_->points.at(i + 1);
+    if (std::fabs(p0.twist.linear.x) > zero_velocity) {
+      break;
+    }
+    stop_dist -= MPCUtils::calcDist2d(p0.pose, p1.pose);
+  }
+  return stop_dist;
 }
 
 void MPCFollower::publishCtrlCmd(const autoware_control_msgs::ControlCommand & ctrl_cmd)
