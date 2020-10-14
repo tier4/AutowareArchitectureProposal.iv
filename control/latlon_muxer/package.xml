@@ -1,17 +1,22 @@
 <?xml version="1.0"?>
-<package format="2">
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>latlon_muxer</name>
   <version>0.1.0</version>
-  <description>The latlon_muxer package</description>
+  <description>The latlon_muxer package as a ROS 2 node</description>
   <maintainer email="horibe.takamasa@gmail.com">takamasa horibe</maintainer>
-  <license>Apache 2</license>
+  <license>Apache License 2.0</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>autoware_control_msgs</depend>
-  <depend>roscpp</depend>
-  <depend>rostest</depend>
-  <depend>rosunit</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
 
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
 
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>
