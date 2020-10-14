@@ -393,7 +393,7 @@ bool getObjectivePolygons(
   std::vector<lanelet::ConstLanelets> objective_lanelets_sequences;
   for (const auto & ll : objective_lanelets) {
     auto lanelet_sequences =
-      lanelet::utils::query::getPreceedingLaneletSequences(routing_graph_ptr, ll, length);
+      lanelet::utils::query::getPrecedingLaneletSequences(routing_graph_ptr, ll, length);
     for (auto & l : lanelet_sequences) {
       // Preceding lanes does not include objective_lane so add them at the end
       l.push_back(ll);

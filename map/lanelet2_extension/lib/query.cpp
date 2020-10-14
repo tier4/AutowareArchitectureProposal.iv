@@ -706,31 +706,31 @@ std::vector<std::deque<lanelet::ConstLanelet>> getSucceedingLaneletSequencesRecu
   return succeeding_lanelet_sequences;
 }
 
-std::vector<std::deque<lanelet::ConstLanelet>> getPreceedingLaneletSequencesRecursive(
+std::vector<std::deque<lanelet::ConstLanelet>> getPrecedingLaneletSequencesRecursive(
   const routing::RoutingGraphPtr & graph, const lanelet::ConstLanelet & lanelet,
   const double length)
 {
-  std::vector<std::deque<lanelet::ConstLanelet>> preceeding_lanelet_sequences;
+  std::vector<std::deque<lanelet::ConstLanelet>> preceding_lanelet_sequences;
 
   const auto prev_lanelets = graph->previous(lanelet);
   const double lanelet_length = utils::getLaneletLength3d(lanelet);
 
   // end condition of the recursive function
   if (prev_lanelets.empty() || lanelet_length >= length) {
-    preceeding_lanelet_sequences.push_back({lanelet});
-    return preceeding_lanelet_sequences;
+    preceding_lanelet_sequences.push_back({lanelet});
+    return preceding_lanelet_sequences;
   }
 
   for (const auto & prev_lanelet : prev_lanelets) {
     // get lanelet sequnce after prev_lanelet
     auto tmp_lanelet_sequences =
-      getPreceedingLaneletSequencesRecursive(graph, prev_lanelet, length - lanelet_length);
+      getPrecedingLaneletSequencesRecursive(graph, prev_lanelet, length - lanelet_length);
     for (auto & tmp_lanelet_sequence : tmp_lanelet_sequences) {
       tmp_lanelet_sequence.push_back(lanelet);
-      preceeding_lanelet_sequences.push_back(tmp_lanelet_sequence);
+      preceding_lanelet_sequences.push_back(tmp_lanelet_sequence);
     }
   }
-  return preceeding_lanelet_sequences;
+  return preceding_lanelet_sequences;
 }
 
 std::vector<lanelet::ConstLanelets> query::getSucceedingLaneletSequences(
@@ -749,7 +749,7 @@ std::vector<lanelet::ConstLanelets> query::getSucceedingLaneletSequences(
   return lanelet_sequences_vec;
 }
 
-std::vector<lanelet::ConstLanelets> query::getPreceedingLaneletSequences(
+std::vector<lanelet::ConstLanelets> query::getPrecedingLaneletSequences(
   const routing::RoutingGraphPtr & graph, const lanelet::ConstLanelet & lanelet,
   const double length)
 {
@@ -758,7 +758,7 @@ std::vector<lanelet::ConstLanelets> query::getPreceedingLaneletSequences(
   for (const auto & prev_lanelet : prev_lanelets) {
     // convert deque into vector
     const auto lanelet_sequences_deq =
-      getPreceedingLaneletSequencesRecursive(graph, prev_lanelet, length);
+      getPrecedingLaneletSequencesRecursive(graph, prev_lanelet, length);
     for (const auto & lanelet_sequence : lanelet_sequences_deq) {
       lanelet_sequences_vec.emplace_back(lanelet_sequence.begin(), lanelet_sequence.end());
     }

@@ -973,7 +973,7 @@ lanelet::ConstLanelets RouteHandler::getCheckTargetLanesFromPath(
     }
   }
 
-  const auto sequences = lanelet::utils::query::getPreceedingLaneletSequences(
+  const auto sequences = lanelet::utils::query::getPrecedingLaneletSequences(
     routing_graph_ptr_, root_lanelet, check_length);
   lanelet::ConstLanelets check_lanelets;
   for (const auto & sequence : sequences) {
