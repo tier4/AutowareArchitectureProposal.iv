@@ -18,6 +18,8 @@
 
 SSCInterface::SSCInterface() : Node("ssc_interface")
 {
+  using std::placeholders::_1;
+
   // setup parameters
   bool use_rear_wheel_speed_ = declare_parameter("use_rear_wheel_speed", true);
   bool use_adaptive_gear_ratio_ = declare_parameter("use_adaptive_gear_ratio", true);
@@ -37,13 +39,13 @@ SSCInterface::SSCInterface() : Node("ssc_interface")
   // subscribers from autoware
   vehicle_cmd_sub_ = create_subscription<autoware_vehicle_msgs::msg::VehicleCommand>(
     "/control/vehicle_cmd", rclcpp::QoS{1},
-    std::bind(&SSCInterface::callbackFromVehicleCmd, this, std::placeholders::_1));
+    std::bind(&SSCInterface::callbackFromVehicleCmd, this, _1));
   turn_signal_cmd_sub_ = create_subscription<autoware_vehicle_msgs::msg::TurnSignal>(
     "/control/turn_signal_cmd", rclcpp::QoS{1},
-    std::bind(&SSCInterface::callbackFromTurnSignalCmd, this, std::placeholders::_1));
+    std::bind(&SSCInterface::callbackFromTurnSignalCmd, this, _1));
   engage_sub_ = create_subscription<std_msgs::msg::Bool>(
     "/vehcle/engage", rclcpp::QoS{1},
-    std::bind(&SSCInterface::callbackFromEngage, this, std::placeholders::_1));
+    std::bind(&SSCInterface::callbackFromEngage, this, _1));
 
   // subscribers from SSC and PACMod
   velocity_accel_cov_sub_ =
@@ -73,18 +75,18 @@ SSCInterface::SSCInterface() : Node("ssc_interface")
     *steering_wheel_sub_);
 
   ssc_feedbacks_sync_->registerCallback(std::bind(
-    &SSCInterface::callbackFromSSCFeedbacks, this, std::placeholders::_1, std::placeholders::_2,
+    &SSCInterface::callbackFromSSCFeedbacks, this, _1, std::placeholders::_2,
     std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6,
     std::placeholders::_7));
 
   module_states_sub_ = create_subscription<automotive_navigation_msgs::msg::ModuleState>(
     "as/module_states", rclcpp::QoS{1},
-    std::bind(&SSCInterface::callbackFromSSCModuleStates, this, std::placeholders::_1));
+    std::bind(&SSCInterface::callbackFromSSCModuleStates, this, _1));
 
   // TEMP from pacmod
   pacmod_turn_sub_ = create_subscription<pacmod_msgs::msg::SystemRptInt>(
     "/pacmod/parsed_tx/turn_rpt", rclcpp::QoS{1},
-    std::bind(&SSCInterface::callbackTurnSignal, this, std::placeholders::_1));
+    std::bind(&SSCInterface::callbackTurnSignal, this, _1));
 
   // publishers to autoware
   control_mode_pub_ = create_publisher<autoware_vehicle_msgs::msg::ControlMode>(
@@ -111,11 +113,13 @@ SSCInterface::SSCInterface() : Node("ssc_interface")
     "as/arbitrated_speed_commands", rclcpp::QoS{10});
   turn_signal_pub_ = create_publisher<automotive_platform_msgs::msg::TurnSignalCommand>(
     "as/turn_signal_command", rclcpp::QoS{10});
+  rclcpp::QoS durable_qos{10};  // to latch the topic
+  durable_qos.transient_local();
   gear_pub_ =
-    create_publisher<automotive_platform_msgs::msg::GearCommand>("as/gear_select", rclcpp::QoS{10});
+    create_publisher<automotive_platform_msgs::msg::GearCommand>("as/gear_select", durable_qos);
 
   // Timer
-  auto timer_callback = std::bind(&SSCInterface::onTimer, this);
+  auto timer_callback = std::bind(&SSCInterface::publishCommand, this);
   auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<double>(1.0 / loop_rate_));
   timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
@@ -125,8 +129,6 @@ SSCInterface::SSCInterface() : Node("ssc_interface")
 }
 
 SSCInterface::~SSCInterface() {}
-
-void SSCInterface::onTimer() { publishCommand(); }
 
 void SSCInterface::callbackFromVehicleCmd(
   const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr msg)
@@ -339,13 +341,6 @@ void SSCInterface::publishCommand()
   steer_mode_pub_->publish(steer_mode);
   turn_signal_pub_->publish(turn_signal);
   gear_pub_->publish(gear_cmd);
-
-  // RCLCPP_INFO_STREAM_THROTTLE(
-  //   1.0, "Mode: " << (int)desired_mode << ", "
-  //                 << "Speed: " << speed_mode.speed << ", "
-  //                 << "Curvature: " << steer_mode.curvature << ", "
-  //                 << "Gear: " << (int)gear_cmd.command.gear << ", "
-  //                 << "TurnSignal: " << (int)turn_signal.turn_signal);
 }
 
 double SSCInterface::calculateVehicleVelocity(

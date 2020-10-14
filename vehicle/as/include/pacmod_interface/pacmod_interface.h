@@ -51,8 +51,6 @@ public:
   PacmodInterface();
   ~PacmodInterface();
 
-  void onTimer();
-
 private:
   typedef message_filters::sync_policies::ApproximateTime<
     pacmod_msgs::msg::SystemRptFloat, pacmod_msgs::msg::WheelSpeedRpt,

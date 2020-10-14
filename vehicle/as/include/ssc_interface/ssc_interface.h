@@ -60,8 +60,6 @@ public:
   SSCInterface();
   ~SSCInterface();
 
-  void onTimer();
-
 private:
   typedef message_filters::sync_policies::ApproximateTime<
     automotive_platform_msgs::msg::VelocityAccelCov,

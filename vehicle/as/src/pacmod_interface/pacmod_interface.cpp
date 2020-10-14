@@ -26,7 +26,7 @@ PacmodInterface::PacmodInterface()
   prev_override_(true)
 {
   /* setup parameters */
-  std::string base_frame_id_ = declare_parameter("base_frame_id", "base_link");
+  base_frame_id_ = declare_parameter("base_frame_id", "base_link");
   int command_timeout_ms_ = declare_parameter("command_timeout_ms", 1000);
   double loop_rate_ = declare_parameter("loop_rate", 30.0);
 
@@ -121,7 +121,7 @@ PacmodInterface::PacmodInterface()
     "/vehicle/status/turn_signal", rclcpp::QoS{1});
 
   // Timer
-  auto timer_callback = std::bind(&PacmodInterface::onTimer, this);
+  auto timer_callback = std::bind(&PacmodInterface::publishCommands, this);
   auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<double>(1.0 / loop_rate_));
   timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
@@ -131,8 +131,6 @@ PacmodInterface::PacmodInterface()
 }
 
 PacmodInterface::~PacmodInterface() {}
-
-void PacmodInterface::onTimer() { publishCommands(); }
 
 void PacmodInterface::callbackVehicleCmd(
   const autoware_vehicle_msgs::msg::RawVehicleCommand::ConstSharedPtr msg)
@@ -160,12 +158,12 @@ void PacmodInterface::callbackPacmodRpt(
   const pacmod_msgs::msg::GlobalRpt::ConstSharedPtr global_rpt)
 {
   is_pacmod_rpt_received_ = true;
-  steer_wheel_rpt_ptr_ = std::make_shared<pacmod_msgs::msg::SystemRptFloat>(*steer_wheel_rpt);
-  wheel_speed_rpt_ptr_ = std::make_shared<pacmod_msgs::msg::WheelSpeedRpt>(*wheel_speed_rpt);
-  accel_rpt_ptr_ = std::make_shared<pacmod_msgs::msg::SystemRptFloat>(*accel_rpt);
-  brake_rpt_ptr_ = std::make_shared<pacmod_msgs::msg::SystemRptFloat>(*brake_rpt);
-  shift_rpt_ptr_ = std::make_shared<pacmod_msgs::msg::SystemRptInt>(*shift_rpt);
-  global_rpt_ptr_ = std::make_shared<pacmod_msgs::msg::GlobalRpt>(*global_rpt);
+  steer_wheel_rpt_ptr_ = steer_wheel_rpt;
+  wheel_speed_rpt_ptr_ = wheel_speed_rpt;
+  accel_rpt_ptr_ = accel_rpt;
+  brake_rpt_ptr_ = brake_rpt;
+  shift_rpt_ptr_ = shift_rpt;
+  global_rpt_ptr_ = global_rpt;
 
   is_pacmod_enabled_ =
     steer_wheel_rpt_ptr_->enabled && accel_rpt_ptr_->enabled && brake_rpt_ptr_->enabled;
@@ -235,7 +233,7 @@ void PacmodInterface::publishCommands()
   /* guard */
   if (!raw_vehicle_cmd_ptr_ || !is_pacmod_rpt_received_) {
     RCLCPP_INFO_THROTTLE(
-      get_logger(), *get_clock(), 1.0, "[pacmod interface] vehicle_cmd = %d, pacmod_msgs = %d",
+      get_logger(), *get_clock(), 1.0, "vehicle_cmd = %d, pacmod_msgs = %d",
       raw_vehicle_cmd_ptr_ != nullptr, is_pacmod_rpt_received_);
     return;
   }
@@ -253,7 +251,7 @@ void PacmodInterface::publishCommands()
     (command_timeout_ms_ >= 0.0) ? (vehicle_cmd_delta_time_ms > command_timeout_ms_) : false;
   if (emergency || timeouted) {
     RCLCPP_ERROR(
-      get_logger(), "[pacmod interface] Emergency Stopping, emergency = %d, timeouted = %d",
+      get_logger(), "Emergency Stopping, emergency = %d, timeouted = %d",
       emergency, timeouted);
     desired_throttle = 0.0;
     desired_brake = emergency_brake_;

@@ -3,16 +3,14 @@
 <package format="3">
   <name>as</name>
   <version>0.1.0</version>
-  <description>autonomoustuff vehicle interface as a ROS 2 node</description>
+  <description>AutonomouStuff vehicle interface as a ROS 2 node</description>
   <maintainer email="aohsato@gmail.com">Akihito Ohsato</maintainer>
   <author email="aohsato@gmail.com">Akihito Ohsato</author>
   <author email="antm678@ertl.jp">T.Ando</author>
   <author email="horibe.takamasa@gmail.com">Horibe Takamasa</author>
   <license>Apache License 2.0</license>
 
-  <build_depend>rclcpp</build_depend>
-  <build_depend>rclcpp_components</build_depend>
-
+  <depend>rclcpp</depend>
   <depend>automotive_navigation_msgs</depend>
   <depend>automotive_platform_msgs</depend>
   <depend>autoware_control_msgs</depend>
@@ -22,9 +20,6 @@
   <depend>pacmod_msgs</depend>
   <depend>std_msgs</depend>
 
-
-  <exec_depend>rclcpp</exec_depend>
-  <exec_depend>rclcpp_components</exec_depend>
   <exec_depend>launch_ros</exec_depend>
 
   <export>
