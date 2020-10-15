@@ -64,7 +64,9 @@ PoseInitializer::PoseInitializer()
 
   ndt_client_ = this->create_client<autoware_localization_srvs::srv::PoseWithCovarianceStamped>(
     "ndt_align_srv");
-  ndt_client_->wait_for_service(std::chrono::seconds(1));  // TODO
+  while (!ndt_client_->wait_for_service(std::chrono::seconds(1)) && rclcpp::ok()) {
+    RCLCPP_INFO(get_logger(), "Waiting for service...");
+  }
 
   gnss_service_ = this->create_service<autoware_localization_srvs::srv::PoseWithCovarianceStamped>(
     "pose_initializer_srv",
