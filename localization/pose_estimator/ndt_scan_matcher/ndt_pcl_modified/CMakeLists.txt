@@ -9,7 +9,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED) 
-find_package(ament_cmake_auto REQUIRED)
 find_package(PCL REQUIRED COMPONENTS common)
 
 add_library(ndt_pcl_modified
@@ -23,5 +22,21 @@ target_include_directories(ndt_pcl_modified
 )
 
 ament_target_dependencies(ndt_pcl_modified PCL)
+ament_export_targets(export_ndt_pcl_modified HAS_LIBRARY_TARGET)
+ament_export_dependencies(PCL)
 
-ament_auto_package()
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+install(
+  TARGETS ndt_pcl_modified
+  EXPORT export_ndt_pcl_modified
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
+
+ament_package()
