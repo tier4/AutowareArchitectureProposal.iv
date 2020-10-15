@@ -8,40 +8,22 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic -Werror)
 endif()
 
-find_package(ament_cmake REQUIRED)
-find_package(PCL REQUIRED COMPONENTS common io registration)
-find_package(ndt_omp REQUIRED)
-find_package(ndt_pcl_modified REQUIRED)
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
-add_library(ndt
+
+# message generation
+ament_auto_generate_code()
+
+
+# setup targets
+ament_auto_add_library(ndt
   src/base.cpp
   src/pcl_generic.cpp
   src/pcl_modified.cpp
   src/omp.cpp
 )
 
-target_include_directories(ndt
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
-)
 
-ament_target_dependencies(ndt ndt_omp ndt_pcl_modified PCL)
-ament_export_targets(export_ndt HAS_LIBRARY_TARGET)
-ament_export_dependencies(ndt_omp ndt_pcl_modified PCL)
-
-install(
-  DIRECTORY include/
-  DESTINATION include
-)
-
-install(
-  TARGETS ndt
-  EXPORT export_ndt
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
-)
-
-ament_package()
+# export information to downstream packages
+ament_auto_package()
