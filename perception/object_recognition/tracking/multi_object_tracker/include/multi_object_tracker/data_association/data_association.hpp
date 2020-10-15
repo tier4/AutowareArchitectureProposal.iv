@@ -19,16 +19,16 @@
 #ifndef MULTI_OBJECT_TRACKER_DATA_ASSOCIATION_HPP_
 #define MULTI_OBJECT_TRACKER_DATA_ASSOCIATION_HPP_
 
-#include <list>
-#include <unordered_map>
-#include <vector>
+#include "multi_object_tracker/tracker/tracker.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
 
 #define EIGEN_MPL2_ONLY
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
-#include "multi_object_tracker/tracker/tracker.hpp"
+#include <list>
+#include <unordered_map>
+#include <vector>
 
 class DataAssociation
 {

@@ -18,8 +18,8 @@
  */
 
 #include "multi_object_tracker/data_association/data_association.hpp"
-#include "multi_object_tracker/utils/utils.hpp"
 #include "successive_shortest_path/successive_shortest_path.hpp"
+#include "multi_object_tracker/utils/utils.hpp"
 
 DataAssociation::DataAssociation() : score_threshold_(0.1)
 {

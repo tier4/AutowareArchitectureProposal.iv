@@ -19,8 +19,10 @@
 #ifndef MULTI_OBJECT_TRACKER_CORE_HPP_
 #define MULTI_OBJECT_TRACKER_CORE_HPP_
 
-#include <memory>
-#include <vector>
+#include "multi_object_tracker/data_association/data_association.hpp"
+#include "multi_object_tracker/tracker/model/tracker_base.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
 
 #include <tf2/LinearMath/Transform.h>
 #include <tf2/convert.h>
@@ -31,10 +33,8 @@
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
-#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
-#include "multi_object_tracker/data_association/data_association.hpp"
-#include "multi_object_tracker/tracker/model/tracker_base.hpp"
+#include <memory>
+#include <vector>
 
 class MultiObjectTracker : public rclcpp::Node
 {

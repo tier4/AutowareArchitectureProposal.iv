@@ -17,15 +17,17 @@
  * v1.0 Yukihiro Saito
  */
 
-#include <string>
+#include "multi_object_tracker/multi_object_tracker_core.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 
 #define EIGEN_MPL2_ONLY
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include "multi_object_tracker/multi_object_tracker_core.hpp"
+#include <string>
 
-MultiObjectTracker::MultiObjectTracker() : Node("multi_object_tracker"), tf_listener_(tf_buffer_)
+MultiObjectTracker::MultiObjectTracker(const rclcpp::NodeOptions & node_options)
+: rclcpp::Node("multi_object_tracker", node_options), tf_listener_(tf_buffer_)
 {
   // Create publishers and subscribers
   dynamic_object_sub_ =

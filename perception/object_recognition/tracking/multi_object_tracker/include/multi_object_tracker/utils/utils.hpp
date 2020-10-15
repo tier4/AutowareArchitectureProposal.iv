@@ -19,12 +19,12 @@
 #ifndef MULTI_OBJECT_TRACKER_UTILS_HPP_
 #define MULTI_OBJECT_TRACKER_UTILS_HPP_
 
-#include <cmath>
+#include "autoware_perception_msgs/msg/shape.hpp"
 
 #include <geometry_msgs/msg/polygon.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
 
-#include "autoware_perception_msgs/msg/shape.hpp"
+#include <cmath>
 
 namespace utils
 {
