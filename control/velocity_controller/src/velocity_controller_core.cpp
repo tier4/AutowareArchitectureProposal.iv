@@ -238,97 +238,105 @@ void VelocityController::callbackTimerControl()
 rcl_interfaces::msg::SetParametersResult VelocityController::paramCallback(
   const std::vector<rclcpp::Parameter> & parameters)
 {
+  auto set_double_param_if_changed = [&](const std::string name, double & v) {
+    for (const auto & p : parameters) {
+      if (p.get_name() == name) {
+        v = p.as_double();
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // closest waypoint threshold
+  set_double_param_if_changed("closest_waypoint_distance_threshold_", closest_dist_thr_);
+  set_double_param_if_changed("closest_waypoint_angle_threshold_", closest_angle_thr_);
+
+  // stop state
+  set_double_param_if_changed("stop_state_velocity", stop_state_vel_);
+  set_double_param_if_changed("stop_state_acc", stop_state_acc_);
+  set_double_param_if_changed("stop_state_entry_ego_speed", stop_state_entry_ego_speed_);
+  set_double_param_if_changed("stop_state_entry_target_speed", stop_state_entry_target_speed_);
+  set_double_param_if_changed("stop_state_keep_stopping_dist", stop_state_keep_stopping_dist_);
+
+  // delay compensation
+  set_double_param_if_changed("delay_compensation_time", delay_compensation_time_);
+
+  // emergency stop by this controller
+  set_double_param_if_changed("emergency_stop_acc", emergency_stop_acc_);
+  set_double_param_if_changed("emergency_stop_jerk", emergency_stop_jerk_);
+
+  // smooth stop
+  {
+    auto & p = smooth_stop_param_;
+    set_double_param_if_changed("exit_ego_speed", p.exit_ego_speed);
+    set_double_param_if_changed("entry_ego_speed", p.entry_ego_speed);
+    set_double_param_if_changed("exit_target_speed", p.exit_target_speed);
+    set_double_param_if_changed("entry_target_speed", p.entry_target_speed);
+    set_double_param_if_changed("weak_brake_time", p.weak_brake_time);
+    set_double_param_if_changed("weak_brake_acc", p.weak_brake_acc);
+    set_double_param_if_changed("increasing_brake_time", p.increasing_brake_time);
+    set_double_param_if_changed("increasing_brake_gradient", p.increasing_brake_gradient);
+    set_double_param_if_changed("stop_brake_time", p.stop_brake_time);
+    set_double_param_if_changed("stop_brake_acc", p.stop_brake_acc);
+  }
+
+  // acceleration limit
+  set_double_param_if_changed("max_acc", max_acc_);
+  set_double_param_if_changed("min_acc", min_acc_);
+
+  // jerk limit
+  set_double_param_if_changed("max_jerk", max_jerk_);
+  set_double_param_if_changed("min_jerk", min_jerk_);
+
+  // slope compensation
+  set_double_param_if_changed("max_pitch_rad", max_pitch_rad_);
+  set_double_param_if_changed("min_pitch_rad", min_pitch_rad_);
+  set_double_param_if_changed(
+    "current_velocity_threshold_pid_integration", current_vel_threshold_pid_integrate_);
+
+  {
+    double lpf_pitch_gain = get_parameter("lpf_pitch_gain").as_double();
+    set_double_param_if_changed("lpf_pitch_gain", lpf_pitch_gain);
+    lpf_pitch_.init(lpf_pitch_gain);
+  }
+
+  // velocity feedback
+  // PID gain
+  {
+    double kp = get_parameter("pid_controller/kp").as_double();
+    double ki = get_parameter("pid_controller/ki").as_double();
+    double kd = get_parameter("pid_controller/kd").as_double();
+    set_double_param_if_changed("pid_controller/kp", kp);
+    set_double_param_if_changed("pid_controller/ki", ki);
+    set_double_param_if_changed("pid_controller/kd", kd);
+    pid_vel_.setGains(kp, ki, kd);
+  }
+
+  // PID limits
+  {
+    double max_pid = get_parameter("pid_controller/max_out").as_double();
+    double min_pid = get_parameter("pid_controller/min_out").as_double();
+    double max_p = get_parameter("pid_controller/max_p_effort").as_double();
+    double min_p = get_parameter("pid_controller/min_p_effort").as_double();
+    double max_i = get_parameter("pid_controller/max_i_effort").as_double();
+    double min_i = get_parameter("pid_controller/min_i_effort").as_double();
+    double max_d = get_parameter("pid_controller/max_d_effort").as_double();
+    double min_d = get_parameter("pid_controller/min_d_effort").as_double();
+    set_double_param_if_changed("pid_controller/max_out", max_pid);
+    set_double_param_if_changed("pid_controller/min_out", min_pid);
+    set_double_param_if_changed("pid_controller/max_p_effort", max_p);
+    set_double_param_if_changed("pid_controller/min_p_effort", min_p);
+    set_double_param_if_changed("pid_controller/max_i_effort", max_i);
+    set_double_param_if_changed("pid_controller/min_i_effort", min_i);
+    set_double_param_if_changed("pid_controller/max_d_effort", max_d);
+    set_double_param_if_changed("pid_controller/min_d_effort", min_d);
+    pid_vel_.setLimits(max_pid, min_pid, max_p, min_p, max_i, min_i, max_d, min_d);
+  }
+
   rcl_interfaces::msg::SetParametersResult result;
   result.successful = true;
   result.reason = "success";
-  for (const auto & p : parameters) {
-    if (p.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE) {
-      if (p.get_name() == "closest_waypoint_distance_threshold")
-        closest_dist_thr_ = p.as_double();
-      else if (p.get_name() == "closest_waypoint_angle_threshold")
-        closest_angle_thr_ = p.as_double();
-      else if (p.get_name() == "stop_state_vel")
-        stop_state_vel_ = p.as_double();
-      else if (p.get_name() == "stop_state_acc")
-        stop_state_acc_ = p.as_double();
-      else if (p.get_name() == "stop_state_entry_ego_speed")
-        stop_state_entry_ego_speed_ = p.as_double();
-      else if (p.get_name() == "stop_state_entry_target_speed")
-        stop_state_entry_target_speed_ = p.as_double();
-      else if (p.get_name() == "stop_state_keep_stopping_dist")
-        stop_state_keep_stopping_dist_ = p.as_double();
-      else if (p.get_name() == "delay_compensation_time")
-        delay_compensation_time_ = p.as_double();
-      else if (p.get_name() == "emergency_stop_acc")
-        emergency_stop_acc_ = p.as_double();
-      else if (p.get_name() == "emergency_stop_jerk")
-        emergency_stop_jerk_ = p.as_double();
-      else if (p.get_name() == "emergency_overshoot_dist")
-        emergency_overshoot_dist_ = p.as_double();
-      else if (p.get_name() == "smooth_stop/stop_dist")
-        smooth_stop_param_.stop_dist_ = p.as_double();
-      else if (p.get_name() == "smooth_stop/exit_ego_speed")
-        smooth_stop_param_.exit_ego_speed = p.as_double();
-      else if (p.get_name() == "smooth_stop/exit_target_speed")
-        smooth_stop_param_.exit_target_speed = p.as_double();
-      else if (p.get_name() == "smooth_stop/entry_ego_speed")
-        smooth_stop_param_.entry_ego_speed = p.as_double();
-      else if (p.get_name() == "smooth_stop/entry_target_speed")
-        smooth_stop_param_.entry_target_speed = p.as_double();
-      else if (p.get_name() == "smooth_stop/weak_brake_time")
-        smooth_stop_param_.weak_brake_time = p.as_double();
-      else if (p.get_name() == "smooth_stop/weak_brake_acc")
-        smooth_stop_param_.weak_brake_acc = p.as_double();
-      else if (p.get_name() == "smooth_stop/increasing_brake_time")
-        smooth_stop_param_.increasing_brake_time = p.as_double();
-      else if (p.get_name() == "smooth_stop/increasing_brake_gradient")
-        smooth_stop_param_.increasing_brake_gradient = p.as_double();
-      else if (p.get_name() == "smooth_stop/stop_brake_time")
-        smooth_stop_param_.stop_brake_time = p.as_double();
-      else if (p.get_name() == "smooth_stop/stop_brake_acc")
-        smooth_stop_param_.stop_brake_acc = p.as_double();
-      else if (p.get_name() == "max_acc")
-        max_acc_ = p.as_double();
-      else if (p.get_name() == "min_acc")
-        min_acc_ = p.as_double();
-      else if (p.get_name() == "max_jerk")
-        max_jerk_ = p.as_double();
-      else if (p.get_name() == "min_jerk")
-        min_jerk_ = p.as_double();
-      else if (p.get_name() == "max_pitch_rad")
-        max_pitch_rad_ = p.as_double();
-      else if (p.get_name() == "min_pitch_rad")
-        min_pitch_rad_ = p.as_double();
-      else if (p.get_name() == "pid_controller/current_vel_threshold_pid_integratio")
-        current_vel_threshold_pid_integrate_ = p.as_double();
-      // else if (p.get_name() == "pid_controller/kp")
-      //   pid_vel_.setPGain(p.as_double());
-      // else if (p.get_name() == "pid_controller/ki")
-      //   pid_vel_.setIGain(p.as_double());
-      // else if (p.get_name() == "pid_controller/kd")
-      //   pid_vel_.setDGain(p.as_double());
-      // else if (p.get_name() == "pid_controller/max_out")
-      //   pid_vel_.setTotalMax(p.as_double());
-      // else if (p.get_name() == "pid_controller/min_out")
-      //   pid_vel_.setTotalMin(p.as_double());
-      // else if (p.get_name() == "pid_controller/max_p_effort")
-      //   pid_vel_.setMaxP(p.as_double());
-      // else if (p.get_name() == "pid_controller/min_p_effort")
-      //   pid_vel_.setMinP(p.as_double());
-      // else if (p.get_name() == "pid_controller/max_i_effort")
-      //   pid_vel_.setMaxI(p.as_double());
-      // else if (p.get_name() == "pid_controller/min_i_effort")
-      //   pid_vel_.setMinI(p.as_double());
-      // else if (p.get_name() == "pid_controller/max_d_effort")
-      //   pid_vel_.setMaxD(p.as_double());
-      // else if (p.get_name() == "pid_controller/min_d_effort")
-      //   pid_vel_.setMinD(p.as_double());
-      else if (p.get_name() == "pid_controller/lpf_vel_error_gain")
-        lpf_vel_error_.init(p.as_double());
-      else if (p.get_name() == "lpf_pitch_gain")
-        lpf_pitch_.init(p.as_double());
-    }
-  }
   return result;
 }
 
