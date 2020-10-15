@@ -9,9 +9,7 @@
   <maintainer email="jilada.eccleston@tier4.jp">Jilada ECCLESTON</maintainer>
   <license>Apache License 2.0</license>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
-  <build_depend>rclcpp</build_depend>
-  <build_depend>rclcpp_components</build_depend>
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
@@ -21,13 +19,10 @@
   <depend>sensor_msgs</depend>
   <depend>geo_pos_conv</depend>
   <depend>ublox_msgs</depend>
+  <depend>geographiclib</depend>
 
   <exec_depend>rclcpp</exec_depend>
   <exec_depend>rclcpp_components</exec_depend>
-  <exec_depend>launch_ros</exec_depend>
-  <exec_depend>rosidl_default_runtime</exec_depend>
-  <exec_depend>geographiclib-tools</exec_depend>
-  <exec_depend>geographiclib</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

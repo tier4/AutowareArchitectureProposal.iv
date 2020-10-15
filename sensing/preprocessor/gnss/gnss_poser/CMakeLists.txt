@@ -10,38 +10,23 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake_auto)
-find_package(rclcpp)
-find_package(tf2)
-find_package(tf2_ros)
-find_package(tf2_geometry_msgs)
-find_package(std_msgs)
-find_package(sensor_msgs)
-find_package(geometry_msgs)
-find_package(geo_pos_conv)
-find_package(ublox_msgs)
-
-find_package(PkgConfig)
-find_path(GeographicLib_INCLUDE_DIR GeographicLib/Config.h PATH_SUFFIXES GeographicLib)
-set(GeographicLib_INCLUDE_DIRS ${GeographicLib_INCLUDE_DIR})
-
-find_library(GeographicLib_LIBRARIES NAMES Geographic)
-
 ament_auto_find_build_dependencies()
 
-###########
-## Build ##
-###########
+set(GNSS_POSER_HEADERS
+  include/gnss_poser/convert.hpp
+  include/gnss_poser/gnss_poser_core.hpp
+  include/gnss_poser/gnss_stat.hpp
+ )
 
-ament_auto_add_library(gnss_poser_node SHARED src/gnss_poser_core.cpp)
+ament_auto_add_library(gnss_poser_node SHARED 
+	src/gnss_poser_core.cpp 
+	${GNSS_POSER_HEADERS}
+)
 
 rclcpp_components_register_node(gnss_poser_node
   PLUGIN "GNSSPoser"
   EXECUTABLE gnss_poser
 )
-
-#############
-## Install ##
-#############
 
 ament_auto_package(INSTALL_TO_SHARE
   launch
