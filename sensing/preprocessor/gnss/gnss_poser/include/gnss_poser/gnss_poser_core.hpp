@@ -76,8 +76,6 @@ private:
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_cov_pub_;
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr fixed_pub_;
 
-  rclcpp::Clock clock_;
-
   CoordinateSystem coordinate_system_;
   std::string base_frame_;
   std::string gnss_frame_;

@@ -25,7 +25,6 @@ GNSSPoser::GNSSPoser(const rclcpp::NodeOptions & node_options)
 : rclcpp::Node("gnss_poser", node_options),
   tf2_listener_(tf2_buffer_),
   tf2_broadcaster_(this),
-  clock_(RCL_ROS_TIME),
   base_frame_(declare_parameter("base_frame", "base_link")),
   gnss_frame_(declare_parameter("gnss_frame", "gnss")),
   gnss_base_frame_(declare_parameter("gnss_base_frame", "gnss_base_link")),
@@ -64,7 +63,7 @@ void GNSSPoser::callbackNavSatFix(
 
   if (!is_fixed) {
     RCLCPP_WARN_STREAM_THROTTLE(
-      this->get_logger(), clock_, 1, "Not Fixed Topic. Skipping Calculate.");
+      this->get_logger(), *this->get_clock(), 1, "Not Fixed Topic. Skipping Calculate.");
     return;
   }
 
@@ -76,7 +75,7 @@ void GNSSPoser::callbackNavSatFix(
   position_buffer_.push_front(position);
   if (!position_buffer_.full()) {
     RCLCPP_WARN_STREAM_THROTTLE(
-      this->get_logger(), clock_, 1, "Buffering Position. Output Skipped.");
+      this->get_logger(), *this->get_clock(), 1, "Buffering Position. Output Skipped.");
     return;
   }
   const auto median_position = getMedianPosition(position_buffer_);
@@ -99,19 +98,19 @@ void GNSSPoser::callbackNavSatFix(
   gnss_antenna_pose_msg.pose.orientation = orientation;
 
   // get TF from base_link to gnss_antenna
-  geometry_msgs::msg::TransformStamped::SharedPtr TF_base_to_gnss_ptr =
+  geometry_msgs::msg::TransformStamped::SharedPtr tf_base_to_gnss_ptr =
     std::make_shared<geometry_msgs::msg::TransformStamped>();
   getStaticTransform(
-    gnss_frame_, base_frame_, TF_base_to_gnss_ptr, nav_sat_fix_msg_ptr->header.stamp);
+    gnss_frame_, base_frame_, tf_base_to_gnss_ptr, nav_sat_fix_msg_ptr->header.stamp);
 
   // transform pose from gnss_antenna to base_link
   geometry_msgs::msg::PoseStamped gnss_base_pose_msg;
   //remove rotation
-  TF_base_to_gnss_ptr->transform.rotation.x = 0.0;
-  TF_base_to_gnss_ptr->transform.rotation.y = 0.0;
-  TF_base_to_gnss_ptr->transform.rotation.z = 0.0;
-  TF_base_to_gnss_ptr->transform.rotation.w = 1.0;
-  tf2::doTransform(gnss_antenna_pose_msg, gnss_base_pose_msg, *TF_base_to_gnss_ptr);
+  tf_base_to_gnss_ptr->transform.rotation.x = 0.0;
+  tf_base_to_gnss_ptr->transform.rotation.y = 0.0;
+  tf_base_to_gnss_ptr->transform.rotation.z = 0.0;
+  tf_base_to_gnss_ptr->transform.rotation.w = 1.0;
+  tf2::doTransform(gnss_antenna_pose_msg, gnss_base_pose_msg, *tf_base_to_gnss_ptr);
   gnss_base_pose_msg.header.frame_id = map_frame_;
 
   // publish gnss_base_link pose in map frame
@@ -163,7 +162,7 @@ GNSSStat GNSSPoser::convert(
   } else if (coordinate_system == CoordinateSystem::PLANE) {
     gnss_stat = NavSatFix2PLANE(nav_sat_fix_msg, plane_zone_, this->get_logger());
   } else {
-    RCLCPP_ERROR_STREAM_THROTTLE(this->get_logger(), clock_, 1, "Unknown Coordinate System");
+    RCLCPP_ERROR_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 1, "Unknown Coordinate System");
   }
   return gnss_stat;
 }
@@ -236,7 +235,7 @@ bool GNSSPoser::getTransform(
   const geometry_msgs::msg::TransformStamped::SharedPtr transform_stamped_ptr)
 {
   if (target_frame == source_frame) {
-    transform_stamped_ptr->header.stamp = rclcpp::Node::now();
+    transform_stamped_ptr->header.stamp = this->now();
     transform_stamped_ptr->header.frame_id = target_frame;
     transform_stamped_ptr->child_frame_id = source_frame;
     transform_stamped_ptr->transform.translation.x = 0.0;
@@ -253,12 +252,12 @@ bool GNSSPoser::getTransform(
     *transform_stamped_ptr =
       tf2_buffer_.lookupTransform(target_frame, source_frame, tf2::TimePointZero);
   } catch (tf2::TransformException & ex) {
-    RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), clock_, 1, ex.what());
+    RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 1, ex.what());
     RCLCPP_WARN_STREAM_THROTTLE(
-      this->get_logger(), clock_, 1,
+      this->get_logger(), *this->get_clock(), 1,
       "Please publish TF " << target_frame.c_str() << " to " << source_frame.c_str());
 
-    transform_stamped_ptr->header.stamp = rclcpp::Node::now();
+    transform_stamped_ptr->header.stamp = this->now();
     transform_stamped_ptr->header.frame_id = target_frame;
     transform_stamped_ptr->child_frame_id = source_frame;
     transform_stamped_ptr->transform.translation.x = 0.0;
@@ -297,9 +296,9 @@ bool GNSSPoser::getStaticTransform(
       target_frame, source_frame,
       tf2::TimePoint(std::chrono::seconds(stamp.sec) + std::chrono::nanoseconds(stamp.nanosec)));
   } catch (tf2::TransformException & ex) {
-    RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), clock_, 1, ex.what());
+    RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 1, ex.what());
     RCLCPP_WARN_STREAM_THROTTLE(
-      this->get_logger(), clock_, 1,
+      this->get_logger(), *this->get_clock(), 1,
       "Please publish TF " << target_frame.c_str() << " to " << source_frame.c_str());
 
     transform_stamped_ptr->header.stamp = stamp;
