@@ -24,6 +24,11 @@ ament_auto_add_executable(raw_vehicle_cmd_converter_node
 add_dependencies(raw_vehicle_cmd_converter_node accel_map_converter)
 target_link_libraries(raw_vehicle_cmd_converter_node accel_map_converter)
 
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
 ament_auto_package(INSTALL_TO_SHARE
   launch
   data
