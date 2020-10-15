@@ -11,8 +11,7 @@ if (NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Release"))
 endif()
 
 find_package(ament_cmake REQUIRED)
-find_package(ament_cmake_auto REQUIRED)
-find_package(PCL REQUIRED)
+find_package(PCL REQUIRED COMPONENTS common filters kdtree registration io)
 find_package(OpenMP)
 
 if (OPENMP_FOUND)
@@ -50,12 +49,39 @@ set(NDT_OMP_DEPENDENCIES
 )
 
 ament_target_dependencies(ndt_omp ${NDT_OMP_DEPENDENCIES}) 
-
+ament_export_targets(export_ndt_omp HAS_LIBRARY_TARGET)
 
 add_executable(align
   apps/align.cpp
 )
 
-target_link_libraries(align ndt_omp ${PCL_LIBRARIES})
+# Strangely, for an executable, ament_target_dependencies(align ${NDT_OMP_DEPENDENCIES})
+# gives a linker error from PCL
+ament_target_dependencies(align PUBLIC OpenMP)
+# So we include PCL manually
+target_include_directories(align PUBLIC ${PCL_INCLUDE_DIRS})
+target_link_libraries(align PUBLIC ${PCL_LIBRARIES})
+target_compile_definitions(align PUBLIC ${PCL_DEFINITIONS})
+target_link_directories(align PUBLIC ${PCL_LIBRARY_DIRS})
+# Also link ndt_omp separately because ament_target_dependencies doesn't support
+# depending on a library target from the same package
+target_link_libraries(align PUBLIC ndt_omp)
 
-ament_auto_package()
+ament_export_dependencies(${NDT_OMP_DEPENDENCIES})
+
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+install(
+  TARGETS ndt_omp
+  EXPORT export_ndt_omp
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
+
+ament_package()
+
