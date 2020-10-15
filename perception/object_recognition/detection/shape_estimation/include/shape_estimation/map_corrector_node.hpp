@@ -18,13 +18,15 @@
 
 #pragma once
 
-#include "autoware_perception_msgs/DynamicObjectWithFeatureArray.h"
-#include "ros/ros.h"
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_ros/transform_listener.h>
+
+#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
 #include "shape_estimation/vector_map.hpp"
-#include "tf2/LinearMath/Matrix3x3.h"
-#include "tf2/LinearMath/Quaternion.h"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-#include "tf2_ros/transform_listener.h"
+
+#include <rclcpp/rclcpp.hpp>
 
 class MapCorrectorNode
 {
@@ -43,5 +45,5 @@ public:
 
   ~MapCorrectorNode(){};
 
-  bool correct(autoware_perception_msgs::DynamicObjectWithFeatureArray & input_msg);
+  bool correct(autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & input_msg);
 };

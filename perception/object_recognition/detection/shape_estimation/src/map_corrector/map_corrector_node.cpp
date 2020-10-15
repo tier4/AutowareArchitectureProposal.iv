@@ -31,9 +31,9 @@ MapCorrectorNode::MapCorrectorNode() : nh_(""), pnh_("~"), tf_listener_(tf_buffe
   pnh_.param<double>("map_corrector/rad_threshold", rad_threshold_, M_PI_2 * 0.7);
 }
 
-bool MapCorrectorNode::correct(autoware_perception_msgs::DynamicObjectWithFeatureArray & input)
+bool MapCorrectorNode::correct(autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & input)
 {
-  geometry_msgs::TransformStamped tf_stamped;
+  geometry_msgs::msg::TransformStamped tf_stamped;
   try {
     tf_stamped = tf_buffer_.lookupTransform(
       "map", input.header.frame_id, input.header.stamp, ros::Duration(1.0));
@@ -41,20 +41,20 @@ bool MapCorrectorNode::correct(autoware_perception_msgs::DynamicObjectWithFeatur
     ROS_WARN("failed to lookup transform: %s", exception.what());
     return false;
   }
-  autoware_perception_msgs::DynamicObjectWithFeatureArray output;
+  autoware_perception_msgs::msg::DynamicObjectWithFeatureArray output;
   output.header = input.header;
 
   for (const auto & input_feature_object : input.feature_objects) {
-    autoware_perception_msgs::DynamicObjectWithFeature feature_object = input_feature_object;
+    autoware_perception_msgs::msg::DynamicObjectWithFeature feature_object = input_feature_object;
     if (feature_object.object.state.orientation_reliable) {
       output.feature_objects.push_back(feature_object);
       continue;
     }
     std::unique_ptr<MapCorrectorInterface> corrector_ptr;
     if (
-      feature_object.object.semantic.type == autoware_perception_msgs::Semantic::CAR ||
-      feature_object.object.semantic.type == autoware_perception_msgs::Semantic::TRUCK ||
-      feature_object.object.semantic.type == autoware_perception_msgs::Semantic::BUS) {
+      feature_object.object.semantic.type == autoware_perception_msgs::msg::Semantic::CAR ||
+      feature_object.object.semantic.type == autoware_perception_msgs::msg::Semantic::TRUCK ||
+      feature_object.object.semantic.type == autoware_perception_msgs::msg::Semantic::BUS) {
       corrector_ptr.reset(new VehicleMapCorrector(use_rad_filter_, rad_threshold_));
     } else {
       corrector_ptr.reset(new NoMapCorrector);

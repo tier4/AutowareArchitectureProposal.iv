@@ -15,26 +15,26 @@
  */
 #include "shape_estimation/vector_map.hpp"
 
+#include <rclcpp/rclcpp.hpp>
 #include <unordered_map>
-#include "ros/ros.h"
 #include "vector_map_msgs/DTLaneArray.h"
 #include "vector_map_msgs/PointArray.h"
 
 bool VectorMap::load()
 {
-  auto points = ros::topic::waitForMessage<vector_map_msgs::PointArray>(
+  auto points = ros::topic::waitForMessage<vector_map_msgs::msg::PointArray>(
     "/vector_map_info/point", ros::Duration());
   if (!points) {
     return false;
   }
 
-  auto dtlanes = ros::topic::waitForMessage<vector_map_msgs::DTLaneArray>(
+  auto dtlanes = ros::topic::waitForMessage<vector_map_msgs::msg::DTLaneArray>(
     "/vector_map_info/dtlane", ros::Duration());
   if (!dtlanes) {
     return false;
   }
 
-  std::unordered_map<int, vector_map_msgs::Point> points_map;
+  std::unordered_map<int, vector_map_msgs::msg::Point> points_map;
   for (const auto & point : points->data) {
     points_map[point.pid] = point;
   }

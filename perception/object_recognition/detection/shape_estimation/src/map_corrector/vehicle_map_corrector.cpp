@@ -28,11 +28,11 @@
 #include <Eigen/Geometry>
 
 bool VehicleMapCorrector::correct(
-  const VectorMap & vector_map, const geometry_msgs::TransformStamped & transform_stamped,
-  autoware_perception_msgs::Shape & shape_output, geometry_msgs::Pose & pose_output,
+  const VectorMap & vector_map, const geometry_msgs::msg::TransformStamped & transform_stamped,
+  autoware_perception_msgs::msg::Shape & shape_output, geometry_msgs::msg::Pose & pose_output,
   bool & orientation_output)
 {
-  geometry_msgs::Point point;
+  geometry_msgs::msg::Point point;
   tf2::doTransform(pose_output.position, point, transform_stamped);
   double map_coord_vector_yaw;
   if (vector_map.getyaw(point.x, point.y, map_coord_vector_yaw)) {

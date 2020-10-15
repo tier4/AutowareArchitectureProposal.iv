@@ -34,7 +34,7 @@ public:
   ~VehicleMapCorrector(){};
 
   bool correct(
-    const VectorMap & vector_map, const geometry_msgs::TransformStamped & transform_stamped,
-    autoware_perception_msgs::Shape & shape_output, geometry_msgs::Pose & pose_output,
+    const VectorMap & vector_map, const geometry_msgs::msg::TransformStamped & transform_stamped,
+    autoware_perception_msgs::msg::Shape & shape_output, geometry_msgs::msg::Pose & pose_output,
     bool & orientation_output) override;
 };

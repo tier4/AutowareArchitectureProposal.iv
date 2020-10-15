@@ -19,9 +19,9 @@
 #pragma once
 
 #include <string>
-#include "autoware_perception_msgs/Shape.h"
-#include "geometry_msgs/Pose.h"
-#include "geometry_msgs/TransformStamped.h"
+#include "autoware_perception_msgs/msg/shape.hpp"
+#include "geometry_msgs/msg/pose.hpp"
+#include "geometry_msgs/msg/transform_stamped.hpp"
 #include "shape_estimation/vector_map.hpp"
 
 class MapCorrectorInterface
@@ -32,7 +32,7 @@ public:
   virtual ~MapCorrectorInterface(){};
 
   virtual bool correct(
-    const VectorMap & vector_map, const geometry_msgs::TransformStamped & transform_stamped,
-    autoware_perception_msgs::Shape & shape_output, geometry_msgs::Pose & pose_output,
+    const VectorMap & vector_map, const geometry_msgs::msg::TransformStamped & transform_stamped,
+    autoware_perception_msgs::msg::Shape & shape_output, geometry_msgs::msg::Pose & pose_output,
     bool & orientation_output) = 0;
 };

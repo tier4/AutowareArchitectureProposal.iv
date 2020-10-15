@@ -1,36 +1,25 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(shape_estimation)
 
-add_compile_options(-std=c++14 -O3)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  autoware_perception_msgs
-  pcl_ros
-  roscpp
-  tf2
-  tf2_geometry_msgs
-  rostest
-  rosunit
-  eigen_conversions
-)
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(autoware_perception_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_eigen REQUIRED)
+
+find_package(PCL REQUIRED)
+find_package(pcl_conversions REQUIRED)
 
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-catkin_package(
-  INCLUDE_DIRS
-    include
-  CATKIN_DEPENDS
-    autoware_perception_msgs
-    pcl_ros
-    roscpp
-    tf2
-    tf2_geometry_msgs
-    eigen_conversions
-)
 
 include_directories(include
-  ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
 )
@@ -56,23 +45,29 @@ add_executable(shape_estimation
   src/corrector/yaw_fixed/no_corrector.cpp
 )
 
-add_dependencies(shape_estimation
-  ${${PROJECT_NAME}_EXPORTED_TARGETS}
-  ${catkin_EXPORTED_TARGETS}
+set(SHAPE_ESTIMATION_DEPENDENCIES
+  rclcpp
+  autoware_perception_msgs
+  tf2
+  tf2_geometry_msgs
+  tf2_eigen
+  PCL
+  pcl_conversions
+  OpenCV
 )
+ament_target_dependencies(shape_estimation ${SHAPE_ESTIMATION_DEPENDENCIES})
 
-target_link_libraries(shape_estimation
-  ${catkin_LIBRARIES}
-  ${OpenCV_LIBS}
-)
+
 install(TARGETS shape_estimation
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  ARCHIVE DESTINATION lib/${PROJECT_NAME}
+  LIBRARY DESTINATION lib/${PROJECT_NAME}
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 install(
   DIRECTORY
     launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  DESTINATION share/${PROJECT_NAME}
 )
+
+ament_package()
