@@ -16,6 +16,8 @@
 #ifndef GNSS_POSER_GNSS_STAT_HPP_
 #define GNSS_POSER_GNSS_STAT_HPP_
 
+namespace GNSSPoser
+{
 enum class CoordinateSystem {
   UTM = 0,
   MGRS = 1,
@@ -47,5 +49,6 @@ struct GNSSStat
   double longitude;
   double altitude;
 };
+}  // namespace GNSSPoser
 
 #endif

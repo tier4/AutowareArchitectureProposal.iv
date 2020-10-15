@@ -19,22 +19,23 @@
 #include <algorithm>
 #include <string>
 
+namespace GNSSPoser
+{
 GNSSPoser::GNSSPoser(const rclcpp::NodeOptions & node_options)
 : rclcpp::Node("gnss_poser", node_options),
   tf2_listener_(tf2_buffer_),
   tf2_broadcaster_(this),
-  clock_(RCL_ROS_TIME)
+  clock_(RCL_ROS_TIME),
+  base_frame_(declare_parameter("base_frame", "base_link")),
+  gnss_frame_(declare_parameter("gnss_frame", "gnss")),
+  gnss_base_frame_(declare_parameter("gnss_base_frame", "gnss_base_link")),
+  map_frame_(declare_parameter("map_frame", "map")),
+  use_ublox_receiver_(declare_parameter("use_ublox_receiver", false)),
+  plane_zone_(declare_parameter("plane_zone", 9))
 {
   int coordinate_system =
     declare_parameter("coordinate_system", static_cast<int>(CoordinateSystem::MGRS));
   coordinate_system_ = static_cast<CoordinateSystem>(coordinate_system);
-
-  base_frame_ = declare_parameter("base_frame", "base_link");
-  gnss_frame_ = declare_parameter("gnss_frame", "gnss");
-  gnss_base_frame_ = declare_parameter("gnss_base_frame", "gnss_base_link");
-  map_frame_ = declare_parameter("map_frame", "map");
-  use_ublox_receiver_ = declare_parameter("use_ublox_receiver", false);
-  plane_zone_ = declare_parameter("plane_zone", 9);
 
   int buff_epoch = declare_parameter("buff_epoch", 1);
   position_buffer_.set_capacity(buff_epoch);
@@ -98,8 +99,8 @@ void GNSSPoser::callbackNavSatFix(
   gnss_antenna_pose_msg.pose.orientation = orientation;
 
   // get TF from base_link to gnss_antenna
-  geometry_msgs::msg::TransformStamped::SharedPtr TF_base_to_gnss_ptr(
-    new geometry_msgs::msg::TransformStamped);
+  geometry_msgs::msg::TransformStamped::SharedPtr TF_base_to_gnss_ptr =
+    std::make_shared<geometry_msgs::msg::TransformStamped>();
   getStaticTransform(
     gnss_frame_, base_frame_, TF_base_to_gnss_ptr, nav_sat_fix_msg_ptr->header.stamp);
 
@@ -340,3 +341,5 @@ void GNSSPoser::publishTF(
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(GNSSPoser)
+
+}  // namespace GNSSPoser

@@ -16,17 +16,17 @@
 #ifndef GNSS_POSER_CONVERT_HPP_
 #define GNSS_POSER_CONVERT_HPP_
 
+#include "gnss_poser/gnss_stat.hpp"
+#include "geo_pos_conv/geo_pos_conv.hpp"
+
 #include <GeographicLib/Geoid.hpp>
 #include <GeographicLib/MGRS.hpp>
 #include <GeographicLib/UTMUPS.hpp>
 
-#include <geo_pos_conv/geo_pos_conv.hpp>
-#include <gnss_poser/gnss_stat.hpp>
-
-#include <rclcpp/logging.hpp>
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
+#include <rclcpp/logging.hpp>
 
-namespace
+namespace GNSSPoser
 {
 enum class MGRSPrecision {
   _10_KIRO_METER = 1,
@@ -129,6 +129,6 @@ GNSSStat NavSatFix2PLANE(
   plane.z = EllipsoidHeight2OrthometricHeight(nav_sat_fix_msg, logger);
   return plane;
 }
-}  // namespace
+}  // namespace GNSSPoser
 
 #endif

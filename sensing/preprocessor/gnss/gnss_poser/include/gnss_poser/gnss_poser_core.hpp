@@ -19,19 +19,21 @@
 #include "gnss_poser/convert.hpp"
 #include "gnss_poser/gnss_stat.hpp"
 
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <sensor_msgs/msg/nav_sat_fix.hpp>
+#include <std_msgs/msg/bool.hpp>
+#include <ublox_msgs/msg/nav_pvt.hpp>
 #include <tf2/transform_datatypes.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/nav_sat_fix.hpp>
-#include <std_msgs/msg/bool.hpp>
-#include <ublox_msgs/msg/nav_pvt.hpp>
 
 #include <boost/circular_buffer.hpp>
 
+namespace GNSSPoser
+{
 class GNSSPoser : public rclcpp::Node
 {
 public:
@@ -89,5 +91,6 @@ private:
   boost::circular_buffer<geometry_msgs::msg::Point> position_buffer_;
   ublox_msgs::msg::NavPVT::ConstSharedPtr nav_pvt_msg_ptr_;
 };
+}  // namespace GNSSPoser
 
 #endif
