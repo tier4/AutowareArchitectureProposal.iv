@@ -113,7 +113,6 @@ VelocityController::VelocityController() : Node("velocity_controller")
   // tf setting
   {
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(get_clock());
-    // tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_, this, false);  // cannot find tf
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
   }
 
