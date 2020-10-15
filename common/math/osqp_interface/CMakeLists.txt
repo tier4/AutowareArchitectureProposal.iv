@@ -14,6 +14,8 @@ ament_auto_find_build_dependencies()
 
 find_package(Eigen3 REQUIRED)
 
+find_package(osqp_vendor REQUIRED)
+
 find_package(osqp REQUIRED)
 get_target_property(OSQP_INCLUDE_DIR osqp::osqpstatic INTERFACE_INCLUDE_DIRECTORIES)
 
