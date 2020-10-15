@@ -16,7 +16,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Install missing dependencies
-      run: sudo apt update && rosdep update && DEBIAN_FRONTEND=noninteractive sudo rosdep install --from-paths . --ignore-src --rosdistro foxy -y
+      run: sudo apt update && rosdep update && sudo DEBIAN_FRONTEND=noninteractive rosdep install --from-paths . --ignore-src --rosdistro foxy -y
 
     - name: Build
       run: . /opt/ros/foxy/setup.sh && colcon build --event-handlers console_cohesion+
