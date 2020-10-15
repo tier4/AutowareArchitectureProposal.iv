@@ -24,7 +24,6 @@
 #include <linux/if_link.h>
 #include <linux/sockios.h>
 #include <net/if.h>
-#include <netdb.h>
 #include <sys/ioctl.h>
 
 #include <algorithm>
@@ -49,7 +48,7 @@ NetMonitor::NetMonitor(const ros::NodeHandle & nh, const ros::NodeHandle & pnh) 
   nl80211_.init();
 }
 
-void NetMonitor::run(void)
+void NetMonitor::run()
 {
   ros::Rate rate(1.0);
 
@@ -84,7 +83,7 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
   int level = DiagStatus::OK;
   int whole_level = DiagStatus::OK;
   int index = 0;
-  std::string error_str = "";
+  std::string error_str;
   float rx_traffic;
   float tx_traffic;
   float rx_usage;
@@ -123,6 +122,7 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
       stat.add("ioctl(SIOCGIFMTU)", strerror(errno));
 
       ++index;
+      close(fd);
       continue;
     }
 
@@ -146,6 +146,7 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
         stat.add("ioctl(SIOCETHTOOL)", strerror(errno));
 
         ++index;
+        close(fd);
         continue;
       }
     } else {
@@ -154,7 +155,7 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     level = (ifa->ifa_flags & IFF_RUNNING) ? DiagStatus::OK : DiagStatus::ERROR;
 
-    struct rtnl_link_stats * stats = (struct rtnl_link_stats *)ifa->ifa_data;
+    auto * stats = (struct rtnl_link_stats *)ifa->ifa_data;
     if (bytes_.find(ifa->ifa_name) != bytes_.end()) {
       rx_traffic = toMbit(stats->rx_bytes - bytes_[ifa->ifa_name].rx_bytes) / duration.toSec();
       tx_traffic = toMbit(stats->tx_bytes - bytes_[ifa->ifa_name].tx_bytes) / duration.toSec();

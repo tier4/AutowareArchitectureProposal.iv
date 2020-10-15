@@ -23,8 +23,6 @@
 #include <net/if.h>
 #include <netlink/genl/ctrl.h>
 #include <netlink/genl/genl.h>
-#include <netlink/socket.h>
-#include <ros/ros.h>
 #include <system_monitor/net_monitor/nl80211.h>
 
 NL80211::NL80211() : initialized_(false), socket_(nullptr), id_(-1), cb_(nullptr), bitrate_(0.0) {}
@@ -36,12 +34,12 @@ static struct nla_policy rate_policy[NL80211_RATE_INFO_MAX + 1];
 static int callback(struct nl_msg * msg, void * arg)
 {
   int ret;
-  float * rate = reinterpret_cast<float *>(arg);
+  auto * rate = reinterpret_cast<float *>(arg);
 
   // Return actual netlink message.
   struct nlmsghdr * nlh = nlmsg_hdr(msg);
   // Return pointer to message payload.
-  struct genlmsghdr * ghdr = static_cast<genlmsghdr *>(nlmsg_data(nlh));
+  auto * ghdr = static_cast<genlmsghdr *>(nlmsg_data(nlh));
 
   struct nlattr * tb[NL80211_ATTR_MAX + 1];
   struct nlattr * sinfo[NL80211_STA_INFO_MAX + 1];
@@ -79,7 +77,7 @@ static int callback(struct nl_msg * msg, void * arg)
   return NL_SKIP;
 }
 
-void NL80211::init(void)
+void NL80211::init()
 {
   int ret = 0;
 
@@ -121,7 +119,6 @@ void NL80211::init(void)
   }
 
   initialized_ = true;
-  return;
 }
 
 float NL80211::getBitrate(const char * ifa_name)
@@ -181,7 +178,7 @@ float NL80211::getBitrate(const char * ifa_name)
   return bitrate_;
 }
 
-void NL80211::shutdown(void)
+void NL80211::shutdown()
 {
   if (cb_) nl_cb_put(cb_);
   nl_close(socket_);
