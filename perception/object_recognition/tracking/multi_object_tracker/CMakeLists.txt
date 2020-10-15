@@ -10,13 +10,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 ### Find Packages
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(autoware_perception_msgs REQUIRED)
-find_package(tf2 REQUIRED)
-find_package(tf2_ros REQUIRED)
-# find_package(unique_identifier REQUIRED)
-# find_package(unique_identifier_msgs REQUIRED)
+find_package(ament_cmake_auto REQUIRED)
 
 ## Find Eigen Dependencies
 find_package(eigen3_cmake_module REQUIRED)
@@ -39,23 +33,22 @@ set(MULTI_OBJECT_TRACKER_SRC
   src/data_association/successive_shortest_path/successive_shortest_path.cpp
 )
 
-add_executable(${PROJECT_NAME}_exe
-  src/multi_object_tracker_node.cpp
-  ${MULTI_OBJECT_TRACKER_SRC}
+set(MULTI_OBJECT_TRACKER_HEADERS
+  src/data_association/successive_shortest_path/successive_shortest_path.hpp
+  include/multi_object_tracker/data_association/data_association.hpp
+  include/multi_object_tracker/tracker/tracker.hpp
+  include/multi_object_tracker/tracker/model/tracker_base.hpp
+  include/multi_object_tracker/tracker/model/bicycle_tracker.hpp
+  include/multi_object_tracker/tracker/model/pedestrian_tracker.hpp
+  include/multi_object_tracker/tracker/model/vehicle_tracker.hpp
+  include/multi_object_tracker/utils/utils.hpp
+  include/multi_object_tracker/multi_object_tracker_core.hpp
 )
 
-# Add dependencies. use target_link_libaries() before Crystal
-set(MULTI_OBJECT_TRACKER_DEPENDENCIES
-  rclcpp
-  autoware_perception_msgs
-  tf2
-  tf2_ros
-  # unique_identifier_msgs
-  # uuid_msgs
-  Eigen3
+ament_auto_add_library(multi_object_tracker_node SHARED 
+  ${MULTI_OBJECT_TRACKER_SRC} 
+  ${MULTI_OBJECT_TRACKER_HEADERS}
 )
-
-ament_target_dependencies(${PROJECT_NAME}_exe ${MULTI_OBJECT_TRACKER_DEPENDENCIES})
 
 ## Install executables and/or libraries
 install(TARGETS ${PROJECT_NAME}_exe
@@ -64,13 +57,6 @@ install(TARGETS ${PROJECT_NAME}_exe
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
-## Install project namespaced headers
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION include)
-
-install(DIRECTORY launch
-  DESTINATION share/${PROJECT_NAME}
+ament_auto_package(INSTALL_TO_SHARE
+  launch
 )
-
-# set at the end of cmakelists
-ament_package()
