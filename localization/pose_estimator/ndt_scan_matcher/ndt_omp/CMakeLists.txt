@@ -5,10 +5,7 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 
-# warn performance issue of ndt_omp which is NOT built in release mode
-if (NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Release"))
-  message(WARNING "CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} may cause a serious performance degradation. Please configure with -DCMAKE_BUILD_TYPE=Release.")
-endif()
+set(CMAKE_BUILD_TYPE "Release")
 
 find_package(ament_cmake REQUIRED)
 find_package(PCL REQUIRED COMPONENTS common filters kdtree registration io)
@@ -34,10 +31,7 @@ target_include_directories(ndt_omp
     $<INSTALL_INTERFACE:include> 
 )
 
-# pcl 1.7 causes a segfault without -O2 (or -O3) flag
 target_compile_options(ndt_omp
-  PUBLIC
-    $<$<CONFIG:Debug>:-O2 -g>
   PRIVATE
     # -mavx causes a lot of errors!!
     -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2
