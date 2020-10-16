@@ -15,9 +15,6 @@ jobs:
     - name: Check out repo
       uses: actions/checkout@v2
 
-    - name: Install osqp_vendor
-      run: git clone https://github.com/tier4/osqp_vendor.git
-
     - name: Install missing dependencies
       run: sudo apt update && rosdep update && DEBIAN_FRONTEND=noninteractive sudo rosdep install --from-paths . --ignore-src --rosdistro foxy -y
 
