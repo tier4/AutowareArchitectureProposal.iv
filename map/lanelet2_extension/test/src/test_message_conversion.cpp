@@ -69,7 +69,7 @@ TEST_F(TestSuite, BinMsgConversion)
   auto regenerated_lanelet = lanelet::utils::query::laneletLayer(regenerated_map);
 
   ASSERT_EQ(original_lanelet.front().id(), regenerated_lanelet.front().id())
-    << "regerated map has different id";
+    << "regenerated map has different id";
 }
 
 TEST_F(TestSuite, ToGeomMsgPt)
