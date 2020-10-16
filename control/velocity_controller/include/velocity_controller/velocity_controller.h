@@ -17,6 +17,11 @@
 #ifndef AUTOWARE_CONTROL_VELOCITY_CONTROLLER_H
 #define AUTOWARE_CONTROL_VELOCITY_CONTROLLER_H
 
+#include "delay_compensation.h"
+#include "lowpass_filter.h"
+#include "pid.h"
+#include "velocity_controller_mathutils.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -37,10 +42,6 @@
 #include <autoware_control_msgs/msg/control_command_stamped.hpp>
 #include <autoware_planning_msgs/msg/trajectory.hpp>
 
-#include "delay_compensation.h"
-#include "lowpass_filter.h"
-#include "pid.h"
-#include "velocity_controller_mathutils.h"
 
 struct CtrlCmd
 {
