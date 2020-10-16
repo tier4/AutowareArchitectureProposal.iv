@@ -1,4 +1,4 @@
-timeout: 0.5
+timeout: 5.0
 temp_cold_warn: -5.0
 temp_cold_error: -10.0
 temp_hot_warn: 75.0
