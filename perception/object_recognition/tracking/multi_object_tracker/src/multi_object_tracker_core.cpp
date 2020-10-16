@@ -20,6 +20,8 @@
 #include "multi_object_tracker/multi_object_tracker_core.hpp"
 #include <rclcpp_components/register_node_macro.hpp>
 
+#include <tf2_ros/create_timer_ros.h>
+#include <tf2_ros/create_timer_interface.h>
 #define EIGEN_MPL2_ONLY
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -27,7 +29,7 @@
 #include <string>
 
 MultiObjectTracker::MultiObjectTracker(const rclcpp::NodeOptions & node_options)
-: rclcpp::Node("multi_object_tracker", node_options), tf_listener_(tf_buffer_)
+: rclcpp::Node("multi_object_tracker", node_options)
 {
   // Create publishers and subscribers
   dynamic_object_sub_ =
@@ -40,6 +42,13 @@ MultiObjectTracker::MultiObjectTracker(const rclcpp::NodeOptions & node_options)
   // Parameters
   double publish_rate = declare_parameter<double>("publish_rate", 30.0);
   world_frame_id_ = declare_parameter<std::string>("world_frame_id", std::string("world"));
+
+  rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
+  tf_buffer_ = std::make_shared<tf2_ros::Buffer>(clock);
+  tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
+
+  auto cti = std::make_shared<tf2_ros::CreateTimerROS>(this->get_node_base_interface(), this->get_node_timers_interface());
+  tf_buffer_->setCreateTimerInterface(cti);
 
   // Create ROS time based timer
   auto timer_callback = std::bind(&MultiObjectTracker::publishTimerCallback, this);
@@ -66,21 +75,16 @@ void MultiObjectTracker::measurementCallback(
     tf2::Transform tf_objects_world2objects;
     try {
       geometry_msgs::msg::TransformStamped ros_world2objects_world;
-
-      // TODO //
-      // No duration in buffercore only bufferclient
-
-      // ros_world2objects_world = tf_buffer_.lookupTransform(
-      //   world_frame_id_, input_transformed_objects.header.frame_id,
-      //   tf2::TimePoint(
-      //     std::chrono::seconds(input_transformed_objects.header.stamp.sec) +
-      //     std::chrono::nanoseconds(input_transformed_objects.header.stamp.nanosec)),
-      //   tf2::durationFromSec(0.5));
-      ros_world2objects_world = tf_buffer_.lookupTransform(
+      auto future = tf_buffer_->waitForTransform(
         world_frame_id_, input_transformed_objects.header.frame_id,
         tf2::TimePoint(
           std::chrono::seconds(input_transformed_objects.header.stamp.sec) +
-          std::chrono::nanoseconds(input_transformed_objects.header.stamp.nanosec)));
+          std::chrono::nanoseconds(input_transformed_objects.header.stamp.nanosec)),
+        tf2::durationFromSec(0.5),
+        [&ros_world2objects_world](
+          const std::shared_future<geometry_msgs::msg::TransformStamped> & future) {
+          ros_world2objects_world = future.get();
+        });
       tf2::fromMsg(ros_world2objects_world.transform, tf_world2objects_world);
     } catch (tf2::TransformException & ex) {
       RCLCPP_WARN(this->get_logger(), "%s", ex.what());
@@ -192,3 +196,5 @@ void MultiObjectTracker::publishTimerCallback()
   dynamic_object_pub_->publish(output_msg);
   return;
 }
+
+RCLCPP_COMPONENTS_REGISTER_NODE(MultiObjectTracker)

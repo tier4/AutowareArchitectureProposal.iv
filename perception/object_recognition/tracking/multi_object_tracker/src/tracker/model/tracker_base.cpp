@@ -20,13 +20,22 @@
 #include "multi_object_tracker/tracker/model/tracker_base.hpp"
 #include "multi_object_tracker/utils/utils.hpp"
 
+#include <algorithm>
+#include <random>
+
 Tracker::Tracker(const rclcpp::Time & time, const int type)
-:  // uuid_(unique_id::fromRandom()),
-  type_(type),
+: type_(type),
   no_measurement_count_(0),
   total_measurement_count_(1),
   last_update_with_measurement_time_(time)
 {
+  // Generate random number
+  std::generate(uuid_.uuid.begin(), uuid_.uuid.end(), [] {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 255);
+    return dis(gen);
+  });
 }
 
 bool Tracker::updateWithMeasurement(

@@ -6,7 +6,7 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
+  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic -Werror)
 endif()
 
 ### Find Packages
@@ -16,10 +16,10 @@ find_package(ament_cmake_auto REQUIRED)
 find_package(eigen3_cmake_module REQUIRED)
 find_package(Eigen3)
 
-include_directories(
-  include
-  # ${EIGEN3_INCLUDE_DIR}
-)
+ament_auto_find_build_dependencies()
+
+# includes
+include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
 
 # Generate exe file
 set(MULTI_OBJECT_TRACKER_SRC
@@ -50,13 +50,11 @@ ament_auto_add_library(multi_object_tracker_node SHARED
   ${MULTI_OBJECT_TRACKER_HEADERS}
 )
 
-## Install executables and/or libraries
-install(TARGETS ${PROJECT_NAME}_exe
-  ARCHIVE DESTINATION lib/${PROJECT_NAME}
-  LIBRARY DESTINATION lib/${PROJECT_NAME}
-  RUNTIME DESTINATION lib/${PROJECT_NAME}
+rclcpp_components_register_node(multi_object_tracker_node
+  PLUGIN "MultiObjectTracker"
+  EXECUTABLE multi_object_tracker
 )
 
 ament_auto_package(INSTALL_TO_SHARE
   launch
-)
+) 

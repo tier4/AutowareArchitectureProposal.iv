@@ -22,18 +22,17 @@
 #include "autoware_perception_msgs/msg/dynamic_object.hpp"
 
 #include <geometry_msgs/msg/point.hpp>
+#include <unique_identifier_msgs/msg/uuid.hpp>
 #include <rclcpp/rclcpp.hpp>
-
-// #include <unique_id/unique_id.h>
 
 class Tracker
 {
 protected:
-  // boost::uuids::uuid getUUID() { return uuid_; }
+  unique_identifier_msgs::msg::UUID getUUID() { return uuid_; }
   void setType(int type) { type_ = type; }
 
 private:
-  // boost::uuids::uuid uuid_;
+  unique_identifier_msgs::msg::UUID uuid_;
   int type_;
   int no_measurement_count_;
   int total_measurement_count_;
