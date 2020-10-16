@@ -145,7 +145,7 @@ void validateTurnDirection(const lanelet::LaneletMapPtr lanelet_map)
 
 int main(int argc, char * argv[])
 {
-  ros::init(argc, argv, "autoware_lanelet_valdiation");
+  ros::init(argc, argv, "autoware_lanelet_validation");
   ros::NodeHandle node;
   ros::NodeHandle private_rosnode("~");
 

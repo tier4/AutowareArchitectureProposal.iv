@@ -454,7 +454,7 @@ visualization_msgs::MarkerArray visualization::autowareTrafficLightsAsMarkerArra
 
     const auto lights = tl->trafficLights();
     for (const auto & lsp : lights) {
-      if (lsp.isLineString())  // traffic ligths can either polygons or
+      if (lsp.isLineString())  // traffic lights can either polygons or
       {                        // linestrings
         lanelet::ConstLineString3d ls = static_cast<lanelet::ConstLineString3d>(lsp);
 
@@ -709,7 +709,7 @@ visualization_msgs::MarkerArray visualization::trafficLightsAsTriangleMarkerArra
   const ros::Duration duration, const double scale)
 {
   // convert to to an array of linestrings and publish as marker array using
-  // exisitng function
+  // existing function
 
   int tl_count = 0;
   std::vector<lanelet::ConstLineString3d> line_strings;
@@ -721,7 +721,7 @@ visualization_msgs::MarkerArray visualization::trafficLightsAsTriangleMarkerArra
 
     auto lights = tl->trafficLights();
     for (auto lsp : lights) {
-      if (lsp.isLineString())  // traffic ligths can either polygons or
+      if (lsp.isLineString())  // traffic lights can either polygons or
       {                        // linestrings
         lanelet::ConstLineString3d ls = static_cast<lanelet::ConstLineString3d>(lsp);
 

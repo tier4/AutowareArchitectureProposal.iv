@@ -88,7 +88,7 @@ add_executable(autoware_lanelet2_validation src/validation.cpp)
 add_dependencies(autoware_lanelet2_validation ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(autoware_lanelet2_validation
   ${catkin_LIBRARIES}
-  ${PUGIXML_LIBRAREIS}
+  ${PUGIXML_LIBRARIES}
   lanelet2_extension_lib
 )
 
