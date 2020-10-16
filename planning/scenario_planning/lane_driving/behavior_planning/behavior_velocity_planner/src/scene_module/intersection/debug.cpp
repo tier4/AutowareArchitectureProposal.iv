@@ -327,7 +327,7 @@ visualization_msgs::MarkerArray MergeFromPrivateRoadModule::createDebugMarkerArr
 
     appendMarkerArray(
       createVirtualWallMarkerArray(
-        debug_data_.virtual_wall_pose, lane_id_, "merge_from_private_road"),
+        debug_data_.virtual_wall_pose, lane_id_, "merge from private road"),
       &debug_marker_array);
   }
 
