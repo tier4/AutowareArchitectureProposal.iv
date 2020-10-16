@@ -500,7 +500,7 @@ bool VelocityController::checkSmoothStop(const int closest, const double target_
   }
 
   const double stop_dist = calcStopDistance(*trajectory_ptr_, closest);
-  if (std::fabs(stop_dist) < smooth_stop_param_.stop_dist_) {
+  if (stop_dist < smooth_stop_param_.stop_dist_) {
     return true;  // stop point is found around ego position.
   }
   return false;
