@@ -263,6 +263,10 @@ void LaneDepartureCheckerNode::onTimer(const ros::TimerEvent & event)
 void LaneDepartureCheckerNode::onConfig(
   const LaneDepartureCheckerConfig & config, const uint32_t level)
 {
+  // Node
+  node_param_.visualize_lanelet = config.visualize_lanelet;
+
+  // Core
   param_.footprint_margin = config.footprint_margin;
   param_.resample_interval = config.resample_interval;
   param_.max_deceleartion = config.max_deceleartion;
@@ -336,46 +340,48 @@ visualization_msgs::MarkerArray LaneDepartureCheckerNode::createMarkerArray() co
 
   const auto base_link_z = current_pose_->pose.position.z;
 
-  // Route Lanelets
-  {
-    auto marker = createDefaultMarker(
-      "map", "route_lanelets", 0, visualization_msgs::Marker::TRIANGLE_LIST,
-      createMarkerScale(1.0, 1.0, 1.0), createMarkerColor(0.0, 0.5, 0.5, 0.5));
+  if (node_param_.visualize_lanelet) {
+    // Route Lanelets
+    {
+      auto marker = createDefaultMarker(
+        "map", "route_lanelets", 0, visualization_msgs::Marker::TRIANGLE_LIST,
+        createMarkerScale(1.0, 1.0, 1.0), createMarkerColor(0.0, 0.5, 0.5, 0.5));
 
-    for (const auto & lanelet : input_.route_lanelets) {
-      std::vector<geometry_msgs::Polygon> triangles;
-      lanelet::visualization::lanelet2Triangle(lanelet, &triangles);
+      for (const auto & lanelet : input_.route_lanelets) {
+        std::vector<geometry_msgs::Polygon> triangles;
+        lanelet::visualization::lanelet2Triangle(lanelet, &triangles);
 
-      for (const auto & triangle : triangles) {
-        for (const auto & point : triangle2points(triangle)) {
-          marker.points.push_back(point);
-          marker.colors.push_back(marker.color);
+        for (const auto & triangle : triangles) {
+          for (const auto & point : triangle2points(triangle)) {
+            marker.points.push_back(point);
+            marker.colors.push_back(marker.color);
+          }
         }
       }
+
+      marker_array.markers.push_back(marker);
     }
 
-    marker_array.markers.push_back(marker);
-  }
+    // Candidate Lanelets
+    {
+      auto marker = createDefaultMarker(
+        "map", "candidate_lanelets", 0, visualization_msgs::Marker::TRIANGLE_LIST,
+        createMarkerScale(1.0, 1.0, 1.0), createMarkerColor(1.0, 1.0, 0.0, 0.1));
 
-  // Candidate Lanelets
-  {
-    auto marker = createDefaultMarker(
-      "map", "candidate_lanelets", 0, visualization_msgs::Marker::TRIANGLE_LIST,
-      createMarkerScale(1.0, 1.0, 1.0), createMarkerColor(1.0, 1.0, 0.0, 0.1));
+      for (const auto & lanelet : output_.candidate_lanelets) {
+        std::vector<geometry_msgs::Polygon> triangles;
+        lanelet::visualization::lanelet2Triangle(lanelet, &triangles);
 
-    for (const auto & lanelet : output_.candidate_lanelets) {
-      std::vector<geometry_msgs::Polygon> triangles;
-      lanelet::visualization::lanelet2Triangle(lanelet, &triangles);
-
-      for (const auto & triangle : triangles) {
-        for (const auto & point : triangle2points(triangle)) {
-          marker.points.push_back(point);
-          marker.colors.push_back(marker.color);
+        for (const auto & triangle : triangles) {
+          for (const auto & point : triangle2points(triangle)) {
+            marker.points.push_back(point);
+            marker.colors.push_back(marker.color);
+          }
         }
       }
-    }
 
-    marker_array.markers.push_back(marker);
+      marker_array.markers.push_back(marker);
+    }
   }
 
   if (output_.resampled_trajectory.points.size() >= 2) {
