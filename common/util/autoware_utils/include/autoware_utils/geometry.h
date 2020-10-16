@@ -41,7 +41,7 @@ inline geometry_msgs::msg::Point getPoint(const autoware_planning_msgs::msg::Tra
   return p.pose.position;
 }
 
-inline geometry_msgs::msg::Point rctfeatePoint(const double x, const double y, const double z)
+inline geometry_msgs::msg::Point createPoint(const double x, const double y, const double z)
 {
   geometry_msgs::msg::Point p;
   p.x = x;
