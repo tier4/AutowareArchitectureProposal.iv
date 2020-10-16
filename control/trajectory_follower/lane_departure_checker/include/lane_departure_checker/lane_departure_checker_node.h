@@ -41,6 +41,7 @@ namespace lane_departure_checker
 struct NodeParam
 {
   double update_rate;
+  bool visualize_lanelet;
 };
 
 class LaneDepartureCheckerNode

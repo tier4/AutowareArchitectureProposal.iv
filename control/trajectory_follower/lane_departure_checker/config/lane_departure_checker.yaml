@@ -1,5 +1,6 @@
 # Node
 update_rate: 10
+visualize_lanelet: false
 
 # Core
 footprint_margin: 0.0
