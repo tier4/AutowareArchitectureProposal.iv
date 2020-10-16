@@ -72,11 +72,13 @@ bool BlindSpotModule::modifyPathVelocity(
   const auto straight_lanelets = getStraightLanelets(lanelet_map_ptr, routing_graph_ptr, lane_id_);
   if (!generateStopLine(straight_lanelets, path, &stop_line_idx, &pass_judge_line_idx)) {
     ROS_WARN_DELAYED_THROTTLE(1.0, "[BlindSpotModule::run] setStopLineIdx fail");
+    *path = input_path; // reset path
     return false;
   }
 
   if (stop_line_idx <= 0 || pass_judge_line_idx <= 0) {
     ROS_DEBUG("[Blind Spot] stop line or pass judge line is at path[0], ignore planning.");
+    *path = input_path; // reset path
     return true;
   }
 
@@ -84,6 +86,7 @@ bool BlindSpotModule::modifyPathVelocity(
   int closest_idx = -1;
   if (!planning_utils::calcClosestIndex(input_path, current_pose.pose, closest_idx)) {
     ROS_WARN_DELAYED_THROTTLE(1.0, "[Blind Spot] calcClosestIndex fail");
+    *path = input_path; // reset path
     return false;
   }
 
@@ -101,6 +104,7 @@ bool BlindSpotModule::modifyPathVelocity(
   }
   if (current_state == State::GO && is_over_pass_judge_line) {
     ROS_DEBUG("[Blind Spot] over the pass judge line. no plan needed.");
+    *path = input_path; // reset path
     return true;  // no plan needed.
   }
 
@@ -122,6 +126,8 @@ bool BlindSpotModule::modifyPathVelocity(
     stop_factor.stop_pose = debug_data_.stop_point_pose;
     stop_factor.stop_factor_points = planning_utils::toRosPoints(debug_data_.conflicting_targets);
     planning_utils::appendStopReason(stop_factor, stop_reason);
+  } else {
+    *path = input_path; // reset path
   }
 
   return true;
@@ -269,7 +275,8 @@ int BlindSpotModule::insertPoint(
   if (insert_idx >= 0) {
     const auto it = inout_path->points.begin() + insert_idx;
     autoware_planning_msgs::PathPointWithLaneId inserted_point;
-    inserted_point = inout_path->points.at(insert_idx);
+    // copy from previous point
+    inserted_point = inout_path->points.at(std::max(insert_idx - 1, 0));
     inserted_point.point.pose = path_ip.points[insert_idx_ip].point.pose;
     inout_path->points.insert(it, inserted_point);
   }
