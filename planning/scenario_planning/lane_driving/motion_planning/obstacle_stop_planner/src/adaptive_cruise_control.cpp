@@ -555,15 +555,14 @@ void AdaptiveCruiseController::insertMaxVelocityToPath(
   const double current_vel, const double target_vel, const double dist_to_collision_point,
   autoware_planning_msgs::Trajectory * output_trajectory)
 {
-  double target_acc = sign(target_vel - current_vel) *
-                      ((target_vel - current_vel) * (target_vel - current_vel)) /
-                      (2 * dist_to_collision_point * (1 - param_.margin_rate_to_change_vel));
   double margin_to_insert = dist_to_collision_point * param_.margin_rate_to_change_vel;
+  // accel = (v_after^2 - v_before^2 ) / 2x
+  double target_acc = (std::pow(target_vel, 2) - std::pow(current_vel, 2)) / (2 * margin_to_insert);
 
   const double clipped_acc = boost::algorithm::clamp(
     target_acc, param_.min_standard_acceleration, param_.max_standard_acceleration);
   double pre_vel = current_vel;
-  double total_dist = -margin_to_insert;
+  double total_dist = 0.0;
   for (int i = 1; i < output_trajectory->points.size(); i++) {
     // calc velocity of each point by gradient deceleration
     const auto current_p = output_trajectory->points[i];
@@ -571,20 +570,20 @@ void AdaptiveCruiseController::insertMaxVelocityToPath(
     const double p_dist = getDistanceFromTwoPoint(current_p.pose.position, prev_p.pose.position);
     total_dist += p_dist;
     if (current_p.twist.linear.x > target_vel && total_dist >= 0) {
-      double diff_vel;
-      if (std::fabs(clipped_acc) < 1e-05) {
-        diff_vel = 0.0;
-      } else {
-        diff_vel = std::sqrt(2 * p_dist / std::fabs(clipped_acc)) * clipped_acc;
-      }
       double next_pre_vel;
-      if (target_acc >= 0) {
-        next_pre_vel = std::min(pre_vel + diff_vel, target_vel);
+      if (std::fabs(clipped_acc) < 1e-05) {
+        next_pre_vel = pre_vel;
       } else {
-        next_pre_vel = std::max(pre_vel + diff_vel, target_vel);
+        // v_after = sqrt (2x*accel + v_before^2)
+        next_pre_vel = std::sqrt(2 * p_dist * clipped_acc + std::pow(pre_vel, 2));
+      }
+      if (target_acc >= 0) {
+        next_pre_vel = std::min(next_pre_vel, target_vel);
+      } else {
+        next_pre_vel = std::max(next_pre_vel, target_vel);
       }
 
-      if (total_dist >= 0) {
+      if (total_dist >= margin_to_insert) {
         const double max_velocity = std::max(target_vel, next_pre_vel);
         if (output_trajectory->points[i].twist.linear.x > max_velocity)
           output_trajectory->points[i].twist.linear.x = max_velocity;
