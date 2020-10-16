@@ -213,9 +213,25 @@ void CPUMonitorBase::checkLoad(diagnostic_updater::DiagnosticStatusWrapper & sta
 {
   double loadavg[3];
 
-  if (getloadavg(loadavg, 3) < 0) {
+  std::ifstream ifs("/proc/loadavg", std::ios::in);
+
+  if (!ifs) {
     stat.summary(DiagStatus::ERROR, "uptime error");
     stat.add("uptime", strerror(errno));
+    return;
+  }
+
+  std::string line;
+
+  if (!std::getline(ifs, line)) {
+    stat.summary(DiagStatus::ERROR, "uptime error");
+    stat.add("uptime", "format error");
+    return;
+  }
+
+  if (sscanf(line.c_str(), "%lf %lf %lf", &loadavg[0], &loadavg[1], &loadavg[2]) != 3) {
+    stat.summary(DiagStatus::ERROR, "uptime error");
+    stat.add("uptime", "format error");
     return;
   }
 
