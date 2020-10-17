@@ -57,7 +57,7 @@ bool WalkwayModule::modifyPathVelocity(
     polygon.outer().push_back(polygon.outer().front());
 
     lanelet::Optional<lanelet::ConstLineString3d> stop_line_opt =
-      getStopLineFromMap(module_id_, planner_data_, "walkway_id");
+      getStopLineFromMap(module_id_, planner_data_, "crosswalk_id");
     if (!!stop_line_opt) {
       if (!insertTargetVelocityPoint(
             input, stop_line_opt.get(), planner_param_.stop_margin, 0.0, *planner_data_, *path,
@@ -80,6 +80,7 @@ bool WalkwayModule::modifyPathVelocity(
       planner_param_.stop_margin + planner_data_->vehicle_info_.max_longitudinal_offset_m_ + 1.0;
     if (distance < distance_threshold && planner_data_->isVehicleStopping()) {
       state_ = State::STOP;
+      return true;
     }
   } else if (state_ == State::STOP) {
     /* get stop point and stop factor */

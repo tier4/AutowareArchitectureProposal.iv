@@ -43,6 +43,7 @@ struct DebugData
   std::vector<geometry_msgs::msg::Point> stop_factor_points;
   std::vector<std::vector<Eigen::Vector3d>> slow_polygons;
   geometry_msgs::msg::Point nearest_collision_point;
+  double stop_judge_range;
 };
 
 bool insertTargetVelocityPoint(
