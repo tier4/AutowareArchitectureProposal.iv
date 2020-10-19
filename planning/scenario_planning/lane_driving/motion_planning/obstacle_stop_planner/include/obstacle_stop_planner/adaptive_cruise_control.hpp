@@ -111,6 +111,9 @@ private:
     //!< @brief supposed minimum acceleration in emergency stop
     double emergency_stop_acceleration;
 
+    //!< @brief supposed minimum acceleration of forward vehicle in emergency stop
+    double obstacle_emergency_stop_acceleration;
+
     //!< @brief supposed idling time to start emergency stop
     double emergency_stop_idling_time;
 

@@ -8,6 +8,7 @@ obstacle_stop_velocity_thresh: 1.0 # threshold of forward obstacle velocity to i
 emergency_stop_acceleration: -5.0 # supposed minimum acceleration (deceleration) in emergency stop [m/ss]
 emergency_stop_idling_time: 0.5 # supposed idling time to start emergency stop [s]
 min_dist_stop: 4.0 # minimum distance of emergency stop [m]
+obstacle_emergency_stop_acceleration: -5.0 # supposed minimum acceleration (deceleration) in emergency stop [m/ss]
 max_standard_acceleration: 0.5 # supposed maximum acceleration in active cruise control [m/ss]
 min_standard_acceleration: -1.0 # supposed minimum acceleration (deceleration) in active cruise control
 standard_idling_time: 0.5 # supposed idling time to react object in active cruise control [s]
