@@ -5,7 +5,8 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic -Werror)
+  add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wno-unused-parameter)
 endif()
 
 find_package(ament_cmake REQUIRED)
@@ -26,7 +27,14 @@ target_include_directories(ndt
     $<INSTALL_INTERFACE:include>
 )
 
-ament_target_dependencies(ndt ndt_omp ndt_pcl_modified PCL)
+ament_target_dependencies(ndt PUBLIC ndt_omp ndt_pcl_modified)
+# Can't use ament_target_dependencies() here because it doesn't link PCL
+# properly, see ndt_omp for more information.
+target_compile_definitions(ndt PUBLIC ${PCL_DEFINITIONS})
+target_include_directories(ndt PUBLIC ${PCL_INCLUDE_DIRS})
+target_link_libraries(ndt PUBLIC ${PCL_LIBRARIES})
+target_link_directories(ndt PUBLIC ${PCL_LIBRARY_DIRS})
+
 ament_export_targets(export_ndt HAS_LIBRARY_TARGET)
 ament_export_dependencies(ndt_omp ndt_pcl_modified PCL)
 
@@ -41,7 +49,6 @@ install(
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
 )
 
 ament_package()
