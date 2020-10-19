@@ -22,21 +22,20 @@
 
 GyroOdometer::GyroOdometer()
 : Node("map_tf_generator"), 
-  output_frame_("base_link")
+  output_frame_(declare_parameter("base_link", "base_link"))
 {
   rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
   tf_buffer_ = std::make_shared<tf2_ros::Buffer>(clock);
   tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
-  // private_nh_.getParam("output_frame", output_frame_);
 
-  // vehicle_twist_sub_ = nh_.subscribe("vehicle/twist", 100, &GyroOdometer::callbackTwist, this);
-  // imu_sub_ = nh_.subscribe("imu", 100, &GyroOdometer::callbackImu, this);
+  vehicle_twist_sub_ = create_subscription<geometry_msgs::msg::TwistStamped>("vehicle/twist", rclcpp::QoS{1}, std::bind(&GyroOdometer::callbackTwist, this, std::placeholders::_1));
+  imu_sub_ = create_subscription<sensor_msgs::msg::Imu>("imu", rclcpp::QoS{1}, std::bind(&GyroOdometer::callbackImu, this, std::placeholders::_1));
 
-  // twist_pub_ = nh_.advertise<geometry_msgs::TwistStamped>("twist", 10);
-  // twist_with_covariance_pub_ =
-  //   nh_.advertise<geometry_msgs::TwistWithCovarianceStamped>("twist_with_covariance", 10);
-  // linear_x_pub_ = nh_.advertise<std_msgs::Float32>("linear_x", 10);
-  // angular_z_pub_ = nh_.advertise<std_msgs::Float32>("angular_z", 10);
+  twist_pub_ = create_publisher<geometry_msgs::msg::TwistStamped>("twist", rclcpp::QoS{10});
+  twist_with_covariance_pub_ =
+    create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>("twist_with_covariance", rclcpp::QoS{10});
+  // linear_x_pub_ = create_publisher<std_msgs::Float32>("linear_x", rclcpp::QoS{10});
+  // angular_z_pub_ = create_publisher<std_msgs::Float32>("angular_z", rclcpp::QoS{10});
 
   // TODO createTimer
 }
@@ -80,7 +79,7 @@ void GyroOdometer::callbackImu(const sensor_msgs::msg::Imu::ConstSharedPtr imu_m
   twist.header.frame_id = output_frame_;
   twist.twist.linear = twist_msg_ptr_->twist.linear;
   twist.twist.angular.z = transed_angular_velocity.vector.z;  // TODO yaw_rate only
-  // twist_pub_.publish(twist);
+  twist_pub_->publish(twist);
 
   geometry_msgs::msg::TwistWithCovarianceStamped twist_with_covariance;
   twist_with_covariance.header.stamp = imu_msg_ptr->header.stamp;
@@ -95,7 +94,7 @@ void GyroOdometer::callbackImu(const sensor_msgs::msg::Imu::ConstSharedPtr imu_m
   twist_with_covariance.twist.covariance[0 * 6 + 5] = vx_covariance * wz_covariance;
   twist_with_covariance.twist.covariance[5 * 6 + 0] = wz_covariance * vx_covariance;
   twist_with_covariance.twist.covariance[5 * 6 + 5] = wz_covariance * wz_covariance;
-  // twist_with_covariance_pub_.publish(twist_with_covariance);
+  twist_with_covariance_pub_->publish(twist_with_covariance);
 }
 
 bool GyroOdometer::getTransform(

@@ -41,16 +41,13 @@ private:
     const std::string & target_frame, const std::string & source_frame,
     const geometry_msgs::msg::TransformStamped::SharedPtr transform_stamped_ptr);
 
-  // ros::NodeHandle nh_;
-  // ros::NodeHandle private_nh_;
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr vehicle_twist_sub_;
+  rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub_;
 
-  // ros::Subscriber vehicle_twist_sub_;
-  // ros::Subscriber imu_sub_;
-
-  // ros::Publisher twist_pub_;
-  // ros::Publisher twist_with_covariance_pub_;
-  // ros::Publisher linear_x_pub_;
-  // ros::Publisher angular_z_pub_;
+  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr twist_pub_;
+  rclcpp::Publisher<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr twist_with_covariance_pub_;
+  // rclcpp::Publisher<std_msgs::Float32>::SharedPtr linear_x_pub_;
+  // rclcpp::Publisher<std_msgs::Float32>::SharedPtr angular_z_pub_;
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
