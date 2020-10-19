@@ -17,6 +17,7 @@
 #ifndef ASTER_PLANNER_H
 #define ASTER_PLANNER_H
 
+#include <cmath>
 #include <functional>
 #include <iostream>
 #include <queue>
@@ -24,10 +25,10 @@
 #include <tuple>
 #include <vector>
 
-#include <geometry_msgs/PoseArray.h>
-#include <nav_msgs/OccupancyGrid.h>
-#include <nav_msgs/Path.h>
-#include <std_msgs/Header.h>
+#include <geometry_msgs/msg/pose_array.hpp>
+#include <nav_msgs/msg/occupancy_grid.hpp>
+#include <nav_msgs/msg/path.hpp>
+#include <std_msgs/msg/header.hpp>
 
 enum class NodeStatus : uint8_t { None, Open, Closed, Obstacle };
 
@@ -68,13 +69,13 @@ struct NodeComparison
 
 struct AstarWaypoint
 {
-  geometry_msgs::PoseStamped pose;
+  geometry_msgs::msg::PoseStamped pose;
   bool is_back = false;
 };
 
 struct AstarWaypoints
 {
-  std_msgs::Header header;
+  std_msgs::msg::Header header;
   std::vector<AstarWaypoint> waypoints;
 };
 
@@ -152,9 +153,10 @@ public:
   explicit AstarSearch(const AstarParam & astar_param);
 
   void setRobotShape(const RobotShape & robot_shape) { astar_param_.robot_shape = robot_shape; }
-  void initializeNodes(const nav_msgs::OccupancyGrid & costmap);
-  bool makePlan(const geometry_msgs::Pose & start_pose, const geometry_msgs::Pose & goal_pose);
-  bool hasObstacleOnTrajectory(const geometry_msgs::PoseArray & trajectory);
+  void initializeNodes(const nav_msgs::msg::OccupancyGrid & costmap);
+  bool makePlan(
+    const geometry_msgs::msg::Pose & start_pose, const geometry_msgs::msg::Pose & goal_pose);
+  bool hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & trajectory);
 
   const AstarWaypoints & getWaypoints() const { return waypoints_; }
 
@@ -163,7 +165,7 @@ private:
   void setPath(const AstarNode & goal);
   bool setStartNode();
   bool setGoalNode();
-  double estimateCost(const geometry_msgs::Pose & pose);
+  double estimateCost(const geometry_msgs::msg::Pose & pose);
 
   bool detectCollision(const IndexXYT & index);
   bool isOutOfRange(const IndexXYT & index);
@@ -180,11 +182,11 @@ private:
   std::priority_queue<AstarNode *, std::vector<AstarNode *>, NodeComparison> openlist_;
 
   // costmap as occupancy grid
-  nav_msgs::OccupancyGrid costmap_;
+  nav_msgs::msg::OccupancyGrid costmap_;
 
   // pose in costmap frame
-  geometry_msgs::Pose start_pose_;
-  geometry_msgs::Pose goal_pose_;
+  geometry_msgs::msg::Pose start_pose_;
+  geometry_msgs::msg::Pose goal_pose_;
 
   // result path
   AstarWaypoints waypoints_;
