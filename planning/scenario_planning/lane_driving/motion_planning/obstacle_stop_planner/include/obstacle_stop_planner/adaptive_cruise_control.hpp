@@ -135,6 +135,9 @@ private:
     //!< @brief margin to insert upper velocity
     double margin_rate_to_change_vel;
 
+    //!< @brief use time-compensation to calculate distance to forward vehicle
+    bool use_time_compensation_to_dist;
+
     //!< @brief gain of lowpass filter of upper velocity
     double lowpass_gain_;
 
@@ -168,7 +171,7 @@ private:
   void calcDistanceToNearestPointOnPath(
     const autoware_planning_msgs::Trajectory & trajectory, const int nearest_point_idx,
     const geometry_msgs::Pose & self_pose, const pcl::PointXYZ & nearest_collision_point,
-    double * distance);
+    const ros::Time & nearest_collision_point_time, double * distance);
   double calcTrajYaw(
     const autoware_planning_msgs::Trajectory & trajectory, const int collision_point_idx);
   bool estimatePointVelocityFromObject(

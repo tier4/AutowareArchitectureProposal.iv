@@ -165,6 +165,8 @@ AdaptiveCruiseController::AdaptiveCruiseController(
   param_.obstacle_min_standard_acceleration =
     getParam<double>(pnh_, "obstacle_min_standard_acceleration", -1.5);
   param_.margin_rate_to_change_vel = getParam<double>(pnh_, "margin_rate_to_change_vel", 0.3);
+  param_.use_time_compensation_to_dist =
+    getParam<bool>(pnh_, "use_time_compensation_to_calc_distance", true);
   param_.lowpass_gain_ = getParam<double>(pnh_, "lowpass_gain_of_upper_velocity", 0.6);
 
   /* parameter for pid in acc */
@@ -208,7 +210,7 @@ void AdaptiveCruiseController::insertAdaptiveCruiseVelocity(
   */
   calcDistanceToNearestPointOnPath(
     trajectory, nearest_collision_point_idx, self_pose, nearest_collision_point,
-    &col_point_distance);
+    nearest_collision_point_time, &col_point_distance);
 
   /*
   * calc yaw of trajectory at collision point
@@ -242,6 +244,7 @@ void AdaptiveCruiseController::insertAdaptiveCruiseVelocity(
     ROS_DEBUG_THROTTLE(1.0, "Failed to estimate velocity of forward vehicle. Insert stop line.");
     *need_to_stop = true;
     prev_upper_velocity_ = current_velocity;  //reset prev_upper_velocity
+    prev_target_velocity_ = 0.0;
     pub_debug_.publish(debug_values_);
     return;
   }
@@ -268,7 +271,7 @@ void AdaptiveCruiseController::insertAdaptiveCruiseVelocity(
 void AdaptiveCruiseController::calcDistanceToNearestPointOnPath(
   const autoware_planning_msgs::Trajectory & trajectory, const int nearest_point_idx,
   const geometry_msgs::Pose & self_pose, const pcl::PointXYZ & nearest_collision_point,
-  double * distance)
+  const ros::Time & nearest_collision_point_time, double * distance)
 {
   if (trajectory.points.size() == 0) {
     ROS_DEBUG_THROTTLE(1.0, "input path is too short(size=0)");
@@ -313,6 +316,13 @@ void AdaptiveCruiseController::calcDistanceToNearestPointOnPath(
 
   // subtract base_link to front
   dist_to_point -= param_.min_behavior_stop_margin;
+
+  // time compensation
+  if (param_.use_time_compensation_to_dist) {
+    const auto base_time = trajectory.header.stamp;
+    double delay_time = (base_time - nearest_collision_point_time).toSec();
+    dist_to_point += prev_target_velocity_ * delay_time;
+  }
 
   *distance = std::max(0.0, dist_to_point);
   debug_values_.data.at(DBGVAL::FORWARD_OBJ_DISTANCE) = *distance;
