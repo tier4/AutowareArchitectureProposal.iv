@@ -15,6 +15,18 @@ jobs:
     - name: Check out repo
       uses: actions/checkout@v2
 
+    - name: get repos file  
+      uses: wei/wget@v1
+      with: 
+        args: https://raw.githubusercontent.com/tier4/AutowareArchitectureProposal/ros2/autoware.proj.repos
+
+    - name: Clone other packages
+      run: mkdir dependency_ws && vcs import dependency_ws < autoware.proj.repos
+
+      ## We remove pilot.auto since it is already cloned from in actions/checkout@v2
+    - name: Remove pilot.auto from dependency_ws
+      run: rm -r dependency_ws/autoware/pilot.auto
+
     - name: Install missing dependencies
       run: sudo apt update && rosdep update && DEBIAN_FRONTEND=noninteractive rosdep install --from-paths . --ignore-src --rosdistro foxy -y
 
