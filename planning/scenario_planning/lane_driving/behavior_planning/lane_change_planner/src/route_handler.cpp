@@ -728,6 +728,21 @@ PathWithLaneId RouteHandler::getReferencePath(
 
   reference_path = util::removeOverlappingPoints(reference_path);
 
+  // append a point only when having one point so that yaw calculation would work
+  if (reference_path.points.size() == 1) {
+    const int lane_id = reference_path.points.front().lane_ids.front();
+    const auto lanelet = lanelet_map_ptr_->laneletLayer.get(lane_id);
+    const auto point = reference_path.points.front().point.pose.position;
+    const auto lane_yaw = lanelet::utils::getLaneletAngle(lanelet, point);
+    PathPointWithLaneId path_point;
+    path_point.lane_ids.push_back(lane_id);
+    constexpr double ds = 0.1;
+    path_point.point.pose.position.x = point.x + ds * std::cos(lane_yaw);
+    path_point.point.pose.position.y = point.y + ds * std::sin(lane_yaw);
+    path_point.point.pose.position.z = point.z;
+    reference_path.points.push_back(path_point);
+  }
+
   // set angle
   for (size_t i = 0; i < reference_path.points.size(); i++) {
     double angle = 0;
