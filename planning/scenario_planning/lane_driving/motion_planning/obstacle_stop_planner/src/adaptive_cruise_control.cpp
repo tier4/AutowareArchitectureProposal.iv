@@ -155,7 +155,9 @@ AdaptiveCruiseController::AdaptiveCruiseController(
   /* parameter for acc */
   param_.obstacle_stop_velocity_thresh =
     getParam<double>(pnh_, "obstacle_stop_velocity_thresh", 1.0);
-  param_.emergency_stop_acceleration = getParam<double>(pnh_, "emergency_stop_acceleration", -5.0);
+  param_.emergency_stop_acceleration = getParam<double>(pnh_, "emergency_stop_acceleration", -3.5);
+  param_.obstacle_emergency_stop_acceleration =
+    getParam<double>(pnh_, "obstacle_emergency_stop_acceleration", -5.0);
   param_.emergency_stop_idling_time = getParam<double>(pnh_, "emergency_stop_idling_time", 0.5);
   param_.min_dist_stop = getParam<double>(pnh_, "min_dist_stop", 4.0);
   param_.max_standard_acceleration = getParam<double>(pnh_, "max_standard_acceleration", 0.5);
@@ -469,7 +471,7 @@ double AdaptiveCruiseController::calcThreshDistToForwardObstacle(
   const double braking_distance =
     (-1.0 * current_vel_min * current_vel_min) / (2.0 * param_.emergency_stop_acceleration);
   const double obj_braking_distance =
-    (-1.0 * obj_vel_min * obj_vel_min) / (2.0 * param_.emergency_stop_acceleration);
+    (-1.0 * obj_vel_min * obj_vel_min) / (2.0 * param_.obstacle_emergency_stop_acceleration);
 
   return minimum_distance + std::max(
                               0.0, idling_distance + braking_distance -
