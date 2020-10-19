@@ -194,8 +194,8 @@ private:
     const double current_vel, const double current_dist, const double obj_vel);
 
   void insertMaxVelocityToPath(
-    const double current_vel, const double target_vel, const double dist_to_collision_point,
-    autoware_planning_msgs::Trajectory * output_trajectory);
+    const geometry_msgs::Pose self_pose, const double current_vel, const double target_vel,
+    const double dist_to_collision_point, autoware_planning_msgs::Trajectory * output_trajectory);
   void registerQueToVelocity(const double vel, const ros::Time & vel_time);
 
   /* Debug */

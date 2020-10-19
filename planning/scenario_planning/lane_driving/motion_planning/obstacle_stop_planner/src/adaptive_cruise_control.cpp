@@ -266,7 +266,8 @@ void AdaptiveCruiseController::insertAdaptiveCruiseVelocity(
   /*
   * insert max velocity
   */
-  insertMaxVelocityToPath(current_velocity, upper_velocity, col_point_distance, output_trajectory);
+  insertMaxVelocityToPath(
+    self_pose, current_velocity, upper_velocity, col_point_distance, output_trajectory);
   *need_to_stop = false;
 }
 
@@ -564,9 +565,15 @@ double AdaptiveCruiseController::calcTargetVelocityByPID(
 };
 
 void AdaptiveCruiseController::insertMaxVelocityToPath(
-  const double current_vel, const double target_vel, const double dist_to_collision_point,
-  autoware_planning_msgs::Trajectory * output_trajectory)
+  const geometry_msgs::Pose self_pose, const double current_vel, const double target_vel,
+  const double dist_to_collision_point, autoware_planning_msgs::Trajectory * output_trajectory)
 {
+  //plus distance from self to next nearest point
+  const double dist = dist_to_collision_point +
+                      boost::geometry::distance(
+                        convertPointRosToBoost(self_pose.position),
+                        convertPointRosToBoost(output_trajectory->points.at(1).pose.position));
+
   double margin_to_insert = dist_to_collision_point * param_.margin_rate_to_change_vel;
   // accel = (v_after^2 - v_before^2 ) / 2x
   double target_acc = (std::pow(target_vel, 2) - std::pow(current_vel, 2)) / (2 * margin_to_insert);
