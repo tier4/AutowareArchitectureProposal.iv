@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.5)
 project(lanelet2_extension)
 
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
+
 find_package(PkgConfig)
 find_path(GeographicLib_INCLUDE_DIR GeographicLib/Config.h
   PATH_SUFFIXES GeographicLib
@@ -19,13 +26,6 @@ find_path(PUGIXML_INCLUDE_DIRS
   NAMES pugixml.hpp
   PATH_SUFFIXES pugixml
 )
-
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
-endif()
-
-find_package(ament_cmake_auto REQUIRED)
-ament_auto_find_build_dependencies()
 
 include_directories(
   ${GeographicLib_INCLUDE_DIRS}
@@ -46,7 +46,6 @@ ament_auto_add_library(lanelet2_extension_lib SHARED
   lib/visualization.cpp
 )
 target_link_libraries(lanelet2_extension_lib
-  ${catkin_LIBRARIES}
   ${GeographicLib_LIBRARIES}
 )
 
@@ -76,4 +75,4 @@ if(BUILD_TESTING)
   target_link_libraries(utilities-test lanelet2_extension_lib)
 endif()
 
-ament_package()
+ament_auto_package()
