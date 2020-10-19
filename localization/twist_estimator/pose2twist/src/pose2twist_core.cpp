@@ -38,8 +38,6 @@ Pose2Twist::Pose2Twist() : Node("pose2twist_core")
   angular_z_pub_ = create_publisher<std_msgs::msg::Float32>("angular_z", durable_qos);
 }
 
-Pose2Twist::~Pose2Twist() {}
-
 double calcDiffForRadian(const double lhs_rad, const double rhs_rad)
 {
   double diff_rad = lhs_rad - rhs_rad;
