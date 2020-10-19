@@ -15,6 +15,7 @@
  */
 
 #ifndef GYRO_ODOMETER_GYRO_ODOMETER_CORE_H_
+#define GYRO_ODOMETER_GYRO_ODOMETER_CORE_H_
 
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
@@ -49,8 +50,8 @@ private:
   // rclcpp::Publisher<std_msgs::Float32>::SharedPtr linear_x_pub_;
   // rclcpp::Publisher<std_msgs::Float32>::SharedPtr angular_z_pub_;
 
-  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
-  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+  tf2_ros::Buffer tf_buffer_;
+  tf2_ros::TransformListener tf_listener_;
 
   std::string output_frame_;
   geometry_msgs::msg::TwistStamped::ConstSharedPtr twist_msg_ptr_;

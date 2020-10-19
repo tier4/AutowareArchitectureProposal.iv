@@ -21,15 +21,13 @@
 #include <cmath>
 
 GyroOdometer::GyroOdometer()
-: Node("map_tf_generator"), 
+: Node("gyro_odometer"),
+  tf_buffer_(this->get_clock()),
+  tf_listener_(tf_buffer_),
   output_frame_(declare_parameter("base_link", "base_link"))
 {
-  rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
-  tf_buffer_ = std::make_shared<tf2_ros::Buffer>(clock);
-  tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
-
-  vehicle_twist_sub_ = create_subscription<geometry_msgs::msg::TwistStamped>("vehicle/twist", rclcpp::QoS{1}, std::bind(&GyroOdometer::callbackTwist, this, std::placeholders::_1));
-  imu_sub_ = create_subscription<sensor_msgs::msg::Imu>("imu", rclcpp::QoS{1}, std::bind(&GyroOdometer::callbackImu, this, std::placeholders::_1));
+  vehicle_twist_sub_ = create_subscription<geometry_msgs::msg::TwistStamped>("vehicle/twist", rclcpp::QoS{100}, std::bind(&GyroOdometer::callbackTwist, this, std::placeholders::_1));
+  imu_sub_ = create_subscription<sensor_msgs::msg::Imu>("imu", rclcpp::QoS{100}, std::bind(&GyroOdometer::callbackImu, this, std::placeholders::_1));
 
   twist_pub_ = create_publisher<geometry_msgs::msg::TwistStamped>("twist", rclcpp::QoS{10});
   twist_with_covariance_pub_ =
@@ -117,7 +115,7 @@ bool GyroOdometer::getTransform(
 
   try {
     *transform_stamped_ptr =
-      tf_buffer_->lookupTransform(target_frame, source_frame, tf2::TimePointZero);
+      tf_buffer_.lookupTransform(target_frame, source_frame, tf2::TimePointZero);
   } catch (tf2::TransformException & ex) {
     RCLCPP_WARN(this->get_logger(), "%s", ex.what());
     RCLCPP_ERROR(this->get_logger(), "Please publish TF %s to %s", target_frame.c_str(), source_frame.c_str());
