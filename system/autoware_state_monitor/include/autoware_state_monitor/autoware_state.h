@@ -28,6 +28,7 @@ enum class AutowareState : int8_t
   Driving,
   ArrivedGoal,
   Emergency,
+  Finalizing,
 };
 
 inline AutowareState fromString(const std::string & state)
@@ -41,6 +42,7 @@ inline AutowareState fromString(const std::string & state)
   if (state == StateMessage::DRIVING) {return AutowareState::Driving;}
   if (state == StateMessage::ARRIVAL_GOAL) {return AutowareState::ArrivedGoal;}
   if (state == StateMessage::EMERGENCY) {return AutowareState::Emergency;}
+  if (state == StateMessage::FINALIZING) {return AutowareState::Finalizing;}
 
   throw std::runtime_error("invalid state");
 }
@@ -56,6 +58,7 @@ inline std::string toString(const AutowareState & state)
   if (state == AutowareState::Driving) {return StateMessage::DRIVING;}
   if (state == AutowareState::ArrivedGoal) {return StateMessage::ARRIVAL_GOAL;}
   if (state == AutowareState::Emergency) {return StateMessage::EMERGENCY;}
+  if (state == AutowareState::Finalizing) {return StateMessage::FINALIZING;}
 
   throw std::runtime_error("invalid state");
 }

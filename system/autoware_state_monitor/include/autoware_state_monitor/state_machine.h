@@ -47,6 +47,7 @@ struct StateInput
   autoware_control_msgs::msg::EngageMode::ConstSharedPtr autoware_engage;
   autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr vehicle_control_mode;
   std_msgs::msg::Bool::ConstSharedPtr is_emergency;
+  bool is_finalizing = false;
   autoware_planning_msgs::msg::Route::ConstSharedPtr route;
   geometry_msgs::msg::TwistStamped::ConstSharedPtr twist;
   std::deque<geometry_msgs::msg::TwistStamped::ConstSharedPtr> twist_buffer;
@@ -95,6 +96,7 @@ private:
   bool isOverridden() const;
   bool isEmergency() const;
   bool hasArrivedGoal() const;
+  bool isFinalizing() const;
 };
 
 #endif

@@ -105,6 +105,10 @@ std::string getStateMessage(const AutowareState & state)
     return "Emergency! Please recover the system.";
   }
 
+  if (state == AutowareState::Finalizing) {
+    return "Finalizing Autoware...";
+  }
+
   throw std::runtime_error("invalid state");
 }
 
@@ -159,6 +163,39 @@ void AutowareStateMonitorNode::onTwist(const geometry_msgs::msg::TwistStamped::C
 
     state_input_.twist_buffer.pop_front();
   }
+}
+
+void AutowareStateMonitorNode::srvShutdown(
+  const std::shared_ptr<rmw_request_id_t> request_header,
+  const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
+  const std::shared_ptr<std_srvs::srv::Trigger::Response> response)
+{
+  (void)request_header;
+  state_input_.is_finalizing = true;
+
+  const auto t_start = this->get_clock()->now();
+  constexpr double timeout = 3.0;
+  while (rclcpp::ok()) {
+    rclcpp::spin_some(this->get_node_base_interface());
+
+    if (state_machine_->getCurrentState() == AutowareState::Finalizing) {
+      response->success = true;
+      response->message = "Shutdown Autoware.";
+      return true;
+    }
+
+    if ((this->get_clock()->now() - t_start).seconds() > timeout) {
+      response->success = false;
+      response->message = "Shutdown timeout.";
+      return true;
+    }
+
+    rclcpp::Rate(10.0).sleep();
+  }
+
+  response->success = false;
+  response->message = "Shutdown failure.";
+  return true;
 }
 
 void AutowareStateMonitorNode::onTimer()
@@ -344,6 +381,9 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   tf_listener_(tf_buffer_),
   updater_(this)
 {
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+  using std::placeholders::_3;
   // Parameter
   update_rate_ = this->declare_parameter("update_rate", 10.0);
   disengage_on_route_ = this->declare_parameter("disengage_on_route", true);
@@ -374,17 +414,21 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   // Subscriber
   sub_autoware_engage_ = this->create_subscription<autoware_control_msgs::msg::EngageMode>(
     "input/autoware_engage", 1,
-    std::bind(&AutowareStateMonitorNode::onAutowareEngage, this, std::placeholders::_1));
+    std::bind(&AutowareStateMonitorNode::onAutowareEngage, this, _1));
   sub_vehicle_control_mode_ = this->create_subscription<autoware_vehicle_msgs::msg::ControlMode>(
     "input/vehicle_control_mode", 1,
-    std::bind(&AutowareStateMonitorNode::onVehicleControlMode, this, std::placeholders::_1));
+    std::bind(&AutowareStateMonitorNode::onVehicleControlMode, this, _1));
   sub_is_emergency_ = this->create_subscription<std_msgs::msg::Bool>(
     "input/is_emergency", 1,
-    std::bind(&AutowareStateMonitorNode::onIsEmergency, this, std::placeholders::_1));
+    std::bind(&AutowareStateMonitorNode::onIsEmergency, this, _1));
   sub_route_ = this->create_subscription<autoware_planning_msgs::msg::Route>(
-    "input/route", rclcpp::QoS{1}.transient_local(), std::bind(&AutowareStateMonitorNode::onRoute, this, std::placeholders::_1));
+    "input/route", rclcpp::QoS{1}.transient_local(), std::bind(&AutowareStateMonitorNode::onRoute, this, _1));
   sub_twist_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
-    "input/twist", 100, std::bind(&AutowareStateMonitorNode::onTwist, this, std::placeholders::_1));
+    "input/twist", 100, std::bind(&AutowareStateMonitorNode::onTwist, this, _1));
+
+  // Service
+  srv_shutdown_ = this->create_service<std_srvs::srv::Trigger>(
+    "service/shutdown", std::bind(&AutowareStateMonitorNode::srvShutdown, this, _1, _2, _3));
 
   // Publisher
   pub_autoware_state_ =

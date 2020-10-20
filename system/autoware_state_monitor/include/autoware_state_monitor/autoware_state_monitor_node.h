@@ -28,6 +28,7 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "std_msgs/msg/bool.hpp"
+#include "std_srvs/srv/trigger.hpp"
 
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
@@ -84,6 +85,14 @@ private:
 
   std::map<std::string, rclcpp_generic::GenericSubscription::SharedPtr> sub_topic_map_;
   std::map<std::string, std::deque<rclcpp::Time>> topic_received_time_buffer_;
+
+  // Service
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_shutdown_;
+
+  bool srvShutdown(
+    const std::shared_ptr<rmw_request_id_t> request_header,
+    const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
+    std::shared_ptr<std_srvs::srv::Trigger::Response> response);
 
   // Publisher
   rclcpp::Publisher<autoware_system_msgs::msg::AutowareState>::SharedPtr pub_autoware_state_;
