@@ -68,7 +68,7 @@ sensor_msgs::msg::PointCloud2 PointCloudMapLoaderNode::loadPCDFiles(
       whole_pcd = partial_pcd;
     } else {
       whole_pcd.width += partial_pcd.width;
-      whole_pcd.row_step = partial_pcd.row_step;
+      whole_pcd.row_step += partial_pcd.row_step;
       whole_pcd.data.reserve(whole_pcd.data.size() + partial_pcd.data.size());
       whole_pcd.data.insert(whole_pcd.data.end(), partial_pcd.data.begin(), partial_pcd.data.end());
     }
