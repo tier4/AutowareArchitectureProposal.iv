@@ -190,6 +190,8 @@ bool StateMachine::hasArrivedGoal() const
   return false;
 }
 
+bool StateMachine::isFinalizing() const { return state_input_.is_finalizing; }
+
 AutowareState StateMachine::updateState(const StateInput & state_input)
 {
   msgs_ = {};
@@ -200,6 +202,10 @@ AutowareState StateMachine::updateState(const StateInput & state_input)
 
 AutowareState StateMachine::judgeAutowareState() const
 {
+  if (isFinalizing()) {
+    return AutowareState::Finalizing;
+  }
+
   switch (autoware_state_) {
     case (AutowareState::InitializingVehicle): {
       if (isVehicleInitialized()) {
@@ -291,6 +297,10 @@ AutowareState StateMachine::judgeAutowareState() const
         return AutowareState::WaitingForEngage;
       }
 
+      break;
+    }
+
+    case (AutowareState::Finalizing): {
       break;
     }
 

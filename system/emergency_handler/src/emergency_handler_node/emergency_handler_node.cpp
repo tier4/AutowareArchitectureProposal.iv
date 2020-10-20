@@ -146,7 +146,8 @@ bool EmergencyHandlerNode::isEmergency()
     const auto is_in_target_state =
       (autoware_state_->state != AutowareState::InitializingVehicle) &&
       (autoware_state_->state != AutowareState::WaitingForRoute) &&
-      (autoware_state_->state != AutowareState::Planning);
+      (autoware_state_->state != AutowareState::Planning) &&
+      (autoware_state_->state != AutowareState::Finalizing);
 
     if (is_in_target_state && !driving_capability_->autonomous_driving) {
       ROS_WARN_THROTTLE(1.0, "autonomous_driving is failed");
