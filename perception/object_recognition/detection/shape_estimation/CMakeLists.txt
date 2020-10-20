@@ -92,7 +92,7 @@ target_include_directories(shape_estimation
 install(TARGETS shape_estimation
   ARCHIVE DESTINATION lib/${PROJECT_NAME}
   LIBRARY DESTINATION lib/${PROJECT_NAME}
-  RUNTIME DESTINATION lib/${PROJECT_NAME}
+  RUNTIME DESTINATION bin/${PROJECT_NAME}
 )
 
 install(
