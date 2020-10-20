@@ -179,9 +179,13 @@ bool PoseInitializer::getHeight(
 void PoseInitializer::callAlignServiceAndPublishResult(
   const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr input_pose_msg)
 {
+  if (request_id_ != response_id_) {
+    throw std::runtime_error("Did not receive response for previous NDT Align Server call");
+  }
   auto req =
     std::make_shared<autoware_localization_srvs::srv::PoseWithCovarianceStamped::Request>();
   req->pose_with_cov = *input_pose_msg;
+  req->seq = ++request_id_;
 
   RCLCPP_INFO(get_logger(), "call NDT Align Server");
 
@@ -190,6 +194,7 @@ void PoseInitializer::callAlignServiceAndPublishResult(
     [this](rclcpp::Client<autoware_localization_srvs::srv::PoseWithCovarianceStamped>::SharedFuture
              result) {
       RCLCPP_INFO(get_logger(), "called NDT Align Server");
+      response_id_ = result.get()->seq;
       // NOTE temporary cov
       geometry_msgs::msg::PoseWithCovarianceStamped & pose_with_cov = result.get()->pose_with_cov;
       pose_with_cov.pose.covariance[0] = 1.0;

@@ -70,4 +70,11 @@ private:
 
   pcl::PointCloud<pcl::PointXYZ>::Ptr map_ptr_;
   std::string map_frame_;
+
+  // With the currently available facilities for calling a service, there is no
+  // easy way of detecting whether an answer was received within a reasonable
+  // amount of time. So, as a sanity check, we check whether a response for the
+  // previous request was received when a new request is sent.
+  uint32_t request_id_ = 0;
+  uint32_t response_id_ = 0;
 };
