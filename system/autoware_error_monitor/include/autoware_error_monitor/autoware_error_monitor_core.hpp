@@ -37,17 +37,17 @@ using DiagBuffer = std::deque<DiagStamped>;
 
 struct KeyName
 {
-  static constexpr const char * manual_driving = "/manual_driving";
-  static constexpr const char * autonomous_driving = "/autonomous_driving";
-  static constexpr const char * remote_control = "/remote_control";
-  static constexpr const char * safe_stop = "/safe_stop";
-  static constexpr const char * emergency_stop = "/emergency_stop";
+  static constexpr const char * manual_driving = "manual_driving";
+  static constexpr const char * autonomous_driving = "autonomous_driving";
+  static constexpr const char * remote_control = "remote_control";
+  static constexpr const char * safe_stop = "safe_stop";
+  static constexpr const char * emergency_stop = "emergency_stop";
 };
 
 class AutowareErrorMonitor : public rclcpp::Node
 {
 public:
-  AutowareErrorMonitor(const std::string & node_name, const rclcpp::NodeOptions & options);
+  AutowareErrorMonitor();
 
 private:
   // Parameter

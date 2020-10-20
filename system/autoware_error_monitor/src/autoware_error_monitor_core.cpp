@@ -18,12 +18,12 @@
 
 #include <autoware_error_monitor/autoware_error_monitor_core.hpp>
 
-AutowareErrorMonitor::AutowareErrorMonitor(
-  const std::string & node_name, const rclcpp::NodeOptions & options)
-: Node(node_name, options)
+AutowareErrorMonitor::AutowareErrorMonitor()
+: Node("autoware_error_monitor"),
+  update_rate_(declare_parameter("update_rate", 10))
 {
   // Parameter
-  update_rate_ = declare_parameter("update_rate").get<int>();
+  // update_rate_ = declare_parameter("update_rate");
   loadRequiredConditions(KeyName::manual_driving);
   loadRequiredConditions(KeyName::autonomous_driving);
   loadRequiredConditions(KeyName::remote_control);
@@ -40,16 +40,19 @@ AutowareErrorMonitor::AutowareErrorMonitor(
     "output/driving_capability", rclcpp::QoS{1});
 
   // Timer
-  timer_ = rclcpp::create_timer(
-    this, rclcpp::Node::get_clock(), rclcpp::Duration(std::chrono::nanoseconds(update_rate_)),
-    std::bind(&AutowareErrorMonitor::onTimer, this));
+  auto timer_callback = std::bind(&AutowareErrorMonitor::onTimer, this);
+  auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<double>(update_rate_));
 
-  RCLCPP_DEBUG(this->get_logger(), "Finished initialization of the AutowareErrorMonitor node");
+  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
+    this->get_clock(), period, std::move(timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(timer_, nullptr);
 }
 
 void AutowareErrorMonitor::loadRequiredConditions(const std::string & key)
 {
-  const auto param_key = std::string("required_conditions") + key;
+  const auto param_key = std::string("required_conditions.") + key;
 
   this->declare_parameter(param_key);
 

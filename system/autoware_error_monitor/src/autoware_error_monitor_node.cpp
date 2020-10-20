@@ -19,8 +19,7 @@
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::NodeOptions options;
-  const auto node = std::make_shared<AutowareErrorMonitor>("autoware_error_monitor", options);
+  auto node = std::make_shared<AutowareErrorMonitor>();
   rclcpp::spin(node);
   rclcpp::shutdown();
 
