@@ -1,0 +1,6 @@
+int32 iteration_num
+float64 exe_time_ms
+float64 transform_probability
+float64 initial_to_result_distance
+float64 initial_to_result_distance_old
+float64 initial_to_result_distance_new
