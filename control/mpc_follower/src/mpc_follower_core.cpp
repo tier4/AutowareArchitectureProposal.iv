@@ -166,10 +166,55 @@ MPCFollower::MPCFollower()
   pub_debug_mpc_calc_time_ = create_publisher<std_msgs::msg::Float32>("debug/mpc_calc_time", 1);
   pub_debug_values_ = create_publisher<std_msgs::msg::Float32MultiArray>("debug/debug_values", 1);
 
-  /* dynamic reconfigure */
-  dynamic_reconfigure::Server<mpc_follower::MPCFollowerConfig>::CallbackType dyncon_f =
-    boost::bind(&MPCFollower::dynamicRecofCallback, this, _1, _2);
-  dyncon_server_.setCallback(dyncon_f);
+  /* get parameter updates */
+  set_param_res_ = this->add_on_set_parameters_callback(std::bind(&MPCFollower::paramCallback, this, _1));
+}
+
+namespace {
+  template<typename T>
+  void update_param(const std::vector<rclcpp::Parameter> & parameters, const std::string & name, T & value)
+  {
+    auto it = std::find(parameters.cbegin(), parameters.cend(), name);
+    if (it != parameters.end())
+      {
+        value = it->get_value<T>();
+      }
+  }
+}
+
+#define UPDATE_PARAM(S) \
+  do { \
+  update_param(parameters, #S, mpc_param_.S); \
+  } while (0)
+
+// TODO move method within this file
+rcl_interfaces::msg::SetParametersResult MPCFollower::paramCallback(const std::vector<rclcpp::Parameter> & parameters)
+{
+    UPDATE_PARAM(prediction_horizon);
+    UPDATE_PARAM(prediction_dt);
+    // TODO extend to other params if macro works
+  // }
+    // mpc_param_.prediction_horizon = config.mpc_prediction_horizon;
+    // mpc_param_.prediction_dt = config.mpc_prediction_dt;
+    // mpc_param_.weight_lat_error = config.mpc_weight_lat_error;
+    // mpc_param_.weight_heading_error = config.mpc_weight_heading_error;
+    // mpc_param_.weight_heading_error_squared_vel = config.mpc_weight_heading_error_squared_vel;
+    // mpc_param_.weight_steering_input = config.mpc_weight_steering_input;
+    // mpc_param_.weight_steering_input_squared_vel = config.mpc_weight_steering_input_squared_vel;
+    // mpc_param_.weight_lat_jerk = config.mpc_weight_lat_jerk;
+    // mpc_param_.weight_steer_rate = config.mpc_weight_steer_rate;
+    // mpc_param_.weight_steer_acc = config.mpc_weight_steer_acc;
+    // mpc_param_.weight_terminal_lat_error = config.mpc_weight_terminal_lat_error;
+    // mpc_param_.weight_terminal_heading_error = config.mpc_weight_terminal_heading_error;
+    // mpc_param_.zero_ff_steer_deg = config.mpc_zero_ff_steer_deg;
+    // mpc_param_.acceleration_limit = config.acceleration_limit;
+    // mpc_param_.velocity_time_constant = config.velocity_time_constant;
+
+    // TODO could catch if types wrong and return failure result
+    rcl_interfaces::msg::SetParametersResult result;
+    result.successful = true;
+    result.reason = "success";
+    return result;
 }
 
 MPCFollower::~MPCFollower()
@@ -201,7 +246,7 @@ void MPCFollower::timerCallback()
 
 bool MPCFollower::checkData()
 {
-  // TODO `get_parameter` lookup with a string has some cost. Should we avoid it? Only improvement I see is to read the value just once in each method
+  // TODO `get_parameter` lookup with a string has some cost. make it a member
   if (!vehicle_model_ptr_ || !qpsolver_ptr_) {
     RCLCPP_INFO_EXPRESSION(
       get_logger(), get_parameter("show_debug_info"), "vehicle_model = %d, qp_solver = %d",

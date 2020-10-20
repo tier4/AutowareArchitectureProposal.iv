@@ -146,8 +146,7 @@ private:
     double input_delay;             //< @brief delay time for steering input to be compensated
     double acceleration_limit;      //< @brief for trajectory velocity calculation
     double velocity_time_constant;  //< @brief for trajectory velocity calculation
-  };
-  MPCParam mpc_param_;  // for mpc design parameter
+  } mpc_param_;  // for mpc design parameter
 
   struct MPCMatrix
   {
@@ -291,6 +290,8 @@ private:
   //   mpc_param_.acceleration_limit = config.acceleration_limit;
   //   mpc_param_.velocity_time_constant = config.velocity_time_constant;
   // }
+  OnSetParametersCallbackHandle::SharedPtr set_param_res_;
+  rcl_interfaces::msg::SetParametersResult paramCallback(const std::vector<rclcpp::Parameter> & parameters);
 
   /* ---------- debug ---------- */
   bool show_debug_info_;  //!< @brief flag to display debug info
