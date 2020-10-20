@@ -81,7 +81,7 @@ void EmergencyHandler::onTimer()
   }
 
   // Create timestamp
-  const auto stamp = rclcpp::Node::now();
+  const auto stamp = this->get_clock()->now();
 
   // Check if emergency
   {
