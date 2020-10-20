@@ -10,69 +10,29 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   )
 endif()
 
-### Dependencies 
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(autoware_system_msgs REQUIRED)
-find_package(diagnostic_msgs REQUIRED)
-# find_package(catkin REQUIRED COMPONENTS
-#   autoware_system_msgs
-#   diagnostic_msgs
-#   roscpp
-# )
-
-find_package(fmt REQUIRED)
-
-# catkin_package(
-#   INCLUDE_DIRS
-#     include
-#   CATKIN_DEPENDS
-#     autoware_system_msgs
-#     diagnostic_msgs
-# )
-
-include_directories(
-  include
-)
-
+### Dependencies
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
 # Target
 ## autoware_error_monitor_node
-add_executable(autoware_error_monitor_exe
+set(AUTOWARE_ERROR_MONITOR_SRC
+  src/autoware_error_monitor_core.cpp
+)
+
+set(AUTOWARE_ERROR_MONITOR_HEADERS
+  include/autoware_error_monitor/autoware_error_monitor_core.hpp
+)
+
+ament_auto_add_executable(${PROJECT_NAME}
   src/autoware_error_monitor_node.cpp
-  src/autoware_error_monitor_core.cpp)
-
-# Add dependencies
-set(AUTOWARE_ERROR_MONITOR_DEPENDENCIES
-  rclcpp
-  diagnostic_msgs
-  autoware_system_msgs
-)
-ament_target_dependencies(autoware_error_monitor_exe ${AUTOWARE_ERROR_MONITOR_DEPENDENCIES} 
-  PRIVATE fmt::fmt-header-only
-)
-
-# add_dependencies(autoware_error_monitor
-#   ${${PROJECT_NAME}_EXPORTED_TARGETS}
-#   ${catkin_EXPORTED_TARGETS}
-# )
+  ${AUTOWARE_ERROR_MONITOR_SRC}
+  ${AUTOWARE_ERROR_MONITOR_HEADERS}
+ )
 
 # Install
 ## executables and libraries
-install(TARGETS ${PROJECT_NAME}_exe
-  ARCHIVE DESTINATION lib/${PROJECT_NAME}
-  LIBRARY DESTINATION lib/${PROJECT_NAME}
-  RUNTIME DESTINATION lib/${PROJECT_NAME}
+ament_auto_package(INSTALL_TO_SHARE
+  launch
+  config
 )
-
-## project namespaced headers
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION include
-)
-
-## directories
-install(DIRECTORY launch config
-  DESTINATION share/${PROJECT_NAME}
-)
-
-ament_package()
