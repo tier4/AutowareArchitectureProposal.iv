@@ -3,7 +3,7 @@
 <package format="3">
   <name>shape_estimation</name>
   <version>0.1.0</version>
-  <description>This package implements an shape estimation as a ROS" node</description>
+  <description>This package implements a shape estimation algorithm as a ROS2 node</description>
 
   <maintainer email="yukihiro.saito@tier4.jp">Yukihiro Saito</maintainer>
   <license>Apache License 2.0</license>
@@ -17,6 +17,8 @@
   <depend>tf2_eigen</depend>
   <depend>pcl_conversions</depend>
   <depend>libopencv-dev</depend>
+  <depend>libpcl-all-dev</depend>
+  <depend>eigen</depend>
 
 
   <export>
