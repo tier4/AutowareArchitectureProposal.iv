@@ -18,9 +18,8 @@
 
 #pragma once
 
-#include <rclcpp/rclcpp.hpp>
 #include "shape_estimation/shape_estimator.hpp"
-// #include "shape_estimation/map_corrector_node.hpp"
+#include <rclcpp/rclcpp.hpp>
 #include <autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp>
 
 class ShapeEstimationNode : public rclcpp::Node
@@ -36,7 +35,6 @@ private:  // ros
 
 private:
   std::unique_ptr<ShapeEstimator> estimator_;
-  // std::shared_ptr<MapCorrectorNode> map_corrector_node_ptr_;
 
 public:
   ShapeEstimationNode();

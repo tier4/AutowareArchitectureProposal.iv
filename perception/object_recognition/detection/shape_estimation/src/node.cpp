@@ -31,10 +31,6 @@ ShapeEstimationNode::ShapeEstimationNode() : Node("shape_estimation")
   pub_ = create_publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(
     "objects", durable_qos);
 
-  // pnh_.param<bool>("use_map_corrent", use_map_correct_, true);
-  // if (use_map_correct_)
-  //   map_corrector_node_ptr_ = std::make_shared<MapCorrectorNode>();
-
   bool use_corrector = declare_parameter("use_corrector", true);
   double l_shape_fitting_search_angle_range =
     declare_parameter("l_shape_fitting_search_angle_range", 3.0);
@@ -70,10 +66,6 @@ void ShapeEstimationNode::callback(
     output_msg.feature_objects.back().object.shape = shape;
     output_msg.feature_objects.back().object.state.pose_covariance.pose = pose;
   }
-  // if (use_map_correct_)
-  // {
-  //   map_corrector_node_ptr_->correct(output_msg);
-  // }
 
   // Publish
   pub_->publish(output_msg);
