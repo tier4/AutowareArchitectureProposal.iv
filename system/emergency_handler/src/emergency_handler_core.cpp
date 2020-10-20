@@ -52,26 +52,22 @@ void EmergencyHandler::onTwist(const geometry_msgs::msg::TwistStamped::ConstShar
 bool EmergencyHandler::isDataReady()
 {
   if (!driving_capability_) {
-    // ROS_DEBUG_THROTTLE(1.0, "waiting for driving_capability msg...");
-    RCLCPP_DEBUG(this->get_logger(), "waiting for driving_capability msg...");
+    RCLCPP_DEBUG_THROTTLE(this->get_logger(), *this->get_clock(), 1.0, "waiting for driving_capability msg...");
     return false;
   }
 
   if (!prev_control_command_) {
-    // ROS_DEBUG_THROTTLE(1.0, "waiting for prev_control_command msg...");
-    RCLCPP_DEBUG(this->get_logger(), "waiting for prev_control_command msg...");
+    RCLCPP_DEBUG_THROTTLE(this->get_logger(), *this->get_clock(), 1.0, "waiting for prev_control_command msg...");
     return false;
   }
 
   if (!current_gate_mode_) {
-    // ROS_DEBUG_THROTTLE(1.0, "waiting for current_gate_mode msg...");
-    RCLCPP_DEBUG(this->get_logger(), "waiting for current_gate_mode msg...");
+    RCLCPP_DEBUG_THROTTLE(this->get_logger(), *this->get_clock(), 1.0, "waiting for current_gate_mode msg...");
     return false;
   }
 
   if (!twist_) {
-    // ROS_DEBUG_THROTTLE(1.0, "waiting for twist msg...");
-    RCLCPP_DEBUG(this->get_logger(), "waiting for twist msg...");
+    RCLCPP_DEBUG_THROTTLE(this->get_logger(), *this->get_clock(), 1.0, "waiting for twist msg...");
     return false;
   }
 
@@ -139,37 +135,32 @@ bool EmergencyHandler::isEmergency()
       (autoware_state_->state != AutowareState::PLANNING);
 
     if (is_in_target_state && !driving_capability_->autonomous_driving) {
-      // ROS_WARN_THROTTLE(1.0, "autonomous_driving is failed");
-      RCLCPP_WARN(this->get_logger(), "autonomous_driving is failed");
+      RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1.0, "autonomous_driving is failed");
       return true;
     }
   }
 
   if (current_gate_mode_->data == GateMode::REMOTE) {
     if (!driving_capability_->remote_control) {
-      // ROS_WARN_THROTTLE(1.0, "remote_control is failed");
-      RCLCPP_WARN(this->get_logger(), "remote_control is failed");
+      RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1.0, "remote_control is failed");
       return true;
     }
   }
 
   if (!driving_capability_->manual_driving) {
-    // ROS_WARN_THROTTLE(1.0, "manual_driving is failed");
-    RCLCPP_WARN(this->get_logger(), "manual_driving is failed");
+    RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1.0, "manual_driving is failed");
     return true;
   }
 
   /* Currently not supported */
   // if (!driving_capability_->safe_stop) {
-  // //   ROS_WARN_THROTTLE(1.0, "safe_stop is failed");
-  //   RCLCPP_WARN(this->get_logger(), "safe_stop is failed");
+  //   RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1.0, "safe_stop is failed");
   //   return true;
   // }
   /* Currently not supported */
 
   if (!driving_capability_->emergency_stop) {
-    // ROS_WARN_THROTTLE(1.0, "emergency_stop is failed");
-    RCLCPP_WARN(this->get_logger(), "emergency_stop is failed");
+    RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1.0, "emergency_stop is failed");
     return true;
   }
 
