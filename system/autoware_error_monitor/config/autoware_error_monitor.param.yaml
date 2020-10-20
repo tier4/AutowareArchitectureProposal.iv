@@ -1,6 +1,6 @@
 ## Default parameters for autoware_error_monitor node
 ---
-/autoware_error_monitor:
+/**:
   ros__parameters:
     update_rate: 100000
     required_conditions:

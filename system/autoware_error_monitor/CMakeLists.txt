@@ -6,8 +6,7 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-std=c++14 -Wno-unused-parameter -Wall -Wextra -Wpedantic 
-  )
+  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
 endif()
 
 ### Dependencies
@@ -20,14 +19,9 @@ set(AUTOWARE_ERROR_MONITOR_SRC
   src/autoware_error_monitor_core.cpp
 )
 
-set(AUTOWARE_ERROR_MONITOR_HEADERS
-  include/autoware_error_monitor/autoware_error_monitor_core.hpp
-)
-
 ament_auto_add_executable(${PROJECT_NAME}
   src/autoware_error_monitor_node.cpp
   ${AUTOWARE_ERROR_MONITOR_SRC}
-  ${AUTOWARE_ERROR_MONITOR_HEADERS}
  )
 
 # Install
