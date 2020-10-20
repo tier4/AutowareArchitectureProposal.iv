@@ -45,11 +45,11 @@ bool LatLonMuxer::checkTimeout() const
 {
   const auto now = ros::Time::now();
   if ((now - lat_cmd_->header.stamp).toSec() > timeout_thr_sec_) {
-    ROS_ERROR("[latlon_muxer] lat_cmd_ timeout failed.");
+    ROS_ERROR_THROTTLE(1.0, "[latlon_muxer] lat_cmd_ timeout failed.");
     return false;
   }
   if ((now - lon_cmd_->header.stamp).toSec() > timeout_thr_sec_) {
-    ROS_ERROR("[latlon_muxer] lon_cmd_ timeout failed.");
+    ROS_ERROR_THROTTLE(1.0, "[latlon_muxer] lon_cmd_ timeout failed.");
     return false;
   }
   return true;
@@ -61,7 +61,7 @@ void LatLonMuxer::publishCmd()
     return;
   }
   if (!checkTimeout()) {
-    ROS_ERROR("[latlon_muxer] timeout failed. stop publish command.");
+    ROS_ERROR_THROTTLE(1.0, "[latlon_muxer] timeout failed. stop publish command.");
     return;
   }
 
