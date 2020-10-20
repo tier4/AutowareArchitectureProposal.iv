@@ -1,3 +1,4 @@
+
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -186,11 +187,7 @@
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
-<<<<<<< HEAD
    Copyright 2020 Tier Ⅳ, Inc.
-=======
-   Copyright [yyyy] [name of copyright owner]
->>>>>>> 54b37b9... Squashed 'vendor/osqp_vendor/' content from commit 7bec512
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
