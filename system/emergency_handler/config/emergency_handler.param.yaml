@@ -1,2 +1,6 @@
-update_rate: 10
-use_parking_after_stopped: false
+# Default configuration for emergency handler
+---
+/emergency_handler:
+    ros__parameters:
+      update_rate: 10
+      use_parking_after_stopped: false

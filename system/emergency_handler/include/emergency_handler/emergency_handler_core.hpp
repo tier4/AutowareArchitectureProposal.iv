@@ -14,37 +14,33 @@
  * limitations under the License.
  */
 
-#ifndef EMERGENCY_HANDLER_CORE_H_
-#define EMERGENCY_HANDLER_CORE_H_
+#ifndef EMERGENCY_HANDLER_EMERGENCY_HANDLER_CORE_HPP_
+#define EMERGENCY_HANDLER_EMERGENCY_HANDLER_CORE_HPP_
+
+// Autoware
+#include "autoware_control_msgs/msg/control_command_stamped.hpp"
+#include "autoware_control_msgs/msg/gate_mode.hpp"
+#include "autoware_system_msgs/msg/autoware_state.hpp"
+#include "autoware_system_msgs/msg/driving_capability.hpp"
+#include "autoware_vehicle_msgs/msg/shift_stamped.hpp"
+#include "autoware_vehicle_msgs/msg/turn_signal.hpp"
+#include "autoware_vehicle_msgs/msg/vehicle_command.hpp"
+
+// ROS2 core
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <std_msgs/msg/bool.hpp>
+#include <rclcpp/create_timer.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 // Core
 #include <string>
 
-// ROS2 core
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <rclcpp/create_timer.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/bool.hpp>
-
-// Autoware
-#include <autoware_control_msgs/msg/control_command_stamped.hpp>
-#include <autoware_control_msgs/msg/gate_mode.hpp>
-#include <autoware_system_msgs/msg/autoware_state.hpp>
-#include <autoware_system_msgs/msg/driving_capability.hpp>
-#include <autoware_vehicle_msgs/msg/shift_stamped.hpp>
-#include <autoware_vehicle_msgs/msg/turn_signal.hpp>
-#include <autoware_vehicle_msgs/msg/vehicle_command.hpp>
-
 class EmergencyHandler : public rclcpp::Node
 {
 public:
-  EmergencyHandler(const std::string & node_name, const rclcpp::NodeOptions & options);
+  EmergencyHandler();
 
 private:
-  // NodeHandle
-  // ros::NodeHandle nh_{""};
-  // ros::NodeHandle private_nh_{"~"};
-
   // Subscribers
   rclcpp::Subscription<autoware_system_msgs::msg::AutowareState>::SharedPtr sub_autoware_state_;
   rclcpp::Subscription<autoware_system_msgs::msg::DrivingCapability>::SharedPtr

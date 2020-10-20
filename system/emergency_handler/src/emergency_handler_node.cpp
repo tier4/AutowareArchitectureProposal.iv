@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+#include <rclcpp/rclcpp.hpp>
+
 #include "emergency_handler/emergency_handler_core.hpp"
 
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::NodeOptions options;
-  const auto node = std::make_shared<EmergencyHandler>("emergency_handler", options);
+  auto node = std::make_shared<EmergencyHandler>();
   rclcpp::spin(node);
   rclcpp::shutdown();
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <emergency_handler/emergency_handler_core.hpp>
+#include "emergency_handler/emergency_handler_core.hpp"
 
 void EmergencyHandler::onAutowareState(
   const autoware_system_msgs::msg::AutowareState::ConstSharedPtr msg)
@@ -197,9 +197,10 @@ autoware_control_msgs::msg::ControlCommand EmergencyHandler::selectAlternativeCo
   }
 }
 
-EmergencyHandler::EmergencyHandler(
-  const std::string & node_name, const rclcpp::NodeOptions & options)
-: Node(node_name, options)
+EmergencyHandler::EmergencyHandler()
+: Node("emergency_handler"),
+  update_rate_(declare_parameter<int>("update_rate", 10)),
+  use_parking_after_stopped_(declare_parameter<bool>("use_parking_after_stopped", false))
 {
   // Subscriber
   sub_autoware_state_ = create_subscription<autoware_system_msgs::msg::AutowareState>(
