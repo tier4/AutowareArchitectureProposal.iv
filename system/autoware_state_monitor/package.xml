@@ -13,7 +13,10 @@
   <depend>autoware_vehicle_msgs</depend>
   <depend>diagnostic_updater</depend>
   <depend>fmt</depend>
+  <depend>geometry_msgs</depend>
   <depend>roscpp</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
   <depend>topic_tools</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>

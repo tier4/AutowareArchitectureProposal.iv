@@ -108,6 +108,10 @@ std::string getStateMessage(const AutowareState & state)
     return "Emergency! Please recover the system.";
   }
 
+  if (state == AutowareState::Finalizing) {
+    return "Finalizing Autoware...";
+  }
+
   throw std::runtime_error("invalid state");
 }
 
@@ -161,6 +165,36 @@ void AutowareStateMonitorNode::onTwist(const geometry_msgs::TwistStamped::ConstP
 
     state_input_.twist_buffer.pop_front();
   }
+}
+
+bool AutowareStateMonitorNode::srvShutdown(
+  std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res)
+{
+  state_input_.is_finalizing = true;
+
+  const auto t_start = ros::Time::now();
+  constexpr double timeout = 3.0;
+  while (ros::ok()) {
+    ros::spinOnce();
+
+    if (state_machine_->getCurrentState() == AutowareState::Finalizing) {
+      res.success = true;
+      res.message = "Shutdown Autoware.";
+      return true;
+    }
+
+    if ((ros::Time::now() - t_start).toSec() > timeout) {
+      res.success = false;
+      res.message = "Shutdown timeout.";
+      return true;
+    }
+
+    ros::Duration(0.1).sleep();
+  }
+
+  res.success = false;
+  res.message = "Shutdown failure.";
+  return true;
 }
 
 void AutowareStateMonitorNode::onTimer(const ros::TimerEvent & event)
@@ -370,6 +404,10 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
     private_nh_.subscribe("input/is_emergency", 1, &AutowareStateMonitorNode::onIsEmergency, this);
   sub_route_ = private_nh_.subscribe("input/route", 1, &AutowareStateMonitorNode::onRoute, this);
   sub_twist_ = private_nh_.subscribe("input/twist", 100, &AutowareStateMonitorNode::onTwist, this);
+
+  // Service
+  srv_shutdown_ =
+    private_nh_.advertiseService("service/shutdown", &AutowareStateMonitorNode::srvShutdown, this);
 
   // Publisher
   pub_autoware_state_ =

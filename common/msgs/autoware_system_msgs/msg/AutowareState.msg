@@ -5,6 +5,7 @@ string WaitingForEngage=WaitingForEngage
 string Driving=Driving
 string ArrivedGoal=ArrivedGoal
 string Emergency=Emergency
+string Finalizing=Finalizing
 
 string state
 string msg

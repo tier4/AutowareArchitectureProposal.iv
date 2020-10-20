@@ -35,6 +35,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <std_msgs/Bool.h>
+#include <std_srvs/Trigger.h>
 
 #include <autoware_state_monitor/autoware_state.h>
 #include <autoware_state_monitor/config.h>
@@ -84,6 +85,11 @@ private:
 
   std::map<std::string, ros::Subscriber> sub_topic_map_;
   std::map<std::string, std::deque<ros::Time>> topic_received_time_buffer_;
+
+  // Service
+  ros::ServiceServer srv_shutdown_;
+
+  bool srvShutdown(std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res);
 
   // Publisher
   ros::Publisher pub_autoware_state_;

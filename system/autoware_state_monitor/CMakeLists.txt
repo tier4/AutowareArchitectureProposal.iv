@@ -8,7 +8,10 @@ find_package(catkin REQUIRED COMPONENTS
   autoware_system_msgs
   autoware_vehicle_msgs
   diagnostic_updater
+  geometry_msgs
   roscpp
+  std_msgs
+  std_srvs
   topic_tools
   tf2
   tf2_ros
@@ -25,6 +28,9 @@ catkin_package(
     autoware_system_msgs
     autoware_vehicle_msgs
     diagnostic_updater
+    geometry_msgs
+    std_msgs
+    std_srvs
     topic_tools
     tf2
     tf2_ros
