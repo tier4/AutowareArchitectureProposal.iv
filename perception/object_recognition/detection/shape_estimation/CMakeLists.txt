@@ -16,17 +16,12 @@ find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_eigen REQUIRED)
 
-find_package(PCL REQUIRED)
+find_package(PCL REQUIRED COMPONENTS common)
 find_package(pcl_conversions REQUIRED)
 
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-
-include_directories(include
-  ${OpenCV_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIR}
-)
 
 set(SHAPE_ESTIMATION_CPPS
   src/main.cpp
@@ -86,7 +81,13 @@ set(SHAPE_ESTIMATION_DEPENDENCIES
   Eigen3
 )
 ament_target_dependencies(shape_estimation ${SHAPE_ESTIMATION_DEPENDENCIES})
-
+target_include_directories(shape_estimation
+    PUBLIC
+        $<INSTALL_INTERFACE:include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
 
 install(TARGETS shape_estimation
   ARCHIVE DESTINATION lib/${PROJECT_NAME}
