@@ -39,6 +39,7 @@ public:
     auto pred_pose = current_pose;
     pred_pose.pose.position.x += dx;
     pred_pose.pose.position.y += dy;
+    // TODO(Takamasa Horibe) take a duration as argument rather than casting a double
     pred_pose.header.stamp =
       rclcpp::Time(pred_pose.header.stamp) + rclcpp::Duration::from_seconds(delay_time);
     return pred_pose;
