@@ -8,12 +8,23 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 
-
-ament_auto_add_executable(velocity_controller
+set(velocity_controller_SRC
   src/velocity_controller_core.cpp
   src/velocity_controller_node.cpp
   src/pid.cpp
   src/velocity_controller_mathutils.cpp
+)
+
+set(velocity_controller_HEADER
+  include/velocity_controller/lowpass_filter.h
+  include/velocity_controller/pid.h
+  include/velocity_controller/velocity_controller_mathutils.h
+  include/velocity_controller/velocity_controller.h
+)
+
+ament_auto_add_executable(velocity_controller
+  ${velocity_controller_HEADER}
+  ${velocity_controller_SRC}
 )
 
 ament_auto_package(
