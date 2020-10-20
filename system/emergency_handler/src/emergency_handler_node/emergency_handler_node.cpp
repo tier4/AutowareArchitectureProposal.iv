@@ -156,7 +156,8 @@ bool EmergencyHandler::isEmergency()
     const auto is_in_target_state =
       (autoware_state_->state != AutowareState::INITIALIZING_VEHICLE) &&
       (autoware_state_->state != AutowareState::WAITING_FOR_ROUTE) &&
-      (autoware_state_->state != AutowareState::PLANNING);
+      (autoware_state_->state != AutowareState::PLANNING) &&
+      (autoware_state_->state != AutowareState::FINALIZING);
 
     if (is_in_target_state && !driving_capability_->autonomous_driving) {
       RCLCPP_WARN_THROTTLE(
