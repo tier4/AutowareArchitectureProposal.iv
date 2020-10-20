@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-#include "astar_search/astar_search.h"
-
-#include <vector>
+#include <astar_search/astar_search.h>
+#include <astar_search/helper.h>
 
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-#include <astar_search/helper.h>
 
 namespace
 {
@@ -199,18 +197,18 @@ void AstarSearch::initializeNodes(const nav_msgs::msg::OccupancyGrid & costmap)
   // Initialize nodes
   nodes_.clear();
   nodes_.resize(height);
-  for (uint32_t i = 0; i < height; i++) {
+  for (size_t i = 0; i < height; i++) {
     nodes_[i].resize(width);
   }
-  for (uint32_t i = 0; i < height; i++) {
-    for (uint32_t j = 0; j < width; j++) {
+  for (size_t i = 0; i < height; i++) {
+    for (size_t j = 0; j < width; j++) {
       nodes_[i][j].resize(astar_param_.theta_size);
     }
   }
 
   // Initialize status
-  for (uint32_t i = 0; i < height; i++) {
-    for (uint32_t j = 0; j < width; j++) {
+  for (size_t i = 0; i < height; i++) {
+    for (size_t j = 0; j < width; j++) {
       const int cost = costmap_.data[i * width + j];
 
       if (cost < 0 || astar_param_.obstacle_threshold <= cost) {

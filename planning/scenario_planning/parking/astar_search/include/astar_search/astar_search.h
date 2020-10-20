@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef ASTER_PLANNER_H
-#define ASTER_PLANNER_H
+#ifndef SCENARIO_PLANNING_PARKING_ASTAR_PLANNER_H
+#define SCENARIO_PLANNING_PARKING_ASTAR_PLANNER_H
 
 #include <cmath>
 #include <functional>

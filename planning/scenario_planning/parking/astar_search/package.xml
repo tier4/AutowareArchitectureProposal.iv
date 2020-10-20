@@ -8,8 +8,9 @@
   <author email="aohsato@gmail.com">Akihito Ohsato</author>
   <license>Apache License 2.0</license>
 
-  <depend>rclcpp</depend>
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
+  <depend>rclcpp</depend>
   <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>std_msgs</depend>
