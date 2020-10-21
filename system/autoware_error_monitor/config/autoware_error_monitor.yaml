@@ -1,28 +1,30 @@
-update_rate: 10
 required_modules:
-  manual_driving:
-    - "/vehicle"
+  manual_driving: []
 
   autonomous_driving:
-    - "/control"
+    - "/control/autonomous_driving"
+    - "/control/command_gate"
     - "/localization"
     - "/map"
     - "/perception"
     - "/planning"
-    - "/safety"
     - "/sensing"
+    - "/system"
     - "/vehicle"
 
   remote_control:
-    - "/control"
-    - "/remote_control"
-    - "/safety"
+    - "/control/command_gate"
+    - "/control/remote_control"
+    - "/system"
     - "/vehicle"
 
   safe_stop:
+    - "/control/command_gate"
     - "/map"
     - "/system"
     - "/vehicle"
 
   emergency_stop:
+    - "/control/command_gate"
+    - "/system"
     - "/vehicle"
