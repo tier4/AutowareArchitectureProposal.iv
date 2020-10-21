@@ -569,10 +569,14 @@ void AdaptiveCruiseController::insertMaxVelocityToPath(
   const double dist_to_collision_point, autoware_planning_msgs::Trajectory * output_trajectory)
 {
   //plus distance from self to next nearest point
-  const double dist = dist_to_collision_point +
-                      boost::geometry::distance(
-                        convertPointRosToBoost(self_pose.position),
-                        convertPointRosToBoost(output_trajectory->points.at(1).pose.position));
+  double dist = dist_to_collision_point;
+  double dist_to_first_point = 0.0;
+  if (output_trajectory->points.size() > 1) {
+    dist_to_first_point = boost::geometry::distance(
+      convertPointRosToBoost(self_pose.position),
+      convertPointRosToBoost(output_trajectory->points.at(1).pose.position));
+  }
+  dist += dist_to_first_point;
 
   double margin_to_insert = dist_to_collision_point * param_.margin_rate_to_change_vel;
   // accel = (v_after^2 - v_before^2 ) / 2x
