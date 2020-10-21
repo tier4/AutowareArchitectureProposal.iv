@@ -35,6 +35,16 @@ MultiObjectTrackerNode::MultiObjectTrackerNode() : nh_(""), pnh_("~"), tf_listen
   publish_timer_ = nh_.createTimer(
     ros::Duration(1.0 / publish_rate), &MultiObjectTrackerNode::publishTimerCallback, this);
   pnh_.param<std::string>("world_frame_id", world_frame_id_, std::string("world"));
+  std::vector<int> can_assign_matrix;
+  pnh_.getParam("can_assign_matrix", can_assign_matrix);
+  std::vector<double> max_dist_matrix;
+  pnh_.getParam("max_dist_matrix", max_dist_matrix);
+  std::vector<double> max_area_matrix;
+  pnh_.getParam("max_area_matrix", max_area_matrix);
+  std::vector<double> min_area_matrix;
+  pnh_.getParam("min_area_matrix", min_area_matrix);
+  data_association_ = std::make_unique<DataAssociation>(
+    can_assign_matrix, max_dist_matrix, max_area_matrix, min_area_matrix);
 }
 
 void MultiObjectTrackerNode::measurementCallback(
@@ -87,9 +97,9 @@ void MultiObjectTrackerNode::measurementCallback(
   /* global nearest neighbor */
   std::unordered_map<int, int> direct_assignment;
   std::unordered_map<int, int> reverse_assignment;
-  Eigen::MatrixXd score_matrix = data_association_.calcScoreMatrix(
+  Eigen::MatrixXd score_matrix = data_association_->calcScoreMatrix(
     input_transformed_objects, list_tracker_);  // row : tracker, col : measurement
-  data_association_.assign(score_matrix, direct_assignment, reverse_assignment);
+  data_association_->assign(score_matrix, direct_assignment, reverse_assignment);
 
   /* tracker measurement update */
   int tracker_idx = 0;
@@ -135,7 +145,8 @@ void MultiObjectTrackerNode::measurementCallback(
       list_tracker_.push_back(std::make_shared<BicycleTracker>(
         measurement_time, input_transformed_objects.feature_objects.at(i).object));
     } else {
-      // list_tracker_.push_back(std::make_shared<PedestrianTracker>(input_transformed_objects.feature_objects.at(i).object));
+      list_tracker_.push_back(std::make_shared<PedestrianTracker>(
+        measurement_time, input_transformed_objects.feature_objects.at(i).object));
     }
   }
 
