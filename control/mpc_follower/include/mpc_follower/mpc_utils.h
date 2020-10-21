@@ -19,14 +19,14 @@
 #include "mpc_follower/interpolate.h"
 #include "mpc_follower/mpc_trajectory.h"
 
-#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include <tf2/utils.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
-#include <tf2/utils.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <visualization_msgs/msg/marker_array.hpp>
+#include "autoware_planning_msgs/msg/trajectory.hpp"
 
 #include <eigen3/Eigen/Core>
 
@@ -54,15 +54,18 @@ double normalizeRadian(const double angle);
  * @param [out] a input angle vector
  */
 void convertEulerAngleToMonotonic(std::vector<double> * a);
-double calcDist2d(const geometry_msgs::msg::PoseStamped & p0, const geometry_msgs::msg::PoseStamped & p1);
+double calcDist2d(
+  const geometry_msgs::msg::PoseStamped & p0, const geometry_msgs::msg::PoseStamped & p1);
 double calcDist2d(const geometry_msgs::msg::Pose & p0, const geometry_msgs::msg::Pose & p1);
 double calcDist2d(const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1);
 double calcDist3d(const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1);
-double calcSquaredDist2d(const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1);
-double calcLateralError(const geometry_msgs::msg::Pose & ego_pose, const geometry_msgs::msg::Pose & ref_pose);
+double calcSquaredDist2d(
+  const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1);
+double calcLateralError(
+  const geometry_msgs::msg::Pose & ego_pose, const geometry_msgs::msg::Pose & ref_pose);
 
 bool convertToMPCTrajectory(
-                            const autoware_planning_msgs::msg::Trajectory & input, MPCTrajectory * output);
+  const autoware_planning_msgs::msg::Trajectory & input, MPCTrajectory * output);
 void calcMPCTrajectoryArclength(const MPCTrajectory & trajectory, std::vector<double> * arclength);
 bool resampleMPCTrajectoryByDistance(
   const MPCTrajectory & input, const double resample_interval_dist, MPCTrajectory * output);
@@ -103,7 +106,8 @@ bool calcTrajectoryCurvature(int curvature_smoothing_num, MPCTrajectory * traj);
  */
 bool calcNearestPoseInterp(
   const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose,
-  geometry_msgs::msg::Pose * nearest_pose, int * nearest_index, double * nearest_time, rclcpp::Logger logger, rclcpp::Clock & clock);
+  geometry_msgs::msg::Pose * nearest_pose, int * nearest_index, double * nearest_time,
+  rclcpp::Logger logger, rclcpp::Clock & clock);
 
 int calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose);
 

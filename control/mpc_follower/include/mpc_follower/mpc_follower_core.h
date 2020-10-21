@@ -34,6 +34,8 @@
 #include "mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics.h"
 #include "mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.h"
 
+#include <tf2/utils.h>
+#include <tf2_ros/transform_listener.h>
 #include <geometry_msgs/msg/pose.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
@@ -41,8 +43,6 @@
 #include <std_msgs/msg/float32.hpp>
 #include <std_msgs/msg/float32_multi_array.hpp>
 #include <std_msgs/msg/float64.hpp>
-#include <tf2/utils.h>
-#include <tf2_ros/transform_listener.h>
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
@@ -57,13 +57,13 @@
 #include <autoware_vehicle_msgs/msg/steering.hpp>
 
 // TODO don't think all of that is needed here, perhaps in implementation file
+#include <unistd.h>
 #include <chrono>
 #include <deque>
 #include <iostream>
 #include <limits>
 #include <memory>
 #include <string>
-#include <unistd.h>
 #include <vector>
 
 /**
@@ -85,14 +85,19 @@ public:
 
 private:
   // TODO call clang-format when code builds
-  rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr pub_ctrl_cmd_;         //!< @brief topic publisher for control command
-  rclcpp::Publisher<autoware_vehicle_msgs::msg::Steering>::SharedPtr pub_debug_steer_cmd_;  //!< @brief topic publisher for control command
-  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_ref_path_;        //!< @brief topic subscription for reference waypoints
-  rclcpp::Subscription<autoware_vehicle_msgs::msg::Steering>::SharedPtr sub_steering_;        //!< @brief subscription for currrent steering
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_vel_;     //!< @brief subscription for currrent velocity
+  rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
+    pub_ctrl_cmd_;  //!< @brief topic publisher for control command
+  rclcpp::Publisher<autoware_vehicle_msgs::msg::Steering>::SharedPtr
+    pub_debug_steer_cmd_;  //!< @brief topic publisher for control command
+  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr
+    sub_ref_path_;  //!< @brief topic subscription for reference waypoints
+  rclcpp::Subscription<autoware_vehicle_msgs::msg::Steering>::SharedPtr
+    sub_steering_;  //!< @brief subscription for currrent steering
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr
+    sub_current_vel_;  //!< @brief subscription for currrent velocity
 
   rclcpp::TimerBase::SharedPtr timer_;  //!< @brief timer to update after a given interval
-  void initTimer(double period_s);   //!< initialize timer to work in real, simulation, and replay
+  void initTimer(double period_s);  //!< initialize timer to work in real, simulation, and replay
 
   MPCTrajectory ref_traj_;                //!< @brief reference trajectory to be followed
   Butterworth2dFilter lpf_steering_cmd_;  //!< @brief lowpass filter for steering command
@@ -148,7 +153,7 @@ private:
     double input_delay;             //< @brief delay time for steering input to be compensated
     double acceleration_limit;      //< @brief for trajectory velocity calculation
     double velocity_time_constant;  //< @brief for trajectory velocity calculation
-  } mpc_param_;  // for mpc design parameter
+  } mpc_param_;                     // for mpc design parameter
 
   struct MPCMatrix
   {
@@ -163,10 +168,12 @@ private:
     Eigen::MatrixXd Yrefex;
   };
 
-  std::shared_ptr<geometry_msgs::msg::PoseStamped> current_pose_ptr_;  //!< @brief current measured pose
+  std::shared_ptr<geometry_msgs::msg::PoseStamped>
+    current_pose_ptr_;  //!< @brief current measured pose
   std::shared_ptr<geometry_msgs::msg::TwistStamped>
-    current_velocity_ptr_;                     //!< @brief current measured velocity
-  std::shared_ptr<autoware_vehicle_msgs::msg::Steering> current_steer_ptr_;  //!< @brief current measured steering
+    current_velocity_ptr_;  //!< @brief current measured velocity
+  std::shared_ptr<autoware_vehicle_msgs::msg::Steering>
+    current_steer_ptr_;  //!< @brief current measured steering
   std::shared_ptr<autoware_planning_msgs::msg::Trajectory>
     current_trajectory_ptr_;  //!< @brief referece trajectory
 
@@ -293,12 +300,15 @@ private:
   //   mpc_param_.velocity_time_constant = config.velocity_time_constant;
   // }
   OnSetParametersCallbackHandle::SharedPtr set_param_res_;
-  rcl_interfaces::msg::SetParametersResult paramCallback(const std::vector<rclcpp::Parameter> & parameters);
+  rcl_interfaces::msg::SetParametersResult paramCallback(
+    const std::vector<rclcpp::Parameter> & parameters);
 
   /* ---------- debug ---------- */
   bool show_debug_info_;  //!< @brief flag to display debug info
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_debug_marker_;
-  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr pub_debug_values_;             //!< @brief publisher for debug info
-  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr pub_debug_mpc_calc_time_;      //!< @brief publisher for debug info
+  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr
+    pub_debug_values_;  //!< @brief publisher for debug info
+  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr
+    pub_debug_mpc_calc_time_;                        //!< @brief publisher for debug info
   geometry_msgs::msg::TwistStamped estimate_twist_;  //!< @brief received /estimate_twist for debug
 };

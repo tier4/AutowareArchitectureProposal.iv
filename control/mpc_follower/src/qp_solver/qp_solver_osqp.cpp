@@ -15,7 +15,7 @@
  */
 #include "mpc_follower/qp_solver/qp_solver_osqp.h"
 
-QPSolverOSQP::QPSolverOSQP(const rclcpp::Logger & logger)  : logger_{logger} {}
+QPSolverOSQP::QPSolverOSQP(const rclcpp::Logger & logger) : logger_{logger} {}
 bool QPSolverOSQP::solve(
   const Eigen::MatrixXd & Hmat, const Eigen::MatrixXd & fvec, const Eigen::MatrixXd & A,
   const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lbA,

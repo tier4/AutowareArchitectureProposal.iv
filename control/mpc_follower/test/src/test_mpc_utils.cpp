@@ -15,9 +15,9 @@
  */
 
 #include <gtest/gtest.h>
-#include <rclcpp/rclcpp.hpp>
 #include <amathutils_lib/amathutils.hpp>
 #include <cmath>
+#include <rclcpp/rclcpp.hpp>
 #include "mpc_follower/mpc_utils.h"
 
 class TestSuite : public ::testing::Test

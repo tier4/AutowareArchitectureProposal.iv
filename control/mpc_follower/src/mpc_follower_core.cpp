@@ -44,10 +44,9 @@ MPCFollower::MPCFollower()
   enable_yaw_recalculation_ = declare_parameter<bool>("enable_yaw_recalculation", false);
   path_filter_moving_ave_num_ = declare_parameter<int>("path_filter_moving_ave_num", 35);
   curvature_smoothing_num_ = declare_parameter<int>("curvature_smoothing_num", 35);
-traj_resample_dist_ =  declare_parameter<double>("traj_resample_dist", 0.1);  // [m]
-admisible_position_error_ =  declare_parameter<double>("admisible_position_error", 5.0);
-admisible_yaw_error_ =
- declare_parameter<double>("admisible_yaw_error", M_PI_2);
+  traj_resample_dist_ = declare_parameter<double>("traj_resample_dist", 0.1);  // [m]
+  admisible_position_error_ = declare_parameter<double>("admisible_position_error", 5.0);
+  admisible_yaw_error_ = declare_parameter<double>("admisible_yaw_error", M_PI_2);
 
   // TODO these parameters could only be set initially
   /* mpc parameters */
@@ -59,10 +58,9 @@ admisible_yaw_error_ =
   steer_rate_lim_ = steer_rate_lim_degs * DEG2RAD;
 
   /* vehicle model setup */
-vehicle_model_type_ =  declare_parameter<std::string>("vehicle_model_type", "kinematics");
+  vehicle_model_type_ = declare_parameter<std::string>("vehicle_model_type", "kinematics");
   if (vehicle_model_type_ == "kinematics") {
-    const double steer_tau =
-    declare_parameter<double>("vehicle_model_steer_tau", 0.1);
+    const double steer_tau = declare_parameter<double>("vehicle_model_steer_tau", 0.1);
 
     vehicle_model_ptr_ =
       std::make_shared<KinematicsBicycleModel>(wheelbase_, steer_lim_, steer_tau);
@@ -88,7 +86,7 @@ vehicle_model_type_ =  declare_parameter<std::string>("vehicle_model_type", "kin
 
   /* QP solver setup */
   const std::string qp_solver_type =
-  declare_parameter<std::string>("qp_solver_type", "unconstraint_fast");
+    declare_parameter<std::string>("qp_solver_type", "unconstraint_fast");
   if (qp_solver_type == "unconstraint_fast") {
     qpsolver_ptr_ = std::make_shared<QPSolverEigenLeastSquareLLT>();
     RCLCPP_INFO(get_logger(), "set qp solver = unconstraint_fast");
@@ -116,9 +114,9 @@ vehicle_model_type_ =  declare_parameter<std::string>("vehicle_model_type", "kin
   input_buffer_ = std::deque<double>(delay_step, 0.0);
 
   /* initialize lowpass filter */
-  const double steering_lpf_cutoff_hz =
-  declare_parameter<double>("steering_lpf_cutoff_hz", 3.0);
-  const double error_deriv_lpf_curoff_hz=  declare_parameter<double>("error_deriv_lpf_curoff_hz", 5.0);
+  const double steering_lpf_cutoff_hz = declare_parameter<double>("steering_lpf_cutoff_hz", 3.0);
+  const double error_deriv_lpf_curoff_hz =
+    declare_parameter<double>("error_deriv_lpf_curoff_hz", 5.0);
   lpf_steering_cmd_.initialize(ctrl_period_, steering_lpf_cutoff_hz);
   lpf_lateral_error_.initialize(ctrl_period_, error_deriv_lpf_curoff_hz);
   lpf_yaw_error_.initialize(ctrl_period_, error_deriv_lpf_curoff_hz);
@@ -167,53 +165,58 @@ vehicle_model_type_ =  declare_parameter<std::string>("vehicle_model_type", "kin
   pub_debug_values_ = create_publisher<std_msgs::msg::Float32MultiArray>("debug/debug_values", 1);
 
   /* get parameter updates */
-  set_param_res_ = this->add_on_set_parameters_callback(std::bind(&MPCFollower::paramCallback, this, _1));
+  set_param_res_ =
+    this->add_on_set_parameters_callback(std::bind(&MPCFollower::paramCallback, this, _1));
 }
 
-namespace {
-  template<typename T>
-  void update_param(const std::vector<rclcpp::Parameter> & parameters, const std::string & name, T & value)
-  {
-    auto it = std::find_if(parameters.cbegin(), parameters.cend(), [&name](const rclcpp::Parameter & parameter) {return parameter.get_name() == name; });
-    if (it != parameters.cend())
-      {
-        value = it->template get_value<T>();
-      }
+namespace
+{
+template <typename T>
+void update_param(
+  const std::vector<rclcpp::Parameter> & parameters, const std::string & name, T & value)
+{
+  auto it = std::find_if(
+    parameters.cbegin(), parameters.cend(),
+    [&name](const rclcpp::Parameter & parameter) { return parameter.get_name() == name; });
+  if (it != parameters.cend()) {
+    value = it->template get_value<T>();
   }
 }
+}  // namespace
 
-#define UPDATE_MPC_PARAM(NAME) \
-  do { \
-  update_param(parameters, "mpc_" #NAME, mpc_param_.NAME); \
+#define UPDATE_MPC_PARAM(NAME)                               \
+  do {                                                       \
+    update_param(parameters, "mpc_" #NAME, mpc_param_.NAME); \
   } while (0)
 
 // TODO move method within this file
-rcl_interfaces::msg::SetParametersResult MPCFollower::paramCallback(const std::vector<rclcpp::Parameter> & parameters)
+rcl_interfaces::msg::SetParametersResult MPCFollower::paramCallback(
+  const std::vector<rclcpp::Parameter> & parameters)
 {
-    UPDATE_MPC_PARAM(prediction_horizon);
-    UPDATE_MPC_PARAM(prediction_dt);
-    UPDATE_MPC_PARAM(prediction_horizon);
-    UPDATE_MPC_PARAM(prediction_dt);
-    UPDATE_MPC_PARAM(weight_lat_error);
-    UPDATE_MPC_PARAM(weight_heading_error);
-    UPDATE_MPC_PARAM(weight_heading_error_squared_vel);
-    UPDATE_MPC_PARAM(weight_steering_input);
-    UPDATE_MPC_PARAM(weight_steering_input_squared_vel);
-    UPDATE_MPC_PARAM(weight_lat_jerk);
-    UPDATE_MPC_PARAM(weight_steer_rate);
-    UPDATE_MPC_PARAM(weight_steer_acc);
-    UPDATE_MPC_PARAM(weight_terminal_lat_error);
-    UPDATE_MPC_PARAM(weight_terminal_heading_error);
-    UPDATE_MPC_PARAM(zero_ff_steer_deg);
-    UPDATE_MPC_PARAM(acceleration_limit);
-    UPDATE_MPC_PARAM(velocity_time_constant);
+  UPDATE_MPC_PARAM(prediction_horizon);
+  UPDATE_MPC_PARAM(prediction_dt);
+  UPDATE_MPC_PARAM(prediction_horizon);
+  UPDATE_MPC_PARAM(prediction_dt);
+  UPDATE_MPC_PARAM(weight_lat_error);
+  UPDATE_MPC_PARAM(weight_heading_error);
+  UPDATE_MPC_PARAM(weight_heading_error_squared_vel);
+  UPDATE_MPC_PARAM(weight_steering_input);
+  UPDATE_MPC_PARAM(weight_steering_input_squared_vel);
+  UPDATE_MPC_PARAM(weight_lat_jerk);
+  UPDATE_MPC_PARAM(weight_steer_rate);
+  UPDATE_MPC_PARAM(weight_steer_acc);
+  UPDATE_MPC_PARAM(weight_terminal_lat_error);
+  UPDATE_MPC_PARAM(weight_terminal_heading_error);
+  UPDATE_MPC_PARAM(zero_ff_steer_deg);
+  UPDATE_MPC_PARAM(acceleration_limit);
+  UPDATE_MPC_PARAM(velocity_time_constant);
 
-    // TODO extend to other params declared in ctor but wasn't part of original code
+  // TODO extend to other params declared in ctor but wasn't part of original code
 
-    rcl_interfaces::msg::SetParametersResult result;
-    result.successful = true;
-    result.reason = "success";
-    return result;
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  result.reason = "success";
+  return result;
 }
 
 MPCFollower::~MPCFollower()
@@ -236,7 +239,7 @@ void MPCFollower::timerCallback()
 
   if (!is_mpc_solved) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-                                   get_logger(), *get_clock(), 5.0, "MPC is not solved. publish 0 velocity.");
+      get_logger(), *get_clock(), 5.0, "MPC is not solved. publish 0 velocity.");
     ctrl_cmd = getStopControlCommand();
   }
 
@@ -255,15 +258,14 @@ bool MPCFollower::checkData()
 
   if (!current_pose_ptr_ || !current_velocity_ptr_ || !current_steer_ptr_) {
     RCLCPP_INFO_EXPRESSION(
-      get_logger(), show_debug_info_,
-      "waiting data. pose = %d, velocity = %d,  steer = %d", current_pose_ptr_ != nullptr,
-      current_velocity_ptr_ != nullptr, current_steer_ptr_ != nullptr);
+      get_logger(), show_debug_info_, "waiting data. pose = %d, velocity = %d,  steer = %d",
+      current_pose_ptr_ != nullptr, current_velocity_ptr_ != nullptr,
+      current_steer_ptr_ != nullptr);
     return false;
   }
 
   if (ref_traj_.size() == 0) {
-    RCLCPP_INFO_EXPRESSION(
-      get_logger(), show_debug_info_, "trajectory size is zero.");
+    RCLCPP_INFO_EXPRESSION(get_logger(), show_debug_info_, "trajectory size is zero.");
     return false;
   }
 
@@ -297,8 +299,7 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::msg::ControlCommand * ctrl
   /* delay compensation */
   if (!updateStateForDelayCompensation(reference_trajectory, nearest_time, &x0)) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      get_logger(), *get_clock(), 1.0,
-      "updateStateForDelayCompensation failed. stop computation.");
+      get_logger(), *get_clock(), 1.0, "updateStateForDelayCompensation failed. stop computation.");
     return false;
   }
 
@@ -412,7 +413,8 @@ bool MPCFollower::getVar(
   geometry_msgs::msg::Pose * nearest_pose, float * steer, double * lat_err, double * yaw_err)
 {
   if (!MPCUtils::calcNearestPoseInterp(
-                                       traj, current_pose_ptr_->pose, nearest_pose, nearest_idx, nearest_time, get_logger(), *get_clock())) {
+        traj, current_pose_ptr_->pose, nearest_pose, nearest_idx, nearest_time, get_logger(),
+        *get_clock())) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       get_logger(), *get_clock(), 5.0,
       "calculateMPC: error in calculating nearest pose. stop mpc.");
@@ -427,16 +429,15 @@ bool MPCFollower::getVar(
   const double dist_err = MPCUtils::calcDist2d(current_pose_ptr_->pose, *nearest_pose);
   if (dist_err > admisible_position_error_) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      get_logger(), *get_clock(), 5.0,
-      "position error is over limit. error = %fm, limit: %fm", dist_err, admisible_position_error_);
+      get_logger(), *get_clock(), 5.0, "position error is over limit. error = %fm, limit: %fm",
+      dist_err, admisible_position_error_);
     return false;
   }
   /* check yaw error limit */
   if (std::fabs(*yaw_err) > admisible_yaw_error_) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      get_logger(), *get_clock(), 5.0,
-      "yaw error is over limit. error = %fdeg, limit %fdeg", RAD2DEG * (*yaw_err),
-      RAD2DEG * admisible_yaw_error_);
+      get_logger(), *get_clock(), 5.0, "yaw error is over limit. error = %fdeg, limit %fdeg",
+      RAD2DEG * (*yaw_err), RAD2DEG * admisible_yaw_error_);
     return false;
   }
   /* check trajectory time length */
@@ -457,7 +458,7 @@ bool MPCFollower::resampleMPCTrajectoryByTime(
   }
   if (!MPCUtils::linearInterpMPCTrajectory(input.relative_time, input, mpc_time_v, output)) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-                                   get_logger(), const_cast<rclcpp::Clock &>(*get_clock()), 1.0,
+      get_logger(), const_cast<rclcpp::Clock &>(*get_clock()), 1.0,
       "calculateMPC: mpc resample error. stop mpc calculation. check code!");
     return false;
   }
@@ -483,11 +484,11 @@ Eigen::VectorXd MPCFollower::getInitialState(
     dot_yaw_err = lpf_yaw_error_.filter(dot_yaw_err);
     x0 << lat_err, dot_lat_err, yaw_err, dot_yaw_err;
     RCLCPP_INFO_EXPRESSION(
-      get_logger(), show_debug_info_,
-      "(before lpf) dot_lat_err = %f, dot_yaw_err = %f", dot_lat_err, dot_yaw_err);
+      get_logger(), show_debug_info_, "(before lpf) dot_lat_err = %f, dot_yaw_err = %f",
+      dot_lat_err, dot_yaw_err);
     RCLCPP_INFO_EXPRESSION(
-      get_logger(), show_debug_info_,
-      "(after lpf) dot_lat_err = %f, dot_yaw_err = %f", dot_lat_err, dot_yaw_err);
+      get_logger(), show_debug_info_, "(after lpf) dot_lat_err = %f, dot_yaw_err = %f", dot_lat_err,
+      dot_yaw_err);
   } else {
     RCLCPP_ERROR(get_logger(), "vehicle_model_type is undefined");
   }
@@ -753,8 +754,7 @@ bool MPCFollower::executeOptimization(
   double elapsed =
     std::chrono::duration_cast<std::chrono::nanoseconds>(t_end - t_start).count() * 1.0e-6;
   RCLCPP_INFO_EXPRESSION(
-    get_logger(), show_debug_info_, "qp solver calculation time = %f [ms]",
-    elapsed);
+    get_logger(), show_debug_info_, "qp solver calculation time = %f [ms]", elapsed);
 
   if (Uex->array().isNaN().any()) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
@@ -873,8 +873,7 @@ void MPCFollower::callbackTrajectory(autoware_planning_msgs::msg::Trajectory::Sh
       !MoveAverageFilter::filt_vector(path_filter_moving_ave_num_, mpc_traj_smoothed.yaw) ||
       !MoveAverageFilter::filt_vector(path_filter_moving_ave_num_, mpc_traj_smoothed.vx)) {
       RCLCPP_INFO_EXPRESSION(
-        get_logger(), show_debug_info_,
-        "path callback: filtering error. stop filtering.");
+        get_logger(), show_debug_info_, "path callback: filtering error. stop filtering.");
       mpc_traj_smoothed = mpc_traj_resampled;
     }
   }
@@ -900,8 +899,7 @@ void MPCFollower::callbackTrajectory(autoware_planning_msgs::msg::Trajectory::Sh
 
   if (!mpc_traj_smoothed.size()) {
     RCLCPP_INFO_EXPRESSION(
-      get_logger(), show_debug_info_,
-      "path callback: trajectory size is undesired.");
+      get_logger(), show_debug_info_, "path callback: trajectory size is undesired.");
     return;
   }
 
@@ -928,8 +926,8 @@ void MPCFollower::updateCurrentPose()
     transform = tf_buffer_.lookupTransform("map", "base_link", rclcpp::Time(0));
   } catch (tf2::TransformException & ex) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      get_logger(), *get_clock(), 5.0,
-      "[mpc_follower] cannot get map to base_link transform. %s", ex.what());
+      get_logger(), *get_clock(), 5.0, "[mpc_follower] cannot get map to base_link transform. %s",
+      ex.what());
     return;
   }
 

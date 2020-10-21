@@ -15,9 +15,9 @@
  */
 
 #include <gtest/gtest.h>
-#include <rclcpp/rclcpp.hpp>
 #include <cmath>
 #include <iostream>
+#include <rclcpp/rclcpp.hpp>
 
 #include "mpc_follower/lowpass_filter.h"
 

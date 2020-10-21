@@ -23,13 +23,13 @@
 
 #pragma once
 
-#include "mpc_follower/qp_solver/qp_solver_interface.h"
 #include <osqp_interface/osqp_interface.h>
-#include <rclcpp/rclcpp.hpp>
-#include <eigen3/Eigen/Core> // TODO needed here?
+#include <cmath>              // TODO not needed here
+#include <eigen3/Eigen/Core>  // TODO needed here?
 #include <eigen3/Eigen/Dense>
-#include <eigen3/Eigen/LU> // TODO not needed here
-#include <cmath> // TODO not needed here
+#include <eigen3/Eigen/LU>  // TODO not needed here
+#include <rclcpp/rclcpp.hpp>
+#include "mpc_follower/qp_solver/qp_solver_interface.h"
 
 class QPSolverOSQP : public QPSolverInterface
 {

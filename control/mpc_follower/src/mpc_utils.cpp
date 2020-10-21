@@ -47,24 +47,28 @@ double MPCUtils::calcDist2d(
   return calcDist2d(p0.pose.position, p1.pose.position);
 }
 
-double MPCUtils::calcDist2d(const geometry_msgs::msg::Pose & p0, const geometry_msgs::msg::Pose & p1)
+double MPCUtils::calcDist2d(
+  const geometry_msgs::msg::Pose & p0, const geometry_msgs::msg::Pose & p1)
 {
   return calcDist2d(p0.position, p1.position);
 }
 
-double MPCUtils::calcDist2d(const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
+double MPCUtils::calcDist2d(
+  const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
 {
   return std::hypot(p0.x - p1.x, p0.y - p1.y);
 }
 
-double MPCUtils::calcSquaredDist2d(const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
+double MPCUtils::calcSquaredDist2d(
+  const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
 {
   double dx = p1.x - p0.x;
   double dy = p1.y - p0.y;
   return dx * dx + dy * dy;
 }
 
-double MPCUtils::calcDist3d(const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
+double MPCUtils::calcDist3d(
+  const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
 {
   double dx = p1.x - p0.x;
   double dy = p1.y - p0.y;
@@ -337,7 +341,8 @@ void MPCUtils::dynamicSmoothingVelocity(
   calcMPCTrajectoryTime(traj);
 }
 
-int MPCUtils::calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose)
+int MPCUtils::calcNearestIndex(
+  const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose)
 {
   if (traj.size() == 0) {
     return -1;
@@ -364,15 +369,17 @@ int MPCUtils::calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::
 }
 bool MPCUtils::calcNearestPoseInterp(
   const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose,
-  geometry_msgs::msg::Pose * nearest_pose, int * nearest_index, double * nearest_time, rclcpp::Logger logger, rclcpp::Clock & clock)
+  geometry_msgs::msg::Pose * nearest_pose, int * nearest_index, double * nearest_time,
+  rclcpp::Logger logger, rclcpp::Clock & clock)
 {
   if (traj.size() == 0 || !nearest_pose || !nearest_index || !nearest_time) {
     return false;
   }
   int nearest_idx = calcNearestIndex(traj, self_pose);
   if (nearest_idx == -1) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger, clock,
-      3.0, "[calcNearestPoseInterp] fail to get nearest. traj.size = %d", (int)traj.size());
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      logger, clock, 3.0, "[calcNearestPoseInterp] fail to get nearest. traj.size = %d",
+      (int)traj.size());
     return false;
   }
 

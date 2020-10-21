@@ -15,14 +15,14 @@
  */
 
 #include <gtest/gtest.h>
-#include <rclcpp/rclcpp.hpp>
 #include <cmath>
 #include <iostream>
+#include <rclcpp/rclcpp.hpp>
 
+#include <amathutils_lib/amathutils.hpp>
 #include <autoware_msgs/msg/ControlCommand.hpp>
 #include <autoware_msgs/msg/Lane.hpp>
 #include <autoware_msgs/msg/VehicleStatus.hpp>
-#include <amathutils_lib/amathutils.hpp>
 #include "amathutils_lib/amathutils.hpp"
 #include "mpc_follower/mpc_follower_core.h"
 #include "mpc_follower/mpc_utils.h"
