@@ -11,7 +11,6 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  # TODO add -Werror after all else builds
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 

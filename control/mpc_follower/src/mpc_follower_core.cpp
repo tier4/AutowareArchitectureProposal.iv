@@ -38,28 +38,30 @@ MPCFollower::MPCFollower()
   // pnh_.param<double>("traj_resample_dist", traj_resample_dist_, 0.1);  // [m]
   // pnh_.param<double>("admisible_position_error", admisible_position_error_, 5.0);
   // pnh_.param<double>("admisible_yaw_error", admisible_yaw_error_, M_PI_2);
-  declare_parameter<bool>("show_debug_info", false);
-  declare_parameter<double>("ctrl_period", 0.03);
-  declare_parameter<bool>("enable_path_smoothing", true);
-  declare_parameter<bool>("enable_yaw_recalculation", false);
-  declare_parameter<int>("path_filter_moving_ave_num", 35);
-  declare_parameter<int>("curvature_smoothing_num", 35);
-  declare_parameter<double>("traj_resample_dist", 0.1);  // [m]
-  declare_parameter<double>("admisible_position_error", 5.0);
-  declare_parameter<double>("admisible_yaw_error", M_PI_2);
+  show_debug_info_ = declare_parameter<bool>("show_debug_info", false);
+  ctrl_period_ = declare_parameter<double>("ctrl_period", 0.03);
+  enable_path_smoothing_ = declare_parameter<bool>("enable_path_smoothing", true);
+  enable_yaw_recalculation_ = declare_parameter<bool>("enable_yaw_recalculation", false);
+  path_filter_moving_ave_num_ = declare_parameter<int>("path_filter_moving_ave_num", 35);
+  curvature_smoothing_num_ = declare_parameter<int>("curvature_smoothing_num", 35);
+traj_resample_dist_ =  declare_parameter<double>("traj_resample_dist", 0.1);  // [m]
+admisible_position_error_ =  declare_parameter<double>("admisible_position_error", 5.0);
+admisible_yaw_error_ =
+ declare_parameter<double>("admisible_yaw_error", M_PI_2);
 
+  // TODO these parameters could only be set initially
   /* mpc parameters */
   double steer_lim_deg, steer_rate_lim_degs;
-  declare_parameter<double>("steer_lim_deg", 35.0);
-  declare_parameter<double>("steer_rate_lim_degs", 150.0);
-  declare_parameter<double>("/vehicle_info/wheel_base", 2.9);
+  steer_lim_deg = declare_parameter<double>("steer_lim_deg", 35.0);
+  steer_rate_lim_degs = declare_parameter<double>("steer_rate_lim_degs", 150.0);
+  wheelbase_ = declare_parameter<double>("/vehicle_info/wheel_base", 2.9);
   steer_lim_ = steer_lim_deg * DEG2RAD;
   steer_rate_lim_ = steer_rate_lim_degs * DEG2RAD;
 
   /* vehicle model setup */
-  declare_parameter<std::string>("vehicle_model_type", "kinematics");
+vehicle_model_type_ =  declare_parameter<std::string>("vehicle_model_type", "kinematics");
   if (vehicle_model_type_ == "kinematics") {
-    double steer_tau;
+    const double steer_tau =
     declare_parameter<double>("vehicle_model_steer_tau", 0.1);
 
     vehicle_model_ptr_ =
@@ -69,13 +71,12 @@ MPCFollower::MPCFollower()
     vehicle_model_ptr_ = std::make_shared<KinematicsBicycleModelNoDelay>(wheelbase_, steer_lim_);
     RCLCPP_INFO(get_logger(), "set vehicle_model = kinematics_no_delay");
   } else if (vehicle_model_type_ == "dynamics") {
-    double mass_fl, mass_fr, mass_rl, mass_rr, cf, cr;
-    declare_parameter<double>("mass_fl", 600);
-    declare_parameter<double>("mass_fr", 600);
-    declare_parameter<double>("mass_rl", 600);
-    declare_parameter<double>("mass_rr", 600);
-    declare_parameter<double>("cf", 155494.663);
-    declare_parameter<double>("cr", 155494.663);
+    double mass_fl = declare_parameter<double>("mass_fl", 600);
+    double mass_fr = declare_parameter<double>("mass_fr", 600);
+    double mass_rl = declare_parameter<double>("mass_rl", 600);
+    double mass_rr = declare_parameter<double>("mass_rr", 600);
+    double cf = declare_parameter<double>("cf", 155494.663);
+    double cr = declare_parameter<double>("cr", 155494.663);
 
     // vehicle_model_ptr_ is only assigned in ctor, so parameter value have to be passed at init time
     vehicle_model_ptr_ = std::make_shared<DynamicsBicycleModel>(
@@ -86,7 +87,7 @@ MPCFollower::MPCFollower()
   }
 
   /* QP solver setup */
-  std::string qp_solver_type;
+  const std::string qp_solver_type =
   declare_parameter<std::string>("qp_solver_type", "unconstraint_fast");
   if (qp_solver_type == "unconstraint_fast") {
     qpsolver_ptr_ = std::make_shared<QPSolverEigenLeastSquareLLT>();
@@ -109,16 +110,15 @@ MPCFollower::MPCFollower()
   raw_steer_cmd_pprev_ = 0.0;
 
   /* delay compensation */
-  double delay_tmp;
-  declare_parameter<double>("input_delay", 0.0);
+  const double delay_tmp = declare_parameter<double>("input_delay", 0.0);
   const int delay_step = std::round(delay_tmp / ctrl_period_);
   mpc_param_.input_delay = delay_step * ctrl_period_;
   input_buffer_ = std::deque<double>(delay_step, 0.0);
 
   /* initialize lowpass filter */
-  double steering_lpf_cutoff_hz, error_deriv_lpf_curoff_hz;
+  const double steering_lpf_cutoff_hz =
   declare_parameter<double>("steering_lpf_cutoff_hz", 3.0);
-  declare_parameter<double>("error_deriv_lpf_curoff_hz", 5.0);
+  const double error_deriv_lpf_curoff_hz=  declare_parameter<double>("error_deriv_lpf_curoff_hz", 5.0);
   lpf_steering_cmd_.initialize(ctrl_period_, steering_lpf_cutoff_hz);
   lpf_lateral_error_.initialize(ctrl_period_, error_deriv_lpf_curoff_hz);
   lpf_yaw_error_.initialize(ctrl_period_, error_deriv_lpf_curoff_hz);
@@ -174,52 +174,42 @@ namespace {
   template<typename T>
   void update_param(const std::vector<rclcpp::Parameter> & parameters, const std::string & name, T & value)
   {
-    auto it = std::find(parameters.cbegin(), parameters.cend(), [&name](const rclcpp::Parameter & parameter) {return parameter.get_name() == name; });
+    auto it = std::find_if(parameters.cbegin(), parameters.cend(), [&name](const rclcpp::Parameter & parameter) {return parameter.get_name() == name; });
     if (it != parameters.cend())
       {
-        // value = it->template get_value<typename T>();
-        // value = it->template get_value<double>();
-        (void)value;
+        value = it->template get_value<T>();
       }
   }
 }
 
-#define UPDATE_MPC_PARAM(S) \
+#define UPDATE_MPC_PARAM(NAME) \
   do { \
-  update_param(parameters, #S, mpc_param_.S); \
-  } while (0)
-
-#define UPDATE_MEMBER_PARAM(S)                     \
-  do {                                          \
-    update_param(parameters, #S, S ## _); \
+  update_param(parameters, "mpc_" #NAME, mpc_param_.NAME); \
   } while (0)
 
 // TODO move method within this file
 rcl_interfaces::msg::SetParametersResult MPCFollower::paramCallback(const std::vector<rclcpp::Parameter> & parameters)
 {
-    // UPDATE_MPC_PARAM(prediction_horizon);
-    // UPDATE_MPC_PARAM(prediction_dt);
-    // TODO extend to other params if macro works
-  // }
-    // mpc_param_.prediction_horizon = config.mpc_prediction_horizon;
-    // mpc_param_.prediction_dt = config.mpc_prediction_dt;
-    // mpc_param_.weight_lat_error = config.mpc_weight_lat_error;
-    // mpc_param_.weight_heading_error = config.mpc_weight_heading_error;
-    // mpc_param_.weight_heading_error_squared_vel = config.mpc_weight_heading_error_squared_vel;
-    // mpc_param_.weight_steering_input = config.mpc_weight_steering_input;
-    // mpc_param_.weight_steering_input_squared_vel = config.mpc_weight_steering_input_squared_vel;
-    // mpc_param_.weight_lat_jerk = config.mpc_weight_lat_jerk;
-    // mpc_param_.weight_steer_rate = config.mpc_weight_steer_rate;
-    // mpc_param_.weight_steer_acc = config.mpc_weight_steer_acc;
-    // mpc_param_.weight_terminal_lat_error = config.mpc_weight_terminal_lat_error;
-    // mpc_param_.weight_terminal_heading_error = config.mpc_weight_terminal_heading_error;
-    // mpc_param_.zero_ff_steer_deg = config.mpc_zero_ff_steer_deg;
-    // mpc_param_.acceleration_limit = config.acceleration_limit;
-    // mpc_param_.velocity_time_constant = config.velocity_time_constant;
+    UPDATE_MPC_PARAM(prediction_horizon);
+    UPDATE_MPC_PARAM(prediction_dt);
+    UPDATE_MPC_PARAM(prediction_horizon);
+    UPDATE_MPC_PARAM(prediction_dt);
+    UPDATE_MPC_PARAM(weight_lat_error);
+    UPDATE_MPC_PARAM(weight_heading_error);
+    UPDATE_MPC_PARAM(weight_heading_error_squared_vel);
+    UPDATE_MPC_PARAM(weight_steering_input);
+    UPDATE_MPC_PARAM(weight_steering_input_squared_vel);
+    UPDATE_MPC_PARAM(weight_lat_jerk);
+    UPDATE_MPC_PARAM(weight_steer_rate);
+    UPDATE_MPC_PARAM(weight_steer_acc);
+    UPDATE_MPC_PARAM(weight_terminal_lat_error);
+    UPDATE_MPC_PARAM(weight_terminal_heading_error);
+    UPDATE_MPC_PARAM(zero_ff_steer_deg);
+    UPDATE_MPC_PARAM(acceleration_limit);
+    UPDATE_MPC_PARAM(velocity_time_constant);
 
-    // UPDATE_MEMBER_PARAM(show_debug_info);
+    // TODO extend to other params declared in ctor but wasn't part of original code
 
-    // TODO could catch if types wrong and return failure result
     rcl_interfaces::msg::SetParametersResult result;
     result.successful = true;
     result.reason = "success";

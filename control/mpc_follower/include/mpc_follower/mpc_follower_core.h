@@ -127,6 +127,8 @@ private:
     curvature_smoothing_num_;  //< @brief point-to-point index distance used in curvature calculation
   double traj_resample_dist_;  //< @brief path resampling interval [m]
 
+  // TODO Where were these parameters declared in ROS1? Through a config file?
+  // TODO Check that all parameters can be set from outside, at least through yaml file
   struct MPCParam
   {
     int prediction_horizon;                   //< @brief prediction horizon step
