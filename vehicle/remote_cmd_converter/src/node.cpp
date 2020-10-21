@@ -46,8 +46,7 @@ RemoteCmdConverter::RemoteCmdConverter()
 
   // Parameter for Hz check
   time_threshold_ = declare_parameter("time_threshold", 3.0);
-  double timer_rate;
-  timer_rate = declare_parameter("timer_rate", 10.0);
+  const double timer_rate = declare_parameter("timer_rate", 10.0);
 
   auto timer_callback = std::bind(&RemoteCmdConverter::onTimer, this);
   auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -58,9 +57,8 @@ RemoteCmdConverter::RemoteCmdConverter()
   this->get_node_timers_interface()->add_timer(rate_check_timer_, nullptr);
 
   // Parameter for accel/brake map
-  std::string csv_path_accel_map, csv_path_brake_map;
-  csv_path_accel_map = declare_parameter("csv_path_accel_map", std::string("empty"));
-  csv_path_brake_map = declare_parameter("csv_path_brake_map", std::string("empty"));
+  const std::string csv_path_accel_map = declare_parameter("csv_path_accel_map").get<std::string>();
+  const std::string csv_path_brake_map = declare_parameter("csv_path_brake_map").get<std::string>();
   acc_map_initialized_ = true;
   if (!accel_map_.readAccelMapFromCSV(csv_path_accel_map)) {
     RCLCPP_ERROR(
