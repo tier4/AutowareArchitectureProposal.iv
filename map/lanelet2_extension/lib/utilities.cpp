@@ -61,13 +61,11 @@ void getContactingLanelets(
 {
   if (!lanelet_map) {
     std::cerr << "No lanelet map is set!" << std::endl;
-    ;
     return;
   }
 
   if (contacting_lanelet_ids == nullptr) {
     std::cerr << __FUNCTION__ << " contacting_lanelet_ids is null pointer!" << std::endl;
-    ;
     return;
   }
 
@@ -308,7 +306,6 @@ bool lineStringWithWidthToPolygon(
   if (polygon == nullptr) {
     std::cerr << __func__ << ": polygon is null pointer! Failed to convert to polygon."
               << std::endl;
-    ;
     return false;
   }
   if (linestring.size() != 2) {
