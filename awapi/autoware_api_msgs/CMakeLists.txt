@@ -1,39 +1,29 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(autoware_api_msgs)
 
-add_compile_options(-std=c++14)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  std_msgs
-  geometry_msgs
-  diagnostic_msgs
-  autoware_planning_msgs
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(ament_cmake REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(diagnostic_msgs REQUIRED)
+find_package(autoware_planning_msgs REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/AwapiAutowareStatus.msg"
+  "msg/AwapiVehicleStatus.msg"
+  "msg/Euler.msg"
+  "msg/LaneChangeStatus.msg"
+  "msg/Latlon.msg"
+  "msg/ObstacleAvoidanceStatus.msg"
+  DEPENDENCIES std_msgs geometry_msgs diagnostic_msgs autoware_planning_msgs
 )
 
-add_message_files(
-  DIRECTORY msg
-  FILES
-    Latlon.msg
-    Euler.msg
-    AwapiVehicleStatus.msg
-    AwapiAutowareStatus.msg
-    LaneChangeStatus.msg
-    ObstacleAvoidanceStatus.msg
-)
-
-generate_messages(
-  DEPENDENCIES
-    std_msgs
-    geometry_msgs
-    diagnostic_msgs
-    autoware_planning_msgs
-)
-
-catkin_package(
-  CATKIN_DEPENDS
-    message_runtime
-    std_msgs
-    geometry_msgs
-    diagnostic_msgs
-    autoware_planning_msgs
-)
+ament_package()
