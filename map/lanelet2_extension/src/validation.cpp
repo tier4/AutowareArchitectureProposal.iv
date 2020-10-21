@@ -49,7 +49,7 @@ void printUsage()
 {
   std::cout << "Usage:" << std::endl
             << "ros2 run lanelet2_extension autoware_lanelet2_validation"
-               "_map_file:=<path to osm file>"
+               " --ros-args -p map_file:=<path to osm file>"
             << std::endl;
 }
 }  // namespace
@@ -149,13 +149,14 @@ int main(int argc, char * argv[])
   rclcpp::init(argc, argv);
   auto node = rclcpp::Node::make_shared("sample_code");
 
-  if (!node->has_parameter("map_file")) {
+  std::string map_path;
+  try {
+    std::string map_path = node->declare_parameter("map_file").get<std::string>();
+  } catch (...) {
     std::cerr << "failed find map_file parameter! No file to load" << std::endl;
     printUsage();
     return 1;
   }
-
-  const std::string map_path = node->get_parameter("map_file").as_string();
 
   lanelet::LaneletMapPtr lanelet_map;
   lanelet::ErrorMessages errors;
