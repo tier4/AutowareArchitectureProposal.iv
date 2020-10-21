@@ -52,6 +52,7 @@ install(TARGETS multi_object_tracker_node
 
 install(
   DIRECTORY
+    config
     launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
