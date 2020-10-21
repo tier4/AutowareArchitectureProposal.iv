@@ -36,8 +36,7 @@ public:
       "pointcloud_map", rclcpp::QoS{1},
       std::bind(&MapTFGenerator::Callback, this, std::placeholders::_1));
 
-    static_broadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(
-      std::shared_ptr<rclcpp::Node>(this, [](auto) {}));
+    static_broadcaster_ = std::make_shared<tf2_ros::StaticTransformBroadcaster>(this);
   }
 
 private:
@@ -49,15 +48,15 @@ private:
 
   void Callback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr clouds_ros)
   {
-    PointCloud * clouds;
-    pcl::fromROSMsg<pcl::PointXYZ>(*clouds_ros, *clouds);
+    PointCloud clouds;
+    pcl::fromROSMsg<pcl::PointXYZ>(*clouds_ros, clouds);
 
-    const unsigned int sum = clouds->points.size();
+    const unsigned int sum = clouds.points.size();
     double coordinate[3] = {0, 0, 0};
     for (int i = 0; i < sum; i++) {
-      coordinate[0] += clouds->points[i].x;
-      coordinate[1] += clouds->points[i].y;
-      coordinate[2] += clouds->points[i].z;
+      coordinate[0] += clouds.points[i].x;
+      coordinate[1] += clouds.points[i].y;
+      coordinate[2] += clouds.points[i].z;
     }
     coordinate[0] = coordinate[0] / sum;
     coordinate[1] = coordinate[1] / sum;
@@ -93,4 +92,4 @@ int main(int argc, char ** argv)
   rclcpp::spin(node);
   rclcpp::shutdown();
   return 0;
-};
+}
