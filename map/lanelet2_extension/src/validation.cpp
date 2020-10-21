@@ -48,7 +48,7 @@ constexpr const char * Elevation = "ele";
 void printUsage()
 {
   std::cout << "Usage:" << std::endl
-            << "rosrun lanelet2_extension autoware_lanelet2_validation"
+            << "ros2 run lanelet2_extension autoware_lanelet2_validation"
                "_map_file:=<path to osm file>"
             << std::endl;
 }
