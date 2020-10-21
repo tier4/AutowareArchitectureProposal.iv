@@ -180,7 +180,8 @@ void PoseInitializer::callAlignServiceAndPublishResult(
   const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr input_pose_msg)
 {
   if (request_id_ != response_id_) {
-    throw std::runtime_error("Did not receive response for previous NDT Align Server call");
+    RCLCPP_ERROR(get_logger(), "Did not receive response for previous NDT Align Server call");
+    return;
   }
   auto req =
     std::make_shared<autoware_localization_srvs::srv::PoseWithCovarianceStamped::Request>();
