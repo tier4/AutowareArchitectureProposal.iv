@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_UTILS_H
+#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_UTILS_H
 
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <ros/ros.h>
-#include <std_msgs/Float64MultiArray.h>
+#include "mpc_follower/interpolate.h"
+#include "mpc_follower/mpc_trajectory.h"
+
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <visualization_msgs/MarkerArray.h>
-#include <cmath>
-#include <eigen3/Eigen/Core>
-#include <vector>
-#include "autoware_planning_msgs/Trajectory.h"
-#include "mpc_follower/interpolate.h"
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/float64_multi_array.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
+#include "autoware_planning_msgs/msg/trajectory.hpp"
 
-#include "mpc_follower/mpc_trajectory.h"
+#include <eigen3/Eigen/Core>
+
+#include <cmath>
+#include <vector>
 
 namespace MPCUtils
 {
@@ -38,7 +41,7 @@ namespace MPCUtils
  * @param [in] yaw input yaw angle
  * @return quaternion
  */
-geometry_msgs::Quaternion getQuaternionFromYaw(const double & yaw);
+geometry_msgs::msg::Quaternion getQuaternionFromYaw(const double & yaw);
 
 /**
  * @brief normalize angle into [-pi to pi]
@@ -48,19 +51,22 @@ geometry_msgs::Quaternion getQuaternionFromYaw(const double & yaw);
 double normalizeRadian(const double angle);
 
 /**
- * @brief convert eular angle vector including +-2pi to 0 jump to continuous series data
+ * @brief convert Euler angle vector including +-2pi to 0 jump to continuous series data
  * @param [out] a input angle vector
  */
 void convertEulerAngleToMonotonic(std::vector<double> * a);
-double calcDist2d(const geometry_msgs::PoseStamped & p0, const geometry_msgs::PoseStamped & p1);
-double calcDist2d(const geometry_msgs::Pose & p0, const geometry_msgs::Pose & p1);
-double calcDist2d(const geometry_msgs::Point & p0, const geometry_msgs::Point & p1);
-double calcDist3d(const geometry_msgs::Point & p0, const geometry_msgs::Point & p1);
-double calcSquaredDist2d(const geometry_msgs::Point & p0, const geometry_msgs::Point & p1);
-double calcLateralError(const geometry_msgs::Pose & ego_pose, const geometry_msgs::Pose & ref_pose);
+double calcDist2d(
+  const geometry_msgs::msg::PoseStamped & p0, const geometry_msgs::msg::PoseStamped & p1);
+double calcDist2d(const geometry_msgs::msg::Pose & p0, const geometry_msgs::msg::Pose & p1);
+double calcDist2d(const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1);
+double calcDist3d(const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1);
+double calcSquaredDist2d(
+  const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1);
+double calcLateralError(
+  const geometry_msgs::msg::Pose & ego_pose, const geometry_msgs::msg::Pose & ref_pose);
 
 bool convertToMPCTrajectory(
-  const autoware_planning_msgs::Trajectory & input, MPCTrajectory * output);
+  const autoware_planning_msgs::msg::Trajectory & input, MPCTrajectory * output);
 void calcMPCTrajectoryArclength(const MPCTrajectory & trajectory, std::vector<double> * arclength);
 bool resampleMPCTrajectoryByDistance(
   const MPCTrajectory & input, const double resample_interval_dist, MPCTrajectory * output);
@@ -95,18 +101,23 @@ bool calcTrajectoryCurvature(int curvature_smoothing_num, MPCTrajectory * traj);
  * @param [out] nearest_pose nearest pose on path
  * @param [out] nearest_index path index of nearest pose
  * @param [out] nearest_time time of nearest pose on trajectory
+ * @param [out] logger to output the reason for failure
+ * @param [in] clock to throttle log output
  * @return false when nearest pose couldn't find for some reasons
  */
 bool calcNearestPoseInterp(
-  const MPCTrajectory & traj, const geometry_msgs::Pose & self_pose,
-  geometry_msgs::Pose * nearest_pose, int * nearest_index, double * nearest_time);
-int calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::Pose & self_pose);
+  const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose,
+  geometry_msgs::msg::Pose * nearest_pose, int * nearest_index, double * nearest_time,
+  rclcpp::Logger logger, rclcpp::Clock & clock);
+
+int calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose);
 
 /**
  * @brief convert MPCTraj to visualizaton marker for visualization
  */
-visualization_msgs::MarkerArray convertTrajToMarker(
+visualization_msgs::msg::MarkerArray convertTrajToMarker(
   const MPCTrajectory & traj, std::string ns, double r, double g, double b, double z,
-  std::string & frame_id);
+  const std::string & frame_id, const builtin_interfaces::msg::Time & stamp);
 
-};  // namespace MPCUtils
+}  // namespace MPCUtils
+#endif

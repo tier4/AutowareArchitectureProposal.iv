@@ -21,13 +21,12 @@
  * @date 2020.02
  */
 
-#pragma once
+#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_QP_SOLVER_QP_SOLVER_OSQP_H
+#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_QP_SOLVER_QP_SOLVER_OSQP_H
 
 #include <osqp_interface/osqp_interface.h>
-#include <cmath>
-#include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
-#include <eigen3/Eigen/LU>
+#include <rclcpp/rclcpp.hpp>
 #include "mpc_follower/qp_solver/qp_solver_interface.h"
 
 class QPSolverOSQP : public QPSolverInterface
@@ -36,12 +35,12 @@ public:
   /**
    * @brief constructor
    */
-  QPSolverOSQP();
+  QPSolverOSQP(const rclcpp::Logger & logger);
 
   /**
    * @brief destructor
    */
-  ~QPSolverOSQP() = default;
+  virtual ~QPSolverOSQP() = default;
 
   /**
    * @brief solve QP problem : minimize J = U' * Hmat * U + fvec' * U without constraint
@@ -61,5 +60,7 @@ public:
     const Eigen::VectorXd & ubA, Eigen::VectorXd & U) override;
 
 private:
-  osqp::OSQPInterface osqpsolver;
+  osqp::OSQPInterface osqpsolver_;
+  rclcpp::Logger logger_;
 };
+#endif

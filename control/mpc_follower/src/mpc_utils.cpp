@@ -16,7 +16,7 @@
 
 #include "mpc_follower/mpc_utils.h"
 
-geometry_msgs::Quaternion MPCUtils::getQuaternionFromYaw(const double & yaw)
+geometry_msgs::msg::Quaternion MPCUtils::getQuaternionFromYaw(const double & yaw)
 {
   tf2::Quaternion q;
   q.setRPY(0, 0, yaw);
@@ -42,29 +42,33 @@ double MPCUtils::normalizeRadian(const double angle)
 }
 
 double MPCUtils::calcDist2d(
-  const geometry_msgs::PoseStamped & p0, const geometry_msgs::PoseStamped & p1)
+  const geometry_msgs::msg::PoseStamped & p0, const geometry_msgs::msg::PoseStamped & p1)
 {
   return calcDist2d(p0.pose.position, p1.pose.position);
 }
 
-double MPCUtils::calcDist2d(const geometry_msgs::Pose & p0, const geometry_msgs::Pose & p1)
+double MPCUtils::calcDist2d(
+  const geometry_msgs::msg::Pose & p0, const geometry_msgs::msg::Pose & p1)
 {
   return calcDist2d(p0.position, p1.position);
 }
 
-double MPCUtils::calcDist2d(const geometry_msgs::Point & p0, const geometry_msgs::Point & p1)
+double MPCUtils::calcDist2d(
+  const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
 {
   return std::hypot(p0.x - p1.x, p0.y - p1.y);
 }
 
-double MPCUtils::calcSquaredDist2d(const geometry_msgs::Point & p0, const geometry_msgs::Point & p1)
+double MPCUtils::calcSquaredDist2d(
+  const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
 {
   double dx = p1.x - p0.x;
   double dy = p1.y - p0.y;
   return dx * dx + dy * dy;
 }
 
-double MPCUtils::calcDist3d(const geometry_msgs::Point & p0, const geometry_msgs::Point & p1)
+double MPCUtils::calcDist3d(
+  const geometry_msgs::msg::Point & p0, const geometry_msgs::msg::Point & p1)
 {
   double dx = p1.x - p0.x;
   double dy = p1.y - p0.y;
@@ -73,7 +77,7 @@ double MPCUtils::calcDist3d(const geometry_msgs::Point & p0, const geometry_msgs
 }
 
 double MPCUtils::calcLateralError(
-  const geometry_msgs::Pose & ego_pose, const geometry_msgs::Pose & ref_pose)
+  const geometry_msgs::msg::Pose & ego_pose, const geometry_msgs::msg::Pose & ref_pose)
 {
   const double err_x = ego_pose.position.x - ref_pose.position.x;
   const double err_y = ego_pose.position.y - ref_pose.position.y;
@@ -244,7 +248,7 @@ bool MPCUtils::calcTrajectoryCurvature(int curvature_smoothing_num, MPCTrajector
   traj->k.resize(traj_size, 0.0);
 
   /* calculate curvature by circle fitting from three points */
-  geometry_msgs::Point p1, p2, p3;
+  geometry_msgs::msg::Point p1, p2, p3;
   int max_smoothing_num = static_cast<int>(std::floor(0.5 * (traj_size - 1)));
   int L = std::min(curvature_smoothing_num, max_smoothing_num);
   for (int i = L; i < traj_size - L; ++i) {
@@ -269,7 +273,7 @@ bool MPCUtils::calcTrajectoryCurvature(int curvature_smoothing_num, MPCTrajector
 }
 
 bool MPCUtils::convertToMPCTrajectory(
-  const autoware_planning_msgs::Trajectory & input, MPCTrajectory * output)
+  const autoware_planning_msgs::msg::Trajectory & input, MPCTrajectory * output)
 {
   if (!output) {
     return false;
@@ -277,7 +281,7 @@ bool MPCUtils::convertToMPCTrajectory(
 
   output->clear();
   for (uint i = 0; i < input.points.size(); ++i) {
-    geometry_msgs::Pose p = input.points.at(i).pose;
+    geometry_msgs::msg::Pose p = input.points.at(i).pose;
     const double x = p.position.x;
     const double y = p.position.y;
     const double z = p.position.z;
@@ -337,7 +341,8 @@ void MPCUtils::dynamicSmoothingVelocity(
   calcMPCTrajectoryTime(traj);
 }
 
-int MPCUtils::calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::Pose & self_pose)
+int MPCUtils::calcNearestIndex(
+  const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose)
 {
   if (traj.size() == 0) {
     return -1;
@@ -363,16 +368,18 @@ int MPCUtils::calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::
   return nearest_idx;
 }
 bool MPCUtils::calcNearestPoseInterp(
-  const MPCTrajectory & traj, const geometry_msgs::Pose & self_pose,
-  geometry_msgs::Pose * nearest_pose, int * nearest_index, double * nearest_time)
+  const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose,
+  geometry_msgs::msg::Pose * nearest_pose, int * nearest_index, double * nearest_time,
+  rclcpp::Logger logger, rclcpp::Clock & clock)
 {
   if (traj.size() == 0 || !nearest_pose || !nearest_index || !nearest_time) {
     return false;
   }
   int nearest_idx = calcNearestIndex(traj, self_pose);
   if (nearest_idx == -1) {
-    ROS_WARN_DELAYED_THROTTLE(
-      3.0, "[calcNearestPoseInterp] fail to get nearest. traj.size = %d", (int)traj.size());
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      logger, clock, 3.0, "[calcNearestPoseInterp] fail to get nearest. traj.size = %d",
+      (int)traj.size());
     return false;
   }
 
@@ -388,7 +395,7 @@ bool MPCUtils::calcNearestPoseInterp(
     return true;
   }
 
-  auto calcSquaredDist = [](const geometry_msgs::Pose & p, const MPCTrajectory & t, int idx) {
+  auto calcSquaredDist = [](const geometry_msgs::msg::Pose & p, const MPCTrajectory & t, int idx) {
     const double dx = p.position.x - t.x[idx];
     const double dy = p.position.y - t.y[idx];
     return dx * dx + dy * dy;
@@ -430,20 +437,20 @@ bool MPCUtils::calcNearestPoseInterp(
   return true;
 }
 
-visualization_msgs::MarkerArray MPCUtils::convertTrajToMarker(
+visualization_msgs::msg::MarkerArray MPCUtils::convertTrajToMarker(
   const MPCTrajectory & traj, std::string ns, double r, double g, double b, double z,
-  std::string & frame_id)
+  const std::string & frame_id, const builtin_interfaces::msg::Time & stamp)
 {
-  visualization_msgs::MarkerArray markers;
+  visualization_msgs::msg::MarkerArray markers;
 
   // generate line
-  visualization_msgs::Marker marker;
+  visualization_msgs::msg::Marker marker;
   marker.header.frame_id = frame_id;
-  marker.header.stamp = ros::Time();
+  marker.header.stamp = stamp;
   marker.ns = ns + "/line";
   marker.id = 0;
-  marker.type = visualization_msgs::Marker::LINE_STRIP;
-  marker.action = visualization_msgs::Marker::ADD;
+  marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
+  marker.action = visualization_msgs::msg::Marker::ADD;
   marker.scale.x = 0.15;
   marker.color.a = 0.9;
   marker.color.r = r;
@@ -451,7 +458,7 @@ visualization_msgs::MarkerArray MPCUtils::convertTrajToMarker(
   marker.color.b = b;
   marker.pose.orientation.w = 1.0;
   for (unsigned int i = 0; i < traj.x.size(); ++i) {
-    geometry_msgs::Point p;
+    geometry_msgs::msg::Point p;
     p.x = traj.x.at(i);
     p.y = traj.y.at(i);
     p.z = traj.z.at(i) + z;
@@ -460,13 +467,13 @@ visualization_msgs::MarkerArray MPCUtils::convertTrajToMarker(
   markers.markers.push_back(marker);
 
   // generate poses
-  visualization_msgs::Marker marker_poses;
+  visualization_msgs::msg::Marker marker_poses;
   marker_poses.header.frame_id = frame_id;
-  marker_poses.header.stamp = ros::Time();
+  marker_poses.header.stamp = stamp;
   marker_poses.ns = ns + "/poses";
-  marker_poses.lifetime = ros::Duration(0.5);
-  marker_poses.type = visualization_msgs::Marker::ARROW;
-  marker_poses.action = visualization_msgs::Marker::ADD;
+  marker_poses.lifetime = rclcpp::Duration(0.5);
+  marker_poses.type = visualization_msgs::msg::Marker::ARROW;
+  marker_poses.action = visualization_msgs::msg::Marker::ADD;
   marker_poses.scale.x = 0.2;
   marker_poses.scale.y = 0.1;
   marker_poses.scale.z = 0.2;
@@ -484,12 +491,12 @@ visualization_msgs::MarkerArray MPCUtils::convertTrajToMarker(
   }
 
   // generate velocity text
-  // visualization_msgs::Marker marker_text;
+  // visualization_msgs::msg::Marker marker_text;
   // marker_text.header.frame_id = frame_id;
-  // marker_text.header.stamp = ros::Time();
+  // marker_text.header.stamp = rclcpp::Time();
   // marker_text.ns = ns + "/text";
-  // marker_text.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
-  // marker_text.action = visualization_msgs::Marker::ADD;
+  // marker_text.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
+  // marker_text.action = visualization_msgs::msg::Marker::ADD;
   // marker_text.scale.z = 0.2;
   // marker_text.color.a = 0.99;  // Don't forget to set the alpha!
   // marker_text.color.r = r;
