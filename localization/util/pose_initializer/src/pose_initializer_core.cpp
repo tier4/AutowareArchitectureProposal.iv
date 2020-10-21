@@ -130,8 +130,6 @@ void PoseInitializer::callbackInitialPose(
 void PoseInitializer::callbackGNSSPoseCov(
   const geometry_msgs::PoseWithCovarianceStamped::ConstPtr & pose_cov_msg_ptr)
 {
-  gnss_pose_sub_.shutdown();  // get only first topic
-
   // TODO check service is available
 
   geometry_msgs::PoseWithCovarianceStamped::Ptr add_height_pose_msg_ptr(
@@ -152,6 +150,7 @@ void PoseInitializer::callbackGNSSPoseCov(
 
   if (succeeded_align) {
     initial_pose_pub_.publish(*aligned_pose_msg_ptr);
+    gnss_pose_sub_.shutdown();
   }
 }
 
