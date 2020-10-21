@@ -25,5 +25,4 @@
   <depend>autoware_control_msgs</depend>
   <depend>autoware_vehicle_msgs</depend>
   <depend>osqp_interface</depend>
-  <depend>harr</depend>
 </package>
