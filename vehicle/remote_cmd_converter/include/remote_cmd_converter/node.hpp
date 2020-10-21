@@ -64,7 +64,6 @@ private:
   bool current_emergency_cmd_ = false;
 
   // Timer
-  rclcpp::Clock ros_clock_;
   void onTimer();
   rclcpp::TimerBase::SharedPtr rate_check_timer_;
 

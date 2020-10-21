@@ -20,7 +20,6 @@ using std::placeholders::_1;
 
 RemoteCmdConverter::RemoteCmdConverter()
 : Node("remote_cmd_converter"),
-  ros_clock_(RCL_ROS_TIME),
   updater_(this),
   accel_map_(get_logger()),
   brake_map_(get_logger())
@@ -108,12 +107,12 @@ void RemoteCmdConverter::onRemoteCmd(
   // Echo back received command
   {
     auto current_remote_cmd = *raw_control_cmd_ptr;
-    current_remote_cmd.header.stamp = ros_clock_.now();
+    current_remote_cmd.header.stamp = this->now();
     pub_current_cmd_->publish(current_remote_cmd);
   }
 
   // Save received time for rate check
-  latest_cmd_received_time_ = std::make_shared<rclcpp::Time>(ros_clock_.now());
+  latest_cmd_received_time_ = std::make_shared<rclcpp::Time>(this->now());
 
   // Wait for input data
   if (!current_velocity_ptr_ || !acc_map_initialized_) {
@@ -212,7 +211,7 @@ bool RemoteCmdConverter::checkRemoteTopicRate()
   if (!latest_cmd_received_time_ || !current_gate_mode_) return true;
 
   if (current_gate_mode_->data == autoware_control_msgs::msg::GateMode::REMOTE) {
-    const auto duration = (ros_clock_.now() - *latest_cmd_received_time_);
+    const auto duration = (this->now() - *latest_cmd_received_time_);
     if (duration.seconds() > time_threshold_) return false;
   } else {
     latest_cmd_received_time_ = nullptr;  // reset;
