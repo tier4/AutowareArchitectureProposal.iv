@@ -41,7 +41,7 @@
   <!-- perception module -->
   <group ns="perception">
     <!-- object recognition module -->
-    <group ns="object_recognition">
+    <group ns="object_recognition" if="$(arg use_object_recognition)">
       <!-- detection module -->
       <include file="$(find dynamic_object_visualization)/launch/dynamic_object_visualizer.launch">
         <arg name="input" value="/perception/object_recognition/detection/objects" />
@@ -58,6 +58,12 @@
           <arg name="use_vector_map" default="true" />
         </include>
       </group>
+    </group>
+
+    <group ns="object_recognition" unless="$(arg use_object_recognition)">
+      <node pkg="dummy_perception_publisher" type="empty_objects_publisher" name="empty_objects_publisher" output="screen">
+        <remap from="~output/objects" to="/perception/object_recognition/objects" />
+      </node>
     </group>
 
     <!-- traffic light module -->
