@@ -1,20 +1,28 @@
 <launch>
   <arg name="config_file" default="$(find autoware_error_monitor)/config/autoware_error_monitor.yaml" />
 
+  <arg name="agg_config_file_discard" default="$(find autoware_error_monitor)/config/diagnostic_aggregator/_discard.yaml" />
+  <arg name="agg_config_file_control" default="$(find autoware_error_monitor)/config/diagnostic_aggregator/control.yaml" />
+  <arg name="agg_config_file_localization" default="$(find autoware_error_monitor)/config/diagnostic_aggregator/localization.yaml" />
+  <arg name="agg_config_file_map" default="$(find autoware_error_monitor)/config/diagnostic_aggregator/map.yaml" />
+  <arg name="agg_config_file_perception" default="$(find autoware_error_monitor)/config/diagnostic_aggregator/perception.yaml" />
+  <arg name="agg_config_file_planning" default="$(find autoware_error_monitor)/config/diagnostic_aggregator/planning.yaml" />
+  <arg name="agg_config_file_sensing" default="$(find autoware_error_monitor)/config/diagnostic_aggregator/sensing.yaml" />
+  <arg name="agg_config_file_system" default="$(find autoware_error_monitor)/config/diagnostic_aggregator/system.yaml" />
+  <arg name="agg_config_file_vehicle" default="$(find autoware_error_monitor)/config/diagnostic_aggregator/vehicle.yaml" />
+
   <group ns="/">
     <node pkg="diagnostic_aggregator" type="aggregator_node" name="aggregator_node" output="screen">
       <param name="pub_rate" value="10"/>
-      <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/_discard.yaml" />
-      <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/control.yaml" />
-      <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/localization.yaml" />
-      <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/map.yaml" />
-      <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/perception.yaml" />
-      <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/planning.yaml" />
-      <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/remote_control.yaml" />
-      <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/safety.yaml" />
-      <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/sensing.yaml" />
-      <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/system.yaml" />
-      <rosparam command="load" file="$(find autoware_error_monitor)/config/diagnostic_aggregator/vehicle.yaml" />
+      <rosparam command="load" file="$(arg agg_config_file_discard)" />
+      <rosparam command="load" file="$(arg agg_config_file_control)" ns="analyzers/control" />
+      <rosparam command="load" file="$(arg agg_config_file_localization)" ns="analyzers/localization" />
+      <rosparam command="load" file="$(arg agg_config_file_map)" ns="analyzers/map" />
+      <rosparam command="load" file="$(arg agg_config_file_perception)" ns="analyzers/perception" />
+      <rosparam command="load" file="$(arg agg_config_file_planning)" ns="analyzers/planning" />
+      <rosparam command="load" file="$(arg agg_config_file_sensing)" ns="analyzers/sensing" />
+      <rosparam command="load" file="$(arg agg_config_file_system)" ns="analyzers/system" />
+      <rosparam command="load" file="$(arg agg_config_file_vehicle)" ns="analyzers/vehicle" />
     </node>
   </group>
 

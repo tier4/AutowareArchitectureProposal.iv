@@ -1,16 +1,5 @@
 analyzers:
-  speaker:
+  discard_all:
     type: diagnostic_aggregator/DiscardAnalyzer
-    path: speaker
-    contains: ": speaker"
-
-  joystick:
-    type: diagnostic_aggregator/DiscardAnalyzer
-    path: joystick
-    contains: ": Joystick"
-
-  # Discard all other diagnostics
-  other:
-    type: diagnostic_aggregator/DiscardAnalyzer
-    path: other
-    contains: "/"
+    path: discard_all
+    regex: ".*"
