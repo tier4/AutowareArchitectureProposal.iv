@@ -61,6 +61,21 @@ MultiObjectTracker::MultiObjectTracker(const rclcpp::NodeOptions & node_options)
     this->get_clock(), period, std::move(timer_callback),
     this->get_node_base_interface()->get_context());
   this->get_node_timers_interface()->add_timer(publish_timer_, nullptr);
+
+  this->declare_parameter("can_assign_matrix");
+  this->declare_parameter("max_dist_matrix");
+  this->declare_parameter("max_area_matrix");
+  this->declare_parameter("min_area_matrix");
+  std::vector<int> can_assign_matrix =
+    this->get_parameter("can_assign_matrix").as_int_array();
+  std::vector<double> max_dist_matrix =
+    this->get_parameter("max_dist_matrix").as_double_array();
+  std::vector<double> max_area_matrix =
+    this->get_parameter("max_area_matrix").as_double_array();
+  std::vector<double> min_area_matrix =
+    this->get_parameter("max_area_matrix").as_double_array();
+  data_association_ = std::make_unique<DataAssociation>(
+    can_assign_matrix, max_dist_matrix, max_area_matrix, min_area_matrix);
 }
 
 void MultiObjectTracker::measurementCallback(
@@ -118,9 +133,9 @@ void MultiObjectTracker::measurementCallback(
   /* global nearest neighbor */
   std::unordered_map<int, int> direct_assignment;
   std::unordered_map<int, int> reverse_assignment;
-  Eigen::MatrixXd score_matrix = data_association_.calcScoreMatrix(
+  Eigen::MatrixXd score_matrix = data_association_->calcScoreMatrix(
     input_transformed_objects, list_tracker_);  // row : tracker, col : measurement
-  data_association_.assign(score_matrix, direct_assignment, reverse_assignment);
+  data_association_->assign(score_matrix, direct_assignment, reverse_assignment);
 
   /* tracker measurement update */
   int tracker_idx = 0;
@@ -172,7 +187,8 @@ void MultiObjectTracker::measurementCallback(
         std::make_shared<BicycleTracker>(
           measurement_time, input_transformed_objects.feature_objects.at(i).object));
     } else {
-      // list_tracker_.push_back(std::make_shared<PedestrianTracker>(input_transformed_objects.feature_objects.at(i).object));
+      list_tracker_.push_back(std::make_shared<PedestrianTracker>(
+        measurement_time, input_transformed_objects.feature_objects.at(i).object));
     }
   }
 
