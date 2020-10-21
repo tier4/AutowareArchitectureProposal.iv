@@ -9,44 +9,18 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
 endif()
 
-### Dependencies
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(tf2 REQUIRED)
-find_package(tf2_ros REQUIRED)
+### ROS Dependencies
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
+### non-ROS Dependencies
 find_package(PCL REQUIRED)
-find_package(pcl_conversions REQUIRED)
-
-# Add path of include dir
-include_directories(include)
 
 # Generate exe file
-add_executable(map_tf_generator nodes/map_tf_generator.cpp)
+ament_auto_add_executable(map_tf_generator nodes/map_tf_generator.cpp)
+target_link_libraries(map_tf_generator ${PCL_LIBRARIES})
 
-# Add dependencies. use target_link_libaries() before Crystal
-set(MAP_TF_GENERATOR_DEPENDENCIES
-  rclcpp
-  std_msgs
-  tf2
-  tf2_ros
-  PCL
-  pcl_conversions
+## Install
+ament_auto_package(INSTALL_TO_SHARE
+  launch
 )
-ament_target_dependencies(map_tf_generator ${MAP_TF_GENERATOR_DEPENDENCIES})
-
-## Install executables and/or libraries
-install(TARGETS map_tf_generator
-  ARCHIVE DESTINATION lib/${PROJECT_NAME}
-  LIBRARY DESTINATION lib/${PROJECT_NAME}
-  RUNTIME DESTINATION lib/${PROJECT_NAME}
-)
-
-## Install project namespaced headers
-install(DIRECTORY launch
-  DESTINATION share/${PROJECT_NAME}
-)
-
-# set at the end of cmakelists
-ament_package()
