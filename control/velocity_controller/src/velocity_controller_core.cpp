@@ -237,7 +237,7 @@ void VelocityController::callbackTimerControl()
 rcl_interfaces::msg::SetParametersResult VelocityController::paramCallback(
   const std::vector<rclcpp::Parameter> & parameters)
 {
-  auto set_double_param_if_changed = [&](const std::string name, double & v) {
+  auto update_param = [&](const std::string & name, double & v) {
     for (const auto & p : parameters) {
       if (p.get_name() == name) {
         v = p.as_double();
@@ -248,67 +248,68 @@ rcl_interfaces::msg::SetParametersResult VelocityController::paramCallback(
   };
 
   // closest waypoint threshold
-  set_double_param_if_changed("closest_waypoint_distance_threshold_", closest_dist_thr_);
-  set_double_param_if_changed("closest_waypoint_angle_threshold_", closest_angle_thr_);
+  update_param("closest_waypoint_distance_threshold_", closest_dist_thr_);
+  update_param("closest_waypoint_angle_threshold_", closest_angle_thr_);
 
   // stop state
-  set_double_param_if_changed("stop_state_velocity", stop_state_vel_);
-  set_double_param_if_changed("stop_state_acc", stop_state_acc_);
-  set_double_param_if_changed("stop_state_entry_ego_speed", stop_state_entry_ego_speed_);
-  set_double_param_if_changed("stop_state_entry_target_speed", stop_state_entry_target_speed_);
-  set_double_param_if_changed("stop_state_keep_stopping_dist", stop_state_keep_stopping_dist_);
+  update_param("stop_state_velocity", stop_state_vel_);
+  update_param("stop_state_acc", stop_state_acc_);
+  update_param("stop_state_entry_ego_speed", stop_state_entry_ego_speed_);
+  update_param("stop_state_entry_target_speed", stop_state_entry_target_speed_);
+  update_param("stop_state_keep_stopping_dist", stop_state_keep_stopping_dist_);
 
   // delay compensation
-  set_double_param_if_changed("delay_compensation_time", delay_compensation_time_);
+  update_param("delay_compensation_time", delay_compensation_time_);
 
   // emergency stop by this controller
-  set_double_param_if_changed("emergency_stop_acc", emergency_stop_acc_);
-  set_double_param_if_changed("emergency_stop_jerk", emergency_stop_jerk_);
+  update_param("emergency_stop_acc", emergency_stop_acc_);
+  update_param("emergency_stop_jerk", emergency_stop_jerk_);
 
   // smooth stop
   {
     auto & p = smooth_stop_param_;
-    set_double_param_if_changed("exit_ego_speed", p.exit_ego_speed);
-    set_double_param_if_changed("entry_ego_speed", p.entry_ego_speed);
-    set_double_param_if_changed("exit_target_speed", p.exit_target_speed);
-    set_double_param_if_changed("entry_target_speed", p.entry_target_speed);
-    set_double_param_if_changed("weak_brake_time", p.weak_brake_time);
-    set_double_param_if_changed("weak_brake_acc", p.weak_brake_acc);
-    set_double_param_if_changed("increasing_brake_time", p.increasing_brake_time);
-    set_double_param_if_changed("increasing_brake_gradient", p.increasing_brake_gradient);
-    set_double_param_if_changed("stop_brake_time", p.stop_brake_time);
-    set_double_param_if_changed("stop_brake_acc", p.stop_brake_acc);
+    update_param("exit_ego_speed", p.exit_ego_speed);
+    update_param("entry_ego_speed", p.entry_ego_speed);
+    update_param("exit_target_speed", p.exit_target_speed);
+    update_param("entry_target_speed", p.entry_target_speed);
+    update_param("weak_brake_time", p.weak_brake_time);
+    update_param("weak_brake_acc", p.weak_brake_acc);
+    update_param("increasing_brake_time", p.increasing_brake_time);
+    update_param("increasing_brake_gradient", p.increasing_brake_gradient);
+    update_param("stop_brake_time", p.stop_brake_time);
+    update_param("stop_brake_acc", p.stop_brake_acc);
   }
 
   // acceleration limit
-  set_double_param_if_changed("max_acc", max_acc_);
-  set_double_param_if_changed("min_acc", min_acc_);
+  update_param("max_acc", max_acc_);
+  update_param("min_acc", min_acc_);
 
   // jerk limit
-  set_double_param_if_changed("max_jerk", max_jerk_);
-  set_double_param_if_changed("min_jerk", min_jerk_);
+  update_param("max_jerk", max_jerk_);
+  update_param("min_jerk", min_jerk_);
 
   // slope compensation
-  set_double_param_if_changed("max_pitch_rad", max_pitch_rad_);
-  set_double_param_if_changed("min_pitch_rad", min_pitch_rad_);
-  set_double_param_if_changed(
-    "current_velocity_threshold_pid_integration", current_vel_threshold_pid_integrate_);
+  update_param("max_pitch_rad", max_pitch_rad_);
+  update_param("min_pitch_rad", min_pitch_rad_);
+  update_param("current_velocity_threshold_pid_integration", current_vel_threshold_pid_integrate_);
 
   {
     double lpf_pitch_gain = get_parameter("lpf_pitch_gain").as_double();
-    set_double_param_if_changed("lpf_pitch_gain", lpf_pitch_gain);
+    update_param("lpf_pitch_gain", lpf_pitch_gain);
     lpf_pitch_.init(lpf_pitch_gain);
   }
 
   // velocity feedback
   // PID gain
   {
+    // TODO(Takamasa Horibe) Combine the getter and setter into one function,
+    // or having them in the class member.
     double kp = get_parameter("pid_controller/kp").as_double();
     double ki = get_parameter("pid_controller/ki").as_double();
     double kd = get_parameter("pid_controller/kd").as_double();
-    set_double_param_if_changed("pid_controller/kp", kp);
-    set_double_param_if_changed("pid_controller/ki", ki);
-    set_double_param_if_changed("pid_controller/kd", kd);
+    update_param("pid_controller/kp", kp);
+    update_param("pid_controller/ki", ki);
+    update_param("pid_controller/kd", kd);
     pid_vel_.setGains(kp, ki, kd);
   }
 
@@ -322,14 +323,14 @@ rcl_interfaces::msg::SetParametersResult VelocityController::paramCallback(
     double min_i = get_parameter("pid_controller/min_i_effort").as_double();
     double max_d = get_parameter("pid_controller/max_d_effort").as_double();
     double min_d = get_parameter("pid_controller/min_d_effort").as_double();
-    set_double_param_if_changed("pid_controller/max_out", max_pid);
-    set_double_param_if_changed("pid_controller/min_out", min_pid);
-    set_double_param_if_changed("pid_controller/max_p_effort", max_p);
-    set_double_param_if_changed("pid_controller/min_p_effort", min_p);
-    set_double_param_if_changed("pid_controller/max_i_effort", max_i);
-    set_double_param_if_changed("pid_controller/min_i_effort", min_i);
-    set_double_param_if_changed("pid_controller/max_d_effort", max_d);
-    set_double_param_if_changed("pid_controller/min_d_effort", min_d);
+    update_param("pid_controller/max_out", max_pid);
+    update_param("pid_controller/min_out", min_pid);
+    update_param("pid_controller/max_p_effort", max_p);
+    update_param("pid_controller/min_p_effort", min_p);
+    update_param("pid_controller/max_i_effort", max_i);
+    update_param("pid_controller/min_i_effort", min_i);
+    update_param("pid_controller/max_d_effort", max_d);
+    update_param("pid_controller/min_d_effort", min_d);
     pid_vel_.setLimits(max_pid, min_pid, max_p, min_p, max_i, min_i, max_d, min_d);
   }
 
