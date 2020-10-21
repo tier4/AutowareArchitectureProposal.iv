@@ -46,6 +46,7 @@ MultiObjectTracker::MultiObjectTracker(const rclcpp::NodeOptions & node_options)
   // Parameters
   double publish_rate = declare_parameter<double>("publish_rate", 30.0);
   world_frame_id_ = declare_parameter<std::string>("world_frame_id", "world");
+  enable_delay_compensation_ = declare_parameter<bool>("enable_delay_compensation", false);
 
   auto cti = std::make_shared<tf2_ros::CreateTimerROS>(
     this->get_node_base_interface(), this->get_node_timers_interface());
@@ -106,7 +107,13 @@ void MultiObjectTracker::measurementCallback(
   }
 
   /* life cycle check */
-  // TODO
+  for (auto itr = list_tracker_.begin(); itr != list_tracker_.end(); ++itr) {
+    if (1.0 < (*itr)->getElapsedTimeFromLastUpdate()) {
+      auto erase_itr = itr;
+      --itr;
+      list_tracker_.erase(erase_itr);
+    }
+  }
 
   /* global nearest neighbor */
   std::unordered_map<int, int> direct_assignment;
@@ -168,6 +175,22 @@ void MultiObjectTracker::measurementCallback(
       // list_tracker_.push_back(std::make_shared<PedestrianTracker>(input_transformed_objects.feature_objects.at(i).object));
     }
   }
+
+  if (!enable_delay_compensation_) {
+    // Create output msg
+    autoware_perception_msgs::msg::DynamicObjectArray output_msg;
+    output_msg.header.frame_id = world_frame_id_;
+    output_msg.header.stamp = measurement_time;
+    for (auto itr = list_tracker_.begin(); itr != list_tracker_.end(); ++itr) {
+      if ((*itr)->getTotalMeasurementCount() < 3) continue;
+      autoware_perception_msgs::msg::DynamicObject object;
+      (*itr)->getEstimatedDynamicObject(measurement_time, object);
+      output_msg.objects.push_back(object);
+    }
+
+    // Publish
+    dynamic_objects_pub_->publish(output_msg);
+  }
 }
 
 void MultiObjectTracker::publishTimerCallback()
@@ -175,29 +198,31 @@ void MultiObjectTracker::publishTimerCallback()
   // Guard
   if (dynamic_object_pub_->get_subscription_count() < 1) {return;}
 
-  /* life cycle check */
-  for (auto itr = list_tracker_.begin(); itr != list_tracker_.end(); ++itr) {
-    if (1.0 < (*itr)->getElapsedTimeFromLastUpdate(rclcpp::Node::now())) {
-      auto erase_itr = itr;
-      --itr;
-      list_tracker_.erase(erase_itr);
+  if (enable_delay_compensation_) {
+    /* life cycle check */
+    for (auto itr = list_tracker_.begin(); itr != list_tracker_.end(); ++itr) {
+      if (1.0 < (*itr)->getElapsedTimeFromLastUpdate(rclcpp::Node::now())) {
+        auto erase_itr = itr;
+        --itr;
+        list_tracker_.erase(erase_itr);
+      }
     }
-  }
 
-  // Create output msg
-  rclcpp::Time current_time = rclcpp::Node::now();
-  autoware_perception_msgs::msg::DynamicObjectArray output_msg;
-  output_msg.header.frame_id = world_frame_id_;
-  output_msg.header.stamp = current_time;
-  for (auto itr = list_tracker_.begin(); itr != list_tracker_.end(); ++itr) {
-    if ((*itr)->getTotalMeasurementCount() < 3) {continue;}
-    autoware_perception_msgs::msg::DynamicObject object;
-    (*itr)->getEstimatedDynamicObject(current_time, object);
-    output_msg.objects.push_back(object);
-  }
+    // Create output msg
+    rclcpp::Time current_time = rclcpp::Node::now();
+    autoware_perception_msgs::msg::DynamicObjectArray output_msg;
+    output_msg.header.frame_id = world_frame_id_;
+    output_msg.header.stamp = current_time;
+    for (auto itr = list_tracker_.begin(); itr != list_tracker_.end(); ++itr) {
+      if ((*itr)->getTotalMeasurementCount() < 3) {continue;}
+      autoware_perception_msgs::msg::DynamicObject object;
+      (*itr)->getEstimatedDynamicObject(current_time, object);
+      output_msg.objects.push_back(object);
+    }
 
-  // Publish
-  dynamic_object_pub_->publish(output_msg);
+    // Publish
+    dynamic_object_pub_->publish(output_msg);
+  }
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(MultiObjectTracker)

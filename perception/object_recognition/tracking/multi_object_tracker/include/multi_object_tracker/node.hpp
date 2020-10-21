@@ -59,6 +59,7 @@ private:
   std::string world_frame_id_;  // tracking frame
   std::list<std::shared_ptr<Tracker>> list_tracker_;
   DataAssociation data_association_;
+  bool enable_delay_compensation_;
 };
 
 #endif
