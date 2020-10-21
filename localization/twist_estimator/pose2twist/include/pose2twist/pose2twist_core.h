@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef POSE2TWIST_CORE_H
+#define POSE2TWIST_CORE_H
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -39,3 +40,5 @@ private:
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr angular_z_pub_;
 
 };
+
+#endif
