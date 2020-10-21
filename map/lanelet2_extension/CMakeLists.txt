@@ -49,13 +49,13 @@ target_link_libraries(lanelet2_extension_lib
   ${GeographicLib_LIBRARIES}
 )
 
-ament_auto_add_library(lanelet2_extension_sample src/sample_code.cpp)
+ament_auto_add_executable(lanelet2_extension_sample src/sample_code.cpp)
 add_dependencies(lanelet2_extension_sample lanelet2_extension_lib)
 target_link_libraries(lanelet2_extension_sample
   lanelet2_extension_lib
 )
 
-ament_auto_add_library(autoware_lanelet2_validation src/validation.cpp)
+ament_auto_add_executable(autoware_lanelet2_validation src/validation.cpp)
 add_dependencies(autoware_lanelet2_validation lanelet2_extension_lib)
 target_link_libraries(autoware_lanelet2_validation
   lanelet2_extension_lib
