@@ -364,7 +364,7 @@ int MPCUtils::calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::
 }
 bool MPCUtils::calcNearestPoseInterp(
   const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose,
-  geometry_msgs::msg::Pose * nearest_pose, int * nearest_index, double * nearest_time, rclcpp::Logger & logger, rclcpp::Clock & clock)
+  geometry_msgs::msg::Pose * nearest_pose, int * nearest_index, double * nearest_time, rclcpp::Logger logger, rclcpp::Clock & clock)
 {
   if (traj.size() == 0 || !nearest_pose || !nearest_index || !nearest_time) {
     return false;

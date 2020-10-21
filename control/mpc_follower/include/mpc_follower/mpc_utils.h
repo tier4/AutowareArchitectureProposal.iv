@@ -103,7 +103,7 @@ bool calcTrajectoryCurvature(int curvature_smoothing_num, MPCTrajectory * traj);
  */
 bool calcNearestPoseInterp(
   const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose,
-  geometry_msgs::msg::Pose * nearest_pose, int * nearest_index, double * nearest_time, rclcpp::Logger & logger, rclcpp::Clock & clock);
+  geometry_msgs::msg::Pose * nearest_pose, int * nearest_index, double * nearest_time, rclcpp::Logger logger, rclcpp::Clock & clock);
 
 int calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose);
 

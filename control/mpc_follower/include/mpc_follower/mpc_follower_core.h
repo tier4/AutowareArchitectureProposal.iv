@@ -164,7 +164,7 @@ private:
   std::shared_ptr<geometry_msgs::msg::PoseStamped> current_pose_ptr_;  //!< @brief current measured pose
   std::shared_ptr<geometry_msgs::msg::TwistStamped>
     current_velocity_ptr_;                     //!< @brief current measured velocity
-  std::shared_ptr<double> current_steer_ptr_;  //!< @brief current measured steering
+  std::shared_ptr<autoware_vehicle_msgs::msg::Steering> current_steer_ptr_;  //!< @brief current measured steering
   std::shared_ptr<autoware_planning_msgs::msg::Trajectory>
     current_trajectory_ptr_;  //!< @brief referece trajectory
 
@@ -204,7 +204,7 @@ private:
    */
   bool getVar(
     const MPCTrajectory & traj, int * closest_idx, double * closest_time,
-    geometry_msgs::msg::Pose * closest_pose, double * steer, double * lat_err, double * yaw_err);
+    geometry_msgs::msg::Pose * closest_pose, float * steer, double * lat_err, double * yaw_err);
 
   /**
    * @brief set current_steer with received message
