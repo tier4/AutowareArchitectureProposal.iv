@@ -14,16 +14,16 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/Bool.msg"
-  "msg/Float32.msg"
-  "msg/Float32MultiArray.msg"
-  "msg/Float64.msg"
-  "msg/Float64MultiArray.msg"
-  "msg/Int32.msg"
-  "msg/Int32MultiArray.msg"
-  "msg/Int64.msg"
-  "msg/Int64MultiArray.msg"
-  "msg/String.msg"
+  "msg/BoolStamped.msg"
+  "msg/Float32Stamped.msg"
+  "msg/Float32MultiArrayStamped.msg"
+  "msg/Float64Stamped.msg"
+  "msg/Float64MultiArrayStamped.msg"
+  "msg/Int32Stamped.msg"
+  "msg/Int32MultiArrayStamped.msg"
+  "msg/Int64Stamped.msg"
+  "msg/Int64MultiArrayStamped.msg"
+  "msg/StringStamped.msg"
   DEPENDENCIES builtin_interfaces
 )
 
