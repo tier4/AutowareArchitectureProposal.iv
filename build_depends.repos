@@ -1,0 +1,9 @@
+repositories:
+  vendor/osqp:
+    type: git
+    url: https://github.com/tier4/osqp_vendor.git
+    version: 0.0.1
+  vendor/ublox:
+    type: git
+    url: https://github.com/tier4/ublox.git
+    version: foxy-devel
