@@ -1,14 +1,17 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(traffic_light_classifier)
 
-add_compile_options(-std=c++14)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
 
-option(CUDA_VERBOSE "Verbose output of CUDA modules" OFF)
-
+option(CUDA_VERBOSE "Verbose output of CUDA modules" ON)
+set(CUDA_VERBOSE ON)
 # set flags for CUDA availability
 option(CUDA_AVAIL "CUDA available" OFF)
-find_package(CUDA)
+find_package(CUDA QUIET)
 if (CUDA_FOUND)
+  find_package(CUDA REQUIRED)
   find_library(CUBLAS_LIBRARIES cublas HINTS
     ${CUDA_TOOLKIT_ROOT_DIR}/lib64
     ${CUDA_TOOLKIT_ROOT_DIR}/lib
@@ -86,16 +89,8 @@ if (NOT EXISTS "${FILE}")
   execute_process(COMMAND gdown "https://drive.google.com/uc?id=1C4XkFe-G58LcDJSVMp5xlwQniGVozgwW" -O ${PATH}/lamp_labels.txt)
 endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  autoware_perception_msgs
-  cv_bridge
-  roscpp
-  sensor_msgs
-  image_transport
-  message_filters
-  dynamic_reconfigure
-  nodelet
-  )
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
 generate_dynamic_reconfigure_options(cfg/HSVFilter.cfg)
 
