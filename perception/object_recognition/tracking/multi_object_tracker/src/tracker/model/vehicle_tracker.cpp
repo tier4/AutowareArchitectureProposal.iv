@@ -210,8 +210,7 @@ bool VehicleTracker::getEstimatedDynamicObject(
   const rclcpp::Time & time, autoware_perception_msgs::msg::DynamicObject & object)
 {
   object = object_;
-  // TEMP to replace with the uuid generation
-  // object.id = unique_id::toMsg(getUUID());
+  object.id = getUUID();
   object.semantic.type = getType();
 
   if (object.shape.type == autoware_perception_msgs::msg::Shape::BOUNDING_BOX) {

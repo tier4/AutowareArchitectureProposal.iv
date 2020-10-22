@@ -130,7 +130,7 @@ bool PedestrianTracker::getEstimatedDynamicObject(
   const rclcpp::Time & time, autoware_perception_msgs::msg::DynamicObject & object)
 {
   object = object_;
-  // object.id = unique_id::toMsg(getUUID());
+  object.id = getUUID();
   object.semantic.type = getType();
   double dt = (time - last_update_time_).seconds();
   if (dt < 0.0) dt = 0.0;
