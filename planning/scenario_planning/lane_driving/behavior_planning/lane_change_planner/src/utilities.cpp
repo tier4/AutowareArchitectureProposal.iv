@@ -932,7 +932,22 @@ double getDistanceToNextIntersection(
       is_after_current_lanelet = true;
     }
     if (is_after_current_lanelet && llt.hasAttribute("turn_direction")) {
-      return distance - arc_coordinates.length;
+      bool is_lane_change_yes = false;
+      const auto right_line = llt.rightBound();
+      if (right_line.hasAttribute(lanelet::AttributeNamesString::LaneChange)) {
+        const auto attr = right_line.attribute(lanelet::AttributeNamesString::LaneChange);
+        if (attr.value() == "yes") {
+          is_lane_change_yes = true;
+        }
+      }
+      const auto left_line = llt.leftBound();
+      if (left_line.hasAttribute(lanelet::AttributeNamesString::LaneChange)) {
+        const auto attr = left_line.attribute(lanelet::AttributeNamesString::LaneChange);
+        if (attr.value() == "yes") {
+          is_lane_change_yes = true;
+        }
+      }
+      if (!is_lane_change_yes) return distance - arc_coordinates.length;
     }
     distance += lanelet::utils::getLaneletLength3d(llt);
   }
