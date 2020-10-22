@@ -151,13 +151,12 @@ int main(int argc, char * argv[])
 
   std::string map_path;
   try {
-    std::string map_path = node->declare_parameter("map_file").get<std::string>();
+    map_path = node->declare_parameter("map_file").get<std::string>();
   } catch (...) {
     std::cerr << "failed find map_file parameter! No file to load" << std::endl;
     printUsage();
     return 1;
   }
-
   lanelet::LaneletMapPtr lanelet_map;
   lanelet::ErrorMessages errors;
   lanelet::projection::MGRSProjector projector;
