@@ -157,7 +157,6 @@ VelocityController::VelocityController() : Node("velocity_controller")
   while (rclcpp::ok()) {
     if (!updateCurrentPose(5.0)) {
       RCLCPP_WARN(get_logger(), "waiting map to base_link at initialize.");
-      rclcpp::sleep_for(std::chrono::milliseconds(500));
     } else {
       break;
     }
