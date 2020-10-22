@@ -181,8 +181,10 @@ bool VelocityController::getCurretPoseFromTF(
 {
   geometry_msgs::msg::TransformStamped transform;
   try {
-    transform = tf_buffer_->lookupTransform("map", "base_link", tf2::TimePointZero);
-  } catch (tf2::TransformException & ex) {
+    auto future = tf_buffer_->waitForTransform(
+      "map", "base_link", tf2::TimePointZero, tf2::durationFromSec(timeout_sec),
+      [&transform](const tf2_ros::TransformStampedFuture & future) { transform = future.get(); });
+  } catch (tf2::TimeoutException & ex) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       get_logger(), *get_clock(), 3.0, "cannot get map to base_link transform. %s", ex.what());
     return false;
