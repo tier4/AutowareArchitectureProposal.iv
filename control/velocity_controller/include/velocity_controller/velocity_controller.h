@@ -197,9 +197,9 @@ private:
   void setToIsStopped();
 
   /* check condition */
-  bool checkIsStopped(double current_vel, double target_vel, int closest) const;
-  bool checkSmoothStop(const int closest, const double target_vel) const;
-  bool checkEmergency(int closest, double target_vel) const;
+  bool isStoppedState(double current_vel, double target_vel, int closest) const;
+  bool isSmoothStopState(const int closest, const double target_vel) const;
+  bool isEmergencyState(int closest, double target_vel) const;
 
   /* reset flags */
   void resetHandling(ControlMode control_mode);

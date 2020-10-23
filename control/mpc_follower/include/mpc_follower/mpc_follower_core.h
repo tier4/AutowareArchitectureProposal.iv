@@ -304,9 +304,9 @@ private:
   autoware_control_msgs::ControlCommand getInitialControlCommand() const;
 
   /**
-   * @brief check ego car stopped
+   * @brief check ego car is in stopped state
    */
-  bool checkIsStopped() const;
+  bool isStoppedState() const;
 
   /**
    * @brief calculate distance to stop point

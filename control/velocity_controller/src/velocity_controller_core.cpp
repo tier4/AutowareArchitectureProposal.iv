@@ -338,7 +338,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
    * Output acceleration : "stop_state_acc_" with max_jerk limit. (depending on the vehicle interface)
    *
    */
-  if (checkIsStopped(current_vel, target_vel, closest_idx)) {
+  if (isStoppedState(current_vel, target_vel, closest_idx)) {
     double acc_cmd = calcFilteredAcc(stop_state_acc_, pitch_filtered, dt, shift);
     control_mode_ = ControlMode::STOPPED;
     ROS_DEBUG("[Stopped]. vel: %3.3f, acc: %3.3f", stop_state_vel_, acc_cmd);
@@ -348,14 +348,14 @@ CtrlCmd VelocityController::calcCtrlCmd()
   /* ===== EMERGENCY STOP =====
    *
    * If the emergency flag is true, enter the emergency state.
-   * The condition of the emergency is checked in checkEmergency() function.
+   * The condition of the emergency is checked in isEmergencyState() function.
    * The flag is reset when the vehicle is stopped.
    *
    * Output velocity : "0" with maximum acceleration constraint
    * Output acceleration : "emergency_stop_acc_" with max_jerk limit.
    *
    */
-  is_emergency_stop_ = checkEmergency(closest_idx, target_vel);
+  is_emergency_stop_ = isEmergencyState(closest_idx, target_vel);
   if (is_emergency_stop_) {
     double vel_cmd = applyRateFilter(0.0, prev_vel_cmd_, dt, emergency_stop_acc_);
     double acc_cmd = applyRateFilter(emergency_stop_acc_, prev_acc_cmd_, dt, emergency_stop_jerk_);
@@ -373,7 +373,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
    * Output acceleration : "emergency_stop_acc_" with max_jerk limit.
    *
    */
-  is_smooth_stop_ = checkSmoothStop(closest_idx, target_vel);
+  is_smooth_stop_ = isSmoothStopState(closest_idx, target_vel);
   if (is_smooth_stop_) {
     if (!start_time_smooth_stop_) {
       start_time_smooth_stop_ = std::make_shared<ros::Time>(ros::Time::now());
@@ -486,7 +486,7 @@ void VelocityController::publishCtrlCmd(const double vel, const double acc)
   debug_values_.data.resize(num_debug_values_, 0.0);
 }
 
-bool VelocityController::checkSmoothStop(const int closest, const double target_vel) const
+bool VelocityController::isSmoothStopState(const int closest, const double target_vel) const
 {
   if (!enable_smooth_stop_) {
     return false;
@@ -506,7 +506,7 @@ bool VelocityController::checkSmoothStop(const int closest, const double target_
   return false;
 }
 
-bool VelocityController::checkIsStopped(double current_vel, double target_vel, int closest) const
+bool VelocityController::isStoppedState(double current_vel, double target_vel, int closest) const
 {
   if (is_smooth_stop_) return false;  // stopping.
 
@@ -533,7 +533,7 @@ bool VelocityController::checkIsStopped(double current_vel, double target_vel, i
   }
 }
 
-bool VelocityController::checkEmergency(int closest, double target_vel) const
+bool VelocityController::isEmergencyState(int closest, double target_vel) const
 {
   // already in emergency.
   if (is_emergency_stop_) {
