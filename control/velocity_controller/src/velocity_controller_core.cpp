@@ -16,6 +16,8 @@
 
 #include <velocity_controller/velocity_controller.h>
 
+#include <tf2_ros/create_timer_ros.h>
+
 namespace
 {
 double lowpass_filter(const double current_value, const double prev_value, const double gain)
@@ -113,6 +115,9 @@ VelocityController::VelocityController() : Node("velocity_controller")
   // tf setting
   {
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(get_clock());
+    auto cti = std::make_shared<tf2_ros::CreateTimerROS>(
+      this->get_node_base_interface(), this->get_node_timers_interface());
+    tf_buffer_->setCreateTimerInterface(cti);
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
   }
 
@@ -180,10 +185,16 @@ bool VelocityController::getCurretPoseFromTF(
 {
   geometry_msgs::msg::TransformStamped transform;
   try {
-    auto future = tf_buffer_->waitForTransform(
+    tf_buffer_->waitForTransform(
       "map", "base_link", tf2::TimePointZero, tf2::durationFromSec(timeout_sec),
-      [&transform](const tf2_ros::TransformStampedFuture & future) { transform = future.get(); });
+      [&transform](const tf2_ros::TransformStampedFuture & tf_future) {
+        transform = tf_future.get();
+      });
   } catch (tf2::TimeoutException & ex) {
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      get_logger(), *get_clock(), 3.0, "cannot get map to base_link transform. %s", ex.what());
+    return false;
+  } catch (tf2::LookupException & ex) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       get_logger(), *get_clock(), 3.0, "cannot get map to base_link transform. %s", ex.what());
     return false;
@@ -239,11 +250,12 @@ rcl_interfaces::msg::SetParametersResult VelocityController::paramCallback(
   const std::vector<rclcpp::Parameter> & parameters)
 {
   auto update_param = [&](const std::string & name, double & v) {
-    for (const auto & p : parameters) {
-      if (p.get_name() == name) {
-        v = p.as_double();
-        return true;
-      }
+    auto it = std::find_if(
+      parameters.cbegin(), parameters.cend(),
+      [&name](const rclcpp::Parameter & parameter) { return parameter.get_name() == name; });
+    if (it != parameters.cend()) {
+      v = it->as_double();
+      return true;
     }
     return false;
   };
