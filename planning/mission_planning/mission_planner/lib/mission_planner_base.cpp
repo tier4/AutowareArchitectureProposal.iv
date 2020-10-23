@@ -39,9 +39,11 @@ MissionPlanner::MissionPlanner(const std::string & node_name)
   checkpoint_subscriber_ = create_subscription<geometry_msgs::msg::PoseStamped>(
     "input/checkpoint", 10, std::bind(&MissionPlanner::checkpointCallback, this, _1));
 
-  route_publisher_ = create_publisher<autoware_planning_msgs::msg::Route>("output/route", 1);
+  rclcpp::QoS durable_qos{1};
+  durable_qos.transient_local();
+  route_publisher_ = create_publisher<autoware_planning_msgs::msg::Route>("output/route", durable_qos);
   marker_publisher_ =
-    create_publisher<visualization_msgs::msg::MarkerArray>("debug/route_marker", 1);
+    create_publisher<visualization_msgs::msg::MarkerArray>("debug/route_marker", durable_qos);
 }
 
 bool MissionPlanner::getEgoVehiclePose(geometry_msgs::msg::PoseStamped * ego_vehicle_pose)
