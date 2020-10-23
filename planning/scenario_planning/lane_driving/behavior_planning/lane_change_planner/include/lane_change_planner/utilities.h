@@ -159,6 +159,18 @@ double getArcLengthToTargetLanelet(
   const lanelet::ConstLanelets & current_lanes, const lanelet::ConstLanelet & target_lane,
   const geometry_msgs::Pose & pose);
 
+std::vector<Polygon> getTargetLaneletPolygons(
+  const lanelet::ConstLanelets & lanelets, const geometry_msgs::Pose & pose,
+  const double check_length, const std::string & target_type);
+
+std::vector<Polygon> filterObstaclePolygons(
+  const std::vector<Polygon> & obstacle_polygons,
+  const autoware_perception_msgs::DynamicObjectArray & objects,
+  const double static_obstacle_velocity_thresh);
+
+double getDistanceToNearestObstaclePolygon(
+  const std::vector<Polygon> & obstacle_polygons, const geometry_msgs::Pose & pose);
+
 class SplineInterpolate
 {
   bool initialized_;
