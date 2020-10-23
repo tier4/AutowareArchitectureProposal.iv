@@ -9,16 +9,19 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
 endif()
 
-find_package(rclcpp REQUIRED)
-find_package(autoware_planning_msgs REQUIRED)
-find_package(autoware_system_msgs REQUIRED)
-find_package(autoware_vehicle_msgs REQUIRED)
-# find_package(diagnostic_updater REQUIRED)
-# find_package(topic_tools REQUIRED)
-find_package(tf2 REQUIRED)
-find_package(tf2_ros REQUIRED)
-find_package(tf2_geometry_msgs REQUIRED)
-find_package(fmt REQUIRED)
+### Dependencies
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
+# find_package(rclcpp REQUIRED)
+# find_package(autoware_planning_msgs REQUIRED)
+# find_package(autoware_system_msgs REQUIRED)
+# find_package(autoware_vehicle_msgs REQUIRED)
+# # find_package(diagnostic_updater REQUIRED)
+# # find_package(topic_tools REQUIRED)
+# find_package(tf2 REQUIRED)
+# find_package(tf2_ros REQUIRED)
+# find_package(tf2_geometry_msgs REQUIRED)
+# find_package(fmt REQUIRED)
 
 include_directories(include)
 
@@ -30,45 +33,60 @@ set(AUTOWARE_STATE_MONITOR_SRC
   # src/autoware_state_monitor_node/diagnostics.cpp
 )
 
+## Set header files
+set(AUTOWARE_STATE_MONITOR_HEADERS
+  # include/autoware_state_monitor/autoware_state.h
+  include/autoware_state_monitor/autoware_state_monitor_node.h
+  # include/autoware_state_monitor/config.h
+  # include/autoware_state_monitor/rosconsole_wrapper.h
+  # include/autoware_state_monitor/state_machine.h
+)
+
 ## Add executables
-add_executable(autoware_state_monitor_exe 
+ament_auto_add_executable(autoware_state_monitor_exe 
   src/autoware_state_monitor_node/main.cpp
   ${AUTOWARE_STATE_MONITOR_SRC}
+  ${AUTOWARE_STATE_MONITOR_HEADERS}
 )
 
-set(AUTOWARE_STATE_MONITOR_DEPENDENCIES
-  rclcpp
-  autoware_planning_msgs
-  autoware_system_msgs
-  autoware_vehicle_msgs
-  # diagnostic_updater
-  # topic_tools
-  tf2
-  tf2_ros
-  tf2_geometry_msgs
+# set(AUTOWARE_STATE_MONITOR_DEPENDENCIES
+#   rclcpp
+#   autoware_planning_msgs
+#   autoware_system_msgs
+#   autoware_vehicle_msgs
+#   # diagnostic_updater
+#   # topic_tools
+#   tf2
+#   tf2_ros
+#   tf2_geometry_msgs
+# )
+
+# ## Add dependencies
+# ament_target_dependencies(autoware_state_monitor_exe 
+#   ${AUTOWARE_STATE_MONITOR_DEPENDENCIES} 
+#   PRIVATE fmt::fmt-header-only
+# )
+
+# # Install
+# ## Install executables and/or libraries
+# install(TARGETS ${PROJECT_NAME}_exe
+#   ARCHIVE DESTINATION lib/${PROJECT_NAME}
+#   LIBRARY DESTINATION lib/${PROJECT_NAME}
+#   RUNTIME DESTINATION lib/${PROJECT_NAME}
+# )
+
+# ## Install project namespaced headers
+# install(DIRECTORY include/${PROJECT_NAME}/
+#   DESTINATION include)
+
+# install(DIRECTORY config launch
+#   DESTINATION share/${PROJECT_NAME}
+# )
+
+# # set at the end of cmakelists
+# ament_package()
+
+ament_auto_package(INSTALL_TO_SHARE
+  launch
+  config
 )
-
-## Add dependencies
-ament_target_dependencies(autoware_state_monitor_exe 
-  ${AUTOWARE_STATE_MONITOR_DEPENDENCIES} 
-  PRIVATE fmt::fmt-header-only
-)
-
-# Install
-## Install executables and/or libraries
-install(TARGETS ${PROJECT_NAME}_exe
-  ARCHIVE DESTINATION lib/${PROJECT_NAME}
-  LIBRARY DESTINATION lib/${PROJECT_NAME}
-  RUNTIME DESTINATION lib/${PROJECT_NAME}
-)
-
-## Install project namespaced headers
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION include)
-
-install(DIRECTORY config launch
-  DESTINATION share/${PROJECT_NAME}
-)
-
-# set at the end of cmakelists
-ament_package()
