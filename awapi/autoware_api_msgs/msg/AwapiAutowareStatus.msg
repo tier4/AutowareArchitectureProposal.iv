@@ -1,4 +1,4 @@
-Header header
+std_msgs/Header header
 string autoware_state
 int32 control_mode
 int32 gate_mode
