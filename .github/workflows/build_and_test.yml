@@ -2,9 +2,11 @@ name: Build and test
 
 on:
   pull_request:
+    branches:
+      - ros2
   push:
     branches:
-      - ros2-porting-test
+      - ros2
 
 jobs:
   build-and-test:
