@@ -160,11 +160,7 @@ VelocityController::VelocityController() : Node("velocity_controller")
 
   // wait to get vehicle position
   while (rclcpp::ok()) {
-    if (!updateCurrentPose(5.0)) {
-      RCLCPP_WARN(get_logger(), "waiting map to base_link at initialize.");
-    } else {
-      break;
-    }
+    if (updateCurrentPose(5.0)) break;
   }
 }
 
@@ -184,21 +180,21 @@ bool VelocityController::getCurretPoseFromTF(
   const double timeout_sec, geometry_msgs::msg::PoseStamped & ps)
 {
   geometry_msgs::msg::TransformStamped transform;
-  try {
-    tf_buffer_->waitForTransform(
-      "map", "base_link", tf2::TimePointZero, tf2::durationFromSec(timeout_sec),
-      [&transform](const tf2_ros::TransformStampedFuture & tf_future) {
-        transform = tf_future.get();
-      });
-  } catch (tf2::TimeoutException & ex) {
+  // try {
+  auto tf_future = tf_buffer_->waitForTransform(
+    "map", "base_link", tf2::TimePointZero, tf2::durationFromSec(0.0), [](auto &) {});
+  auto status = tf_future.wait_for(tf2::durationFromSec(timeout_sec));
+  if (status != std::future_status::ready) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      get_logger(), *get_clock(), 3.0, "cannot get map to base_link transform. %s", ex.what());
-    return false;
-  } catch (tf2::LookupException & ex) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      get_logger(), *get_clock(), 3.0, "cannot get map to base_link transform. %s", ex.what());
+      get_logger(), *get_clock(), 3.0, "cannot get map to base_link transform.");
     return false;
   }
+  transform = tf_future.get();
+  // }
+  // catch (const tf2::LookupException & ex) {
+  //   RCLCPP_INFO(get_logger(), "LookupException.");
+  //   return false;
+  // }
 
   ps.header = transform.header;
   ps.pose.position.x = transform.transform.translation.x;
