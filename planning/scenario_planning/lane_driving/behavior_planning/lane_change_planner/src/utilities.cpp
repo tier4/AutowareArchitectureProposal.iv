@@ -1150,6 +1150,86 @@ double getArcLengthToTargetLanelet(
     std::min(arc_front.length - arc_pose.length, arc_back.length - arc_pose.length), 0.0);
 }
 
+std::vector<Polygon> getTargetLaneletPolygons(
+  const lanelet::PolygonLayer & map_polygons, lanelet::ConstLanelets & lanelets,
+  const geometry_msgs::Pose & pose, const double check_length, const std::string & target_type)
+{
+  std::vector<Polygon> polygons;
+
+  // create lanelet polygon
+  const auto arclength = lanelet::utils::getArcCoordinates(lanelets, pose);
+  const auto llt_polygon = lanelet::utils::getPolygonFromArcLength(
+    lanelets, arclength.length, arclength.length + check_length);
+  const auto llt_polygon_2d = lanelet::utils::to2D(llt_polygon).basicPolygon();
+
+  // If the number of vertices is not enough to create polygon, return empty polygon container
+  if (llt_polygon_2d.size() < 3) return polygons;
+
+  Polygon llt_polygon_bg;
+  for (const auto & llt_pt : llt_polygon_2d) {
+    llt_polygon_bg.outer().push_back(Point(llt_pt.x(), llt_pt.y()));
+  }
+  llt_polygon_bg.outer().push_back(llt_polygon_bg.outer().front());
+
+  for (const auto & map_polygon : map_polygons) {
+    const std::string type = map_polygon.attributeOr(lanelet::AttributeName::Type, "");
+    // If the target_type is different or the number of vertices is not enough to create polygon, skip the loop
+    if (type == target_type && map_polygon.size() > 2) {
+      // create map polygon
+      Polygon map_polygon_bg;
+      for (const auto & pt : map_polygon) {
+        map_polygon_bg.outer().push_back(Point(pt.x(), pt.y()));
+      }
+      map_polygon_bg.outer().push_back(map_polygon_bg.outer().front());
+      if (boost::geometry::intersects(llt_polygon_bg, map_polygon_bg))
+        polygons.push_back(map_polygon_bg);
+    }
+  }
+  return polygons;
+}
+
+std::vector<Polygon> filterObstaclePolygons(
+  const std::vector<Polygon> & obstacle_polygons,
+  const autoware_perception_msgs::DynamicObjectArray & objects,
+  const double static_obstacle_velocity_thresh)
+{
+  std::vector<Polygon> filtered_obstacle_polygons;
+  for (const auto & obstacle_polygon : obstacle_polygons) {
+    for (const auto & obj : objects.objects) {
+      const auto velocity = l2Norm(obj.state.twist_covariance.twist.linear);
+      if (
+        velocity > static_obstacle_velocity_thresh ||
+        (obj.semantic.type != autoware_perception_msgs::Semantic::CAR &&
+         obj.semantic.type != autoware_perception_msgs::Semantic::TRUCK &&
+         obj.semantic.type != autoware_perception_msgs::Semantic::BUS))
+        continue;
+
+      // create object polygon
+      Polygon obj_polygon;
+      if (!calcObjectPolygon(obj, &obj_polygon)) continue;
+
+      // check the object is within the polygon
+      if (boost::geometry::within(obj_polygon, obstacle_polygon)) {
+        filtered_obstacle_polygons.push_back(obstacle_polygon);
+        break;
+      }
+    }
+  }
+  return filtered_obstacle_polygons;
+}
+
+double getDistanceToNearestObstaclePolygon(
+  const std::vector<Polygon> & obstacle_polygons, const geometry_msgs::Pose & pose)
+{
+  double min_distance = std::numeric_limits<double>::max();
+  Point pt(pose.position.x, pose.position.y);
+  for (const auto & polygon : obstacle_polygons) {
+    const double distance = boost::geometry::distance(polygon, pt);
+    if (distance < min_distance) min_distance = distance;
+  }
+  return min_distance;
+}
+
 /*
  * spline interpolation
  */
