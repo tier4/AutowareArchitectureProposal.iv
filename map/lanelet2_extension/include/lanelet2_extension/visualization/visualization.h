@@ -164,8 +164,27 @@ visualization_msgs::MarkerArray detectionAreasAsMarkerArray(
   const std::vector<lanelet::DetectionAreaConstPtr> & da_reg_elems, const std_msgs::ColorRGBA c,
   const ros::Duration duration = ros::Duration());
 
+/**
+ * [pedestrianMarkingsAsMarkerArray creates marker array to visualize pedestrian markings]
+ * @param  pedestrian_markings [pedestrian marking polygon]
+ * @param  c            [color of the marker]
+ */
+visualization_msgs::MarkerArray pedestrianMarkingsAsMarkerArray(
+  const lanelet::ConstLineStrings3d & pedestrian_markings, const std_msgs::ColorRGBA & c);
+
+/**
+ * [parkingLotsAsMarkerArray creates marker array to visualize parking lots]
+ * @param  parking_lots [parking lot polygon]
+ * @param  c            [color of the marker]
+ */
 visualization_msgs::MarkerArray parkingLotsAsMarkerArray(
   const lanelet::ConstPolygons3d & parking_lots, const std_msgs::ColorRGBA & c);
+
+/**
+ * [parkingSpacesAsMarkerArray creates marker array to visualize parking spaces]
+ * @param  parking_spaces [parking space line string]
+ * @param  c            [color of the marker]
+ */
 visualization_msgs::MarkerArray parkingSpacesAsMarkerArray(
   const lanelet::ConstLineStrings3d & parking_spaces, const std_msgs::ColorRGBA & c);
 

@@ -214,6 +214,19 @@ lanelet::ConstPolygons3d query::getAllParkingLots(
   return parking_lots;
 }
 
+lanelet::ConstLineStrings3d query::getAllPedestrianMarkings(
+  const lanelet::LaneletMapConstPtr & lanelet_map_ptr)
+{
+  lanelet::ConstLineStrings3d pedestrian_markings;
+  for (const auto & ls : lanelet_map_ptr->lineStringLayer) {
+    const std::string type = ls.attributeOr(lanelet::AttributeName::Type, "none");
+    if (type.compare("pedestrian_marking") == 0) {
+      pedestrian_markings.push_back(ls);
+    }
+  }
+  return pedestrian_markings;
+}
+
 lanelet::ConstLineStrings3d query::getAllParkingSpaces(
   const lanelet::LaneletMapConstPtr & lanelet_map_ptr)
 {
