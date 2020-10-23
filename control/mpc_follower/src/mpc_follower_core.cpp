@@ -1033,9 +1033,4 @@ void MPCFollower::publishCtrlCmd(const autoware_control_msgs::ControlCommand & c
   pub_ctrl_cmd_.publish(cmd);
 
   steer_cmd_prev_ = ctrl_cmd.steering_angle;
-
-  autoware_vehicle_msgs::Steering s;
-  s.data = ctrl_cmd.steering_angle;
-  s.header = cmd.header;
-  pub_debug_steer_cmd_.publish(s);
 }

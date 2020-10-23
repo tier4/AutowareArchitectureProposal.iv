@@ -91,15 +91,14 @@ public:
   ~MPCFollower();
 
 private:
-  ros::NodeHandle nh_;                  //!< @brief ros node handle
-  ros::NodeHandle pnh_;                 //!< @brief private ros node handle
-  ros::Publisher pub_ctrl_cmd_;         //!< @brief topic publisher for control command
-  ros::Publisher pub_predicted_traj_;   //!< @brief topic publisher for control command
-  ros::Publisher pub_debug_steer_cmd_;  //!< @brief topic publisher for control command
-  ros::Subscriber sub_ref_path_;        //!< @brief topic subscriber for reference waypoints
-  ros::Subscriber sub_steering_;        //!< @brief subscriber for current steering
-  ros::Subscriber sub_current_vel_;     //!< @brief subscriber for current velocity
-  ros::Timer timer_control_;            //!< @brief timer for control command computation
+  ros::NodeHandle nh_;                 //!< @brief ros node handle
+  ros::NodeHandle pnh_;                //!< @brief private ros node handle
+  ros::Publisher pub_ctrl_cmd_;        //!< @brief topic publisher for control command
+  ros::Publisher pub_predicted_traj_;  //!< @brief topic publisher for control command
+  ros::Subscriber sub_ref_path_;       //!< @brief topic subscriber for reference waypoints
+  ros::Subscriber sub_steering_;       //!< @brief subscriber for current steering
+  ros::Subscriber sub_current_vel_;    //!< @brief subscriber for current velocity
+  ros::Timer timer_control_;           //!< @brief timer for control command computation
 
   MPCTrajectory ref_traj_;                 //!< @brief reference trajectory to be followed
   Butterworth2dFilter lpf_steering_cmd_;   //!< @brief lowpass filter for steering command
