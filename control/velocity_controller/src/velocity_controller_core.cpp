@@ -163,7 +163,7 @@ void VelocityController::callbackTrajectory(const autoware_planning_msgs::Trajec
   trajectory_ptr_ = std::make_shared<autoware_planning_msgs::Trajectory>(*msg);
 }
 
-bool VelocityController::getCurretPoseFromTF(
+bool VelocityController::getCurrentPoseFromTF(
   const double timeout_sec, geometry_msgs::PoseStamped & ps)
 {
   geometry_msgs::TransformStamped transform;
@@ -185,7 +185,7 @@ bool VelocityController::getCurretPoseFromTF(
 bool VelocityController::updateCurrentPose(const double timeout_sec)
 {
   geometry_msgs::PoseStamped ps;
-  if (!getCurretPoseFromTF(timeout_sec, ps)) {
+  if (!getCurrentPoseFromTF(timeout_sec, ps)) {
     return false;
   }
   current_pose_ptr_ = std::make_shared<geometry_msgs::PoseStamped>(ps);
@@ -285,7 +285,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
    *
    * If the closest is not found (when the threshold is exceeded), it is treated as an emergency stop.
    *
-   * Outout velocity : "0" with maximum acceleration constraint
+   * Output velocity : "0" with maximum acceleration constraint
    * Output acceleration : "emergency_stop_acc_" with maximum jerk constraint
    *
    */
@@ -334,11 +334,11 @@ CtrlCmd VelocityController::calcCtrlCmd()
    * If the current velocity and target velocity is almost zero,
    * and the smooth stop is not working, enter the stop state.
    *
-   * Outout velocity : "stop_state_vel_" (assumed to be zero, depending on the vehicle interface)
+   * Output velocity : "stop_state_vel_" (assumed to be zero, depending on the vehicle interface)
    * Output acceleration : "stop_state_acc_" with max_jerk limit. (depending on the vehicle interface)
    *
    */
-  if (checkIsStopped(current_vel, target_vel, closest_idx)) {
+  if (isStoppedState(current_vel, target_vel, closest_idx)) {
     double acc_cmd = calcFilteredAcc(stop_state_acc_, pitch_filtered, dt, shift);
     control_mode_ = ControlMode::STOPPED;
     ROS_DEBUG("[Stopped]. vel: %3.3f, acc: %3.3f", stop_state_vel_, acc_cmd);
@@ -348,14 +348,14 @@ CtrlCmd VelocityController::calcCtrlCmd()
   /* ===== EMERGENCY STOP =====
    *
    * If the emergency flag is true, enter the emergency state.
-   * The condition of the energency is checked in checkEmergency() function.
+   * The condition of the emergency is checked in isEmergencyState() function.
    * The flag is reset when the vehicle is stopped.
    *
-   * Outout velocity : "0" with maximum acceleration constraint
+   * Output velocity : "0" with maximum acceleration constraint
    * Output acceleration : "emergency_stop_acc_" with max_jerk limit.
    *
    */
-  is_emergency_stop_ = checkEmergency(closest_idx, target_vel);
+  is_emergency_stop_ = isEmergencyState(closest_idx, target_vel);
   if (is_emergency_stop_) {
     double vel_cmd = applyRateFilter(0.0, prev_vel_cmd_, dt, emergency_stop_acc_);
     double acc_cmd = applyRateFilter(emergency_stop_acc_, prev_acc_cmd_, dt, emergency_stop_jerk_);
@@ -366,14 +366,14 @@ CtrlCmd VelocityController::calcCtrlCmd()
 
   /* ===== SMOOTH STOP =====
    *
-   * If the vehicle veloicity & target velocity is low ehough, and there is a stop point nearby the ego vehicle,
+   * If the vehicle velocity & target velocity is low enough, and there is a stop point nearby the ego vehicle,
    * enter the smooth stop state.
    *
-   * Outout velocity : "target_vel" from the reference trajectory
+   * Output velocity : "target_vel" from the reference trajectory
    * Output acceleration : "emergency_stop_acc_" with max_jerk limit.
    *
    */
-  is_smooth_stop_ = checkSmoothStop(closest_idx, target_vel);
+  is_smooth_stop_ = isSmoothStopState(closest_idx, target_vel);
   if (is_smooth_stop_) {
     if (!start_time_smooth_stop_) {
       start_time_smooth_stop_ = std::make_shared<ros::Time>(ros::Time::now());
@@ -390,7 +390,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
    *
    * Execute PID feedback control.
    *
-   * Outout velocity : "target_vel" from the reference trajectory
+   * Output velocity : "target_vel" from the reference trajectory
    * Output acceleration : calculated by PID controller with max_acceleration & max_jerk limit.
    *
    */
@@ -465,7 +465,7 @@ void VelocityController::publishCtrlCmd(const double vel, const double acc)
   cmd.control.acceleration = acc;
   pub_control_cmd_.publish(cmd);
 
-  // calculate accleration from velocity
+  // calculate acceleration from velocity
   if (prev_vel_ptr_) {
     const double dv = current_vel_ptr_->twist.linear.x - prev_vel_ptr_->twist.linear.x;
     const double dt =
@@ -486,7 +486,7 @@ void VelocityController::publishCtrlCmd(const double vel, const double acc)
   debug_values_.data.resize(num_debug_values_, 0.0);
 }
 
-bool VelocityController::checkSmoothStop(const int closest, const double target_vel) const
+bool VelocityController::isSmoothStopState(const int closest, const double target_vel) const
 {
   if (!enable_smooth_stop_) {
     return false;
@@ -506,12 +506,12 @@ bool VelocityController::checkSmoothStop(const int closest, const double target_
   return false;
 }
 
-bool VelocityController::checkIsStopped(double current_vel, double target_vel, int closest) const
+bool VelocityController::isStoppedState(double current_vel, double target_vel, int closest) const
 {
   if (is_smooth_stop_) return false;  // stopping.
 
   // Prevent a direct transition from PID_CONTROL to STOPPED without going through SMOOTH_STOP.
-  if (control_mode_ == ControlMode::PID_CONTROL) return false;
+  if (control_mode_ == ControlMode::PID_CONTROL && enable_smooth_stop_) return false;
 
   if (control_mode_ == ControlMode::STOPPED) {
     double dist = calcStopDistance(*trajectory_ptr_, closest);
@@ -533,14 +533,14 @@ bool VelocityController::checkIsStopped(double current_vel, double target_vel, i
   }
 }
 
-bool VelocityController::checkEmergency(int closest, double target_vel) const
+bool VelocityController::isEmergencyState(int closest, double target_vel) const
 {
   // already in emergency.
   if (is_emergency_stop_) {
     return true;
   }
 
-  // velocity is getting high when smoth stopping.
+  // velocity is getting high when smooth stopping.
   bool has_smooth_exit_vel =
     std::fabs(current_vel_ptr_->twist.linear.x) > smooth_stop_param_.exit_ego_speed;
   if (is_smooth_stop_ && has_smooth_exit_vel) {
@@ -769,8 +769,8 @@ double VelocityController::calcInterpolatedTargetValue(
 double VelocityController::applyLimitFilter(
   const double input_val, const double max_val, const double min_val) const
 {
-  const double limitted_val = std::min(std::max(input_val, min_val), max_val);
-  return limitted_val;
+  const double limited_val = std::min(std::max(input_val, min_val), max_val);
+  return limited_val;
 }
 
 double VelocityController::applyRateFilter(
