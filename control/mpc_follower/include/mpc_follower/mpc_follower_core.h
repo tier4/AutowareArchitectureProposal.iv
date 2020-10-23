@@ -91,15 +91,14 @@ public:
   ~MPCFollower();
 
 private:
-  ros::NodeHandle nh_;                  //!< @brief ros node handle
-  ros::NodeHandle pnh_;                 //!< @brief private ros node handle
-  ros::Publisher pub_ctrl_cmd_;         //!< @brief topic publisher for control command
-  ros::Publisher pub_predicted_traj_;   //!< @brief topic publisher for control command
-  ros::Publisher pub_debug_steer_cmd_;  //!< @brief topic publisher for control command
-  ros::Subscriber sub_ref_path_;        //!< @brief topic subscriber for reference waypoints
-  ros::Subscriber sub_steering_;        //!< @brief subscriber for currrent steering
-  ros::Subscriber sub_current_vel_;     //!< @brief subscriber for currrent velocity
-  ros::Timer timer_control_;            //!< @brief timer for control command computation
+  ros::NodeHandle nh_;                 //!< @brief ros node handle
+  ros::NodeHandle pnh_;                //!< @brief private ros node handle
+  ros::Publisher pub_ctrl_cmd_;        //!< @brief topic publisher for control command
+  ros::Publisher pub_predicted_traj_;  //!< @brief topic publisher for control command
+  ros::Subscriber sub_ref_path_;       //!< @brief topic subscriber for reference waypoints
+  ros::Subscriber sub_steering_;       //!< @brief subscriber for current steering
+  ros::Subscriber sub_current_vel_;    //!< @brief subscriber for current velocity
+  ros::Timer timer_control_;           //!< @brief timer for control command computation
 
   MPCTrajectory ref_traj_;                 //!< @brief reference trajectory to be followed
   Butterworth2dFilter lpf_steering_cmd_;   //!< @brief lowpass filter for steering command
@@ -222,7 +221,7 @@ private:
   void onTimer(const ros::TimerEvent &);
 
   /**
-   * @brief set current_trajectory_ with receved message
+   * @brief set current_trajectory_ with received message
    */
   void onTrajectory(const autoware_planning_msgs::Trajectory::ConstPtr &);
 
@@ -237,17 +236,21 @@ private:
   bool checkData();
 
   /**
-   * @brief get varables for mpc calculation
+   * @brief get variables for mpc calculation
    */
   bool getData(const MPCTrajectory & traj, MPCData * data);
 
+  double calcSteerPrediction();
+  double getSteerCmdSum(const double t_start, const double t_end, const double time_constant);
+  void storeSteerCmd(const double steer);
+
   /**
-   * @brief set curent_steer with receved message
+   * @brief set current_steer with received message
    */
   void onSteering(const autoware_vehicle_msgs::Steering::ConstPtr & msg);
 
   /**
-   * @brief set current_velocity with receved message
+   * @brief set current_velocity with received message
    */
   void onVelocity(const geometry_msgs::TwistStamped::ConstPtr & msg);
 
