@@ -21,6 +21,7 @@
 
 #include "Eigen/Eigen"
 
+#include <algorithm>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -234,6 +235,20 @@ void laneletDirectionAsMarker(
   }
 }
 
+bool isClockWise(const geometry_msgs::Polygon & polygon)
+{
+  const int N = polygon.points.size();
+  const double x_offset = polygon.points[0].x;
+  const double y_offset = polygon.points[0].y;
+  double sum = 0.0;
+  for (int i = 0; i < polygon.points.size(); ++i) {
+    sum += (polygon.points[i].x - x_offset) * (polygon.points[(i + 1) % N].y - y_offset) -
+           (polygon.points[i].y - y_offset) * (polygon.points[(i + 1) % N].x - x_offset);
+  }
+
+  return sum >= 0.0;
+}
+
 // Is angle AOB less than 180?
 // https://qiita.com/fujii-kotaro/items/a411f2a45627ed2f156e
 bool isAcuteAngle(
@@ -324,6 +339,8 @@ void visualization::polygon2Triangle(
   const geometry_msgs::msg::Polygon & polygon, std::vector<geometry_msgs::msg::Polygon> * triangles)
 {
   geometry_msgs::msg::Polygon poly = polygon;
+  if (isClockWise(poly)) std::reverse(poly.points.begin(), poly.points.end());
+
   // ear clipping: find smallest internal angle in polygon
   int N = poly.points.size();
 
@@ -566,8 +583,32 @@ visualization_msgs::msg::MarkerArray visualization::detectionAreasAsMarkerArray(
   return marker_array;
 }
 
-visualization_msgs::msg::MarkerArray visualization::parkingLotsAsMarkerArray(
-  const lanelet::ConstPolygons3d & parking_lots, const std_msgs::msg::ColorRGBA & c)
+visualization_msgs::msg::MarkerArray visualization::pedestrianMarkingsAsMarkerArray(
+  const lanelet::ConstLineStrings3d & pedestrian_markings, const std_msgs::msg::ColorRGBA & c)
+{
+  visualization_msgs::MarkerArray marker_array;
+
+  if (pedestrian_markings.empty()) {
+    return marker_array;
+  }
+
+  for (const auto & linestring : pedestrian_markings) {
+    lanelet::ConstPolygon3d polygon;
+    if (utils::lineStringToPolygon(linestring, &polygon)) {
+      visualization_msgs::msg::Marker marker = polygonAsMarker(polygon, "pedestrian_marking", c);
+      marker.id = linestring.id();
+      if (!marker.points.empty()) {
+        marker_array.markers.push_back(marker);
+      }
+    } else {
+      RCLCPP_ERROR_STREAM(get_logger("lanelet2_extension.visualization"), "pedestrian marking " << linestring.id() << " failed conversion.");
+    }
+  }
+  return marker_array;
+}
+
+visualization_msgs::MarkerArray visualization::parkingLotsAsMarkerArray(
+  const lanelet::ConstPolygons3d & parking_lots, const std_msgs::ColorRGBA & c)
 {
   visualization_msgs::msg::MarkerArray marker_array;
 
@@ -899,15 +940,15 @@ void visualization::lineString2Marker(
   marker->color = c;
 
   // fill out lane line
-  if (ls.size() < 2){
+  if (ls.size() < 2) {
     ROS_ERROR_STREAM(__FUNCTION__ << ": marker line size is 1 or 0!");
     return;
   }
   for (auto i = ls.begin(); i + 1 != ls.end(); i++) {
     geometry_msgs::msg::Point p;
     const float heading = std::atan2((*(i + 1)).y() - (*i).y(), (*(i + 1)).x() - (*i).x());
-    const float x_offset = lss *0.5 * std::sin(heading);
-    const float y_offset = lss *0.5 * std::cos(heading);
+    const float x_offset = lss * 0.5 * std::sin(heading);
+    const float y_offset = lss * 0.5 * std::cos(heading);
 
     p.x = (*i).x() + x_offset;
     p.y = (*i).y() - y_offset;

@@ -50,6 +50,9 @@ lanelet::ConstLanelets getConflictingLanelets(
 bool lineStringWithWidthToPolygon(
   const lanelet::ConstLineString3d & linestring, lanelet::ConstPolygon3d * polygon);
 
+bool lineStringToPolygon(
+  const lanelet::ConstLineString3d & linestring, lanelet::ConstPolygon3d * polygon);
+
 double getLaneletLength2d(const lanelet::ConstLanelet & lanelet);
 double getLaneletLength3d(const lanelet::ConstLanelet & lanelet);
 double getLaneletLength2d(const lanelet::ConstLanelets & lanelet_sequence);
