@@ -61,6 +61,8 @@ void binMapCallback(autoware_lanelet2_msgs::MapBin msg)
   lanelet::ConstLanelets road_lanelets = lanelet::utils::query::roadLanelets(all_lanelets);
   lanelet::ConstLanelets crosswalk_lanelets =
     lanelet::utils::query::crosswalkLanelets(all_lanelets);
+  lanelet::ConstLineStrings3d pedestrian_markings =
+    lanelet::utils::query::getAllPedestrianMarkings(viz_lanelet_map);
   lanelet::ConstLanelets walkway_lanelets = lanelet::utils::query::walkwayLanelets(all_lanelets);
   std::vector<lanelet::ConstLineString3d> stop_lines =
     lanelet::utils::query::stopLinesLanelets(road_lanelets);
@@ -76,10 +78,12 @@ void binMapCallback(autoware_lanelet2_msgs::MapBin msg)
   lanelet::ConstPolygons3d obstacle_polygons =
     lanelet::utils::query::getAllObstaclePolygons(viz_lanelet_map);
 
-  std_msgs::ColorRGBA cl_road, cl_cross, cl_ll_borders, cl_stoplines, cl_trafficlights,
-    cl_detection_areas, cl_parking_lots, cl_parking_spaces, cl_lanelet_id, cl_obstacle_polygons;
+  std_msgs::ColorRGBA cl_road, cl_cross, cl_pedestrian_markings, cl_ll_borders, cl_stoplines,
+    cl_trafficlights, cl_detection_areas, cl_parking_lots, cl_parking_spaces, cl_lanelet_id,
+    cl_obstacle_polygons;
   setColor(&cl_road, 0.27, 0.27, 0.27, 0.999);
   setColor(&cl_cross, 0.27, 0.3, 0.27, 0.5);
+  setColor(&cl_pedestrian_markings, 0.5, 0.5, 0.5, 0.999);
   setColor(&cl_ll_borders, 0.5, 0.5, 0.5, 0.999);
   setColor(&cl_stoplines, 0.5, 0.5, 0.5, 0.999);
   setColor(&cl_trafficlights, 0.5, 0.5, 0.5, 0.8);
@@ -99,6 +103,9 @@ void binMapCallback(autoware_lanelet2_msgs::MapBin msg)
   insertMarkerArray(
     &map_marker_array, lanelet::visualization::laneletsAsTriangleMarkerArray(
                          "crosswalk_lanelets", crosswalk_lanelets, cl_cross));
+  insertMarkerArray(
+    &map_marker_array, lanelet::visualization::pedestrianMarkingsAsMarkerArray(
+                         pedestrian_markings, cl_pedestrian_markings));
   insertMarkerArray(
     &map_marker_array, lanelet::visualization::laneletsAsTriangleMarkerArray(
                          "walkway_lanelets", walkway_lanelets, cl_cross));

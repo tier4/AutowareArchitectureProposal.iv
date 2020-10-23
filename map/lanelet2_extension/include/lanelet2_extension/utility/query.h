@@ -108,6 +108,10 @@ lanelet::ConstPolygons3d getAllObstaclePolygons(
 // query all parking lots in lanelet2 map
 lanelet::ConstPolygons3d getAllParkingLots(const lanelet::LaneletMapConstPtr & lanelet_map_ptr);
 
+// query all pedestrian markings in lanelet2 map
+lanelet::ConstLineStrings3d getAllPedestrianMarkings(
+  const lanelet::LaneletMapConstPtr & lanelet_map_ptr);
+
 // query all parking spaces in lanelet2 map
 lanelet::ConstLineStrings3d getAllParkingSpaces(
   const lanelet::LaneletMapConstPtr & lanelet_map_ptr);
