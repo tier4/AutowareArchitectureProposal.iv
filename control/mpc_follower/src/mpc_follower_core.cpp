@@ -177,12 +177,12 @@ void MPCFollower::onTimer()
     is_ctrl_cmd_prev_initialized_ = true;
   }
 
-  if (checkIsStopped()) {
+  const bool is_mpc_solved = calculateMPC(&ctrl_cmd);
+
+  if (isStoppedState()) {
     publishCtrlCmd(ctrl_cmd_prev_);
     return;
   }
-
-  const bool is_mpc_solved = calculateMPC(&ctrl_cmd);
 
   if (!is_mpc_solved) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
@@ -1026,7 +1026,7 @@ autoware_control_msgs::ControlCommand MPCFollower::getInitialControlCommand() co
   return cmd;
 }
 
-bool MPCFollower::checkIsStopped() const
+bool MPCFollower::isStoppedState() const
 {
   const int nearest = MPCUtils::calcNearestIndex(*current_trajectory_ptr_, current_pose_ptr_->pose);
   // If the nearest index is not found, publish previous command
