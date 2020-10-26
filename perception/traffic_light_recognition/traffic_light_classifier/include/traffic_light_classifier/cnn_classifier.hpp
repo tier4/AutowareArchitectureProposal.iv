@@ -15,7 +15,7 @@
  */
 #pragma once
 
-#include <autoware_perception_msgs/LampState.h>
+#include <autoware_perception_msgs/msg/lamp_state.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <dynamic_reconfigure/server.h>
 #include <image_transport/image_transport.h>

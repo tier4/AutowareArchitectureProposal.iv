@@ -15,10 +15,10 @@
  */
 #pragma once
 
-#include <autoware_perception_msgs/LampState.h>
-#include <autoware_perception_msgs/TrafficLightRoiArray.h>
-#include <autoware_perception_msgs/TrafficLightState.h>
-#include <autoware_perception_msgs/TrafficLightStateArray.h>
+#include <autoware_perception_msgs/msg/lamp_state.hpp>
+#include <autoware_perception_msgs/msg/traffic_light_roi_array.hpp>
+#include <autoware_perception_msgs/msg/traffic_light_state.hpp>
+#include <autoware_perception_msgs/msg/traffic_light_state_array.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
 #include <image_transport/subscriber_filter.h>

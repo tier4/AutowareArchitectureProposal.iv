@@ -5,7 +5,7 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 
-option(CUDA_VERBOSE "Verbose output of CUDA modules" ON)
+option(CUDA_VERBOSE "Verbose output of CUDA modules" OFF)
 set(CUDA_VERBOSE ON)
 # set flags for CUDA availability
 option(CUDA_AVAIL "CUDA available" OFF)
@@ -30,9 +30,20 @@ endif (CUDA_FOUND)
 # set flags for TensorRT availability
 option(TRT_AVAIL "TensorRT available" OFF)
 # try to find the tensorRT modules
-find_library(NVINFER NAMES nvinfer)
-find_library(NVONNXPARSER nvonnxparser)
-find_library(NVINFER_PLUGIN NAMES nvinfer_plugin)
+set(TENSORRT_ROOT_DIR /home/nithilan/TensorRT-7.2.0.14.Ubuntu-18.04.x86_64-gnu.cuda-11.0.cudnn8.0/TensorRT-7.2.0.14)
+set(TENSORRT_INCLUDE_DIRS /home/nithilan/TensorRT-7.2.0.14.Ubuntu-18.04.x86_64-gnu.cuda-11.0.cudnn8.0/TensorRT-7.2.0.14/include)
+find_library(NVINFER NAMES libnvinfer.so${__tensorrt_ver_suffix}
+  PATHS ${TENSORRT_ROOT_DIR}
+  PATH_SUFFIXES lib lib64 bin
+  DOC "TENSORRT library." )
+find_library(NVONNXPARSER NAMES libnvonnxparser.so${__tensorrt_ver_suffix}
+  PATHS ${TENSORRT_ROOT_DIR}
+  PATH_SUFFIXES lib lib64 bin
+  DOC "TENSORRT library." )
+find_library(NVINFER_PLUGIN NAMES libnvinfer_plugin.so${__tensorrt_ver_suffix}
+  PATHS ${TENSORRT_ROOT_DIR}
+  PATH_SUFFIXES lib lib64 bin
+  DOC "TENSORRT library." )
 if(NVINFER AND NVONNXPARSER AND NVINFER_PLUGIN)
   if (CUDA_VERBOSE)
     message("TensorRT is available!")
@@ -50,6 +61,7 @@ endif()
 # set flags for CUDNN availability
 option(CUDNN_AVAIL "CUDNN available" OFF)
 # try to find the CUDNN module
+set(CUDNN_ROOT_DIR /usr/local/cuda)
 find_library(CUDNN_LIBRARY
   NAMES libcudnn.so${__cudnn_ver_suffix} libcudnn${__cudnn_ver_suffix}.dylib ${__cudnn_lib_win_name}
   PATHS $ENV{LD_LIBRARY_PATH} ${__libpath_cudart} ${CUDNN_ROOT_DIR} ${PC_CUDNN_LIBRARY_DIRS} ${CMAKE_INSTALL_PREFIX}
@@ -90,27 +102,20 @@ if (NOT EXISTS "${FILE}")
 endif()
 
 find_package(ament_cmake_auto REQUIRED)
+find_package(OpenCV REQUIRED)
 ament_auto_find_build_dependencies()
 
-generate_dynamic_reconfigure_options(cfg/HSVFilter.cfg)
+#generate_dynamic_reconfigure_options(cfg/HSVFilter.cfg)
 
-find_package(OpenCV REQUIRED)
-
-if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
-  add_definitions(-DENABLE_GPU)
+add_definitions(-DENABLE_GPU)
 
   include_directories(
     include
     utils
     ${OpenCV_INCLUDE_DIRS}
     ${CUDA_INCLUDE_DIRS}
+    ${TENSORRT_INCLUDE_DIRS}
     ${catkin_INCLUDE_DIRS}
-    )
-
-  catkin_package(
-    INCLUDE_DIRS include
-    LIBRARIES ${PROJECT_NAME}
-    CATKIN_DEPENDS
     )
 
   add_library(libutils
@@ -126,8 +131,6 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
     ${CUDA_curand_LIBRARY}
     ${CUDNN_LIBRARY}
     )
-  add_dependencies(libutils
-    ${catkin_EXPORTED_TARGETS})
 
   add_library(traffic_light_classifier_nodelet SHARED
     src/color_classifier.cpp
@@ -135,11 +138,6 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
     src/nodelet.cpp
     )
 
-  add_dependencies(traffic_light_classifier_nodelet
-    ${${PROJECT_NAME}_EXPORTED_TARGETS}
-    ${catkin_EXPORTED_TARGETS}
-    )
-
   target_link_libraries(traffic_light_classifier_nodelet
     libutils
     ${catkin_LIBRARIES}
@@ -148,11 +146,6 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
 
   add_executable(traffic_light_classifier_node
     src/node.cpp
-    )
-
-  add_dependencies(traffic_light_classifier_node
-    ${${PROJECT_NAME}_EXPORTED_TARGETS}
-    ${catkin_EXPORTED_TARGETS}
     )
 
   target_link_libraries(traffic_light_classifier_node
@@ -167,88 +160,21 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
     traffic_light_classifier_node
     traffic_light_classifier_nodelet
     libutils
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+    ARCHIVE DESTINATION lib/${PROJECT_NAME}
+    LIBRARY DESTINATION lib/${PROJECT_NAME}
+    RUNTIME DESTINATION bin/${PROJECT_NAME}
     )
 
   install(
     FILES
     traffic_light_classifier.xml
-    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+    DESTINATION share/${PROJECT_NAME}
     )
 
   install(
     DIRECTORY
     launch
     data
-    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+    DESTINATION share/${PROJECT_NAME}
     )
 
-else()
-  message("CUDA and/or TensorRT were not found. build only color classifier")
-
-  include_directories(
-    include
-    ${OpenCV_INCLUDE_DIRS}
-    ${catkin_INCLUDE_DIRS}
-    )
-
-  catkin_package(
-    INCLUDE_DIRS include
-    LIBRARIES ${PROJECT_NAME}
-    CATKIN_DEPENDS
-    )
-
-  add_library(traffic_light_classifier_nodelet SHARED
-    src/color_classifier.cpp
-    src/nodelet.cpp
-    )
-
-  add_dependencies(traffic_light_classifier_nodelet
-    ${${PROJECT_NAME}_EXPORTED_TARGETS}
-    ${catkin_EXPORTED_TARGETS}
-    )
-
-  target_link_libraries(traffic_light_classifier_nodelet
-    ${catkin_LIBRARIES}
-    ${OpenCV_LIBRARIES}
-    )
-
-  add_executable(traffic_light_classifier_node
-    src/node.cpp
-    )
-
-  add_dependencies(traffic_light_classifier_node
-    ${${PROJECT_NAME}_EXPORTED_TARGETS}
-    ${catkin_EXPORTED_TARGETS}
-    )
-
-  target_link_libraries(traffic_light_classifier_node
-    traffic_light_classifier_nodelet
-    ${catkin_LIBRARIES}
-    ${OpenCV_LIBRARIES}
-    )
-
-  install(
-    TARGETS
-    traffic_light_classifier_node
-    traffic_light_classifier_nodelet
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-    )
-
-  install(
-    FILES
-    traffic_light_classifier.xml
-    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-    )
-
-  install(
-    DIRECTORY
-    launch
-    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-    )
-
-endif()
