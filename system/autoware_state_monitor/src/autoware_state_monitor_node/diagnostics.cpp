@@ -16,17 +16,7 @@
 
 #include <autoware_state_monitor/autoware_state_monitor_node.h>
 
-#include <numeric>
-#include <regex>
-#include <string>
-#include <utility>
-#include <vector>
-
-#include <boost/bind.hpp>
-
 #include <fmt/format.h>
-
-#include <autoware_state_monitor/module_name.h>
 
 void AutowareStateMonitorNode::setupDiagnosticUpdater()
 {
@@ -118,7 +108,7 @@ void AutowareStateMonitorNode::checkTopicStatus(
     msg = "OK";
   } else if (level == diagnostic_msgs::DiagnosticStatus::WARN) {
     msg = "Warn";
-  } else if (level == diagnostic_msgs::DiagnosticStatus::WARN) {
+  } else if (level == diagnostic_msgs::DiagnosticStatus::ERROR) {
     msg = "Error";
   }
 
@@ -179,7 +169,7 @@ void AutowareStateMonitorNode::checkTfStatus(
     msg = "OK";
   } else if (level == diagnostic_msgs::DiagnosticStatus::WARN) {
     msg = "Warn";
-  } else if (level == diagnostic_msgs::DiagnosticStatus::WARN) {
+  } else if (level == diagnostic_msgs::DiagnosticStatus::ERROR) {
     msg = "Error";
   }
 

@@ -16,13 +16,6 @@
 
 #include <autoware_state_monitor/autoware_state_monitor_node.h>
 
-#include <numeric>
-#include <string>
-#include <utility>
-#include <vector>
-
-#include <boost/bind.hpp>
-
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 namespace
@@ -63,7 +56,7 @@ geometry_msgs::PoseStamped::ConstPtr getCurrentPose(const tf2_ros::Buffer & tf_b
 
   try {
     tf_current_pose = tf_buffer.lookupTransform("map", "base_link", ros::Time(0), ros::Duration(0));
-  } catch (tf2::TransformException ex) {
+  } catch (tf2::TransformException & ex) {
     return nullptr;
   }
 
@@ -350,7 +343,7 @@ TfStats AutowareStateMonitorNode::getTfStats() const
         tf_stats.timeout_list.emplace_back(tf_config, last_received_time);
         continue;
       }
-    } catch (tf2::TransformException ex) {
+    } catch (tf2::TransformException & ex) {
       tf_stats.non_received_list.push_back(tf_config);
       continue;
     }
