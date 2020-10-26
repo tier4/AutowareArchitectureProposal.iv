@@ -79,13 +79,15 @@ bool BlindSpotModule::modifyPathVelocity(
   int pass_judge_line_idx = -1;
   const auto straight_lanelets = getStraightLanelets(lanelet_map_ptr, routing_graph_ptr, lane_id_);
   if (!generateStopLine(straight_lanelets, path, &stop_line_idx, &pass_judge_line_idx)) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000 /* ms */, "setStopLineIdx fail");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      logger_, *clock_, 1000 /* ms */, "[BlindSpotModule::run] setStopLineIdx fail");
     *path = input_path; // reset path
     return false;
   }
 
   if (stop_line_idx <= 0 || pass_judge_line_idx <= 0) {
-    RCLCPP_DEBUG(logger_, "stop line or pass judge line is at path[0], ignore planning.");
+    RCLCPP_DEBUG(
+      logger_, "[Blind Spot] stop line or pass judge line is at path[0], ignore planning.");
     *path = input_path; // reset path
     return true;
   }
@@ -93,14 +95,16 @@ bool BlindSpotModule::modifyPathVelocity(
   /* calc closest index */
   int closest_idx = -1;
   if (!planning_utils::calcClosestIndex(input_path, current_pose.pose, closest_idx)) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000 /* ms */, "calcClosestIndex fail");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      logger_, *clock_, 1000 /* ms */, "[Blind Spot] calcClosestIndex fail");
     *path = input_path; // reset path
     return false;
   }
 
   /* get debug info */
-  debug_data_.virtual_wall_pose = util::getAheadPose(
-    stop_line_idx, planner_data_->vehicle_info_.max_longitudinal_offset_m_, *path);
+  const auto stop_line_pose =
+    util::getAheadPose(stop_line_idx, planner_data_->base_link2front, *path);
+  debug_data_.virtual_wall_pose = stop_line_pose;
   debug_data_.stop_point_pose = path->points.at(stop_line_idx).point.pose;
   debug_data_.judge_point_pose = path->points.at(pass_judge_line_idx).point.pose;
 
@@ -120,8 +124,8 @@ bool BlindSpotModule::modifyPathVelocity(
   const auto objects_ptr = planner_data_->dynamic_objects;
 
   /* calculate dynamic collision around detection area */
-  bool has_obstacle =
-    checkObstacleInBlindSpot(lanelet_map_ptr, routing_graph_ptr, *path, objects_ptr, closest_idx);
+  bool has_obstacle = checkObstacleInBlindSpot(
+    lanelet_map_ptr, routing_graph_ptr, *path, objects_ptr, closest_idx, stop_line_pose);
   state_machine_.setStateWithMarginTime(
     has_obstacle ? State::STOP : State::GO, logger_.get_child("state_machine"), *clock_);
 
@@ -136,7 +140,7 @@ bool BlindSpotModule::modifyPathVelocity(
     stop_factor.stop_factor_points = planning_utils::toRosPoints(debug_data_.conflicting_targets);
     planning_utils::appendStopReason(stop_factor, stop_reason);
   } else {
-    *path = input_path; // reset path
+    *path = input_path;  // reset path
   }
 
   return true;
@@ -302,7 +306,8 @@ bool BlindSpotModule::checkObstacleInBlindSpot(
   lanelet::LaneletMapConstPtr lanelet_map_ptr, lanelet::routing::RoutingGraphPtr routing_graph_ptr,
   const autoware_planning_msgs::msg::PathWithLaneId & path,
   const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr objects_ptr,
-  const int closest_idx) const
+  const int closest_idx,
+  const geometry_msgs::msg::Pose & stop_line_pose) const
 {
   /* get detection area */
   if (turn_direction_ == TurnDirection::INVALID) {
@@ -310,31 +315,35 @@ bool BlindSpotModule::checkObstacleInBlindSpot(
     return false;
   }
 
-  const auto areas =
-    generateBlindSpotPolygons(lanelet_map_ptr, routing_graph_ptr, path, closest_idx);
-  debug_data_.detection_area_for_blind_spot = areas.detection_area;
-  debug_data_.conflict_area_for_blind_spot = areas.conflict_area;
+  const auto areas = generateBlindSpotPolygons(
+    lanelet_map_ptr, routing_graph_ptr, path, closest_idx, stop_line_pose);
+  if (!!areas_opt) {
+    debug_data_.detection_area_for_blind_spot = areas_opt.get().detection_area;
+    debug_data_.conflict_area_for_blind_spot = areas_opt.get().conflict_area;
 
-  autoware_perception_msgs::msg::DynamicObjectArray objects = *objects_ptr;
-  cutPredictPathWithDuration(&objects, planner_param_.max_future_movement_time);
+    autoware_perception_msgs::msg::DynamicObjectArray objects = *objects_ptr;
+    cutPredictPathWithDuration(&objects, planner_param_.max_future_movement_time);
 
-  // check objects in blind spot areas
-  bool obstacle_detected = false;
-  for (const auto & object : objects.objects) {
-    if (!isTargetObjectType(object)) {
-      continue;
-    }
+    // check objects in blind spot areas
+    bool obstacle_detected = false;
+    for (const auto & object : objects.objects) {
+      if (!isTargetObjectType(object)) {
+        continue;
+      }
 
-    bool exist_in_detection_area = bg::within(
-      to_bg2d(object.state.pose_covariance.pose.position),
-      lanelet::utils::to2D(areas.detection_area));
-    bool exist_in_conflict_area = isPredictedPathInArea(object, areas.conflict_area);
-    if (exist_in_detection_area && exist_in_conflict_area) {
-      obstacle_detected = true;
-      debug_data_.conflicting_targets.objects.push_back(object);
-    }
+      bool exist_in_detection_area = bg::within(
+        to_bg2d(object.state.pose_covariance.pose.position),
+        lanelet::utils::to2D(areas.detection_area));
+      bool exist_in_conflict_area = isPredictedPathInArea(object, areas.conflict_area);
+      if (exist_in_detection_area && exist_in_conflict_area) {
+        obstacle_detected = true;
+        debug_data_.conflicting_targets.objects.push_back(object);
+      }
+      }
+      return obstacle_detected;
+    } else {
+    return false;
   }
-  return obstacle_detected;
 }
 
 bool BlindSpotModule::isPredictedPathInArea(
@@ -383,9 +392,10 @@ lanelet::ConstLanelet BlindSpotModule::generateHalfLanelet(
   return std::move(half_lanelet);
 }
 
-BlindSpotPolygons BlindSpotModule::generateBlindSpotPolygons(
+boost::optional<BlindSpotPolygons> BlindSpotModule::generateBlindSpotPolygons(
   lanelet::LaneletMapConstPtr lanelet_map_ptr, lanelet::routing::RoutingGraphPtr routing_graph_ptr,
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const int closest_idx) const
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const int closest_idx,
+  const geometry_msgs::msg::Pose & stop_line_pose) const
 {
   std::vector<int64_t> lane_ids;
   lanelet::ConstLanelets blind_spot_lanelets;
@@ -424,22 +434,27 @@ BlindSpotPolygons BlindSpotModule::generateBlindSpotPolygons(
 
   const auto current_arc =
     lanelet::utils::getArcCoordinates(blind_spot_lanelets, path.points[closest_idx].point.pose);
+  const auto stop_line_arc = lanelet::utils::getArcCoordinates(blind_spot_lanelets, stop_line_pose);
   const auto total_length = lanelet::utils::getLaneletLength3d(blind_spot_lanelets);
   const auto intersection_length =
     lanelet::utils::getLaneletLength3d(lanelet_map_ptr->laneletLayer.get(lane_id_));
   const auto detection_area_start_length =
     total_length - intersection_length - planner_param_.backward_length;
-  const auto conflict_area_start_length = std::max(detection_area_start_length, current_arc.length);
-  const auto conflict_area = lanelet::utils::getPolygonFromArcLength(
-    blind_spot_lanelets, conflict_area_start_length, total_length);
-  const auto detection_area = lanelet::utils::getPolygonFromArcLength(
-    blind_spot_lanelets, detection_area_start_length, total_length);
+  if (
+    detection_area_start_length < current_arc.length && current_arc.length < stop_line_arc.length) {
+    const auto conflict_area = lanelet::utils::getPolygonFromArcLength(
+      blind_spot_lanelets, current_arc.length, stop_line_arc.length);
+    const auto detection_area = lanelet::utils::getPolygonFromArcLength(
+      blind_spot_lanelets, detection_area_start_length, current_arc.length);
 
-  BlindSpotPolygons blind_spot_polygons;
-  blind_spot_polygons.conflict_area = conflict_area;
-  blind_spot_polygons.detection_area = detection_area;
+    BlindSpotPolygons blind_spot_polygons;
+    blind_spot_polygons.conflict_area = conflict_area;
+    blind_spot_polygons.detection_area = detection_area;
 
-  return blind_spot_polygons;
+    return blind_spot_polygons;
+  } else {
+    return boost::none;
+  }
 }
 
 lanelet::LineString2d BlindSpotModule::getVehicleEdge(
