@@ -48,6 +48,24 @@ void EmergencyHandler::onTwist(const geometry_msgs::msg::TwistStamped::ConstShar
   twist_ = msg;
 }
 
+bool EmergencyHandler::onClearEmergencyService(
+  const std::shared_ptr<rmw_request_id_t> request_header,
+  const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
+  std::shared_ptr<std_srvs::srv::Trigger::Response> response)
+{
+  (void)request_header;
+  if (!isEmergency()) {
+    is_emergency_ = false;
+    response->success = true;
+    response->message = "Emergency state was cleared.";
+  } else {
+    response->success = false;
+    response->message = "There are still errors, can't clear emergency state.";
+  }
+
+  return true;
+}
+
 bool EmergencyHandler::isDataReady()
 {
   if (!autoware_state_) {
@@ -101,9 +119,17 @@ void EmergencyHandler::onTimer()
 
   // Check if emergency
   {
-    std_msgs::msg::Bool is_emergency;
-    is_emergency.data = isEmergency();
-    pub_is_emergency_->publish(is_emergency);
+    if (use_emergency_hold_) {
+      if (isEmergency()) {
+        is_emergency_ = true;
+      }
+    } else {
+      is_emergency_ = isEmergency();
+    }
+
+    std_msgs::msg::Bool msg;
+    msg.data = isEmergency();
+    pub_is_emergency_->publish(msg);
   }
 
   // Select ControlCommand
@@ -227,24 +253,33 @@ EmergencyHandler::EmergencyHandler()
 : Node("emergency_handler"),
   update_rate_(declare_parameter<int>("update_rate", 10)),
   heartbeat_timeout_(declare_parameter<double>("heartbeat_timeout", 0.5)),
+  use_emergency_hold_(declare_parameter<bool>("use_emergency_hold", false)),
   use_parking_after_stopped_(declare_parameter<bool>("use_parking_after_stopped", false))
 {
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+  using std::placeholders::_3;
+
   // Subscriber
   sub_autoware_state_ = create_subscription<autoware_system_msgs::msg::AutowareState>(
     "input/autoware_state", rclcpp::QoS{1},
-    std::bind(&EmergencyHandler::onAutowareState, this, std::placeholders::_1));
+    std::bind(&EmergencyHandler::onAutowareState, this, _1));
   sub_driving_capability_ = create_subscription<autoware_system_msgs::msg::DrivingCapability>(
     "input/driving_capability", rclcpp::QoS{1},
-    std::bind(&EmergencyHandler::onDrivingCapability, this, std::placeholders::_1));
+    std::bind(&EmergencyHandler::onDrivingCapability, this, _1));
   sub_prev_control_command_ = create_subscription<autoware_vehicle_msgs::msg::VehicleCommand>(
     "input/prev_control_command", rclcpp::QoS{1},
-    std::bind(&EmergencyHandler::onPrevControlCommand, this, std::placeholders::_1));
+    std::bind(&EmergencyHandler::onPrevControlCommand, this, _1));
   sub_current_gate_mode_ = create_subscription<autoware_control_msgs::msg::GateMode>(
     "input/current_gate_mode", rclcpp::QoS{1},
-    std::bind(&EmergencyHandler::onCurrentGateMode, this, std::placeholders::_1));
+    std::bind(&EmergencyHandler::onCurrentGateMode, this, _1));
   sub_twist_ = create_subscription<geometry_msgs::msg::TwistStamped>(
     "input/twist", rclcpp::QoS{1},
-    std::bind(&EmergencyHandler::onTwist, this, std::placeholders::_1));
+    std::bind(&EmergencyHandler::onTwist, this, _1));
+
+  // Service
+  srv_clear_emergency_ = this->create_service<std_srvs::srv::Trigger>(
+    "service/clear_emergency", std::bind(&EmergencyHandlerNode::onClearEmergencyService, this, _1, _2, _3));
 
   // Publisher
   pub_control_command_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(

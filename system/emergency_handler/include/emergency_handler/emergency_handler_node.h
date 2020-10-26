@@ -27,6 +27,7 @@
 // ROS2 core
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "std_msgs/msg/bool.hpp"
+#include "std_srvs/srv/trigger.hpp"
 #include "rclcpp/create_timer.hpp"
 #include "rclcpp/rclcpp.hpp"
 
@@ -61,6 +62,14 @@ private:
   void onCurrentGateMode(const autoware_control_msgs::msg::GateMode::ConstSharedPtr msg);
   void onTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
 
+  // Service
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_clear_emergency_;
+
+  bool onClearEmergencyService(
+    const std::shared_ptr<rmw_request_id_t> request_header,
+    const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
+    std::shared_ptr<std_srvs::srv::Trigger::Response> response);
+
   // Publisher
   rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
     pub_control_command_;
@@ -74,16 +83,19 @@ private:
   // Parameters
   int update_rate_;
   double heartbeat_timeout_;
+  bool use_emergency_hold_;
   bool use_parking_after_stopped_;
 
   bool isDataReady();
   void onTimer();
 
   // Heartbeat
-  ros::Time heartbeat_received_time_;
+  rclcpp::Time heartbeat_received_time_;
   bool is_heartbeat_timeout_ = false;
 
   // Algorithm
+  bool is_emergency_ = false;
+
   bool isStopped();
   bool isEmergency();
   autoware_control_msgs::msg::ControlCommand selectAlternativeControlCommand();
