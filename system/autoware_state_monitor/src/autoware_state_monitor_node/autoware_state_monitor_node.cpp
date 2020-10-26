@@ -165,7 +165,7 @@ void AutowareStateMonitorNode::onTwist(const geometry_msgs::msg::TwistStamped::C
   }
 }
 
-void AutowareStateMonitorNode::srvShutdown(
+bool AutowareStateMonitorNode::onShutdownService(
   const std::shared_ptr<rmw_request_id_t> request_header,
   const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
   const std::shared_ptr<std_srvs::srv::Trigger::Response> response)
@@ -428,7 +428,7 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
 
   // Service
   srv_shutdown_ = this->create_service<std_srvs::srv::Trigger>(
-    "service/shutdown", std::bind(&AutowareStateMonitorNode::srvShutdown, this, _1, _2, _3));
+    "service/shutdown", std::bind(&AutowareStateMonitorNode::onShutdownService, this, _1, _2, _3));
 
   // Publisher
   pub_autoware_state_ =

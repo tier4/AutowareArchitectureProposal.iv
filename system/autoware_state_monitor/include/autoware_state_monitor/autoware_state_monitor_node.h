@@ -89,7 +89,7 @@ private:
   // Service
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_shutdown_;
 
-  bool srvShutdown(
+  bool onShutdownService(
     const std::shared_ptr<rmw_request_id_t> request_header,
     const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
     std::shared_ptr<std_srvs::srv::Trigger::Response> response);
