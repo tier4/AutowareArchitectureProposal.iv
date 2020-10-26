@@ -15,9 +15,9 @@
  */
 #pragma once
 
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/TwistStamped.h>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
 #include <lane_change_planner/state/state_base_class.h>
 #include <lanelet2_core/primitives/Primitive.h>
 #include <memory>
@@ -32,24 +32,24 @@ bool selectLaneChangePath(
   const std::vector<LaneChangePath> & paths, const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
   const lanelet::routing::RoutingGraphContainer & overall_graphs,
-  const autoware_perception_msgs::DynamicObjectArray::ConstPtr & dynamic_objects,
-  const geometry_msgs::Pose & current_pose, const geometry_msgs::Twist & current_twist,
-  const bool isInGoalRouteSection, const geometry_msgs::Pose & goal_pose,
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & dynamic_objects,
+  const geometry_msgs::msg::Pose & current_pose, const geometry_msgs::msg::Twist & current_twist,
+  const bool isInGoalRouteSection, const geometry_msgs::msg::Pose & goal_pose,
   const LaneChangerParameters & ros_parameters, LaneChangePath * path);
 
 bool isLaneChangePathSafe(
-  const autoware_planning_msgs::PathWithLaneId & path, const lanelet::ConstLanelets & current_lanes,
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
-  const autoware_perception_msgs::DynamicObjectArray::ConstPtr & dynamic_objects,
-  const geometry_msgs::Pose & current_pose, const geometry_msgs::Twist & current_twist,
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & dynamic_objects,
+  const geometry_msgs::msg::Pose & current_pose, const geometry_msgs::msg::Twist & current_twist,
   const LaneChangerParameters & ros_parameters, const bool use_buffer = true,
   const double acceleration = 0.0);
 bool hasEnoughDistance(
   const LaneChangePath & path, const lanelet::ConstLanelets & current_lanes,
-  const lanelet::ConstLanelets & target_lanes, const geometry_msgs::Pose & current_pose,
-  const bool isInGoalRouteSection, const geometry_msgs::Pose & goal_pose,
+  const lanelet::ConstLanelets & target_lanes, const geometry_msgs::msg::Pose & current_pose,
+  const bool isInGoalRouteSection, const geometry_msgs::msg::Pose & goal_pose,
   const lanelet::routing::RoutingGraphContainer & overall_graphs);
-bool isObjectFront(const geometry_msgs::Pose & ego_pose, const geometry_msgs::Pose & obj_pose);
+bool isObjectFront(const geometry_msgs::msg::Pose & ego_pose, const geometry_msgs::msg::Pose & obj_pose);
 }  // namespace common_functions
 }  // namespace state_machine
 }  // namespace lane_change_planner

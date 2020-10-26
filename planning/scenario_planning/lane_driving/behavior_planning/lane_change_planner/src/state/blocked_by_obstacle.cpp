@@ -43,7 +43,7 @@ void BlockedByObstacleState::entry()
   current_lanes_ = route_handler_ptr_->getLaneletsFromIds(status_.lane_follow_lane_ids);
 }
 
-autoware_planning_msgs::PathWithLaneId BlockedByObstacleState::getPath() const
+autoware_planning_msgs::msg::PathWithLaneId BlockedByObstacleState::getPath() const
 {
   return status_.lane_follow_path;
 }
@@ -203,8 +203,8 @@ State BlockedByObstacleState::getNextState() const
   return State::BLOCKED_BY_OBSTACLE;
 }
 
-autoware_planning_msgs::PathWithLaneId BlockedByObstacleState::setStopPointFromObstacle(
-  const autoware_planning_msgs::PathWithLaneId & path)
+autoware_planning_msgs::msg::PathWithLaneId BlockedByObstacleState::setStopPointFromObstacle(
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   const auto blocking_objects = getBlockingObstacles();
 
@@ -217,7 +217,7 @@ autoware_planning_msgs::PathWithLaneId BlockedByObstacleState::setStopPointFromO
   }
 
   // find the closest static obstacle in front of ego vehicle
-  autoware_perception_msgs::DynamicObject closest_object;
+  autoware_perception_msgs::msg::DynamicObject closest_object;
   bool found_closest_object = false;
   double closest_distance = std::numeric_limits<double>::max();
   for (const auto & object : blocking_objects) {
@@ -240,7 +240,7 @@ autoware_planning_msgs::PathWithLaneId BlockedByObstacleState::setStopPointFromO
   double stop_insert_length =
     closest_distance - ros_parameters_.minimum_lane_change_length - ros_parameters_.base_link2front;
   stop_insert_length = std::max(stop_insert_length, 0.0);
-  autoware_planning_msgs::PathWithLaneId modified_path = path;
+  autoware_planning_msgs::msg::PathWithLaneId modified_path = path;
   debug_data_.stop_factor_point = closest_object.state.pose_covariance.pose.position;
   debug_data_.stop_point = util::insertStopPoint(stop_insert_length, &modified_path);
   return modified_path;
@@ -267,10 +267,10 @@ bool BlockedByObstacleState::isLaneBlocked() const
   return !blocking_objects.empty();
 }
 
-std::vector<autoware_perception_msgs::DynamicObject> BlockedByObstacleState::getBlockingObstacles()
+std::vector<autoware_perception_msgs::msg::DynamicObject> BlockedByObstacleState::getBlockingObstacles()
   const
 {
-  std::vector<autoware_perception_msgs::DynamicObject> blocking_obstacles;
+  std::vector<autoware_perception_msgs::msg::DynamicObject> blocking_obstacles;
 
   const auto arc = lanelet::utils::getArcCoordinates(current_lanes_, current_pose_.pose);
   constexpr double max_check_distance = 100;

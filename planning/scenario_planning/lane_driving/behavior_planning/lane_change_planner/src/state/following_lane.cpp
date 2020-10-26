@@ -42,7 +42,7 @@ void FollowingLaneState::entry()
   status_.lane_change_ready = false;
 }
 
-autoware_planning_msgs::PathWithLaneId FollowingLaneState::getPath() const
+autoware_planning_msgs::msg::PathWithLaneId FollowingLaneState::getPath() const
 {
   return status_.lane_follow_path;
 }
@@ -188,10 +188,10 @@ bool FollowingLaneState::isLaneBlocked(const lanelet::ConstLanelets & lanes) con
 
   for (const auto & obj : dynamic_objects_->objects) {
     if (
-      obj.semantic.type == autoware_perception_msgs::Semantic::CAR ||
-      obj.semantic.type == autoware_perception_msgs::Semantic::TRUCK ||
-      obj.semantic.type == autoware_perception_msgs::Semantic::BUS ||
-      obj.semantic.type == autoware_perception_msgs::Semantic::MOTORBIKE) {
+      obj.semantic.type == autoware_perception_msgs::msg::Semantic::CAR ||
+      obj.semantic.type == autoware_perception_msgs::msg::Semantic::TRUCK ||
+      obj.semantic.type == autoware_perception_msgs::msg::Semantic::BUS ||
+      obj.semantic.type == autoware_perception_msgs::msg::Semantic::MOTORBIKE) {
       const auto velocity = util::l2Norm(obj.state.twist_covariance.twist.linear);
       if (velocity < static_obj_velocity_thresh) {
         const auto position =

@@ -18,16 +18,16 @@
 #define LANE_CHANGE_PLANNER_LANE_CHANGER_H
 
 // ROS
-#include <ros/ros.h>
-#include <std_msgs/Bool.h>
+#include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/bool.hpp>
 #include <tf2_ros/transform_listener.h>
 
 // Autoware
-#include <autoware_lanelet2_msgs/MapBin.h>
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <autoware_planning_msgs/PathWithLaneId.h>
-#include <autoware_planning_msgs/Route.h>
-#include <autoware_planning_msgs/StopReasonArray.h>
+#include <autoware_lanelet2_msgs/msg/map_bin.hpp>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <autoware_planning_msgs/msg/route.hpp>
+#include <autoware_planning_msgs/msg/stop_reason_array.hpp>
 
 #include <lane_change_planner/data_manager.h>
 #include <lane_change_planner/route_handler.h>
@@ -74,10 +74,10 @@ private:
 
   void run(const ros::TimerEvent & event);
   void publishDebugMarkers();
-  void publishDrivableArea(const autoware_planning_msgs::PathWithLaneId & path);
-  autoware_planning_msgs::StopReasonArray makeStopReasonArray(
+  void publishDrivableArea(const autoware_planning_msgs::msg::PathWithLaneId & path);
+  autoware_planning_msgs::msg::StopReasonArray makeStopReasonArray(
     const DebugData & debug_data, const State & state);
-  std::vector<autoware_planning_msgs::StopReason> makeEmptyStopReasons();
+  std::vector<autoware_planning_msgs::msg::StopReason> makeEmptyStopReasons();
   void waitForData();
 
 public:

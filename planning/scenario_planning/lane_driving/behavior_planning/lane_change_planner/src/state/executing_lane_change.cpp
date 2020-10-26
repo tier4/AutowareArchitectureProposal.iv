@@ -44,7 +44,7 @@ void ExecutingLaneChangeState::entry()
   status_.lane_change_ready = false;
 }
 
-autoware_planning_msgs::PathWithLaneId ExecutingLaneChangeState::getPath() const
+autoware_planning_msgs::msg::PathWithLaneId ExecutingLaneChangeState::getPath() const
 {
   return status_.lane_change_path.path;
 }

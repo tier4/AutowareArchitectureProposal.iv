@@ -18,18 +18,18 @@
 #define LANE_CHANGE_PLANNER_DATA_MANAGER_H
 
 // ROS
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <ros/ros.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <std_msgs/Bool.h>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <std_msgs/msg/bool.hpp>
 #include <tf2_ros/transform_listener.h>
 
 // Autoware
-#include <autoware_lanelet2_msgs/MapBin.h>
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <autoware_planning_msgs/PathWithLaneId.h>
-#include <autoware_planning_msgs/Route.h>
+#include <autoware_lanelet2_msgs/msg/map_bin.hpp>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <autoware_planning_msgs/msg/route.hpp>
 #include <lane_change_planner/parameters.h>
 
 // lanelet
@@ -46,7 +46,7 @@ class SelfPoseLinstener
 {
 public:
   SelfPoseLinstener();
-  bool getSelfPose(geometry_msgs::PoseStamped & self_pose);
+  bool getSelfPose(geometry_msgs::msg::PoseStamped & self_pose);
   bool isSelfPoseReady();
 
 private:
@@ -67,11 +67,11 @@ private:
   /*
    * Cache
    */
-  autoware_perception_msgs::DynamicObjectArray::ConstPtr perception_ptr_;
-  geometry_msgs::TwistStamped::ConstPtr vehicle_velocity_ptr_;
+  autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr perception_ptr_;
+  geometry_msgs::msg::TwistStamped::ConstPtr vehicle_velocity_ptr_;
   BoolStamped lane_change_approval_;
   BoolStamped force_lane_change_;
-  geometry_msgs::PoseStamped self_pose_;
+  geometry_msgs::msg::PoseStamped self_pose_;
 
   // ROS parameters
   LaneChangerParameters parameters_;
@@ -88,16 +88,16 @@ public:
 
   // callbacks
   void perceptionCallback(
-    const autoware_perception_msgs::DynamicObjectArray::ConstPtr & input_perception_msg);
-  void velocityCallback(const geometry_msgs::TwistStamped::ConstPtr & input_twist_msg);
+    const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & input_perception_msg);
+  void velocityCallback(const geometry_msgs::msg::TwistStamped::ConstPtr & input_twist_msg);
   void setLaneChangerParameters(const LaneChangerParameters & parameters);
-  void laneChangeApprovalCallback(const std_msgs::Bool & input_approval_msg);
-  void forceLaneChangeSignalCallback(const std_msgs::Bool & input_approval_msg);
+  void laneChangeApprovalCallback(const std_msgs::msg::Bool & input_approval_msg);
+  void forceLaneChangeSignalCallback(const std_msgs::msg::Bool & input_approval_msg);
 
   // getters
-  autoware_perception_msgs::DynamicObjectArray::ConstPtr getDynamicObjects();
-  geometry_msgs::PoseStamped getCurrentSelfPose();
-  geometry_msgs::TwistStamped::ConstPtr getCurrentSelfVelocity();
+  autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr getDynamicObjects();
+  geometry_msgs::msg::PoseStamped getCurrentSelfPose();
+  geometry_msgs::msg::TwistStamped::ConstPtr getCurrentSelfVelocity();
   LaneChangerParameters getLaneChangerParameters();
   bool getLaneChangeApproval();
   bool getForceLaneChangeSignal();

@@ -21,9 +21,9 @@
 #include <lane_change_planner/state/forcing_lane_change.h>
 #include <lane_change_planner/state/stopping_lane_change.h>
 #include <lane_change_planner/state_machine.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
-#include <visualization_msgs/Marker.h>
+#include <visualization_msgs/msg/marker.hpp>
 
 namespace lane_change_planner
 {
@@ -42,7 +42,7 @@ void StateMachine::init()
   state_obj_ptr_->entry();
 }
 
-void StateMachine::init(const autoware_planning_msgs::Route & route) { init(); }
+void StateMachine::init(const autoware_planning_msgs::msg::Route & route) { init(); }
 
 void StateMachine::updateState()
 {
@@ -86,7 +86,7 @@ void StateMachine::updateState()
   }
 }
 
-autoware_planning_msgs::PathWithLaneId StateMachine::getPath() const
+autoware_planning_msgs::msg::PathWithLaneId StateMachine::getPath() const
 {
   return state_obj_ptr_->getPath();
 }

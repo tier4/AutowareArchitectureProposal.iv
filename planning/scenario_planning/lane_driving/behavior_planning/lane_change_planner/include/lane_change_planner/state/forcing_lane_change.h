@@ -19,9 +19,9 @@
 
 #include <lane_change_planner/state/state_base_class.h>
 
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/TwistStamped.h>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
 
 #include <lanelet2_core/primitives/Lanelet.h>
 
@@ -32,9 +32,9 @@ class ForcingLaneChangeState : public StateBase
 private:
   // State transition conditions
   bool hasFinishedLaneChange() const;
-  geometry_msgs::PoseStamped current_pose_;
-  geometry_msgs::TwistStamped::ConstPtr current_twist_;
-  autoware_perception_msgs::DynamicObjectArray::ConstPtr dynamic_objects_;
+  geometry_msgs::msg::PoseStamped current_pose_;
+  geometry_msgs::msg::TwistStamped::ConstPtr current_twist_;
+  autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr dynamic_objects_;
 
   lanelet::ConstLanelets original_lanes_;
   lanelet::ConstLanelets target_lanes_;
@@ -48,7 +48,7 @@ public:
   void update() override;
   State getNextState() const override;
   State getCurrentState() const override;
-  autoware_planning_msgs::PathWithLaneId getPath() const override;
+  autoware_planning_msgs::msg::PathWithLaneId getPath() const override;
 };
 }  // namespace lane_change_planner
 

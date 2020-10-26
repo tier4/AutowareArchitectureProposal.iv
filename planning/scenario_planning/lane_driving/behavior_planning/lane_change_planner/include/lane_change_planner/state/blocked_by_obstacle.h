@@ -17,9 +17,9 @@
 #ifndef LANE_CHANGE_PLANNER_STATE_BLOCKED_BY_OBSTACLE_H
 #define LANE_CHANGE_PLANNER_STATE_BLOCKED_BY_OBSTACLE_H
 
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/TwistStamped.h>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
 #include <lane_change_planner/state/state_base_class.h>
 #include <lanelet2_core/primitives/Primitive.h>
 #include <memory>
@@ -29,9 +29,9 @@ namespace lane_change_planner
 class BlockedByObstacleState : public StateBase
 {
 private:
-  geometry_msgs::PoseStamped current_pose_;
-  geometry_msgs::TwistStamped::ConstPtr current_twist_;
-  autoware_perception_msgs::DynamicObjectArray::ConstPtr dynamic_objects_;
+  geometry_msgs::msg::PoseStamped current_pose_;
+  geometry_msgs::msg::TwistStamped::ConstPtr current_twist_;
+  autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr dynamic_objects_;
   bool lane_change_approved_;
   bool force_lane_change_;
   bool found_safe_path_;
@@ -49,9 +49,9 @@ private:
   bool laneChangeForcedByOperator() const;
 
   // utility function
-  std::vector<autoware_perception_msgs::DynamicObject> getBlockingObstacles() const;
-  autoware_planning_msgs::PathWithLaneId setStopPointFromObstacle(
-    const autoware_planning_msgs::PathWithLaneId & path);
+  std::vector<autoware_perception_msgs::msg::DynamicObject> getBlockingObstacles() const;
+  autoware_planning_msgs::msg::PathWithLaneId setStopPointFromObstacle(
+    const autoware_planning_msgs::msg::PathWithLaneId & path);
 
 public:
   BlockedByObstacleState(
@@ -63,7 +63,7 @@ public:
   void update() override;
   State getNextState() const override;
   State getCurrentState() const override;
-  autoware_planning_msgs::PathWithLaneId getPath() const override;
+  autoware_planning_msgs::msg::PathWithLaneId getPath() const override;
 };
 }  // namespace lane_change_planner
 

@@ -24,9 +24,9 @@ namespace lane_change_planner
 class StoppingLaneChangeState : public StateBase
 {
 private:
-  geometry_msgs::PoseStamped current_pose_;
-  geometry_msgs::TwistStamped::ConstPtr current_twist_;
-  autoware_perception_msgs::DynamicObjectArray::ConstPtr dynamic_objects_;
+  geometry_msgs::msg::PoseStamped current_pose_;
+  geometry_msgs::msg::TwistStamped::ConstPtr current_twist_;
+  autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr dynamic_objects_;
 
   lanelet::ConstLanelets original_lanes_;
   lanelet::ConstLanelets target_lanes_;
@@ -35,8 +35,8 @@ private:
   bool isVehicleInOriginalLanes() const;
 
   // utility function
-  autoware_planning_msgs::PathWithLaneId setStopPoint(
-    const autoware_planning_msgs::PathWithLaneId & path);
+  autoware_planning_msgs::msg::PathWithLaneId setStopPoint(
+    const autoware_planning_msgs::msg::PathWithLaneId & path);
 
 public:
   StoppingLaneChangeState(
@@ -48,7 +48,7 @@ public:
   void update() override;
   State getNextState() const override;
   State getCurrentState() const override;
-  autoware_planning_msgs::PathWithLaneId getPath() const override;
+  autoware_planning_msgs::msg::PathWithLaneId getPath() const override;
 };
 }  // namespace lane_change_planner
 

@@ -15,7 +15,7 @@
  */
 
 #include <lane_change_planner/lane_changer.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 int main(int argc, char ** argv)
 {
