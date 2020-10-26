@@ -25,8 +25,8 @@ class StoppingLaneChangeState : public StateBase
 {
 private:
   geometry_msgs::msg::PoseStamped current_pose_;
-  geometry_msgs::msg::TwistStamped::ConstPtr current_twist_;
-  autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr dynamic_objects_;
+  geometry_msgs::msg::TwistStamped::ConstSharedPtr current_twist_;
+  autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr dynamic_objects_;
 
   lanelet::ConstLanelets original_lanes_;
   lanelet::ConstLanelets target_lanes_;

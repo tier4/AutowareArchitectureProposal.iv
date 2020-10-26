@@ -213,11 +213,11 @@ RouteHandler::RouteHandler(const rclcpp::Logger & logger, const rclcpp::Clock::S
 {
 }
 
-void RouteHandler::mapCallback(const autoware_lanelet2_msgs::msg::MapBin & map_msg)
+void RouteHandler::mapCallback(const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr map_msg)
 {
   lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(
-    map_msg, lanelet_map_ptr_, &traffic_rules_ptr_, &routing_graph_ptr_);
+    *map_msg, lanelet_map_ptr_, &traffic_rules_ptr_, &routing_graph_ptr_);
 
   const auto traffic_rules = lanelet::traffic_rules::TrafficRulesFactory::create(
     lanelet::Locations::Germany, lanelet::Participants::Vehicle);
@@ -237,10 +237,10 @@ void RouteHandler::mapCallback(const autoware_lanelet2_msgs::msg::MapBin & map_m
   setRouteLanelets();
 }
 
-void RouteHandler::routeCallback(const autoware_planning_msgs::msg::Route & route_msg)
+void RouteHandler::routeCallback(const autoware_planning_msgs::msg::Route::ConstSharedPtr route_msg)
 {
-  if (!isRouteLooped(route_msg)) {
-    route_msg_ = route_msg;
+  if (!isRouteLooped(*route_msg)) {
+    route_msg_ = *route_msg;
     is_route_msg_ready_ = true;
     is_handler_ready_ = false;
     setRouteLanelets();

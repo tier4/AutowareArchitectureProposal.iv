@@ -16,7 +16,6 @@
 
 #include <lane_change_planner/lane_changer.h>
 #include <lane_change_planner/utilities.h>
-#include <visualization_msgs/msg/marker_array.hpp>
 
 std_msgs::msg::ColorRGBA toRainbow(double ratio);
 visualization_msgs::msg::Marker convertToMarker(
@@ -40,15 +39,15 @@ void LaneChanger::init()
   data_manager_ptr_ = std::make_shared<DataManager>(get_logger(), get_clock());
   route_handler_ptr_ = std::make_shared<RouteHandler>(get_logger(), get_clock());
   velocity_subscriber_ =
-    pnh_.subscribe("input/velocity", 1, &DataManager::velocityCallback, &(*data_manager_ptr_));
+    create_subscription<geometry_msgs::msg::TwistStamped>("input/velocity", rclcpp::QoS{1}, std::bind(&DataManager::velocityCallback, &(*data_manager_ptr_), std::placeholders::_1));
   perception_subscriber_ =
-    pnh_.subscribe("input/perception", 1, &DataManager::perceptionCallback, &(*data_manager_ptr_));
-  lane_change_approval_subscriber_ = pnh_.subscribe(
-    "input/lane_change_approval", 1, &DataManager::laneChangeApprovalCallback,
-    &(*data_manager_ptr_));
-  force_lane_change_subscriber_ = pnh_.subscribe(
-    "input/force_lane_change", 1, &DataManager::forceLaneChangeSignalCallback,
-    &(*data_manager_ptr_));
+    create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>("input/perception", rclcpp::QoS{1}, std::bind(&DataManager::perceptionCallback, &(*data_manager_ptr_), std::placeholders::_1));
+  lane_change_approval_subscriber_ = create_subscription<std_msgs::msg::Bool>(
+    "input/lane_change_approval", rclcpp::QoS{1}, std::bind(&DataManager::laneChangeApprovalCallback,
+    &(*data_manager_ptr_), std::placeholders::_1));
+  force_lane_change_subscriber_ = create_subscription<std_msgs::msg::Bool>(
+    "input/force_lane_change", rclcpp::QoS{1}, std::bind(&DataManager::forceLaneChangeSignalCallback,
+    &(*data_manager_ptr_), std::placeholders::_1));
 
   // ROS parameters
   LaneChangerParameters parameters;
@@ -99,23 +98,23 @@ void LaneChanger::init()
 
   // route_handler
   vector_map_subscriber_ =
-    pnh_.subscribe("input/vector_map", 1, &RouteHandler::mapCallback, &(*route_handler_ptr_));
+    create_subscription<autoware_lanelet2_msgs::msg::MapBin>("input/vector_map", rclcpp::QoS{1}, std::bind(&RouteHandler::mapCallback, &(*route_handler_ptr_), std::placeholders::_1));
   route_subscriber_ =
-    pnh_.subscribe("input/route", 1, &RouteHandler::routeCallback, &(*route_handler_ptr_));
+    create_subscription<autoware_planning_msgs::msg::Route>("input/route", rclcpp::QoS{1}, std::bind(&RouteHandler::routeCallback, &(*route_handler_ptr_), std::placeholders::_1));
 
   // publisher
   path_publisher_ =
-    pnh_.advertise<autoware_planning_msgs::msg::PathWithLaneId>("output/lane_change_path", 1);
+    create_publisher<autoware_planning_msgs::msg::PathWithLaneId>("output/lane_change_path", rclcpp::QoS{1});
   candidate_path_publisher_ =
-    pnh_.advertise<autoware_planning_msgs::msg::Path>("debug/lane_change_candidate_path", 1);
+    create_publisher<autoware_planning_msgs::msg::Path>("debug/lane_change_candidate_path", rclcpp::QoS{1});
   path_marker_publisher_ =
-    pnh_.advertise<visualization_msgs::msg::MarkerArray>("debug/predicted_path_markers", 1);
+    create_publisher<visualization_msgs::msg::MarkerArray>("debug/predicted_path_markers", rclcpp::QoS{1});
   stop_reason_publisher_ =
-    pnh_.advertise<autoware_planning_msgs::msg::StopReasonArray>("output/stop_reasons", 1);
-  drivable_area_publisher_ = pnh_.advertise<nav_msgs::msg::OccupancyGrid>("debug/drivable_area", 1);
-  lane_change_ready_publisher_ = pnh_.advertise<std_msgs::msg::Bool>("output/lane_change_ready", 1);
+    create_publisher<autoware_planning_msgs::msg::StopReasonArray>("output/stop_reasons", rclcpp::QoS{1});
+  drivable_area_publisher_ = create_publisher<nav_msgs::msg::OccupancyGrid>("debug/drivable_area", rclcpp::QoS{1});
+  lane_change_ready_publisher_ = create_publisher<std_msgs::msg::Bool>("output/lane_change_ready", rclcpp::QoS{1});
   lane_change_available_publisher_ =
-    pnh_.advertise<std_msgs::msg::Bool>("output/lane_change_available", 1);
+    create_publisher<std_msgs::msg::Bool>("output/lane_change_available", rclcpp::QoS{1});
 
   waitForData();
 
@@ -123,7 +122,7 @@ void LaneChanger::init()
   state_machine_ptr_ = std::make_shared<StateMachine>(data_manager_ptr_, route_handler_ptr_);
   state_machine_ptr_->init();
   route_init_subscriber_ =
-    pnh_.subscribe("input/route", 1, &StateMachine::init, &(*state_machine_ptr_));
+    create_subscription<autoware_planning_msgs::msg::Route>("input/route", rclcpp::QoS{1}, std::bind(&StateMachine::initCallback, &(*state_machine_ptr_), std::placeholders::_1));
   // Start timer. This must be done after all data (e.g. vehicle pose, velocity) are ready.
   timer_ = pnh_.createTimer(ros::Duration(0.1), &LaneChanger::run, this);
 }
@@ -166,7 +165,7 @@ void LaneChanger::run(const ros::TimerEvent & event)
   refined_path.header.stamp = ros::Time::now();
 
   if (!path.points.empty()) {
-    path_publisher_.publish(refined_path);
+    path_publisher_->publish(refined_path);
   }
 
   publishDebugMarkers();
@@ -176,22 +175,22 @@ void LaneChanger::run(const ros::TimerEvent & event)
   const auto lane_change_status = state_machine_ptr_->getStatus();
   std_msgs::msg::Bool lane_change_ready_msg;
   lane_change_ready_msg.data = lane_change_status.lane_change_ready;
-  lane_change_ready_publisher_.publish(lane_change_ready_msg);
+  lane_change_ready_publisher_->publish(lane_change_ready_msg);
 
   std_msgs::msg::Bool lane_change_available_msg;
   lane_change_available_msg.data = lane_change_status.lane_change_available;
-  lane_change_available_publisher_.publish(lane_change_available_msg);
+  lane_change_available_publisher_->publish(lane_change_available_msg);
 
   auto candidate_path =
     util::convertToPathFromPathWithLaneId(lane_change_status.lane_change_path.path);
   candidate_path.header.frame_id = "map";
   candidate_path.header.stamp = ros::Time::now();
-  candidate_path_publisher_.publish(candidate_path);
+  candidate_path_publisher_->publish(candidate_path);
 }
 
 void LaneChanger::publishDrivableArea(const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
-  drivable_area_publisher_.publish(path.drivable_area);
+  drivable_area_publisher_->publish(path.drivable_area);
 }
 
 void LaneChanger::publishDebugMarkers()
@@ -320,8 +319,8 @@ void LaneChanger::publishDebugMarkers()
   //create stop reason array from debug_data and state
   stop_reason_array = makeStopReasonArray(debug_data, state_machine_ptr_->getState());
 
-  path_marker_publisher_.publish(debug_markers);
-  stop_reason_publisher_.publish(stop_reason_array);
+  path_marker_publisher_->publish(debug_markers);
+  stop_reason_publisher_->publish(stop_reason_array);
 }
 
 autoware_planning_msgs::msg::StopReasonArray LaneChanger::makeStopReasonArray(

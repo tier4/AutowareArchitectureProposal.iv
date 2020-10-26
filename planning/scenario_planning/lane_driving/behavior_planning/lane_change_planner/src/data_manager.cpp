@@ -30,28 +30,28 @@ DataManager::DataManager(const rclcpp::Logger & logger, const rclcpp::Clock::Sha
 }
 
 void DataManager::perceptionCallback(
-  const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & input_perception_msg_ptr)
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_perception_msg_ptr)
 {
   perception_ptr_ = input_perception_msg_ptr;
 }
 
 void DataManager::velocityCallback(
-  const geometry_msgs::msg::TwistStamped::ConstPtr & input_twist_msg_ptr)
+  const geometry_msgs::msg::TwistStamped::ConstSharedPtr input_twist_msg_ptr)
 {
   vehicle_velocity_ptr_ = input_twist_msg_ptr;
 }
 
-void DataManager::laneChangeApprovalCallback(const std_msgs::msg::Bool & input_approval_msg)
+void DataManager::laneChangeApprovalCallback(const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg)
 {
-  lane_change_approval_.data = input_approval_msg.data;
-  lane_change_approval_.stamp = ros::Time::now();
+  lane_change_approval_.data = input_approval_msg->data;
+  lane_change_approval_.stamp = clock_->now();
 }
 
 void DataManager::forceLaneChangeSignalCallback(
-  const std_msgs::msg::Bool & input_force_lane_change_msg)
+  const std_msgs::msg::Bool::ConstSharedPtr input_force_lane_change_msg)
 {
-  force_lane_change_.data = input_force_lane_change_msg.data;
-  force_lane_change_.stamp = ros::Time::now();
+  force_lane_change_.data = input_force_lane_change_msg->data;
+  force_lane_change_.stamp = clock_->now();
 }
 
 void DataManager::setLaneChangerParameters(const LaneChangerParameters & parameters)
@@ -60,12 +60,12 @@ void DataManager::setLaneChangerParameters(const LaneChangerParameters & paramet
   parameters_ = parameters;
 }
 
-autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr DataManager::getDynamicObjects()
+autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr DataManager::getDynamicObjects()
 {
   return perception_ptr_;
 }
 
-geometry_msgs::msg::TwistStamped::ConstPtr DataManager::getCurrentSelfVelocity()
+geometry_msgs::msg::TwistStamped::ConstSharedPtr DataManager::getCurrentSelfVelocity()
 {
   return vehicle_velocity_ptr_;
 }
