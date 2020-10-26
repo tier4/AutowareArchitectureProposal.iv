@@ -16,16 +16,8 @@
 
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
-#include <numeric>
-#include <regex>
-#include <string>
-#include <utility>
-#include <vector>
-
 #define FMT_HEADER_ONLY
 #include "fmt/format.h"
-
-#include "autoware_state_monitor/module_name.hpp"
 
 void AutowareStateMonitorNode::setupDiagnosticUpdater()
 {
@@ -121,7 +113,7 @@ void AutowareStateMonitorNode::checkTopicStatus(
     msg = "OK";
   } else if (level == diagnostic_msgs::msg::DiagnosticStatus::WARN) {
     msg = "Warn";
-  } else if (level == diagnostic_msgs::msg::DiagnosticStatus::WARN) {
+  } else if (level == diagnostic_msgs::msg::DiagnosticStatus::ERROR) {
     msg = "Error";
   }
 
@@ -181,7 +173,7 @@ void AutowareStateMonitorNode::checkTFStatus(
     msg = "OK";
   } else if (level == diagnostic_msgs::msg::DiagnosticStatus::WARN) {
     msg = "Warn";
-  } else if (level == diagnostic_msgs::msg::DiagnosticStatus::WARN) {
+  } else if (level == diagnostic_msgs::msg::DiagnosticStatus::ERROR) {
     msg = "Error";
   }
 
