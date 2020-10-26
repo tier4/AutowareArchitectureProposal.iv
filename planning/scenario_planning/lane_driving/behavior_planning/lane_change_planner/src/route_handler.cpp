@@ -365,7 +365,7 @@ lanelet::ConstLanelets RouteHandler::getLaneletSequenceAfter(
 
   double length = 0;
   lanelet::ConstLanelet current_lanelet = lanelet;
-  while (ros::ok() && length < min_length) {
+  while (rclcpp::ok() && length < min_length) {
     lanelet::ConstLanelet next_lanelet;
     if (!getNextLaneletWithinRoute(current_lanelet, &next_lanelet)) {
       break;
@@ -389,7 +389,7 @@ lanelet::ConstLanelets RouteHandler::getLaneletSequenceUpTo(
   lanelet::ConstLanelet current_lanelet = lanelet;
   double length = 0;
 
-  while (ros::ok() && length < min_length) {
+  while (rclcpp::ok() && length < min_length) {
     lanelet::ConstLanelet prev_lanelet;
     if (!getPreviousLaneletWithinRoute(current_lanelet, &prev_lanelet)) {
       break;

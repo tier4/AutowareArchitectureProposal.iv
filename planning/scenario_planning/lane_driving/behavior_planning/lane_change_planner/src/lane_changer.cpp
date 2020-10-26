@@ -31,7 +31,7 @@ visualization_msgs::msg::MarkerArray createVirtualWall(
 
 namespace lane_change_planner
 {
-LaneChanger::LaneChanger() : { init(); }
+LaneChanger::LaneChanger() : Node("lane_change_planner_node"){ init(); }
 
 void LaneChanger::init()
 {

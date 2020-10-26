@@ -19,11 +19,11 @@
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "lane_change_planner_node");
+  rclcpp::init(argc, argv);
 
-  lane_change_planner::LaneChanger lane_changer;
+  rclcpp::spin(std::make_shared<lane_change_planner::LaneChanger>());
 
-  ros::spin();
+  rclcpp::shutdown();
 
   return 0;
 }

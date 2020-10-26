@@ -44,7 +44,7 @@
 
 namespace lane_change_planner
 {
-class LaneChanger : rclcpp::Node
+class LaneChanger : public rclcpp::Node
 {
 private:
   rclcpp::TimerBase::SharedPtr timer_;
