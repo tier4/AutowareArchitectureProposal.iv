@@ -71,12 +71,13 @@ State ForcingLaneChangeState::getNextState() const
 
 bool ForcingLaneChangeState::hasFinishedLaneChange() const
 {
-  static ros::Time start_time = ros::Time::now();
+  const auto & clock = data_manager_ptr_->getClock();
+  static rclcpp::Time start_time = clock->now();
 
   if (route_handler_ptr_->isInTargetLane(current_pose_, target_lanes_)) {
-    return (ros::Time::now() - start_time > ros::Duration(2));
+    return (clock->now() - start_time > rclcpp::Duration::from_seconds(2.0));
   } else {
-    start_time = ros::Time::now();
+    start_time = clock->now();
   }
   return false;
 }

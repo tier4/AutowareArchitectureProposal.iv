@@ -81,7 +81,7 @@ LaneChangerParameters DataManager::getLaneChangerParameters() { return parameter
 bool DataManager::getLaneChangeApproval()
 {
   constexpr double timeout = 0.5;
-  if (ros::Time::now() - lane_change_approval_.stamp > ros::Duration(timeout)) {
+  if (clock_->now() - lane_change_approval_.stamp > rclcpp::Duration::from_seconds(timeout)) {
     return false;
   }
 
@@ -91,7 +91,7 @@ bool DataManager::getLaneChangeApproval()
 bool DataManager::getForceLaneChangeSignal()
 {
   constexpr double timeout = 0.5;
-  if (ros::Time::now() - force_lane_change_.stamp > ros::Duration(timeout)) {
+  if (clock_->now() - force_lane_change_.stamp > rclcpp::Duration::from_seconds(timeout)) {
     return false;
   } else {
     return force_lane_change_.data;
@@ -127,7 +127,7 @@ SelfPoseLinstener::SelfPoseLinstener(const rclcpp::Logger & logger, const rclcpp
 
 bool SelfPoseLinstener::isSelfPoseReady()
 {
-  return tf_buffer_.canTransform("map", "base_link", ros::Time(0), ros::Duration(0.1));
+  return tf_buffer_.canTransform("map", "base_link", tf2::TimePointZero);
 }
 
 bool SelfPoseLinstener::getSelfPose(geometry_msgs::msg::PoseStamped & self_pose)
@@ -136,7 +136,7 @@ bool SelfPoseLinstener::getSelfPose(geometry_msgs::msg::PoseStamped & self_pose)
     geometry_msgs::msg::TransformStamped transform;
     std::string map_frame = "map";
     transform =
-      tf_buffer_.lookupTransform(map_frame, "base_link", ros::Time(0), ros::Duration(0.1));
+      tf_buffer_.lookupTransform(map_frame, "base_link", tf2::TimePointZero);
     self_pose.pose.position.x = transform.transform.translation.x;
     self_pose.pose.position.y = transform.transform.translation.y;
     self_pose.pose.position.z = transform.transform.translation.z;
@@ -144,7 +144,7 @@ bool SelfPoseLinstener::getSelfPose(geometry_msgs::msg::PoseStamped & self_pose)
     self_pose.pose.orientation.y = transform.transform.rotation.y;
     self_pose.pose.orientation.z = transform.transform.rotation.z;
     self_pose.pose.orientation.w = transform.transform.rotation.w;
-    self_pose.header.stamp = ros::Time::now();
+    self_pose.header.stamp = clock_->now();
     self_pose.header.frame_id = map_frame;
     return true;
   } catch (tf2::TransformException & ex) {

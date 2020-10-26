@@ -23,27 +23,27 @@
 
 namespace
 {
-ros::Duration safeSubtraction(const ros::Time & t1, const ros::Time & t2)
+rclcpp::Duration safeSubtraction(const rclcpp::Time & t1, const rclcpp::Time & t2)
 {
-  ros::Duration duration;
+  rclcpp::Duration duration(0, 0);
   try {
     duration = t1 - t2;
   } catch (std::runtime_error) {
     if (t1 > t2)
-      duration = ros::DURATION_MIN;
+      duration = rclcpp::Duration::max() * -1.0;
     else
-      duration = ros::DURATION_MAX;
+      duration = rclcpp::Duration::max();
   }
   return duration;
 }
-ros::Time safeAddition(const ros::Time & t1, const double seconds)
+rclcpp::Time safeAddition(const rclcpp::Time & t1, const double seconds)
 {
-  ros::Time sum;
+  rclcpp::Time sum;
   try {
-    sum = t1 + ros::Duration(seconds);
+    sum = t1 + rclcpp::Duration::from_seconds(seconds);
   } catch (std::runtime_error & err) {
-    if (seconds > 0) sum = ros::TIME_MAX;
-    if (seconds < 0) sum = ros::TIME_MIN;
+    if (seconds > 0) sum = rclcpp::Time::max();
+    if (seconds < 0) sum = rclcpp::Time(0);
   }
   return sum;
 }
@@ -216,7 +216,7 @@ PredictedPath convertToPredictedPath(
   const auto & geometry_points = convertToGeometryPointArray(path);
   FrenetCoordinate3d vehicle_pose_frenet;
   convertToFrenetCoordinate3d(geometry_points, vehicle_pose.position, &vehicle_pose_frenet);
-  ros::Time start_time = ros::Time::now();
+  rclcpp::Time start_time = clock->now();
   double vehicle_speed = std::abs(vehicle_twist.linear.x);
   constexpr double min_speed = 1.0;
   if (vehicle_speed < min_speed) {
@@ -264,12 +264,12 @@ PredictedPath resamplePredictedPath(
 {
   PredictedPath resampled_path;
 
-  ros::Duration t_delta(resolution);
-  ros::Duration prediction_duration(duration);
+  rclcpp::Duration t_delta = rclcpp::Duration::from_seconds(resolution);
+  rclcpp::Duration prediction_duration = rclcpp::Duration::from_seconds(duration);
 
   double min_distance = std::numeric_limits<double>::max();
-  ros::Time start_time = ros::Time::now();
-  ros::Time end_time = ros::Time::now() + prediction_duration;
+  rclcpp::Time start_time = clock->now();
+  rclcpp::Time end_time = clock->now() + prediction_duration;
 
   for (auto t = start_time; t < end_time; t += t_delta) {
     geometry_msgs::msg::Pose pose;
@@ -340,7 +340,7 @@ geometry_msgs::msg::Point lerpByLength(
 }
 
 bool lerpByTimeStamp(
-  const PredictedPath & path, const ros::Time & t, geometry_msgs::msg::Pose * lerped_pt,
+  const PredictedPath & path, const rclcpp::Time & t, geometry_msgs::msg::Pose * lerped_pt,
   const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
 {
   if (lerped_pt == nullptr) {
@@ -356,9 +356,9 @@ bool lerpByTimeStamp(
     RCLCPP_DEBUG_STREAM(
       logger, "failed to interpolate path by time!"
                 << std::endl
-                << "path start time: " << path.path.front().header.stamp << std::endl
-                << "path end time  : " << path.path.back().header.stamp << std::endl
-                << "query time     : " << t);
+                << "path start time: " << rclcpp::Time(path.path.front().header.stamp).seconds() << std::endl
+                << "path end time  : " << rclcpp::Time(path.path.back().header.stamp).seconds() << std::endl
+                << "query time     : " << t.seconds());
     *lerped_pt = path.path.front().pose.pose;
     return false;
   }
@@ -367,9 +367,9 @@ bool lerpByTimeStamp(
     RCLCPP_DEBUG_STREAM(
       logger, "failed to interpolate path by time!"
                 << std::endl
-                << "path start time: " << path.path.front().header.stamp << std::endl
-                << "path end time  : " << path.path.back().header.stamp << std::endl
-                << "query time     : " << t);
+                << "path start time: " << rclcpp::Time(path.path.front().header.stamp).seconds() << std::endl
+                << "path end time  : " << rclcpp::Time(path.path.back().header.stamp).seconds() << std::endl
+                << "query time     : " << t.seconds());
     *lerped_pt = path.path.back().pose.pose;
 
     return false;
@@ -379,9 +379,9 @@ bool lerpByTimeStamp(
     const auto & pt = path.path.at(i);
     const auto & prev_pt = path.path.at(i - 1);
     if (t <= pt.header.stamp) {
-      const ros::Duration duration = safeSubtraction(pt.header.stamp, prev_pt.header.stamp);
+      const rclcpp::Duration duration = safeSubtraction(pt.header.stamp, prev_pt.header.stamp);
       const auto offset = t - prev_pt.header.stamp;
-      const auto ratio = offset.toSec() / duration.toSec();
+      const auto ratio = offset.seconds() / duration.seconds();
       *lerped_pt = lerpByPose(prev_pt.pose.pose, pt.pose.pose, ratio);
       return true;
     }
@@ -401,10 +401,10 @@ double getDistanceBetweenPredictedPaths(
   const double end_time, const double resolution, const rclcpp::Logger & logger,
   const rclcpp::Clock::SharedPtr & clock)
 {
-  ros::Duration t_delta(resolution);
+  rclcpp::Duration t_delta(resolution);
   double min_distance = std::numeric_limits<double>::max();
-  ros::Time ros_start_time = ros::Time::now() + ros::Duration(start_time);
-  ros::Time ros_end_time = ros::Time::now() + ros::Duration(end_time);
+  rclcpp::Time ros_start_time = clock->now() + rclcpp::Duration::from_seconds(start_time);
+  rclcpp::Time ros_end_time = clock->now() + rclcpp::Duration::from_seconds(end_time);
   const auto ego_path_point_array = convertToGeometryPointArray(ego_path);
   for (auto t = ros_start_time; t < ros_end_time; t += t_delta) {
     geometry_msgs::msg::Pose object_pose, ego_pose;

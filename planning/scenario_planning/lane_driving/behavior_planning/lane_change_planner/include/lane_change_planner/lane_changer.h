@@ -47,7 +47,7 @@ namespace lane_change_planner
 class LaneChanger : rclcpp::Node
 {
 private:
-  ros::Timer timer_;
+  rclcpp::TimerBase::SharedPtr timer_;
 
   rclcpp::Publisher<autoware_planning_msgs::msg::PathWithLaneId>::SharedPtr path_publisher_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Path>::SharedPtr candidate_path_publisher_;
@@ -71,7 +71,7 @@ private:
   std::shared_ptr<RouteHandler> route_handler_ptr_;
   // PathExtender path_extender_;
 
-  void run(const ros::TimerEvent & event);
+  void run();
   void publishDebugMarkers();
   void publishDrivableArea(const autoware_planning_msgs::msg::PathWithLaneId & path);
   autoware_planning_msgs::msg::StopReasonArray makeStopReasonArray(

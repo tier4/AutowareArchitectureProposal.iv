@@ -20,14 +20,14 @@
 std_msgs::msg::ColorRGBA toRainbow(double ratio);
 visualization_msgs::msg::Marker convertToMarker(
   const autoware_perception_msgs::msg::PredictedPath & path, const int id, const std::string & ns,
-  const double radius);
+  const double radius, const rclcpp::Time & timestamp);
 
 visualization_msgs::msg::Marker convertToMarker(
   const autoware_planning_msgs::msg::PathWithLaneId & path, const int id, const std::string & ns,
-  const std_msgs::msg::ColorRGBA & color);
+  const std_msgs::msg::ColorRGBA & color, const rclcpp::Time & timestamp);
 
 visualization_msgs::msg::MarkerArray createVirtualWall(
-  const geometry_msgs::msg::Pose & pose, const int id, const std::string & factor_text);
+  const geometry_msgs::msg::Pose & pose, const int id, const std::string & factor_text, const rclcpp::Time & timestamp);
 
 namespace lane_change_planner
 {
@@ -115,34 +115,33 @@ void LaneChanger::init()
   lane_change_available_publisher_ =
     create_publisher<std_msgs::msg::Bool>("output/lane_change_available", rclcpp::QoS{1});
 
-  waitForData();
-
   // set state_machine
   state_machine_ptr_ = std::make_shared<StateMachine>(data_manager_ptr_, route_handler_ptr_);
   state_machine_ptr_->init();
   route_init_subscriber_ =
     create_subscription<autoware_planning_msgs::msg::Route>("input/route", rclcpp::QoS{1}, std::bind(&StateMachine::initCallback, &(*state_machine_ptr_), std::placeholders::_1));
   // Start timer. This must be done after all data (e.g. vehicle pose, velocity) are ready.
-  timer_ = pnh_.createTimer(ros::Duration(0.1), &LaneChanger::run, this);
+  auto timer_callback = std::bind(&LaneChanger::run, this);
+  const auto period_ns =
+    std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::duration<double>(0.1));
+  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
+    this->get_clock(), period_ns, std::move(timer_callback),
+    this->get_node_base_interface()->get_context());
+    this->get_node_timers_interface()->add_timer(timer_, nullptr);
 }
 
-void LaneChanger::waitForData()
+void LaneChanger::run()
 {
   // wait until mandatory data is ready
-  while (!route_handler_ptr_->isHandlerReady() && ros::ok()) {
+  if (!route_handler_ptr_->isHandlerReady()) {
     RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5.0, "waiting for route to be ready");
-    ros::spinOnce();
-    ros::Duration(0.1).sleep();
+    return;
   }
-  while (!data_manager_ptr_->isDataReady() && ros::ok()) {
+  if (!data_manager_ptr_->isDataReady()) {
     RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5.0, "waiting for vehicle pose, vehicle_velocity, and obstacles");
-    ros::spinOnce();
-    ros::Duration(0.1).sleep();
+    return;
   }
-}
 
-void LaneChanger::run(const ros::TimerEvent & event)
-{
   state_machine_ptr_->updateState();
   const auto path = state_machine_ptr_->getPath();
 
@@ -161,7 +160,7 @@ void LaneChanger::run(const ros::TimerEvent & event)
 
   auto refined_path = util::refinePath(7.5, M_PI * 0.5, path, refined_goal, goal_lane_id, this->get_logger());
   refined_path.header.frame_id = "map";
-  refined_path.header.stamp = ros::Time::now();
+  refined_path.header.stamp = this->now();
 
   if (!path.points.empty()) {
     path_publisher_->publish(refined_path);
@@ -183,7 +182,7 @@ void LaneChanger::run(const ros::TimerEvent & event)
   auto candidate_path =
     util::convertToPathFromPathWithLaneId(lane_change_status.lane_change_path.path);
   candidate_path.header.frame_id = "map";
-  candidate_path.header.stamp = ros::Time::now();
+  candidate_path.header.stamp = this->now();
   candidate_path_publisher_->publish(candidate_path);
 }
 
@@ -217,7 +216,7 @@ void LaneChanger::publishDebugMarkers()
 
     double radius = util::l2Norm(current_twist->twist.linear) * stop_time;
     radius = std::max(radius, min_radius);
-    const auto & marker = convertToMarker(resampled_path, 1, "ego_lane_change_path", radius);
+    const auto & marker = convertToMarker(resampled_path, 1, "ego_lane_change_path", radius, this->now());
     debug_markers.markers.push_back(marker);
   }
 
@@ -230,7 +229,7 @@ void LaneChanger::publishDebugMarkers()
 
     double radius = util::l2Norm(current_twist->twist.linear) * stop_time;
     radius = std::max(radius, min_radius);
-    const auto & marker = convertToMarker(resampled_path, 1, "ego_lane_follow_path", radius);
+    const auto & marker = convertToMarker(resampled_path, 1, "ego_lane_follow_path", radius, this->now());
     debug_markers.markers.push_back(marker);
   }
 
@@ -250,7 +249,7 @@ void LaneChanger::publishDebugMarkers()
           util::resamplePredictedPath(obj_path, time_resolution, prediction_duration, this->get_logger(), this->get_clock());
         double radius = util::l2Norm(obj.state.twist_covariance.twist.linear) * stop_time;
         radius = std::max(radius, min_radius);
-        const auto & marker = convertToMarker(resampled_path, i, "object_predicted_path", radius);
+        const auto & marker = convertToMarker(resampled_path, i, "object_predicted_path", radius, this->now());
         debug_markers.markers.push_back(marker);
       }
     }
@@ -266,14 +265,14 @@ void LaneChanger::publishDebugMarkers()
     color.b = 1;
     color.a = 0.6;
     for (const auto & path : debug_data.lane_change_candidate_paths) {
-      const auto marker = convertToMarker(path.path, i++, "candidate_lane_change_path", color);
+      const auto marker = convertToMarker(path.path, i++, "candidate_lane_change_path", color, this->now());
       debug_markers.markers.push_back(marker);
     }
     color.r = 1;
     color.g = 0;
     color.b = 0;
     color.a = 0.9;
-    const auto marker = convertToMarker(debug_data.selected_path, 1, "selected_path", color);
+    const auto marker = convertToMarker(debug_data.selected_path, 1, "selected_path", color, this->now());
     debug_markers.markers.push_back(marker);
   }
 
@@ -289,7 +288,7 @@ void LaneChanger::publishDebugMarkers()
         tf2::Vector3(ros_parameters.base_link2front, 0.0, 0.0));
       tf2::Transform tf_map2front = tf_map2base_link * tf_base_link2front;
       tf2::toMsg(tf_map2front, wall_pose);
-      const auto virtual_wall_markers = createVirtualWall(wall_pose, 1, "blockedByObstacle");
+      const auto virtual_wall_markers = createVirtualWall(wall_pose, 1, "blockedByObstacle", this->now());
       debug_markers.markers.insert(
         debug_markers.markers.end(), virtual_wall_markers.markers.begin(),
         virtual_wall_markers.markers.end());
@@ -308,7 +307,7 @@ void LaneChanger::publishDebugMarkers()
         tf2::Vector3(ros_parameters.base_link2front, 0.0, 0.0));
       tf2::Transform tf_map2front = tf_map2base_link * tf_base_link2front;
       tf2::toMsg(tf_map2front, wall_pose);
-      const auto virtual_wall_markers = createVirtualWall(wall_pose, 1, "Stopping");
+      const auto virtual_wall_markers = createVirtualWall(wall_pose, 1, "Stopping", this->now());
       debug_markers.markers.insert(
         debug_markers.markers.end(), virtual_wall_markers.markers.begin(),
         virtual_wall_markers.markers.end());
@@ -328,7 +327,7 @@ autoware_planning_msgs::msg::StopReasonArray LaneChanger::makeStopReasonArray(
   //create header
   std_msgs::msg::Header header;
   header.frame_id = "map";
-  header.stamp = ros::Time::now();
+  header.stamp = this->now();
 
   //create stop reason array
   autoware_planning_msgs::msg::StopReasonArray stop_reason_array;
@@ -427,11 +426,11 @@ std_msgs::msg::ColorRGBA toRainbow(double ratio)
 
 visualization_msgs::msg::Marker convertToMarker(
   const autoware_perception_msgs::msg::PredictedPath & path, const int id, const std::string & ns,
-  const double radius)
+  const double radius, const rclcpp::Time & timestamp)
 {
   visualization_msgs::msg::Marker marker;
   marker.header.frame_id = "map";
-  marker.header.stamp = ros::Time::now();
+  marker.header.stamp = timestamp;
   marker.ns = ns;
   marker.id = id;
   marker.type = visualization_msgs::msg::Marker::SPHERE_LIST;
@@ -454,7 +453,7 @@ visualization_msgs::msg::Marker convertToMarker(
   marker.color.b = 1.0;
   marker.color.a = 0.3;
 
-  marker.lifetime = ros::Duration(1);
+  marker.lifetime = rclcpp::Duration::from_seconds(1.0);
   marker.frame_locked = true;
 
   for (std::size_t i = 0; i < path.path.size(); i++) {
@@ -467,11 +466,11 @@ visualization_msgs::msg::Marker convertToMarker(
 
 visualization_msgs::msg::Marker convertToMarker(
   const autoware_planning_msgs::msg::PathWithLaneId & path, const int id, const std::string & ns,
-  const std_msgs::msg::ColorRGBA & color)
+  const std_msgs::msg::ColorRGBA & color, const rclcpp::Time & timestamp)
 {
   visualization_msgs::msg::Marker marker;
   marker.header.frame_id = "map";
-  marker.header.stamp = ros::Time::now();
+  marker.header.stamp = timestamp;
   marker.ns = ns;
   marker.id = id;
   marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
@@ -489,7 +488,7 @@ visualization_msgs::msg::Marker convertToMarker(
 
   marker.color = color;
 
-  marker.lifetime = ros::Duration(1);
+  marker.lifetime = rclcpp::Duration::from_seconds(1.0);
   marker.frame_locked = true;
 
   for (std::size_t i = 0; i < path.points.size(); i++) {
@@ -500,16 +499,16 @@ visualization_msgs::msg::Marker convertToMarker(
 }
 
 visualization_msgs::msg::MarkerArray createVirtualWall(
-  const geometry_msgs::msg::Pose & pose, const int id, const std::string & factor_text)
+  const geometry_msgs::msg::Pose & pose, const int id, const std::string & factor_text, const rclcpp::Time & timestamp)
 {
   visualization_msgs::msg::MarkerArray msg;
   {
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "map";
-    marker.header.stamp = ros::Time::now();
+    marker.header.stamp = timestamp;
     marker.ns = "stop_virtual_wall";
     marker.id = id;
-    marker.lifetime = ros::Duration(0.5);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.5);
     marker.type = visualization_msgs::msg::Marker::CUBE;
     marker.action = visualization_msgs::msg::Marker::ADD;
     marker.pose = pose;
@@ -527,10 +526,10 @@ visualization_msgs::msg::MarkerArray createVirtualWall(
   {
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "map";
-    marker.header.stamp = ros::Time::now();
+    marker.header.stamp = timestamp;
     marker.ns = "factor_text";
     marker.id = id;
-    marker.lifetime = ros::Duration(0.5);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.5);
     marker.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
     marker.action = visualization_msgs::msg::Marker::ADD;
     marker.pose = pose;
