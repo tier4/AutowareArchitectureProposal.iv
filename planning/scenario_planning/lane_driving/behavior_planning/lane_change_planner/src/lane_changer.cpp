@@ -51,33 +51,32 @@ void LaneChanger::init()
 
   // ROS parameters
   LaneChangerParameters parameters;
-  pnh_.param("min_stop_distance", parameters.min_stop_distance, 5.0);
-  pnh_.param("stop_time", parameters.stop_time, 2.0);
-  pnh_.param("hysteresis_buffer_distance", parameters.hysteresis_buffer_distance, 2.0);
-  pnh_.param("backward_path_length", parameters.backward_path_length, 5.0);
-  pnh_.param("forward_path_length", parameters.forward_path_length, 100.0);
-  pnh_.param("lane_change_prepare_duration", parameters.lane_change_prepare_duration, 2.0);
-  pnh_.param("lane_changing_duration", parameters.lane_changing_duration, 4.0);
-  pnh_.param("minimum_lane_change_length", parameters.minimum_lane_change_length, 8.0);
-  pnh_.param("prediction_duration", parameters.prediction_duration, 8.0);
-  pnh_.param("prediction_time_resolution", parameters.prediction_time_resolution, 0.5);
-  pnh_.param("drivable_area_resolution", parameters.drivable_area_resolution, 0.1);
-  pnh_.param("drivable_area_width", parameters.drivable_area_width, 100.0);
-  pnh_.param("drivable_area_height", parameters.drivable_area_height, 50.0);
-  pnh_.param("static_obstacle_velocity_thresh", parameters.static_obstacle_velocity_thresh, 0.1);
-  pnh_.param("maximum_deceleration", parameters.maximum_deceleration, 1.0);
-  pnh_.param("lane_change_sampling_num", parameters.lane_change_sampling_num, 10);
-  pnh_.param("enable_abort_lane_change", parameters.enable_abort_lane_change, true);
-  pnh_.param("/vehicle_info/vehicle_width", parameters.vehicle_width, 2.8);
-  pnh_.param("/vehicle_info/vehicle_length", parameters.vehicle_length, 5.0);
-  pnh_.param("/vehicle_info/max_longitudinal_offset", parameters.base_link2front, 3.74);
-  pnh_.param(
-    "abort_lane_change_velocity_thresh", parameters.abort_lane_change_velocity_thresh, 0.5);
-  pnh_.param(
-    "abort_lane_change_angle_thresh", parameters.abort_lane_change_angle_thresh,
-    0.174533);  // 10 deg
-  pnh_.param(
-    "abort_lane_change_distance_thresh", parameters.abort_lane_change_distance_thresh, 0.3);
+  parameters.min_stop_distance = declare_parameter("min_stop_distance", 5.0);
+  parameters.stop_time = declare_parameter("stop_time", 2.0);
+  parameters.hysteresis_buffer_distance = declare_parameter("hysteresis_buffer_distance", 2.0);
+  parameters.backward_path_length = declare_parameter("backward_path_length", 5.0);
+  parameters.forward_path_length = declare_parameter("forward_path_length", 100.0);
+  parameters.lane_change_prepare_duration = declare_parameter("lane_change_prepare_duration", 2.0);
+  parameters.lane_changing_duration = declare_parameter("lane_changing_duration", 4.0);
+  parameters.minimum_lane_change_length = declare_parameter("minimum_lane_change_length", 8.0);
+  parameters.prediction_duration = declare_parameter("prediction_duration", 8.0);
+  parameters.prediction_time_resolution = declare_parameter("prediction_time_resolution", 0.5);
+  parameters.drivable_area_resolution = declare_parameter("drivable_area_resolution", 0.1);
+  parameters.drivable_area_width = declare_parameter("drivable_area_width", 100.0);
+  parameters.drivable_area_height = declare_parameter("drivable_area_height", 50.0);
+  parameters.static_obstacle_velocity_thresh = declare_parameter("static_obstacle_velocity_thresh", 0.1);
+  parameters.maximum_deceleration = declare_parameter("maximum_deceleration", 1.0);
+  parameters.lane_change_sampling_num = declare_parameter("lane_change_sampling_num", 10);
+  parameters.enable_abort_lane_change = declare_parameter("enable_abort_lane_change", true);
+  parameters.vehicle_width = declare_parameter("/vehicle_info/vehicle_width", 2.8);
+  parameters.vehicle_length = declare_parameter("/vehicle_info/vehicle_length", 5.0);
+  parameters.base_link2front = declare_parameter("/vehicle_info/max_longitudinal_offset", 3.74);
+  parameters.abort_lane_change_velocity_thresh = declare_parameter(
+    "abort_lane_change_velocity_thresh", 0.5);
+  parameters.abort_lane_change_angle_thresh = declare_parameter(
+    "abort_lane_change_angle_thresh",     0.174533);  // 10 deg
+  parameters.abort_lane_change_distance_thresh = declare_parameter(
+    "abort_lane_change_distance_thresh", 0.3);
 
   // validation of parameters
   if (parameters.lane_change_sampling_num < 1) {
