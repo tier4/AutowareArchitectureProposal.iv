@@ -35,14 +35,14 @@ bool selectLaneChangePath(
   const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & dynamic_objects,
   const geometry_msgs::msg::Pose & current_pose, const geometry_msgs::msg::Twist & current_twist,
   const bool isInGoalRouteSection, const geometry_msgs::msg::Pose & goal_pose,
-  const LaneChangerParameters & ros_parameters, LaneChangePath * path);
+  const LaneChangerParameters & ros_parameters, LaneChangePath * path, const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
 
 bool isLaneChangePathSafe(
   const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
   const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & dynamic_objects,
   const geometry_msgs::msg::Pose & current_pose, const geometry_msgs::msg::Twist & current_twist,
-  const LaneChangerParameters & ros_parameters, const bool use_buffer = true,
+  const LaneChangerParameters & ros_parameters, const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock, const bool use_buffer = true,
   const double acceleration = 0.0);
 bool hasEnoughDistance(
   const LaneChangePath & path, const lanelet::ConstLanelets & current_lanes,

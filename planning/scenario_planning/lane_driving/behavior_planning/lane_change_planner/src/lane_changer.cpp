@@ -32,13 +32,13 @@ visualization_msgs::msg::MarkerArray createVirtualWall(
 
 namespace lane_change_planner
 {
-LaneChanger::LaneChanger() : pnh_("~") { init(); }
+LaneChanger::LaneChanger() : { init(); }
 
 void LaneChanger::init()
 {
   // data_manager
-  data_manager_ptr_ = std::make_shared<DataManager>();
-  route_handler_ptr_ = std::make_shared<RouteHandler>();
+  data_manager_ptr_ = std::make_shared<DataManager>(get_logger(), get_clock());
+  route_handler_ptr_ = std::make_shared<RouteHandler>(get_logger(), get_clock());
   velocity_subscriber_ =
     pnh_.subscribe("input/velocity", 1, &DataManager::velocityCallback, &(*data_manager_ptr_));
   perception_subscriber_ =
@@ -82,14 +82,14 @@ void LaneChanger::init()
 
   // validation of parameters
   if (parameters.lane_change_sampling_num < 1) {
-    ROS_FATAL_STREAM(
+    RCLCPP_FATAL_STREAM(get_logger(), 
       "lane_change_sampling_num must be positive integer. Given parameter: "
       << parameters.lane_change_sampling_num << std::endl
       << "Terminating the program...");
     exit(EXIT_FAILURE);
   }
   if (parameters.maximum_deceleration < 0.0) {
-    ROS_FATAL_STREAM(
+    RCLCPP_FATAL_STREAM(get_logger(), 
       "maximum_deceleration cannot be negative value. Given parameter: "
       << parameters.maximum_deceleration << std::endl
       << "Terminating the progam...");
@@ -132,12 +132,12 @@ void LaneChanger::waitForData()
 {
   // wait until mandatory data is ready
   while (!route_handler_ptr_->isHandlerReady() && ros::ok()) {
-    ROS_WARN_THROTTLE(5, "waiting for route to be ready");
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5.0, "waiting for route to be ready");
     ros::spinOnce();
     ros::Duration(0.1).sleep();
   }
   while (!data_manager_ptr_->isDataReady() && ros::ok()) {
-    ROS_WARN_THROTTLE(5, "waiting for vehicle pose, vehicle_velocity, and obstacles");
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5.0, "waiting for vehicle pose, vehicle_velocity, and obstacles");
     ros::spinOnce();
     ros::Duration(0.1).sleep();
   }
@@ -161,7 +161,7 @@ void LaneChanger::run(const ros::TimerEvent & event)
     }
   }
 
-  auto refined_path = util::refinePath(7.5, M_PI * 0.5, path, refined_goal, goal_lane_id);
+  auto refined_path = util::refinePath(7.5, M_PI * 0.5, path, refined_goal, goal_lane_id, this->get_logger());
   refined_path.header.frame_id = "map";
   refined_path.header.stamp = ros::Time::now();
 
@@ -213,9 +213,9 @@ void LaneChanger::publishDebugMarkers()
   if (!status.lane_change_path.path.points.empty()) {
     const auto & vehicle_predicted_path = util::convertToPredictedPath(
       status.lane_change_path.path, current_twist->twist, current_pose.pose, prediction_duration,
-      time_resolution, 0);
+      time_resolution, 0, this->get_logger(), this->get_clock());
     const auto & resampled_path =
-      util::resamplePredictedPath(vehicle_predicted_path, time_resolution, prediction_duration);
+      util::resamplePredictedPath(vehicle_predicted_path, time_resolution, prediction_duration, this->get_logger(), this->get_clock());
 
     double radius = util::l2Norm(current_twist->twist.linear) * stop_time;
     radius = std::max(radius, min_radius);
@@ -226,9 +226,9 @@ void LaneChanger::publishDebugMarkers()
   if (!status.lane_follow_path.points.empty()) {
     const auto & vehicle_predicted_path = util::convertToPredictedPath(
       status.lane_follow_path, current_twist->twist, current_pose.pose, prediction_duration,
-      time_resolution, 0.0);
+      time_resolution, 0.0, this->get_logger(), this->get_clock());
     const auto & resampled_path =
-      util::resamplePredictedPath(vehicle_predicted_path, time_resolution, prediction_duration);
+      util::resamplePredictedPath(vehicle_predicted_path, time_resolution, prediction_duration, this->get_logger(), this->get_clock());
 
     double radius = util::l2Norm(current_twist->twist.linear) * stop_time;
     radius = std::max(radius, min_radius);
@@ -244,12 +244,12 @@ void LaneChanger::publishDebugMarkers()
     const auto & check_lanes = route_handler_ptr_->getCheckTargetLanesFromPath(
       status.lane_change_path.path, target_lanes, check_distance);
 
-    const auto object_indices = util::filterObjectsByLanelets(*dynamic_objects, check_lanes);
+    const auto object_indices = util::filterObjectsByLanelets(*dynamic_objects, check_lanes, get_logger());
     for (const auto & i : object_indices) {
       const auto & obj = dynamic_objects->objects.at(i);
       for (const auto & obj_path : obj.state.predicted_paths) {
         const auto & resampled_path =
-          util::resamplePredictedPath(obj_path, time_resolution, prediction_duration);
+          util::resamplePredictedPath(obj_path, time_resolution, prediction_duration, this->get_logger(), this->get_clock());
         double radius = util::l2Norm(obj.state.twist_covariance.twist.linear) * stop_time;
         radius = std::max(radius, min_radius);
         const auto & marker = convertToMarker(resampled_path, i, "object_predicted_path", radius);

@@ -17,11 +17,11 @@
 #ifndef LANE_CHANGE_PLANNER_UTILITIES_H
 #define LANE_CHANGE_PLANNER_UTILITIES_H
 
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <geometry_msgs/msg/pose_array.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
 #include <autoware_planning_msgs/msg/path.hpp>
@@ -66,12 +66,12 @@ geometry_msgs::msg::PoseArray convertToGeometryPoseArray(
   const autoware_planning_msgs::msg::PathWithLaneId & path);
 
 autoware_perception_msgs::msg::PredictedPath convertToPredictedPath(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const geometry_msgs::msg::Twist & vehicle_twist,
-  const geometry_msgs::msg::Pose & vehicle_pose, const double duration, const double resolution,
-  const double acceleration);
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const geometry_msgs::msg::Twist & vehicle_twist, const geometry_msgs::msg::Pose & vehicle_pose,
+  const double duration, const double resolution, const double acceleration, const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
 autoware_perception_msgs::msg::PredictedPath resamplePredictedPath(
   const autoware_perception_msgs::msg::PredictedPath & input_path, const double resolution,
-  const double duration);
+  const double duration, const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
 
 bool convertToFrenetCoordinate3d(
   const std::vector<geometry_msgs::msg::Point> & linestring,
@@ -84,30 +84,34 @@ geometry_msgs::msg::Point lerpByLength(
   const std::vector<geometry_msgs::msg::Point> & array, const double length);
 bool lerpByTimeStamp(
   const autoware_perception_msgs::msg::PredictedPath & path, const ros::Time & t,
-  geometry_msgs::msg::Pose * lerped_pt);
+  geometry_msgs::msg::Pose * lerped_pt, const rclcpp::Logger & logger,
+  const rclcpp::Clock::SharedPtr & clock);
 
 double getDistance3d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2);
 double getDistanceBetweenPredictedPaths(
   const autoware_perception_msgs::msg::PredictedPath & path1,
   const autoware_perception_msgs::msg::PredictedPath & path2, const double start_time,
-  const double end_time, const double resolution);
+  const double end_time, const double resolution, const rclcpp::Logger & logger,
+  const rclcpp::Clock::SharedPtr & clock);
 
 std::vector<size_t> filterObjectsByLanelets(
   const autoware_perception_msgs::msg::DynamicObjectArray & objects,
   const lanelet::ConstLanelets & lanelets, const double start_arc_length,
-  const double end_arc_length);
+  const double end_arc_length, const rclcpp::Logger & logger);
 
 std::vector<size_t> filterObjectsByLanelets(
   const autoware_perception_msgs::msg::DynamicObjectArray & objects,
-  const lanelet::ConstLanelets & target_lanelets);
+  const lanelet::ConstLanelets & target_lanelets, const rclcpp::Logger & logger);
 
 bool calcObjectPolygon(
-  const autoware_perception_msgs::msg::DynamicObject & object, Polygon * object_polygon);
+  const autoware_perception_msgs::msg::DynamicObject & object, Polygon * object_polygon,
+  const rclcpp::Logger & logger);
 
 std::vector<size_t> filterObjectsByPath(
   const autoware_perception_msgs::msg::DynamicObjectArray & objects,
   const std::vector<size_t> & object_indices,
-  const autoware_planning_msgs::msg::PathWithLaneId & ego_path, const double vehicle_width);
+  const autoware_planning_msgs::msg::PathWithLaneId & ego_path, const double vehicle_width,
+  const rclcpp::Logger & logger);
 
 const geometry_msgs::msg::Pose refineGoal(
   const geometry_msgs::msg::Pose & goal, const lanelet::ConstLanelet & goal_lanelet);
@@ -115,7 +119,7 @@ const geometry_msgs::msg::Pose refineGoal(
 autoware_planning_msgs::msg::PathWithLaneId refinePath(
   const double search_radius_range, const double search_rad_range,
   const autoware_planning_msgs::msg::PathWithLaneId & input, const geometry_msgs::msg::Pose & goal,
-  const int64_t goal_lane_id);
+  const int64_t goal_lane_id, const rclcpp::Logger & logger);
 autoware_planning_msgs::msg::PathWithLaneId removeOverlappingPoints(
   const autoware_planning_msgs::msg::PathWithLaneId & input_path);
 
@@ -159,8 +163,10 @@ class SplineInterpolate
   std::vector<double> d_;
   std::vector<double> h_;
 
+  rclcpp::Logger logger_;
+
 public:
-  SplineInterpolate();
+  SplineInterpolate(const rclcpp::Logger & logger);
   bool interpolate(
     const std::vector<double> & base_index, const std::vector<double> & base_value,
     const std::vector<double> & return_index, std::vector<double> & return_value);

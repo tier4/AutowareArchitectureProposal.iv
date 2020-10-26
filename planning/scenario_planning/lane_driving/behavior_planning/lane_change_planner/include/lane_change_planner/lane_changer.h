@@ -42,7 +42,7 @@
 
 namespace lane_change_planner
 {
-class LaneChanger
+class LaneChanger : rclcpp::Node
 {
 private:
   ros::Timer timer_;
@@ -54,8 +54,6 @@ private:
   ros::Publisher drivable_area_publisher_;
   ros::Publisher lane_change_ready_publisher_;
   ros::Publisher lane_change_available_publisher_;
-
-  ros::NodeHandle pnh_;
 
   ros::Subscriber points_subscriber_;
   ros::Subscriber perception_subscriber_;

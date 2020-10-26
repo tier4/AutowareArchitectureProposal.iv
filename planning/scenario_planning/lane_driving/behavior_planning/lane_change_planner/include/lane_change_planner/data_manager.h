@@ -45,13 +45,15 @@ namespace lane_change_planner
 class SelfPoseLinstener
 {
 public:
-  SelfPoseLinstener();
+  SelfPoseLinstener(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
   bool getSelfPose(geometry_msgs::msg::PoseStamped & self_pose);
   bool isSelfPoseReady();
 
 private:
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
+  rclcpp::Logger logger_;
+  rclcpp::Clock::SharedPtr clock_;
 };
 
 struct BoolStamped
@@ -77,13 +79,16 @@ private:
   LaneChangerParameters parameters_;
   bool is_parameter_set_;
 
+  rclcpp::Logger logger_;
+  rclcpp::Clock::SharedPtr clock_;
+
   /*
    * SelfPoseLinstener
    */
   std::shared_ptr<SelfPoseLinstener> self_pose_listener_ptr_;
 
 public:
-  DataManager();
+  DataManager(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
   ~DataManager() = default;
 
   // callbacks
@@ -101,6 +106,8 @@ public:
   LaneChangerParameters getLaneChangerParameters();
   bool getLaneChangeApproval();
   bool getForceLaneChangeSignal();
+  rclcpp::Logger & getLogger();
+  rclcpp::Clock::SharedPtr getClock();
 
   bool isDataReady();
 };

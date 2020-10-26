@@ -112,8 +112,8 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
   lanelet::ConstLanelet closest_lanelet;
   if (!lanelet::utils::query::getClosestLanelet(
         original_lanes_, current_pose_.pose, &closest_lanelet)) {
-    ROS_ERROR_THROTTLE(
-      1, "Failed to find closest lane! Lane change aborting function is not working!");
+    RCLCPP_ERROR_THROTTLE(data_manager_ptr_->getLogger(), *data_manager_ptr_->getClock(),
+      1.0, "Failed to find closest lane! Lane change aborting function is not working!");
     return false;
   }
 
@@ -130,7 +130,7 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
 
     is_path_safe = state_machine::common_functions::isLaneChangePathSafe(
       path.path, original_lanes_, check_lanes, dynamic_objects_, current_pose_.pose,
-      current_twist_->twist, ros_parameters_, false, status_.lane_change_path.acceleration);
+      current_twist_->twist, ros_parameters_, data_manager_ptr_->getLogger(), data_manager_ptr_->getClock(), false, status_.lane_change_path.acceleration);
   }
 
   // check vehicle velocity thresh
@@ -177,8 +177,8 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
     if (is_distance_small && is_angle_diff_small) {
       return true;
     }
-    ROS_WARN_STREAM_THROTTLE(
-      1, "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be catious");
+    RCLCPP_WARN_STREAM_THROTTLE(data_manager_ptr_->getLogger(), *data_manager_ptr_->getClock(),
+      1.0, "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be catious");
   }
 
   return false;

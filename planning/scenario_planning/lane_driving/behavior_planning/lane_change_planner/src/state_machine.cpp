@@ -53,7 +53,7 @@ void StateMachine::updateState()
 
   // Transit to next state
   if (next_state != current_state) {
-    ROS_INFO_STREAM("changing state: " << current_state << " => " << next_state);
+    RCLCPP_INFO_STREAM(data_manager_ptr_->getLogger(), "changing state: " << current_state << " => " << next_state);
     const auto previous_status = state_obj_ptr_->getStatus();
     switch (next_state) {
       case State::FOLLOWING_LANE:

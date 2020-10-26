@@ -30,12 +30,12 @@ bool selectLaneChangePath(
   const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & dynamic_objects,
   const geometry_msgs::msg::Pose & current_pose, const geometry_msgs::msg::Twist & current_twist,
   const bool isInGoalRouteSection, const geometry_msgs::msg::Pose & goal_pose,
-  const LaneChangerParameters & ros_parameters, LaneChangePath * selected_path)
+  const LaneChangerParameters & ros_parameters, LaneChangePath * selected_path, const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
 {
   for (const auto & path : paths) {
     if (!isLaneChangePathSafe(
           path.path, current_lanes, target_lanes, dynamic_objects, current_pose, current_twist,
-          ros_parameters, true, path.acceleration)) {
+          ros_parameters, logger, clock, true, path.acceleration)) {
       continue;
     }
     if (!hasEnoughDistance(
@@ -90,11 +90,11 @@ bool hasEnoughDistance(
 }
 
 bool isLaneChangePathSafe(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::ConstLanelets & current_lanes,
-  const lanelet::ConstLanelets & target_lanes,
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const lanelet::ConstLanelets & current_lanes, const lanelet::ConstLanelets & target_lanes,
   const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & dynamic_objects,
   const geometry_msgs::msg::Pose & current_pose, const geometry_msgs::msg::Twist & current_twist,
-  const LaneChangerParameters & ros_parameters, const bool use_buffer, const double acceleration)
+  const LaneChangerParameters & ros_parameters, const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock, const bool use_buffer, const double acceleration)
 {
   if (path.points.empty()) {
     return false;
@@ -133,24 +133,24 @@ bool isLaneChangePathSafe(
   // find obstacle in lane change target lanes
   // retrieve lanes that are merging target lanes as well
   const auto target_lane_object_indices =
-    util::filterObjectsByLanelets(*dynamic_objects, target_lanes);
+    util::filterObjectsByLanelets(*dynamic_objects, target_lanes, logger);
 
   // find objects in current lane
   const auto current_lane_object_indices_lanelet = util::filterObjectsByLanelets(
-    *dynamic_objects, current_lanes, arc.length, arc.length + check_distance);
+    *dynamic_objects, current_lanes, arc.length, arc.length + check_distance, logger);
   const auto current_lane_object_indices = util::filterObjectsByPath(
     *dynamic_objects, current_lane_object_indices_lanelet, path,
-    vehicle_width / 2 + lateral_buffer);
+    vehicle_width / 2 + lateral_buffer, logger);
 
   const auto & vehicle_predicted_path = util::convertToPredictedPath(
-    path, current_twist, current_pose, target_lane_check_end_time, time_resolution, acceleration);
+    path, current_twist, current_pose, target_lane_check_end_time, time_resolution, acceleration, logger, clock);
 
   for (const auto & i : current_lane_object_indices) {
     const auto & obj = dynamic_objects->objects.at(i);
     for (const auto & obj_path : obj.state.predicted_paths) {
       double distance = util::getDistanceBetweenPredictedPaths(
         obj_path, vehicle_predicted_path, target_lane_check_start_time, target_lane_check_end_time,
-        time_resolution);
+        time_resolution, logger, clock);
       double thresh;
       if (isObjectFront(current_pose, obj.state.pose_covariance.pose)) {
         thresh = util::l2Norm(current_twist.linear) * stop_time;
@@ -170,7 +170,7 @@ bool isLaneChangePathSafe(
     for (const auto & obj_path : obj.state.predicted_paths) {
       double distance = util::getDistanceBetweenPredictedPaths(
         obj_path, vehicle_predicted_path, target_lane_check_start_time, target_lane_check_end_time,
-        time_resolution);
+        time_resolution, logger, clock);
       double thresh;
       if (isObjectFront(current_pose, obj.state.pose_covariance.pose)) {
         thresh = util::l2Norm(current_twist.linear) * stop_time;
@@ -188,7 +188,8 @@ bool isLaneChangePathSafe(
   return true;
 }
 
-bool isObjectFront(const geometry_msgs::msg::Pose & ego_pose, const geometry_msgs::msg::Pose & obj_pose)
+bool isObjectFront(
+  const geometry_msgs::msg::Pose & ego_pose, const geometry_msgs::msg::Pose & obj_pose)
 {
   tf2::Transform tf_map2ego, tf_map2obj;
   geometry_msgs::msg::Pose obj_from_ego;

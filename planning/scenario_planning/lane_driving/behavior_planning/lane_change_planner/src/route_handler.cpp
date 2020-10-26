@@ -17,13 +17,13 @@
 #include <lane_change_planner/route_handler.h>
 #include <lane_change_planner/utilities.h>
 
-#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/geometry/Lanelet.h>
 #include <lanelet2_core/primitives/LaneletSequence.h>
 #include <lanelet2_extension/utility/message_conversion.h>
 #include <lanelet2_extension/utility/query.h>
 #include <lanelet2_extension/utility/utilities.h>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -66,7 +66,7 @@ bool isRouteLooped(const autoware_planning_msgs::msg::Route & route_msg)
 
 PathWithLaneId combineReferencePath(
   const PathWithLaneId path1, const PathWithLaneId path2, const double interval,
-  const size_t N_sample)
+  const size_t N_sample, const rclcpp::Logger & logger)
 {
   PathWithLaneId path;
   path.points.insert(path.points.end(), path1.points.begin(), path1.points.end());
@@ -118,7 +118,7 @@ PathWithLaneId combineReferencePath(
       inner_s.push_back(d);
     }
 
-    lane_change_planner::util::SplineInterpolate spline;
+    lane_change_planner::util::SplineInterpolate spline(logger);
     std::vector<PathPointWithLaneId> inner_points;
     std::vector<double> inner_x;
     std::vector<double> inner_y;
@@ -167,7 +167,8 @@ PathWithLaneId combineReferencePath(
       path.points.insert(path.points.end(), inner_points.begin(), inner_points.end());
 
     } else {
-      ROS_WARN("[LaneChageModule::splineInterpolate] spline interpolation failed.");
+      RCLCPP_WARN(
+        logger, "[LaneChageModule::splineInterpolate] spline interpolation failed.");
     }
   }
   path.points.insert(path.points.end(), path2.points.begin(), path2.points.end());
@@ -203,8 +204,12 @@ lanelet::ConstPoint3d get3DPointFrom2DArcLength(
 
 namespace lane_change_planner
 {
-RouteHandler::RouteHandler()
-: is_route_msg_ready_(false), is_map_msg_ready_(false), is_handler_ready_(false)
+RouteHandler::RouteHandler(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: is_route_msg_ready_(false),
+  is_map_msg_ready_(false),
+  is_handler_ready_(false),
+  logger_(logger),
+  clock_(clock)
 {
 }
 
@@ -240,7 +245,8 @@ void RouteHandler::routeCallback(const autoware_planning_msgs::msg::Route & rout
     is_handler_ready_ = false;
     setRouteLanelets();
   } else {
-    ROS_ERROR(
+    RCLCPP_ERROR(
+      logger_,
       "Loop detected within route! Currently, no loop is allowed for route! Using previous route");
   }
 }
@@ -711,7 +717,8 @@ PathWithLaneId RouteHandler::updatePathTwist(const PathWithLaneId & path) const
   return updated_path;
 }
 
-lanelet::ConstLanelets RouteHandler::getLaneChangeTarget(const geometry_msgs::msg::Pose & pose) const
+lanelet::ConstLanelets RouteHandler::getLaneChangeTarget(
+  const geometry_msgs::msg::Pose & pose) const
 {
   lanelet::ConstLanelet lanelet;
   lanelet::ConstLanelets target_lanelets;
@@ -800,7 +807,7 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
     }
 
     if (reference_path1.points.empty() || reference_path2.points.empty()) {
-      ROS_ERROR_STREAM("reference path is empty!! something wrong...");
+      RCLCPP_ERROR_STREAM(logger_, "reference path is empty!! something wrong...");
       continue;
     }
 
@@ -808,7 +815,7 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
     candidate_path.acceleration = acceleration;
     candidate_path.preparation_length = straight_distance;
     candidate_path.lane_change_length = lane_change_distance;
-    candidate_path.path = combineReferencePath(reference_path1, reference_path2, 5.0, 2);
+    candidate_path.path = combineReferencePath(reference_path1, reference_path2, 5.0, 2, logger_);
 
     // set fixed flag
     for (auto & pt : candidate_path.path.points) {
@@ -870,8 +877,8 @@ double RouteHandler::getLaneChangeableDistance(
 }
 
 lanelet::ConstLanelets RouteHandler::getCheckTargetLanesFromPath(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::ConstLanelets & target_lanes,
-  const double check_length)
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const lanelet::ConstLanelets & target_lanes, const double check_length)
 {
   std::vector<int64_t> target_lane_ids;
   target_lane_ids.reserve(target_lanes.size());

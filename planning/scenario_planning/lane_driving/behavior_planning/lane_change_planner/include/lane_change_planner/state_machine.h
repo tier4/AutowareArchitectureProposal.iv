@@ -17,12 +17,12 @@
 #ifndef LANE_CHANGE_PLANNER_STATE_MACHINE_H
 #define LANE_CHANGE_PLANNER_STATE_MACHINE_H
 
-#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
-#include <autoware_planning_msgs/msg/route.hpp>
 #include <lane_change_planner/state/state_base_class.h>
 #include <lanelet2_core/primitives/Lanelet.h>
-#include <rclcpp/rclcpp.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <autoware_planning_msgs/msg/route.hpp>
 #include <memory>
+#include <rclcpp/rclcpp.hpp>
 
 namespace lane_change_planner
 {

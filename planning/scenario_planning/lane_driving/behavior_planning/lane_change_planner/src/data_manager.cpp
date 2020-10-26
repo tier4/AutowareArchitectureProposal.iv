@@ -19,10 +19,14 @@
 
 namespace lane_change_planner
 {
-DataManager::DataManager()
-: is_parameter_set_(false), lane_change_approval_(false), force_lane_change_(false)
+DataManager::DataManager(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: logger_(logger),
+  clock_(clock),
+  is_parameter_set_(false),
+  lane_change_approval_(false),
+  force_lane_change_(false)
 {
-  self_pose_listener_ptr_ = std::make_shared<SelfPoseLinstener>();
+  self_pose_listener_ptr_ = std::make_shared<SelfPoseLinstener>(logger, clock);
 }
 
 void DataManager::perceptionCallback(
@@ -43,7 +47,8 @@ void DataManager::laneChangeApprovalCallback(const std_msgs::msg::Bool & input_a
   lane_change_approval_.stamp = ros::Time::now();
 }
 
-void DataManager::forceLaneChangeSignalCallback(const std_msgs::msg::Bool & input_force_lane_change_msg)
+void DataManager::forceLaneChangeSignalCallback(
+  const std_msgs::msg::Bool & input_force_lane_change_msg)
 {
   force_lane_change_.data = input_force_lane_change_msg.data;
   force_lane_change_.stamp = ros::Time::now();
@@ -93,6 +98,16 @@ bool DataManager::getForceLaneChangeSignal()
   }
 }
 
+rclcpp::Logger & DataManager::getLogger()
+{
+  return logger_;
+}
+
+rclcpp::Clock::SharedPtr DataManager::getClock()
+{
+  return clock_;
+}
+
 bool DataManager::isDataReady()
 {
   if (!perception_ptr_) {
@@ -107,7 +122,8 @@ bool DataManager::isDataReady()
   return true;
 }
 
-SelfPoseLinstener::SelfPoseLinstener() : tf_listener_(tf_buffer_){};
+SelfPoseLinstener::SelfPoseLinstener(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: logger_(logger), clock_(clock), tf_listener_(tf_buffer_){};
 
 bool SelfPoseLinstener::isSelfPoseReady()
 {
@@ -132,7 +148,7 @@ bool SelfPoseLinstener::getSelfPose(geometry_msgs::msg::PoseStamped & self_pose)
     self_pose.header.frame_id = map_frame;
     return true;
   } catch (tf2::TransformException & ex) {
-    ROS_ERROR_STREAM_THROTTLE(1, "failed to find self pose :" << ex.what());
+    RCLCPP_ERROR_STREAM_THROTTLE(logger_, *clock_, 1.0, "failed to find self pose :" << ex.what());
     return false;
   }
 }

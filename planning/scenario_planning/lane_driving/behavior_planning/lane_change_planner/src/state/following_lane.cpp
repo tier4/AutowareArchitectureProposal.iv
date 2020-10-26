@@ -64,7 +64,7 @@ void FollowingLaneState::update()
   // update lanes
   {
     if (!route_handler_ptr_->getClosestLaneletWithinRoute(current_pose_.pose, &current_lane)) {
-      ROS_ERROR("failed to find closest lanelet within route!!!");
+      RCLCPP_ERROR(data_manager_ptr_->getLogger(), "failed to find closest lanelet within route!!!");
       return;
     }
     current_lanes_ = route_handler_ptr_->getLaneletSequence(
@@ -112,7 +112,7 @@ void FollowingLaneState::update()
             lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
             dynamic_objects_, current_pose_.pose, current_twist_->twist,
             route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
-            route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path)) {
+            route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path, data_manager_ptr_->getLogger(), data_manager_ptr_->getClock())) {
         found_safe_path = true;
       }
       debug_data_.selected_path = selected_path.path;
@@ -149,7 +149,7 @@ void FollowingLaneState::update()
 State FollowingLaneState::getNextState() const
 {
   if (current_lanes_.empty()) {
-    ROS_ERROR_THROTTLE(1, "current lanes empty. Keeping state.");
+    RCLCPP_ERROR_THROTTLE(data_manager_ptr_->getLogger(), *data_manager_ptr_->getClock(), 1.0, "current lanes empty. Keeping state.");
     return State::FOLLOWING_LANE;
   }
   if (route_handler_ptr_->isInPreferredLane(current_pose_) && isLaneBlocked(current_lanes_)) {
@@ -180,7 +180,7 @@ bool FollowingLaneState::isLaneBlocked(const lanelet::ConstLanelets & lanes) con
     lanelet::utils::getPolygonFromArcLength(lanes, arc.length, arc.length + check_distance);
 
   if (polygon.size() < 3) {
-    ROS_WARN_STREAM(
+    RCLCPP_WARN_STREAM(data_manager_ptr_->getLogger(), 
       "could not get polygon from lanelet with arc lengths: " << arc.length << " to "
                                                               << arc.length + check_distance);
     return false;
