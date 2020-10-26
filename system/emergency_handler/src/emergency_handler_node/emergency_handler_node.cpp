@@ -26,6 +26,7 @@ void EmergencyHandlerNode::onDrivingCapability(
   const autoware_system_msgs::DrivingCapability::ConstPtr & msg)
 {
   driving_capability_ = msg;
+  heartbeat_received_time_ = ros::Time::now();
 }
 
 // To be replaced by ControlCommand
@@ -47,8 +48,28 @@ void EmergencyHandlerNode::onTwist(const geometry_msgs::TwistStamped::ConstPtr &
   twist_ = msg;
 }
 
+bool EmergencyHandlerNode::onClearEmergencyService(
+  std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res)
+{
+  if (!isEmergency()) {
+    is_emergency_ = false;
+    res.success = true;
+    res.message = "Emergency state was cleared.";
+  } else {
+    res.success = false;
+    res.message = "There are still errors, can't clear emergency state.";
+  }
+
+  return true;
+}
+
 bool EmergencyHandlerNode::isDataReady()
 {
+  if (!autoware_state_) {
+    ROS_DEBUG_THROTTLE(1.0, "waiting for autoware_state msg...");
+    return false;
+  }
+
   if (!driving_capability_) {
     ROS_DEBUG_THROTTLE(1.0, "waiting for driving_capability msg...");
     return false;
@@ -78,14 +99,26 @@ void EmergencyHandlerNode::onTimer(const ros::TimerEvent & event)
     return;
   }
 
+  // Heartbeat
+  const auto time_from_last_heartbeat = ros::Time::now() - heartbeat_received_time_;
+  is_heartbeat_timeout_ = time_from_last_heartbeat.toSec() > heartbeat_timeout_;
+
   // Create timestamp
   const auto stamp = ros::Time::now();
 
   // Check if emergency
   {
-    std_msgs::Bool is_emergency;
-    is_emergency.data = isEmergency();
-    pub_is_emergency_.publish(is_emergency);
+    if (use_emergency_hold_) {
+      if (isEmergency()) {
+        is_emergency_ = true;
+      }
+    } else {
+      is_emergency_ = isEmergency();
+    }
+
+    std_msgs::Bool msg;
+    msg.data = is_emergency_;
+    pub_is_emergency_.publish(msg);
   }
 
   // Select ControlCommand
@@ -123,6 +156,12 @@ bool EmergencyHandlerNode::isStopped()
 
 bool EmergencyHandlerNode::isEmergency()
 {
+  // Check timeout
+  if (is_heartbeat_timeout_) {
+    ROS_WARN_THROTTLE(1.0, "heartbeat is timeout");
+    return true;
+  }
+
   using autoware_control_msgs::GateMode;
   using autoware_system_msgs::AutowareState;
 
@@ -191,6 +230,8 @@ EmergencyHandlerNode::EmergencyHandlerNode()
 {
   // Parameter
   private_nh_.param("update_rate", update_rate_, 10.0);
+  private_nh_.param("heartbeat_timeout", heartbeat_timeout_, 0.5);
+  private_nh_.param("use_emergency_hold", use_emergency_hold_, false);
   private_nh_.param("use_parking_after_stopped", use_parking_after_stopped_, false);
 
   // Subscriber
@@ -203,6 +244,10 @@ EmergencyHandlerNode::EmergencyHandlerNode()
   sub_current_gate_mode_ = private_nh_.subscribe(
     "input/current_gate_mode", 1, &EmergencyHandlerNode::onCurrentGateMode, this);
   sub_twist_ = private_nh_.subscribe("input/twist", 1, &EmergencyHandlerNode::onTwist, this);
+
+  // Service
+  srv_clear_emergency_ = private_nh_.advertiseService(
+    "service/clear_emergency", &EmergencyHandlerNode::onClearEmergencyService, this);
 
   // Publisher
   pub_control_command_ = private_nh_.advertise<autoware_control_msgs::ControlCommandStamped>(

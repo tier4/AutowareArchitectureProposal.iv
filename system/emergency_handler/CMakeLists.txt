@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
   std_msgs
+  std_srvs
 )
 
 catkin_package(
@@ -21,6 +22,7 @@ catkin_package(
     autoware_vehicle_msgs
     geometry_msgs
     std_msgs
+    std_srvs
 )
 
 include_directories(

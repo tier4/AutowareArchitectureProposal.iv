@@ -89,7 +89,7 @@ private:
   // Service
   ros::ServiceServer srv_shutdown_;
 
-  bool srvShutdown(std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res);
+  bool onShutdownService(std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res);
 
   // Publisher
   ros::Publisher pub_autoware_state_;

@@ -28,6 +28,7 @@
 #include <autoware_vehicle_msgs/TurnSignal.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <std_msgs/Bool.h>
+#include <std_srvs/Trigger.h>
 
 // tmp
 #include <autoware_vehicle_msgs/VehicleCommand.h>
@@ -44,6 +45,8 @@ private:
 
   // Parameter
   double update_rate_;
+  double heartbeat_timeout_;
+  bool use_emergency_hold_;
   bool use_parking_after_stopped_;
 
   // Subscriber
@@ -66,6 +69,11 @@ private:
   void onCurrentGateMode(const autoware_control_msgs::GateMode::ConstPtr & msg);
   void onTwist(const geometry_msgs::TwistStamped::ConstPtr & msg);
 
+  // Service
+  ros::ServiceServer srv_clear_emergency_;
+
+  bool onClearEmergencyService(std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res);
+
   // Publisher
   ros::Publisher pub_control_command_;
   ros::Publisher pub_shift_;
@@ -78,7 +86,13 @@ private:
   bool isDataReady();
   void onTimer(const ros::TimerEvent & event);
 
+  // Heartbeat
+  ros::Time heartbeat_received_time_;
+  bool is_heartbeat_timeout_ = false;
+
   // Algorithm
+  bool is_emergency_ = false;
+
   bool isStopped();
   bool isEmergency();
   autoware_control_msgs::ControlCommand selectAlternativeControlCommand();
