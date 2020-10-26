@@ -142,8 +142,8 @@ private:
     lanelet::LaneletMapConstPtr lanelet_map_ptr,
     lanelet::routing::RoutingGraphPtr routing_graph_ptr,
     const autoware_planning_msgs::PathWithLaneId & path,
-    const autoware_perception_msgs::DynamicObjectArray::ConstPtr objects_ptr,
-    const int closest_idx) const;
+    const autoware_perception_msgs::DynamicObjectArray::ConstPtr objects_ptr, const int closest_idx,
+    const geometry_msgs::Pose & stop_line_pose) const;
 
   /**
    * @brief Create half lanelet
@@ -159,10 +159,11 @@ private:
    * @param closest_idx closest path point index from ego car in path points
    * @return Blind spot polygons
    */
-  BlindSpotPolygons generateBlindSpotPolygons(
+  boost::optional<BlindSpotPolygons> generateBlindSpotPolygons(
     lanelet::LaneletMapConstPtr lanelet_map_ptr,
     lanelet::routing::RoutingGraphPtr routing_graph_ptr,
-    const autoware_planning_msgs::PathWithLaneId & path, const int closest_idx) const;
+    const autoware_planning_msgs::PathWithLaneId & path, const int closest_idx,
+    const geometry_msgs::Pose & pose) const;
 
   /**
    * @brief Get vehicle edge
