@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-#include <autoware_api_msgs/LaneChangeStatus.h>
+#include <rclcpp/rclcpp.hpp>
+
 #include <awapi_awiv_adapter/awapi_autoware_util.h>
+#include <autoware_api_msgs/msg/lane_change_status.hpp>
 
 namespace autoware_api
 {
-class AutowareIvLaneChangeStatePublisher
+class AutowareIvLaneChangeStatePublisher : public rclcpp::Node
 {
 public:
   AutowareIvLaneChangeStatePublisher();
@@ -27,19 +29,19 @@ public:
 
 private:
   // node handle
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
 
   // publisher
-  ros::Publisher pub_state_;
+  rclcpp::Publisher<autoware_api_msgs::msg::LaneChangeStatus>::SharedPtr pub_state_;
 
   void getLaneChangeAvailableInfo(
-    const std_msgs::Bool::ConstPtr & available_ptr, autoware_api_msgs::LaneChangeStatus * status);
+    const std_msgs::msg::Bool::ConstSharedPtr & available_ptr,
+    autoware_api_msgs::msg::LaneChangeStatus * status);
   void getLaneChangeReadyInfo(
-    const std_msgs::Bool::ConstPtr & ready_ptr, autoware_api_msgs::LaneChangeStatus * status);
+    const std_msgs::msg::Bool::ConstSharedPtr & ready_ptr,
+    autoware_api_msgs::msg::LaneChangeStatus * status);
   void getCandidatePathInfo(
-    const autoware_planning_msgs::Path::ConstPtr & path_ptr,
-    autoware_api_msgs::LaneChangeStatus * status);
+    const autoware_planning_msgs::msg::Path::ConstSharedPtr & path_ptr,
+    autoware_api_msgs::msg::LaneChangeStatus * status);
 };
 
 }  // namespace autoware_api
