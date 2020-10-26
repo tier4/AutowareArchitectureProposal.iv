@@ -68,6 +68,17 @@ void imageToOccupancyGrid(const cv::Mat & cv_image, nav_msgs::msg::OccupancyGrid
   }
 }
 
+geometry_msgs::msg::TransformStamped toTransformStamped(const geometry_msgs::msg::PoseStamped pose)
+{
+  geometry_msgs::msg::TransformStamped transform;
+  transform.header = pose.header;
+  transform.transform.translation.x = pose.pose.position.x;
+  transform.transform.translation.y = pose.pose.position.y;
+  transform.transform.translation.z = pose.pose.position.z;
+  transform.transform.rotation = pose.pose.orientation;
+  return transform;
+}
+
 }  // namespace
 
 namespace lane_change_planner
@@ -297,7 +308,9 @@ geometry_msgs::msg::Pose lerpByPose(
     tf2::slerp(tf_transform1.getRotation(), tf_transform2.getRotation(), t);
 
   geometry_msgs::msg::Pose pose;
-  pose.position = tf2::toMsg(tf_point, pose.position);
+  pose.position.x = tf_point.getX();
+  pose.position.y = tf_point.getY();
+  pose.position.z = tf_point.getZ();
   pose.orientation = tf2::toMsg(tf_quaternion);
   return pose;
 }
@@ -832,7 +845,7 @@ nav_msgs::msg::OccupancyGrid generateDrivableArea(
     constexpr uint8_t occupied_space = 100;
     // get transform
     tf2::Stamped<tf2::Transform> tf_grid2map, tf_map2grid;
-    tf2::fromMsg(grid_origin, tf_grid2map);
+    tf2::fromMsg(toTransformStamped(grid_origin), tf_grid2map);
     tf_map2grid.setData(tf_grid2map.inverse());
     const auto geom_tf_map2grid = tf2::toMsg(tf_map2grid);
 
@@ -864,9 +877,11 @@ nav_msgs::msg::OccupancyGrid generateDrivableArea(
       std::vector<cv::Point> cv_polygon;
       for (const auto & llt_pt : lane.polygon3d()) {
         geometry_msgs::msg::Point geom_pt = lanelet::utils::conversion::toGeomMsgPt(llt_pt);
-        geometry_msgs::msg::Point transformed_geom_pt;
-        tf2::doTransform(geom_pt, transformed_geom_pt, geom_tf_map2grid);
-        cv_polygon.push_back(toCVPoint(transformed_geom_pt, width, height, resolution));
+        geometry_msgs::msg::PointStamped geom_pt_stamped;
+        geom_pt_stamped.point = geom_pt;
+        geometry_msgs::msg::PointStamped transformed_geom_pt;
+        tf2::doTransform(geom_pt_stamped, transformed_geom_pt, geom_tf_map2grid);
+        cv_polygon.push_back(toCVPoint(transformed_geom_pt.point, width, height, resolution));
       }
       cv_polygons.push_back(cv_polygon);
       cv_polygon_sizes.push_back(cv_polygon.size());

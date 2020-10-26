@@ -50,7 +50,7 @@ public:
   bool isSelfPoseReady();
 
 private:
-  tf2_ros::Buffer tf_buffer_;
+  tf2::BufferCore tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
   rclcpp::Logger logger_;
   rclcpp::Clock::SharedPtr clock_;
