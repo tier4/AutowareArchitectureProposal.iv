@@ -22,7 +22,7 @@
 namespace vehicle_info_util
 {
 /// This is a convenience class for saving you from declaring all parameters
-/// manually and calculating derived parameters. It also 
+/// manually and calculating derived parameters. It also
 ///
 /// It's a bit odd to have a class with public data members. However, I think
 /// this is a clean solution that
@@ -44,8 +44,8 @@ public:
   ///
   /// This function will declare a parameter for each of the base parameters.
   /// This may throw an exception if not all base parameters were specified.
-
   static VehicleInfo from_parameters(rclcpp::Node & node);
+
   // Base parameters
   const double wheel_radius_m_;
   const double wheel_width_m_;
