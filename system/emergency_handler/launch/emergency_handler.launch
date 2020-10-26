@@ -11,6 +11,8 @@
   <arg name="output_turn_signal" default="/system/emergency/turn_signal_cmd" />
   <arg name="output_is_emergency" default="/system/emergency/is_emergency" />
 
+  <arg name="service_clear_emergency" default="/system/clear_emergency" />
+
   <arg name="config_file" default="$(find emergency_handler)/config/emergency_handler.yaml" />
 
   <node pkg="emergency_handler" type="emergency_handler" name="emergency_handler" output="screen">
@@ -24,6 +26,8 @@
     <remap from="~output/shift" to="$(arg output_shift)"/>
     <remap from="~output/turn_signal" to="$(arg output_turn_signal)"/>
     <remap from="~output/is_emergency" to="$(arg output_is_emergency)"/>
+
+    <remap from="~service/clear_emergency" to="$(arg service_clear_emergency)"/>
 
     <rosparam command="load" file="$(arg config_file)" />
   </node>

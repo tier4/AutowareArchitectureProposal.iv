@@ -167,7 +167,7 @@ void AutowareStateMonitorNode::onTwist(const geometry_msgs::TwistStamped::ConstP
   }
 }
 
-bool AutowareStateMonitorNode::srvShutdown(
+bool AutowareStateMonitorNode::onShutdownService(
   std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res)
 {
   state_input_.is_finalizing = true;
@@ -406,8 +406,8 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   sub_twist_ = private_nh_.subscribe("input/twist", 100, &AutowareStateMonitorNode::onTwist, this);
 
   // Service
-  srv_shutdown_ =
-    private_nh_.advertiseService("service/shutdown", &AutowareStateMonitorNode::srvShutdown, this);
+  srv_shutdown_ = private_nh_.advertiseService(
+    "service/shutdown", &AutowareStateMonitorNode::onShutdownService, this);
 
   // Publisher
   pub_autoware_state_ =
