@@ -79,20 +79,18 @@ static int callback(struct nl_msg * msg, void * arg)
 
 void NL80211::init()
 {
-  int ret = 0;
-
   // Allocate new netlink socket.
   socket_ = nl_socket_alloc();
   // Returns newly allocated netlink socket or NULL.
   if (!socket_) return;
 
   // Connect a generic netlink socket.
-  if (genl_connect(socket_))
-    // Returns 0 on success or a negative error code.
-    if (ret < 0) {
-      shutdown();
-      return;
-    }
+  // Returns 0 on success or a negative error code.
+  int ret = genl_connect(socket_);
+  if (ret < 0) {
+    shutdown();
+    return;
+  }
 
   // Resolve generic netlink family name to its identifier.
   id_ = genl_ctrl_resolve(socket_, "nl80211");
