@@ -15,55 +15,57 @@
  */
 
 #include "astar_search/astar_search.h"
-
-#include <vector>
+#include "astar_search/helper.h"
 
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-#include <astar_search/helper.h>
 
 namespace
 {
-double calcDistance2d(const geometry_msgs::Point & p1, const geometry_msgs::Point & p2)
+double calcDistance2d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2)
 {
   return std::hypot(p2.x - p1.x, p2.y - p1.y);
 }
 
-double calcDistance2d(const geometry_msgs::Pose & p1, const geometry_msgs::Pose & p2)
+double calcDistance2d(const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Pose & p2)
 {
   return calcDistance2d(p1.position, p2.position);
 }
 
-geometry_msgs::Pose transformPose(
-  const geometry_msgs::Pose & pose, const geometry_msgs::TransformStamped & transform)
+geometry_msgs::msg::Pose transformPose(
+  const geometry_msgs::msg::Pose & pose, const geometry_msgs::msg::TransformStamped & transform)
 {
-  geometry_msgs::Pose transformed_pose;
-  tf2::doTransform(pose, transformed_pose, transform);
+  geometry_msgs::msg::PoseStamped transformed_pose;
+  geometry_msgs::msg::PoseStamped pose_orig;
+  pose_orig.pose = pose;
+  tf2::doTransform(pose_orig, transformed_pose, transform);
 
-  return transformed_pose;
+  return transformed_pose.pose;
 }
 
-void setYaw(geometry_msgs::Quaternion * orientation, const double yaw)
+void setYaw(geometry_msgs::msg::Quaternion * orientation, const double yaw)
 {
   tf2::Quaternion quat;
   quat.setRPY(0, 0, yaw);
   tf2::convert(quat, *orientation);
 }
 
-geometry_msgs::Pose calcRelativePose(
-  const geometry_msgs::Pose & base_pose, const geometry_msgs::Pose & pose)
+geometry_msgs::msg::Pose calcRelativePose(
+  const geometry_msgs::msg::Pose & base_pose, const geometry_msgs::msg::Pose & pose)
 {
   tf2::Transform tf_transform;
   tf2::convert(base_pose, tf_transform);
 
-  geometry_msgs::TransformStamped transform;
+  geometry_msgs::msg::TransformStamped transform;
   transform.transform = tf2::toMsg(tf_transform.inverse());
 
-  geometry_msgs::Pose transformed;
-  tf2::doTransform(pose, transformed, transform);
+  geometry_msgs::msg::PoseStamped transformed;
+  geometry_msgs::msg::PoseStamped pose_orig;
+  pose_orig.pose = pose;
+  tf2::doTransform(pose_orig, transformed, transform);
 
-  return transformed;
+  return transformed.pose;
 }
 
 int descretizeAngle(const double theta, const int theta_size)
@@ -72,32 +74,32 @@ int descretizeAngle(const double theta, const int theta_size)
   return static_cast<int>(normalizeRadian(theta, 0, 2 * M_PI) / one_angle_range) % theta_size;
 }
 
-geometry_msgs::Pose global2local(
-  const nav_msgs::OccupancyGrid & costmap, const geometry_msgs::Pose & pose_global)
+geometry_msgs::msg::Pose global2local(
+  const nav_msgs::msg::OccupancyGrid & costmap, const geometry_msgs::msg::Pose & pose_global)
 {
   tf2::Transform tf_origin;
   tf2::convert(costmap.info.origin, tf_origin);
 
-  geometry_msgs::TransformStamped transform;
+  geometry_msgs::msg::TransformStamped transform;
   transform.transform = tf2::toMsg(tf_origin.inverse());
 
   return transformPose(pose_global, transform);
 }
 
-geometry_msgs::Pose local2global(
-  const nav_msgs::OccupancyGrid & costmap, const geometry_msgs::Pose & pose_local)
+geometry_msgs::msg::Pose local2global(
+  const nav_msgs::msg::OccupancyGrid & costmap, const geometry_msgs::msg::Pose & pose_local)
 {
   tf2::Transform tf_origin;
   tf2::convert(costmap.info.origin, tf_origin);
 
-  geometry_msgs::TransformStamped transform;
+  geometry_msgs::msg::TransformStamped transform;
   transform.transform = tf2::toMsg(tf_origin);
 
   return transformPose(pose_local, transform);
 }
 
 IndexXYT pose2index(
-  const nav_msgs::OccupancyGrid & costmap, const geometry_msgs::Pose & pose_local,
+  const nav_msgs::msg::OccupancyGrid & costmap, const geometry_msgs::msg::Pose & pose_local,
   const int theta_size)
 {
   const int index_x = pose_local.position.x / costmap.info.resolution;
@@ -106,10 +108,10 @@ IndexXYT pose2index(
   return {index_x, index_y, index_theta};
 }
 
-geometry_msgs::Pose index2pose(
-  const nav_msgs::OccupancyGrid & costmap, const IndexXYT & index, const int theta_size)
+geometry_msgs::msg::Pose index2pose(
+  const nav_msgs::msg::OccupancyGrid & costmap, const IndexXYT & index, const int theta_size)
 {
-  geometry_msgs::Pose pose_local;
+  geometry_msgs::msg::Pose pose_local;
 
   pose_local.position.x = index.x * costmap.info.resolution;
   pose_local.position.y = index.y * costmap.info.resolution;
@@ -123,9 +125,9 @@ geometry_msgs::Pose index2pose(
   return pose_local;
 }
 
-geometry_msgs::Pose node2pose(const AstarNode & node)
+geometry_msgs::msg::Pose node2pose(const AstarNode & node)
 {
-  geometry_msgs::Pose pose_local;
+  geometry_msgs::msg::Pose pose_local;
 
   pose_local.position.x = node.x;
   pose_local.position.y = node.y;
@@ -185,7 +187,7 @@ AstarSearch::AstarSearch(const AstarParam & astar_param) : astar_param_(astar_pa
     astar_param_.minimum_turning_radius, astar_param_.theta_size, astar_param_.use_back);
 }
 
-void AstarSearch::initializeNodes(const nav_msgs::OccupancyGrid & costmap)
+void AstarSearch::initializeNodes(const nav_msgs::msg::OccupancyGrid & costmap)
 {
   costmap_ = costmap;
 
@@ -195,18 +197,18 @@ void AstarSearch::initializeNodes(const nav_msgs::OccupancyGrid & costmap)
   // Initialize nodes
   nodes_.clear();
   nodes_.resize(height);
-  for (int i = 0; i < height; i++) {
+  for (size_t i = 0; i < height; i++) {
     nodes_[i].resize(width);
   }
-  for (int i = 0; i < height; i++) {
-    for (int j = 0; j < width; j++) {
+  for (size_t i = 0; i < height; i++) {
+    for (size_t j = 0; j < width; j++) {
       nodes_[i][j].resize(astar_param_.theta_size);
     }
   }
 
   // Initialize status
-  for (int i = 0; i < height; i++) {
-    for (int j = 0; j < width; j++) {
+  for (size_t i = 0; i < height; i++) {
+    for (size_t j = 0; j < width; j++) {
       const int cost = costmap_.data[i * width + j];
 
       if (cost < 0 || astar_param_.obstacle_threshold <= cost) {
@@ -217,7 +219,7 @@ void AstarSearch::initializeNodes(const nav_msgs::OccupancyGrid & costmap)
 }
 
 bool AstarSearch::makePlan(
-  const geometry_msgs::Pose & start_pose, const geometry_msgs::Pose & goal_pose)
+  const geometry_msgs::msg::Pose & start_pose, const geometry_msgs::msg::Pose & goal_pose)
 {
   start_pose_ = global2local(costmap_, start_pose);
   goal_pose_ = global2local(costmap_, goal_pose);
@@ -269,7 +271,7 @@ bool AstarSearch::setGoalNode()
   return true;
 }
 
-double AstarSearch::estimateCost(const geometry_msgs::Pose & pose)
+double AstarSearch::estimateCost(const geometry_msgs::msg::Pose & pose)
 {
   double total_cost = 0.0;
 
@@ -283,13 +285,13 @@ double AstarSearch::estimateCost(const geometry_msgs::Pose & pose)
 
 bool AstarSearch::search()
 {
-  const ros::WallTime begin = ros::WallTime::now();
+  const rclcpp::Time begin = rclcpp::Clock(RCL_ROS_TIME).now();
 
   // Start A* search
   while (!openlist_.empty()) {
     // Check time and terminate if the search reaches the time limit
-    const ros::WallTime now = ros::WallTime::now();
-    const double msec = (now - begin).toSec() * 1000.0;
+    const rclcpp::Time now = rclcpp::Clock(RCL_ROS_TIME).now();
+    const double msec = (now - begin).seconds() * 1000.0;
     if (msec > astar_param_.time_limit) {
       return false;
     }
@@ -312,7 +314,7 @@ bool AstarSearch::search()
         is_turning_point ? astar_param_.reverse_weight * transition.step : transition.step;
 
       // Calculate index of the next state
-      geometry_msgs::Pose next_pose;
+      geometry_msgs::msg::Pose next_pose;
       next_pose.position.x = current_node->x + transition.shift_x;
       next_pose.position.y = current_node->y + transition.shift_y;
       setYaw(&next_pose.orientation, current_node->theta + transition.shift_theta);
@@ -346,8 +348,8 @@ bool AstarSearch::search()
 
 void AstarSearch::setPath(const AstarNode & goal_node)
 {
-  std_msgs::Header header;
-  header.stamp = ros::Time::now();
+  std_msgs::msg::Header header;
+  header.stamp = rclcpp::Clock(RCL_ROS_TIME).now();
   header.frame_id = costmap_.header.frame_id;
 
   waypoints_.header = header;
@@ -357,7 +359,7 @@ void AstarSearch::setPath(const AstarNode & goal_node)
   const AstarNode * node = &goal_node;
 
   while (node != nullptr) {
-    geometry_msgs::PoseStamped pose;
+    geometry_msgs::msg::PoseStamped pose;
     pose.header = header;
     pose.pose = local2global(costmap_, node2pose(*node));
 
@@ -400,7 +402,7 @@ bool AstarSearch::detectCollision(const IndexXYT & base_index)
       const double offset_x = std::cos(base_theta) * x - std::sin(base_theta) * y;
       const double offset_y = std::sin(base_theta) * x + std::cos(base_theta) * y;
 
-      geometry_msgs::Pose pose_local;
+      geometry_msgs::msg::Pose pose_local;
       pose_local.position.x = base_pose.position.x + offset_x;
       pose_local.position.y = base_pose.position.y + offset_y;
 
@@ -419,7 +421,7 @@ bool AstarSearch::detectCollision(const IndexXYT & base_index)
   return false;
 }
 
-bool AstarSearch::hasObstacleOnTrajectory(const geometry_msgs::PoseArray & trajectory)
+bool AstarSearch::hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & trajectory)
 {
   for (const auto & pose : trajectory.poses) {
     const auto pose_local = global2local(costmap_, pose);
