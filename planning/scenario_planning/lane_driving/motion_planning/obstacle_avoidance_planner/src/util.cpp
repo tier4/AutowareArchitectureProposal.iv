@@ -111,6 +111,13 @@ double getYawFromPoints(const geometry_msgs::Point & a, const geometry_msgs::Poi
   return std::atan2(dy, dx);
 }
 
+geometry_msgs::Quaternion getQuaternionFromYaw(const double yaw)
+{
+  tf2::Quaternion q;
+  q.setRPY(0, 0, yaw);
+  return tf2::toMsg(q);
+}
+
 double normalizeRadian(const double angle)
 {
   double n_angle = std::fmod(angle, 2 * M_PI);
@@ -282,6 +289,27 @@ std::vector<geometry_msgs::Point> getInterpolatedPoints(
     }
     tmp_x.push_back(points[i].position.x);
     tmp_y.push_back(points[i].position.y);
+  }
+  std::vector<geometry_msgs::Point> interpolated_points;
+  util::interpolate2DPoints(tmp_x, tmp_y, delta_arc_length, interpolated_points);
+  return interpolated_points;
+}
+
+std::vector<geometry_msgs::Point> getInterpolatedPoints(
+  const std::vector<geometry_msgs::Point> & points, const double delta_arc_length)
+{
+  std::vector<double> tmp_x;
+  std::vector<double> tmp_y;
+  for (int i = 0; i < points.size(); i++) {
+    if (i > 0) {
+      if (
+        std::fabs(points[i].x - points[i - 1].x) < 1e-6 &&
+        std::fabs(points[i].y - points[i - 1].y) < 1e-6) {
+        continue;
+      }
+    }
+    tmp_x.push_back(points[i].x);
+    tmp_y.push_back(points[i].y);
   }
   std::vector<geometry_msgs::Point> interpolated_points;
   util::interpolate2DPoints(tmp_x, tmp_y, delta_arc_length, interpolated_points);

@@ -75,6 +75,10 @@ visualization_msgs::MarkerArray getTopBoundsLineMarkerArray(
   const std::vector<Bounds> & bounds, const std::vector<geometry_msgs::Pose> & candidate_p1,
   const std::string & ns, const double r, const double g, const double b);
 
+visualization_msgs::MarkerArray getMidBoundsLineMarkerArray(
+  const std::vector<Bounds> & bounds, const std::vector<geometry_msgs::Pose> & candidate_top,
+  const std::string & ns, const double r, const double g, const double b);
+
 visualization_msgs::MarkerArray getVirtualWallMarkerArray(
   const geometry_msgs::Pose & pose, const std::string & ns, const double r, const double g,
   const double b);

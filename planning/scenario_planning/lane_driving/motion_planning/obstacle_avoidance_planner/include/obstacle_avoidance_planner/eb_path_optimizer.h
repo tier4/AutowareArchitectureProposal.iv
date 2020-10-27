@@ -46,6 +46,7 @@ ROS_DECLARE_MESSAGE(MapMetaData);
 
 struct Bounds;
 struct MPTParam;
+struct ReferencePoint;
 
 struct Anchor
 {
@@ -137,7 +138,6 @@ struct TrajectoryParam
   int num_joint_buffer_points_for_extending;
   int num_offset_for_begin_idx;
   int num_fix_points_for_extending;
-  int num_fix_points_for_mpt;
   double delta_arc_length_for_optimization;
   double delta_arc_length_for_mpt_points;
   double delta_arc_length_for_trajectory;
@@ -146,6 +146,7 @@ struct TrajectoryParam
   double delta_yaw_threshold_for_straight;
   double trajectory_length;
   double forward_fixing_distance;
+  double forward_fixing_mpt_distance;
   double backward_fixing_distance;
   double max_avoiding_ego_velocity_ms;
   double max_avoiding_objects_velocity_ms;
@@ -157,6 +158,7 @@ struct TrajectoryParam
 struct Trajectories
 {
   std::vector<autoware_planning_msgs::TrajectoryPoint> smoothed_trajectory;
+  std::vector<ReferencePoint> mpt_ref_points;
   std::vector<autoware_planning_msgs::TrajectoryPoint> model_predictive_trajectory;
   std::vector<autoware_planning_msgs::TrajectoryPoint> extended_trajectory;
 };
@@ -221,6 +223,7 @@ struct DebugData
   std::vector<Bounds> bounds;
   std::vector<geometry_msgs::Pose> bounds_candidate_for_base_points;
   std::vector<geometry_msgs::Pose> bounds_candidate_for_top_points;
+  std::vector<geometry_msgs::Pose> bounds_candidate_for_mid_points;
   std::vector<geometry_msgs::Pose> fixed_mpt_points;
   cv::Mat clearance_map;
   cv::Mat only_object_clearance_map;
@@ -362,6 +365,12 @@ private:
   bool isClose2Object(
     const geometry_msgs::Point & point, const nav_msgs::MapMetaData & map_info,
     const cv::Mat & only_objects_clearance_map, const double distance_threshold) const;
+
+  boost::optional<std::vector<ConstrainRectangle>> getConstrainRectangleVec(
+    const autoware_planning_msgs::Path & path,
+    const std::vector<geometry_msgs::Point> & interpolated_points, const int num_fixed_points,
+    const int farrest_point_idx, const int straight_idx, const cv::Mat & clearance_map,
+    const cv::Mat & only_objects_clearance_map);
 
   boost::optional<std::vector<ConstrainRectangle>> getConstrainRectangleVec(
     const bool enable_avoidance, const autoware_planning_msgs::Path & input_path,

@@ -58,7 +58,7 @@ void putOccupancyGridValue(
   nav_msgs::OccupancyGrid & og, const int i, const int j, const unsigned char value);
 
 cv::Mat drawObstaclesOnImage(
-  const std::vector<autoware_perception_msgs::DynamicObject> & objects,
+  const bool enable_avoidance, const std::vector<autoware_perception_msgs::DynamicObject> & objects,
   const nav_msgs::MapMetaData & map_info, const cv::Mat & clearance_map,
   const double max_avoiding_objects_velocity_ms, const double center_line_width,
   std::vector<autoware_perception_msgs::DynamicObject> * debug_avoiding_objects);
@@ -110,16 +110,16 @@ boost::optional<Edges> getEdges(
 bool arePointsInsideDriveableArea(
   const std::vector<geometry_msgs::Point> & image_points, const cv::Mat & clearance_map);
 
-double getDistance(
+boost::optional<double> getDistance(
   const cv::Mat & clearance_map, const geometry_msgs::Point & map_point,
-  const nav_msgs::MapMetaData & map_info, const double default_dist = 0);
+  const nav_msgs::MapMetaData & map_info);
 
 boost::optional<int> getStopIdx(
   const std::vector<util::Footprint> & vehicle_footprints, const geometry_msgs::Pose & ego_pose,
   const cv::Mat & road_clearance_map, const nav_msgs::MapMetaData & map_info);
 
 CVMaps getMaps(
-  const autoware_planning_msgs::Path & path,
+  const bool enable_avoidance, const autoware_planning_msgs::Path & path,
   const std::vector<autoware_perception_msgs::DynamicObject> & objects,
   const double max_avoiding_objects_velocity_ms, const double center_line_width,
   DebugData * debug_data);
