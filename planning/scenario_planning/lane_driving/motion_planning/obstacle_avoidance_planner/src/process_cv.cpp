@@ -51,7 +51,7 @@ void putOccupancyGridValue(
 }
 
 cv::Mat drawObstaclesOnImage(
-  const std::vector<autoware_perception_msgs::DynamicObject> & objects,
+  const bool enable_avoidance, const std::vector<autoware_perception_msgs::DynamicObject> & objects,
   const std::vector<autoware_planning_msgs::PathPoint> & path_points,
   const nav_msgs::MapMetaData & map_info, const cv::Mat & clearance_map,
   const double max_avoiding_objects_velocity_ms, const double center_line_width,
@@ -71,6 +71,9 @@ cv::Mat drawObstaclesOnImage(
     path_points_inside_area.push_back(point);
   }
   cv::Mat objects_image = cv::Mat::ones(clearance_map.rows, clearance_map.cols, CV_8UC1) * 255;
+  if (!enable_avoidance) {
+    return objects_image;
+  }
   std::vector<std::vector<cv::Point>> cv_polygons;
   for (const auto & object : objects) {
     const PolygonPoints polygon_points = getPolygonPoints(object, map_info);
@@ -463,32 +466,29 @@ boost::optional<int> getStopIdx(
 {
   const int nearest_idx = util::getNearestPointIdx(footprints, ego_pose.position);
   for (int i = nearest_idx; i < footprints.size(); i++) {
-    constexpr double default_dist = 0.0;
-    const double top_left_dist =
-      getDistance(road_clearance_map, footprints[i].top_left, map_info, default_dist);
-    const double top_right_dist =
-      getDistance(road_clearance_map, footprints[i].top_right, map_info, default_dist);
-    const double bottom_right_dist =
-      getDistance(road_clearance_map, footprints[i].bottom_right, map_info, default_dist);
-    const double bottom_left_dist =
-      getDistance(road_clearance_map, footprints[i].bottom_left, map_info, default_dist);
+    const auto top_left = getDistance(road_clearance_map, footprints[i].top_left, map_info);
+    const auto top_right = getDistance(road_clearance_map, footprints[i].top_right, map_info);
+    const auto bottom_right = getDistance(road_clearance_map, footprints[i].bottom_right, map_info);
+    const auto bottom_left = getDistance(road_clearance_map, footprints[i].bottom_left, map_info);
     const double epsilon = 1e-8;
-    if (
-      top_left_dist < epsilon || top_right_dist < epsilon || bottom_left_dist < epsilon ||
-      bottom_right_dist < epsilon) {
+    if (!top_left || !top_right || !bottom_left || !bottom_right) {
+      continue;
+    } else if (
+      top_left.get() < epsilon || top_right.get() < epsilon || bottom_left.get() < epsilon ||
+      bottom_right.get() < epsilon) {
       return std::max(i - 1, 0);
     }
   }
   return boost::none;
 }
 
-double getDistance(
+boost::optional<double> getDistance(
   const cv::Mat & clearance_map, const geometry_msgs::Point & map_point,
-  const nav_msgs::MapMetaData & map_info, const double default_dist)
+  const nav_msgs::MapMetaData & map_info)
 {
   const auto image_point = util::transformMapToOptionalImage(map_point, map_info);
   if (!image_point) {
-    return default_dist;
+    return boost::none;
   }
   const float clearance =
     clearance_map.ptr<float>((int)image_point.get().y)[(int)image_point.get().x] *
@@ -497,7 +497,7 @@ double getDistance(
 }
 
 CVMaps getMaps(
-  const autoware_planning_msgs::Path & path,
+  const bool enable_avoidance, const autoware_planning_msgs::Path & path,
   const std::vector<autoware_perception_msgs::DynamicObject> & objects,
   const double max_avoiding_objects_velocity_ms, const double center_line_width,
   DebugData * debug_data)
@@ -508,7 +508,7 @@ CVMaps getMaps(
 
   std::vector<autoware_perception_msgs::DynamicObject> debug_avoiding_objects;
   cv::Mat objects_image = drawObstaclesOnImage(
-    objects, path.points, path.drivable_area.info, cv_maps.clearance_map,
+    enable_avoidance, objects, path.points, path.drivable_area.info, cv_maps.clearance_map,
     max_avoiding_objects_velocity_ms, center_line_width, &debug_avoiding_objects);
   cv_maps.area_with_objects_map = getAreaWithObjects(cv_maps.drivable_area, objects_image);
   cv_maps.only_objects_clearance_map = getClearanceMap(objects_image);

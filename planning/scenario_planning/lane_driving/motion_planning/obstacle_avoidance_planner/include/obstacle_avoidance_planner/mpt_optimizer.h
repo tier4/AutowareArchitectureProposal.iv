@@ -15,21 +15,21 @@
  */
 /*
  * This Code is inspired by code from https://github.com/LiJiangnanBit/path_optimizer
- * 
+ *
  * MIT License
- * 
+ *
  * Copyright (c) 2020 Li Jiangnan
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -43,6 +43,7 @@
 #define MPTOPTIMIZER_H
 
 #include <autoware_planning_msgs/TrajectoryPoint.h>
+#include <boost/optional.hpp>
 
 namespace cv
 {
@@ -77,8 +78,8 @@ struct ReferencePoint
   geometry_msgs::Pose mid_pose;
   double delta_yaw_from_p1;
   double delta_yaw_from_p2;
-  bool is_fix = false;
-  double fixing_lat;
+  boost::optional<Eigen::VectorXd> fix_state = boost::none;
+  Eigen::VectorXd optimized_state;
 };
 
 struct Bounds
@@ -144,6 +145,12 @@ struct MPTParam
   double zero_ff_steer_angle;
 };
 
+struct MPTTrajs
+{
+  std::vector<autoware_planning_msgs::TrajectoryPoint> mpt;
+  std::vector<ReferencePoint> ref_points;
+};
+
 class MPTOptimizer
 {
 private:
@@ -159,16 +166,27 @@ private:
 
   std::vector<ReferencePoint> convertToReferencePoints(
     const std::vector<autoware_planning_msgs::TrajectoryPoint> & points,
-    const geometry_msgs::Pose & ego_pose, const std::unique_ptr<Trajectories> & prev_mpt_points,
-    DebugData * debug_data) const;
+    const std::vector<autoware_planning_msgs::PathPoint> & path_points,
+    const std::unique_ptr<Trajectories> & prev_mpt_points, const geometry_msgs::Pose & ego_pose,
+    const CVMaps & maps, DebugData * debug_data) const;
 
   std::vector<ReferencePoint> getReferencePoints(
     const geometry_msgs::Pose & origin_pose, const geometry_msgs::Pose & ego_pose,
     const std::vector<autoware_planning_msgs::TrajectoryPoint> & points,
-    const std::unique_ptr<Trajectories> & prev_mpt_points, DebugData * debug_data) const;
+    const std::vector<autoware_planning_msgs::PathPoint> & path_points,
+    const std::unique_ptr<Trajectories> & prev_mpt_points, const CVMaps & maps,
+    DebugData * debug_data) const;
 
   std::vector<ReferencePoint> getBaseReferencePoints(
     const std::vector<geometry_msgs::Point> & interpolated_points,
+    const std::unique_ptr<Trajectories> & prev_trajs, DebugData * debug_data) const;
+
+  void calcOrientation(std::vector<ReferencePoint> * ref_points) const;
+
+  void calcVelocity(std::vector<ReferencePoint> * ref_points) const;
+
+  void calcVelocity(
+    std::vector<ReferencePoint> * ref_points,
     const std::vector<autoware_planning_msgs::TrajectoryPoint> & points) const;
 
   void calcCurvature(std::vector<ReferencePoint> * ref_points) const;
@@ -181,6 +199,11 @@ private:
     const std::unique_ptr<Trajectories> & prev_trajs, const geometry_msgs::Pose & ego_pose,
     std::vector<ReferencePoint> * ref_points, DebugData * debug_data) const;
 
+  void calcInitialState(
+    std::vector<ReferencePoint> * ref_points, const geometry_msgs::Pose & origin_pose) const;
+
+  void setOptimizedState(ReferencePoint * ref_point, const Eigen::Vector3d & optimized_state) const;
+
   /*
  * predict equation: Xec = Aex * x0 + Bex * Uex + Wex
  * cost function: J = Xex' * Qex * Xex + (Uex - Uref)' * R1ex * (Uex - Urefex) + Uex' * R2ex * Uex
@@ -188,7 +211,8 @@ private:
  */
   boost::optional<MPTMatrix> generateMPTMatrix(
     const std::vector<ReferencePoint> & reference_points,
-    const std::vector<autoware_planning_msgs::PathPoint> & path_points) const;
+    const std::vector<autoware_planning_msgs::PathPoint> & path_points,
+    const std::unique_ptr<Trajectories> & prev_trajs) const;
 
   void addSteerWeightR(Eigen::MatrixXd * R, const std::vector<ReferencePoint> & ref_points) const;
 
@@ -198,35 +222,48 @@ private:
     const bool enable_avoidance, const MPTMatrix & m,
     const std::vector<ReferencePoint> & ref_points,
     const std::vector<autoware_planning_msgs::PathPoint> & path_points, const CVMaps & maps,
-    const Eigen::VectorXd & initial_state, DebugData * debug_data);
+    DebugData * debug_data);
 
   std::vector<autoware_planning_msgs::TrajectoryPoint> getMPTPoints(
-    const std::vector<ReferencePoint> & ref_points, const Eigen::VectorXd & Uex,
-    const MPTMatrix & mpc_matrix, const Eigen::VectorXd & initial_state,
+    std::vector<ReferencePoint> & ref_points, const Eigen::VectorXd & Uex,
+    const MPTMatrix & mpc_matrix,
     const std::vector<autoware_planning_msgs::TrajectoryPoint> & optimized_points) const;
 
   double calcLateralError(
     const geometry_msgs::Point & target_point, const ReferencePoint & ref_point) const;
 
-  Eigen::VectorXd getInitialState(
+  Eigen::VectorXd getState(
     const geometry_msgs::Pose & ego_pose, const ReferencePoint & nearest_ref_point) const;
 
   std::vector<Bounds> getReferenceBounds(
     const bool enable_avoidance, const std::vector<ReferencePoint> & ref_points,
     const CVMaps & maps, DebugData * debug_data) const;
 
-  std::vector<double> getBound(
+  boost::optional<std::vector<double>> getBound(
+    const bool enable_avoidance, const ReferencePoint & ref_point, const CVMaps & maps) const;
+
+  boost::optional<std::vector<double>> getBoundCandidate(
+    const bool enable_avoidance, const ReferencePoint & ref_point, const CVMaps & maps,
+    const double min_road_clearance, const double min_obj_clearance, const double rel_initial_lat,
+    const std::vector<double> & rough_road_bound) const;
+
+  boost::optional<std::vector<double>> getRoughBound(
     const bool enable_avoidance, const ReferencePoint & ref_point, const CVMaps & maps) const;
 
   double getTraversedDistance(
     const bool enable_avoidance, const ReferencePoint & ref_point, const double traverse_angle,
-    const double initial_value, const CVMaps & maps,
-    const bool search_expanding_side = false) const;
+    const double initial_value, const CVMaps & maps, const double min_road_clearance,
+    const double min_obj_clearance, const bool search_expanding_side = false) const;
+
+  boost::optional<double> getValidLatError(
+    const bool enable_avoidance, const ReferencePoint & ref_point, const double initial_value,
+    const CVMaps & maps, const double min_road_clearance, const double min_obj_clearance,
+    const std::vector<double> & rough_road_bound, const bool search_expanding_side = false) const;
 
   //TODO: refactor replace all relevant funcs
-  double getClearance(
+  boost::optional<double> getClearance(
     const cv::Mat & clearance_map, const geometry_msgs::Point & map_point,
-    const nav_msgs::MapMetaData & map_info, const double default_dist = 0.0) const;
+    const nav_msgs::MapMetaData & map_info) const;
 
   ObjectiveMatrix getObjectiveMatrix(const Eigen::VectorXd & x0, const MPTMatrix & m) const;
 
@@ -243,8 +280,7 @@ public:
     const MPTParam & mpt_param);
   ~MPTOptimizer();
 
-  boost::optional<std::vector<autoware_planning_msgs::TrajectoryPoint>>
-  getModelPredictiveTrajectory(
+  boost::optional<MPTTrajs> getModelPredictiveTrajectory(
     const bool enable_avoidance,
     const std::vector<autoware_planning_msgs::TrajectoryPoint> & smoothed_points,
     const std::vector<autoware_planning_msgs::PathPoint> & path_points,

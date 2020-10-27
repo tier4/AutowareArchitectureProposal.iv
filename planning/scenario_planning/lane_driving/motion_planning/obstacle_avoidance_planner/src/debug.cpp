@@ -118,7 +118,11 @@ visualization_msgs::MarkerArray getDebugVisualizationMarker(
       debug_data.bounds, debug_data.bounds_candidate_for_top_points, "top_bounds_line", 0.99, 0.99,
       0.2),
     &vis_marker_array);
-
+  appendMarkerArray(
+    getMidBoundsLineMarkerArray(
+      debug_data.bounds, debug_data.bounds_candidate_for_mid_points, "mid_bounds_line", 0.99, 0.99,
+      0.2),
+    &vis_marker_array);
   return vis_marker_array;
 }
 
@@ -481,7 +485,7 @@ visualization_msgs::MarkerArray getPointsMarkerArray(
   marker.action = visualization_msgs::Marker::ADD;
   marker.pose.orientation.w = 1.0;
   marker.type = visualization_msgs::Marker::SPHERE_LIST;
-  marker.scale = createMarkerScale(0.2, 0.2, 0.2);
+  marker.scale = createMarkerScale(0.5, 0.5, 0.5);
   marker.color = createMarkerColor(r, g, b, 0.99);
   for (const auto & p : points) {
     marker.points.push_back(p.position);
@@ -511,7 +515,7 @@ visualization_msgs::MarkerArray getPointsMarkerArray(
   marker.action = visualization_msgs::Marker::ADD;
   marker.pose.orientation.w = 1.0;
   marker.type = visualization_msgs::Marker::SPHERE_LIST;
-  marker.scale = createMarkerScale(0.2, 0.2, 0.2);
+  marker.scale = createMarkerScale(0.7, 0.7, 0.7);
   marker.color = createMarkerColor(r, g, b, 0.99);
   for (const auto & p : points) {
     marker.points.push_back(p);
@@ -650,6 +654,43 @@ visualization_msgs::MarkerArray getTopBoundsLineMarkerArray(
     geometry_msgs::Point rel_ub;
     rel_ub.x = 0;
     rel_ub.y = bounds[i].c1.ub;
+    geometry_msgs::Point abs_ub = util::transformToAbsoluteCoordinate2D(rel_ub, candidate_top[i]);
+    marker.points.push_back(abs_lb);
+    marker.points.push_back(abs_ub);
+    msg.markers.push_back(marker);
+    marker.points.clear();
+  }
+  return msg;
+}
+
+visualization_msgs::MarkerArray getMidBoundsLineMarkerArray(
+  const std::vector<Bounds> & bounds, const std::vector<geometry_msgs::Pose> & candidate_top,
+  const std::string & ns, const double r, const double g, const double b)
+{
+  const auto current_time = ros::Time::now();
+  visualization_msgs::MarkerArray msg;
+
+  visualization_msgs::Marker marker{};
+  marker.header.frame_id = "map";
+  marker.header.stamp = current_time;
+  marker.ns = ns;
+
+  int unique_id = 0;
+  for (int i = 0; i < bounds.size(); i++) {
+    marker.id = unique_id++;
+    marker.lifetime = ros::Duration(-1);
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.pose.orientation.w = 1.0;
+    marker.type = visualization_msgs::Marker::LINE_STRIP;
+    marker.scale = createMarkerScale(0.05, 0, 0);
+    marker.color = createMarkerColor(r, g, b, 0.6);
+    geometry_msgs::Point rel_lb;
+    rel_lb.x = 0;
+    rel_lb.y = bounds[i].c2.lb;
+    geometry_msgs::Point abs_lb = util::transformToAbsoluteCoordinate2D(rel_lb, candidate_top[i]);
+    geometry_msgs::Point rel_ub;
+    rel_ub.x = 0;
+    rel_ub.y = bounds[i].c2.ub;
     geometry_msgs::Point abs_ub = util::transformToAbsoluteCoordinate2D(rel_ub, candidate_top[i]);
     marker.points.push_back(abs_lb);
     marker.points.push_back(abs_ub);
