@@ -50,7 +50,7 @@ bool isActive(const autoware_planning_msgs::msg::Scenario::ConstSharedPtr & scen
   return false;
 }
 
-geometry_msgs::msg::PoseArray trajectory2posearray(
+geometry_msgs::msg::PoseArray trajectory2PoseArray(
   const autoware_planning_msgs::msg::Trajectory & trajectory)
 {
   geometry_msgs::msg::PoseArray pose_array;
@@ -372,7 +372,7 @@ bool AstarNavi::isPlanRequired()
     const auto forward_trajectory = getPartialTrajectory(trajectory_, nearest_index, target_index_);
 
     const bool is_obstacle_found =
-      astar_->hasObstacleOnTrajectory(trajectory2posearray(forward_trajectory));
+      astar_->hasObstacleOnTrajectory(trajectory2PoseArray(forward_trajectory));
     if (is_obstacle_found) {
       RCLCPP_INFO(get_logger(), "Found obstacle");
       return true;
@@ -446,8 +446,8 @@ void AstarNavi::onTimer()
     // Stop before planning new trajectoryg
     const auto stop_trajectory = createStopTrajectory(current_pose_);
     trajectory_pub_->publish(stop_trajectory);
-    debug_pose_array_pub_->publish(trajectory2posearray(stop_trajectory));
-    debug_partial_pose_array_pub_->publish(trajectory2posearray(stop_trajectory));
+    debug_pose_array_pub_->publish(trajectory2PoseArray(stop_trajectory));
+    debug_partial_pose_array_pub_->publish(trajectory2PoseArray(stop_trajectory));
 
     // Plan new trajectory
     planTrajectory();
@@ -464,8 +464,8 @@ void AstarNavi::onTimer()
 
   // Publish messages
   trajectory_pub_->publish(partial_trajectory_);
-  debug_pose_array_pub_->publish(trajectory2posearray(trajectory_));
-  debug_partial_pose_array_pub_->publish(trajectory2posearray(partial_trajectory_));
+  debug_pose_array_pub_->publish(trajectory2PoseArray(trajectory_));
+  debug_partial_pose_array_pub_->publish(trajectory2PoseArray(partial_trajectory_));
 }
 
 void AstarNavi::planTrajectory()

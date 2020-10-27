@@ -10,6 +10,8 @@
   <author email="antm678@ertl.jp">Tomohito ANDO</author>
   <license>Apache License 2.0</license>
 
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
+
   <depend>rclcpp</depend>
 
   <depend>astar_search</depend>
