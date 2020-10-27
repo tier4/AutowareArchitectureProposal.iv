@@ -47,7 +47,7 @@
 #ifndef OBJECTS_TO_COSTMAP_H
 #define OBJECTS_TO_COSTMAP_H
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <grid_map_ros/grid_map_ros.hpp>
 
 #include <autoware_perception_msgs/DynamicObjectArray.h>

@@ -47,7 +47,7 @@
 #ifndef POINTS_TO_COSTMAP_H
 #define POINTS_TO_COSTMAP_H
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <grid_map_ros/grid_map_ros.hpp>
 #include <pcl_ros/point_cloud.h>
 
