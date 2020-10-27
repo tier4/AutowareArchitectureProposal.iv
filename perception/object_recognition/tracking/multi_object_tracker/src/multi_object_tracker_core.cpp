@@ -29,26 +29,26 @@
 #include <string>
 
 MultiObjectTracker::MultiObjectTracker(const rclcpp::NodeOptions & node_options)
-: rclcpp::Node("multi_object_tracker", node_options)
+: rclcpp::Node("multi_object_tracker", node_options),
+  tf_buffer_(this->get_clock()),
+  tf_listener_(tf_buffer_)
 {
   // Create publishers and subscribers
+  rclcpp::QoS durable_qos{1};
+  durable_qos.transient_local();
   dynamic_object_sub_ =
     create_subscription<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(
-      "input", rclcpp::QoS{1},
+      "input", durable_qos,
       std::bind(&MultiObjectTracker::measurementCallback, this, std::placeholders::_1));
   dynamic_object_pub_ =
     create_publisher<autoware_perception_msgs::msg::DynamicObjectArray>("output", rclcpp::QoS{1});
 
   // Parameters
   double publish_rate = declare_parameter<double>("publish_rate", 30.0);
-  world_frame_id_ = declare_parameter<std::string>("world_frame_id", std::string("world"));
-
-  rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
-  tf_buffer_ = std::make_shared<tf2_ros::Buffer>(clock);
-  tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
+  world_frame_id_ = declare_parameter<std::string>("world_frame_id", "world");
 
   auto cti = std::make_shared<tf2_ros::CreateTimerROS>(this->get_node_base_interface(), this->get_node_timers_interface());
-  tf_buffer_->setCreateTimerInterface(cti);
+  tf_buffer_.setCreateTimerInterface(cti);
 
   // Create ROS time based timer
   auto timer_callback = std::bind(&MultiObjectTracker::publishTimerCallback, this);
@@ -75,7 +75,7 @@ void MultiObjectTracker::measurementCallback(
     tf2::Transform tf_objects_world2objects;
     geometry_msgs::msg::TransformStamped ros_world2objects_world;
     // Create the future object
-    auto future = tf_buffer_->waitForTransform(
+    auto future = tf_buffer_.waitForTransform(
       world_frame_id_, input_transformed_objects.header.frame_id,
       input_transformed_objects.header.stamp, tf2::durationFromSec(0.0), [](auto &) {});
 

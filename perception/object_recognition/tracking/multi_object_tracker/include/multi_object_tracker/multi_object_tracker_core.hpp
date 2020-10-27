@@ -48,8 +48,8 @@ private:
     dynamic_object_sub_;
   rclcpp::TimerBase::SharedPtr publish_timer_;  // publish timer
 
-  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
-  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+  tf2_ros::Buffer tf_buffer_;
+  tf2_ros::TransformListener tf_listener_;
 
   void measurementCallback(
     const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr

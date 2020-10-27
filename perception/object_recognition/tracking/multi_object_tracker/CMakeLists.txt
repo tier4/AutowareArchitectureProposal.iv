@@ -12,10 +12,11 @@ endif()
 ### Find Packages
 find_package(ament_cmake_auto REQUIRED)
 
-## Find Eigen Dependencies
+### Find Eigen Dependencies
 find_package(eigen3_cmake_module REQUIRED)
 find_package(Eigen3)
 
+### Find dependencies listed in the package.xml
 ament_auto_find_build_dependencies()
 
 # includes
