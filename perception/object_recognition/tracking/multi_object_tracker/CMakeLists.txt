@@ -13,14 +13,10 @@ endif()
 find_package(ament_cmake_auto REQUIRED)
 
 ### Find Eigen Dependencies
-find_package(eigen3_cmake_module REQUIRED)
-find_package(Eigen3)
+find_package(Eigen3 REQUIRED)
 
 ### Find dependencies listed in the package.xml
 ament_auto_find_build_dependencies()
-
-# includes
-include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
 
 # Generate exe file
 set(MULTI_OBJECT_TRACKER_SRC
@@ -50,6 +46,8 @@ ament_auto_add_library(multi_object_tracker_node SHARED
   ${MULTI_OBJECT_TRACKER_SRC} 
   ${MULTI_OBJECT_TRACKER_HEADERS}
 )
+
+target_link_libraries(multi_object_tracker_node Eigen3::Eigen)
 
 rclcpp_components_register_node(multi_object_tracker_node
   PLUGIN "MultiObjectTracker"
