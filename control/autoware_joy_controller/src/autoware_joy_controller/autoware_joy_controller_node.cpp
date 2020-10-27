@@ -111,10 +111,6 @@ void AutowareJoyControllerNode::onJoy(const sensor_msgs::msg::Joy::ConstSharedPt
     publishGateMode();
   }
 
-  if (joy_->emergency() || joy_->clear_emergency()) {
-    publishEmergency();
-  }
-
   if (joy_->autoware_engage() || joy_->autoware_disengage()) {
     publishAutowareEngage();
   }
@@ -180,6 +176,7 @@ void AutowareJoyControllerNode::onTimer()
 
   publishControlCommand();
   publishRawControlCommand();
+  publishEmergencyStop();
 
   // tmp
   publishVehicleCommand();
@@ -315,7 +312,7 @@ void AutowareJoyControllerNode::publishGateMode()
   prev_gate_mode_ = gate_mode.data;
 }
 
-void AutowareJoyControllerNode::publishEmergency()
+void AutowareJoyControllerNode::publishEmergencyStop()
 {
   autoware_debug_msgs::msg::BoolStamped emergency;
 
@@ -327,9 +324,23 @@ void AutowareJoyControllerNode::publishEmergency()
   if (joy_->clear_emergency()) {
     emergency.data = false;
     RCLCPP_INFO(get_logger(), "Clear Emergency");
+
+
+    std_srvs::srv::Trigger srv;
+    auto result = client_clear_emergency_stop_->async_send_request(srv); // TODO(Horibe) check usage
+
+    if (result) {
+      if (srv.response.success) {
+        RRCLCPP_INFO(get_logger(), "Clear Emergency Stop");
+      } else {
+        RCLCPP_WARN(get_logger(), "failed to clear emergency stop: %s", srv.response.message.c_str());
+      }
+    } else {
+      RCLCPP_WARN(get_logger(), "failed to call service");
+    }
   }
 
-  pub_emergency_->publish(emergency);
+  pub_emergency_stop_->publish(emergency);
 }
 
 void AutowareJoyControllerNode::publishAutowareEngage()
@@ -437,8 +448,8 @@ AutowareJoyControllerNode::AutowareJoyControllerNode()
   pub_gate_mode_ = this->create_publisher<autoware_control_msgs::msg::GateMode>(
     "output/gate_mode",
     1);
-  pub_emergency_ = this->create_publisher<autoware_debug_msgs::msg::BoolStamped>(
-    "output/emergency",
+  pub_emergency_stop_ = this->create_publisher<autoware_debug_msgs::msg::BoolStamped>(
+    "output/emergency_stop",
     1);
   pub_autoware_engage_ = this->create_publisher<autoware_debug_msgs::msg::BoolStamped>(
     "output/autoware_engage", 1);
@@ -452,6 +463,9 @@ AutowareJoyControllerNode::AutowareJoyControllerNode()
     this->create_publisher<autoware_vehicle_msgs::msg::RawVehicleCommand>(
     "output/raw_vehicle_cmd",
     1);
+
+  // Service Client
+  client_clear_emergency_stop_ = this->create_client<std_srvs::srv::Trigger>("service/clear_emergency_stop");
 
   // Timer
   initTimer(1.0 / update_rate_);
