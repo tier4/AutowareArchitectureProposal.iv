@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<package format="2">
+<package format="3">
   <name>pointcloud_preprocessor</name>
   <version>0.1.0</version>
-  <description>The pointcloud_preprocessor package</description>
+  <description>The ROS2 pointcloud_preprocessor package</description>
 
   <maintainer email="abrahammonrroy@yahoo.com">amc-nu</maintainer>
   <maintainer email="yukihiro.saito@tier4.jp">Yukihiro Saito</maintainer>
@@ -15,44 +15,30 @@
   <maintainer email="www.kentaro.wada@gmail.com">Kentaro Wada</maintainer>
   <license>BSD</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>nodelet</build_depend>
-  <build_depend>pcl_ros</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>sensor_msgs</build_depend>
-  <build_depend>std_msgs</build_depend>
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+  <build_depend>rclcpp</build_depend>
+  <build_depend>rclcpp_components</build_depend>
   <build_depend>tf2</build_depend>
   <build_depend>tf2_ros</build_depend>
   <build_depend>tf2_eigen</build_depend>
-  <build_depend>dynamic_reconfigure</build_depend>
-  <build_export_depend>nodelet</build_export_depend>
-  <build_export_depend>pcl_ros</build_export_depend>
-  <build_export_depend>roscpp</build_export_depend>
+  <build_depend>pcl_conversions</build_depend>
   <build_export_depend>sensor_msgs</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
   <build_export_depend>tf2</build_export_depend>
   <build_export_depend>tf2_ros</build_export_depend>
   <build_export_depend>tf2_eigen</build_export_depend>
-  <build_export_depend>dynamic_reconfigure</build_export_depend>
-  <exec_depend>nodelet</exec_depend>
-  <exec_depend>pcl_ros</exec_depend>
-  <exec_depend>roscpp</exec_depend>
+  <build_export_depend>pcl_conversions</build_export_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <exec_depend>rclcpp</exec_depend>
+  <exec_depend>rclcpp_components</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>tf2</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
   <exec_depend>tf2_eigen</exec_depend>
-  <exec_depend>dynamic_reconfigure</exec_depend>
 
   <export>
-      <nodelet plugin="${prefix}/plugins/nodelet/libpointcloud_accumulator.xml"/>
-      <nodelet plugin="${prefix}/plugins/nodelet/libcompare_map_filter.xml"/>
-      <nodelet plugin="${prefix}/plugins/nodelet/liboutlier_filter.xml"/>
-      <nodelet plugin="${prefix}/plugins/nodelet/libground_filter.xml"/>
-      <nodelet plugin="${prefix}/plugins/nodelet/libdownsample_filter.xml"/>
-      <nodelet plugin="${prefix}/plugins/nodelet/libpassthrough_filter.xml"/>
-      <nodelet plugin="${prefix}/plugins/nodelet/libcrop_box_filter.xml"/>
-      <nodelet plugin="${prefix}/plugins/nodelet/libconcatenate_data.xml"/>
+    <build_type>ament_cmake</build_type>
   </export>
-
 </package>
