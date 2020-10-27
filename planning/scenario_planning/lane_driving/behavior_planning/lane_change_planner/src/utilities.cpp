@@ -28,7 +28,7 @@ rclcpp::Duration safeSubtraction(const rclcpp::Time & t1, const rclcpp::Time & t
   rclcpp::Duration duration(0, 0);
   try {
     duration = t1 - t2;
-  } catch (std::runtime_error) {
+  } catch (std::runtime_error & err) {
     if (t1 > t2)
       duration = rclcpp::Duration::max() * -1.0;
     else
@@ -278,7 +278,6 @@ PredictedPath resamplePredictedPath(
   rclcpp::Duration t_delta = rclcpp::Duration::from_seconds(resolution);
   rclcpp::Duration prediction_duration = rclcpp::Duration::from_seconds(duration);
 
-  double min_distance = std::numeric_limits<double>::max();
   rclcpp::Time start_time = clock->now();
   rclcpp::Time end_time = clock->now() + prediction_duration;
 
@@ -656,7 +655,6 @@ bool setGoal(
       for (size_t i = 0; i < input.points.size(); ++i) {
         const double x = input.points.at(i).point.pose.position.x - goal.position.x;
         const double y = input.points.at(i).point.pose.position.y - goal.position.y;
-        const double z = input.points.at(i).point.pose.position.z - goal.position.z;
         const double dist = sqrt(x * x + y * y);
         if (
           dist < search_radius_range && dist < min_dist &&
@@ -673,10 +671,9 @@ bool setGoal(
 
     size_t min_dist_out_of_range_index;
     {
-      for (size_t i = min_dist_index; 0 <= i; --i) {
+      for (size_t i = min_dist_index; ; --i) {
         const double x = input.points.at(i).point.pose.position.x - goal.position.x;
         const double y = input.points.at(i).point.pose.position.y - goal.position.y;
-        const double z = input.points.at(i).point.pose.position.z - goal.position.z;
         goal_z = input.points.at(i).point.pose.position.z;
         const double dist = sqrt(x * x + y * y);
         min_dist_out_of_range_index = i;
@@ -1066,7 +1063,7 @@ autoware_planning_msgs::msg::PathPointWithLaneId insertStopPoint(
   double accumulated_length = 0;
   double insert_idx = 0;
   geometry_msgs::msg::Pose stop_pose;
-  for (int i = 1; i < path->points.size(); i++) {
+  for (size_t i = 1; i < path->points.size(); i++) {
     const auto prev_pose = path->points.at(i - 1).point.pose;
     const auto curr_pose = path->points.at(i).point.pose;
     const double segment_length = getDistance3d(prev_pose.position, curr_pose.position);
@@ -1084,7 +1081,7 @@ autoware_planning_msgs::msg::PathPointWithLaneId insertStopPoint(
   stop_point.point.pose = stop_pose;
   stop_point.point.type = path->points.at(insert_idx).point.type;
   path->points.insert(path->points.begin() + insert_idx, stop_point);
-  for (int i = insert_idx; i < path->points.size(); i++) {
+  for (size_t i = insert_idx; i < path->points.size(); i++) {
     geometry_msgs::msg::Twist zero_velocity;
     path->points.at(insert_idx).point.twist = zero_velocity;
   }
@@ -1109,7 +1106,7 @@ void SplineInterpolate::generateSpline(
 
   a_ = base_value;
 
-  for (size_t i = 0; i < N - 1; ++i) {
+  for (int i = 0; i < N - 1; ++i) {
     h_.push_back(base_index[i + 1] - base_index[i]);
   }
 
@@ -1124,7 +1121,7 @@ void SplineInterpolate::generateSpline(
   b_.push_back(0.0);
 
   initialized_ = true;
-};
+}
 
 double SplineInterpolate::getValue(
   const double & query, const std::vector<double> & base_index) const
@@ -1166,7 +1163,7 @@ bool SplineInterpolate::isIncrease(const std::vector<double> & x) const
     if (x[i] > x[i + 1]) return false;
   }
   return true;
-};
+}
 
 bool SplineInterpolate::isValidInput(
   const std::vector<double> & base_index, const std::vector<double> & base_value,

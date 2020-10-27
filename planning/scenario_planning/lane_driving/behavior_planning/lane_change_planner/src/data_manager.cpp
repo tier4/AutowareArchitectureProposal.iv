@@ -20,11 +20,11 @@
 namespace lane_change_planner
 {
 DataManager::DataManager(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
-: logger_(logger),
-  clock_(clock),
+: lane_change_approval_(false),
+  force_lane_change_(false),
   is_parameter_set_(false),
-  lane_change_approval_(false),
-  force_lane_change_(false)
+  logger_(logger),
+  clock_(clock)
 {
   self_pose_listener_ptr_ = std::make_shared<SelfPoseLinstener>(logger, clock);
 }
@@ -123,7 +123,7 @@ bool DataManager::isDataReady()
 }
 
 SelfPoseLinstener::SelfPoseLinstener(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
-: logger_(logger), clock_(clock), tf_listener_(tf_buffer_){};
+: tf_listener_(tf_buffer_), logger_(logger), clock_(clock){}
 
 bool SelfPoseLinstener::isSelfPoseReady()
 {

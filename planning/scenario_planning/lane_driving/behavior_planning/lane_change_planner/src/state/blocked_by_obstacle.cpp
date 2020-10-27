@@ -82,8 +82,6 @@ void BlockedByObstacleState::update()
   }
 
   const double minimum_lane_change_length = ros_parameters_.minimum_lane_change_length;
-  const double lane_change_prepare_duration = ros_parameters_.lane_change_prepare_duration;
-  const double lane_changing_duration = ros_parameters_.lane_changing_duration;
 
   // update lane_follow_path
   {

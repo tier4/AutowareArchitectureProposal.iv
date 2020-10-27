@@ -110,10 +110,6 @@ bool isLaneChangePathSafe(
 
   // parameters
   const double time_resolution = ros_parameters.prediction_time_resolution;
-  const double prediction_duration = ros_parameters.prediction_duration;
-  const double current_lane_check_start_time = 0.0;
-  const double current_lane_check_end_time =
-    ros_parameters.lane_change_prepare_duration + ros_parameters.lane_changing_duration;
   const double target_lane_check_start_time = 0.0;
   const double target_lane_check_end_time =
     ros_parameters.lane_change_prepare_duration + ros_parameters.lane_changing_duration;

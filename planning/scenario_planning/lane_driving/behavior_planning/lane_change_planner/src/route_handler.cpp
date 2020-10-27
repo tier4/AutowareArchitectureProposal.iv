@@ -205,8 +205,8 @@ lanelet::ConstPoint3d get3DPointFrom2DArcLength(
 namespace lane_change_planner
 {
 RouteHandler::RouteHandler(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
-: is_route_msg_ready_(false),
-  is_map_msg_ready_(false),
+: is_map_msg_ready_(false),
+  is_route_msg_ready_(false),
   is_handler_ready_(false),
   logger_(logger),
   clock_(clock)
@@ -433,7 +433,7 @@ lanelet::ConstLanelets RouteHandler::getLaneletSequence(
   }
 
   // loop check
-  if (lanelet_sequence_forward.empty() > 1 && lanelet_sequence_backward.empty() > 1) {
+  if (!lanelet_sequence_forward.empty() && !lanelet_sequence_backward.empty()) {
     if (lanelet_sequence_backward.back().id() == lanelet_sequence_forward.front().id()) {
       return lanelet_sequence_forward;
     }
@@ -565,6 +565,7 @@ int RouteHandler::getNumLaneToPreferredLane(const lanelet::ConstLanelet & lanele
       return num;
     }
   }
+  return 0;
 }
 
 bool RouteHandler::isInPreferredLane(const geometry_msgs::msg::PoseStamped & pose) const
@@ -786,7 +787,6 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
 
     PathWithLaneId reference_path1;
     {
-      const double lane_length = lanelet::utils::getLaneletLength2d(original_lanelets);
       const auto arc_position = lanelet::utils::getArcCoordinates(original_lanelets, pose);
       const double s_start = arc_position.length - backward_path_length;
       const double s_end = arc_position.length + straight_distance;

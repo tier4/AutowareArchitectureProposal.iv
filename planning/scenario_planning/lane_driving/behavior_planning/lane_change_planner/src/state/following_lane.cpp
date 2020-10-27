@@ -81,8 +81,6 @@ void FollowingLaneState::update()
   // update lane_follow_path
   {
     constexpr double check_distance = 100.0;
-    const double lane_change_prepare_duration = ros_parameters_.lane_change_prepare_duration;
-    const double lane_changing_duration = ros_parameters_.lane_changing_duration;
     const double minimum_lane_change_length = ros_parameters_.minimum_lane_change_length;
     status_.lane_follow_path = route_handler_ptr_->getReferencePath(
       current_lanes_, current_pose_.pose, backward_path_length, forward_path_length,
