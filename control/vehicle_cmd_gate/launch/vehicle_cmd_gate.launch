@@ -1,9 +1,12 @@
 <launch>
+  <arg name="config_file" default="$(find vehicle_cmd_gate)/config/vehicle_cmd_gate.yaml" />
   <arg name="use_emergency_handling" default="false" />
+  <arg name="use_external_emergency_stop" default="true" />
 
   <node pkg="vehicle_cmd_gate" type="vehicle_cmd_gate" name="vehicle_cmd_gate" output="screen">
     <remap from="~input/engage" to="/autoware/engage"/>
-    <remap from="~input/emergency" to="/system/emergency/is_emergency"/>
+    <remap from="~input/system_emergency" to="/system/emergency/is_emergency"/>
+    <remap from="~input/external_emergency_stop" to="/remote/emergency_stop"/>
     <remap from="~input/gate_mode" to="/remote/gate_mode_cmd"/>
 
     <remap from="~input/auto/control_cmd" to="trajectory_follower/control_cmd"/>
@@ -24,8 +27,11 @@
     <remap from="~output/turn_signal_cmd" to="/control/turn_signal_cmd"/>
     <remap from="~output/gate_mode" to="/control/current_gate_mode"/>
 
-    <rosparam command="load" file="$(find vehicle_cmd_gate)/config/vehicle_cmd_gate.yaml" />
+    <remap from="~service/clear_external_emergency_stop" to="~clear_external_emergency_stop"/>
+
+    <rosparam command="load" file="$(arg config_file)" />
     <param name="use_emergency_handling" value="$(arg use_emergency_handling)" />
+    <param name="use_external_emergency_stop" value="$(arg use_external_emergency_stop)" />
   </node>
 
 </launch>

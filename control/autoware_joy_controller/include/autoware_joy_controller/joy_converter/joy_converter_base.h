@@ -23,10 +23,8 @@
 class JoyConverterBase
 {
 public:
-  virtual const float accel() const = 0;
-
-  virtual const float brake() const = 0;
-
+  virtual float accel() const = 0;
+  virtual float brake() const = 0;
   virtual float steer() const = 0;
 
   virtual bool shift_up() const = 0;
@@ -40,8 +38,8 @@ public:
 
   virtual bool gate_mode() const = 0;
 
-  virtual bool emergency() const = 0;
-  virtual bool clear_emergency() const = 0;
+  virtual bool emergency_stop() const = 0;
+  virtual bool clear_emergency_stop() const = 0;
 
   virtual bool autoware_engage() const = 0;
   virtual bool autoware_disengage() const = 0;

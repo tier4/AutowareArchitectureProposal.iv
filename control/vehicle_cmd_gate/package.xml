@@ -15,5 +15,6 @@
   <depend>rostest</depend>
   <depend>rosunit</depend>
   <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
 
 </package>

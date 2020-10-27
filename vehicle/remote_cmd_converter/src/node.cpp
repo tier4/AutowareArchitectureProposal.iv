@@ -27,13 +27,16 @@ RemoteCmdConverter::RemoteCmdConverter() : nh_(""), pnh_("~")
     pnh_.subscribe("in/raw_control_cmd", 1, &RemoteCmdConverter::onRemoteCmd, this);
   sub_shift_cmd_ = pnh_.subscribe("in/shift_cmd", 1, &RemoteCmdConverter::onShiftCmd, this);
   sub_gate_mode_ = pnh_.subscribe("in/current_gate_mode", 1, &RemoteCmdConverter::onGateMode, this);
-  sub_emergency_ = pnh_.subscribe("in/emergency", 1, &RemoteCmdConverter::onEmergency, this);
+  sub_emergency_stop_ =
+    pnh_.subscribe("in/emergency_stop", 1, &RemoteCmdConverter::onEmergencyStop, this);
 
   // Parameter
   pnh_.param<double>("ref_vel_gain", ref_vel_gain_, 3.0);
 
   // Parameter for Hz check
-  pnh_.param<double>("time_threshold", time_threshold_, 3.0);
+  pnh_.param<bool>("wait_for_first_topic", wait_for_first_topic_, true);
+  pnh_.param<double>("control_command_timeout", control_command_timeout_, 1.0);
+  pnh_.param<double>("emergency_stop_timeout", emergency_stop_timeout_, 3.0);
   double timer_rate;
   pnh_.param<double>("timer_rate", timer_rate, 10.0);
   rate_check_timer_ = pnh_.createTimer(ros::Rate(timer_rate), &RemoteCmdConverter::onTimer, this);
@@ -55,7 +58,6 @@ RemoteCmdConverter::RemoteCmdConverter() : nh_(""), pnh_("~")
   // Diagnostics
   updater_.setHardwareID("remote_cmd_converter");
   updater_.add("remote_control_topic_status", this, &RemoteCmdConverter::checkTopicStatus);
-  updater_.add("emergency_stop_operation", this, &RemoteCmdConverter::checkEmergency);
 
   // Set default values
   current_shift_cmd_ = boost::make_shared<autoware_vehicle_msgs::ShiftStamped>();
@@ -73,10 +75,12 @@ void RemoteCmdConverter::onShiftCmd(const autoware_vehicle_msgs::ShiftStamped::C
   current_shift_cmd_ = msg;
 }
 
-void RemoteCmdConverter::onEmergency(const std_msgs::Bool::ConstPtr msg)
+void RemoteCmdConverter::onEmergencyStop(const std_msgs::Bool::ConstPtr msg)
 {
   current_emergency_cmd_ = msg->data;
-  updater_.force_update();
+
+  // Save received time for timeout check
+  latest_emergency_stop_received_time_ = std::make_shared<ros::Time>(ros::Time::now());
 }
 
 void RemoteCmdConverter::onRemoteCmd(
@@ -153,26 +157,15 @@ void RemoteCmdConverter::checkTopicStatus(diagnostic_updater::DiagnosticStatusWr
   using diagnostic_msgs::DiagnosticStatus;
 
   DiagnosticStatus status;
-  if (!checkRemoteTopicRate()) {
+  if (!checkEmergencyStopTopicTimeout()) {
+    status.level = DiagnosticStatus::ERROR;
+    status.message = "emergency stop topic is timeout";
+  } else if (!checkRemoteTopicRate()) {
     status.level = DiagnosticStatus::ERROR;
     status.message = "low topic rate for remote vehicle_cmd";
   } else {
     status.level = DiagnosticStatus::OK;
-  }
-
-  stat.summary(status.level, status.message);
-}
-
-void RemoteCmdConverter::checkEmergency(diagnostic_updater::DiagnosticStatusWrapper & stat)
-{
-  using diagnostic_msgs::DiagnosticStatus;
-
-  DiagnosticStatus status;
-  if (current_emergency_cmd_) {
-    status.level = DiagnosticStatus::ERROR;
-    status.message = "remote emergency requested";
-  } else {
-    status.level = DiagnosticStatus::OK;
+    status.message = "OK";
   }
 
   stat.summary(status.level, status.message);
@@ -183,13 +176,35 @@ void RemoteCmdConverter::onGateMode(const autoware_control_msgs::GateModeConstPt
   current_gate_mode_ = msg;
 }
 
+bool RemoteCmdConverter::checkEmergencyStopTopicTimeout()
+{
+  if (!latest_emergency_stop_received_time_) {
+    if (wait_for_first_topic_)
+      return true;
+    else
+      return false;
+  }
+
+  const auto duration = (ros::Time::now() - *latest_emergency_stop_received_time_);
+  if (duration.toSec() > emergency_stop_timeout_) return false;
+
+  return true;
+}
+
 bool RemoteCmdConverter::checkRemoteTopicRate()
 {
-  if (!latest_cmd_received_time_ || !current_gate_mode_) return true;
+  if (!current_gate_mode_) return true;
+
+  if (!latest_cmd_received_time_) {
+    if (wait_for_first_topic_)
+      return true;
+    else
+      return false;
+  }
 
   if (current_gate_mode_->data == autoware_control_msgs::GateMode::REMOTE) {
     const auto duration = (ros::Time::now() - *latest_cmd_received_time_);
-    if (duration.toSec() > time_threshold_) return false;
+    if (duration.toSec() > control_command_timeout_) return false;
   } else {
     latest_cmd_received_time_ = nullptr;  // reset;
   }

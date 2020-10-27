@@ -25,8 +25,8 @@ AutowareIvAdapter::AutowareIvAdapter() : nh_(), pnh_("~"), tf_listener_(tf_buffe
   pnh_.param<double>("stop_reason_timeout", stop_reason_timeout_, 0.5);
   const double default_max_velocity = waitForParam<double>(pnh_, "param/default_max_velocity");
   pnh_.param<double>("stop_reason_thresh_dist", stop_reason_thresh_dist_, 100.0);
-  const bool em_handle_param = waitForParam<bool>(pnh_, "param/emergency_handling");
-  emergencyParamCheck(em_handle_param);
+  const bool em_stop_param = waitForParam<bool>(pnh_, "param/emergency_stop");
+  emergencyParamCheck(em_stop_param);
 
   // setup instance
   vehicle_state_publisher_ = std::make_unique<AutowareIvVehicleStatePublisher>();
@@ -93,10 +93,10 @@ AutowareIvAdapter::AutowareIvAdapter() : nh_(), pnh_("~"), tf_listener_(tf_buffe
     nh_.createTimer(ros::Duration(1.0 / status_pub_hz_), &AutowareIvAdapter::timerCallback, this);
 }
 
-void AutowareIvAdapter::emergencyParamCheck(const bool emergency_handling_param)
+void AutowareIvAdapter::emergencyParamCheck(const bool emergency_stop_param)
 {
-  if (!emergency_handling_param) {
-    ROS_WARN_STREAM("parameter[use_emergency_handling] is false.");
+  if (!emergency_stop_param) {
+    ROS_WARN_STREAM("parameter[use_external_emergency_stop] is false.");
     ROS_WARN_STREAM("autoware/put/emergency is not valid");
   }
 }

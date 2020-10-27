@@ -5,16 +5,22 @@
   <arg name="csv_path_brake_map" default="$(find raw_vehicle_cmd_converter)/data/default/brake_map.csv"/>
 
   <arg name="ref_vel_gain" default="3.0"/>
+  <arg name="wait_for_first_topic" default="true"/>
+  <arg name="control_command_timeout" default="1.0"/>
+  <arg name="emergency_stop_timeout" default="3.0"/>
 
   <node pkg="remote_cmd_converter" type="remote_cmd_converter_node" name="remote_cmd_converter" output="screen">
     <param name="csv_path_accel_map" value="$(arg csv_path_accel_map)" />
     <param name="csv_path_brake_map" value="$(arg csv_path_brake_map)" />
 
     <param name="ref_vel_gain" value="$(arg ref_vel_gain)" />
+    <param name="wait_for_first_topic" value="$(arg wait_for_first_topic)" />
+    <param name="control_command_timeout" value="$(arg control_command_timeout)" />
+    <param name="emergency_stop_timeout" value="$(arg emergency_stop_timeout)" />
 
     <remap from="~in/raw_control_cmd" to="/remote/raw_control_cmd" />
     <remap from="~in/shift_cmd" to="/remote/shift_cmd" />
-    <remap from="~in/emergency" to="/remote/emergency" />
+    <remap from="~in/emergency_stop" to="/remote/emergency_stop" />
     <remap from="~in/current_gate_mode" to="/control/current_gate_mode" />
     <remap from="~in/twist" to="/localization/twist" />
 

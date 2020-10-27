@@ -113,10 +113,6 @@ void AutowareJoyControllerNode::onJoy(const sensor_msgs::Joy::ConstPtr & msg)
     publishGateMode();
   }
 
-  if (joy_->emergency() || joy_->clear_emergency()) {
-    publishEmergency();
-  }
-
   if (joy_->autoware_engage() || joy_->autoware_disengage()) {
     publishAutowareEngage();
   }
@@ -174,6 +170,7 @@ void AutowareJoyControllerNode::onTimer(const ros::TimerEvent & event)
 
   publishControlCommand();
   publishRawControlCommand();
+  publishEmergencyStop();
 
   // tmp
   publishVehicleCommand();
@@ -309,21 +306,33 @@ void AutowareJoyControllerNode::publishGateMode()
   prev_gate_mode_ = gate_mode.data;
 }
 
-void AutowareJoyControllerNode::publishEmergency()
+void AutowareJoyControllerNode::publishEmergencyStop()
 {
-  std_msgs::Bool emergency;
+  static std_msgs::Bool emergency_stop;
 
-  if (joy_->emergency()) {
-    emergency.data = true;
-    ROS_INFO("Emergency");
+  if (joy_->emergency_stop()) {
+    emergency_stop.data = true;
+    ROS_INFO("Emergency Stop");
   }
 
-  if (joy_->clear_emergency()) {
-    emergency.data = false;
-    ROS_INFO("Clear Emergency");
+  if (joy_->clear_emergency_stop()) {
+    emergency_stop.data = false;
+
+    std_srvs::Trigger srv;
+    const auto result = client_clear_emergency_stop_.call(srv);
+
+    if (result) {
+      if (srv.response.success) {
+        ROS_INFO("Clear Emergency Stop");
+      } else {
+        ROS_WARN("failed to clear emergency stop: %s", srv.response.message.c_str());
+      }
+    } else {
+      ROS_WARN("failed to call service");
+    }
   }
 
-  pub_emergency_.publish(emergency);
+  pub_emergency_stop_.publish(emergency_stop);
 }
 
 void AutowareJoyControllerNode::publishAutowareEngage()
@@ -412,7 +421,7 @@ AutowareJoyControllerNode::AutowareJoyControllerNode()
   pub_turn_signal_ =
     private_nh_.advertise<autoware_vehicle_msgs::TurnSignal>("output/turn_signal", 1);
   pub_gate_mode_ = private_nh_.advertise<autoware_control_msgs::GateMode>("output/gate_mode", 1);
-  pub_emergency_ = private_nh_.advertise<std_msgs::Bool>("output/emergency", 1);
+  pub_emergency_stop_ = private_nh_.advertise<std_msgs::Bool>("output/emergency_stop", 1);
   pub_autoware_engage_ = private_nh_.advertise<std_msgs::Bool>("output/autoware_engage", 1);
   pub_vehicle_engage_ = private_nh_.advertise<std_msgs::Bool>("output/vehicle_engage", 1);
 
@@ -421,6 +430,10 @@ AutowareJoyControllerNode::AutowareJoyControllerNode()
     private_nh_.advertise<autoware_vehicle_msgs::VehicleCommand>("output/vehicle_cmd", 1);
   pub_raw_vehicle_command_ =
     private_nh_.advertise<autoware_vehicle_msgs::RawVehicleCommand>("output/raw_vehicle_cmd", 1);
+
+  // Service Client
+  client_clear_emergency_stop_ =
+    private_nh_.serviceClient<std_srvs::Trigger>("service/clear_emergency_stop");
 
   // Timer
   timer_ =

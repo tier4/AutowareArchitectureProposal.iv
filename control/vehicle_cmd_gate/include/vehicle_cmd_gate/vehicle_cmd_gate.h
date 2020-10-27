@@ -19,14 +19,17 @@
 
 #include <memory>
 
+#include <diagnostic_updater/diagnostic_updater.h>
 #include <ros/ros.h>
-#include <std_msgs/Bool.h>
 
-#include "autoware_control_msgs/ControlCommandStamped.h"
-#include "autoware_control_msgs/GateMode.h"
-#include "autoware_vehicle_msgs/ShiftStamped.h"
-#include "autoware_vehicle_msgs/TurnSignal.h"
-#include "autoware_vehicle_msgs/VehicleCommand.h"
+#include <autoware_control_msgs/ControlCommandStamped.h>
+#include <autoware_control_msgs/GateMode.h>
+#include <autoware_vehicle_msgs/ShiftStamped.h>
+#include <autoware_vehicle_msgs/TurnSignal.h>
+#include <autoware_vehicle_msgs/VehicleCommand.h>
+#include <std_msgs/Bool.h>
+#include <std_srvs/Trigger.h>
+
 #include "vehicle_cmd_gate/vehicle_cmd_filter.h"
 
 struct Commands
@@ -43,8 +46,8 @@ public:
 
 private:
   // NodeHandle
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
+  ros::NodeHandle nh_{""};
+  ros::NodeHandle pnh_{"~"};
 
   // Publisher
   ros::Publisher vehicle_cmd_pub_;
@@ -55,20 +58,26 @@ private:
 
   // Subscriber
   ros::Subscriber engage_sub_;
-  ros::Subscriber emergency_sub_;
+  ros::Subscriber system_emergency_sub_;
+  ros::Subscriber external_emergency_stop_sub_;
   ros::Subscriber gate_mode_sub_;
 
   void onGateMode(const autoware_control_msgs::GateMode::ConstPtr & msg);
   void onEngage(const std_msgs::Bool::ConstPtr msg);
-  void onEmergency(const std_msgs::Bool::ConstPtr msg);
+  void onSystemEmergency(const std_msgs::Bool::ConstPtr msg);
+  void onExternalEmergencyStop(const std_msgs::Bool::ConstPtr msg);
 
-  bool is_engaged_;
-  bool is_emergency_;
+  bool is_engaged_ = false;
+  bool is_system_emergency_ = false;
+  bool is_external_emergency_stop_ = false;
   autoware_control_msgs::GateMode current_gate_mode_;
 
   // Heartbeat
-  ros::Time emergency_heartbeat_received_time_;
-  bool is_emergency_heartbeat_timeout_ = false;
+  std::shared_ptr<ros::Time> system_emergency_heartbeat_received_time_;
+  bool is_system_emergency_heartbeat_timeout_ = false;
+
+  std::shared_ptr<ros::Time> external_emergency_stop_heartbeat_received_time_;
+  bool is_external_emergency_stop_heartbeat_timeout_ = false;
 
   // Subscriber for auto
   Commands auto_commands_;
@@ -100,14 +109,27 @@ private:
   // Parameter
   double update_rate_;
   bool use_emergency_handling_;
-  double emergency_heartbeat_timeout_;
+  bool use_external_emergency_stop_;
+  double system_emergency_heartbeat_timeout_;
+  double external_emergency_stop_heartbeat_timeout_;
+
+  // Service
+  ros::ServiceServer srv_clear_external_emergency_stop_;
+
+  bool onClearExternalEmergencyStopService(
+    std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res);
 
   // Timer / Event
   ros::Timer timer_;
 
   void onTimer(const ros::TimerEvent & event);
   void publishControlCommands(const Commands & input_msg);
-  void publishEmergencyControlCommands();
+  void publishEmergencyStopControlCommands();
+
+  // Diagnostics Updater
+  diagnostic_updater::Updater updater_;
+
+  void checkExternalEmergencyStop(diagnostic_updater::DiagnosticStatusWrapper & stat);
 
   // Algorithm
   autoware_control_msgs::ControlCommand prev_control_cmd_;
