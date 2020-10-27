@@ -43,7 +43,7 @@ struct Param
   VehicleInfo vehicle_info;
   double footprint_margin;
   double resample_interval;
-  double max_deceleartion;
+  double max_deceleration;
   double delay_time;
   double max_lateral_deviation;
   double max_longitudinal_deviation;
