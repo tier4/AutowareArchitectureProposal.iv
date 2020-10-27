@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <astar_search/astar_search.h>
-#include <astar_search/helper.h>
+#include "astar_search/astar_search.h"
+#include "astar_search/helper.h"
 
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
@@ -349,7 +349,7 @@ bool AstarSearch::search()
 void AstarSearch::setPath(const AstarNode & goal_node)
 {
   std_msgs::msg::Header header;
-  header.stamp = rclcpp::Clock().now();
+  header.stamp = rclcpp::Clock(RCL_ROS_TIME).now();
   header.frame_id = costmap_.header.frame_id;
 
   waypoints_.header = header;
