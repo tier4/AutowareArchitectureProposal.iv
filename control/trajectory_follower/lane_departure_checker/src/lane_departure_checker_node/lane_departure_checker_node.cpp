@@ -96,7 +96,7 @@ LaneDepartureCheckerNode::LaneDepartureCheckerNode()
   param_.vehicle_info = waitForVehicleInfo();
   private_nh_.param("footprint_margin", param_.footprint_margin, 0.0);
   private_nh_.param("resample_interval", param_.resample_interval, 0.3);
-  private_nh_.param("max_deceleartion", param_.max_deceleartion, 3.0);
+  private_nh_.param("max_deceleration", param_.max_deceleration, 3.0);
   private_nh_.param("delay_time", param_.delay_time, 0.3);
   private_nh_.param("max_lateral_deviation", param_.max_lateral_deviation, 1.0);
   private_nh_.param("max_longitudinal_deviation", param_.max_longitudinal_deviation, 1.0);
@@ -269,7 +269,7 @@ void LaneDepartureCheckerNode::onConfig(
   // Core
   param_.footprint_margin = config.footprint_margin;
   param_.resample_interval = config.resample_interval;
-  param_.max_deceleartion = config.max_deceleartion;
+  param_.max_deceleration = config.max_deceleration;
   param_.delay_time = config.delay_time;
 
   if (lane_departure_checker_) {
