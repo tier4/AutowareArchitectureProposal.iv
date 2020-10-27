@@ -17,6 +17,7 @@
 
 #include <memory>
 
+#include <diagnostic_updater/diagnostic_updater.h>
 #include "rclcpp/rclcpp.hpp"
 
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
@@ -28,6 +29,7 @@
 #include "autoware_vehicle_msgs/msg/vehicle_command.hpp"
 
 #include "vehicle_cmd_gate/vehicle_cmd_filter.hpp"
+#include <std_srvs/srv/trigger.h>
 
 struct Commands
 {
@@ -51,20 +53,26 @@ private:
 
   // Subscription
   rclcpp::Subscription<autoware_control_msgs::msg::EngageMode>::SharedPtr engage_sub_;
-  rclcpp::Subscription<autoware_control_msgs::msg::EmergencyMode>::SharedPtr emergency_sub_;
+  rclcpp::Subscription<autoware_control_msgs::msg::EmergencyMode>::SharedPtr system_emergency_sub_;
+  rclcpp::Subscription<autoware_control_msgs::msg::EmergencyMode>::SharedPtr external_emergency_stop_sub_;
   rclcpp::Subscription<autoware_control_msgs::msg::GateMode>::SharedPtr gate_mode_sub_;
 
   void onGateMode(autoware_control_msgs::msg::GateMode::ConstSharedPtr msg);
   void onEngage(autoware_control_msgs::msg::EngageMode::ConstSharedPtr msg);
-  void onEmergency(autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg);
+  void onSystemEmergency(autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg);
+  void onExternalEmergencyStop(autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg);
 
   bool is_engaged_;
-  bool is_emergency_;
+  bool is_system_emergency_ = false;
+  bool is_external_emergency_stop_ = false;
   autoware_control_msgs::msg::GateMode current_gate_mode_;
 
   // Heartbeat
-  rclcpp::Time emergency_heartbeat_received_time_;
-  bool is_emergency_heartbeat_timeout_ = false;
+  std::shared_ptr<rclcpp::Time> system_emergency_heartbeat_received_time_;
+  bool is_system_emergency_heartbeat_timeout_ = false;
+
+  std::shared_ptr<rclcpp::Time> external_emergency_stop_heartbeat_received_time_;
+  bool is_external_emergency_stop_heartbeat_timeout_ = false;
 
   // Subscriber for auto
   Commands auto_commands_;
@@ -102,14 +110,27 @@ private:
   // Parameter
   double update_period_;
   bool use_emergency_handling_;
-  double emergency_heartbeat_timeout_;
+  bool use_external_emergency_stop_;
+  double system_emergency_heartbeat_timeout_;
+  double external_emergency_stop_heartbeat_timeout_;
+
+  // Service
+  ros::ServiceServer srv_clear_external_emergency_stop_;
+
+  bool onClearExternalEmergencyStopService(
+    std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res);
 
   // Timer / Event
   rclcpp::TimerBase::SharedPtr timer_;
 
   void onTimer();
   void publishControlCommands(const Commands & input_msg);
-  void publishEmergencyControlCommands();
+  void publishEmergencyStopControlCommands();
+
+  // Diagnostics Updater
+  diagnostic_updater::Updater updater_;
+
+  void checkExternalEmergencyStop(diagnostic_updater::DiagnosticStatusWrapper & stat);
 
   // Algorithm
   autoware_control_msgs::msg::ControlCommand prev_control_cmd_;

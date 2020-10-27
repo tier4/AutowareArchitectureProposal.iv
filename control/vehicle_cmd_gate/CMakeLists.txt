@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(vehicle_cmd_gate)
 
+<<<<<<< HEAD
 ### Compile options
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
@@ -17,6 +18,32 @@ find_package(ament_cmake REQUIRED)
 find_package(autoware_control_msgs REQUIRED)
 find_package(autoware_vehicle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
+=======
+add_compile_options(-std=c++14)
+
+find_package(
+  catkin REQUIRED COMPONENTS
+    autoware_control_msgs
+    autoware_vehicle_msgs
+    geometry_msgs
+    roscpp
+    rostest
+    rosunit
+    roslint
+    std_msgs
+    std_srvs
+)
+
+catkin_package(
+  INCLUDE_DIRS include
+  CATKIN_DEPENDS
+    autoware_control_msgs
+    autoware_vehicle_msgs
+    geometry_msgs
+    std_msgs
+    std_srvs
+)
+>>>>>>> 34624dbca... Improve remote emergency stop (#900)
 
 # Add path of include dir
 include_directories(include)
