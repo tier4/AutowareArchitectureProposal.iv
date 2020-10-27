@@ -29,10 +29,10 @@ AutowareIvAdapter::AutowareIvAdapter()
   const double default_max_velocity = waitForParam<double>(
     this, declare_parameter("node/max_velocity", ""),
     declare_parameter("param/max_velocity", ""));
-  const bool em_handle_param = waitForParam<bool>(
-    this, declare_parameter("node/emergency_handling", ""),
-    declare_parameter("param/emergency_handling", ""));
-  emergencyParamCheck(em_handle_param);
+  const bool em_stop_param = waitForParam<bool>(
+    this, declare_parameter("node/emergency_stop", ""),
+    declare_parameter("param/emergency_stop", ""));
+  emergencyParamCheck(em_stop_param);
 
   // setup instance
   vehicle_state_publisher_ = std::make_unique<AutowareIvVehicleStatePublisher>(*this);
@@ -116,10 +116,10 @@ AutowareIvAdapter::AutowareIvAdapter()
   this->get_node_timers_interface()->add_timer(timer_, nullptr);
 }
 
-void AutowareIvAdapter::emergencyParamCheck(const bool emergency_handling_param)
+void AutowareIvAdapter::emergencyParamCheck(const bool emergency_stop_param)
 {
-  if (!emergency_handling_param) {
-    RCLCPP_WARN_STREAM(get_logger(), "parameter[use_emergency_handling] is false.");
+  if (!emergency_stop_param) {
+    RCLCPP_WARN_STREAM(get_logger(), "parameter[use_external_emergency_stop] is false.");
     RCLCPP_WARN_STREAM(get_logger(), "autoware/put/emergency is not valid");
   }
 }

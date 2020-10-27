@@ -119,7 +119,7 @@ private:
   // timer function
   void timerCallback();
 
-  void emergencyParamCheck(const bool emergency_handling_param);
+  void emergencyParamCheck(const bool emergency_stop_param);
   void getCurrentPose();
 
   // parameter
