@@ -130,7 +130,7 @@ Output LaneDepartureChecker::update(const Input & input)
     const auto abs_velocity = raw_abs_velocity < min_velocity ? 0.0 : raw_abs_velocity;
 
     const auto braking_distance =
-      calcBrakingDistance(abs_velocity, param_.max_deceleartion, param_.delay_time);
+      calcBrakingDistance(abs_velocity, param_.max_deceleration, param_.delay_time);
 
     output.resampled_trajectory = cutTrajectory(
       resampleTrajectory(*input.predicted_trajectory, param_.resample_interval), braking_distance);
