@@ -46,7 +46,8 @@ public:
   /// This may throw an exception if not all base parameters were specified.
   static VehicleInfo from_parameters(rclcpp::Node & node);
 
-  // Base parameters
+  // Base parameters. These describe the vehicle's bounding box and the
+  // position and radius of the wheels.
   const double wheel_radius_m_;
   const double wheel_width_m_;
   const double wheel_base_m_;
@@ -58,6 +59,8 @@ public:
   const double vehicle_height_m_;
 
   // Derived parameters, i.e. calculated from base parameters
+  // The offset values are relative to the base frame origin, which is located
+  // on the ground below the middle of the rear axle, and can be negative.
   const double vehicle_length_m_;
   const double vehicle_width_m_;
   const double min_longitudinal_offset_m_;
