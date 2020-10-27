@@ -285,12 +285,12 @@ double AstarSearch::estimateCost(const geometry_msgs::msg::Pose & pose)
 
 bool AstarSearch::search()
 {
-  const rclcpp::Time begin = rclcpp::Clock().now();
+  const rclcpp::Time begin = rclcpp::Clock(RCL_ROS_TIME).now();
 
   // Start A* search
   while (!openlist_.empty()) {
     // Check time and terminate if the search reaches the time limit
-    const rclcpp::Time now = rclcpp::Clock().now();
+    const rclcpp::Time now = rclcpp::Clock(RCL_ROS_TIME).now();
     const double msec = (now - begin).seconds() * 1000.0;
     if (msec > astar_param_.time_limit) {
       return false;
