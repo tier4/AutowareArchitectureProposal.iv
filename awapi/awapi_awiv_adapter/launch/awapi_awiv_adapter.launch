@@ -40,7 +40,7 @@
   <arg name="output_obstacle_avoid_status" default="object_avoidance/get/status" />
   <arg name="output_max_velocity" default="/planning/scenario_planning/max_velocity" />
   <arg name="output_gate_mode" default="/remote/gate_mode_cmd" />
-  <arg name="output_emergency" default="/remote/emergency" />
+  <arg name="output_emergency_stop" default="/remote/emergency_stop" />
   <arg name="output_autoware_engage" default="/autoware/engage" />
   <arg name="output_vehicle_engage" default="/vehicle/engage" />
   <arg name="output_route" default="/planning/mission_planning/route" />
@@ -51,13 +51,13 @@
   <arg name="output_force_obstacle_avoid" default="tmp" /> <!-- not implemented -->
   <arg name="output_overwrite_traffic_light_state" default="/foa/traffic_light_recognition/traffic_light_states" />
 
-  <arg name="param_emergency_handling" default="/control/vehicle_cmd_gate/use_emergency_handling" />
+  <arg name="param_emergency_stop" default="/control/vehicle_cmd_gate/use_external_emergency_stop" />
   <arg name="param_max_velocity" default="/planning/scenario_planning/motion_velocity_optimizer/max_velocity" />
 
   <arg name="set_max_velocity" default="vehicle/put/velocity" />
   <arg name="set_temporary_stop" default="vehicle/put/stop" />
   <arg name="set_gate_mode" default="autoware/put/gate_mode" />
-  <arg name="set_emergency" default="autoware/put/emergency" />
+  <arg name="set_emergency_stop" default="autoware/put/emergency_stop" />
   <arg name="set_engage" default="autoware/put/engage" />
   <arg name="set_route" default="autoware/put/route" />
   <arg name="set_lane_change_approval" default="lane_change/put/approval" />
@@ -109,7 +109,7 @@
       <remap from="~output/max_velocity" to="$(arg output_max_velocity)" />
       <remap from="~output/door_control" to="$(arg output_door_control)" />
       <remap from="~output/door_status" to="$(arg get_door_status)" />
-      <remap from="~param/emergency_handling" to="$(arg param_emergency_handling)" />
+      <remap from="~param/emergency_stop" to="$(arg param_emergency_stop)" />
       <remap from="~param/default_max_velocity" to="$(arg param_max_velocity)" />
       <param name="status_pub_hz" value="$(arg status_pub_hz)" />
       <param name="stop_reason_timeout" value="$(arg stop_reason_timeout)" />
@@ -124,7 +124,7 @@
 
     <!-- relay put topic -->
     <node pkg="topic_tools" type="relay" name="gate_mode_relay" args="$(arg set_gate_mode) $(arg output_gate_mode)" output="$(arg relay_output)" />
-    <node pkg="topic_tools" type="relay" name="emergency_relay" args="$(arg set_emergency) $(arg output_emergency)" output="$(arg relay_output)" />
+    <node pkg="topic_tools" type="relay" name="emergency_stop_relay" args="$(arg set_emergency_stop) $(arg output_emergency_stop)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="autoware_engage_relay" args="$(arg set_engage) $(arg output_autoware_engage)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="vehicle_engage_relay" args="$(arg set_engage) $(arg output_vehicle_engage)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="put_route_relay" args="$(arg set_route) $(arg output_route)" output="$(arg relay_output)" />

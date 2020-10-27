@@ -23,8 +23,10 @@ AutowareIvAdapter::AutowareIvAdapter() : nh_(), pnh_("~"), tf_listener_(tf_buffe
   // get param
   pnh_.param<double>("status_pub_hz", status_pub_hz_, 5.0);
   pnh_.param<double>("stop_reason_timeout", stop_reason_timeout_, 0.5);
-  const bool em_handle_param = waitForParam<bool>(pnh_, "param/emergency_handling");
-  emergencyParamCheck(em_handle_param);
+  const double default_max_velocity = waitForParam<double>(pnh_, "param/default_max_velocity");
+  pnh_.param<double>("stop_reason_thresh_dist", stop_reason_thresh_dist_, 100.0);
+  const bool em_stop_param = waitForParam<bool>(pnh_, "param/emergency_stop");
+  emergencyParamCheck(em_stop_param);
 
   // setup instance
   vehicle_state_publisher_ = std::make_unique<AutowareIvVehicleStatePublisher>();
@@ -34,6 +36,11 @@ AutowareIvAdapter::AutowareIvAdapter() : nh_(), pnh_("~"), tf_listener_(tf_buffe
   lane_change_state_publisher_ = std::make_unique<AutowareIvLaneChangeStatePublisher>();
   obstacle_avoidance_state_publisher_ =
     std::make_unique<AutowareIvObstacleAvoidanceStatePublisher>();
+  max_velocity_publisher_ = std::make_unique<AutowareIvMaxVelocityPublisher>(default_max_velocity);
+
+  // publisher
+  pub_door_control_ = pnh_.advertise<pacmod_msgs::SystemCmdInt>("output/door_control", 1);
+  pub_door_status_ = pnh_.advertise<autoware_api_msgs::DoorStatus>("output/door_status", 1);
 
   // subscriber
   sub_steer_ = pnh_.subscribe("input/steer", 1, &AutowareIvAdapter::callbackSteer, this);
@@ -70,16 +77,26 @@ AutowareIvAdapter::AutowareIvAdapter() : nh_(), pnh_("~"), tf_listener_(tf_buffe
   sub_obstacle_avoid_candidate_ = pnh_.subscribe(
     "input/obstacle_avoid_candidate_path", 1,
     &AutowareIvAdapter::callbackLaneObstacleAvoidCandidatePath, this);
+  sub_max_velocity_ =
+    pnh_.subscribe("input/max_velocity", 1, &AutowareIvAdapter::callbackMaxVelocity, this);
+  sub_temporary_stop_ =
+    pnh_.subscribe("input/temporary_stop", 1, &AutowareIvAdapter::callbackTemporaryStop, this);
+  sub_autoware_traj_ = pnh_.subscribe(
+    "input/autoware_trajectory", 1, &AutowareIvAdapter::callbackAutowareTrajectory, this);
+  sub_door_control_ =
+    pnh_.subscribe("input/door_control", 1, &AutowareIvAdapter::callbackDoorControl, this);
+  sub_door_status_ =
+    pnh_.subscribe("input/door_status", 1, &AutowareIvAdapter::callbackDoorStatus, this);
 
   // timer
   timer_ =
     nh_.createTimer(ros::Duration(1.0 / status_pub_hz_), &AutowareIvAdapter::timerCallback, this);
 }
 
-void AutowareIvAdapter::emergencyParamCheck(const bool emergency_handling_param)
+void AutowareIvAdapter::emergencyParamCheck(const bool emergency_stop_param)
 {
-  if (!emergency_handling_param) {
-    ROS_WARN_STREAM("parameter[use_emergency_handling] is false.");
+  if (!emergency_stop_param) {
+    ROS_WARN_STREAM("parameter[use_external_emergency_stop] is false.");
     ROS_WARN_STREAM("autoware/put/emergency is not valid");
   }
 }
@@ -100,6 +117,9 @@ void AutowareIvAdapter::timerCallback(const ros::TimerEvent & e)
 
   // publish obstacle_avoidance state
   obstacle_avoidance_state_publisher_->statePublisher(aw_info_);
+
+  // publish pacmod door status
+  pub_door_status_.publish(pacmod_util::getDoorStatusMsg(aw_info_.door_state_ptr));
 }
 
 void AutowareIvAdapter::callbackSteer(const autoware_vehicle_msgs::Steering::ConstPtr & msg_ptr)
@@ -218,6 +238,43 @@ void AutowareIvAdapter::callbackLaneObstacleAvoidCandidatePath(
   const autoware_planning_msgs::Trajectory::ConstPtr & msg_ptr)
 {
   aw_info_.obstacle_avoid_candidate_ptr = msg_ptr;
+}
+
+void AutowareIvAdapter::callbackMaxVelocity(const std_msgs::Float32::ConstPtr & msg_ptr)
+{
+  aw_info_.max_velocity_ptr = msg_ptr;
+  max_velocity_publisher_->statePublisher(aw_info_);
+}
+
+void AutowareIvAdapter::callbackTemporaryStop(const std_msgs::Bool::ConstPtr & msg_ptr)
+{
+  if (aw_info_.temporary_stop_ptr) {
+    if (aw_info_.temporary_stop_ptr->data == msg_ptr->data) {
+      //if same value as last time is sent, ignore msg.
+      return;
+    }
+  }
+
+  aw_info_.temporary_stop_ptr = msg_ptr;
+  max_velocity_publisher_->statePublisher(aw_info_);
+}
+
+void AutowareIvAdapter::callbackAutowareTrajectory(
+  const autoware_planning_msgs::Trajectory::ConstPtr & msg_ptr)
+{
+  aw_info_.autoware_planning_traj_ptr = msg_ptr;
+}
+
+void AutowareIvAdapter::callbackDoorControl(const std_msgs::Bool::ConstPtr & msg_ptr)
+{
+  pub_door_control_.publish(pacmod_util::createClearOverrideDoorCommand());
+  ros::Duration(0.1).sleep();  //avoid message loss
+  pub_door_control_.publish(pacmod_util::createDoorCommand(msg_ptr));
+}
+
+void AutowareIvAdapter::callbackDoorStatus(const pacmod_msgs::SystemRptInt::ConstPtr & msg_ptr)
+{
+  aw_info_.door_state_ptr = msg_ptr;
 }
 
 }  // namespace autoware_api

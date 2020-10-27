@@ -53,15 +53,16 @@ private:
   ros::Subscriber sub_control_cmd_;
   ros::Subscriber sub_shift_cmd_;
   ros::Subscriber sub_gate_mode_;
-  ros::Subscriber sub_emergency_;
+  ros::Subscriber sub_emergency_stop_;
 
   void onVelocity(const geometry_msgs::TwistStamped::ConstPtr msg);
   void onRemoteCmd(const autoware_vehicle_msgs::RawControlCommandStamped::ConstPtr remote_cmd_ptr);
   void onShiftCmd(const autoware_vehicle_msgs::ShiftStamped::ConstPtr msg);
   void onGateMode(const autoware_control_msgs::GateMode::ConstPtr msg);
-  void onEmergency(const std_msgs::Bool::ConstPtr msg);
+  void onEmergencyStop(const std_msgs::Bool::ConstPtr msg);
 
   std::shared_ptr<double> current_velocity_ptr_;  // [m/s]
+  std::shared_ptr<ros::Time> latest_emergency_stop_received_time_;
   std::shared_ptr<ros::Time> latest_cmd_received_time_;
   autoware_vehicle_msgs::ShiftStamped::ConstPtr current_shift_cmd_;
   autoware_control_msgs::GateMode::ConstPtr current_gate_mode_;
@@ -73,13 +74,16 @@ private:
 
   // Parameter
   double ref_vel_gain_;  // reference velocity = current velocity + desired acceleration * gain
-  double time_threshold_;
+  bool wait_for_first_topic_;
+  double control_command_timeout_;
+  double emergency_stop_timeout_;
 
   // Diagnostics
   diagnostic_updater::Updater updater_;
 
   void checkTopicStatus(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  void checkEmergency(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void checkEmergencyStop(diagnostic_updater::DiagnosticStatusWrapper & stat);
+  bool checkEmergencyStopTopicTimeout();
   bool checkRemoteTopicRate();
 
   // Algorithm

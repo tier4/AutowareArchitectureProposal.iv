@@ -168,11 +168,11 @@
 | --- | :----------------------------- | :--- | :--- | :--- |
 |     | autoware_control_msgs/GateMode |      |      |      |
 
-### /awapi/autoware/put/emergency
+### /awapi/autoware/put/emergency_stop
 
-- send emergency signal
+- send emergency_stop signal
 - MessageType: std_msgs/Bool
-- <font color="Cyan">**To enable this functionality, autoware have to be in the Remote Mode or set _/control/vehicle_cmd_gate/use_emergency_handling_ to true.**</font>
+- <font color="Cyan">**To enable this functionality, autoware have to be in the Remote Mode or set _/control/vehicle_cmd_gate/use_external_emergency_stop_ to true.**</font>
 
 | ✓   | type          | name | unit | note |
 | --- | :------------ | :--- | :--- | :--- |

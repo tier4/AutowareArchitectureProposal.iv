@@ -30,6 +30,7 @@
 #include <geometry_msgs/TwistStamped.h>
 #include <sensor_msgs/Joy.h>
 #include <std_msgs/Bool.h>
+#include <std_srvs/Trigger.h>
 
 #include <autoware_joy_controller/joy_converter/joy_converter_base.h>
 
@@ -84,7 +85,7 @@ private:
   ros::Publisher pub_shift_;
   ros::Publisher pub_turn_signal_;
   ros::Publisher pub_gate_mode_;
-  ros::Publisher pub_emergency_;
+  ros::Publisher pub_emergency_stop_;
   ros::Publisher pub_autoware_engage_;
   ros::Publisher pub_vehicle_engage_;
 
@@ -93,9 +94,12 @@ private:
   void publishShift();
   void publishTurnSignal();
   void publishGateMode();
-  void publishEmergency();
+  void publishEmergencyStop();
   void publishAutowareEngage();
   void publishVehicleEngage();
+
+  // Service Client
+  ros::ServiceClient client_clear_emergency_stop_;
 
   // Previous State
   autoware_control_msgs::ControlCommand prev_control_command_;
@@ -115,5 +119,4 @@ private:
 
   bool isDataReady();
   void onTimer(const ros::TimerEvent & event);
-
 };
