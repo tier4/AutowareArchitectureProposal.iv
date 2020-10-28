@@ -93,6 +93,7 @@ ObstacleStopPlannerNode::ObstacleStopPlannerNode()
   slow_down_margin_ = declare_parameter("slow_down_margin", 5.0);
   min_behavior_stop_margin_ = declare_parameter("min_behavior_stop_margin", 2.0);
   expand_slow_down_range_ = declare_parameter("expand_slow_down_range", 1.0);
+  expand_stop_range_ = declare_parameter("expand_stop_range", 1.0);
   max_slow_down_vel_ = declare_parameter("max_slow_down_vel", 4.0);
   min_slow_down_vel_ = declare_parameter("min_slow_down_vel", 2.0);
   max_deceleration_ = declare_parameter("max_deceleration", 2.0);
@@ -102,7 +103,8 @@ ObstacleStopPlannerNode::ObstacleStopPlannerNode()
   stop_margin_ += wheel_base_ + front_overhang_;
   min_behavior_stop_margin_ += wheel_base_ + front_overhang_;
   slow_down_margin_ += wheel_base_ + front_overhang_;
-  stop_search_radius_ = step_length_ + std::hypot(vehicle_width_ / 2.0, vehicle_length_ / 2.0);
+  stop_search_radius_ =
+    step_length_ + std::hypot(vehicle_width_ / 2.0 + expand_stop_range_, vehicle_length_ / 2.0);
   slow_down_search_radius_ =
     step_length_ +
     std::hypot(vehicle_width_ / 2.0 + expand_slow_down_range_, vehicle_length_ / 2.0);
@@ -133,6 +135,11 @@ ObstacleStopPlannerNode::ObstacleStopPlannerNode()
     this->create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
     "input/objects", 1,
     std::bind(&ObstacleStopPlannerNode::dynamicObjectCallback, this, std::placeholders::_1)
+    );
+  expand_stop_range_sub_ =
+    this->create_subscription<autoware_debug_msgs::msg::Float32Stamped>(
+    "input/expand_stop_range", 1,
+    std::bind(&ObstacleStopPlannerNode::externalExpandStopRangeCallback, this, std::placeholders::_1)
     );
 }
 
@@ -274,8 +281,8 @@ void ObstacleStopPlannerNode::pathCallback(
      */
     std::vector<cv::Point2d> one_step_move_vehicle_polygon;
     createOneStepPolygon(
-      trajectory.points.at(i).pose, trajectory.points.at(i + 1).pose,
-      one_step_move_vehicle_polygon);
+      trajectory.points.at(i).pose, trajectory.points.at(i + 1).pose, one_step_move_vehicle_polygon,
+      expand_stop_range_);
     debug_ptr_->pushPolygon(
       one_step_move_vehicle_polygon, trajectory.points.at(i).pose.position.z, PolygonType::Vehicle);
     // convert boost polygon
@@ -453,6 +460,14 @@ void ObstacleStopPlannerNode::pathCallback(
   path_pub_->publish(output_msg);
   stop_reason_diag_pub_->publish(stop_reason_diag);
   debug_ptr_->publish();
+}
+
+void ObstacleStopPlannerNode::externalExpandStopRangeCallback(
+  const autoware_debug_msgs::msg::Float32Stamped::ConstSharedPtr input_msg)
+{
+  expand_stop_range_ = input_msg->data;
+  stop_search_radius_ =
+    step_length_ + std::hypot(vehicle_width_ / 2.0 + expand_stop_range_, vehicle_length_ / 2.0);
 }
 
 void ObstacleStopPlannerNode::insertStopPoint(

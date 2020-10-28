@@ -11,8 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef OBSTACLE_STOP_PLANNER__NODE_HPP_
-#define OBSTACLE_STOP_PLANNER__NODE_HPP_
+#pragma once
 
 #include <map>
 #include <memory>
@@ -24,6 +23,7 @@
 #include "autoware_planning_msgs/msg/trajectory.hpp"
 #include "diagnostic_msgs/msg/diagnostic_status.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
+#include "autoware_debug_msgs/msg/float32_stamped.hpp"
 #include "pcl/point_types.h"
 #include "pcl_conversions/pcl_conversions.h"
 #include "pcl/point_cloud.h"
@@ -68,7 +68,7 @@ private:
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr current_velocity_sub_;
   rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr
     dynamic_object_sub_;
-
+  rclcpp::Subscription<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr expand_stop_range_sub_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr path_pub_;
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticStatus>::SharedPtr stop_reason_diag_pub_;
 
@@ -91,6 +91,7 @@ private:
   rclcpp::Time prev_col_point_time_;
   pcl::PointXYZ prev_col_point_;
   double expand_slow_down_range_;
+  double expand_stop_range_;
   double max_slow_down_vel_;
   double min_slow_down_vel_;
   double max_deceleration_;
@@ -104,6 +105,7 @@ private:
   void dynamicObjectCallback(
     const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_msg);
   void currentVelocityCallback(const geometry_msgs::msg::TwistStamped::ConstSharedPtr input_msg);
+  void externalExpandStopRangeCallback(const autoware_debug_msgs::msg::Float32Stamped::ConstSharedPtr input_msg);
 
 private:
   bool convexHull(
@@ -185,5 +187,3 @@ private:
 
 };
 }  // namespace motion_planning
-
-#endif  // OBSTACLE_STOP_PLANNER__NODE_HPP_
