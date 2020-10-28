@@ -860,11 +860,8 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
       reference_path1 = getReferencePath(original_lanelets, s_start, s_end, 0.0, 0.0);
     }
 
-    for (auto & point : reference_path1.points) {
-      point.point.twist.linear.x = std::min(
-        point.point.twist.linear.x,
-        std::max(straight_distance / lane_change_prepare_duration, minimum_lane_change_velocity));
-    }
+    reference_path1.points.back().point.twist.linear.x = std::min(reference_path1.points.back().point.twist.linear.x,
+      std::max(straight_distance / lane_change_prepare_duration, minimum_lane_change_velocity));
 
     PathWithLaneId reference_path2;
     {
