@@ -263,6 +263,11 @@ AutowareState StateMachine::judgeAutowareState() const
           return AutowareState::Driving;
         }
 
+        if (hasArrivedGoal()) {
+          times_.arrived_goal = state_input_.current_time;
+          return AutowareState::ArrivedGoal;
+        }
+
         break;
       }
 
