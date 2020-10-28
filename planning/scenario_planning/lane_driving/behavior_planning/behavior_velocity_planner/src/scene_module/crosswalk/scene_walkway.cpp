@@ -20,7 +20,7 @@
 
 namespace bg = boost::geometry;
 using Point = bg::model::d2::point_xy<double>;
-using Polygon = bg::model::polygon<Point, false>;
+using Polygon = bg::model::polygon<Point>;
 using Line = bg::model::linestring<Point>;
 
 WalkwayModule::WalkwayModule(
@@ -49,6 +49,7 @@ bool WalkwayModule::modifyPathVelocity(
       polygon.outer().push_back(bg::make<Point>(lanelet_point.x(), lanelet_point.y()));
     }
     polygon.outer().push_back(polygon.outer().front());
+    polygon = isClockWise(polygon) ? polygon : inverseClockWise(polygon);
 
     lanelet::Optional<lanelet::ConstLineString3d> stop_line_opt =
       getStopLineFromMap(module_id_, planner_data_, "crosswalk_id");

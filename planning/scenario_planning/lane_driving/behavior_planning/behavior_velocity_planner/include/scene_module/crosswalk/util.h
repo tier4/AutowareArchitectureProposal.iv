@@ -50,8 +50,7 @@ struct DebugData
 
 bool insertTargetVelocityPoint(
   const autoware_planning_msgs::PathWithLaneId & input,
-  const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>, false> &
-    polygon,
+  const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> & polygon,
   const double & margin, const double & velocity, const PlannerData & planner_data,
   autoware_planning_msgs::PathWithLaneId & output, DebugData & debug_data,
   boost::optional<int> & first_stop_path_point_index);
@@ -65,3 +64,9 @@ bool insertTargetVelocityPoint(
   const lanelet::ConstLineString3d & stop_line, const double & margin, const double & velocity,
   const PlannerData & planner_data, autoware_planning_msgs::PathWithLaneId & output,
   DebugData & debug_data, boost::optional<int> & first_stop_path_point_index);
+
+bool isClockWise(
+  const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> & polygon);
+
+boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> inverseClockWise(
+  const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> & polygon);
