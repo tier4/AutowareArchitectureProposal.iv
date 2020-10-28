@@ -39,7 +39,7 @@
 
 namespace bg = boost::geometry;
 using Point = bg::model::d2::point_xy<double>;
-using Polygon = bg::model::polygon<Point, false>;
+using Polygon = bg::model::polygon<Point>;
 using Line = bg::model::linestring<Point>;
 
 bool getBackwardPointFromBasePoint(
@@ -298,4 +298,28 @@ bool insertTargetVelocityPoint(
     return true;
   }
   return false;
+}
+
+bool isClockWise(const Polygon & polygon)
+{
+  const int n = polygon.outer().size();
+
+  const double x_offset = polygon.outer().at(0).x();
+  const double y_offset = polygon.outer().at(0).y();
+  double sum = 0.0;
+  for (int i = 0; i < polygon.outer().size(); ++i) {
+    sum +=
+      (polygon.outer().at(i).x() - x_offset) * (polygon.outer().at((i + 1) % n).y() - y_offset) -
+      (polygon.outer().at(i).y() - y_offset) * (polygon.outer().at((i + 1) % n).x() - x_offset);
+  }
+  return sum < 0.0;
+}
+
+Polygon inverseClockWise(const Polygon & polygon)
+{
+  Polygon inversed_polygon;
+  for (int i = polygon.outer().size() - 1; 0 <= i; --i) {
+    inversed_polygon.outer().push_back(polygon.outer().at(i));
+  }
+  return inversed_polygon;
 }

@@ -20,7 +20,7 @@
 
 namespace bg = boost::geometry;
 using Point = bg::model::d2::point_xy<double>;
-using Polygon = bg::model::polygon<Point, false>;
+using Polygon = bg::model::polygon<Point>;
 using Line = bg::model::linestring<Point>;
 
 CrosswalkModule::CrosswalkModule(
@@ -52,6 +52,7 @@ bool CrosswalkModule::modifyPathVelocity(
     polygon.outer().push_back(bg::make<Point>(lanelet_point.x(), lanelet_point.y()));
   }
   polygon.outer().push_back(polygon.outer().front());
+  polygon = isClockWise(polygon) ? polygon : inverseClockWise(polygon);
 
   // check state
   geometry_msgs::PoseStamped self_pose = planner_data_->current_pose;
@@ -90,9 +91,7 @@ bool CrosswalkModule::modifyPathVelocity(
 }
 
 bool CrosswalkModule::checkStopArea(
-  const autoware_planning_msgs::PathWithLaneId & input,
-  const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>, false> &
-    crosswalk_polygon,
+  const autoware_planning_msgs::PathWithLaneId & input, const Polygon & crosswalk_polygon,
   const autoware_perception_msgs::DynamicObjectArray::ConstPtr & objects_ptr,
   const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
   autoware_planning_msgs::PathWithLaneId & output, bool * insert_stop)
@@ -108,39 +107,9 @@ bool CrosswalkModule::checkStopArea(
   ros::Time current_time = ros::Time::now();
 
   // create stop area
-  std::vector<Point> path_collision_points;
-  for (size_t i = 0; i < output.points.size() - 1; ++i) {
-    const auto p0 = output.points.at(i).point.pose.position;
-    const auto p1 = output.points.at(i + 1).point.pose.position;
-    const Line line{{p0.x, p0.y}, {p1.x, p1.y}};
-    std::vector<Point> line_collision_points;
-    bg::intersection(crosswalk_polygon, line, line_collision_points);
-    if (line_collision_points.empty()) continue;
-    for (size_t j = 0; j < line_collision_points.size(); ++j) {
-      path_collision_points.push_back(line_collision_points.at(j));
-    }
-  }
-  if (path_collision_points.size() != 2) {
-    // ROS_ERROR_THROTTLE(1, "Must be 2. Size is %d", (int)path_collision_points.size());
-    return false;
-  }
-
   Polygon stop_polygon;
-  {
-    constexpr double extension_margin = 1.0;
-    const double width = planner_data_->vehicle_width;
-    const double d = (width / 2.0) + extension_margin;
-    const auto cp0 = path_collision_points.at(0);
-    const auto cp1 = path_collision_points.at(1);
-    const double yaw = std::atan2(cp1.y() - cp0.y(), cp1.x() - cp0.x()) + M_PI_2;
-    const double dcosyaw = d * std::cos(yaw);
-    const double dsinyaw = d * std::sin(yaw);
-    stop_polygon.outer().push_back(bg::make<Point>(cp0.x() + dcosyaw, cp0.y() + dsinyaw));
-    stop_polygon.outer().push_back(bg::make<Point>(cp0.x() - dcosyaw, cp0.y() - dsinyaw));
-    stop_polygon.outer().push_back(bg::make<Point>(cp1.x() - dcosyaw, cp1.y() - dsinyaw));
-    stop_polygon.outer().push_back(bg::make<Point>(cp1.x() + dcosyaw, cp1.y() + dsinyaw));
-    stop_polygon.outer().push_back(stop_polygon.outer().front());
-  }
+  if (!createVehiclePathPolygonInCrosswalk(output, crosswalk_polygon, 1.0, stop_polygon))
+    return false;
 
   // -- debug code --
   std::vector<Eigen::Vector3d> points;
@@ -175,6 +144,8 @@ bool CrosswalkModule::checkStopArea(
       }
       if (bg::within(point, stop_polygon)) {
         pedestrian_found = true;
+        debug_data_.stop_factor_points.emplace_back(object.state.pose_covariance.pose.position);
+        break;
       }
       for (const auto & object_path : object.state.predicted_paths) {
         for (size_t k = 0; k < object_path.path.size() - 1; ++k) {
@@ -229,7 +200,7 @@ bool CrosswalkModule::checkStopArea(
 }
 
 bool CrosswalkModule::checkSlowArea(
-  const autoware_planning_msgs::PathWithLaneId & input, const Polygon & polygon,
+  const autoware_planning_msgs::PathWithLaneId & input, const Polygon & crosswalk_polygon,
   const autoware_perception_msgs::DynamicObjectArray::ConstPtr & objects_ptr,
   const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
   autoware_planning_msgs::PathWithLaneId & output)
@@ -241,27 +212,34 @@ bool CrosswalkModule::checkSlowArea(
   const bool external_stop = isTargetExternalInputStatus(autoware_api_msgs::CrosswalkStatus::STOP);
   const bool external_go = isTargetExternalInputStatus(autoware_api_msgs::CrosswalkStatus::GO);
 
-  for (size_t i = 0; i < objects_ptr->objects.size(); ++i) {
-    if (isTargetType(objects_ptr->objects.at(i))) {
-      Point point(
-        objects_ptr->objects.at(i).state.pose_covariance.pose.position.x,
-        objects_ptr->objects.at(i).state.pose_covariance.pose.position.y);
-      if (bg::within(point, polygon)) {
-        pedestrian_found = true;
-      }
-    }
-  }
+  Polygon slowdown_polygon;
+  if (!createVehiclePathPolygonInCrosswalk(output, crosswalk_polygon, 4.0, slowdown_polygon))
+    return false;
+
   // -- debug code --
   std::vector<Eigen::Vector3d> points;
-  for (size_t i = 0; i < polygon.outer().size(); ++i) {
+  for (size_t i = 0; i < slowdown_polygon.outer().size(); ++i) {
     Eigen::Vector3d point;
-    point << polygon.outer().at(i).x(), polygon.outer().at(i).y(),
+    point << slowdown_polygon.outer().at(i).x(), slowdown_polygon.outer().at(i).y(),
       planner_data_->current_pose.pose.position.z;
     points.push_back(point);
   }
   debug_data_.slow_polygons.push_back(points);
   // ----------------
 
+  // check pedestrian
+  for (const auto & object : objects_ptr->objects) {
+    if (isTargetType(object)) {
+      Point point(
+        object.state.pose_covariance.pose.position.x, object.state.pose_covariance.pose.position.y);
+      if (!bg::within(point, crosswalk_polygon)) {
+        continue;
+      }
+      if (bg::within(point, slowdown_polygon)) {
+        pedestrian_found = true;
+      }
+    }
+  }
 
   bool slowdown = false;
 
@@ -282,11 +260,65 @@ bool CrosswalkModule::checkSlowArea(
         return false;
     } else {
       if (!insertTargetVelocityPoint(
-            input, polygon, planner_param_.slow_margin, planner_param_.slow_velocity,
+            input, slowdown_polygon, planner_param_.slow_margin, planner_param_.slow_velocity,
             *planner_data_, output, debug_data_, first_stop_path_point_index_))
         return false;
     }
   }
+  return true;
+}
+bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
+  const autoware_planning_msgs::PathWithLaneId & input, const Polygon & crosswalk_polygon,
+  const float extended_width, Polygon & path_polygon)
+{
+  std::vector<Point> path_collision_points;
+  for (size_t i = 0; i < input.points.size() - 1; ++i) {
+    const auto p0 = input.points.at(i).point.pose.position;
+    const auto p1 = input.points.at(i + 1).point.pose.position;
+    const Line line{{p0.x, p0.y}, {p1.x, p1.y}};
+    std::vector<Point> line_collision_points;
+    bg::intersection(crosswalk_polygon, line, line_collision_points);
+    if (line_collision_points.empty()) continue;
+    for (size_t j = 0; j < line_collision_points.size(); ++j) {
+      path_collision_points.push_back(line_collision_points.at(j));
+    }
+  }
+  if (path_collision_points.size() != 2) {
+    ROS_ERROR_THROTTLE(
+      5,
+      "There must be two points of conflict between the crosswalk polygon and the path. points is "
+      "%d",
+      (int)path_collision_points.size());
+    return false;
+  }
+
+  Polygon candidate_path_polygon;
+  {
+    const double width = planner_data_->vehicle_width;
+    const double d = (width / 2.0) + extended_width;
+    const auto cp0 = path_collision_points.at(0);
+    const auto cp1 = path_collision_points.at(1);
+    const double yaw = std::atan2(cp1.y() - cp0.y(), cp1.x() - cp0.x()) + M_PI_2;
+    const double dcosyaw = d * std::cos(yaw);
+    const double dsinyaw = d * std::sin(yaw);
+    candidate_path_polygon.outer().push_back(bg::make<Point>(cp0.x() + dcosyaw, cp0.y() + dsinyaw));
+    candidate_path_polygon.outer().push_back(bg::make<Point>(cp1.x() + dcosyaw, cp1.y() + dsinyaw));
+    candidate_path_polygon.outer().push_back(bg::make<Point>(cp1.x() - dcosyaw, cp1.y() - dsinyaw));
+    candidate_path_polygon.outer().push_back(bg::make<Point>(cp0.x() - dcosyaw, cp0.y() - dsinyaw));
+    candidate_path_polygon.outer().push_back(candidate_path_polygon.outer().front());
+  }
+  candidate_path_polygon = isClockWise(candidate_path_polygon)
+                             ? candidate_path_polygon
+                             : inverseClockWise(candidate_path_polygon);
+
+  std::vector<Polygon> path_polygons;
+  bg::intersection(crosswalk_polygon, candidate_path_polygon, path_polygons);
+
+  if (path_polygons.size() != 1) {
+    ROS_ERROR_THROTTLE(5, "Number of polygon is %d. Must be 1", (int)path_polygons.size());
+    return false;
+  }
+  path_polygon = path_polygons.at(0);
   return true;
 }
 
