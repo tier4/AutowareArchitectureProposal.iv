@@ -55,17 +55,17 @@
 #include <lanelet2_extension/utility/message_conversion.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 #include <grid_map_ros/GridMapRosConverter.hpp>
 #include <grid_map_ros/grid_map_ros.hpp>
 
-#include <autoware_lanelet2_msgs/MapBin.h>
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <autoware_planning_msgs/Scenario.h>
-#include <grid_map_msgs/GridMap.h>
+#include <autoware_lanelet2_msgs/msg/map_bin.h>
+#include <autoware_perception_msgs/msg/dynamic_object_array.h>
+#include <autoware_planning_msgs/msg/scenario.h>
+#include <grid_map_msgs/msg/grid_map.h>
 
 class CostmapGenerator
 {
@@ -73,16 +73,16 @@ public:
   CostmapGenerator();
 
 private:
-  ros::NodeHandle nh_;
-  ros::NodeHandle private_nh_;
+  rclcpp::NodeHandle nh_;
+  rclcpp::NodeHandle private_nh_;
 
   bool use_objects_;
   bool use_points_;
   bool use_wayarea_;
 
   lanelet::LaneletMapPtr lanelet_map_;
-  autoware_perception_msgs::DynamicObjectArray::ConstPtr objects_;
-  sensor_msgs::PointCloud2::ConstPtr points_;
+  autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr objects_;
+  sensor_msgs::msg::PointCloud2::ConstPtr points_;
 
   std::string costmap_frame_;
   std::string vehicle_frame_;
@@ -106,26 +106,26 @@ private:
 
   grid_map::GridMap costmap_;
 
-  ros::Publisher pub_costmap_;
-  ros::Publisher pub_occupancy_grid_;
+  rclcpp::Publisher pub_costmap_;
+  rclcpp::Publisher pub_occupancy_grid_;
 
-  ros::Subscriber sub_waypoint_;
-  ros::Subscriber sub_points_;
-  ros::Subscriber sub_objects_;
-  ros::Subscriber sub_lanelet_bin_map_;
-  ros::Subscriber sub_scenario_;
+  rclcpp::Subscriber sub_waypoint_;
+  rclcpp::Subscriber sub_points_;
+  rclcpp::Subscriber sub_objects_;
+  rclcpp::Subscriber sub_lanelet_bin_map_;
+  rclcpp::Subscriber sub_scenario_;
 
-  ros::Timer timer_;
+  rclcpp::Timer timer_;
 
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
 
-  std::vector<std::vector<geometry_msgs::Point>> area_points_;
+  std::vector<std::vector<geometry_msgs::msg::Point>> area_points_;
 
   PointsToCostmap points2costmap_;
   ObjectsToCostmap objects2costmap_;
 
-  autoware_planning_msgs::Scenario::ConstPtr scenario_;
+  autoware_planning_msgs::msg::Scenario::ConstPtr scenario_;
 
   struct LayerName
   {
@@ -139,21 +139,21 @@ private:
   void initLaneletMap();
 
   /// \brief callback for loading landlet2 map
-  void onLaneletMapBin(const autoware_lanelet2_msgs::MapBin & msg);
+  void onLaneletMapBin(const autoware_lanelet2_msgs::msg::MapBin & msg);
 
   /// \brief callback for DynamicObjectArray
   /// \param[in] in_objects input DynamicObjectArray usually from prediction or perception
   /// component
-  void onObjects(const autoware_perception_msgs::DynamicObjectArray::ConstPtr & msg);
+  void onObjects(const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & msg);
 
   /// \brief callback for sensor_msgs::PointCloud2
   /// \param[in] in_points input sensot_msgs::PointCloud2. Assuming groud-fitered pointcloud
   /// by default
-  void onPoints(const sensor_msgs::PointCloud2::ConstPtr & msg);
+  void onPoints(const sensor_msgs::msg::PointCloud2::ConstPtr & msg);
 
-  void onScenario(const autoware_planning_msgs::Scenario::ConstPtr & msg);
+  void onScenario(const autoware_planning_msgs::msg::Scenario::ConstPtr & msg);
 
-  void onTimer(const ros::TimerEvent & event);
+  void onTimer(const rclcpp::TimerEvent & event);
 
   /// \brief initialize gridmap parameters based on rosparam
   void initGridmap();
@@ -167,14 +167,14 @@ private:
   /// \param [out] calculated area_points of lanelet polygons
   void loadRoadAreasFromLaneletMap(
     const lanelet::LaneletMapPtr lanelet_map,
-    std::vector<std::vector<geometry_msgs::Point>> * area_points);
+    std::vector<std::vector<geometry_msgs::msg::Point>> * area_points);
 
   /// \brief set area_points from parking-area polygons
   /// \param [in] input lanelet_map
   /// \param [out] calculated area_points of lanelet polygons
   void loadParkingAreasFromLaneletMap(
     const lanelet::LaneletMapPtr lanelet_map,
-    std::vector<std::vector<geometry_msgs::Point>> * area_points);
+    std::vector<std::vector<geometry_msgs::msg::Point>> * area_points);
 
   /// \brief calculate cost from pointcloud data
   /// \param[in] in_points: subscribed pointcloud data
@@ -183,7 +183,7 @@ private:
   /// \brief calculate cost from DynamicObjectArray
   /// \param[in] in_objects: subscribed DynamicObjectArray
   grid_map::Matrix generateObjectsCostmap(
-    const autoware_perception_msgs::DynamicObjectArray::ConstPtr & in_objects);
+    const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & in_objects);
 
   /// \brief calculate cost from lanelet2 map
   grid_map::Matrix generateWayAreaCostmap();
