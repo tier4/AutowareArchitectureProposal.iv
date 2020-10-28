@@ -44,7 +44,7 @@ public:
   ///
   /// This function will declare a parameter for each of the base parameters.
   /// This may throw an exception if not all base parameters were specified.
-  static VehicleInfo from_parameters(rclcpp::Node & node);
+  static VehicleInfo create(rclcpp::Node & node);
 
   // Base parameters. These describe the vehicle's bounding box and the
   // position and radius of the wheels.

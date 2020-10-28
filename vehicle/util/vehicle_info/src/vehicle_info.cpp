@@ -44,7 +44,7 @@ VehicleInfo::VehicleInfo(
 {
 }
 
-VehicleInfo from_parameters(rclcpp::Node & node)
+VehicleInfo create(rclcpp::Node & node)
 {
   const double wheel_radius_m = node.declare_parameter("wheel_radius").get<double>();
   const double wheel_width_m = node.declare_parameter("wheel_width").get<double>();
