@@ -275,3 +275,12 @@
 | --- | :-------------- | :----- | :----------- | :--- |
 |     | std_msgs/Header | header |              |      |
 |     | int32           | status | 0:STOP, 1:GO |      |
+
+### /awapi/autoware/put/expand_stop_range
+
+- send expand range of the polygon used by obstacle stop [m]
+- MessageType: std_msgs/Float32
+
+| ✓   | type    | name | unit | note |
+| --- | :------ | :--- | :--- | :--- |
+|     | Float32 |      |      |      |

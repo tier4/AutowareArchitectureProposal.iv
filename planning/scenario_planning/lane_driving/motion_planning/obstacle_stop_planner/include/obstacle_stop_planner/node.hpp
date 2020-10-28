@@ -19,6 +19,7 @@
 #include <autoware_planning_msgs/Trajectory.h>
 #include <diagnostic_msgs/DiagnosticStatus.h>
 #include <geometry_msgs/TwistStamped.h>
+#include <std_msgs/Float32.h>
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/point_cloud.h>
@@ -64,6 +65,7 @@ private:
   ros::Subscriber obstacle_pointcloud_sub_;
   ros::Subscriber current_velocity_sub_;
   ros::Subscriber dynamic_object_sub_;
+  ros::Subscriber expand_stop_range_sub_;
   ros::Publisher path_pub_;
   ros::Publisher stop_reason_diag_pub_;
   std::shared_ptr<ObstacleStopPlannerDebugNode> debug_ptr_;
@@ -85,6 +87,7 @@ private:
   ros::Time prev_col_point_time_;
   pcl::PointXYZ prev_col_point_;
   double expand_slow_down_range_;
+  double expand_stop_range_;
   double max_slow_down_vel_;
   double min_slow_down_vel_;
   double max_deceleration_;
@@ -98,6 +101,7 @@ private:
   void dynamicObjectCallback(
     const autoware_perception_msgs::DynamicObjectArray::ConstPtr & input_msg);
   void currentVelocityCallback(const geometry_msgs::TwistStamped::ConstPtr & input_msg);
+  void externalExpandStopRangeCallback(const std_msgs::Float32::ConstPtr & input_msg);
 
 private:
   bool convexHull(

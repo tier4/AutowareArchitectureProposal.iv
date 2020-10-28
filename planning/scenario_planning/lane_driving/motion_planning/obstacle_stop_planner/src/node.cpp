@@ -111,6 +111,7 @@ ObstacleStopPlannerNode::ObstacleStopPlannerNode() : nh_(), pnh_("~"), tf_listen
   slow_down_margin_ = getParam<double>(pnh_, "slow_down_margin", 5.0);
   min_behavior_stop_margin_ = getParam<double>(pnh_, "min_behavior_stop_margin", 2.0);
   expand_slow_down_range_ = getParam<double>(pnh_, "expand_slow_down_range", 1.0);
+  expand_stop_range_ = getParam<double>(pnh_, "expand_stop_range", 1.0);
   max_slow_down_vel_ = getParam<double>(pnh_, "max_slow_down_vel", 4.0);
   min_slow_down_vel_ = getParam<double>(pnh_, "min_slow_down_vel", 2.0);
   max_deceleration_ = getParam<double>(pnh_, "max_deceleration", 2.0);
@@ -120,7 +121,8 @@ ObstacleStopPlannerNode::ObstacleStopPlannerNode() : nh_(), pnh_("~"), tf_listen
   stop_margin_ += wheel_base_ + front_overhang_;
   min_behavior_stop_margin_ += wheel_base_ + front_overhang_;
   slow_down_margin_ += wheel_base_ + front_overhang_;
-  stop_search_radius_ = step_length_ + std::hypot(vehicle_width_ / 2.0, vehicle_length_ / 2.0);
+  stop_search_radius_ =
+    step_length_ + std::hypot(vehicle_width_ / 2.0 + expand_stop_range_, vehicle_length_ / 2.0);
   slow_down_search_radius_ =
     step_length_ +
     std::hypot(vehicle_width_ / 2.0 + expand_slow_down_range_, vehicle_length_ / 2.0);
@@ -143,6 +145,8 @@ ObstacleStopPlannerNode::ObstacleStopPlannerNode() : nh_(), pnh_("~"), tf_listen
     pnh_.subscribe("input/twist", 1, &ObstacleStopPlannerNode::currentVelocityCallback, this);
   dynamic_object_sub_ =
     pnh_.subscribe("input/objects", 1, &ObstacleStopPlannerNode::dynamicObjectCallback, this);
+  expand_stop_range_sub_ = pnh_.subscribe(
+    "input/expand_stop_range", 1, &ObstacleStopPlannerNode::externalExpandStopRangeCallback, this);
 }
 
 void ObstacleStopPlannerNode::obstaclePointcloudCallback(
@@ -274,8 +278,8 @@ void ObstacleStopPlannerNode::pathCallback(
      */
     std::vector<cv::Point2d> one_step_move_vehicle_polygon;
     createOneStepPolygon(
-      trajectory.points.at(i).pose, trajectory.points.at(i + 1).pose,
-      one_step_move_vehicle_polygon);
+      trajectory.points.at(i).pose, trajectory.points.at(i + 1).pose, one_step_move_vehicle_polygon,
+      expand_stop_range_);
     debug_ptr_->pushPolygon(
       one_step_move_vehicle_polygon, trajectory.points.at(i).pose.position.z, PolygonType::Vehicle);
     // convert boost polygon
@@ -448,6 +452,14 @@ void ObstacleStopPlannerNode::pathCallback(
   path_pub_.publish(output_msg);
   stop_reason_diag_pub_.publish(stop_reason_diag);
   debug_ptr_->publish();
+}
+
+void ObstacleStopPlannerNode::externalExpandStopRangeCallback(
+  const std_msgs::Float32::ConstPtr & input_msg)
+{
+  expand_stop_range_ = input_msg->data;
+  stop_search_radius_ =
+    step_length_ + std::hypot(vehicle_width_ / 2.0 + expand_stop_range_, vehicle_length_ / 2.0);
 }
 
 void ObstacleStopPlannerNode::insertStopPoint(
@@ -653,8 +665,7 @@ autoware_planning_msgs::TrajectoryPoint ObstacleStopPlannerNode::getExtendTrajec
 }
 
 bool ObstacleStopPlannerNode::extendTrajectory(
-  const autoware_planning_msgs::Trajectory & input_trajectory,
-  const double extend_distance,
+  const autoware_planning_msgs::Trajectory & input_trajectory, const double extend_distance,
   autoware_planning_msgs::Trajectory & output_trajectory)
 {
   output_trajectory = input_trajectory;
