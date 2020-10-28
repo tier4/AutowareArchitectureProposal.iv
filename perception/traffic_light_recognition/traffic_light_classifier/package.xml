@@ -8,14 +8,16 @@
   <license>Apache2</license>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
+  <build_depend>wget</build_depend>
 
   <depend>autoware_perception_msgs</depend>
   <depend>cv_bridge</depend>
   <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
   <depend>sensor_msgs</depend>
   <depend>image_transport</depend>
   <depend>message_filters</depend>
-
+  <depend>libboost-filesystem-dev</depend>
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <build_type>ament_cmake</build_type>

@@ -20,16 +20,15 @@
 #include <autoware_perception_msgs/msg/traffic_light_state.hpp>
 #include <autoware_perception_msgs/msg/traffic_light_state_array.hpp>
 #include <cv_bridge/cv_bridge.h>
-#include <image_transport/image_transport.h>
-#include <image_transport/subscriber_filter.h>
+#include <image_transport/image_transport.hpp>
+#include <image_transport/subscriber_filter.hpp>
 #include <message_filters/subscriber.h>
 #include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/synchronizer.h>
 #include <message_filters/time_synchronizer.h>
-#include <pluginlib/class_list_macros.h>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/image.hpp>
-#include <sensor_msgs/msg/image_encodings.hpp>
+#include <sensor_msgs/image_encodings.hpp>
 #include <std_msgs/msg/header.hpp>
 
 #include <traffic_light_classifier/classifier_interface.hpp>
@@ -48,14 +47,13 @@
 
 namespace traffic_light
 {
-class TrafficLightClassifierNodelet : public nodelet::Nodelet
+class TrafficLightClassifierNodelet: public rclcpp::Node
 {
 public:
-  virtual void onInit();
-  void connectCb();
+  TrafficLightClassifierNodelet(const rclcpp::NodeOptions & options);
   void imageRoiCallback(
-    const sensor_msgs::msg::ImageConstPtr & input_image_msg,
-    const autoware_perception_msgs::msg::TrafficLightRoiArrayConstPtr & input_rois_msg);
+    const sensor_msgs::msg::Image::ConstSharedPtr & input_image_msg,
+    const autoware_perception_msgs::msg::TrafficLightRoiArray::ConstSharedPtr & input_rois_msg);
 
 private:
   enum ClassifierType {
@@ -63,9 +61,6 @@ private:
     CNN = 1,
   };
 
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
-  std::shared_ptr<image_transport::ImageTransport> image_transport_;
   image_transport::SubscriberFilter image_sub_;
   message_filters::Subscriber<autoware_perception_msgs::msg::TrafficLightRoiArray> roi_sub_;
   typedef message_filters::sync_policies::ExactTime<
@@ -79,8 +74,7 @@ private:
   typedef message_filters::Synchronizer<ApproximateSyncPolicy> ApproximateSync;
   std::shared_ptr<ApproximateSync> approximate_sync_;
   bool is_approximate_sync_;
-  std::mutex connect_mutex_;
-  ros::Publisher tl_states_pub_;
+  rclcpp::Publisher<autoware_perception_msgs::msg::TrafficLightStateArray>::SharedPtr tl_states_pub_;
   std::shared_ptr<ClassifierInterface> classifier_ptr_;
 };
 

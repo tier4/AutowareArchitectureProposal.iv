@@ -70,9 +70,9 @@ else()
 endif()
 
 # Download caffemodel and prototxt
-find_program(GDOWN_AVAIL "gdown")
-if (NOT GDOWN_AVAIL)
-  message("gdown: command not found. External files could not be downloaded.")
+find_program(WGET_AVAIL "wget")
+if (NOT WGET_AVAIL)
+  message("wget: command not found. External files could not be downloaded.")
 endif()
 set(PATH "${CMAKE_CURRENT_SOURCE_DIR}/data")
 if (NOT EXISTS "${PATH}")
@@ -82,18 +82,19 @@ set(FILE "${PATH}/traffic_light_classifier_mobilenetv2.onnx")
 message(STATUS "Checking and downloading traffic_light_classifier_mobilenetv2.onnx")
 if (NOT EXISTS "${FILE}")
   message(STATUS "... file does not exist. Downloading now ...")
-  execute_process(COMMAND gdown "https://drive.google.com/uc?id=19M64ZAo0XNv-Ep2RDynrRipLg3YAm65e" -O ${PATH}/traffic_light_classifier_mobilenetv2.onnx)
+  execute_process(COMMAND wget "https://drive.google.com/uc?id=19M64ZAo0XNv-Ep2RDynrRipLg3YAm65e" -O ${PATH}/traffic_light_classifier_mobilenetv2.onnx)
 endif()
 set(FILE "${PATH}/lamp_labels.txt")
 message(STATUS "Checking and downloading lamp_labels.txt")
 if (NOT EXISTS "${FILE}")
   message(STATUS "... file does not exist. Downloading now ...")
-  execute_process(COMMAND gdown "https://drive.google.com/uc?id=1C4XkFe-G58LcDJSVMp5xlwQniGVozgwW" -O ${PATH}/lamp_labels.txt)
+  execute_process(COMMAND wget "https://drive.google.com/uc?id=1C4XkFe-G58LcDJSVMp5xlwQniGVozgwW" -O ${PATH}/lamp_labels.txt)
 endif()
 
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 find_package(OpenCV REQUIRED)
+find_package(Boost REQUIRED COMPONENTS filesystem)
 
 if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
   add_definitions(-DENABLE_GPU)
@@ -105,9 +106,9 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
     ${catkin_INCLUDE_DIRS}
     )
 
-  ament_auto_add_library(libutils
+  ament_auto_add_library(libutils SHARED
     utils/trt_common.cpp
-    )
+  )
   target_link_libraries(libutils
     ${OpenCV_LIBRARIES}
     ${NVINFER}
@@ -117,28 +118,23 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
     ${CUBLAS_LIBRARIES}
     ${CUDA_curand_LIBRARY}
     ${CUDNN_LIBRARY}
-    )
+    ${Boost_LIBRARIES}
+  )
 
   ament_auto_add_library(traffic_light_classifier_nodelet SHARED
     src/color_classifier.cpp
     src/cnn_classifier.cpp
     src/nodelet.cpp
-    )
+  )
   target_link_libraries(traffic_light_classifier_nodelet
     libutils
     ${catkin_LIBRARIES}
     ${OpenCV_LIBRARIES}
-    )
-
-  ament_auto_add_executable(traffic_light_classifier_node
-    src/node.cpp
-    )
-  target_link_libraries(traffic_light_classifier_node
-    libutils
-    traffic_light_classifier_nodelet
-    ${catkin_LIBRARIES}
-    ${OpenCV_LIBRARIES}
-    )
+  )
+  rclcpp_components_register_node(traffic_light_classifier_nodelet
+    PLUGIN "traffic_light::TrafficLightClassifierNodelet"
+    EXECUTABLE traffic_light_classifier_node
+  )
 
   ament_auto_package(INSTALL_TO_SHARE
     data
@@ -162,14 +158,10 @@ else()
     ${OpenCV_LIBRARIES}
     )
 
-  ament_auto_add_executable(traffic_light_classifier_node
-    src/node.cpp
-    )
-  target_link_libraries(traffic_light_classifier_node
-    traffic_light_classifier_nodelet
-    ${catkin_LIBRARIES}
-    ${OpenCV_LIBRARIES}
-    )
+  rclcpp_components_register_node(traffic_light_classifier_nodelet
+    PLUGIN "traffic_light::TrafficLightClassifierNodelet"
+    EXECUTABLE traffic_light_classifier_node
+  )
 
   ament_auto_package(INSTALL_TO_SHARE
     data

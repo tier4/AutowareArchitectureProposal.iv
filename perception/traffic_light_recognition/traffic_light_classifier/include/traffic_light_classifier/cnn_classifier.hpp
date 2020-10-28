@@ -17,10 +17,8 @@
 
 #include <autoware_perception_msgs/msg/lamp_state.hpp>
 #include <cv_bridge/cv_bridge.h>
-#include <image_transport/image_transport.h>
-#include <ros/package.h>
+#include <image_transport/image_transport.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <traffic_light_classifier/HSVFilterConfig.h>
 #include <traffic_light_classifier/classifier_interface.hpp>
 
 #include <opencv2/core/core.hpp>
@@ -33,14 +31,13 @@ namespace traffic_light
 class CNNClassifier : public ClassifierInterface
 {
 public:
-  explicit CNNClassifier(const ros::NodeHandle & nh, const ros::NodeHandle & pnh);
+  explicit CNNClassifier(rclcpp::Node * node_ptr);
 
   bool getLampState(
     const cv::Mat & input_image,
     std::vector<autoware_perception_msgs::msg::LampState> & states) override;
 
 private:
-  void parametersCallback(traffic_light_classifier::HSVFilterConfig & config, uint32_t level);
   void preProcess(cv::Mat & image, std::vector<float> &  tensor, bool normalize = true);
   bool postProcess(
     std::vector<float> & output_data_host, std::vector<autoware_perception_msgs::msg::LampState> & states);
@@ -71,10 +68,9 @@ private:
     {"unknown", autoware_perception_msgs::msg::LampState::UNKNOWN},
   };
 
+  rclcpp::Node * node_ptr_;
+
   std::shared_ptr<Tn::TrtCommon> trt_;
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
-  image_transport::ImageTransport image_transport_;
   image_transport::Publisher image_pub_;
   std::vector<std::string> labels_;
   std::vector<float> mean_{0.242, 0.193, 0.201};

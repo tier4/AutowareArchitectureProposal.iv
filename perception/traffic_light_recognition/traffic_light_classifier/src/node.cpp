@@ -19,16 +19,16 @@
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "traffic_light_classifier_node");
-  ros::NodeHandle private_nh("~");
+  // ros::init(argc, argv, ;
+  // ros::NodeHandle private_nh("~");
 
-  nodelet::Loader nodelet;
-  nodelet::M_string remap(ros::names::getRemappings());
-  nodelet::V_string nargv;
-  std::string nodelet_name = ros::this_node::getName();
-  nodelet.load(
-    nodelet_name, "traffic_light/traffic_light_classifier", remap, nargv);
+  // nodelet::Loader nodelet;
+  // nodelet::M_string remap(ros::names::getRemappings());
+  // nodelet::V_string nargv;
+  // std::string nodelet_name = ros::this_node::getName();
+  // nodelet.load(
+  //   nodelet_name, "traffic_light/traffic_light_classifier", remap, nargv);
 
-  ros::spin();
+  // ros::spin();
   return 0;
 }
