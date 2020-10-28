@@ -241,7 +241,7 @@ bool isClockWise(const geometry_msgs::Polygon & polygon)
            (polygon.points[i].y - y_offset) * (polygon.points[(i + 1) % N].x - x_offset);
   }
 
-  return sum >= 0.0;
+  return sum < 0.0;
 }
 
 // Is angle AOB less than 180?
@@ -334,7 +334,7 @@ void visualization::polygon2Triangle(
   const geometry_msgs::Polygon & polygon, std::vector<geometry_msgs::Polygon> * triangles)
 {
   geometry_msgs::Polygon poly = polygon;
-  if (isClockWise(poly)) std::reverse(poly.points.begin(), poly.points.end());
+  if (!isClockWise(poly)) std::reverse(poly.points.begin(), poly.points.end());
 
   // ear clipping: find smallest internal angle in polygon
   int N = poly.points.size();
