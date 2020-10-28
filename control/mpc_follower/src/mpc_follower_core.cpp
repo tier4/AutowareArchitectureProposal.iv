@@ -970,8 +970,8 @@ autoware_control_msgs::ControlCommand MPCFollower::getInitialControlCommand() co
 bool MPCFollower::isStoppedState() const
 {
   const int nearest = MPCUtils::calcNearestIndex(*current_trajectory_ptr_, current_pose_ptr_->pose);
-  // If the nearest index is not found, publish previous command
-  if (nearest < 0) return true;
+  // If the nearest index is not found, return false
+  if (nearest < 0) return false;
   const double dist = calcStopDistance(nearest);
   if (dist < stop_state_keep_stopping_dist_) {
     ROS_DEBUG(
