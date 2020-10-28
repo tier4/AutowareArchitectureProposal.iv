@@ -33,6 +33,7 @@
   <arg name="input_stop_speed_exceeded" default="/planning/scenario_planning/motion_velocity_optimizer/stop_speed_exceeded" />
   <arg name="input_external_crosswalk_status" default="/planning/scenario_planning/lane_driving/behavior_planning/behavior_velocity_planner/input/external_crosswalk_states" />
   <arg name="input_external_intersection_status" default="/planning/scenario_planning/lane_driving/behavior_planning/behavior_velocity_planner/input/external_intersection_states" />
+  <arg name="input_expand_stop_range" default="/planning/scenario_planning/lane_driving/motion_planning/obstacle_stop_planner/input/expand_stop_range" />
 
   <arg name="output_vehicle_status" default="vehicle/get/status" />
   <arg name="output_autoware_status" default="autoware/get/status" />
@@ -68,6 +69,7 @@
   <arg name="set_door_control" default="vehicle/put/door" />
   <arg name="set_crosswalk_status" default="autoware/put/crosswalk_states" />
   <arg name="set_intersection_status" default="autoware/put/intersection_states" />
+  <arg name="set_expand_stop_range" default="autoware/put/expand_stop_range" />
 
   <arg name="get_route" default="autoware/get/route" />
   <arg name="get_predicted_object" default="prediction/get/objects" />
@@ -136,6 +138,7 @@
     <node pkg="topic_tools" type="relay" name="speed_exceeded_relay" args="$(arg input_stop_speed_exceeded) $(arg get_stop_speed_exceeded)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="crosswalk_status_relay" args="$(arg set_crosswalk_status) $(arg input_external_crosswalk_status)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="intersection_status_relay" args="$(arg set_intersection_status) $(arg input_external_intersection_status)" output="$(arg relay_output)" />
+    <node pkg="topic_tools" type="relay" name="expand_stop_range_relay" args="$(arg set_expand_stop_range) $(arg input_expand_stop_range)" output="$(arg relay_output)" />
 
   </group>
 
