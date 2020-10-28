@@ -74,7 +74,7 @@ void FollowingLaneState::update()
       current_lane, current_pose_.pose, 0.0, lane_change_prepare_length);
     lanelet::ConstLanelet lane_change_lane;
     if (route_handler_ptr_->getLaneChangeTarget(current_check_lanes, &lane_change_lane)) {
-      constexpr double lane_change_lane_length = 100.0;
+      constexpr double lane_change_lane_length = 200.0;
       lane_change_lanes_ = route_handler_ptr_->getLaneletSequence(
         lane_change_lane, current_pose_.pose, lane_change_lane_length, lane_change_lane_length);
     } else {
