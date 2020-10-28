@@ -16,76 +16,104 @@
 
 #include "dummy_diag_publisher/dummy_diag_publisher_node.h"
 
-#include <boost/bind.hpp>
+#include <rclcpp/create_timer.hpp>
 
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
 namespace
 {
-template <class Config>
-Config getConfig(const std::string & config_name)
+template <typename T>
+void update_param(
+  const std::vector<rclcpp::Parameter> & parameters, const std::string & name, T & value)
 {
-  Config config;
-  // XmlRpc::XmlRpcValue xml;
-  // if (!nh.getParam(config_name, xml)) {
-  //   throw std::runtime_error(fmt::format("no parameter found: {}", config_name));
-  // }
-
-  return config;
+  auto it = std::find_if(
+    parameters.cbegin(), parameters.cend(),
+    [&name](const rclcpp::Parameter & parameter) { return parameter.get_name() == name; });
+  if (it != parameters.cend()) {
+    value = it->template get_value<T>();
+  }
 }
 }  // namespace
 
-// void DummyDiagPublisherNode::onConfig(
-//   const dummy_diag_publisher::DummyDiagPublisherConfig & config, const uint32_t level)
-// {
-//   // config_ = config;
-// }
+rcl_interfaces::msg::SetParametersResult DummyDiagPublisherNode::paramCallback(
+  const std::vector<rclcpp::Parameter> & parameters)
+{
+  
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  result.reason = "success";
+
+  DummyDiagPublisherConfig config = config_;
+  try {
+    int status;
+    update_param(parameters, "status", status);
+    config.status = Status(status);
+    update_param(parameters, "is_active", config.is_active);
+    config_ = config;
+  } catch (const rclcpp::exceptions::InvalidParameterTypeException & e) {
+    result.successful = false;
+    result.reason = e.what();
+  }
+
+  return result;
+}
 
 void DummyDiagPublisherNode::produceDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   diagnostic_msgs::msg::DiagnosticStatus status;
 
-  // if (config_.status == dummy_diag_publisher::DummyDiagPublisher_OK) {
-  //   status.level = diagnostic_msgs::DiagnosticStatus::OK;
-  //   status.message = diag_config_.msg_ok;
-  // } else if (config_.status == dummy_diag_publisher::DummyDiagPublisher_WARN) {
-  //   status.level = diagnostic_msgs::DiagnosticStatus::WARN;
-  //   status.message = diag_config_.msg_warn;
-  // } else if (config_.status == dummy_diag_publisher::DummyDiagPublisher_ERROR) {
-  //   status.level = diagnostic_msgs::DiagnosticStatus::ERROR;
-  //   status.message = diag_config_.msg_error;
-  // } else if (config_.status == dummy_diag_publisher::DummyDiagPublisher_STALE) {
-  //   status.level = diagnostic_msgs::DiagnosticStatus::STALE;
-  //   status.message = diag_config_.msg_stale;
-  // } else {
-  //   throw std::runtime_error("invalid status");
-  // }
+  if (config_.status == Status::OK) {
+    status.level = diagnostic_msgs::msg::DiagnosticStatus::OK;
+    status.message = diag_config_.msg_ok;
+  } else if (config_.status == Status::WARN) {
+    status.level = diagnostic_msgs::msg::DiagnosticStatus::WARN;
+    status.message = diag_config_.msg_warn;
+  } else if (config_.status == Status::ERROR) {
+    status.level = diagnostic_msgs::msg::DiagnosticStatus::ERROR;
+    status.message = diag_config_.msg_error;
+  } else if (config_.status == Status::STALE) {
+    status.level = diagnostic_msgs::msg::DiagnosticStatus::STALE;
+    status.message = diag_config_.msg_stale;
+  } else {
+    throw std::runtime_error("invalid status");
+  }
 
-  // stat.summary(status.level, status.message);
+  stat.summary(status.level, status.message);
 }
 
 void DummyDiagPublisherNode::onTimer()
 {
-  // if (config_.is_active) {
-  //   updater_.force_update();
-  // }
+  if (config_.is_active) {
+    updater_.force_update();
+  }
 }
 
-DummyDiagPublisherNode::DummyDiagPublisherNode() : Node("dummy_diag_publisher"), updater_(this)
+DummyDiagPublisherNode::DummyDiagPublisherNode()
+: Node(declare_parameter("diag_name", "dummy_diag_publisher_node")),
+  update_rate_(declare_parameter("update_rate", 10.0)),
+  updater_(this)
 {
-  // Parameter
-  // private_nh_.param("update_rate", update_rate_, 10.0);
-  // diag_config_ = getConfig<DiagConfig>(private_nh_, "diag_config");
-
-  // Dynamic Reconfigure
-  // Change to std::bind?
-  // dynamic_reconfigure_.setCallback(boost::bind(&DummyDiagPublisherNode::onConfig, this, _1, _2));
+  // Get configuration
+  std::map<std::string, std::string> configuration_parameters;
+  this->declare_parameters(this->get_namespace(), configuration_parameters);
+  diag_config_ = DiagConfig(configuration_parameters);
+  
+  // set parameter callback
+  set_param_res_ =
+    this->add_on_set_parameters_callback(std::bind(&DummyDiagPublisherNode::paramCallback, this, std::placeholders::_1));
 
   // Diagnostic Updater
-  // updater_.setHardwareID(diag_config_.hardware_id);
-  // updater_.add(diag_config_.name, this, &DummyDiagPublisherNode::produceDiagnostics);
+  updater_.setHardwareID(diag_config_.hardware_id);
+  updater_.add(diag_config_.name, this, &DummyDiagPublisherNode::produceDiagnostics);
 
   // Timer
-  // timer_ = private_nh_.createTimer(ros::Rate(update_rate_), &DummyDiagPublisherNode::onTimer, this);
+  auto timer_callback = std::bind(&DummyDiagPublisherNode::onTimer, this);
+  auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<double>(update_rate_));
+
+  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
+    this->get_clock(), period, std::move(timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(timer_, nullptr);
 }

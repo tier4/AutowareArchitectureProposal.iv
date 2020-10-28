@@ -21,23 +21,20 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-// #include <dummy_diag_publisher/DummyDiagPublisherConfig.h>
-// #include <dynamic_reconfigure/server.h>
-
 #include <diagnostic_updater/diagnostic_updater.hpp>
 
 struct DiagConfig
 {
   DiagConfig() = default;
-  // explicit DiagConfig(XmlRpc::XmlRpcValue value)
-  // : name(static_cast<std::string>(value["name"])),
-  //   hardware_id(static_cast<std::string>(value["hardware_id"])),
-  //   msg_ok(static_cast<std::string>(value["msg_ok"])),
-  //   msg_warn(static_cast<std::string>(value["msg_warn"])),
-  //   msg_error(static_cast<std::string>(value["msg_error"])),
-  //   msg_stale(static_cast<std::string>(value["msg_stale"]))
-  // {
-  // }
+  explicit DiagConfig(std::map<std::string, std::string> config)
+  : name(static_cast<std::string>(config["name"])),
+    hardware_id(static_cast<std::string>(config["hardware_id"])),
+    msg_ok(static_cast<std::string>(config["msg_ok"])),
+    msg_warn(static_cast<std::string>(config["msg_warn"])),
+    msg_error(static_cast<std::string>(config["msg_error"])),
+    msg_stale(static_cast<std::string>(config["msg_stale"]))
+  {
+  }
 
   std::string name;
   std::string hardware_id;
@@ -55,20 +52,28 @@ public:
   DummyDiagPublisherNode();
 
 private:
-  // NodeHandle
-  // ros::NodeHandle nh_{""};
-  // ros::NodeHandle private_nh_{"~"};
+  enum Status {
+    OK,
+    WARN,
+    ERROR,
+    STALE,
+  };
+
+  struct DummyDiagPublisherConfig
+  {
+    Status status;
+    bool is_active;
+  };
 
   // Parameter
   double update_rate_;
   DiagConfig diag_config_;
+  DummyDiagPublisherConfig config_;
 
   // Dynamic Reconfigure
-  // void onConfig(
-  //   const dummy_diag_publisher::DummyDiagPublisherConfig & config, const uint32_t level);
-
-  // dynamic_reconfigure::Server<dummy_diag_publisher::DummyDiagPublisherConfig> dynamic_reconfigure_;
-  // dummy_diag_publisher::DummyDiagPublisherConfig config_;
+  OnSetParametersCallbackHandle::SharedPtr set_param_res_;
+  rcl_interfaces::msg::SetParametersResult paramCallback(
+    const std::vector<rclcpp::Parameter> & parameters);
 
   // Diagnostic Updater
   diagnostic_updater::Updater updater_;
@@ -77,7 +82,7 @@ private:
 
   // Timer
   void onTimer();
-  // ros::Timer timer_;
+  rclcpp::TimerBase::SharedPtr timer_;
 };
 
 #endif
