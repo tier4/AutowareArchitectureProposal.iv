@@ -137,6 +137,7 @@ void AutowareStateMonitorNode::onRoute(const autoware_planning_msgs::msg::Route:
   }
 
   if (disengage_on_route_) {
+    RCLCPP_INFO(this->get_logger(), "new route received and disengage Autoware");
     setDisengage();
   }
 }
@@ -212,12 +213,9 @@ void AutowareStateMonitorNode::onTimer()
       toString(autoware_state).c_str());
   }
 
-  // // Disengage on event
-  if (disengage_on_complete_ && autoware_state == AutowareState::ArrivedGoal) {
-    setDisengage();
-  }
-
-  if (disengage_on_emergency_ && autoware_state == AutowareState::Emergency) {
+  // Disengage on event
+  if (disengage_on_goal_ && autoware_state == AutowareState::ArrivedGoal) {
+    RCLCPP_INFO(this->get_logger(), "arrived goal and disengage Autoware");
     setDisengage();
   }
 
@@ -382,8 +380,7 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   // Parameter
   update_rate_ = this->declare_parameter("update_rate", 10.0);
   disengage_on_route_ = this->declare_parameter("disengage_on_route", true);
-  disengage_on_complete_ = this->declare_parameter("disengage_on_complete", false);
-  disengage_on_emergency_ = this->declare_parameter("disengage_on_emergency", false);
+  disengage_on_goal_ = this->declare_parameter("disengage_on_goal", true);
 
   // Parameter for StateMachine
   state_param_.th_arrived_distance_m = this->declare_parameter("th_arrived_distance_m", 1.0);

@@ -90,6 +90,7 @@ private:
 
   bool isModuleInitialized(const char * module_name) const;
   bool isVehicleInitialized() const;
+  bool hasRoute() const;
   bool isRouteReceived() const;
   bool isPlanningCompleted() const;
   bool isEngaged() const;
