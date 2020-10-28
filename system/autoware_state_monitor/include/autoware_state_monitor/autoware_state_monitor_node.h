@@ -54,8 +54,7 @@ private:
   // Parameter
   double update_rate_;
   bool disengage_on_route_;
-  bool disengage_on_complete_;
-  bool disengage_on_emergency_;
+  bool disengage_on_goal_;
 
   std::vector<TopicConfig> topic_configs_;
   std::vector<ParamConfig> param_configs_;
