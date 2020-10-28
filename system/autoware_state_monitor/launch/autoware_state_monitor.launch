@@ -32,7 +32,6 @@
     <param name="th_stopped_velocity_mps" value="0.01" />
 
     <param name="disengage_on_route" value="true" />
-    <param name="disengage_on_complete" value="false" />
-    <param name="disengage_on_emergency" value="false" />
+    <param name="disengage_on_goal" value="true" />
   </node>
 </launch>

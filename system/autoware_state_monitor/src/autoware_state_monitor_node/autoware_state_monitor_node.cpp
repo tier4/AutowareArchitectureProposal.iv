@@ -138,6 +138,7 @@ void AutowareStateMonitorNode::onRoute(const autoware_planning_msgs::Route::Cons
   }
 
   if (disengage_on_route_) {
+    ROS_INFO("new route received and disengage Autoware");
     setDisengage();
   }
 }
@@ -210,11 +211,8 @@ void AutowareStateMonitorNode::onTimer(const ros::TimerEvent & event)
   }
 
   // Disengage on event
-  if (disengage_on_complete_ && autoware_state == AutowareState::ArrivedGoal) {
-    setDisengage();
-  }
-
-  if (disengage_on_emergency_ && autoware_state == AutowareState::Emergency) {
+  if (disengage_on_goal_ && autoware_state == AutowareState::ArrivedGoal) {
+    ROS_INFO("arrived goal and disengage Autoware");
     setDisengage();
   }
 
@@ -367,8 +365,7 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   // Parameter
   private_nh_.param("update_rate", update_rate_, 10.0);
   private_nh_.param("disengage_on_route", disengage_on_route_, true);
-  private_nh_.param("disengage_on_complete", disengage_on_complete_, false);
-  private_nh_.param("disengage_on_emergency", disengage_on_emergency_, false);
+  private_nh_.param("disengage_on_goal", disengage_on_goal_, true);
 
   // Parameter for StateMachine
   private_nh_.param("th_arrived_distance_m", state_param_.th_arrived_distance_m, 1.0);
