@@ -31,10 +31,9 @@ target_include_directories(osqp_interface PUBLIC "${OSQP_INCLUDE_DIR}")
 ament_target_dependencies(osqp_interface Eigen3)
 ament_target_dependencies(osqp_interface osqp_vendor)
 
-# needed so clients of this package don't need to worry about includes of this package
+# crucial so downstream package builds because osqp_interface exposes osqp.h
 ament_export_include_directories("${OSQP_INCLUDE_DIR}")
-ament_export_dependencies(eigen3_cmake_module)
-ament_export_dependencies(Eigen3)
-ament_export_dependencies(osqp_vendor)
+# crucial so the linking order is correct in a downstream package: libosqp_interface.a should come before libosqp.a
+ament_export_libraries(osqp::osqpstatic)
 
 ament_auto_package()
