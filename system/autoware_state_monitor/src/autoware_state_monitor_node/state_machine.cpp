@@ -264,6 +264,11 @@ AutowareState StateMachine::judgeAutowareState() const
         return AutowareState::Driving;
       }
 
+      if (hasArrivedGoal()) {
+        times_.arrived_goal = ros::Time::now();
+        return AutowareState::ArrivedGoal;
+      }
+
       break;
     }
 
