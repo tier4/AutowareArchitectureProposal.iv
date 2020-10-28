@@ -28,7 +28,7 @@ ColorClassifier::ColorClassifier(const ros::NodeHandle & nh, const ros::NodeHand
 }
 
 bool ColorClassifier::getLampState(
-  const cv::Mat & input_image, std::vector<autoware_perception_msgs::LampState> & states)
+  const cv::Mat & input_image, std::vector<autoware_perception_msgs::msg::LampState> & states)
 {
   cv::Mat green_image;
   cv::Mat yellow_image;
@@ -112,8 +112,8 @@ bool ColorClassifier::getLampState(
     cv::putText(
       debug_image, "red", cv::Point(0, height * 3.5), cv::FONT_HERSHEY_SIMPLEX, 1.0,
       cv::Scalar(255, 255, 255), 1, CV_AA);
-    sensor_msgs::ImagePtr debug_image_msg =
-      cv_bridge::CvImage(std_msgs::Header(), "bgr8", debug_image).toImageMsg();
+    sensor_msgs::msg::ImagePtr debug_image_msg =
+      cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", debug_image).toImageMsg();
     image_pub_.publish(debug_image_msg);
   }
 #endif
@@ -132,23 +132,23 @@ bool ColorClassifier::getLampState(
     (double)red_pixel_num / (double)(red_filtered_bin_image.rows * red_filtered_bin_image.cols);
 
   if (yellow_ratio < green_ratio && red_ratio < green_ratio) {
-    autoware_perception_msgs::LampState state;
-    state.type = autoware_perception_msgs::LampState::GREEN;
+    autoware_perception_msgs::msg::LampState state;
+    state.type = autoware_perception_msgs::msg::LampState::GREEN;
     state.confidence = std::min(1.0, double(green_pixel_num) / (20.0 * 20.0));
     states.push_back(state);
   } else if (green_ratio < yellow_ratio && red_ratio < yellow_ratio) {
-    autoware_perception_msgs::LampState state;
-    state.type = autoware_perception_msgs::LampState::YELLOW;
+    autoware_perception_msgs::msg::LampState state;
+    state.type = autoware_perception_msgs::msg::LampState::YELLOW;
     state.confidence = std::min(1.0, double(yellow_pixel_num) / (20.0 * 20.0));
     states.push_back(state);
   } else if (green_ratio < red_ratio && yellow_ratio < red_ratio) {
-    autoware_perception_msgs::LampState state;
-    state.type = autoware_perception_msgs::LampState::RED;
+    autoware_perception_msgs::msg::LampState state;
+    state.type = autoware_perception_msgs::msg::LampState::RED;
     state.confidence = std::min(1.0, double(red_pixel_num) / (20.0 * 20.0));
     states.push_back(state);
   } else {
-    autoware_perception_msgs::LampState state;
-    state.type = autoware_perception_msgs::LampState::UNKNOWN;
+    autoware_perception_msgs::msg::LampState state;
+    state.type = autoware_perception_msgs::msg::LampState::UNKNOWN;
     state.confidence = 0.0;
     states.push_back(state);
   }

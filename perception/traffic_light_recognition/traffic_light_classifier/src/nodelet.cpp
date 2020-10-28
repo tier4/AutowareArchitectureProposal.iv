@@ -35,7 +35,7 @@ void TrafficLightClassifierNodelet::onInit()
   }
   ros::SubscriberStatusCallback connect_cb = boost::bind(&TrafficLightClassifierNodelet::connectCb, this);
   std::lock_guard<std::mutex> lock(connect_mutex_);
-  tl_states_pub_ = pnh_.advertise<autoware_perception_msgs::TrafficLightStateArray>(
+  tl_states_pub_ = pnh_.advertise<autoware_perception_msgs::msg::TrafficLightStateArray>(
     "output/traffic_light_states", 1, connect_cb, connect_cb);
 
   int classifier_type;
@@ -65,8 +65,8 @@ void TrafficLightClassifierNodelet::connectCb()
 }
 
 void TrafficLightClassifierNodelet::imageRoiCallback(
-  const sensor_msgs::ImageConstPtr & input_image_msg,
-  const autoware_perception_msgs::TrafficLightRoiArrayConstPtr & input_rois_msg)
+  const sensor_msgs::msg::ImageConstPtr & input_image_msg,
+  const autoware_perception_msgs::msg::TrafficLightRoiArrayConstPtr & input_rois_msg)
 {
   if (classifier_ptr_.use_count() == 0) {
     return;
@@ -74,25 +74,25 @@ void TrafficLightClassifierNodelet::imageRoiCallback(
 
   cv_bridge::CvImagePtr cv_ptr;
   try {
-    cv_ptr = cv_bridge::toCvCopy(input_image_msg, sensor_msgs::image_encodings::RGB8);
+    cv_ptr = cv_bridge::toCvCopy(input_image_msg, sensor_msgs::msg::image_encodings::RGB8);
   } catch (cv_bridge::Exception & e) {
     NODELET_ERROR("Could not convert from '%s' to 'rgb8'.", input_image_msg->encoding.c_str());
   }
 
-  autoware_perception_msgs::TrafficLightStateArray output_msg;
+  autoware_perception_msgs::msg::TrafficLightStateArray output_msg;
 
   for (size_t i = 0; i < input_rois_msg->rois.size(); ++i) {
-    const sensor_msgs::RegionOfInterest & roi = input_rois_msg->rois.at(i).roi;
+    const sensor_msgs::msg::RegionOfInterest & roi = input_rois_msg->rois.at(i).roi;
     cv::Mat clipped_image(
       cv_ptr->image, cv::Rect(roi.x_offset, roi.y_offset, roi.width, roi.height));
 
-    std::vector<autoware_perception_msgs::LampState> lamp_states;
+    std::vector<autoware_perception_msgs::msg::LampState> lamp_states;
 
     if (!classifier_ptr_->getLampState(clipped_image, lamp_states)) {
       NODELET_ERROR("failed classify image, abort callback");
       return;
     }
-    autoware_perception_msgs::TrafficLightState tl_state;
+    autoware_perception_msgs::msg::TrafficLightState tl_state;
     tl_state.id = input_rois_msg->rois.at(i).id;
     tl_state.lamp_states = lamp_states;
     output_msg.states.push_back(tl_state);

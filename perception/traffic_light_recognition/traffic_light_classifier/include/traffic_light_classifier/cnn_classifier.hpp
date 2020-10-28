@@ -15,12 +15,11 @@
  */
 #pragma once
 
-#include <autoware_perception_msgs/LampState.h>
+#include <autoware_perception_msgs/msg/lamp_state.hpp>
 #include <cv_bridge/cv_bridge.h>
-#include <dynamic_reconfigure/server.h>
 #include <image_transport/image_transport.h>
 #include <ros/package.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <traffic_light_classifier/HSVFilterConfig.h>
 #include <traffic_light_classifier/classifier_interface.hpp>
 
@@ -38,38 +37,38 @@ public:
 
   bool getLampState(
     const cv::Mat & input_image,
-    std::vector<autoware_perception_msgs::LampState> & states) override;
+    std::vector<autoware_perception_msgs::msg::LampState> & states) override;
 
 private:
   void parametersCallback(traffic_light_classifier::HSVFilterConfig & config, uint32_t level);
   void preProcess(cv::Mat & image, std::vector<float> &  tensor, bool normalize = true);
   bool postProcess(
-    std::vector<float> & output_data_host, std::vector<autoware_perception_msgs::LampState> & states);
+    std::vector<float> & output_data_host, std::vector<autoware_perception_msgs::msg::LampState> & states);
   bool readLabelfile(std::string filepath, std::vector<std::string> & labels);
   void calcSoftmax(std::vector<float> & data, std::vector<float> & probs, int num_output);
   std::vector<size_t> argsort(std::vector<float> & tensor, int num_output);
   void outputDebugImage(
-    cv::Mat & debug_image, const std::vector<autoware_perception_msgs::LampState> & states);
+    cv::Mat & debug_image, const std::vector<autoware_perception_msgs::msg::LampState> & states);
 
 private:
   std::map<int, std::string> state2label_{
-    {autoware_perception_msgs::LampState::RED, "red"},
-    {autoware_perception_msgs::LampState::YELLOW, "yellow"},
-    {autoware_perception_msgs::LampState::GREEN, "green"},
-    {autoware_perception_msgs::LampState::UP, "straight"},
-    {autoware_perception_msgs::LampState::LEFT, "left"},
-    {autoware_perception_msgs::LampState::RIGHT, "right"},
-    {autoware_perception_msgs::LampState::UNKNOWN, "unknown"},
+    {autoware_perception_msgs::msg::LampState::RED, "red"},
+    {autoware_perception_msgs::msg::LampState::YELLOW, "yellow"},
+    {autoware_perception_msgs::msg::LampState::GREEN, "green"},
+    {autoware_perception_msgs::msg::LampState::UP, "straight"},
+    {autoware_perception_msgs::msg::LampState::LEFT, "left"},
+    {autoware_perception_msgs::msg::LampState::RIGHT, "right"},
+    {autoware_perception_msgs::msg::LampState::UNKNOWN, "unknown"},
   };
 
   std::map<std::string, int> label2state_{
-    {"red", autoware_perception_msgs::LampState::RED},
-    {"yellow", autoware_perception_msgs::LampState::YELLOW},
-    {"green", autoware_perception_msgs::LampState::GREEN},
-    {"straight", autoware_perception_msgs::LampState::UP},
-    {"left", autoware_perception_msgs::LampState::LEFT},
-    {"right", autoware_perception_msgs::LampState::RIGHT},
-    {"unknown", autoware_perception_msgs::LampState::UNKNOWN},
+    {"red", autoware_perception_msgs::msg::LampState::RED},
+    {"yellow", autoware_perception_msgs::msg::LampState::YELLOW},
+    {"green", autoware_perception_msgs::msg::LampState::GREEN},
+    {"straight", autoware_perception_msgs::msg::LampState::UP},
+    {"left", autoware_perception_msgs::msg::LampState::LEFT},
+    {"right", autoware_perception_msgs::msg::LampState::RIGHT},
+    {"unknown", autoware_perception_msgs::msg::LampState::UNKNOWN},
   };
 
   std::shared_ptr<Tn::TrtCommon> trt_;

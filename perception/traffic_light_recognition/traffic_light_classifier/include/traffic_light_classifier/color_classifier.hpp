@@ -15,11 +15,10 @@
  */
 #pragma once
 
-#include <autoware_perception_msgs/LampState.h>
+#include <autoware_perception_msgs/msg/lamp_state.hpp>
 #include <cv_bridge/cv_bridge.h>
-#include <dynamic_reconfigure/server.h>
 #include <image_transport/image_transport.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <traffic_light_classifier/HSVFilterConfig.h>
 #include <traffic_light_classifier/classifier_interface.hpp>
 
@@ -35,7 +34,7 @@ public:
 
   bool getLampState(
     const cv::Mat & input_image,
-    std::vector<autoware_perception_msgs::LampState> & states) override;
+    std::vector<autoware_perception_msgs::msg::LampState> & states) override;
 
 private:
   bool filterHSV(

@@ -42,7 +42,7 @@ CNNClassifier::CNNClassifier(const ros::NodeHandle & nh, const ros::NodeHandle &
 }
 
 bool CNNClassifier::getLampState(
-  const cv::Mat & input_image, std::vector<autoware_perception_msgs::LampState> & states)
+  const cv::Mat & input_image, std::vector<autoware_perception_msgs::msg::LampState> & states)
 {
   if (!trt_->isInitialized()) {
     ROS_WARN("failed to init tensorrt");
@@ -90,7 +90,7 @@ bool CNNClassifier::getLampState(
 }
 
 void CNNClassifier::outputDebugImage(
-  cv::Mat & debug_image, const std::vector<autoware_perception_msgs::LampState> & states)
+  cv::Mat & debug_image, const std::vector<autoware_perception_msgs::msg::LampState> & states)
 {
   float probability;
   std::string label;
@@ -112,8 +112,8 @@ void CNNClassifier::outputDebugImage(
     text_img, text, cv::Point(5, 25), cv::FONT_HERSHEY_COMPLEX, 0.5, cv::Scalar(0, 255, 0), 1);
   cv::vconcat(debug_image, text_img, debug_image);
 
-  sensor_msgs::ImagePtr debug_image_msg =
-    cv_bridge::CvImage(std_msgs::Header(), "rgb8", debug_image).toImageMsg();
+  sensor_msgs::msg::ImagePtr debug_image_msg =
+    cv_bridge::CvImage(std_msgs::msg::Header(), "rgb8", debug_image).toImageMsg();
   image_pub_.publish(debug_image_msg);
 }
 
@@ -146,7 +146,7 @@ void CNNClassifier::preProcess(cv::Mat & image, std::vector<float> & input_tenso
 }
 
 bool CNNClassifier::postProcess(
-  std::vector<float> & output_tensor, std::vector<autoware_perception_msgs::LampState> & states)
+  std::vector<float> & output_tensor, std::vector<autoware_perception_msgs::msg::LampState> & states)
 {
   std::vector<float> probs;
   int num_output = trt_->getNumOutput();
@@ -171,7 +171,7 @@ bool CNNClassifier::postProcess(
       ROS_DEBUG("cnn_classifier does not have a key [%s]", label.c_str());
       continue;
     }
-    autoware_perception_msgs::LampState state;
+    autoware_perception_msgs::msg::LampState state;
     state.type = label2state_[label];
     state.confidence = probability;
     states.push_back(state);
