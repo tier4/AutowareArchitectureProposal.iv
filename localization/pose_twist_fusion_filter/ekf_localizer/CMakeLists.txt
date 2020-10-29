@@ -38,4 +38,7 @@ ament_target_dependencies(ekf_localizer Eigen3)
 #   ament_target_dependencies(ekf_localizer-test geometry_msgs rclcpp tf2 tf2_ros)
 # endif()
 
-ament_auto_package()
+ament_auto_package(
+  INSTALL_TO_SHARE
+  launch
+)
