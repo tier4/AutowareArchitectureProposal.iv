@@ -60,13 +60,13 @@ public:
   std::string frame_id_a_ = "world";
   std::string frame_id_b_ = "base_link";
 
-  std::shared_ptr<rclcpp::Subscription<geometry_msgs::msg::TwistStamped>> sub_twist;
-  std::shared_ptr<rclcpp::Subscription<geometry_msgs::msg::PoseStamped>> sub_pose;
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist;
+  rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_pose;
 
   rclcpp::TimerBase::SharedPtr test_timer_;
 
-  std::shared_ptr<geometry_msgs::msg::PoseStamped> test_current_pose_ptr_;
-  std::shared_ptr<geometry_msgs::msg::TwistStamped> test_current_twist_ptr_;
+  geometry_msgs::msg::PoseStamped::SharedPtr test_current_pose_ptr_;
+  geometry_msgs::msg::TwistStamped::SharedPtr test_current_twist_ptr_;
 
   void testTimerCallback()
   {

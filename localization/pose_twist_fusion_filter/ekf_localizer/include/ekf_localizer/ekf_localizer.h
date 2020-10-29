@@ -42,20 +42,20 @@ public:
   EKFLocalizer(const std::string & node_name, const rclcpp::NodeOptions & options);
 
 private:
-  std::shared_ptr<rclcpp::Publisher<geometry_msgs::msg::PoseStamped>> pub_pose_;             //!< @brief ekf estimated pose publisher
-  std::shared_ptr<rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>> pub_pose_cov_;         //!< @brief estimated ekf pose with covariance publisher
-  std::shared_ptr<rclcpp::Publisher<geometry_msgs::msg::TwistStamped>> pub_twist_;            //!< @brief ekf estimated twist publisher
-  std::shared_ptr<rclcpp::Publisher<geometry_msgs::msg::TwistWithCovarianceStamped>> pub_twist_cov_;        //!< @brief ekf estimated twist with covariance publisher
-  std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float64MultiArray>> pub_debug_;            //!< @brief debug info publisher
-  std::shared_ptr<rclcpp::Publisher<geometry_msgs::msg::PoseStamped>> pub_measured_pose_;    //!< @brief debug measurement pose publisher
-  std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Float64>> pub_yaw_bias_;         //!< @brief ekf estimated yaw bias publisher
-  std::shared_ptr<rclcpp::Publisher<geometry_msgs::msg::PoseStamped>> pub_pose_no_yawbias_;  //!< @brief ekf estimated yaw bias publisher
-  std::shared_ptr<rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>> pub_pose_cov_no_yawbias_;  //!< @brief ekf estimated yaw bias publisher
-  std::shared_ptr<rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>> sub_initialpose_;         //!< @brief initial pose subscriber
-  std::shared_ptr<rclcpp::Subscription<geometry_msgs::msg::PoseStamped>> sub_pose_;                //!< @brief measurement pose subscriber
-  std::shared_ptr<rclcpp::Subscription<geometry_msgs::msg::TwistStamped>> sub_twist_;               //!< @brief measurement twist subscriber
-  std::shared_ptr<rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>> sub_pose_with_cov_;       //!< @brief measurement pose with covariance subscriber
-  std::shared_ptr<rclcpp::Subscription<geometry_msgs::msg::TwistWithCovarianceStamped>> sub_twist_with_cov_;      //!< @brief measurement twist with covariance subscriber
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_pose_;             //!< @brief ekf estimated pose publisher
+  rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pub_pose_cov_;         //!< @brief estimated ekf pose with covariance publisher
+  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr pub_twist_;            //!< @brief ekf estimated twist publisher
+  rclcpp::Publisher<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr pub_twist_cov_;        //!< @brief ekf estimated twist with covariance publisher
+  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr pub_debug_;            //!< @brief debug info publisher
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_measured_pose_;    //!< @brief debug measurement pose publisher
+  rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr pub_yaw_bias_;         //!< @brief ekf estimated yaw bias publisher
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_pose_no_yawbias_;  //!< @brief ekf estimated yaw bias publisher
+  rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pub_pose_cov_no_yawbias_;  //!< @brief ekf estimated yaw bias publisher
+  rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr sub_initialpose_;         //!< @brief initial pose subscriber
+  rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_pose_;                //!< @brief measurement pose subscriber
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;               //!< @brief measurement twist subscriber
+  rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr sub_pose_with_cov_;       //!< @brief measurement pose with covariance subscriber
+  rclcpp::Subscription<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr sub_twist_with_cov_;      //!< @brief measurement twist with covariance subscriber
   rclcpp::TimerBase::SharedPtr timer_control_;                //!< @brief time for ekf calculation callback
   rclcpp::TimerBase::SharedPtr timer_tf_;                     //!< @brief timer to send transform
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_br_;     //!< @brief tf broadcaster
@@ -114,9 +114,9 @@ private:
   };
 
   /* for model prediction */
-  std::shared_ptr<geometry_msgs::msg::TwistStamped>
+  geometry_msgs::msg::TwistStamped::SharedPtr
     current_twist_ptr_;                                           //!< @brief current measured twist
-  std::shared_ptr<geometry_msgs::msg::PoseStamped> current_pose_ptr_;  //!< @brief current measured pose
+  geometry_msgs::msg::PoseStamped::SharedPtr current_pose_ptr_;  //!< @brief current measured pose
   geometry_msgs::msg::PoseStamped current_ekf_pose_;                   //!< @brief current estimated pose
   geometry_msgs::msg::PoseStamped
     current_ekf_pose_no_yawbias_;                  //!< @brief current estimated pose w/o yaw bias
