@@ -3,6 +3,7 @@
 
   <group if="$(var launch_rqt)">
     <node pkg="rqt_reconfigure" exec="rqt_reconfigure" name="rqt_reconfigure"/>
+    <!-- rqt_runtime_monitor has not been ported to ROS2 -->
     <!-- <node pkg="rqt_runtime_monitor" type="rqt_runtime_monitor" name="rqt_runtime_monitor"/> -->
   </group>
 
