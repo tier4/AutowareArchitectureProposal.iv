@@ -727,6 +727,7 @@ void EKFLocalizer::publishEstimateResult()
 
   /* publish yaw bias */
   autoware_debug_msgs::msg::Float64Stamped yawb;
+  yawb.stamp = current_time;
   yawb.data = X(IDX::YAWB);
   pub_yaw_bias_->publish(yawb);
 
@@ -745,6 +746,7 @@ void EKFLocalizer::publishEstimateResult()
     pose_yaw = tf2::getYaw(current_pose_ptr_->pose.orientation) * RAD2DEG;
 
   autoware_debug_msgs::msg::Float64MultiArrayStamped msg;
+  msg.stamp = current_time;
   msg.data.push_back(X(IDX::YAW) * RAD2DEG);   // [0] ekf yaw angle
   msg.data.push_back(pose_yaw);                // [1] measurement yaw angle
   msg.data.push_back(X(IDX::YAWB) * RAD2DEG);  // [2] yaw bias
