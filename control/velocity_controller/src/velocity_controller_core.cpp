@@ -198,7 +198,8 @@ bool VelocityController::updateCurrentPose()
     transform = tf_buffer_->lookupTransform("map", "base_link", rclcpp::Time(0));
   } catch (tf2::TransformException & ex) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      get_logger(), *get_clock(), 5.0, "cannot get map to base_link transform. %s", ex.what());
+      get_logger(), *get_clock(), std::chrono::milliseconds(5000).count(),
+      "cannot get map to base_link transform. %s", ex.what());
     return false;
   }
   geometry_msgs::msg::PoseStamped ps;
@@ -367,7 +368,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
     double acc_cmd = applyRateFilter(emergency_stop_acc_, prev_acc_cmd_, dt, emergency_stop_jerk_);
     control_mode_ = ControlMode::ERROR;
     RCLCPP_ERROR_SKIPFIRST_THROTTLE(
-      get_logger(), *get_clock(), 5.0,
+      get_logger(), *get_clock(), std::chrono::milliseconds(5000).count(),
       "closest not found. Emergency Stop! (dist_thr: %.3f [m], angle_thr = %.3f [rad])",
       closest_dist_thr_, closest_angle_thr_);
     RCLCPP_DEBUG(get_logger(), "[closest error]. vel: %3.3f, acc: %3.3f", vel_cmd, acc_cmd);
