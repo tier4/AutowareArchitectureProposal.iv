@@ -1,72 +1,42 @@
-cmake_minimum_required(VERSION 3.0.2)
+# colcon build --packages-select motion_velocity_optimizer
+
+cmake_minimum_required(VERSION 3.5)
 project(motion_velocity_optimizer)
 
-add_compile_options(-std=c++14 -Wall)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  std_msgs
-  autoware_planning_msgs
-  geometry_msgs
-  tf2
-  tf2_ros
-  dynamic_reconfigure
-  osqp_interface
-)
-
-generate_dynamic_reconfigure_options(cfg/MotionVelocityOptimizer.cfg)
-
-find_package(Boost REQUIRED)
-find_package(Eigen3 REQUIRED)
-
-catkin_package(
-  INCLUDE_DIRS include
-  CATKIN_DEPENDS
-    roscpp
-    std_msgs
-    autoware_planning_msgs
-    geometry_msgs
-    tf2
-    tf2_ros
-    osqp_interface
-)
-
-include_directories(
-include
-  ${catkin_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
-)
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
 
 set(MOTION_VELOCITY_OPTIMIZER_SRC
+  src/motion_velocity_optimizer.cpp
   src/motion_velocity_optimizer_utils.cpp
   src/interpolate.cpp
   src/optimizer/pseudo_jerk_l2_optimizer.cpp
   src/optimizer/pseudo_jerk_linf_optimizer.cpp
 )
-
-add_executable(motion_velocity_optimizer src/motion_velocity_optimizer.cpp ${MOTION_VELOCITY_OPTIMIZER_SRC})
-add_dependencies(motion_velocity_optimizer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} motion_velocity_optimizer_gencfg)
-target_link_libraries(motion_velocity_optimizer ${catkin_LIBRARIES} ${PYTHON_LIBRARIES})
-
-install(
-  TARGETS
-    motion_velocity_optimizer
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+set(MOTION_VELOCITY_OPTIMIZER_HDR
+  include/motion_velocity_optimizer/motion_velocity_optimizer.hpp
+  include/motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp
+  include/motion_velocity_optimizer/interpolate.h
+  include/motion_velocity_optimizer/optimizer/l2_pseudo_jerk_optimizer.hpp
+  include/motion_velocity_optimizer/optimizer/linf_pseudo_jerk_optimizer.hpp
+  include/motion_velocity_optimizer/optimizer/optimizer_base.hpp
 )
 
-install(
-  DIRECTORY
+ament_auto_add_executable(motion_velocity_optimizer 
+  ${MOTION_VELOCITY_OPTIMIZER_SRC} 
+  ${MOTION_VELOCITY_OPTIMIZER_HDR}
+)
+
+ament_auto_package(
+  INSTALL_TO_SHARE
     launch
     config
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-)
-
-install(
-  DIRECTORY
-    scripts
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-  USE_SOURCE_PERMISSIONS
 )

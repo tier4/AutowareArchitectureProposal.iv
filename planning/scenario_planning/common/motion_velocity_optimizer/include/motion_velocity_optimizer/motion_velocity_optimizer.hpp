@@ -13,51 +13,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <autoware_planning_msgs/Trajectory.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <ros/ros.h>
-#include <std_msgs/Bool.h>
-#include <std_msgs/Float32.h>
-#include <std_msgs/Float32MultiArray.h>
+#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include <autoware_planning_msgs/msg/velocity_limit.hpp>
+#include <autoware_debug_msgs/msg/float32_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <autoware_debug_msgs/msg/float32_multi_array_stamped.hpp>
 #include <tf2/utils.h>
 #include <tf2_ros/transform_listener.h>
-#include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <mutex>
 #include <string>
 
-#include <dynamic_reconfigure/server.h>
-#include <motion_velocity_optimizer/MotionVelocityOptimizerConfig.h>
 #include <motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp>
 #include <motion_velocity_optimizer/optimizer/optimizer_base.hpp>
 
 #include <osqp_interface/osqp_interface.h>
 
-class MotionVelocityOptimizer
+class MotionVelocityOptimizer : public rclcpp::Node
 {
 public:
   MotionVelocityOptimizer();
   ~MotionVelocityOptimizer();
 
 private:
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
-  ros::Publisher pub_trajectory_;                //!< @brief publisher for output trajectory
-  ros::Subscriber sub_current_velocity_;         //!< @brief subscriber for current velocity
-  ros::Subscriber sub_current_trajectory_;       //!< @brief subscriber for reference trajectory
-  ros::Subscriber sub_external_velocity_limit_;  //!< @brief subscriber for external velocity limit
-  tf2_ros::Buffer tf_buffer_;                    //!< @brief tf butter
-  tf2_ros::TransformListener tf_listener_;       //!< @brief tf listener
-  ros::Timer timer_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_; //!< @brief publisher for output trajectory
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_velocity_;  //!< @brief subscriber for current velocity
+  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_current_trajectory_;  //!< @brief subscriber for reference trajectory
+  rclcpp::Subscription<autoware_planning_msgs::msg::VelocityLimit>::SharedPtr sub_external_velocity_limit_;//!< @brief subscriber for external velocity limit
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;  //!< @brief tf butter
+  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;  //!< @brief tf listener
+
+  double external_velocity_limit_update_rate_;
+  rclcpp::TimerBase::SharedPtr timer_;
+
   std::mutex mutex_;
 
-  geometry_msgs::PoseStamped::ConstPtr current_pose_ptr_;           // current vehicle pose
-  geometry_msgs::TwistStamped::ConstPtr current_velocity_ptr_;      // current vehicle twist
-  autoware_planning_msgs::Trajectory::ConstPtr base_traj_raw_ptr_;  // current base_waypoints
-  std_msgs::Float32::ConstPtr external_velocity_limit_ptr_;  // current external_velocity_limit
-  boost::shared_ptr<double> external_velocity_limit_filtered_;
 
-  autoware_planning_msgs::Trajectory prev_output_;  // previously published trajectory
+  geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose_ptr_;           // current vehicle pose
+  geometry_msgs::msg::TwistStamped::ConstSharedPtr current_velocity_ptr_;      // current vehicle twist
+  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr base_traj_raw_ptr_;  // current base_waypoints
+  autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr external_velocity_limit_ptr_;  // current external_velocity_limit
+  std::shared_ptr<double> external_velocity_limit_filtered_;
+
+  autoware_planning_msgs::msg::Trajectory prev_output_;  // previously published trajectory
 
   enum class InitializeType {
     INIT = 0,
@@ -67,7 +66,7 @@ private:
   };
   InitializeType initialize_type_;
 
-  boost::shared_ptr<OptimizerBase> optimizer_;
+  std::shared_ptr<OptimizerBase> optimizer_;
 
   bool publish_debug_trajs_;  // publish planned trajectories
 
@@ -97,98 +96,75 @@ private:
   } planning_param_;
 
   /* topic callback */
-  void callbackCurrentVelocity(const geometry_msgs::TwistStamped::ConstPtr msg);
-  void callbackCurrentTrajectory(const autoware_planning_msgs::Trajectory::ConstPtr msg);
-  void callbackExternalVelocityLimit(const std_msgs::Float32::ConstPtr msg);
-  void timerCallback(const ros::TimerEvent & e);
+  void callbackCurrentVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
+  void callbackCurrentTrajectory(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg);
+  void callbackExternalVelocityLimit(const autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr msg);
+  void timerCallback();
+
 
   /* non-const methods */
   void run();
 
+  void blockUntilVehiclePositionAvailable(const tf2::Duration & timeout);
+
   void updateCurrentPose();
 
-  autoware_planning_msgs::Trajectory calcTrajectoryVelocity(
-    const autoware_planning_msgs::Trajectory & base_traj);
+  autoware_planning_msgs::msg::Trajectory calcTrajectoryVelocity(
+    const autoware_planning_msgs::msg::Trajectory & base_traj);
   void updateExternalVelocityLimit(const double dt);
 
-  autoware_planning_msgs::Trajectory optimizeVelocity(
-    const autoware_planning_msgs::Trajectory & input, const int input_closest,
-    const autoware_planning_msgs::Trajectory & prev_output_traj, const int prev_output_closest);
+  autoware_planning_msgs::msg::Trajectory optimizeVelocity(
+    const autoware_planning_msgs::msg::Trajectory & input, const int input_closest,
+    const autoware_planning_msgs::msg::Trajectory & prev_output_traj, const int prev_output_closest);
 
   void calcInitialMotion(
-    const double & base_speed, const autoware_planning_msgs::Trajectory & base_waypoints,
-    const int base_closest, const autoware_planning_msgs::Trajectory & prev_replanned_traj,
+    const double & base_speed, const autoware_planning_msgs::msg::Trajectory & base_waypoints,
+    const int base_closest, const autoware_planning_msgs::msg::Trajectory & prev_replanned_traj,
     const int prev_replanned_traj_closest, double & initial_vel, double & initial_acc);
 
   /* const methods */
   bool resampleTrajectory(
-    const autoware_planning_msgs::Trajectory & input,
-    autoware_planning_msgs::Trajectory & output) const;
+    const autoware_planning_msgs::msg::Trajectory & input,
+    autoware_planning_msgs::msg::Trajectory & output) const;
 
   bool lateralAccelerationFilter(
-    const autoware_planning_msgs::Trajectory & input,
-    autoware_planning_msgs::Trajectory & output) const;
+    const autoware_planning_msgs::msg::Trajectory & input,
+    autoware_planning_msgs::msg::Trajectory & output) const;
 
   bool extractPathAroundIndex(
-    const autoware_planning_msgs::Trajectory & input, const int index,
-    autoware_planning_msgs::Trajectory & output) const;
+    const autoware_planning_msgs::msg::Trajectory & input, const int index,
+    autoware_planning_msgs::msg::Trajectory & output) const;
 
   bool externalVelocityLimitFilter(
-    const autoware_planning_msgs::Trajectory & input,
-    autoware_planning_msgs::Trajectory & output) const;
+    const autoware_planning_msgs::msg::Trajectory & input,
+    autoware_planning_msgs::msg::Trajectory & output) const;
 
   void preventMoveToCloseStopLine(
-    const int closest, autoware_planning_msgs::Trajectory & trajectory) const;
+    const int closest, autoware_planning_msgs::msg::Trajectory & trajectory) const;
 
-  void publishTrajectory(const autoware_planning_msgs::Trajectory & traj) const;
+  void publishTrajectory(const autoware_planning_msgs::msg::Trajectory & traj) const;
 
   void publishStopDistance(
-    const autoware_planning_msgs::Trajectory & trajectory, const int closest) const;
+    const autoware_planning_msgs::msg::Trajectory & trajectory, const int closest) const;
 
   void insertBehindVelocity(
-    const int prev_out_closest, const autoware_planning_msgs::Trajectory & prev_output,
-    const int output_closest, autoware_planning_msgs::Trajectory & output) const;
+    const int prev_out_closest, const autoware_planning_msgs::msg::Trajectory & prev_output,
+    const int output_closest, autoware_planning_msgs::msg::Trajectory & output) const;
 
-  /* dynamic reconfigure */
-  dynamic_reconfigure::Server<motion_velocity_optimizer::MotionVelocityOptimizerConfig>
-    dyncon_server_;
-  void dynamicRecofCallback(
-    motion_velocity_optimizer::MotionVelocityOptimizerConfig & config, uint32_t level)
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
-    planning_param_.max_velocity = config.max_velocity;
-    planning_param_.max_accel = config.max_accel;
-    planning_param_.min_decel = config.min_decel;
-    planning_param_.max_lateral_accel = config.max_lateral_accel;
-    planning_param_.min_curve_velocity = config.min_curve_velocity;
-    planning_param_.decel_distance_before_curve = config.decel_distance_before_curve;
-    planning_param_.decel_distance_after_curve = config.decel_distance_after_curve;
-    planning_param_.replan_vel_deviation = config.replan_vel_deviation;
-    planning_param_.engage_velocity = config.engage_velocity;
-    planning_param_.engage_acceleration = config.engage_acceleration;
-    planning_param_.engage_exit_ratio = config.engage_exit_ratio;
-    planning_param_.extract_ahead_dist = config.extract_ahead_dist;
-    planning_param_.extract_behind_dist = config.extract_behind_dist;
-    planning_param_.stop_dist_to_prohibit_engage = config.stop_dist_to_prohibit_engage;
-    planning_param_.delta_yaw_threshold = config.delta_yaw_threshold;
+  /* parameter update */
+  OnSetParametersCallbackHandle::SharedPtr set_param_res_;
+  rcl_interfaces::msg::SetParametersResult paramCallback(
+    const std::vector<rclcpp::Parameter> & parameters);
 
-    planning_param_.resample_time = config.resample_time;
-    planning_param_.resample_dt = config.resample_dt;
-    planning_param_.max_trajectory_length = config.max_trajectory_length;
-    planning_param_.min_trajectory_length = config.min_trajectory_length;
-    planning_param_.min_trajectory_interval_distance = config.min_trajectory_interval_distance;
-
-    optimizer_->setAccel(config.max_accel);
-    optimizer_->setDecel(config.min_decel);
-  }
 
   /* debug */
-  ros::Publisher pub_dist_to_stopline_;  //!< @brief publisher for stop distance
-  ros::Publisher pub_trajectory_raw_;
-  ros::Publisher pub_trajectory_vel_lim_;
-  ros::Publisher pub_trajectory_latcc_filtered_;
-  ros::Publisher pub_trajectory_resampled_;
-  ros::Publisher debug_closest_velocity_;
-  ros::Publisher debug_closest_acc_;
-  void publishFloat(const double & data, const ros::Publisher & pub) const;
+
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub_dist_to_stopline_;  //!< @brief publisher for stop distance
+  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_raw_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_vel_lim_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_latcc_filtered_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_resampled_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr debug_closest_velocity_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr debug_closest_acc_;
+  void publishFloat(const double & data, const rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub) const;
 };

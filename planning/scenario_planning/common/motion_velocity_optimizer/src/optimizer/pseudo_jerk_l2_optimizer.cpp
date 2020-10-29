@@ -30,26 +30,32 @@ void L2PseudoJerkOptimizer::setDecel(const double min_decel) { param_.min_decel 
 
 bool L2PseudoJerkOptimizer::solve(
   const double initial_vel, const double initial_acc, const int closest,
-  const autoware_planning_msgs::Trajectory & input, autoware_planning_msgs::Trajectory * output)
+  const autoware_planning_msgs::msg::Trajectory & input,
+  autoware_planning_msgs::msg::Trajectory * output)
 {
   auto ts = std::chrono::system_clock::now();
 
   *output = input;
 
   if (static_cast<int>(input.points.size()) < closest) {
-    ROS_WARN("[MotionVelocityOptimizer] invalid closest.");
+    RCLCPP_WARN(
+      rclcpp::get_logger("L2PseudoJerkOptimizer"), "[MotionVelocityOptimizer] invalid closest.");
     return false;
   }
 
   if (std::fabs(input.points.at(closest).twist.linear.x) < 0.1) {
-    ROS_DEBUG("[MotionVelocityOptimizer] closest vmax < 0.1. assume vehicle stopped. return.");
+    RCLCPP_DEBUG(
+      rclcpp::get_logger("L2PseudoJerkOptimizer"),
+      "[MotionVelocityOptimizer] closest vmax < 0.1. assume vehicle stopped. return.");
     return false;
   }
 
   const unsigned int N = input.points.size() - closest;
 
   if (N < 2) {
-    ROS_WARN("[MotionVelocityOptimizer] trajectory length is not enough.");
+    RCLCPP_WARN(
+      rclcpp::get_logger("L2PseudoJerkOptimizer"),
+      "[MotionVelocityOptimizer] trajectory length is not enough.");
     return false;
   }
 
@@ -190,16 +196,18 @@ bool L2PseudoJerkOptimizer::solve(
   }
 
   // -- to check the all optimization variables --
-  // ROS_DEBUG("[after optimize Linf] idx, vel, acc, over_vel, over_acc ");
+  // RCLCPP_DEBUG(rclcpp::get_logger("L2PseudoJerkOptimizer"),"[after optimize Linf] idx, vel, acc, over_vel, over_acc ");
   // for (unsigned int i = 0; i < N; ++i) {
-  //   ROS_DEBUG(
+  //   RCLCPP_DEBUG(rclcpp::get_logger("L2PseudoJerkOptimizer"),
   //     "i = %d, v: %f, vmax: %f a: %f, b: %f, delta: %f, sigma: %f\n", i, std::sqrt(optval.at(i)),
   //     vmax[i], optval.at(i + N), optval.at(i), optval.at(i + 2 * N), optval.at(i + 3 * N));
   // }
 
   auto tf2 = std::chrono::system_clock::now();
   double dt_ms2 = std::chrono::duration_cast<std::chrono::nanoseconds>(tf2 - ts2).count() * 1.0e-6;
-  ROS_DEBUG("[optimization] init time = %f [ms], optimization time = %f [ms]", dt_ms1, dt_ms2);
+  RCLCPP_DEBUG(
+    rclcpp::get_logger("L2PseudoJerkOptimizer"),
+    "[optimization] init time = %f [ms], optimization time = %f [ms]", dt_ms1, dt_ms2);
 
   return true;
 }
