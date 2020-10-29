@@ -104,11 +104,11 @@ ament_auto_add_executable(cpu_monitor
   src/cpu_monitor/cpu_monitor_node.cpp
   ${CPU_MONITOR_SOURCE}
 )
-#
-#ament_auto_add_executable(hdd_monitor
-#  src/hdd_monitor/hdd_monitor_node.cpp
-#  src/hdd_monitor/hdd_monitor.cpp
-#)
+
+ament_auto_add_executable(hdd_monitor
+  src/hdd_monitor/hdd_monitor_node.cpp
+  src/hdd_monitor/hdd_monitor.cpp
+)
 #ament_auto_add_executable(mem_monitor
 #  src/mem_monitor/mem_monitor_node.cpp
 #  src/mem_monitor/mem_monitor.cpp
@@ -168,7 +168,7 @@ find_package(Boost REQUIRED COMPONENTS
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(cpu_monitor ${Boost_LIBRARIES})
-#target_link_libraries(hdd_monitor ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(hdd_monitor ${Boost_LIBRARIES})
 #target_link_libraries(mem_monitor ${catkin_LIBRARIES})
 #target_link_libraries(net_monitor ${catkin_LIBRARIES} ${NL_LIBS})
 #target_link_libraries(ntp_monitor ${catkin_LIBRARIES})

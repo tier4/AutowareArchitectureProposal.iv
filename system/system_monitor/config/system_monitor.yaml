@@ -8,19 +8,21 @@ cpu_monitor:
     load1_warn: 0.90
     load5_warn: 0.80
     msr_reader_port: 7634
-
-
-#hdd_monitor:
-#  hdd_reader_port: 7635
-#  disks:
-#  - name: /dev/sda
-#    temp_warn: 55.0
-#    temp_error: 70.0
-#  - name: /dev/nvme0
-#    temp_warn: 55.0
-#    temp_error: 70.0
-#  usage_warn: 0.95
-#  usage_error: 0.99
+hdd_monitor:
+  ros__parameters:
+    hdd_reader_port: 7635
+    num_disks: 2
+    disks:  # Until multi type lists are allowed, name N the disks as disk0...disk{N-1}
+      disk0:
+        name: /dev/sda
+        temp_warn: 55.0
+        temp_error: 70.0
+      disk1:
+        name: /dev/nvme0
+        temp_warn: 55.0
+        temp_error: 70.0
+    usage_warn: 0.95
+    usage_error: 0.99
 #mem_monitor:
 #  usage_warn: 0.95
 #  usage_error: 0.99
