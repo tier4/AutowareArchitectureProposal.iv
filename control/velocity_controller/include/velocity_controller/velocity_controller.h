@@ -179,7 +179,7 @@ private:
   void callbackTimerControl();
 
   void blockUntilVehiclePositionAvailable(const tf2::Duration & timeout);
-  bool updateCurrentPose(const double timeout_sec);
+  bool updateCurrentPose();
 
   double getPitch(const geometry_msgs::msg::Quaternion & quaternion) const;
   double getDt();

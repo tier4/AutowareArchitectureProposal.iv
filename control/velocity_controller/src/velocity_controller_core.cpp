@@ -191,7 +191,7 @@ void VelocityController::blockUntilVehiclePositionAvailable(const tf2::Duration 
   }
 }
 
-bool VelocityController::updateCurrentPose(const double timeout_sec)
+bool VelocityController::updateCurrentPose()
 {
   geometry_msgs::msg::TransformStamped transform;
   try {
@@ -213,7 +213,7 @@ bool VelocityController::updateCurrentPose(const double timeout_sec)
 
 void VelocityController::callbackTimerControl()
 {
-  const bool is_pose_updated = updateCurrentPose(0.0);
+  const bool is_pose_updated = updateCurrentPose();
 
   /* gurad */
   if (!is_pose_updated || !current_pose_ptr_ || !current_vel_ptr_ || !trajectory_ptr_) {
