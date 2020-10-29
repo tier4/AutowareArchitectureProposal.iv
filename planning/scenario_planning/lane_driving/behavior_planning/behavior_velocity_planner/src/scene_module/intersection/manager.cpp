@@ -17,13 +17,13 @@
 
 #include <lanelet2_core/primitives/BasicRegulatoryElements.h>
 
-#include "utilization/boost_geometry_helper.h"
-#include "utilization/util.h"
+#include <utilization/boost_geometry_helper.h>
+#include <utilization/util.h>
 
 namespace
 {
 std::vector<lanelet::ConstLanelet> getLaneletsOnPath(
-  const autoware_planning_msgs::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
 {
   std::vector<lanelet::ConstLanelet> lanelets;
 
@@ -38,7 +38,7 @@ std::vector<lanelet::ConstLanelet> getLaneletsOnPath(
   return lanelets;
 }
 
-std::set<int64_t> getLaneIdSetOnPath(const autoware_planning_msgs::PathWithLaneId & path)
+std::set<int64_t> getLaneIdSetOnPath(const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   std::set<int64_t> lane_id_set;
 
@@ -56,7 +56,7 @@ std::set<int64_t> getLaneIdSetOnPath(const autoware_planning_msgs::PathWithLaneI
 IntersectionModuleManager::IntersectionModuleManager()
 : SceneModuleManagerInterface(getModuleName())
 {
-  ros::NodeHandle pnh("~");
+  rclcpp::NodeHandle pnh("~");
   const std::string ns(getModuleName());
   auto & p = planner_param_;
   pnh.param(ns + "/state_transit_mergin_time", p.state_transit_mergin_time, 2.0);
@@ -72,7 +72,7 @@ IntersectionModuleManager::IntersectionModuleManager()
 }
 
 void IntersectionModuleManager::launchNewModules(
-  const autoware_planning_msgs::PathWithLaneId & path)
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   const auto lanelets = getLaneletsOnPath(path, planner_data_->lanelet_map);
   for (size_t i = 0; i < lanelets.size(); i++) {
@@ -110,7 +110,7 @@ void IntersectionModuleManager::launchNewModules(
 
 std::function<bool(const std::shared_ptr<SceneModuleInterface> &)>
 IntersectionModuleManager::getModuleExpiredFunction(
-  const autoware_planning_msgs::PathWithLaneId & path)
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   const auto lane_id_set = getLaneIdSetOnPath(path);
 

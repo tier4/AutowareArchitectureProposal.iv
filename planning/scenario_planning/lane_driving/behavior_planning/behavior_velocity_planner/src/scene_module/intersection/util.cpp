@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "ros/ros.h"
+#include <ros/ros.h>
 
 #include <lanelet2_core/geometry/Polygon.h>
 #include <lanelet2_core/primitives/BasicRegulatoryElements.h>
@@ -21,16 +21,16 @@
 #include <lanelet2_extension/utility/query.h>
 #include <lanelet2_extension/utility/utilities.h>
 
-#include "scene_module/intersection/util.h"
-#include "utilization/interpolate.h"
-#include "utilization/util.h"
+#include <scene_module/intersection/util.h>
+#include <utilization/interpolate.h>
+#include <utilization/util.h>
 
 namespace bg = boost::geometry;
 
 namespace util
 {
 int insertPoint(
-  const geometry_msgs::Pose & in_pose, autoware_planning_msgs::PathWithLaneId * inout_path)
+  const geometry_msgs::msg::Pose & in_pose, autoware_planning_msgs::msg::PathWithLaneId * inout_path)
 {
   static constexpr double dist_thr = 10.0;
   static constexpr double angle_thr = M_PI / 1.5;
@@ -43,7 +43,7 @@ int insertPoint(
     ++insert_idx;
   }
 
-  autoware_planning_msgs::PathPointWithLaneId inserted_point;
+  autoware_planning_msgs::msg::PathPointWithLaneId inserted_point;
   inserted_point = inout_path->points.at(closest_idx);
   inserted_point.point.pose = in_pose;
 
@@ -53,8 +53,8 @@ int insertPoint(
 }
 
 bool splineInterpolate(
-  const autoware_planning_msgs::PathWithLaneId & input, const double interval,
-  autoware_planning_msgs::PathWithLaneId * output)
+  const autoware_planning_msgs::msg::PathWithLaneId & input, const double interval,
+  autoware_planning_msgs::msg::PathWithLaneId * output)
 {
   *output = input;
 
@@ -112,7 +112,7 @@ bool splineInterpolate(
   // set xy
   output->points.clear();
   for (size_t i = 0; i < resampled_s.size(); i++) {
-    autoware_planning_msgs::PathPointWithLaneId p;
+    autoware_planning_msgs::msg::PathPointWithLaneId p;
     p.point.pose.position.x = resampled_x.at(i);
     p.point.pose.position.y = resampled_y.at(i);
     p.point.pose.position.z = resampled_z.at(i);
@@ -134,25 +134,25 @@ bool splineInterpolate(
   return true;
 }
 
-geometry_msgs::Pose getAheadPose(
+geometry_msgs::msg::Pose getAheadPose(
   const size_t start_idx, const double ahead_dist,
-  const autoware_planning_msgs::PathWithLaneId & path)
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   if (path.points.size() == 0) {
-    return geometry_msgs::Pose{};
+    return geometry_msgs::msg::Pose{};
   }
 
   double curr_dist = 0.0;
   double prev_dist = 0.0;
   for (size_t i = start_idx; i < path.points.size() - 1 && i >= 0; ++i) {
-    const geometry_msgs::Pose p0 = path.points.at(i).point.pose;
-    const geometry_msgs::Pose p1 = path.points.at(i + 1).point.pose;
+    const geometry_msgs::msg::Pose p0 = path.points.at(i).point.pose;
+    const geometry_msgs::msg::Pose p1 = path.points.at(i + 1).point.pose;
     curr_dist += planning_utils::calcDist2d(p0, p1);
     if (curr_dist > ahead_dist) {
       const double dl = std::max(curr_dist - prev_dist, 0.0001 /* avoid 0 divide */);
       const double w_p0 = (curr_dist - ahead_dist) / dl;
       const double w_p1 = (ahead_dist - prev_dist) / dl;
-      geometry_msgs::Pose p;
+      geometry_msgs::msg::Pose p;
       p.position.x = w_p0 * p0.position.x + w_p1 * p1.position.x;
       p.position.y = w_p0 * p0.position.y + w_p1 * p1.position.y;
       p.position.z = w_p0 * p0.position.z + w_p1 * p1.position.z;
@@ -168,7 +168,7 @@ geometry_msgs::Pose getAheadPose(
 }
 
 bool setVelocityFrom(
-  const size_t idx, const double vel, autoware_planning_msgs::PathWithLaneId * input)
+  const size_t idx, const double vel, autoware_planning_msgs::msg::PathWithLaneId * input)
 {
   for (size_t i = idx; i < input->points.size(); ++i) {
     input->points.at(i).point.twist.linear.x =
@@ -177,14 +177,14 @@ bool setVelocityFrom(
   return true;
 }
 
-bool isAheadOf(const geometry_msgs::Pose & target, const geometry_msgs::Pose & origin)
+bool isAheadOf(const geometry_msgs::msg::Pose & target, const geometry_msgs::msg::Pose & origin)
 {
-  geometry_msgs::Pose p = planning_utils::transformRelCoordinate2D(target, origin);
+  geometry_msgs::msg::Pose p = planning_utils::transformRelCoordinate2D(target, origin);
   bool is_target_ahead = (p.position.x > 0.0);
   return is_target_ahead;
 }
 
-bool hasLaneId(const autoware_planning_msgs::PathPointWithLaneId & p, const int id)
+bool hasLaneId(const autoware_planning_msgs::msg::PathPointWithLaneId & p, const int id)
 {
   for (const auto & pid : p.lane_ids) {
     if (pid == id) return true;
@@ -193,7 +193,7 @@ bool hasLaneId(const autoware_planning_msgs::PathPointWithLaneId & p, const int 
 }
 
 int getFirstPointInsidePolygons(
-  const autoware_planning_msgs::PathWithLaneId & path,
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
   const std::vector<lanelet::CompoundPolygon3d> & polygons)
 {
   int first_idx_inside_lanelet = -1;
@@ -217,7 +217,7 @@ bool generateStopLine(
   const int lane_id, const std::vector<lanelet::CompoundPolygon3d> detection_areas,
   const std::shared_ptr<const PlannerData> & planner_data,
   const IntersectionModule::PlannerParam & planner_param,
-  autoware_planning_msgs::PathWithLaneId * path, int * stop_line_idx, int * pass_judge_line_idx,
+  autoware_planning_msgs::msg::PathWithLaneId * path, int * stop_line_idx, int * pass_judge_line_idx,
   int * first_idx_inside_lane)
 {
   /* set judge line dist */
@@ -235,7 +235,7 @@ bool generateStopLine(
   const int pass_judge_idx_dist = std::ceil(pass_judge_line_dist / interval);
 
   /* spline interpolation */
-  autoware_planning_msgs::PathWithLaneId path_ip;
+  autoware_planning_msgs::msg::PathWithLaneId path_ip;
   if (!util::splineInterpolate(*path, interval, &path_ip)) return false;
 
   /* generate stop point */
@@ -243,7 +243,7 @@ bool generateStopLine(
   // else, generates a local stop_line with considering the lane conflictions.
   int first_idx_ip_inside_lane;  // first stop point index for interpolated path.
   int stop_idx_ip;               // stop point index for interpolated path.
-  geometry_msgs::Point stop_point_from_map;
+  geometry_msgs::msg::Point stop_point_from_map;
   if (getStopPoseFromMap(lane_id, &stop_point_from_map, planner_data)) {
     planning_utils::calcClosestIndex(path_ip, stop_point_from_map, stop_idx_ip, 10.0);
     stop_idx_ip = std::max(stop_idx_ip - base2front_idx_dist, 0);
@@ -302,7 +302,7 @@ bool generateStopLine(
 }
 
 bool getStopPoseFromMap(
-  const int lane_id, geometry_msgs::Point * stop_point,
+  const int lane_id, geometry_msgs::msg::Point * stop_point,
   const std::shared_ptr<const PlannerData> & planner_data)
 {
   lanelet::ConstLanelet lanelet = planner_data->lanelet_map->laneletLayer.get(lane_id);

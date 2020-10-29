@@ -35,13 +35,13 @@ CrosswalkModule::CrosswalkModule(
 }
 
 bool CrosswalkModule::modifyPathVelocity(
-  autoware_planning_msgs::PathWithLaneId * path, autoware_planning_msgs::StopReason * stop_reason)
+  autoware_planning_msgs::msg::PathWithLaneId * path, autoware_planning_msgs::msg::StopReason * stop_reason)
 {
   debug_data_ = {};
   debug_data_.base_link2front = planner_data_->base_link2front;
   first_stop_path_point_index_ = static_cast<int>(path->points.size()) - 1;
   *stop_reason =
-    planning_utils::initializeStopReason(autoware_planning_msgs::StopReason::CROSSWALK);
+    planning_utils::initializeStopReason(autoware_planning_msgs::msg::StopReason::CROSSWALK);
 
   const auto input = *path;
 
@@ -54,7 +54,7 @@ bool CrosswalkModule::modifyPathVelocity(
   polygon.outer().push_back(polygon.outer().front());
 
   // check state
-  geometry_msgs::PoseStamped self_pose = planner_data_->current_pose;
+  geometry_msgs::msg::PoseStamped self_pose = planner_data_->current_pose;
   if (bg::within(Point(self_pose.pose.position.x, self_pose.pose.position.y), polygon))
     state_ = State::INSIDE;
   else if (state_ == State::INSIDE)
@@ -65,7 +65,7 @@ bool CrosswalkModule::modifyPathVelocity(
     const auto objects_ptr = planner_data_->dynamic_objects;
     const auto no_ground_pointcloud_ptr = planner_data_->no_ground_pointcloud;
 
-    autoware_planning_msgs::PathWithLaneId slow_path, stop_path;
+    autoware_planning_msgs::msg::PathWithLaneId slow_path, stop_path;
     if (!checkSlowArea(input, polygon, objects_ptr, no_ground_pointcloud_ptr, slow_path)) {
       return false;
     }
@@ -80,7 +80,7 @@ bool CrosswalkModule::modifyPathVelocity(
 
     if (insert_stop) {
       /* get stop point and stop factor */
-      autoware_planning_msgs::StopFactor stop_factor;
+      autoware_planning_msgs::msg::StopFactor stop_factor;
       stop_factor.stop_pose = debug_data_.first_stop_pose;
       stop_factor.stop_factor_points = debug_data_.stop_factor_points;
       planning_utils::appendStopReason(stop_factor, stop_reason);
@@ -90,18 +90,18 @@ bool CrosswalkModule::modifyPathVelocity(
 }
 
 bool CrosswalkModule::checkStopArea(
-  const autoware_planning_msgs::PathWithLaneId & input,
+  const autoware_planning_msgs::msg::PathWithLaneId & input,
   const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>, false> &
     crosswalk_polygon,
-  const autoware_perception_msgs::DynamicObjectArray::ConstPtr & objects_ptr,
-  const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
-  autoware_planning_msgs::PathWithLaneId & output, bool * insert_stop)
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & objects_ptr,
+  const pcl::PointCloud<pcl::PointXYZ>::ConstSharedPtr & no_ground_pointcloud_ptr,
+  autoware_planning_msgs::msg::PathWithLaneId & output, bool * insert_stop)
 {
   output = input;
   *insert_stop = false;
   bool pedestrian_found = false;
   bool object_found = false;
-  ros::Time current_time = ros::Time::now();
+  rclcpp::Time current_time = this->now();
 
   // create stop area
   std::vector<Point> path_collision_points;
@@ -204,10 +204,10 @@ bool CrosswalkModule::checkStopArea(
 }
 
 bool CrosswalkModule::checkSlowArea(
-  const autoware_planning_msgs::PathWithLaneId & input, const Polygon & polygon,
-  const autoware_perception_msgs::DynamicObjectArray::ConstPtr & objects_ptr,
-  const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
-  autoware_planning_msgs::PathWithLaneId & output)
+  const autoware_planning_msgs::msg::PathWithLaneId & input, const Polygon & polygon,
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & objects_ptr,
+  const pcl::PointCloud<pcl::PointXYZ>::ConstSharedPtr & no_ground_pointcloud_ptr,
+  autoware_planning_msgs::msg::PathWithLaneId & output)
 {
   output = input;
   bool pedestrian_found = false;
@@ -242,11 +242,11 @@ bool CrosswalkModule::checkSlowArea(
   return true;
 }
 
-bool CrosswalkModule::isTargetType(const autoware_perception_msgs::DynamicObject & obj)
+bool CrosswalkModule::isTargetType(const autoware_perception_msgs::msg::DynamicObject & obj)
 {
   if (
-    obj.semantic.type == autoware_perception_msgs::Semantic::PEDESTRIAN ||
-    obj.semantic.type == autoware_perception_msgs::Semantic::BICYCLE) {
+    obj.semantic.type == autoware_perception_msgs::msg::Semantic::PEDESTRIAN ||
+    obj.semantic.type == autoware_perception_msgs::msg::Semantic::BICYCLE) {
     return true;
   }
   return false;

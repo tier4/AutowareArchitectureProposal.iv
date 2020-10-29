@@ -33,10 +33,10 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/point_cloud.h>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_extension/utility/query.h>
@@ -60,10 +60,10 @@ public:
     const PlannerParam & planner_param);
 
   bool modifyPathVelocity(
-    autoware_planning_msgs::PathWithLaneId * path,
-    autoware_planning_msgs::StopReason * stop_reason) override;
+    autoware_planning_msgs::msg::PathWithLaneId * path,
+    autoware_planning_msgs::msg::StopReason * stop_reason) override;
 
-  visualization_msgs::MarkerArray createDebugMarkerArray() override;
+  visualization_msgs::msg::MarkerArray createDebugMarkerArray() override;
 
 private:
   int64_t module_id_;

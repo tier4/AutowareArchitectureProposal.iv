@@ -20,13 +20,13 @@
 #include <string>
 #include <vector>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
-#include <autoware_perception_msgs/DynamicObject.h>
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <autoware_planning_msgs/PathWithLaneId.h>
-#include <geometry_msgs/Point.h>
-#include <std_msgs/Float32MultiArray.h>
+#include <autoware_perception_msgs/msg/dynamic_object.hpp>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <geometry_msgs/msg/point.hpp>
+#include <std_msgs/msg/float32_multi_array.hpp>
 
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_routing/RoutingGraph.h>
@@ -45,8 +45,8 @@ public:
 private:
   IntersectionModule::PlannerParam planner_param_;
 
-  void launchNewModules(const autoware_planning_msgs::PathWithLaneId & path) override;
+  void launchNewModules(const autoware_planning_msgs::msg::PathWithLaneId & path) override;
 
   std::function<bool(const std::shared_ptr<SceneModuleInterface> &)> getModuleExpiredFunction(
-    const autoware_planning_msgs::PathWithLaneId & path) override;
+    const autoware_planning_msgs::msg::PathWithLaneId & path) override;
 };

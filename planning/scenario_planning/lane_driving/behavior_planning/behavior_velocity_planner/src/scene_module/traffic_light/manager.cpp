@@ -21,7 +21,7 @@ namespace
 {
 std::unordered_map<lanelet::TrafficLightConstPtr, lanelet::ConstLanelet>
 getTrafficLightRegElemsOnPath(
-  const autoware_planning_msgs::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
 {
   std::unordered_map<lanelet::TrafficLightConstPtr, lanelet::ConstLanelet> traffic_light_reg_elems;
 
@@ -39,7 +39,7 @@ getTrafficLightRegElemsOnPath(
 }
 
 std::set<int64_t> getLaneletIdSetOnPath(
-  const autoware_planning_msgs::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
 {
   std::set<int64_t> lanelet_id_set;
   for (const auto & traffic_light_reg_elem : getTrafficLightRegElemsOnPath(path, lanelet_map)) {
@@ -53,25 +53,24 @@ std::set<int64_t> getLaneletIdSetOnPath(
 TrafficLightModuleManager::TrafficLightModuleManager()
 : SceneModuleManagerInterface(getModuleName())
 {
-  ros::NodeHandle pnh("~");
+  rclcpp::NodeHandle pnh("~");
   const std::string ns(getModuleName());
   auto & p = planner_param_;
   pnh.param(ns + "/stop_margin", p.stop_margin, 0.0);
   pnh.param(ns + "/tl_state_timeout", p.tl_state_timeout, 1.0);
-  pub_tl_state_ = pnh.advertise<autoware_perception_msgs::TrafficLightStateStamped>(
-    "output/traffic_light_state", 1);
+  pub_tl_state_ = this->create_publisher<autoware_perception_msgs::msg::TrafficLightStateStamped>("output/traffic_light_state", 1);
 }
 
-void TrafficLightModuleManager::modifyPathVelocity(autoware_planning_msgs::PathWithLaneId * path)
+void TrafficLightModuleManager::modifyPathVelocity(autoware_planning_msgs::msg::PathWithLaneId * path)
 {
-  visualization_msgs::MarkerArray debug_marker_array;
-  autoware_planning_msgs::StopReasonArray stop_reason_array;
-  autoware_perception_msgs::TrafficLightStateStamped tl_state;
+  visualization_msgs::msg::MarkerArray debug_marker_array;
+  autoware_planning_msgs::msg::StopReasonArray stop_reason_array;
+  autoware_perception_msgs::msg::TrafficLightStateStamped tl_state;
   stop_reason_array.header.frame_id = "map";
-  stop_reason_array.header.stamp = ros::Time::now();
+  stop_reason_array.header.stamp = this->now();
   first_stop_path_point_index_ = static_cast<int>(path->points.size());
   for (const auto & scene_module : scene_modules_) {
-    autoware_planning_msgs::StopReason stop_reason;
+    autoware_planning_msgs::msg::StopReason stop_reason;
     std::shared_ptr<TrafficLightModule> traffc_light_scene_module(std::dynamic_pointer_cast<TrafficLightModule>(scene_module));
     traffc_light_scene_module->setPlannerData(planner_data_);
     traffc_light_scene_module->modifyPathVelocity(path, &stop_reason);
@@ -87,16 +86,16 @@ void TrafficLightModuleManager::modifyPathVelocity(autoware_planning_msgs::PathW
     }
   }
   if (!stop_reason_array.stop_reasons.empty()) {
-    pub_stop_reason_.publish(stop_reason_array);
+    pub_stop_reason_->publish(stop_reason_array);
   }
-  pub_debug_.publish(debug_marker_array);
+  pub_debug_->publish(debug_marker_array);
   if (!tl_state.state.lamp_states.empty()) {
-    pub_tl_state_.publish(tl_state);
+    pub_tl_state_->publish(tl_state);
   }
 }
 
 void TrafficLightModuleManager::launchNewModules(
-  const autoware_planning_msgs::PathWithLaneId & path)
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   for (const auto & traffic_light_reg_elem :
        getTrafficLightRegElemsOnPath(path, planner_data_->lanelet_map)) {
@@ -120,7 +119,7 @@ void TrafficLightModuleManager::launchNewModules(
 
 std::function<bool(const std::shared_ptr<SceneModuleInterface> &)>
 TrafficLightModuleManager::getModuleExpiredFunction(
-  const autoware_planning_msgs::PathWithLaneId & path)
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   const auto lanelet_id_set = getLaneletIdSetOnPath(path, planner_data_->lanelet_map);
 

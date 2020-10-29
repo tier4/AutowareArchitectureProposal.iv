@@ -18,7 +18,7 @@
 namespace
 {
 std::vector<lanelet::ConstLanelet> getCrosswalksOnPath(
-  const autoware_planning_msgs::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map,
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map,
   const std::shared_ptr<const lanelet::routing::RoutingGraphContainer> & overall_graphs)
 {
   std::vector<lanelet::ConstLanelet> crosswalks;
@@ -37,7 +37,7 @@ std::vector<lanelet::ConstLanelet> getCrosswalksOnPath(
 }
 
 std::set<int64_t> getCrosswalkIdSetOnPath(
-  const autoware_planning_msgs::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map,
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map,
   const std::shared_ptr<const lanelet::routing::RoutingGraphContainer> & overall_graphs)
 {
   std::set<int64_t> crosswalk_id_set;
@@ -53,7 +53,7 @@ std::set<int64_t> getCrosswalkIdSetOnPath(
 
 CrosswalkModuleManager::CrosswalkModuleManager() : SceneModuleManagerInterface(getModuleName())
 {
-  ros::NodeHandle pnh("~");
+  rclcpp::NodeHandle pnh("~");
   const std::string ns(getModuleName());
 
   // for crosswalk parameters
@@ -70,7 +70,7 @@ CrosswalkModuleManager::CrosswalkModuleManager() : SceneModuleManagerInterface(g
   pnh.param(ns + "/walkway/stop_margin", wp.stop_margin, 1.0);
 }
 
-void CrosswalkModuleManager::launchNewModules(const autoware_planning_msgs::PathWithLaneId & path)
+void CrosswalkModuleManager::launchNewModules(const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   for (const auto & crosswalk :
        getCrosswalksOnPath(path, planner_data_->lanelet_map, planner_data_->overall_graphs)) {
@@ -90,7 +90,7 @@ void CrosswalkModuleManager::launchNewModules(const autoware_planning_msgs::Path
 
 std::function<bool(const std::shared_ptr<SceneModuleInterface> &)>
 CrosswalkModuleManager::getModuleExpiredFunction(
-  const autoware_planning_msgs::PathWithLaneId & path)
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   const auto crosswalk_id_set =
     getCrosswalkIdSetOnPath(path, planner_data_->lanelet_map, planner_data_->overall_graphs);

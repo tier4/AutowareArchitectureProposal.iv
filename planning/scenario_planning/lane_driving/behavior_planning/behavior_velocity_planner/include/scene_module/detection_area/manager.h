@@ -27,7 +27,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_extension/regulatory_elements/detection_area.h>
@@ -46,8 +46,8 @@ public:
 
 private:
   DetectionAreaModule::PlannerParam planner_param_;
-  void launchNewModules(const autoware_planning_msgs::PathWithLaneId & path) override;
+  void launchNewModules(const autoware_planning_msgs::msg::PathWithLaneId & path) override;
 
   std::function<bool(const std::shared_ptr<SceneModuleInterface> &)> getModuleExpiredFunction(
-    const autoware_planning_msgs::PathWithLaneId & path) override;
+    const autoware_planning_msgs::msg::PathWithLaneId & path) override;
 };

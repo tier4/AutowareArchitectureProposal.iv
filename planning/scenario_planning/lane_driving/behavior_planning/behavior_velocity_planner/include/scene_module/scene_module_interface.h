@@ -18,16 +18,16 @@
 #include <memory>
 #include <set>
 
-#include <autoware_planning_msgs/Path.h>
-#include <autoware_planning_msgs/PathWithLaneId.h>
-#include <autoware_planning_msgs/StopReason.h>
-#include <autoware_planning_msgs/StopReasonArray.h>
+#include <autoware_planning_msgs/msg/path.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <autoware_planning_msgs/msg/stop_reason.hpp>
+#include <autoware_planning_msgs/msg/stop_reason_array.hpp>
 
 #include <behavior_velocity_planner/planner_data.h>
 
 // Debug
-#include <ros/ros.h>
-#include <visualization_msgs/MarkerArray.h>
+#include <rclcpp/rclcpp.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 
 class SceneModuleInterface
 {
@@ -36,9 +36,9 @@ public:
   virtual ~SceneModuleInterface() = default;
 
   virtual bool modifyPathVelocity(
-    autoware_planning_msgs::PathWithLaneId * path,
-    autoware_planning_msgs::StopReason * stop_reason) = 0;
-  virtual visualization_msgs::MarkerArray createDebugMarkerArray() = 0;
+    autoware_planning_msgs::msg::PathWithLaneId * path,
+    autoware_planning_msgs::msg::StopReason * stop_reason) = 0;
+  virtual visualization_msgs::msg::MarkerArray createDebugMarkerArray() = 0;
 
   int64_t getModuleId() const { return module_id_; }
   void setPlannerData(const std::shared_ptr<const PlannerData> & planner_data)
@@ -60,9 +60,9 @@ public:
   SceneModuleManagerInterface(const char * module_name)
   {
     const auto ns = std::string("debug/") + module_name;
-    pub_debug_ = private_nh_.advertise<visualization_msgs::MarkerArray>(ns, 20);
+    pub_debug_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(ns, 20);
     pub_stop_reason_ =
-      private_nh_.advertise<autoware_planning_msgs::StopReasonArray>("output/stop_reasons", 20);
+      this->create_publisher<autoware_planning_msgs::msg::StopReasonArray>("output/stop_reasons", 20);
   }
 
   virtual ~SceneModuleManagerInterface() = default;
@@ -73,7 +73,7 @@ public:
 
   void updateSceneModuleInstances(
     const std::shared_ptr<const PlannerData> & planner_data,
-    const autoware_planning_msgs::PathWithLaneId & path)
+    const autoware_planning_msgs::msg::PathWithLaneId & path)
   {
     planner_data_ = planner_data;
 
@@ -81,16 +81,16 @@ public:
     deleteExpiredModules(path);
   }
 
-  virtual void modifyPathVelocity(autoware_planning_msgs::PathWithLaneId * path)
+  virtual void modifyPathVelocity(autoware_planning_msgs::msg::PathWithLaneId * path)
   {
-    visualization_msgs::MarkerArray debug_marker_array;
-    autoware_planning_msgs::StopReasonArray stop_reason_array;
+    visualization_msgs::msg::MarkerArray debug_marker_array;
+    autoware_planning_msgs::msg::StopReasonArray stop_reason_array;
     stop_reason_array.header.frame_id = "map";
-    stop_reason_array.header.stamp = ros::Time::now();
+    stop_reason_array.header.stamp = this->now();
 
     first_stop_path_point_index_ = static_cast<int>(path->points.size());
     for (const auto & scene_module : scene_modules_) {
-      autoware_planning_msgs::StopReason stop_reason;
+      autoware_planning_msgs::msg::StopReason stop_reason;
       scene_module->setPlannerData(planner_data_);
       scene_module->modifyPathVelocity(path, &stop_reason);
       stop_reason_array.stop_reasons.emplace_back(stop_reason);
@@ -105,18 +105,18 @@ public:
     }
 
     if (!stop_reason_array.stop_reasons.empty()) {
-      pub_stop_reason_.publish(stop_reason_array);
+      pub_stop_reason_->publish(stop_reason_array);
     }
-    pub_debug_.publish(debug_marker_array);
+    pub_debug_->publish(debug_marker_array);
   }
 
 protected:
-  virtual void launchNewModules(const autoware_planning_msgs::PathWithLaneId & path) = 0;
+  virtual void launchNewModules(const autoware_planning_msgs::msg::PathWithLaneId & path) = 0;
 
   virtual std::function<bool(const std::shared_ptr<SceneModuleInterface> &)>
-  getModuleExpiredFunction(const autoware_planning_msgs::PathWithLaneId & path) = 0;
+  getModuleExpiredFunction(const autoware_planning_msgs::msg::PathWithLaneId & path) = 0;
 
-  void deleteExpiredModules(const autoware_planning_msgs::PathWithLaneId & path)
+  void deleteExpiredModules(const autoware_planning_msgs::msg::PathWithLaneId & path)
   {
     const auto isModuleExpired = getModuleExpiredFunction(path);
 
@@ -137,14 +137,14 @@ protected:
 
   void registerModule(const std::shared_ptr<SceneModuleInterface> & scene_module)
   {
-    ROS_INFO("register task: module = %s, id = %lu", getModuleName(), scene_module->getModuleId());
+    RCLCPP_INFO(get_logger(), "register task: module = %s, id = %lu", getModuleName(), scene_module->getModuleId());
     registered_module_id_set_.emplace(scene_module->getModuleId());
     scene_modules_.insert(scene_module);
   }
 
   void unregisterModule(const std::shared_ptr<SceneModuleInterface> & scene_module)
   {
-    ROS_INFO(
+    RCLCPP_INFO(get_logger(), 
       "unregister task: module = %s, id = %lu", getModuleName(), scene_module->getModuleId());
     registered_module_id_set_.erase(scene_module->getModuleId());
     scene_modules_.erase(scene_module);
@@ -158,7 +158,7 @@ protected:
   boost::optional<int> first_stop_path_point_index_;
 
   // Debug
-  ros::NodeHandle private_nh_{"~"};
-  ros::Publisher pub_debug_;
-  ros::Publisher pub_stop_reason_;
+  rclcpp::NodeHandle private_nh_{"~"};
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_debug_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::StopReasonArray>::SharedPtr pub_stop_reason_;
 };

@@ -32,13 +32,13 @@ StopLineModule::StopLineModule(
 }
 
 bool StopLineModule::modifyPathVelocity(
-  autoware_planning_msgs::PathWithLaneId * path, autoware_planning_msgs::StopReason * stop_reason)
+  autoware_planning_msgs::msg::PathWithLaneId * path, autoware_planning_msgs::msg::StopReason * stop_reason)
 {
   debug_data_ = {};
   debug_data_.base_link2front = planner_data_->base_link2front;
   first_stop_path_point_index_ = static_cast<int>(path->points.size()) - 1;
   *stop_reason =
-    planning_utils::initializeStopReason(autoware_planning_msgs::StopReason::STOP_LINE);
+    planning_utils::initializeStopReason(autoware_planning_msgs::msg::StopReason::STOP_LINE);
 
   Eigen::Vector2d stop_point;
   bg::model::linestring<Point> stop_line = {
@@ -77,7 +77,7 @@ bool StopLineModule::modifyPathVelocity(
       }
 
       // create stop point
-      autoware_planning_msgs::PathPointWithLaneId stop_point_with_lane_id;
+      autoware_planning_msgs::msg::PathPointWithLaneId stop_point_with_lane_id;
       getBackwordPointFromBasePoint(point2, point1, point2, length_sum - stop_length, stop_point);
       const int stop_point_idx = std::max(static_cast<int>(insert_stop_point_idx - 1), 0);
       stop_point_with_lane_id = path->points.at(stop_point_idx);
@@ -100,7 +100,7 @@ bool StopLineModule::modifyPathVelocity(
     }
 
     // update state
-    geometry_msgs::PoseStamped self_pose = planner_data_->current_pose;
+    geometry_msgs::msg::PoseStamped self_pose = planner_data_->current_pose;
     const double x = stop_point.x() - self_pose.pose.position.x;
     const double y = stop_point.y() - self_pose.pose.position.y;
     const double dist = std::sqrt(x * x + y * y);
@@ -110,7 +110,7 @@ bool StopLineModule::modifyPathVelocity(
   } else if (state_ == State::STOP) {
     if (!planner_data_->isVehicleStopping()) state_ = State::START;
     /* get stop point and stop factor */
-    autoware_planning_msgs::StopFactor stop_factor;
+    autoware_planning_msgs::msg::StopFactor stop_factor;
     stop_factor.stop_pose = debug_data_.first_stop_pose;
     stop_factor.stop_factor_points.emplace_back(getCenterOfStopLine(stop_line_));
     planning_utils::appendStopReason(stop_factor, stop_reason);
@@ -128,10 +128,10 @@ bool StopLineModule::getBackwordPointFromBasePoint(
   return true;
 }
 
-geometry_msgs::Point StopLineModule::getCenterOfStopLine(
+geometry_msgs::msg::Point StopLineModule::getCenterOfStopLine(
   const lanelet::ConstLineString3d & stop_line)
 {
-  geometry_msgs::Point center_point;
+  geometry_msgs::msg::Point center_point;
   center_point.x = (stop_line[0].x() + stop_line[1].x()) / 2.0;
   center_point.y = (stop_line[0].y() + stop_line[1].y()) / 2.0;
   center_point.z = (stop_line[0].z() + stop_line[1].z()) / 2.0;

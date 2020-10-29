@@ -32,12 +32,12 @@ WalkwayModule::WalkwayModule(
 }
 
 bool WalkwayModule::modifyPathVelocity(
-  autoware_planning_msgs::PathWithLaneId * path, autoware_planning_msgs::StopReason * stop_reason)
+  autoware_planning_msgs::msg::PathWithLaneId * path, autoware_planning_msgs::msg::StopReason * stop_reason)
 {
   debug_data_ = {};
   debug_data_.base_link2front = planner_data_->base_link2front;
   first_stop_path_point_index_ = static_cast<int>(path->points.size()) - 1;
-  *stop_reason = planning_utils::initializeStopReason(autoware_planning_msgs::StopReason::WALKWAY);
+  *stop_reason = planning_utils::initializeStopReason(autoware_planning_msgs::msg::StopReason::WALKWAY);
 
   const auto input = *path;
 
@@ -65,7 +65,7 @@ bool WalkwayModule::modifyPathVelocity(
     return true;
   } else if (state_ == State::STOP) {
     /* get stop point and stop factor */
-    autoware_planning_msgs::StopFactor stop_factor;
+    autoware_planning_msgs::msg::StopFactor stop_factor;
     stop_factor.stop_pose = debug_data_.first_stop_pose;
     stop_factor.stop_factor_points.emplace_back(debug_data_.nearest_collision_point);
     planning_utils::appendStopReason(stop_factor, stop_reason);

@@ -21,10 +21,10 @@
 #include <lanelet2_extension/utility/query.h>
 #include <lanelet2_extension/utility/utilities.h>
 
-#include "scene_module/intersection/util.h"
-#include "utilization/boost_geometry_helper.h"
-#include "utilization/interpolate.h"
-#include "utilization/util.h"
+#include <scene_module/intersection/util.h>
+#include <utilization/boost_geometry_helper.h>
+#include <utilization/interpolate.h>
+#include <utilization/util.h>
 
 namespace bg = boost::geometry;
 
@@ -41,12 +41,12 @@ IntersectionModule::IntersectionModule(
 }
 
 bool IntersectionModule::modifyPathVelocity(
-  autoware_planning_msgs::PathWithLaneId * path, autoware_planning_msgs::StopReason * stop_reason)
+  autoware_planning_msgs::msg::PathWithLaneId * path, autoware_planning_msgs::msg::StopReason * stop_reason)
 {
   ROS_DEBUG("[intersection] ===== plan start =====");
   debug_data_ = {};
   *stop_reason =
-    planning_utils::initializeStopReason(autoware_planning_msgs::StopReason::INTERSECTION);
+    planning_utils::initializeStopReason(autoware_planning_msgs::msg::StopReason::INTERSECTION);
 
   const auto input_path = *path;
   debug_data_.path_raw = input_path;
@@ -55,7 +55,7 @@ bool IntersectionModule::modifyPathVelocity(
   ROS_DEBUG("[Intersection] lane_id = %ld, state = %s", lane_id_, toString(current_state).c_str());
 
   /* get current pose */
-  geometry_msgs::PoseStamped current_pose = planner_data_->current_pose;
+  geometry_msgs::msg::PoseStamped current_pose = planner_data_->current_pose;
 
   /* get lanelet map */
   const auto lanelet_map_ptr = planner_data_->lanelet_map;
@@ -105,7 +105,7 @@ bool IntersectionModule::modifyPathVelocity(
   /* if current_state = GO, and current_pose is in front of stop_line, ignore planning. */
   bool is_over_pass_judge_line = static_cast<bool>(closest_idx > pass_judge_line_idx);
   if (closest_idx == pass_judge_line_idx) {
-    geometry_msgs::Pose pass_judge_line = path->points.at(pass_judge_line_idx).point.pose;
+    geometry_msgs::msg::Pose pass_judge_line = path->points.at(pass_judge_line_idx).point.pose;
     is_over_pass_judge_line = util::isAheadOf(current_pose.pose, pass_judge_line);
   }
   if (current_state == State::GO && is_over_pass_judge_line) {
@@ -132,7 +132,7 @@ bool IntersectionModule::modifyPathVelocity(
     util::setVelocityFrom(stop_line_idx, v, path);
 
     /* get stop point and stop factor */
-    autoware_planning_msgs::StopFactor stop_factor;
+    autoware_planning_msgs::msg::StopFactor stop_factor;
     stop_factor.stop_pose = debug_data_.stop_point_pose;
     const auto stop_factor_conflict = planning_utils::toRosPoints(debug_data_.conflicting_targets);
     const auto stop_factor_stuck = planning_utils::toRosPoints(debug_data_.stuck_targets);
@@ -146,12 +146,12 @@ bool IntersectionModule::modifyPathVelocity(
 }
 
 void IntersectionModule::cutPredictPathWithDuration(
-  autoware_perception_msgs::DynamicObjectArray * objects_ptr, const double time_thr) const
+  autoware_perception_msgs::msg::DynamicObjectArray * objects_ptr, const double time_thr) const
 {
-  const ros::Time current_time = ros::Time::now();
+  const rclcpp::Time current_time = this->now();
   for (auto & object : objects_ptr->objects) {                    // each objects
     for (auto & predicted_path : object.state.predicted_paths) {  // each predicted paths
-      std::vector<geometry_msgs::PoseWithCovarianceStamped> vp;
+      std::vector<geometry_msgs::msg::PoseWithCovarianceStamped> vp;
       for (auto & predicted_pose : predicted_path.path) {  // each path points
         if ((predicted_pose.header.stamp - current_time).toSec() < time_thr) {
           vp.push_back(predicted_pose);
@@ -163,9 +163,9 @@ void IntersectionModule::cutPredictPathWithDuration(
 }
 
 bool IntersectionModule::checkCollision(
-  const autoware_planning_msgs::PathWithLaneId & path,
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
   const std::vector<lanelet::CompoundPolygon3d> & detection_areas,
-  const autoware_perception_msgs::DynamicObjectArray::ConstPtr objects_ptr, const int closest_idx)
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr objects_ptr, const int closest_idx)
 {
   /* generate ego-lane polygon */
   const Polygon2d ego_poly = generateEgoIntersectionLanePolygon(
@@ -173,7 +173,7 @@ bool IntersectionModule::checkCollision(
   debug_data_.ego_lane_polygon = toGeomMsg(ego_poly);
 
   /* extruct target objects */
-  autoware_perception_msgs::DynamicObjectArray target_objects;
+  autoware_perception_msgs::msg::DynamicObjectArray target_objects;
   for (const auto & object : objects_ptr->objects) {
     // ignore non-vehicle type objects, such as pedestrian.
     if (!isTargetVehicleType(object)) continue;
@@ -187,7 +187,7 @@ bool IntersectionModule::checkCollision(
 
     // keep vehicle in detection_area
     Polygon2d obj_poly;
-    if (object.shape.type == autoware_perception_msgs::Shape::POLYGON) {
+    if (object.shape.type == autoware_perception_msgs::msg::Shape::POLYGON) {
       obj_poly = toBoostPoly(object.shape.footprint);
     } else {
       // cylinder type is treated as square-polygon
@@ -229,7 +229,7 @@ bool IntersectionModule::checkCollision(
 }
 
 Polygon2d IntersectionModule::generateEgoIntersectionLanePolygon(
-  const autoware_planning_msgs::PathWithLaneId & path, const int closest_idx, const int start_idx,
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const int closest_idx, const int start_idx,
   const double extra_dist, const double ignore_dist) const
 {
   const size_t assigned_lane_start_idx = start_idx;
@@ -291,7 +291,7 @@ Polygon2d IntersectionModule::generateEgoIntersectionLanePolygon(
 }
 
 double IntersectionModule::calcIntersectionPassingTime(
-  const autoware_planning_msgs::PathWithLaneId & path, const int closest_idx,
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const int closest_idx,
   const int objective_lane_id) const
 {
   double dist_sum = 0.0;
@@ -317,8 +317,8 @@ double IntersectionModule::calcIntersectionPassingTime(
 }
 
 bool IntersectionModule::checkStuckVehicleInIntersection(
-  const autoware_planning_msgs::PathWithLaneId & path, const int closest_idx, const int stop_idx,
-  const autoware_perception_msgs::DynamicObjectArray::ConstPtr objects_ptr) const
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const int closest_idx, const int stop_idx,
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr objects_ptr) const
 {
   const Polygon2d stuck_vehicle_detect_area = generateEgoIntersectionLanePolygon(
     path, closest_idx, stop_idx, planner_param_.stuck_vehicle_detect_dist,
@@ -344,14 +344,14 @@ bool IntersectionModule::checkStuckVehicleInIntersection(
 }
 
 bool IntersectionModule::isTargetVehicleType(
-  const autoware_perception_msgs::DynamicObject & object) const
+  const autoware_perception_msgs::msg::DynamicObject & object) const
 {
   if (
-    object.semantic.type == autoware_perception_msgs::Semantic::CAR ||
-    object.semantic.type == autoware_perception_msgs::Semantic::BUS ||
-    object.semantic.type == autoware_perception_msgs::Semantic::TRUCK ||
-    object.semantic.type == autoware_perception_msgs::Semantic::MOTORBIKE ||
-    object.semantic.type == autoware_perception_msgs::Semantic::BICYCLE) {
+    object.semantic.type == autoware_perception_msgs::msg::Semantic::CAR ||
+    object.semantic.type == autoware_perception_msgs::msg::Semantic::BUS ||
+    object.semantic.type == autoware_perception_msgs::msg::Semantic::TRUCK ||
+    object.semantic.type == autoware_perception_msgs::msg::Semantic::MOTORBIKE ||
+    object.semantic.type == autoware_perception_msgs::msg::Semantic::BICYCLE) {
     return true;
   }
   return false;
@@ -375,9 +375,9 @@ void IntersectionModule::StateMachine::setStateWithMarginTime(State state)
   /* STOP -> GO */
   if (state == State::GO) {
     if (start_time_ == nullptr) {
-      start_time_ = std::make_shared<ros::Time>(ros::Time::now());
+      start_time_ = std::make_shared<rclcpp::Time>(this->now());
     } else {
-      const double duration = (ros::Time::now() - *start_time_).toSec();
+      const double duration = (this->now() - *start_time_).toSec();
       if (duration > margin_time_) {
         state_ = State::GO;
         start_time_ = nullptr;  // reset timer

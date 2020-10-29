@@ -15,9 +15,9 @@
  */
 #pragma once
 
-#include <autoware_planning_msgs/Path.h>
+#include <autoware_planning_msgs/msg/path.hpp>
 
-autoware_planning_msgs::Path interpolatePath(
-  const autoware_planning_msgs::Path & path, const double length);
-autoware_planning_msgs::Path filterLitterPathPoint(const autoware_planning_msgs::Path & path);
-autoware_planning_msgs::Path filterStopPathPoint(const autoware_planning_msgs::Path & path);
+autoware_planning_msgs::msg::Path interpolatePath(
+  const autoware_planning_msgs::msg::Path & path, const double length);
+autoware_planning_msgs::msg::Path filterLitterPathPoint(const autoware_planning_msgs::msg::Path & path);
+autoware_planning_msgs::msg::Path filterStopPathPoint(const autoware_planning_msgs::msg::Path & path);

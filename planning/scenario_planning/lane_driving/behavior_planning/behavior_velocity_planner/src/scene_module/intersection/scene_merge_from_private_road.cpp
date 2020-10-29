@@ -21,10 +21,10 @@
 #include <lanelet2_extension/utility/query.h>
 #include <lanelet2_extension/utility/utilities.h>
 
-#include "scene_module/intersection/util.h"
-#include "utilization/boost_geometry_helper.h"
-#include "utilization/interpolate.h"
-#include "utilization/util.h"
+#include <scene_module/intersection/util.h>
+#include <utilization/boost_geometry_helper.h>
+#include <utilization/interpolate.h>
+#include <utilization/util.h>
 
 namespace bg = boost::geometry;
 
@@ -39,11 +39,11 @@ MergeFromPrivateRoadModule::MergeFromPrivateRoadModule(
 }
 
 bool MergeFromPrivateRoadModule::modifyPathVelocity(
-  autoware_planning_msgs::PathWithLaneId * path, autoware_planning_msgs::StopReason * stop_reason)
+  autoware_planning_msgs::msg::PathWithLaneId * path, autoware_planning_msgs::msg::StopReason * stop_reason)
 {
   debug_data_ = {};
   *stop_reason = planning_utils::initializeStopReason(
-    autoware_planning_msgs::StopReason::MERGE_FROM_PRIVATE_ROAD);
+    autoware_planning_msgs::msg::StopReason::MERGE_FROM_PRIVATE_ROAD);
 
   const auto input_path = *path;
   debug_data_.path_raw = input_path;
@@ -53,7 +53,7 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
     "[MergeFromPrivateRoad] lane_id = %ld, state = %s", lane_id_, toString(current_state).c_str());
 
   /* get current pose */
-  geometry_msgs::PoseStamped current_pose = planner_data_->current_pose;
+  geometry_msgs::msg::PoseStamped current_pose = planner_data_->current_pose;
 
   /* get lanelet map */
   const auto lanelet_map_ptr = planner_data_->lanelet_map;
@@ -101,7 +101,7 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
 
     /* get stop point and stop factor */
     if (v == stop_vel) {
-      autoware_planning_msgs::StopFactor stop_factor;
+      autoware_planning_msgs::msg::StopFactor stop_factor;
       stop_factor.stop_pose = debug_data_.stop_point_pose;
       stop_factor.stop_factor_points.emplace_back(debug_data_.first_collision_point);
       planning_utils::appendStopReason(stop_factor, stop_reason);
@@ -137,9 +137,9 @@ void MergeFromPrivateRoadModule::StateMachine::setStateWithMarginTime(State stat
   /* STOP -> GO */
   if (state == State::GO) {
     if (start_time_ == nullptr) {
-      start_time_ = std::make_shared<ros::Time>(ros::Time::now());
+      start_time_ = std::make_shared<rclcpp::Time>(this->now());
     } else {
-      const double duration = (ros::Time::now() - *start_time_).toSec();
+      const double duration = (this->now() - *start_time_).toSec();
       if (duration > margin_time_) {
         state_ = State::GO;
         start_time_ = nullptr;  // reset timer

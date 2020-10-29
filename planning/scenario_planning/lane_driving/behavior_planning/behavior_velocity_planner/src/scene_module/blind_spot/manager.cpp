@@ -17,13 +17,13 @@
 
 #include <lanelet2_core/primitives/BasicRegulatoryElements.h>
 
-#include "utilization/boost_geometry_helper.h"
-#include "utilization/util.h"
+#include <utilization/boost_geometry_helper.h>
+#include <utilization/util.h>
 
 namespace
 {
 std::vector<lanelet::ConstLanelet> getLaneletsOnPath(
-  const autoware_planning_msgs::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
 {
   std::vector<lanelet::ConstLanelet> lanelets;
 
@@ -35,7 +35,7 @@ std::vector<lanelet::ConstLanelet> getLaneletsOnPath(
   return lanelets;
 }
 
-std::set<int64_t> getLaneIdSetOnPath(const autoware_planning_msgs::PathWithLaneId & path)
+std::set<int64_t> getLaneIdSetOnPath(const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   std::set<int64_t> lane_id_set;
 
@@ -51,7 +51,7 @@ std::set<int64_t> getLaneIdSetOnPath(const autoware_planning_msgs::PathWithLaneI
 
 BlindSpotModuleManager::BlindSpotModuleManager() : SceneModuleManagerInterface(getModuleName())
 {
-  ros::NodeHandle pnh("~");
+  rclcpp::NodeHandle pnh("~");
   const std::string ns(getModuleName());
   auto & p = planner_param_;
   pnh.param(ns + "/stop_line_margin", p.stop_line_margin, 1.0);
@@ -59,7 +59,7 @@ BlindSpotModuleManager::BlindSpotModuleManager() : SceneModuleManagerInterface(g
   pnh.param(ns + "/max_future_movement_time", p.max_future_movement_time, 10.0);
 }
 
-void BlindSpotModuleManager::launchNewModules(const autoware_planning_msgs::PathWithLaneId & path)
+void BlindSpotModuleManager::launchNewModules(const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   for (const auto & ll : getLaneletsOnPath(path, planner_data_->lanelet_map)) {
     const auto lane_id = ll.id();
@@ -82,7 +82,7 @@ void BlindSpotModuleManager::launchNewModules(const autoware_planning_msgs::Path
 
 std::function<bool(const std::shared_ptr<SceneModuleInterface> &)>
 BlindSpotModuleManager::getModuleExpiredFunction(
-  const autoware_planning_msgs::PathWithLaneId & path)
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   const auto lane_id_set = getLaneIdSetOnPath(path);
 

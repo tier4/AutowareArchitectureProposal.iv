@@ -19,20 +19,20 @@
 #include <string>
 #include <vector>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
-#include <autoware_perception_msgs/DynamicObject.h>
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <autoware_planning_msgs/PathWithLaneId.h>
-#include <geometry_msgs/Point.h>
-#include <std_msgs/Float32MultiArray.h>
+#include <autoware_perception_msgs/msg/dynamic_object.hpp>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <geometry_msgs/msg/point.hpp>
+#include <std_msgs/msg/float32_multi_array.hpp>
 
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_routing/RoutingGraph.h>
 
 #include <scene_module/intersection/scene_intersection.h>
 #include <scene_module/scene_module_interface.h>
-#include "utilization/boost_geometry_helper.h"
+#include <utilization/boost_geometry_helper.h>
 
 /**
  * @brief This module makes sure that vehicle will stop before entering public road from private road.
@@ -76,23 +76,23 @@ public:
   private:
     State state_;                            //! current state
     double margin_time_;                     //! margin time when transit to Go from Stop
-    std::shared_ptr<ros::Time> start_time_;  //! first time received GO when STOP state
+    std::shared_ptr<rclcpp::Time> start_time_;  //! first time received GO when STOP state
   };
 
   struct DebugData
   {
-    autoware_planning_msgs::PathWithLaneId path_raw;
+    autoware_planning_msgs::msg::PathWithLaneId path_raw;
 
-    geometry_msgs::Pose virtual_wall_pose;
-    geometry_msgs::Pose stop_point_pose;
-    geometry_msgs::Pose judge_point_pose;
-    geometry_msgs::Polygon ego_lane_polygon;
-    geometry_msgs::Polygon stuck_vehicle_detect_area;
+    geometry_msgs::msg::Pose virtual_wall_pose;
+    geometry_msgs::msg::Pose stop_point_pose;
+    geometry_msgs::msg::Pose judge_point_pose;
+    geometry_msgs::msg::Polygon ego_lane_polygon;
+    geometry_msgs::msg::Polygon stuck_vehicle_detect_area;
     std::vector<lanelet::ConstLanelet> intersection_detection_lanelets;
     std::vector<lanelet::CompoundPolygon3d> detection_area;
-    autoware_planning_msgs::PathWithLaneId spline_path;
-    geometry_msgs::Point first_collision_point;
-    autoware_perception_msgs::DynamicObjectArray stuck_targets;
+    autoware_planning_msgs::msg::PathWithLaneId spline_path;
+    geometry_msgs::msg::Point first_collision_point;
+    autoware_perception_msgs::msg::DynamicObjectArray stuck_targets;
   };
 
 public:
@@ -105,10 +105,10 @@ public:
    * and object predicted path
    */
   bool modifyPathVelocity(
-    autoware_planning_msgs::PathWithLaneId * path,
-    autoware_planning_msgs::StopReason * stop_reason) override;
+    autoware_planning_msgs::msg::PathWithLaneId * path,
+    autoware_planning_msgs::msg::StopReason * stop_reason) override;
 
-  visualization_msgs::MarkerArray createDebugMarkerArray() override;
+  visualization_msgs::msg::MarkerArray createDebugMarkerArray() override;
 
 private:
   int64_t lane_id_;

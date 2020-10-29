@@ -28,7 +28,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_extension/regulatory_elements/detection_area.h>
@@ -45,10 +45,10 @@ public:
   struct DebugData
   {
     double base_link2front;
-    std::vector<geometry_msgs::Pose> stop_poses;
-    std::vector<geometry_msgs::Pose> dead_line_poses;
-    geometry_msgs::Pose first_stop_pose;
-    std::vector<geometry_msgs::Point> detection_points;
+    std::vector<geometry_msgs::msg::Pose> stop_poses;
+    std::vector<geometry_msgs::msg::Pose> dead_line_poses;
+    geometry_msgs::msg::Pose first_stop_pose;
+    std::vector<geometry_msgs::msg::Point> detection_points;
   };
 
   struct PlannerParam
@@ -62,10 +62,10 @@ public:
     const PlannerParam & planner_param);
 
   bool modifyPathVelocity(
-    autoware_planning_msgs::PathWithLaneId * path,
-    autoware_planning_msgs::StopReason * stop_reason) override;
+    autoware_planning_msgs::msg::PathWithLaneId * path,
+    autoware_planning_msgs::msg::StopReason * stop_reason) override;
 
-  visualization_msgs::MarkerArray createDebugMarkerArray() override;
+  visualization_msgs::msg::MarkerArray createDebugMarkerArray() override;
 
 private:
   int64_t module_id_;
@@ -84,20 +84,20 @@ private:
     Eigen::Vector2d & output_point);
 
   bool insertTargetVelocityPoint(
-    const autoware_planning_msgs::PathWithLaneId & input,
+    const autoware_planning_msgs::msg::PathWithLaneId & input,
     const boost::geometry::model::linestring<boost::geometry::model::d2::point_xy<double>> &
       stop_line,
     const double & margin, const double & velocity,
-    autoware_planning_msgs::PathWithLaneId & output);
+    autoware_planning_msgs::msg::PathWithLaneId & output);
 
   bool createTargetPoint(
-    const autoware_planning_msgs::PathWithLaneId & input,
+    const autoware_planning_msgs::msg::PathWithLaneId & input,
     const boost::geometry::model::linestring<boost::geometry::model::d2::point_xy<double>> &
       stop_line,
     const double & margin, size_t & target_point_idx, Eigen::Vector2d & target_point);
 
   bool isOverDeadLine(
-    const geometry_msgs::Pose & self_pose, const autoware_planning_msgs::PathWithLaneId & input_path,
+    const geometry_msgs::msg::Pose & self_pose, const autoware_planning_msgs::msg::PathWithLaneId & input_path,
     const size_t & dead_line_point_idx, const Eigen::Vector2d & dead_line_point,
     const double dead_line_range);
 

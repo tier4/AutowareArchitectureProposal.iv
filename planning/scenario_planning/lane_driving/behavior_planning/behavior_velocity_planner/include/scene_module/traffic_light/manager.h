@@ -27,7 +27,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_extension/utility/query.h>
@@ -43,15 +43,15 @@ public:
 
   const char * getModuleName() override { return "traffic_light"; }
 
-  virtual void modifyPathVelocity(autoware_planning_msgs::PathWithLaneId * path) override;
+  virtual void modifyPathVelocity(autoware_planning_msgs::msg::PathWithLaneId * path) override;
 
 private:
   TrafficLightModule::PlannerParam planner_param_;
-  void launchNewModules(const autoware_planning_msgs::PathWithLaneId & path) override;
+  void launchNewModules(const autoware_planning_msgs::msg::PathWithLaneId & path) override;
 
   std::function<bool(const std::shared_ptr<SceneModuleInterface> &)> getModuleExpiredFunction(
-    const autoware_planning_msgs::PathWithLaneId & path) override;
+    const autoware_planning_msgs::msg::PathWithLaneId & path) override;
 
   // Debug
-  ros::Publisher pub_tl_state_;
+  rclcpp::Publisher<autoware_perception_msgs::msg::TrafficLightStateStamped>::SharedPtr pub_tl_state_;
 };
