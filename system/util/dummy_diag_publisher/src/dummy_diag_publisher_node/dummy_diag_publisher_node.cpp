@@ -90,13 +90,21 @@ void DummyDiagPublisherNode::onTimer()
 }
 
 DummyDiagPublisherNode::DummyDiagPublisherNode()
-: Node(declare_parameter("diag_name", "dummy_diag_publisher_node")),
+: Node("dummy_diag_publisher"),
   update_rate_(declare_parameter("update_rate", 10.0)),
   updater_(this)
 {
   // Get configuration
   std::map<std::string, std::string> configuration_parameters;
-  this->declare_parameters(this->get_namespace(), configuration_parameters);
+  configuration_parameters.insert(std::pair<std::string, std::string>("diag_config.name", ""));
+  configuration_parameters.insert(std::pair<std::string, std::string>("diag_config.hardware_id", ""));
+  configuration_parameters.insert(std::pair<std::string, std::string>("diag_config.msg_ok", ""));
+  configuration_parameters.insert(std::pair<std::string, std::string>("diag_config.msg_warn", ""));
+  configuration_parameters.insert(std::pair<std::string, std::string>("diag_config.msg_error", ""));
+  configuration_parameters.insert(std::pair<std::string, std::string>("diag_config.msg_stale", ""));
+
+  this->declare_parameters<std::string>("", configuration_parameters);
+  this->get_parameters("diag_config", configuration_parameters);
   diag_config_ = DiagConfig(configuration_parameters);
   
   // set parameter callback

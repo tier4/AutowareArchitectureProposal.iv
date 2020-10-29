@@ -13,6 +13,8 @@
   <depend>fmt</depend>
   <depend>rclcpp</depend>
 
+  <exec_depend>rqt_reconfigure</exec_depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>
