@@ -117,16 +117,21 @@ NDTScanMatcher::NDTScanMatcher()
   initial_pose_with_covariance_pub_ =
     this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
       "initial_pose_with_covariance", 10);
-  exe_time_pub_ = this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("exe_time_ms", 10);
+  exe_time_pub_ =
+    this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("exe_time_ms", 10);
   transform_probability_pub_ =
     this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("transform_probability", 10);
-  iteration_num_pub_ = this->create_publisher<autoware_debug_msgs::msg::Int32Stamped>("iteration_num", 10);
+  iteration_num_pub_ =
+    this->create_publisher<autoware_debug_msgs::msg::Int32Stamped>("iteration_num", 10);
   initial_to_result_distance_pub_ =
-    this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("initial_to_result_distance", 10);
+    this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
+      "initial_to_result_distance", 10);
   initial_to_result_distance_old_pub_ =
-    this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("initial_to_result_distance_old", 10);
+    this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
+      "initial_to_result_distance_old", 10);
   initial_to_result_distance_new_pub_ =
-    this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("initial_to_result_distance_new", 10);
+    this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
+      "initial_to_result_distance_new", 10);
   ndt_marker_pub_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("ndt_marker", 10);
   ndt_monte_carlo_initial_pose_marker_pub_ =
     this->create_publisher<visualization_msgs::msg::MarkerArray>(
@@ -138,9 +143,6 @@ NDTScanMatcher::NDTScanMatcher()
     "ndt_align_srv",
     std::bind(
       &NDTScanMatcher::serviceNDTAlign, this, std::placeholders::_1, std::placeholders::_2));
-  // setup dynamic reconfigure server
-  // f_ = boost::bind(&NDTScanMatcher::configCallback, this, _1, _2);
-  // server_.setCallback(f_);
 
   diagnostic_thread_ = std::thread(&NDTScanMatcher::timerDiagnostic, this);
   diagnostic_thread_.detach();
@@ -221,6 +223,7 @@ void NDTScanMatcher::serviceNDTAlign(
   key_value_stdmap_["state"] = "Aligning";
   res->pose_with_cov = alignUsingMonteCarlo(ndt_ptr_, *mapTF_initial_pose_msg_ptr);
   key_value_stdmap_["state"] = "Sleeping";
+  res->seq = req->seq;
   res->pose_with_cov.pose.covariance = req->pose_with_cov.pose.covariance;
 }
 
@@ -728,8 +731,8 @@ bool NDTScanMatcher::getTransform(
   }
 
   try {
-    *transform_stamped_ptr = tf2_buffer_.lookupTransform(
-      target_frame, source_frame, rclcpp::Time(0), rclcpp::Duration(1.0));
+    *transform_stamped_ptr =
+      tf2_buffer_.lookupTransform(target_frame, source_frame, tf2::TimePointZero);
   } catch (tf2::TransformException & ex) {
     RCLCPP_WARN(get_logger(), "%s", ex.what());
     RCLCPP_ERROR(
