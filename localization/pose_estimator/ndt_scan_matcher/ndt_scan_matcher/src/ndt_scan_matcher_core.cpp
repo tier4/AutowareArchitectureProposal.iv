@@ -24,7 +24,6 @@
 
 #include <tf2_eigen/tf2_eigen.h>
 #include <boost/shared_ptr.hpp>
-#include <time_utils/time_utils.hpp>
 
 // TODO: #include <eigen_conversions/eigen_msg.h>
 #include <pcl_conversions/pcl_conversions.h>
@@ -308,9 +307,7 @@ void NDTScanMatcher::callbackSensorPoints(
   std::lock_guard<std::mutex> lock(ndt_map_mtx_);
 
   const std::string & sensor_frame = sensor_points_sensorTF_msg_ptr->header.frame_id;
-  const auto sensor_ros_time = sensor_points_sensorTF_msg_ptr->header.stamp;
-  const std::chrono::system_clock::time_point sensor_chrono_time =
-    time_utils::from_message(sensor_ros_time);
+  const rclcpp::Time sensor_ros_time = sensor_points_sensorTF_msg_ptr->header.stamp;
 
   boost::shared_ptr<pcl::PointCloud<PointSource>> sensor_points_sensorTF_ptr(
     new pcl::PointCloud<PointSource>);
@@ -335,12 +332,12 @@ void NDTScanMatcher::callbackSensorPoints(
   auto initial_pose_old_msg_ptr = std::make_shared<geometry_msgs::msg::PoseWithCovarianceStamped>();
   auto initial_pose_new_msg_ptr = std::make_shared<geometry_msgs::msg::PoseWithCovarianceStamped>();
   getNearestTimeStampPose(
-    initial_pose_msg_ptr_array_, sensor_chrono_time, initial_pose_old_msg_ptr,
+    initial_pose_msg_ptr_array_, sensor_ros_time, initial_pose_old_msg_ptr,
     initial_pose_new_msg_ptr);
-  popOldPose(initial_pose_msg_ptr_array_, sensor_chrono_time);
-  // TODO check pose_timestamp - sensor_chrono_time
+  popOldPose(initial_pose_msg_ptr_array_, sensor_ros_time);
+  // TODO check pose_timestamp - sensor_ros_time
   const auto initial_pose_msg =
-    interpolatePose(*initial_pose_old_msg_ptr, *initial_pose_new_msg_ptr, sensor_chrono_time);
+    interpolatePose(*initial_pose_old_msg_ptr, *initial_pose_new_msg_ptr, sensor_ros_time);
 
   geometry_msgs::msg::PoseWithCovarianceStamped initial_pose_cov_msg;
   initial_pose_cov_msg.header = initial_pose_msg.header;
