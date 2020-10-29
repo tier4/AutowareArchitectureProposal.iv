@@ -96,7 +96,7 @@ EKFLocalizer::EKFLocalizer(const std::string & node_name, const rclcpp::NodeOpti
   pub_twist_ = create_publisher<geometry_msgs::msg::TwistStamped>("ekf_twist", 1);
   pub_twist_cov_ =
     create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>("ekf_twist_with_covariance", 1);
-  pub_yaw_bias_ = create_publisher<std_msgs::msg::Float64>("estimated_yaw_bias", 1);
+  pub_yaw_bias_ = create_publisher<autoware_debug_msgs::msg::Float64Stamped>("estimated_yaw_bias", 1);
   pub_pose_no_yawbias_ = create_publisher<geometry_msgs::msg::PoseStamped>("ekf_pose_without_yawbias", 1);
   pub_pose_cov_no_yawbias_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
     "ekf_pose_with_covariance_without_yawbias", 1);
@@ -116,7 +116,7 @@ EKFLocalizer::EKFLocalizer(const std::string & node_name, const rclcpp::NodeOpti
   initEKF();
 
   /* debug */
-  pub_debug_ = create_publisher<std_msgs::msg::Float64MultiArray>("debug", 1);
+  pub_debug_ = create_publisher<autoware_debug_msgs::msg::Float64MultiArrayStamped>("debug", 1);
   pub_measured_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>("debug/measured_pose", 1);
 };
 
@@ -726,7 +726,7 @@ void EKFLocalizer::publishEstimateResult()
   pub_twist_cov_->publish(twist_cov);
 
   /* publish yaw bias */
-  std_msgs::msg::Float64 yawb;
+  autoware_debug_msgs::msg::Float64Stamped yawb;
   yawb.data = X(IDX::YAWB);
   pub_yaw_bias_->publish(yawb);
 
@@ -744,7 +744,7 @@ void EKFLocalizer::publishEstimateResult()
   if (current_pose_ptr_ != nullptr)
     pose_yaw = tf2::getYaw(current_pose_ptr_->pose.orientation) * RAD2DEG;
 
-  std_msgs::msg::Float64MultiArray msg;
+  autoware_debug_msgs::msg::Float64MultiArrayStamped msg;
   msg.data.push_back(X(IDX::YAW) * RAD2DEG);   // [0] ekf yaw angle
   msg.data.push_back(pose_yaw);                // [1] measurement yaw angle
   msg.data.push_back(X(IDX::YAWB) * RAD2DEG);  // [2] yaw bias

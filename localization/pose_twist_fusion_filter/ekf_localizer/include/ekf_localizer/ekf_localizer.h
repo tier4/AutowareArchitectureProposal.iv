@@ -26,8 +26,8 @@
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/float64.hpp>
-#include <std_msgs/msg/float64_multi_array.hpp>
+#include <autoware_debug_msgs/msg/float64_stamped.hpp>
+#include <autoware_debug_msgs/msg/float64_multi_array_stamped.hpp>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/utils.h>
 #include <tf2_ros/transform_broadcaster.h>
@@ -46,9 +46,9 @@ private:
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pub_pose_cov_;         //!< @brief estimated ekf pose with covariance publisher
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr pub_twist_;            //!< @brief ekf estimated twist publisher
   rclcpp::Publisher<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr pub_twist_cov_;        //!< @brief ekf estimated twist with covariance publisher
-  rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr pub_debug_;            //!< @brief debug info publisher
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float64MultiArrayStamped>::SharedPtr pub_debug_;            //!< @brief debug info publisher
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_measured_pose_;    //!< @brief debug measurement pose publisher
-  rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr pub_yaw_bias_;         //!< @brief ekf estimated yaw bias publisher
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float64Stamped>::SharedPtr pub_yaw_bias_;         //!< @brief ekf estimated yaw bias publisher
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_pose_no_yawbias_;  //!< @brief ekf estimated yaw bias publisher
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pub_pose_cov_no_yawbias_;  //!< @brief ekf estimated yaw bias publisher
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr sub_initialpose_;         //!< @brief initial pose subscriber
