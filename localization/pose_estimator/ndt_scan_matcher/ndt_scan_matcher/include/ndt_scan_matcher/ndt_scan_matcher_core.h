@@ -36,7 +36,8 @@
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
-#include <std_msgs/msg/float32.hpp>
+#include <autoware_debug_msgs/msg/int32_stamped.hpp>
+#include <autoware_debug_msgs/msg/float32_stamped.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
 #include <autoware_localization_srvs/srv/pose_with_covariance_stamped.hpp>
@@ -121,12 +122,12 @@ private:
     ndt_pose_with_covariance_pub_;
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
     initial_pose_with_covariance_pub_;
-  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr exe_time_pub_;
-  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr transform_probability_pub_;
-  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr iteration_num_pub_;
-  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr initial_to_result_distance_pub_;
-  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr initial_to_result_distance_old_pub_;
-  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr initial_to_result_distance_new_pub_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr exe_time_pub_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr transform_probability_pub_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Int32Stamped>::SharedPtr iteration_num_pub_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr initial_to_result_distance_pub_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr initial_to_result_distance_old_pub_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr initial_to_result_distance_new_pub_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr ndt_marker_pub_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr
     ndt_monte_carlo_initial_pose_marker_pub_;

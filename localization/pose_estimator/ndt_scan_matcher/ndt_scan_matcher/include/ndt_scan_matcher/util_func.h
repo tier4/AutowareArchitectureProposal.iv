@@ -22,13 +22,12 @@
 
 #include <tf2_eigen/tf2_eigen.h>
 
-#include <builtin_interfaces/msg/time.hpp>
 #include <geometry_msgs/msg/pose_array.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
-#include <std_msgs/msg/float32.hpp>
+#include <std_msgs/msg/color_rgba.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
 #include <pcl_conversions/pcl_conversions.h>
@@ -172,7 +171,7 @@ void getNearestTimeStampPose(
     const rclcpp::Time pose_time_stamp = output_new_pose_cov_msg_ptr->header.stamp;
     if (pose_time_stamp > time_stamp) {
       // TODO refactor
-      if (pose_time_stamp == rclcpp::Time{}) {
+      if (pose_time_stamp.seconds() == 0.0) {
         output_old_pose_cov_msg_ptr = output_new_pose_cov_msg_ptr;
       }
       break;

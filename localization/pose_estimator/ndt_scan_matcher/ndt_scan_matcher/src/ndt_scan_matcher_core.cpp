@@ -25,7 +25,6 @@
 #include <tf2_eigen/tf2_eigen.h>
 #include <boost/shared_ptr.hpp>
 
-// TODO: #include <eigen_conversions/eigen_msg.h>
 #include <pcl_conversions/pcl_conversions.h>
 
 #include <ndt_scan_matcher/util_func.h>
@@ -118,16 +117,16 @@ NDTScanMatcher::NDTScanMatcher()
   initial_pose_with_covariance_pub_ =
     this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
       "initial_pose_with_covariance", 10);
-  exe_time_pub_ = this->create_publisher<std_msgs::msg::Float32>("exe_time_ms", 10);
+  exe_time_pub_ = this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("exe_time_ms", 10);
   transform_probability_pub_ =
-    this->create_publisher<std_msgs::msg::Float32>("transform_probability", 10);
-  iteration_num_pub_ = this->create_publisher<std_msgs::msg::Float32>("iteration_num", 10);
+    this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("transform_probability", 10);
+  iteration_num_pub_ = this->create_publisher<autoware_debug_msgs::msg::Int32Stamped>("iteration_num", 10);
   initial_to_result_distance_pub_ =
-    this->create_publisher<std_msgs::msg::Float32>("initial_to_result_distance", 10);
+    this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("initial_to_result_distance", 10);
   initial_to_result_distance_old_pub_ =
-    this->create_publisher<std_msgs::msg::Float32>("initial_to_result_distance_old", 10);
+    this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("initial_to_result_distance_old", 10);
   initial_to_result_distance_new_pub_ =
-    this->create_publisher<std_msgs::msg::Float32>("initial_to_result_distance_new", 10);
+    this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("initial_to_result_distance_new", 10);
   ndt_marker_pub_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("ndt_marker", 10);
   ndt_monte_carlo_initial_pose_marker_pub_ =
     this->create_publisher<visualization_msgs::msg::MarkerArray>(
@@ -462,19 +461,23 @@ void NDTScanMatcher::callbackSensorPoints(
   }
   ndt_marker_pub_->publish(marker_array);
 
-  std_msgs::msg::Float32 exe_time_msg;
+  autoware_debug_msgs::msg::Float32Stamped exe_time_msg;
+  exe_time_msg.stamp = sensor_ros_time;
   exe_time_msg.data = exe_time;
   exe_time_pub_->publish(exe_time_msg);
 
-  std_msgs::msg::Float32 transform_probability_msg;
+  autoware_debug_msgs::msg::Float32Stamped transform_probability_msg;
+  transform_probability_msg.stamp = sensor_ros_time;
   transform_probability_msg.data = transform_probability;
   transform_probability_pub_->publish(transform_probability_msg);
 
-  std_msgs::msg::Float32 iteration_num_msg;
+  autoware_debug_msgs::msg::Int32Stamped iteration_num_msg;
+  iteration_num_msg.stamp = sensor_ros_time;
   iteration_num_msg.data = iteration_num;
   iteration_num_pub_->publish(iteration_num_msg);
 
-  std_msgs::msg::Float32 initial_to_result_distance_msg;
+  autoware_debug_msgs::msg::Float32Stamped initial_to_result_distance_msg;
+  initial_to_result_distance_msg.stamp = sensor_ros_time;
   initial_to_result_distance_msg.data = std::sqrt(
     std::pow(
       initial_pose_cov_msg.pose.pose.position.x - result_pose_with_cov_msg.pose.pose.position.x,
@@ -487,7 +490,8 @@ void NDTScanMatcher::callbackSensorPoints(
       2.0));
   initial_to_result_distance_pub_->publish(initial_to_result_distance_msg);
 
-  std_msgs::msg::Float32 initial_to_result_distance_old_msg;
+  autoware_debug_msgs::msg::Float32Stamped initial_to_result_distance_old_msg;
+  initial_to_result_distance_old_msg.stamp = sensor_ros_time;
   initial_to_result_distance_old_msg.data = std::sqrt(
     std::pow(
       initial_pose_old_msg_ptr->pose.pose.position.x -
@@ -503,7 +507,8 @@ void NDTScanMatcher::callbackSensorPoints(
       2.0));
   initial_to_result_distance_old_pub_->publish(initial_to_result_distance_old_msg);
 
-  std_msgs::msg::Float32 initial_to_result_distance_new_msg;
+  autoware_debug_msgs::msg::Float32Stamped initial_to_result_distance_new_msg;
+  initial_to_result_distance_new_msg.stamp = sensor_ros_time;
   initial_to_result_distance_new_msg.data = std::sqrt(
     std::pow(
       initial_pose_new_msg_ptr->pose.pose.position.x -
