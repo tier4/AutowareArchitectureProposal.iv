@@ -18,9 +18,6 @@
 
 #include <rclcpp/create_timer.hpp>
 
-#define FMT_HEADER_ONLY
-#include <fmt/format.h>
-
 namespace
 {
 template <typename T>
