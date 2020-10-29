@@ -178,8 +178,8 @@ private:
   void callbackTrajectory(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg);
   void callbackTimerControl();
 
+  void blockUntilVehiclePositionAvailable(const tf2::Duration & timeout);
   bool updateCurrentPose(const double timeout_sec);
-  bool getCurretPoseFromTF(const double timeout_sec, geometry_msgs::msg::PoseStamped & ps);
 
   double getPitch(const geometry_msgs::msg::Quaternion & quaternion) const;
   double getDt();

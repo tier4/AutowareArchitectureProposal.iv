@@ -158,10 +158,8 @@ VelocityController::VelocityController() : Node("velocity_controller")
   set_param_res_ =
     this->add_on_set_parameters_callback(std::bind(&VelocityController::paramCallback, this, _1));
 
-  // wait to get vehicle position
-  while (rclcpp::ok()) {
-    if (updateCurrentPose(5.0)) break;
-  }
+  // wait at end of constructor so other members are properly initialized first
+  blockUntilVehiclePositionAvailable(tf2::durationFromSec(5.0));
 }
 
 void VelocityController::callbackCurrentVelocity(
@@ -176,40 +174,39 @@ void VelocityController::callbackTrajectory(
   trajectory_ptr_ = msg;
 }
 
-bool VelocityController::getCurretPoseFromTF(
-  const double timeout_sec, geometry_msgs::msg::PoseStamped & ps)
+void VelocityController::blockUntilVehiclePositionAvailable(const tf2::Duration & timeout)
+{
+  while (rclcpp::ok()) {
+    static constexpr auto input = "map", output = "base_link";
+    auto tf_future = tf_buffer_->waitForTransform(
+      input, output, tf2::TimePointZero, tf2::durationFromSec(0.0), [](auto &) {});
+    const auto status = tf_future.wait_for(timeout);
+    if (status == std::future_status::ready) {
+      break;
+    } else {
+      RCLCPP_INFO(
+        get_logger(), "waiting another %d seconds for %s->%s transform",
+        std::chrono::duration_cast<std::chrono::seconds>(timeout).count(), input, output);
+    }
+  }
+}
+
+bool VelocityController::updateCurrentPose(const double timeout_sec)
 {
   geometry_msgs::msg::TransformStamped transform;
-  // try {
-  auto tf_future = tf_buffer_->waitForTransform(
-    "map", "base_link", tf2::TimePointZero, tf2::durationFromSec(0.0), [](auto &) {});
-  auto status = tf_future.wait_for(tf2::durationFromSec(timeout_sec));
-  if (status != std::future_status::ready) {
+  try {
+    transform = tf_buffer_->lookupTransform("map", "base_link", rclcpp::Time(0));
+  } catch (tf2::TransformException & ex) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      get_logger(), *get_clock(), 3.0, "cannot get map to base_link transform.");
+      get_logger(), *get_clock(), 5.0, "cannot get map to base_link transform. %s", ex.what());
     return false;
   }
-  transform = tf_future.get();
-  // }
-  // catch (const tf2::LookupException & ex) {
-  //   RCLCPP_INFO(get_logger(), "LookupException.");
-  //   return false;
-  // }
-
+  geometry_msgs::msg::PoseStamped ps;
   ps.header = transform.header;
   ps.pose.position.x = transform.transform.translation.x;
   ps.pose.position.y = transform.transform.translation.y;
   ps.pose.position.z = transform.transform.translation.z;
   ps.pose.orientation = transform.transform.rotation;
-  return true;
-}
-
-bool VelocityController::updateCurrentPose(const double timeout_sec)
-{
-  geometry_msgs::msg::PoseStamped ps;
-  if (!getCurretPoseFromTF(timeout_sec, ps)) {
-    return false;
-  }
   current_pose_ptr_ = std::make_shared<geometry_msgs::msg::PoseStamped>(ps);
   return true;
 }
