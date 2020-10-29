@@ -111,7 +111,7 @@ ObstacleStopPlannerNode::ObstacleStopPlannerNode() : nh_(), pnh_("~"), tf_listen
   slow_down_margin_ = getParam<double>(pnh_, "slow_down_margin", 5.0);
   min_behavior_stop_margin_ = getParam<double>(pnh_, "min_behavior_stop_margin", 2.0);
   expand_slow_down_range_ = getParam<double>(pnh_, "expand_slow_down_range", 1.0);
-  expand_stop_range_ = getParam<double>(pnh_, "expand_stop_range", 1.0);
+  expand_stop_range_ = getParam<double>(pnh_, "expand_stop_range", 0.0);
   max_slow_down_vel_ = getParam<double>(pnh_, "max_slow_down_vel", 4.0);
   min_slow_down_vel_ = getParam<double>(pnh_, "min_slow_down_vel", 2.0);
   max_deceleration_ = getParam<double>(pnh_, "max_deceleration", 2.0);
