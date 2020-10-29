@@ -93,7 +93,7 @@ ObstacleStopPlannerNode::ObstacleStopPlannerNode()
   slow_down_margin_ = declare_parameter("slow_down_margin", 5.0);
   min_behavior_stop_margin_ = declare_parameter("min_behavior_stop_margin", 2.0);
   expand_slow_down_range_ = declare_parameter("expand_slow_down_range", 1.0);
-  expand_stop_range_ = declare_parameter("expand_stop_range", 1.0);
+  expand_stop_range_ = declare_parameter("expand_stop_range", 0.0);
   max_slow_down_vel_ = declare_parameter("max_slow_down_vel", 4.0);
   min_slow_down_vel_ = declare_parameter("min_slow_down_vel", 2.0);
   max_deceleration_ = declare_parameter("max_deceleration", 2.0);
