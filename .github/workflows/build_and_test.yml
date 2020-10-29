@@ -18,13 +18,22 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Clone dependency packages
-      run: mkdir dependency_ws && vcs import dependency_ws < build_depends.repos
+      run: |
+        mkdir dependency_ws
+        vcs import dependency_ws < build_depends.repos
 
     - name: Install missing dependencies
-      run: sudo apt update && rosdep update && DEBIAN_FRONTEND=noninteractive rosdep install --from-paths . --ignore-src --rosdistro foxy -y
+      run: |
+        sudo apt update
+        rosdep update
+        DEBIAN_FRONTEND=noninteractive rosdep install --from-paths . --ignore-src --rosdistro foxy -y
 
     - name: Build
-      run: . /opt/ros/foxy/setup.sh && colcon build --event-handlers console_cohesion+
+      run: |
+        . /opt/ros/foxy/setup.sh
+        colcon build --event-handlers console_cohesion+
 
     - name: Run tests
-      run: . /opt/ros/foxy/setup.sh && colcon test --event-handlers console_cohesion+
+      run: |
+        . /opt/ros/foxy/setup.sh
+        colcon test --event-handlers console_cohesion+ --return-code-on-test-failure
