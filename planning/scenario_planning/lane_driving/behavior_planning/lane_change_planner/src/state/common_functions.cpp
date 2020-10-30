@@ -23,28 +23,40 @@ namespace state_machine
 {
 namespace common_functions
 {
-bool selectLaneChangePath(
+std::vector<LaneChangePath> selectValidPaths(
   const std::vector<LaneChangePath> & paths, const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
   const lanelet::routing::RoutingGraphContainer & overall_graphs,
+  const geometry_msgs::Pose & current_pose, const bool isInGoalRouteSection,
+  const geometry_msgs::Pose & goal_pose)
+{
+  std::vector<LaneChangePath> available_paths;
+
+  for (const auto & path : paths) {
+    if (hasEnoughDistance(
+          path, current_lanes, target_lanes, current_pose, isInGoalRouteSection, goal_pose,
+          overall_graphs)) {
+      available_paths.push_back(path);
+    }
+  }
+
+  return available_paths;
+}
+
+bool selectSafePath(
+  const std::vector<LaneChangePath> & paths, const lanelet::ConstLanelets & current_lanes,
+  const lanelet::ConstLanelets & target_lanes,
   const autoware_perception_msgs::DynamicObjectArray::ConstPtr & dynamic_objects,
   const geometry_msgs::Pose & current_pose, const geometry_msgs::Twist & current_twist,
-  const bool isInGoalRouteSection, const geometry_msgs::Pose & goal_pose,
   const LaneChangerParameters & ros_parameters, LaneChangePath * selected_path)
 {
   for (const auto & path : paths) {
-    if (!isLaneChangePathSafe(
+    if (isLaneChangePathSafe(
           path.path, current_lanes, target_lanes, dynamic_objects, current_pose, current_twist,
           ros_parameters, true, path.acceleration)) {
-      continue;
+      *selected_path = path;
+      return true;
     }
-    if (!hasEnoughDistance(
-          path, current_lanes, target_lanes, current_pose, isInGoalRouteSection, goal_pose,
-          overall_graphs)) {
-      continue;
-    }
-    *selected_path = path;
-    return true;
   }
 
   // set first path for force lane change if no valid path found

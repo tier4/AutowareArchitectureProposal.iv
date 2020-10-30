@@ -28,15 +28,18 @@ namespace state_machine
 {
 namespace common_functions
 {
-bool selectLaneChangePath(
+std::vector<LaneChangePath> selectValidPaths(
   const std::vector<LaneChangePath> & paths, const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
   const lanelet::routing::RoutingGraphContainer & overall_graphs,
+  const geometry_msgs::Pose & current_pose, const bool isInGoalRouteSection,
+  const geometry_msgs::Pose & goal_pose);
+bool selectSafePath(
+  const std::vector<LaneChangePath> & paths, const lanelet::ConstLanelets & current_lanes,
+  const lanelet::ConstLanelets & target_lanes,
   const autoware_perception_msgs::DynamicObjectArray::ConstPtr & dynamic_objects,
   const geometry_msgs::Pose & current_pose, const geometry_msgs::Twist & current_twist,
-  const bool isInGoalRouteSection, const geometry_msgs::Pose & goal_pose,
-  const LaneChangerParameters & ros_parameters, LaneChangePath * path);
-
+  const LaneChangerParameters & ros_parameters, LaneChangePath * selected_path);
 bool isLaneChangePathSafe(
   const autoware_planning_msgs::PathWithLaneId & path, const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,

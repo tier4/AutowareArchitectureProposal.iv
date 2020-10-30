@@ -34,12 +34,14 @@ private:
   autoware_perception_msgs::DynamicObjectArray::ConstPtr dynamic_objects_;
   bool lane_change_approved_;
   bool force_lane_change_;
+  bool found_valid_path_;
   bool found_safe_path_;
   lanelet::ConstLanelets current_lanes_;
   lanelet::ConstLanelets lane_change_lanes_;
 
   // State transition conditions
   bool foundSafeLaneChangePath() const;
+  bool foundValidPath() const;
   bool hasEnoughDistanceToComeBack(const lanelet::ConstLanelets & target_lanes) const;
   bool isLaneChangeApproved() const;
   bool isLaneBlocked() const;

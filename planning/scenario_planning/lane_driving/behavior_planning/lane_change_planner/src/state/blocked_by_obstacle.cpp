@@ -39,6 +39,7 @@ void BlockedByObstacleState::entry()
   ros_parameters_ = data_manager_ptr_->getLaneChangerParameters();
   lane_change_approved_ = false;
   force_lane_change_ = false;
+  found_valid_path_ = false;
   found_safe_path_ = false;
   current_lanes_ = route_handler_ptr_->getLaneletsFromIds(status_.lane_follow_lane_ids);
 }
@@ -129,12 +130,18 @@ void BlockedByObstacleState::update()
     }
 
     // select valid path
+    const auto valid_paths = state_machine::common_functions::selectValidPaths(
+      lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
+      current_pose_.pose, route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
+      route_handler_ptr_->getGoalPose());
+    debug_data_.lane_change_candidate_paths = valid_paths;
+    found_valid_path_ = !valid_paths.empty();
+
+    // select safe path
     LaneChangePath selected_path;
-    if (state_machine::common_functions::selectLaneChangePath(
-          lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
-          dynamic_objects_, current_pose_.pose, current_twist_->twist,
-          route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
-          route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path)) {
+    if (state_machine::common_functions::selectSafePath(
+          valid_paths, current_lanes_, check_lanes, dynamic_objects_, current_pose_.pose,
+          current_twist_->twist, ros_parameters_, &selected_path)) {
       found_safe_path_ = true;
     }
     debug_data_.selected_path = selected_path.path;
@@ -160,15 +167,20 @@ void BlockedByObstacleState::update()
     }
 
     // select valid path
+    const auto valid_paths = state_machine::common_functions::selectValidPaths(
+      lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
+      current_pose_.pose, route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
+      route_handler_ptr_->getGoalPose());
+    debug_data_.lane_change_candidate_paths = valid_paths;
+    found_valid_path_ = !valid_paths.empty();
+
+    // select safe path
     LaneChangePath selected_path;
-    if (state_machine::common_functions::selectLaneChangePath(
-          lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
-          dynamic_objects_, current_pose_.pose, current_twist_->twist,
-          route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
-          route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path)) {
+    if (state_machine::common_functions::selectSafePath(
+          valid_paths, current_lanes_, check_lanes, dynamic_objects_, current_pose_.pose,
+          current_twist_->twist, ros_parameters_, &selected_path)) {
       found_safe_path_ = true;
     }
-
     debug_data_.selected_path = selected_path.path;
     status_.lane_change_path = selected_path;
   }
@@ -177,7 +189,7 @@ void BlockedByObstacleState::update()
   {
     status_.lane_change_ready = false;
     status_.lane_change_available = false;
-    if (!left_lanes.empty() || !right_lanes.empty()) {
+    if (foundValidPath()) {
       status_.lane_change_available = true;
       if (foundSafeLaneChangePath()) {
         status_.lane_change_ready = true;
@@ -329,6 +341,7 @@ bool BlockedByObstacleState::hasEnoughDistanceToComeBack(
   return true;
 }
 
+bool BlockedByObstacleState::foundValidPath() const { return found_valid_path_; }
 bool BlockedByObstacleState::foundSafeLaneChangePath() const { return found_safe_path_; }
 bool BlockedByObstacleState::isLaneChangeReady() const { return status_.lane_change_ready; }
 
