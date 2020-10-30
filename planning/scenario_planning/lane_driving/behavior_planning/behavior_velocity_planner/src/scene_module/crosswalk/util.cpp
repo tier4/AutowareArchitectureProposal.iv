@@ -16,26 +16,10 @@
 #include <scene_module/crosswalk/util.h>
 #include <utilization/util.h>
 
-#include <cmath>
-#include <string>
-#include <vector>
-
-#include <boost/assert.hpp>
-#include <boost/assign/list_of.hpp>
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-
 #define EIGEN_MPL2_ONLY
-#include <Eigen/Core>
-#include <Eigen/Geometry>
 
 #include <lanelet2_core/primitives/BasicRegulatoryElements.h>
 #include <lanelet2_extension/regulatory_elements/road_marking.h>
-#include <lanelet2_extension/utility/query.h>
-#include <lanelet2_extension/utility/utilities.h>
-
-#include <autoware_perception_msgs/DynamicObjectArray.h>
 
 namespace bg = boost::geometry;
 using Point = bg::model::d2::point_xy<double>;

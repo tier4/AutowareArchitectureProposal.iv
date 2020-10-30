@@ -15,8 +15,6 @@
  */
 #include <scene_module/traffic_light/scene.h>
 
-#include <map>
-
 #include <tf2/utils.h>
 #include <tf2_eigen/tf2_eigen.h>
 

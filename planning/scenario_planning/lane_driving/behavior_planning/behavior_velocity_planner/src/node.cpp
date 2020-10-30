@@ -20,10 +20,6 @@
 #include <tf2_eigen/tf2_eigen.h>
 
 #include <lanelet2_extension/utility/message_conversion.h>
-#include <lanelet2_routing/Route.h>
-
-#include <diagnostic_msgs/DiagnosticStatus.h>
-#include <visualization_msgs/MarkerArray.h>
 
 #include <utilization/path_utilization.h>
 

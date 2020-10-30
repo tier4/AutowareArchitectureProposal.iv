@@ -15,8 +15,6 @@
  */
 #include <scene_module/detection_area/scene.h>
 
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-
 #include "utilization/marker_helper.h"
 #include "utilization/util.h"
 
