@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "scene_module/crosswalk/scene_walkway.hpp"
-
 #include <cmath>
 
+#include "scene_module/crosswalk/scene_walkway.hpp"
 #include "utilization/util.hpp"
 
 namespace bg = boost::geometry;

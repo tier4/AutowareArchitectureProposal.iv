@@ -13,9 +13,7 @@
 // limitations under the License.
 
 #include "scene_module/detection_area/scene.hpp"
-
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-
 #include "utilization/marker_helper.hpp"
 #include "utilization/util.hpp"
 

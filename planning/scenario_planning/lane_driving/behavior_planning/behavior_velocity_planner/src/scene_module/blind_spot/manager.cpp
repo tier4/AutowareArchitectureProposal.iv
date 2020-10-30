@@ -20,7 +20,6 @@
 #include <vector>
 
 #include "lanelet2_core/primitives/BasicRegulatoryElements.h"
-
 #include "utilization/boost_geometry_helper.hpp"
 #include "utilization/util.hpp"
 
