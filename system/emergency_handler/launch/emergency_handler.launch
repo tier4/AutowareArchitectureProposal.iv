@@ -14,6 +14,7 @@
   <arg name="service_clear_emergency" default="/system/clear_emergency" />
 
   <arg name="config_file" default="$(find emergency_handler)/config/emergency_handler.yaml" />
+  <arg name="use_emergency_hold" default="false" />
 
   <node pkg="emergency_handler" type="emergency_handler" name="emergency_handler" output="screen">
     <remap from="~input/autoware_state" to="$(arg input_autoware_state)"/>
@@ -30,5 +31,6 @@
     <remap from="~service/clear_emergency" to="$(arg service_clear_emergency)"/>
 
     <rosparam command="load" file="$(arg config_file)" />
+    <param name="use_emergency_hold" value="$(arg use_emergency_hold)" />
   </node>
 </launch>
