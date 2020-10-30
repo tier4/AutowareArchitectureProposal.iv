@@ -65,6 +65,12 @@ bool WalkwayModule::modifyPathVelocity(
       }
     }
 
+    /* get stop point and stop factor */
+    autoware_planning_msgs::StopFactor stop_factor;
+    stop_factor.stop_pose = debug_data_.first_stop_pose;
+    stop_factor.stop_factor_points.emplace_back(debug_data_.nearest_collision_point);
+    planning_utils::appendStopReason(stop_factor, stop_reason);
+
     // update state
     const Point self_pose = {
       planner_data_->current_pose.pose.position.x, planner_data_->current_pose.pose.position.y};
@@ -76,12 +82,6 @@ bool WalkwayModule::modifyPathVelocity(
     if (distance < distance_threshold && planner_data_->isVehicleStopping()) state_ = State::STOP;
     return true;
   } else if (state_ == State::STOP) {
-    /* get stop point and stop factor */
-    autoware_planning_msgs::StopFactor stop_factor;
-    stop_factor.stop_pose = debug_data_.first_stop_pose;
-    stop_factor.stop_factor_points.emplace_back(debug_data_.nearest_collision_point);
-    planning_utils::appendStopReason(stop_factor, stop_reason);
-
     if (planner_data_->isVehicleStopping()) {
       state_ = State::SURPASSED;
     }
