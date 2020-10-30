@@ -14,6 +14,7 @@
   <arg name="service_clear_emergency" default="/system/clear_emergency" />
 
   <arg name="config_file" default="$(find-pkg-share emergency_handler)/config/emergency_handler.param.yaml" />
+  <arg name="use_emergency_hold" default="false" />
 
   <node pkg="emergency_handler" exec="emergency_handler" name="emergency_handler" output="screen">
     <remap from="input/autoware_state" to="$(var input_autoware_state)"/>
@@ -30,5 +31,6 @@
     <remap from="service/clear_emergency" to="$(var service_clear_emergency)"/>
 
     <param from="$(var config_file)" />
+    <param name="use_emergency_hold" value="$(var use_emergency_hold)" />
   </node>
 </launch>
