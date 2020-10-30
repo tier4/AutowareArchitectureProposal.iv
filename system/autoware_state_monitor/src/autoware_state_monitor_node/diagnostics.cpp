@@ -29,15 +29,14 @@
 
 #include <boost/bind.hpp>
 
-
 // #include <autoware_state_monitor/rosconsole_wrapper.hpp>
 
 void AutowareStateMonitorNode::setupDiagnosticUpdater()
 {
   updater_.setHardwareID("autoware_state_monitor");
 
-  std::vector<std::string> module_names;
-  // private_nh_.param("module_names", module_names, {});
+  this->declare_parameter("module_names");
+  std::vector<std::string> module_names = this->get_parameter("module_names").as_string_array();
 
   // Topic
   for (const auto & module_name : module_names) {
