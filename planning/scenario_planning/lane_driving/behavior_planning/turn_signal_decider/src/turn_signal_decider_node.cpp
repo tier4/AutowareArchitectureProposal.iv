@@ -17,11 +17,12 @@
 
 int main(int argc, char * argv[])
 {
-  ros::init(argc, argv, "turn_signal_decider");
+  rclcpp::init(argc, argv);
 
-  turn_signal_decider::TurnSignalDecider decider;
+  rclcpp::NodeOptions node_options;
+  auto decider = std::make_shared<turn_signal_decider::TurnSignalDecider>("turn_signal_decider", node_options);
 
-  ros::spin();
+  rclcpp::spin(decider);
 
   return 0;
 }

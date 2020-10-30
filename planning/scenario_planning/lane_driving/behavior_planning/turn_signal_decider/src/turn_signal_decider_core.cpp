@@ -15,12 +15,14 @@
  */
 #include <turn_signal_decider/turn_signal_decider.h>
 
-using autoware_planning_msgs::PathWithLaneId;
-using autoware_vehicle_msgs::TurnSignal;
+using autoware_planning_msgs::msg::PathWithLaneId;
+using autoware_vehicle_msgs::msg::TurnSignal;
+
+using namespace std::placeholders;
 
 namespace
 {
-double getDistance3d(const geometry_msgs::Point & p1, const geometry_msgs::Point & p2)
+double getDistance3d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2)
 {
   return std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2) + std::pow(p1.z - p2.z, 2));
 }
@@ -28,28 +30,44 @@ double getDistance3d(const geometry_msgs::Point & p1, const geometry_msgs::Point
 
 namespace turn_signal_decider
 {
-TurnSignalDecider::TurnSignalDecider() : pnh_("~")
+TurnSignalDecider::TurnSignalDecider(const std::string & node_name, const rclcpp::NodeOptions & node_options)
+: rclcpp::Node(node_name, node_options), data_(this->Node::shared_from_this())
 {
   // setup data manager
   constexpr double vehicle_pose_update_period = 0.1;
-  vehicle_pose_timer_ = pnh_.createTimer(
-    ros::Duration(vehicle_pose_update_period), &DataManager::onVehiclePoseUpdate, &data_);
-  path_subscriber_ =
-    pnh_.subscribe("input/path_with_lane_id", 1, &DataManager::onPathWithLaneId, &data_);
-  map_subscriber_ = pnh_.subscribe("input/vector_map", 1, &DataManager::onLaneletMap, &data_);
+  auto vehicle_pose_timer_callback = std::bind(&DataManager::onVehiclePoseUpdate, &data_);
+  auto vehicle_pose_timer_period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<double>(vehicle_pose_update_period));
+
+  vehicle_pose_timer_ = std::make_shared<rclcpp::GenericTimer<decltype(vehicle_pose_timer_callback)>>(
+    this->get_clock(), vehicle_pose_timer_period, std::move(vehicle_pose_timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(vehicle_pose_timer_, nullptr);
+
+  path_subscription_ = this->create_subscription<autoware_planning_msgs::msg::PathWithLaneId>(
+    "input/path_with_lane_id", rclcpp::QoS{1}, std::bind(&DataManager::onPathWithLaneId, &data_, _1));
+  map_subscription_ = this->create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
+    "input/vector_map", rclcpp::QoS{1}, std::bind(&DataManager::onLaneletMap, &data_, _1));
 
   // get ROS parameters
-  pnh_.param<double>("lane_change_search_distance", parameters_.lane_change_search_distance, 30);
-  pnh_.param<double>("intersection_search_distance", parameters_.intersection_search_distance, 30);
+  parameters_.lane_change_search_distance = this->declare_parameter("lane_change_search_distance", double(30));
+  parameters_.intersection_search_distance = this->declare_parameter("intersection_search_distance", double(30));
 
   // set publishers
-  turn_signal_publisher_ = pnh_.advertise<TurnSignal>("output/turn_signal_cmd", 1, false);
-  constexpr double timer_period = 0.1;
-  turn_signal_timer_ =
-    pnh_.createTimer(ros::Duration(timer_period), &TurnSignalDecider::onTurnSignalTimer, this);
+  turn_signal_publisher_ = this->create_publisher<TurnSignal>("output/turn_signal_cmd", rclcpp::QoS{1});
+
+  constexpr double turn_signal_update_period = 0.1;
+  auto turn_signal_timer_callback = std::bind(&TurnSignalDecider::onTurnSignalTimer, this);
+  auto turn_signal_timer_period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<double>(turn_signal_update_period));
+
+  turn_signal_timer_ = std::make_shared<rclcpp::GenericTimer<decltype(turn_signal_timer_callback)>>(
+    this->get_clock(), turn_signal_timer_period, std::move(turn_signal_timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(turn_signal_timer_, nullptr);
 }
 
-void TurnSignalDecider::onTurnSignalTimer(const ros::TimerEvent & event)
+void TurnSignalDecider::onTurnSignalTimer()
 {
   // wait for mandatory topics
   if (!data_.isDataReady()) {
@@ -61,7 +79,9 @@ void TurnSignalDecider::onTurnSignalTimer(const ros::TimerEvent & event)
   FrenetCoordinate3d vehicle_pose_frenet;
   if (!convertToFrenetCoordinate3d(
         path, data_.getVehiclePoseStamped().pose.position, &vehicle_pose_frenet)) {
-    ROS_ERROR_THROTTLE(5, "failed to convert vehicle pose into frenet coordinate");
+    RCLCPP_ERROR_THROTTLE(
+      get_logger(), *get_clock(), std::chrono::milliseconds(5000).count(),
+      "failed to convert vehicle pose into frenet coordinate");
     return;
   }
 
@@ -82,9 +102,9 @@ void TurnSignalDecider::onTurnSignalTimer(const ros::TimerEvent & event)
     }
   }
 
-  turn_signal.header.stamp = ros::Time::now();
+  turn_signal.header.stamp = this->now();
   turn_signal.header.frame_id = "base_link";
-  turn_signal_publisher_.publish(turn_signal);
+  turn_signal_publisher_->publish(turn_signal);
 }
 
 lanelet::routing::RelationType TurnSignalDecider::getRelation(
@@ -124,11 +144,11 @@ lanelet::routing::RelationType TurnSignalDecider::getRelation(
 }
 
 bool TurnSignalDecider::isChangingLane(
-  const PathWithLaneId & path, const FrenetCoordinate3d & vehicle_pose_frenet,
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const FrenetCoordinate3d & vehicle_pose_frenet,
   TurnSignal * signal_state_ptr, double * distance_ptr) const
 {
   if (signal_state_ptr == nullptr || distance_ptr == nullptr) {
-    ROS_ERROR("Given argument is nullptr.");
+    RCLCPP_ERROR(this->get_logger(), "Given argument is nullptr.");
     return false;
   }
   if (path.points.empty()) {
@@ -178,11 +198,11 @@ bool TurnSignalDecider::isChangingLane(
 }
 
 bool TurnSignalDecider::isTurning(
-  const PathWithLaneId & path, const FrenetCoordinate3d & vehicle_pose_frenet,
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const FrenetCoordinate3d & vehicle_pose_frenet,
   TurnSignal * signal_state_ptr, double * distance_ptr) const
 {
   if (signal_state_ptr == nullptr || distance_ptr == nullptr) {
-    ROS_ERROR("Given argument is nullptr.");
+    RCLCPP_ERROR(this->get_logger(), "Given argument is nullptr.");
     return false;
   }
   if (path.points.empty()) {

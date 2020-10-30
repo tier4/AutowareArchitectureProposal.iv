@@ -18,7 +18,7 @@
 #include <lanelet2_extension/utility/message_conversion.h>
 #include <lanelet2_extension/utility/utilities.h>
 
-using autoware_planning_msgs::PathWithLaneId;
+using autoware_planning_msgs::msg::PathWithLaneId;
 
 namespace
 {
@@ -48,25 +48,31 @@ lanelet::ConstLanelets pathToLanes(
 
 namespace turn_signal_decider
 {
-DataManager::DataManager()
-: is_map_ready_(false), is_path_ready_(false), is_pose_ready_(false), tf_listener_(tf_buffer_)
+DataManager::DataManager(rclcpp::Node::SharedPtr node)
+: is_map_ready_(false), is_path_ready_(false), is_pose_ready_(false), node_(node)
 {
+  if (auto node_ptr = node_.lock()) {
+    tf_buffer_ = std::make_shared<tf2_ros::Buffer>(node_ptr->get_clock());
+    tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
+  } else {
+    throw std::runtime_error("Node no longer valid");
+  }
 }
 
-void DataManager::onPathWithLaneId(const PathWithLaneId & msg)
+void DataManager::onPathWithLaneId(PathWithLaneId::SharedPtr msg)
 {
-  path_ = msg;
+  path_ = *msg;
   is_path_ready_ = true;
   if (is_map_ready_) {
     path_lanes_ = pathToLanes(path_, lanelet_map_ptr_);
   }
 }
 
-void DataManager::onLaneletMap(const autoware_lanelet2_msgs::MapBin & map_msg)
+void DataManager::onLaneletMap(autoware_lanelet2_msgs::msg::MapBin::SharedPtr map_msg)
 {
   lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(
-    map_msg, lanelet_map_ptr_, &traffic_rules_ptr_, &routing_graph_ptr_);
+    *map_msg, lanelet_map_ptr_, &traffic_rules_ptr_, &routing_graph_ptr_);
   is_map_ready_ = true;
 
   if (is_path_ready_) {
@@ -74,30 +80,36 @@ void DataManager::onLaneletMap(const autoware_lanelet2_msgs::MapBin & map_msg)
   }
 }
 
-void DataManager::onVehiclePoseUpdate(const ros::TimerEvent & event)
+void DataManager::onVehiclePoseUpdate()
 {
-  try {
-    const auto current_time = ros::Time::now();
-    const auto transform =
-      tf_buffer_.lookupTransform("map", "base_link", current_time, ros::Duration(0.1));
-    vehicle_pose_.pose.position.x = transform.transform.translation.x;
-    vehicle_pose_.pose.position.y = transform.transform.translation.y;
-    vehicle_pose_.pose.position.z = transform.transform.translation.z;
-    vehicle_pose_.pose.orientation.x = transform.transform.rotation.x;
-    vehicle_pose_.pose.orientation.y = transform.transform.rotation.y;
-    vehicle_pose_.pose.orientation.z = transform.transform.rotation.z;
-    vehicle_pose_.pose.orientation.w = transform.transform.rotation.w;
-    vehicle_pose_.header.frame_id = "map";
-    vehicle_pose_.header.stamp = current_time;
-    is_pose_ready_ = true;
-  } catch (tf2::TransformException & ex) {
-    // if pose has never arrived before, then wait for localizatioon
-    if (!is_pose_ready_) {
-      ROS_WARN_STREAM_THROTTLE(5, ex.what());
-    } else  // if tf suddenly stops comming, then there must be something wrong.
-    {
-      ROS_ERROR_STREAM_THROTTLE(5, ex.what());
+  if (auto node_ptr = node_.lock()) {
+    try {
+      const auto current_time = node_ptr->now();
+      const auto transform =
+        tf_buffer_->lookupTransform("map", "base_link", current_time, rclcpp::Duration(1.0));
+      vehicle_pose_.pose.position.x = transform.transform.translation.x;
+      vehicle_pose_.pose.position.y = transform.transform.translation.y;
+      vehicle_pose_.pose.position.z = transform.transform.translation.z;
+      vehicle_pose_.pose.orientation.x = transform.transform.rotation.x;
+      vehicle_pose_.pose.orientation.y = transform.transform.rotation.y;
+      vehicle_pose_.pose.orientation.z = transform.transform.rotation.z;
+      vehicle_pose_.pose.orientation.w = transform.transform.rotation.w;
+      vehicle_pose_.header.frame_id = "map";
+      vehicle_pose_.header.stamp = current_time;
+      is_pose_ready_ = true;
+    } catch (tf2::TransformException & ex) {
+      // if pose has never arrived before, then wait for localizatioon
+      if (!is_pose_ready_) {
+        RCLCPP_WARN_STREAM_THROTTLE(node_ptr->get_logger(), *node_ptr->get_clock(), std::chrono::milliseconds(5000).count(),
+          ex.what());
+      } else  // if tf suddenly stops comming, then there must be something wrong.
+      {
+        RCLCPP_ERROR_STREAM_THROTTLE(node_ptr->get_logger(), *node_ptr->get_clock(), std::chrono::milliseconds(5000).count(),
+          ex.what());
+      }
     }
+  } else {
+    throw std::runtime_error("Node pointer no longer valid");
   }
 }
 
@@ -107,10 +119,14 @@ bool DataManager::isPoseValid() const
     return false;
   }
 
-  // check time stamp
-  constexpr double timeout = 1.0;
-  if (ros::Time::now() - vehicle_pose_.header.stamp > ros::Duration(timeout)) {
-    return false;
+  if (auto node_ptr = node_.lock()) {
+    // check time stamp
+    constexpr double timeout = 1.0;
+    if (node_ptr->now() - vehicle_pose_.header.stamp > rclcpp::Duration(timeout)) {
+      return false;
+    }
+  } else {
+    throw std::runtime_error("Node pointer no longer valid");
   }
 
   return true;
@@ -122,10 +138,14 @@ bool DataManager::isPathValid() const
     return false;
   }
 
-  // check time stamp
-  constexpr double timeout = 1.0;
-  if (ros::Time::now() - path_.header.stamp > ros::Duration(timeout)) {
-    return false;
+  if (auto node_ptr = node_.lock()) {
+    // check time stamp
+    constexpr double timeout = 1.0;
+    if (node_ptr->now() - path_.header.stamp > rclcpp::Duration(timeout)) {
+      return false;
+    }
+  } else {
+    throw std::runtime_error("Node pointer no longer valid");
   }
 
   // check lane ids
@@ -143,36 +163,50 @@ bool DataManager::isPathValid() const
 
 bool DataManager::isDataReady() const
 {
-  // check map
-  if (!is_map_ready_) {
-    ROS_WARN_THROTTLE(5, "waiting for vector_map");
-    return false;
-  }
+  if (auto node_ptr = node_.lock()) {
+    // check map
+    if (!is_map_ready_) {
+      RCLCPP_WARN_THROTTLE(
+        node_ptr->get_logger(), *node_ptr->get_clock(), std::chrono::milliseconds(5000).count(),
+        "waiting for vector_map");
+      return false;
+    }
 
-  // check path
-  if (!is_path_ready_) {
-    ROS_WARN_THROTTLE(5, "waiting for path_with_lane_id");
-    return false;
-  }
-  if (!isPathValid()) {
-    ROS_WARN_THROTTLE(5, "path is invalid!");
-    return false;
-  }
+    // check path
+    if (!is_path_ready_) {
+      RCLCPP_WARN_THROTTLE(
+        node_ptr->get_logger(), *node_ptr->get_clock(), std::chrono::milliseconds(5000).count(),
+        "waiting for path_with_lane_id");
+      return false;
+    }
+    if (!isPathValid()) {
+      RCLCPP_WARN_THROTTLE(
+        node_ptr->get_logger(), *node_ptr->get_clock(), std::chrono::milliseconds(5000).count(),
+        "path is invalid!");
+      return false;
+    }
 
-  // check vehicle pose
-  if (!is_pose_ready_) {
-    ROS_WARN_THROTTLE(5, "waiting for vehicle pose");
-    return false;
-  }
-  if (!isPoseValid()) {
-    ROS_WARN_THROTTLE(5, "vehicle pose is invalid!");
-    return false;
-  }
+    // check vehicle pose
+    if (!is_pose_ready_) {
+      RCLCPP_WARN_THROTTLE(
+        node_ptr->get_logger(), *node_ptr->get_clock(), std::chrono::milliseconds(5000).count(),
+        "waiting for vehicle pose");
+      return false;
+    }
+    if (!isPoseValid()) {
+      RCLCPP_WARN_THROTTLE(
+        node_ptr->get_logger(), *node_ptr->get_clock(), std::chrono::milliseconds(5000).count(),
+        "vehicle pose is invalid!");
+      return false;
+    }
 
-  return true;
+    return true;
+  } else {
+    throw std::runtime_error("Node pointer no longer valid");
+  }
 }
 
-autoware_planning_msgs::PathWithLaneId DataManager::getPath() const { return path_; }
+autoware_planning_msgs::msg::PathWithLaneId DataManager::getPath() const { return path_; }
 
 lanelet::LaneletMapPtr DataManager::getMapPtr() const { return lanelet_map_ptr_; }
 
@@ -190,6 +224,6 @@ lanelet::routing::RoutingGraphPtr DataManager::getRoutingGraphPtr() const
 {
   return routing_graph_ptr_;
 }
-geometry_msgs::PoseStamped DataManager::getVehiclePoseStamped() const { return vehicle_pose_; }
+geometry_msgs::msg::PoseStamped DataManager::getVehiclePoseStamped() const { return vehicle_pose_; }
 
 }  // namespace turn_signal_decider
