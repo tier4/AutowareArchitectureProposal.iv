@@ -421,7 +421,7 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   // pub_autoware_engage_ = private_nh_.advertise<std_msgs::Bool>("output/autoware_engage", 1);
 
   // Diagnostic Updater
-  setupDiagnosticUpdater();
+  // setupDiagnosticUpdater();
 
   // Wait for first topics
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));

@@ -29,17 +29,17 @@ include_directories(include)
 ## Set source files
 set(AUTOWARE_STATE_MONITOR_SRC
   src/autoware_state_monitor_node/autoware_state_monitor_node.cpp
-  # src/autoware_state_monitor_node/state_machine.cpp
-  # src/autoware_state_monitor_node/diagnostics.cpp
+  src/autoware_state_monitor_node/state_machine.cpp
+  src/autoware_state_monitor_node/diagnostics.cpp
 )
 
 ## Set header files
 set(AUTOWARE_STATE_MONITOR_HEADERS
-  # include/autoware_state_monitor/autoware_state.h
+  include/autoware_state_monitor/autoware_state.h
   include/autoware_state_monitor/autoware_state_monitor_node.h
-  # include/autoware_state_monitor/config.h
+  include/autoware_state_monitor/config.h
   # include/autoware_state_monitor/rosconsole_wrapper.h
-  # include/autoware_state_monitor/state_machine.h
+  include/autoware_state_monitor/state_machine.h
 )
 
 ## Add executables

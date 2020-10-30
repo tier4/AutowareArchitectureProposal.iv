@@ -17,9 +17,9 @@
 #ifndef AUTOWARE_STATE_MONITOR_AUTOWARE_STATE_MONITOR_CORE_HPP_
 #define AUTOWARE_STATE_MONITOR_AUTOWARE_STATE_MONITOR_CORE_HPP_
 
-// #include "autoware_state_monitor/autoware_state.h"
+#include "autoware_state_monitor/autoware_state.h"
 #include "autoware_state_monitor/config.h"
-// #include "autoware_state_monitor/state_machine.h"
+#include "autoware_state_monitor/state_machine.h"
 
 #include "autoware_planning_msgs/msg/route.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
@@ -104,9 +104,9 @@ private:
   TfStats getTfStats() const;
 
   // State Machine
-  // std::shared_ptr<StateMachine> state_machine_;
-  // StateInput state_input_;
-  // StateParam state_param_;
+  std::shared_ptr<StateMachine> state_machine_;
+  StateInput state_input_;
+  StateParam state_param_;
 
   // Diagnostic Updater
   diagnostic_updater::Updater updater_;
@@ -114,7 +114,7 @@ private:
   void setupDiagnosticUpdater();
   void checkTopicStatus(
     diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & module_name);
-  void checkTfStatus(
+  void checkTFStatus(
     diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & module_name);
 };
 
