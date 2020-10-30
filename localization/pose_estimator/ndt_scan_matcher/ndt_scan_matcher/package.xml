@@ -5,7 +5,7 @@
     <description>The ndt_scan_matcher package</description>
     <maintainer email="yamato.ando@gmail.com">Yamato Ando</maintainer>
     <license>Apache 2</license>
-    <buildtool_depend>ament_cmake</buildtool_depend>
+    <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
     <depend>autoware_debug_msgs</depend>
     <depend>autoware_localization_srvs</depend>
