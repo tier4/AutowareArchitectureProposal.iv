@@ -15,8 +15,6 @@
  */
 #include <scene_module/detection_area/scene.h>
 
-#include <algorithm>
-
 #include <tf2_eigen/tf2_eigen.h>
 
 #include <utilization/util.h>

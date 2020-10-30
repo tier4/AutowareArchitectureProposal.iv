@@ -17,7 +17,6 @@
 
 #include <lanelet2_core/primitives/BasicRegulatoryElements.h>
 
-#include "utilization/boost_geometry_helper.h"
 #include "utilization/util.h"
 
 namespace

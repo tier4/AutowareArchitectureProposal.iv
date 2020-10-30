@@ -14,17 +14,11 @@
  * limitations under the License.
  */
 #include <scene_module/blind_spot/scene.h>
-#include <boost/geometry/algorithms/distance.hpp>
 
-#include <lanelet2_core/geometry/Polygon.h>
 #include <lanelet2_core/primitives/BasicRegulatoryElements.h>
-#include <lanelet2_extension/regulatory_elements/road_marking.h>
-#include <lanelet2_extension/utility/query.h>
 #include <lanelet2_extension/utility/utilities.h>
 
 #include "scene_module/intersection/util.h"
-#include "utilization/boost_geometry_helper.h"
-#include "utilization/interpolate.h"
 #include "utilization/util.h"
 
 namespace bg = boost::geometry;

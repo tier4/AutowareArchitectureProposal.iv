@@ -16,8 +16,6 @@
 #include <scene_module/crosswalk/scene_crosswalk.h>
 #include <utilization/util.h>
 
-#include <cmath>
-
 namespace bg = boost::geometry;
 using Point = bg::model::d2::point_xy<double>;
 using Polygon = bg::model::polygon<Point>;

@@ -15,8 +15,6 @@
  */
 #include <scene_module/detection_area/manager.h>
 
-#include <tf2/utils.h>
-
 namespace
 {
 std::vector<lanelet::DetectionAreaConstPtr> getDetectionAreaRegElemsOnPath(

@@ -18,8 +18,6 @@
 #include "utilization/marker_helper.h"
 #include "utilization/util.h"
 
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-
 namespace
 {
 using DebugData = StopLineModule::DebugData;
