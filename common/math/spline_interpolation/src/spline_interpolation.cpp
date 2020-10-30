@@ -18,7 +18,6 @@
 
 namespace spline_interpolation
 {
-
 void SplineInterpolator::generateSpline(
   const std::vector<double> & base_index, const std::vector<double> & base_value)
 {
@@ -164,12 +163,7 @@ std::vector<double> SplineInterpolator::solveLinearSystemExplicit()
     w.push_back(tmp);
   }
 
-  for (size_t i = N - 2; i > 0; --i) ans[i] = ans[i] - ans[i + 1] * w[i];
-
-  return ans;
-}
-
-void LinearSystemSolver::setCoefficients(
+  for (size_t i = N - 2; i > 0; --i) ans[  <buildtool_depend>catkin</buildtool_depend>
   const std::vector<double> & h, const std::vector<double> & a, const size_t max_iter)
 {
   max_iter_ = max_iter;
