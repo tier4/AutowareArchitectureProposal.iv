@@ -60,6 +60,7 @@ void FollowingLaneState::update()
   const double backward_path_length = ros_parameters_.backward_path_length;
   const double forward_path_length = ros_parameters_.forward_path_length;
 
+  bool found_valid_path = false;
   bool found_safe_path = false;
   // update lanes
   {
@@ -69,7 +70,8 @@ void FollowingLaneState::update()
     }
     current_lanes_ = route_handler_ptr_->getLaneletSequence(
       current_lane, current_pose_.pose, backward_path_length, forward_path_length);
-    const double lane_change_prepare_length = current_twist_->twist.linear.x * ros_parameters_.lane_change_prepare_duration;
+    const double lane_change_prepare_length =
+      current_twist_->twist.linear.x * ros_parameters_.lane_change_prepare_duration;
     lanelet::ConstLanelets current_check_lanes = route_handler_ptr_->getLaneletSequence(
       current_lane, current_pose_.pose, 0.0, lane_change_prepare_length);
     lanelet::ConstLanelet lane_change_lane;
@@ -96,7 +98,6 @@ void FollowingLaneState::update()
       const auto lane_change_paths = route_handler_ptr_->getLaneChangePaths(
         current_lanes_, lane_change_lanes_, current_pose_.pose, current_twist_->twist,
         ros_parameters_);
-      debug_data_.lane_change_candidate_paths = lane_change_paths;
 
       // get lanes used for detection
       lanelet::ConstLanelets check_lanes;
@@ -110,12 +111,18 @@ void FollowingLaneState::update()
       }
 
       // select valid path
+      const auto valid_paths = state_machine::common_functions::selectValidPaths(
+        lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
+        current_pose_.pose, route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
+        route_handler_ptr_->getGoalPose());
+      debug_data_.lane_change_candidate_paths = valid_paths;
+      found_valid_path = !valid_paths.empty();
+
+      // select safe path
       LaneChangePath selected_path;
-      if (state_machine::common_functions::selectLaneChangePath(
-            lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
-            dynamic_objects_, current_pose_.pose, current_twist_->twist,
-            route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
-            route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path)) {
+      if (state_machine::common_functions::selectSafePath(
+            valid_paths, current_lanes_, check_lanes, dynamic_objects_, current_pose_.pose,
+            current_twist_->twist, ros_parameters_, &selected_path)) {
         found_safe_path = true;
       }
       debug_data_.selected_path = selected_path.path;
@@ -140,7 +147,7 @@ void FollowingLaneState::update()
     status_.lane_change_ready = false;
     status_.lane_change_available = false;
 
-    if (!lane_change_lanes_.empty()) {
+    if (found_valid_path) {
       status_.lane_change_available = true;
       if (found_safe_path && !isLaneBlocked(lane_change_lanes_)) {
         status_.lane_change_ready = true;
