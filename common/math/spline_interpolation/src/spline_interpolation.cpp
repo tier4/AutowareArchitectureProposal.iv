@@ -18,6 +18,7 @@
 
 namespace spline_interpolation
 {
+
 void SplineInterpolator::generateSpline(
   const std::vector<double> & base_index, const std::vector<double> & base_value)
 {
@@ -56,7 +57,7 @@ void SplineInterpolator::generateSpline(
   b_.push_back(0.0);
 
   initialized_ = true;
-};
+}
 
 double SplineInterpolator::getValue(
   const double & query, const std::vector<double> & base_index) const
@@ -100,7 +101,7 @@ bool SplineInterpolator::isIncrease(const std::vector<double> & x) const
     if (x[i] >= x[i + 1]) return false;
   }
   return true;
-};
+}
 
 bool SplineInterpolator::isNonDecrease(const std::vector<double> & x) const
 {
@@ -108,7 +109,7 @@ bool SplineInterpolator::isNonDecrease(const std::vector<double> & x) const
     if (x[i] > x[i + 1]) return false;
   }
   return true;
-};
+}
 
 bool SplineInterpolator::isValidInput(
   const std::vector<double> & base_index, const std::vector<double> & base_value,
@@ -267,7 +268,7 @@ std::vector<double> PreconditionedConjugateGradient::solve() const
 
   for (size_t i = 1; i < x.size(); ++i) x[i] = x_in[i - 1];
 
-  if (num_iter == max_iter_) ROS_WARN("[interpolate (PCG)] unconverged!");
+  if (num_iter == max_iter_) std::cout << "[interpolate (PCG)] unconverged!" << std::endl;
   return x;
 }
 
@@ -309,7 +310,7 @@ std::vector<double> SOR::solve() const
     }
     ++num_iter;
   }
-  if (num_iter > max_iter_) ROS_WARN("[interpolate (SOR)] unconverged!");
+  if (num_iter > max_iter_) std::cout << "[interpolate (SOR)] unconverged!" << std::endl;
   return ans_next;
 }
 

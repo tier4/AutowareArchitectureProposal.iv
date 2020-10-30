@@ -1,43 +1,17 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(spline_interpolation)
 
-add_compile_options(-std=c++14)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+  add_compile_options(-Wno-unused-parameter)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-)
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
-catkin_package(
-  INCLUDE_DIRS
-    include
-  LIBRARIES
-    spline_interpolation
-)
+ament_auto_add_library(spline_interpolation src/spline_interpolation.cpp)
 
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-)
-
-add_library(spline_interpolation src/spline_interpolation.cpp)
-
-target_link_libraries(spline_interpolation
-  ${catkin_LIBRARIES}
-)
-
-add_dependencies(spline_interpolation
-  ${catkin_EXPORTED_TARGETS}
-)
-
-install(
-  TARGETS
-    spline_interpolation
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-## Install project namespaced headers
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-)
+ament_auto_package()
