@@ -43,7 +43,7 @@ void BlockedByObstacleState::entry()
   current_lanes_ = route_handler_ptr_->getLaneletsFromIds(status_.lane_follow_lane_ids);
 }
 
-autoware_planning_msgs::PathWithLaneId BlockedByObstacleState::getPath() const
+autoware_planning_msgs::msg::PathWithLaneId BlockedByObstacleState::getPath() const
 {
   return status_.lane_follow_path;
 }
@@ -65,7 +65,7 @@ void BlockedByObstacleState::update()
   // update lanes
   {
     if (!route_handler_ptr_->getClosestLaneletWithinRoute(current_pose_.pose, &current_lane)) {
-      ROS_ERROR("failed to find closest lanelet within route!!!");
+      RCLCPP_ERROR(data_manager_ptr_->getLogger(), "failed to find closest lanelet within route!!!");
       return;
     }
     lanelet::ConstLanelet right_lane;
@@ -82,8 +82,6 @@ void BlockedByObstacleState::update()
   }
 
   const double minimum_lane_change_length = ros_parameters_.minimum_lane_change_length;
-  const double lane_change_prepare_duration = ros_parameters_.lane_change_prepare_duration;
-  const double lane_changing_duration = ros_parameters_.lane_changing_duration;
 
   // update lane_follow_path
   {
@@ -134,7 +132,7 @@ void BlockedByObstacleState::update()
           lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
           dynamic_objects_, current_pose_.pose, current_twist_->twist,
           route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
-          route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path)) {
+          route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path, data_manager_ptr_->getLogger(), data_manager_ptr_->getClock())) {
       found_safe_path_ = true;
     }
     debug_data_.selected_path = selected_path.path;
@@ -165,7 +163,8 @@ void BlockedByObstacleState::update()
           lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
           dynamic_objects_, current_pose_.pose, current_twist_->twist,
           route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
-          route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path)) {
+          route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path,
+          data_manager_ptr_->getLogger(), data_manager_ptr_->getClock())) {
       found_safe_path_ = true;
     }
 
@@ -203,8 +202,8 @@ State BlockedByObstacleState::getNextState() const
   return State::BLOCKED_BY_OBSTACLE;
 }
 
-autoware_planning_msgs::PathWithLaneId BlockedByObstacleState::setStopPointFromObstacle(
-  const autoware_planning_msgs::PathWithLaneId & path)
+autoware_planning_msgs::msg::PathWithLaneId BlockedByObstacleState::setStopPointFromObstacle(
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   const auto blocking_objects = getBlockingObstacles();
 
@@ -217,7 +216,7 @@ autoware_planning_msgs::PathWithLaneId BlockedByObstacleState::setStopPointFromO
   }
 
   // find the closest static obstacle in front of ego vehicle
-  autoware_perception_msgs::DynamicObject closest_object;
+  autoware_perception_msgs::msg::DynamicObject closest_object;
   bool found_closest_object = false;
   double closest_distance = std::numeric_limits<double>::max();
   for (const auto & object : blocking_objects) {
@@ -240,7 +239,7 @@ autoware_planning_msgs::PathWithLaneId BlockedByObstacleState::setStopPointFromO
   double stop_insert_length =
     closest_distance - ros_parameters_.minimum_lane_change_length - ros_parameters_.base_link2front;
   stop_insert_length = std::max(stop_insert_length, 0.0);
-  autoware_planning_msgs::PathWithLaneId modified_path = path;
+  autoware_planning_msgs::msg::PathWithLaneId modified_path = path;
   debug_data_.stop_factor_point = closest_object.state.pose_covariance.pose.position;
   debug_data_.stop_point = util::insertStopPoint(stop_insert_length, &modified_path);
   return modified_path;
@@ -250,7 +249,7 @@ bool BlockedByObstacleState::isOutOfCurrentLanes() const
 {
   lanelet::ConstLanelet closest_lane;
   if (!route_handler_ptr_->getClosestLaneletWithinRoute(current_pose_.pose, &closest_lane)) {
-    ROS_ERROR("failed to find closest lanelet within route!!!");
+    RCLCPP_ERROR(data_manager_ptr_->getLogger(), "failed to find closest lanelet within route!!!");
     return true;
   }
   for (const auto & llt : current_lanes_) {
@@ -267,10 +266,10 @@ bool BlockedByObstacleState::isLaneBlocked() const
   return !blocking_objects.empty();
 }
 
-std::vector<autoware_perception_msgs::DynamicObject> BlockedByObstacleState::getBlockingObstacles()
-  const
+std::vector<autoware_perception_msgs::msg::DynamicObject>
+BlockedByObstacleState::getBlockingObstacles() const
 {
-  std::vector<autoware_perception_msgs::DynamicObject> blocking_obstacles;
+  std::vector<autoware_perception_msgs::msg::DynamicObject> blocking_obstacles;
 
   const auto arc = lanelet::utils::getArcCoordinates(current_lanes_, current_pose_.pose);
   constexpr double max_check_distance = 100;
@@ -286,9 +285,9 @@ std::vector<autoware_perception_msgs::DynamicObject> BlockedByObstacleState::get
     current_lanes_, arc.length, arc.length + check_distance);
 
   if (polygon.size() < 3) {
-    ROS_WARN_STREAM(
-      "could not get polygon from lanelet with arc lengths: " << arc.length << " to "
-                                                              << arc.length + check_distance);
+    RCLCPP_WARN_STREAM(
+      data_manager_ptr_->getLogger(), "could not get polygon from lanelet with arc lengths: "
+                                        << arc.length << " to " << arc.length + check_distance);
     return blocking_obstacles;
   }
 

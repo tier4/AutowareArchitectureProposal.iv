@@ -21,9 +21,9 @@
 #include <lane_change_planner/state/forcing_lane_change.h>
 #include <lane_change_planner/state/stopping_lane_change.h>
 #include <lane_change_planner/state_machine.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
-#include <visualization_msgs/Marker.h>
+#include <visualization_msgs/msg/marker.hpp>
 
 namespace lane_change_planner
 {
@@ -42,7 +42,7 @@ void StateMachine::init()
   state_obj_ptr_->entry();
 }
 
-void StateMachine::init(const autoware_planning_msgs::Route & route) { init(); }
+void StateMachine::initCallback(const autoware_planning_msgs::msg::Route::ConstSharedPtr route) { init(); }
 
 void StateMachine::updateState()
 {
@@ -53,7 +53,7 @@ void StateMachine::updateState()
 
   // Transit to next state
   if (next_state != current_state) {
-    ROS_INFO_STREAM("changing state: " << current_state << " => " << next_state);
+    RCLCPP_INFO_STREAM(data_manager_ptr_->getLogger(), "changing state: " << current_state << " => " << next_state);
     const auto previous_status = state_obj_ptr_->getStatus();
     switch (next_state) {
       case State::FOLLOWING_LANE:
@@ -80,13 +80,15 @@ void StateMachine::updateState()
         state_obj_ptr_ = std::make_unique<BlockedByObstacleState>(
           previous_status, data_manager_ptr_, route_handler_ptr_);
         break;
+      default:
+        break;
     }
     state_obj_ptr_->entry();
     state_obj_ptr_->update();
   }
 }
 
-autoware_planning_msgs::PathWithLaneId StateMachine::getPath() const
+autoware_planning_msgs::msg::PathWithLaneId StateMachine::getPath() const
 {
   return state_obj_ptr_->getPath();
 }

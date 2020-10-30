@@ -44,7 +44,7 @@ void ExecutingLaneChangeState::entry()
   status_.lane_change_ready = false;
 }
 
-autoware_planning_msgs::PathWithLaneId ExecutingLaneChangeState::getPath() const
+autoware_planning_msgs::msg::PathWithLaneId ExecutingLaneChangeState::getPath() const
 {
   return status_.lane_change_path.path;
 }
@@ -112,8 +112,8 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
   lanelet::ConstLanelet closest_lanelet;
   if (!lanelet::utils::query::getClosestLanelet(
         original_lanes_, current_pose_.pose, &closest_lanelet)) {
-    ROS_ERROR_THROTTLE(
-      1, "Failed to find closest lane! Lane change aborting function is not working!");
+    RCLCPP_ERROR_THROTTLE(data_manager_ptr_->getLogger(), *data_manager_ptr_->getClock(),
+      1.0, "Failed to find closest lane! Lane change aborting function is not working!");
     return false;
   }
 
@@ -130,7 +130,7 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
 
     is_path_safe = state_machine::common_functions::isLaneChangePathSafe(
       path.path, original_lanes_, check_lanes, dynamic_objects_, current_pose_.pose,
-      current_twist_->twist, ros_parameters_, false, status_.lane_change_path.acceleration);
+      current_twist_->twist, ros_parameters_, data_manager_ptr_->getLogger(), data_manager_ptr_->getClock(), false, status_.lane_change_path.acceleration);
   }
 
   // check vehicle velocity thresh
@@ -177,8 +177,8 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
     if (is_distance_small && is_angle_diff_small) {
       return true;
     }
-    ROS_WARN_STREAM_THROTTLE(
-      1, "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be catious");
+    RCLCPP_WARN_STREAM_THROTTLE(data_manager_ptr_->getLogger(), *data_manager_ptr_->getClock(),
+      1.0, "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be catious");
   }
 
   return false;
@@ -186,12 +186,13 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
 
 bool ExecutingLaneChangeState::hasFinishedLaneChange() const
 {
-  static ros::Time start_time = ros::Time::now();
+  const auto & clock = data_manager_ptr_->getClock();
+  static rclcpp::Time start_time = clock->now();
 
   if (route_handler_ptr_->isInTargetLane(current_pose_, target_lanes_)) {
-    return (ros::Time::now() - start_time > ros::Duration(2));
+    return (clock->now() - start_time > rclcpp::Duration::from_seconds(2.0));
   } else {
-    start_time = ros::Time::now();
+    start_time = clock->now();
   }
   return false;
 }

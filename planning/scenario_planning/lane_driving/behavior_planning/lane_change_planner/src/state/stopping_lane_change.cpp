@@ -41,7 +41,7 @@ void StoppingLaneChangeState::entry()
   status_.lane_change_ready = false;
 }
 
-autoware_planning_msgs::PathWithLaneId StoppingLaneChangeState::getPath() const
+autoware_planning_msgs::msg::PathWithLaneId StoppingLaneChangeState::getPath() const
 {
   return status_.lane_change_path.path;
 }
@@ -77,8 +77,8 @@ bool StoppingLaneChangeState::isSafe() const
 
     is_path_safe = state_machine::common_functions::isLaneChangePathSafe(
       status_.lane_change_path.path, original_lanes_, check_lanes, dynamic_objects_,
-      current_pose_.pose, current_twist_->twist, ros_parameters_, false,
-      status_.lane_change_path.acceleration);
+      current_pose_.pose, current_twist_->twist, ros_parameters_, data_manager_ptr_->getLogger(),
+      data_manager_ptr_->getClock(), false, status_.lane_change_path.acceleration);
   }
   return is_path_safe;
 }
@@ -102,10 +102,10 @@ bool StoppingLaneChangeState::isVehicleInOriginalLanes() const
   return intersection_area / vehicle_area > 0.9;
 }
 
-autoware_planning_msgs::PathWithLaneId StoppingLaneChangeState::setStopPoint(
-  const autoware_planning_msgs::PathWithLaneId & path)
+autoware_planning_msgs::msg::PathWithLaneId StoppingLaneChangeState::setStopPoint(
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
-  autoware_planning_msgs::PathWithLaneId modified_path = path;
+  autoware_planning_msgs::msg::PathWithLaneId modified_path = path;
   debug_data_.stop_point = util::insertStopPoint(0.1, &modified_path);
   return modified_path;
 }

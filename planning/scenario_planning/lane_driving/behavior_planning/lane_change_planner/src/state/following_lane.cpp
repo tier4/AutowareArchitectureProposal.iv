@@ -42,7 +42,7 @@ void FollowingLaneState::entry()
   status_.lane_change_ready = false;
 }
 
-autoware_planning_msgs::PathWithLaneId FollowingLaneState::getPath() const
+autoware_planning_msgs::msg::PathWithLaneId FollowingLaneState::getPath() const
 {
   return status_.lane_follow_path;
 }
@@ -64,7 +64,7 @@ void FollowingLaneState::update()
   // update lanes
   {
     if (!route_handler_ptr_->getClosestLaneletWithinRoute(current_pose_.pose, &current_lane)) {
-      ROS_ERROR("failed to find closest lanelet within route!!!");
+      RCLCPP_ERROR(data_manager_ptr_->getLogger(), "failed to find closest lanelet within route!!!");
       return;
     }
     current_lanes_ = route_handler_ptr_->getLaneletSequence(
@@ -81,8 +81,6 @@ void FollowingLaneState::update()
   // update lane_follow_path
   {
     constexpr double check_distance = 100.0;
-    const double lane_change_prepare_duration = ros_parameters_.lane_change_prepare_duration;
-    const double lane_changing_duration = ros_parameters_.lane_changing_duration;
     const double minimum_lane_change_length = ros_parameters_.minimum_lane_change_length;
     status_.lane_follow_path = route_handler_ptr_->getReferencePath(
       current_lanes_, current_pose_.pose, backward_path_length, forward_path_length,
@@ -112,7 +110,7 @@ void FollowingLaneState::update()
             lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
             dynamic_objects_, current_pose_.pose, current_twist_->twist,
             route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
-            route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path)) {
+            route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path, data_manager_ptr_->getLogger(), data_manager_ptr_->getClock())) {
         found_safe_path = true;
       }
       debug_data_.selected_path = selected_path.path;
@@ -149,7 +147,7 @@ void FollowingLaneState::update()
 State FollowingLaneState::getNextState() const
 {
   if (current_lanes_.empty()) {
-    ROS_ERROR_THROTTLE(1, "current lanes empty. Keeping state.");
+    RCLCPP_ERROR_THROTTLE(data_manager_ptr_->getLogger(), *data_manager_ptr_->getClock(), 1.0, "current lanes empty. Keeping state.");
     return State::FOLLOWING_LANE;
   }
   if (route_handler_ptr_->isInPreferredLane(current_pose_) && isLaneBlocked(current_lanes_)) {
@@ -180,7 +178,7 @@ bool FollowingLaneState::isLaneBlocked(const lanelet::ConstLanelets & lanes) con
     lanelet::utils::getPolygonFromArcLength(lanes, arc.length, arc.length + check_distance);
 
   if (polygon.size() < 3) {
-    ROS_WARN_STREAM(
+    RCLCPP_WARN_STREAM(data_manager_ptr_->getLogger(), 
       "could not get polygon from lanelet with arc lengths: " << arc.length << " to "
                                                               << arc.length + check_distance);
     return false;
@@ -188,10 +186,10 @@ bool FollowingLaneState::isLaneBlocked(const lanelet::ConstLanelets & lanes) con
 
   for (const auto & obj : dynamic_objects_->objects) {
     if (
-      obj.semantic.type == autoware_perception_msgs::Semantic::CAR ||
-      obj.semantic.type == autoware_perception_msgs::Semantic::TRUCK ||
-      obj.semantic.type == autoware_perception_msgs::Semantic::BUS ||
-      obj.semantic.type == autoware_perception_msgs::Semantic::MOTORBIKE) {
+      obj.semantic.type == autoware_perception_msgs::msg::Semantic::CAR ||
+      obj.semantic.type == autoware_perception_msgs::msg::Semantic::TRUCK ||
+      obj.semantic.type == autoware_perception_msgs::msg::Semantic::BUS ||
+      obj.semantic.type == autoware_perception_msgs::msg::Semantic::MOTORBIKE) {
       const auto velocity = util::l2Norm(obj.state.twist_covariance.twist.linear);
       if (velocity < static_obj_velocity_thresh) {
         const auto position =

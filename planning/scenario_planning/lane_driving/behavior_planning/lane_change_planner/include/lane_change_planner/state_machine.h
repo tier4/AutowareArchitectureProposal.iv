@@ -17,12 +17,12 @@
 #ifndef LANE_CHANGE_PLANNER_STATE_MACHINE_H
 #define LANE_CHANGE_PLANNER_STATE_MACHINE_H
 
-#include <autoware_planning_msgs/PathWithLaneId.h>
-#include <autoware_planning_msgs/Route.h>
 #include <lane_change_planner/state/state_base_class.h>
 #include <lanelet2_core/primitives/Lanelet.h>
-#include <ros/ros.h>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <autoware_planning_msgs/msg/route.hpp>
 #include <memory>
+#include <rclcpp/rclcpp.hpp>
 
 namespace lane_change_planner
 {
@@ -40,9 +40,9 @@ public:
     const std::shared_ptr<DataManager> & data_manager_ptr,
     const std::shared_ptr<RouteHandler> & route_handler_ptr);
   void init();
-  void init(const autoware_planning_msgs::Route & route);
+  void initCallback(const autoware_planning_msgs::msg::Route::ConstSharedPtr route);
   void updateState();
-  autoware_planning_msgs::PathWithLaneId getPath() const;
+  autoware_planning_msgs::msg::PathWithLaneId getPath() const;
   Status getStatus() const;
   DebugData getDebugData() const;
   State getState() const;
@@ -51,7 +51,6 @@ private:
   std::unique_ptr<StateBase> state_obj_ptr_;
   std::shared_ptr<DataManager> data_manager_ptr_;
   std::shared_ptr<RouteHandler> route_handler_ptr_;
-  ros::Publisher path_marker_publisher_;
 };
 }  // namespace lane_change_planner
 
