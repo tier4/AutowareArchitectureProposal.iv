@@ -23,7 +23,6 @@ set(DUMMY_DIAG_PUBLISHER_HEADERS
 ament_auto_add_executable(${PROJECT_NAME}
   src/dummy_diag_publisher_node/main.cpp
   ${DUMMY_DIAG_PUBLISHER_SRC}
-  ${DUMMY_DIAG_PUBLISHER_HEADERS}
 )
 
 ament_auto_package(INSTALL_TO_SHARE
