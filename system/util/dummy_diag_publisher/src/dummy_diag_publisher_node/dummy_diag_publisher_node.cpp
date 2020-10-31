@@ -105,6 +105,8 @@ DummyDiagPublisherNode::DummyDiagPublisherNode()
   diag_config_ = DiagConfig(configuration_parameters);
   
   // set parameter callback
+  config_.status = static_cast<Status>(this->declare_parameter("status", 0));
+  config_.is_active = this->declare_parameter("is_active", false);
   set_param_res_ =
     this->add_on_set_parameters_callback(std::bind(&DummyDiagPublisherNode::paramCallback, this, std::placeholders::_1));
 
