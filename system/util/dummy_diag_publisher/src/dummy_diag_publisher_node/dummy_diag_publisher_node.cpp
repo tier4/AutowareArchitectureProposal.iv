@@ -43,8 +43,8 @@ rcl_interfaces::msg::SetParametersResult DummyDiagPublisherNode::paramCallback(
 
   DummyDiagPublisherConfig config = config_;
   try {
-    int status;
-    update_param(parameters, "status", status);
+   int status = static_cast<int>(config.status);
+   update_param(parameters, "status", status);
     config.status = Status(status);
     update_param(parameters, "is_active", config.is_active);
     config_ = config;
