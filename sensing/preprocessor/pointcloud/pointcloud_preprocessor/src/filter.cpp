@@ -35,9 +35,10 @@
  *
  */
 
+#include <message_filters/time_synchronizer.h>
 #include "pointcloud_preprocessor/filter.h"
 #include <pcl/io/io.h>
-#include "pcl_ros/transforms.h"
+//#include "pcl_ros/transforms.h"
 
 /*//#include <pcl/filters/pixel_grid.h>
 //#include <pcl/filters/filter_dimension.h>
