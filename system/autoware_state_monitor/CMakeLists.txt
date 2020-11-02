@@ -33,20 +33,10 @@ set(AUTOWARE_STATE_MONITOR_SRC
   src/autoware_state_monitor_node/diagnostics.cpp
 )
 
-## Set header files
-set(AUTOWARE_STATE_MONITOR_HEADERS
-  include/autoware_state_monitor/autoware_state.h
-  include/autoware_state_monitor/autoware_state_monitor_node.h
-  include/autoware_state_monitor/config.h
-  # include/autoware_state_monitor/rosconsole_wrapper.h
-  include/autoware_state_monitor/state_machine.h
-)
-
 ## Add executables
-ament_auto_add_executable(autoware_state_monitor_exe 
+ament_auto_add_executable(autoware_state_monitor 
   src/autoware_state_monitor_node/main.cpp
   ${AUTOWARE_STATE_MONITOR_SRC}
-  ${AUTOWARE_STATE_MONITOR_HEADERS}
 )
 
 # set(AUTOWARE_STATE_MONITOR_DEPENDENCIES
