@@ -41,6 +41,7 @@
 // PCL includes
 #include <pcl/filters/filter.h>
 //#include "pcl_ros/pcl_nodelet.h"
+#include "pointcloud_preprocessor/pcl_component.h"
 
 // Dynamic reconfigure
 //#include <dynamic_reconfigure/server.h>
