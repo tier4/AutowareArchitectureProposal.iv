@@ -40,7 +40,7 @@ inline AutowareState fromString(const std::string & state)
   if (state == StateMessage::PLANNING) return AutowareState::Planning;
   if (state == StateMessage::WAITING_FOR_ENGAGE) return AutowareState::WaitingForEngage;
   if (state == StateMessage::DRIVING) return AutowareState::Driving;
-  if (state == StateMessage::ARRIVED_GOAL) return AutowareState::ArrivedGoal;
+  if (state == StateMessage::ARRIVAL_GOAL) return AutowareState::ArrivedGoal;
   if (state == StateMessage::EMERGENCY) return AutowareState::Emergency;
 
   throw std::runtime_error("invalid state");
@@ -55,7 +55,7 @@ inline std::string toString(const AutowareState & state)
   if (state == AutowareState::Planning) return StateMessage::PLANNING;
   if (state == AutowareState::WaitingForEngage) return StateMessage::WAITING_FOR_ENGAGE;
   if (state == AutowareState::Driving) return StateMessage::DRIVING;
-  if (state == AutowareState::ArrivedGoal) return StateMessage::ARRIVED_GOAL;
+  if (state == AutowareState::ArrivedGoal) return StateMessage::ARRIVAL_GOAL;
   if (state == AutowareState::Emergency) return StateMessage::EMERGENCY;
 
   throw std::runtime_error("invalid state");

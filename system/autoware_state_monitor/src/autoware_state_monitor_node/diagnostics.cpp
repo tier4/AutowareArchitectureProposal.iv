@@ -58,7 +58,6 @@ void AutowareStateMonitorNode::checkTopicStatus(
   int8_t level = diagnostic_msgs::msg::DiagnosticStatus::OK;
 
   const auto & topic_stats = state_input_.topic_stats;
-  // const auto & tf_stats = state_input_.tf_stats;
 
   // OK
   for (const auto & topic_config : topic_stats.ok_list) {
@@ -133,7 +132,6 @@ void AutowareStateMonitorNode::checkTFStatus(
 {
   int8_t level = diagnostic_msgs::msg::DiagnosticStatus::OK;
 
-  // const auto & topic_stats = state_input_.topic_stats;
   const auto & tf_stats = state_input_.tf_stats;
 
   // OK
