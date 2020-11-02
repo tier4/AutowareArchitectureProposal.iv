@@ -22,18 +22,21 @@
 #include <vector>
 
 #include <rclcpp/time.hpp>
-// #include <xmlrpcpp/XmlRpcValue.h>
+#include <rclcpp/rclcpp.hpp>
+// #include <rclcpp/node_interfaces.hpp>
+// #include <rclcpp/node_interfaces/node_parameters_interface.hpp>
 
 struct TopicConfig
 {
-  // Explicit constructor not needed for 
-  // explicit TopicConfig(XmlRpc::XmlRpcValue value)
-  // : module(static_cast<std::string>(value["module"])),
-  //   name(static_cast<std::string>(value["name"])),
-  //   timeout(static_cast<double>(value["timeout"])),
-  //   warn_rate(static_cast<double>(value["warn_rate"]))
-  // {
-  // }
+  explicit TopicConfig(
+    rclcpp::node_interfaces::NodeParametersInterface::SharedPtr interface,
+    const std::string & namespace_prefix, const std::string & name)
+  : module(interface->declare_parameter(namespace_prefix + ".module").get<std::string>()),
+    name(name),
+    timeout(interface->declare_parameter(namespace_prefix + ".timeout").get<double>()),
+    warn_rate(interface->declare_parameter(namespace_prefix + ".warn_rate").get<double>())
+  {
+  }
 
   std::string module;
   std::string name;
@@ -43,10 +46,13 @@ struct TopicConfig
 
 struct ParamConfig
 {
-  // explicit ParamConfig(XmlRpc::XmlRpcValue value)
-  // : module(static_cast<std::string>(value["module"])), name(static_cast<std::string>(value["name"]))
-  // {
-  // }
+  explicit ParamConfig(
+    rclcpp::node_interfaces::NodeParametersInterface::SharedPtr interface,
+    const std::string & namespace_prefix, const std::string & name)
+  : module(interface->declare_parameter(namespace_prefix + ".module").get<std::string>()),
+    name(name)
+  {
+  }
 
   std::string module;
   std::string name;
@@ -54,13 +60,15 @@ struct ParamConfig
 
 struct TfConfig
 {
-  // explicit TfConfig(XmlRpc::XmlRpcValue value)
-  // : module(static_cast<std::string>(value["module"])),
-  //   from(static_cast<std::string>(value["from"])),
-  //   to(static_cast<std::string>(value["to"])),
-  //   timeout(static_cast<double>(value["timeout"]))
-  // {
-  // }
+  explicit TfConfig(
+    rclcpp::node_interfaces::NodeParametersInterface::SharedPtr interface,
+    const std::string & namespace_prefix, const std::string & name)
+  : module(interface->declare_parameter(namespace_prefix + ".module").get<std::string>()),
+    from(interface->declare_parameter(namespace_prefix + ".from").get<std::string>()),
+    to(interface->declare_parameter(namespace_prefix + ".to").get<std::string>()),
+    timeout(interface->declare_parameter(namespace_prefix + ".timeout").get<double>())
+  {
+  }
 
   std::string module;
   std::string from;

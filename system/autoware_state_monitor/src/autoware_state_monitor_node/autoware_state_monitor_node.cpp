@@ -28,22 +28,21 @@
 namespace
 {
 template <class Config>
-std::vector<Config> getConfigs(const std::string & config_name)
+std::vector<Config> getConfigs(
+  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr interface,
+  const std::string & config_namespace)
 {
-
-  // XmlRpc::XmlRpcValue xml;
-  // if (!nh.getParam(config_name, xml)) {
-  //   const auto msg = std::string("no parameter found: ") + config_name;
-  //   throw std::runtime_error(msg);
-  // }
+  // std::string config_namespace = namespace_name + config
+  std::string names_key = config_namespace + ".names";
+  interface->declare_parameter(names_key);
+  std::vector<std::string> config_names = interface->get_parameter(names_key).as_string_array();
 
   std::vector<Config> configs;
-  // configs.reserve(xml.size());
+  configs.reserve(config_names.size());
 
-  // for (size_t i = 0; i < xml.size(); ++i) {
-  //   auto & value = xml[i];
-  //   configs.emplace_back(value);
-  // }
+  for (auto config_name : config_names) {
+    configs.emplace_back(interface, config_namespace + ".configs." + config_name, config_name);
+  }
 
   return configs;
 }
@@ -289,15 +288,14 @@ ParamStats AutowareStateMonitorNode::getParamStats() const
   param_stats.checked_time = this->now();
 
   for (const auto & param_config : param_configs_) {
-    // XmlRpc::XmlRpcValue xml;
-    // const bool result = get_parameter(param_config.name, xml);
-    // if (!result) {
-    //   param_stats.non_set_list.push_back(param_config);
-    //   continue;
-    // }
+    const bool result = this->has_parameter("param_configs.configs." + param_config.name);
+    if (!result) {
+      param_stats.non_set_list.push_back(param_config);
+      continue;
+    }
 
-    // // No error
-    // param_stats.ok_list.push_back(param_config);
+    // No error
+    param_stats.ok_list.push_back(param_config);
   }
 
   return param_stats;
@@ -338,44 +336,6 @@ void AutowareStateMonitorNode::setDisengage()
   pub_autoware_engage_->publish(msg);
 }
 
-// template<class Config>
-// std::vector<Config> AutowareStateMonitorNode::getConfigs(const std::string & config_name)
-// {
-//   // Declare the configuration names
-//   std::string key_name = config_name + ".names";
-//   declare_parameter(key_name);
-//   std::vector<std::string> config_names = get_parameters(key_names).as_string_array();
-
-//   // Nothing found
-//   if (config_names.size() == 0) {
-//     const auto msg = std::string("no parameter found: ") + config_name;
-//     throw std::runtime_error(msg);
-//   }
-
-//   std::vector<Config> configs;
-//   configs.reserve(config_names.size());
-
-//   for (auto name : config_names) {
-
-//   }
-
-//   // XmlRpc::XmlRpcValue xml;
-//   // if (!nh.getParam(config_name, xml)) {
-//   //   const auto msg = std::string("no parameter found: ") + config_name;
-//   //   throw std::runtime_error(msg);
-//   // }
-
-//   // std::vector<Config> configs;
-//   // configs.reserve(xml.size());
-
-//   // for (size_t i = 0; i < xml.size(); ++i) {
-//   //   auto & value = xml[i];
-//   //   configs.emplace_back(value);
-//   // }
-
-//   return configs;
-// }
-
 AutowareStateMonitorNode::AutowareStateMonitorNode()
 : Node("autoware_state_monitor"),
   tf_buffer_(this->get_clock()),
@@ -397,9 +357,12 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   state_machine_ = std::make_shared<StateMachine>(state_param_);
 
   // Config
-  topic_configs_ = getConfigs<TopicConfig>("topic_configs");
-  param_configs_ = getConfigs<ParamConfig>("param_configs");
-  tf_configs_ = getConfigs<TfConfig>("tf_configs");
+  topic_configs_ = getConfigs<TopicConfig>(
+    this->get_node_parameters_interface(), "topic_configs");
+  param_configs_ = getConfigs<ParamConfig>(
+    this->get_node_parameters_interface(), "param_configs");
+  tf_configs_ = getConfigs<TfConfig>(
+    this->get_node_parameters_interface(), "tf_configs");
 
   // Topic Callback
   // for (const auto & topic_config : topic_configs_) {
