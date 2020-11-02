@@ -17,9 +17,6 @@ ament_auto_find_build_dependencies()
 set(DUMMY_DIAG_PUBLISHER_SRC
   src/dummy_diag_publisher_node/dummy_diag_publisher_node.cpp)
 
-set(DUMMY_DIAG_PUBLISHER_HEADERS
-  include/dummy_diag_publisher/dummy_diag_publisher_node.h)
-
 ament_auto_add_executable(${PROJECT_NAME}
   src/dummy_diag_publisher_node/main.cpp
   ${DUMMY_DIAG_PUBLISHER_SRC}
