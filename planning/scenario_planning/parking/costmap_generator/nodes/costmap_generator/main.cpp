@@ -46,14 +46,16 @@
  */
 
 #include <costmap_generator/costmap_generator.h>
+#include "rclcpp/rclcpp.hpp"
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "costmap_generator");
+  rclcpp::init(argc, argv);
+  rclcpp::Node::SharedPtr node;
+  CostmapGenerator costmap_generator(node);
+  rclcpp::spin(node);
 
-  CostmapGenerator costmap_generator;
-
-  ros::spin();
+  rclcpp::shutdown();
 
   return 0;
 }
