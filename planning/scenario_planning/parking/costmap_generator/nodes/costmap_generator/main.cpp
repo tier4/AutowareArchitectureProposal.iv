@@ -51,9 +51,8 @@
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  rclcpp::Node::SharedPtr node;
-  CostmapGenerator costmap_generator(node);
-  rclcpp::spin(node);
+
+  rclcpp::spin(std::make_shared<CostmapGenerator>());
 
   rclcpp::shutdown();
 

@@ -67,13 +67,12 @@
 #include <autoware_planning_msgs/msg/scenario.hpp>
 #include <grid_map_msgs/msg/grid_map.h>
 
-class CostmapGenerator
+class CostmapGenerator : public rclcpp::Node
 {
 public:
-  CostmapGenerator(rclcpp::Node::SharedPtr);
+  CostmapGenerator();
 
 private:
-  rclcpp::Node::SharedPtr private_node;
   bool use_objects_;
   bool use_points_;
   bool use_wayarea_;

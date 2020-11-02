@@ -87,51 +87,51 @@ std::vector<geometry_msgs::msg::Point> poly2vector(const geometry_msgs::msg::Pol
 
 }  // namespace
 
-CostmapGenerator::CostmapGenerator(rclcpp::Node::SharedPtr node)
+CostmapGenerator::CostmapGenerator() : Node("costmap_generator")
 {
   // Parameters
-  private_node = node;
-  private_node->declare_parameter<std::string>("costmap_frame", "map");
-  private_node->declare_parameter<std::string>("vehicle_frame", "base_link");
-  private_node->declare_parameter<std::string>("map_frame", "map");
-  private_node->declare_parameter<double>("update_rate", 10.0);
-  private_node->declare_parameter<double>("grid_min_value", 0.0);
-  private_node->declare_parameter<double>("grid_max_value", 1.0);
-  private_node->declare_parameter<double>("grid_resolution", 0.2);
-  private_node->declare_parameter<double>("grid_length_x", 50);
-  private_node->declare_parameter<double>("grid_length_y", 30);
-  private_node->declare_parameter<double>("grid_position_x", 20);
-  private_node->declare_parameter<double>("grid_position_y", 0);
-  private_node->declare_parameter<double>("maximum_lidar_height_thres", 0.3);
-  private_node->declare_parameter<double>("minimum_lidar_height_thres", -2.2);
-  private_node->declare_parameter<bool>("use_objects", true);
-  private_node->declare_parameter<bool>("use_points", true);
-  private_node->declare_parameter<bool>("use_wayarea", true);
-  private_node->declare_parameter<double>("expand_polygon_size", 1.0);
-  private_node->declare_parameter<int>("size_of_expansion_kernel", 9);
+  this->declare_parameter<std::string>("costmap_frame", "map");
+  this->declare_parameter<std::string>("vehicle_frame", "base_link");
+  this->declare_parameter<std::string>("map_frame", "map");
+  this->declare_parameter<double>("update_rate", 10.0);
+  this->declare_parameter<double>("grid_min_value", 0.0);
+  this->declare_parameter<double>("grid_max_value", 1.0);
+  this->declare_parameter<double>("grid_resolution", 0.2);
+  this->declare_parameter<double>("grid_length_x", 50);
+  this->declare_parameter<double>("grid_length_y", 30);
+  this->declare_parameter<double>("grid_position_x", 20);
+  this->declare_parameter<double>("grid_position_y", 0);
+  this->declare_parameter<double>("maximum_lidar_height_thres", 0.3);
+  this->declare_parameter<double>("minimum_lidar_height_thres", -2.2);
+  this->declare_parameter<bool>("use_objects", true);
+  this->declare_parameter<bool>("use_points", true);
+  this->declare_parameter<bool>("use_wayarea", true);
+  this->declare_parameter<double>("expand_polygon_size", 1.0);
+  this->declare_parameter<int>("size_of_expansion_kernel", 9);
 
   // Subscribers
-  sub_objects_ = private_node->create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
-    "input/objects", 1, std::bind(&CostmapGenerator::onObjects, private_node, _1));
-  sub_points_ = private_node->create_subscription<sensor_msgs::msg::PointCloud2>(
-    "input/points_no_ground", 1, std::bind(&CostmapGenerator::onPoints, private_node, _1));
-  sub_lanelet_bin_map_ = private_node->create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
-    "input/vector_map", 1, std::bind(&CostmapGenerator::onLaneletMapBin, private_node, _1));
-  sub_scenario_ = private_node->create_subscription<autoware_planning_msgs::msg::Scenario>(
-    "input/scenario", 1, std::bind(&CostmapGenerator::onScenario, private_node, _1));
+  using std::placeholders::_1;
+  sub_objects_ = this->create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
+    "input/objects", 1, std::bind(&CostmapGenerator::onObjects, this, _1));
+  sub_points_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
+    "input/points_no_ground", 1, std::bind(&CostmapGenerator::onPoints, this, _1));
+  sub_lanelet_bin_map_ = this->create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
+    "input/vector_map", 1, std::bind(&CostmapGenerator::onLaneletMapBin, this, _1));
+  sub_scenario_ = this->create_subscription<autoware_planning_msgs::msg::Scenario>(
+    "input/scenario", 1, std::bind(&CostmapGenerator::onScenario, this, _1));
 
   // Publishers
-  pub_costmap_ = private_node->create_publisher<grid_map_msgs::msg::GridMap>("output/grid_map", 1);
-  pub_occupancy_grid_ = private_node->create_publisher<nav_msgs::msg::OccupancyGrid>("output/occupancy_grid", 1);
+  pub_costmap_ = this->create_publisher<grid_map_msgs::msg::GridMap>("output/grid_map", 1);
+  pub_occupancy_grid_ = this->create_publisher<nav_msgs::msg::OccupancyGrid>("output/occupancy_grid", 1);
 
   // Timer
-  auto timer_callback = std::bind(&CostmapGenerator::onTimer, private_node);
+  auto timer_callback = std::bind(&CostmapGenerator::onTimer, this);
   auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<double>(update_rate_));
   timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
-    private_node->get_clock(), period, std::move(timer_callback),
-    private_node->get_node_base_interface()->get_context());
-  private_node->get_node_timers_interface()->add_timer(timer_, nullptr);
+    this->get_clock(), period, std::move(timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(timer_, nullptr);
 
 
   // Initialize
@@ -143,7 +143,7 @@ CostmapGenerator::CostmapGenerator(rclcpp::Node::SharedPtr node)
       tf_buffer_->lookupTransform(map_frame_, vehicle_frame_, rclcpp::Time(0), rclcpp::Duration(10.0));
       break;
     } catch (tf2::TransformException ex) {
-      RCLCPP_ERROR(private_node->get_logger(),"waiting for initial pose...");
+      RCLCPP_ERROR(this->get_logger(),"waiting for initial pose...");
     }
   }
 }
@@ -348,7 +348,7 @@ void CostmapGenerator::publishCostmap(const grid_map::GridMap & costmap)
   // Set header
   std_msgs::msg::Header header;
   header.frame_id = costmap_frame_;
-  header.stamp = private_node->now();;
+  header.stamp = this->now();;
 
   // Publish OccupancyGrid
   nav_msgs::msg::OccupancyGrid out_occupancy_grid;
