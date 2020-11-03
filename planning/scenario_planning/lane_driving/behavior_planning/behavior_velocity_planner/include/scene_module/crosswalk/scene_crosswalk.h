@@ -15,23 +15,15 @@
  */
 #pragma once
 
-#include <string>
-#include <unordered_map>
-#include <vector>
-
 #include <boost/assert.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 
-#define EIGEN_MPL2_ONLY
-#include <Eigen/Core>
-#include <Eigen/Geometry>
-
+#include <pcl/common/distances.h>
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
-#include <pcl_ros/point_cloud.h>
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -59,7 +51,8 @@ public:
 
   CrosswalkModule(
     const int64_t module_id, const lanelet::ConstLanelet & crosswalk,
-    const PlannerParam & planner_param);
+    const PlannerParam & planner_param, const rclcpp::Logger logger,
+    const rclcpp::Clock::SharedPtr clock);
 
   bool modifyPathVelocity(
     autoware_planning_msgs::msg::PathWithLaneId * path,

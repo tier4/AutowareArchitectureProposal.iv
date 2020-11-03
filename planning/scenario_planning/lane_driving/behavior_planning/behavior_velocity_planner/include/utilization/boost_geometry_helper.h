@@ -30,10 +30,10 @@
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
+#include <tf2/utils.h>
 #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
-#include <tf2/utils.h>
 
 #include <autoware_planning_msgs/msg/path_point.hpp>
 #include <autoware_planning_msgs/msg/path_point_with_lane_id.hpp>
@@ -57,8 +57,8 @@ BOOST_GEOMETRY_REGISTER_POINT_3D(
   autoware_planning_msgs::msg::PathPointWithLaneId, double, cs::cartesian, point.pose.position.x,
   point.pose.position.y, point.pose.position.z)
 BOOST_GEOMETRY_REGISTER_POINT_3D(
-  autoware_planning_msgs::msg::TrajectoryPoint, double, cs::cartesian, pose.position.x, pose.position.y,
-  pose.position.z)
+  autoware_planning_msgs::msg::TrajectoryPoint, double, cs::cartesian, pose.position.x,
+  pose.position.y, pose.position.z)
 
 template <class T>
 Point2d to_bg2d(const T & p)
@@ -104,7 +104,8 @@ inline Polygon2d lines2polygon(const LineString2d & left_line, const LineString2
   return polygon;
 }
 
-inline Polygon2d obj2polygon(const geometry_msgs::msg::Pose & pose, const geometry_msgs::msg::Vector3 & shape)
+inline Polygon2d obj2polygon(
+  const geometry_msgs::msg::Pose & pose, const geometry_msgs::msg::Vector3 & shape)
 {
   //rename
   const double x = pose.position.x;

@@ -17,7 +17,6 @@
 #ifndef BEHAVIOR_VELOCITY_PLANNER_UTILIZATION_INTERPOLATE_H_
 #define BEHAVIOR_VELOCITY_PLANNER_UTILIZATION_INTERPOLATE_H_
 #include <cmath>
-#include <iostream>
 #include <vector>
 
 namespace interpolation

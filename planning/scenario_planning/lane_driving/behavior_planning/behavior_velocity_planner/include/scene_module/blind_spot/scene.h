@@ -17,7 +17,6 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
 #include <boost/optional.hpp>
 
@@ -71,14 +70,14 @@ public:
       state_ = State::GO;
       margin_time_ = 0.0;
     }
-    void setStateWithMarginTime(State state);
+    void setStateWithMarginTime(State state, rclcpp::Logger logger, rclcpp::Clock & clock);
     void setState(State state);
     void setMarginTime(const double t);
     State getState();
 
   private:
-    State state_;                            //! current state
-    double margin_time_;                     //! margin time when transit to Go from Stop
+    State state_;                               //! current state
+    double margin_time_;                        //! margin time when transit to Go from Stop
     std::shared_ptr<rclcpp::Time> start_time_;  //! first time received GO when STOP state
   };
 
@@ -107,7 +106,8 @@ public:
 
   BlindSpotModule(
     const int64_t module_id, const int64_t lane_id, std::shared_ptr<const PlannerData> planner_data,
-    const PlannerParam & planner_param);
+    const PlannerParam & planner_param, const rclcpp::Logger logger,
+    const rclcpp::Clock::SharedPtr clock);
 
   /**
    * @brief plan go-stop velocity at traffic crossing with collision check between reference path
@@ -201,8 +201,9 @@ private:
    * @return false when generation failed
    */
   bool generateStopLine(
-    const lanelet::ConstLanelets straight_lanelets, autoware_planning_msgs::msg::PathWithLaneId * path,
-    int * stop_line_idx, int * pass_judge_line_idx) const;
+    const lanelet::ConstLanelets straight_lanelets,
+    autoware_planning_msgs::msg::PathWithLaneId * path, int * stop_line_idx,
+    int * pass_judge_line_idx) const;
 
   /**
    * @brief Calculate first path index that is conflicting lanelets.

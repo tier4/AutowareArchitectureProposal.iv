@@ -15,9 +15,14 @@
  */
 #pragma once
 
+#include <rclcpp/rclcpp.hpp>
+
 #include <autoware_planning_msgs/msg/path.hpp>
 
 autoware_planning_msgs::msg::Path interpolatePath(
-  const autoware_planning_msgs::msg::Path & path, const double length);
-autoware_planning_msgs::msg::Path filterLitterPathPoint(const autoware_planning_msgs::msg::Path & path);
-autoware_planning_msgs::msg::Path filterStopPathPoint(const autoware_planning_msgs::msg::Path & path);
+  const autoware_planning_msgs::msg::Path & path, const double length,
+  const rclcpp::Logger & logger);
+autoware_planning_msgs::msg::Path filterLitterPathPoint(
+  const autoware_planning_msgs::msg::Path & path);
+autoware_planning_msgs::msg::Path filterStopPathPoint(
+  const autoware_planning_msgs::msg::Path & path);

@@ -34,10 +34,11 @@ bool setVelocityFrom(
 
 bool splineInterpolate(
   const autoware_planning_msgs::msg::PathWithLaneId & input, const double interval,
-  autoware_planning_msgs::msg::PathWithLaneId * output);
+  autoware_planning_msgs::msg::PathWithLaneId * output, const rclcpp::Logger logger);
 
 int insertPoint(
-  const geometry_msgs::msg::Pose & in_pose, autoware_planning_msgs::msg::PathWithLaneId * inout_path);
+  const geometry_msgs::msg::Pose & in_pose,
+  autoware_planning_msgs::msg::PathWithLaneId * inout_path);
 
 geometry_msgs::msg::Pose getAheadPose(
   const size_t start_idx, const double ahead_dist,
@@ -52,7 +53,7 @@ bool hasLaneId(const autoware_planning_msgs::msg::PathPointWithLaneId & p, const
 bool getObjectivePolygons(
   lanelet::LaneletMapConstPtr lanelet_map_ptr, lanelet::routing::RoutingGraphPtr routing_graph_ptr,
   const int lane_id, const IntersectionModule::PlannerParam & planner_param,
-  std::vector<lanelet::CompoundPolygon3d> * polygons);
+  std::vector<lanelet::CompoundPolygon3d> * polygons, const rclcpp::Logger logger);
 
 /**
    * @brief Generate a stop line and insert it into the path. If the stop line is defined in the map,
@@ -67,8 +68,8 @@ bool generateStopLine(
   const int lane_id, const std::vector<lanelet::CompoundPolygon3d> detection_areas,
   const std::shared_ptr<const PlannerData> & planner_data,
   const IntersectionModule::PlannerParam & planner_param,
-  autoware_planning_msgs::msg::PathWithLaneId * path, int * stop_line_idx, int * pass_judge_line_idx,
-  int * first_idx_inside_lane);
+  autoware_planning_msgs::msg::PathWithLaneId * path, int * stop_line_idx,
+  int * pass_judge_line_idx, int * first_idx_inside_lane, const rclcpp::Logger logger);
 
 /**
    * @brief Calculate first path index that is in the polygon.

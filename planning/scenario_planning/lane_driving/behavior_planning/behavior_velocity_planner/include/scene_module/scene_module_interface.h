@@ -32,7 +32,11 @@
 class SceneModuleInterface
 {
 public:
-  explicit SceneModuleInterface(const int64_t module_id) : module_id_(module_id) {}
+  explicit SceneModuleInterface(
+    const int64_t module_id, rclcpp::Logger logger, rclcpp::Clock::SharedPtr clock)
+  : module_id_(module_id), logger_(logger), clock_(clock)
+  {
+  }
   virtual ~SceneModuleInterface() = default;
 
   virtual bool modifyPathVelocity(
@@ -50,6 +54,8 @@ public:
 
 protected:
   const int64_t module_id_;
+  rclcpp::Logger logger_;
+  rclcpp::Clock::SharedPtr clock_;
   std::shared_ptr<const PlannerData> planner_data_;
   boost::optional<int> first_stop_path_point_index_;
 };
@@ -57,12 +63,13 @@ protected:
 class SceneModuleManagerInterface
 {
 public:
-  SceneModuleManagerInterface(const char * module_name)
+  SceneModuleManagerInterface(rclcpp::Node & node, const char * module_name)
+  : clock_(node.get_clock()), logger_(node.get_logger())
   {
     const auto ns = std::string("debug/") + module_name;
-    pub_debug_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(ns, 20);
-    pub_stop_reason_ =
-      this->create_publisher<autoware_planning_msgs::msg::StopReasonArray>("output/stop_reasons", 20);
+    pub_debug_ = node.create_publisher<visualization_msgs::msg::MarkerArray>(ns, 20);
+    pub_stop_reason_ = node.create_publisher<autoware_planning_msgs::msg::StopReasonArray>(
+      "output/stop_reasons", 20);
   }
 
   virtual ~SceneModuleManagerInterface() = default;
@@ -86,7 +93,7 @@ public:
     visualization_msgs::msg::MarkerArray debug_marker_array;
     autoware_planning_msgs::msg::StopReasonArray stop_reason_array;
     stop_reason_array.header.frame_id = "map";
-    stop_reason_array.header.stamp = this->now();
+    stop_reason_array.header.stamp = clock_->now();
 
     first_stop_path_point_index_ = static_cast<int>(path->points.size());
     for (const auto & scene_module : scene_modules_) {
@@ -137,15 +144,18 @@ protected:
 
   void registerModule(const std::shared_ptr<SceneModuleInterface> & scene_module)
   {
-    RCLCPP_INFO(get_logger(), "register task: module = %s, id = %lu", getModuleName(), scene_module->getModuleId());
+    RCLCPP_INFO(
+      logger_, "register task: module = %s, id = %lu", getModuleName(),
+      scene_module->getModuleId());
     registered_module_id_set_.emplace(scene_module->getModuleId());
     scene_modules_.insert(scene_module);
   }
 
   void unregisterModule(const std::shared_ptr<SceneModuleInterface> & scene_module)
   {
-    RCLCPP_INFO(get_logger(), 
-      "unregister task: module = %s, id = %lu", getModuleName(), scene_module->getModuleId());
+    RCLCPP_INFO(
+      logger_, "unregister task: module = %s, id = %lu", getModuleName(),
+      scene_module->getModuleId());
     registered_module_id_set_.erase(scene_module->getModuleId());
     scene_modules_.erase(scene_module);
   }
@@ -156,9 +166,9 @@ protected:
   std::shared_ptr<const PlannerData> planner_data_;
 
   boost::optional<int> first_stop_path_point_index_;
-
+  rclcpp::Clock::SharedPtr clock_;
   // Debug
-  rclcpp::NodeHandle private_nh_{"~"};
+  rclcpp::Logger logger_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_debug_;
   rclcpp::Publisher<autoware_planning_msgs::msg::StopReasonArray>::SharedPtr pub_stop_reason_;
 };

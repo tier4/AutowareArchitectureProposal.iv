@@ -71,14 +71,14 @@ bool calcClosestIndex(
 }
 
 template bool calcClosestIndex<autoware_planning_msgs::msg::Trajectory>(
-  const autoware_planning_msgs::msg::Trajectory & path, const geometry_msgs::msg::Pose & pose, int & closest,
-  double dist_thr, double angle_thr);
+  const autoware_planning_msgs::msg::Trajectory & path, const geometry_msgs::msg::Pose & pose,
+  int & closest, double dist_thr, double angle_thr);
 template bool calcClosestIndex<autoware_planning_msgs::msg::PathWithLaneId>(
   const autoware_planning_msgs::msg::PathWithLaneId & path, const geometry_msgs::msg::Pose & pose,
   int & closest, double dist_thr, double angle_thr);
 template bool calcClosestIndex<autoware_planning_msgs::msg::Path>(
-  const autoware_planning_msgs::msg::Path & path, const geometry_msgs::msg::Pose & pose, int & closest,
-  double dist_thr, double angle_thr);
+  const autoware_planning_msgs::msg::Path & path, const geometry_msgs::msg::Pose & pose,
+  int & closest, double dist_thr, double angle_thr);
 
 template <class T>
 bool calcClosestIndex(
@@ -108,8 +108,8 @@ template bool calcClosestIndex<autoware_planning_msgs::msg::PathWithLaneId>(
   const autoware_planning_msgs::msg::PathWithLaneId & path, const geometry_msgs::msg::Point & point,
   int & closest, double dist_thr);
 template bool calcClosestIndex<autoware_planning_msgs::msg::Path>(
-  const autoware_planning_msgs::msg::Path & path, const geometry_msgs::msg::Point & point, int & closest,
-  double dist_thr);
+  const autoware_planning_msgs::msg::Path & path, const geometry_msgs::msg::Point & point,
+  int & closest, double dist_thr);
 
 geometry_msgs::msg::Pose transformRelCoordinate2D(
   const geometry_msgs::msg::Pose & target, const geometry_msgs::msg::Pose & origin)

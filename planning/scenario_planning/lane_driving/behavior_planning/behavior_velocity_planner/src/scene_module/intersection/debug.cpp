@@ -23,45 +23,10 @@ namespace
 {
 using State = IntersectionModule::State;
 
-visualization_msgs::msg::MarkerArray createLaneletsAreaMarkerArray(
-  const std::vector<lanelet::ConstLanelet> & lanelets, const std::string & ns,
-  const int64_t lane_id)
-{
-  const auto current_time = this->now();
-  visualization_msgs::msg::MarkerArray msg;
-
-  for (const auto & lanelet : lanelets) {
-    visualization_msgs::msg::Marker marker{};
-    marker.header.frame_id = "map";
-    marker.header.stamp = current_time;
-
-    marker.ns = ns;
-    marker.id = lanelet.id();
-    marker.lifetime = rclcpp::Duration(0.3);
-    marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
-    marker.action = visualization_msgs::msg::Marker::ADD;
-    marker.pose.orientation = createMarkerOrientation(0, 0, 0, 1.0);
-    marker.scale = createMarkerScale(0.1, 0.0, 0.0);
-    marker.color = createMarkerColor(0.0, 1.0, 0.0, 0.999);
-    for (const auto & p : lanelet.polygon3d()) {
-      geometry_msgs::msg::Point point;
-      point.x = p.x();
-      point.y = p.y();
-      point.z = p.z();
-      marker.points.push_back(point);
-    }
-    if (!marker.points.empty()) marker.points.push_back(marker.points.front());
-    msg.markers.push_back(marker);
-  }
-
-  return msg;
-}
-
 visualization_msgs::msg::MarkerArray createLaneletPolygonsMarkerArray(
   const std::vector<lanelet::CompoundPolygon3d> & polygons, const std::string & ns,
   const int64_t lane_id)
 {
-  const auto current_time = this->now();
   visualization_msgs::msg::MarkerArray msg;
 
   int32_t i = 0;
@@ -69,7 +34,6 @@ visualization_msgs::msg::MarkerArray createLaneletPolygonsMarkerArray(
   for (const auto & polygon : polygons) {
     visualization_msgs::msg::Marker marker{};
     marker.header.frame_id = "map";
-    marker.header.stamp = current_time;
 
     marker.ns = ns;
     marker.id = uid + i++;
@@ -97,12 +61,10 @@ visualization_msgs::msg::MarkerArray createPolygonMarkerArray(
   const geometry_msgs::msg::Polygon & polygon, const std::string & ns, const int64_t lane_id,
   const double r, const double g, const double b)
 {
-  const auto current_time = this->now();
   visualization_msgs::msg::MarkerArray msg;
 
   visualization_msgs::msg::Marker marker{};
   marker.header.frame_id = "map";
-  marker.header.stamp = current_time;
 
   marker.ns = ns;
   marker.id = lane_id;
@@ -129,12 +91,10 @@ visualization_msgs::msg::MarkerArray createObjectsMarkerArray(
   const autoware_perception_msgs::msg::DynamicObjectArray & objects, const std::string & ns,
   const int64_t lane_id, const double r, const double g, const double b)
 {
-  const auto current_time = this->now();
   visualization_msgs::msg::MarkerArray msg;
 
   visualization_msgs::msg::Marker marker{};
   marker.header.frame_id = "map";
-  marker.header.stamp = current_time;
   marker.ns = ns;
 
   int32_t uid = planning_utils::bitShift(lane_id);
@@ -157,14 +117,12 @@ visualization_msgs::msg::MarkerArray createPathMarkerArray(
   const autoware_planning_msgs::msg::PathWithLaneId & path, const std::string & ns,
   const int64_t lane_id, const double r, const double g, const double b)
 {
-  const auto current_time = this->now();
   visualization_msgs::msg::MarkerArray msg;
   int32_t uid = planning_utils::bitShift(lane_id);
   int32_t i = 0;
   for (const auto & p : path.points) {
     visualization_msgs::msg::Marker marker{};
     marker.header.frame_id = "map";
-    marker.header.stamp = current_time;
     marker.ns = ns;
     marker.id = uid + i++;
     marker.lifetime = rclcpp::Duration(0.3);
@@ -191,7 +149,6 @@ visualization_msgs::msg::MarkerArray createVirtualWallMarkerArray(
 
   visualization_msgs::msg::Marker marker_virtual_wall{};
   marker_virtual_wall.header.frame_id = "map";
-  marker_virtual_wall.header.stamp = this->now();
   marker_virtual_wall.ns = "stop_virtual_wall";
   marker_virtual_wall.id = lane_id;
   marker_virtual_wall.lifetime = rclcpp::Duration(0.5);
@@ -205,7 +162,6 @@ visualization_msgs::msg::MarkerArray createVirtualWallMarkerArray(
 
   visualization_msgs::msg::Marker marker_factor_text{};
   marker_factor_text.header.frame_id = "map";
-  marker_factor_text.header.stamp = this->now();
   marker_factor_text.ns = "factor_text";
   marker_factor_text.id = lane_id;
   marker_factor_text.lifetime = rclcpp::Duration(0.5);
@@ -225,12 +181,10 @@ visualization_msgs::msg::MarkerArray createPoseMarkerArray(
   const geometry_msgs::msg::Pose & pose, const std::string & ns, const int64_t id, const double r,
   const double g, const double b)
 {
-  const auto current_time = this->now();
   visualization_msgs::msg::MarkerArray msg;
 
   visualization_msgs::msg::Marker marker_line{};
   marker_line.header.frame_id = "map";
-  marker_line.header.stamp = current_time;
   marker_line.ns = ns + "_line";
   marker_line.id = id;
   marker_line.lifetime = rclcpp::Duration(0.3);
@@ -267,47 +221,48 @@ visualization_msgs::msg::MarkerArray IntersectionModule::createDebugMarkerArray(
   visualization_msgs::msg::MarkerArray debug_marker_array;
 
   const auto state = state_machine_.getState();
+  const auto current_time = this->clock_->now();
 
   appendMarkerArray(
-    createPathMarkerArray(debug_data_.path_raw, "path_raw", lane_id_, 0.0, 1.0, 1.0),
+    createPathMarkerArray(debug_data_.path_raw, "path_raw", lane_id_, 0.0, 1.0, 1.0), current_time,
     &debug_marker_array);
 
   appendMarkerArray(
     createLaneletPolygonsMarkerArray(debug_data_.detection_area, "detection_area", lane_id_),
-    &debug_marker_array);
+    current_time, &debug_marker_array);
 
   appendMarkerArray(
     createPolygonMarkerArray(debug_data_.ego_lane_polygon, "ego_lane", lane_id_, 0.0, 0.3, 0.7),
-    &debug_marker_array);
+    current_time, &debug_marker_array);
 
   appendMarkerArray(
     createPolygonMarkerArray(
       debug_data_.stuck_vehicle_detect_area, "stuck_vehicle_detect_area", lane_id_, 0.0, 0.5, 0.5),
-    &debug_marker_array);
+    current_time, &debug_marker_array);
 
   appendMarkerArray(
     createObjectsMarkerArray(
       debug_data_.conflicting_targets, "conflicting_targets", lane_id_, 0.99, 0.4, 0.0),
-    &debug_marker_array);
+    current_time, &debug_marker_array);
 
   appendMarkerArray(
     createObjectsMarkerArray(debug_data_.stuck_targets, "stuck_targets", lane_id_, 0.99, 0.99, 0.2),
-    &debug_marker_array);
+    current_time, &debug_marker_array);
 
   if (state == IntersectionModule::State::STOP) {
     appendMarkerArray(
       createPoseMarkerArray(
         debug_data_.stop_point_pose, "stop_point_pose", lane_id_, 1.0, 0.0, 0.0),
-      &debug_marker_array);
+      current_time, &debug_marker_array);
 
     appendMarkerArray(
       createPoseMarkerArray(
         debug_data_.judge_point_pose, "judge_point_pose", lane_id_, 1.0, 1.0, 0.5),
-      &debug_marker_array);
+      current_time, &debug_marker_array);
 
     appendMarkerArray(
       createVirtualWallMarkerArray(debug_data_.virtual_wall_pose, lane_id_, "intersection"),
-      &debug_marker_array);
+      current_time, &debug_marker_array);
   }
 
   return debug_marker_array;
@@ -319,16 +274,17 @@ visualization_msgs::msg::MarkerArray MergeFromPrivateRoadModule::createDebugMark
 
   const auto state = state_machine_.getState();
 
+  const auto current_time = this->clock_->now();
   if (state == MergeFromPrivateRoadModule::State::STOP) {
     appendMarkerArray(
       createPoseMarkerArray(
         debug_data_.stop_point_pose, "stop_point_pose", lane_id_, 1.0, 0.0, 0.0),
-      &debug_marker_array);
+      current_time, &debug_marker_array);
 
     appendMarkerArray(
       createVirtualWallMarkerArray(
         debug_data_.virtual_wall_pose, lane_id_, "merge_from_private_road"),
-      &debug_marker_array);
+      current_time, &debug_marker_array);
   }
 
   return debug_marker_array;

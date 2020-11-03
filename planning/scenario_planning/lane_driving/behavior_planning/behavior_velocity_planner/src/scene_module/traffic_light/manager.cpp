@@ -21,7 +21,8 @@ namespace
 {
 std::unordered_map<lanelet::TrafficLightConstPtr, lanelet::ConstLanelet>
 getTrafficLightRegElemsOnPath(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const lanelet::LaneletMapPtr lanelet_map)
 {
   std::unordered_map<lanelet::TrafficLightConstPtr, lanelet::ConstLanelet> traffic_light_reg_elems;
 
@@ -39,7 +40,8 @@ getTrafficLightRegElemsOnPath(
 }
 
 std::set<int64_t> getLaneletIdSetOnPath(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const lanelet::LaneletMapPtr lanelet_map)
 {
   std::set<int64_t> lanelet_id_set;
   for (const auto & traffic_light_reg_elem : getTrafficLightRegElemsOnPath(path, lanelet_map)) {
@@ -50,34 +52,37 @@ std::set<int64_t> getLaneletIdSetOnPath(
 
 }  // namespace
 
-TrafficLightModuleManager::TrafficLightModuleManager()
-: SceneModuleManagerInterface(getModuleName())
+TrafficLightModuleManager::TrafficLightModuleManager(rclcpp::Node & node)
+: SceneModuleManagerInterface(node, getModuleName())
 {
-  rclcpp::NodeHandle pnh("~");
   const std::string ns(getModuleName());
-  auto & p = planner_param_;
-  pnh.param(ns + "/stop_margin", p.stop_margin, 0.0);
-  pnh.param(ns + "/tl_state_timeout", p.tl_state_timeout, 1.0);
-  pub_tl_state_ = this->create_publisher<autoware_perception_msgs::msg::TrafficLightStateStamped>("output/traffic_light_state", 1);
+  planner_param_.stop_margin = node.declare_parameter(ns + "/stop_margin", 0.0);
+  planner_param_.tl_state_timeout = node.declare_parameter(ns + "/tl_state_timeout", 1.0);
+  pub_tl_state_ = node.create_publisher<autoware_perception_msgs::msg::TrafficLightStateStamped>(
+    "output/traffic_light_state", 1);
 }
 
-void TrafficLightModuleManager::modifyPathVelocity(autoware_planning_msgs::msg::PathWithLaneId * path)
+void TrafficLightModuleManager::modifyPathVelocity(
+  autoware_planning_msgs::msg::PathWithLaneId * path)
 {
   visualization_msgs::msg::MarkerArray debug_marker_array;
   autoware_planning_msgs::msg::StopReasonArray stop_reason_array;
   autoware_perception_msgs::msg::TrafficLightStateStamped tl_state;
   stop_reason_array.header.frame_id = "map";
-  stop_reason_array.header.stamp = this->now();
+  stop_reason_array.header.stamp = this->clock_->now();
   first_stop_path_point_index_ = static_cast<int>(path->points.size());
   for (const auto & scene_module : scene_modules_) {
     autoware_planning_msgs::msg::StopReason stop_reason;
-    std::shared_ptr<TrafficLightModule> traffc_light_scene_module(std::dynamic_pointer_cast<TrafficLightModule>(scene_module));
+    std::shared_ptr<TrafficLightModule> traffc_light_scene_module(
+      std::dynamic_pointer_cast<TrafficLightModule>(scene_module));
     traffc_light_scene_module->setPlannerData(planner_data_);
     traffc_light_scene_module->modifyPathVelocity(path, &stop_reason);
     stop_reason_array.stop_reasons.emplace_back(stop_reason);
     if (traffc_light_scene_module->getFirstStopPathPointIndex() < first_stop_path_point_index_) {
       first_stop_path_point_index_ = traffc_light_scene_module->getFirstStopPathPointIndex();
-      if (traffc_light_scene_module->getTrafficLightModuleState() != TrafficLightModule::State::GO_OUT) {
+      if (
+        traffc_light_scene_module->getTrafficLightModuleState() !=
+        TrafficLightModule::State::GO_OUT) {
         tl_state = traffc_light_scene_module->getTrafficLightState();
       }
     }
@@ -102,8 +107,8 @@ void TrafficLightModuleManager::launchNewModules(
     const auto stop_line = traffic_light_reg_elem.first->stopLine();
 
     if (!stop_line) {
-      ROS_FATAL(
-        "No stop line at traffic_light_reg_elem_id = %ld, please fix the map!",
+      RCLCPP_FATAL(
+        logger_, "No stop line at traffic_light_reg_elem_id = %ld, please fix the map!",
         traffic_light_reg_elem.first->id());
       continue;
     }
@@ -112,7 +117,8 @@ void TrafficLightModuleManager::launchNewModules(
     const auto module_id = traffic_light_reg_elem.second.id();
     if (!isModuleRegistered(module_id)) {
       registerModule(std::make_shared<TrafficLightModule>(
-        module_id, *(traffic_light_reg_elem.first), traffic_light_reg_elem.second, planner_param_));
+        module_id, *(traffic_light_reg_elem.first), traffic_light_reg_elem.second, planner_param_,
+        logger_, clock_));
     }
   }
 }

@@ -15,24 +15,11 @@
  */
 #pragma once
 
+#include <functional>
 #include <memory>
-#include <set>
-#include <string>
-#include <vector>
 
-#include <boost/assert.hpp>
-#include <boost/assign/list_of.hpp>
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-
-#define EIGEN_MPL2_ONLY
-#include <Eigen/Core>
-#include <Eigen/Geometry>
-
-#include <lanelet2_core/LaneletMap.h>
-#include <lanelet2_extension/utility/query.h>
-#include <lanelet2_routing/RoutingGraph.h>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 #include <scene_module/scene_module_interface.h>
 #include <scene_module/stop_line/scene.h>
@@ -40,7 +27,7 @@
 class StopLineModuleManager : public SceneModuleManagerInterface
 {
 public:
-  StopLineModuleManager();
+  StopLineModuleManager(rclcpp::Node & node);
 
   const char * getModuleName() override { return "stop_line"; }
 

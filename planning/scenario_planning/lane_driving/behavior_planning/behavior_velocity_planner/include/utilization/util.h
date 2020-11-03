@@ -18,21 +18,22 @@
 #ifndef COMMON_MATH_PLANNING_UTILS_H
 #define COMMON_MATH_PLANNING_UTILS_H
 
+#include <vector>
+
+#include <pcl/point_types.h>
+#include <tf2/utils.h>
 #include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
 #include <autoware_planning_msgs/msg/path.hpp>
 #include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 #include <autoware_planning_msgs/msg/stop_reason.hpp>
 #include <autoware_planning_msgs/msg/trajectory.hpp>
 #include <autoware_planning_msgs/msg/trajectory_point.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/quaternion.hpp>
-#include <pcl_ros/point_cloud.h>
-#include <tf2/utils.h>
-#include <visualization_msgs/msg/marker.hpp>
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
-#include <vector>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/quaternion.hpp>
+#include <visualization_msgs/msg/marker.hpp>
 
 using Point2d = boost::geometry::model::d2::point_xy<double>;
 namespace planning_utils
@@ -47,7 +48,8 @@ inline geometry_msgs::msg::Point getPoint(const autoware_planning_msgs::msg::Pat
 {
   return p.pose.position;
 }
-inline geometry_msgs::msg::Point getPoint(const autoware_planning_msgs::msg::PathPointWithLaneId & p)
+inline geometry_msgs::msg::Point getPoint(
+  const autoware_planning_msgs::msg::PathPointWithLaneId & p)
 {
   return p.point.pose.position;
 }
@@ -59,11 +61,13 @@ inline geometry_msgs::msg::Pose getPose(const autoware_planning_msgs::msg::Path 
 {
   return path.points.at(idx).pose;
 }
-inline geometry_msgs::msg::Pose getPose(const autoware_planning_msgs::msg::PathWithLaneId & path, int idx)
+inline geometry_msgs::msg::Pose getPose(
+  const autoware_planning_msgs::msg::PathWithLaneId & path, int idx)
 {
   return path.points.at(idx).point.pose;
 }
-inline geometry_msgs::msg::Pose getPose(const autoware_planning_msgs::msg::Trajectory & traj, int idx)
+inline geometry_msgs::msg::Pose getPose(
+  const autoware_planning_msgs::msg::Trajectory & traj, int idx)
 {
   return traj.points.at(idx).pose;
 }

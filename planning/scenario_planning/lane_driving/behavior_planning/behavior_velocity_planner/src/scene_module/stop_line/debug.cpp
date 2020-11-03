@@ -24,11 +24,11 @@ namespace
 {
 using DebugData = StopLineModule::DebugData;
 
-visualization_msgs::msg::MarkerArray createMarkers(const DebugData & debug_data, const int64_t module_id)
+visualization_msgs::msg::MarkerArray createMarkers(
+  const DebugData & debug_data, const int64_t module_id)
 {
   int32_t uid = planning_utils::bitShift(module_id);
   visualization_msgs::msg::MarkerArray msg;
-  rclcpp::Time current_time = this->now();
   tf2::Transform tf_base_link2front(
     tf2::Quaternion(0.0, 0.0, 0.0, 1.0), tf2::Vector3(debug_data.base_link2front, 0.0, 0.0));
 
@@ -36,7 +36,6 @@ visualization_msgs::msg::MarkerArray createMarkers(const DebugData & debug_data,
   for (size_t j = 0; j < debug_data.stop_poses.size(); ++j) {
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "map";
-    marker.header.stamp = current_time;
     marker.ns = "stop_virtual_wall";
     marker.id = uid + j;
     marker.lifetime = rclcpp::Duration(0.5);
@@ -60,7 +59,6 @@ visualization_msgs::msg::MarkerArray createMarkers(const DebugData & debug_data,
   for (size_t j = 0; j < debug_data.stop_poses.size(); ++j) {
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "map";
-    marker.header.stamp = current_time;
     marker.ns = "factor_text";
     marker.id = uid + j;
     marker.lifetime = rclcpp::Duration(0.5);
@@ -91,7 +89,8 @@ visualization_msgs::msg::MarkerArray StopLineModule::createDebugMarkerArray()
 {
   visualization_msgs::msg::MarkerArray debug_marker_array;
 
-  appendMarkerArray(createMarkers(debug_data_, module_id_), &debug_marker_array);
+  appendMarkerArray(
+    createMarkers(debug_data_, module_id_), this->clock_->now(), &debug_marker_array);
 
   return debug_marker_array;
 }

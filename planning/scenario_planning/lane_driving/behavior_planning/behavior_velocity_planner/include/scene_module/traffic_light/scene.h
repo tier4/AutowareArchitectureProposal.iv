@@ -17,7 +17,6 @@
 
 #include <memory>
 #include <string>
-#include <unordered_map>
 
 #include <boost/assert.hpp>
 #include <boost/geometry.hpp>
@@ -45,7 +44,8 @@ public:
   {
     double base_link2front;
     std::vector<std::tuple<
-      std::shared_ptr<const lanelet::TrafficLight>, autoware_perception_msgs::msg::TrafficLightState>>
+      std::shared_ptr<const lanelet::TrafficLight>,
+      autoware_perception_msgs::msg::TrafficLightState>>
       tl_state;  // TODO: replace tuple with struct
     std::vector<geometry_msgs::msg::Pose> stop_poses;
     geometry_msgs::msg::Pose first_stop_pose;
@@ -62,7 +62,8 @@ public:
 public:
   TrafficLightModule(
     const int64_t module_id, const lanelet::TrafficLight & traffic_light_reg_elem,
-    lanelet::ConstLanelet lane, const PlannerParam & planner_param);
+    lanelet::ConstLanelet lane, const PlannerParam & planner_param, const rclcpp::Logger logger,
+    const rclcpp::Clock::SharedPtr clock);
 
   bool modifyPathVelocity(
     autoware_planning_msgs::msg::PathWithLaneId * path,
@@ -97,8 +98,9 @@ private:
 
   bool isOverDeadLine(
     const geometry_msgs::msg::Pose & self_pose,
-    const autoware_planning_msgs::msg::PathWithLaneId & input_path, const size_t & dead_line_point_idx,
-    const Eigen::Vector2d & dead_line_point, const double dead_line_range);
+    const autoware_planning_msgs::msg::PathWithLaneId & input_path,
+    const size_t & dead_line_point_idx, const Eigen::Vector2d & dead_line_point,
+    const double dead_line_range);
 
   bool isStopRequired(const autoware_perception_msgs::msg::TrafficLightState & tl_state);
 

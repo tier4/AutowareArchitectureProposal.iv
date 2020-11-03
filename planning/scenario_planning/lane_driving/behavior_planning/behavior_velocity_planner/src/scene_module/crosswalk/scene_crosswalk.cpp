@@ -25,8 +25,9 @@ using Line = bg::model::linestring<Point>;
 
 CrosswalkModule::CrosswalkModule(
   const int64_t module_id, const lanelet::ConstLanelet & crosswalk,
-  const PlannerParam & planner_param)
-: SceneModuleInterface(module_id),
+  const PlannerParam & planner_param, const rclcpp::Logger logger,
+  const rclcpp::Clock::SharedPtr clock)
+: SceneModuleInterface(module_id, logger, clock),
   module_id_(module_id),
   crosswalk_(crosswalk),
   state_(State::APPROACH)
@@ -35,10 +36,11 @@ CrosswalkModule::CrosswalkModule(
 }
 
 bool CrosswalkModule::modifyPathVelocity(
-  autoware_planning_msgs::msg::PathWithLaneId * path, autoware_planning_msgs::msg::StopReason * stop_reason)
+  autoware_planning_msgs::msg::PathWithLaneId * path,
+  autoware_planning_msgs::msg::StopReason * stop_reason)
 {
-  debug_data_ = {};
-  debug_data_.base_link2front = planner_data_->base_link2front;
+  debug_data_ = DebugData();
+  debug_data_.base_link2front = planner_data_->vehicle_info_.max_longitudinal_offset_m_;
   first_stop_path_point_index_ = static_cast<int>(path->points.size()) - 1;
   *stop_reason =
     planning_utils::initializeStopReason(autoware_planning_msgs::msg::StopReason::CROSSWALK);
@@ -94,14 +96,14 @@ bool CrosswalkModule::checkStopArea(
   const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>, false> &
     crosswalk_polygon,
   const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & objects_ptr,
-  const pcl::PointCloud<pcl::PointXYZ>::ConstSharedPtr & no_ground_pointcloud_ptr,
+  const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
   autoware_planning_msgs::msg::PathWithLaneId & output, bool * insert_stop)
 {
   output = input;
   *insert_stop = false;
   bool pedestrian_found = false;
   bool object_found = false;
-  rclcpp::Time current_time = this->now();
+  rclcpp::Time current_time = clock_->now();
 
   // create stop area
   std::vector<Point> path_collision_points;
@@ -124,7 +126,7 @@ bool CrosswalkModule::checkStopArea(
   Polygon stop_polygon;
   {
     constexpr double extension_margin = 1.0;
-    const double width = planner_data_->vehicle_width;
+    const double width = planner_data_->vehicle_info_.vehicle_width_m_;
     const double d = (width / 2.0) + extension_margin;
     const auto cp0 = path_collision_points.at(0);
     const auto cp1 = path_collision_points.at(1);
@@ -172,7 +174,7 @@ bool CrosswalkModule::checkStopArea(
       for (const auto & object_path : object.state.predicted_paths) {
         for (size_t k = 0; k < object_path.path.size() - 1; ++k) {
           if (
-            (current_time - object_path.path.at(k).header.stamp).toSec() <
+            (current_time - object_path.path.at(k).header.stamp).seconds() <
             planner_param_.stop_dynamic_object_prediction_time_margin) {
             const auto op0 = object_path.path.at(k).pose.pose.position;
             const auto op1 = object_path.path.at(k + 1).pose.pose.position;
@@ -206,7 +208,7 @@ bool CrosswalkModule::checkStopArea(
 bool CrosswalkModule::checkSlowArea(
   const autoware_planning_msgs::msg::PathWithLaneId & input, const Polygon & polygon,
   const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & objects_ptr,
-  const pcl::PointCloud<pcl::PointXYZ>::ConstSharedPtr & no_ground_pointcloud_ptr,
+  const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
   autoware_planning_msgs::msg::PathWithLaneId & output)
 {
   output = input;

@@ -76,8 +76,8 @@ double calcArcLengthFromWayPoint(
 }
 
 double calcSignedArcLength(
-  const autoware_planning_msgs::msg::PathWithLaneId & input_path, const geometry_msgs::msg::Pose & p1,
-  const Eigen::Vector2d & p2)
+  const autoware_planning_msgs::msg::PathWithLaneId & input_path,
+  const geometry_msgs::msg::Pose & p1, const Eigen::Vector2d & p2)
 {
   std::pair<int, double> src =
     findWayPointAndDistance(input_path, Eigen::Vector2d(p1.position.x, p1.position.y));
@@ -111,8 +111,9 @@ namespace bg = boost::geometry;
 
 DetectionAreaModule::DetectionAreaModule(
   const int64_t module_id, const lanelet::autoware::DetectionArea & detection_area_reg_elem,
-  const PlannerParam & planner_param)
-: SceneModuleInterface(module_id),
+  const PlannerParam & planner_param, const rclcpp::Logger logger,
+  const rclcpp::Clock::SharedPtr clock)
+: SceneModuleInterface(module_id, logger, clock),
   module_id_(module_id),
   detection_area_reg_elem_(detection_area_reg_elem),
   state_(State::APPROACH)
@@ -121,12 +122,13 @@ DetectionAreaModule::DetectionAreaModule(
 }
 
 bool DetectionAreaModule::modifyPathVelocity(
-  autoware_planning_msgs::msg::PathWithLaneId * path, autoware_planning_msgs::msg::StopReason * stop_reason)
+  autoware_planning_msgs::msg::PathWithLaneId * path,
+  autoware_planning_msgs::msg::StopReason * stop_reason)
 {
   const auto input_path = *path;
 
-  debug_data_ = {};
-  debug_data_.base_link2front = planner_data_->base_link2front;
+  debug_data_ = DebugData();
+  debug_data_.base_link2front = planner_data_->vehicle_info_.max_longitudinal_offset_m_;
   *stop_reason =
     planning_utils::initializeStopReason(autoware_planning_msgs::msg::StopReason::DETECTION_AREA);
 
@@ -191,7 +193,8 @@ bool DetectionAreaModule::modifyPathVelocity(
       if (
         state_ != State::STOP &&
         calcSignedDistance(self_pose.pose, stop_line_point) < pass_judge_line_distance) {
-        ROS_WARN_THROTTLE(1.0, "[detection_area] vehicle is over stop border");
+        RCLCPP_WARN_THROTTLE(
+          logger_, *clock_, 1000, "[detection_area] vehicle is over stop border");
         state_ = State::PASS;
         return true;
       }
@@ -215,7 +218,8 @@ bool DetectionAreaModule::modifyPathVelocity(
 }
 
 bool DetectionAreaModule::isOverDeadLine(
-  const geometry_msgs::msg::Pose & self_pose, const autoware_planning_msgs::msg::PathWithLaneId & input_path,
+  const geometry_msgs::msg::Pose & self_pose,
+  const autoware_planning_msgs::msg::PathWithLaneId & input_path,
   const size_t & dead_line_point_idx, const Eigen::Vector2d & dead_line_point,
   const double dead_line_range)
 {
@@ -251,7 +255,7 @@ bool DetectionAreaModule::isOverDeadLine(
   }
 
   if (0 < tf_dead_line_pose2self_pose.getOrigin().x()) {
-    ROS_WARN("[traffic_light] vehicle is over dead line");
+    RCLCPP_WARN(logger_, "[traffic_light] vehicle is over dead line");
     return true;
   }
 
@@ -259,7 +263,7 @@ bool DetectionAreaModule::isOverDeadLine(
 }
 
 bool DetectionAreaModule::isPointsWithinDetectionArea(
-  const pcl::PointCloud<pcl::PointXYZ>::ConstSharedPtr & no_ground_pointcloud_ptr,
+  const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
   const lanelet::ConstPolygons3d & detection_areas)
 {
   for (const auto & da : detection_areas) {
@@ -287,7 +291,8 @@ bool DetectionAreaModule::insertTargetVelocityPoint(
   const autoware_planning_msgs::msg::PathWithLaneId & input,
   const boost::geometry::model::linestring<boost::geometry::model::d2::point_xy<double>> &
     stop_line,
-  const double & margin, const double & velocity, autoware_planning_msgs::msg::PathWithLaneId & output)
+  const double & margin, const double & velocity,
+  autoware_planning_msgs::msg::PathWithLaneId & output)
 {
   // create target point
   Eigen::Vector2d target_point;
@@ -350,7 +355,7 @@ bool DetectionAreaModule::createTargetPoint(
 
     // search target point index
     target_point_idx = 0;
-    const double base_link2front = planner_data_->base_link2front;
+    const double base_link2front = planner_data_->vehicle_info_.max_longitudinal_offset_m_;
     double length_sum = 0;
 
     const double target_length = margin + base_link2front;

@@ -23,7 +23,8 @@
 namespace
 {
 std::vector<lanelet::ConstLanelet> getLaneletsOnPath(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const lanelet::LaneletMapPtr lanelet_map)
 {
   std::vector<lanelet::ConstLanelet> lanelets;
 
@@ -49,17 +50,18 @@ std::set<int64_t> getLaneIdSetOnPath(const autoware_planning_msgs::msg::PathWith
 
 }  // namespace
 
-BlindSpotModuleManager::BlindSpotModuleManager() : SceneModuleManagerInterface(getModuleName())
+BlindSpotModuleManager::BlindSpotModuleManager(rclcpp::Node & node)
+: SceneModuleManagerInterface(node, getModuleName())
 {
-  rclcpp::NodeHandle pnh("~");
   const std::string ns(getModuleName());
-  auto & p = planner_param_;
-  pnh.param(ns + "/stop_line_margin", p.stop_line_margin, 1.0);
-  pnh.param(ns + "/backward_length", p.backward_length, 15.0);
-  pnh.param(ns + "/max_future_movement_time", p.max_future_movement_time, 10.0);
+  planner_param_.stop_line_margin = node.declare_parameter(ns + "/stop_line_margin", 1.0);
+  planner_param_.backward_length = node.declare_parameter(ns + "/backward_length", 15.0);
+  planner_param_.max_future_movement_time =
+    node.declare_parameter(ns + "/max_future_movement_time", 10.0);
 }
 
-void BlindSpotModuleManager::launchNewModules(const autoware_planning_msgs::msg::PathWithLaneId & path)
+void BlindSpotModuleManager::launchNewModules(
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   for (const auto & ll : getLaneletsOnPath(path, planner_data_->lanelet_map)) {
     const auto lane_id = ll.id();
@@ -75,8 +77,8 @@ void BlindSpotModuleManager::launchNewModules(const autoware_planning_msgs::msg:
       continue;
     }
 
-    registerModule(
-      std::make_shared<BlindSpotModule>(module_id, lane_id, planner_data_, planner_param_));
+    registerModule(std::make_shared<BlindSpotModule>(
+      module_id, lane_id, planner_data_, planner_param_, logger_, clock_));
   }
 }
 

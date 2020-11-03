@@ -28,7 +28,7 @@
 #include <behavior_velocity_planner/planner_data.h>
 #include <behavior_velocity_planner/planner_manager.h>
 
-class BehaviorVelocityPlannerNode: public rclcpp::Node
+class BehaviorVelocityPlannerNode : public rclcpp::Node
 {
 public:
   BehaviorVelocityPlannerNode();
@@ -39,26 +39,31 @@ private:
   tf2_ros::TransformListener tf_listener_;
 
   // subscriber
-  rclcpp::Subscription<autoware_planning_msgs::msg::PathWithLaneId>::SharedPtr trigger_sub_path_with_lane_id_;
-  rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr sub_dynamic_objects_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::PathWithLaneId>::SharedPtr
+    trigger_sub_path_with_lane_id_;
+  rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr
+    sub_dynamic_objects_;
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_no_ground_pointcloud_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_vehicle_velocity_;
   rclcpp::Subscription<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr sub_lanelet_map_;
-  rclcpp::Subscription<autoware_perception_msgs::msg::TrafficLightStateArray>::SharedPtr sub_traffic_light_states_;
+  rclcpp::Subscription<autoware_perception_msgs::msg::TrafficLightStateArray>::SharedPtr
+    sub_traffic_light_states_;
 
   void onTrigger(const autoware_planning_msgs::msg::PathWithLaneId::ConstSharedPtr input_path_msg);
-  void onDynamicObjects(const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr msg);
+  void onDynamicObjects(
+    const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr msg);
   void onNoGroundPointCloud(const sensor_msgs::msg::PointCloud2::ConstSharedPtr msg);
   void onVehicleVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
   void onLaneletMap(const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr msg);
-  void onTrafficLightStates(const autoware_perception_msgs::msg::TrafficLightStateArray::ConstSharedPtr msg);
+  void onTrafficLightStates(
+    const autoware_perception_msgs::msg::TrafficLightStateArray::ConstSharedPtr msg);
 
   // publisher
   rclcpp::Publisher<autoware_planning_msgs::msg::Path>::SharedPtr path_pub_;
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticStatus>::SharedPtr stop_reason_diag_pub_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr debug_viz_pub_;
 
-  void publishDebugMarker(const autoware_planning_msgs::msg::Path & path, const rclcpp::Publisher & pub);
+  void publishDebugMarker(const autoware_planning_msgs::msg::Path & path);
 
   //  parameter
   double forward_path_length_;

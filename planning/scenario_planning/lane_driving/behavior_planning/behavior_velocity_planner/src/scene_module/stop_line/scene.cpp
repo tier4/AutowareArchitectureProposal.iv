@@ -22,8 +22,9 @@ using Polygon = bg::model::polygon<Point>;
 
 StopLineModule::StopLineModule(
   const int64_t module_id, const lanelet::ConstLineString3d & stop_line,
-  const PlannerParam & planner_param)
-: SceneModuleInterface(module_id),
+  const PlannerParam & planner_param, const rclcpp::Logger logger,
+  const rclcpp::Clock::SharedPtr clock)
+: SceneModuleInterface(module_id, logger, clock),
   module_id_(module_id),
   stop_line_(stop_line),
   state_(State::APPROACH)
@@ -32,10 +33,11 @@ StopLineModule::StopLineModule(
 }
 
 bool StopLineModule::modifyPathVelocity(
-  autoware_planning_msgs::msg::PathWithLaneId * path, autoware_planning_msgs::msg::StopReason * stop_reason)
+  autoware_planning_msgs::msg::PathWithLaneId * path,
+  autoware_planning_msgs::msg::StopReason * stop_reason)
 {
-  debug_data_ = {};
-  debug_data_.base_link2front = planner_data_->base_link2front;
+  debug_data_ = DebugData();
+  debug_data_.base_link2front = planner_data_->vehicle_info_.max_longitudinal_offset_m_;
   first_stop_path_point_index_ = static_cast<int>(path->points.size()) - 1;
   *stop_reason =
     planning_utils::initializeStopReason(autoware_planning_msgs::msg::StopReason::STOP_LINE);
@@ -56,7 +58,7 @@ bool StopLineModule::modifyPathVelocity(
 
       // search stop point index
       size_t insert_stop_point_idx = 0;
-      const double base_link2front = planner_data_->base_link2front;
+      const double base_link2front = planner_data_->vehicle_info_.max_longitudinal_offset_m_;
       double length_sum = 0;
 
       const double stop_length = planner_param_.stop_margin + base_link2front;
@@ -106,7 +108,6 @@ bool StopLineModule::modifyPathVelocity(
     const double dist = std::sqrt(x * x + y * y);
     if (dist < planner_param_.stop_check_dist && planner_data_->isVehicleStopping())
       state_ = State::STOP;
-    return true;
   } else if (state_ == State::STOP) {
     if (!planner_data_->isVehicleStopping()) state_ = State::START;
     /* get stop point and stop factor */
@@ -114,8 +115,8 @@ bool StopLineModule::modifyPathVelocity(
     stop_factor.stop_pose = debug_data_.first_stop_pose;
     stop_factor.stop_factor_points.emplace_back(getCenterOfStopLine(stop_line_));
     planning_utils::appendStopReason(stop_factor, stop_reason);
-    return true;
   }
+  return true;
 }
 
 bool StopLineModule::getBackwordPointFromBasePoint(

@@ -15,24 +15,11 @@
  */
 #pragma once
 
-#include <string>
-#include <unordered_map>
+#include <functional>
+#include <memory>
 
-#include <boost/assert.hpp>
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-
-#define EIGEN_MPL2_ONLY
-#include <Eigen/Core>
-#include <Eigen/Geometry>
-
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 #include <rclcpp/rclcpp.hpp>
-
-#include <lanelet2_core/LaneletMap.h>
-#include <lanelet2_extension/regulatory_elements/detection_area.h>
-#include <lanelet2_extension/utility/query.h>
-#include <lanelet2_routing/RoutingGraph.h>
 
 #include <scene_module/detection_area/scene.h>
 #include <scene_module/scene_module_interface.h>
@@ -40,7 +27,7 @@
 class DetectionAreaModuleManager : public SceneModuleManagerInterface
 {
 public:
-  DetectionAreaModuleManager();
+  DetectionAreaModuleManager(rclcpp::Node & node);
 
   const char * getModuleName() override { return "detection_area"; }
 

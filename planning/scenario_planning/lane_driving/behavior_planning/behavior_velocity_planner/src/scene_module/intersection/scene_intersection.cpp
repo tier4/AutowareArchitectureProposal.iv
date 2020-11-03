@@ -30,8 +30,9 @@ namespace bg = boost::geometry;
 
 IntersectionModule::IntersectionModule(
   const int64_t module_id, const int64_t lane_id, std::shared_ptr<const PlannerData> planner_data,
-  const PlannerParam & planner_param)
-: SceneModuleInterface(module_id), lane_id_(lane_id)
+  const PlannerParam & planner_param, const rclcpp::Logger logger,
+  const rclcpp::Clock::SharedPtr clock)
+: SceneModuleInterface(module_id, logger, clock), lane_id_(lane_id)
 {
   planner_param_ = planner_param;
   const auto & assigned_lanelet = planner_data->lanelet_map->laneletLayer.get(lane_id);
@@ -41,10 +42,11 @@ IntersectionModule::IntersectionModule(
 }
 
 bool IntersectionModule::modifyPathVelocity(
-  autoware_planning_msgs::msg::PathWithLaneId * path, autoware_planning_msgs::msg::StopReason * stop_reason)
+  autoware_planning_msgs::msg::PathWithLaneId * path,
+  autoware_planning_msgs::msg::StopReason * stop_reason)
 {
-  ROS_DEBUG("[intersection] ===== plan start =====");
-  debug_data_ = {};
+  RCLCPP_DEBUG(logger_, "===== plan start =====");
+  debug_data_ = DebugData();
   *stop_reason =
     planning_utils::initializeStopReason(autoware_planning_msgs::msg::StopReason::INTERSECTION);
 
@@ -52,7 +54,7 @@ bool IntersectionModule::modifyPathVelocity(
   debug_data_.path_raw = input_path;
 
   State current_state = state_machine_.getState();
-  ROS_DEBUG("[Intersection] lane_id = %ld, state = %s", lane_id_, toString(current_state).c_str());
+  RCLCPP_DEBUG(logger_, "lane_id = %ld, state = %s", lane_id_, toString(current_state).c_str());
 
   /* get current pose */
   geometry_msgs::msg::PoseStamped current_pose = planner_data_->current_pose;
@@ -64,9 +66,9 @@ bool IntersectionModule::modifyPathVelocity(
   /* get detection area */
   std::vector<lanelet::CompoundPolygon3d> detection_areas;
   util::getObjectivePolygons(
-    lanelet_map_ptr, routing_graph_ptr, lane_id_, planner_param_, &detection_areas);
+    lanelet_map_ptr, routing_graph_ptr, lane_id_, planner_param_, &detection_areas, logger_);
   if (detection_areas.empty()) {
-    ROS_DEBUG("[Intersection] no detection area. skip computation.");
+    RCLCPP_DEBUG(logger_, "no detection area. skip computation.");
     return true;
   }
   debug_data_.detection_area = detection_areas;
@@ -77,28 +79,29 @@ bool IntersectionModule::modifyPathVelocity(
   int first_idx_inside_lane = -1;
   if (!util::generateStopLine(
         lane_id_, detection_areas, planner_data_, planner_param_, path, &stop_line_idx,
-        &pass_judge_line_idx, &first_idx_inside_lane)) {
-    ROS_WARN_DELAYED_THROTTLE(1.0, "[IntersectionModule::run] setStopLineIdx fail");
-    ROS_DEBUG("[intersection] ===== plan end =====");
+        &pass_judge_line_idx, &first_idx_inside_lane, logger_)) {
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      logger_, *clock_, 1000, "[IntersectionModule::run] setStopLineIdx fail");
+    RCLCPP_DEBUG(logger_, "===== plan end =====");
     return false;
   }
 
   if (stop_line_idx <= 0 || pass_judge_line_idx <= 0) {
-    ROS_DEBUG("[Intersection] stop line or pass judge line is at path[0], ignore planning.");
-    ROS_DEBUG("[intersection] ===== plan end =====");
+    RCLCPP_DEBUG(logger_, "stop line or pass judge line is at path[0], ignore planning.");
+    RCLCPP_DEBUG(logger_, "===== plan end =====");
     return true;
   }
 
   /* calc closest index */
   int closest_idx = -1;
   if (!planning_utils::calcClosestIndex(input_path, current_pose.pose, closest_idx)) {
-    ROS_WARN_DELAYED_THROTTLE(1.0, "[Intersection] calcClosestIndex fail");
-    ROS_DEBUG("[intersection] ===== plan end =====");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000, "[Intersection] calcClosestIndex fail");
+    RCLCPP_DEBUG(logger_, "===== plan end =====");
     return false;
   }
 
-  debug_data_.virtual_wall_pose =
-    util::getAheadPose(stop_line_idx, planner_data_->base_link2front, *path);
+  debug_data_.virtual_wall_pose = util::getAheadPose(
+    stop_line_idx, planner_data_->vehicle_info_.max_longitudinal_offset_m_, *path);
   debug_data_.stop_point_pose = path->points.at(stop_line_idx).point.pose;
   debug_data_.judge_point_pose = path->points.at(pass_judge_line_idx).point.pose;
 
@@ -109,8 +112,8 @@ bool IntersectionModule::modifyPathVelocity(
     is_over_pass_judge_line = util::isAheadOf(current_pose.pose, pass_judge_line);
   }
   if (current_state == State::GO && is_over_pass_judge_line) {
-    ROS_DEBUG("[Intersection] over the pass judge line. no plan needed.");
-    ROS_DEBUG("[intersection] ===== plan end =====");
+    RCLCPP_DEBUG(logger_, "over the pass judge line. no plan needed.");
+    RCLCPP_DEBUG(logger_, "===== plan end =====");
     return true;  // no plan needed.
   }
 
@@ -121,7 +124,8 @@ bool IntersectionModule::modifyPathVelocity(
   bool has_collision = checkCollision(*path, detection_areas, objects_ptr, closest_idx);
   bool is_stuck = checkStuckVehicleInIntersection(*path, closest_idx, stop_line_idx, objects_ptr);
   bool is_entry_prohibited = (has_collision || is_stuck);
-  state_machine_.setStateWithMarginTime(is_entry_prohibited ? State::STOP : State::GO);
+  state_machine_.setStateWithMarginTime(
+    is_entry_prohibited ? State::STOP : State::GO, logger_, *clock_);
 
   /* set stop speed : TODO behavior on straight lane should be improved*/
   if (state_machine_.getState() == State::STOP) {
@@ -141,19 +145,19 @@ bool IntersectionModule::modifyPathVelocity(
     planning_utils::appendStopReason(stop_factor, stop_reason);
   }
 
-  ROS_DEBUG("[intersection] ===== plan end =====");
+  RCLCPP_DEBUG(logger_, "===== plan end =====");
   return true;
 }
 
 void IntersectionModule::cutPredictPathWithDuration(
   autoware_perception_msgs::msg::DynamicObjectArray * objects_ptr, const double time_thr) const
 {
-  const rclcpp::Time current_time = this->now();
+  const rclcpp::Time current_time = clock_->now();
   for (auto & object : objects_ptr->objects) {                    // each objects
     for (auto & predicted_path : object.state.predicted_paths) {  // each predicted paths
       std::vector<geometry_msgs::msg::PoseWithCovarianceStamped> vp;
       for (auto & predicted_pose : predicted_path.path) {  // each path points
-        if ((predicted_pose.header.stamp - current_time).toSec() < time_thr) {
+        if ((rclcpp::Time(predicted_pose.header.stamp) - current_time).seconds() < time_thr) {
           vp.push_back(predicted_pose);
         }
       }
@@ -165,7 +169,8 @@ void IntersectionModule::cutPredictPathWithDuration(
 bool IntersectionModule::checkCollision(
   const autoware_planning_msgs::msg::PathWithLaneId & path,
   const std::vector<lanelet::CompoundPolygon3d> & detection_areas,
-  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr objects_ptr, const int closest_idx)
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr objects_ptr,
+  const int closest_idx)
 {
   /* generate ego-lane polygon */
   const Polygon2d ego_poly = generateEgoIntersectionLanePolygon(
@@ -229,8 +234,8 @@ bool IntersectionModule::checkCollision(
 }
 
 Polygon2d IntersectionModule::generateEgoIntersectionLanePolygon(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const int closest_idx, const int start_idx,
-  const double extra_dist, const double ignore_dist) const
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const int closest_idx,
+  const int start_idx, const double extra_dist, const double ignore_dist) const
 {
   const size_t assigned_lane_start_idx = start_idx;
   size_t assigned_lane_end_idx = 0;
@@ -248,14 +253,14 @@ Polygon2d IntersectionModule::generateEgoIntersectionLanePolygon(
   {
     //decide start idx with considering ignore_dist
     double dist_sum = 0.0;
-    for (int i = assigned_lane_start_idx + 1; i < assigned_lane_end_idx; ++i) {
+    for (size_t i = assigned_lane_start_idx + 1; i < assigned_lane_end_idx; ++i) {
       dist_sum += planning_utils::calcDist2d(path.points.at(i), path.points.at(i - 1));
       ++ego_area_start_idx;
       if (dist_sum > ignore_dist) break;
     }
   }
 
-  if (ego_area_start_idx < closest_idx) {
+  if (static_cast<int>(ego_area_start_idx) < closest_idx) {
     //If ego-position is over the start_idx, use closest_idx as start
     ego_area_start_idx = closest_idx;
   }
@@ -273,13 +278,13 @@ Polygon2d IntersectionModule::generateEgoIntersectionLanePolygon(
 
   Polygon2d ego_area;  // open polygon
   const auto width = planner_param_.path_expand_width;
-  for (int i = ego_area_start_idx; i <= ego_area_end_idx; ++i) {
+  for (int i = ego_area_start_idx; i <= static_cast<int>(ego_area_end_idx); ++i) {
     double yaw = tf2::getYaw(path.points.at(i).point.pose.orientation);
     double x = path.points.at(i).point.pose.position.x + width * std::sin(yaw);
     double y = path.points.at(i).point.pose.position.y - width * std::cos(yaw);
     ego_area.outer().push_back(Point2d(x, y));
   }
-  for (int i = ego_area_end_idx; i >= ego_area_start_idx; --i) {
+  for (int i = ego_area_end_idx; i >= static_cast<int>(ego_area_start_idx); --i) {
     if (i < 0) break;
     double yaw = tf2::getYaw(path.points.at(i).point.pose.orientation);
     double x = path.points.at(i).point.pose.position.x - width * std::sin(yaw);
@@ -297,7 +302,7 @@ double IntersectionModule::calcIntersectionPassingTime(
   double dist_sum = 0.0;
   int assigned_lane_found = false;
 
-  for (int i = closest_idx + 1; i < path.points.size(); ++i) {
+  for (size_t i = closest_idx + 1; i < path.points.size(); ++i) {
     dist_sum += planning_utils::calcDist2d(path.points.at(i - 1), path.points.at(i));
     bool has_objective_lane_id = util::hasLaneId(path.points.at(i), objective_lane_id);
 
@@ -311,13 +316,14 @@ double IntersectionModule::calcIntersectionPassingTime(
   // TODO set to be reasonable
   const double passing_time = dist_sum / planner_param_.intersection_velocity;
 
-  ROS_DEBUG("[intersection] intersection dist = %f, passing_time = %f", dist_sum, passing_time);
+  RCLCPP_DEBUG(logger_, "intersection dist = %f, passing_time = %f", dist_sum, passing_time);
 
   return passing_time;
 }
 
 bool IntersectionModule::checkStuckVehicleInIntersection(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const int closest_idx, const int stop_idx,
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const int closest_idx,
+  const int stop_idx,
   const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr objects_ptr) const
 {
   const Polygon2d stuck_vehicle_detect_area = generateEgoIntersectionLanePolygon(
@@ -335,7 +341,7 @@ bool IntersectionModule::checkStuckVehicleInIntersection(
     }
     const auto object_pos = object.state.pose_covariance.pose.position;
     if (bg::within(to_bg2d(object_pos), stuck_vehicle_detect_area)) {
-      ROS_DEBUG("[intersection] stuck vehicle found.");
+      RCLCPP_DEBUG(logger_, "stuck vehicle found.");
       debug_data_.stuck_targets.objects.push_back(object);
       return true;
     }
@@ -357,7 +363,8 @@ bool IntersectionModule::isTargetVehicleType(
   return false;
 }
 
-void IntersectionModule::StateMachine::setStateWithMarginTime(State state)
+void IntersectionModule::StateMachine::setStateWithMarginTime(
+  State state, rclcpp::Logger logger, rclcpp::Clock & clock)
 {
   /* same state request */
   if (state_ == state) {
@@ -375,9 +382,9 @@ void IntersectionModule::StateMachine::setStateWithMarginTime(State state)
   /* STOP -> GO */
   if (state == State::GO) {
     if (start_time_ == nullptr) {
-      start_time_ = std::make_shared<rclcpp::Time>(this->now());
+      start_time_ = std::make_shared<rclcpp::Time>(clock.now());
     } else {
-      const double duration = (this->now() - *start_time_).toSec();
+      const double duration = (clock.now() - *start_time_).seconds();
       if (duration > margin_time_) {
         state_ = State::GO;
         start_time_ = nullptr;  // reset timer
@@ -386,7 +393,7 @@ void IntersectionModule::StateMachine::setStateWithMarginTime(State state)
     return;
   }
 
-  ROS_ERROR("[StateMachine] : Unsuitable state. ignore request.");
+  RCLCPP_ERROR(logger, "[StateMachine] : Unsuitable state. ignore request.");
   return;
 }
 

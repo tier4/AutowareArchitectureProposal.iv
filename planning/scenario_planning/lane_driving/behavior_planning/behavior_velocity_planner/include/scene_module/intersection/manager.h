@@ -15,21 +15,11 @@
  */
 #pragma once
 
+#include <functional>
 #include <memory>
-#include <set>
-#include <string>
-#include <vector>
 
-#include <rclcpp/rclcpp.hpp>
-
-#include <autoware_perception_msgs/msg/dynamic_object.hpp>
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
 #include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
-#include <geometry_msgs/msg/point.hpp>
-#include <std_msgs/msg/float32_multi_array.hpp>
-
-#include <lanelet2_core/LaneletMap.h>
-#include <lanelet2_routing/RoutingGraph.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <scene_module/intersection/scene_intersection.h>
 #include <scene_module/intersection/scene_merge_from_private_road.h>
@@ -38,7 +28,7 @@
 class IntersectionModuleManager : public SceneModuleManagerInterface
 {
 public:
-  IntersectionModuleManager();
+  IntersectionModuleManager(rclcpp::Node & node);
 
   const char * getModuleName() override { return "intersection"; }
 

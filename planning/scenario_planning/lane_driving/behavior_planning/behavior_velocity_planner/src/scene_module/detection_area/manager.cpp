@@ -20,7 +20,8 @@
 namespace
 {
 std::unordered_map<int64_t, lanelet::DetectionAreaConstPtr> getDetectionAreaRegElemsOnPath(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const lanelet::LaneletMapPtr lanelet_map)
 {
   std::unordered_map<int64_t, lanelet::DetectionAreaConstPtr> detection_area_reg_elems;
 
@@ -37,7 +38,8 @@ std::unordered_map<int64_t, lanelet::DetectionAreaConstPtr> getDetectionAreaRegE
 }
 
 std::set<int64_t> getLaneletIdSetOnPath(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const lanelet::LaneletMapPtr lanelet_map)
 {
   std::set<int64_t> lanelet_id_set;
   for (const auto & regelem : getDetectionAreaRegElemsOnPath(path, lanelet_map)) {
@@ -47,13 +49,11 @@ std::set<int64_t> getLaneletIdSetOnPath(
 }
 }  // namespace
 
-DetectionAreaModuleManager::DetectionAreaModuleManager()
-: SceneModuleManagerInterface(getModuleName())
+DetectionAreaModuleManager::DetectionAreaModuleManager(rclcpp::Node & node)
+: SceneModuleManagerInterface(node, getModuleName())
 {
-  rclcpp::NodeHandle pnh("~");
   const std::string ns(getModuleName());
-  auto & p = planner_param_;
-  pnh.param(ns + "/stop_margin", p.stop_margin, 0.0);
+  planner_param_.stop_margin = node.declare_parameter(ns + "/stop_margin", 0.0);
 }
 
 void DetectionAreaModuleManager::launchNewModules(
@@ -65,7 +65,7 @@ void DetectionAreaModuleManager::launchNewModules(
     const auto module_id = detection_area_reg_elem.first;
     if (!isModuleRegistered(module_id)) {
       registerModule(std::make_shared<DetectionAreaModule>(
-        module_id, *(detection_area_reg_elem.second), planner_param_));
+        module_id, *(detection_area_reg_elem.second), planner_param_, logger_, clock_));
     }
   }
 }

@@ -88,7 +88,7 @@ bool insertTargetVelocityPoint(
 
     // search target point index
     size_t insert_target_point_idx = 0;
-    const double base_link2front = planner_data.base_link2front;
+    const double base_link2front = planner_data.vehicle_info_.max_longitudinal_offset_m_;
     double length_sum = 0;
 
     const double target_length = margin + base_link2front;
