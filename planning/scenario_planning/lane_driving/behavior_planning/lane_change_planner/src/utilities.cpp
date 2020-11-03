@@ -936,14 +936,14 @@ double getDistanceToNextIntersection(
       const auto right_line = llt.rightBound();
       if (right_line.hasAttribute(lanelet::AttributeNamesString::LaneChange)) {
         const auto attr = right_line.attribute(lanelet::AttributeNamesString::LaneChange);
-        if (attr.value() == "yes") {
+        if (attr.value() == std::string("yes")) {
           is_lane_change_yes = true;
         }
       }
       const auto left_line = llt.leftBound();
       if (left_line.hasAttribute(lanelet::AttributeNamesString::LaneChange)) {
         const auto attr = left_line.attribute(lanelet::AttributeNamesString::LaneChange);
-        if (attr.value() == "yes") {
+        if (attr.value() == std::string("yes")) {
           is_lane_change_yes = true;
         }
       }
@@ -972,7 +972,24 @@ double getDistanceToCrosswalk(
     if (llt == current_lanelet) {
       is_after_current_lanelet = true;
     }
-    if (is_after_current_lanelet) {
+    // check lane change tag
+    bool is_lane_change_yes = false;
+    const auto right_line = llt.rightBound();
+    if (right_line.hasAttribute(lanelet::AttributeNamesString::LaneChange)) {
+      const auto attr = right_line.attribute(lanelet::AttributeNamesString::LaneChange);
+      if (attr.value() == std::string("yes")) {
+        is_lane_change_yes = true;
+      }
+    }
+    const auto left_line = llt.leftBound();
+    if (left_line.hasAttribute(lanelet::AttributeNamesString::LaneChange)) {
+      const auto attr = left_line.attribute(lanelet::AttributeNamesString::LaneChange);
+      if (attr.value() == std::string("yes")) {
+        is_lane_change_yes = true;
+      }
+    }
+
+    if (is_after_current_lanelet && !is_lane_change_yes) {
       const auto conflicting_crosswalks = overall_graphs.conflictingInGraph(llt, 1);
       if (!(conflicting_crosswalks.empty())) {
         // create centerline
