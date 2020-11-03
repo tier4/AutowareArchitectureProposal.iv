@@ -35,6 +35,8 @@ void ForcingLaneChangeState::entry()
   ros_parameters_ = data_manager_ptr_->getLaneChangerParameters();
   original_lanes_ = route_handler_ptr_->getLaneletsFromIds(status_.lane_follow_lane_ids);
   target_lanes_ = route_handler_ptr_->getLaneletsFromIds(status_.lane_change_lane_ids);
+  status_.lane_change_available = false;
+  status_.lane_change_ready = false;
 }
 
 autoware_planning_msgs::PathWithLaneId ForcingLaneChangeState::getPath() const
