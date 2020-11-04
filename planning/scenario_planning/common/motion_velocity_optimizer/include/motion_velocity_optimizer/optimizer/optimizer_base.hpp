@@ -16,7 +16,7 @@
 
 #ifndef MOTION_VELOCITY_OPTIMIZER_OPTIMIZER_BASE_HPP
 #define MOTION_VELOCITY_OPTIMIZER_OPTIMIZER_BASE_HPP
-#include <autoware_planning_msgs/Trajectory.h>
+#include <autoware_planning_msgs/msg/trajectory.hpp>
 #include <limits>
 #include <vector>
 
@@ -25,8 +25,8 @@ class OptimizerBase
 public:
   virtual bool solve(
     const double initial_vel, const double initial_acc, const int closest,
-    const autoware_planning_msgs::Trajectory & input,
-    autoware_planning_msgs::Trajectory * output) = 0;
+    const autoware_planning_msgs::msg::Trajectory & input,
+    autoware_planning_msgs::msg::Trajectory * output) = 0;
 
   virtual void setAccel(const double max_accel) = 0;
 

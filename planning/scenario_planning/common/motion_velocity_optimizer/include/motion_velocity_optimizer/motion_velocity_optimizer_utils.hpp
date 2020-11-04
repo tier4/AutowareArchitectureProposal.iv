@@ -16,64 +16,62 @@
 
 #include <iostream>
 
-#include <geometry_msgs/TwistStamped.h>
-#include <ros/ros.h>
-#include <std_msgs/Float32.h>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <tf2/utils.h>
-#include <boost/shared_ptr.hpp>
 
-#include <autoware_planning_msgs/Trajectory.h>
+#include <autoware_planning_msgs/msg/trajectory.hpp>
 
 namespace vpu
 {
 double square(const double & a);
-double calcSquaredDist2d(const geometry_msgs::Point & a, const geometry_msgs::Point & b);
-double calcSquaredDist2d(const geometry_msgs::Pose & a, const geometry_msgs::Pose & b);
+double calcSquaredDist2d(const geometry_msgs::msg::Point & a, const geometry_msgs::msg::Point & b);
+double calcSquaredDist2d(const geometry_msgs::msg::Pose & a, const geometry_msgs::msg::Pose & b);
 double calcSquaredDist2d(
-  const geometry_msgs::PoseStamped & a, const geometry_msgs::PoseStamped & b);
+  const geometry_msgs::msg::PoseStamped & a, const geometry_msgs::msg::PoseStamped & b);
 double calcSquaredDist2d(
-  const autoware_planning_msgs::TrajectoryPoint & a,
-  const autoware_planning_msgs::TrajectoryPoint & b);
-double calcDist2d(const geometry_msgs::Point & a, const geometry_msgs::Point & b);
-double calcDist2d(const geometry_msgs::Pose & a, const geometry_msgs::Pose & b);
-double calcDist2d(const geometry_msgs::PoseStamped & a, const geometry_msgs::PoseStamped & b);
+  const autoware_planning_msgs::msg::TrajectoryPoint & a,
+  const autoware_planning_msgs::msg::TrajectoryPoint & b);
+double calcDist2d(const geometry_msgs::msg::Point & a, const geometry_msgs::msg::Point & b);
+double calcDist2d(const geometry_msgs::msg::Pose & a, const geometry_msgs::msg::Pose & b);
+double calcDist2d(const geometry_msgs::msg::PoseStamped & a, const geometry_msgs::msg::PoseStamped & b);
 double calcDist2d(
-  const autoware_planning_msgs::TrajectoryPoint & a,
-  const autoware_planning_msgs::TrajectoryPoint & b);
+  const autoware_planning_msgs::msg::TrajectoryPoint & a,
+  const autoware_planning_msgs::msg::TrajectoryPoint & b);
 int calcClosestWaypoint(
-  const autoware_planning_msgs::Trajectory & trajectory, const geometry_msgs::Point & point);
+  const autoware_planning_msgs::msg::Trajectory & trajectory, const geometry_msgs::msg::Point & point);
 int calcClosestWaypoint(
-  const autoware_planning_msgs::Trajectory & trajectory, const geometry_msgs::Pose & pose,
+  const autoware_planning_msgs::msg::Trajectory & trajectory, const geometry_msgs::msg::Pose & pose,
   const double delta_yaw_threshold);
 bool extractPathAroundIndex(
-  const autoware_planning_msgs::Trajectory & trajectory, const int index,
+  const autoware_planning_msgs::msg::Trajectory & trajectory, const int index,
   const double & ahead_length, const double & behind_length,
-  autoware_planning_msgs::Trajectory & extracted_base_waypoints);
+  autoware_planning_msgs::msg::Trajectory & extracted_base_waypoints);
 double calcLengthOnWaypoints(
-  const autoware_planning_msgs::Trajectory & trajectory, const int idx1, const int idx2);
+  const autoware_planning_msgs::msg::Trajectory & trajectory, const int idx1, const int idx2);
 void calcTrajectoryArclength(
-  const autoware_planning_msgs::Trajectory & trajectory, std::vector<double> & arclength);
+  const autoware_planning_msgs::msg::Trajectory & trajectory, std::vector<double> & arclength);
 void calcTrajectoryIntervalDistance(
-  const autoware_planning_msgs::Trajectory & trajectory, std::vector<double> & intervals);
-void setZeroVelocity(autoware_planning_msgs::Trajectory & trajectory);
-double getMaxVelocity(const autoware_planning_msgs::Trajectory & trajectory);
-double getMaxAbsVelocity(const autoware_planning_msgs::Trajectory & trajectory);
-void mininumVelocityFilter(const double & min_vel, autoware_planning_msgs::Trajectory & trajectory);
-void maximumVelocityFilter(const double & max_vel, autoware_planning_msgs::Trajectory & trajectory);
+  const autoware_planning_msgs::msg::Trajectory & trajectory, std::vector<double> & intervals);
+void setZeroVelocity(autoware_planning_msgs::msg::Trajectory & trajectory);
+double getMaxVelocity(const autoware_planning_msgs::msg::Trajectory & trajectory);
+double getMaxAbsVelocity(const autoware_planning_msgs::msg::Trajectory & trajectory);
+void mininumVelocityFilter(const double & min_vel, autoware_planning_msgs::msg::Trajectory & trajectory);
+void maximumVelocityFilter(const double & max_vel, autoware_planning_msgs::msg::Trajectory & trajectory);
 void multiplyConstantToTrajectoryVelocity(
-  const double & scalar, autoware_planning_msgs::Trajectory & trajectory);
+  const double & scalar, autoware_planning_msgs::msg::Trajectory & trajectory);
 void insertZeroVelocityAfterIdx(
-  const int & stop_idx, autoware_planning_msgs::Trajectory & trajectory);
-double getVx(const autoware_planning_msgs::Trajectory & trajectory, const int & i);
-bool searchZeroVelocityIdx(const autoware_planning_msgs::Trajectory & trajectory, int & idx);
+  const int & stop_idx, autoware_planning_msgs::msg::Trajectory & trajectory);
+double getVx(const autoware_planning_msgs::msg::Trajectory & trajectory, const int & i);
+bool searchZeroVelocityIdx(const autoware_planning_msgs::msg::Trajectory & trajectory, int & idx);
 bool calcTrajectoryCurvatureFrom3Points(
-  const autoware_planning_msgs::Trajectory & trajectory, const unsigned int & idx_dist,
+  const autoware_planning_msgs::msg::Trajectory & trajectory, const unsigned int & idx_dist,
   std::vector<double> & k_arr);
 double normalizeRadian(const double _angle);
 void convertEulerAngleToMonotonic(std::vector<double> & a);
-geometry_msgs::Quaternion getQuaternionFromYaw(double yaw);
+geometry_msgs::msg::Quaternion getQuaternionFromYaw(double yaw);
 bool linearInterpTrajectory(
   const std::vector<double> & base_index,
-  const autoware_planning_msgs::Trajectory & base_trajectory, const std::vector<double> & out_index,
-  autoware_planning_msgs::Trajectory & out_trajectory);
+  const autoware_planning_msgs::msg::Trajectory & base_trajectory, const std::vector<double> & out_index,
+  autoware_planning_msgs::msg::Trajectory & out_trajectory);
 }  // namespace vpu

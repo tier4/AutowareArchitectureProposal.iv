@@ -17,9 +17,9 @@
 #ifndef MOTION_VELOCITY_OPTIMIZER_LINF_PSEUDO_JERK_OPTIMIZER_HPP
 #define MOTION_VELOCITY_OPTIMIZER_LINF_PSEUDO_JERK_OPTIMIZER_HPP
 
-#include <autoware_planning_msgs/Trajectory.h>
+#include <autoware_planning_msgs/msg/trajectory.hpp>
 #include <osqp_interface/osqp_interface.h>
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include <vector>
 
 #include <motion_velocity_optimizer/optimizer/optimizer_base.hpp>
@@ -40,8 +40,8 @@ public:
   explicit LinfPseudoJerkOptimizer(const OptimizerParam & p);
   bool solve(
     const double initial_vel, const double initial_acc, const int closest,
-    const autoware_planning_msgs::Trajectory & input,
-    autoware_planning_msgs::Trajectory * output) override;
+    const autoware_planning_msgs::msg::Trajectory & input,
+    autoware_planning_msgs::msg::Trajectory * output) override;
 
   void setAccel(const double max_accel) override;
 
