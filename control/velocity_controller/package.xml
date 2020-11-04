@@ -1,23 +1,24 @@
 <?xml version="1.0"?>
-<package format="2">
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>velocity_controller</name>
-  <version>0.1.0</version>
-  <description>
-    This package provides a vehicle velocity controller.
-  </description>
-
+  <version>0.0.1</version>
+  <description>vehicle velocity controller as a ROS 2 node</description>
   <maintainer email="makoto.kurihara@tier4.jp">Makoto Kurihara</maintainer>
+  <maintainer email="horibe.takamasa@gmail.com">Takamasa HORIBE</maintainer>
+  <license>Apache License 2.0</license>
 
-  <license>Appache2</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>roscpp</depend>
+  <depend>rclcpp</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
-  <depend>geometry_msgs</depend>
   <depend>autoware_planning_msgs</depend>
-  <depend>autoware_control_msgs</depend>
-  <depend>dynamic_reconfigure</depend>
+  <depend>autoware_vehicle_msgs</depend>
 
-  <buildtool_depend>catkin</buildtool_depend>
-
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 </package>

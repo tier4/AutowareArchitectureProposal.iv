@@ -17,32 +17,27 @@
 #ifndef AUTOWARE_CONTROL_VELOCITY_CONTROLLER_H
 #define AUTOWARE_CONTROL_VELOCITY_CONTROLLER_H
 
-#include <memory>
-#include <string>
-#include <vector>
-
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <ros/ros.h>
-#include <std_msgs/Bool.h>
-#include <std_msgs/Float32MultiArray.h>
-
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Geometry>
-
-#include <tf2/utils.h>
-#include <tf2_ros/transform_listener.h>
-
-#include <autoware_control_msgs/ControlCommandStamped.h>
-#include <autoware_planning_msgs/Trajectory.h>
-
 #include "delay_compensation.h"
 #include "lowpass_filter.h"
 #include "pid.h"
 #include "velocity_controller_mathutils.h"
 
-#include <dynamic_reconfigure/server.h>
-#include "velocity_controller/VelocityControllerConfig.h"
+#include <autoware_control_msgs/msg/control_command_stamped.hpp>
+#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <std_msgs/msg/bool.hpp>
+#include <std_msgs/msg/float32_multi_array.hpp>
+
+#include <tf2/utils.h>
+#include <tf2_ros/transform_listener.h>
+#include <rclcpp/rclcpp.hpp>
+
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Geometry>
+#include <memory>
+#include <string>
+#include <vector>
 
 struct CtrlCmd
 {
@@ -50,23 +45,25 @@ struct CtrlCmd
   double acc;
 };
 
-class VelocityController
+class VelocityController : public rclcpp::Node
 {
 public:
   VelocityController();
   ~VelocityController() = default;
 
 private:
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
-  ros::Subscriber sub_current_vel_;
-  ros::Subscriber sub_trajectory_;
-  ros::Publisher pub_control_cmd_;
-  ros::Publisher pub_debug_;
-  ros::Timer timer_control_;
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_vel_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_trajectory_;
+  rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr pub_control_cmd_;
+  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr pub_debug_;
+  rclcpp::TimerBase::SharedPtr timer_control_;
 
-  tf2_ros::Buffer tf_buffer_;
-  tf2_ros::TransformListener tf_listener_;  //!< @brief tf listener
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;  //!< @brief tf listener
+
+  OnSetParametersCallbackHandle::SharedPtr set_param_res_;
+  rcl_interfaces::msg::SetParametersResult paramCallback(
+    const std::vector<rclcpp::Parameter> & parameters);
 
   // parameters
   // enabled flags
@@ -128,11 +125,7 @@ private:
   double current_vel_threshold_pid_integrate_;
 
   // buffer of send command
-  std::vector<autoware_control_msgs::ControlCommandStamped> ctrl_cmd_vec_;
-
-  // dynamic reconfigure
-  dynamic_reconfigure::Server<velocity_controller::VelocityControllerConfig>
-    dynamic_reconfigure_srv_;
+  std::vector<autoware_control_msgs::msg::ControlCommandStamped> ctrl_cmd_vec_;
 
   // controller mode (0: init check, 1: PID, 2: Stop, 3: Smooth stop, 4: Emergency stop, 5: Error)
   enum class ControlMode {
@@ -146,17 +139,17 @@ private:
   ControlMode control_mode_;
 
   // variables
-  std::shared_ptr<geometry_msgs::PoseStamped> current_pose_ptr_;
-  std::shared_ptr<geometry_msgs::TwistStamped> current_vel_ptr_;
-  std::shared_ptr<autoware_planning_msgs::Trajectory> trajectory_ptr_;
+  geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose_ptr_;
+  geometry_msgs::msg::TwistStamped::ConstSharedPtr current_vel_ptr_;
+  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr trajectory_ptr_;
 
   // calculate acc
-  std::shared_ptr<geometry_msgs::TwistStamped> prev_vel_ptr_;
+  geometry_msgs::msg::TwistStamped::ConstSharedPtr prev_vel_ptr_;
   double prev_accel_ = 0.0;
   const double accel_lowpass_gain_ = 0.2;
 
   // calculate dt
-  std::shared_ptr<ros::Time> prev_control_time_;
+  std::shared_ptr<rclcpp::Time> prev_control_time_;
 
   // shift mode
   enum Shift {
@@ -165,13 +158,13 @@ private:
   } prev_shift_;
 
   // smooth stop
-  bool is_smooth_stop_;
-  bool is_emergency_stop_;
-  std::shared_ptr<ros::Time> start_time_smooth_stop_;
+  bool is_smooth_stop_ = false;
+  bool is_emergency_stop_ = false;
+  std::shared_ptr<rclcpp::Time> start_time_smooth_stop_;
 
   // diff limit
-  double prev_acc_cmd_;
-  double prev_vel_cmd_;
+  double prev_acc_cmd_ = 0.0;
+  double prev_vel_cmd_ = 0.0;
 
   // slope compensation
   Lpf1d lpf_pitch_;
@@ -181,16 +174,14 @@ private:
   Lpf1d lpf_vel_error_;
 
   // methods
-  void callbackCurrentVelocity(const geometry_msgs::TwistStamped::ConstPtr & msg);
-  void callbackTrajectory(const autoware_planning_msgs::TrajectoryConstPtr & msg);
-  void callbackTimerControl(const ros::TimerEvent & event);
-  void callbackConfig(
-    const velocity_controller::VelocityControllerConfig & config, const uint32_t level);
+  void callbackCurrentVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
+  void callbackTrajectory(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg);
+  void callbackTimerControl();
 
-  bool updateCurrentPose(const double timeout_sec);
-  bool getCurretPoseFromTF(const double timeout_sec, geometry_msgs::PoseStamped & ps);
+  void blockUntilVehiclePositionAvailable(const tf2::Duration & timeout);
+  bool updateCurrentPose();
 
-  double getPitch(const geometry_msgs::Quaternion & quaternion) const;
+  double getPitch(const geometry_msgs::msg::Quaternion & quaternion) const;
   double getDt();
   enum Shift getCurrentShift(const double target_velocity) const;
 
@@ -213,10 +204,11 @@ private:
   double predictedVelocityInTargetPoint(
     const double current_vel, const double current_acc, const double delay_compensation_time);
   double getPointValue(
-    const autoware_planning_msgs::TrajectoryPoint & point, const std::string & value_type);
+    const autoware_planning_msgs::msg::TrajectoryPoint & point, const std::string & value_type);
   double calcInterpolatedTargetValue(
-    const autoware_planning_msgs::Trajectory & traj, const geometry_msgs::PoseStamped & curr_pose,
-    const double current_vel, const int closest, const std::string & value_type);
+    const autoware_planning_msgs::msg::Trajectory & traj,
+    const geometry_msgs::msg::PoseStamped & curr_pose, const double current_vel, const int closest,
+    const std::string & value_type);
   double calcSmoothStopAcc();
   double calcFilteredAcc(
     const double raw_acc, const double pitch, const double dt, const Shift shift);
@@ -230,10 +222,10 @@ private:
     const double input_val, const double prev_val, const double dt, const double lim_val) const;
   double applySlopeCompensation(const double acc, const double pitch, const Shift shift) const;
   double calcStopDistance(
-    const autoware_planning_msgs::Trajectory & trajectory, const int closest) const;
+    const autoware_planning_msgs::msg::Trajectory & trajectory, const int closest) const;
 
   /* Debug */
-  mutable std_msgs::Float32MultiArray debug_values_;
+  mutable std_msgs::msg::Float32MultiArray debug_values_;
   enum DBGVAL {
     DT = 0,
     CURR_V = 1,

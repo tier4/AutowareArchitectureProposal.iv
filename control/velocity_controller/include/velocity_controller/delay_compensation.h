@@ -17,8 +17,8 @@
 #ifndef VELOCITY_CONTROLLER_DELAY_COMPENSATION
 #define VELOCITY_CONTROLLER_DELAY_COMPENSATION
 
-#include <autoware_planning_msgs/Trajectory.h>
 #include "velocity_controller_mathutils.h"
+#include <autoware_planning_msgs/msg/trajectory.hpp>
 
 class DelayCompensator
 {
@@ -26,11 +26,11 @@ public:
   DelayCompensator();
   ~DelayCompensator();
 
-  static geometry_msgs::PoseStamped calcPoseAfterTimeDelay(
-    const geometry_msgs::PoseStamped & current_pose, const double delay_time,
+  static geometry_msgs::msg::PoseStamped calcPoseAfterTimeDelay(
+    const geometry_msgs::msg::PoseStamped & current_pose, const double delay_time,
     const double current_vel)
   {
-    //simple linear prediction
+    // simple linear prediction
     const double yaw = tf2::getYaw(current_pose.pose.orientation);
     const double running_distance = delay_time * current_vel;
     const double dx = running_distance * std::cos(yaw);
@@ -39,12 +39,14 @@ public:
     auto pred_pose = current_pose;
     pred_pose.pose.position.x += dx;
     pred_pose.pose.position.y += dy;
-    pred_pose.header.stamp += ros::Duration(delay_time);
+    // TODO(Takamasa Horibe) take a duration as argument rather than casting a double
+    pred_pose.header.stamp =
+      rclcpp::Time(pred_pose.header.stamp) + rclcpp::Duration::from_seconds(delay_time);
     return pred_pose;
   }
 
   static int getTrajectoryPointIndexAfterTimeDelay(
-    const autoware_planning_msgs::Trajectory & trajectory, int32_t closest_waypoint_index,
+    const autoware_planning_msgs::msg::Trajectory & trajectory, int32_t closest_waypoint_index,
     double delay_time, double current_velocity)
   {
     const double delay_distance = current_velocity * delay_time;
@@ -60,8 +62,8 @@ public:
     return trajectory.points.size() - 1;
   }
 
-  static autoware_planning_msgs::TrajectoryPoint getTrajectoryPointAfterTimeDelay(
-    const autoware_planning_msgs::Trajectory & trajectory, int32_t closest_waypoint_index,
+  static autoware_planning_msgs::msg::TrajectoryPoint getTrajectoryPointAfterTimeDelay(
+    const autoware_planning_msgs::msg::Trajectory & trajectory, int32_t closest_waypoint_index,
     double delay_time, double current_velocity)
   {
     int target_waypoint_index = getTrajectoryPointIndexAfterTimeDelay(
@@ -70,7 +72,7 @@ public:
   }
 
   static double getAccelerationAfterTimeDelay(
-    const autoware_planning_msgs::Trajectory & trajectory, int32_t closest_waypoint_index,
+    const autoware_planning_msgs::msg::Trajectory & trajectory, int32_t closest_waypoint_index,
     double delay_time, double current_velocity)
   {
     auto point_after_delay = getTrajectoryPointAfterTimeDelay(
@@ -79,7 +81,7 @@ public:
   }
 
   static double getVelocityAfterTimeDelay(
-    const autoware_planning_msgs::Trajectory & trajectory, int32_t closest_waypoint_index,
+    const autoware_planning_msgs::msg::Trajectory & trajectory, int32_t closest_waypoint_index,
     double delay_time, double current_velocity)
   {
     auto point_after_delay = getTrajectoryPointAfterTimeDelay(

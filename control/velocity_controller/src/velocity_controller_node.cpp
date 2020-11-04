@@ -18,9 +18,9 @@
 
 int main(int argc, char * argv[])
 {
-  ros::init(argc, argv, "velocity_controller");
-  VelocityController node;
-  ros::spin();
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<VelocityController>());
+  rclcpp::shutdown();
 
   return 0;
 }

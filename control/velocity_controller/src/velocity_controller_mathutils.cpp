@@ -18,14 +18,14 @@
 
 namespace vcutils
 {
-double calcDistance2D(const geometry_msgs::Pose & p1, const geometry_msgs::Pose & p2)
+double calcDistance2D(const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Pose & p2)
 {
   const double dx = p1.position.x - p2.position.x;
   const double dy = p1.position.y - p2.position.y;
   return std::sqrt(dx * dx + dy * dy);
 };
 
-double calcDistSquared2D(const geometry_msgs::Pose & p1, const geometry_msgs::Pose & p2)
+double calcDistSquared2D(const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Pose & p2)
 {
   const double dx = p1.position.x - p2.position.x;
   const double dy = p1.position.y - p2.position.y;
@@ -46,7 +46,7 @@ double normalizeEulerAngle(double euler)
 };
 
 bool calcClosestWithThr(
-  const autoware_planning_msgs::Trajectory & trajectory, const geometry_msgs::Pose & pose,
+  const autoware_planning_msgs::msg::Trajectory & trajectory, const geometry_msgs::msg::Pose & pose,
   const double angle_thr, const double dist_thr, int32_t & closest_idx)
 {
   double dist_squared_min = std::numeric_limits<double>::max();
@@ -73,18 +73,18 @@ bool calcClosestWithThr(
   return (closest_idx >= 0) ? true : false;
 };
 
-geometry_msgs::Point transformToRelativeCoordinate2D(
-  const geometry_msgs::Point & point, const geometry_msgs::Pose & origin)
+geometry_msgs::msg::Point transformToRelativeCoordinate2D(
+  const geometry_msgs::msg::Point & point, const geometry_msgs::msg::Pose & origin)
 {
   // translation
-  geometry_msgs::Point trans_p;
+  geometry_msgs::msg::Point trans_p;
   trans_p.x = point.x - origin.position.x;
   trans_p.y = point.y - origin.position.y;
 
   // rotation (use inverse matrix of rotation)
   double yaw = tf2::getYaw(origin.orientation);
 
-  geometry_msgs::Point res;
+  geometry_msgs::msg::Point res;
   res.x = (std::cos(yaw) * trans_p.x) + (std::sin(yaw) * trans_p.y);
   res.y = (-std::sin(yaw) * trans_p.x) + (std::cos(yaw) * trans_p.y);
   res.z = origin.position.z;

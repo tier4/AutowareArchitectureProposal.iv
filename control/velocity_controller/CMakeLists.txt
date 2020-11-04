@@ -1,77 +1,34 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(velocity_controller)
 
-add_compile_options(-std=c++14)
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
-find_package(Eigen3 REQUIRED)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
 
-find_package(
-  catkin REQUIRED COMPONENTS
-  roscpp
-  tf2
-  tf2_ros
-  geometry_msgs
-  autoware_planning_msgs
-  autoware_control_msgs
-  dynamic_reconfigure
-)
-
-generate_dynamic_reconfigure_options(
-  cfg/VelocityController.cfg
-)
-
-catkin_package(
-  INCLUDE_DIRS include
-  CATKIN_DEPENDS
-    roscpp
-    tf2
-    tf2_ros
-    geometry_msgs
-    autoware_planning_msgs
-    autoware_control_msgs
-)
-
-###########
-## Build ##
-###########
-
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-)
-
-add_executable(
-  velocity_controller
+set(velocity_controller_SRC
   src/velocity_controller_core.cpp
   src/velocity_controller_node.cpp
   src/pid.cpp
   src/velocity_controller_mathutils.cpp
 )
 
-add_dependencies(
-  velocity_controller
-  ${catkin_EXPORTED_TARGETS}
+set(velocity_controller_HEADER
+  include/velocity_controller/lowpass_filter.h
+  include/velocity_controller/pid.h
+  include/velocity_controller/velocity_controller_mathutils.h
+  include/velocity_controller/velocity_controller.h
 )
 
-target_link_libraries(
-  velocity_controller
-  ${catkin_LIBRARIES}
+ament_auto_add_executable(velocity_controller
+  ${velocity_controller_HEADER}
+  ${velocity_controller_SRC}
 )
 
-#############
-## Install ##
-#############
-
-install(
-  TARGETS velocity_controller
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-install(
-  DIRECTORY
-    launch
-    config
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+ament_auto_package(
+  INSTALL_TO_SHARE
+  launch
+  config
 )
