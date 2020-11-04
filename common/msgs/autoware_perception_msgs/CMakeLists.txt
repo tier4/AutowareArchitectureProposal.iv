@@ -114,7 +114,6 @@ elseif(${ROS_VERSION} EQUAL 2)
       geometry_msgs
       sensor_msgs
       unique_identifier_msgs
-    ADD_LINTER_TESTS
   )
 
   ament_export_dependencies(rosidl_default_runtime)
