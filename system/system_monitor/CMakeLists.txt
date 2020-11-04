@@ -109,10 +109,10 @@ ament_auto_add_executable(hdd_monitor
   src/hdd_monitor/hdd_monitor_node.cpp
   src/hdd_monitor/hdd_monitor.cpp
 )
-#ament_auto_add_executable(mem_monitor
-#  src/mem_monitor/mem_monitor_node.cpp
-#  src/mem_monitor/mem_monitor.cpp
-#)
+ament_auto_add_executable(mem_monitor
+  src/mem_monitor/mem_monitor_node.cpp
+  src/mem_monitor/mem_monitor.cpp
+)
 #ament_auto_add_executable(net_monitor
 #  src/net_monitor/net_monitor_node.cpp
 #  src/net_monitor/net_monitor.cpp
