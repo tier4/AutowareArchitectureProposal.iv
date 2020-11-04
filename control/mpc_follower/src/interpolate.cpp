@@ -143,7 +143,7 @@ void SplineInterpolate::generateSpline(const std::vector<double> & x)
   b_.push_back(0.0);
 
   initialized_ = true;
-};
+}
 
 double SplineInterpolate::getValue(const double & s)
 {

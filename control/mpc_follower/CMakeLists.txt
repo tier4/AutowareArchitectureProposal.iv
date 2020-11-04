@@ -1,50 +1,24 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(mpc_follower)
 
-add_compile_options(-std=c++14 -Wall -Werror)
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
-find_package(
-  catkin REQUIRED COMPONENTS
-  geometry_msgs
-  roscpp
-  rostest
-  rosunit
-  std_msgs
-  tf2
-  tf2_ros
-  autoware_planning_msgs
-  autoware_control_msgs
-  autoware_vehicle_msgs
-  osqp_interface
-  dynamic_reconfigure
-)
-
-generate_dynamic_reconfigure_options(cfg/MPCFollower.cfg)
-
-catkin_package(
-  INCLUDE_DIRS include
-  CATKIN_DEPENDS
-    geometry_msgs
-    roscpp
-    std_msgs
-    tf2
-    tf2_ros
-    autoware_planning_msgs
-    autoware_control_msgs
-    autoware_vehicle_msgs
-    osqp_interface
-)
-
-SET(CMAKE_CXX_FLAGS "-O2 -g -Wall ${CMAKE_CXX_FLAGS}")
-
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-)
+# add_compile_options(-std=c++14 -Wall -Werror)
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
 set(MPC_FOLLOWER_SRC
   src/mpc_utils.cpp
   src/interpolate.cpp
+  src/mpc_follower_core.cpp
+  src/mpc_follower_node.cpp
   src/mpc_trajectory.cpp
   src/lowpass_filter.cpp
   src/vehicle_model/vehicle_model_interface.cpp
@@ -54,31 +28,24 @@ set(MPC_FOLLOWER_SRC
   src/qp_solver/qp_solver_unconstr_fast.cpp
   src/qp_solver/qp_solver_osqp.cpp
 )
+set(MPC_FOLLOWER_HDR
+  include/mpc_follower/mpc_utils.h
+  include/mpc_follower/interpolate.h
+  include/mpc_follower/mpc_follower_core.h
+  include/mpc_follower/mpc_trajectory.h
+  include/mpc_follower/lowpass_filter.h
+  include/mpc_follower/vehicle_model/vehicle_model_interface.h
+  include/mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics.h
+  include/mpc_follower/vehicle_model/vehicle_model_bicycle_dynamics.h
+  include/mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.h
+  include/mpc_follower/qp_solver/qp_solver_unconstr_fast.h
+  include/mpc_follower/qp_solver/qp_solver_osqp.h
+  )
 
-add_executable(mpc_follower src/mpc_follower_node.cpp src/mpc_follower_core.cpp ${MPC_FOLLOWER_SRC})
-add_dependencies(mpc_follower ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} mpc_follower_gencfg)
-target_link_libraries(mpc_follower ${catkin_LIBRARIES})
+ament_auto_add_executable(mpc_follower ${MPC_FOLLOWER_SRC} ${MPC_FOLLOWER_HDR})
 
-install(
-  TARGETS mpc_follower
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-catkin_install_python(
-  PROGRAMS src/steer_simulator.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-install(
-  DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-)
-
-install(
-  DIRECTORY
+ament_auto_package(
+  INSTALL_TO_SHARE
     launch
     config
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

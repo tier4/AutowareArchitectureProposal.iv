@@ -51,7 +51,7 @@ double Butterworth2dFilter::filter(const double & u0)
   return y0;
 }
 
-void Butterworth2dFilter::filt_vector(const std::vector<double> & t, std::vector<double> & u)
+void Butterworth2dFilter::filt_vector(const std::vector<double> & /* t */, std::vector<double> & u)
 {
   double y1 = u.at(0);
   double y2 = u.at(0);

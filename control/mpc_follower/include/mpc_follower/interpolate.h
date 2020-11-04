@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_INTERPOLATE_H
+#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_INTERPOLATE_H
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -51,3 +52,4 @@ public:
     const std::vector<double> & return_index, std::vector<double> & return_value);
   void getValueVector(const std::vector<double> & s_v, std::vector<double> & value_v);
 };
+#endif

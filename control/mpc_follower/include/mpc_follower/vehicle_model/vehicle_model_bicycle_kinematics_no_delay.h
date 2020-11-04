@@ -44,7 +44,8 @@
  *
  */
 
-#pragma once
+#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_VEHICLE_MODEL_VEHICLE_MODEL_BICYCLE_KINEMATICS_NO_DELAY_H
+#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_VEHICLE_MODEL_VEHICLE_MODEL_BICYCLE_KINEMATICS_NO_DELAY_H
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/LU>
 #include "mpc_follower/vehicle_model/vehicle_model_interface.h"
@@ -90,3 +91,4 @@ private:
   double wheelbase_;  //!< @brief wheelbase length [m]
   double steer_lim_;  //!< @brief steering angle limit [rad]
 };
+#endif

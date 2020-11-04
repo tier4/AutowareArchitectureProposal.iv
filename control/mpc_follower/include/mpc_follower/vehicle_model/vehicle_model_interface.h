@@ -21,7 +21,8 @@
  * @date 2019.05.01
  */
 
-#pragma once
+#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_VEHICLE_MODEL_VEHICLE_MODEL_INTERFACE_H
+#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_VEHICLE_MODEL_VEHICLE_MODEL_INTERFACE_H
 #include <eigen3/Eigen/Core>
 
 /**
@@ -94,3 +95,4 @@ public:
    */
   virtual void calculateReferenceInput(Eigen::MatrixXd & Uref) = 0;
 };
+#endif

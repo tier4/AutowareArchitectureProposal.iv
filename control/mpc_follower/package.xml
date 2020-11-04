@@ -7,18 +7,21 @@
   <author email="horibe.takamasa@gmail.com">Takamasa Horibe</author>
   <license>Apache 2</license>
 
-  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
 
   <depend>geometry_msgs</depend>
-  <depend>roscpp</depend>
-  <depend>rostest</depend>
-  <depend>rosunit</depend>
+  <depend>rclcpp</depend>
   <depend>std_msgs</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
-  <depend>autoware_planning_msgs</depend>
   <depend>autoware_control_msgs</depend>
+  <depend>autoware_debug_msgs</depend>
+  <depend>autoware_planning_msgs</depend>
   <depend>autoware_vehicle_msgs</depend>
   <depend>osqp_interface</depend>
-  <!-- <depend>qpoases_vendor</depend> -->
+  <depend>visualization_msgs</depend>
 </package>

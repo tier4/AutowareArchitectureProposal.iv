@@ -21,7 +21,8 @@
  * @date 2019.05.01
  */
 
-#pragma once
+#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_QP_SOLVER_QP_SOLVER_QPOASES_H
+#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_QP_SOLVER_QP_SOLVER_QPOASES_H
 
 #include <cmath>
 #include <eigen3/Eigen/Core>
@@ -68,3 +69,4 @@ public:
     const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lbA,
     const Eigen::VectorXd & ubA, Eigen::VectorXd & U) override;
 };
+#endif

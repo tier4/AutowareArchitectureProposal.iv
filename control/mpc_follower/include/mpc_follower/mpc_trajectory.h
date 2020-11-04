@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_TRAJECTORY_H
+#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_TRAJECTORY_H
 #include <iostream>
 #include <vector>
 
@@ -50,3 +51,4 @@ public:
    */
   unsigned int size() const;
 };
+#endif

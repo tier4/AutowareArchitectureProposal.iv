@@ -47,7 +47,8 @@
  *
  */
 
-#pragma once
+#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_VEHICLE_MODEL_VEHICLE_MODEL_BICYCLE_KINEMATICS_H
+#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_VEHICLE_MODEL_VEHICLE_MODEL_BICYCLE_KINEMATICS_H
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/LU>
 #include "mpc_follower/vehicle_model/vehicle_model_interface.h"
@@ -96,3 +97,4 @@ private:
   double steer_lim_;  //!< @brief steering angle limit [rad]
   double steer_tau_;  //!< @brief steering time constant for 1d-model
 };
+#endif

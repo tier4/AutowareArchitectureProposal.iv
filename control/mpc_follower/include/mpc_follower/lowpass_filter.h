@@ -21,7 +21,8 @@
  * @date 2019.05.01
  */
 
-#pragma once
+#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_LOWPASS_FILTER_H
+#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_LOWPASS_FILTER_H
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -124,3 +125,4 @@ public:
    */
   static bool filt_vector(const int num, std::vector<double> & u);
 };
+#endif
