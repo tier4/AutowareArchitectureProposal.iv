@@ -17,4 +17,4 @@ ament_auto_add_executable(ndt_scan_matcher
   src/ndt_scan_matcher_core.cpp
 )
 
-ament_auto_package()
+ament_auto_package(INSTALL_TO_SHARE launch)
