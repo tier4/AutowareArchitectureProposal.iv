@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <ros/ros.h>
-#include "dummy_perception_publisher/node.hpp"
+
+#include <dummy_perception_publisher/node.hpp>
+
+#include <rclcpp/rclcpp.hpp>
+
+#include <memory>
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "dummy_perception_publisher");
-  DummyPerceptionPublisherNode node;
-
-  ros::spin();
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<DummyPerceptionPublisherNode>());
+  rclcpp::shutdown();
 
   return 0;
-};
+}
