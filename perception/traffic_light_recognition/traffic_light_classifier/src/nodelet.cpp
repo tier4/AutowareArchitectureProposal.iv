@@ -34,11 +34,19 @@ TrafficLightClassifierNodelet::TrafficLightClassifierNodelet(const rclcpp::NodeO
       std::bind(&TrafficLightClassifierNodelet::imageRoiCallback, this, _1, _2));
   }
 
-  image_sub_.subscribe(this, "input/image", "raw", rclcpp::QoS{1}.get_rmw_qos_profile());
-  roi_sub_.subscribe(this, "input/rois", rclcpp::QoS{1}.get_rmw_qos_profile());
 
   tl_states_pub_ = this->create_publisher<autoware_perception_msgs::msg::TrafficLightStateArray>(
     "output/traffic_light_states", rclcpp::QoS{1});
+
+  //
+  auto timer_callback = std::bind(&TrafficLightClassifierNodelet::connectCb, this);
+  const auto period_s = 0.1;
+  const auto period_ns =
+    std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::duration<double>(period_s));
+  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
+    this->get_clock(), period_ns, std::move(timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(timer_, nullptr);
 
   int classifier_type = this->declare_parameter(
     "classifier_type", static_cast<int>(TrafficLightClassifierNodelet::ClassifierType::HSVFilter));
@@ -54,18 +62,17 @@ TrafficLightClassifierNodelet::TrafficLightClassifierNodelet(const rclcpp::NodeO
   }
 }
 
-// TODO(mitsudome-r): port this to ROS2 once unsubscribe() is available in ROS2
-// void TrafficLightClassifierNodelet::connectCb()
-// {
-//   std::lock_guard<std::mutex> lock(connect_mutex_);
-//   if (tl_states_pub_.getNumSubscribers() == 0) {
-//     image_sub_.unsubscribe();
-//     roi_sub_.unsubscribe();
-//   } else if (!image_sub_.getSubscriber()) {
-//     image_sub_.subscribe(*image_transport_, "input/image", 1);
-//     roi_sub_.subscribe(pnh_, "input/rois", 1);
-//   }
-// }
+void TrafficLightClassifierNodelet::connectCb()
+{
+  // set callbacks only when there are subscribers to this node
+  if (tl_states_pub_->get_subscription_count() == 0 && tl_states_pub_->get_intra_process_subscription_count() == 0) {
+    image_sub_.unsubscribe();
+    roi_sub_.unsubscribe();
+  } else if (!image_sub_.getSubscriber()) {
+    image_sub_.subscribe(this, "input/image", "raw", rclcpp::QoS{1}.get_rmw_qos_profile());
+    roi_sub_.subscribe(this, "input/rois", rclcpp::QoS{1}.get_rmw_qos_profile());
+  }
+}
 
 void TrafficLightClassifierNodelet::imageRoiCallback(
   const sensor_msgs::msg::Image::ConstSharedPtr & input_image_msg,

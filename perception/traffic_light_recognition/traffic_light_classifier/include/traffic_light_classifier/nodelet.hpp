@@ -60,7 +60,9 @@ private:
     HSVFilter = 0,
     CNN = 1,
   };
+  void connectCb();
 
+  rclcpp::TimerBase::SharedPtr timer_;
   image_transport::SubscriberFilter image_sub_;
   message_filters::Subscriber<autoware_perception_msgs::msg::TrafficLightRoiArray> roi_sub_;
   typedef message_filters::sync_policies::ExactTime<
