@@ -263,8 +263,7 @@ bool generateStopLine(
       RCLCPP_DEBUG(
         logger,
         "[Intersection Util] path[0] is already in the detection area. This happens if you have "
-        "already "
-        "crossed the stop line or are very far from the intersection. Ignore computation.");
+        "already crossed the stop line or are very far from the intersection. Ignore computation.");
       *stop_line_idx = 0;
       *pass_judge_line_idx = 0;
       return true;
@@ -298,8 +297,7 @@ bool generateStopLine(
   RCLCPP_DEBUG(
     logger,
     "[Intersection Util] generateStopLine() : stop_idx = %d, pass_judge_idx = %d, stop_idx_ip = "
-    "%d, "
-    "pass_judge_idx_ip = %d, has_prior_stopline = %d",
+    "%d, pass_judge_idx_ip = %d, has_prior_stopline = %d",
     *stop_line_idx, *pass_judge_line_idx, stop_idx_ip, pass_judge_idx_ip, has_prior_stopline);
 
   return true;

@@ -9,30 +9,20 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
 endif()
 
+# Find the non-obvious packages manually
 find_package(ament_cmake REQUIRED)
-find_package(autoware_perception_msgs REQUIRED)
-find_package(autoware_planning_msgs REQUIRED)
+find_package(Boost REQUIRED)
 find_package(eigen3_cmake_module REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(diagnostic_msgs REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(lanelet2_extension REQUIRED)
 find_package(PCL REQUIRED COMPONENTS common)
-find_package(pcl_conversions REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(sensor_msgs REQUIRED)
-find_package(spline_interpolation REQUIRED)
-find_package(tf2 REQUIRED)
-find_package(tf2_eigen REQUIRED)
-find_package(tf2_geometry_msgs REQUIRED)
-find_package(tf2_ros REQUIRED)
-find_package(vehicle_info_util REQUIRED)
-find_package(visualization_msgs REQUIRED)
+
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
 set(BEHAVIOR_VELOCITY_PLANNER_DEPENDENCIES
-  ament_cmake
   autoware_perception_msgs
   autoware_planning_msgs
+  Boost
   Eigen3
   diagnostic_msgs
   geometry_msgs
