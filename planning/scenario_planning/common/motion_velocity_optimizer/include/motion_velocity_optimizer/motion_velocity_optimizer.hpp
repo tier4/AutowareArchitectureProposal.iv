@@ -105,7 +105,7 @@ private:
   /* non-const methods */
   void run();
 
-  void blockUntilVehiclePositionAvailable(const tf2::Duration & timeout);
+  void blockUntilVehiclePositionAvailable(const tf2::Duration & duration);
 
   void updateCurrentPose();
 
