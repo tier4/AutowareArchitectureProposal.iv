@@ -66,7 +66,7 @@ public:
   grid_map::Matrix makeCostmapFromObjects(
     const grid_map::GridMap & costmap, const double expand_polygon_size,
     const double size_of_expansion_kernel,
-    const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & in_objects);
+    const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr in_objects);
 
 private:
   const int NUMBER_OF_POINTS;

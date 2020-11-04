@@ -10,25 +10,29 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake_auto REQUIRED)
-find_package(PCL REQUIRED QUIET COMPONENTS common io)
+find_package(PCL REQUIRED COMPONENTS common io)
 ament_auto_find_build_dependencies()
 
 include_directories(
   include
   ${GRID_MAP_INCLUDE_DIR}
   ${PCL_COMMON_INCLUDE_DIRS}
+  ${orocos_kdl_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
 )
 
-ament_auto_add_library(costmap_generator_lib STATIC
+ament_auto_add_library(costmap_generator_lib SHARED
   nodes/costmap_generator/points_to_costmap.cpp
   nodes/costmap_generator/objects_to_costmap.cpp
   nodes/costmap_generator/object_map_utils.cpp
 )
+target_link_libraries(costmap_generator_lib ${PCL_LIBRARIES})
 
 ament_auto_add_executable(costmap_generator
   nodes/costmap_generator/costmap_generator_node.cpp
   nodes/costmap_generator/main.cpp
 )
+target_link_libraries(costmap_generator ${PCL_LIBRARIES})
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)

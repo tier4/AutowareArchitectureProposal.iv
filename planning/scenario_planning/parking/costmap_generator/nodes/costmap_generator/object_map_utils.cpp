@@ -89,7 +89,10 @@ void FillPolygonAreas(
     for (const auto & p : points) {
       // transform to GridMap coordinate
       geometry_msgs::msg::Point transformed_point;
-      tf2::doTransform(p, transformed_point, transform);
+      geometry_msgs::msg::PointStamped output_stamped, input_stamped;
+      input_stamped.point = p;
+      tf2::doTransform(input_stamped, output_stamped, transform);
+      transformed_point  = output_stamped.point;
 
       // coordinate conversion for cv image
       const double cv_x = (out_grid_map.getLength().y() - origin_y_offset - transformed_point.y) /

@@ -122,7 +122,7 @@ private:
   PointsToCostmap points2costmap_;
   ObjectsToCostmap objects2costmap_;
 
-  autoware_planning_msgs::msg::Scenario::ConstPtr scenario_;
+  autoware_planning_msgs::msg::Scenario::ConstSharedPtr scenario_;
 
   struct LayerName
   {
@@ -180,7 +180,7 @@ private:
   /// \brief calculate cost from DynamicObjectArray
   /// \param[in] in_objects: subscribed DynamicObjectArray
   grid_map::Matrix generateObjectsCostmap(
-    const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & in_objects);
+    const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr in_objects);
 
   /// \brief calculate cost from lanelet2 map
   grid_map::Matrix generateWayAreaCostmap();

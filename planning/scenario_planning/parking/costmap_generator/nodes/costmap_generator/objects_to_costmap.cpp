@@ -155,7 +155,7 @@ void ObjectsToCostmap::setCostInPolygon(
 grid_map::Matrix ObjectsToCostmap::makeCostmapFromObjects(
   const grid_map::GridMap & costmap, const double expand_polygon_size,
   const double size_of_expansion_kernel,
-  const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & in_objects)
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr in_objects)
 {
   grid_map::GridMap objects_costmap = costmap;
   objects_costmap.add(OBJECTS_COSTMAP_LAYER_, 0);

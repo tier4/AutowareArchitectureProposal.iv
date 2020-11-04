@@ -55,7 +55,7 @@
 
 namespace
 {
-bool isActive(const autoware_planning_msgs::msg::Scenario::ConstPtr & scenario)
+bool isActive(const autoware_planning_msgs::msg::Scenario::ConstSharedPtr scenario)
 {
   if (!scenario) {
     return false;
@@ -275,9 +275,9 @@ grid_map::Matrix CostmapGenerator::generatePointsCostmap(
   return points_costmap;
 }
 
-autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr transformObjects(
+autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr transformObjects(
   const tf2_ros::Buffer &tf_buffer,
-  const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & in_objects,
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr in_objects,
   const std::string & target_frame_id, const std::string & src_frame_id)
 {
   auto objects = new autoware_perception_msgs::msg::DynamicObjectArray();
@@ -293,15 +293,18 @@ autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr transformObjects(
   }
 
   for (auto & object : objects->objects) {
-    auto & pose = object.state.pose_covariance.pose;
-    tf2::doTransform(pose, pose, objects2costmap);
+    
+    geometry_msgs::msg::PoseStamped output_stamped, input_stamped;
+    input_stamped.pose = object.state.pose_covariance.pose;
+    tf2::doTransform(input_stamped, output_stamped, objects2costmap);
+    object.state.pose_covariance.pose = output_stamped.pose;
   }
 
-  return autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr(objects);
+  return autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr(objects);
 }
 
 grid_map::Matrix CostmapGenerator::generateObjectsCostmap(
-  const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & in_objects)
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr in_objects)
 {
   const auto object_frame = in_objects->header.frame_id;
   const auto transformed_objects =
