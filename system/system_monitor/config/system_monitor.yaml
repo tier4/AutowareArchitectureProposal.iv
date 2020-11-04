@@ -27,9 +27,10 @@ mem_monitor:
   ros__parameters:
     usage_warn: 0.95
     usage_error: 0.99
-#net_monitor:
-#  devices: [ '*' ]
-#  usage_warn: 0.95
+net_monitor:
+  ros__parameters:
+    devices: [ '*' ]
+    usage_warn: 0.95
 #ntp_monitor:
 #  server: ntp.nict.jp
 #  offset_warn: 0.1

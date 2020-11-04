@@ -113,11 +113,11 @@ ament_auto_add_executable(mem_monitor
   src/mem_monitor/mem_monitor_node.cpp
   src/mem_monitor/mem_monitor.cpp
 )
-#ament_auto_add_executable(net_monitor
-#  src/net_monitor/net_monitor_node.cpp
-#  src/net_monitor/net_monitor.cpp
-#  src/net_monitor/nl80211.cpp
-#)
+ament_auto_add_executable(net_monitor
+  src/net_monitor/net_monitor_node.cpp
+  src/net_monitor/net_monitor.cpp
+  src/net_monitor/nl80211.cpp
+)
 #ament_auto_add_executable(ntp_monitor
 #  src/ntp_monitor/ntp_monitor_node.cpp
 #  src/ntp_monitor/ntp_monitor.cpp
@@ -155,8 +155,8 @@ ament_auto_add_executable(mem_monitor
 #add_dependencies(msr_reader ${catkin_EXPORTED_TARGETS})
 #add_dependencies(hdd_reader ${catkin_EXPORTED_TARGETS})
 
-find_library(NL3 nl-3)
-find_library(NLGENL3 nl-genl-3)
+find_library(NL3 nl-3 REQUIRED)
+find_library(NLGENL3 nl-genl-3 REQUIRED)
 list(APPEND NL_LIBS ${NL3} ${NLGENL3})
 
 find_package(Boost REQUIRED COMPONENTS
@@ -170,7 +170,7 @@ find_package(Boost REQUIRED COMPONENTS
 target_link_libraries(cpu_monitor ${Boost_LIBRARIES})
 target_link_libraries(hdd_monitor ${Boost_LIBRARIES})
 #target_link_libraries(mem_monitor ${catkin_LIBRARIES})
-#target_link_libraries(net_monitor ${catkin_LIBRARIES} ${NL_LIBS})
+target_link_libraries(net_monitor ${NL_LIBS})
 #target_link_libraries(ntp_monitor ${catkin_LIBRARIES})
 #target_link_libraries(process_monitor ${catkin_LIBRARIES})
 #target_link_libraries(gpu_monitor ${catkin_LIBRARIES} ${GPU_LIBRARY})
