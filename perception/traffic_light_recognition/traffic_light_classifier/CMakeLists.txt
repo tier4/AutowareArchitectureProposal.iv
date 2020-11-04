@@ -103,7 +103,6 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
     utils
     ${OpenCV_INCLUDE_DIRS}
     ${CUDA_INCLUDE_DIRS}
-    ${catkin_INCLUDE_DIRS}
     )
 
   ament_auto_add_library(libutils SHARED
@@ -128,7 +127,6 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
   )
   target_link_libraries(traffic_light_classifier_nodelet
     libutils
-    ${catkin_LIBRARIES}
     ${OpenCV_LIBRARIES}
   )
   rclcpp_components_register_node(traffic_light_classifier_nodelet
@@ -146,7 +144,6 @@ else()
 
   include_directories(
     ${OpenCV_INCLUDE_DIRS}
-    ${catkin_INCLUDE_DIRS}
     )
 
   ament_auto_add_library(traffic_light_classifier_nodelet SHARED
@@ -154,7 +151,6 @@ else()
     src/nodelet.cpp
     )
   target_link_libraries(traffic_light_classifier_nodelet
-    ${catkin_LIBRARIES}
     ${OpenCV_LIBRARIES}
     )
 
