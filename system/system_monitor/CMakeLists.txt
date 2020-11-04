@@ -118,10 +118,10 @@ ament_auto_add_executable(net_monitor
   src/net_monitor/net_monitor.cpp
   src/net_monitor/nl80211.cpp
 )
-#ament_auto_add_executable(ntp_monitor
-#  src/ntp_monitor/ntp_monitor_node.cpp
-#  src/ntp_monitor/ntp_monitor.cpp
-#)
+ament_auto_add_executable(ntp_monitor
+  src/ntp_monitor/ntp_monitor_node.cpp
+  src/ntp_monitor/ntp_monitor.cpp
+)
 #ament_auto_add_executable(process_monitor
 #  src/process_monitor/process_monitor_node.cpp
 #  src/process_monitor/process_monitor.cpp
@@ -171,7 +171,7 @@ target_link_libraries(cpu_monitor ${Boost_LIBRARIES})
 target_link_libraries(hdd_monitor ${Boost_LIBRARIES})
 #target_link_libraries(mem_monitor ${catkin_LIBRARIES})
 target_link_libraries(net_monitor ${NL_LIBS})
-#target_link_libraries(ntp_monitor ${catkin_LIBRARIES})
+target_link_libraries(ntp_monitor ${Boost_LIBRARIES})
 #target_link_libraries(process_monitor ${catkin_LIBRARIES})
 #target_link_libraries(gpu_monitor ${catkin_LIBRARIES} ${GPU_LIBRARY})
 #target_link_libraries(msr_reader ${catkin_LIBRARIES} ${Boost_LIBRARIES})

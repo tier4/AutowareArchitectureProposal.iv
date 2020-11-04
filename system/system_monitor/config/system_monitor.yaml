@@ -31,10 +31,11 @@ net_monitor:
   ros__parameters:
     devices: [ '*' ]
     usage_warn: 0.95
-#ntp_monitor:
-#  server: ntp.nict.jp
-#  offset_warn: 0.1
-#  offset_error: 5.0
+ntp_monitor:
+  ros__parameters:
+    server: ntp.nict.jp
+    offset_warn: 0.1
+    offset_error: 5.0
 #process_monitor:
 #  num_of_procs: 5
 #gpu_monitor:
