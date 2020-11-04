@@ -159,7 +159,7 @@ VelocityController::VelocityController() : Node("velocity_controller")
     this->add_on_set_parameters_callback(std::bind(&VelocityController::paramCallback, this, _1));
 
   // wait at end of constructor so other members are properly initialized first
-  blockUntilVehiclePositionAvailable(tf2::durationFromSec(5.0));
+  blockUntilVehiclePositionAvailable(tf2::durationFromSec(1.0));
 }
 
 void VelocityController::callbackCurrentVelocity(
@@ -174,21 +174,17 @@ void VelocityController::callbackTrajectory(
   trajectory_ptr_ = msg;
 }
 
-void VelocityController::blockUntilVehiclePositionAvailable(const tf2::Duration & timeout)
+void VelocityController::blockUntilVehiclePositionAvailable(const tf2::Duration & duration)
 {
-  while (rclcpp::ok()) {
-    static constexpr auto input = "map", output = "base_link";
-    auto tf_future = tf_buffer_->waitForTransform(
-      input, output, tf2::TimePointZero, tf2::durationFromSec(0.0), [](auto &) {});
-    const auto status = tf_future.wait_for(timeout);
-    if (status == std::future_status::ready) {
-      break;
-    } else {
-      RCLCPP_INFO(
-        get_logger(), "waiting another %d seconds for %s->%s transform",
-        std::chrono::duration_cast<std::chrono::seconds>(timeout).count(), input, output);
-    }
+  static constexpr auto input = "map", output = "base_link";
+  while (!tf_buffer_->canTransform(input, output, tf2::TimePointZero, tf2::durationFromSec(0.0)) &&
+         rclcpp::ok()) {
+    RCLCPP_INFO(
+      get_logger(), "waiting %d ms for %s->%s transform to become available",
+      std::chrono::duration_cast<std::chrono::seconds>(duration).count(), input, output);
+    rclcpp::sleep_for(duration);
   }
+  RCLCPP_INFO(get_logger(), "transform available");
 }
 
 bool VelocityController::updateCurrentPose()
