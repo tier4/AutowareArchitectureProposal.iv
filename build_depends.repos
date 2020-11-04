@@ -2,7 +2,7 @@ repositories:
   vendor/osqp:
     type: git
     url: https://github.com/tier4/osqp_vendor.git
-    version: d435e0295fc843f5aa2e3210828bfc9f025202f5
+    version: 0.0.2
   vendor/ublox:
     type: git
     url: https://github.com/tier4/ublox.git
