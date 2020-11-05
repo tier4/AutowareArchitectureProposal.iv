@@ -22,7 +22,8 @@
 class EmptyObjectsPublisher : public rclcpp::Node
 {
 public:
-  EmptyObjectsPublisher() : Node("empty_objects_publisher")
+  EmptyObjectsPublisher()
+  : Node("empty_objects_publisher")
   {
     empty_objects_pub_ = this->create_publisher<autoware_perception_msgs::msg::DynamicObjectArray>(
       "output/objects", 1);

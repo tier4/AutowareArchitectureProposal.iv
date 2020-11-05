@@ -31,7 +31,7 @@ DummyPerceptionPublisherNode::DummyPerceptionPublisherNode()
   qos.transient_local();
   dynamic_object_pub_ =
     this->create_publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(
-      "output/dynamic_object", qos);
+    "output/dynamic_object", qos);
   pointcloud_pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("output/points_raw", qos);
 
   object_sub_ = this->create_subscription<dummy_perception_publisher::msg::Object>(
@@ -75,7 +75,7 @@ void DummyPerceptionPublisherNode::timerCallback()
   std::vector<size_t> delete_idxs;
   static std::uniform_real_distribution<> detection_successful_random(0.0, 1.0);
   for (size_t i = 0; i < objects_.size(); ++i) {
-    if (detection_successful_rate_ < detection_successful_random(random_generator_)) continue;
+    if (detection_successful_rate_ < detection_successful_random(random_generator_)) {continue;}
     const double std_dev_x = std::sqrt(objects_.at(i).initial_state.pose_covariance.covariance[0]);
     const double std_dev_y = std::sqrt(objects_.at(i).initial_state.pose_covariance.covariance[7]);
     const double std_dev_z = std::sqrt(objects_.at(i).initial_state.pose_covariance.covariance[14]);
@@ -137,7 +137,7 @@ void DummyPerceptionPublisherNode::timerCallback()
     double dist = std::sqrt(
       tf_base_link2moved_object.getOrigin().x() * tf_base_link2moved_object.getOrigin().x() +
       tf_base_link2moved_object.getOrigin().y() * tf_base_link2moved_object.getOrigin().y());
-    if (visible_range_ < dist) delete_idxs.push_back(i);
+    if (visible_range_ < dist) {delete_idxs.push_back(i);}
   }
   // delete
   for (int delete_idx = delete_idxs.size() - 1; 0 <= delete_idx; --delete_idx) {
@@ -169,8 +169,9 @@ void DummyPerceptionPublisherNode::timerCallback()
         Eigen::Vector3i grid_cordinates = ray_tracing_filter.getGridCoordinates(
           v_pointcloud.at(i)->at(j).x, v_pointcloud.at(i)->at(j).y, v_pointcloud.at(i)->at(j).z);
         int grid_state;
-        if (ray_tracing_filter.occlusionEstimation(grid_state, grid_cordinates) != 0)
+        if (ray_tracing_filter.occlusionEstimation(grid_state, grid_cordinates) != 0) {
           RCLCPP_ERROR(get_logger(), "ray tracing failed");
+        }
         if (grid_state == 1) {  // occluded
           continue;
         } else {  // not occluded
@@ -211,24 +212,24 @@ void DummyPerceptionPublisherNode::createObjectPointcloud(
   std::normal_distribution<> y_random(0.0, std_dev_y);
   std::normal_distribution<> z_random(0.0, std_dev_z);
   auto getBaseLinkTo2DPoint = [tf_base_link2moved_object](double x, double y) -> pcl::PointXYZ {
-    tf2::Transform tf_moved_object2point;
-    tf2::Transform tf_base_link2point;
-    geometry_msgs::msg::Transform ros_moved_object2point;
-    ros_moved_object2point.translation.x = x;
-    ros_moved_object2point.translation.y = y;
-    ros_moved_object2point.translation.z = 0.0;
-    ros_moved_object2point.rotation.x = 0;
-    ros_moved_object2point.rotation.y = 0;
-    ros_moved_object2point.rotation.z = 0;
-    ros_moved_object2point.rotation.w = 1;
-    tf2::fromMsg(ros_moved_object2point, tf_moved_object2point);
-    tf_base_link2point = tf_base_link2moved_object * tf_moved_object2point;
-    pcl::PointXYZ point;
-    point.x = tf_base_link2point.getOrigin().x();
-    point.y = tf_base_link2point.getOrigin().y();
-    point.z = tf_base_link2point.getOrigin().z();
-    return point;
-  };
+      tf2::Transform tf_moved_object2point;
+      tf2::Transform tf_base_link2point;
+      geometry_msgs::msg::Transform ros_moved_object2point;
+      ros_moved_object2point.translation.x = x;
+      ros_moved_object2point.translation.y = y;
+      ros_moved_object2point.translation.z = 0.0;
+      ros_moved_object2point.rotation.x = 0;
+      ros_moved_object2point.rotation.y = 0;
+      ros_moved_object2point.rotation.z = 0;
+      ros_moved_object2point.rotation.w = 1;
+      tf2::fromMsg(ros_moved_object2point, tf_moved_object2point);
+      tf_base_link2point = tf_base_link2moved_object * tf_moved_object2point;
+      pcl::PointXYZ point;
+      point.x = tf_base_link2point.getOrigin().x();
+      point.y = tf_base_link2point.getOrigin().y();
+      point.z = tf_base_link2point.getOrigin().z();
+      return point;
+    };
   const double epsilon = 0.001;
   const double step = 0.05;
   const double vertical_theta_step = (1.0 / 180.0) * M_PI;
@@ -296,7 +297,8 @@ void DummyPerceptionPublisherNode::createObjectPointcloud(
         horizontal_candidate_pointcloud.at(pointcloud_index).x,
         horizontal_candidate_pointcloud.at(pointcloud_index).y);
       for (double vertical_theta = vertical_min_theta;
-           vertical_theta <= vertical_max_theta + epsilon; vertical_theta += vertical_theta_step) {
+        vertical_theta <= vertical_max_theta + epsilon; vertical_theta += vertical_theta_step)
+      {
         const double z = distance * std::tan(vertical_theta);
         if (min_z <= z && z <= max_z + epsilon) {
           pcl::PointXYZ point;
@@ -317,64 +319,65 @@ void DummyPerceptionPublisherNode::objectCallback(
 {
   switch (msg->action) {
     case dummy_perception_publisher::msg::Object::ADD: {
-      tf2::Transform tf_input2map;
-      tf2::Transform tf_input2object_origin;
-      tf2::Transform tf_map2object_origin;
-      try {
-        geometry_msgs::msg::TransformStamped ros_input2map;
-        ros_input2map = tf_buffer_.lookupTransform(
-          /*target*/ msg->header.frame_id, /*src*/ "map", msg->header.stamp, rclcpp::Duration(0.5));
-        tf2::fromMsg(ros_input2map.transform, tf_input2map);
-      } catch (tf2::TransformException & ex) {
-        RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "%s", ex.what());
-        return;
+        tf2::Transform tf_input2map;
+        tf2::Transform tf_input2object_origin;
+        tf2::Transform tf_map2object_origin;
+        try {
+          geometry_msgs::msg::TransformStamped ros_input2map;
+          ros_input2map = tf_buffer_.lookupTransform(
+            /*target*/ msg->header.frame_id, /*src*/ "map", msg->header.stamp,
+            rclcpp::Duration(0.5));
+          tf2::fromMsg(ros_input2map.transform, tf_input2map);
+        } catch (tf2::TransformException & ex) {
+          RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "%s", ex.what());
+          return;
+        }
+        tf2::fromMsg(msg->initial_state.pose_covariance.pose, tf_input2object_origin);
+        tf_map2object_origin = tf_input2map.inverse() * tf_input2object_origin;
+        dummy_perception_publisher::msg::Object object;
+        object = *msg;
+        tf2::toMsg(tf_map2object_origin, object.initial_state.pose_covariance.pose);
+        objects_.push_back(object);
+        break;
       }
-      tf2::fromMsg(msg->initial_state.pose_covariance.pose, tf_input2object_origin);
-      tf_map2object_origin = tf_input2map.inverse() * tf_input2object_origin;
-      dummy_perception_publisher::msg::Object object;
-      object = *msg;
-      tf2::toMsg(tf_map2object_origin, object.initial_state.pose_covariance.pose);
-      objects_.push_back(object);
-      break;
-    }
     case dummy_perception_publisher::msg::Object::DELETE: {
-      for (size_t i = 0; i < objects_.size(); ++i) {
-        if (objects_.at(i).id.uuid == msg->id.uuid) {
-          objects_.erase(objects_.begin() + i);
-          break;
-        }
-      }
-      break;
-    }
-    case dummy_perception_publisher::msg::Object::MODIFY: {
-      for (size_t i = 0; i < objects_.size(); ++i) {
-        if (objects_.at(i).id.uuid == msg->id.uuid) {
-          tf2::Transform tf_input2map;
-          tf2::Transform tf_input2object_origin;
-          tf2::Transform tf_map2object_origin;
-          try {
-            geometry_msgs::msg::TransformStamped ros_input2map;
-            ros_input2map = tf_buffer_.lookupTransform(
-              /*target*/ msg->header.frame_id, /*src*/ "map", msg->header.stamp,
-              rclcpp::Duration(0.5));
-            tf2::fromMsg(ros_input2map.transform, tf_input2map);
-          } catch (tf2::TransformException & ex) {
-            RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "%s", ex.what());
-            return;
+        for (size_t i = 0; i < objects_.size(); ++i) {
+          if (objects_.at(i).id.uuid == msg->id.uuid) {
+            objects_.erase(objects_.begin() + i);
+            break;
           }
-          tf2::fromMsg(msg->initial_state.pose_covariance.pose, tf_input2object_origin);
-          tf_map2object_origin = tf_input2map.inverse() * tf_input2object_origin;
-          dummy_perception_publisher::msg::Object object;
-          objects_.at(i) = *msg;
-          tf2::toMsg(tf_map2object_origin, objects_.at(i).initial_state.pose_covariance.pose);
-          break;
         }
+        break;
       }
-      break;
-    }
+    case dummy_perception_publisher::msg::Object::MODIFY: {
+        for (size_t i = 0; i < objects_.size(); ++i) {
+          if (objects_.at(i).id.uuid == msg->id.uuid) {
+            tf2::Transform tf_input2map;
+            tf2::Transform tf_input2object_origin;
+            tf2::Transform tf_map2object_origin;
+            try {
+              geometry_msgs::msg::TransformStamped ros_input2map;
+              ros_input2map = tf_buffer_.lookupTransform(
+                /*target*/ msg->header.frame_id, /*src*/ "map", msg->header.stamp,
+                rclcpp::Duration(0.5));
+              tf2::fromMsg(ros_input2map.transform, tf_input2map);
+            } catch (tf2::TransformException & ex) {
+              RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "%s", ex.what());
+              return;
+            }
+            tf2::fromMsg(msg->initial_state.pose_covariance.pose, tf_input2object_origin);
+            tf_map2object_origin = tf_input2map.inverse() * tf_input2object_origin;
+            dummy_perception_publisher::msg::Object object;
+            objects_.at(i) = *msg;
+            tf2::toMsg(tf_map2object_origin, objects_.at(i).initial_state.pose_covariance.pose);
+            break;
+          }
+        }
+        break;
+      }
     case dummy_perception_publisher::msg::Object::DELETEALL: {
-      objects_.clear();
-      break;
-    }
+        objects_.clear();
+        break;
+      }
   }
 }

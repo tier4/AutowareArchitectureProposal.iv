@@ -30,11 +30,12 @@
 #include <tf2_ros/transform_listener.h>
 #include <random>
 
-class DummyPerceptionPublisherNode: public rclcpp::Node
+class DummyPerceptionPublisherNode : public rclcpp::Node
 {
 private:
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_pub_;
-  rclcpp::Publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr dynamic_object_pub_;
+  rclcpp::Publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr
+    dynamic_object_pub_;
   rclcpp::Subscription<dummy_perception_publisher::msg::Object>::SharedPtr object_sub_;
   rclcpp::TimerBase::SharedPtr timer_;
   tf2_ros::Buffer tf_buffer_;
@@ -55,5 +56,5 @@ private:
 
 public:
   DummyPerceptionPublisherNode();
-  ~DummyPerceptionPublisherNode(){};
+  ~DummyPerceptionPublisherNode() {}
 };
