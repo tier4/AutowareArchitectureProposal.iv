@@ -15,6 +15,7 @@
   <depend>fmt</depend>
   
   <exec_depend>diagnostic_aggregator</exec_depend>
+  <exec_depend>rqt_robot_monitor</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
