@@ -86,7 +86,7 @@ void DataManager::onVehiclePoseUpdate()
     try {
       const auto current_time = node_ptr->now();
       const auto transform =
-        tf_buffer_->lookupTransform("map", "base_link", current_time, rclcpp::Duration(1.0));
+        tf_buffer_->lookupTransform("map", "base_link", current_time, rclcpp::Duration::from_seconds(0.1));
       vehicle_pose_.pose.position.x = transform.transform.translation.x;
       vehicle_pose_.pose.position.y = transform.transform.translation.y;
       vehicle_pose_.pose.position.z = transform.transform.translation.z;
@@ -122,7 +122,7 @@ bool DataManager::isPoseValid() const
   if (auto node_ptr = node_.lock()) {
     // check time stamp
     constexpr double timeout = 1.0;
-    if (node_ptr->now() - vehicle_pose_.header.stamp > rclcpp::Duration(timeout)) {
+    if (node_ptr->now() - vehicle_pose_.header.stamp > rclcpp::Duration::from_seconds(timeout)) {
       return false;
     }
   } else {
@@ -141,7 +141,7 @@ bool DataManager::isPathValid() const
   if (auto node_ptr = node_.lock()) {
     // check time stamp
     constexpr double timeout = 1.0;
-    if (node_ptr->now() - path_.header.stamp > rclcpp::Duration(timeout)) {
+    if (node_ptr->now() - path_.header.stamp > rclcpp::Duration::from_seconds(timeout)) {
       return false;
     }
   } else {
