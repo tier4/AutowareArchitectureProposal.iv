@@ -140,13 +140,13 @@ ament_auto_add_executable(gpu_monitor
   ${GPU_MONITOR_SOURCE}
 )
 
-#ament_auto_add_executable(msr_reader
-#  reader/msr_reader/msr_reader.cpp
-#)
-#
-#ament_auto_add_executable(hdd_reader
-#  reader/hdd_reader/hdd_reader.cpp
-#)
+ament_auto_add_executable(msr_reader
+  reader/msr_reader/msr_reader.cpp
+)
+
+ament_auto_add_executable(hdd_reader
+  reader/hdd_reader/hdd_reader.cpp
+)
 
 ## Add cmake target dependencies of the executable
 #add_dependencies(cpu_monitor ${catkin_EXPORTED_TARGETS})
@@ -178,8 +178,8 @@ target_link_libraries(net_monitor ${NL_LIBS})
 target_link_libraries(ntp_monitor ${Boost_LIBRARIES})
 target_link_libraries(process_monitor ${Boost_LIBRARIES})
 target_link_libraries(gpu_monitor ${GPU_LIBRARY})
-#target_link_libraries(msr_reader ${catkin_LIBRARIES} ${Boost_LIBRARIES})
-#target_link_libraries(hdd_reader ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(msr_reader ${Boost_LIBRARIES})
+target_link_libraries(hdd_reader ${Boost_LIBRARIES})
 
 #############
 ## Install ##
