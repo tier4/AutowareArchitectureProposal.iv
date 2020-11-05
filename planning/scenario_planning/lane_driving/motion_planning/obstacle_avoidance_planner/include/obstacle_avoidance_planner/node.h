@@ -62,8 +62,11 @@ struct Trajectories;
 class ObstacleAvoidancePlanner : public rclcpp::Node
 {
 private:
-  bool is_publishing_clearance_map_;
+
+  OnSetParametersCallbackHandle::SharedPtr set_param_res_;
+  
   bool is_publishing_area_with_objects_;
+  bool is_publishing_clearance_map_;
   bool is_showing_debug_info_;
   bool is_using_vehicle_config_;
   bool is_stopping_if_outside_drivable_area_;
@@ -75,7 +78,7 @@ private:
   double min_delta_dist_for_replan_;
   double min_delta_time_sec_for_replan_;
   double max_dist_for_extending_end_point_;
-  double distance_for_path_shape_chagne_detection_;
+  double distance_for_path_shape_change_detection_;
 
   // logic
   std::unique_ptr<EBPathOptimizer> eb_path_optimizer_ptr_;
@@ -189,6 +192,11 @@ private:
     const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points, const Trajectories & trajs,
     const nav_msgs::msg::MapMetaData & map_info, const cv::Mat & road_clearance_map,
     DebugData * debug_data) const;
+
+  void declareObstacleAvoidancePlannerParameters();
+
+  rcl_interfaces::msg::SetParametersResult paramCallback(
+    const std::vector<rclcpp::Parameter> & parameters);
 
 public:
   ObstacleAvoidancePlanner();

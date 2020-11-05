@@ -147,7 +147,7 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
 
   min_delta_dist_for_replan_ = declare_parameter("min_delta_dist_for_replan", 5.0);
   min_delta_time_sec_for_replan_ = declare_parameter("min_delta_time_sec_for_replan", 1.0);
-  distance_for_path_shape_chagne_detection_ = declare_parameter("distance_for_path_shape_chagne_detection", 2.0);
+  distance_for_path_shape_change_detection_ = declare_parameter("distance_for_path_shape_chagne_detection", 2.0);
 
   if (is_using_vehicle_config_) {
     double vehicle_width = 1.5;
@@ -198,10 +198,68 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
     (mpt_param_->base_point_dist_from_base_link + mpt_param_->top_point_dist_from_base_link) * 0.5;
 
   in_objects_ptr_ = std::make_unique<autoware_perception_msgs::msg::DynamicObjectArray>();
+
+  // set parameter callback
+  set_param_res_ = this->add_on_set_parameters_callback(
+    std::bind(&ObstacleAvoidancePlanner::paramCallback, this, std::placeholders::_1));
+
   initialize();
 }
 
 ObstacleAvoidancePlanner::~ObstacleAvoidancePlanner() {}
+
+rcl_interfaces::msg::SetParametersResult ObstacleAvoidancePlanner::paramCallback(
+  const std::vector<rclcpp::Parameter> & parameters)
+{
+  auto update_param = [&](const std::string & name, double & v) {
+    auto it = std::find_if(
+      parameters.cbegin(), parameters.cend(),
+      [&name](const rclcpp::Parameter & parameter) { return parameter.get_name() == name; });
+    if (it != parameters.cend()) {
+      v = it->as_double();
+      return true;
+    }
+    return false;
+  };
+
+  // trajectory total/fixing length
+  update_param("trajectory_length", traj_param_->trajectory_length);
+  update_param("forward_fixing_distance", traj_param_->forward_fixing_distance);
+  update_param("backward_fixing_distance", traj_param_->backward_fixing_distance);
+
+  // clearance for unique points
+  update_param("clearance_for_straight_line", constrain_param_->clearance_for_straight_line);
+  update_param("clearance_for_joint", constrain_param_->clearance_for_joint);
+  update_param("clearance_for_only_smoothing", constrain_param_->clearance_for_only_smoothing);
+  update_param("clearance_from_object_for_straight", constrain_param_->clearance_from_object_for_straight);
+
+  // clearance(distance) when generating trajectory
+  update_param("clearance_from_road", constrain_param_->clearance_from_road);
+  update_param("clearance_from_object", constrain_param_->clearance_from_object);
+  update_param("min_object_clearance_for_joint", constrain_param_->min_object_clearance_for_joint);
+  update_param("extra_desired_clearance_from_road", constrain_param_->extra_desired_clearance_from_road);
+
+  // avoiding param
+  update_param("max_avoiding_objects_velocity_ms", traj_param_->max_avoiding_objects_velocity_ms);
+  update_param("max_avoiding_ego_velocity_ms", traj_param_->max_avoiding_ego_velocity_ms);
+  update_param("center_line_width", traj_param_->center_line_width);
+  update_param("acceleration_for_non_deceleration_range", traj_param_->acceleration_for_non_deceleration_range);
+
+  // mpt param
+  update_param("base_point_weight", mpt_param_->base_point_weight);
+  update_param("top_point_weight", mpt_param_->top_point_weight);
+  update_param("mid_point_weight", mpt_param_->mid_point_weight);
+  update_param("lat_error_weight", mpt_param_->lat_error_weight);
+  update_param("yaw_error_weight", mpt_param_->yaw_error_weight);
+  update_param("steer_input_weight", mpt_param_->steer_input_weight);
+  update_param("steer_rate_weight", mpt_param_->steer_rate_weight);
+  update_param("steer_acc_weight", mpt_param_->steer_acc_weight);
+
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  result.reason = "success";
+  return result;
+}
 
 // ROS callback functions
 void ObstacleAvoidancePlanner::pathCallback(const autoware_planning_msgs::msg::Path::SharedPtr msg)
@@ -430,7 +488,7 @@ bool ObstacleAvoidancePlanner::isPathShapeChanged(
         min_dist = dist;
       }
     }
-    if (min_dist > distance_for_path_shape_chagne_detection_) {
+    if (min_dist > distance_for_path_shape_change_detection_) {
       return true;
     }
   }
