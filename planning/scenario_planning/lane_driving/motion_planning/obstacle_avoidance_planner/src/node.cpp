@@ -564,7 +564,11 @@ boost::optional<Trajectories> ObstacleAvoidancePlanner::calcTrajectoryInsideArea
   if (!is_stopping_if_outside_drivable_area_) {
     const auto stop_idx = getStopIdx(path_points, trajs, map_info, road_clearance_map, debug_data);
     if(stop_idx){
-      RCLCPP_WARN(get_logger(), "[Avoidance] Expecting over drivable area");
+      auto clock = rclcpp::Clock(RCL_ROS_TIME);
+      RCLCPP_WARN_THROTTLE(get_logger(), 
+        clock,
+        std::chrono::milliseconds(1000).count(),
+        "[Avoidance] Expecting over drivable area");
     }
     return getBaseTrajectory(path_points, trajs);
   }
