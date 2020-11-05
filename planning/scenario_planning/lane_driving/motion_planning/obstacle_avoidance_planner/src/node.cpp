@@ -171,14 +171,14 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
 
   // mpt param
   mpt_param_->is_hard_fix_terminal_point = declare_parameter("is_hard_fix_terminal_point", true);
-  mpt_param_->num_curvature_sampling_points = declare_parameter("num_curvature_sampling_points", 5);
-  mpt_param_->base_point_weight = declare_parameter("base_point_weight", 2000);
-  mpt_param_->top_point_weight = declare_parameter("top_point_weight", 1000);
-  mpt_param_->mid_point_weight = declare_parameter("mid_point_weight", 1000);
-  mpt_param_->lat_error_weight = declare_parameter("lat_error_weight", 10);
-  mpt_param_->yaw_error_weight = declare_parameter("yaw_error_weight", 0);
+  mpt_param_->num_curvature_sampling_points = declare_parameter("num_curvature_sampling_points", 5.0);
+  mpt_param_->base_point_weight = declare_parameter("base_point_weight", 2000.0);
+  mpt_param_->top_point_weight = declare_parameter("top_point_weight", 1000.0);
+  mpt_param_->mid_point_weight = declare_parameter("mid_point_weight", 1000.0);
+  mpt_param_->lat_error_weight = declare_parameter("lat_error_weight", 10.0);
+  mpt_param_->yaw_error_weight = declare_parameter("yaw_error_weight", 0.0);
   mpt_param_->steer_input_weight = declare_parameter("steer_input_weight", 0.1);
-  mpt_param_->steer_rate_weight = declare_parameter("steer_rate_weight", 100);
+  mpt_param_->steer_rate_weight = declare_parameter("steer_rate_weight", 100.0);
   mpt_param_->steer_acc_weight = declare_parameter("steer_acc_weight", 0.000001);
   mpt_param_->terminal_lat_error_weight = declare_parameter("terminal_lat_error_weight", 0.0);
   mpt_param_->terminal_yaw_error_weight = declare_parameter("terminal_yaw_error_weight", 100.0);
