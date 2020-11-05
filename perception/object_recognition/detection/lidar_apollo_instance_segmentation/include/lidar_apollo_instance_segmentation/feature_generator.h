@@ -16,7 +16,7 @@
 
 #pragma once
 #include <pcl/point_types.h>
-#include <pcl_ros/point_cloud.h>
+#include <pcl/point_cloud.h>
 #include <memory>
 #include "lidar_apollo_instance_segmentation/feature_map.h"
 #include "util.h"
