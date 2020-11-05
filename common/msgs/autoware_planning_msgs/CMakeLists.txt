@@ -16,6 +16,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/IsAvoidancePossible.msg"
   "msg/LaneSequence.msg"
   "msg/Path.msg"
   "msg/PathPoint.msg"
