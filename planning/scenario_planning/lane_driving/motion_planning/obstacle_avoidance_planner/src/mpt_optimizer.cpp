@@ -583,7 +583,7 @@ std::vector<Bounds> MPTOptimizer::getReferenceBounds(
     if (
       lat_bounds_0[0] == lat_bounds_0[1] || lat_bounds_1[0] == lat_bounds_1[1] ||
       lat_bounds_2[0] == lat_bounds_2[1]) {
-      aout clock = rclcpp::Clock(RCL_ROS_TIME);
+      auto clock = rclcpp::Clock(RCL_ROS_TIME);
       RCLCPP_WARN_THROTTLE(rclcpp::get_logger("MPTOptimizer"),
         clock,
         std::chrono::milliseconds(1000).count(),

@@ -19,7 +19,7 @@
 #include <boost/optional/optional_fwd.hpp>
 #include <mutex>
 
-#include <std_msgs/msg/bool.hpp>
+#include <autoware_planning_msgs/msg/is_avoidance_possible.hpp>
 #include <autoware_planning_msgs/msg/path.hpp>
 #include <autoware_planning_msgs/msg/path_point.hpp>
 #include <autoware_planning_msgs/msg/trajectory_point.hpp>
@@ -103,7 +103,7 @@ private:
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr trajectory_pub_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr avoiding_traj_pub_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr debug_smoothed_points_pub_;
-  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr is_avoidance_possible_pub_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::IsAvoidancePossible>::SharedPtr is_avoidance_possible_pub_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr debug_markers_pub_;
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr debug_clearance_map_pub_;
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr debug_object_clearance_map_pub_;
@@ -111,13 +111,13 @@ private:
   rclcpp::Subscription<autoware_planning_msgs::msg::Path>::SharedPtr path_sub_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr twist_sub_;
   rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr objects_sub_;
-  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr is_avoidance_sub_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::IsAvoidancePossible>::SharedPtr is_avoidance_sub_;
 
   // callback functions
   void pathCallback(const autoware_planning_msgs::msg::Path::SharedPtr);
   void twistCallback(const geometry_msgs::msg::TwistStamped::SharedPtr);
   void objectsCallback(const autoware_perception_msgs::msg::DynamicObjectArray::SharedPtr);
-  void enableAvoidanceCallback(const std_msgs::msg::Bool::SharedPtr);
+  void enableAvoidanceCallback(const autoware_planning_msgs::msg::IsAvoidancePossible::SharedPtr);
 
   void initialize();
 

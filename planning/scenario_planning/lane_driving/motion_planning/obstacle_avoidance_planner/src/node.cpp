@@ -60,7 +60,7 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
     "/planning/scenario_planning/lane_driving/obstacle_avoidance_candidate_trajectory", durable_qos);
   debug_smoothed_points_pub_ =
     create_publisher<autoware_planning_msgs::msg::Trajectory>("debug/smoothed_poins", durable_qos);
-  is_avoidance_possible_pub_ = create_publisher<std_msgs::msg::Bool>(
+  is_avoidance_possible_pub_ = create_publisher<autoware_planning_msgs::msg::IsAvoidancePossible>(
     "/planning/scenario_planning/lane_driving/obstacle_avoidance_ready", durable_qos);
   debug_markers_pub_ = create_publisher<visualization_msgs::msg::MarkerArray>("debug/marker", durable_qos);
   debug_clearance_map_pub_ =
@@ -78,7 +78,7 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
   objects_sub_ = create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>
     ("input/objects", rclcpp::QoS{10}, 
     std::bind(&ObstacleAvoidancePlanner::objectsCallback, this, std::placeholders::_1));
-  is_avoidance_sub_ = create_subscription<std_msgs::msg::Bool>
+  is_avoidance_sub_ = create_subscription<autoware_planning_msgs::msg::IsAvoidancePossible>
     ("/planning/scenario_planning/lane_driving/obstacle_avoidance_approval", rclcpp::QoS{10},
     std::bind(&ObstacleAvoidancePlanner::enableAvoidanceCallback, this, std::placeholders::_1));
 
@@ -228,9 +228,9 @@ void ObstacleAvoidancePlanner::objectsCallback(
   in_objects_ptr_ = std::make_unique<autoware_perception_msgs::msg::DynamicObjectArray>(*msg);
 }
 
-void ObstacleAvoidancePlanner::enableAvoidanceCallback(const std_msgs::msg::Bool::SharedPtr msg)
+void ObstacleAvoidancePlanner::enableAvoidanceCallback(const autoware_planning_msgs::msg::IsAvoidancePossible::SharedPtr msg)
 {
-  enable_avoidance_ = msg->data;
+  enable_avoidance_ = msg->is_avoidance_possible;
 }
 // End ROS callback functions
 
@@ -495,8 +495,8 @@ void ObstacleAvoidancePlanner::publishingDebugData(
   debug_smoothed_points.points = debug_data.smoothed_points;
   debug_smoothed_points_pub_->publish(debug_smoothed_points);
 
-  std_msgs::msg::Bool is_avoidance_possible;
-  is_avoidance_possible.data = debug_data.foa_data.is_avoidance_possible;
+  autoware_planning_msgs::msg::IsAvoidancePossible is_avoidance_possible;
+  is_avoidance_possible.is_avoidance_possible = debug_data.foa_data.is_avoidance_possible;
   is_avoidance_possible_pub_->publish(is_avoidance_possible);
 
   debug_markers_pub_->publish(getDebugVisualizationMarker(debug_data, traj_points));
