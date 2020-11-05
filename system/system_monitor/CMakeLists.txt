@@ -109,24 +109,28 @@ ament_auto_add_executable(hdd_monitor
   src/hdd_monitor/hdd_monitor_node.cpp
   src/hdd_monitor/hdd_monitor.cpp
 )
+
 ament_auto_add_executable(mem_monitor
   src/mem_monitor/mem_monitor_node.cpp
   src/mem_monitor/mem_monitor.cpp
 )
+
 ament_auto_add_executable(net_monitor
   src/net_monitor/net_monitor_node.cpp
   src/net_monitor/net_monitor.cpp
   src/net_monitor/nl80211.cpp
 )
+
 ament_auto_add_executable(ntp_monitor
   src/ntp_monitor/ntp_monitor_node.cpp
   src/ntp_monitor/ntp_monitor.cpp
 )
-#ament_auto_add_executable(process_monitor
-#  src/process_monitor/process_monitor_node.cpp
-#  src/process_monitor/process_monitor.cpp
-#)
-#
+
+ament_auto_add_executable(process_monitor
+  src/process_monitor/process_monitor_node.cpp
+  src/process_monitor/process_monitor.cpp
+)
+
 #set(GPU_MONITOR_SOURCE
 #  src/gpu_monitor/gpu_monitor_base.cpp
 #  src/gpu_monitor/${CMAKE_GPU_PLATFORM}_gpu_monitor.cpp
@@ -172,7 +176,7 @@ target_link_libraries(hdd_monitor ${Boost_LIBRARIES})
 #target_link_libraries(mem_monitor ${catkin_LIBRARIES})
 target_link_libraries(net_monitor ${NL_LIBS})
 target_link_libraries(ntp_monitor ${Boost_LIBRARIES})
-#target_link_libraries(process_monitor ${catkin_LIBRARIES})
+target_link_libraries(process_monitor ${Boost_LIBRARIES})
 #target_link_libraries(gpu_monitor ${catkin_LIBRARIES} ${GPU_LIBRARY})
 #target_link_libraries(msr_reader ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 #target_link_libraries(hdd_reader ${catkin_LIBRARIES} ${Boost_LIBRARIES})

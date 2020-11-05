@@ -36,8 +36,9 @@ ntp_monitor:
     server: ntp.nict.jp
     offset_warn: 0.1
     offset_error: 5.0
-#process_monitor:
-#  num_of_procs: 5
+process_monitor:
+  ros__parameters:
+    num_of_procs: 5
 #gpu_monitor:
 #  temp_warn: 90.0
 #  temp_error: 95.0
