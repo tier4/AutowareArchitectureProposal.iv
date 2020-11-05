@@ -158,11 +158,11 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
     constrain_param_->clearance_from_object + constrain_param_->keep_space_shape_y * 0.5;
 
   //vehicle param
-  vehicle_param_->width = declare_parameter<double>("/vehicle_info/vehicle_width", 1.5);
-  vehicle_param_->length = declare_parameter<double>("/vehicle_info/vehicle_length", 2.0);
-  vehicle_param_->wheelbase = declare_parameter<double>("/vehicle_info/wheel_base", 1.0);
-  vehicle_param_->rear_overhang = declare_parameter<double>("/vehicle_info/rear_overhang", 0.5);
-  vehicle_param_->front_overhang = declare_parameter<double>("/vehicle_info/front_overhang", 0.5);
+  vehicle_param_->width = declare_parameter("/vehicle_info/vehicle_width", 1.5);
+  vehicle_param_->length = declare_parameter("/vehicle_info/vehicle_length", 2.0);
+  vehicle_param_->wheelbase = declare_parameter("/vehicle_info/wheel_base", 1.0);
+  vehicle_param_->rear_overhang = declare_parameter("/vehicle_info/rear_overhang", 0.5);
+  vehicle_param_->front_overhang = declare_parameter("/vehicle_info/front_overhang", 0.5);
 
   double max_steer_deg = 0;
   max_steer_deg = declare_parameter("max_steer_deg", 30.0);
