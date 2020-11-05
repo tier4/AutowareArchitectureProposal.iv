@@ -32,7 +32,6 @@
 #include <geometry_msgs/msg/vector3.hpp>
 #include <nav_msgs/msg/map_meta_data.hpp>
 
-//#include <ros/console.h>
 #include <tf2/utils.h>
 
 #include <osqp_interface/osqp_interface.h>
