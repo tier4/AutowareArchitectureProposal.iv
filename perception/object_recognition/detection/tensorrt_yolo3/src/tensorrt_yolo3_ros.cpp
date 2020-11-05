@@ -13,27 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <ros/package.h>
 #include <boost/filesystem.hpp>
+#include <ament_index_cpp/get_package_share_directory.hpp>
 
 #include "tensorrt_yolo3_ros.h"
 
-TensorrtYoloROS::TensorrtYoloROS(/* args */) : pnh_("~")
+TensorrtYoloROS::TensorrtYoloROS(/* args */) : Node("tensorrt_yolo3")
 {
-  std::string package_path = ros::package::getPath("tensorrt_yolo3");
+  std::string package_path = ament_index_cpp::get_package_share_directory("tensorrt_yolo3");
   std::string engine_path = package_path + "/data/yolov3_416_fp32.engine";
   std::ifstream fs(engine_path);
   if (fs.is_open()) {
     net_ptr_.reset(new Tn::trtNet(engine_path));
   } else {
-    ROS_INFO(
+    RCLCPP_INFO(
+      this->get_logger(),
       "Could not find %s, try making TensorRT engine from caffemodel and prototxt",
       engine_path.c_str());
     boost::filesystem::create_directories(package_path + "/data");
-    std::string prototxt_file;
-    std::string caffemodel_file;
-    pnh_.param<std::string>("prototxt_file", prototxt_file, "");
-    pnh_.param<std::string>("caffemodel_file", caffemodel_file, "");
+    std::string prototxt_file = this->declare_parameter("prototxt_file", "");
+    std::string caffemodel_file = this->declare_parameter("caffemodel_file", "");
     std::string output_node = "yolo-det";
     std::vector<std::string> output_name;
     output_name.push_back(output_node);
@@ -50,19 +49,19 @@ TensorrtYoloROS::~TensorrtYoloROS() {}
 void TensorrtYoloROS::createROSPubSub()
 {
   sub_image_ =
-    nh_.subscribe<sensor_msgs::Image>("/image_raw", 1, &TensorrtYoloROS::imageCallback, this);
-  pub_objects_ = nh_.advertise<autoware_perception_msgs::DynamicObjectWithFeatureArray>("rois", 1);
-  pub_image_ = nh_.advertise<sensor_msgs::Image>("/perception/tensorrt_yolo3/classified_image", 1);
+    this->create_subscription<sensor_msgs::msg::Image>("/image_raw", 1, std::bind(&TensorrtYoloROS::imageCallback, this, std::placeholders::_1));
+  pub_objects_ = this->create_publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>("rois", 1);
+  pub_image_ = this->create_publisher<sensor_msgs::msg::Image>("/perception/tensorrt_yolo3/classified_image", 1);
 }
 
-void TensorrtYoloROS::imageCallback(const sensor_msgs::Image::ConstPtr & in_image_msg)
+void TensorrtYoloROS::imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr in_image_msg)
 {
   //   std::cerr << "*******"  << std::endl;
   cv_bridge::CvImagePtr in_image_ptr;
   try {
     in_image_ptr = cv_bridge::toCvCopy(in_image_msg, sensor_msgs::image_encodings::BGR8);
   } catch (cv_bridge::Exception & e) {
-    ROS_ERROR("cv_bridge exception: %s", e.what());
+    RCLCPP_ERROR(this->get_logger(), "cv_bridge exception: %s", e.what());
     return;
   }
 
@@ -84,7 +83,7 @@ void TensorrtYoloROS::imageCallback(const sensor_msgs::Image::ConstPtr & in_imag
   memcpy(result.data(), &output[1], count * sizeof(Yolo::Detection));
 
   int class_num = 80;
-  autoware_perception_msgs::DynamicObjectWithFeatureArray out_objects;
+  autoware_perception_msgs::msg::DynamicObjectWithFeatureArray out_objects;
   out_objects.header = in_image_msg->header;
   // TODO: if this file is ros interface class, not appropriate to write this method in this file/class
   auto bbox = postProcessImg(result, class_num, in_image_ptr->image, out_objects);
@@ -94,9 +93,9 @@ void TensorrtYoloROS::imageCallback(const sensor_msgs::Image::ConstPtr & in_imag
       in_image_ptr->image, cv::Point(item.left, item.top), cv::Point(item.right, item.bot),
       cv::Scalar(0, 0, 255), 3, 8, 0);
   }
-  pub_image_.publish(in_image_ptr->toImageMsg());
+  pub_image_->publish(*in_image_ptr->toImageMsg());
 
-  pub_objects_.publish(out_objects);
+  pub_objects_->publish(out_objects);
 }
 
 std::vector<float> TensorrtYoloROS::prepareImage(cv::Mat & in_img)
@@ -140,7 +139,7 @@ std::vector<float> TensorrtYoloROS::prepareImage(cv::Mat & in_img)
 
 std::vector<Tn::Bbox> TensorrtYoloROS::postProcessImg(
   std::vector<Yolo::Detection> & detections, const int classes, cv::Mat & img,
-  autoware_perception_msgs::DynamicObjectWithFeatureArray & out_objects)
+  autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & out_objects)
 {
   int h = 416;
   int w = 416;
@@ -178,7 +177,7 @@ std::vector<Tn::Bbox> TensorrtYoloROS::postProcessImg(
     };
     boxes.push_back(bbox);
 
-    autoware_perception_msgs::DynamicObjectWithFeature obj;
+    autoware_perception_msgs::msg::DynamicObjectWithFeature obj;
 
     obj.feature.roi.x_offset = std::max(int((b[0] - b[2] / 2.) * width), 0);
     obj.feature.roi.y_offset = std::max(int((b[1] - b[3] / 2.) * height), 0);
@@ -199,19 +198,19 @@ std::vector<Tn::Bbox> TensorrtYoloROS::postProcessImg(
 
     obj.object.semantic.confidence = item.prob;
     if (item.classId == 2) {
-      obj.object.semantic.type = autoware_perception_msgs::Semantic::CAR;
+      obj.object.semantic.type = autoware_perception_msgs::msg::Semantic::CAR;
     } else if (item.classId == 0) {
-      obj.object.semantic.type = autoware_perception_msgs::Semantic::PEDESTRIAN;
+      obj.object.semantic.type = autoware_perception_msgs::msg::Semantic::PEDESTRIAN;
     } else if (item.classId == 5) {
-      obj.object.semantic.type = autoware_perception_msgs::Semantic::BUS;
+      obj.object.semantic.type = autoware_perception_msgs::msg::Semantic::BUS;
     } else if (item.classId == 7) {
-      obj.object.semantic.type = autoware_perception_msgs::Semantic::TRUCK;
+      obj.object.semantic.type = autoware_perception_msgs::msg::Semantic::TRUCK;
     } else if (item.classId == 1) {
-      obj.object.semantic.type = autoware_perception_msgs::Semantic::BICYCLE;
+      obj.object.semantic.type = autoware_perception_msgs::msg::Semantic::BICYCLE;
     } else if (item.classId == 3) {
-      obj.object.semantic.type = autoware_perception_msgs::Semantic::MOTORBIKE;
+      obj.object.semantic.type = autoware_perception_msgs::msg::Semantic::MOTORBIKE;
     } else {
-      obj.object.semantic.type = autoware_perception_msgs::Semantic::UNKNOWN;
+      obj.object.semantic.type = autoware_perception_msgs::msg::Semantic::UNKNOWN;
     }
     out_objects.feature_objects.push_back(obj);
   }

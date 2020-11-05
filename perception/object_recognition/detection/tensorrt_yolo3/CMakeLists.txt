@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(tensorrt_yolo3)
 
 option(CUDA_VERBOSE "Verbose output of CUDA modules" OFF)
@@ -86,44 +86,33 @@ endif()
 
 if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
 
-  find_package(catkin REQUIRED COMPONENTS
-    roscpp
-    roslib
-    autoware_perception_msgs
-    cv_bridge
-  )
 
-  set(CMAKE_CXX_STANDARD 14)
+  find_package(ament_cmake_auto REQUIRED)
+  ament_auto_find_build_dependencies()
+  find_package(Boost REQUIRED COMPONENTS filesystem)
+
+  if(NOT CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD 14)
+  endif()
+  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter)
+  endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O3")
 
-  catkin_package(
-    CATKIN_DEPENDS
-      roscpp
-      roslib
-      autoware_perception_msgs
-      cv_bridge
-  )
-
   include_directories(
-    include
     lib/include
-    ${catkin_INCLUDE_DIRS}
   )
+  
   set(SOURCE_FILES
     src/tensorrt_yolo3_main.cpp
     src/tensorrt_yolo3_ros.cpp
   )
 
-  add_executable(tensorrt_yolo3
+  ament_auto_add_executable(tensorrt_yolo3
     ${SOURCE_FILES}
   )
 
-  add_dependencies(tensorrt_yolo3
-    ${catkin_EXPORTED_TARGETS}
-  )
-
-
-  cuda_add_library(gpu_tensorrt_yolo3_lib
+  cuda_add_library(gpu_tensorrt_yolo3_lib SHARED
     lib/src/UpsampleLayer.cu
     lib/src/YoloLayer.cu
   )
@@ -132,7 +121,7 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
     ${CUDA_LIBRARIES}
   )
 
-  add_library(tensorrt_yolo3_lib
+  ament_auto_add_library(tensorrt_yolo3_lib SHARED
     lib/src/EntroyCalibrator.cpp
     lib/src/TrtNet.cpp
     lib/src/UpsampleLayer.cpp
@@ -151,33 +140,24 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
   )
 
   target_link_libraries(tensorrt_yolo3
-    ${catkin_LIBRARIES}
+    gpu_tensorrt_yolo3_lib
     tensorrt_yolo3_lib
+    ${Boost_LIBRARIES}
   )
 
-
-  install(TARGETS
-      gpu_tensorrt_yolo3_lib
-      tensorrt_yolo3_lib
-      tensorrt_yolo3
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-  )
-
-  install(DIRECTORY include/
-    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/${PROJECT_NAME}/
+  ament_auto_package(INSTALL_TO_SHARE
+    launch
+    data
   )
 
   install(
-    DIRECTORY
-      launch
-      data
-    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+    TARGETS gpu_tensorrt_yolo3_lib
+    LIBRARY DESTINATION lib
+    INCLUDES DESTINATION include
   )
 
 else()
-  find_package(catkin REQUIRED)
-  catkin_package()
-  message("PointPillars won't be built, CUDA and/or TensorRT were not found.")
+  find_package(ament_cmake_auto REQUIRED)
+  ament_auto_find_build_dependencies()
+  message("tensorrt_yolo3 won't be built, CUDA and/or TensorRT were not found.")
 endif()
