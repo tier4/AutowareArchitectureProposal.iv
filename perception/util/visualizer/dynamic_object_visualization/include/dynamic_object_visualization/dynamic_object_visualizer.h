@@ -13,49 +13,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#pragma once
-#include <ros/ros.h>
-#include "autoware_perception_msgs/DynamicObjectArray.h"
-#include "autoware_perception_msgs/DynamicObjectWithFeatureArray.h"
-#include "autoware_perception_msgs/PredictedPath.h"
-#include "autoware_perception_msgs/Shape.h"
-#include "geometry_msgs/Pose.h"
-#include "std_msgs/ColorRGBA.h"
+#ifndef DYNAMIC_OBJECT_VISUALIZATION_DYNAMIC_OBJECT_VISUALIZER_HPP_
+#define DYNAMIC_OBJECT_VISUALIZATION_DYNAMIC_OBJECT_VISUALIZER_HPP_
 
-class DynamicObjectVisualizer
+#include <rclcpp/rclcpp.hpp>
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
+#include "autoware_perception_msgs/msg/predicted_path.hpp"
+#include "autoware_perception_msgs/msg/shape.hpp"
+#include "geometry_msgs/msg/pose.hpp"
+#include "std_msgs/msg/color_rgba.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
+
+class DynamicObjectVisualizer : public rclcpp::Node
 {
 private:  // ros
-  ros::NodeHandle nh_;
-  ros::NodeHandle private_nh_;
-  ros::Publisher pub_;
-  ros::Subscriber sub_;
+  bool with_feature_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_;
+  rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr sub_;
+  rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr sub_with_feature_;
 
   void dynamicObjectWithFeatureCallback(
-    const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr & input_msg);
+    const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr input_msg);
   void dynamicObjectCallback(
-    const autoware_perception_msgs::DynamicObjectArray::ConstPtr & input_msg);
+    const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_msg);
   bool calcBoundingBoxLineList(
-    const autoware_perception_msgs::Shape & shape, std::vector<geometry_msgs::Point> & points);
+    const autoware_perception_msgs::msg::Shape & shape, std::vector<geometry_msgs::msg::Point> & points);
   bool calcCylinderLineList(
-    const autoware_perception_msgs::Shape & shape, std::vector<geometry_msgs::Point> & points);
+    const autoware_perception_msgs::msg::Shape & shape, std::vector<geometry_msgs::msg::Point> & points);
   bool calcCircleLineList(
-    const geometry_msgs::Point center, const double radius,
-    std::vector<geometry_msgs::Point> & points, const int n = 20);
+    const geometry_msgs::msg::Point center, const double radius,
+    std::vector<geometry_msgs::msg::Point> & points, const int n = 20);
   bool calcPolygonLineList(
-    const autoware_perception_msgs::Shape & shape, std::vector<geometry_msgs::Point> & points);
+    const autoware_perception_msgs::msg::Shape & shape, std::vector<geometry_msgs::msg::Point> & points);
   bool calcPathLineList(
-    const autoware_perception_msgs::PredictedPath & path,
-    std::vector<geometry_msgs::Point> & points);
-  bool getLabel(const autoware_perception_msgs::Semantic & semantic, std::string & label);
+    const autoware_perception_msgs::msg::PredictedPath & path,
+    std::vector<geometry_msgs::msg::Point> & points);
+  bool getLabel(const autoware_perception_msgs::msg::Semantic & semantic, std::string & label);
   void getColor(
-    const autoware_perception_msgs::DynamicObject & object, std_msgs::ColorRGBA & color);
-  void initColorList(std::vector<std_msgs::ColorRGBA> & colors);
-  void initPose(geometry_msgs::Pose & pose);
+    const autoware_perception_msgs::msg::DynamicObject & object, std_msgs::msg::ColorRGBA & color);
+  void initColorList(std::vector<std_msgs::msg::ColorRGBA> & colors);
+  void initPose(geometry_msgs::msg::Pose & pose);
 
   bool only_known_objects_;
-  std::vector<std_msgs::ColorRGBA> colors_;
+  std::vector<std_msgs::msg::ColorRGBA> colors_;
 
 public:
-  DynamicObjectVisualizer();
+  DynamicObjectVisualizer(const std::string & node_name, const rclcpp::NodeOptions & node_options);
   virtual ~DynamicObjectVisualizer() {}
 };
+
+#endif // #define DYNAMIC_OBJECT_VISUALIZATION_DYNAMIC_OBJECT_VISUALIZER_HPP_
