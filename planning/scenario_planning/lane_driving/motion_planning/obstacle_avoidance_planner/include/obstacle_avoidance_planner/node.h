@@ -19,6 +19,7 @@
 #include <boost/optional/optional_fwd.hpp>
 #include <mutex>
 
+#include <autoware_planning_msgs/msg/enable_avoidance.hpp>
 #include <autoware_planning_msgs/msg/is_avoidance_possible.hpp>
 #include <autoware_planning_msgs/msg/path.hpp>
 #include <autoware_planning_msgs/msg/path_point.hpp>
@@ -114,13 +115,13 @@ private:
   rclcpp::Subscription<autoware_planning_msgs::msg::Path>::SharedPtr path_sub_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr twist_sub_;
   rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr objects_sub_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::IsAvoidancePossible>::SharedPtr is_avoidance_sub_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::EnableAvoidance>::SharedPtr is_avoidance_sub_;
 
   // callback functions
   void pathCallback(const autoware_planning_msgs::msg::Path::SharedPtr);
   void twistCallback(const geometry_msgs::msg::TwistStamped::SharedPtr);
   void objectsCallback(const autoware_perception_msgs::msg::DynamicObjectArray::SharedPtr);
-  void enableAvoidanceCallback(const autoware_planning_msgs::msg::IsAvoidancePossible::SharedPtr);
+  void enableAvoidanceCallback(const autoware_planning_msgs::msg::EnableAvoidance::SharedPtr);
 
   void initialize();
 

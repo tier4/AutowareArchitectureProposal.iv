@@ -78,7 +78,7 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
   objects_sub_ = create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>
     ("input/objects", rclcpp::QoS{10}, 
     std::bind(&ObstacleAvoidancePlanner::objectsCallback, this, std::placeholders::_1));
-  is_avoidance_sub_ = create_subscription<autoware_planning_msgs::msg::IsAvoidancePossible>
+  is_avoidance_sub_ = create_subscription<autoware_planning_msgs::msg::EnableAvoidance>
     ("/planning/scenario_planning/lane_driving/obstacle_avoidance_approval", rclcpp::QoS{10},
     std::bind(&ObstacleAvoidancePlanner::enableAvoidanceCallback, this, std::placeholders::_1));
 
@@ -286,9 +286,9 @@ void ObstacleAvoidancePlanner::objectsCallback(
   in_objects_ptr_ = std::make_unique<autoware_perception_msgs::msg::DynamicObjectArray>(*msg);
 }
 
-void ObstacleAvoidancePlanner::enableAvoidanceCallback(const autoware_planning_msgs::msg::IsAvoidancePossible::SharedPtr msg)
+void ObstacleAvoidancePlanner::enableAvoidanceCallback(const autoware_planning_msgs::msg::EnableAvoidance::SharedPtr msg)
 {
-  enable_avoidance_ = msg->is_avoidance_possible;
+  enable_avoidance_ = msg->enable_avoidance;
 }
 // End ROS callback functions
 
