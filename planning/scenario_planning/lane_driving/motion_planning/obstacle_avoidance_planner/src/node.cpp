@@ -171,7 +171,7 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
 
   // mpt param
   mpt_param_->is_hard_fix_terminal_point = declare_parameter("is_hard_fix_terminal_point", true);
-  mpt_param_->num_curvature_sampling_points = declare_parameter("num_curvature_sampling_points", 5.0);
+  mpt_param_->num_curvature_sampling_points = declare_parameter("num_curvature_sampling_points", 5);
   mpt_param_->base_point_weight = declare_parameter("base_point_weight", 2000.0);
   mpt_param_->top_point_weight = declare_parameter("top_point_weight", 1000.0);
   mpt_param_->mid_point_weight = declare_parameter("mid_point_weight", 1000.0);
