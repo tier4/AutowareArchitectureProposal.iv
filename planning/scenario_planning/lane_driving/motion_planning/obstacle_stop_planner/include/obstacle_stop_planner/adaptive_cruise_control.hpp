@@ -22,7 +22,7 @@
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/float32_multi_array.hpp>
+#include <autoware_debug_msgs/msg/float32_multi_array_stamped.hpp>
 #include <tf2/utils.h>
 
 #include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
@@ -46,7 +46,7 @@ public:
     autoware_planning_msgs::msg::Trajectory * output_trajectory);
 
 private:
-  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr pub_debug_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr pub_debug_;
 
   /*
    * Parameter
@@ -181,7 +181,7 @@ private:
   void registerQueToVelocity(const double vel, const rclcpp::Time & vel_time);
 
   /* Debug */
-  mutable std_msgs::msg::Float32MultiArray debug_values_;
+  mutable autoware_debug_msgs::msg::Float32MultiArrayStamped debug_values_;
   enum DBGVAL {
     ESTIMATED_VEL_PCL = 0,
     ESTIMATED_VEL_OBJ = 1,

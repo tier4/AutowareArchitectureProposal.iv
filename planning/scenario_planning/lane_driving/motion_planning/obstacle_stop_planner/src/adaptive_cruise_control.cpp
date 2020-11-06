@@ -159,7 +159,7 @@ AdaptiveCruiseController::AdaptiveCruiseController(
   param_.thresh_vel_to_stop = declare_parameter("thresh_vel_to_stop", 0.5);
 
   /* publisher */
-  pub_debug_ = create_publisher<std_msgs::msg::Float32MultiArray>("debug_values", 1);
+  pub_debug_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>("debug_values", 1);
 }
 
 void AdaptiveCruiseController::insertAdaptiveCruiseVelocity(
