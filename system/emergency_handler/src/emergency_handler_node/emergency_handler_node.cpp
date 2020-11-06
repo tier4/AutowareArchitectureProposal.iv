@@ -69,35 +69,23 @@ bool EmergencyHandler::onClearEmergencyService(
 bool EmergencyHandler::isDataReady()
 {
   if (!autoware_state_) {
-    ROS_DEBUG_THROTTLE(1.0, "waiting for autoware_state msg...");
+    RCLCPP_INFO_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
+      "waiting for autoware_state msg...");
     return false;
   }
 
   if (!driving_capability_) {
-    RCLCPP_DEBUG_THROTTLE(
-      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
+    RCLCPP_INFO_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
       "waiting for driving_capability msg...");
     return false;
   }
 
-  if (!prev_control_command_) {
-    RCLCPP_DEBUG_THROTTLE(
-      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
-      "waiting for prev_control_command msg...");
-    return false;
-  }
-
   if (!current_gate_mode_) {
-    RCLCPP_DEBUG_THROTTLE(
-      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
+    RCLCPP_INFO_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
       "waiting for current_gate_mode msg...");
-    return false;
-  }
-
-  if (!twist_) {
-    RCLCPP_DEBUG_THROTTLE(
-      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
-      "waiting for twist msg...");
     return false;
   }
 
@@ -178,14 +166,18 @@ bool EmergencyHandler::isEmergency()
   using autoware_control_msgs::msg::GateMode;
   using autoware_system_msgs::msg::AutowareState;
 
-  if (current_gate_mode_->data == GateMode::AUTO) {
-    const auto is_in_target_state =
-      (autoware_state_->state != AutowareState::INITIALIZING_VEHICLE) &&
-      (autoware_state_->state != AutowareState::WAITING_FOR_ROUTE) &&
-      (autoware_state_->state != AutowareState::PLANNING) &&
-      (autoware_state_->state != AutowareState::FINALIZING);
+  const auto is_in_target_state =
+    (autoware_state_->state != AutowareState::INITIALIZING_VEHICLE) &&
+    (autoware_state_->state != AutowareState::WAITING_FOR_ROUTE) &&
+    (autoware_state_->state != AutowareState::PLANNING) &&
+    (autoware_state_->state != AutowareState::FINALIZING);
 
-    if (is_in_target_state && !driving_capability_->autonomous_driving) {
+  if (!is_in_target_state) {
+    return false;
+  }
+
+  if (current_gate_mode_->data == GateMode::AUTO) {
+    if (!driving_capability_->autonomous_driving) {
       RCLCPP_WARN_THROTTLE(
         this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
         "autonomous_driving is failed");
@@ -289,6 +281,11 @@ EmergencyHandler::EmergencyHandler()
   pub_turn_signal_ =
     create_publisher<autoware_vehicle_msgs::msg::TurnSignal>("output/turn_signal", rclcpp::QoS{1});
   pub_is_emergency_ = create_publisher<std_msgs::msg::Bool>("output/is_emergency", rclcpp::QoS{1});
+
+  // Initialize
+  twist_ = geometry_msgs::msg::TwistStamped::ConstSharedPtr(new geometry_msgs::msg::TwistStamped);
+  prev_control_command_ =
+    autoware_control_msgs::msg::ControlCommand::ConstSharedPtr(new autoware_control_msgs::msg::ControlCommand);
 
   // Timer
   auto timer_callback = std::bind(&EmergencyHandler::onTimer, this);
