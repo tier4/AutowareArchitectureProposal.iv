@@ -66,27 +66,17 @@ bool EmergencyHandlerNode::onClearEmergencyService(
 bool EmergencyHandlerNode::isDataReady()
 {
   if (!autoware_state_) {
-    ROS_DEBUG_THROTTLE(1.0, "waiting for autoware_state msg...");
+    ROS_INFO_THROTTLE(5.0, "waiting for autoware_state msg...");
     return false;
   }
 
   if (!driving_capability_) {
-    ROS_DEBUG_THROTTLE(1.0, "waiting for driving_capability msg...");
-    return false;
-  }
-
-  if (!prev_control_command_) {
-    ROS_DEBUG_THROTTLE(1.0, "waiting for prev_control_command msg...");
+    ROS_INFO_THROTTLE(5.0, "waiting for driving_capability msg...");
     return false;
   }
 
   if (!current_gate_mode_) {
-    ROS_DEBUG_THROTTLE(1.0, "waiting for current_gate_mode msg...");
-    return false;
-  }
-
-  if (!twist_) {
-    ROS_DEBUG_THROTTLE(1.0, "waiting for twist msg...");
+    ROS_INFO_THROTTLE(5.0, "waiting for current_gate_mode msg...");
     return false;
   }
 
@@ -165,14 +155,17 @@ bool EmergencyHandlerNode::isEmergency()
   using autoware_control_msgs::GateMode;
   using autoware_system_msgs::AutowareState;
 
-  if (current_gate_mode_->data == GateMode::AUTO) {
-    const auto is_in_target_state =
-      (autoware_state_->state != AutowareState::InitializingVehicle) &&
-      (autoware_state_->state != AutowareState::WaitingForRoute) &&
-      (autoware_state_->state != AutowareState::Planning) &&
-      (autoware_state_->state != AutowareState::Finalizing);
+  const auto is_in_target_state = (autoware_state_->state != AutowareState::InitializingVehicle) &&
+                                  (autoware_state_->state != AutowareState::WaitingForRoute) &&
+                                  (autoware_state_->state != AutowareState::Planning) &&
+                                  (autoware_state_->state != AutowareState::Finalizing);
 
-    if (is_in_target_state && !driving_capability_->autonomous_driving) {
+  if (!is_in_target_state) {
+    return false;
+  }
+
+  if (current_gate_mode_->data == GateMode::AUTO) {
+    if (!driving_capability_->autonomous_driving) {
       ROS_WARN_THROTTLE(1.0, "autonomous_driving is failed");
       return true;
     }
@@ -256,6 +249,11 @@ EmergencyHandlerNode::EmergencyHandlerNode()
   pub_turn_signal_ =
     private_nh_.advertise<autoware_vehicle_msgs::TurnSignal>("output/turn_signal", 1);
   pub_is_emergency_ = private_nh_.advertise<std_msgs::Bool>("output/is_emergency", 1);
+
+  // Initialize
+  twist_ = geometry_msgs::TwistStamped::ConstPtr(new geometry_msgs::TwistStamped);
+  prev_control_command_ =
+    autoware_control_msgs::ControlCommand::ConstPtr(new autoware_control_msgs::ControlCommand);
 
   // Timer
   timer_ = private_nh_.createTimer(ros::Rate(update_rate_), &EmergencyHandlerNode::onTimer, this);
