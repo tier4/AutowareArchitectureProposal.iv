@@ -167,7 +167,7 @@ Input ScenarioSelectorNode::getScenarioInput(const std::string & scenario)
 
 std::string ScenarioSelectorNode::selectScenarioByPosition()
 {
-  // const auto is_in_lane = isInLane(lanelet_map_ptr_, current_pose_->pose);
+  const auto is_in_lane = isInLane(lanelet_map_ptr_, current_pose_->pose);
   const auto is_goal_in_lane = isInLane(lanelet_map_ptr_, route_->goal_pose);
   const auto is_in_parking_lot = isInParkingLot(lanelet_map_ptr_, current_pose_->pose);
 
@@ -186,11 +186,12 @@ std::string ScenarioSelectorNode::selectScenarioByPosition()
   }
 
   if (current_scenario_ == autoware_planning_msgs::msg::Scenario::PARKING) {
-    // const auto is_parking_completed = nh_.param<bool>("is_parking_completed", false);
-    // if (is_parking_completed && is_in_lane) {
-      // nh_.setParam("is_parking_completed", false);
+    bool is_parking_completed;
+    this->get_parameter<bool>("is_parking_completed", is_parking_completed);
+    if (is_parking_completed && is_in_lane) {
+      this->set_parameter(rclcpp::Parameter("is_parking_completed", false));
       return autoware_planning_msgs::msg::Scenario::LANEDRIVING;
-    // }
+    }
   }
 
   return current_scenario_;
@@ -299,11 +300,13 @@ ScenarioSelectorNode::ScenarioSelectorNode()
   current_scenario_(autoware_planning_msgs::msg::Scenario::EMPTY)
 {
   // Parameters
-  // private_nh_.param<double>("update_rate", update_rate_, 10.0);
-  // private_nh_.param<double>("th_max_message_delay_sec", th_max_message_delay_sec_, 1.0);
-  // private_nh_.param<double>("th_arrived_distance_m", th_arrived_distance_m_, 1.0);
-  // private_nh_.param<double>("th_stopped_time_sec", th_stopped_time_sec_, 1.0);
-  // private_nh_.param<double>("th_stopped_velocity_mps", th_stopped_velocity_mps_, 0.01);
+  update_rate_ = this->declare_parameter<double>("update_rate", 10.0);
+  th_max_message_delay_sec_ = this->declare_parameter<double>("th_max_message_delay_sec", 1.0);
+  th_arrived_distance_m_ = this->declare_parameter<double>("th_arrived_distance_m", 1.0);
+  th_stopped_time_sec_ = this->declare_parameter<double>("th_stopped_time_sec", 1.0);
+  th_stopped_velocity_mps_ = this->declare_parameter<double>("th_stopped_velocity_mps", 0.01);
+
+  this->declare_parameter<bool>("is_parking_completed", false);
 
   // Input
   // input_lane_driving_.sub_trajectory = private_nh_.subscribe(
