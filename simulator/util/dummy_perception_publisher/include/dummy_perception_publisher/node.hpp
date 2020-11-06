@@ -15,9 +15,6 @@
 #ifndef DUMMY_PERCEPTION_PUBLISHER__NODE_HPP_
 #define DUMMY_PERCEPTION_PUBLISHER__NODE_HPP_
 
-#include <random>
-#include <vector>
-
 #include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
 #include <autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp>
 #include <dummy_perception_publisher/msg/object.hpp>
@@ -32,6 +29,10 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
+
+#include <random>
+#include <vector>
+
 
 class DummyPerceptionPublisherNode : public rclcpp::Node
 {
@@ -62,4 +63,4 @@ public:
   ~DummyPerceptionPublisherNode() {}
 };
 
-#endif
+#endif  // DUMMY_PERCEPTION_PUBLISHER__NODE_HPP_
