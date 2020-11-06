@@ -60,7 +60,14 @@ struct StateParam
 struct Times
 {
   ros::Time arrived_goal;
+  ros::Time initializing_completed;
   ros::Time planning_completed;
+};
+
+struct Flags
+{
+  bool waiting_after_initializing = false;
+  bool waiting_after_planning = false;
 };
 
 class StateMachine
@@ -77,10 +84,11 @@ private:
   StateInput state_input_;
   const StateParam state_param_;
 
+  mutable AutowareState state_before_emergency_ = AutowareState::InitializingVehicle;
   mutable std::vector<std::string> msgs_;
   mutable Times times_;
+  mutable Flags flags_;
   mutable autoware_planning_msgs::Route::ConstPtr executing_route_ = nullptr;
-  mutable bool waiting_after_planning_ = false;
 
   AutowareState judgeAutowareState() const;
 
