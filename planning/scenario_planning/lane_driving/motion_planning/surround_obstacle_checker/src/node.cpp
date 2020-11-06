@@ -174,15 +174,8 @@ bool SurroundObstacleCheckerNode::getPose(
 {
   try {
     // get transform from source to target
-    auto tf_future = tf_buffer_.waitForTransform(
-      source, target, tf2::TimePointZero, tf2::durationFromSec(0.0), [](auto &) {});
-    auto status = tf_future.wait_for(tf2::durationFromSec(0.1));
-    if (status != std::future_status::ready) {
-      RCLCPP_WARN_STREAM_THROTTLE(
-        get_logger(), *this->get_clock(), 0.5, "cannot get tf from " << source << " to " << target);
-      return false;
-    }
-    geometry_msgs::msg::TransformStamped ros_src2tgt = tf_future.get();
+    geometry_msgs::msg::TransformStamped ros_src2tgt = tf_buffer_.lookupTransform(
+      source, target, tf2::TimePointZero);
     // convert geometry_msgs::msg::Transform to geometry_msgs::msg::Pose
     tf2::Transform transform;
     tf2::fromMsg(ros_src2tgt.transform, transform);
