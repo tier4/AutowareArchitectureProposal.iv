@@ -20,6 +20,10 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <functional>
+#include <limits>
+#include <memory>
+#include <utility>
+#include <vector>
 
 DummyPerceptionPublisherNode::DummyPerceptionPublisherNode()
 : Node("dummy_perception_publisher"), tf_buffer_(this->get_clock()), tf_listener_(tf_buffer_)

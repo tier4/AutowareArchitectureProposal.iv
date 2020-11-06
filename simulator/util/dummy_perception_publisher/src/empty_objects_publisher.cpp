@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-#include <memory>
-
 #include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
 #include <rclcpp/rclcpp.hpp>
+
+#include <memory>
+#include <utility>
 
 class EmptyObjectsPublisher : public rclcpp::Node
 {
