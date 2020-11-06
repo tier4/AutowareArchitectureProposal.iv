@@ -207,10 +207,27 @@ AutowareState StateMachine::judgeAutowareState() const
     return AutowareState::Finalizing;
   }
 
+  if (autoware_state_ != AutowareState::Emergency && isEmergency()) {
+    state_before_emergency_ = autoware_state_;
+    return AutowareState::Emergency;
+  }
+
   switch (autoware_state_) {
     case (AutowareState::InitializingVehicle): {
         if (isVehicleInitialized()) {
-          return AutowareState::WaitingForRoute;
+          if (!flags_.waiting_after_initializing) {
+            flags_.waiting_after_initializing = true;
+            times_.initializing_completed = state_input_.current_time;
+            break;
+          }
+
+          // Wait after initialize completed to avoid sync error
+          constexpr double wait_time_after_initializing = 1.0;
+          const auto time_from_initializing = state_input_.current_time - times_.initializing_completed;
+          if (time_from_initializing.seconds() > wait_time_after_initializing) {
+            flags_.waiting_after_initializing = false;
+            return AutowareState::WaitingForRoute;
+          }
         }
 
         break;
@@ -232,8 +249,8 @@ AutowareState StateMachine::judgeAutowareState() const
         executing_route_ = state_input_.route;
 
         if (isPlanningCompleted()) {
-          if (!waiting_after_planning_) {
-            waiting_after_planning_ = true;
+          if (!flags_.waiting_after_planning) {
+            flags_.waiting_after_planning = true;
             times_.planning_completed = state_input_.current_time;
             break;
           }
@@ -242,7 +259,7 @@ AutowareState StateMachine::judgeAutowareState() const
           constexpr double wait_time_after_planning = 1.0;
           const auto time_from_planning = state_input_.current_time - times_.planning_completed;
           if (time_from_planning.seconds() > wait_time_after_planning) {
-            waiting_after_planning_ = false;
+            flags_.waiting_after_planning = false;
             return AutowareState::WaitingForEngage;
           }
         }
@@ -251,16 +268,8 @@ AutowareState StateMachine::judgeAutowareState() const
       }
 
     case (AutowareState::WaitingForEngage): {
-        if (isEmergency()) {
-          return AutowareState::Emergency;
-        }
-
         if (isRouteReceived()) {
           return AutowareState::Planning;
-        }
-
-        if (isEngaged()) {
-          return AutowareState::Driving;
         }
 
         if (hasArrivedGoal()) {
@@ -272,10 +281,6 @@ AutowareState StateMachine::judgeAutowareState() const
       }
 
     case (AutowareState::Driving): {
-        if (isEmergency()) {
-          return AutowareState::Emergency;
-        }
-
         if (isRouteReceived()) {
           return AutowareState::Planning;
         }
@@ -304,7 +309,7 @@ AutowareState StateMachine::judgeAutowareState() const
 
     case (AutowareState::Emergency): {
         if (!isEmergency()) {
-          return AutowareState::WaitingForEngage;
+          return state_before_emergency_;
         }
 
         break;

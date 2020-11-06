@@ -63,7 +63,14 @@ struct StateParam
 struct Times
 {
   rclcpp::Time arrived_goal;
+  rclcpp::Time initializing_completed;
   rclcpp::Time planning_completed;
+};
+
+struct Flags
+{
+  bool waiting_after_initializing = false;
+  bool waiting_after_planning = false;
 };
 
 class StateMachine
@@ -81,10 +88,11 @@ private:
   StateInput state_input_;
   const StateParam state_param_;
 
+  mutable AutowareState state_before_emergency_ = AutowareState::InitializingVehicle;
   mutable std::vector<std::string> msgs_;
   mutable Times times_;
+  mutable Flags flags_;
   mutable autoware_planning_msgs::msg::Route::ConstSharedPtr executing_route_ = nullptr;
-  mutable bool waiting_after_planning_ = false;
 
   AutowareState judgeAutowareState() const;
 
