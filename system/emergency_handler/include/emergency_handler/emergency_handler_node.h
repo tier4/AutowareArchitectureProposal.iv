@@ -31,6 +31,8 @@
 #include "rclcpp/create_timer.hpp"
 #include "rclcpp/rclcpp.hpp"
 
+#include "emergency_handler/util/heartbeat_checker.hpp"
+
 // Core
 #include <string>
 
@@ -48,12 +50,14 @@ private:
     sub_prev_control_command_;
   rclcpp::Subscription<autoware_control_msgs::msg::GateMode>::SharedPtr sub_current_gate_mode_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
+  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sub_is_state_timeout_;
 
   autoware_system_msgs::msg::AutowareState::ConstSharedPtr autoware_state_;
   autoware_system_msgs::msg::DrivingCapability::ConstSharedPtr driving_capability_;
   autoware_control_msgs::msg::ControlCommand::ConstSharedPtr prev_control_command_;
   autoware_control_msgs::msg::GateMode::ConstSharedPtr current_gate_mode_;
   geometry_msgs::msg::TwistStamped::ConstSharedPtr twist_;
+  std_msgs::msg::Bool::ConstSharedPtr is_state_timeout_;
 
   void onAutowareState(const autoware_system_msgs::msg::AutowareState::ConstSharedPtr msg);
   void onDrivingCapability(const autoware_system_msgs::msg::DrivingCapability::ConstSharedPtr msg);
@@ -61,6 +65,7 @@ private:
   void onPrevControlCommand(const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr msg);
   void onCurrentGateMode(const autoware_control_msgs::msg::GateMode::ConstSharedPtr msg);
   void onTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
+  void onIsStateTimeout(const std_msgs::msg::Bool::ConstSharedPtr msg);
 
   // Service
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_clear_emergency_;
@@ -82,7 +87,9 @@ private:
 
   // Parameters
   int update_rate_;
-  double heartbeat_timeout_;
+  double data_ready_timeout_;
+  double timeout_driving_capability_;
+  double timeout_is_state_timeout_;
   bool use_emergency_hold_;
   bool use_parking_after_stopped_;
 
@@ -90,8 +97,10 @@ private:
   void onTimer();
 
   // Heartbeat
-  rclcpp::Time heartbeat_received_time_;
-  bool is_heartbeat_timeout_ = false;
+  rclcpp::Time initialized_time_;
+  std::shared_ptr<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::DrivingCapability>>
+    heartbeat_driving_capability_;
+  std::shared_ptr<HeaderlessHeartbeatChecker<std_msgs::msg::Bool>> heartbeat_is_state_timeout_;
 
   // Algorithm
   bool is_emergency_ = false;

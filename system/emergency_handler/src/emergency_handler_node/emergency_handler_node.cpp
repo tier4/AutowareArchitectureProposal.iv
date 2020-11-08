@@ -24,7 +24,6 @@ void EmergencyHandler::onDrivingCapability(
   const autoware_system_msgs::msg::DrivingCapability::ConstSharedPtr msg)
 {
   driving_capability_ = msg;
-  heartbeat_received_time_ = this->now();
 }
 
 // To be replaced by ControlCommand
@@ -66,6 +65,11 @@ bool EmergencyHandler::onClearEmergencyService(
   return true;
 }
 
+void EmergencyHandler::onIsStateTimeout(const std_msgs::msg::Bool::ConstSharedPtr msg)
+{
+  is_state_timeout_ = msg;
+}
+
 bool EmergencyHandler::isDataReady()
 {
   if (!autoware_state_) {
@@ -89,18 +93,31 @@ bool EmergencyHandler::isDataReady()
     return false;
   }
 
+  if (!is_state_timeout_) {
+    RCLCPP_INFO_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(5000).count(),
+      "waiting for is_state_timeout msg...");
+    return false;
+  }
+
   return true;
 }
 
 void EmergencyHandler::onTimer()
 {
   if (!isDataReady()) {
+    if ((this->now() - initialized_time_).seconds() > data_ready_timeout_) {
+      RCLCPP_WARN_THROTTLE(
+        this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
+        "input data is timeout");
+
+      std_msgs::msg::Bool is_emergency;
+      is_emergency.data = true;
+      pub_is_emergency_.publish(is_emergency);
+    }
+
     return;
   }
-
-  // Heartbeat
-  const auto time_from_last_heartbeat = this->now() - heartbeat_received_time_;
-  is_heartbeat_timeout_ = time_from_last_heartbeat.seconds() > heartbeat_timeout_;
 
   // Create timestamp
   const auto stamp = this->get_clock()->now();
@@ -155,11 +172,26 @@ bool EmergencyHandler::isStopped()
 
 bool EmergencyHandler::isEmergency()
 {
-  // Check timeout
-  if (is_heartbeat_timeout_) {
+  // Check heartbeat timeout
+  if (heartbeat_driving_capability_->isTimeout()) {
     RCLCPP_WARN_THROTTLE(
       this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
-      "heartbeat is timeout");
+      "heartbeat_driving_capability is timeout");
+    return true;
+  }
+
+  if (heartbeat_is_state_timeout_->isTimeout()) {
+    RCLCPP_WARN_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
+      "heartbeat_is_state_timeout is timeout");
+    return true;
+  }
+
+  // Check state timeout
+  if (is_state_timeout_->data) {
+    RCLCPP_WARN_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
+      "state is timeout");
     return true;
   }
 
@@ -244,8 +276,10 @@ autoware_control_msgs::msg::ControlCommand EmergencyHandler::selectAlternativeCo
 EmergencyHandler::EmergencyHandler()
 : Node("emergency_handler"),
   update_rate_(declare_parameter<int>("update_rate", 10)),
-  heartbeat_timeout_(declare_parameter<double>("heartbeat_timeout", 0.5)),
+  timeout_driving_capability_(declare_parameter<double>("timeout_driving_capability", 0.5)),
+  timeout_is_state_timeout_(declare_parameter<double>("timeout_is_state_timeout", 0.5)),
   use_emergency_hold_(declare_parameter<bool>("use_emergency_hold", false)),
+  data_ready_timeout_(declare_parameter<double>("data_ready_timeout", 30.0)),
   use_parking_after_stopped_(declare_parameter<bool>("use_parking_after_stopped", false))
 {
   using std::placeholders::_1;
@@ -268,6 +302,16 @@ EmergencyHandler::EmergencyHandler()
   sub_twist_ = create_subscription<geometry_msgs::msg::TwistStamped>(
     "input/twist", rclcpp::QoS{1},
     std::bind(&EmergencyHandler::onTwist, this, _1));
+  sub_is_state_timeout_ = create_subscription<std_msgs::msg::Bool>(
+    "input/is_state_timeout", rclcpp::QoS{1},
+    std::bind(&EmergencyHandler::onIsStateTimeout, this, _1));
+
+  // Heartbeat
+  heartbeat_driving_capability_ =
+    std::make_shared<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::DrivingCapability>>(
+      *this, "input/driving_capability", timeout_driving_capability_);
+  heartbeat_is_state_timeout_ = std::make_shared<HeaderlessHeartbeatChecker<std_msgs::msg::Bool>>(
+    *this, "input/is_state_timeout", timeout_is_state_timeout_);
 
   // Service
   srv_clear_emergency_ = this->create_service<std_srvs::srv::Trigger>(
@@ -288,6 +332,7 @@ EmergencyHandler::EmergencyHandler()
     autoware_control_msgs::msg::ControlCommand::ConstSharedPtr(new autoware_control_msgs::msg::ControlCommand);
 
   // Timer
+  initialized_time_ = this->now();
   auto timer_callback = std::bind(&EmergencyHandler::onTimer, this);
   auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<double>(update_rate_));
