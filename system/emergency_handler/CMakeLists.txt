@@ -46,11 +46,27 @@ add_dependencies(emergency_handler
   ${catkin_EXPORTED_TARGETS}
 )
 
+## state_timeout_checker_node
+add_executable(state_timeout_checker
+  src/state_timeout_checker_node/main.cpp
+  src/state_timeout_checker_node/state_timeout_checker_node.cpp
+)
+
+target_link_libraries(state_timeout_checker
+  ${catkin_LIBRARIES}
+)
+
+add_dependencies(state_timeout_checker
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
+)
+
 # Install
 ## executables and libraries
 install(
   TARGETS
     emergency_handler
+    state_timeout_checker
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

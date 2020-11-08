@@ -26,7 +26,6 @@ void EmergencyHandlerNode::onDrivingCapability(
   const autoware_system_msgs::DrivingCapability::ConstPtr & msg)
 {
   driving_capability_ = msg;
-  heartbeat_received_time_ = ros::Time::now();
 }
 
 // To be replaced by ControlCommand
@@ -63,6 +62,11 @@ bool EmergencyHandlerNode::onClearEmergencyService(
   return true;
 }
 
+void EmergencyHandlerNode::onIsStateTimeout(const std_msgs::Bool::ConstPtr & msg)
+{
+  is_state_timeout_ = msg;
+}
+
 bool EmergencyHandlerNode::isDataReady()
 {
   if (!autoware_state_) {
@@ -80,18 +84,27 @@ bool EmergencyHandlerNode::isDataReady()
     return false;
   }
 
+  if (!is_state_timeout_) {
+    ROS_INFO_THROTTLE(5.0, "waiting for is_state_timeout msg...");
+    return false;
+  }
+
   return true;
 }
 
 void EmergencyHandlerNode::onTimer(const ros::TimerEvent & event)
 {
   if (!isDataReady()) {
+    if ((ros::Time::now() - initialized_time_).toSec() > data_ready_timeout_) {
+      ROS_WARN_THROTTLE(1.0, "input data is timeout");
+
+      std_msgs::Bool is_emergency;
+      is_emergency.data = true;
+      pub_is_emergency_.publish(is_emergency);
+    }
+
     return;
   }
-
-  // Heartbeat
-  const auto time_from_last_heartbeat = ros::Time::now() - heartbeat_received_time_;
-  is_heartbeat_timeout_ = time_from_last_heartbeat.toSec() > heartbeat_timeout_;
 
   // Create timestamp
   const auto stamp = ros::Time::now();
@@ -146,9 +159,20 @@ bool EmergencyHandlerNode::isStopped()
 
 bool EmergencyHandlerNode::isEmergency()
 {
-  // Check timeout
-  if (is_heartbeat_timeout_) {
-    ROS_WARN_THROTTLE(1.0, "heartbeat is timeout");
+  // Check heartbeat timeout
+  if (heartbeat_driving_capability_->isTimeout()) {
+    ROS_WARN_THROTTLE(1.0, "heartbeat_driving_capability is timeout");
+    return true;
+  }
+
+  if (heartbeat_is_state_timeout_->isTimeout()) {
+    ROS_WARN_THROTTLE(1.0, "heartbeat_is_state_timeout is timeout");
+    return true;
+  }
+
+  // Check state timeout
+  if (is_state_timeout_->data) {
+    ROS_WARN_THROTTLE(1.0, "state is timeout");
     return true;
   }
 
@@ -223,8 +247,10 @@ EmergencyHandlerNode::EmergencyHandlerNode()
 {
   // Parameter
   private_nh_.param("update_rate", update_rate_, 10.0);
-  private_nh_.param("heartbeat_timeout", heartbeat_timeout_, 0.5);
+  private_nh_.param("timeout_driving_capability", timeout_driving_capability_, 0.5);
+  private_nh_.param("timeout_is_state_timeout", timeout_is_state_timeout_, 0.5);
   private_nh_.param("use_emergency_hold", use_emergency_hold_, false);
+  private_nh_.param("data_ready_timeout", data_ready_timeout_, 30.0);
   private_nh_.param("use_parking_after_stopped", use_parking_after_stopped_, false);
 
   // Subscriber
@@ -237,6 +263,15 @@ EmergencyHandlerNode::EmergencyHandlerNode()
   sub_current_gate_mode_ = private_nh_.subscribe(
     "input/current_gate_mode", 1, &EmergencyHandlerNode::onCurrentGateMode, this);
   sub_twist_ = private_nh_.subscribe("input/twist", 1, &EmergencyHandlerNode::onTwist, this);
+  sub_is_state_timeout_ = private_nh_.subscribe(
+    "input/is_state_timeout", 1, &EmergencyHandlerNode::onIsStateTimeout, this);
+
+  // Heartbeat
+  heartbeat_driving_capability_ =
+    std::make_shared<HeaderlessHeartbeatChecker<autoware_system_msgs::DrivingCapability>>(
+      "input/driving_capability", timeout_driving_capability_);
+  heartbeat_is_state_timeout_ = std::make_shared<HeaderlessHeartbeatChecker<std_msgs::Bool>>(
+    "input/is_state_timeout", timeout_is_state_timeout_);
 
   // Service
   srv_clear_emergency_ = private_nh_.advertiseService(
@@ -256,5 +291,6 @@ EmergencyHandlerNode::EmergencyHandlerNode()
     autoware_control_msgs::ControlCommand::ConstPtr(new autoware_control_msgs::ControlCommand);
 
   // Timer
+  initialized_time_ = ros::Time::now();
   timer_ = private_nh_.createTimer(ros::Rate(update_rate_), &EmergencyHandlerNode::onTimer, this);
 }

@@ -5,6 +5,7 @@
   <arg name="input_prev_control_command" default="/control/vehicle_cmd" />
   <arg name="input_current_gate_mode" default="/control/current_gate_mode" />
   <arg name="input_twist" default="/localization/twist" />
+  <arg name="input_is_state_timeout" default="state_timeout_checker/is_state_timeout" />
 
   <arg name="output_control_command" default="/system/emergency/control_cmd" />
   <arg name="output_shift" default="/system/emergency/shift_cmd" />
@@ -22,6 +23,7 @@
     <remap from="~input/prev_control_command" to="$(arg input_prev_control_command)"/>
     <remap from="~input/current_gate_mode" to="$(arg input_current_gate_mode)"/>
     <remap from="~input/twist" to="$(arg input_twist)"/>
+    <remap from="~input/is_state_timeout" to="$(arg input_is_state_timeout)"/>
 
     <remap from="~output/control_command" to="$(arg output_control_command)"/>
     <remap from="~output/shift" to="$(arg output_shift)"/>
@@ -32,5 +34,16 @@
 
     <rosparam command="load" file="$(arg config_file)" />
     <param name="use_emergency_hold" value="$(arg use_emergency_hold)" />
+  </node>
+
+  <!-- state_timeout_checker -->
+  <arg name="state_timeout_checker_config_file" default="$(find emergency_handler)/config/state_timeout_checker.yaml" />
+
+  <node pkg="emergency_handler" type="state_timeout_checker" name="state_timeout_checker" output="screen">
+    <remap from="~input/autoware_state" to="$(arg input_autoware_state)"/>
+
+    <remap from="~output/is_state_timeout" to="~is_state_timeout"/>
+
+    <rosparam command="load" file="$(arg state_timeout_checker_config_file)" />
   </node>
 </launch>

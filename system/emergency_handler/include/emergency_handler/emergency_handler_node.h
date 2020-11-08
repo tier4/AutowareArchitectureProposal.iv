@@ -30,6 +30,8 @@
 #include <std_msgs/Bool.h>
 #include <std_srvs/Trigger.h>
 
+#include <emergency_handler/util/heartbeat_checker.h>
+
 // tmp
 #include <autoware_vehicle_msgs/VehicleCommand.h>
 
@@ -45,7 +47,9 @@ private:
 
   // Parameter
   double update_rate_;
-  double heartbeat_timeout_;
+  double data_ready_timeout_;
+  double timeout_driving_capability_;
+  double timeout_is_state_timeout_;
   bool use_emergency_hold_;
   bool use_parking_after_stopped_;
 
@@ -55,12 +59,14 @@ private:
   ros::Subscriber sub_prev_control_command_;
   ros::Subscriber sub_current_gate_mode_;
   ros::Subscriber sub_twist_;
+  ros::Subscriber sub_is_state_timeout_;
 
   autoware_system_msgs::AutowareState::ConstPtr autoware_state_;
   autoware_system_msgs::DrivingCapability::ConstPtr driving_capability_;
   autoware_control_msgs::ControlCommand::ConstPtr prev_control_command_;
   autoware_control_msgs::GateMode::ConstPtr current_gate_mode_;
   geometry_msgs::TwistStamped::ConstPtr twist_;
+  std_msgs::Bool::ConstPtr is_state_timeout_;
 
   void onAutowareState(const autoware_system_msgs::AutowareState::ConstPtr & msg);
   void onDrivingCapability(const autoware_system_msgs::DrivingCapability::ConstPtr & msg);
@@ -68,6 +74,7 @@ private:
   void onPrevControlCommand(const autoware_vehicle_msgs::VehicleCommand::ConstPtr & msg);
   void onCurrentGateMode(const autoware_control_msgs::GateMode::ConstPtr & msg);
   void onTwist(const geometry_msgs::TwistStamped::ConstPtr & msg);
+  void onIsStateTimeout(const std_msgs::Bool::ConstPtr & msg);
 
   // Service
   ros::ServiceServer srv_clear_emergency_;
@@ -87,8 +94,10 @@ private:
   void onTimer(const ros::TimerEvent & event);
 
   // Heartbeat
-  ros::Time heartbeat_received_time_;
-  bool is_heartbeat_timeout_ = false;
+  ros::Time initialized_time_;
+  std::shared_ptr<HeaderlessHeartbeatChecker<autoware_system_msgs::DrivingCapability>>
+    heartbeat_driving_capability_;
+  std::shared_ptr<HeaderlessHeartbeatChecker<std_msgs::Bool>> heartbeat_is_state_timeout_;
 
   // Algorithm
   bool is_emergency_ = false;
