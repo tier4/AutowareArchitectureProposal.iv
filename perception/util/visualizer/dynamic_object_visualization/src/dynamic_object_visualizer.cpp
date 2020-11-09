@@ -42,7 +42,7 @@ DynamicObjectVisualizer::DynamicObjectVisualizer(const std::string & node_name, 
 void DynamicObjectVisualizer::dynamicObjectWithFeatureCallback(
   const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr input_msg)
 {
-  if (this->count_subscribers("output") < 1) return;
+  if (this->count_subscribers(pub_->get_topic_name()) < 1) return;
   auto converted_objects_ptr =
     std::make_shared<autoware_perception_msgs::msg::DynamicObjectArray>();
   converted_objects_ptr->header = input_msg->header;
@@ -55,7 +55,7 @@ void DynamicObjectVisualizer::dynamicObjectWithFeatureCallback(
 void DynamicObjectVisualizer::dynamicObjectCallback(
   const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_msg)
 {
-  if (this->count_subscribers("output") < 1) return;
+  if (this->count_subscribers(pub_->get_topic_name()) < 1) return;
   visualization_msgs::msg::MarkerArray output;
   constexpr double line_width = 0.05;
   // shape
