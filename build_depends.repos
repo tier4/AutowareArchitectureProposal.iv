@@ -7,12 +7,6 @@ repositories:
     type: git
     url: https://github.com/tier4/ublox.git
     version: foxy-devel
-  # temporary adding geometry2 package to add support for transforming covariance
-  # TODO(mitsudome-r): remove after geometry2 package is released in Foxy anytime after 2020/10/30
-  vendor/geometry2:
-    type: git
-    url: https://github.com/ros2/geometry2.git
-    version: foxy
   vendor/grid_map:
     type: git
     url: https://github.com/mitsudome-r/grid_map.git
@@ -29,4 +23,3 @@ repositories:
     type: git
     url: https://github.com/ApexAI/topic_tools.git
     version: autoware
-    
