@@ -2,25 +2,25 @@
 ---
 /**:
   ros__parameters:
-    update_rate: 100000
+    update_rate: 10
     required_conditions:
-      manual_driving: ['vehicle']
-      autonomous_driving: ['control', 
-        'localization', 
-        'map', 
-        'perception',
-        'planning',
-        'safety',
-        'sensing',
-        'vehicle'
+      manual_driving: ['autoware/vehicle']
+      autonomous_driving: ['autoware/control', 
+        'autoware/localization', 
+        'autoware/map', 
+        'autoware/perception',
+        'autoware/planning',
+        'autoware/safety',
+        'autoware/sensing',
+        'autoware/vehicle'
       ]
-      remote_control: ['control',
-        'remote_control',
-        'safety',
-        'vehicle'
+      remote_control: ['autoware/control',
+        'autoware/remote_control',
+        'autoware/safety',
+        'autoware/vehicle'
       ]
-      safe_stop: ['map',
-        'emergency_system',
-        'vehicle'
+      safe_stop: ['autoware/map',
+        'autoware/emergency_system',
+        'autoware/vehicle'
       ]
-      emergency_stop: ['vehicle']
+      emergency_stop: ['autoware/vehicle']
