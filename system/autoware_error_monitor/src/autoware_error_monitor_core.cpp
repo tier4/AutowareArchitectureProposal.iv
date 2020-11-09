@@ -42,7 +42,7 @@ AutowareErrorMonitor::AutowareErrorMonitor()
   // Timer
   auto timer_callback = std::bind(&AutowareErrorMonitor::onTimer, this);
   auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
-    std::chrono::duration<double>(update_rate_));
+    std::chrono::duration<double>(1.0 / update_rate_));
 
   timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
     this->get_clock(), period, std::move(timer_callback),
