@@ -15,14 +15,14 @@
  */
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
-#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 #include <tf2_ros/transform_listener.h>
 
-#include <autoware_lanelet2_msgs/MapBin.h>
-#include <autoware_planning_msgs/PathWithLaneId.h>
-#include <autoware_vehicle_msgs/TurnSignal.h>
+#include <autoware_lanelet2_msgs/msg/map_bin.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <autoware_vehicle_msgs/msg/turn_signal.hpp>
 
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_routing/RoutingGraph.h>
@@ -38,36 +38,38 @@ private:
   bool is_path_ready_;
   bool is_pose_ready_;
 
+  rclcpp::Node::WeakPtr node_;
+
   // tf
-  tf2_ros::Buffer tf_buffer_;
-  tf2_ros::TransformListener tf_listener_;
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
   // subscribed variables
-  autoware_planning_msgs::PathWithLaneId path_;
+  autoware_planning_msgs::msg::PathWithLaneId path_;
   lanelet::LaneletMapPtr lanelet_map_ptr_;
   lanelet::routing::RoutingGraphPtr routing_graph_ptr_;
   lanelet::traffic_rules::TrafficRulesPtr traffic_rules_ptr_;
   lanelet::ConstLanelets path_lanes_;
-  geometry_msgs::PoseStamped vehicle_pose_;
+  geometry_msgs::msg::PoseStamped vehicle_pose_;
 
   // condition checks
   bool isPathValid() const;
   bool isPoseValid() const;
 
 public:
-  DataManager();
+  explicit DataManager(rclcpp::Node::SharedPtr node);
 
   // callbacks
-  void onPathWithLaneId(const autoware_planning_msgs::PathWithLaneId & msg);
-  void onLaneletMap(const autoware_lanelet2_msgs::MapBin & map_msg);
-  void onVehiclePoseUpdate(const ros::TimerEvent & event);
+  void onPathWithLaneId(autoware_planning_msgs::msg::PathWithLaneId::SharedPtr msg);
+  void onLaneletMap(autoware_lanelet2_msgs::msg::MapBin::SharedPtr map_msg);
+  void onVehiclePoseUpdate();
 
   // getters
-  autoware_planning_msgs::PathWithLaneId getPath() const;
+  autoware_planning_msgs::msg::PathWithLaneId getPath() const;
   lanelet::LaneletMapPtr getMapPtr() const;
   lanelet::ConstLanelet getLaneFromId(const lanelet::Id & id) const;
   lanelet::routing::RoutingGraphPtr getRoutingGraphPtr() const;
-  geometry_msgs::PoseStamped getVehiclePoseStamped() const;
+  geometry_msgs::msg::PoseStamped getVehiclePoseStamped() const;
 
   // condition checks
   bool isDataReady() const;

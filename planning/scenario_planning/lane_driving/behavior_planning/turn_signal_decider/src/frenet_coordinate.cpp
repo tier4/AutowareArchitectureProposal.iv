@@ -18,15 +18,15 @@
 
 namespace
 {
-Eigen::Vector3d convertToEigenPt(const geometry_msgs::Point geom_pt)
+Eigen::Vector3d convertToEigenPt(const geometry_msgs::msg::Point geom_pt)
 {
   return Eigen::Vector3d(geom_pt.x, geom_pt.y, geom_pt.z);
 }
 
-std::vector<geometry_msgs::Point> convertToPointArray(
-  const autoware_planning_msgs::PathWithLaneId & path)
+std::vector<geometry_msgs::msg::Point> convertToPointArray(
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
-  std::vector<geometry_msgs::Point> point_array;
+  std::vector<geometry_msgs::msg::Point> point_array;
   for (const auto & pt : path.points) {
     point_array.push_back(pt.point.pose.position);
   }
@@ -37,8 +37,8 @@ std::vector<geometry_msgs::Point> convertToPointArray(
 namespace turn_signal_decider
 {
 bool convertToFrenetCoordinate3d(
-  const autoware_planning_msgs::PathWithLaneId & path,
-  const geometry_msgs::Point & search_point_geom, FrenetCoordinate3d * frenet_coordinate)
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const geometry_msgs::msg::Point & search_point_geom, FrenetCoordinate3d * frenet_coordinate)
 {
   const auto linestring = convertToPointArray(path);
   return convertToFrenetCoordinate3d(linestring, search_point_geom, frenet_coordinate);
@@ -46,8 +46,8 @@ bool convertToFrenetCoordinate3d(
 
 // returns false when search point is off the linestring
 bool convertToFrenetCoordinate3d(
-  const std::vector<geometry_msgs::Point> & linestring,
-  const geometry_msgs::Point & search_point_geom, FrenetCoordinate3d * frenet_coordinate)
+  const std::vector<geometry_msgs::msg::Point> & linestring,
+  const geometry_msgs::msg::Point & search_point_geom, FrenetCoordinate3d * frenet_coordinate)
 {
   if (linestring.empty()) {
     return false;

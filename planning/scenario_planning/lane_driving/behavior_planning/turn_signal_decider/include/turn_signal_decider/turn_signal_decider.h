@@ -15,9 +15,9 @@
  */
 #pragma once
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
-#include <autoware_vehicle_msgs/TurnSignal.h>
+#include <autoware_vehicle_msgs/msg/turn_signal.hpp>
 #include <turn_signal_decider/data_manager.h>
 #include <turn_signal_decider/frenet_coordinate.h>
 
@@ -29,39 +29,38 @@ struct TurnSignalParameters
   double intersection_search_distance;
 };
 
-class TurnSignalDecider
+class TurnSignalDecider : public std::enable_shared_from_this<TurnSignalDecider>, public rclcpp::Node
 {
 private:
   // ROS variables
-  ros::NodeHandle pnh_;
-  ros::Subscriber path_subscriber_;
-  ros::Subscriber map_subscriber_;
-  ros::Publisher turn_signal_publisher_;
-  ros::Timer vehicle_pose_timer_;
-  ros::Timer turn_signal_timer_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::PathWithLaneId>::SharedPtr path_subscription_;
+  rclcpp::Subscription<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr map_subscription_;
+  rclcpp::Publisher<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr turn_signal_publisher_;
+  rclcpp::TimerBase::SharedPtr vehicle_pose_timer_;
+  rclcpp::TimerBase::SharedPtr turn_signal_timer_;
 
   // input data
   DataManager data_;
   TurnSignalParameters parameters_;
 
   // callbacks
-  void onTurnSignalTimer(const ros::TimerEvent & event);
+  void onTurnSignalTimer();
 
   // turn signal factors
   bool isChangingLane(
-    const autoware_planning_msgs::PathWithLaneId & path,
+    const autoware_planning_msgs::msg::PathWithLaneId & path,
     const FrenetCoordinate3d & vehicle_pose_frenet,
-    autoware_vehicle_msgs::TurnSignal * signal_state_ptr, double * distance_ptr) const;
+    autoware_vehicle_msgs::msg::TurnSignal * signal_state_ptr, double * distance_ptr) const;
   bool isTurning(
-    const autoware_planning_msgs::PathWithLaneId & path,
+    const autoware_planning_msgs::msg::PathWithLaneId & path,
     const FrenetCoordinate3d & vehicle_pose_frenet,
-    autoware_vehicle_msgs::TurnSignal * signal_state_ptr, double * distance_ptr) const;
+    autoware_vehicle_msgs::msg::TurnSignal * signal_state_ptr, double * distance_ptr) const;
 
   // other
   lanelet::routing::RelationType getRelation(
     const lanelet::ConstLanelet & prev_lane, const lanelet::ConstLanelet & next_lane) const;
 
 public:
-  TurnSignalDecider();
+  TurnSignalDecider(const std::string & node_name, const rclcpp::NodeOptions & node_options);
 };
 }  // namespace turn_signal_decider
