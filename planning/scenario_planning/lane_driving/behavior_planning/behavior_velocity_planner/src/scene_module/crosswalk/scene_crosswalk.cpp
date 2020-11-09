@@ -282,7 +282,7 @@ bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
     }
   }
   if (path_collision_points.size() != 2) {
-    ROS_ERROR_THROTTLE(
+    ROS_WARN_THROTTLE(
       5,
       "There must be two points of conflict between the crosswalk polygon and the path. points is "
       "%d",
@@ -313,7 +313,7 @@ bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
   bg::intersection(crosswalk_polygon, candidate_path_polygon, path_polygons);
 
   if (path_polygons.size() != 1) {
-    ROS_ERROR_THROTTLE(5, "Number of polygon is %d. Must be 1", (int)path_polygons.size());
+    ROS_WARN_THROTTLE(5, "Number of polygon is %d. Must be 1", (int)path_polygons.size());
     return false;
   }
   path_polygon = path_polygons.at(0);
