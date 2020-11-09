@@ -23,7 +23,6 @@ AutowareErrorMonitor::AutowareErrorMonitor()
   update_rate_(declare_parameter("update_rate", 10))
 {
   // Parameter
-  // update_rate_ = declare_parameter("update_rate");
   loadRequiredConditions(KeyName::manual_driving);
   loadRequiredConditions(KeyName::autonomous_driving);
   loadRequiredConditions(KeyName::remote_control);
