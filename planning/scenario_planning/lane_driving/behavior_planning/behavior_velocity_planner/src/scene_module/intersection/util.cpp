@@ -106,7 +106,7 @@ bool splineInterpolate(
       base_s, base_y, resampled_s, resampled_y, spline_interpolation::Method::PCG) ||
     !spline.interpolate(
       base_s, base_z, resampled_s, resampled_z, spline_interpolation::Method::PCG)) {
-    RCLCPP_ERROR(logger, "[IntersectionModule::splineInterpolate] spline interpolation failed.");
+    RCLCPP_ERROR(logger, "spline interpolation failed.");
     return false;
   }
 
@@ -253,7 +253,7 @@ bool generateStopLine(
     // get idx of first_inside_lane point
     first_idx_ip_inside_lane = getFirstPointInsidePolygons(path_ip, detection_areas);
     if (first_idx_ip_inside_lane == -1) {
-      RCLCPP_DEBUG(logger, "[Intersection Util] generate stopline, but no intersect line found.");
+      RCLCPP_DEBUG(logger, "generate stopline, but no intersect line found.");
       return false;
     }
     // only for visualization
@@ -262,7 +262,7 @@ bool generateStopLine(
     if (*first_idx_inside_lane == 0) {
       RCLCPP_DEBUG(
         logger,
-        "[Intersection Util] path[0] is already in the detection area. This happens if you have "
+        "path[0] is already in the detection area. This happens if you have "
         "already crossed the stop line or are very far from the intersection. Ignore computation.");
       *stop_line_idx = 0;
       *pass_judge_line_idx = 0;
@@ -296,7 +296,7 @@ bool generateStopLine(
 
   RCLCPP_DEBUG(
     logger,
-    "[Intersection Util] generateStopLine() : stop_idx = %d, pass_judge_idx = %d, stop_idx_ip = "
+    "generateStopLine() : stop_idx = %d, pass_judge_idx = %d, stop_idx_ip = "
     "%d, pass_judge_idx_ip = %d, has_prior_stopline = %d",
     *stop_line_idx, *pass_judge_line_idx, stop_idx_ip, pass_judge_idx_ip, has_prior_stopline);
 
@@ -414,10 +414,10 @@ bool getObjectivePolygons(
     for (const auto ll : l) ss_os << ll.id() << ", ";
   }
   RCLCPP_DEBUG(
-    logger, "[Intersection Util] getObjectivePolygons() conflict = %s yield = %s ego = %s",
+    logger, "getObjectivePolygons() conflict = %s yield = %s ego = %s",
     ss_c.str().c_str(), ss_y.str().c_str(), ss_e.str().c_str());
   RCLCPP_DEBUG(
-    logger, "[Intersection Util] getObjectivePolygons() object = %s object_sequences = %s",
+    logger, "getObjectivePolygons() object = %s object_sequences = %s",
     ss_o.str().c_str(), ss_os.str().c_str());
   return true;
 }

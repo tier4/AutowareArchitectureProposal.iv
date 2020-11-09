@@ -79,9 +79,9 @@ bool IntersectionModule::modifyPathVelocity(
   int first_idx_inside_lane = -1;
   if (!util::generateStopLine(
         lane_id_, detection_areas, planner_data_, planner_param_, path, &stop_line_idx,
-        &pass_judge_line_idx, &first_idx_inside_lane, logger_)) {
+        &pass_judge_line_idx, &first_idx_inside_lane, logger_.get_child("util"))) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      logger_, *clock_, 1000, "[IntersectionModule::run] setStopLineIdx fail");
+      logger_, *clock_, 1000, "setStopLineIdx fail");
     RCLCPP_DEBUG(logger_, "===== plan end =====");
     return false;
   }
@@ -95,7 +95,7 @@ bool IntersectionModule::modifyPathVelocity(
   /* calc closest index */
   int closest_idx = -1;
   if (!planning_utils::calcClosestIndex(input_path, current_pose.pose, closest_idx)) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000, "[Intersection] calcClosestIndex fail");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000, "calcClosestIndex fail");
     RCLCPP_DEBUG(logger_, "===== plan end =====");
     return false;
   }
@@ -125,7 +125,7 @@ bool IntersectionModule::modifyPathVelocity(
   bool is_stuck = checkStuckVehicleInIntersection(*path, closest_idx, stop_line_idx, objects_ptr);
   bool is_entry_prohibited = (has_collision || is_stuck);
   state_machine_.setStateWithMarginTime(
-    is_entry_prohibited ? State::STOP : State::GO, logger_, *clock_);
+    is_entry_prohibited ? State::STOP : State::GO, logger_.get_child("state_machine"), *clock_);
 
   /* set stop speed : TODO behavior on straight lane should be improved*/
   if (state_machine_.getState() == State::STOP) {
@@ -393,7 +393,7 @@ void IntersectionModule::StateMachine::setStateWithMarginTime(
     return;
   }
 
-  RCLCPP_ERROR(logger, "[StateMachine] : Unsuitable state. ignore request.");
+  RCLCPP_ERROR(logger, "Unsuitable state. ignore request.");
   return;
 }
 

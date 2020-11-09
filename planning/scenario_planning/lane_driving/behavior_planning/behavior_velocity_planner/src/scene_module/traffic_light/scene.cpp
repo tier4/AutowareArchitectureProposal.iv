@@ -194,14 +194,14 @@ bool TrafficLightModule::modifyPathVelocity(
            pass_judge_line_distance + planner_data_->vehicle_info_.max_longitudinal_offset_m_) &&
           (3.0 /* =10.8km/h */ < self_twist_ptr->twist.linear.x)) {
           RCLCPP_WARN_THROTTLE(
-            logger_, *clock_, 1000, "[traffic_light] vehicle is over stop border (%f m)",
+            logger_, *clock_, 1000, "vehicle is over stop border (%f m)",
             pass_judge_line_distance + planner_data_->vehicle_info_.max_longitudinal_offset_m_);
           return true;
         } else {
           // Add Stop WayPoint
           if (!insertTargetVelocityPoint(
                 input_path, stop_line, planner_param_.stop_margin, 0.0, *path)) {
-            RCLCPP_WARN(logger_, "[traffic_light] cannot insert stop waypoint");
+            RCLCPP_WARN(logger_, "cannot insert stop waypoint");
             continue;
           }
         }
@@ -259,7 +259,7 @@ bool TrafficLightModule::isOverDeadLine(
   }
 
   if (0 < tf_dead_line_pose2self_pose.getOrigin().x()) {
-    RCLCPP_WARN(logger_, "[traffic_light] vehicle is over dead line");
+    RCLCPP_WARN(logger_, "vehicle is over dead line");
     return true;
   }
 
@@ -347,7 +347,7 @@ bool TrafficLightModule::getHighestConfidenceTrafficLightState(
   }
   if (!found) {
     RCLCPP_WARN_THROTTLE(
-      logger_, *clock_, 1000, "[traffic_light] cannot find traffic light lamp state (%s).",
+      logger_, *clock_, 1000, "cannot find traffic light lamp state (%s).",
       reason.c_str());
     return false;
   }

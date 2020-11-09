@@ -52,7 +52,7 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
 
   State current_state = state_machine_.getState();
   RCLCPP_DEBUG(
-    logger_, "[MergeFromPrivateRoad] lane_id = %ld, state = %s", lane_id_,
+    logger_, "lane_id = %ld, state = %s", lane_id_,
     toString(current_state).c_str());
 
   /* get current pose */
@@ -67,7 +67,7 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   util::getObjectivePolygons(
     lanelet_map_ptr, routing_graph_ptr, lane_id_, planner_param_, &detection_areas, logger_);
   if (detection_areas.empty()) {
-    RCLCPP_DEBUG(logger_, "[MergeFromPrivateRoad] no detection area. skip computation.");
+    RCLCPP_DEBUG(logger_, "no detection area. skip computation.");
     return true;
   }
   debug_data_.detection_area = detection_areas;
@@ -78,15 +78,15 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   int first_idx_inside_lane = -1;
   if (!util::generateStopLine(
         lane_id_, detection_areas, planner_data_, planner_param_, path, &stop_line_idx,
-        &judge_line_idx, &first_idx_inside_lane, logger_)) {
+        &judge_line_idx, &first_idx_inside_lane, logger_.get_child("util"))) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      logger_, *clock_, 1000, "[MergeFromPrivateRoadModule::run] setStopLineIdx fail");
+      logger_, *clock_, 1000, "setStopLineIdx fail");
     return false;
   }
 
   if (stop_line_idx <= 0 || judge_line_idx <= 0) {
     RCLCPP_DEBUG(
-      logger_, "[MergeFromPrivateRoad] stop line or judge line is at path[0], ignore planning.");
+      logger_, "stop line or judge line is at path[0], ignore planning.");
     return true;
   }
 
@@ -122,40 +122,6 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   }
 
   return true;
-}
-
-void MergeFromPrivateRoadModule::StateMachine::setStateWithMarginTime(
-  State state, rclcpp::Logger logger, rclcpp::Clock & clock)
-{
-  /* same state request */
-  if (state_ == state) {
-    start_time_ = nullptr;  // reset timer
-    return;
-  }
-
-  /* GO -> STOP */
-  if (state == State::STOP) {
-    state_ = State::STOP;
-    start_time_ = nullptr;  // reset timer
-    return;
-  }
-
-  /* STOP -> GO */
-  if (state == State::GO) {
-    if (start_time_ == nullptr) {
-      start_time_ = std::make_shared<rclcpp::Time>(clock.now());
-    } else {
-      const double duration = (clock.now() - *start_time_).seconds();
-      if (duration > margin_time_) {
-        state_ = State::GO;
-        start_time_ = nullptr;  // reset timer
-      }
-    }
-    return;
-  }
-
-  RCLCPP_ERROR(logger, "[StateMachine] : Unsuitable state. ignore request.");
-  return;
 }
 
 void MergeFromPrivateRoadModule::StateMachine::setState(State state) { state_ = state; }

@@ -78,12 +78,12 @@ void CrosswalkModuleManager::launchNewModules(
     const auto module_id = crosswalk.id();
     if (!isModuleRegistered(module_id)) {
       registerModule(std::make_shared<CrosswalkModule>(
-        module_id, crosswalk, crosswalk_planner_param_, logger_, clock_));
+        module_id, crosswalk, crosswalk_planner_param_, logger_.get_child("crosswalk_module"), clock_));
       if (
         crosswalk.attributeOr(lanelet::AttributeNamesString::Subtype, std::string("")) ==
         lanelet::AttributeValueString::Walkway) {
         registerModule(std::make_shared<WalkwayModule>(
-          module_id, crosswalk, walkway_planner_param_, logger_, clock_));
+          module_id, crosswalk, walkway_planner_param_, logger_.get_child("walkway_module"), clock_));
       }
     }
   }

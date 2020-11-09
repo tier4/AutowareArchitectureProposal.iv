@@ -31,9 +31,6 @@ public:
   static bool interpolate(
     const std::vector<double> & base_index, const std::vector<double> & base_value,
     const std::vector<double> & return_index, std::vector<double> & return_value);
-  static bool interpolate(
-    const std::vector<double> & base_index, const std::vector<double> & base_value,
-    const double & return_index, double & return_value);
 };
 
 /*

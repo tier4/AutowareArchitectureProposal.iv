@@ -99,12 +99,12 @@ void IntersectionModuleManager::launchNewModules(
       const std::string next_lane_location = next_lane.attributeOr("location", "else");
       if (lane_location == "private" && next_lane_location != "private") {
         registerModule(std::make_shared<MergeFromPrivateRoadModule>(
-          module_id, lane_id, planner_data_, planner_param_, logger_, clock_));
+          module_id, lane_id, planner_data_, planner_param_, logger_.get_child("merge_from_private_road_module"), clock_));
       }
     }
 
     registerModule(std::make_shared<IntersectionModule>(
-      module_id, lane_id, planner_data_, planner_param_, logger_, clock_));
+      module_id, lane_id, planner_data_, planner_param_, logger_.get_child("intersection_module"), clock_));
   }
 }
 

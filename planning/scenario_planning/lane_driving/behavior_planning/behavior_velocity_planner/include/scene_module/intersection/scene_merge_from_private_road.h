@@ -67,7 +67,6 @@ public:
       state_ = State::GO;
       margin_time_ = 0.0;
     }
-    void setStateWithMarginTime(State state, rclcpp::Logger logger, rclcpp::Clock & clock);
     void setState(State state);
     void setMarginTime(const double t);
     State getState();

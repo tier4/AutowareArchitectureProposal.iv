@@ -118,7 +118,7 @@ void TrafficLightModuleManager::launchNewModules(
     if (!isModuleRegistered(module_id)) {
       registerModule(std::make_shared<TrafficLightModule>(
         module_id, *(traffic_light_reg_elem.first), traffic_light_reg_elem.second, planner_param_,
-        logger_, clock_));
+        logger_.get_child("traffic_light_module"), clock_));
     }
   }
 }

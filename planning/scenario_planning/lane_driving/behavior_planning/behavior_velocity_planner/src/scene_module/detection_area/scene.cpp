@@ -194,7 +194,7 @@ bool DetectionAreaModule::modifyPathVelocity(
         state_ != State::STOP &&
         calcSignedDistance(self_pose.pose, stop_line_point) < pass_judge_line_distance) {
         RCLCPP_WARN_THROTTLE(
-          logger_, *clock_, 1000, "[detection_area] vehicle is over stop border");
+          logger_, *clock_, 1000, "vehicle is over stop border");
         state_ = State::PASS;
         return true;
       }
@@ -255,7 +255,7 @@ bool DetectionAreaModule::isOverDeadLine(
   }
 
   if (0 < tf_dead_line_pose2self_pose.getOrigin().x()) {
-    RCLCPP_WARN(logger_, "[traffic_light] vehicle is over dead line");
+    RCLCPP_WARN(logger_, "vehicle is over dead line");
     return true;
   }
 

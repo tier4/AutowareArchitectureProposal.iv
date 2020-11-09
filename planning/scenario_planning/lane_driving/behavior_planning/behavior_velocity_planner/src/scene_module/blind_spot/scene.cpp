@@ -62,7 +62,7 @@ bool BlindSpotModule::modifyPathVelocity(
 
   State current_state = state_machine_.getState();
   RCLCPP_DEBUG(
-    logger_, "[Blind Spot] lane_id = %ld, state = %s", lane_id_, toString(current_state).c_str());
+    logger_, "lane_id = %ld, state = %s", lane_id_, toString(current_state).c_str());
 
   /* get current pose */
   geometry_msgs::msg::PoseStamped current_pose = planner_data_->current_pose;
@@ -77,20 +77,20 @@ bool BlindSpotModule::modifyPathVelocity(
   const auto straight_lanelets = getStraightLanelets(lanelet_map_ptr, routing_graph_ptr, lane_id_);
   if (!generateStopLine(straight_lanelets, path, &stop_line_idx, &pass_judge_line_idx)) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      logger_, *clock_, 1000, "[BlindSpotModule::run] setStopLineIdx fail");
+      logger_, *clock_, 1000, "setStopLineIdx fail");
     return false;
   }
 
   if (stop_line_idx <= 0 || pass_judge_line_idx <= 0) {
     RCLCPP_DEBUG(
-      logger_, "[Blind Spot] stop line or pass judge line is at path[0], ignore planning.");
+      logger_, "stop line or pass judge line is at path[0], ignore planning.");
     return true;
   }
 
   /* calc closest index */
   int closest_idx = -1;
   if (!planning_utils::calcClosestIndex(input_path, current_pose.pose, closest_idx)) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000, "[Blind Spot] calcClosestIndex fail");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000, "calcClosestIndex fail");
     return false;
   }
 
@@ -107,7 +107,7 @@ bool BlindSpotModule::modifyPathVelocity(
     is_over_pass_judge_line = util::isAheadOf(current_pose.pose, pass_judge_line);
   }
   if (current_state == State::GO && is_over_pass_judge_line) {
-    RCLCPP_DEBUG(logger_, "[Blind Spot] over the pass judge line. no plan needed.");
+    RCLCPP_DEBUG(logger_, "over the pass judge line. no plan needed.");
     return true;  // no plan needed.
   }
 
@@ -117,7 +117,7 @@ bool BlindSpotModule::modifyPathVelocity(
   /* calculate dynamic collision around detection area */
   bool has_obstacle =
     checkObstacleInBlindSpot(lanelet_map_ptr, routing_graph_ptr, *path, objects_ptr, closest_idx);
-  state_machine_.setStateWithMarginTime(has_obstacle ? State::STOP : State::GO, logger_, *clock_);
+  state_machine_.setStateWithMarginTime(has_obstacle ? State::STOP : State::GO, logger_.get_child("state_machine"), *clock_);
 
   /* set stop speed */
   if (state_machine_.getState() == State::STOP) {
@@ -234,7 +234,7 @@ bool BlindSpotModule::generateStopLine(
 
   RCLCPP_DEBUG(
     logger_,
-    "[Blind Spot] generateStopLine() : stop_idx = %d, pass_judge_idx = %d, stop_idx_ip = %d, "
+    "generateStopLine() : stop_idx = %d, pass_judge_idx = %d, stop_idx_ip = %d, "
     "pass_judge_idx_ip = %d, has_prior_stopline = %d",
     *stop_line_idx, *pass_judge_line_idx, stop_idx_ip, pass_judge_idx_ip, has_prior_stopline);
 
@@ -496,7 +496,7 @@ void BlindSpotModule::StateMachine::setStateWithMarginTime(
     return;
   }
 
-  RCLCPP_ERROR(logger, "[StateMachine] : Unsuitable state. ignore request.");
+  RCLCPP_ERROR(logger, "Unsuitable state. ignore request.");
   return;
 }
 

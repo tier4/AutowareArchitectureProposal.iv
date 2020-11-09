@@ -65,7 +65,7 @@ void DetectionAreaModuleManager::launchNewModules(
     const auto module_id = detection_area_reg_elem.first;
     if (!isModuleRegistered(module_id)) {
       registerModule(std::make_shared<DetectionAreaModule>(
-        module_id, *(detection_area_reg_elem.second), planner_param_, logger_, clock_));
+        module_id, *(detection_area_reg_elem.second), planner_param_, logger_.get_child("detection_area_module"), clock_));
     }
   }
 }
