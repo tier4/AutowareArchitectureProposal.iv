@@ -29,22 +29,22 @@ include_directories(
   ${OpenCV_INCLUDE_DIRS})
 
 # Ray Ground Filter
-# ament_auto_add_library(
-#   ray_ground_filter SHARED
-#   src/ground_filter/ray_ground_filter_nodelet.cpp
-#   src/filter.cpp # copy from pcl_ros
-#   )
-# if (OPENMP_FOUND)
-#   set_target_properties(ray_ground_filter PROPERTIES
-#     COMPILE_FLAGS ${OpenMP_CXX_FLAGS}
-#     LINK_FLAGS ${OpenMP_CXX_FLAGS}
-#     )
-#   endif ()
+ament_auto_add_library(
+  ray_ground_filter SHARED
+  src/ground_filter/ray_ground_filter_nodelet.cpp
+  src/filter.cpp # copy from pcl_ros
+  )
+if (OPENMP_FOUND)
+  set_target_properties(ray_ground_filter PROPERTIES
+    COMPILE_FLAGS ${OpenMP_CXX_FLAGS}
+    LINK_FLAGS ${OpenMP_CXX_FLAGS}
+    )
+  endif ()
 
 
-# rclcpp_components_register_node(ray_ground_filter
-#   PLUGIN "autoware::pointcloud_preprocessor::RayGroundFilter"
-#   EXECUTABLE ray_ground_filter_exe)
+rclcpp_components_register_node(ray_ground_filter
+  PLUGIN "autoware::pointcloud_preprocessor::RayGroundFilter"
+  EXECUTABLE ray_ground_filter_exe)
 
 # Concatenate data
 ament_auto_add_library(
