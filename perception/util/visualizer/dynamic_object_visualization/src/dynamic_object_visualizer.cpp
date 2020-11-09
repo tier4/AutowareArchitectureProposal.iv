@@ -19,9 +19,6 @@
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <string>
 
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-
 using namespace std::placeholders;
 
 DynamicObjectVisualizer::DynamicObjectVisualizer(const std::string & node_name, const rclcpp::NodeOptions & node_options) : rclcpp::Node(node_name, node_options)
@@ -154,16 +151,8 @@ void DynamicObjectVisualizer::dynamicObjectCallback(
     marker.scale.x = 0.5;
     marker.scale.z = 0.5;
 
-    // NOTE(esteve): copied from
-    // https://github.com/ros-geographic-info/unique_identifier/blob/master/unique_id/include/unique_id/unique_id.h#L177-L182
-    boost::uuids::uuid uu;
-    std::copy(
-      std::cbegin(input_msg->objects.at(i).id.uuid),
-      std::cend(input_msg->objects.at(i).id.uuid),
-      std::begin(uu));
-    std::string id_str = boost::uuids::to_string(uu);
+    std::string id_str = uuid_to_string(input_msg->objects.at(i).id);
 
-    std::remove(id_str.begin(), id_str.end(), '-');
     marker.text = label + ":" + id_str.substr(0, 4);
     if (input_msg->objects.at(i).state.twist_reliable) {
       double vel = std::sqrt(
@@ -572,16 +561,8 @@ bool DynamicObjectVisualizer::getLabel(
 void DynamicObjectVisualizer::getColor(
   const autoware_perception_msgs::msg::DynamicObject & object, std_msgs::msg::ColorRGBA & color)
 {
-  // NOTE(esteve): copied from
-  // https://github.com/ros-geographic-info/unique_identifier/blob/master/unique_id/include/unique_id/unique_id.h#L177-L182
-  boost::uuids::uuid uu;
-  std::copy(
-    std::cbegin(object.id.uuid),
-    std::cend(object.id.uuid),
-    std::begin(uu));
-  std::string id_str = boost::uuids::to_string(uu);
+  std::string id_str = uuid_to_string(object.id);
 
-  std::remove(id_str.begin(), id_str.end(), '-');
   int i = ((int)id_str.at(0) * 4 + (int)id_str.at(1)) % (int)colors_.size();
   color.r = colors_.at(i).r;
   color.g = colors_.at(i).g;

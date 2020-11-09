@@ -25,6 +25,8 @@
 #include "std_msgs/msg/color_rgba.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 
+#include <iomanip>
+
 class DynamicObjectVisualizer : public rclcpp::Node
 {
 private:  // ros
@@ -57,6 +59,16 @@ private:  // ros
 
   bool only_known_objects_;
   std::vector<std_msgs::msg::ColorRGBA> colors_;
+
+
+  inline std::string uuid_to_string(unique_identifier_msgs::msg::UUID const& u)
+  {
+    std::stringstream ss;
+    for (auto i = 0; i < 16; ++i) {
+        ss << std::hex << std::setfill('0') << std::setw(2) << +u.uuid[i];
+    }
+    return ss.str();
+  }
 
 public:
   DynamicObjectVisualizer(const std::string & node_name, const rclcpp::NodeOptions & node_options);
