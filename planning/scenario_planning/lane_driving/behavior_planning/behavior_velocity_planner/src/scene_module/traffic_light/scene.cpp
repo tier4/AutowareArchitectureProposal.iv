@@ -194,7 +194,7 @@ bool TrafficLightModule::modifyPathVelocity(
            pass_judge_line_distance + planner_data_->vehicle_info_.max_longitudinal_offset_m_) &&
           (3.0 /* =10.8km/h */ < self_twist_ptr->twist.linear.x)) {
           RCLCPP_WARN_THROTTLE(
-            logger_, *clock_, 1000, "vehicle is over stop border (%f m)",
+            logger_, *clock_, 1000 /* ms */, "vehicle is over stop border (%f m)",
             pass_judge_line_distance + planner_data_->vehicle_info_.max_longitudinal_offset_m_);
           return true;
         } else {
@@ -347,7 +347,7 @@ bool TrafficLightModule::getHighestConfidenceTrafficLightState(
   }
   if (!found) {
     RCLCPP_WARN_THROTTLE(
-      logger_, *clock_, 1000, "cannot find traffic light lamp state (%s).",
+      logger_, *clock_, 1000 /* ms */, "cannot find traffic light lamp state (%s).",
       reason.c_str());
     return false;
   }

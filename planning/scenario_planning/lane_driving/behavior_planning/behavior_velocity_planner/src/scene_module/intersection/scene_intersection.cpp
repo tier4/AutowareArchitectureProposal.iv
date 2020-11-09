@@ -81,7 +81,7 @@ bool IntersectionModule::modifyPathVelocity(
         lane_id_, detection_areas, planner_data_, planner_param_, path, &stop_line_idx,
         &pass_judge_line_idx, &first_idx_inside_lane, logger_.get_child("util"))) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      logger_, *clock_, 1000, "setStopLineIdx fail");
+      logger_, *clock_, 1000 /* ms */, "setStopLineIdx fail");
     RCLCPP_DEBUG(logger_, "===== plan end =====");
     return false;
   }
@@ -95,7 +95,7 @@ bool IntersectionModule::modifyPathVelocity(
   /* calc closest index */
   int closest_idx = -1;
   if (!planning_utils::calcClosestIndex(input_path, current_pose.pose, closest_idx)) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000, "calcClosestIndex fail");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000 /* ms */, "calcClosestIndex fail");
     RCLCPP_DEBUG(logger_, "===== plan end =====");
     return false;
   }

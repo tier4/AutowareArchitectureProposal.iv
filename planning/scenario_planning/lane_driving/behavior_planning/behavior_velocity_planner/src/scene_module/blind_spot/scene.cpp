@@ -77,7 +77,7 @@ bool BlindSpotModule::modifyPathVelocity(
   const auto straight_lanelets = getStraightLanelets(lanelet_map_ptr, routing_graph_ptr, lane_id_);
   if (!generateStopLine(straight_lanelets, path, &stop_line_idx, &pass_judge_line_idx)) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      logger_, *clock_, 1000, "setStopLineIdx fail");
+      logger_, *clock_, 1000 /* ms */, "setStopLineIdx fail");
     return false;
   }
 
@@ -90,7 +90,7 @@ bool BlindSpotModule::modifyPathVelocity(
   /* calc closest index */
   int closest_idx = -1;
   if (!planning_utils::calcClosestIndex(input_path, current_pose.pose, closest_idx)) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000, "calcClosestIndex fail");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000 /* ms */, "calcClosestIndex fail");
     return false;
   }
 

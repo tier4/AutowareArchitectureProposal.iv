@@ -80,7 +80,7 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
         lane_id_, detection_areas, planner_data_, planner_param_, path, &stop_line_idx,
         &judge_line_idx, &first_idx_inside_lane, logger_.get_child("util"))) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      logger_, *clock_, 1000, "setStopLineIdx fail");
+      logger_, *clock_, 1000 /* ms */, "setStopLineIdx fail");
     return false;
   }
 

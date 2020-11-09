@@ -194,7 +194,7 @@ bool DetectionAreaModule::modifyPathVelocity(
         state_ != State::STOP &&
         calcSignedDistance(self_pose.pose, stop_line_point) < pass_judge_line_distance) {
         RCLCPP_WARN_THROTTLE(
-          logger_, *clock_, 1000, "vehicle is over stop border");
+          logger_, *clock_, 1000 /* ms */, "vehicle is over stop border");
         state_ = State::PASS;
         return true;
       }
