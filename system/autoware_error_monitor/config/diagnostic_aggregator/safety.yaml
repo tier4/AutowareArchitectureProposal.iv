@@ -1,6 +1,6 @@
 /**:
   ros__parameters:
-    path: system
+    path: autoware
     safety:
       type: 'diagnostic_aggregator/AnalyzerGroup'
       path: safety

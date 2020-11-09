@@ -1,6 +1,6 @@
 /**:
   ros__parameters:
-    path: system
+    path: autoware
     planning:
       type: 'diagnostic_aggregator/AnalyzerGroup'
       path: planning
