@@ -22,16 +22,34 @@ namespace
 {
 using DebugData = DetectionAreaModule::DebugData;
 
+lanelet::BasicPoint3d getCentroidPoint(const lanelet::BasicPolygon3d & poly)
+{
+  lanelet::BasicPoint3d p_sum{0.0, 0.0, 0.0};
+  for (const auto & p : poly) {
+    p_sum += p;
+  }
+  return p_sum / poly.size();
+}
+
+geometry_msgs::Point toMsg(const lanelet::BasicPoint3d & point)
+{
+  geometry_msgs::Point msg;
+  msg.x = point.x();
+  msg.y = point.y();
+  msg.z = point.z();
+  return msg;
+}
+
 visualization_msgs::MarkerArray createMarkerArray(
   const DebugData & debug_data, const int64_t module_id)
 {
   visualization_msgs::MarkerArray msg;
-  ros::Time current_time = ros::Time::now();
-  tf2::Transform tf_base_link2front(
+  const ros::Time current_time = ros::Time::now();
+  const tf2::Transform tf_base_link2front(
     tf2::Quaternion(0.0, 0.0, 0.0, 1.0), tf2::Vector3(debug_data.base_link2front, 0.0, 0.0));
 
   // Stop VirtualWall
-  int32_t uid = planning_utils::bitShift(module_id);
+  const int32_t uid = planning_utils::bitShift(module_id);
   for (size_t j = 0; j < debug_data.stop_poses.size(); ++j) {
     visualization_msgs::Marker marker;
     marker.header.frame_id = "map";
@@ -55,7 +73,7 @@ visualization_msgs::MarkerArray createMarkerArray(
     marker.color.b = 0.0;
     msg.markers.push_back(marker);
   }
-  // Dead VirtualWall
+  // DeadLine VirtualWall
   for (size_t j = 0; j < debug_data.dead_line_poses.size(); ++j) {
     visualization_msgs::Marker marker;
     marker.header.frame_id = "map";
@@ -108,6 +126,106 @@ visualization_msgs::MarkerArray createMarkerArray(
   return msg;
 }
 
+visualization_msgs::MarkerArray createCorrespondenceMarkerArray(
+  const lanelet::autoware::DetectionArea & detection_area_reg_elem)
+{
+  visualization_msgs::MarkerArray msg;
+
+  const lanelet::ConstLineString3d stop_line = detection_area_reg_elem.stopLine();
+  const auto stop_line_center_point =
+    (stop_line.front().basicPoint() + stop_line.back().basicPoint()) / 2;
+
+  // ID
+  {
+    auto marker = createDefaultMarker(
+      "map", "detection_area_id", detection_area_reg_elem.id(),
+      visualization_msgs::Marker::TEXT_VIEW_FACING, createMarkerColor(1.0, 1.0, 1.0, 0.999));
+    marker.scale = createMarkerScale(0.0, 0.0, 1.0);
+    marker.lifetime = ros::Duration(0.5);
+
+    for (const auto & detection_area : detection_area_reg_elem.detectionAreas()) {
+      const auto poly = detection_area.basicPolygon();
+
+      marker.pose.position = toMsg(poly.front());
+      marker.pose.position.z += 2.0;
+      marker.text = std::to_string(detection_area_reg_elem.id());
+
+      msg.markers.push_back(marker);
+    }
+  }
+
+  // Polygon
+  {
+    auto marker = createDefaultMarker(
+      "map", "detection_area_polygon", detection_area_reg_elem.id(),
+      visualization_msgs::Marker::LINE_LIST, createMarkerColor(0.1, 0.1, 1.0, 0.500));
+    marker.scale = createMarkerScale(0.1, 0.0, 0.0);
+    marker.lifetime = ros::Duration(0.5);
+
+    for (const auto & detection_area : detection_area_reg_elem.detectionAreas()) {
+      const auto poly = detection_area.basicPolygon();
+
+      for (size_t i = 0; i < poly.size(); ++i) {
+        const auto idx_front = i;
+        const auto idx_back = (i == poly.size() - 1) ? 0 : i + 1;
+
+        const auto & p_front = poly.at(idx_front);
+        const auto & p_back = poly.at(idx_back);
+
+        marker.points.push_back(toMsg(p_front));
+        marker.points.push_back(toMsg(p_back));
+      }
+    }
+
+    msg.markers.push_back(marker);
+  }
+
+  // Polygon to StopLine
+  {
+    auto marker = createDefaultMarker(
+      "map", "detection_area_correspondence", detection_area_reg_elem.id(),
+      visualization_msgs::Marker::LINE_LIST, createMarkerColor(0.1, 0.1, 1.0, 0.500));
+    marker.scale = createMarkerScale(0.1, 0.0, 0.0);
+    marker.lifetime = ros::Duration(0.5);
+
+    for (const auto & detection_area : detection_area_reg_elem.detectionAreas()) {
+      const auto poly = detection_area.basicPolygon();
+      const auto centroid_point = getCentroidPoint(poly);
+      for (size_t i = 0; i < poly.size(); ++i) {
+        marker.points.push_back(toMsg(centroid_point));
+        marker.points.push_back(toMsg(stop_line_center_point));
+      }
+    }
+
+    msg.markers.push_back(marker);
+  }
+
+  return msg;
+}
+
+visualization_msgs::MarkerArray createObstacleMarkerArray(
+  const std::vector<geometry_msgs::Point> & obstacle_points)
+{
+  visualization_msgs::MarkerArray msg;
+
+  {
+    auto marker = createDefaultMarker(
+      "map", "obstacles", 0, visualization_msgs::Marker::SPHERE,
+      createMarkerColor(1.0, 0.0, 0.0, 0.999));
+    marker.scale = createMarkerScale(0.3, 0.3, 0.3);
+    marker.lifetime = ros::Duration(0.5);
+
+    for (size_t i = 0; i < obstacle_points.size(); ++i) {
+      marker.id = i;
+      marker.pose.position = obstacle_points.at(i);
+
+      msg.markers.push_back(marker);
+    }
+  }
+
+  return msg;
+}
+
 }  // namespace
 
 visualization_msgs::MarkerArray DetectionAreaModule::createDebugMarkerArray()
@@ -115,6 +233,13 @@ visualization_msgs::MarkerArray DetectionAreaModule::createDebugMarkerArray()
   visualization_msgs::MarkerArray debug_marker_array;
 
   appendMarkerArray(createMarkerArray(debug_data_, getModuleId()), &debug_marker_array);
+
+  if (!debug_data_.stop_poses.empty()) {
+    appendMarkerArray(
+      createCorrespondenceMarkerArray(detection_area_reg_elem_), &debug_marker_array);
+
+    appendMarkerArray(createObstacleMarkerArray(debug_data_.obstacle_points), &debug_marker_array);
+  }
 
   return debug_marker_array;
 }

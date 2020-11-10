@@ -48,6 +48,7 @@ public:
     std::vector<geometry_msgs::Pose> stop_poses;
     std::vector<geometry_msgs::Pose> dead_line_poses;
     geometry_msgs::Pose first_stop_pose;
+    std::vector<geometry_msgs::Point> obstacle_points;
   };
 
   struct PlannerParam

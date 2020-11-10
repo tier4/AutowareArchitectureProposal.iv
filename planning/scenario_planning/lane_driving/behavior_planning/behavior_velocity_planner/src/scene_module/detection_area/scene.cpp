@@ -289,6 +289,7 @@ bool DetectionAreaModule::modifyPathVelocity(
 
   // Find obstacles in detection area
   const auto obstacle_points = getObstaclePoints();
+  debug_data_.obstacle_points = obstacle_points;
   if (!obstacle_points.empty()) {
     last_obstacle_found_time_ = std::make_shared<const ros::Time>(ros::Time::now());
   }
@@ -402,6 +403,11 @@ bool DetectionAreaModule::canClearStopState() const
   // vehicle can clear stop state if the certain time has passed since the obstacle disappeared
   const auto elapsed_time = ros::Time::now() - *last_obstacle_found_time_;
   if (elapsed_time.toSec() >= planner_param_.state_clear_time) {
+    return true;
+  }
+
+  // rollback in simulation mode
+  if (elapsed_time.toSec() < 0.0) {
     return true;
   }
 
