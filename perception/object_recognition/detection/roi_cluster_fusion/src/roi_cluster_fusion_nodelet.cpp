@@ -221,7 +221,7 @@ void RoiClusterFusionNodelet::onInit()
     private_nh_.advertise<autoware_perception_msgs::DynamicObjectWithFeatureArray>("output/labeled_clusters", 10);
 
   bool debug_mode;
-  private_nh_.param<bool>("use_iou", debug_mode, false);
+  private_nh_.param<bool>("debug_mode", debug_mode, false);
   if (debug_mode) debuger_ = std::make_shared<Debuger>(nh_, private_nh_, rois_number_);
 }
 
