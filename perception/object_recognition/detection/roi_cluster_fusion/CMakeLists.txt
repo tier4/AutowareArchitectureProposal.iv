@@ -14,6 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_sensor_msgs
   tf2_ros
   message_filters
+  image_transport
+  cv_bridge
 )
 
 find_package(OpenCV REQUIRED)
@@ -35,6 +37,8 @@ catkin_package(
     tf2_sensor_msgs
     tf2_ros
     message_filters
+    image_transport
+    cv_bridge
 )
 
 include_directories(

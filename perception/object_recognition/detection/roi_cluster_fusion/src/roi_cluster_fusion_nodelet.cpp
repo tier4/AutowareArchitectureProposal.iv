@@ -31,8 +31,6 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
-// #include <image_transport/image_transport.h>
-// #include <cv_bridge/cv_bridge.h>
 #include <chrono>
 
 #define EIGEN_MPL2_ONLY
@@ -41,6 +39,95 @@
 
 namespace roi_cluster_fusion
 {
+Debuger::Debuger(const ros::NodeHandle & nh, const ros::NodeHandle & pnh, const int camera_num)
+: nh_(nh), pnh_(pnh)
+{
+  image_transport_ = std::make_shared<image_transport::ImageTransport>(pnh_);
+  image_buffers_.resize(camera_num);
+  for (int id = 0; id < camera_num; ++id) {
+    image_subs_.push_back(image_transport_->subscribe(
+      "input/image_raw" + std::to_string(id), 1,
+      boost::bind(&Debuger::imageCallback, this, _1, id)));
+    image_pubs_.push_back(image_transport_->advertise("output/image_raw" + std::to_string(id), 1));
+    image_buffers_.at(id).set_capacity(5);
+  }
+}
+
+void Debuger::imageCallback(const sensor_msgs::ImageConstPtr & input_image_msg, const int id){
+  image_buffers_.at(id).push_front(input_image_msg);
+}
+
+void Debuger::showImage(
+  const int id, const ros::Time & time,
+  const std::vector<sensor_msgs::RegionOfInterest> & image_rois,
+  const std::vector<sensor_msgs::RegionOfInterest> & pointcloud_rois,
+  const std::vector<Eigen::Vector2d> & points)
+{
+  // cv::namedWindow("ROI" + std::to_string(id), CV_WINDOW_NORMAL | CV_WINDOW_KEEPRATIO | CV_GUI_EXPANDED);
+  const boost::circular_buffer<sensor_msgs::ImageConstPtr> & image_buffer = image_buffers_.at(id);
+  const image_transport::Publisher &image_pub = image_pubs_.at(id);
+  for (size_t i = 0; i < image_buffer.size(); ++i) {
+    if (image_buffer.at(i)->header.stamp == time) {
+      cv_bridge::CvImagePtr cv_ptr;
+       cv_ptr = cv_bridge::toCvCopy(image_buffer.at(i), image_buffer.at(i)->encoding);
+
+      for(const auto & point:points){
+        cv::circle(
+          cv_ptr->image, cv::Point((int)point.x(), (int)point.y()), 2,
+          cv::Scalar(255, 255, 255), 3, 4);
+      }
+
+      for (const auto & image_roi : image_rois) {
+        cv::line(
+          cv_ptr->image, cv::Point(image_roi.x_offset, image_roi.y_offset),
+          cv::Point(image_roi.x_offset + image_roi.width, image_roi.y_offset),
+          cv::Scalar(0, 0, 255), 1, CV_AA);
+        cv::line(
+          cv_ptr->image, cv::Point(image_roi.x_offset, image_roi.y_offset),
+          cv::Point(image_roi.x_offset, image_roi.y_offset + image_roi.height),
+          cv::Scalar(0, 0, 255), 1, CV_AA);
+        cv::line(
+          cv_ptr->image, cv::Point(image_roi.x_offset + image_roi.width, image_roi.y_offset),
+          cv::Point(image_roi.x_offset + image_roi.width, image_roi.y_offset + image_roi.height),
+          cv::Scalar(0, 0, 255), 1, CV_AA);
+        cv::line(
+          cv_ptr->image, cv::Point(image_roi.x_offset, image_roi.y_offset + image_roi.height),
+          cv::Point(image_roi.x_offset + image_roi.width, image_roi.y_offset + image_roi.height),
+          cv::Scalar(0, 0, 255), 1, CV_AA);
+      }
+      for (const auto & pointcloud_roi : pointcloud_rois) {
+        cv::line(
+          cv_ptr->image, cv::Point(pointcloud_roi.x_offset, pointcloud_roi.y_offset),
+          cv::Point(pointcloud_roi.x_offset + pointcloud_roi.width, pointcloud_roi.y_offset),
+          cv::Scalar(255, 0, 0), 1, CV_AA);
+        cv::line(
+          cv_ptr->image, cv::Point(pointcloud_roi.x_offset, pointcloud_roi.y_offset),
+          cv::Point(pointcloud_roi.x_offset, pointcloud_roi.y_offset + pointcloud_roi.height),
+          cv::Scalar(255, 0, 0), 1, CV_AA);
+        cv::line(
+          cv_ptr->image,
+          cv::Point(pointcloud_roi.x_offset + pointcloud_roi.width, pointcloud_roi.y_offset),
+          cv::Point(
+            pointcloud_roi.x_offset + pointcloud_roi.width,
+            pointcloud_roi.y_offset + pointcloud_roi.height),
+          cv::Scalar(255, 0, 0), 1, CV_AA);
+        cv::line(
+          cv_ptr->image,
+          cv::Point(pointcloud_roi.x_offset, pointcloud_roi.y_offset + pointcloud_roi.height),
+          cv::Point(
+            pointcloud_roi.x_offset + pointcloud_roi.width,
+            pointcloud_roi.y_offset + pointcloud_roi.height),
+          cv::Scalar(255, 0, 0), 1, CV_AA);
+      }
+      image_pub.publish(cv_ptr->toImageMsg());
+      // cv::imshow("ROI" + std::to_string(id), cv_ptr->image);
+      // cv::waitKey(2);
+
+      break;
+    }
+  }
+}
+
 RoiClusterFusionNodelet::RoiClusterFusionNodelet() {}
 
 void RoiClusterFusionNodelet::onInit()
@@ -64,18 +151,18 @@ void RoiClusterFusionNodelet::onInit()
   }
 
   tf_listener_ptr_ = std::make_shared<tf2_ros::TransformListener>(tf_buffer_);
-  cluster_sub_.subscribe(nh_, "clusters", 1);
+  cluster_sub_.subscribe(private_nh_, "input/clusters", 1);
   for (int id = 0; id < rois_number_; ++id) {
     v_camera_info_sub_.push_back(
-      std::make_shared<ros::Subscriber>(nh_.subscribe<sensor_msgs::CameraInfo>(
-        "camera_info" + std::to_string(id), 1,
+      std::make_shared<ros::Subscriber>(private_nh_.subscribe<sensor_msgs::CameraInfo>(
+        "input/camera_info" + std::to_string(id), 1,
         boost::bind(&RoiClusterFusionNodelet::cameraInfoCallback, this, _1, id))));
   }
   v_roi_sub_.resize(rois_number_);
   for (int id = 0; id < (int)v_roi_sub_.size(); ++id) {
     v_roi_sub_.at(id) = std::make_shared<
       message_filters::Subscriber<autoware_perception_msgs::DynamicObjectWithFeatureArray>>();
-    v_roi_sub_.at(id)->subscribe(nh_, "rois" + std::to_string(id), 1);
+    v_roi_sub_.at(id)->subscribe(private_nh_, "input/rois" + std::to_string(id), 1);
   }
   // add dummy callback to enable passthrough filter
   v_roi_sub_.at(0)->registerCallback(bind(&RoiClusterFusionNodelet::dummyCallback, this, _1));
@@ -131,7 +218,11 @@ void RoiClusterFusionNodelet::onInit()
     std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6,
     std::placeholders::_7, std::placeholders::_8, std::placeholders::_9));
   labeled_cluster_pub_ =
-    nh_.advertise<autoware_perception_msgs::DynamicObjectWithFeatureArray>("labeled_clusters", 10);
+    private_nh_.advertise<autoware_perception_msgs::DynamicObjectWithFeatureArray>("output/labeled_clusters", 10);
+
+  bool debug_mode;
+  private_nh_.param<bool>("use_iou", debug_mode, false);
+  if (debug_mode) debuger_ = std::make_shared<Debuger>(nh_, private_nh_, rois_number_);
 }
 
 void RoiClusterFusionNodelet::cameraInfoCallback(
@@ -168,6 +259,11 @@ void RoiClusterFusionNodelet::fusionCallback(
 
   // check camera info
   for (int id = 0; id < (int)v_roi_sub_.size(); ++id) {
+    // debug variable
+    std::vector<sensor_msgs::RegionOfInterest> debug_image_rois;
+    std::vector<sensor_msgs::RegionOfInterest> debug_pointcloud_rois;
+    std::vector<Eigen::Vector2d> debug_image_points;
+
     // cannot find camera info
     if (m_camera_info_.find(id) == m_camera_info_.end()) {
       ROS_WARN("no camera info. id is %d", id);
@@ -238,6 +334,7 @@ void RoiClusterFusionNodelet::fusionCallback(
           max_x = std::max((int)normalized_projected_point.x(), max_x);
           max_y = std::max((int)normalized_projected_point.y(), max_y);
           projected_points.push_back(normalized_projected_point);
+          debug_image_points.push_back(normalized_projected_point);
         }
       }
       if (projected_points.empty()) continue;
@@ -249,6 +346,7 @@ void RoiClusterFusionNodelet::fusionCallback(
       roi.width = max_x - min_x;
       roi.height = max_y - min_y;
       m_cluster_roi.insert(std::make_pair(i, roi));
+      debug_pointcloud_rois.push_back(roi);
     }
 
     // calc iou
@@ -295,90 +393,11 @@ void RoiClusterFusionNodelet::fusionCallback(
           input_roi_msg->feature_objects.at(i).object.semantic.confidence)
         output_msg.feature_objects.at(index).object.semantic =
           input_roi_msg->feature_objects.at(i).object.semantic;
+      debug_image_rois.push_back(input_roi_msg->feature_objects.at(i).feature.roi);
     }
 
-#if 0
-        cv::namedWindow("ROI" + std::to_string(id), CV_WINDOW_NORMAL | CV_WINDOW_KEEPRATIO);
-
-        cv::Mat image(cv::Size(m_camera_info_.at(id).width, m_camera_info_.at(id).height), CV_8UC3, cv::Scalar(0, 0, 0));
-
-        for (size_t i = 0; i < input_cluster_msg->feature_objects.size(); ++i)
-        {
-            if (input_cluster_msg->feature_objects.at(i).feature.cluster.data.empty())
-                continue;
-            sensor_msgs::PointCloud2 transformed_cluster;
-            tf2::doTransform(input_cluster_msg->feature_objects.at(i).feature.cluster, transformed_cluster, transform_stamped);
-
-            std::vector<Eigen::Vector2d> projected_points;
-            projected_points.reserve(transformed_cluster.data.size());
-            int min_x(m_camera_info_.at(id).width), min_y(m_camera_info_.at(id).height), max_x(0), max_y(0);
-            for (sensor_msgs::PointCloud2ConstIterator<float> iter_x(transformed_cluster, "x"), iter_y(transformed_cluster, "y"), iter_z(transformed_cluster, "z");
-                iter_x != iter_x.end();
-                ++iter_x, ++iter_y, ++iter_z)
-            {
-                if (*iter_z <= 0.0)
-                    continue;
-                Eigen::Vector4d projected_point =
-                  projection * Eigen::Vector4d(*iter_x, *iter_y, *iter_z, 1.0);
-                Eigen::Vector2d normalized_projected_point = Eigen::Vector2d(projected_point.x() / projected_point.z(), projected_point.y() / projected_point.z());
-                if (0 <= (int)normalized_projected_point.x() &&
-                    (int)normalized_projected_point.x() <= (int)m_camera_info_.at(id).width - 1 &&
-                    0 <= (int)normalized_projected_point.y() &&
-                    (int)normalized_projected_point.y() <= (int)m_camera_info_.at(id).height - 1)
-                {
-                    min_x = std::min((int)normalized_projected_point.x(), min_x);
-                    min_y = std::min((int)normalized_projected_point.y(), min_y);
-                    max_x = std::max((int)normalized_projected_point.x(), max_x);
-                    max_y = std::max((int)normalized_projected_point.y(), max_y);
-                    projected_points.push_back(normalized_projected_point);
-                    cv::circle(image, cv::Point((int)normalized_projected_point.x(), (int)normalized_projected_point.y()), 2, cv::Scalar(255, 255, 255), 3, 4);
-                }
-            }
-            if (projected_points.empty())
-                continue;
-
-            {
-                cv::line(image,
-                        cv::Point(min_x, min_y),
-                        cv::Point(max_x, min_y),
-                        cv::Scalar(0, 255, 255), 1, CV_AA);
-                cv::line(image,
-                        cv::Point(min_x, min_y),
-                        cv::Point(min_x, max_y),
-                        cv::Scalar(0, 255, 255), 1, CV_AA);
-                cv::line(image,
-                        cv::Point(min_x, max_y),
-                        cv::Point(max_x, max_y),
-                        cv::Scalar(0, 255, 255), 1, CV_AA);
-                cv::line(image,
-                        cv::Point(max_x, min_y),
-                        cv::Point(max_x, max_y),
-                        cv::Scalar(0, 255, 255), 1, CV_AA);
-            }
-        }
-
-        for (size_t i = 0; i < input_roi_msg->feature_objects.size(); ++i)
-        {
-            cv::line(image,
-                     cv::Point(input_roi_msg->feature_objects.at(i).feature.roi.x_offset, input_roi_msg->feature_objects.at(i).feature.roi.y_offset),
-                     cv::Point(input_roi_msg->feature_objects.at(i).feature.roi.x_offset + input_roi_msg->feature_objects.at(i).feature.roi.width, input_roi_msg->feature_objects.at(i).feature.roi.y_offset),
-                     cv::Scalar(0, 255, 0), 3, CV_AA);
-            cv::line(image,
-                     cv::Point(input_roi_msg->feature_objects.at(i).feature.roi.x_offset, input_roi_msg->feature_objects.at(i).feature.roi.y_offset),
-                     cv::Point(input_roi_msg->feature_objects.at(i).feature.roi.x_offset, input_roi_msg->feature_objects.at(i).feature.roi.y_offset + input_roi_msg->feature_objects.at(i).feature.roi.height),
-                     cv::Scalar(0, 255, 0), 3, CV_AA);
-            cv::line(image,
-                     cv::Point(input_roi_msg->feature_objects.at(i).feature.roi.x_offset + input_roi_msg->feature_objects.at(i).feature.roi.width, input_roi_msg->feature_objects.at(i).feature.roi.y_offset),
-                     cv::Point(input_roi_msg->feature_objects.at(i).feature.roi.x_offset + input_roi_msg->feature_objects.at(i).feature.roi.width, input_roi_msg->feature_objects.at(i).feature.roi.y_offset + input_roi_msg->feature_objects.at(i).feature.roi.height),
-                     cv::Scalar(0, 255, 0), 3, CV_AA);
-            cv::line(image,
-                     cv::Point(input_roi_msg->feature_objects.at(i).feature.roi.x_offset, input_roi_msg->feature_objects.at(i).feature.roi.y_offset + input_roi_msg->feature_objects.at(i).feature.roi.height),
-                     cv::Point(input_roi_msg->feature_objects.at(i).feature.roi.x_offset + input_roi_msg->feature_objects.at(i).feature.roi.width, input_roi_msg->feature_objects.at(i).feature.roi.y_offset + input_roi_msg->feature_objects.at(i).feature.roi.height),
-                     cv::Scalar(0, 255, 0), 3, CV_AA);
-        }
-        cv::imshow("ROI" + std::to_string(id), image);
-        cv::waitKey(2);
-#endif
+    debuger_->showImage(
+      id, input_roi_msg->header.stamp, debug_image_rois, debug_pointcloud_rois, debug_image_points);
   }
   // publish output msg
   labeled_cluster_pub_.publish(output_msg);

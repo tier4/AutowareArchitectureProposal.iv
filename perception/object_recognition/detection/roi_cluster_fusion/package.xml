@@ -20,6 +20,8 @@
   <build_depend>tf2_sensor_msgs</build_depend>
   <build_depend>tf2_ros</build_depend>
   <build_depend>message_filters</build_depend>
+  <build_depend>image_transport</build_depend>
+  <build_depend>cv_bridge</build_depend>
   <build_export_depend>autoware_perception_msgs</build_export_depend>
   <build_export_depend>nodelet</build_export_depend>
   <build_export_depend>pcl_conversions</build_export_depend>
@@ -30,6 +32,8 @@
   <build_export_depend>tf2_sensor_msgs</build_export_depend>
   <build_export_depend>tf2_ros</build_export_depend>
   <build_export_depend>message_filters</build_export_depend>
+  <build_export_depend>image_transport</build_export_depend>
+  <build_export_depend>cv_bridge</build_export_depend>
   <exec_depend>autoware_perception_msgs</exec_depend>
   <exec_depend>nodelet</exec_depend>
   <exec_depend>pcl_conversions</exec_depend>
@@ -40,6 +44,8 @@
   <exec_depend>tf2_sensor_msgs</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
   <exec_depend>message_filters</exec_depend>
+  <exec_depend>image_transport</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
