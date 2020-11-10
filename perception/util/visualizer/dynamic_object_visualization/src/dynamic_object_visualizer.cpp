@@ -14,32 +14,34 @@
  * limitations under the License.
  */
 #include "dynamic_object_visualization/dynamic_object_visualizer.h"
-#include <geometry_msgs/Point.h>
-#include <unique_id/unique_id.h>
-#include <visualization_msgs/Marker.h>
-#include <visualization_msgs/MarkerArray.h>
+#include <geometry_msgs/msg/point.hpp>
+#include <visualization_msgs/msg/marker.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 #include <string>
 
-DynamicObjectVisualizer::DynamicObjectVisualizer() : nh_(""), private_nh_("~")
+using namespace std::placeholders;
+
+DynamicObjectVisualizer::DynamicObjectVisualizer(const std::string & node_name, const rclcpp::NodeOptions & node_options) : rclcpp::Node(node_name, node_options)
 {
-  bool with_feature;
-  private_nh_.param<bool>("with_feature", with_feature, true);
-  private_nh_.param<bool>("only_known_objects", only_known_objects_, true);
-  if (with_feature)
-    sub_ =
-      nh_.subscribe("input", 1, &DynamicObjectVisualizer::dynamicObjectWithFeatureCallback, this);
-  else
-    sub_ = nh_.subscribe("input", 1, &DynamicObjectVisualizer::dynamicObjectCallback, this);
-  pub_ = nh_.advertise<visualization_msgs::MarkerArray>("output", 1, true);
+  with_feature_ = declare_parameter("with_feature", true);
+  only_known_objects_ = declare_parameter("only_known_objects", true);
+  if (with_feature_) {
+    sub_with_feature_ = create_subscription<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(
+      "input", rclcpp::QoS{1}, std::bind(&DynamicObjectVisualizer::dynamicObjectWithFeatureCallback, this, _1));
+  } else {
+    sub_ = create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
+      "input", rclcpp::QoS{1}, std::bind(&DynamicObjectVisualizer::dynamicObjectCallback, this, _1));
+  }
+  pub_ = create_publisher<visualization_msgs::msg::MarkerArray>("output", rclcpp::QoS{1}.transient_local());
   initColorList(colors_);
 }
 
 void DynamicObjectVisualizer::dynamicObjectWithFeatureCallback(
-  const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr & input_msg)
+  const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr input_msg)
 {
-  if (pub_.getNumSubscribers() < 1) return;
-  boost::shared_ptr<autoware_perception_msgs::DynamicObjectArray> converted_objects_ptr =
-    boost::make_shared<autoware_perception_msgs::DynamicObjectArray>();
+  if (this->count_subscribers(pub_->get_topic_name()) < 1) return;
+  auto converted_objects_ptr =
+    std::make_shared<autoware_perception_msgs::msg::DynamicObjectArray>();
   converted_objects_ptr->header = input_msg->header;
   for (const auto & feature_object : input_msg->feature_objects) {
     converted_objects_ptr->objects.push_back(feature_object.object);
@@ -48,38 +50,38 @@ void DynamicObjectVisualizer::dynamicObjectWithFeatureCallback(
 }
 
 void DynamicObjectVisualizer::dynamicObjectCallback(
-  const autoware_perception_msgs::DynamicObjectArray::ConstPtr & input_msg)
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_msg)
 {
-  if (pub_.getNumSubscribers() < 1) return;
-  visualization_msgs::MarkerArray output;
+  if (this->count_subscribers(pub_->get_topic_name()) < 1) return;
+  visualization_msgs::msg::MarkerArray output;
   constexpr double line_width = 0.05;
   // shape
   for (size_t i = 0; i < input_msg->objects.size(); ++i) {
     if (only_known_objects_) {
-      if (input_msg->objects.at(i).semantic.type == autoware_perception_msgs::Semantic::UNKNOWN)
+      if (input_msg->objects.at(i).semantic.type == autoware_perception_msgs::msg::Semantic::UNKNOWN)
         continue;
     }
-    visualization_msgs::Marker marker;
+    visualization_msgs::msg::Marker marker;
     marker.header = input_msg->header;
     marker.id = i;
     marker.ns = std::string("shape");
-    if (input_msg->objects.at(i).shape.type == autoware_perception_msgs::Shape::BOUNDING_BOX) {
-      marker.type = visualization_msgs::Marker::LINE_LIST;
+    if (input_msg->objects.at(i).shape.type == autoware_perception_msgs::msg::Shape::BOUNDING_BOX) {
+      marker.type = visualization_msgs::msg::Marker::LINE_LIST;
       if (!calcBoundingBoxLineList(input_msg->objects.at(i).shape, marker.points)) continue;
-    } else if (input_msg->objects.at(i).shape.type == autoware_perception_msgs::Shape::CYLINDER) {
-      marker.type = visualization_msgs::Marker::LINE_LIST;
+    } else if (input_msg->objects.at(i).shape.type == autoware_perception_msgs::msg::Shape::CYLINDER) {
+      marker.type = visualization_msgs::msg::Marker::LINE_LIST;
       if (!calcCylinderLineList(input_msg->objects.at(i).shape, marker.points)) continue;
-    } else if (input_msg->objects.at(i).shape.type == autoware_perception_msgs::Shape::POLYGON) {
-      marker.type = visualization_msgs::Marker::LINE_LIST;
+    } else if (input_msg->objects.at(i).shape.type == autoware_perception_msgs::msg::Shape::POLYGON) {
+      marker.type = visualization_msgs::msg::Marker::LINE_LIST;
       if (!calcPolygonLineList(input_msg->objects.at(i).shape, marker.points)) continue;
     } else {
-      marker.type = visualization_msgs::Marker::LINE_LIST;
+      marker.type = visualization_msgs::msg::Marker::LINE_LIST;
       if (!calcPolygonLineList(input_msg->objects.at(i).shape, marker.points)) continue;
     }
 
-    marker.action = visualization_msgs::Marker::MODIFY;
+    marker.action = visualization_msgs::msg::Marker::MODIFY;
     marker.pose = input_msg->objects.at(i).state.pose_covariance.pose;
-    marker.lifetime = ros::Duration(0.2);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.2);
     marker.scale.x = line_width;
     marker.color.a = 0.999;  // Don't forget to set the alpha!
     marker.color.r = 0.0;
@@ -95,18 +97,18 @@ void DynamicObjectVisualizer::dynamicObjectCallback(
       continue;
     }
     if (only_known_objects_) {
-      if (input_msg->objects.at(i).semantic.type == autoware_perception_msgs::Semantic::UNKNOWN)
+      if (input_msg->objects.at(i).semantic.type == autoware_perception_msgs::msg::Semantic::UNKNOWN)
         continue;
     }
-    visualization_msgs::Marker marker;
+    visualization_msgs::msg::Marker marker;
     marker.header = input_msg->header;
     marker.id = i;
-    marker.type = visualization_msgs::Marker::LINE_LIST;
+    marker.type = visualization_msgs::msg::Marker::LINE_LIST;
     marker.ns = std::string("orientation");
     marker.scale.x = line_width;
-    marker.action = visualization_msgs::Marker::MODIFY;
+    marker.action = visualization_msgs::msg::Marker::MODIFY;
     marker.pose = input_msg->objects.at(i).state.pose_covariance.pose;
-    geometry_msgs::Point point;
+    geometry_msgs::msg::Point point;
     point.x = 0.0;
     point.y = 0;
     point.z = (input_msg->objects.at(i).shape.dimensions.z / 2.0);
@@ -124,7 +126,7 @@ void DynamicObjectVisualizer::dynamicObjectCallback(
     point.z = -(input_msg->objects.at(i).shape.dimensions.z / 2.0);
     marker.points.push_back(point);
 
-    marker.lifetime = ros::Duration(0.2);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.2);
     marker.color.a = 0.999;  // Don't forget to set the alpha!
     marker.color.r = 0.0;
     marker.color.g = 1.0;
@@ -136,20 +138,21 @@ void DynamicObjectVisualizer::dynamicObjectCallback(
   // type label
   for (size_t i = 0; i < input_msg->objects.size(); ++i) {
     if (only_known_objects_) {
-      if (input_msg->objects.at(i).semantic.type == autoware_perception_msgs::Semantic::UNKNOWN)
+      if (input_msg->objects.at(i).semantic.type == autoware_perception_msgs::msg::Semantic::UNKNOWN)
         continue;
     }
-    visualization_msgs::Marker marker;
+    visualization_msgs::msg::Marker marker;
     marker.header = input_msg->header;
     marker.id = i;
-    marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+    marker.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
     marker.ns = std::string("label");
     std::string label;
     if (!getLabel(input_msg->objects.at(i).semantic, label)) continue;
     marker.scale.x = 0.5;
     marker.scale.z = 0.5;
-    std::string id_str = unique_id::toHexString(input_msg->objects.at(i).id);
-    std::remove(id_str.begin(), id_str.end(), '-');
+
+    std::string id_str = uuid_to_string(input_msg->objects.at(i).id);
+
     marker.text = label + ":" + id_str.substr(0, 4);
     if (input_msg->objects.at(i).state.twist_reliable) {
       double vel = std::sqrt(
@@ -161,9 +164,9 @@ void DynamicObjectVisualizer::dynamicObjectCallback(
           input_msg->objects.at(i).state.twist_covariance.twist.linear.z);
       marker.text = marker.text + "\n" + std::to_string(int(vel * 3.6)) + std::string("[km/h]");
     }
-    marker.action = visualization_msgs::Marker::MODIFY;
+    marker.action = visualization_msgs::msg::Marker::MODIFY;
     marker.pose = input_msg->objects.at(i).state.pose_covariance.pose;
-    marker.lifetime = ros::Duration(0.2);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.2);
     marker.color.a = 0.999;  // Don't forget to set the alpha!
     marker.color.r = 1.0;
     marker.color.g = 1.0;
@@ -178,18 +181,18 @@ void DynamicObjectVisualizer::dynamicObjectCallback(
       continue;
     }
     if (only_known_objects_) {
-      if (input_msg->objects.at(i).semantic.type == autoware_perception_msgs::Semantic::UNKNOWN)
+      if (input_msg->objects.at(i).semantic.type == autoware_perception_msgs::msg::Semantic::UNKNOWN)
         continue;
     }
-    visualization_msgs::Marker marker;
+    visualization_msgs::msg::Marker marker;
     marker.header = input_msg->header;
     marker.id = i;
-    marker.type = visualization_msgs::Marker::LINE_LIST;
+    marker.type = visualization_msgs::msg::Marker::LINE_LIST;
     marker.ns = std::string("twist");
     marker.scale.x = line_width;
-    marker.action = visualization_msgs::Marker::MODIFY;
+    marker.action = visualization_msgs::msg::Marker::MODIFY;
     marker.pose = input_msg->objects.at(i).state.pose_covariance.pose;
-    geometry_msgs::Point point;
+    geometry_msgs::msg::Point point;
     point.x = 0.0;
     point.y = 0;
     point.z = 0;
@@ -199,7 +202,7 @@ void DynamicObjectVisualizer::dynamicObjectCallback(
     point.z = input_msg->objects.at(i).state.twist_covariance.twist.linear.z;
     marker.points.push_back(point);
 
-    marker.lifetime = ros::Duration(0.2);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.2);
     marker.color.a = 0.999;  // Don't forget to set the alpha!
     marker.color.r = 1.0;
     marker.color.g = 0.0;
@@ -213,15 +216,15 @@ void DynamicObjectVisualizer::dynamicObjectCallback(
     int id = 0;
     for (size_t i = 0; i < input_msg->objects.size(); ++i) {
       if (only_known_objects_) {
-        if (input_msg->objects.at(i).semantic.type == autoware_perception_msgs::Semantic::UNKNOWN)
+        if (input_msg->objects.at(i).semantic.type == autoware_perception_msgs::msg::Semantic::UNKNOWN)
           continue;
       }
-      visualization_msgs::Marker marker;
+      visualization_msgs::msg::Marker marker;
       marker.header = input_msg->header;
-      marker.type = visualization_msgs::Marker::LINE_LIST;
+      marker.type = visualization_msgs::msg::Marker::LINE_LIST;
       marker.ns = std::string("path");
-      marker.action = visualization_msgs::Marker::MODIFY;
-      marker.lifetime = ros::Duration(0.2);
+      marker.action = visualization_msgs::msg::Marker::MODIFY;
+      marker.lifetime = rclcpp::Duration::from_seconds(0.2);
       initPose(marker.pose);
       getColor(input_msg->objects.at(i), marker.color);
       for (size_t j = 0; j < input_msg->objects.at(i).state.predicted_paths.size(); ++j) {
@@ -247,15 +250,15 @@ void DynamicObjectVisualizer::dynamicObjectCallback(
     int id = 0;
     for (size_t i = 0; i < input_msg->objects.size(); ++i) {
       if (only_known_objects_) {
-        if (input_msg->objects.at(i).semantic.type == autoware_perception_msgs::Semantic::UNKNOWN)
+        if (input_msg->objects.at(i).semantic.type == autoware_perception_msgs::msg::Semantic::UNKNOWN)
           continue;
       }
-      visualization_msgs::Marker marker;
+      visualization_msgs::msg::Marker marker;
       marker.header = input_msg->header;
-      marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+      marker.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
       marker.ns = std::string("path confidence");
-      marker.action = visualization_msgs::Marker::MODIFY;
-      marker.lifetime = ros::Duration(0.2);
+      marker.action = visualization_msgs::msg::Marker::MODIFY;
+      marker.lifetime = rclcpp::Duration::from_seconds(0.2);
       marker.scale.x = 0.5;
       marker.scale.y = 0.5;
       marker.scale.z = 0.5;
@@ -281,13 +284,13 @@ void DynamicObjectVisualizer::dynamicObjectCallback(
       }
     }
   }
-  pub_.publish(output);
+  pub_->publish(output);
 }
 
 bool DynamicObjectVisualizer::calcBoundingBoxLineList(
-  const autoware_perception_msgs::Shape & shape, std::vector<geometry_msgs::Point> & points)
+  const autoware_perception_msgs::msg::Shape & shape, std::vector<geometry_msgs::msg::Point> & points)
 {
-  geometry_msgs::Point point;
+  geometry_msgs::msg::Point point;
   point.x = shape.dimensions.x / 2.0;
   point.y = shape.dimensions.y / 2.0;
   point.z = shape.dimensions.z / 2.0;
@@ -402,25 +405,25 @@ bool DynamicObjectVisualizer::calcBoundingBoxLineList(
 }
 
 bool DynamicObjectVisualizer::calcCylinderLineList(
-  const autoware_perception_msgs::Shape & shape, std::vector<geometry_msgs::Point> & points)
+  const autoware_perception_msgs::msg::Shape & shape, std::vector<geometry_msgs::msg::Point> & points)
 {
   int n = 20;
   for (int i = 0; i < n; ++i) {
-    geometry_msgs::Point center;
+    geometry_msgs::msg::Point center;
     center.x = 0.0;
     center.y = 0.0;
     center.z = shape.dimensions.z / 2.0;
     calcCircleLineList(center, shape.dimensions.x, points, 20);
   }
   for (int i = 0; i < n; ++i) {
-    geometry_msgs::Point center;
+    geometry_msgs::msg::Point center;
     center.x = 0.0;
     center.y = 0.0;
     center.z = -shape.dimensions.z / 2.0;
     calcCircleLineList(center, shape.dimensions.x, points, 20);
   }
   for (int i = 0; i < n; ++i) {
-    geometry_msgs::Point point;
+    geometry_msgs::msg::Point point;
     point.x = std::cos(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) *
               (shape.dimensions.x / 2.0);
     point.y = std::sin(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) *
@@ -438,11 +441,11 @@ bool DynamicObjectVisualizer::calcCylinderLineList(
 }
 
 bool DynamicObjectVisualizer::calcCircleLineList(
-  const geometry_msgs::Point center, const double radius,
-  std::vector<geometry_msgs::Point> & points, const int n)
+  const geometry_msgs::msg::Point center, const double radius,
+  std::vector<geometry_msgs::msg::Point> & points, const int n)
 {
   for (int i = 0; i < n; ++i) {
-    geometry_msgs::Point point;
+    geometry_msgs::msg::Point point;
     point.x =
       std::cos(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) * (radius / 2.0) + center.x;
     point.y =
@@ -458,14 +461,15 @@ bool DynamicObjectVisualizer::calcCircleLineList(
     point.z = center.z;
     points.push_back(point);
   }
+  return true;
 }
 
 bool DynamicObjectVisualizer::calcPolygonLineList(
-  const autoware_perception_msgs::Shape & shape, std::vector<geometry_msgs::Point> & points)
+  const autoware_perception_msgs::msg::Shape & shape, std::vector<geometry_msgs::msg::Point> & points)
 {
   if (shape.footprint.points.size() < 2) return false;
   for (size_t i = 0; i < shape.footprint.points.size(); ++i) {
-    geometry_msgs::Point point;
+    geometry_msgs::msg::Point point;
     point.x = shape.footprint.points.at(i).x;
     point.y = shape.footprint.points.at(i).y;
     point.z = shape.dimensions.z / 2.0;
@@ -476,7 +480,7 @@ bool DynamicObjectVisualizer::calcPolygonLineList(
     points.push_back(point);
   }
   for (size_t i = 0; i < shape.footprint.points.size(); ++i) {
-    geometry_msgs::Point point;
+    geometry_msgs::msg::Point point;
     point.x = shape.footprint.points.at(i).x;
     point.y = shape.footprint.points.at(i).y;
     point.z = -shape.dimensions.z / 2.0;
@@ -487,7 +491,7 @@ bool DynamicObjectVisualizer::calcPolygonLineList(
     points.push_back(point);
   }
   for (size_t i = 0; i < shape.footprint.points.size(); ++i) {
-    geometry_msgs::Point point;
+    geometry_msgs::msg::Point point;
     point.x = shape.footprint.points.at(i).x;
     point.y = shape.footprint.points.at(i).y;
     point.z = shape.dimensions.z / 2.0;
@@ -501,10 +505,10 @@ bool DynamicObjectVisualizer::calcPolygonLineList(
 }
 
 bool DynamicObjectVisualizer::calcPathLineList(
-  const autoware_perception_msgs::PredictedPath & paths, std::vector<geometry_msgs::Point> & points)
+  const autoware_perception_msgs::msg::PredictedPath & paths, std::vector<geometry_msgs::msg::Point> & points)
 {
   for (int i = 0; i < (int)paths.path.size() - 1; ++i) {
-    geometry_msgs::Point point;
+    geometry_msgs::msg::Point point;
     point.x = paths.path.at(i).pose.pose.position.x;
     point.y = paths.path.at(i).pose.pose.position.y;
     point.z = paths.path.at(i).pose.pose.position.z;
@@ -518,7 +522,7 @@ bool DynamicObjectVisualizer::calcPathLineList(
   return true;
 }
 
-void DynamicObjectVisualizer::initPose(geometry_msgs::Pose & pose)
+void DynamicObjectVisualizer::initPose(geometry_msgs::msg::Pose & pose)
 {
   pose.position.x = 0.0;
   pose.position.y = 0.0;
@@ -530,23 +534,23 @@ void DynamicObjectVisualizer::initPose(geometry_msgs::Pose & pose)
 }
 
 bool DynamicObjectVisualizer::getLabel(
-  const autoware_perception_msgs::Semantic & semantic, std::string & label)
+  const autoware_perception_msgs::msg::Semantic & semantic, std::string & label)
 {
-  if (autoware_perception_msgs::Semantic::UNKNOWN == semantic.type) {
+  if (autoware_perception_msgs::msg::Semantic::UNKNOWN == semantic.type) {
     label = std::string("unknown");
-  } else if (autoware_perception_msgs::Semantic::CAR == semantic.type) {
+  } else if (autoware_perception_msgs::msg::Semantic::CAR == semantic.type) {
     label = std::string("car");
-  } else if (autoware_perception_msgs::Semantic::TRUCK == semantic.type) {
+  } else if (autoware_perception_msgs::msg::Semantic::TRUCK == semantic.type) {
     label = std::string("truck");
-  } else if (autoware_perception_msgs::Semantic::BUS == semantic.type) {
+  } else if (autoware_perception_msgs::msg::Semantic::BUS == semantic.type) {
     label = std::string("bus");
-  } else if (autoware_perception_msgs::Semantic::BICYCLE == semantic.type) {
+  } else if (autoware_perception_msgs::msg::Semantic::BICYCLE == semantic.type) {
     label = std::string("bicycle");
-  } else if (autoware_perception_msgs::Semantic::MOTORBIKE == semantic.type) {
+  } else if (autoware_perception_msgs::msg::Semantic::MOTORBIKE == semantic.type) {
     label = std::string("motorbike");
-  } else if (autoware_perception_msgs::Semantic::PEDESTRIAN == semantic.type) {
+  } else if (autoware_perception_msgs::msg::Semantic::PEDESTRIAN == semantic.type) {
     label = std::string("pedestrian");
-  } else if (autoware_perception_msgs::Semantic::ANIMAL == semantic.type) {
+  } else if (autoware_perception_msgs::msg::Semantic::ANIMAL == semantic.type) {
     label = std::string("animal");
   } else {
     label = std::string("other");
@@ -555,19 +559,19 @@ bool DynamicObjectVisualizer::getLabel(
 }
 
 void DynamicObjectVisualizer::getColor(
-  const autoware_perception_msgs::DynamicObject & object, std_msgs::ColorRGBA & color)
+  const autoware_perception_msgs::msg::DynamicObject & object, std_msgs::msg::ColorRGBA & color)
 {
-  std::string id_str = unique_id::toHexString(object.id);
-  std::remove(id_str.begin(), id_str.end(), '-');
+  std::string id_str = uuid_to_string(object.id);
+
   int i = ((int)id_str.at(0) * 4 + (int)id_str.at(1)) % (int)colors_.size();
   color.r = colors_.at(i).r;
   color.g = colors_.at(i).g;
   color.b = colors_.at(i).b;
 }
 
-void DynamicObjectVisualizer::initColorList(std::vector<std_msgs::ColorRGBA> & colors)
+void DynamicObjectVisualizer::initColorList(std::vector<std_msgs::msg::ColorRGBA> & colors)
 {
-  std_msgs::ColorRGBA sample_color;
+  std_msgs::msg::ColorRGBA sample_color;
   sample_color.r = 1.0;
   sample_color.g = 0.0;
   sample_color.b = 1.0;

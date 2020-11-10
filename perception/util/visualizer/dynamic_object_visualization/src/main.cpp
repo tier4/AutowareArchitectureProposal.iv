@@ -17,13 +17,14 @@
  * v1.0 Yukihiro Saito
  */
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 #include "dynamic_object_visualization/dynamic_object_visualizer.h"
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "dynamic_object_visualizer");
-  DynamicObjectVisualizer node;
-  ros::spin();
+  rclcpp::init(argc, argv);
+  rclcpp::NodeOptions node_options;
+  auto node = std::make_shared<DynamicObjectVisualizer>("dynamic_object_visualizer", node_options);
+  rclcpp::spin(node);
   return 0;
 }
