@@ -17,7 +17,6 @@ include_directories(
   include
   ${GRID_MAP_INCLUDE_DIR}
   ${PCL_COMMON_INCLUDE_DIRS}
-  ${orocos_kdl_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
 )
 

@@ -21,8 +21,8 @@
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
   <depend>lanelet2_extension</depend>
-  <depend>orocos_kdl</depend>
-  <depend>pcl</depend>
+  <depend>libpcl-all-dev</depend>
+  <depend>tf2_geometry_msgs</depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
 
