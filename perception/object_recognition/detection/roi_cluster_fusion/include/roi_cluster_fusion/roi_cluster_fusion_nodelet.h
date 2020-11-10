@@ -22,11 +22,37 @@
 #include "message_filters/subscriber.h"
 #include "message_filters/sync_policies/approximate_time.h"
 #include "message_filters/synchronizer.h"
-#include "sensor_msgs/msg/camera_info.hpp"
+#include "sensor_msgs/CameraInfo.h"
+#include <image_transport/image_transport.h>
+#include <cv_bridge/cv_bridge.h>
+
+#include <memory>
+#include <boost/circular_buffer.hpp>
 
 namespace roi_cluster_fusion
 {
-class RoiClusterFusionNodelet : public rclcpp::Node
+class Debuger
+{
+public:
+  Debuger(const ros::NodeHandle & nh, const ros::NodeHandle & pnh, const int camera_num);
+  ~Debuger() = default;
+  void showImage(
+    const int id, const ros::Time & time,
+    const std::vector<sensor_msgs::RegionOfInterest> & image_rois,
+    const std::vector<sensor_msgs::RegionOfInterest> & pointcloud_rois,
+    const std::vector<Eigen::Vector2d> & points);
+
+private:
+  void imageCallback(const sensor_msgs::ImageConstPtr & input_image_msg, const int id);
+
+  ros::NodeHandle nh_, pnh_;
+  std::shared_ptr<image_transport::ImageTransport> image_transport_;
+  std::vector<image_transport::Subscriber> image_subs_;
+  std::vector<image_transport::Publisher> image_pubs_;
+  std::vector<boost::circular_buffer<sensor_msgs::ImageConstPtr>> image_buffers_;
+};
+
+class RoiClusterFusionNodelet : public nodelet::Nodelet
 {
 public:
   RoiClusterFusionNodelet(const rclcpp::NodeOptions & options);
@@ -88,7 +114,9 @@ private:
   bool use_cluster_semantic_type_;
   double iou_threshold_;
   int rois_number_;
-  std::map<int, sensor_msgs::msg::CameraInfo> m_camera_info_;
+  std::map<int, sensor_msgs::CameraInfo> m_camera_info_;
+
+  std::shared_ptr<Debuger> debuger_;
 };
 
 }  // namespace roi_cluster_fusion
