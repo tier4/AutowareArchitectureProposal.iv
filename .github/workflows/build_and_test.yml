@@ -28,6 +28,10 @@ jobs:
         rosdep update
         DEBIAN_FRONTEND=noninteractive rosdep install --from-paths . --ignore-src --rosdistro foxy -y
 
+    - name: Show ros-foxy-tf2 version
+      run: |
+        apt show ros-foxy-tf2
+
     - name: Build
       run: |
         . /opt/ros/foxy/setup.sh
