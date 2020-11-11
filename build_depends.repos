@@ -15,8 +15,8 @@ repositories:
     version: foxy
   vendor/grid_map:
     type: git
-    url: https://github.com/ANYbotics/grid_map.git
-    version: ros2
+    url: https://github.com/mitsudome-r/grid_map.git
+    version: ros2-fix-ci
   vendor/perception_pcl:
     type: git
     url: https://github.com/ros-perception/perception_pcl.git
