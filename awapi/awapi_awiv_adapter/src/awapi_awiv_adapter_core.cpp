@@ -27,7 +27,7 @@ AutowareIvAdapter::AutowareIvAdapter()
   // get param
   status_pub_hz_ = this->declare_parameter("status_pub_hz", 5.0);
   stop_reason_timeout_ = this->declare_parameter("stop_reason_timeout", 0.5);
-  const bool em_handle_param = this->declare_parameter("emergency_handling").get<bool>();
+  const bool em_handle_param = this->declare_parameter("use_emergency_handling").get<bool>();
   emergencyParamCheck(em_handle_param);
 
   // setup instance
