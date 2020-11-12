@@ -209,12 +209,12 @@ void ObstacleStopPlannerNode::pathCallback(
 
     Eigen::Matrix4f affine_matrix =
       tf2::transformToEigen(transform_stamped.transform).matrix().cast<float>();
-    pcl::PointCloud<pcl::PointXYZ>::Ptr obstacle_ros_pointcloud_pcl_ptr_(
+    pcl::PointCloud<pcl::PointXYZ>::Ptr obstacle_pointcloud_pcl_ptr_(
       new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::fromROSMsg(*obstacle_ros_pointcloud_ptr_, *obstacle_ros_pointcloud_pcl_ptr_);
+    pcl::fromROSMsg(*obstacle_ros_pointcloud_ptr_, *obstacle_pointcloud_pcl_ptr_);
     pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_obstacle_pointcloud_ptr(
       new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::transformPointCloud(*obstacle_ros_pointcloud_pcl_ptr_, *transformed_obstacle_pointcloud_ptr, affine_matrix);
+    pcl::transformPointCloud(*obstacle_pointcloud_pcl_ptr_, *transformed_obstacle_pointcloud_ptr, affine_matrix);
 
     // search obstacle candidate pointcloud to reduce calculation cost
     const double search_radius = enable_slow_down_ ? slow_down_search_radius_ : stop_search_radius_;
