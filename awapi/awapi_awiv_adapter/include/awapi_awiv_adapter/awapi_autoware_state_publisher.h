@@ -56,8 +56,9 @@ private:
     const autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr & stop_reason_ptr,
     autoware_api_msgs::msg::AwapiAutowareStatus * status);
   void getDiagInfo(
-    const diagnostic_msgs::msg::DiagnosticArray::ConstSharedPtr & diag_ptr,
-    autoware_api_msgs::msg::AwapiAutowareStatus * status);
+    const AutowareInfo & aw_info, autoware_api_msgs::msg::AwapiAutowareStatus * status);
+  void getErrorDiagInfo(
+    const AutowareInfo & aw_info, autoware_api_msgs::msg::AwapiAutowareStatus * status);
   void getGlobalRptInfo(
     const pacmod_msgs::msg::GlobalRpt::ConstSharedPtr & global_rpt_ptr,
     autoware_api_msgs::msg::AwapiAutowareStatus * status);

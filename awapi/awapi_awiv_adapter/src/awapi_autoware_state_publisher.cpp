@@ -41,7 +41,8 @@ void AutowareIvAutowareStatePublisher::statePublisher(const AutowareInfo & aw_in
   getGateModeInfo(aw_info.gate_mode_ptr, &status);
   getIsEmergencyInfo(aw_info.is_emergency_ptr, &status);
   getStopReasonInfo(aw_info.stop_reason_ptr, &status);
-  getDiagInfo(aw_info.diagnostic_ptr, &status);
+  getDiagInfo(aw_info, &status);
+  getErrorDiagInfo(aw_info, &status);
   getGlobalRptInfo(aw_info.global_rpt_ptr, &status);
 
   // publish info
@@ -115,16 +116,60 @@ void AutowareIvAutowareStatePublisher::getStopReasonInfo(
 }
 
 void AutowareIvAutowareStatePublisher::getDiagInfo(
-  const diagnostic_msgs::msg::DiagnosticArray::ConstSharedPtr & diag_ptr,
-  autoware_api_msgs::msg::AwapiAutowareStatus * status)
+  const AutowareInfo & aw_info, autoware_api_msgs::msg::AwapiAutowareStatus * status)
 {
-  if (!diag_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "diagnostics is nullptr");
+  if (!aw_info.diagnostic_ptr) {
+    RCLCPP_DEBUG_STREAM_THROTTLE(
+      logger_, *clock_, 5000 /* ms */,
+      "[AutowareIvAutowareStatePublisher] diagnostics is nullptr");
     return;
   }
 
   // get diag
-  status->diagnostics = extractLeafDiag(diag_ptr->status);
+  status->diagnostics = extractLeafDiag(aw_info.diagnostic_ptr->status);
+}
+
+void AutowareIvAutowareStatePublisher::getErrorDiagInfo(
+  const AutowareInfo & aw_info, autoware_api_msgs::msg::AwapiAutowareStatus * status)
+{
+  using autoware_system_msgs::msg::AutowareState;
+  using autoware_control_msgs::msg::ControlMode;
+
+  if (!aw_info.autoware_state_ptr) {
+    RCLCPP_DEBUG_STREAM_THROTTLE(
+      logger_, *clock_, 5000 /* ms */,
+      "[AutowareIvAutowareStatePublisher] autoware_state is nullptr");
+    return;
+  }
+
+  if (!aw_info.control_mode_ptr) {
+    RCLCPP_DEBUG_STREAM_THROTTLE(
+      logger_, *clock_, 5000 /* ms */,
+      "[AutowareIvAutowareStatePublisher] control mode is nullptr");
+    return;
+  }
+
+  if (!aw_info.diagnostic_ptr) {
+    RCLCPP_DEBUG_STREAM_THROTTLE(
+      logger_, *clock_, 5000 /* ms */,
+      "[AutowareIvAutowareStatePublisher] diagnostics is nullptr");
+    return;
+  }
+
+  // filter by state
+  if (aw_info.autoware_state_ptr->state != AutowareState::Emergency) {
+    status->error_diagnostics = {};
+    return;
+  }
+
+  // filter by control_mode
+  if (aw_info.control_mode_ptr->data == ControlMode::MANUAL) {
+    status->error_diagnostics = {};
+    return;
+  }
+
+  // get diag
+  status->error_diagnostics = extractLeafDiag(aw_info.diagnostic_ptr->status);
 }
 
 void AutowareIvAutowareStatePublisher::getGlobalRptInfo(
