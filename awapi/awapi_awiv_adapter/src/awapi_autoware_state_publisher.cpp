@@ -40,7 +40,8 @@ void AutowareIvAutowareStatePublisher::statePublisher(const AutowareInfo & aw_in
   getGateModeInfo(aw_info.gate_mode_ptr, &status);
   getIsEmergencyInfo(aw_info.is_emergency_ptr, &status);
   getStopReasonInfo(aw_info.stop_reason_ptr, &status);
-  getDiagInfo(aw_info.diagnostic_ptr, &status);
+  getDiagInfo(aw_info, &status);
+  getErrorDiagInfo(aw_info, &status);
   getGlobalRptInfo(aw_info.global_rpt_ptr, &status);
 
   // publish info
@@ -113,16 +114,49 @@ void AutowareIvAutowareStatePublisher::getStopReasonInfo(
 }
 
 void AutowareIvAutowareStatePublisher::getDiagInfo(
-  const diagnostic_msgs::DiagnosticArray::ConstPtr & diag_ptr,
-  autoware_api_msgs::AwapiAutowareStatus * status)
+  const AutowareInfo & aw_info, autoware_api_msgs::AwapiAutowareStatus * status)
 {
-  if (!diag_ptr) {
+  if (!aw_info.diagnostic_ptr) {
     ROS_DEBUG_STREAM_THROTTLE(5.0, "[AutowareIvAutowareStatePublisher] diagnostics is nullptr");
     return;
   }
 
   // get diag
-  status->diagnostics = extractLeafDiag(diag_ptr->status);
+  status->diagnostics = extractLeafDiag(aw_info.diagnostic_ptr->status);
+}
+
+void AutowareIvAutowareStatePublisher::getErrorDiagInfo(
+  const AutowareInfo & aw_info, autoware_api_msgs::AwapiAutowareStatus * status)
+{
+  if (!aw_info.autoware_state_ptr) {
+    ROS_DEBUG_STREAM_THROTTLE(5.0, "[AutowareIvAutowareStatePublisher] autoware_state is nullptr");
+    return;
+  }
+
+  if (!aw_info.control_mode_ptr) {
+    ROS_DEBUG_STREAM_THROTTLE(5.0, "[AutowareIvAutowareStatePublisher] control_mode is nullptr");
+    return;
+  }
+
+  if (!aw_info.diagnostic_ptr) {
+    ROS_DEBUG_STREAM_THROTTLE(5.0, "[AutowareIvAutowareStatePublisher] diagnostics is nullptr");
+    return;
+  }
+
+  // filter by state
+  if (aw_info.autoware_state_ptr->state != autoware_system_msgs::AutowareState::Emergency) {
+    status->error_diagnostics = {};
+    return;
+  }
+
+  // filter by control_mode
+  if (aw_info.control_mode_ptr->data == autoware_vehicle_msgs::ControlMode::MANUAL) {
+    status->error_diagnostics = {};
+    return;
+  }
+
+  // get diag
+  status->error_diagnostics = extractLeafDiag(aw_info.diagnostic_ptr->status);
 }
 
 void AutowareIvAutowareStatePublisher::getGlobalRptInfo(

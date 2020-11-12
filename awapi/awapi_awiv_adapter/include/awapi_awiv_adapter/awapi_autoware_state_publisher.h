@@ -57,9 +57,9 @@ private:
   void getStopReasonInfo(
     const autoware_planning_msgs::StopReasonArray::ConstPtr & stop_reason_ptr,
     autoware_api_msgs::AwapiAutowareStatus * status);
-  void getDiagInfo(
-    const diagnostic_msgs::DiagnosticArray::ConstPtr & diag_ptr,
-    autoware_api_msgs::AwapiAutowareStatus * status);
+  void getDiagInfo(const AutowareInfo & aw_info, autoware_api_msgs::AwapiAutowareStatus * status);
+  void getErrorDiagInfo(
+    const AutowareInfo & aw_info, autoware_api_msgs::AwapiAutowareStatus * status);
 
   void getGlobalRptInfo(
     const pacmod_msgs::GlobalRpt::ConstPtr & global_rpt_ptr,

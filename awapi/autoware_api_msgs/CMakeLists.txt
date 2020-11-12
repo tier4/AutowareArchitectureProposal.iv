@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   diagnostic_msgs
   autoware_planning_msgs
+  autoware_system_msgs
 )
 
 add_message_files(
@@ -30,6 +31,7 @@ generate_messages(
     geometry_msgs
     diagnostic_msgs
     autoware_planning_msgs
+    autoware_system_msgs
 )
 
 catkin_package(
@@ -39,4 +41,5 @@ catkin_package(
     geometry_msgs
     diagnostic_msgs
     autoware_planning_msgs
+    autoware_system_msgs
 )
