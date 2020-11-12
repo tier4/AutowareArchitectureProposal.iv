@@ -34,7 +34,7 @@ void Debugger::publishColoredPointCloud(
     pcl::PointCloud<pcl::PointXYZI> object_pointcloud;
     pcl::fromROSMsg(input.feature_objects.at(i).feature.cluster, object_pointcloud);
 
-    int red, green, blue;
+    int red = 0, green = 0, blue = 0;
     switch (input.feature_objects.at(i).object.semantic.type) {
       case autoware_perception_msgs::msg::Semantic::CAR: {
         red = 255;

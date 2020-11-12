@@ -24,10 +24,10 @@
 class FeatureGenerator
 {
 private:
-  bool use_intensity_feature_;
-  bool use_constant_feature_;
   float min_height_;
   float max_height_;
+  bool use_intensity_feature_;
+  bool use_constant_feature_;
   std::shared_ptr<FeatureMapInterface> map_ptr_;
 
 public:
