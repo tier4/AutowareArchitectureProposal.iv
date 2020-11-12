@@ -1,0 +1,6 @@
+int32 NO_FAULT = 0
+int32 SAFE_FAULT = 1
+int32 LATENT_FAULT = 2
+int32 SINGLE_POINT_FAULT = 3
+
+int32 status
