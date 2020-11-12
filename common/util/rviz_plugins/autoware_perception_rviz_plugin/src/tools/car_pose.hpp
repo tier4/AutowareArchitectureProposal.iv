@@ -32,19 +32,24 @@
 #ifndef Q_MOC_RUN  // See: https://bugreports.qt-project.org/browse/QTBUG-22829
 #include <QObject>
 
-#include <ros/ros.h>
+#include <rclcpp/node.hpp>
 
-#include "rviz/default_plugin/tools/pose_tool.h"
+#include <rviz_default_plugins/tools/pose/pose_tool.hpp>
 #endif
 
-namespace rviz
+#include "dummy_perception_publisher/msg/object.hpp"
+
+namespace rviz_common
 {
 class Arrow;
 class DisplayContext;
+namespace properties
+{
 class StringProperty;
 class FloatProperty;
+} // namespace properties
 
-class CarInitialPoseTool : public PoseTool
+class CarInitialPoseTool : public rviz_default_plugins::tools::PoseTool
 {
   Q_OBJECT
 public:
@@ -59,16 +64,16 @@ private Q_SLOTS:
   void updateTopic();
 
 private:
-  ros::NodeHandle nh_;
-  ros::Publisher dummy_object_info_pub_;
+  rclcpp::Clock::SharedPtr clock_;
+  rclcpp::Publisher<dummy_perception_publisher::msg::Object>::SharedPtr dummy_object_info_pub_;
 
-  StringProperty * topic_property_;
-  FloatProperty * std_dev_x_;
-  FloatProperty * std_dev_y_;
-  FloatProperty * std_dev_z_;
-  FloatProperty * std_dev_theta_;
-  FloatProperty * position_z_;
-  FloatProperty * velocity_;
+  properties::StringProperty * topic_property_;
+  properties::FloatProperty * std_dev_x_;
+  properties::FloatProperty * std_dev_y_;
+  properties::FloatProperty * std_dev_z_;
+  properties::FloatProperty * std_dev_theta_;
+  properties::FloatProperty * position_z_;
+  properties::FloatProperty * velocity_;
 };
 
-}  // namespace rviz
+}  // namespace rviz_common

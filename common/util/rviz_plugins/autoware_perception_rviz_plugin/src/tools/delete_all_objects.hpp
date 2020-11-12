@@ -32,19 +32,24 @@
 #ifndef Q_MOC_RUN  // See: https://bugreports.qt-project.org/browse/QTBUG-22829
 #include <QObject>
 
-#include <ros/ros.h>
+#include <rclcpp/node.hpp>
 
-#include "rviz/default_plugin/tools/pose_tool.h"
+#include <rviz_default_plugins/tools/pose/pose_tool.hpp>
 #endif
 
-namespace rviz
+#include "dummy_perception_publisher/msg/object.hpp"
+
+namespace rviz_common
 {
 class Arrow;
 class DisplayContext;
+namespace properties
+{
 class StringProperty;
 class FloatProperty;
+} // namespace properties
 
-class DeleteAllObjectsTool : public PoseTool
+class DeleteAllObjectsTool : public rviz_default_plugins::tools::PoseTool
 {
   Q_OBJECT
 public:
@@ -59,10 +64,10 @@ private Q_SLOTS:
   void updateTopic();
 
 private:
-  ros::NodeHandle nh_;
-  ros::Publisher dummy_object_info_pub_;
+  rclcpp::Clock::SharedPtr clock_;
+  rclcpp::Publisher<dummy_perception_publisher::msg::Object>::SharedPtr dummy_object_info_pub_;
 
-  StringProperty * topic_property_;
+  properties::StringProperty * topic_property_;
 };
 
-}  // namespace rviz
+}  // namespace rviz_common
