@@ -44,6 +44,37 @@
 
 namespace pointcloud_preprocessor {
 
+
+
+  bool Transforms::transformPointcloud(
+				       const std::string & target_frame, const sensor_msgs::msg::PointCloud2 & in,
+				       sensor_msgs::msg::PointCloud2 &out,
+				       std::shared_ptr<tf2_ros::Buffer> tf2_buffer,
+				       std::shared_ptr<tf2_ros::TransformListener> tf2_listener)
+  {
+    if (in.header.frame_id == target_frame)
+      {
+	out = in;
+	return (true);
+      }
+    geometry_msgs::msg::TransformStamped transform;
+    try {
+      
+      const auto time_point = tf2::TimePoint(std::chrono::milliseconds(0));
+      transform = tf2_buffer->lookupTransform(target_frame, in->header.frame_id, time_point, tf2::durationFromSec(0.0));
+      tf2::doTransform(*in, *out, transform);
+    }
+    catch (tf2::TransformException& ex)
+      {
+	RCLCPP_ERROR(this->get_logger(), "[transformPointCloud] Error converting pointcloud data from %s to %s.",
+		     in->header.frame_id.c_str(), output_frame_.c_str());
+	return (false);	
+      }
+    
+    return (true);
+  }
+
+  
 // ROS2 Port: transformPointCloud using Eigen::Matrix4f transformation matrix
 // This code taken from ros melodic ros_pcl transforms.cpp implementation
 // Can be removed once ros_pcl is ported to ROS2

@@ -94,11 +94,17 @@ class PCLComponent : public rclcpp::Node
     typedef pcl::IndicesPtr IndicesPtr;
     typedef pcl::IndicesConstPtr IndicesConstPtr;
     
-    /** \brief Empty constructor. */
+    /** \brief Constructor - setup tf listener for the component */
 
-    explicit PCLComponent (const rclcpp::NodeOptions & options) : Node("pcl_component", options),
+    PCLComponent (const rclcpp::NodeOptions & options) : Node("pcl_component", options),
 use_indices_ (false), latched_indices_ (false), 
-      max_queue_size_ (3), approximate_sync_ (false) {};
+      max_queue_size_ (3), approximate_sync_ (false)
+    {
+      tf2_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+      tf2_listener_ = std::make_shared<tf2_ros::TransformListener>(
+	*tf2_buffer_, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false);
+
+    };
     
   protected:
     /** \brief Set to true if point indices are used.
