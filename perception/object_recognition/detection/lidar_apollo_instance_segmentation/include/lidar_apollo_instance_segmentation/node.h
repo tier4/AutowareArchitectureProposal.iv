@@ -44,4 +44,5 @@ private:
 public:
   LidarInstanceSegmentationNode();
   ~LidarInstanceSegmentationNode() {}
+  void init();
 };
