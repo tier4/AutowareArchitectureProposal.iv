@@ -24,7 +24,12 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/LaneChangeStatus.msg"
   "msg/Latlon.msg"
   "msg/ObstacleAvoidanceStatus.msg"
-  DEPENDENCIES std_msgs geometry_msgs diagnostic_msgs autoware_planning_msgs
+  DEPENDENCIES
+    autoware_planning_msgs
+    autoware_system_msgs
+    diagnostic_msgs
+    geometry_msgs
+    std_msgs
 )
 
 if(BUILD_TESTING)
