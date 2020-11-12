@@ -145,6 +145,7 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
 
   ament_auto_package(INSTALL_TO_SHARE
     launch
+    config
     data
   )
 
