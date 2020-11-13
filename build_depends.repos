@@ -21,3 +21,7 @@ repositories:
     type: git
     url: https://github.com/ros-perception/perception_pcl.git
     version: foxy-devel
+  vendor/topic_tools:
+    type: git
+    url: https://github.com/ApexAI/topic_tools.git
+    version: 8fc11e5b7a8db42fbb13c47de9627424332b4fa7
