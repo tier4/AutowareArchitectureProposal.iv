@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
     <name>tensorrt_yolo3</name>
     <version>0.1.0</version>
     <description>tensorrt_yolo3</description>
 
     <maintainer email="cirpue49@yahoo.co.jp">Kosuke Murakami</maintainer>
-    <license>Apache 2.0</license>
+    <license>Apache License 2.0</license>
 
     <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
