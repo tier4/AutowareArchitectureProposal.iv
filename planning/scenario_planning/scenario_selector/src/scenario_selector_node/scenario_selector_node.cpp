@@ -20,8 +20,6 @@
 #include <utility>
 #include <vector>
 
-#include <boost/bind.hpp>
-
 #include <lanelet2_core/geometry/BoundingBox.h>
 #include <lanelet2_core/geometry/Lanelet.h>
 #include <lanelet2_core/geometry/LineString.h>
