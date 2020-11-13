@@ -42,6 +42,7 @@ TensorrtYoloROS::TensorrtYoloROS(/* args */) : Node("tensorrt_yolo3")
       new Tn::trtNet(prototxt_file, caffemodel_file, output_name, calib_data, run_mode));
     net_ptr_->saveEngine(engine_path);
   }
+  createROSPubSub();
 }
 
 TensorrtYoloROS::~TensorrtYoloROS() {}

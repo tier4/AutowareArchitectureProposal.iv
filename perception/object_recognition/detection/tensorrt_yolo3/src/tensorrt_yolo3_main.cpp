@@ -20,7 +20,6 @@ int main(int argc, char ** argv)
   rclcpp::init(argc, argv);
 
   const auto node = std::make_shared<TensorrtYoloROS>();
-  node->createROSPubSub();
   rclcpp::spin(node);
 
   rclcpp::shutdown();
