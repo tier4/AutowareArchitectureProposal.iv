@@ -157,7 +157,5 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
   )
 
 else()
-  find_package(ament_cmake_auto REQUIRED)
-  ament_auto_find_build_dependencies()
   message("tensorrt_yolo3 won't be built, CUDA and/or TensorRT were not found.")
 endif()
