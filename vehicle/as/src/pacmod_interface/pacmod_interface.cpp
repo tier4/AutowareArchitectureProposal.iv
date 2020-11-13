@@ -196,13 +196,22 @@ void PacmodInterface::callbackPacmodRpt(
     control_mode_msg.header = header;
 
     if (!global_rpt->enabled) {
-      control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::MANUAL;
+      control_mode_msg.data = autoware_vehicle_msgs::msg::msg::ControlMode::MANUAL;
     } else if (is_pacmod_enabled_) {
       control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::AUTO;
-    } else if (!steer_wheel_rpt_ptr_->enabled) {
-      control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::AUTO_PEDAL_ONLY;
     } else {
-      control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::AUTO_STEER_ONLY;
+      bool is_pedal_enable = (accel_rpt_ptr_->enabled && brake_rpt_ptr_->enabled);
+      bool is_steer_enable = steer_wheel_rpt_ptr_->enabled;
+      if (is_pedal_enable) {
+        control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::AUTO_PEDAL_ONLY;
+      } else if (is_steer_enable) {
+        control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::AUTO_STEER_ONLY;
+      } else {
+        RCLCPP_ERROR(
+          get_logger(), *get_clock(),
+          "global_rpt is enable, but steer & pedal is disabled. Set mode = MANUAL");
+        control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::MANUAL;
+      }
     }
 
     control_mode_pub_->publish(control_mode_msg);
