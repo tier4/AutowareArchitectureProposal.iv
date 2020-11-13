@@ -114,8 +114,8 @@ private:
 
   rclcpp::TimerBase::SharedPtr timer_;
 
-  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
-  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+  tf2_ros::Buffer tf_buffer_;
+  tf2_ros::TransformListener tf_listener_;
 
   std::vector<std::vector<geometry_msgs::msg::Point>> area_points_;
 

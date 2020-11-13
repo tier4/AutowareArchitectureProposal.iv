@@ -87,7 +87,10 @@ std::vector<geometry_msgs::msg::Point> poly2vector(const geometry_msgs::msg::Pol
 
 }  // namespace
 
-CostmapGenerator::CostmapGenerator() : Node("costmap_generator")
+CostmapGenerator::CostmapGenerator() :
+  Node("costmap_generator"),
+  tf_buffer_(this->get_clock()),
+  tf_listener_(tf_buffer_)
 {
   // Parameters
   costmap_frame_ = this->declare_parameter<std::string>("costmap_frame", "map");
@@ -140,7 +143,7 @@ CostmapGenerator::CostmapGenerator() : Node("costmap_generator")
   // Wait for first tf
   while (rclcpp::ok()) {
     try {
-      tf_buffer_->lookupTransform(map_frame_, vehicle_frame_, rclcpp::Time(0), rclcpp::Duration(10.0));
+      tf_buffer_.lookupTransform(map_frame_, vehicle_frame_, rclcpp::Time(0), rclcpp::Duration(10.0));
       break;
     } catch (tf2::TransformException ex) {
       RCLCPP_ERROR(this->get_logger(),"waiting for initial pose...");
@@ -222,7 +225,7 @@ void CostmapGenerator::onTimer()
   geometry_msgs::msg::TransformStamped tf;
   try {
     tf =
-      tf_buffer_->lookupTransform(costmap_frame_, vehicle_frame_, rclcpp::Time(0), rclcpp::Duration(1.0));
+      tf_buffer_.lookupTransform(costmap_frame_, vehicle_frame_, rclcpp::Time(0), rclcpp::Duration(1.0));
   } catch (tf2::TransformException ex) {
     RCLCPP_ERROR(rclcpp::get_logger("Exception: "), "%s", ex.what());
     return;
@@ -308,7 +311,7 @@ grid_map::Matrix CostmapGenerator::generateObjectsCostmap(
 {
   const auto object_frame = in_objects->header.frame_id;
   const auto transformed_objects =
-    transformObjects(*tf_buffer_, in_objects, costmap_frame_, object_frame);
+    transformObjects(tf_buffer_, in_objects, costmap_frame_, object_frame);
 
   grid_map::Matrix objects_costmap = objects2costmap_.makeCostmapFromObjects(
     costmap_, expand_polygon_size_, size_of_expansion_kernel_, transformed_objects);
@@ -322,7 +325,7 @@ grid_map::Matrix CostmapGenerator::generateWayAreaCostmap()
   if (!area_points_.empty()) {
     object_map::FillPolygonAreas(
       lanelet2_costmap, area_points_, LayerName::wayarea, grid_max_value_, grid_min_value_,
-      grid_min_value_, grid_max_value_, costmap_frame_, map_frame_, *tf_buffer_);
+      grid_min_value_, grid_max_value_, costmap_frame_, map_frame_, tf_buffer_);
   }
   return lanelet2_costmap[LayerName::wayarea];
 }
