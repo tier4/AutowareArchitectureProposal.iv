@@ -75,7 +75,7 @@ geometry_msgs::msg::PoseStamped::ConstSharedPtr getCurrentPose(const tf2_ros::Bu
 
   try {
     tf_current_pose =
-      tf_buffer.lookupTransform("map", "base_link", rclcpp::Time(0), rclcpp::Duration(1.0));
+      tf_buffer.lookupTransform("map", "base_link", tf2::TimePointZero);
   } catch (tf2::TransformException & ex) {
     RCLCPP_ERROR(logger, "%s", ex.what());
     return nullptr;
@@ -347,10 +347,9 @@ ScenarioSelectorNode::ScenarioSelectorNode()
   this->get_node_timers_interface()->add_timer(timer_, nullptr);
 
   // Wait for first tf
-  // Maybe use wait for transform
   while (rclcpp::ok()) {
     try {
-      tf_buffer_.lookupTransform("map", "base_link", rclcpp::Time(0), rclcpp::Duration(10.0));
+      tf_buffer_.lookupTransform("map", "base_link", tf2::TimePointZero);
       break;
     } catch (tf2::TransformException & ex) {
       RCLCPP_DEBUG(this->get_logger(), "waiting for initial pose...");
