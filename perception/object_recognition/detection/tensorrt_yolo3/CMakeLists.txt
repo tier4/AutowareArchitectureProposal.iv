@@ -97,7 +97,7 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
   if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter)
   endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O3")
+  set(CMAKE_BUILD_TYPE "Release")
 
   include_directories(
     lib/include
