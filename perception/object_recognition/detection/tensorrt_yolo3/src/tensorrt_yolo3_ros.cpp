@@ -31,8 +31,8 @@ TensorrtYoloROS::TensorrtYoloROS(/* args */) : Node("tensorrt_yolo3")
       "Could not find %s, try making TensorRT engine from caffemodel and prototxt",
       engine_path.c_str());
     boost::filesystem::create_directories(package_path + "/data");
-    std::string prototxt_file = this->declare_parameter("prototxt_file", "");
-    std::string caffemodel_file = this->declare_parameter("caffemodel_file", "");
+    std::string prototxt_file = this->declare_parameter("prototxt_file").get<std::string>();
+    std::string caffemodel_file = this->declare_parameter("caffemodel_file").get<std::string>();
     std::string output_node = "yolo-det";
     std::vector<std::string> output_name;
     output_name.push_back(output_node);
