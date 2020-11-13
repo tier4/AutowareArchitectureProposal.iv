@@ -37,4 +37,4 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
 endif()
 
-ament_auto_package()
+ament_auto_package(INSTALL_TO_SHARE launch)
