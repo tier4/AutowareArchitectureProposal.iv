@@ -19,11 +19,13 @@
 
 namespace autoware_api
 {
-AutowareIvAutowareStatePublisher::AutowareIvAutowareStatePublisher()
-: Node("awapi_awiv_autoware_state_publisher_node"), arrived_goal_(false)
+AutowareIvAutowareStatePublisher::AutowareIvAutowareStatePublisher(rclcpp::Node& node)
+: logger_(node.get_logger().get_child("awapi_awiv_autoware_state_publisher_node")),
+  clock_(node.get_clock()),
+  arrived_goal_(false)
 {
   // publisher
-  pub_state_ = this->create_publisher<autoware_api_msgs::msg::AwapiAutowareStatus>(
+  pub_state_ = node.create_publisher<autoware_api_msgs::msg::AwapiAutowareStatus>(
     "output/autoware_status", 1);
 }
 
@@ -33,7 +35,7 @@ void AutowareIvAutowareStatePublisher::statePublisher(const AutowareInfo & aw_in
 
   //input header
   status.header.frame_id = "base_link";
-  status.header.stamp = this->now();
+  status.header.stamp = clock_->now();
 
   // get all info
   getAutowareStateInfo(aw_info.autoware_state_ptr, &status);
@@ -54,7 +56,7 @@ void AutowareIvAutowareStatePublisher::getAutowareStateInfo(
 {
   if (!autoware_state_ptr) {
     RCLCPP_DEBUG_STREAM_THROTTLE(
-      get_logger(), *this->get_clock(), 5.0, "autoware_state is nullptr");
+      logger_, *clock_, 5000 /* ms */, "autoware_state is nullptr");
     return;
   }
 
@@ -68,7 +70,7 @@ void AutowareIvAutowareStatePublisher::getControlModeInfo(
   autoware_api_msgs::msg::AwapiAutowareStatus * status)
 {
   if (!control_mode_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 5.0, "control mode is nullptr");
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "control mode is nullptr");
     return;
   }
 
@@ -81,7 +83,7 @@ void AutowareIvAutowareStatePublisher::getGateModeInfo(
   autoware_api_msgs::msg::AwapiAutowareStatus * status)
 {
   if (!gate_mode_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 5.0, "gate mode is nullptr");
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "gate mode is nullptr");
     return;
   }
 
@@ -94,7 +96,7 @@ void AutowareIvAutowareStatePublisher::getIsEmergencyInfo(
   autoware_api_msgs::msg::AwapiAutowareStatus * status)
 {
   if (!is_emergency_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 5.0, "is_emergency is nullptr");
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "is_emergency is nullptr");
     return;
   }
 
@@ -107,7 +109,7 @@ void AutowareIvAutowareStatePublisher::getStopReasonInfo(
   autoware_api_msgs::msg::AwapiAutowareStatus * status)
 {
   if (!stop_reason_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 5.0, "stop reason is nullptr");
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "stop reason is nullptr");
     return;
   }
 
@@ -119,7 +121,7 @@ void AutowareIvAutowareStatePublisher::getDiagInfo(
   autoware_api_msgs::msg::AwapiAutowareStatus * status)
 {
   if (!diag_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 5.0, "diagnostics is nullptr");
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "diagnostics is nullptr");
     return;
   }
 
@@ -132,7 +134,7 @@ void AutowareIvAutowareStatePublisher::getGlobalRptInfo(
   autoware_api_msgs::msg::AwapiAutowareStatus * status)
 {
   if (!global_rpt_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 5.0, "global_rpt is nullptr");
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "global_rpt is nullptr");
     return;
   }
 

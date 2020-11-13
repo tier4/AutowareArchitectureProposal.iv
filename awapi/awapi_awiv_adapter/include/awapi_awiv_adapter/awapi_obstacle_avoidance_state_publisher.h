@@ -21,13 +21,16 @@
 
 namespace autoware_api
 {
-class AutowareIvObstacleAvoidanceStatePublisher : public rclcpp::Node
+class AutowareIvObstacleAvoidanceStatePublisher
 {
 public:
-  AutowareIvObstacleAvoidanceStatePublisher();
+  AutowareIvObstacleAvoidanceStatePublisher(rclcpp::Node& node);
   void statePublisher(const AutowareInfo & aw_info);
 
 private:
+  rclcpp::Logger logger_;
+  rclcpp::Clock::SharedPtr clock_;
+
   // publisher
   rclcpp::Publisher<autoware_api_msgs::msg::ObstacleAvoidanceStatus>::SharedPtr pub_state_;
 

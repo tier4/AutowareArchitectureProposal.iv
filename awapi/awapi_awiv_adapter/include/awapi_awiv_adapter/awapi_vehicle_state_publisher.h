@@ -21,10 +21,10 @@
 
 namespace autoware_api
 {
-class AutowareIvVehicleStatePublisher : public rclcpp::Node
+class AutowareIvVehicleStatePublisher
 {
 public:
-  AutowareIvVehicleStatePublisher();
+  AutowareIvVehicleStatePublisher(rclcpp::Node& node);
   void statePublisher(const AutowareInfo & aw_info);
 
 private:
@@ -56,6 +56,9 @@ private:
   void getGpsInfo(
     const sensor_msgs::msg::NavSatFix::ConstSharedPtr & nav_sat_ptr,
     autoware_api_msgs::msg::AwapiVehicleStatus * status);
+
+  rclcpp::Logger logger_;
+  rclcpp::Clock::SharedPtr clock_;
 
   //parameters
   geometry_msgs::msg::TwistStamped::ConstSharedPtr previous_twist_ptr_;

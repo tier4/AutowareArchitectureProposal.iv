@@ -18,8 +18,10 @@
 
 namespace autoware_api
 {
-AutowareIvStopReasonAggregator::AutowareIvStopReasonAggregator(const double timeout)
-: Node("awapi_awiv_stop_reason_aggregator_node"), timeout_(timeout)
+AutowareIvStopReasonAggregator::AutowareIvStopReasonAggregator(rclcpp::Node& node, const double timeout)
+: logger_(node.get_logger().get_child("awapi_awiv_stop_reason_aggregator_node")),
+  clock_(node.get_clock()),
+  timeout_(timeout)
 {
 }
 
@@ -74,7 +76,7 @@ bool AutowareIvStopReasonAggregator::checkMatchingReason(
 
 void AutowareIvStopReasonAggregator::applyTimeOut()
 {
-  const auto current_time = this->now();
+  const auto current_time = clock_->now();
 
   //make timeout-msg list
   std::vector<size_t> remove_idx;
@@ -122,7 +124,7 @@ AutowareIvStopReasonAggregator::makeStopReasonArray()
   autoware_planning_msgs::msg::StopReasonArray stop_reason_array_msg;
   // input header
   stop_reason_array_msg.header.frame_id = "map";
-  stop_reason_array_msg.header.stamp = this->now();
+  stop_reason_array_msg.header.stamp = clock_->now();
 
   // input stop reason
   for (const auto stop_reason_array : stop_reason_array_vec_) {

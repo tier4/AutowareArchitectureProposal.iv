@@ -21,14 +21,15 @@
 
 namespace autoware_api
 {
-class AutowareIvLaneChangeStatePublisher : public rclcpp::Node
+class AutowareIvLaneChangeStatePublisher
 {
 public:
-  AutowareIvLaneChangeStatePublisher();
+  AutowareIvLaneChangeStatePublisher(rclcpp::Node& node);
   void statePublisher(const AutowareInfo & aw_info);
 
 private:
-  // node handle
+  rclcpp::Logger logger_;
+  rclcpp::Clock::SharedPtr clock_;
 
   // publisher
   rclcpp::Publisher<autoware_api_msgs::msg::LaneChangeStatus>::SharedPtr pub_state_;

@@ -18,12 +18,14 @@
 
 namespace autoware_api
 {
-AutowareIvVehicleStatePublisher::AutowareIvVehicleStatePublisher()
-: Node("awapi_awiv_vehicle_state_publisher_node"), prev_accel_(0.0)
+AutowareIvVehicleStatePublisher::AutowareIvVehicleStatePublisher(rclcpp::Node& node)
+: logger_(node.get_logger().get_child("awapi_awiv_vehicle_state_publisher_node")),
+  clock_(node.get_clock()),
+  prev_accel_(0.0)
 {
   // publisher
   pub_state_ =
-    this->create_publisher<autoware_api_msgs::msg::AwapiVehicleStatus>("output/vehicle_status", 1);
+    node.create_publisher<autoware_api_msgs::msg::AwapiVehicleStatus>("output/vehicle_status", 1);
 }
 
 void AutowareIvVehicleStatePublisher::statePublisher(const AutowareInfo & aw_info)
@@ -32,7 +34,7 @@ void AutowareIvVehicleStatePublisher::statePublisher(const AutowareInfo & aw_inf
 
   //input header
   status.header.frame_id = "base_link";
-  status.header.stamp = this->now();
+  status.header.stamp = clock_->now();
 
   // get all info
   getPoseInfo(aw_info.current_pose_ptr, &status);
@@ -63,7 +65,7 @@ void AutowareIvVehicleStatePublisher::getPoseInfo(
   autoware_api_msgs::msg::AwapiVehicleStatus * status)
 {
   if (!pose_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 5.0, "current pose is nullptr");
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "current pose is nullptr");
     return;
   }
 
@@ -83,7 +85,7 @@ void AutowareIvVehicleStatePublisher::getSteerInfo(
   autoware_api_msgs::msg::AwapiVehicleStatus * status)
 {
   if (!steer_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 5.0, "steer is nullptr");
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "steer is nullptr");
     return;
   }
 
@@ -113,7 +115,7 @@ void AutowareIvVehicleStatePublisher::getVehicleCmdInfo(
   autoware_api_msgs::msg::AwapiVehicleStatus * status)
 {
   if (!vehicle_cmd_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 5.0, "vehicle cmd is nullptr");
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "vehicle cmd is nullptr");
     return;
   }
 
@@ -129,7 +131,7 @@ void AutowareIvVehicleStatePublisher::getTurnSignalInfo(
   autoware_api_msgs::msg::AwapiVehicleStatus * status)
 {
   if (!turn_signal_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 5.0, "turn signal is nullptr");
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "turn signal is nullptr");
     return;
   }
 
@@ -142,7 +144,7 @@ void AutowareIvVehicleStatePublisher::getTwistInfo(
   autoware_api_msgs::msg::AwapiVehicleStatus * status)
 {
   if (!twist_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 5.0, "twist is nullptr");
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "twist is nullptr");
     return;
   }
 
@@ -173,7 +175,7 @@ void AutowareIvVehicleStatePublisher::getGearInfo(
   autoware_api_msgs::msg::AwapiVehicleStatus * status)
 {
   if (!gear_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 5.0, "gear is nullptr");
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "gear is nullptr");
     return;
   }
 
@@ -186,7 +188,7 @@ void AutowareIvVehicleStatePublisher::getBatteryInfo(
   autoware_api_msgs::msg::AwapiVehicleStatus * status)
 {
   if (!battery_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 5.0, "battery is nullptr");
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "battery is nullptr");
     return;
   }
 
@@ -199,7 +201,7 @@ void AutowareIvVehicleStatePublisher::getGpsInfo(
   autoware_api_msgs::msg::AwapiVehicleStatus * status)
 {
   if (!nav_sat_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 5.0, "nav_sat(gps) is nullptr");
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "nav_sat(gps) is nullptr");
     return;
   }
 

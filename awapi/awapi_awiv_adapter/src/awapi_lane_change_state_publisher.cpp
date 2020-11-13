@@ -18,11 +18,12 @@
 
 namespace autoware_api
 {
-AutowareIvLaneChangeStatePublisher::AutowareIvLaneChangeStatePublisher()
-: Node("awapi_awiv_lane_change_state_publisher_node")
+AutowareIvLaneChangeStatePublisher::AutowareIvLaneChangeStatePublisher(rclcpp::Node& node)
+: logger_(node.get_logger().get_child("awapi_awiv_lane_change_state_publisher_node")),
+  clock_(node.get_clock())
 {
   // publisher
-  pub_state_ = this->create_publisher<autoware_api_msgs::msg::LaneChangeStatus>(
+  pub_state_ = node.create_publisher<autoware_api_msgs::msg::LaneChangeStatus>(
     "output/lane_change_status", 1);
 }
 
@@ -32,7 +33,7 @@ void AutowareIvLaneChangeStatePublisher::statePublisher(const AutowareInfo & aw_
 
   //input header
   status.header.frame_id = "base_link";
-  status.header.stamp = this->now();
+  status.header.stamp = clock_->now();
 
   // get all info
   getLaneChangeAvailableInfo(aw_info.lane_change_available_ptr, &status);
@@ -49,7 +50,7 @@ void AutowareIvLaneChangeStatePublisher::getLaneChangeAvailableInfo(
 {
   if (!available_ptr) {
     RCLCPP_DEBUG_STREAM_THROTTLE(
-      get_logger(), *this->get_clock(), 5.0, "lane change available is nullptr");
+      logger_, *clock_, 5000 /* ms */, "lane change available is nullptr");
     return;
   }
 
@@ -63,7 +64,7 @@ void AutowareIvLaneChangeStatePublisher::getLaneChangeReadyInfo(
 {
   if (!ready_ptr) {
     RCLCPP_DEBUG_STREAM_THROTTLE(
-      get_logger(), *this->get_clock(), 5.0, "lane change ready is nullptr");
+      logger_, *clock_, 5000 /* ms */, "lane change ready is nullptr");
     return;
   }
 
@@ -77,9 +78,8 @@ void AutowareIvLaneChangeStatePublisher::getCandidatePathInfo(
 {
   if (!path_ptr) {
     RCLCPP_DEBUG_STREAM_THROTTLE(
-      get_logger(), *this->get_clock(), 5.0,
-      "lane_change_candidate_path is "
-      "nullptr");
+      logger_, *clock_, 5000 /* ms */,
+      "lane_change_candidate_path is nullptr");
     return;
   }
 

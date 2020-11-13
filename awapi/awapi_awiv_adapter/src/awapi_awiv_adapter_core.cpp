@@ -31,12 +31,12 @@ AutowareIvAdapter::AutowareIvAdapter()
   emergencyParamCheck(em_handle_param);
 
   // setup instance
-  vehicle_state_publisher_ = std::make_unique<AutowareIvVehicleStatePublisher>();
-  autoware_state_publisher_ = std::make_unique<AutowareIvAutowareStatePublisher>();
-  stop_reason_aggreagator_ = std::make_unique<AutowareIvStopReasonAggregator>(stop_reason_timeout_);
-  lane_change_state_publisher_ = std::make_unique<AutowareIvLaneChangeStatePublisher>();
+  vehicle_state_publisher_ = std::make_unique<AutowareIvVehicleStatePublisher>(*this);
+  autoware_state_publisher_ = std::make_unique<AutowareIvAutowareStatePublisher>(*this);
+  stop_reason_aggreagator_ = std::make_unique<AutowareIvStopReasonAggregator>(*this, stop_reason_timeout_);
+  lane_change_state_publisher_ = std::make_unique<AutowareIvLaneChangeStatePublisher>(*this);
   obstacle_avoidance_state_publisher_ =
-    std::make_unique<AutowareIvObstacleAvoidanceStatePublisher>();
+    std::make_unique<AutowareIvObstacleAvoidanceStatePublisher>(*this);
 
   // subscriber
   sub_steer_ = this->create_subscription<autoware_vehicle_msgs::msg::Steering>(
@@ -171,7 +171,7 @@ void AutowareIvAdapter::getCurrentPose()
     ps.pose.orientation = transform.transform.rotation;
     aw_info_.current_pose_ptr = std::make_shared<geometry_msgs::msg::PoseStamped>(ps);
   } catch (tf2::TransformException & ex) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 2.0, "cannot get self pose");
+    RCLCPP_DEBUG_STREAM_THROTTLE(get_logger(), *this->get_clock(), 2000 /* ms */, "cannot get self pose");
   }
 }
 

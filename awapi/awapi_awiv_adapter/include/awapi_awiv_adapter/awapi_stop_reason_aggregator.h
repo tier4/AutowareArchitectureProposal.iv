@@ -22,10 +22,10 @@
 
 namespace autoware_api
 {
-class AutowareIvStopReasonAggregator : public rclcpp::Node
+class AutowareIvStopReasonAggregator
 {
 public:
-  AutowareIvStopReasonAggregator(const double timeout);
+  AutowareIvStopReasonAggregator(rclcpp::Node& node, const double timeout);
   autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr updateStopReasonArray(
     const autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr & msg_ptr);
 
@@ -40,6 +40,8 @@ private:
     autoware_planning_msgs::msg::StopReasonArray * stop_reason_array);
   autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr makeStopReasonArray();
 
+  rclcpp::Logger logger_;
+  rclcpp::Clock::SharedPtr clock_;
   double timeout_;
   std::vector<autoware_planning_msgs::msg::StopReasonArray> stop_reason_array_vec_;
 };

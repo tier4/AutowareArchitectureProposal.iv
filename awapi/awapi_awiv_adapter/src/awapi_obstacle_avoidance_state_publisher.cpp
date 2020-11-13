@@ -18,11 +18,12 @@
 
 namespace autoware_api
 {
-AutowareIvObstacleAvoidanceStatePublisher::AutowareIvObstacleAvoidanceStatePublisher()
-: Node("awapi_awiv_obstacle_avoidance_state_publisher_node")
+AutowareIvObstacleAvoidanceStatePublisher::AutowareIvObstacleAvoidanceStatePublisher(rclcpp::Node& node)
+: logger_(node.get_logger().get_child("awapi_awiv_obstacle_avoidance_state_publisher_node")),
+  clock_(node.get_clock())
 {
   // publisher
-  pub_state_ = this->create_publisher<autoware_api_msgs::msg::ObstacleAvoidanceStatus>(
+  pub_state_ = node.create_publisher<autoware_api_msgs::msg::ObstacleAvoidanceStatus>(
     "output/obstacle_avoid_status", 1);
 }
 
@@ -32,7 +33,7 @@ void AutowareIvObstacleAvoidanceStatePublisher::statePublisher(const AutowareInf
 
   //input header
   status.header.frame_id = "base_link";
-  status.header.stamp = this->now();
+  status.header.stamp = clock_->now();
 
   // get all info
   getObstacleAvoidReadyInfo(aw_info.obstacle_avoid_ready_ptr, &status);
@@ -48,7 +49,7 @@ void AutowareIvObstacleAvoidanceStatePublisher::getObstacleAvoidReadyInfo(
 {
   if (!ready_ptr) {
     RCLCPP_DEBUG_STREAM_THROTTLE(
-      get_logger(), *this->get_clock(), 5.0, "obstacle_avoidance_ready is nullptr");
+      logger_, *clock_, 5000 /* ms */, "obstacle_avoidance_ready is nullptr");
     return;
   }
 
@@ -61,9 +62,8 @@ void AutowareIvObstacleAvoidanceStatePublisher::getCandidatePathInfo(
 {
   if (!path_ptr) {
     RCLCPP_DEBUG_STREAM_THROTTLE(
-      get_logger(), *this->get_clock(), 5.0,
-      "obstacle_avoidance_candidate_path is "
-      "nullptr");
+      logger_, *clock_, 5000 /* ms */,
+      "obstacle_avoidance_candidate_path is nullptr");
     return;
   }
 
