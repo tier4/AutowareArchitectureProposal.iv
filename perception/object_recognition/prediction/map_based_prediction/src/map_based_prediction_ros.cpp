@@ -42,13 +42,11 @@
 #include "map_based_prediction_ros.h"
 
 std::string toHexString(const unique_identifier_msgs::msg::UUID & id){
-  auto begin = id.uuid.begin();
-  auto end = id.uuid.end();
-  std::ostringstream hex;
-  hex << std::hex;
-  while (begin != end)
-      hex << static_cast<unsigned>(*begin++);
-  return hex.str();
+  std::stringstream ss;
+    for (auto i = 0; i < 16; ++i) {
+        ss << std::hex << std::setfill('0') << std::setw(2) << +id.uuid[i];
+    }
+    return ss.str();
 }
 
 bool MapBasedPredictionROS::getClosestLanelets(
