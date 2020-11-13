@@ -1,13 +1,13 @@
 <launch>
-  <arg name="input_lane_driving_trajectory" default="test_1" />
-  <arg name="input_parking_trajectory" default="test_2" />
-  <arg name="input_lanelet_map" default="test_" />
-  <arg name="input_route" default="test_3" />
-  <arg name="input_twist" default="test_4" />
-  <arg name="is_parking_completed" default="test_5" />
+  <arg name="input_lane_driving_trajectory" />
+  <arg name="input_parking_trajectory" />
+  <arg name="input_lanelet_map" />
+  <arg name="input_route" />
+  <arg name="input_twist" />
+  <arg name="is_parking_completed" />
 
-  <arg name="output_scenario" default="test_6" />
-  <arg name="output_trajectory" default="test_7" />
+  <arg name="output_scenario" />
+  <arg name="output_trajectory" />
 
   <node pkg="scenario_selector" exec="scenario_selector" name="scenario_selector" output="screen">
     <remap from="input/lane_driving/trajectory" to="$(var input_lane_driving_trajectory)"/>
