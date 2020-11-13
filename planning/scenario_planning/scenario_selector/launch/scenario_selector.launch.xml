@@ -1,24 +1,24 @@
 <launch>
-  <arg name="input_lane_driving_trajectory" />
-  <arg name="input_parking_trajectory" />
-  <arg name="input_lanelet_map" />
-  <arg name="input_route" />
-  <arg name="input_twist" />
-  <arg name="is_parking_completed" />
+  <arg name="input_lane_driving_trajectory" default="test_1" />
+  <arg name="input_parking_trajectory" default="test_2" />
+  <arg name="input_lanelet_map" default="test_" />
+  <arg name="input_route" default="test_3" />
+  <arg name="input_twist" default="test_4" />
+  <arg name="is_parking_completed" default="test_5" />
 
-  <arg name="output_scenario" />
-  <arg name="output_trajectory" />
+  <arg name="output_scenario" default="test_6" />
+  <arg name="output_trajectory" default="test_7" />
 
-  <node pkg="scenario_selector" type="scenario_selector" name="scenario_selector" output="screen">
-    <remap from="~input/lane_driving/trajectory" to="$(arg input_lane_driving_trajectory)"/>
-    <remap from="~input/parking/trajectory" to="$(arg input_parking_trajectory)"/>
-    <remap from="~input/lanelet_map" to="$(arg input_lanelet_map)"/>
-    <remap from="~input/route" to="$(arg input_route)"/>
-    <remap from="~input/twist" to="$(arg input_twist)"/>
-    <remap from="is_parking_completed" to="$(arg is_parking_completed)"/>
+  <node pkg="scenario_selector" exec="scenario_selector" name="scenario_selector" output="screen">
+    <remap from="input/lane_driving/trajectory" to="$(var input_lane_driving_trajectory)"/>
+    <remap from="input/parking/trajectory" to="$(var input_parking_trajectory)"/>
+    <remap from="input/lanelet_map" to="$(var input_lanelet_map)"/>
+    <remap from="input/route" to="$(var input_route)"/>
+    <remap from="input/twist" to="$(var input_twist)"/>
+    <remap from="is_parking_completed" to="$(var is_parking_completed)"/>
 
-    <remap from="~output/scenario" to="$(arg output_scenario)"/>
-    <remap from="~output/trajectory" to="$(arg output_trajectory)"/>
+    <remap from="output/scenario" to="$(var output_scenario)"/>
+    <remap from="output/trajectory" to="$(var output_trajectory)"/>
 
     <param name="update_rate" value="10.0" />
     <param name="th_max_message_delay_sec" value="1.0" />
