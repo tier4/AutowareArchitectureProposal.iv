@@ -19,7 +19,7 @@
 namespace autoware_api
 {
 AutowareIvObstacleAvoidanceStatePublisher::AutowareIvObstacleAvoidanceStatePublisher(rclcpp::Node& node)
-: logger_(node.get_logger().get_child("awapi_awiv_obstacle_avoidance_state_publisher_node")),
+: logger_(node.get_logger().get_child("awapi_awiv_obstacle_avoidance_state_publisher")),
   clock_(node.get_clock())
 {
   // publisher

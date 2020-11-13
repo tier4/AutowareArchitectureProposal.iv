@@ -20,7 +20,7 @@
 namespace autoware_api
 {
 AutowareIvAutowareStatePublisher::AutowareIvAutowareStatePublisher(rclcpp::Node& node)
-: logger_(node.get_logger().get_child("awapi_awiv_autoware_state_publisher_node")),
+: logger_(node.get_logger().get_child("awapi_awiv_autoware_state_publisher")),
   clock_(node.get_clock()),
   arrived_goal_(false)
 {

@@ -19,7 +19,7 @@
 namespace autoware_api
 {
 AutowareIvStopReasonAggregator::AutowareIvStopReasonAggregator(rclcpp::Node& node, const double timeout)
-: logger_(node.get_logger().get_child("awapi_awiv_stop_reason_aggregator_node")),
+: logger_(node.get_logger().get_child("awapi_awiv_stop_reason_aggregator")),
   clock_(node.get_clock()),
   timeout_(timeout)
 {
