@@ -37,14 +37,14 @@
 
 struct Input
 {
-  // ros::Subscriber sub_trajectory;
+  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_trajectory;
   autoware_planning_msgs::msg::Trajectory::ConstSharedPtr buf_trajectory;
 };
 
 struct Output
 {
-  // ros::Publisher pub_scenario;
-  // ros::Publisher pub_trajectory;
+  rclcpp::Publisher<autoware_planning_msgs::msg::Scenario>::SharedPtr pub_scenario;
+  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory;
 };
 
 class ScenarioSelectorNode : public rclcpp::Node
@@ -63,17 +63,14 @@ public:
   Input getScenarioInput(const std::string & scenario);
 
 private:
-  // ros::NodeHandle nh_;
-  // ros::NodeHandle private_nh_;
-
   rclcpp::TimerBase::SharedPtr timer_;
 
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
 
-  // ros::Subscriber sub_lanelet_map_;
-  // ros::Subscriber sub_route_;
-  // ros::Subscriber sub_twist_;
+  rclcpp::Subscription<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr sub_lanelet_map_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr sub_route_;
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
 
   Input input_lane_driving_;
   Input input_parking_;
