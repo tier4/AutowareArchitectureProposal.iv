@@ -16,9 +16,6 @@
     <depend>cv_bridge</depend>
     <depend>autoware_perception_msgs</depend>
 
-    <!-- <run_depend>tf2</run_depend>
-    <run_depend>tf2_geometry_msgs</run_depend> -->
-
     <export>
         <build_type>ament_cmake</build_type>
     </export>
