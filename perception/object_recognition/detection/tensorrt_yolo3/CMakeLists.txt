@@ -103,13 +103,9 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
     lib/include
   )
   
-  set(SOURCE_FILES
+  ament_auto_add_executable(tensorrt_yolo3
     src/tensorrt_yolo3_main.cpp
     src/tensorrt_yolo3_ros.cpp
-  )
-
-  ament_auto_add_executable(tensorrt_yolo3
-    ${SOURCE_FILES}
   )
 
   cuda_add_library(gpu_tensorrt_yolo3_lib SHARED
