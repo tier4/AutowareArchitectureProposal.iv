@@ -87,27 +87,30 @@ std::vector<geometry_msgs::msg::Point> poly2vector(const geometry_msgs::msg::Pol
 
 }  // namespace
 
-CostmapGenerator::CostmapGenerator() : Node("costmap_generator")
+CostmapGenerator::CostmapGenerator() :
+  Node("costmap_generator"),
+  tf_buffer_(this->get_clock()),
+  tf_listener_(tf_buffer_)
 {
   // Parameters
-  this->declare_parameter<std::string>("costmap_frame", "map");
-  this->declare_parameter<std::string>("vehicle_frame", "base_link");
-  this->declare_parameter<std::string>("map_frame", "map");
-  this->declare_parameter<double>("update_rate", 10.0);
-  this->declare_parameter<double>("grid_min_value", 0.0);
-  this->declare_parameter<double>("grid_max_value", 1.0);
-  this->declare_parameter<double>("grid_resolution", 0.2);
-  this->declare_parameter<double>("grid_length_x", 50);
-  this->declare_parameter<double>("grid_length_y", 30);
-  this->declare_parameter<double>("grid_position_x", 20);
-  this->declare_parameter<double>("grid_position_y", 0);
-  this->declare_parameter<double>("maximum_lidar_height_thres", 0.3);
-  this->declare_parameter<double>("minimum_lidar_height_thres", -2.2);
-  this->declare_parameter<bool>("use_objects", true);
-  this->declare_parameter<bool>("use_points", true);
-  this->declare_parameter<bool>("use_wayarea", true);
-  this->declare_parameter<double>("expand_polygon_size", 1.0);
-  this->declare_parameter<int>("size_of_expansion_kernel", 9);
+  costmap_frame_ = this->declare_parameter<std::string>("costmap_frame", "map");
+  vehicle_frame_ = this->declare_parameter<std::string>("vehicle_frame", "base_link");
+  map_frame_ = this->declare_parameter<std::string>("map_frame", "map");
+  update_rate_ = this->declare_parameter<double>("update_rate", 10.0);
+  grid_min_value_ = this->declare_parameter<double>("grid_min_value", 0.0);
+  grid_max_value_ = this->declare_parameter<double>("grid_max_value", 1.0);
+  grid_resolution_ = this->declare_parameter<double>("grid_resolution", 0.2);
+  grid_length_x_ = this->declare_parameter<double>("grid_length_x", 50);
+  grid_length_y_ = this->declare_parameter<double>("grid_length_y", 30);
+  grid_position_x_ = this->declare_parameter<double>("grid_position_x", 20);
+  grid_position_y_ = this->declare_parameter<double>("grid_position_y", 0);
+  maximum_lidar_height_thres_ = this->declare_parameter<double>("maximum_lidar_height_thres", 0.3);
+  minimum_lidar_height_thres_ = this->declare_parameter<double>("minimum_lidar_height_thres", -2.2);
+  use_objects_ = this->declare_parameter<bool>("use_objects", true);
+  use_points_ = this->declare_parameter<bool>("use_points", true);
+  use_wayarea_ = this->declare_parameter<bool>("use_wayarea", true);
+  expand_polygon_size_ = this->declare_parameter<double>("expand_polygon_size", 1.0);
+  size_of_expansion_kernel_ = this->declare_parameter<int>("size_of_expansion_kernel", 9);
 
   // Subscribers
   using std::placeholders::_1;
@@ -140,7 +143,7 @@ CostmapGenerator::CostmapGenerator() : Node("costmap_generator")
   // Wait for first tf
   while (rclcpp::ok()) {
     try {
-      tf_buffer_->lookupTransform(map_frame_, vehicle_frame_, rclcpp::Time(0), rclcpp::Duration(10.0));
+      tf_buffer_.lookupTransform(map_frame_, vehicle_frame_, rclcpp::Time(0), rclcpp::Duration(10.0));
       break;
     } catch (tf2::TransformException ex) {
       RCLCPP_ERROR(this->get_logger(),"waiting for initial pose...");
@@ -222,7 +225,7 @@ void CostmapGenerator::onTimer()
   geometry_msgs::msg::TransformStamped tf;
   try {
     tf =
-      tf_buffer_->lookupTransform(costmap_frame_, vehicle_frame_, rclcpp::Time(0), rclcpp::Duration(1.0));
+      tf_buffer_.lookupTransform(costmap_frame_, vehicle_frame_, rclcpp::Time(0), rclcpp::Duration(1.0));
   } catch (tf2::TransformException ex) {
     RCLCPP_ERROR(rclcpp::get_logger("Exception: "), "%s", ex.what());
     return;
@@ -308,7 +311,7 @@ grid_map::Matrix CostmapGenerator::generateObjectsCostmap(
 {
   const auto object_frame = in_objects->header.frame_id;
   const auto transformed_objects =
-    transformObjects(*tf_buffer_, in_objects, costmap_frame_, object_frame);
+    transformObjects(tf_buffer_, in_objects, costmap_frame_, object_frame);
 
   grid_map::Matrix objects_costmap = objects2costmap_.makeCostmapFromObjects(
     costmap_, expand_polygon_size_, size_of_expansion_kernel_, transformed_objects);
@@ -322,7 +325,7 @@ grid_map::Matrix CostmapGenerator::generateWayAreaCostmap()
   if (!area_points_.empty()) {
     object_map::FillPolygonAreas(
       lanelet2_costmap, area_points_, LayerName::wayarea, grid_max_value_, grid_min_value_,
-      grid_min_value_, grid_max_value_, costmap_frame_, map_frame_, *tf_buffer_);
+      grid_min_value_, grid_max_value_, costmap_frame_, map_frame_, tf_buffer_);
   }
   return lanelet2_costmap[LayerName::wayarea];
 }
