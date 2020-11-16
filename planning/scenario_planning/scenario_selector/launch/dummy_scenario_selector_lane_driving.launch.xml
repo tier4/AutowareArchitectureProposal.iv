@@ -15,6 +15,6 @@
     <param name="type" value="autoware_planning_msgs/msg/Trajectory" />
   </node>
 
-  <executable cmd="ros2 topic pub $(var output_scenario) autoware_planning_msgs/msg/Scenario '{current_scenario: LaneDriving, activating_scenarios: [LaneDriving]}'"
-              name="scenario_pub" output="screen" shell="true"/>
+  <arg name="cmd" default="ros2 topic pub $(var output_scenario) autoware_planning_msgs/msg/Scenario '{current_scenario: LaneDriving, activating_scenarios: [LaneDriving]}'" />
+  <executable cmd="$(var cmd)" name="scenario_pub" output="screen" shell="true"/>
 </launch>
