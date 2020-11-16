@@ -1,12 +1,4 @@
 repositories:
-  vendor/osqp:
-    type: git
-    url: https://github.com/tier4/osqp_vendor.git
-    version: 0.0.2
-  vendor/ublox:
-    type: git
-    url: https://github.com/tier4/ublox.git
-    version: foxy-devel
   vendor/grid_map:
     type: git
     url: https://github.com/mitsudome-r/grid_map.git
