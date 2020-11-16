@@ -24,9 +24,14 @@ jobs:
 
     - name: Install missing dependencies
       run: |
-        sudo apt update
+        sudo apt-get update
         rosdep update
         DEBIAN_FRONTEND=noninteractive rosdep install --from-paths . --ignore-src --rosdistro foxy -y
+        sudo apt-get install -y \
+          ros-foxy-tf2>=0.13.6-1focal.20201028.172335 \
+          ros-foxy-tf2-geometry-msgs>=0.13.6-1focal.20201028.172335 \
+          ros-foxy-tf2-ros>=0.13.6-1focal.20201028.172335 \
+          ros-foxy-tf2-sensor-msgs>=0.13.6-1focal.20201028.172335
 
     - name: Build
       run: |
@@ -38,20 +43,4 @@ jobs:
         . /opt/ros/foxy/setup.sh
         colcon test \
           --event-handlers console_cohesion+ \
-          --return-code-on-test-failure \
-          --packages-skip \
-            tf2_msgs \
-            tf2_kdl \
-            tf2_py \
-            geometry2 \
-            test_tf2 \
-            tf2_eigen \
-            tf2_ros \
-            tf2_tools \
-            tf2_sensor_msgs \
-            tf2_geometry_msgs \
-            geometry_experimental \
-            tf2_bullet \
-            examples_tf2_py \
-            tf2
-          # Skip geometry2 packages until they are released
+          --return-code-on-test-failure
