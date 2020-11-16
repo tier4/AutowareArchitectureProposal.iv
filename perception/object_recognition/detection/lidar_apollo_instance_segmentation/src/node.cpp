@@ -19,13 +19,9 @@
 
 LidarInstanceSegmentationNode::LidarInstanceSegmentationNode() : Node("lidar_apollo_instance_segmentation_node")
 {
-}
-
-void LidarInstanceSegmentationNode::init()
-{
   using std::placeholders::_1;
-  detector_ptr_ = std::make_shared<LidarApolloInstanceSegmentation>(this->shared_from_this());
-  debugger_ptr_ = std::make_shared<Debugger>(this->shared_from_this());
+  detector_ptr_ = std::make_shared<LidarApolloInstanceSegmentation>(this);
+  debugger_ptr_ = std::make_shared<Debugger>(this);
   pointcloud_sub_ =
     this->create_subscription<sensor_msgs::msg::PointCloud2>("input/pointcloud", 1, std::bind(&LidarInstanceSegmentationNode::pointCloudCallback, this, _1));
   dynamic_objects_pub_ = this->create_publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(

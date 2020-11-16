@@ -20,7 +20,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
-Debugger::Debugger(const rclcpp::Node::SharedPtr & node)
+Debugger::Debugger(rclcpp::Node * node)
 {
   instance_pointcloud_pub_ =
     node->create_publisher<sensor_msgs::msg::PointCloud2>("debug/instance_pointcloud", 1);

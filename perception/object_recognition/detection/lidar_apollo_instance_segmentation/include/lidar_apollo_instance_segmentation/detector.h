@@ -29,7 +29,7 @@
 class LidarApolloInstanceSegmentation : public LidarInstanceSegmentationInterface
 {
 public:
-  LidarApolloInstanceSegmentation(const rclcpp::Node::SharedPtr & node);
+  LidarApolloInstanceSegmentation(rclcpp::Node * node);
   ~LidarApolloInstanceSegmentation(){};
   bool detectDynamicObjects(
     const sensor_msgs::msg::PointCloud2 & input,
@@ -41,7 +41,7 @@ private:
     sensor_msgs::msg::PointCloud2& transformed_cloud,
     float z_offset);
 
-  const rclcpp::Node::SharedPtr node_;
+  rclcpp::Node * node_;
   std::unique_ptr<Tn::trtNet> net_ptr_;
   std::shared_ptr<Cluster2D> cluster2d_;
   std::shared_ptr<FeatureGenerator> feature_generator_;

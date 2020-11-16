@@ -20,9 +20,7 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
-  const auto node = std::make_shared<LidarInstanceSegmentationNode>();
-  node->init();
-  rclcpp::spin(node);
+  rclcpp::spin(std::make_shared<LidarInstanceSegmentationNode>());
 
   rclcpp::shutdown();
 

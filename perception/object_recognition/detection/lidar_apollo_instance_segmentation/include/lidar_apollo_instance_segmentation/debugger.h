@@ -21,7 +21,7 @@
 class Debugger
 {
 public:
-  Debugger(const rclcpp::Node::SharedPtr & node);
+  Debugger(rclcpp::Node * node);
   ~Debugger(){};
   void publishColoredPointCloud(
     const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & input);

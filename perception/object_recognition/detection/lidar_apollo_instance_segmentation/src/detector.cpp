@@ -20,7 +20,7 @@
 #include "lidar_apollo_instance_segmentation/feature_map.h"
 #include <pcl_conversions/pcl_conversions.h>
 
-LidarApolloInstanceSegmentation::LidarApolloInstanceSegmentation(const rclcpp::Node::SharedPtr & node) 
+LidarApolloInstanceSegmentation::LidarApolloInstanceSegmentation(rclcpp::Node * node) 
 : node_(node),
   tf_buffer_(node_->get_clock()),
   tf_listener_(tf_buffer_)
