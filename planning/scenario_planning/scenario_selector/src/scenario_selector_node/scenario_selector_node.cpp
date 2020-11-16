@@ -31,7 +31,7 @@
 namespace
 {
 template <class T>
-void onData(const T data, T * buffer)
+void onData(const T & data, T * buffer)
 {
   *buffer = data;
 }
@@ -228,7 +228,8 @@ autoware_planning_msgs::msg::Scenario ScenarioSelectorNode::selectScenario()
 void ScenarioSelectorNode::onMap(const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr msg)
 {
   lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
-  lanelet::utils::conversion::fromBinMsg(*msg, lanelet_map_ptr_);
+  lanelet::utils::conversion::fromBinMsg(
+    *msg, lanelet_map_ptr_, &traffic_rules_ptr_, &routing_graph_ptr_);
 }
 
 void ScenarioSelectorNode::onRoute(const autoware_planning_msgs::msg::Route::ConstSharedPtr msg)
@@ -296,14 +297,14 @@ ScenarioSelectorNode::ScenarioSelectorNode()
 : Node("scenario_selector"),
   tf_buffer_(this->get_clock()),
   tf_listener_(tf_buffer_),
-  current_scenario_(autoware_planning_msgs::msg::Scenario::EMPTY)
+  current_scenario_(autoware_planning_msgs::msg::Scenario::EMPTY),
+  update_rate_(this->declare_parameter<double>("update_rate", 10.0)),
+  th_max_message_delay_sec_(this->declare_parameter<double>("th_max_message_delay_sec", 1.0)),
+  th_arrived_distance_m_(this->declare_parameter<double>("th_arrived_distance_m", 1.0)),
+  th_stopped_time_sec_(this->declare_parameter<double>("th_stopped_time_sec", 1.0)),
+  th_stopped_velocity_mps_(this->declare_parameter<double>("th_stopped_velocity_mps", 0.01))
 {
   // Parameters
-  update_rate_ = this->declare_parameter<double>("update_rate", 10.0);
-  th_max_message_delay_sec_ = this->declare_parameter<double>("th_max_message_delay_sec", 1.0);
-  th_arrived_distance_m_ = this->declare_parameter<double>("th_arrived_distance_m", 1.0);
-  th_stopped_time_sec_ = this->declare_parameter<double>("th_stopped_time_sec", 1.0);
-  th_stopped_velocity_mps_ = this->declare_parameter<double>("th_stopped_velocity_mps", 0.01);
 
   this->declare_parameter<bool>("is_parking_completed", false);
 
