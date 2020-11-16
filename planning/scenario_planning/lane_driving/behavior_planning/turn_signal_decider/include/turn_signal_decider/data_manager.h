@@ -38,7 +38,7 @@ private:
   bool is_path_ready_;
   bool is_pose_ready_;
 
-  rclcpp::Node::WeakPtr node_;
+  rclcpp::Node * node_;
 
   // tf
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
@@ -57,7 +57,7 @@ private:
   bool isPoseValid() const;
 
 public:
-  explicit DataManager(rclcpp::Node::SharedPtr node);
+  explicit DataManager(rclcpp::Node * node);
 
   // callbacks
   void onPathWithLaneId(autoware_planning_msgs::msg::PathWithLaneId::SharedPtr msg);
