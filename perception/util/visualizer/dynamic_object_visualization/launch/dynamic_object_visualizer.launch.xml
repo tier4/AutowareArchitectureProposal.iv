@@ -3,15 +3,15 @@
 <launch>
   <!-- <arg name="input" default="shape_estimeted_objects"/> -->
   <arg name="input" default="tracker/objects"/>
-  <arg name="output" default="$(arg input)/visualization"/>
+  <arg name="output" default="$(var input)/visualization"/>
   <arg name="with_feature" default="false"/>
   <arg name="only_known_objects" default="true"/>
 
-  <node pkg="dynamic_object_visualization" type="dynamic_object_visualizer_node" name="$(anon dynamic_object_visualization)" output="screen">
-    <remap from="input" to="$(arg input)"/>
-    <remap from="output" to="$(arg output)"/>
-    <param name="with_feature" value="$(arg with_feature)"/>
-    <param name="only_known_objects" value="$(arg only_known_objects)"/>
+  <node pkg="dynamic_object_visualization" exec="dynamic_object_visualizer_node" name="$(anon dynamic_object_visualization)" output="screen">
+    <remap from="input" to="$(var input)"/>
+    <remap from="output" to="$(var output)"/>
+    <param name="with_feature" value="$(var with_feature)"/>
+    <param name="only_known_objects" value="$(var only_known_objects)"/>
   </node>
 
 </launch>
