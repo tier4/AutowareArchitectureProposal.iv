@@ -41,8 +41,8 @@ private:
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_velocity_;  //!< @brief subscriber for current velocity
   rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_current_trajectory_;  //!< @brief subscriber for reference trajectory
   rclcpp::Subscription<autoware_planning_msgs::msg::VelocityLimit>::SharedPtr sub_external_velocity_limit_;//!< @brief subscriber for external velocity limit
-  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;  //!< @brief tf butter
-  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;  //!< @brief tf listener
+  tf2::BufferCore tf_buffer_;  //!< @brief tf butter
+  tf2_ros::TransformListener tf_listener_;  //!< @brief tf listener
 
   double external_velocity_limit_update_rate_;
   rclcpp::TimerBase::SharedPtr timer_;

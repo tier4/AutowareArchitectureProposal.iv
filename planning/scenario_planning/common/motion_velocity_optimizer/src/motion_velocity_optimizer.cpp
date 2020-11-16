@@ -39,7 +39,7 @@ void update_param(
 }
 }  // namespace
 
-MotionVelocityOptimizer::MotionVelocityOptimizer() : Node("motion_velocity_optimizer")
+MotionVelocityOptimizer::MotionVelocityOptimizer() : Node("motion_velocity_optimizer"), tf_listener_(tf_buffer_)
 {
   auto & p = planning_param_;
   p.max_velocity = declare_parameter("max_velocity", 20.0);  // 72.0 kmph
@@ -125,7 +125,7 @@ MotionVelocityOptimizer::MotionVelocityOptimizer() : Node("motion_velocity_optim
 
   /* timer */
   {
-    external_velocity_limit_update_rate_ = declare_parameter("over_a_weight", 10.0);
+    external_velocity_limit_update_rate_ = get_parameter("over_a_weight").as_double();
     auto timer_callback = std::bind(&MotionVelocityOptimizer::timerCallback, this);
     auto period = std::chrono::duration_cast<std::chrono::seconds>(
       std::chrono::duration<double>(1.0 / external_velocity_limit_update_rate_));
@@ -171,7 +171,7 @@ void MotionVelocityOptimizer::updateCurrentPose()
 {
   geometry_msgs::msg::TransformStamped transform;
   try {
-    transform = tf_buffer_->lookupTransform("map", "base_link", rclcpp::Time(0));
+    transform = tf_buffer_.lookupTransform("map", "base_link", tf2::TimePointZero);
   } catch (tf2::TransformException & ex) {
     RCLCPP_WARN(
       get_logger(), "[MotionVelocityOptimizer] cannot get map to base_link transform. %s",
@@ -717,7 +717,7 @@ void MotionVelocityOptimizer::timerCallback()
 void MotionVelocityOptimizer::blockUntilVehiclePositionAvailable(const tf2::Duration & duration)
 {
   static constexpr auto input = "map", output = "base_link";
-  while (!tf_buffer_->canTransform(input, output, tf2::TimePointZero, tf2::durationFromSec(0.0)) &&
+  while (!tf_buffer_.canTransform(input, output, tf2::TimePointZero) &&
          rclcpp::ok()) {
     RCLCPP_INFO(
       get_logger(), "waiting %d ms for %s->%s transform to become available",
