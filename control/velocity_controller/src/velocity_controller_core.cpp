@@ -33,6 +33,7 @@ VelocityController::VelocityController()
 
   // parameters timer
   control_rate_ = declare_parameter("control_rate", 30.0);
+  wheel_base_ = 4.0; // TODO (Horibe): use vehicle info
 
   // parameters to enable functions
   enable_smooth_stop_ = declare_parameter("enable_smooth_stop", true);
@@ -86,6 +87,7 @@ VelocityController::VelocityController()
   min_jerk_ = declare_parameter("min_jerk", -5.0);  // [m/s^3]
 
   // parameters for slope compensation
+  use_traj_for_pitch_ = declare_parameter("use_trajectory_for_pitch_calculation", false);
   max_pitch_rad_ = declare_parameter("max_pitch_rad", 0.1);   // [rad]
   min_pitch_rad_ = declare_parameter("min_pitch_rad", -0.1);  // [rad]
 
@@ -393,10 +395,12 @@ CtrlCmd VelocityController::calcCtrlCmd()
   if (shift != prev_shift_) {pid_vel_.reset();}
   prev_shift_ = shift;
 
-  const double pitch_filtered = lpf_pitch_.filter(getPitch(current_pose.orientation));
+  const double pitch = use_traj_for_pitch_
+                         ? getPitchByTraj(*trajectory_ptr_, closest_idx)
+                         : lpf_pitch_.filter(getPitchByPose(current_pose.orientation));
+
   writeDebugValues(
-    dt, current_vel, pred_vel_in_target, target_vel, target_acc, shift, pitch_filtered,
-    closest_idx);
+    dt, current_vel, pred_vel_in_target, target_vel, target_acc, shift, pitch, closest_idx);
 
   /* ===== STOPPED =====
    *
@@ -408,7 +412,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
    *
    */
   if (isStoppedState(current_vel, target_vel, closest_idx)) {
-    double acc_cmd = calcFilteredAcc(stop_state_acc_, pitch_filtered, dt, shift);
+    double acc_cmd = calcFilteredAcc(stop_state_acc_, pitch, dt, shift);
     control_mode_ = ControlMode::STOPPED;
     RCLCPP_DEBUG(get_logger(), "[Stopped]. vel: %3.3f, acc: %3.3f", stop_state_vel_, acc_cmd);
     return CtrlCmd{stop_state_vel_, acc_cmd};
@@ -449,7 +453,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
     }
     double smooth_stop_acc_cmd = calcSmoothStopAcc();
     double vel_cmd = 0.0;
-    double acc_cmd = calcFilteredAcc(smooth_stop_acc_cmd, pitch_filtered, dt, shift);
+    double acc_cmd = calcFilteredAcc(smooth_stop_acc_cmd, pitch, dt, shift);
     control_mode_ = ControlMode::SMOOTH_STOP;
     RCLCPP_DEBUG(
       get_logger(), "[smooth stop]: Smooth stopping. vel: %3.3f, acc: %3.3f", vel_cmd, acc_cmd);
@@ -465,7 +469,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
    *
    */
   double feedback_acc_cmd = applyVelocityFeedback(target_acc, target_vel, dt, pred_vel_in_target);
-  double acc_cmd = calcFilteredAcc(feedback_acc_cmd, pitch_filtered, dt, shift);
+  double acc_cmd = calcFilteredAcc(feedback_acc_cmd, pitch, dt, shift);
   control_mode_ = ControlMode::PID_CONTROL;
   RCLCPP_DEBUG(
     get_logger(),
@@ -673,13 +677,44 @@ enum VelocityController::Shift VelocityController::getCurrentShift(const double 
   return target_vel > ep ? Shift::Forward : (target_vel < -ep ? Shift::Reverse : prev_shift_);
 }
 
-double VelocityController::getPitch(const geometry_msgs::msg::Quaternion & quaternion) const
+double VelocityController::getPitchByPose(const geometry_msgs::msg::Quaternion & quaternion) const
 {
   Eigen::Quaterniond q(quaternion.w, quaternion.x, quaternion.y, quaternion.z);
   Eigen::Vector3d v = q.toRotationMatrix() * Eigen::Vector3d::UnitX();
   double den = std::max(std::sqrt(v.x() * v.x() + v.y() * v.y()), 1.0E-8 /* avoid 0 divide */);
   double pitch = (-1.0) * std::atan2(v.z(), den);
   return pitch;
+}
+
+double VelocityController::getPitchByTraj(
+  const autoware_planning_msgs::Trajectory & msg, const int32_t closest) const
+{
+  if (msg.points.size() <= 1) {
+    // cannot calculate pitch
+    return 0.0;
+  }
+
+  for (int i = closest + 1; i < msg.points.size(); i++) {
+    const double dist = vcutils::calcDistance2D(msg.points.at(closest).pose, msg.points.at(i).pose);
+    if (dist > wheel_base_) {
+      // closest: rear wheel, i: front wheel
+      return vcutils::calcPitch(msg.points.at(closest).pose, msg.points.at(i).pose);
+    }
+  }
+
+  // close to goal (end of trajectory)
+  for (int i = msg.points.size() - 1; i > 0; i--) {
+    const double dist =
+      vcutils::calcDistance2D(msg.points.back().pose, msg.points.at(i).pose);
+
+    if (dist > wheel_base_) {
+      // i: rear wheel, msg.points.size()-1: front wheel
+      return vcutils::calcPitch(msg.points.at(i).pose, msg.points.back().pose);
+    }
+  }
+
+  // use full trajectory for calculate pitch
+  return vcutils::calcPitch(msg.points.at(0).pose, msg.points.back().pose);
 }
 
 double VelocityController::calcSmoothStopAcc()
@@ -921,7 +956,8 @@ void VelocityController::writeDebugValues(
   const int32_t closest)
 {
   constexpr double rad2deg = 180.0 / 3.141592;
-  const double raw_pitch = getPitch(current_pose_ptr_->pose.orientation);
+  const double raw_pitch = getPitchByPose(current_pose_ptr_->pose.orientation);
+  const double traj_pitch = getPitchByTraj(*trajectory_ptr_, closest);
   debug_values_.data.at(DBGVAL::DT) = dt;
   debug_values_.data.at(DBGVAL::CURR_V) = current_vel;
   debug_values_.data.at(DBGVAL::TARGET_V) = target_vel;
@@ -937,4 +973,6 @@ void VelocityController::writeDebugValues(
   debug_values_.data.at(DBGVAL::PITCH_RAW_RAD) = raw_pitch;
   debug_values_.data.at(DBGVAL::PITCH_RAW_DEG) = raw_pitch * rad2deg;
   debug_values_.data.at(DBGVAL::ERROR_V) = target_vel - current_vel;
+  debug_values_.data.at(DBGVAL::PITCH_RAW_TRAJ_RAD) = traj_pitch;
+  debug_values_.data.at(DBGVAL::PITCH_RAW_TRAJ_DEG) = traj_pitch * rad2deg;
 }

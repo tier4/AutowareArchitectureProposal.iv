@@ -66,6 +66,10 @@ private:
     const std::vector<rclcpp::Parameter> & parameters);
 
   // parameters
+
+  // vehicle info
+  double wheel_base_;
+
   // enabled flags
   bool enable_smooth_stop_;
   bool enable_overshoot_emergency_;
@@ -118,6 +122,7 @@ private:
   double min_jerk_;
 
   // slope compensation
+  bool use_traj_for_pitch_;
   double max_pitch_rad_;
   double min_pitch_rad_;
 
@@ -183,7 +188,9 @@ private:
   void blockUntilVehiclePositionAvailable(const tf2::Duration & timeout);
   bool updateCurrentPose();
 
-  double getPitch(const geometry_msgs::msg::Quaternion & quaternion) const;
+  double getPitchByPose(const geometry_msgs::msg::Quaternion & quaternion) const;
+  double getPitchByTraj(
+    const autoware_planning_msgs::msg::Trajectory & msg, const int32_t closest) const;
   double getDt();
   enum Shift getCurrentShift(const double target_velocity) const;
 
@@ -256,8 +263,10 @@ private:
     FLAG_EMERGENCY_STOP = 23,
     PREDICTED_V = 24,
     CALCULATED_ACC = 25,
+    PITCH_RAW_TRAJ_RAD = 26,
+    PITCH_RAW_TRAJ_DEG = 27,
   };
-  static constexpr unsigned int num_debug_values_ = 26;
+  static constexpr unsigned int num_debug_values_ = 28;
 
   void writeDebugValues(
     const double dt, const double current_velocity, const double predicted_velocity,
