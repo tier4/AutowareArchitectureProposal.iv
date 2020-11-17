@@ -32,6 +32,17 @@ double calcDistSquared2D(const geometry_msgs::Pose & p1, const geometry_msgs::Po
   return dx * dx + dy * dy;
 };
 
+double calcPitch(const geometry_msgs::Pose & p1, const geometry_msgs::Pose & p2)
+{
+  const double dx = p1.position.x - p2.position.x;
+  const double dy = p1.position.y - p2.position.y;
+  const double dz = p1.position.z - p2.position.z;
+
+  const double dist_2d = std::max(std::hypot(dx, dy), 1e-02);
+  const double pitch = atan2(dz, dist_2d);
+  return pitch;
+};
+
 double normalizeEulerAngle(double euler)
 {
   double res = euler;

@@ -50,6 +50,25 @@ struct CtrlCmd
   double acc;
 };
 
+template <class T>
+T waitForParam(const ros::NodeHandle & nh, const std::string & key)
+{
+  T value;
+  ros::Rate rate(1.0);
+
+  while (ros::ok()) {
+    const auto result = nh.getParam(key, value);
+    if (result) {
+      return value;
+    }
+
+    ROS_WARN("waiting for parameter `%s` ...", key.c_str());
+    rate.sleep();
+  }
+
+  return {};
+}
+
 class VelocityController
 {
 public:
@@ -69,6 +88,10 @@ private:
   tf2_ros::TransformListener tf_listener_;  //!< @brief tf listener
 
   // parameters
+
+  // vehicle info
+  double wheel_base_;
+
   // enabled flags
   bool enable_smooth_stop_;
   bool enable_overshoot_emergency_;
@@ -121,6 +144,7 @@ private:
   double min_jerk_;
 
   // slope compensation
+  bool use_traj_for_pitch_;
   double max_pitch_rad_;
   double min_pitch_rad_;
 
@@ -190,7 +214,9 @@ private:
   bool updateCurrentPose(const double timeout_sec);
   bool getCurrentPoseFromTF(const double timeout_sec, geometry_msgs::PoseStamped & ps);
 
-  double getPitch(const geometry_msgs::Quaternion & quaternion) const;
+  double getPitchByPose(const geometry_msgs::Quaternion & quaternion) const;
+  double getPitchByTraj(
+    const autoware_planning_msgs::Trajectory & msg, const int32_t closest) const;
   double getDt();
   enum Shift getCurrentShift(const double target_velocity) const;
 
@@ -261,8 +287,10 @@ private:
     FLAG_EMERGENCY_STOP = 23,
     PREDICTED_V = 24,
     CALCULATED_ACC = 25,
+    PITCH_RAW_TRAJ_RAD = 26,
+    PITCH_RAW_TRAJ_DEG = 27,
   };
-  static constexpr unsigned int num_debug_values_ = 26;
+  static constexpr unsigned int num_debug_values_ = 28;
 
   void writeDebugValues(
     const double dt, const double current_velocity, const double predicted_velocity,
