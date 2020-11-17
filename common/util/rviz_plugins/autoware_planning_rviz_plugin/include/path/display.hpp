@@ -73,8 +73,8 @@ protected:
   rviz_common::properties::FloatProperty * property_vel_max_;
 
 private:
-  autoware_planning_msgs::msg::Path::ConstPtr last_msg_ptr_;
-  bool validateFloats(const autoware_planning_msgs::msg::Path::ConstPtr & msg_ptr);
+  autoware_planning_msgs::msg::Path::ConstSharedPtr last_msg_ptr_;
+  bool validateFloats(const autoware_planning_msgs::msg::Path::ConstSharedPtr & msg_ptr);
 };
 
 }  // namespace rviz_plugins

@@ -117,7 +117,7 @@ void AutowarePathDisplay::reset()
   velocity_manual_object_->clear();
 }
 
-bool AutowarePathDisplay::validateFloats(const autoware_planning_msgs::msg::Path::ConstPtr & msg_ptr)
+bool AutowarePathDisplay::validateFloats(const autoware_planning_msgs::msg::Path::ConstSharedPtr & msg_ptr)
 {
   for (auto && path_point : msg_ptr->points) {
     if (!rviz_common::validateFloats(path_point.pose) && !rviz_common::validateFloats(path_point.twist))
@@ -243,5 +243,5 @@ void AutowarePathDisplay::updateVisualization()
 
 }  // namespace rviz_plugins
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::AutowarePathDisplay, rviz_common::Display)

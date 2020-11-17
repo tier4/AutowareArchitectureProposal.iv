@@ -118,7 +118,7 @@ void AutowareTrajectoryDisplay::reset()
 }
 
 bool AutowareTrajectoryDisplay::validateFloats(
-  const autoware_planning_msgs::msg::Trajectory::ConstPtr & msg_ptr)
+  const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr & msg_ptr)
 {
   for (auto && trajectory_point : msg_ptr->points) {
     if (
@@ -245,5 +245,5 @@ void AutowareTrajectoryDisplay::updateVisualization()
 
 }  // namespace rviz_plugins
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::AutowareTrajectoryDisplay, rviz_common::Display)
