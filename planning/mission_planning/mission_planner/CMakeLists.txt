@@ -37,7 +37,19 @@ target_link_libraries(mission_planner
   ${catkin_LIBRARIES}
 )
 
-install(TARGETS mission_planner
+add_executable(goal_pose_visualizer
+  src/goal_pose_visualizer/main.cpp
+  src/goal_pose_visualizer/goal_pose_visualizer.cpp
+)
+add_dependencies(goal_pose_visualizer
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
+)
+target_link_libraries(goal_pose_visualizer
+  ${catkin_LIBRARIES}
+)
+
+install(TARGETS mission_planner goal_pose_visualizer
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
