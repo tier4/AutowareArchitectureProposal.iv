@@ -26,8 +26,7 @@ int main(int argc, char ** argv)
   
   auto node = std::make_shared<traffic_light::MapBasedDetector>();
   
-  rclcpp::spin(node);
-  
+  rclcpp::spin(node);  
   rclcpp::shutdown();
 
   return 0;

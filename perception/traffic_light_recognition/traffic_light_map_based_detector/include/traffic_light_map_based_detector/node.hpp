@@ -63,8 +63,6 @@ private:
   };
 
 private:
-  //  ros::NodeHandle nh_;
-  // ros::NodeHandle pnh_;
   rclcpp::Subscription<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr map_sub_;
   rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr camera_info_sub_;
   rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr route_sub_;
@@ -91,25 +89,28 @@ private:
   void routeCallback(const autoware_planning_msgs::msg::Route::ConstSharedPtr input_msg);
   void isInVisibility(
     const TrafficLightSet & all_traffic_lights,
-    const geometry_msgs::msg::Pose & camera_pose, const sensor_msgs::msg::CameraInfo & camera_info,
+    const geometry_msgs::msg::Pose & camera_pose,
+    const sensor_msgs::msg::CameraInfo & camera_info,
     std::vector<lanelet::ConstLineString3d> & visible_traffic_lights);
   bool isInDistanceRange(
-			 const geometry_msgs::msg::Point & tl_point, const geometry_msgs::msg::Point & camera_point,
+    const geometry_msgs::msg::Point & tl_point,
+    const geometry_msgs::msg::Point & camera_point,
     const double max_distance_range);
   bool isInAngleRange(
     const double & tl_yaw, const double & camera_yaw, const double max_angele_range);
   bool isInImageFrame(
-		      const sensor_msgs::msg::CameraInfo & camera_info, const geometry_msgs::msg::Point & point);
+    const sensor_msgs::msg::CameraInfo & camera_info,
+    const geometry_msgs::msg::Point & point);
   double normalizeAngle(const double & angle);
   bool getTrafficLightRoi(
-			  const geometry_msgs::msg::Pose & camera_pose, const sensor_msgs::msg::CameraInfo & camera_info,
-			  const lanelet::ConstLineString3d traffic_light, const Config & config,
-			  autoware_perception_msgs::msg::TrafficLightRoi & tl_roi);
+    const geometry_msgs::msg::Pose & camera_pose,
+    const sensor_msgs::msg::CameraInfo & camera_info,
+    const lanelet::ConstLineString3d traffic_light,
+    const Config & config,
+    autoware_perception_msgs::msg::TrafficLightRoi & tl_roi);
   void publishVisibleTrafficLights(
-				   const geometry_msgs::msg::PoseStamped camera_pose_stamped,
-				   const std::vector<lanelet::ConstLineString3d> & visible_traffic_lights,
-				   const rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub);
-				   // const ros::Publisher & pub
-				   
+    const geometry_msgs::msg::PoseStamped camera_pose_stamped,
+    const std::vector<lanelet::ConstLineString3d> & visible_traffic_lights,
+    const rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub);
 };
 }  // namespace traffic_light

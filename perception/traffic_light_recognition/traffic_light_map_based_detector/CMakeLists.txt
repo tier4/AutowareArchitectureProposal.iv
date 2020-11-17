@@ -8,12 +8,10 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter)
 endif()
 
-
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
 find_package(Eigen3 REQUIRED)
-
 
 ###########
 ## Build ##
@@ -29,7 +27,6 @@ ament_auto_add_executable(traffic_light_map_based_detector_node
   src/node.cpp
   src/main.cpp
 )
-
 
 #############
 ## Install ##
