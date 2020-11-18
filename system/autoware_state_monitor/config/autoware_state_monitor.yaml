@@ -43,71 +43,91 @@
           module: "map"
           timeout: 0.0
           warn_rate: 0.0
+          type: "autoware_lanelet2_msgs/msg/MapBin"
 
         /map/pointcloud_map:
           module: "map"
           timeout: 0.0
           warn_rate: 0.0
+          type: "sensor_msgs/msg/PointCloud2"
 
         /sensing/lidar/pointcloud:
           module: "sensing"
           timeout: 1.0
           warn_rate: 5.0
+          type: "sensor_msgs/msg/PointCloud2"
 
         /sensing/lidar/no_ground/pointcloud:
           module: "sensing"
           timeout: 1.0
           warn_rate: 5.0
+          type: "sensor_msgs/msg/PointCloud2"
 
         /localization/pose_twist_fusion_filter/pose:
           module: "localization"
           timeout: 1.0
           warn_rate: 5.0
+          type: "geometry_msgs/msg/PoseStamped"
 
         /perception/object_recognition/detection/objects:
           module: "perception"
           timeout: 1.0
           warn_rate: 5.0
+          type: "autoware_perception_msgs/msg/DynamicObjectWithFeatureArray"
 
         /perception/object_recognition/tracking/objects:
           module: "perception"
           timeout: 1.0
           warn_rate: 5.0
+          type: "autoware_perception_msgs/msg/DynamicObjectArray"
 
+        # Can be both with feature array or without
+        # In prediction.launch.xml this is set to without
         /perception/object_recognition/objects:
           module: "perception"
           timeout: 1.0
           warn_rate: 5.0
+          type: "autoware_perception_msgs/msg/DynamicObjectArray"
+          # This topic could have two different types depending on the launch flags used.
+          # The implementation of subscriptions in ROS2 does not allow for multiple types
+          # to be defined for a topic. By default the this is set to not use have features.
+          # type: ["autoware_perception_msgs/msg/DynamicObjectArray", "autoware_perception_msgs/msg/DynamicObjectWithFeatureArray"]
 
         /planning/mission_planning/route:
           module: "planning"
           timeout: 0.0
           warn_rate: 0.0
+          type: "autoware_planning_msgs/msg/Route"
 
         /planning/scenario_planning/trajectory:
           module: "planning"
           timeout: 1.0
           warn_rate: 5.0
+          type: "autoware_planning_msgs/msg/Trajectory"
 
         /control/vehicle_cmd:
           module: "control"
           timeout: 1.0
           warn_rate: 5.0
+          type: "autoware_vehicle_msgs/msg/VehicleCommand"
 
         /vehicle/status/twist:
           module: "vehicle"
           timeout: 1.0
           warn_rate: 5.0
+          type: "geometry_msgs/msg/TwistStamped"
 
         /vehicle/status/steering:
           module: "vehicle"
           timeout: 1.0
           warn_rate: 5.0
+          type: "autoware_vehicle_msgs/msg/Steering"
 
         /system/emergency/control_cmd:
           module: "emergency_system"
           timeout: 1.0
           warn_rate: 5.0
+          type: "autoware_control_msgs/msg/ControlCommandStamped"
 
     # Param Config
     ## names: string array
