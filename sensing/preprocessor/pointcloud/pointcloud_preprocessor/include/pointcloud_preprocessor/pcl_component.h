@@ -90,22 +90,24 @@ class PCLComponent : public rclcpp::Node
     typedef pcl_msgs::msg::ModelCoefficients ModelCoefficients;
     typedef ModelCoefficients::SharedPtr ModelCoefficientsPtr;
     typedef ModelCoefficients::ConstSharedPtr ModelCoefficientsConstPtr;
-    
+
     typedef pcl::IndicesPtr IndicesPtr;
     typedef pcl::IndicesConstPtr IndicesConstPtr;
-    
+
     /** \brief Constructor - setup tf listener for the component */
 
-    PCLComponent (const rclcpp::NodeOptions & options) : Node("pcl_component", options),
-use_indices_ (false), latched_indices_ (false), 
-      max_queue_size_ (3), approximate_sync_ (false)
+    PCLComponent(const rclcpp::NodeOptions & options)
+    : Node("pcl_component", options),
+      use_indices_(false),
+      latched_indices_(false),
+      max_queue_size_(3),
+      approximate_sync_(false)
     {
-      tf2_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
-      tf2_listener_ = std::make_shared<tf2_ros::TransformListener>(
-	*tf2_buffer_, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false);
-
+      tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+      tf_listener_ = std::make_shared<tf2_ros::TransformListener>(
+        *tf_buffer_, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false);
     };
-    
+
   protected:
     /** \brief Set to true if point indices are used.
        *
@@ -134,11 +136,8 @@ use_indices_ (false), latched_indices_ (false),
       /** \brief The message filter subscriber for PointIndices. */
       message_filters::Subscriber<PointIndices> sub_indices_filter_;
 
-    // ROS2 port - type of publisher message not defined....OK? -> No need to declare message type
-    // The publisher is not used in this base class -> so leave implmentation to child class???
       /** \brief The output PointCloud publisher. */
-    //ros::Publisher pub_output_;
-    //    rclcpp::Publisher::SharedPtr pub_output_;
+       rclcpp::Publisher<PointCloud2>::SharedPtr pub_output_;
 
       /** \brief The maximum queue size (default: 3). */
       int max_queue_size_;
@@ -147,9 +146,8 @@ use_indices_ (false), latched_indices_ (false),
       bool approximate_sync_;
 
       /** \brief TF listener object. */
-      //tf::TransformListener tf_listener_;
-      std::shared_ptr<tf2_ros::Buffer> tf2_buffer_;
-      std::shared_ptr<tf2_ros::TransformListener> tf2_listener_;
+      std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+      std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
       /** \brief Test whether a given PointCloud message is "valid" (i.e., has points, and width and height are non-zero).
         * \param cloud the point cloud to test
@@ -223,15 +221,15 @@ use_indices_ (false), latched_indices_ (false),
 	use_indices_ = static_cast<bool>(declare_parameter("use_indices").get<bool>());
 	latched_indices_ = static_cast<bool>(declare_parameter("latched_indices").get<bool>());
 	approximate_sync_ = static_cast<bool>(declare_parameter("approximate_sync").get<bool>());
-	
+
         RCLCPP_DEBUG (this->get_logger(), "[onInit] PCL Nodelet (as Component)  successfully created with the following parameters:\n"
             " - approximate_sync : %s\n"
             " - use_indices      : %s\n"
             " - latched_indices  : %s\n"
             " - max_queue_size   : %d",
             (approximate_sync_) ? "true" : "false",
-            (use_indices_) ? "true" : "false", 
-            (latched_indices_) ? "true" : "false", 
+            (use_indices_) ? "true" : "false",
+            (latched_indices_) ? "true" : "false",
             max_queue_size_);
       }
 

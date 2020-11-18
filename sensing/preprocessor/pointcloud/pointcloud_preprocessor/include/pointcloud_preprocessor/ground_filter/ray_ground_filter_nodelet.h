@@ -49,7 +49,7 @@
 
 #include <chrono>
 
-#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <tf2/transform_datatypes.h>
 #include <tf2_eigen/tf2_eigen.h>
@@ -58,18 +58,17 @@
 #include <pcl/filters/extract_indices.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl_conversions/pcl_conversions.h>
-#include <pcl_ros/point_cloud.h>
+// #include <pcl_ros/point_cloud.h>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include "pointcloud_preprocessor/RayGroundFilterConfig.h"
 #include "pointcloud_preprocessor/filter.h"
 #include "pointcloud_preprocessor/ground_filter/gencolors.hpp"
 
 namespace pointcloud_preprocessor
 {
-class RayGroundFilterNodelet : public pointcloud_preprocessor::Filter
+class RayGroundFilterComponent : public pointcloud_preprocessor::Filter
 {
   typedef pcl::PointXYZ PointType_;
 
@@ -94,19 +93,16 @@ class RayGroundFilterNodelet : public pointcloud_preprocessor::Filter
   typedef std::vector<PointXYZRTColor> PointCloudXYZRTColor;
 
 protected:
-  boost::shared_ptr<dynamic_reconfigure::Server<pointcloud_preprocessor::RayGroundFilterConfig>>
-    srv_;
 
   void filter(
-    const PointCloud2::ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output) override;
+    const PointCloud2::ConstSharedPtr & input, const IndicesPtr & indices, PointCloud2 & output) override;
 
   void subscribe() override;
 
   void unsubscribe() override;
 
-  bool child_init(ros::NodeHandle & nh, bool & has_service) override;
-
-  void config_callback(pointcloud_preprocessor::RayGroundFilterConfig & config, uint32_t level);
+  // TODO(Horibe): Port dynamic reconfigure
+  // void config_callback(pointcloud_preprocessor::RayGroundFilterConfig & config, uint32_t level);
 
 private:
   tf2_ros::Buffer tf_buffer_;
@@ -133,7 +129,7 @@ private:
 
   std::vector<cv::Scalar> colors_;
   const size_t color_num_ = 10;  // different number of color to generate
-  pcl::PointCloud<PointType_>::Ptr
+  pcl::PointCloud<PointType_>::SharedPtr
     previous_cloud_ptr_;  // holds the previous groundless result of ground
                           // classification
 
@@ -146,8 +142,8 @@ private:
    * @retval false transform faild
    */
   bool TransformPointCloud(
-    const std::string & in_target_frame, const sensor_msgs::PointCloud2::ConstPtr & in_cloud_ptr,
-    const sensor_msgs::PointCloud2::Ptr & out_cloud_ptr);
+    const std::string & in_target_frame, const sensor_msgs::PointCloud2::ConstSharedPtr & in_cloud_ptr,
+    const sensor_msgs::PointCloud2::SharedPtr & out_cloud_ptr);
 
   /*!
    *
@@ -157,7 +153,7 @@ private:
    * @param[out] out_radial_ordered_clouds Vector of Points Clouds, each element will contain the points ordered
    */
   void ConvertXYZIToRTZColor(
-    const pcl::PointCloud<PointType_>::Ptr in_cloud, PointCloudXYZRTColor & out_organized_points,
+    const pcl::PointCloud<PointType_>::SharedPtr in_cloud, PointCloudXYZRTColor & out_organized_points,
     std::vector<pcl::PointIndices> & out_radial_divided_indices,
     std::vector<PointCloudXYZRTColor> & out_radial_ordered_clouds);
 
@@ -180,12 +176,12 @@ private:
    * @param out_removed_indices_cloud_ptr Resulting PointCloud with the indices removed
    */
   void ExtractPointsIndices(
-    const pcl::PointCloud<PointType_>::Ptr in_cloud_ptr, const pcl::PointIndices & in_indices,
-    pcl::PointCloud<PointType_>::Ptr out_only_indices_cloud_ptr,
-    pcl::PointCloud<PointType_>::Ptr out_removed_indices_cloud_ptr);
+    const pcl::PointCloud<PointType_>::SharedPtr in_cloud_ptr, const pcl::PointIndices & in_indices,
+    pcl::PointCloud<PointType_>::SharedPtr out_only_indices_cloud_ptr,
+    pcl::PointCloud<PointType_>::SharedPtr out_removed_indices_cloud_ptr);
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  RayGroundFilterNodelet();
+  RayGroundFilterComponent();
 };
 }  // namespace pointcloud_preprocessor

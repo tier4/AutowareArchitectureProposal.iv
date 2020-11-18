@@ -40,11 +40,10 @@
 
 // PCL includes
 #include <pcl/filters/filter.h>
-#include "pcl_ros/pcl_nodelet.h"
+#include "pointcloud_preprocessor/pcl_component.h"
 
-// Dynamic reconfigure
-#include <dynamic_reconfigure/server.h>
-#include "pcl_ros/FilterConfig.h"
+#include <boost/thread/mutex.hpp>
+#include <string>
 
 namespace pointcloud_preprocessor
 {
@@ -54,19 +53,25 @@ namespace sync_policies = message_filters::sync_policies;
  * are defined here as static methods.
  * \author Radu Bogdan Rusu
  */
-class Filter : public pcl_ros::PCLNodelet
+class Filter : public pointcloud_preprocessor::PCLComponent
 {
 public:
-  typedef sensor_msgs::PointCloud2 PointCloud2;
+  typedef sensor_msgs::msg::PointCloud2 PointCloud2;
 
   typedef boost::shared_ptr<std::vector<int> > IndicesPtr;
   typedef boost::shared_ptr<const std::vector<int> > IndicesConstPtr;
 
-  Filter() {}
+  Filter(const rclcpp::NodeOptions & node_options)
+  : pointcloud_preprocessor::PCLComponent(node_options)
+  {
+    onInit();
+    subscribe();
+  };
+  // Filter(const std::string & filter_name, const rclcpp::NodeOptions & node_options);
 
 protected:
   /** \brief The input PointCloud subscriber. */
-  ros::Subscriber sub_input_;
+  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_input_;
 
   message_filters::Subscriber<PointCloud2> sub_input_filter_;
 
@@ -96,13 +101,10 @@ protected:
   boost::mutex mutex_;
 
   /** \brief Child initialization routine.
-   * \param nh ROS node handle
-   * \param has_service set to true if the child has a Dynamic Reconfigure service
    */
-  virtual bool child_init(ros::NodeHandle & nh, bool & has_service)
+  virtual bool child_init()
   {
-    has_service = false;
-    return (true);
+    return true;
   }
 
   /** \brief Virtual abstract filter method. To be implemented by every child.
@@ -129,9 +131,6 @@ protected:
   void computePublish(const PointCloud2::ConstPtr & input, const IndicesPtr & indices);
 
 private:
-  /** \brief Pointer to a dynamic reconfigure service. */
-  boost::shared_ptr<dynamic_reconfigure::Server<pcl_ros::FilterConfig> > srv_;
-
   /** \brief Synchronized input, and indices.*/
   boost::shared_ptr<
     message_filters::Synchronizer<sync_policies::ExactTime<PointCloud2, PointIndices> > >
@@ -141,7 +140,7 @@ private:
     sync_input_indices_a_;
 
   /** \brief Dynamic reconfigure service callback. */
-  virtual void config_callback(pcl_ros::FilterConfig & config, uint32_t level);
+  // virtual void config_callback(pcl_ros::FilterConfig & config, uint32_t level);
 
   /** \brief PointCloud2 + Indices data callback. */
   void input_indices_callback(
