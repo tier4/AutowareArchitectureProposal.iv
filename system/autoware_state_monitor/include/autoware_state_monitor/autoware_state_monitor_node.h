@@ -34,6 +34,7 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 #include <diagnostic_updater/diagnostic_updater.hpp>
+#include <rclcpp_generic/generic_subscription.hpp>
 #include <rclcpp/rclcpp.hpp>
 // #include <rosbag2_transport/recorder.hpp>
 // #include <topic_tools/shape_shifter.h>
@@ -80,10 +81,12 @@ private:
   void onTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
 
   // Topic Buffer
-  // void onTopic(const topic_tools::ShapeShifter::ConstPtr & msg, const std::string & topic_name);
-  void registerTopicCallback(const std::string & topic_name);
+  void onTopic(
+    const std::shared_ptr<rclcpp::SerializedMessage> msg, const std::string & topic_name);
+  void registerTopicCallback(
+    const std::string & topic_name, const std::string & topic_type);
 
-  std::map<std::string, rclcpp::SubscriptionBase::SharedPtr> sub_topic_map_;
+  std::map<std::string, rclcpp_generic::GenericSubscription::SharedPtr> sub_topic_map_;
   std::map<std::string, std::deque<rclcpp::Time>> topic_received_time_buffer_;
 
   // Publisher

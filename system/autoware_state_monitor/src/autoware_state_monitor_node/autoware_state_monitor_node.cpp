@@ -32,7 +32,6 @@ std::vector<Config> getConfigs(
   rclcpp::node_interfaces::NodeParametersInterface::SharedPtr interface,
   const std::string & config_namespace)
 {
-  // std::string config_namespace = namespace_name + config
   std::string names_key = config_namespace + ".names";
   interface->declare_parameter(names_key);
   std::vector<std::string> config_names = interface->get_parameter(names_key).as_string_array();
@@ -216,31 +215,32 @@ void AutowareStateMonitorNode::onTimer()
 }
 
 // TODO: Use generic subscription base
-// void AutowareStateMonitorNode::onTopic(
-//   const topic_tools::ShapeShifter::ConstPtr & msg, const std::string & topic_name)
-// {
-//   const auto now = ros::Time::now();
+void AutowareStateMonitorNode::onTopic(
+  const std::shared_ptr<rclcpp::SerializedMessage> msg, const std::string & topic_name)
+{
+  const auto now = this->now();
 
-//   auto & buf = topic_received_time_buffer_.at(topic_name);
-//   buf.push_back(now);
+  auto & buf = topic_received_time_buffer_.at(topic_name);
+  buf.push_back(now);
 
-//   constexpr size_t topic_received_time_buffer_size = 10;
-//   if (buf.size() > topic_received_time_buffer_size) {
-//     buf.pop_front();
-//   }
-// }
+  constexpr size_t topic_received_time_buffer_size = 10;
+  if (buf.size() > topic_received_time_buffer_size) {
+    buf.pop_front();
+  }
+}
 
-// void AutowareStateMonitorNode::registerTopicCallback(const std::string & topic_name)
-// {
-//   // Initialize buffer
-//   topic_received_time_buffer_[topic_name] = {};
+void AutowareStateMonitorNode::registerTopicCallback(const std::string & topic_name, const std::string & topic_type)
+{
+  // Initialize buffer
+  topic_received_time_buffer_[topic_name] = {};
 
-//   // Register callback
-//   using Callback = boost::function<void(const topic_tools::ShapeShifter::ConstPtr &)>;
-//   const auto callback =
-//     static_cast<Callback>(boost::bind(&AutowareStateMonitorNode::onTopic, this, _1, topic_name));
-//   sub_topic_map_[topic_name] = nh_.subscribe(topic_name, 10, callback);
-// }
+  // Register callback
+  using Callback = std::function<void(const std::shared_ptr<rclcpp::SerializedMessage>)>;
+  const auto callback =
+    static_cast<Callback>(std::bind(&AutowareStateMonitorNode::onTopic, this, std::placeholders::_1, topic_name));
+  sub_topic_map_[topic_name] = rclcpp_generic::GenericSubscription::create(
+    this->get_node_topics_interface(), topic_name, topic_type, rclcpp::QoS{1}, callback);
+}
 
 TopicStats AutowareStateMonitorNode::getTopicStats() const
 {
@@ -365,9 +365,9 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
     this->get_node_parameters_interface(), "tf_configs");
 
   // Topic Callback
-  // for (const auto & topic_config : topic_configs_) {
-  //   registerTopicCallback(topic_config.name);
-  // }
+  for (const auto & topic_config : topic_configs_) {
+    registerTopicCallback(topic_config.name, topic_config.type);
+  }
 
   // Subscriber
   sub_autoware_engage_ = this->create_subscription<std_msgs::msg::Bool>(

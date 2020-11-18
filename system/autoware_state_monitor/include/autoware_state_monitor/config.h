@@ -23,8 +23,6 @@
 
 #include <rclcpp/time.hpp>
 #include <rclcpp/rclcpp.hpp>
-// #include <rclcpp/node_interfaces.hpp>
-// #include <rclcpp/node_interfaces/node_parameters_interface.hpp>
 
 struct TopicConfig
 {
@@ -33,6 +31,7 @@ struct TopicConfig
     const std::string & namespace_prefix, const std::string & name)
   : module(interface->declare_parameter(namespace_prefix + ".module").get<std::string>()),
     name(name),
+    type(interface->declare_parameter(namespace_prefix + ".type").get<std::string>()),
     timeout(interface->declare_parameter(namespace_prefix + ".timeout").get<double>()),
     warn_rate(interface->declare_parameter(namespace_prefix + ".warn_rate").get<double>())
   {
@@ -40,6 +39,7 @@ struct TopicConfig
 
   std::string module;
   std::string name;
+  std::string type;
   double timeout;
   double warn_rate;
 };
