@@ -15,10 +15,8 @@
  */
 
 #include "autoware_state_monitor/autoware_state_monitor_node.h"
-// #include "autoware_state_monitor/rosconsole_wrapper.h"
 
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <boost/bind.hpp>
 
 #include <numeric>
 #include <string>
@@ -152,7 +150,6 @@ void AutowareStateMonitorNode::onTwist(const geometry_msgs::msg::TwistStamped::C
 
   // Delete old data in buffer
   while (true) {
-    // Get error regarding different timestamps even though they are the same types?
     const auto time_diff = rclcpp::Time(msg->header.stamp) - rclcpp::Time(state_input_.twist_buffer.front()->header.stamp);
 
     if (time_diff.seconds() < state_param_.th_stopped_time_sec) {

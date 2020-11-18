@@ -28,7 +28,6 @@
 
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
-// TODO: deprecated
 #include <std_msgs/msg/bool.hpp>
 
 #include <tf2_ros/buffer.h>
@@ -36,8 +35,6 @@
 #include <diagnostic_updater/diagnostic_updater.hpp>
 #include <rclcpp_generic/generic_subscription.hpp>
 #include <rclcpp/rclcpp.hpp>
-// #include <rosbag2_transport/recorder.hpp>
-// #include <topic_tools/shape_shifter.h>
 
 #include <deque>
 #include <map>

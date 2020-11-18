@@ -27,10 +27,6 @@
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
-#include <boost/bind.hpp>
-
-// #include <autoware_state_monitor/rosconsole_wrapper.hpp>
-
 void AutowareStateMonitorNode::setupDiagnosticUpdater()
 {
   updater_.setHardwareID("autoware_state_monitor");
@@ -43,13 +39,13 @@ void AutowareStateMonitorNode::setupDiagnosticUpdater()
     const auto diag_name = fmt::format("{}_topic_status", module_name);
 
     updater_.add(
-      diag_name, boost::bind(&AutowareStateMonitorNode::checkTopicStatus, this, _1, module_name));
+      diag_name, std::bind(&AutowareStateMonitorNode::checkTopicStatus, this, std::placeholders::_1, module_name));
   }
 
   // TF
   updater_.add(
     "localization_tf_status",
-    boost::bind(&AutowareStateMonitorNode::checkTFStatus, this, _1, "localization"));
+    std::bind(&AutowareStateMonitorNode::checkTFStatus, this, std::placeholders::_1, "localization"));
 }
 
 void AutowareStateMonitorNode::checkTopicStatus(

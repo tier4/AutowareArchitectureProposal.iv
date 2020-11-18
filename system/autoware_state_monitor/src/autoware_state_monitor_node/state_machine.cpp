@@ -19,8 +19,6 @@
 
 #include <autoware_state_monitor/state_machine.h>
 
-// #include <autoware_state_monitor/rosconsole_wrapper.h>
-
 namespace
 {
 double calcDistance2d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2)
