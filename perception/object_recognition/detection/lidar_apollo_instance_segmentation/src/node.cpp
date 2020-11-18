@@ -33,5 +33,5 @@ void LidarInstanceSegmentationNode::pointCloudCallback(const sensor_msgs::msg::P
   autoware_perception_msgs::msg::DynamicObjectWithFeatureArray output_msg;
   detector_ptr_->detectDynamicObjects(*msg, output_msg);
   dynamic_objects_pub_->publish(output_msg);
-  // debugger_ptr_->publishColoredPointCloud(output_msg);
+  debugger_ptr_->publishColoredPointCloud(output_msg);
 }
