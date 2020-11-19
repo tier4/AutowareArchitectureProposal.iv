@@ -30,29 +30,25 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-#include <rviz_common/display_context.hpp>
-#include <rviz_common/properties/float_property.hpp>
-#include <rviz_common/properties/string_property.hpp>
-
 #include <mission_checkpoint/mission_checkpoint.hpp>
 
-namespace rviz_common
+namespace rviz_plugins
 {
 MissionCheckpointTool::MissionCheckpointTool()
 {
   shortcut_key_ = 'c';
 
-  pose_topic_property_ = new properties::StringProperty(
+  pose_topic_property_ = new rviz_common::properties::StringProperty(
     "Pose Topic", "mission_checkpoint", "The topic on which to publish checkpoint.",
     getPropertyContainer(), SLOT(updateTopic()), this);
-  std_dev_x_ = new properties::FloatProperty(
+  std_dev_x_ = new rviz_common::properties::FloatProperty(
     "X std deviation", 0.5, "X standard deviation for checkpoint pose [m]", getPropertyContainer());
-  std_dev_y_ = new properties::FloatProperty(
+  std_dev_y_ = new rviz_common::properties::FloatProperty(
     "Y std deviation", 0.5, "Y standard deviation for checkpoint pose [m]", getPropertyContainer());
-  std_dev_theta_ = new properties::FloatProperty(
+  std_dev_theta_ = new rviz_common::properties::FloatProperty(
     "Theta std deviation", M_PI / 12.0, "Theta standard deviation for checkpoint pose [rad]",
     getPropertyContainer());
-  position_z_ = new properties::FloatProperty(
+  position_z_ = new rviz_common::properties::FloatProperty(
     "Z position", 0.0, "Z position for checkpoint pose [m]", getPropertyContainer());
   std_dev_x_->setMin(0);
   std_dev_y_->setMin(0);
@@ -96,7 +92,7 @@ void MissionCheckpointTool::onPoseSet(double x, double y, double theta)
   pose_pub_->publish(pose);
 }
 
-}  // end namespace rviz_common
+}  // end namespace rviz_plugins
 
 #include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(rviz_common::MissionCheckpointTool, rviz_common::Tool)
+PLUGINLIB_EXPORT_CLASS(rviz_plugins::MissionCheckpointTool, rviz_common::Tool)
