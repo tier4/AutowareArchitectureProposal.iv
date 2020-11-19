@@ -39,7 +39,7 @@ set(${PROJECT_NAME}_DEPENDENCIES
   tf2_ros
 )
 
-add_executable(dummy_perception_publisher_node
+ament_auto_add_executable(dummy_perception_publisher_node
   src/main.cpp
   src/node.cpp
 )
@@ -68,30 +68,8 @@ target_link_libraries(dummy_perception_publisher_node ${PCL_LIBRARIES})
 target_link_directories(dummy_perception_publisher_node PRIVATE ${PCL_LIBRARY_DIRS})
 
 
-add_executable(empty_objects_publisher
+ament_auto_add_executable(empty_objects_publisher
   src/empty_objects_publisher.cpp
-)
-
-ament_target_dependencies(empty_objects_publisher PUBLIC ${${PROJECT_NAME}_DEPENDENCIES})
-
-target_include_directories(empty_objects_publisher
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
-
-install(
-  TARGETS
-    dummy_perception_publisher_node
-    empty_objects_publisher
-  ARCHIVE DESTINATION lib/${PROJECT_NAME}
-  LIBRARY DESTINATION lib/${PROJECT_NAME}
-  RUNTIME DESTINATION bin/${PROJECT_NAME}
-)
-
-install(
-  DIRECTORY
-    launch
-  DESTINATION launch
 )
 
 if(BUILD_TESTING)
@@ -99,4 +77,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-ament_package()
+ament_auto_package(
+  INSTALL_TO_SHARE
+  launch
+)
