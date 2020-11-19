@@ -33,36 +33,32 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-#include <rviz_common/display_context.hpp>
-#include <rviz_common/properties/float_property.hpp>
-#include <rviz_common/properties/string_property.hpp>
-
 #include <unique_identifier_msgs/msg/uuid.hpp>
 
 #include "car_pose.hpp"
 
-namespace rviz_common
+namespace rviz_plugins
 {
 CarInitialPoseTool::CarInitialPoseTool()
 {
   shortcut_key_ = 'k';
 
-  topic_property_ = new properties::StringProperty(
+  topic_property_ = new rviz_common::properties::StringProperty(
     "Pose Topic", "/simulation/dummy_perception/publisher/object_info",
     "The topic on which to publish dummy object info.", 
     getPropertyContainer(), SLOT(updateTopic()), this);
-  std_dev_x_ = new properties::FloatProperty(
+  std_dev_x_ = new rviz_common::properties::FloatProperty(
     "X std deviation", 0.03, "X standard deviation for initial pose [m]", getPropertyContainer());
-  std_dev_y_ = new properties::FloatProperty(
+  std_dev_y_ = new rviz_common::properties::FloatProperty(
     "Y std deviation", 0.03, "Y standard deviation for initial pose [m]", getPropertyContainer());
-  std_dev_z_ = new properties::FloatProperty(
+  std_dev_z_ = new rviz_common::properties::FloatProperty(
     "Z std deviation", 0.03, "Z standard deviation for initial pose [m]", getPropertyContainer());
-  std_dev_theta_ = new properties::FloatProperty(
+  std_dev_theta_ = new rviz_common::properties::FloatProperty(
     "Theta std deviation", 5.0 * M_PI / 180.0, "Theta standard deviation for initial pose [rad]",
     getPropertyContainer());
-  position_z_ = new properties::FloatProperty(
+  position_z_ = new rviz_common::properties::FloatProperty(
     "Z position", 0.0, "Z position for initial pose [m]", getPropertyContainer());
-  velocity_ = new properties::FloatProperty(
+  velocity_ = new rviz_common::properties::FloatProperty(
     "Velocity", 0.0, "velocity [m/s]", getPropertyContainer());
   std_dev_x_->setMin(0);
   std_dev_y_->setMin(0);
@@ -146,7 +142,7 @@ void CarInitialPoseTool::onPoseSet(double x, double y, double theta)
   dummy_object_info_pub_->publish(output_msg);
 }
 
-}  // end namespace rviz_common
+}  // end namespace rviz_plugins
 
 #include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(rviz_common::CarInitialPoseTool, rviz_common::Tool)
+PLUGINLIB_EXPORT_CLASS(rviz_plugins::CarInitialPoseTool, rviz_common::Tool)

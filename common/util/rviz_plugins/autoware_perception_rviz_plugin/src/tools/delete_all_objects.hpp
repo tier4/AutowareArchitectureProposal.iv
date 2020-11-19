@@ -35,20 +35,15 @@
 #include <rclcpp/node.hpp>
 
 #include <rviz_default_plugins/tools/pose/pose_tool.hpp>
+#include <rviz_common/display_context.hpp>
+#include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/string_property.hpp>
 #endif
 
 #include "dummy_perception_publisher/msg/object.hpp"
 
-namespace rviz_common
+namespace rviz_plugins
 {
-class Arrow;
-class DisplayContext;
-namespace properties
-{
-class StringProperty;
-class FloatProperty;
-} // namespace properties
-
 class DeleteAllObjectsTool : public rviz_default_plugins::tools::PoseTool
 {
   Q_OBJECT
@@ -67,7 +62,7 @@ private:
   rclcpp::Clock::SharedPtr clock_;
   rclcpp::Publisher<dummy_perception_publisher::msg::Object>::SharedPtr dummy_object_info_pub_;
 
-  properties::StringProperty * topic_property_;
+  rviz_common::properties::StringProperty * topic_property_;
 };
 
-}  // namespace rviz_common
+}  // namespace rviz_plugins

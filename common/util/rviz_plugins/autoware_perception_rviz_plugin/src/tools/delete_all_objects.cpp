@@ -29,19 +29,15 @@
 
 #include <tf2_ros/transform_listener.h>
 
-#include <rviz_common/display_context.hpp>
-#include <rviz_common/properties/float_property.hpp>
-#include <rviz_common/properties/string_property.hpp>
-
 #include "delete_all_objects.hpp"
 
-namespace rviz_common
+namespace rviz_plugins
 {
 DeleteAllObjectsTool::DeleteAllObjectsTool()
 {
   shortcut_key_ = 'd';
 
-  topic_property_ = new properties::StringProperty(
+  topic_property_ = new rviz_common::properties::StringProperty(
     "Pose Topic", "/simulation/dummy_perception/publisher/object_info",
     "The topic on which to publish dummy object info.", 
     getPropertyContainer(), SLOT(updateTopic()), this);
@@ -78,7 +74,7 @@ void DeleteAllObjectsTool::onPoseSet(double x, double y, double theta)
   dummy_object_info_pub_->publish(output_msg);
 }
 
-}  // end namespace rviz_common
+}  // end namespace rviz_plugins
 
 #include <pluginlib/class_list_macros.hpp>
-PLUGINLIB_EXPORT_CLASS(rviz_common::DeleteAllObjectsTool, rviz_common::Tool)
+PLUGINLIB_EXPORT_CLASS(rviz_plugins::DeleteAllObjectsTool, rviz_common::Tool)

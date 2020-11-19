@@ -29,6 +29,9 @@ ament_auto_add_library(autoware_perception_rviz_plugin
 target_link_libraries(autoware_perception_rviz_plugin 
   ${QT_LIBRARIES})
 
+# Export the plugin to be imported by rviz2
+pluginlib_export_plugin_description_file(rviz_common plugins/plugin_description.xml)
+
 ament_auto_package(
   INSTALL_TO_SHARE
   icons
