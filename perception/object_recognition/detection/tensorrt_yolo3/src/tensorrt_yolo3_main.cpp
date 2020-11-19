@@ -17,10 +17,12 @@
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "tensorrt_yolo3");
-  TensorrtYoloROS app;
-  app.createROSPubSub();
-  ros::spin();
+  rclcpp::init(argc, argv);
+
+  const auto node = std::make_shared<TensorrtYoloROS>();
+  rclcpp::spin(node);
+
+  rclcpp::shutdown();
 
   return 0;
 }

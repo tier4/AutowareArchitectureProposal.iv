@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <cv_bridge/cv_bridge.h>
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/image_encodings.h>
+#include <sensor_msgs/msg/image.hpp>
+#include <sensor_msgs/image_encodings.hpp>
 
-#include <autoware_perception_msgs/DynamicObjectWithFeatureArray.h>
+#include <autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp>
 
 // STL
 #include <chrono>
@@ -30,22 +30,20 @@
 #include "TrtNet.h"
 #include "data_reader.h"
 
-class TensorrtYoloROS
+class TensorrtYoloROS : public rclcpp::Node
 {
 private:
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
-  ros::Subscriber sub_image_;
-  ros::Publisher pub_objects_;
-  ros::Publisher pub_image_;
+  rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_image_;
+  rclcpp::Publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr pub_objects_;
+  rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_image_;
 
   std::unique_ptr<Tn::trtNet> net_ptr_;
 
-  void imageCallback(const sensor_msgs::Image::ConstPtr & in_image);
+  void imageCallback(const sensor_msgs::msg::Image::ConstSharedPtr in_image);
   std::vector<float> prepareImage(cv::Mat & in_img);
   std::vector<Tn::Bbox> postProcessImg(
     std::vector<Yolo::Detection> & detections, const int classes, cv::Mat & img,
-    autoware_perception_msgs::DynamicObjectWithFeatureArray & out_objects);
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & out_objects);
   void doNms(std::vector<Yolo::Detection> & detections, int classes, float nmsThresh);
   /* data */
 public:
