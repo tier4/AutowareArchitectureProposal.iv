@@ -28,6 +28,32 @@ include_directories(
   ${EIGEN3_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS})
 
+
+
+# ==== Compare Map Filter ====
+
+# ==== Concatenate data ====
+ament_auto_add_library(concatenate_data SHARED
+  src/concatenate_data/concatenate_data_nodelet.cpp
+  )
+target_link_libraries(concatenate_data ${Boost_LIBRARIES})
+rclcpp_components_register_node(concatenate_data
+  PLUGIN "autoware::pointcloud_preprocessor::ConcatenateData"
+  EXECUTABLE concatenate_data_exe)
+
+# ==== CropBox ====
+ament_auto_add_library(crop_box_filter SHARED
+  src/crop_box_filter/crop_box_filter_nodelet.cpp
+  src/filter.cpp
+  )
+target_link_libraries(crop_box_filter ${Boost_LIBRARIES})
+rclcpp_components_register_node(crop_box_filter
+  PLUGIN "autoware::pointcloud_preprocessor::CropBoxFilter"
+  EXECUTABLE crop_box_filter_exe)
+
+
+# ==== Down Sampler Filter ====
+
 # ==== Ray Ground Filter ====
 ament_auto_add_library(ray_ground_filter SHARED
   src/ground_filter/ray_ground_filter_nodelet.cpp
@@ -42,26 +68,12 @@ rclcpp_components_register_node(ray_ground_filter
   PLUGIN "autoware::pointcloud_preprocessor::RayGroundFilter"
   EXECUTABLE ray_ground_filter_exe)
 
+# ==== Outlier Filter ====
 
-# ==== CropBox ====
-ament_auto_add_library(crop_box_filter SHARED
-  src/crop_box_filter/crop_box_filter_nodelet.cpp
-  src/filter.cpp
-  )
-target_link_libraries(crop_box_filter ${Boost_LIBRARIES})
-rclcpp_components_register_node(crop_box_filter
-  PLUGIN "autoware::pointcloud_preprocessor::CropBoxFilter"
-  EXECUTABLE crop_box_filter_exe)
+# ==== Passthrough Filter ====
 
+# ==== Pointcloud Accumulator Filter ====
 
-# ==== Concatenate data ====
-ament_auto_add_library(concatenate_data SHARED
-  src/concatenate_data/concatenate_data_nodelet.cpp
-  )
-target_link_libraries(concatenate_data ${Boost_LIBRARIES})
-rclcpp_components_register_node(concatenate_data
-  PLUGIN "autoware::pointcloud_preprocessor::ConcatenateData"
-  EXECUTABLE concatenate_data_exe)
 
 #############
 ## Install ##
