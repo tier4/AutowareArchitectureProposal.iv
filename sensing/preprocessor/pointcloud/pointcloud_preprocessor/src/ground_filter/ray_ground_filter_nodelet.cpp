@@ -128,8 +128,7 @@ void RayGroundFilterNodelet::ConvertXYZIToRTZColor(
   }
 }
 
-boost::optional<float> RayGroundFilterNodelet::calcPointVehicleIntersection(
-  const Point& point)
+boost::optional<float> RayGroundFilterNodelet::calcPointVehicleIntersection(const Point & point)
 {
   float distance_to_intersection_point = 0.0;
   if (base_frame_ != "base_link") {
@@ -142,7 +141,7 @@ boost::optional<float> RayGroundFilterNodelet::calcPointVehicleIntersection(
   if (collision_points.size() < 1) {
     return {};
   }
-  return bg::distance(Point(0,0), collision_points.front());
+  return bg::distance(Point(0, 0), collision_points.front());
 }
 
 void RayGroundFilterNodelet::ClassifyPointCloud(
@@ -325,11 +324,11 @@ void RayGroundFilterNodelet::config_callback(
 
   // create vehicle footprint polygon
   vehicle_footprint_.outer().clear();
-  vehicle_footprint_.outer().push_back(Point(config.min_x, config.min_y)); // left back
-  vehicle_footprint_.outer().push_back(Point(config.min_x, config.max_y)); // right back
-  vehicle_footprint_.outer().push_back(Point(config.max_x, config.max_y)); // right front
-  vehicle_footprint_.outer().push_back(Point(config.max_x, config.min_y)); // left front
-  vehicle_footprint_.outer().push_back(Point(config.min_x, config.min_y)); // left back
+  vehicle_footprint_.outer().push_back(Point(config.min_x, config.min_y));  // left back
+  vehicle_footprint_.outer().push_back(Point(config.min_x, config.max_y));  // right back
+  vehicle_footprint_.outer().push_back(Point(config.max_x, config.max_y));  // right front
+  vehicle_footprint_.outer().push_back(Point(config.max_x, config.min_y));  // left front
+  vehicle_footprint_.outer().push_back(Point(config.min_x, config.min_y));  // left back
 
   if (base_frame_ != config.base_frame) {
     base_frame_ = config.base_frame;
@@ -382,7 +381,7 @@ void RayGroundFilterNodelet::config_callback(
   if (use_vehicle_footprint_ != config.use_vehicle_footprint) {
     use_vehicle_footprint_ = config.use_vehicle_footprint;
     NODELET_DEBUG(
-      "[%s::config_callback] Setting use_vehicle_footprint to: %f.", getName().c_str(),
+      "[%s::config_callback] Setting use_vehicle_footprint to: %d.", getName().c_str(),
       config.use_vehicle_footprint);
   }
 }
