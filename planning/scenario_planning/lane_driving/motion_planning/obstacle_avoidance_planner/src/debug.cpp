@@ -36,7 +36,8 @@ visualization_msgs::MarkerArray getDebugVisualizationMarker(
   const DebugData & debug_data,
   // const std::vector<geometry_msgs::Point> & interpolated_points,
   // const std::vector<autoware_planning_msgs::TrajectoryPoint> & smoothed_points,
-  const std::vector<autoware_planning_msgs::TrajectoryPoint> & optimized_points)
+  const std::vector<autoware_planning_msgs::TrajectoryPoint> & optimized_points,
+  const VehicleParam & vehicle_param)
 {
   const auto points_marker_array = getDebugPointsMarkers(
     debug_data.interpolated_points, optimized_points, debug_data.straight_points,
@@ -48,12 +49,11 @@ visualization_msgs::MarkerArray getDebugVisualizationMarker(
 
   visualization_msgs::MarkerArray vis_marker_array;
   if (debug_data.is_expected_to_over_drivable_area && !optimized_points.empty()) {
+    const auto virtual_wall_pose = getVirtualWallPose(optimized_points.back().pose, vehicle_param);
     appendMarkerArray(
-      getVirtualWallMarkerArray(optimized_points.back().pose, "virtual_wall", 1.0, 0, 0),
-      &vis_marker_array);
+      getVirtualWallMarkerArray(virtual_wall_pose, "virtual_wall", 1.0, 0, 0), &vis_marker_array);
     appendMarkerArray(
-      getVirtualWallTextMarkerArray(
-        optimized_points.back().pose, "virtual_wall_text", 1.0, 1.0, 1.0),
+      getVirtualWallTextMarkerArray(virtual_wall_pose, "virtual_wall_text", 1.0, 1.0, 1.0),
       &vis_marker_array);
   }
   appendMarkerArray(points_marker_array, &vis_marker_array);
@@ -124,6 +124,20 @@ visualization_msgs::MarkerArray getDebugVisualizationMarker(
       0.2),
     &vis_marker_array);
   return vis_marker_array;
+}
+
+geometry_msgs::Pose getVirtualWallPose(
+  const geometry_msgs::Pose & target_pose, const VehicleParam & vehicle_param)
+{
+  const double base_link2front = vehicle_param.wheelbase + vehicle_param.front_overhang;
+  tf2::Transform tf_base_link2front(
+    tf2::Quaternion(0.0, 0.0, 0.0, 1.0), tf2::Vector3(base_link2front, 0.0, 0.0));
+  tf2::Transform tf_map2base_link;
+  tf2::fromMsg(target_pose, tf_map2base_link);
+  tf2::Transform tf_map2front = tf_map2base_link * tf_base_link2front;
+  geometry_msgs::Pose virtual_wall_pose;
+  tf2::toMsg(tf_map2front, virtual_wall_pose);
+  return virtual_wall_pose;
 }
 
 visualization_msgs::MarkerArray getDebugPointsMarkers(

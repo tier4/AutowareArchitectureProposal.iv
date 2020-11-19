@@ -19,6 +19,7 @@
 struct ConstrainRectangle;
 struct Bounds;
 struct DebugData;
+struct VehicleParam;
 
 namespace util
 {
@@ -27,7 +28,11 @@ struct Footprint;
 
 visualization_msgs::MarkerArray getDebugVisualizationMarker(
   const DebugData & debug_data,
-  const std::vector<autoware_planning_msgs::TrajectoryPoint> & optimized_points);
+  const std::vector<autoware_planning_msgs::TrajectoryPoint> & optimized_points,
+  const VehicleParam & vehicle_param);
+
+geometry_msgs::Pose getVirtualWallPose(
+  const geometry_msgs::Pose & target_pose, const VehicleParam & vehicle_param);
 
 visualization_msgs::MarkerArray getDebugPointsMarkers(
   const std::vector<geometry_msgs::Point> & interpolated_points,

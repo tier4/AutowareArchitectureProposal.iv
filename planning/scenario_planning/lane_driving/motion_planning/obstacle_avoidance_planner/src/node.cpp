@@ -382,7 +382,7 @@ ObstacleAvoidancePlanner::generateOptimizedTrajectory(
       makePrevTrajectories(*current_ego_pose_ptr_, path.points, prev_trajs_inside_area.get()));
 
     const auto prev_traj = util::concatTraj(prev_trajs_inside_area.get());
-    publishingDebugData(debug_data, path, prev_traj);
+    publishingDebugData(debug_data, path, prev_traj, *vehicle_param_);
     return prev_traj;
   }
 
@@ -393,7 +393,7 @@ ObstacleAvoidancePlanner::generateOptimizedTrajectory(
   prev_trajectories_ptr_ = std::make_unique<Trajectories>(
     makePrevTrajectories(*current_ego_pose_ptr_, path.points, trajs_inside_area));
   const auto optimized_trajectory = util::concatTraj(trajs_inside_area);
-  publishingDebugData(debug_data, path, optimized_trajectory);
+  publishingDebugData(debug_data, path, optimized_trajectory, *vehicle_param_);
   return optimized_trajectory;
 }
 
@@ -580,7 +580,8 @@ ObstacleAvoidancePlanner::convertPointsToTrajectory(
 
 void ObstacleAvoidancePlanner::publishingDebugData(
   const DebugData & debug_data, const autoware_planning_msgs::Path & path,
-  const std::vector<autoware_planning_msgs::TrajectoryPoint> & traj_points)
+  const std::vector<autoware_planning_msgs::TrajectoryPoint> & traj_points,
+  const VehicleParam & vehicle_param)
 {
   autoware_planning_msgs::Trajectory traj;
   traj.header = path.header;
@@ -604,7 +605,8 @@ void ObstacleAvoidancePlanner::publishingDebugData(
     traj_points_debug.back().pose.position.z = path.points.at(idx).pose.position.z + 1.0;
   }
 
-  debug_markers_pub_.publish(getDebugVisualizationMarker(debug_data, traj_points_debug));
+  debug_markers_pub_.publish(
+    getDebugVisualizationMarker(debug_data, traj_points_debug, vehicle_param));
   if (is_publishing_area_with_objects_) {
     debug_area_with_objects_pub_.publish(
       getDebugCostmap(debug_data.area_with_objects_map, path.drivable_area));
