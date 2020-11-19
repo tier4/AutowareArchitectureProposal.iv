@@ -2,25 +2,26 @@
 
 <launch>
 
-  <arg name="input" default="/points_raw"/>
-  <arg name="output" default="vscan/pointcloud"/>
+  <arg name="input" default="no_ground/pointdloud"/>
+  <arg name="output" default="virtual_scan/pointcloud"/>
+  <arg name="manager" />
 
   <!-- run pointcloud_to_laserscan node -->
-  <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan">
+  <node pkg="nodelet" type="nodelet" name="pointcloud_to_laserscan" args="load pointcloud_to_laserscan/pointcloud_to_laserscan_nodelet $(arg manager)">
 
     <remap from="cloud_in" to="$(arg input)"/>
     <remap from="cloud_out" to="$(arg output)"/>
     <rosparam>
-            target_frame: velodyne # Leave disabled to output scan in pointcloud frame
+            target_frame: base_link # Leave disabled to output scan in pointcloud frame
             transform_tolerance: 0.01
-            min_height: -1.5
-            max_height: 0.0
+            min_height: 0.0
+            max_height: 2.0
 
             angle_min: -3.141592 # -M_PI
             angle_max: 3.141592 # M_PI
-            angle_increment: 0.00435 # M_PI/360.0
-            scan_time: 0.3333
-            range_min: 2.5
+            angle_increment: 0.0087266 # 0.5*M_PI/180.0
+            scan_time: 0.1
+            range_min: 1.0
             range_max: 100.0
             use_inf: true
             inf_epsilon: 1.0
