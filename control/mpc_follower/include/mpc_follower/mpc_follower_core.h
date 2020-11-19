@@ -344,6 +344,11 @@ private:
    */
   bool isValid(const MPCMatrix & m) const;
 
+  /**
+   * @brief check if the trajectory has valid value
+   */
+  bool isValidTrajectory(const autoware_planning_msgs::Trajectory & traj) const;
+
   /* dynamic reconfigure */
   dynamic_reconfigure::Server<mpc_follower::MPCFollowerConfig> dyncon_server_;
   void dynamicRecofCallback(mpc_follower::MPCFollowerConfig & config, uint32_t level)

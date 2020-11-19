@@ -91,8 +91,9 @@ bool LinearInterpolate::interpolate(
     }
 
     if (i <= 0 || base_size - 1 < i) {
-      std::cerr << "mpc interpolate : undesired condition. skip index. (i = " << i
-                << ", base_size = " << base_size << ")" << std::endl;
+      std::cerr << "mpc LinearInterpolate : undesired condition. skip index. (i = " << i
+                << ", base_size = " << base_size << "), idx = " << idx
+                << ", base_index.at(i)  = " << base_index.at(i) << std::endl;
       continue;
     }
 
@@ -214,8 +215,9 @@ bool SplineInterpolate::interpolate(
     }
 
     if (i <= 0 || base_size - 1 < i) {
-      std::cerr << "mpc spline interpolate : undesired condition. skip index. (i = " << i
-                << ", base_size = " << base_size << ")" << std::endl;
+      std::cerr << "mpc SplineInterpolate : undesired condition. skip index. (i = " << i
+                << ", base_size = " << base_size << "), idx = " << idx
+                << ", base_index.at(i)  = " << base_index.at(i) << std::endl;
       continue;
     }
 

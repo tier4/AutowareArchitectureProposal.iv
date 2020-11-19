@@ -226,6 +226,7 @@ private:
   bool isStoppedState(double current_vel, double target_vel, int closest) const;
   bool isSmoothStopState(const int closest, const double target_vel) const;
   bool isEmergencyState(int closest, double target_vel) const;
+  bool isValidTrajectory(const autoware_planning_msgs::Trajectory & traj) const;
 
   /* reset flags */
   void resetHandling(ControlMode control_mode);

@@ -164,6 +164,10 @@ void VelocityController::callbackCurrentVelocity(const geometry_msgs::TwistStamp
 
 void VelocityController::callbackTrajectory(const autoware_planning_msgs::TrajectoryConstPtr & msg)
 {
+  if (!isValidTrajectory(*msg)) {
+    ROS_ERROR("[velocity_controller] received invalid trajectory. ignore.");
+    return;
+  }
   trajectory_ptr_ = std::make_shared<autoware_planning_msgs::Trajectory>(*msg);
 }
 
@@ -561,6 +565,23 @@ bool VelocityController::isEmergencyState(int closest, double target_vel) const
     }
   }
   return false;
+}
+
+bool VelocityController::isValidTrajectory(const autoware_planning_msgs::Trajectory & traj) const
+{
+  for (const auto & points : traj.points) {
+    const auto & p = points.pose.position;
+    const auto & o = points.pose.orientation;
+    const auto & t = points.twist.linear;
+    const auto & a = points.accel.linear;
+    if (
+      !isfinite(p.x) || !isfinite(p.y) || !isfinite(p.z) || !isfinite(o.x) || !isfinite(o.y) ||
+      !isfinite(o.z) || !isfinite(o.w) || !isfinite(t.x) || !isfinite(t.y) || !isfinite(t.z) ||
+      !isfinite(a.x) || !isfinite(a.y) || !isfinite(a.z)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 double VelocityController::calcFilteredAcc(
