@@ -10,6 +10,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_auto REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(autoware_perception_msgs REQUIRED)
 find_package(tf2 REQUIRED)
@@ -64,7 +65,7 @@ set(SHAPE_ESTIMATION_HPPS
   src/corrector/yaw_fixed/no_corrector.hpp
 )
 
-add_executable(shape_estimation
+ament_auto_add_executable(shape_estimation
   ${SHAPE_ESTIMATION_CPPS}
   ${SHAPE_ESTIMATION_HPPS}
 )
@@ -89,16 +90,6 @@ target_include_directories(shape_estimation
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-install(TARGETS shape_estimation
-  ARCHIVE DESTINATION lib/${PROJECT_NAME}
-  LIBRARY DESTINATION lib/${PROJECT_NAME}
-  RUNTIME DESTINATION bin/${PROJECT_NAME}
+ament_auto_package(INSTALL_TO_SHARE
+  launch
 )
-
-install(
-  DIRECTORY
-    launch
-  DESTINATION share/${PROJECT_NAME}
-)
-
-ament_package()
