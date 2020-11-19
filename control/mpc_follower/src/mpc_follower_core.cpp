@@ -907,6 +907,11 @@ void MPCFollower::onTrajectory(const autoware_planning_msgs::Trajectory::ConstPt
     return;
   }
 
+  if (!isValidTrajectory(*msg)) {
+    ROS_ERROR("[MPC] Trajectory is invalid!! stop computing.");
+    return;
+  }
+
   MPCTrajectory mpc_traj_raw;        // received raw trajectory
   MPCTrajectory mpc_traj_resampled;  // resampled trajectory
   MPCTrajectory mpc_traj_smoothed;   // smooth filtered trajectory
@@ -1193,4 +1198,21 @@ rcl_interfaces::msg::SetParametersResult MPCFollower::paramCallback(
   // TODO(Frederik.Beaujean) extend to other params declared in ctor
 
   return result;
+}
+
+bool MPCFollower::isValidTrajectory(const autoware_planning_msgs::msg::Trajectory & traj) const
+{
+  for (const auto & points : traj.points) {
+    const auto & p = points.pose.position;
+    const auto & o = points.pose.orientation;
+    const auto & t = points.twist.linear;
+    const auto & a = points.accel.linear;
+    if (
+      !isfinite(p.x) || !isfinite(p.y) || !isfinite(p.z) || !isfinite(o.x) || !isfinite(o.y) ||
+      !isfinite(o.z) || !isfinite(o.w) || !isfinite(t.x) || !isfinite(t.y) || !isfinite(t.z) ||
+      !isfinite(a.x) || !isfinite(a.y) || !isfinite(a.z)) {
+      return false;
+    }
+  }
+  return true;
 }

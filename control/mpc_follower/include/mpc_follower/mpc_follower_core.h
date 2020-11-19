@@ -334,6 +334,11 @@ private:
    */
   bool isValid(const MPCMatrix & m) const;
 
+  /**
+   * @brief check if the trajectory has valid value
+   */
+  bool isValidTrajectory(const autoware_planning_msgs::msg::Trajectory & traj) const;
+
   OnSetParametersCallbackHandle::SharedPtr set_param_res_;
 
   /**
@@ -346,6 +351,7 @@ private:
    */
   rcl_interfaces::msg::SetParametersResult paramCallback(
     const std::vector<rclcpp::Parameter> & parameters);
+
 
   bool isLowCurvature(const double curvature)
   {
