@@ -108,9 +108,9 @@ private:
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub_not_subscribed_topic_name_;
 
   /** \brief The maximum number of messages that we can store in the queue. */
-  int maximum_queue_size_;
+  int maximum_queue_size_ = 3;
 
-  double timeout_sec_;
+  double timeout_sec_ = 0.1;
 
   /** \brief A vector of subscriber. */
   std::vector<rclcpp::Subscription<PointCloud2>::SharedPtr> filters_;

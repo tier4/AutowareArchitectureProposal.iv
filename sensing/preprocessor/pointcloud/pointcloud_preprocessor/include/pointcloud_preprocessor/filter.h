@@ -40,40 +40,78 @@
 
 // PCL includes
 #include <pcl/filters/filter.h>
-#include "pointcloud_preprocessor/pcl_component.h"
 
 #include <boost/thread/mutex.hpp>
 #include <string>
+
+#include <sensor_msgs/msg/point_cloud2.h>
+// PCL includes
+#include <pcl_msgs/msg/point_indices.h>
+#include <pcl_msgs/msg/model_coefficients.h>
+#include <pcl/pcl_base.h>
+#include <pcl/point_types.h>
+#include <pcl_conversions/pcl_conversions.h>
+
+#include <message_filters/subscriber.h>
+#include <message_filters/synchronizer.h>
+#include <message_filters/sync_policies/exact_time.h>
+#include <message_filters/sync_policies/approximate_time.h>
+
+// Include TF
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/create_timer_ros.h>
 
 namespace pointcloud_preprocessor
 {
 namespace sync_policies = message_filters::sync_policies;
 
+
 /** \brief @b Filter represents the base filter class. Some generic 3D operations that are applicable to all filters
  * are defined here as static methods.
  * \author Radu Bogdan Rusu
  */
-class Filter : public pointcloud_preprocessor::PCLComponent
+class Filter : public rclcpp::Node
+// class Filter : public pointcloud_preprocessor::PCLComponent
 {
 public:
   typedef sensor_msgs::msg::PointCloud2 PointCloud2;
+  typedef sensor_msgs::msg::PointCloud2::ConstSharedPtr PointCloud2ConstPtr;
 
-  typedef boost::shared_ptr<std::vector<int> > IndicesPtr;
-  typedef boost::shared_ptr<const std::vector<int> > IndicesConstPtr;
+  typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 
-  Filter(const rclcpp::NodeOptions & node_options)
-  : pointcloud_preprocessor::PCLComponent(node_options)
-  {
-    onInit();
-    subscribe();
-  };
-  // Filter(const std::string & filter_name, const rclcpp::NodeOptions & node_options);
+  typedef pcl_msgs::msg::PointIndices PointIndices;
+  typedef PointIndices::SharedPtr PointIndicesPtr;
+  typedef PointIndices::ConstSharedPtr PointIndicesConstPtr;
+
+  typedef pcl_msgs::msg::ModelCoefficients ModelCoefficients;
+  typedef ModelCoefficients::SharedPtr ModelCoefficientsPtr;
+  typedef ModelCoefficients::ConstSharedPtr ModelCoefficientsConstPtr;
+
+  typedef pcl::IndicesPtr IndicesPtr;
+  typedef pcl::IndicesConstPtr IndicesConstPtr;
+
+  typedef message_filters::Synchronizer<sync_policies::ExactTime<PointCloud2, PointIndices>>
+    ExactTimeSyncPolicy;
+  typedef message_filters::Synchronizer<sync_policies::ApproximateTime<PointCloud2, PointIndices>>
+    ApproximateTimeSyncPolicy;
+
+  Filter(
+    const std::string & filter_name = "pointcloud_preprocessor_filter",
+    const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
 protected:
-  /** \brief The input PointCloud subscriber. */
-  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_input_;
+  /** \brief The input PointCloud2 subscriber. */
+  rclcpp::Subscription<PointCloud2>::SharedPtr sub_input_;
 
+  /** \brief The output PointCloud2 publisher. */
+  rclcpp::Publisher<PointCloud2>::SharedPtr pub_output_;
+  
+  /** \brief The message filter subscriber for PointCloud2. */
   message_filters::Subscriber<PointCloud2> sub_input_filter_;
+
+  /** \brief The message filter subscriber for PointIndices. */
+  message_filters::Subscriber<PointIndices> sub_indices_filter_;
 
   /** \brief The desired user filter field name. */
   std::string filter_field_name_;
@@ -100,12 +138,6 @@ protected:
   /** \brief Internal mutex. */
   boost::mutex mutex_;
 
-  /** \brief Child initialization routine.
-   */
-  virtual bool child_init()
-  {
-    return true;
-  }
 
   /** \brief Virtual abstract filter method. To be implemented by every child.
    * \param input the input point cloud dataset.
@@ -113,38 +145,88 @@ protected:
    * \param output the resultant filtered PointCloud2
    */
   virtual void filter(
-    const PointCloud2::ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output) = 0;
-
-  /** \brief Lazy transport subscribe routine. */
-  virtual void subscribe();
-
-  /** \brief Lazy transport unsubscribe routine. */
-  virtual void unsubscribe();
-
-  /** \brief Nodelet initialization routine. */
-  virtual void onInit();
+    const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output) = 0;
 
   /** \brief Call the child filter () method, optionally transform the result, and publish it.
    * \param input the input point cloud dataset.
    * \param indices a pointer to the vector of point indices to use.
    */
-  void computePublish(const PointCloud2::ConstPtr & input, const IndicesPtr & indices);
+  void computePublish(const PointCloud2ConstPtr & input, const IndicesPtr & indices);
+
+
+  //////////////////////
+  // from PCLNopdelet //
+  //////////////////////
+  /** \brief Set to true if point indices are used.
+   *
+   * When receiving a point cloud, if use_indices_ is false, the entire
+   * point cloud is processed for the given operation. If use_indices_ is
+   * true, then the ~indices topic is read to get the vector of point
+   * indices specifying the subset of the point cloud that will be used for
+   * the operation. In the case where use_indices_ is true, the ~input and
+   * ~indices topics must be synchronised in time, either exact or within a
+   * specified jitter. See also @ref latched_indices_ and approximate_sync.
+   **/
+  bool use_indices_ = false;
+  /** \brief Set to true if the indices topic is latched.
+   *
+   * If use_indices_ is true, the ~input and ~indices topics generally must
+   * be synchronised in time. By setting this flag to true, the most recent
+   * value from ~indices can be used instead of requiring a synchronised
+   * message.
+   **/
+  bool latched_indices_ = false;
+
+  /** \brief The maximum queue size (default: 3). */
+  size_t max_queue_size_ = 3;
+
+  /** \brief True if we use an approximate time synchronizer versus an exact one (false by default). */
+  bool approximate_sync_ = false;
+
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+
+  inline bool isValid(
+    const PointCloud2ConstPtr & cloud, const std::string & topic_name = "input")
+  {
+    if (cloud->width * cloud->height * cloud->point_step != cloud->data.size()) {
+      RCLCPP_WARN(
+        this->get_logger(),
+        "Invalid PointCloud (data = %zu, width = %d, height = %d, step = %d) with stamp %f, "
+        "and frame %sreceived!",
+        cloud->data.size(), cloud->width, cloud->height, cloud->point_step,
+        rclcpp::Time(cloud->header.stamp).seconds(), cloud->header.frame_id.c_str());
+      return (false);
+    }
+    return (true);
+  }
+
+  inline bool isValid(
+    const PointIndicesConstPtr & /*indices*/, const std::string & /*topic_name*/ = "indices")
+  {
+    return (true);
+  }
+
+  inline bool isValid(
+    const ModelCoefficientsConstPtr & /*model*/, const std::string & /*topic_name*/ = "model")
+  {
+    return (true);
+  }
+
 
 private:
   /** \brief Synchronized input, and indices.*/
-  boost::shared_ptr<
-    message_filters::Synchronizer<sync_policies::ExactTime<PointCloud2, PointIndices> > >
-    sync_input_indices_e_;
-  boost::shared_ptr<
-    message_filters::Synchronizer<sync_policies::ApproximateTime<PointCloud2, PointIndices> > >
-    sync_input_indices_a_;
-
-  /** \brief Dynamic reconfigure service callback. */
-  // virtual void config_callback(pcl_ros::FilterConfig & config, uint32_t level);
+  boost::shared_ptr<ExactTimeSyncPolicy> sync_input_indices_e_;
+  boost::shared_ptr<ApproximateTimeSyncPolicy> sync_input_indices_a_;
 
   /** \brief PointCloud2 + Indices data callback. */
   void input_indices_callback(
-    const PointCloud2::ConstPtr & cloud, const PointIndicesConstPtr & indices);
+    const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices);
+
+  void setupTF();
+
+  /** \brief Dynamic reconfigure service callback. */
+  // virtual void config_callback(pcl_ros::FilterConfig & config, uint32_t level);
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

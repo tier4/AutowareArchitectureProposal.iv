@@ -63,23 +63,12 @@ namespace pointcloud_preprocessor
 {
 PointCloudConcatenateDataSynchronizerComponent::PointCloudConcatenateDataSynchronizerComponent(
   const rclcpp::NodeOptions & node_options)
-: Node("point_cloud_concatenator_component", node_options),
-  maximum_queue_size_(3),
-  timeout_sec_(0.1)
+: Node("point_cloud_concatenator_component", node_options)
 {
   onInit();
   subscribe();
 }
 
-PointCloudConcatenateDataSynchronizerComponent::PointCloudConcatenateDataSynchronizerComponent(
-  const rclcpp::NodeOptions & node_options, int queue_size)
-: Node("point_cloud_concatenator_component", node_options),
-  maximum_queue_size_(queue_size),
-  timeout_sec_(0.1)
-{
-  onInit();
-  subscribe();
-}
 
 void PointCloudConcatenateDataSynchronizerComponent::onInit()
 {
@@ -136,7 +125,7 @@ void PointCloudConcatenateDataSynchronizerComponent::subscribe()
     std::function<void(const sensor_msgs::msg::PointCloud2::SharedPtr msg)> bound_callback =
       std::bind(
         &PointCloudConcatenateDataSynchronizerComponent::cloud_callback, this,
-        std::placeholders::_1, input_topics_[d]);
+        std::placeholders::_1, input_topics_[d]); // CAN'T use auto type here.
     filters_[d] = this->create_subscription<sensor_msgs::msg::PointCloud2>(
       input_topics_[d], rclcpp::QoS(maximum_queue_size_), bound_callback);
   }

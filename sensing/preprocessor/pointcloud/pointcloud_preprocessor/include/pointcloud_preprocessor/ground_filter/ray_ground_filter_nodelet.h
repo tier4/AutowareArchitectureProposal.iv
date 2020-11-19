@@ -95,19 +95,12 @@ class RayGroundFilterComponent : public pointcloud_preprocessor::Filter
 protected:
 
   void filter(
-    const PointCloud2::ConstSharedPtr & input, const IndicesPtr & indices, PointCloud2 & output) override;
-
-  void subscribe() override;
-
-  void unsubscribe() override;
+    const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output) override;
 
   // TODO(Horibe): Port dynamic reconfigure
   // void config_callback(pointcloud_preprocessor::RayGroundFilterConfig & config, uint32_t level);
 
 private:
-  tf2_ros::Buffer tf_buffer_;
-  tf2_ros::TransformListener tf_listener_;
-
   std::string base_frame_ = "base_link";
   double general_max_slope_;            // degrees
   double local_max_slope_;              // degrees
@@ -129,7 +122,7 @@ private:
 
   std::vector<cv::Scalar> colors_;
   const size_t color_num_ = 10;  // different number of color to generate
-  pcl::PointCloud<PointType_>::SharedPtr
+  pcl::PointCloud<PointType_>::Ptr
     previous_cloud_ptr_;  // holds the previous groundless result of ground
                           // classification
 
@@ -142,8 +135,8 @@ private:
    * @retval false transform faild
    */
   bool TransformPointCloud(
-    const std::string & in_target_frame, const sensor_msgs::PointCloud2::ConstSharedPtr & in_cloud_ptr,
-    const sensor_msgs::PointCloud2::SharedPtr & out_cloud_ptr);
+    const std::string & in_target_frame, const PointCloud2ConstPtr & in_cloud_ptr,
+    const PointCloud2::SharedPtr & out_cloud_ptr);
 
   /*!
    *
@@ -153,7 +146,7 @@ private:
    * @param[out] out_radial_ordered_clouds Vector of Points Clouds, each element will contain the points ordered
    */
   void ConvertXYZIToRTZColor(
-    const pcl::PointCloud<PointType_>::SharedPtr in_cloud, PointCloudXYZRTColor & out_organized_points,
+    const pcl::PointCloud<PointType_>::Ptr in_cloud, PointCloudXYZRTColor & out_organized_points,
     std::vector<pcl::PointIndices> & out_radial_divided_indices,
     std::vector<PointCloudXYZRTColor> & out_radial_ordered_clouds);
 
@@ -176,12 +169,13 @@ private:
    * @param out_removed_indices_cloud_ptr Resulting PointCloud with the indices removed
    */
   void ExtractPointsIndices(
-    const pcl::PointCloud<PointType_>::SharedPtr in_cloud_ptr, const pcl::PointIndices & in_indices,
-    pcl::PointCloud<PointType_>::SharedPtr out_only_indices_cloud_ptr,
-    pcl::PointCloud<PointType_>::SharedPtr out_removed_indices_cloud_ptr);
+    const pcl::PointCloud<PointType_>::Ptr in_cloud_ptr, const pcl::PointIndices & in_indices,
+    pcl::PointCloud<PointType_>::Ptr out_only_indices_cloud_ptr,
+    pcl::PointCloud<PointType_>::Ptr out_removed_indices_cloud_ptr);
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  RayGroundFilterComponent();
+  RayGroundFilterComponent(const rclcpp::NodeOptions & options);
+
 };
 }  // namespace pointcloud_preprocessor

@@ -28,6 +28,7 @@
   <depend>pcl_msgs</depend>
   <depend>pcl_ros</depend>
   <depend>libopencv-dev</depend>
+  <depend>libpcl-all-dev</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

@@ -37,7 +37,8 @@
 
 namespace pointcloud_preprocessor
 {
-RayGroundFilterComponent::RayGroundFilterComponent() : tf_listener_(tf_buffer_)
+RayGroundFilterComponent::RayGroundFilterComponent(const rclcpp::NodeOptions & options)
+: Filter("RayGroundFilter", options)
 {
   grid_width_ = 1000;
   grid_height_ = 1000;
@@ -56,11 +57,11 @@ bool RayGroundFilterComponent::TransformPointCloud(
 
   geometry_msgs::msg::TransformStamped transform_stamped;
   try {
-    transform_stamped = tf_buffer_.lookupTransform(
+    transform_stamped = tf_buffer_->lookupTransform(
       in_target_frame, in_cloud_ptr->header.frame_id, in_cloud_ptr->header.stamp,
-      ros::Duration(1.0));
+      rclcpp::Duration::from_seconds(1.0));
   } catch (tf2::TransformException & ex) {
-    ROS_WARN("%s", ex.what());
+    RCLCPP_WARN(this->get_logger(), "%s", ex.what());
     return false;
   }
   // tf2::doTransform(*in_cloud_ptr, *out_cloud_ptr, transform_stamped);
@@ -71,7 +72,7 @@ bool RayGroundFilterComponent::TransformPointCloud(
 }
 
 void RayGroundFilterComponent::ConvertXYZIToRTZColor(
-  const pcl::PointCloud<PointType_>::SharedPtr in_cloud, PointCloudXYZRTColor & out_organized_points,
+  const pcl::PointCloud<PointType_>::Ptr in_cloud, PointCloudXYZRTColor & out_organized_points,
   std::vector<pcl::PointIndices> & out_radial_divided_indices,
   std::vector<PointCloudXYZRTColor> & out_radial_ordered_clouds)
 {
@@ -199,22 +200,23 @@ void RayGroundFilterComponent::ClassifyPointCloud(
   }
 }
 
-bool RayGroundFilterComponent::child_init()
-{
-  // Enable the dynamic reconfigure service
-  // has_service = true;
-  // srv_ = boost::make_shared<
-  //   dynamic_reconfigure::Server<pointcloud_preprocessor::RayGroundFilterConfig> >(nh);
-  // dynamic_reconfigure::Server<pointcloud_preprocessor::RayGroundFilterConfig>::CallbackType f =
-  //   boost::bind(&RayGroundFilterComponent::config_callback, this, _1, _2);
-  // srv_->setCallback(f);
-  return (true);
-}
+// [ROS2-port]: removed
+// bool RayGroundFilterComponent::child_init()
+// {
+//   // Enable the dynamic reconfigure service
+//   has_service = true;
+//   srv_ = boost::make_shared<
+//     dynamic_reconfigure::Server<pointcloud_preprocessor::RayGroundFilterConfig> >(nh);
+//   dynamic_reconfigure::Server<pointcloud_preprocessor::RayGroundFilterConfig>::CallbackType f =
+//     boost::bind(&RayGroundFilterComponent::config_callback, this, _1, _2);
+//   srv_->setCallback(f);
+//   return (true);
+// }
 
 void RayGroundFilterComponent::ExtractPointsIndices(
-  const pcl::PointCloud<PointType_>::SharedPtr in_cloud_ptr, const pcl::PointIndices & in_indices,
-  pcl::PointCloud<PointType_>::SharedPtr out_only_indices_cloud_ptr,
-  pcl::PointCloud<PointType_>::SharedPtr out_removed_indices_cloud_ptr)
+  const pcl::PointCloud<PointType_>::Ptr in_cloud_ptr, const pcl::PointIndices & in_indices,
+  pcl::PointCloud<PointType_>::Ptr out_only_indices_cloud_ptr,
+  pcl::PointCloud<PointType_>::Ptr out_removed_indices_cloud_ptr)
 {
   pcl::ExtractIndices<PointType_> extract_ground;
   extract_ground.setInputCloud(in_cloud_ptr);
@@ -235,12 +237,13 @@ void RayGroundFilterComponent::filter(
   sensor_msgs::msg::PointCloud2::SharedPtr input_transed_ptr(new sensor_msgs::msg::PointCloud2);
   bool succeeded = TransformPointCloud(base_frame_, input, input_transed_ptr);
   if (!succeeded) {
-    ROS_ERROR_STREAM_THROTTLE(
-      10, "Failed transform from " << base_frame_ << " to " << input->header.frame_id);
+    RCLCPP_ERROR_STREAM_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
+      "Failed transform from " << base_frame_ << " to " << input->header.frame_id);
     return;
   }
 
-  pcl::PointCloud<PointType_>::SharedPtr current_sensor_cloud_ptr(new pcl::PointCloud<PointType_>);
+  pcl::PointCloud<PointType_>::Ptr current_sensor_cloud_ptr(new pcl::PointCloud<PointType_>);
   pcl::fromROSMsg(*input_transed_ptr, *current_sensor_cloud_ptr);
 
   PointCloudXYZRTColor organized_points;
@@ -256,9 +259,9 @@ void RayGroundFilterComponent::filter(
 
   ClassifyPointCloud(radial_ordered_clouds, ground_indices, no_ground_indices);
 
-  pcl::PointCloud<PointType_>::SharedPtr ground_cloud_ptr(new pcl::PointCloud<PointType_>);
-  pcl::PointCloud<PointType_>::SharedPtr no_ground_cloud_ptr(new pcl::PointCloud<PointType_>);
-  pcl::PointCloud<pcl::PointXYZRGB>::SharedPtr radials_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+  pcl::PointCloud<PointType_>::Ptr ground_cloud_ptr(new pcl::PointCloud<PointType_>);
+  pcl::PointCloud<PointType_>::Ptr no_ground_cloud_ptr(new pcl::PointCloud<PointType_>);
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr radials_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
 
   ExtractPointsIndices(
     current_sensor_cloud_ptr, ground_indices, ground_cloud_ptr, no_ground_cloud_ptr);
@@ -270,17 +273,18 @@ void RayGroundFilterComponent::filter(
   succeeded =
     TransformPointCloud(base_frame_, no_ground_cloud_msg_ptr, no_ground_cloud_transed_msg_ptr);
   if (!succeeded) {
-    ROS_ERROR_STREAM_THROTTLE(
-      10, "Failed transform from " << base_frame_ << " to "
-                                   << no_ground_cloud_msg_ptr->header.frame_id);
+    RCLCPP_ERROR_STREAM_THROTTLE(
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
+      "Failed transform from " << base_frame_ << " to "
+                               << no_ground_cloud_msg_ptr->header.frame_id);
     return;
   }
   output = *no_ground_cloud_transed_msg_ptr;
 }
 
-void RayGroundFilterComponent::subscribe() { Filter::subscribe(); }
+// void RayGroundFilterComponent::subscribe() { Filter::subscribe(); } // [ROS2-port]: removed
 
-void RayGroundFilterComponent::unsubscribe() { Filter::unsubscribe(); }
+// void RayGroundFilterComponent::unsubscribe() { Filter::unsubscribe(); } // [ROS2-port]: removed
 
 // void RayGroundFilterComponent::config_callback(
 //   pointcloud_preprocessor::RayGroundFilterConfig & config, uint32_t level)
@@ -333,4 +337,5 @@ void RayGroundFilterComponent::unsubscribe() { Filter::unsubscribe(); }
 
 }  // namespace pointcloud_preprocessor
 
-PLUGINLIB_EXPORT_CLASS(pointcloud_preprocessor::RayGroundFilterComponent, nodelet::Nodelet);
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(pointcloud_preprocessor::RayGroundFilterComponent)

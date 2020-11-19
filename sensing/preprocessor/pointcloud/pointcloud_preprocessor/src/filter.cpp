@@ -39,49 +39,93 @@
 #include <pcl/io/io.h>
 #include "pcl_ros/transforms.hpp"
 
-/*//#include <pcl/filters/pixel_grid.h>
-//#include <pcl/filters/filter_dimension.h>
-*/
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+pointcloud_preprocessor::Filter::Filter(
+  const std::string & filter_name, const rclcpp::NodeOptions & options)
+: Node(filter_name, options)
+{
+  // Set parameters (moved from NodeletLazy onInit)
+  {
+    max_queue_size_ = static_cast<int>(declare_parameter("max_queue_size").get<std::size_t>());
 
-/*//typedef pcl::PixelGrid PixelGrid;
-//typedef pcl::FilterDimension FilterDimension;
-*/
+    // ---[ Optional parameters
+    use_indices_ = static_cast<bool>(declare_parameter("use_indices").get<bool>());
+    latched_indices_ = static_cast<bool>(declare_parameter("latched_indices").get<bool>());
+    approximate_sync_ = static_cast<bool>(declare_parameter("approximate_sync").get<bool>());
 
-// Include the implementations instead of compiling them separately to speed up compile time
-//#include "extract_indices.cpp"
-//#include "passthrough.cpp"
-//#include "project_inliers.cpp"
-//#include "radius_outlier_removal.cpp"
-//#include "statistical_outlier_removal.cpp"
-//#include "voxel_grid.cpp"
+    RCLCPP_DEBUG(
+      this->get_logger(),
+      "[pointcloud_preprocessor] Filter (as Component) successfully created with the following "
+      "parameters:\n"
+      " - approximate_sync : %s\n"
+      " - use_indices      : %s\n"
+      " - latched_indices  : %s\n"
+      " - max_queue_size   : %d",
+      (approximate_sync_) ? "true" : "false", (use_indices_) ? "true" : "false",
+      (latched_indices_) ? "true" : "false", max_queue_size_);
+  }
 
-/*//PLUGINLIB_EXPORT_CLASS(PixelGrid,nodelet::Nodelet);
-//PLUGINLIB_EXPORT_CLASS(FilterDimension,nodelet::Nodelet);
-*/
+  // Set publisher
+  {
+    pub_output_ = this->create_publisher<PointCloud2>("output", max_queue_size_);
+  }
+
+  // Set subscriber
+  {
+    if (use_indices_) {
+      // Subscribe to the input using a filter
+      sub_input_filter_.subscribe(
+        this, "input", rclcpp::QoS{max_queue_size_}.get_rmw_qos_profile());
+      sub_indices_filter_.subscribe(
+        this, "indices", rclcpp::QoS{max_queue_size_}.get_rmw_qos_profile());
+
+      if (approximate_sync_) {
+        sync_input_indices_a_ = boost::make_shared<ApproximateTimeSyncPolicy>(max_queue_size_);
+        sync_input_indices_a_->connectInput(sub_input_filter_, sub_indices_filter_);
+        sync_input_indices_a_->registerCallback(
+          bind(&Filter::input_indices_callback, this, _1, _2));
+      } else {
+        sync_input_indices_e_ = boost::make_shared<ExactTimeSyncPolicy>(max_queue_size_);
+        sync_input_indices_e_->connectInput(sub_input_filter_, sub_indices_filter_);
+        sync_input_indices_e_->registerCallback(
+          bind(&Filter::input_indices_callback, this, _1, _2));
+      }
+    } else {
+      // Subscribe in an old fashion to input only (no filters)
+      // CAN'T use auto-type here.
+      std::function<void(const PointCloud2ConstPtr msg)> cb = std::bind(
+        &Filter::input_indices_callback, this, std::placeholders::_1, PointIndicesConstPtr());
+      sub_input_ = create_subscription<PointCloud2>("input", rclcpp::QoS{max_queue_size_}, cb);
+    }
+  }
+ 
+  // Set tf_listener, tf_buffer.
+  setupTF();
+
+  RCLCPP_DEBUG(
+    this->get_logger(), "[%s::onInit] Nodelet successfully created.", filter_field_name_.c_str());
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// pointcloud_preprocessor::Filter(const std::string & filter_name, const rclcpp::NodeOptions & node_options)
-// : PCLComponent(node_options), filter_field_name_(filter_name)
-// {
-//   onInit();
-//   subscribe();
-// }
-// pointcloud_preprocessor::Filter(const rclcpp::NodeOptions & node_options)
-// : pointcloud_preprocessor::PCLComponent(node_options)
-// {
-//   onInit();
-//   subscribe();
-// }
+void pointcloud_preprocessor::Filter::setupTF()
+{
+  tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+  tf_listener_ = std::make_shared<tf2_ros::TransformListener>(
+    *tf_buffer_, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false);
+  auto cti = std::make_shared<tf2_ros::CreateTimerROS>(
+    this->get_node_base_interface(), this->get_node_timers_interface());
+  tf_buffer_->setCreateTimerInterface(cti);
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void pointcloud_preprocessor::Filter::computePublish(
-  const PointCloud2::ConstPtr & input, const IndicesPtr & indices)
+  const PointCloud2ConstPtr & input, const IndicesPtr & indices)
 {
   PointCloud2 output;
   // Call the virtual method in the child
   filter(input, indices, output);
 
-  PointCloud2::Ptr cloud_tf(new PointCloud2(output));  // set the output by default
+  PointCloud2::SharedPtr cloud_tf(new PointCloud2(output));  // set the output by default
   // Check whether the user has given a different output TF frame
   if (!tf_output_frame_.empty() && output.header.frame_id != tf_output_frame_) {
     RCLCPP_DEBUG(
@@ -89,7 +133,7 @@ void pointcloud_preprocessor::Filter::computePublish(
       filter_field_name_.c_str(), output.header.frame_id.c_str(), tf_output_frame_.c_str());
     // Convert the cloud into the different frame
     PointCloud2 cloud_transformed;
-    if (!pcl_ros::transformPointCloud(tf_output_frame_, output, cloud_transformed, tf_listener_)) {
+    if (!pcl_ros::transformPointCloud(tf_output_frame_, output, cloud_transformed, *tf_buffer_)) {
       RCLCPP_ERROR(this->get_logger(),
         "[%s::computePublish] Error converting output dataset from %s to %s.", filter_field_name_.c_str(),
         output.header.frame_id.c_str(), tf_output_frame_.c_str());
@@ -106,7 +150,7 @@ void pointcloud_preprocessor::Filter::computePublish(
     // Convert the cloud into the different frame
     PointCloud2 cloud_transformed;
     if (!pcl_ros::transformPointCloud(
-          tf_input_orig_frame_, output, cloud_transformed, tf_listener_)) {
+          tf_input_orig_frame_, output, cloud_transformed, *tf_buffer_)) {
       RCLCPP_ERROR(this->get_logger(),
         "[%s::computePublish] Error converting output dataset from %s back to %s.",
         filter_field_name_.c_str(), output.header.frame_id.c_str(), tf_input_orig_frame_.c_str());
@@ -119,74 +163,7 @@ void pointcloud_preprocessor::Filter::computePublish(
   cloud_tf->header.stamp = input->header.stamp;
 
   // Publish a boost shared ptr
-  pub_output_->publish(cloud_tf);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-void pointcloud_preprocessor::Filter::subscribe()
-{
-  // TODO(Horibe): port message filter
-  /*
-  // If we're supposed to look for PointIndices (indices)
-  if (use_indices_) {
-    // Subscribe to the input using a filter
-    sub_input_filter_.subscribe(*pnh_, "input", max_queue_size_);
-    sub_indices_filter_.subscribe(*pnh_, "indices", max_queue_size_);
-
-    if (approximate_sync_) {
-      sync_input_indices_a_ = boost::make_shared<message_filters::Synchronizer<
-        sync_policies::ApproximateTime<PointCloud2, pcl_msgs::msg::PointIndices> > >(max_queue_size_);
-      sync_input_indices_a_->connectInput(sub_input_filter_, sub_indices_filter_);
-      sync_input_indices_a_->registerCallback(bind(&Filter::input_indices_callback, this, _1, _2));
-    } else {
-      sync_input_indices_e_ = boost::make_shared<message_filters::Synchronizer<
-        sync_policies::ExactTime<PointCloud2, pcl_msgs::msg::PointIndices> > >(max_queue_size_);
-      sync_input_indices_e_->connectInput(sub_input_filter_, sub_indices_filter_);
-      sync_input_indices_e_->registerCallback(bind(&Filter::input_indices_callback, this, _1, _2));
-    }
-  } else {
-    // Subscribe in an old fashion to input only (no filters)
-    sub_input_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
-      "input", rclcpp::QoS{max_queue_size_},
-      std::bind(&Filter::input_indices_callback, this, std::placeholders::_1));
-  }
-  */
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-void pointcloud_preprocessor::Filter::unsubscribe()
-{
-  // if (use_indices_) {
-  //   sub_input_filter_.unsubscribe();
-  //   sub_indices_filter_.unsubscribe();
-  // } else {
-  //   sub_input_->shutdown();
-  // }
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-void pointcloud_preprocessor::Filter::onInit()
-{
-  // Call the super onInit ()
-  PCLComponent::onInit();
-
-  // Call the child's local init
-  bool has_service = false;
-  if (!child_init()) {
-    RCLCPP_ERROR(this->get_logger(), "[%s::onInit] Initialization failed.", filter_field_name_.c_str());
-    return;
-  }
-
-  pub_output_ = this->create_publisher<PointCloud2>("output", max_queue_size_);
-  // Enable the dynamic reconfigure service
-  // if (!has_service) {
-  //   srv_ = boost::make_shared<dynamic_reconfigure::Server<pcl_ros::FilterConfig> >(*pnh_);
-  //   dynamic_reconfigure::Server<pcl_ros::FilterConfig>::CallbackType f =
-  //     boost::bind(&Filter::config_callback, this, _1, _2);
-  //   srv_->setCallback(f);
-  // }
-
-  RCLCPP_DEBUG(this->get_logger(), "[%s::onInit] Nodelet successfully created.", filter_field_name_.c_str());
+  pub_output_->publish(*cloud_tf);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -210,7 +187,7 @@ void pointcloud_preprocessor::Filter::onInit()
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 void pointcloud_preprocessor::Filter::input_indices_callback(
-  const PointCloud2::ConstPtr & cloud, const PointIndicesConstPtr & indices)
+  const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices)
 {
   // If cloud is given, check if it's valid
   if (!isValid(cloud)) {
@@ -249,7 +226,7 @@ void pointcloud_preprocessor::Filter::input_indices_callback(
 
   // Check whether the user has given a different input TF frame
   tf_input_orig_frame_ = cloud->header.frame_id;
-  PointCloud2::ConstPtr cloud_tf;
+  PointCloud2ConstPtr cloud_tf;
   if (!tf_input_frame_.empty() && cloud->header.frame_id != tf_input_frame_) {
     RCLCPP_DEBUG(
       this->get_logger(), "[%s::input_indices_callback] Transforming input dataset from %s to %s.",
@@ -257,12 +234,15 @@ void pointcloud_preprocessor::Filter::input_indices_callback(
     // Save the original frame ID
     // Convert the cloud into the different frame
     PointCloud2 cloud_transformed;
-    if (!tf_listener_->waitForTransform(
-          tf_input_frame_, cloud->header.frame_id, cloud->header.stamp, rclcpp::Duration::from_seconds(1.0))) {
+    auto status = tf_buffer_->waitForTransform(
+      tf_input_frame_, cloud->header.frame_id, cloud->header.stamp, std::chrono::milliseconds(0),
+      [this](auto) {}).wait_for(std::chrono::milliseconds(1000));
+    if (status != std::future_status::ready) {
       RCLCPP_ERROR(
         this->get_logger(), "[%s::input_indices_callback] timeout tf", filter_field_name_.c_str());
       return;
     }
+
     if (!pcl_ros::transformPointCloud(tf_input_frame_, *cloud, cloud_transformed, *tf_buffer_)) {
       RCLCPP_ERROR(this->get_logger(),
         "[%s::input_indices_callback] Error converting input dataset from %s to %s.",
