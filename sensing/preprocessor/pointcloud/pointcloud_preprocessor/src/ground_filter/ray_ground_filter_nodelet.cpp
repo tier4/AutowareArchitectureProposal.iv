@@ -151,8 +151,7 @@ void RayGroundFilterComponent::ConvertXYZIToRTZColor(
   }
 }
 
-boost::optional<float> RayGroundFilterComponent::calcPointVehicleIntersection(
-  const Point& point)
+boost::optional<float> RayGroundFilterComponent::calcPointVehicleIntersection(const Point & point)
 {
   float distance_to_intersection_point = 0.0;
   if (base_frame_ != "base_link") {
@@ -165,7 +164,7 @@ boost::optional<float> RayGroundFilterComponent::calcPointVehicleIntersection(
   if (collision_points.size() < 1) {
     return {};
   }
-  return bg::distance(Point(0,0), collision_points.front());
+  return bg::distance(Point(0, 0), collision_points.front());
 }
 
 void RayGroundFilterComponent::setVehicleFootprint(
@@ -173,11 +172,11 @@ void RayGroundFilterComponent::setVehicleFootprint(
 {
   // create vehicle footprint polygon
   vehicle_footprint_.outer().clear();
-  vehicle_footprint_.outer().push_back(Point(min_x, min_y)); // left back
-  vehicle_footprint_.outer().push_back(Point(min_x, max_y)); // right back
-  vehicle_footprint_.outer().push_back(Point(max_x, max_y)); // right front
-  vehicle_footprint_.outer().push_back(Point(max_x, min_y)); // left front
-  vehicle_footprint_.outer().push_back(Point(min_x, min_y)); // left back
+  vehicle_footprint_.outer().push_back(Point(min_x, min_y));  // left back
+  vehicle_footprint_.outer().push_back(Point(min_x, max_y));  // right back
+  vehicle_footprint_.outer().push_back(Point(max_x, max_y));  // right front
+  vehicle_footprint_.outer().push_back(Point(max_x, min_y));  // left front
+  vehicle_footprint_.outer().push_back(Point(min_x, min_y));  // left back
 }
 
 void RayGroundFilterComponent::ClassifyPointCloud(
@@ -408,7 +407,7 @@ rcl_interfaces::msg::SetParametersResult RayGroundFilterComponent::paramCallback
   }
   if (get_param(p, "use_vehicle_footprint", use_vehicle_footprint_)) {
     RCLCPP_DEBUG(
-      get_logger(), "Setting use_vehicle_footprint to: %f.", use_vehicle_footprint_);
+      get_logger(), "Setting use_vehicle_footprint to: %d.", use_vehicle_footprint_);
   }
 
   rcl_interfaces::msg::SetParametersResult result;
