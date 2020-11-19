@@ -1,0 +1,10 @@
+<library path="lib/libtensorrt_yolo_nodelet">
+
+  <class name="object_recognition/tensorrt_yolo"
+         type="object_recognition::TensorrtYoloNodelet"
+         base_class_type="nodelet::Nodelet">
+    <description>
+    </description>
+  </class>
+
+</library>
