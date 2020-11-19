@@ -53,29 +53,16 @@
 
 #include "pointcloud_preprocessor/crop_box_filter/crop_box_filter_nodelet.h"
 
-#include <pluginlib/class_list_macros.h>
-
-#include <geometry_msgs/PolygonStamped.h>
-
 namespace pointcloud_preprocessor
 {
-bool CropBoxFilterNodelet::child_init(ros::NodeHandle & nh, bool & has_service)
+CropBoxFilterComponent::CropBoxFilterComponent(const rclcpp::NodeOptions & options)
+: Filter("CropBoxFilter", options)
 {
-  // Enable the dynamic reconfigure service
-  has_service = true;
-  srv_ =
-    boost::make_shared<dynamic_reconfigure::Server<pointcloud_preprocessor::CropBoxFilterConfig> >(
-      nh);
-  dynamic_reconfigure::Server<pointcloud_preprocessor::CropBoxFilterConfig>::CallbackType f =
-    boost::bind(&CropBoxFilterNodelet::config_callback, this, _1, _2);
-  srv_->setCallback(f);
-
-  crop_box_polygon_pub_ = advertise<geometry_msgs::PolygonStamped>(*pnh_, "crop_box_polygon", 10);
-  return (true);
+  crop_box_polygon_pub_ = this->create_publisher<geometry_msgs::msg::PolygonStamped>("crop_box_polygon", 10);
 }
 
-void CropBoxFilterNodelet::filter(
-  const PointCloud2::ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output)
+void CropBoxFilterComponent::filter(
+  const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output)
 {
   boost::mutex::scoped_lock lock(mutex_);
   pcl::PCLPointCloud2::Ptr pcl_input(new pcl::PCLPointCloud2);
@@ -89,10 +76,10 @@ void CropBoxFilterNodelet::filter(
   publishCropBoxPolygon();
 }
 
-void CropBoxFilterNodelet::publishCropBoxPolygon()
+void CropBoxFilterComponent::publishCropBoxPolygon()
 {
   auto generatePoint = [](double x, double y, double z) {
-    geometry_msgs::Point32 point;
+    geometry_msgs::msg::Point32 point;
     point.x = x;
     point.y = y;
     point.z = z;
@@ -112,9 +99,9 @@ void CropBoxFilterNodelet::publishCropBoxPolygon()
   const double z1 = impl_.getMin()(2);
   const double z2 = impl_.getMax()(2);
 
-  geometry_msgs::PolygonStamped polygon_msg;
+  geometry_msgs::msg::PolygonStamped polygon_msg;
   polygon_msg.header.frame_id = tf_input_frame_;
-  polygon_msg.header.stamp = ros::Time::now();
+  polygon_msg.header.stamp = get_clock()->now();
   polygon_msg.polygon.points.push_back(generatePoint(x1, y1, z1));
   polygon_msg.polygon.points.push_back(generatePoint(x2, y2, z1));
   polygon_msg.polygon.points.push_back(generatePoint(x3, y3, z1));
@@ -137,76 +124,74 @@ void CropBoxFilterNodelet::publishCropBoxPolygon()
 
   polygon_msg.polygon.points.push_back(generatePoint(x1, y1, z2));
 
-  crop_box_polygon_pub_.publish(polygon_msg);
+  crop_box_polygon_pub_->publish(polygon_msg);
 }
 
-void CropBoxFilterNodelet::subscribe() { Filter::subscribe(); }
 
-void CropBoxFilterNodelet::unsubscribe() { Filter::unsubscribe(); }
+// void CropBoxFilterComponent::config_callback(
+//   pointcloud_preprocessor::CropBoxFilterConfig & config, uint32_t level)
+// {
+//   boost::mutex::scoped_lock lock(mutex_);
 
-void CropBoxFilterNodelet::config_callback(
-  pointcloud_preprocessor::CropBoxFilterConfig & config, uint32_t level)
-{
-  boost::mutex::scoped_lock lock(mutex_);
+//   Eigen::Vector4f min_point, max_point;
+//   min_point = impl_.getMin();
+//   max_point = impl_.getMax();
 
-  Eigen::Vector4f min_point, max_point;
-  min_point = impl_.getMin();
-  max_point = impl_.getMax();
+//   Eigen::Vector4f new_min_point, new_max_point;
+//   new_min_point << config.min_x, config.min_y, config.min_z, 0.0;
+//   new_max_point << config.max_x, config.max_y, config.max_z, 0.0;
 
-  Eigen::Vector4f new_min_point, new_max_point;
-  new_min_point << config.min_x, config.min_y, config.min_z, 0.0;
-  new_max_point << config.max_x, config.max_y, config.max_z, 0.0;
+//   // Check the current values for minimum point
+//   if (min_point != new_min_point) {
+//     NODELET_DEBUG(
+//       "[%s::config_callback] Setting the minimum point to: %f %f %f.", getName().c_str(),
+//       new_min_point(0), new_min_point(1), new_min_point(2));
+//     // Set the filter min point if different
+//     impl_.setMin(new_min_point);
+//   }
+//   // Check the current values for the maximum point
+//   if (max_point != new_max_point) {
+//     NODELET_DEBUG(
+//       "[%s::config_callback] Setting the maximum point to: %f %f %f.", getName().c_str(),
+//       new_max_point(0), new_max_point(1), new_max_point(2));
+//     // Set the filter max point if different
+//     impl_.setMax(new_max_point);
+//   }
 
-  // Check the current values for minimum point
-  if (min_point != new_min_point) {
-    NODELET_DEBUG(
-      "[%s::config_callback] Setting the minimum point to: %f %f %f.", getName().c_str(),
-      new_min_point(0), new_min_point(1), new_min_point(2));
-    // Set the filter min point if different
-    impl_.setMin(new_min_point);
-  }
-  // Check the current values for the maximum point
-  if (max_point != new_max_point) {
-    NODELET_DEBUG(
-      "[%s::config_callback] Setting the maximum point to: %f %f %f.", getName().c_str(),
-      new_max_point(0), new_max_point(1), new_max_point(2));
-    // Set the filter max point if different
-    impl_.setMax(new_max_point);
-  }
+//   // Check the current value for keep_organized
+//   if (impl_.getKeepOrganized() != config.keep_organized) {
+//     NODELET_DEBUG(
+//       "[%s::config_callback] Setting the filter keep_organized value to: %s.", getName().c_str(),
+//       config.keep_organized ? "true" : "false");
+//     // Call the virtual method in the child
+//     impl_.setKeepOrganized(config.keep_organized);
+//   }
 
-  // Check the current value for keep_organized
-  if (impl_.getKeepOrganized() != config.keep_organized) {
-    NODELET_DEBUG(
-      "[%s::config_callback] Setting the filter keep_organized value to: %s.", getName().c_str(),
-      config.keep_organized ? "true" : "false");
-    // Call the virtual method in the child
-    impl_.setKeepOrganized(config.keep_organized);
-  }
+//   // Check the current value for the negative flag
+//   if (impl_.getNegative() != config.negative) {
+//     NODELET_DEBUG(
+//       "[%s::config_callback] Setting the filter negative flag to: %s.", getName().c_str(),
+//       config.negative ? "true" : "false");
+//     // Call the virtual method in the child
+//     impl_.setNegative(config.negative);
+//   }
 
-  // Check the current value for the negative flag
-  if (impl_.getNegative() != config.negative) {
-    NODELET_DEBUG(
-      "[%s::config_callback] Setting the filter negative flag to: %s.", getName().c_str(),
-      config.negative ? "true" : "false");
-    // Call the virtual method in the child
-    impl_.setNegative(config.negative);
-  }
-
-  // The following parameters are updated automatically for all PCL_ROS Nodelet Filters as they are inexistent in PCL
-  if (tf_input_frame_ != config.input_frame) {
-    tf_input_frame_ = config.input_frame;
-    NODELET_DEBUG(
-      "[%s::config_callback] Setting the input TF frame to: %s.", getName().c_str(),
-      tf_input_frame_.c_str());
-  }
-  if (tf_output_frame_ != config.output_frame) {
-    tf_output_frame_ = config.output_frame;
-    NODELET_DEBUG(
-      "[%s::config_callback] Setting the output TF frame to: %s.", getName().c_str(),
-      tf_output_frame_.c_str());
-  }
-}
+//   // The following parameters are updated automatically for all PCL_ROS Nodelet Filters as they are inexistent in PCL
+//   if (tf_input_frame_ != config.input_frame) {
+//     tf_input_frame_ = config.input_frame;
+//     NODELET_DEBUG(
+//       "[%s::config_callback] Setting the input TF frame to: %s.", getName().c_str(),
+//       tf_input_frame_.c_str());
+//   }
+//   if (tf_output_frame_ != config.output_frame) {
+//     tf_output_frame_ = config.output_frame;
+//     NODELET_DEBUG(
+//       "[%s::config_callback] Setting the output TF frame to: %s.", getName().c_str(),
+//       tf_output_frame_.c_str());
+//   }
+// }
 
 }  // namespace pointcloud_preprocessor
 
-PLUGINLIB_EXPORT_CLASS(pointcloud_preprocessor::CropBoxFilterNodelet, nodelet::Nodelet);
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(pointcloud_preprocessor::CropBoxFilterComponent)
