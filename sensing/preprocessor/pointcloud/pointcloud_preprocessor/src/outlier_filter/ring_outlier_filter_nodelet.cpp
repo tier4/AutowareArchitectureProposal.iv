@@ -75,7 +75,7 @@ void RingOutlierFilterComponent::filter(
       } else {
         // same code
         if (
-          pcl_tmp.points.size() > num_points_threshold_ ||
+          static_cast<int>(pcl_tmp.points.size()) > num_points_threshold_ ||
           (pcl_tmp.points.front().x - pcl_tmp.points.back().x) *
                 (pcl_tmp.points.front().x - pcl_tmp.points.back().x) +
               (pcl_tmp.points.front().y - pcl_tmp.points.back().y) *
@@ -93,7 +93,7 @@ void RingOutlierFilterComponent::filter(
 
     // same code
     if (
-      pcl_tmp.points.size() > num_points_threshold_ ||
+      static_cast<int>(pcl_tmp.points.size()) > num_points_threshold_ ||
       (pcl_tmp.points.front().x - pcl_tmp.points.back().x) *
             (pcl_tmp.points.front().x - pcl_tmp.points.back().x) +
           (pcl_tmp.points.front().y - pcl_tmp.points.back().y) *

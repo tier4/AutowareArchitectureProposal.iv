@@ -57,7 +57,7 @@ struct PointXYZIRADT
   double time_stamp;
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 } EIGEN_ALIGN16;
-};  // namespace pcl
+}  // namespace pcl
 
 POINT_CLOUD_REGISTER_POINT_STRUCT(
   pcl::PointXYZIRADT,
