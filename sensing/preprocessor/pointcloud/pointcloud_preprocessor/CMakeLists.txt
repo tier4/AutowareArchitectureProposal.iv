@@ -141,6 +141,27 @@ rclcpp_components_register_node(voxel_grid_outlier_filter
   EXECUTABLE voxel_grid_outlier_filter_exe)
 
 # ==== Passthrough Filter ====
+# Passthrough Filter
+ament_auto_add_library(passthrough_filter SHARED
+  src/passthrough_filter/passthrough_filter_nodelet.cpp
+  src/filter.cpp)
+target_link_libraries(passthrough_filter ${Boost_LIBRARIES})
+rclcpp_components_register_node(passthrough_filter
+  PLUGIN "autoware::pointcloud_preprocessor::PassthroughFilter"
+  EXECUTABLE passthrough_filter_exe)
+
+
+# Passthrough Filter Uint16
+ament_auto_add_library(passthrough_filter_uint16 SHARED
+  src/passthrough_filter/passthrough_filter_uint16_nodelet.cpp
+  src/passthrough_filter/passthrough_uint16.cpp
+  src/passthrough_filter/passthrough_filter_uint16_nodelet.cpp
+  src/filter.cpp)
+target_link_libraries(passthrough_filter_uint16 ${Boost_LIBRARIES})
+rclcpp_components_register_node(passthrough_filter_uint16
+  PLUGIN "autoware::pointcloud_preprocessor::PassthroughFilterUint16"
+  EXECUTABLE passthrough_filter_uint16_exe)
+
 
 # ==== Pointcloud Accumulator Filter ====
 ament_auto_add_library(pointcloud_accumulator SHARED
