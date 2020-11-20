@@ -40,7 +40,7 @@ ament_auto_add_library(distance_based_compare_map_filter SHARED
   )
 target_link_libraries(distance_based_compare_map_filter ${Boost_LIBRARIES})
 rclcpp_components_register_node(distance_based_compare_map_filter
-  PLUGIN "autoware::pointcloud_preprocessor::DistanceBasedCompareMapFilter"
+  PLUGIN "pointcloud_preprocessor::DistanceBasedCompareMapFilterComponent"
   EXECUTABLE distance_based_compare_map_filter_exe)
 
 # -- Voxel Based Approximate Compare Map Filter --
@@ -50,7 +50,7 @@ ament_auto_add_library(voxel_based_approximate_compare_map_filter SHARED
   )
 target_link_libraries(voxel_based_approximate_compare_map_filter ${Boost_LIBRARIES})
 rclcpp_components_register_node(voxel_based_approximate_compare_map_filter
-  PLUGIN "autoware::pointcloud_preprocessor::VoxelBasedApproximateCompareMapFilter"
+  PLUGIN "pointcloud_preprocessor::VoxelBasedApproximateCompareMapFilterComponent"
   EXECUTABLE voxel_based_approximate_compare_map_filter_exe)
 
 # -- Voxel Based Compare Map Filter --
@@ -60,7 +60,7 @@ ament_auto_add_library(voxel_based_compare_map_filter SHARED
   )
 target_link_libraries(voxel_based_compare_map_filter ${Boost_LIBRARIES})
 rclcpp_components_register_node(voxel_based_compare_map_filter
-  PLUGIN "autoware::pointcloud_preprocessor::VoxelBasedCompareMapFilter"
+  PLUGIN "pointcloud_preprocessor::VoxelBasedCompareMapFilterComponent"
   EXECUTABLE voxel_based_compare_map_filter_exe)
 
 # -- Voxel Distance Based Compare Map Filter --
@@ -70,7 +70,7 @@ ament_auto_add_library(voxel_distance_based_compare_map_filter SHARED
   )
 target_link_libraries(voxel_distance_based_compare_map_filter ${Boost_LIBRARIES})
 rclcpp_components_register_node(voxel_distance_based_compare_map_filter
-  PLUGIN "autoware::pointcloud_preprocessor::VoxelDistanceBasedCompareMapFilter"
+  PLUGIN "pointcloud_preprocessor::VoxelDistanceBasedCompareMapFilterComponent"
   EXECUTABLE voxel_distance_based_compare_map_filter_exe)
 
 
@@ -80,7 +80,7 @@ ament_auto_add_library(concatenate_data SHARED
   )
 target_link_libraries(concatenate_data ${Boost_LIBRARIES})
 rclcpp_components_register_node(concatenate_data
-  PLUGIN "autoware::pointcloud_preprocessor::ConcatenateData"
+  PLUGIN "pointcloud_preprocessor::PointCloudConcatenateDataSynchronizerComponent"
   EXECUTABLE concatenate_data_exe)
 
 
@@ -91,7 +91,7 @@ ament_auto_add_library(crop_box_filter SHARED
   )
 target_link_libraries(crop_box_filter ${Boost_LIBRARIES})
 rclcpp_components_register_node(crop_box_filter
-  PLUGIN "autoware::pointcloud_preprocessor::CropBoxFilter"
+  PLUGIN "pointcloud_preprocessor::CropBoxFilterComponent"
   EXECUTABLE crop_box_filter_exe)
 
 
@@ -102,7 +102,7 @@ ament_auto_add_library(downsample_filter SHARED
   )
 target_link_libraries(downsample_filter ${Boost_LIBRARIES})
 rclcpp_components_register_node(downsample_filter
-  PLUGIN "autoware::pointcloud_preprocessor::VoxelGridDownsampleFilter"
+  PLUGIN "pointcloud_preprocessor::VoxelGridDownsampleFilterComponent"
   EXECUTABLE downsample_filter_exe)
 
 
@@ -117,7 +117,7 @@ if (OPENMP_FOUND)
     )
 endif ()
 rclcpp_components_register_node(ray_ground_filter
-  PLUGIN "autoware::pointcloud_preprocessor::RayGroundFilter"
+  PLUGIN "pointcloud_preprocessor::RayGroundFilterComponent"
   EXECUTABLE ray_ground_filter_exe)
 
 
@@ -128,7 +128,7 @@ ament_auto_add_library(ring_outlier_filter SHARED
   src/filter.cpp)
 target_link_libraries(ring_outlier_filter ${Boost_LIBRARIES})
 rclcpp_components_register_node(ring_outlier_filter
-  PLUGIN "autoware::pointcloud_preprocessor::RingOutlierFilter"
+  PLUGIN "pointcloud_preprocessor::RingOutlierFilterComponent"
   EXECUTABLE ring_outlier_filter_exe)
 
 # -- Voxel Grid Outlier Filter --
@@ -137,7 +137,7 @@ ament_auto_add_library(voxel_grid_outlier_filter SHARED
   src/filter.cpp)
 target_link_libraries(voxel_grid_outlier_filter ${Boost_LIBRARIES})
 rclcpp_components_register_node(voxel_grid_outlier_filter
-  PLUGIN "autoware::pointcloud_preprocessor::VoxelGridOutlierFilter"
+  PLUGIN "pointcloud_preprocessor::VoxelGridOutlierFilterComponent"
   EXECUTABLE voxel_grid_outlier_filter_exe)
 
 
@@ -148,7 +148,7 @@ ament_auto_add_library(passthrough_filter SHARED
   src/filter.cpp)
 target_link_libraries(passthrough_filter ${Boost_LIBRARIES})
 rclcpp_components_register_node(passthrough_filter
-  PLUGIN "autoware::pointcloud_preprocessor::PassthroughFilter"
+  PLUGIN "pointcloud_preprocessor::PassThroughFilterComponent"
   EXECUTABLE passthrough_filter_exe)
 
 # -- Passthrough Filter Uint16 --
@@ -159,7 +159,7 @@ ament_auto_add_library(passthrough_filter_uint16 SHARED
   src/filter.cpp)
 target_link_libraries(passthrough_filter_uint16 ${Boost_LIBRARIES})
 rclcpp_components_register_node(passthrough_filter_uint16
-  PLUGIN "autoware::pointcloud_preprocessor::PassthroughFilterUint16"
+  PLUGIN "pointcloud_preprocessor::PassThroughFilterUInt16Component"
   EXECUTABLE passthrough_filter_uint16_exe)
 
 
@@ -170,7 +170,7 @@ ament_auto_add_library(pointcloud_accumulator SHARED
   )
 target_link_libraries(pointcloud_accumulator ${Boost_LIBRARIES})
 rclcpp_components_register_node(pointcloud_accumulator
-  PLUGIN "autoware::pointcloud_preprocessor::PointcloudAccumulator"
+  PLUGIN "pointcloud_preprocessor::PointcloudAccumulatorComponent"
   EXECUTABLE pointcloud_accumulator_exe)
 
 
