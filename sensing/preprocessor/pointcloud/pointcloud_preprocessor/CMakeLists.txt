@@ -1,12 +1,15 @@
 cmake_minimum_required(VERSION 3.5)
 project(pointcloud_preprocessor)
 
-add_compile_options(-std=c++14)
-
-set(CMAKE_CXX_STANDARD 14)
+### Compile options
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
+endif()
 
 find_package(ament_cmake_auto REQUIRED)
-
 ament_auto_find_build_dependencies()
 
 find_package(OpenCV REQUIRED)
@@ -29,9 +32,8 @@ include_directories(
   ${OpenCV_INCLUDE_DIRS})
 
 
-
 # ========== Compare Map Filter ==========
-# Distance Based Compare Map Filter
+# -- Distance Based Compare Map Filter --
 ament_auto_add_library(distance_based_compare_map_filter SHARED
   src/compare_map_filter/distance_based_compare_map_filter_nodelet.cpp
   src/filter.cpp
@@ -41,7 +43,7 @@ rclcpp_components_register_node(distance_based_compare_map_filter
   PLUGIN "autoware::pointcloud_preprocessor::DistanceBasedCompareMapFilter"
   EXECUTABLE distance_based_compare_map_filter_exe)
 
-# Voxel Based Approximate Compare Map Filter
+# -- Voxel Based Approximate Compare Map Filter --
 ament_auto_add_library(voxel_based_approximate_compare_map_filter SHARED
   src/compare_map_filter/voxel_based_approximate_compare_map_filter_nodelet.cpp
   src/filter.cpp
@@ -51,7 +53,7 @@ rclcpp_components_register_node(voxel_based_approximate_compare_map_filter
   PLUGIN "autoware::pointcloud_preprocessor::VoxelBasedApproximateCompareMapFilter"
   EXECUTABLE voxel_based_approximate_compare_map_filter_exe)
 
-# Voxel Based Compare Map Filter
+# -- Voxel Based Compare Map Filter --
 ament_auto_add_library(voxel_based_compare_map_filter SHARED
   src/compare_map_filter/voxel_based_compare_map_filter_nodelet.cpp
   src/filter.cpp
@@ -61,7 +63,7 @@ rclcpp_components_register_node(voxel_based_compare_map_filter
   PLUGIN "autoware::pointcloud_preprocessor::VoxelBasedCompareMapFilter"
   EXECUTABLE voxel_based_compare_map_filter_exe)
 
-# Voxel Distance Based Compare Map Filter
+# -- Voxel Distance Based Compare Map Filter --
 ament_auto_add_library(voxel_distance_based_compare_map_filter SHARED
   src/compare_map_filter/voxel_distance_based_compare_map_filter_nodelet.cpp
   src/filter.cpp
@@ -120,7 +122,7 @@ rclcpp_components_register_node(ray_ground_filter
 
 
 # ========== Outlier Filter ==========
-# Ring Outlier Filter
+# -- Ring Outlier Filter --
 ament_auto_add_library(ring_outlier_filter SHARED
   src/outlier_filter/ring_outlier_filter_nodelet.cpp
   src/filter.cpp)
@@ -129,7 +131,7 @@ rclcpp_components_register_node(ring_outlier_filter
   PLUGIN "autoware::pointcloud_preprocessor::RingOutlierFilter"
   EXECUTABLE ring_outlier_filter_exe)
 
-# Voxel Grid Outlier Filter
+# -- Voxel Grid Outlier Filter --
 ament_auto_add_library(voxel_grid_outlier_filter SHARED
   src/outlier_filter/voxel_grid_outlier_filter_nodelet.cpp
   src/filter.cpp)
@@ -140,7 +142,7 @@ rclcpp_components_register_node(voxel_grid_outlier_filter
 
 
 # ========== Passthrough Filter ==========
-# Passthrough Filter
+# -- Passthrough Filter --
 ament_auto_add_library(passthrough_filter SHARED
   src/passthrough_filter/passthrough_filter_nodelet.cpp
   src/filter.cpp)
@@ -149,7 +151,7 @@ rclcpp_components_register_node(passthrough_filter
   PLUGIN "autoware::pointcloud_preprocessor::PassthroughFilter"
   EXECUTABLE passthrough_filter_exe)
 
-# Passthrough Filter Uint16
+# -- Passthrough Filter Uint16 --
 ament_auto_add_library(passthrough_filter_uint16 SHARED
   src/passthrough_filter/passthrough_filter_uint16_nodelet.cpp
   src/passthrough_filter/passthrough_uint16.cpp
