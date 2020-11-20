@@ -48,7 +48,7 @@ void DistanceBasedCompareMapFilterComponent::filter(
   pcl::fromROSMsg(*input, *pcl_input);
   pcl_output->points.reserve(pcl_input->points.size());
   pcl::getPointCloudDifference<pcl::PointXYZ>(
-    *pcl_input, *map_ptr_, distance_threshold_ * distance_threshold_, tree_, *pcl_output);
+    *pcl_input, distance_threshold_ * distance_threshold_, tree_, *pcl_output);
 
   pcl::toROSMsg(*pcl_output, output);
   output.header = input->header;
