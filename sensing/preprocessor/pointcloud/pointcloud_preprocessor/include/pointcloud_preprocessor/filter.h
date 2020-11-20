@@ -66,13 +66,25 @@ namespace pointcloud_preprocessor
 {
 namespace sync_policies = message_filters::sync_policies;
 
+/** \brief For parameter service callback */
+template <typename T>
+bool get_param(const std::vector<rclcpp::Parameter> & p, const std::string & name, T & value)
+{
+  auto it = std::find_if(p.cbegin(), p.cend(), [&name](const rclcpp::Parameter & parameter) {
+    return parameter.get_name() == name;
+  });
+  if (it != p.cend()) {
+    value = it->template get_value<T>();
+    return true;
+  }
+  return false;
+}
 
 /** \brief @b Filter represents the base filter class. Some generic 3D operations that are applicable to all filters
  * are defined here as static methods.
  * \author Radu Bogdan Rusu
  */
 class Filter : public rclcpp::Node
-// class Filter : public pointcloud_preprocessor::PCLComponent
 {
 public:
   typedef sensor_msgs::msg::PointCloud2 PointCloud2;
@@ -139,7 +151,6 @@ protected:
 
   /** \brief Internal mutex. */
   boost::mutex mutex_;
-
 
   /** \brief Virtual abstract filter method. To be implemented by every child.
    * \param input the input point cloud dataset.
@@ -226,9 +237,6 @@ private:
     const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices);
 
   void setupTF();
-
-  /** \brief Dynamic reconfigure service callback. */
-  // virtual void config_callback(pcl_ros::FilterConfig & config, uint32_t level);
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

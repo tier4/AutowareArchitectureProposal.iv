@@ -30,7 +30,7 @@ include_directories(
 
 
 
-# ==== Compare Map Filter ====
+# ========== Compare Map Filter ==========
 # Distance Based Compare Map Filter
 ament_auto_add_library(distance_based_compare_map_filter SHARED
   src/compare_map_filter/distance_based_compare_map_filter_nodelet.cpp
@@ -72,9 +72,7 @@ rclcpp_components_register_node(voxel_distance_based_compare_map_filter
   EXECUTABLE voxel_distance_based_compare_map_filter_exe)
 
 
-
-
-# ==== Concatenate data ====
+# ========== Concatenate data ==========
 ament_auto_add_library(concatenate_data SHARED
   src/concatenate_data/concatenate_data_nodelet.cpp
   )
@@ -84,7 +82,7 @@ rclcpp_components_register_node(concatenate_data
   EXECUTABLE concatenate_data_exe)
 
 
-# ==== CropBox ====
+# ========== CropBox ==========
 ament_auto_add_library(crop_box_filter SHARED
   src/crop_box_filter/crop_box_filter_nodelet.cpp
   src/filter.cpp
@@ -95,7 +93,7 @@ rclcpp_components_register_node(crop_box_filter
   EXECUTABLE crop_box_filter_exe)
 
 
-# ==== Down Sampler Filter ====
+# ========== Down Sampler Filter ==========
 ament_auto_add_library(downsample_filter SHARED
   src/downsample_filter/voxel_grid_downsample_filter_nodelet.cpp
   src/filter.cpp
@@ -106,7 +104,7 @@ rclcpp_components_register_node(downsample_filter
   EXECUTABLE downsample_filter_exe)
 
 
-# ==== Ray Ground Filter ====
+# ========== Ray Ground Filter ==========
 ament_auto_add_library(ray_ground_filter SHARED
   src/ground_filter/ray_ground_filter_nodelet.cpp
   src/filter.cpp)
@@ -121,7 +119,7 @@ rclcpp_components_register_node(ray_ground_filter
   EXECUTABLE ray_ground_filter_exe)
 
 
-# ==== Outlier Filter ====
+# ========== Outlier Filter ==========
 # Ring Outlier Filter
 ament_auto_add_library(ring_outlier_filter SHARED
   src/outlier_filter/ring_outlier_filter_nodelet.cpp
@@ -140,7 +138,8 @@ rclcpp_components_register_node(voxel_grid_outlier_filter
   PLUGIN "autoware::pointcloud_preprocessor::VoxelGridOutlierFilter"
   EXECUTABLE voxel_grid_outlier_filter_exe)
 
-# ==== Passthrough Filter ====
+
+# ========== Passthrough Filter ==========
 # Passthrough Filter
 ament_auto_add_library(passthrough_filter SHARED
   src/passthrough_filter/passthrough_filter_nodelet.cpp
@@ -149,7 +148,6 @@ target_link_libraries(passthrough_filter ${Boost_LIBRARIES})
 rclcpp_components_register_node(passthrough_filter
   PLUGIN "autoware::pointcloud_preprocessor::PassthroughFilter"
   EXECUTABLE passthrough_filter_exe)
-
 
 # Passthrough Filter Uint16
 ament_auto_add_library(passthrough_filter_uint16 SHARED
@@ -163,7 +161,7 @@ rclcpp_components_register_node(passthrough_filter_uint16
   EXECUTABLE passthrough_filter_uint16_exe)
 
 
-# ==== Pointcloud Accumulator Filter ====
+# ========== Pointcloud Accumulator Filter ==========
 ament_auto_add_library(pointcloud_accumulator SHARED
   src/pointcloud_accumulator/pointcloud_accumulator_nodelet.cpp
   src/filter.cpp

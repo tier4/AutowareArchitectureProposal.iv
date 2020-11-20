@@ -44,6 +44,11 @@ RayGroundFilterComponent::RayGroundFilterComponent(const rclcpp::NodeOptions & o
   grid_height_ = 1000;
   grid_precision_ = 0.2;
   ray_ground_filter::generateColors(colors_, color_num_);
+
+  using std::placeholders::_1;
+  set_param_res_ = this->add_on_set_parameters_callback(
+    std::bind(&RayGroundFilterComponent::paramCallback, this, _1));
+
 }
 
 bool RayGroundFilterComponent::TransformPointCloud(
@@ -282,58 +287,41 @@ void RayGroundFilterComponent::filter(
   output = *no_ground_cloud_transed_msg_ptr;
 }
 
-// void RayGroundFilterComponent::subscribe() { Filter::subscribe(); } // [ROS2-port]: removed
+rcl_interfaces::msg::SetParametersResult RayGroundFilterComponent::paramCallback(
+  const std::vector<rclcpp::Parameter> & p)
+{
+  boost::mutex::scoped_lock lock(mutex_);
 
-// void RayGroundFilterComponent::unsubscribe() { Filter::unsubscribe(); } // [ROS2-port]: removed
+  if (get_param(p, "base_frame", base_frame_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting base_frame to: %s.", base_frame_);
+  }
+  if (get_param(p, "general_max_slope", general_max_slope_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting general_max_slope to: %f.", general_max_slope_);
+  }
+  if (get_param(p, "local_max_slope", local_max_slope_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting local_max_slope to: %f.", local_max_slope_);
+  }
+  if (get_param(p, "radial_divider_angle", radial_divider_angle_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting radial_divider_angle to: %f.", radial_divider_angle_);
+  }
+  if (get_param(p, "concentric_divider_distance", concentric_divider_distance_)) {
+    RCLCPP_DEBUG(
+      get_logger(), "Setting concentric_divider_distance to: %f.", concentric_divider_distance_);
+  }
+  if (get_param(p, "min_height_threshold", min_height_threshold_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting min_height_threshold_ to: %f.", min_height_threshold_);
+  }
+  if (get_param(p, "reclass_distance_threshold", reclass_distance_threshold_)) {
+    RCLCPP_DEBUG(
+      get_logger(), "Setting reclass_distance_threshold to: %f.", reclass_distance_threshold_);
+  }
+  
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  result.reason = "success";
 
-// void RayGroundFilterComponent::config_callback(
-//   pointcloud_preprocessor::RayGroundFilterConfig & config, uint32_t level)
-// {
-//   boost::mutex::scoped_lock lock(mutex_);
-
-//   if (base_frame_ != config.base_frame) {
-//     base_frame_ = config.base_frame;
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting base_frame to: %s.", getName().c_str(),
-//       config.base_frame.c_str());
-//   }
-//   if (general_max_slope_ != config.general_max_slope) {
-//     general_max_slope_ = config.general_max_slope;
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting general_max_slope to: %f.", getName().c_str(),
-//       config.general_max_slope);
-//   }
-//   if (local_max_slope_ != config.local_max_slope) {
-//     local_max_slope_ = config.local_max_slope;
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting local_max_slope to: %f.", getName().c_str(),
-//       config.local_max_slope);
-//   }
-//   if (radial_divider_angle_ != config.radial_divider_angle) {
-//     radial_divider_angle_ = config.radial_divider_angle;
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting radial_divider_angle to: %f.", getName().c_str(),
-//       config.radial_divider_angle);
-//   }
-//   if (concentric_divider_distance_ != config.concentric_divider_distance) {
-//     concentric_divider_distance_ = config.concentric_divider_distance;
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting concentric_divider_distance to: %f.", getName().c_str(),
-//       config.concentric_divider_distance);
-//   }
-//   if (min_height_threshold_ != config.min_height_threshold) {
-//     min_height_threshold_ = config.min_height_threshold;
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting min_height_threshold_ to: %f.", getName().c_str(),
-//       config.min_height_threshold);
-//   }
-//   if (reclass_distance_threshold_ != config.reclass_distance_threshold) {
-//     reclass_distance_threshold_ = config.reclass_distance_threshold;
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting reclass_distance_threshold to: %f.", getName().c_str(),
-//       config.reclass_distance_threshold);
-//   }
-// }
+  return result;
+}
 
 }  // namespace pointcloud_preprocessor
 

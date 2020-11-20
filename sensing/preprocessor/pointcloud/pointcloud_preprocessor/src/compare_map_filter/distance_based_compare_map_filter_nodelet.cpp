@@ -26,10 +26,13 @@ namespace pointcloud_preprocessor
 DistanceBasedCompareMapFilterComponent::DistanceBasedCompareMapFilterComponent(const rclcpp::NodeOptions & options)
 : Filter("DistanceBasedCompareMapFilter", options)
 {
+  using std::placeholders::_1;
   sub_map_ = this->create_subscription<PointCloud2>(
     "map", rclcpp::QoS{1},
-    std::bind(
-      &DistanceBasedCompareMapFilterComponent::input_target_callback, this, std::placeholders::_1));
+    std::bind(&DistanceBasedCompareMapFilterComponent::input_target_callback, this, _1));
+
+  set_param_res_ = this->add_on_set_parameters_callback(
+    std::bind(&DistanceBasedCompareMapFilterComponent::paramCallback, this, _1));
 }
 
 void DistanceBasedCompareMapFilterComponent::filter(
@@ -70,28 +73,15 @@ void DistanceBasedCompareMapFilterComponent::input_target_callback(const PointCl
   tree_->setInputCloud(map_ptr_);
 }
 
+rcl_interfaces::msg::SetParametersResult DistanceBasedCompareMapFilterComponent::paramCallback(
+  const std::vector<rclcpp::Parameter> & p)
+{
+  boost::mutex::scoped_lock lock(mutex_);
 
-// void DistanceBasedCompareMapFilterComponent::config_callback(
-//   pointcloud_preprocessor::CompareMapFilterConfig & config, uint32_t level)
-// {
-//   boost::mutex::scoped_lock lock(mutex_);
-
-//   if (distance_threshold_ != config.distance_threshold) {
-//     distance_threshold_ = config.distance_threshold;
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting new distance threshold to: %f.", getName().c_str(),
-//       config.distance_threshold);
-//   }
-//   // ---[ These really shouldn't be here, and as soon as dynamic_reconfigure improves, we'll remove them and inherit
-//   // from Filter
-//   if (tf_output_frame_ != config.output_frame) {
-//     tf_output_frame_ = config.output_frame;
-//     NODELET_DEBUG(
-//       "[config_callback] Setting the output TF frame to: %s.", tf_output_frame_.c_str());
-//   }
-//   // ]---
-// }
-
+  if (get_param(p, "distance_threshold", distance_threshold_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting new distance threshold to: %f.", distance_threshold_);
+  }
+}
 }  // namespace pointcloud_preprocessor
 
 

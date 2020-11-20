@@ -97,9 +97,6 @@ protected:
   void filter(
     const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output) override;
 
-  // TODO(Horibe): Port dynamic reconfigure
-  // void config_callback(pointcloud_preprocessor::RayGroundFilterConfig & config, uint32_t level);
-
 private:
   std::string base_frame_ = "base_link";
   double general_max_slope_;            // degrees
@@ -172,6 +169,12 @@ private:
     const pcl::PointCloud<PointType_>::Ptr in_cloud_ptr, const pcl::PointIndices & in_indices,
     pcl::PointCloud<PointType_>::Ptr out_only_indices_cloud_ptr,
     pcl::PointCloud<PointType_>::Ptr out_removed_indices_cloud_ptr);
+
+  /** \brief Parameter service callback result : needed to be hold */
+  OnSetParametersCallbackHandle::SharedPtr set_param_res_;
+
+  /** \brief Parameter service callback */
+  rcl_interfaces::msg::SetParametersResult paramCallback(const std::vector<rclcpp::Parameter> & p);
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

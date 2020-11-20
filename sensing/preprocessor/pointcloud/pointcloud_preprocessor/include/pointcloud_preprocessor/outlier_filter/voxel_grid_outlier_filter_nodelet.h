@@ -27,8 +27,11 @@ protected:
   virtual void filter(
     const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output);
 
-  // void config_callback(
-  //   pointcloud_preprocessor::VoxelGridOutlierFilterConfig & config, uint32_t level);
+  /** \brief Parameter service callback result : needed to be hold */
+  OnSetParametersCallbackHandle::SharedPtr set_param_res_;
+
+  /** \brief Parameter service callback */
+  rcl_interfaces::msg::SetParametersResult paramCallback(const std::vector<rclcpp::Parameter> & p);
 
 private:
   double voxel_size_x_;

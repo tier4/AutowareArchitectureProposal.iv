@@ -61,6 +61,9 @@ namespace pointcloud_preprocessor
 PassThroughFilterComponent::PassThroughFilterComponent(const rclcpp::NodeOptions & options)
 : Filter("PassThroughFilter", options)
 {
+  using std::placeholders::_1;
+  set_param_res_ = this->add_on_set_parameters_callback(
+    std::bind(&PassThroughFilterComponent::paramCallback, this, _1));
 }
 
 void PassThroughFilterComponent::filter(
@@ -70,25 +73,19 @@ void PassThroughFilterComponent::filter(
   output = *input;
 }
 
-// void PassThroughFilterComponent::config_callback(
-//   pointcloud_preprocessor::PassThroughFilterConfig & config, uint32_t level)
-// {
-//   boost::mutex::scoped_lock lock(mutex_);
+rcl_interfaces::msg::SetParametersResult PassThroughFilterComponent::paramCallback(
+  const std::vector<rclcpp::Parameter> & p)
+{
+  boost::mutex::scoped_lock lock(mutex_);
+  
+  // write me
+  
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  result.reason = "success";
 
-//   // ---[ These really shouldn't be here, and as soon as dynamic_reconfigure improves, we'll remove them and inherit
-//   // from Filter
-//   if (tf_input_frame_ != config.input_frame) {
-//     tf_input_frame_ = config.input_frame;
-//     NODELET_DEBUG("[config_callback] Setting the input TF frame to: %s.", tf_input_frame_.c_str());
-//   }
-//   if (tf_output_frame_ != config.output_frame) {
-//     tf_output_frame_ = config.output_frame;
-//     NODELET_DEBUG(
-//       "[config_callback] Setting the output TF frame to: %s.", tf_output_frame_.c_str());
-//   }
-//   // ]---
-// }
-
+  return result;
+}
 }  // namespace pointcloud_preprocessor
 
 #include "rclcpp_components/register_node_macro.hpp"

@@ -22,18 +22,20 @@
 
 namespace pointcloud_preprocessor
 {
-VoxelBasedApproximateCompareMapFilterComponent::VoxelBasedApproximateCompareMapFilterComponent(const rclcpp::NodeOptions & options)
+VoxelBasedApproximateCompareMapFilterComponent::VoxelBasedApproximateCompareMapFilterComponent(
+  const rclcpp::NodeOptions & options)
 : Filter("VoxelBasedApproximateCompareMapFilter", options)
 {
   set_map_in_voxel_grid_ = false;
 
+  using std::placeholders::_1;
   sub_map_ = this->create_subscription<PointCloud2>(
     "map", rclcpp::QoS{1},
-    std::bind(
-      &VoxelBasedApproximateCompareMapFilterComponent::input_target_callback, this,
-      std::placeholders::_1));
-}
+    std::bind(&VoxelBasedApproximateCompareMapFilterComponent::input_target_callback, this, _1));
 
+  set_param_res_ = this->add_on_set_parameters_callback(
+    std::bind(&VoxelBasedApproximateCompareMapFilterComponent::paramCallback, this, _1));
+}
 
 void VoxelBasedApproximateCompareMapFilterComponent::filter(
   const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output)
@@ -78,31 +80,25 @@ void VoxelBasedApproximateCompareMapFilterComponent::input_target_callback(
   voxel_grid_.filter(*voxel_map_ptr_);
 }
 
+rcl_interfaces::msg::SetParametersResult
+VoxelBasedApproximateCompareMapFilterComponent::paramCallback(
+  const std::vector<rclcpp::Parameter> & p)
+{
+  boost::mutex::scoped_lock lock(mutex_);
 
-// void VoxelBasedApproximateCompareMapFilterComponent::config_callback(
-//   pointcloud_preprocessor::CompareMapFilterConfig & config, uint32_t level)
-// {
-//   boost::mutex::scoped_lock lock(mutex_);
+  if (get_param(p, "distance_threshold", distance_threshold_)) {
+    voxel_grid_.setLeafSize(distance_threshold_, distance_threshold_, distance_threshold_);
+    voxel_grid_.setSaveLeafLayout(true);
+    if (set_map_in_voxel_grid_) voxel_grid_.filter(*voxel_map_ptr_);
+    RCLCPP_DEBUG(get_logger(), "Setting new distance threshold to: %f.", distance_threshold_);
+  }
+  
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  result.reason = "success";
 
-//   if (distance_threshold_ != config.distance_threshold) {
-//     distance_threshold_ = config.distance_threshold;
-//     voxel_grid_.setLeafSize(distance_threshold_, distance_threshold_, distance_threshold_);
-//     voxel_grid_.setSaveLeafLayout(true);
-//     if (set_map_in_voxel_grid_) voxel_grid_.filter(*voxel_map_ptr_);
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting new distance threshold to: %f.", getName().c_str(),
-//       config.distance_threshold);
-//   }
-//   // ---[ These really shouldn't be here, and as soon as dynamic_reconfigure improves, we'll remove them and inherit
-//   // from Filter
-//   if (tf_output_frame_ != config.output_frame) {
-//     tf_output_frame_ = config.output_frame;
-//     NODELET_DEBUG(
-//       "[config_callback] Setting the output TF frame to: %s.", tf_output_frame_.c_str());
-//   }
-//   // ]---
-// }
-
+  return result;
+}
 }  // namespace pointcloud_preprocessor
 
   #include "rclcpp_components/register_node_macro.hpp"

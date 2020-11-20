@@ -58,9 +58,13 @@
 
 namespace pointcloud_preprocessor
 {
-VoxelGridDownsampleFilterComponent::VoxelGridDownsampleFilterComponent(const rclcpp::NodeOptions & options)
+VoxelGridDownsampleFilterComponent::VoxelGridDownsampleFilterComponent(
+  const rclcpp::NodeOptions & options)
 : Filter("VoxelGridDownsampleFilter", options)
 {
+  using std::placeholders::_1;
+  set_param_res_ = this->add_on_set_parameters_callback(
+    std::bind(&VoxelGridDownsampleFilterComponent::paramCallback, this, _1));
 }
 
 void VoxelGridDownsampleFilterComponent::filter(
@@ -81,43 +85,27 @@ void VoxelGridDownsampleFilterComponent::filter(
   output.header = input->header;
 }
 
-// void VoxelGridDownsampleFilterComponent::config_callback(
-//   pointcloud_preprocessor::VoxelGridDownsampleFilterConfig & config, uint32_t level)
-// {
-//   boost::mutex::scoped_lock lock(mutex_);
+rcl_interfaces::msg::SetParametersResult VoxelGridDownsampleFilterComponent::paramCallback(
+  const std::vector<rclcpp::Parameter> & p)
+{
+  boost::mutex::scoped_lock lock(mutex_);
 
-//   if (voxel_size_x_ != config.voxel_size_x) {
-//     voxel_size_x_ = config.voxel_size_x;
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting new distance threshold to: %f.", getName().c_str(),
-//       config.voxel_size_x);
-//   }
-//   if (voxel_size_y_ != config.voxel_size_y) {
-//     voxel_size_y_ = config.voxel_size_y;
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting new distance threshold to: %f.", getName().c_str(),
-//       config.voxel_size_y);
-//   }
-//   if (voxel_size_z_ != config.voxel_size_z) {
-//     voxel_size_z_ = config.voxel_size_z;
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting new distance threshold to: %f.", getName().c_str(),
-//       config.voxel_size_z);
-//   }
-//   // ---[ These really shouldn't be here, and as soon as dynamic_reconfigure improves, we'll remove them and inherit
-//   // from Filter
-//   if (tf_input_frame_ != config.input_frame) {
-//     tf_input_frame_ = config.input_frame;
-//     NODELET_DEBUG("[config_callback] Setting the input TF frame to: %s.", tf_input_frame_.c_str());
-//   }
-//   if (tf_output_frame_ != config.output_frame) {
-//     tf_output_frame_ = config.output_frame;
-//     NODELET_DEBUG(
-//       "[config_callback] Setting the output TF frame to: %s.", tf_output_frame_.c_str());
-//   }
-//   // ]---
-// }
+  if (get_param(p, "voxel_size_x", voxel_size_x_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting new distance threshold to: %f.", voxel_size_x_);
+  }
+  if (get_param(p, "voxel_size_y", voxel_size_y_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting new distance threshold to: %f.", voxel_size_y_);
+  }
+  if (get_param(p, "voxel_size_z", voxel_size_z_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting new distance threshold to: %f.", voxel_size_z_);
+  }
+  
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  result.reason = "success";
 
+  return result;
+}
 }  // namespace pointcloud_preprocessor
 
 #include "rclcpp_components/register_node_macro.hpp"

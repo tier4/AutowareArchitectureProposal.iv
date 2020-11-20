@@ -27,7 +27,6 @@ protected:
   virtual void filter(
     const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output);
 
-  // void config_callback(pointcloud_preprocessor::CompareMapFilterConfig & config, uint32_t level);
   void input_target_callback(const PointCloud2ConstPtr map);
 
 private:
@@ -37,6 +36,12 @@ private:
   double distance_threshold_;
   pcl::VoxelGrid<pcl::PointXYZ> voxel_grid_;
   bool set_map_in_voxel_grid_;
+
+  /** \brief Parameter service callback result : needed to be hold */
+  OnSetParametersCallbackHandle::SharedPtr set_param_res_;
+
+  /** \brief Parameter service callback */
+  rcl_interfaces::msg::SetParametersResult paramCallback(const std::vector<rclcpp::Parameter> & p);
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

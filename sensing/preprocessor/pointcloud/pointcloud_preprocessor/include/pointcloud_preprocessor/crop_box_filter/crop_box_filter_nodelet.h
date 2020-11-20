@@ -70,13 +70,16 @@ protected:
 
   void publishCropBoxPolygon();
 
-  // TODO(Horibe): port dynamic reconfigure
-  // void config_callback(pointcloud_preprocessor::CropBoxFilterConfig & config, uint32_t level);
-
 private:
   /** \brief The PCL filter implementation used. */
   pcl::CropBox<pcl::PCLPointCloud2> impl_;
   rclcpp::Publisher<geometry_msgs::msg::PolygonStamped>::SharedPtr crop_box_polygon_pub_;
+
+  /** \brief Parameter service callback result : needed to be hold */
+  OnSetParametersCallbackHandle::SharedPtr set_param_res_;
+
+  /** \brief Parameter service callback */
+  rcl_interfaces::msg::SetParametersResult paramCallback(const std::vector<rclcpp::Parameter> & p);
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

@@ -27,12 +27,16 @@ protected:
   virtual void filter(
     const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output);
 
-  // void config_callback(pointcloud_preprocessor::RingOutlierFilterConfig & config, uint32_t level);
-
 private:
   double distance_ratio_;
   double object_length_threshold_;
   int num_points_threshold_;
+
+  /** \brief Parameter service callback result : needed to be hold */
+  OnSetParametersCallbackHandle::SharedPtr set_param_res_;
+
+  /** \brief Parameter service callback */
+  rcl_interfaces::msg::SetParametersResult paramCallback(const std::vector<rclcpp::Parameter> & p);
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

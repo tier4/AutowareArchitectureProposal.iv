@@ -25,6 +25,9 @@ namespace pointcloud_preprocessor
 RingOutlierFilterComponent::RingOutlierFilterComponent(const rclcpp::NodeOptions & options)
 : Filter("RingOutlierFilter", options)
 {
+  using std::placeholders::_1;
+  set_param_res_ = this->add_on_set_parameters_callback(
+    std::bind(&RingOutlierFilterComponent::paramCallback, this, _1));
 }
 
 void RingOutlierFilterComponent::filter(
@@ -109,43 +112,28 @@ void RingOutlierFilterComponent::filter(
   output.header = input->header;
 }
 
-// void RingOutlierFilterComponent::config_callback(
-//   pointcloud_preprocessor::RingOutlierFilterConfig & config, uint32_t level)
-// {
-//   boost::mutex::scoped_lock lock(mutex_);
+rcl_interfaces::msg::SetParametersResult RingOutlierFilterComponent::paramCallback(
+  const std::vector<rclcpp::Parameter> & p)
+{
+  boost::mutex::scoped_lock lock(mutex_);
 
-//   if (distance_ratio_ != config.distance_ratio) {
-//     distance_ratio_ = config.distance_ratio;
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting new distance ratio to: %f.", getName().c_str(),
-//       config.distance_ratio);
-//   }
-//   if (object_length_threshold_ != config.object_length_threshold) {
-//     object_length_threshold_ = config.object_length_threshold;
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting new object length threshold to: %f.", getName().c_str(),
-//       config.object_length_threshold);
-//   }
-//   if (num_points_threshold_ != config.num_points_threshold) {
-//     num_points_threshold_ = config.num_points_threshold;
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting new num_points_threshold to: %d.", getName().c_str(),
-//       config.num_points_threshold);
-//   }
-//   // ---[ These really shouldn't be here, and as soon as dynamic_reconfigure improves, we'll remove them and inherit
-//   // from Filter
-//   if (tf_input_frame_ != config.input_frame) {
-//     tf_input_frame_ = config.input_frame;
-//     NODELET_DEBUG("[config_callback] Setting the input TF frame to: %s.", tf_input_frame_.c_str());
-//   }
-//   if (tf_output_frame_ != config.output_frame) {
-//     tf_output_frame_ = config.output_frame;
-//     NODELET_DEBUG(
-//       "[config_callback] Setting the output TF frame to: %s.", tf_output_frame_.c_str());
-//   }
-//   // ]---
-// }
+  if (get_param(p, "distance_ratio", distance_ratio_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting new distance ratio to: %f.", distance_ratio_);
+  }
+  if (get_param(p, "object_length_threshold", object_length_threshold_)) {
+    RCLCPP_DEBUG(
+      get_logger(), "Setting new object length threshold to: %f.", object_length_threshold_);
+  }
+  if (get_param(p, "num_points_threshold", num_points_threshold_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting new num_points_threshold to: %d.", num_points_threshold_);
+  }
+  
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  result.reason = "success";
 
+  return result;
+}
 }  // namespace pointcloud_preprocessor
 
 #include "rclcpp_components/register_node_macro.hpp"

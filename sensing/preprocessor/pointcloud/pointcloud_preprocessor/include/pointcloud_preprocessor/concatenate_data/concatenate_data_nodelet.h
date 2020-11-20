@@ -98,7 +98,6 @@ public:
 
   void onInit();
   void subscribe();
-  // void unsubscribe();
 
 private:
   /** \brief The output PointCloud publisher. */

@@ -21,6 +21,9 @@ namespace pointcloud_preprocessor
 PointcloudAccumulatorComponent::PointcloudAccumulatorComponent(const rclcpp::NodeOptions & options)
 : Filter("PointcloudAccumulator", options)
 {
+  using std::placeholders::_1;
+  set_param_res_ = this->add_on_set_parameters_callback(
+    std::bind(&PointcloudAccumulatorComponent::paramCallback, this, _1));
 }
 
 void PointcloudAccumulatorComponent::filter(
@@ -41,37 +44,26 @@ void PointcloudAccumulatorComponent::filter(
   output.header = input->header;
 }
 
-// void PointcloudAccumulatorComponent::config_callback(
-//   pointcloud_preprocessor::PointcloudAccumulatorConfig & config, uint32_t level)
-// {
-//   boost::mutex::scoped_lock lock(mutex_);
+rcl_interfaces::msg::SetParametersResult PointcloudAccumulatorComponent::paramCallback(
+  const std::vector<rclcpp::Parameter> & p)
+{
+  boost::mutex::scoped_lock lock(mutex_);
 
-//   if (accumulation_time_sec_ != config.accumulation_time_sec) {
-//     accumulation_time_sec_ = config.accumulation_time_sec;
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting new accumulation time to: %f.", getName().c_str(),
-//       config.accumulation_time_sec);
-//   }
-//   if (pointcloud_buffer_.size() != (size_t)config.pointcloud_buffer_size) {
-//     NODELET_DEBUG(
-//       "[%s::config_callback] Setting new buffer size to: %d.", getName().c_str(),
-//       config.pointcloud_buffer_size);
-//   }
-//   pointcloud_buffer_.set_capacity((size_t)config.pointcloud_buffer_size);
-//   // ---[ These really shouldn't be here, and as soon as dynamic_reconfigure improves, we'll remove them and inherit
-//   // from Filter
-//   if (tf_input_frame_ != config.input_frame) {
-//     tf_input_frame_ = config.input_frame;
-//     NODELET_DEBUG("[config_callback] Setting the input TF frame to: %s.", tf_input_frame_.c_str());
-//   }
-//   if (tf_output_frame_ != config.output_frame) {
-//     tf_output_frame_ = config.output_frame;
-//     NODELET_DEBUG(
-//       "[config_callback] Setting the output TF frame to: %s.", tf_output_frame_.c_str());
-//   }
-//   // ]---
-// }
+  if (get_param(p, "accumulation_time_sec", accumulation_time_sec_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting new accumulation time to: %f.", accumulation_time_sec_);
+  }
+  int pointcloud_buffer_size;
+  if (get_param(p, "pointcloud_buffer_size", pointcloud_buffer_size)) {
+    pointcloud_buffer_.set_capacity((size_t)pointcloud_buffer_size);
+    RCLCPP_DEBUG(get_logger(), "Setting new buffer size to: %d.", pointcloud_buffer_size);
+  }
 
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  result.reason = "success";
+
+  return result;
+}
 }  // namespace pointcloud_preprocessor
 
 #include "rclcpp_components/register_node_macro.hpp"
