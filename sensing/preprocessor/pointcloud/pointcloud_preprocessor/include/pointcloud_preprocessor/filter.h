@@ -228,6 +228,14 @@ protected:
 
 
 private:
+
+  /** \brief Parameter service callback result : needed to be hold */
+  OnSetParametersCallbackHandle::SharedPtr set_param_res_filter_;
+
+  /** \brief Parameter service callback */
+  rcl_interfaces::msg::SetParametersResult filterParamCallback(
+    const std::vector<rclcpp::Parameter> & p);
+
   /** \brief Synchronized input, and indices.*/
   boost::shared_ptr<ExactTimeSyncPolicy> sync_input_indices_e_;
   boost::shared_ptr<ApproximateTimeSyncPolicy> sync_input_indices_a_;

@@ -102,6 +102,10 @@ pointcloud_preprocessor::Filter::Filter(
   // Set tf_listener, tf_buffer.
   setupTF();
 
+  // Set parameter service callback
+  set_param_res_filter_ =
+    this->add_on_set_parameters_callback(std::bind(&Filter::filterParamCallback, this, std::placeholders::_1));
+
   RCLCPP_DEBUG(
     this->get_logger(), "[%s::onInit] Nodelet successfully created.", filter_field_name_.c_str());
 }
@@ -167,23 +171,25 @@ void pointcloud_preprocessor::Filter::computePublish(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-// void pointcloud_preprocessor::Filter::config_callback(
-//   pcl_ros::FilterConfig & config, uint32_t level)
-// {
-//   // The following parameters are updated automatically for all PCL_ROS Nodelet Filters as they are inexistent in PCL
-//   if (tf_input_frame_ != config.input_frame) {
-//     tf_input_frame_ = config.input_frame;
-//     RCLCPP_DEBUG(
-//       this->get_logger(), "[%s::config_callback] Setting the input TF frame to: %s.",
-//       filter_field_name_.c_str(), tf_input_frame_.c_str());
-//   }
-//   if (tf_output_frame_ != config.output_frame) {
-//     tf_output_frame_ = config.output_frame;
-//     RCLCPP_DEBUG(
-//       this->get_logger(), "[%s::config_callback] Setting the output TF frame to: %s.",
-//       filter_field_name_.c_str(), tf_output_frame_.c_str());
-//   }
-// }
+rcl_interfaces::msg::SetParametersResult pointcloud_preprocessor::Filter::filterParamCallback(
+  const std::vector<rclcpp::Parameter> & p)
+{
+  boost::mutex::scoped_lock lock(mutex_);
+
+  if (get_param(p, "input_frame", tf_input_frame_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting the input TF frame to: %s.", tf_input_frame_.c_str());
+  }
+  if (get_param(p, "output_frame", tf_output_frame_)) {
+    RCLCPP_DEBUG(get_logger(), "Setting the output TF frame to: %s.", tf_output_frame_.c_str());
+  }
+
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  result.reason = "success";
+
+  return result;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 void pointcloud_preprocessor::Filter::input_indices_callback(
