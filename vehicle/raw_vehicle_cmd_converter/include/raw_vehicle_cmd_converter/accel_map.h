@@ -36,6 +36,9 @@ public:
   bool readAccelMapFromCSV(std::string csv_path);
   bool getThrottle(double acc, double vel, double & throttle);
   bool getAcceleration(double throttle, double vel, double & acc);
+  std::vector<double> getVelIdx() { return vel_index_; };
+  std::vector<double> getThrottleIdx() { return throttle_index_; };
+  std::vector<std::vector<double>> getAccelMap() { return accel_map_; };
 
 private:
   std::string vehicle_name_;
@@ -43,5 +46,4 @@ private:
   std::vector<double> throttle_index_;
   std::vector<std::vector<double>> accel_map_;
 };
-
 #endif

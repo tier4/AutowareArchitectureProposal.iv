@@ -35,7 +35,10 @@ public:
 
   bool readBrakeMapFromCSV(std::string csv_path);
   bool getBrake(double acc, double vel, double & brake);
-  bool getAcceleration(double throttle, double vel, double & acc);
+  bool getAcceleration(double brake, double vel, double & acc);
+  std::vector<double> getVelIdx() { return vel_index_; };
+  std::vector<double> getBrakeIdx() { return brake_index_; };
+  std::vector<std::vector<double>> getBrakeMap() { return brake_map_; };
 
 private:
   std::string vehicle_name_;
