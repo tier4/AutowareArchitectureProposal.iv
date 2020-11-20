@@ -41,9 +41,8 @@
 // PCL includes
 #include <pcl/filters/filter.h>
 
-#include <boost/thread/mutex.hpp>
 #include <string>
-
+#include <boost/thread/mutex.hpp>
 #include <sensor_msgs/msg/point_cloud2.h>
 // PCL includes
 #include <pcl_msgs/msg/point_indices.h>
@@ -237,8 +236,8 @@ private:
     const std::vector<rclcpp::Parameter> & p);
 
   /** \brief Synchronized input, and indices.*/
-  boost::shared_ptr<ExactTimeSyncPolicy> sync_input_indices_e_;
-  boost::shared_ptr<ApproximateTimeSyncPolicy> sync_input_indices_a_;
+  std::shared_ptr<ExactTimeSyncPolicy> sync_input_indices_e_;
+  std::shared_ptr<ApproximateTimeSyncPolicy> sync_input_indices_a_;
 
   /** \brief PointCloud2 + Indices data callback. */
   void input_indices_callback(

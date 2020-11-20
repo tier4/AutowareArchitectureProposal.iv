@@ -80,15 +80,15 @@ pointcloud_preprocessor::Filter::Filter(
         this, "indices", rclcpp::QoS{max_queue_size_}.get_rmw_qos_profile());
 
       if (approximate_sync_) {
-        sync_input_indices_a_ = boost::make_shared<ApproximateTimeSyncPolicy>(max_queue_size_);
+        sync_input_indices_a_ = std::make_shared<ApproximateTimeSyncPolicy>(max_queue_size_);
         sync_input_indices_a_->connectInput(sub_input_filter_, sub_indices_filter_);
-        sync_input_indices_a_->registerCallback(
-          bind(&Filter::input_indices_callback, this, _1, _2));
+        sync_input_indices_a_->registerCallback(std::bind(
+          &Filter::input_indices_callback, this, std::placeholders::_1, std::placeholders::_2));
       } else {
-        sync_input_indices_e_ = boost::make_shared<ExactTimeSyncPolicy>(max_queue_size_);
+        sync_input_indices_e_ = std::make_shared<ExactTimeSyncPolicy>(max_queue_size_);
         sync_input_indices_e_->connectInput(sub_input_filter_, sub_indices_filter_);
-        sync_input_indices_e_->registerCallback(
-          bind(&Filter::input_indices_callback, this, _1, _2));
+        sync_input_indices_e_->registerCallback(std::bind(
+          &Filter::input_indices_callback, this, std::placeholders::_1, std::placeholders::_2));
       }
     } else {
       // Subscribe in an old fashion to input only (no filters)
@@ -98,13 +98,13 @@ pointcloud_preprocessor::Filter::Filter(
       sub_input_ = create_subscription<PointCloud2>("input", rclcpp::QoS{max_queue_size_}, cb);
     }
   }
- 
+
   // Set tf_listener, tf_buffer.
   setupTF();
 
   // Set parameter service callback
-  set_param_res_filter_ =
-    this->add_on_set_parameters_callback(std::bind(&Filter::filterParamCallback, this, std::placeholders::_1));
+  set_param_res_filter_ = this->add_on_set_parameters_callback(
+    std::bind(&Filter::filterParamCallback, this, std::placeholders::_1));
 
   RCLCPP_DEBUG(
     this->get_logger(), "[%s::onInit] Nodelet successfully created.", filter_field_name_.c_str());
