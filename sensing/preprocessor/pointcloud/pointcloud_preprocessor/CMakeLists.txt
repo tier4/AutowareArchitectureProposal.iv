@@ -122,6 +122,23 @@ rclcpp_components_register_node(ray_ground_filter
 
 
 # ==== Outlier Filter ====
+# Ring Outlier Filter
+ament_auto_add_library(ring_outlier_filter SHARED
+  src/outlier_filter/ring_outlier_filter_nodelet.cpp
+  src/filter.cpp)
+target_link_libraries(ring_outlier_filter ${Boost_LIBRARIES})
+rclcpp_components_register_node(ring_outlier_filter
+  PLUGIN "autoware::pointcloud_preprocessor::RingOutlierFilter"
+  EXECUTABLE ring_outlier_filter_exe)
+
+# Voxel Grid Outlier Filter
+ament_auto_add_library(voxel_grid_outlier_filter SHARED
+  src/outlier_filter/voxel_grid_outlier_filter_nodelet.cpp
+  src/filter.cpp)
+target_link_libraries(voxel_grid_outlier_filter ${Boost_LIBRARIES})
+rclcpp_components_register_node(voxel_grid_outlier_filter
+  PLUGIN "autoware::pointcloud_preprocessor::VoxelGridOutlierFilter"
+  EXECUTABLE voxel_grid_outlier_filter_exe)
 
 # ==== Passthrough Filter ====
 

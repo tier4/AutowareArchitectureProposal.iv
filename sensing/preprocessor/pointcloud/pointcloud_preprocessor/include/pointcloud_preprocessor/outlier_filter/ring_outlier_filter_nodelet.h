@@ -17,23 +17,17 @@
 
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/search/pcl_search.h>
-#include "pointcloud_preprocessor/RingOutlierFilterConfig.h"
 #include "pointcloud_preprocessor/filter.h"
 
 namespace pointcloud_preprocessor
 {
-class RingOutlierFilterNodelet : public pointcloud_preprocessor::Filter
+class RingOutlierFilterComponent : public pointcloud_preprocessor::Filter
 {
 protected:
-  boost::shared_ptr<dynamic_reconfigure::Server<pointcloud_preprocessor::RingOutlierFilterConfig> >
-    srv_;
   virtual void filter(
-    const PointCloud2::ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output);
-  virtual void subscribe();
-  virtual void unsubscribe();
+    const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output);
 
-  bool child_init(ros::NodeHandle & nh, bool & has_service);
-  void config_callback(pointcloud_preprocessor::RingOutlierFilterConfig & config, uint32_t level);
+  // void config_callback(pointcloud_preprocessor::RingOutlierFilterConfig & config, uint32_t level);
 
 private:
   double distance_ratio_;
@@ -42,6 +36,7 @@ private:
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  RingOutlierFilterComponent(const rclcpp::NodeOptions& options);
 };
 
 }  // namespace pointcloud_preprocessor
