@@ -81,6 +81,12 @@ rcl_interfaces::msg::SetParametersResult DistanceBasedCompareMapFilterComponent:
   if (get_param(p, "distance_threshold", distance_threshold_)) {
     RCLCPP_DEBUG(get_logger(), "Setting new distance threshold to: %f.", distance_threshold_);
   }
+
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  result.reason = "success";
+
+  return result;
 }
 }  // namespace pointcloud_preprocessor
 
