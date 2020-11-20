@@ -15,7 +15,6 @@
  */
 
 #include "pointcloud_preprocessor/compare_map_filter/distance_based_compare_map_filter_nodelet.h"
-#include <pluginlib/class_list_macros.h>
 
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/search/kdtree.h>
@@ -23,20 +22,18 @@
 
 namespace pointcloud_preprocessor
 {
-bool DistanceBasedCompareMapFilterNodelet::child_init(ros::NodeHandle & nh, bool & has_service)
+
+DistanceBasedCompareMapFilterComponent::DistanceBasedCompareMapFilterComponent(const rclcpp::NodeOptions & options)
+: Filter("DistanceBasedCompareMapFilter", options)
 {
-  // Enable the dynamic reconfigure service
-  has_service = true;
-  srv_ = boost::make_shared<
-    dynamic_reconfigure::Server<pointcloud_preprocessor::CompareMapFilterConfig> >(nh);
-  dynamic_reconfigure::Server<pointcloud_preprocessor::CompareMapFilterConfig>::CallbackType f =
-    boost::bind(&DistanceBasedCompareMapFilterNodelet::config_callback, this, _1, _2);
-  srv_->setCallback(f);
-  return (true);
+  sub_map_ = this->create_subscription<PointCloud2>(
+    "map", rclcpp::QoS{1},
+    std::bind(
+      &DistanceBasedCompareMapFilterComponent::input_target_callback, this, std::placeholders::_1));
 }
 
-void DistanceBasedCompareMapFilterNodelet::filter(
-  const PointCloud2::ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output)
+void DistanceBasedCompareMapFilterComponent::filter(
+  const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output)
 {
   boost::mutex::scoped_lock lock(mutex_);
   if (map_ptr_ == NULL || tree_ == NULL) {
@@ -54,11 +51,15 @@ void DistanceBasedCompareMapFilterNodelet::filter(
   output.header = input->header;
 }
 
-void DistanceBasedCompareMapFilterNodelet::input_target_callback(const PointCloudConstPtr & map)
+void DistanceBasedCompareMapFilterComponent::input_target_callback(const PointCloud2ConstPtr map)
 {
+  pcl::PointCloud<pcl::PointXYZ> map_pcl;
+  pcl::fromROSMsg<pcl::PointXYZ>(*map, map_pcl);
+  const auto map_pcl_ptr = boost::make_shared<const pcl::PointCloud<pcl::PointXYZ>>(map_pcl);
+
   boost::mutex::scoped_lock lock(mutex_);
-  map_ptr_ = map;
-  tf_input_frame_ = map->header.frame_id;
+  map_ptr_ = map_pcl_ptr;
+  tf_input_frame_ = map_ptr_->header.frame_id;
   if (!tree_) {
     if (map_ptr_->isOrganized()) {
       tree_.reset(new pcl::search::OrganizedNeighbor<pcl::PointXYZ>());
@@ -69,41 +70,30 @@ void DistanceBasedCompareMapFilterNodelet::input_target_callback(const PointClou
   tree_->setInputCloud(map_ptr_);
 }
 
-void DistanceBasedCompareMapFilterNodelet::subscribe()
-{
-  Filter::subscribe();
-  sub_map_ =
-    pnh_->subscribe("map", 1, &DistanceBasedCompareMapFilterNodelet::input_target_callback, this);
-}
 
-void DistanceBasedCompareMapFilterNodelet::unsubscribe()
-{
-  Filter::unsubscribe();
-  sub_map_.shutdown();
-}
+// void DistanceBasedCompareMapFilterComponent::config_callback(
+//   pointcloud_preprocessor::CompareMapFilterConfig & config, uint32_t level)
+// {
+//   boost::mutex::scoped_lock lock(mutex_);
 
-void DistanceBasedCompareMapFilterNodelet::config_callback(
-  pointcloud_preprocessor::CompareMapFilterConfig & config, uint32_t level)
-{
-  boost::mutex::scoped_lock lock(mutex_);
-
-  if (distance_threshold_ != config.distance_threshold) {
-    distance_threshold_ = config.distance_threshold;
-    NODELET_DEBUG(
-      "[%s::config_callback] Setting new distance threshold to: %f.", getName().c_str(),
-      config.distance_threshold);
-  }
-  // ---[ These really shouldn't be here, and as soon as dynamic_reconfigure improves, we'll remove them and inherit
-  // from Filter
-  if (tf_output_frame_ != config.output_frame) {
-    tf_output_frame_ = config.output_frame;
-    NODELET_DEBUG(
-      "[config_callback] Setting the output TF frame to: %s.", tf_output_frame_.c_str());
-  }
-  // ]---
-}
+//   if (distance_threshold_ != config.distance_threshold) {
+//     distance_threshold_ = config.distance_threshold;
+//     NODELET_DEBUG(
+//       "[%s::config_callback] Setting new distance threshold to: %f.", getName().c_str(),
+//       config.distance_threshold);
+//   }
+//   // ---[ These really shouldn't be here, and as soon as dynamic_reconfigure improves, we'll remove them and inherit
+//   // from Filter
+//   if (tf_output_frame_ != config.output_frame) {
+//     tf_output_frame_ = config.output_frame;
+//     NODELET_DEBUG(
+//       "[config_callback] Setting the output TF frame to: %s.", tf_output_frame_.c_str());
+//   }
+//   // ]---
+// }
 
 }  // namespace pointcloud_preprocessor
 
-PLUGINLIB_EXPORT_CLASS(
-  pointcloud_preprocessor::DistanceBasedCompareMapFilterNodelet, nodelet::Nodelet);
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(pointcloud_preprocessor::DistanceBasedCompareMapFilterComponent)

@@ -31,6 +31,48 @@ include_directories(
 
 
 # ==== Compare Map Filter ====
+# Distance Based Compare Map Filter
+ament_auto_add_library(distance_based_compare_map_filter SHARED
+  src/compare_map_filter/distance_based_compare_map_filter_nodelet.cpp
+  src/filter.cpp
+  )
+target_link_libraries(distance_based_compare_map_filter ${Boost_LIBRARIES})
+rclcpp_components_register_node(distance_based_compare_map_filter
+  PLUGIN "autoware::pointcloud_preprocessor::DistanceBasedCompareMapFilter"
+  EXECUTABLE distance_based_compare_map_filter_exe)
+
+# Voxel Based Approximate Compare Map Filter
+ament_auto_add_library(voxel_based_approximate_compare_map_filter SHARED
+  src/compare_map_filter/voxel_based_approximate_compare_map_filter_nodelet.cpp
+  src/filter.cpp
+  )
+target_link_libraries(voxel_based_approximate_compare_map_filter ${Boost_LIBRARIES})
+rclcpp_components_register_node(voxel_based_approximate_compare_map_filter
+  PLUGIN "autoware::pointcloud_preprocessor::VoxelBasedApproximateCompareMapFilter"
+  EXECUTABLE voxel_based_approximate_compare_map_filter_exe)
+
+# Voxel Based Compare Map Filter
+ament_auto_add_library(voxel_based_compare_map_filter SHARED
+  src/compare_map_filter/voxel_based_compare_map_filter_nodelet.cpp
+  src/filter.cpp
+  )
+target_link_libraries(voxel_based_compare_map_filter ${Boost_LIBRARIES})
+rclcpp_components_register_node(voxel_based_compare_map_filter
+  PLUGIN "autoware::pointcloud_preprocessor::VoxelBasedCompareMapFilter"
+  EXECUTABLE voxel_based_compare_map_filter_exe)
+
+# Voxel Distance Based Compare Map Filter
+ament_auto_add_library(voxel_distance_based_compare_map_filter SHARED
+  src/compare_map_filter/voxel_distance_based_compare_map_filter_nodelet.cpp
+  src/filter.cpp
+  )
+target_link_libraries(voxel_distance_based_compare_map_filter ${Boost_LIBRARIES})
+rclcpp_components_register_node(voxel_distance_based_compare_map_filter
+  PLUGIN "autoware::pointcloud_preprocessor::VoxelDistanceBasedCompareMapFilter"
+  EXECUTABLE voxel_distance_based_compare_map_filter_exe)
+
+
+
 
 # ==== Concatenate data ====
 ament_auto_add_library(concatenate_data SHARED

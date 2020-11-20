@@ -79,6 +79,8 @@ public:
   typedef sensor_msgs::msg::PointCloud2::ConstSharedPtr PointCloud2ConstPtr;
 
   typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
+  typedef PointCloud::Ptr PointCloudPtr;
+  typedef PointCloud::ConstPtr PointCloudConstPtr;
 
   typedef pcl_msgs::msg::PointIndices PointIndices;
   typedef PointIndices::SharedPtr PointIndicesPtr;
