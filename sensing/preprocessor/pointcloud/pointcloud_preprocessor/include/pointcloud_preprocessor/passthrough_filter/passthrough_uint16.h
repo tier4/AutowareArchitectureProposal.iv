@@ -128,7 +128,7 @@ namespace pcl
         * \param[in] limit_max The maximum allowed field value (default = FLT_MAX).
         */
       inline void
-      setFilterLimits (const uint16_t &limit_min, const uint16_t &limit_max)
+      setFilterLimits (const std::uint16_t &limit_min, const std::uint16_t &limit_max)
       {
         filter_limit_min_ = limit_min;
         filter_limit_max_ = limit_max;
@@ -139,7 +139,7 @@ namespace pcl
         * \param[out] limit_max The maximum allowed field value (default = FLT_MAX).
         */
       inline void
-      getFilterLimits (uint16_t &limit_min, uint16_t &limit_max)
+      getFilterLimits (std::uint16_t &limit_min, std::uint16_t &limit_max)
       {
         limit_min = filter_limit_min_;
         limit_max = filter_limit_max_;
@@ -213,10 +213,10 @@ namespace pcl
       std::string filter_field_name_;
 
       /** \brief The minimum allowed field value (default = FLT_MIN). */
-      uint16_t filter_limit_min_;
+      std::uint16_t filter_limit_min_;
 
       /** \brief The maximum allowed field value (default = FLT_MIN). */
-      uint16_t filter_limit_max_;
+      std::uint16_t filter_limit_max_;
   };
 
   ////////////////////////////////////////////////////////////////////////////////////////////
@@ -300,7 +300,7 @@ namespace pcl
         * \param[in] limit_max the maximum allowed field value
         */
       inline void
-      setFilterLimits (const uint16_t &limit_min, const uint16_t &limit_max)
+      setFilterLimits (const std::uint16_t &limit_min, const std::uint16_t &limit_max)
       {
         filter_limit_min_ = limit_min;
         filter_limit_max_ = limit_max;
@@ -311,7 +311,7 @@ namespace pcl
         * \param[out] limit_max the maximum allowed field value
         */
       inline void
-      getFilterLimits (uint16_t &limit_min, uint16_t &limit_max)
+      getFilterLimits (std::uint16_t &limit_min, std::uint16_t &limit_max)
       {
         limit_min = filter_limit_min_;
         limit_max = filter_limit_max_;
@@ -364,10 +364,10 @@ namespace pcl
       std::string filter_field_name_;
 
       /** \brief The minimum allowed filter value a point will be considered from. */
-      uint16_t filter_limit_min_;
+      std::uint16_t filter_limit_min_;
 
       /** \brief The maximum allowed filter value a point will be considered from. */
-      uint16_t filter_limit_max_;
+      std::uint16_t filter_limit_max_;
 
       /** \brief Set to true if we want to return the data outside (\a filter_limit_min_;\a filter_limit_max_). Default: false. */
       bool filter_limit_negative_;

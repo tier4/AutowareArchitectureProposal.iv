@@ -59,7 +59,7 @@ void PassThroughFilterUInt16Component::filter(const PointCloud2ConstPtr& input, 
 //                                                uint32_t level) {
 //   boost::mutex::scoped_lock lock(mutex_);
 
-//   uint16_t filter_min, filter_max;
+//   std::uint16_t filter_min, filter_max;
 //   impl_.getFilterLimits (filter_min, filter_max);
 
 //   // Check the current values for filter min-max
