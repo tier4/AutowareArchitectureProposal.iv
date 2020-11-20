@@ -59,8 +59,9 @@ compute_hull_and_pockets(
   const typename decltype(convex_hull_list)::const_iterator list_beginning =
     convex_hull_list.begin();
   const auto pockets =
-    autoware::common::geometry::hull_pockets(polygon_start, polygon_end,
-      list_beginning, cvx_hull_end);
+    autoware::common::geometry::hull_pockets(
+    polygon_start, polygon_end,
+    list_beginning, cvx_hull_end);
 
   return pockets;
 }

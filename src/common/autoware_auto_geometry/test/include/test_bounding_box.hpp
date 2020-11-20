@@ -215,7 +215,8 @@ TYPED_TEST(BoxTest, basic)
 //
 TYPED_TEST(BoxTest, oriented_triangle)
 {
-  this->points.insert(this->points.begin(),
+  this->points.insert(
+    this->points.begin(),
     {this->make(5, 5), this->make(7, 7), this->make(5, 7)});
 
   this->minimum_area_bounding_box();
@@ -273,7 +274,8 @@ TYPED_TEST(BoxTest, hull)
 //
 TYPED_TEST(BoxTest, collinear)
 {
-  this->points.insert(this->points.begin(),
+  this->points.insert(
+    this->points.begin(),
   {
     this->make(-2, -2),
     this->make(-3, -2),
@@ -298,7 +300,8 @@ TYPED_TEST(BoxTest, collinear)
 //
 TYPED_TEST(BoxTest, line1)
 {
-  this->points.insert(this->points.begin(), {
+  this->points.insert(
+    this->points.begin(), {
     this->make(-4, 3),
     this->make(-8, 6),
     this->make(-12, 9),
@@ -314,21 +317,26 @@ TYPED_TEST(BoxTest, line1)
 
   this->check(-20.0F, 15.0F, 1.0E-6F, 40.0F, 4.0E-5F);
   this->test_orientation(this->rad2deg(atan2f(3, -4)));
-  this->test_corners({this->make(-4, 3), this->make(-30, 27), this->make(-4, 3), this->make(-36,
-      27)});
+  this->test_corners(
+    {this->make(-4, 3), this->make(-30, 27), this->make(-4, 3), this->make(
+        -36,
+        27)});
 
   this->minimum_perimeter_bounding_box();
 
   this->check(-20.0F, 15.0F, 1.0E-6F, 40.0F, 40.00001F);
   this->test_orientation(this->rad2deg(atan2f(3, -4)));
-  this->test_corners({this->make(-4, 3), this->make(-30, 27), this->make(-4, 3), this->make(-36,
-      27)});
+  this->test_corners(
+    {this->make(-4, 3), this->make(-30, 27), this->make(-4, 3), this->make(
+        -36,
+        27)});
 }
 
 //
 TYPED_TEST(BoxTest, line2)
 {
-  this->points.insert(this->points.begin(), {
+  this->points.insert(
+    this->points.begin(), {
     this->make(4, 0),
     this->make(8, 0),
     this->make(12, 0),
@@ -350,7 +358,8 @@ TYPED_TEST(BoxTest, line2)
 //
 TYPED_TEST(BoxTest, line3)
 {
-  this->points.insert(this->points.begin(), {
+  this->points.insert(
+    this->points.begin(), {
     this->make(4, 3),
     this->make(8, 6),
     this->make(12, 9),
@@ -375,7 +384,8 @@ TYPED_TEST(BoxTest, line3)
 */
 TYPED_TEST(BoxTest, subopt_init)
 {
-  this->points.insert(this->points.begin(), {
+  this->points.insert(
+    this->points.begin(), {
     this->make(8, 15),
     this->make(17, 0),
     this->make(0, 0),
@@ -387,7 +397,8 @@ TYPED_TEST(BoxTest, subopt_init)
   this->check(12.5F, 7.5F, 15.0F, 25.0F, 375.0F);
   this->test_orientation(this->rad2deg(atan2f(15, 8)));
   // these are approximate.
-  this->test_corners({this->make(0, 0), this->make(25, 15),
+  this->test_corners(
+    {this->make(0, 0), this->make(25, 15),
       this->make(11.7647F, 22.0588F), this->make(13.2353F, -7.05882F)},
     0.1F);
 }
@@ -395,7 +406,8 @@ TYPED_TEST(BoxTest, subopt_init)
 //
 TYPED_TEST(BoxTest, centered)
 {
-  this->points.insert(this->points.begin(), {
+  this->points.insert(
+    this->points.begin(), {
     this->make(-1, 0),
     this->make(1, 0),
     this->make(0, -1),
@@ -412,7 +424,8 @@ TYPED_TEST(BoxTest, centered)
 // convex_hull is imperfect in this case, check if this can save the day
 TYPED_TEST(BoxTest, overlapping_points)
 {
-  this->points.insert(this->points.begin(), {
+  this->points.insert(
+    this->points.begin(), {
     this->make(0, 0),
     this->make(1, 0),
     this->make(1, 1),
@@ -433,7 +446,8 @@ TYPED_TEST(BoxTest, overlapping_points)
 // check that minimum perimeter box is different from minimum area box
 TYPED_TEST(BoxTest, perimeter)
 {
-  this->points.insert(this->points.begin(), {
+  this->points.insert(
+    this->points.begin(), {
     this->make(0, 0),
     this->make(0, 1),
     this->make(0, 2),
@@ -448,7 +462,8 @@ TYPED_TEST(BoxTest, perimeter)
 
   this->check(0.54F, 1.28F, 5.0F, 12.0F / 5.0F, 12.0F);
   this->test_orientation(-53.13F, 0.001F);
-  this->test_corners({this->make(3, 0), this->make(0, 4), this->make(-1.92, 2.56),
+  this->test_corners(
+    {this->make(3, 0), this->make(0, 4), this->make(-1.92, 2.56),
       this->make(1.08, -1.44)});
 
   // eigenbox should produce AABB TODO(c.ho)
@@ -457,7 +472,8 @@ TYPED_TEST(BoxTest, perimeter)
   this->check(1.5F, 1.95F, 4.1F, 3.0F, 7.1F);
   // perimeter for first box would be 14.8
   this->test_orientation(0.0F, 0.001F);
-  this->test_corners({this->make(3, -0.1), this->make(0, 4), this->make(3, 4),
+  this->test_corners(
+    {this->make(3, -0.1), this->make(0, 4), this->make(3, 4),
       this->make(0, -0.1)});
 }
 
@@ -489,7 +505,8 @@ TYPED_TEST(BoxTest, eigenbox1)
 
   //// perimeter should also produce diagonal ////
   this->minimum_perimeter_bounding_box();
-  this->check(1.0F, 1.0F, r / sqrtf(2.0F), sqrtf(2.0F) * r,
+  this->check(
+    1.0F, 1.0F, r / sqrtf(2.0F), sqrtf(2.0F) * r,
     r * (sqrtf(2.0F) + (1.0F / sqrtf(2.0F))));
   this->test_corners(diag_corners);
   this->test_orientation(45.0F, 0.001F);

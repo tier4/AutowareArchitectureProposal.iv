@@ -232,14 +232,17 @@ TEST(SpatialHashConfig, bad_cases)
   // min_y >= max_y
   EXPECT_THROW(Config2d({-30.0F, 30.0F, 30.1F, 30.0F, 1.0F, 1024U}), std::domain_error);
   // min_z >= max_z
-  EXPECT_THROW(Config3d({-30.0F, 30.0F, -30.0F, 30.0F, 31.0F, 30.0F, 1.0F, 1024U}),
+  EXPECT_THROW(
+    Config3d({-30.0F, 30.0F, -30.0F, 30.0F, 31.0F, 30.0F, 1.0F, 1024U}),
     std::domain_error);
   // floating point limit
   constexpr float32_t max_float = std::numeric_limits<float32_t>::max();
   EXPECT_THROW(Config2d({-max_float, max_float, -30.0F, 30.0F, 1.0F, 1024U}), std::domain_error);
-  EXPECT_THROW(Config3d({-30.0F, 30.0F, -max_float, max_float, -30.0F, 30.0F, 1.0F, 1024U}),
+  EXPECT_THROW(
+    Config3d({-30.0F, 30.0F, -max_float, max_float, -30.0F, 30.0F, 1.0F, 1024U}),
     std::domain_error);
-  EXPECT_THROW(Config3d({-30.0F, 30.0F, -30.0F, 30.0F, -max_float, max_float, 1.0F, 1024U}),
+  EXPECT_THROW(
+    Config3d({-30.0F, 30.0F, -30.0F, 30.0F, -max_float, max_float, 1.0F, 1024U}),
     std::domain_error);
   // y would overflow
   // constexpr float32_t big_float =

@@ -240,8 +240,9 @@ TEST(Tf2AutowareAuto, TransformBoundingBoxArray)
 
 
   // advanced api
-  const auto bba_advanced = tf_buffer->transform(bba1, "B",
-      tf2::timeFromSec(2.0), "A", tf2::durationFromSec(3.0));
+  const auto bba_advanced = tf_buffer->transform(
+    bba1, "B",
+    tf2::timeFromSec(2.0), "A", tf2::durationFromSec(3.0));
 
   EXPECT_EQ(bba_advanced.header.frame_id, "B");
 

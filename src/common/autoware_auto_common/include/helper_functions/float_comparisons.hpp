@@ -42,7 +42,8 @@ namespace comparisons
 template<typename T>
 bool abs_eq(const T & a, const T & b, const T & eps)
 {
-  static_assert(std::is_floating_point<T>::value,
+  static_assert(
+    std::is_floating_point<T>::value,
     "Float comparisons only support floating point types.");
 
   return std::abs(a - b) <= eps;
@@ -112,7 +113,8 @@ bool abs_eq_zero(const T & a, const T & eps)
 template<typename T>
 bool rel_eq(const T & a, const T & b, const T & rel_eps)
 {
-  static_assert(std::is_floating_point<T>::value,
+  static_assert(
+    std::is_floating_point<T>::value,
     "Float comparisons only support floating point types.");
 
   const auto delta = std::abs(a - b);

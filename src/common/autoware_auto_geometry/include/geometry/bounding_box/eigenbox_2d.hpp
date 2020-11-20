@@ -106,7 +106,8 @@ std::pair<float32_t, float32_t> eig_2d(
   // Add a small fudge to alleviate floating point errors
   float32_t disc = ((tr_2 * tr_2) - det) + autoware::common::types::FEPS;
   if (disc < 0.0F) {
-    throw std::runtime_error("pca_2d: negative discriminant! Should never happen for well formed "
+    throw std::runtime_error(
+            "pca_2d: negative discriminant! Should never happen for well formed "
             "covariance matrix");
   }
   disc = sqrtf(disc);

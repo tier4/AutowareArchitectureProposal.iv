@@ -81,7 +81,8 @@ struct array_size<std::array<T, N>>
 {
   static std::size_t const size = N;
 };
-static_assert(array_size<base_type<decltype(BoundingBox::corners)>>::size == 4U,
+static_assert(
+  array_size<base_type<decltype(BoundingBox::corners)>>::size == 4U,
   "Bounding box does not have the right number of corners");
 
 /// \brief Compute length, width, area of bounding box

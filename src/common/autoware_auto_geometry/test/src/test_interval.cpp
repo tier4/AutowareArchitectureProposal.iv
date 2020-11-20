@@ -61,14 +61,22 @@ TEST(Geometry_Interval, abs_eq) {
 //------------------------------------------------------------------------------
 
 TEST(Geometry_Interval, is_subset_eq) {
-  EXPECT_TRUE(Interval_d::is_subset_eq(Interval_d(-0.5, 0.5),
-    Interval_d(-1.0, 1.0)));
-  EXPECT_TRUE(Interval_d::is_subset_eq(Interval_d(3.2, 4.2),
-    Interval_d(3.2, 4.2)));
-  EXPECT_FALSE(Interval_d::is_subset_eq(Interval_d(-3.0, -1.0),
-    Interval_d(1.0, 3.0)));
-  EXPECT_FALSE(Interval_d::is_subset_eq(Interval_d(1.0, 3.0),
-    Interval_d(2.0, 4.0)));
+  EXPECT_TRUE(
+    Interval_d::is_subset_eq(
+      Interval_d(-0.5, 0.5),
+      Interval_d(-1.0, 1.0)));
+  EXPECT_TRUE(
+    Interval_d::is_subset_eq(
+      Interval_d(3.2, 4.2),
+      Interval_d(3.2, 4.2)));
+  EXPECT_FALSE(
+    Interval_d::is_subset_eq(
+      Interval_d(-3.0, -1.0),
+      Interval_d(1.0, 3.0)));
+  EXPECT_FALSE(
+    Interval_d::is_subset_eq(
+      Interval_d(1.0, 3.0),
+      Interval_d(2.0, 4.0)));
   EXPECT_FALSE(
     Interval_d::is_subset_eq(Interval_d(), Interval_d()));
 }

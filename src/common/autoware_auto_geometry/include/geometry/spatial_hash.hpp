@@ -52,7 +52,8 @@ class GEOMETRY_PUBLIC SpatialHashBase
 {
   using Index3 = details::Index3;
   //lint -e{9131} NOLINT There's no other way to make this work in a static assert
-  static_assert(std::is_same<ConfigT, Config2d>::value || std::is_same<ConfigT, Config3d>::value,
+  static_assert(
+    std::is_same<ConfigT, Config2d>::value || std::is_same<ConfigT, Config3d>::value,
     "SpatialHash only works with Config2d or Config3d");
 
 public:

@@ -51,7 +51,8 @@ namespace geometry
 template<typename T>
 class Interval
 {
-  static_assert(std::is_floating_point<T>::value,
+  static_assert(
+    std::is_floating_point<T>::value,
     "Intervals only support floating point types.");
 
 public:

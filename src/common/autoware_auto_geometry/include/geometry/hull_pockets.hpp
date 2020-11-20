@@ -72,11 +72,14 @@ typename std::vector<std::vector<typename std::iterator_traits<Iter1>::value_typ
 
   // Function to check whether a point is in the convex hull.
   const auto in_convex_hull = [convex_hull_start, convex_hull_end](Iter1 p) {
-      return std::any_of(convex_hull_start, convex_hull_end, [p](auto hull_entry)
-               {
-                 return norm_2d(minus_2d(hull_entry,
-                 *p)) < std::numeric_limits<float32_t>::epsilon();
-               });
+      return std::any_of(
+        convex_hull_start, convex_hull_end, [p](auto hull_entry)
+        {
+          return norm_2d(
+            minus_2d(
+              hull_entry,
+              *p)) < std::numeric_limits<float32_t>::epsilon();
+        });
     };
 
   // We go through the points of the polygon only once, adding pockets to the list of pockets

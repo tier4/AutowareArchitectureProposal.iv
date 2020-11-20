@@ -34,7 +34,7 @@ class bad_case : public ::testing::Test
 };
 
 using BadTypes = ::testing::Types<float32_t, float64_t, int32_t, uint32_t>;
-TYPED_TEST_CASE(bad_case, BadTypes, );
+TYPED_TEST_CASE(bad_case, BadTypes);
 
 // Empty domain/range
 TYPED_TEST(bad_case, empty)
@@ -93,7 +93,7 @@ protected:
 };
 
 using NormalTypes = ::testing::Types<float32_t, float64_t, int32_t, uint32_t>;
-TYPED_TEST_CASE(sanity_check, NormalTypes, );
+TYPED_TEST_CASE(sanity_check, NormalTypes);
 
 TYPED_TEST(sanity_check, exact)
 {
