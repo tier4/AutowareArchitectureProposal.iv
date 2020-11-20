@@ -96,9 +96,6 @@ public:
   /** \brief Empty destructor. */
   virtual ~PointCloudConcatenateDataSynchronizerComponent(){};
 
-  void onInit();
-  void subscribe();
-
 private:
   /** \brief The output PointCloud publisher. */
   rclcpp::Publisher<PointCloud2>::SharedPtr pub_output_;

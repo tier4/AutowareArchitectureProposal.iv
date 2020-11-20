@@ -65,96 +65,79 @@ PointCloudConcatenateDataSynchronizerComponent::PointCloudConcatenateDataSynchro
   const rclcpp::NodeOptions & node_options)
 : Node("point_cloud_concatenator_component", node_options)
 {
-  onInit();
-  subscribe();
-}
+  // Set parameters
+  {
+    output_frame_ = static_cast<std::string>(declare_parameter("output_frame").get<std::string>());
+    if (output_frame_.empty()) {
+      RCLCPP_ERROR(get_logger(), "Need an 'output_frame' parameter to be set before continuing!");
+      return;
+    }
 
+    declare_parameter("input_topics");
+    get_parameter("input_topics").as_string_array();
+    if (input_topics_.empty()) {
+      RCLCPP_ERROR(get_logger(), "Need a 'input_topics' parameter to be set before continuing!");
+      return;
+    }
+    if (input_topics_.size() == 1) {
+      RCLCPP_ERROR(get_logger(), "Only one topic given. Need at least two topics to continue.");
+      return;
+    }
 
-void PointCloudConcatenateDataSynchronizerComponent::onInit()
-{
-  // ---[ Mandatory parameters
-  output_frame_ = static_cast<std::string>(declare_parameter("output_frame").get<std::string>());
-
-  if (output_frame_.empty()) {
-    RCLCPP_ERROR(
-      get_logger(), "[onInit] Need an 'output_frame' parameter to be set before continuing!");
-    return;
+    // Optional parameters
+    maximum_queue_size_ = static_cast<int>(declare_parameter("max_queue_size").get<std::size_t>());
+    timeout_sec_ = static_cast<double>(declare_parameter("timeout_sec").get<double>());
   }
 
-  declare_parameter("input_topics");
-  get_parameter("input_topics").as_string_array();
-  if (input_topics_.empty()) {
-    RCLCPP_ERROR(
-      get_logger(), "[onInit] Need a 'input_topics' parameter to be set before continuing!");
-    return;
-  }
-  if (input_topics_.size() == 1) {
-    RCLCPP_ERROR(
-      get_logger(), "[onInit] Only one topic given. Need at least two topics to continue.");
-    return;
+  // Publishers
+  {
+    pub_output_ = this->create_publisher<PointCloud2>("output", maximum_queue_size_);
+    pub_concat_num_ = this->create_publisher<std_msgs::msg::Int32>("concat_num", 10);
+    pub_not_subscribed_topic_name_ =
+      this->create_publisher<std_msgs::msg::String>("not_subscribed_topic_name", 10);
   }
 
-  // ---[ Optional parameters
-  maximum_queue_size_ = static_cast<int>(declare_parameter("max_queue_size").get<std::size_t>());
-  timeout_sec_ = static_cast<double>(declare_parameter("timeout_sec").get<double>());
+  // Subscribers
+  {
+    RCLCPP_INFO_STREAM(
+      get_logger(), "Subscribing to " << input_topics_.size() << " user given topics as inputs:");
+    for (size_t d = 0; d < input_topics_.size(); ++d)
+      RCLCPP_INFO_STREAM(get_logger(), " - " << (std::string)(input_topics_[d]));
 
-  // Output
-  pub_output_ = this->create_publisher<PointCloud2>("output", maximum_queue_size_);
-  pub_concat_num_ = this->create_publisher<std_msgs::msg::Int32>("concat_num", 10);
-  pub_not_subscribed_topic_name_ =
-    this->create_publisher<std_msgs::msg::String>("not_subscribed_topic_name", 10);
-}
+    // Subscribe to the filters
+    filters_.resize(input_topics_.size());
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-void PointCloudConcatenateDataSynchronizerComponent::subscribe()
-{
-  RCLCPP_INFO_STREAM(
-    get_logger(), "Subscribing to " << input_topics_.size() << " user given topics as inputs:");
-  for (int d = 0; d < input_topics_.size(); ++d)
-    RCLCPP_INFO_STREAM(get_logger(), " - " << (std::string)(input_topics_[d]));
+    // First input_topics_.size () filters are valid
+    for (size_t d = 0; d < input_topics_.size(); ++d) {
+      cloud_stdmap_.insert(std::make_pair((std::string)(input_topics_[d]), nullptr));
+      cloud_stdmap_tmp_ = cloud_stdmap_;
 
-  // Subscribe to the filters
-  filters_.resize(input_topics_.size());
-
-  // First input_topics_.size () filters are valid
-  for (int d = 0; d < input_topics_.size(); ++d) {
-    cloud_stdmap_.insert(std::make_pair((std::string)(input_topics_[d]), nullptr));
-    cloud_stdmap_tmp_ = cloud_stdmap_;
-
-    filters_[d].reset();
-    std::function<void(const sensor_msgs::msg::PointCloud2::SharedPtr msg)> bound_callback =
-      std::bind(
+      // CAN'T use auto type here.
+      std::function<void(const sensor_msgs::msg::PointCloud2::SharedPtr msg)> cb = std::bind(
         &PointCloudConcatenateDataSynchronizerComponent::cloud_callback, this,
-        std::placeholders::_1, input_topics_[d]); // CAN'T use auto type here.
-    filters_[d] = this->create_subscription<sensor_msgs::msg::PointCloud2>(
-      input_topics_[d], rclcpp::QoS(maximum_queue_size_), bound_callback);
+        std::placeholders::_1, input_topics_[d]);
+
+      filters_[d].reset();
+      filters_[d] = this->create_subscription<sensor_msgs::msg::PointCloud2>(
+        input_topics_[d], rclcpp::QoS(maximum_queue_size_), cb);
+    }
+    auto twist_cb = std::bind(
+      &PointCloudConcatenateDataSynchronizerComponent::twist_callback, this, std::placeholders::_1);
+    sub_twist_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
+      "/vehicle/status/twist", rclcpp::QoS{100}, twist_cb);
   }
 
-  sub_twist_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
-    "/vehicle/status/twist", rclcpp::QoS{100},
-    std::bind(
-      &PointCloudConcatenateDataSynchronizerComponent::twist_callback, this,
-      std::placeholders::_1));
-
-  auto on_timer_callback =
-    std::bind(&PointCloudConcatenateDataSynchronizerComponent::timer_callback, this);
-  auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
-    std::chrono::duration<double>(timeout_sec_));
-
-  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(on_timer_callback)>>(
-    this->get_clock(), period, std::move(on_timer_callback),
-    this->get_node_base_interface()->get_context());
-  this->get_node_timers_interface()->add_timer(timer_, nullptr);
+  // Set timer
+  {
+    auto cb = std::bind(&PointCloudConcatenateDataSynchronizerComponent::timer_callback, this);
+    auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+      std::chrono::duration<double>(timeout_sec_));
+    timer_ = std::make_shared<rclcpp::GenericTimer<decltype(cb)>>(
+      get_clock(), period, std::move(cb), get_node_base_interface()->get_context());
+    get_node_timers_interface()->add_timer(timer_, nullptr);
+  }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-// void PointCloudConcatenateDataSynchronizerComponent::unsubscribe()
-// {
-//   for (size_t d = 0; d < filters_.size(); ++d) {
-//     filters_[d]->shutdown();
-//   }
-//   sub_twist_.shutdown();
-// }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 void PointCloudConcatenateDataSynchronizerComponent::transformPointCloud(
@@ -317,14 +300,15 @@ void PointCloudConcatenateDataSynchronizerComponent::cloud_callback(
     new sensor_msgs::msg::PointCloud2(xyz_cloud));
 
   const bool is_already_subscribed_this = (cloud_stdmap_[topic_name] != nullptr);
-  const bool is_already_subscribed_tmp = std::any_of(
-    std::begin(cloud_stdmap_tmp_), std::end(cloud_stdmap_tmp_),
-    [](const auto & e) { return e.second != nullptr; });
+  // [ROS2 port]: No API to change timer period.
+  // const bool is_already_subscribed_tmp = std::any_of(
+  //   std::begin(cloud_stdmap_tmp_), std::end(cloud_stdmap_tmp_),
+  //   [](const auto & e) { return e.second != nullptr; });
 
   if (is_already_subscribed_this) {
     cloud_stdmap_tmp_[topic_name] = xyz_input_ptr;
 
-    // ROS2 port: Assumes generic timer callback handles all timing issues
+    // [ROS2 port]: No API to change timer period.
     //  if (!is_already_subscribed_tmp) {
     //   timer_->setPeriod(ros::Duration(timeout_sec_), true);
     //  timer_->start();
@@ -346,7 +330,7 @@ void PointCloudConcatenateDataSynchronizerComponent::cloud_callback(
         e.second = nullptr;
       });
 
-      // ROS2 port again - generic time on callback handles timer issues
+      // [ROS2 port]: generic time on callback handles timer issues
       // timer_.stop();
       publish();
     }
@@ -355,7 +339,7 @@ void PointCloudConcatenateDataSynchronizerComponent::cloud_callback(
 
 void PointCloudConcatenateDataSynchronizerComponent::timer_callback()
 {
-  // ROS2 port: assumes all timer issues handled by generic timer - no need to manage
+  // [ROS2 port]: assumes all timer issues handled by generic timer - no need to manage
   // timer_.stop();
   if (mutex_.try_lock()) {
     publish();
