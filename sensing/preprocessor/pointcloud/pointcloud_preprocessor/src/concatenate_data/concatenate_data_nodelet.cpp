@@ -67,14 +67,13 @@ PointCloudConcatenateDataSynchronizerComponent::PointCloudConcatenateDataSynchro
 {
   // Set parameters
   {
-    output_frame_ = static_cast<std::string>(declare_parameter("output_frame").get<std::string>());
+    output_frame_ = static_cast<std::string>(declare_parameter("output_frame", ""));
     if (output_frame_.empty()) {
       RCLCPP_ERROR(get_logger(), "Need an 'output_frame' parameter to be set before continuing!");
       return;
     }
-
-    declare_parameter("input_topics");
-    get_parameter("input_topics").as_string_array();
+    declare_parameter("input_topics", std::vector<std::string>());
+    input_topics_ = get_parameter("input_topics").as_string_array();
     if (input_topics_.empty()) {
       RCLCPP_ERROR(get_logger(), "Need a 'input_topics' parameter to be set before continuing!");
       return;
@@ -85,8 +84,8 @@ PointCloudConcatenateDataSynchronizerComponent::PointCloudConcatenateDataSynchro
     }
 
     // Optional parameters
-    maximum_queue_size_ = static_cast<int>(declare_parameter("max_queue_size").get<std::size_t>());
-    timeout_sec_ = static_cast<double>(declare_parameter("timeout_sec").get<double>());
+    maximum_queue_size_ = static_cast<int>(declare_parameter("max_queue_size", 3));
+    timeout_sec_ = static_cast<double>(declare_parameter("timeout_sec", 0.1));
   }
 
   // Publishers
@@ -102,14 +101,14 @@ PointCloudConcatenateDataSynchronizerComponent::PointCloudConcatenateDataSynchro
     RCLCPP_INFO_STREAM(
       get_logger(), "Subscribing to " << input_topics_.size() << " user given topics as inputs:");
     for (size_t d = 0; d < input_topics_.size(); ++d)
-      RCLCPP_INFO_STREAM(get_logger(), " - " << (std::string)(input_topics_[d]));
+      RCLCPP_INFO_STREAM(get_logger(), " - " << input_topics_[d]);
 
     // Subscribe to the filters
     filters_.resize(input_topics_.size());
 
     // First input_topics_.size () filters are valid
     for (size_t d = 0; d < input_topics_.size(); ++d) {
-      cloud_stdmap_.insert(std::make_pair((std::string)(input_topics_[d]), nullptr));
+      cloud_stdmap_.insert(std::make_pair(input_topics_[d], nullptr));
       cloud_stdmap_tmp_ = cloud_stdmap_;
 
       // CAN'T use auto type here.
@@ -196,7 +195,7 @@ void PointCloudConcatenateDataSynchronizerComponent::combineClouds(
 
     if (std::fabs(dt) > 0.1) {
       RCLCPP_WARN_STREAM_THROTTLE(
-        get_logger(), *get_clock(), 10,
+        get_logger(), *get_clock(), std::chrono::milliseconds(10000).count(),
         "Time difference is too large. Cloud not interpolate. Please comfirm twist topic and "
         "timestamp");
       break;
@@ -258,8 +257,8 @@ void PointCloudConcatenateDataSynchronizerComponent::publish()
   }
   if (!not_subscribed_topic_name.empty()) {
     RCLCPP_WARN_STREAM_THROTTLE(
-      this->get_logger(), *this->get_clock(), 1,
-      "Skipped " << not_subscribed_topic_name << ". Please confirm topic.");
+      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
+      "Skipped " << not_subscribed_topic_name << ". Please confirm topic." << "(not_subscribed_topic_name size = )" << not_subscribed_topic_name.size());
   }
 
   pub_output_->publish(*concat_cloud_ptr_);
