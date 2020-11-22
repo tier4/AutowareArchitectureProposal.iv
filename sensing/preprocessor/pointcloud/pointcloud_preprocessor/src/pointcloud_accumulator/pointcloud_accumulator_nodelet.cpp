@@ -21,6 +21,13 @@ namespace pointcloud_preprocessor
 PointcloudAccumulatorComponent::PointcloudAccumulatorComponent(const rclcpp::NodeOptions & options)
 : Filter("PointcloudAccumulator", options)
 {
+  // set initial parameters
+  {
+    accumulation_time_sec_ = static_cast<double>(declare_parameter("accumulation_time_sec", 2.0));
+    pointcloud_buffer_.set_capacity(
+      static_cast<size_t>(declare_parameter("pointcloud_buffer_size", 50)));
+  }
+
   using std::placeholders::_1;
   set_param_res_ = this->add_on_set_parameters_callback(
     std::bind(&PointcloudAccumulatorComponent::paramCallback, this, _1));

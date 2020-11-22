@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /*
- * 
+ *
  * Software License Agreement (BSD License)
  *
  *  Copyright (c) 2010, Willow Garage, Inc.
@@ -47,7 +47,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: cropbox.cpp 
+ * $Id: cropbox.cpp
  *
  */
 
@@ -58,11 +58,36 @@ namespace pointcloud_preprocessor
 CropBoxFilterComponent::CropBoxFilterComponent(const rclcpp::NodeOptions & options)
 : Filter("CropBoxFilter", options)
 {
-  crop_box_polygon_pub_ = this->create_publisher<geometry_msgs::msg::PolygonStamped>("crop_box_polygon", 10);
-  
-  using std::placeholders::_1;
-  set_param_res_ = this->add_on_set_parameters_callback(
-    std::bind(&CropBoxFilterComponent::paramCallback, this, _1));
+  // set initial parameters
+  {
+    Eigen::Vector4f new_min_point = Eigen::Vector4f::Zero();
+    new_min_point(0) = static_cast<float>(declare_parameter("min_x", -1.0));
+    new_min_point(1) = static_cast<float>(declare_parameter("min_y", -1.0));
+    new_min_point(2) = static_cast<float>(declare_parameter("min_z", -1.0));
+    impl_.setMin(new_min_point);
+
+    Eigen::Vector4f new_max_point = Eigen::Vector4f::Zero();
+    new_max_point(0) = static_cast<float>(declare_parameter("max_x", 1.0));
+    new_max_point(1) = static_cast<float>(declare_parameter("max_y", 1.0));
+    new_max_point(2) = static_cast<float>(declare_parameter("max_z", 1.0));
+    impl_.setMax(new_max_point);
+
+    impl_.setKeepOrganized(static_cast<bool>(declare_parameter("keep_organized", false)));
+    impl_.setNegative(static_cast<bool>(declare_parameter("negative", false)));
+  }
+
+  // set additional publishers
+  {
+    crop_box_polygon_pub_ =
+      this->create_publisher<geometry_msgs::msg::PolygonStamped>("crop_box_polygon", 10);
+  }
+
+  // set parameter service callback
+  {
+    using std::placeholders::_1;
+    set_param_res_ = this->add_on_set_parameters_callback(
+      std::bind(&CropBoxFilterComponent::paramCallback, this, _1));
+  }
 }
 
 void CropBoxFilterComponent::filter(

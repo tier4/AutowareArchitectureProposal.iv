@@ -26,6 +26,8 @@ VoxelDistanceBasedCompareMapFilterComponent::VoxelDistanceBasedCompareMapFilterC
   const rclcpp::NodeOptions & options)
 : Filter("VoxelDistanceBasedCompareMapFilter", options)
 {
+  distance_threshold_ = static_cast<double>(declare_parameter("distance_threshold", 0.3));
+
   using std::placeholders::_1;
   sub_map_ = this->create_subscription<PointCloud2>(
     "map", rclcpp::QoS{1},
@@ -103,7 +105,7 @@ rcl_interfaces::msg::SetParametersResult VoxelDistanceBasedCompareMapFilterCompo
     if (set_map_in_voxel_grid_) voxel_grid_.filter(*voxel_map_ptr_);
     RCLCPP_DEBUG(get_logger(), "Setting new distance threshold to: %f.", distance_threshold_);
   }
-  
+
   rcl_interfaces::msg::SetParametersResult result;
   result.successful = true;
   result.reason = "success";

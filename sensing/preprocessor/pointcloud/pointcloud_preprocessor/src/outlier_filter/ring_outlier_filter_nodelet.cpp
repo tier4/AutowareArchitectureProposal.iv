@@ -25,6 +25,14 @@ namespace pointcloud_preprocessor
 RingOutlierFilterComponent::RingOutlierFilterComponent(const rclcpp::NodeOptions & options)
 : Filter("RingOutlierFilter", options)
 {
+  // set initial parameters
+  {
+    distance_ratio_ = static_cast<double>(declare_parameter("distance_ratio", 1.03));
+    object_length_threshold_ =
+      static_cast<double>(declare_parameter("object_length_threshold", 0.1));
+    num_points_threshold_ = static_cast<int>(declare_parameter("num_points_threshold", 4));
+  }
+
   using std::placeholders::_1;
   set_param_res_ = this->add_on_set_parameters_callback(
     std::bind(&RingOutlierFilterComponent::paramCallback, this, _1));

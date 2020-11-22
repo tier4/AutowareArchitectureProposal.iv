@@ -62,6 +62,8 @@ pointcloud_preprocessor::Filter::Filter(
 {
   // Set parameters (moved from NodeletLazy onInit)
   {
+    tf_input_frame_ = static_cast<std::string>(declare_parameter("input_frame", ""));
+    tf_output_frame_ = static_cast<std::string>(declare_parameter("tf_output_frame_", ""));
     max_queue_size_ = static_cast<std::size_t>(declare_parameter("max_queue_size", 3));
 
     // ---[ Optional parameters

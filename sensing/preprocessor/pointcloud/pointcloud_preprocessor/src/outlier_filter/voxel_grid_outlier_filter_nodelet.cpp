@@ -25,6 +25,14 @@ namespace pointcloud_preprocessor
 VoxelGridOutlierFilterComponent::VoxelGridOutlierFilterComponent(const rclcpp::NodeOptions & options)
 : Filter("VoxelGridOutlierFilter", options)
 {
+  // set initial parameters
+  {
+    voxel_size_x_ = static_cast<double>(declare_parameter("voxel_size_x", 0.3));
+    voxel_size_y_ = static_cast<double>(declare_parameter("voxel_size_y", 0.3));
+    voxel_size_z_ = static_cast<double>(declare_parameter("voxel_size_z", 0.1));
+    voxel_points_threshold_ = static_cast<int>(declare_parameter("voxel_points_threshold", 2));
+  }
+
   using std::placeholders::_1;
   set_param_res_ = this->add_on_set_parameters_callback(
     std::bind(&VoxelGridOutlierFilterComponent::paramCallback, this, _1));

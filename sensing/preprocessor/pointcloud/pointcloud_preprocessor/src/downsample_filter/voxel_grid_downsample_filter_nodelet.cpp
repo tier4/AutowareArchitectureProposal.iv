@@ -62,6 +62,13 @@ VoxelGridDownsampleFilterComponent::VoxelGridDownsampleFilterComponent(
   const rclcpp::NodeOptions & options)
 : Filter("VoxelGridDownsampleFilter", options)
 {
+  // set initial parameters
+  {
+    voxel_size_x_ = static_cast<double>(declare_parameter("voxel_size_x", 0.3));
+    voxel_size_y_ = static_cast<double>(declare_parameter("voxel_size_y", 0.3));
+    voxel_size_z_ = static_cast<double>(declare_parameter("voxel_size_z", 0.1));
+  }
+
   using std::placeholders::_1;
   set_param_res_ = this->add_on_set_parameters_callback(
     std::bind(&VoxelGridDownsampleFilterComponent::paramCallback, this, _1));
@@ -99,7 +106,7 @@ rcl_interfaces::msg::SetParametersResult VoxelGridDownsampleFilterComponent::par
   if (get_param(p, "voxel_size_z", voxel_size_z_)) {
     RCLCPP_DEBUG(get_logger(), "Setting new distance threshold to: %f.", voxel_size_z_);
   }
-  
+
   rcl_interfaces::msg::SetParametersResult result;
   result.successful = true;
   result.reason = "success";

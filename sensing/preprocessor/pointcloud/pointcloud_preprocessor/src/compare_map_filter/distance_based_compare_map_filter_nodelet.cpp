@@ -26,6 +26,8 @@ namespace pointcloud_preprocessor
 DistanceBasedCompareMapFilterComponent::DistanceBasedCompareMapFilterComponent(const rclcpp::NodeOptions & options)
 : Filter("DistanceBasedCompareMapFilter", options)
 {
+  distance_threshold_ = static_cast<double>(declare_parameter("distance_threshold", 0.3));
+
   using std::placeholders::_1;
   sub_map_ = this->create_subscription<PointCloud2>(
     "map", rclcpp::QoS{1},

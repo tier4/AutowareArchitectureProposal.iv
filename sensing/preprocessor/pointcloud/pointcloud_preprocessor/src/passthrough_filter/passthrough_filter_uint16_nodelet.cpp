@@ -34,11 +34,23 @@
 #include <pcl/search/kdtree.h>
 #include <pcl/segmentation/segment_differences.h>
 
-namespace pointcloud_preprocessor {
+namespace pointcloud_preprocessor
+{
 PassThroughFilterUInt16Component::PassThroughFilterUInt16Component(
   const rclcpp::NodeOptions & options)
 : Filter("PassThroughFilterUInt16", options)
 {
+  // set initial parameters
+  {
+    int filter_min = static_cast<int>(declare_parameter("filter_limit_min", 0));
+    int filter_max = static_cast<int>(declare_parameter("filter_limit_max", 127));
+    impl_.setFilterLimits(filter_min, filter_max);
+
+    impl_.setFilterFieldName(static_cast<std::string>(declare_parameter("filter_field_name", "ring")));
+    impl_.setKeepOrganized(static_cast<bool>(declare_parameter("keep_organized", false)));
+    impl_.setFilterLimitsNegative(static_cast<bool>(declare_parameter("filter_limit_negative", false)));
+  }
+
   using std::placeholders::_1;
   set_param_res_ = this->add_on_set_parameters_callback(
     std::bind(&PassThroughFilterUInt16Component::paramCallback, this, _1));
@@ -113,7 +125,7 @@ rcl_interfaces::msg::SetParametersResult PassThroughFilterUInt16Component::param
     // Call the virtual method in the child
     impl_.setFilterLimitsNegative(filter_limit_negative);
   }
-  
+
   rcl_interfaces::msg::SetParametersResult result;
   result.successful = true;
   result.reason = "success";

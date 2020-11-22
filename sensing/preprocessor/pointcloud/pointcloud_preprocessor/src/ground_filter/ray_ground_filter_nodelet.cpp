@@ -40,10 +40,21 @@ namespace pointcloud_preprocessor
 RayGroundFilterComponent::RayGroundFilterComponent(const rclcpp::NodeOptions & options)
 : Filter("RayGroundFilter", options)
 {
-  grid_width_ = 1000;
-  grid_height_ = 1000;
-  grid_precision_ = 0.2;
-  ray_ground_filter::generateColors(colors_, color_num_);
+  // set initial parameters
+  {
+    grid_width_ = 1000;
+    grid_height_ = 1000;
+    grid_precision_ = 0.2;
+    ray_ground_filter::generateColors(colors_, color_num_);
+
+    base_frame_ = declare_parameter("base_frame", "base_link");
+    general_max_slope_ = declare_parameter("general_max_slope", 8.0);
+    local_max_slope_ = declare_parameter("local_max_slope", 6.0);
+    radial_divider_angle_ = declare_parameter("radial_divider_angle", 0.08);
+    min_height_threshold_ = declare_parameter("min_height_threshold", 0.15);
+    concentric_divider_distance_ = declare_parameter("concentric_divider_distance", 0.0);
+    reclass_distance_threshold_ = declare_parameter("reclass_distance_threshold", 0.1);
+  }
 
   using std::placeholders::_1;
   set_param_res_ = this->add_on_set_parameters_callback(
