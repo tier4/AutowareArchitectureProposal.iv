@@ -46,9 +46,11 @@ PassThroughFilterUInt16Component::PassThroughFilterUInt16Component(
     int filter_max = static_cast<int>(declare_parameter("filter_limit_max", 127));
     impl_.setFilterLimits(filter_min, filter_max);
 
-    impl_.setFilterFieldName(static_cast<std::string>(declare_parameter("filter_field_name", "ring")));
+    impl_.setFilterFieldName(
+      static_cast<std::string>(declare_parameter("filter_field_name", "ring")));
     impl_.setKeepOrganized(static_cast<bool>(declare_parameter("keep_organized", false)));
-    impl_.setFilterLimitsNegative(static_cast<bool>(declare_parameter("filter_limit_negative", false)));
+    impl_.setFilterLimitsNegative(
+      static_cast<bool>(declare_parameter("filter_limit_negative", false)));
   }
 
   using std::placeholders::_1;
@@ -56,8 +58,9 @@ PassThroughFilterUInt16Component::PassThroughFilterUInt16Component(
     std::bind(&PassThroughFilterUInt16Component::paramCallback, this, _1));
 }
 
-void PassThroughFilterUInt16Component::filter(const PointCloud2ConstPtr& input, const IndicesPtr& indices,
-                                      PointCloud2& output) {
+void PassThroughFilterUInt16Component::filter(
+  const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output)
+{
   boost::mutex::scoped_lock lock(mutex_);
 
   pcl::PCLPointCloud2::Ptr pcl_input(new pcl::PCLPointCloud2);
@@ -67,7 +70,6 @@ void PassThroughFilterUInt16Component::filter(const PointCloud2ConstPtr& input, 
   pcl::PCLPointCloud2 pcl_output;
   impl_.filter(pcl_output);
   pcl_conversions::moveFromPCL(pcl_output, output);
-
 }
 
 rcl_interfaces::msg::SetParametersResult PassThroughFilterUInt16Component::paramCallback(

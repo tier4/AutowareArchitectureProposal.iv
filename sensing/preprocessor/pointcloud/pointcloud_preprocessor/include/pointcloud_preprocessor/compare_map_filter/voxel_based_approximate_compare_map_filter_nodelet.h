@@ -45,6 +45,6 @@ private:
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  VoxelBasedApproximateCompareMapFilterComponent(const rclcpp::NodeOptions& options);
+  VoxelBasedApproximateCompareMapFilterComponent(const rclcpp::NodeOptions & options);
 };
 }  // namespace pointcloud_preprocessor

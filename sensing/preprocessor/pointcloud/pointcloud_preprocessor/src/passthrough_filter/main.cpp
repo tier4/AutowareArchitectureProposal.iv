@@ -5,7 +5,8 @@
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  auto node = std::make_shared<pointcloud_preprocessor::PassThroughFilterComponent>(rclcpp::NodeOptions());
+  auto node =
+    std::make_shared<pointcloud_preprocessor::PassThroughFilterComponent>(rclcpp::NodeOptions());
   rclcpp::spin(node);
   rclcpp::shutdown();
 

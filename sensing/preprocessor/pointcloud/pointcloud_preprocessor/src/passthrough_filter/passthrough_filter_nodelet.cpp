@@ -77,9 +77,9 @@ rcl_interfaces::msg::SetParametersResult PassThroughFilterComponent::paramCallba
   const std::vector<rclcpp::Parameter> & p)
 {
   boost::mutex::scoped_lock lock(mutex_);
-  
+
   // write me
-  
+
   rcl_interfaces::msg::SetParametersResult result;
   result.successful = true;
   result.reason = "success";

@@ -59,7 +59,6 @@
 
 #include <geometry_msgs/msg/polygon_stamped.hpp>
 
-
 namespace pointcloud_preprocessor
 {
 class CropBoxFilterComponent : public pointcloud_preprocessor::Filter

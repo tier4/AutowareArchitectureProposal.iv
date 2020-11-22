@@ -103,5 +103,6 @@ VoxelBasedApproximateCompareMapFilterComponent::paramCallback(
 }
 }  // namespace pointcloud_preprocessor
 
-  #include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(pointcloud_preprocessor::VoxelBasedApproximateCompareMapFilterComponent)
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(
+  pointcloud_preprocessor::VoxelBasedApproximateCompareMapFilterComponent)

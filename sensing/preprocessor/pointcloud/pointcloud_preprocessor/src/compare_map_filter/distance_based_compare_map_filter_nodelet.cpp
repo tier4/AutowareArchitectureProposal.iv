@@ -22,8 +22,8 @@
 
 namespace pointcloud_preprocessor
 {
-
-DistanceBasedCompareMapFilterComponent::DistanceBasedCompareMapFilterComponent(const rclcpp::NodeOptions & options)
+DistanceBasedCompareMapFilterComponent::DistanceBasedCompareMapFilterComponent(
+  const rclcpp::NodeOptions & options)
 : Filter("DistanceBasedCompareMapFilter", options)
 {
   distance_threshold_ = static_cast<double>(declare_parameter("distance_threshold", 0.3));
@@ -91,7 +91,6 @@ rcl_interfaces::msg::SetParametersResult DistanceBasedCompareMapFilterComponent:
   return result;
 }
 }  // namespace pointcloud_preprocessor
-
 
 #include "rclcpp_components/register_node_macro.hpp"
 RCLCPP_COMPONENTS_REGISTER_NODE(pointcloud_preprocessor::DistanceBasedCompareMapFilterComponent)

@@ -93,7 +93,6 @@ class RayGroundFilterComponent : public pointcloud_preprocessor::Filter
   typedef std::vector<PointXYZRTColor> PointCloudXYZRTColor;
 
 protected:
-
   void filter(
     const PointCloud2ConstPtr & input, const IndicesPtr & indices, PointCloud2 & output) override;
 
@@ -179,6 +178,5 @@ private:
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   RayGroundFilterComponent(const rclcpp::NodeOptions & options);
-
 };
 }  // namespace pointcloud_preprocessor

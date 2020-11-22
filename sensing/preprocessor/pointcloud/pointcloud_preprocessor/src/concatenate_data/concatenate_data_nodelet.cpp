@@ -137,7 +137,6 @@ PointCloudConcatenateDataSynchronizerComponent::PointCloudConcatenateDataSynchro
   }
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 void PointCloudConcatenateDataSynchronizerComponent::transformPointCloud(
   const PointCloud2::ConstSharedPtr & in, PointCloud2::SharedPtr & out)
@@ -258,7 +257,8 @@ void PointCloudConcatenateDataSynchronizerComponent::publish()
   if (!not_subscribed_topic_name.empty()) {
     RCLCPP_WARN_STREAM_THROTTLE(
       this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
-      "Skipped " << not_subscribed_topic_name << ". Please confirm topic." << "(not_subscribed_topic_name size = )" << not_subscribed_topic_name.size());
+      "Skipped " << not_subscribed_topic_name << ". Please confirm topic."
+                 << "(not_subscribed_topic_name size = )" << not_subscribed_topic_name.size());
   }
 
   pub_output_->publish(*concat_cloud_ptr_);

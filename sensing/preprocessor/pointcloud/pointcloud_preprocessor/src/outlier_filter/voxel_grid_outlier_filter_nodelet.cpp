@@ -22,7 +22,8 @@
 
 namespace pointcloud_preprocessor
 {
-VoxelGridOutlierFilterComponent::VoxelGridOutlierFilterComponent(const rclcpp::NodeOptions & options)
+VoxelGridOutlierFilterComponent::VoxelGridOutlierFilterComponent(
+  const rclcpp::NodeOptions & options)
 : Filter("VoxelGridOutlierFilter", options)
 {
   // set initial parameters
@@ -83,7 +84,7 @@ rcl_interfaces::msg::SetParametersResult VoxelGridOutlierFilterComponent::paramC
   if (get_param(p, "voxel_points_threshold", voxel_points_threshold_)) {
     RCLCPP_DEBUG(get_logger(), "Setting new distance threshold to: %d.", voxel_points_threshold_);
   }
-  
+
   rcl_interfaces::msg::SetParametersResult result;
   result.successful = true;
   result.reason = "success";

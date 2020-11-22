@@ -57,25 +57,25 @@
 // PCL includes
 #include <pcl/filters/filter.h>
 
-#include <string>
-#include <boost/thread/mutex.hpp>
 #include <sensor_msgs/msg/point_cloud2.h>
+#include <boost/thread/mutex.hpp>
+#include <string>
 // PCL includes
-#include <pcl_msgs/msg/point_indices.h>
-#include <pcl_msgs/msg/model_coefficients.h>
 #include <pcl/pcl_base.h>
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <pcl_msgs/msg/model_coefficients.h>
+#include <pcl_msgs/msg/point_indices.h>
 
 #include <message_filters/subscriber.h>
-#include <message_filters/synchronizer.h>
-#include <message_filters/sync_policies/exact_time.h>
 #include <message_filters/sync_policies/approximate_time.h>
+#include <message_filters/sync_policies/exact_time.h>
+#include <message_filters/synchronizer.h>
 
 // Include TF
-#include <tf2_ros/transform_listener.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/create_timer_ros.h>
+#include <tf2_ros/transform_listener.h>
 
 namespace pointcloud_preprocessor
 {
@@ -135,7 +135,7 @@ protected:
 
   /** \brief The output PointCloud2 publisher. */
   rclcpp::Publisher<PointCloud2>::SharedPtr pub_output_;
-  
+
   /** \brief The message filter subscriber for PointCloud2. */
   message_filters::Subscriber<PointCloud2> sub_input_filter_;
 
@@ -181,7 +181,6 @@ protected:
    */
   void computePublish(const PointCloud2ConstPtr & input, const IndicesPtr & indices);
 
-
   //////////////////////
   // from PCLNopdelet //
   //////////////////////
@@ -214,8 +213,7 @@ protected:
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
-  inline bool isValid(
-    const PointCloud2ConstPtr & cloud, const std::string & topic_name = "input")
+  inline bool isValid(const PointCloud2ConstPtr & cloud, const std::string & topic_name = "input")
   {
     if (cloud->width * cloud->height * cloud->point_step != cloud->data.size()) {
       RCLCPP_WARN(
@@ -241,9 +239,7 @@ protected:
     return (true);
   }
 
-
 private:
-
   /** \brief Parameter service callback result : needed to be hold */
   OnSetParametersCallbackHandle::SharedPtr set_param_res_filter_;
 
@@ -256,8 +252,7 @@ private:
   std::shared_ptr<ApproximateTimeSyncPolicy> sync_input_indices_a_;
 
   /** \brief PointCloud2 + Indices data callback. */
-  void input_indices_callback(
-    const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices);
+  void input_indices_callback(const PointCloud2ConstPtr cloud, const PointIndicesConstPtr indices);
 
   void setupTF();
 

@@ -38,6 +38,6 @@ private:
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  PointcloudAccumulatorComponent(const rclcpp::NodeOptions &options);
+  PointcloudAccumulatorComponent(const rclcpp::NodeOptions & options);
 };
 }  // namespace pointcloud_preprocessor

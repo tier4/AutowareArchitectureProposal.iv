@@ -59,11 +59,11 @@ RayGroundFilterComponent::RayGroundFilterComponent(const rclcpp::NodeOptions & o
   using std::placeholders::_1;
   set_param_res_ = this->add_on_set_parameters_callback(
     std::bind(&RayGroundFilterComponent::paramCallback, this, _1));
-
 }
 
 bool RayGroundFilterComponent::TransformPointCloud(
-  const std::string & in_target_frame, const sensor_msgs::msg::PointCloud2::ConstSharedPtr & in_cloud_ptr,
+  const std::string & in_target_frame,
+  const sensor_msgs::msg::PointCloud2::ConstSharedPtr & in_cloud_ptr,
   const sensor_msgs::msg::PointCloud2::SharedPtr & out_cloud_ptr)
 {
   if (in_target_frame == in_cloud_ptr->header.frame_id) {
@@ -282,10 +282,12 @@ void RayGroundFilterComponent::filter(
   ExtractPointsIndices(
     current_sensor_cloud_ptr, ground_indices, ground_cloud_ptr, no_ground_cloud_ptr);
 
-  sensor_msgs::msg::PointCloud2::SharedPtr no_ground_cloud_msg_ptr(new sensor_msgs::msg::PointCloud2);
+  sensor_msgs::msg::PointCloud2::SharedPtr no_ground_cloud_msg_ptr(
+    new sensor_msgs::msg::PointCloud2);
   pcl::toROSMsg(*no_ground_cloud_ptr, *no_ground_cloud_msg_ptr);
   no_ground_cloud_msg_ptr->header = input->header;
-  sensor_msgs::msg::PointCloud2::SharedPtr no_ground_cloud_transed_msg_ptr(new sensor_msgs::msg::PointCloud2);
+  sensor_msgs::msg::PointCloud2::SharedPtr no_ground_cloud_transed_msg_ptr(
+    new sensor_msgs::msg::PointCloud2);
   succeeded =
     TransformPointCloud(base_frame_, no_ground_cloud_msg_ptr, no_ground_cloud_transed_msg_ptr);
   if (!succeeded) {
@@ -326,7 +328,7 @@ rcl_interfaces::msg::SetParametersResult RayGroundFilterComponent::paramCallback
     RCLCPP_DEBUG(
       get_logger(), "Setting reclass_distance_threshold to: %f.", reclass_distance_threshold_);
   }
-  
+
   rcl_interfaces::msg::SetParametersResult result;
   result.successful = true;
   result.reason = "success";

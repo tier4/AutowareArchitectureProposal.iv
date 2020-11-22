@@ -159,8 +159,7 @@ void CropBoxFilterComponent::publishCropBoxPolygon()
 rcl_interfaces::msg::SetParametersResult CropBoxFilterComponent::paramCallback(
   const std::vector<rclcpp::Parameter> & p)
 {
-
- boost::mutex::scoped_lock lock(mutex_);
+  boost::mutex::scoped_lock lock(mutex_);
 
   Eigen::Vector4f min_point, max_point;
   min_point = impl_.getMin();

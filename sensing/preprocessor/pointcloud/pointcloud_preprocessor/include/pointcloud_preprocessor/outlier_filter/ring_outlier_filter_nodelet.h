@@ -40,7 +40,7 @@ private:
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  RingOutlierFilterComponent(const rclcpp::NodeOptions& options);
+  RingOutlierFilterComponent(const rclcpp::NodeOptions & options);
 };
 
 }  // namespace pointcloud_preprocessor
