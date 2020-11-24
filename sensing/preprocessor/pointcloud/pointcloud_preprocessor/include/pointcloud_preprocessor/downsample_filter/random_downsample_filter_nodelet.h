@@ -73,7 +73,7 @@ protected:
     pointcloud_preprocessor::RandomDownsampleFilterConfig & config, uint32_t level);
 
 private:
-  double sample_num_;
+  size_t sample_num_;
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

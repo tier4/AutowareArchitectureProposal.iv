@@ -96,7 +96,7 @@ void RandomDownsampleFilterNodelet::config_callback(
   if (sample_num_ != config.sample_num) {
     sample_num_ = config.sample_num;
     NODELET_DEBUG(
-      "[%s::config_callback] Setting new sample_num threshold to: %f.", getName().c_str(),
+      "[%s::config_callback] Setting new sample_num threshold to: %d.", getName().c_str(),
       config.sample_num);
   }
   // ---[ These really shouldn't be here, and as soon as dynamic_reconfigure improves, we'll remove them and inherit
