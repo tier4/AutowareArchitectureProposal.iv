@@ -19,8 +19,6 @@ find_package(Eigen3 REQUIRED)
 
 include_directories(
   ${EIGEN3_INCLUDE_DIR}
-  include
-  src/autoware/pilot.auto/map/lanelet2_extension/include
 )
 
 ament_auto_add_executable(traffic_light_map_based_detector_node
