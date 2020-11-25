@@ -117,6 +117,7 @@ rclcpp_components_register_node(random_downsample_filter
   EXECUTABLE random_downsample_filter_node)
 
 # ========== Ray Ground Filter ==========
+# -- Ray Ground Filter --
 ament_auto_add_library(ray_ground_filter SHARED
   src/ground_filter/ray_ground_filter_nodelet.cpp
   )
@@ -131,6 +132,14 @@ rclcpp_components_register_node(ray_ground_filter
   PLUGIN "pointcloud_preprocessor::RayGroundFilterComponent"
   EXECUTABLE ray_ground_filter_node)
 
+# -- RANSAC Ground Filter --
+ament_auto_add_library(ransac_ground_filter SHARED
+  src/ground_filter/ransac_ground_filter_nodelet.cpp
+  )
+target_link_libraries(ransac_ground_filter pointcloud_preprocessor_filter_base ${Boost_LIBRARIES} ${PCL_LIBRARIES})
+rclcpp_components_register_node(ransac_ground_filter
+  PLUGIN "pointcloud_preprocessor::RANSACGroundFilterComponent"
+  EXECUTABLE ransac_ground_filter_node)
 
 # ========== Outlier Filter ==========
 # -- Ring Outlier Filter --
