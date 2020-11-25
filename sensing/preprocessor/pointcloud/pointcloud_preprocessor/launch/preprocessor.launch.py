@@ -29,7 +29,7 @@ def generate_launch_description():
   pkg = 'pointcloud_preprocessor'
 
   # declare launch arguments
-  input_points_raw_list = DeclareLaunchArgument(
+  input_points_raw_list_param = DeclareLaunchArgument(
       'input_points_raw_list',
       default_value="['/points_raw']",
       description="Input pointcloud topic_name list as a string_array. "
@@ -105,7 +105,7 @@ def generate_launch_description():
   )
 
   return launch.LaunchDescription([
-      input_points_raw_list,
+      input_points_raw_list_param,
       output_points_raw_param,
       tf_output_frame_param,
       container,
