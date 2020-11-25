@@ -24,16 +24,17 @@ namespace bg = boost::geometry;
 namespace
 {
 std::pair<int, double> findWayPointAndDistance(
-  const autoware_planning_msgs::PathWithLaneId & path, const geometry_msgs::Pose & p)
+  const autoware_planning_msgs::PathWithLaneId & path, const geometry_msgs::Point & p)
 {
   constexpr double max_lateral_dist = 3.0;
   for (size_t i = 0; i < path.points.size() - 1; ++i) {
-    const double dx = p.position.x - path.points.at(i).point.pose.position.x;
-    const double dy = p.position.y - path.points.at(i).point.pose.position.y;
-    const double dx_wp =
-      path.points.at(i + 1).point.pose.position.x - path.points.at(i).point.pose.position.x;
-    const double dy_wp =
-      path.points.at(i + 1).point.pose.position.y - path.points.at(i).point.pose.position.y;
+    const auto & p_front = path.points.at(i).point.pose.position;
+    const auto & p_back = path.points.at(i + 1).point.pose.position;
+
+    const double dx = p.x - p_front.x;
+    const double dy = p.y - p_front.y;
+    const double dx_wp = p_back.x - p_front.x;
+    const double dy_wp = p_back.y - p_front.y;
 
     const double theta = std::atan2(dy, dx) - std::atan2(dy_wp, dx_wp);
 
@@ -56,8 +57,8 @@ std::pair<int, double> findWayPointAndDistance(
   }
 
   // if the way point is not found, return negative distance from the way point at 0
-  const double dx = p.position.x - path.points.at(0).point.pose.position.x;
-  const double dy = p.position.y - path.points.at(0).point.pose.position.y;
+  const double dx = p.x - path.points.front().point.pose.position.x;
+  const double dy = p.y - path.points.front().point.pose.position.y;
   return std::make_pair(-1, -1.0 * std::hypot(dx, dy));
 }
 
@@ -68,24 +69,23 @@ double calcArcLengthFromWayPoint(
   const size_t src_idx = src >= 0 ? static_cast<size_t>(src) : 0;
   const size_t dst_idx = dst >= 0 ? static_cast<size_t>(dst) : 0;
   for (size_t i = src_idx; i < dst_idx; ++i) {
-    const double dx_wp =
-      path.points.at(i + 1).point.pose.position.x - path.points.at(i).point.pose.position.x;
-    const double dy_wp =
-      path.points.at(i + 1).point.pose.position.y - path.points.at(i).point.pose.position.y;
-    length += std::hypot(dx_wp, dy_wp);
+    const auto & p_front = path.points.at(i).point.pose.position;
+    const auto & p_back = path.points.at(i + 1).point.pose.position;
+
+    length += std::hypot(p_back.x - p_front.x, p_back.y - p_front.y);
   }
   return length;
 }
 
 double calcSignedArcLength(
-  const autoware_planning_msgs::PathWithLaneId & path, const geometry_msgs::Pose & p1,
-  const geometry_msgs::Pose & p2)
+  const autoware_planning_msgs::PathWithLaneId & path, const geometry_msgs::Point & p1,
+  const geometry_msgs::Point & p2)
 {
   const std::pair<int, double> src = findWayPointAndDistance(path, p1);
   const std::pair<int, double> dst = findWayPointAndDistance(path, p2);
   if (dst.first == -1) {
-    const double dx = p1.position.x - p2.position.x;
-    const double dy = p1.position.y - p2.position.y;
+    const double dx = p1.x - p2.x;
+    const double dy = p1.y - p2.y;
     return -1.0 * std::hypot(dx, dy);
   }
 
@@ -98,12 +98,11 @@ double calcSignedArcLength(
   }
 }
 
-double calcSignedDistance(const geometry_msgs::Pose & p1, const geometry_msgs::Pose & p2)
+double calcSignedDistance(const geometry_msgs::Pose & p1, const geometry_msgs::Point & p2)
 {
   Eigen::Affine3d map2p1;
   tf2::fromMsg(p1, map2p1);
-  const auto basecoords_p2 =
-    map2p1.inverse() * Eigen::Vector3d(p2.position.x, p2.position.y, p2.position.z);
+  const auto basecoords_p2 = map2p1.inverse() * Eigen::Vector3d(p2.x, p2.y, p2.z);
   return basecoords_p2.x() >= 0 ? basecoords_p2.norm() : -basecoords_p2.norm();
 }
 
@@ -418,7 +417,7 @@ bool DetectionAreaModule::isOverLine(
   const autoware_planning_msgs::PathWithLaneId & path, const geometry_msgs::Pose & self_pose,
   const geometry_msgs::Pose & line_pose) const
 {
-  return calcSignedArcLength(path, self_pose, line_pose) < 0;
+  return calcSignedArcLength(path, self_pose.position, line_pose.position) < 0;
 }
 
 bool DetectionAreaModule::hasEnoughBrakingDistance(
@@ -431,7 +430,7 @@ bool DetectionAreaModule::hasEnoughBrakingDistance(
   const double pass_judge_line_distance =
     planning_utils::calcJudgeLineDist(current_velocity, max_acc, delay_response_time);
 
-  return calcSignedDistance(self_pose, line_pose) < pass_judge_line_distance;
+  return calcSignedDistance(self_pose, line_pose.position) < pass_judge_line_distance;
 }
 
 autoware_planning_msgs::PathWithLaneId DetectionAreaModule::insertStopPoint(

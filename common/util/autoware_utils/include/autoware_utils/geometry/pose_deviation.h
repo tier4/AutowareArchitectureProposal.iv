@@ -30,35 +30,54 @@ struct PoseDeviation
   double yaw;
 };
 
+inline double calcLateralDeviation(
+  const geometry_msgs::Pose & base_pose, const geometry_msgs::Point & target_point)
+{
+  const auto & base_point = base_pose.position;
+
+  const auto yaw = tf2::getYaw(base_pose.orientation);
+  const Eigen::Vector3d base_unit_vec{std::cos(yaw), std::sin(yaw), 0};
+
+  const auto dx = target_point.x - base_point.x;
+  const auto dy = target_point.y - base_point.y;
+  const Eigen::Vector3d diff_vec{dx, dy, 0};
+
+  const Eigen::Vector3d cross_vec = base_unit_vec.cross(diff_vec);
+
+  return cross_vec.z();
+}
+
+inline double calcLongitudinalDeviation(
+  const geometry_msgs::Pose & base_pose, const geometry_msgs::Point & target_point)
+{
+  const auto & base_point = base_pose.position;
+
+  const auto yaw = tf2::getYaw(base_pose.orientation);
+  const Eigen::Vector3d base_unit_vec{std::cos(yaw), std::sin(yaw), 0};
+
+  const auto dx = target_point.x - base_point.x;
+  const auto dy = target_point.y - base_point.y;
+  const Eigen::Vector3d diff_vec{dx, dy, 0};
+
+  return base_unit_vec.dot(diff_vec);
+}
+
+inline double calcYawDeviation(
+  const geometry_msgs::Pose & base_pose, const geometry_msgs::Pose & target_pose)
+{
+  const auto base_yaw = tf2::getYaw(base_pose.orientation);
+  const auto target_yaw = tf2::getYaw(target_pose.orientation);
+  return normalizeRadian(target_yaw - base_yaw);
+}
+
 inline PoseDeviation calcPoseDeviation(
   const geometry_msgs::Pose & base_pose, const geometry_msgs::Pose & target_pose)
 {
   PoseDeviation deviation;
 
-  // Lateral / Longitudinal
-  {
-    const auto & base_point = base_pose.position;
-    const auto & target_point = target_pose.position;
-
-    const auto yaw = tf2::getYaw(base_pose.orientation);
-    const Eigen::Vector3d base_unit_vec{std::cos(yaw), std::sin(yaw), 0};
-
-    const auto dx = target_point.x - base_point.x;
-    const auto dy = target_point.y - base_point.y;
-    const Eigen::Vector3d diff_vec{dx, dy, 0};
-
-    const Eigen::Vector3d cross_vec = base_unit_vec.cross(diff_vec);
-
-    deviation.lateral = cross_vec.z();
-    deviation.longitudinal = base_unit_vec.dot(diff_vec);
-  }
-
-  // Yaw
-  {
-    const auto base_yaw = tf2::getYaw(base_pose.orientation);
-    const auto target_yaw = tf2::getYaw(target_pose.orientation);
-    deviation.yaw = normalizeRadian(target_yaw - base_yaw);
-  }
+  deviation.lateral = calcLateralDeviation(base_pose, target_pose.position);
+  deviation.longitudinal = calcLongitudinalDeviation(base_pose, target_pose.position);
+  deviation.yaw = calcYawDeviation(base_pose, target_pose);
 
   return deviation;
 }
