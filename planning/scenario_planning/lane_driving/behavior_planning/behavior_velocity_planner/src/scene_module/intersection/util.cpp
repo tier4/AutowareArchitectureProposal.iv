@@ -52,8 +52,11 @@ int insertPoint(
   inserted_point = inout_path->points.at(closest_idx);
   inserted_point.point.pose = in_pose;
 
-  auto it = inout_path->points.begin() + insert_idx;
-  inout_path->points.insert(it, inserted_point);
+  if (!hasDuplicatedPoint(*inout_path, inserted_point.point.pose.position)) {
+    auto it = inout_path->points.begin() + insert_idx;
+    inout_path->points.insert(it, inserted_point);
+  }
+
   return insert_idx;
 }
 
@@ -201,6 +204,21 @@ bool hasLaneId(const autoware_planning_msgs::msg::PathPointWithLaneId & p, const
       return true;
     }
   }
+  return false;
+}
+
+bool hasDuplicatedPoint(
+  const autoware_planning_msgs::PathWithLaneId & path, const geometry_msgs::Point & point)
+{
+  for (const auto & path_point : path.points) {
+    const auto & p = path_point.point.pose.position;
+
+    constexpr double min_dist = 0.001;
+    if (planning_utils::calcDist2d(p, point) < min_dist) {
+      return true;
+    }
+  }
+
   return false;
 }
 
