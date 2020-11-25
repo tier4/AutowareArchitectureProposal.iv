@@ -8,11 +8,12 @@
   <license>Apache2</license>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
+
   <depend>autoware_perception_msgs</depend>
-  <depend>nodelet</depend>
-  <depend>pcl_ros</depend>
+  <depend>libpcl-all-dev</depend>
   <depend>pcl_conversions</depend>
   <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
   <depend>sensor_msgs</depend>
 
   <export>

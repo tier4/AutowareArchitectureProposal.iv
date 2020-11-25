@@ -16,12 +16,14 @@ ament_auto_find_build_dependencies()
 include_directories(
   include 
   ${PCL_COMMON_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
 )
 
-ament_auto_add_library(euclidean_cluster_nodelet 
-  src/euclidean_cluster_nodelet.cpp)
+ament_auto_add_library(euclidean_cluster_nodelet SHARED
+  src/euclidean_cluster_nodelet.cpp
+)
 target_link_libraries(euclidean_cluster_nodelet 
-  ${PCL_COMMON_INCLUDE_DIRS}
+  ${PCL_LIBRARIES}
 )
 
 rclcpp_components_register_node(euclidean_cluster_nodelet
@@ -29,10 +31,11 @@ rclcpp_components_register_node(euclidean_cluster_nodelet
   EXECUTABLE euclidean_cluster_node
 )
 
-ament_auto_add_library(voxel_grid_based_euclidean_cluster_nodelet
-  src/voxel_grid_based_euclidean_cluster_nodelet.cpp)
+ament_auto_add_library(voxel_grid_based_euclidean_cluster_nodelet SHARED
+  src/voxel_grid_based_euclidean_cluster_nodelet.cpp
+)
 target_link_libraries(voxel_grid_based_euclidean_cluster_nodelet
-  ${PCL_COMMON_INCLUDE_DIRS}
+  ${PCL_LIBRARIES}
 )
 
 rclcpp_components_register_node(voxel_grid_based_euclidean_cluster_nodelet
