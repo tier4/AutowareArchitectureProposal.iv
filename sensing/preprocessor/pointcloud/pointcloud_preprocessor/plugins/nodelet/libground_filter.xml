@@ -7,4 +7,12 @@
       Ground removal based on ray casting
     </description>
   </class>
+
+  <class name="pointcloud_preprocessor/ransac_ground_filter_nodelet"
+         type="pointcloud_preprocessor::RANSACGroundFilterNodelet"
+         base_class_type="nodelet::Nodelet">
+    <description>
+      Ground removal based on ransac plane extraction
+    </description>
+  </class>
 </library>

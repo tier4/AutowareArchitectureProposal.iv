@@ -28,6 +28,7 @@ generate_dynamic_reconfigure_options(
   cfg/PassThroughFilter.cfg
   cfg/PassThroughFilterUInt16.cfg
   cfg/RayGroundFilter.cfg
+  cfg/RANSACGroundFilter.cfg
   cfg/CropBoxFilter.cfg
 )
 
@@ -230,6 +231,7 @@ add_dependencies(passthrough_filter_uint16_node ${catkin_EXPORTED_TARGETS} ${PRO
 # Ray Ground Filter
 add_library(ground_filter
   src/ground_filter/ray_ground_filter_nodelet.cpp
+  src/ground_filter/ransac_ground_filter_nodelet.cpp
   src/filter.cpp # copy from pcl_ros https://github.com/ros-
                  # perception/perception_pcl/issues/9
   )
@@ -256,6 +258,15 @@ target_link_libraries(ray_ground_filter_node
    ${OpenCV_LIBRARIES}
 )
 add_dependencies(ray_ground_filter_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
+
+add_executable(ransac_ground_filter_node
+  src/ground_filter/ransac_ground_filter_node.cpp)
+target_link_libraries(ransac_ground_filter_node
+   ground_filter
+   ${catkin_LIBRARIES}
+   ${OpenCV_LIBRARIES}
+)
+add_dependencies(ransac_ground_filter_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
 
 
 # CropBox
