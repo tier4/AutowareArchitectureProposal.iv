@@ -40,7 +40,7 @@
 
 namespace traffic_light
 {
-  MapBasedDetector::MapBasedDetector() : Node("traffic_light_map_based_detector"), tf_listener_(tf_buffer_)
+  MapBasedDetector::MapBasedDetector() : Node("traffic_light_map_based_detector"), tf_buffer_(this->get_clock()), tf_listener_(tf_buffer_)
 {
 
   using std::placeholders::_1;
@@ -78,7 +78,10 @@ namespace traffic_light
   try {
     geometry_msgs::msg::TransformStamped transform;
     transform = tf_buffer_.lookupTransform(
-      "map", input_msg->header.frame_id, tf2::TimePointZero);
+      "map",
+      input_msg->header.frame_id,
+      input_msg->header.stamp,
+      rclcpp::Duration(0.2));
     camera_pose_stamped.header = input_msg->header;
     camera_pose_stamped.pose.position.x = transform.transform.translation.x;
     camera_pose_stamped.pose.position.y = transform.transform.translation.y;

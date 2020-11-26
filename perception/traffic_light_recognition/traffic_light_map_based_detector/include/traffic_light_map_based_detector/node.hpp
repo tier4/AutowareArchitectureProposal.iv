@@ -30,7 +30,6 @@
 #include <autoware_planning_msgs/msg/route.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
-#include <tf2/transform_datatypes.h>
 #include <tf2_ros/transform_listener.h>
 #include <visualization_msgs/msg/marker_array.hpp>
 
@@ -70,7 +69,7 @@ private:
   rclcpp::Publisher<autoware_perception_msgs::msg::TrafficLightRoiArray>::SharedPtr roi_pub_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr viz_pub_;
 
-  tf2::BufferCore tf_buffer_;
+  tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
 
   using TrafficLightSet = std::set<lanelet::ConstLineString3d, IdLessThan>;
