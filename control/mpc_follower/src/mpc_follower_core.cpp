@@ -149,6 +149,13 @@ void MPCFollower::onTimer(const ros::TimerEvent & te)
   const bool is_mpc_solved = calculateMPC(&ctrl_cmd);
 
   if (isStoppedState()) {
+    // Reset input buffer
+    for (auto & value : input_buffer_) {
+      value = ctrl_cmd_prev_.steering_angle;
+    }
+    // Use previous command value as previous raw steer command
+    raw_steer_cmd_prev_ = ctrl_cmd_prev_.steering_angle;
+    
     publishCtrlCmd(ctrl_cmd_prev_);
     return;
   }
