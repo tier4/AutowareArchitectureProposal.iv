@@ -56,16 +56,19 @@ private:
   rclcpp::Subscription<autoware_control_msgs::msg::EmergencyMode>::SharedPtr system_emergency_sub_;
   rclcpp::Subscription<autoware_control_msgs::msg::EmergencyMode>::SharedPtr external_emergency_stop_sub_;
   rclcpp::Subscription<autoware_control_msgs::msg::GateMode>::SharedPtr gate_mode_sub_;
+  rclcpp::Subscription<autoware_vehicle_msgs::msg::Steering>::SharedPtr steer_sub_;
 
   void onGateMode(autoware_control_msgs::msg::GateMode::ConstSharedPtr msg);
   void onEngage(autoware_control_msgs::msg::EngageMode::ConstSharedPtr msg);
   void onSystemEmergency(autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg);
   void onExternalEmergencyStop(autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg);
+  void onSteering(autoware_vehicle_msgs::msg::Steering::ConstSharedPtr msg);
 
   bool is_engaged_;
   bool is_system_emergency_ = false;
   bool is_external_emergency_stop_ = false;
-  autoware_control_msgs::msg::GateMode current_gate_mode_;
+  double current_steer_ = 0;
+  autoware_control_msgs::GateMode current_gate_mode_;
 
   // Heartbeat
   std::shared_ptr<rclcpp::Time> system_emergency_heartbeat_received_time_;

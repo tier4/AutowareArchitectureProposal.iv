@@ -102,6 +102,8 @@ VehicleCmdGate::VehicleCmdGate()
     "input/external_emergency_stop", 1, std::bind(&VehicleCmdGate::onExternalEmergencyStop, this, _1));
   gate_mode_sub_ = this->create_subscription<autoware_control_msgs::msg::GateMode>(
     "input/gate_mode", 1, std::bind(&VehicleCmdGate::onGateMode, this, _1));
+  steer_sub_ = this->create_subscription<autoware_vehicle_msgs::msg::Steering>(
+    "input/steering", 1, std::bind(&VehicleCmdGate::onSteering, this, _1));
 
   // Subscriber for auto
   auto_control_cmd_sub_ =
@@ -411,8 +413,8 @@ autoware_control_msgs::msg::ControlCommand VehicleCmdGate::createStopControlCmd(
 {
   autoware_control_msgs::msg::ControlCommand cmd;
 
-  cmd.steering_angle = prev_control_cmd_.steering_angle;
-  cmd.steering_angle_velocity = prev_control_cmd_.steering_angle_velocity;
+  cmd.steering_angle = current_steer_;
+  cmd.steering_angle_velocity = 0.0;
   cmd.velocity = 0.0;
   cmd.acceleration = -1.5;
 
@@ -460,6 +462,11 @@ void VehicleCmdGate::onGateMode(autoware_control_msgs::msg::GateMode::ConstShare
       get_logger(), "GateMode changed: %s -> %s", getGateModeName(prev_gate_mode.data),
       getGateModeName(current_gate_mode_.data));
   }
+}
+
+void VehicleCmdGate::onSteering(autoware_vehicle_msgs::msg::Steering::ConstPtr msg)
+{
+  current_steer_ = msg->data;
 }
 
 double VehicleCmdGate::getDt()
