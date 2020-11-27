@@ -253,14 +253,21 @@ void VehicleCmdGate::onTimer(const ros::TimerEvent & event)
   if (use_emergency_handling_ && is_system_emergency_) {
     turn_signal = emergency_commands_.turn_signal;
     shift = emergency_commands_.shift;
-  } else if (current_gate_mode_.data == autoware_control_msgs::GateMode::AUTO) {
-    turn_signal = auto_commands_.turn_signal;
-    shift = auto_commands_.shift;
-  } else if (current_gate_mode_.data == autoware_control_msgs::GateMode::REMOTE) {
-    turn_signal = remote_commands_.turn_signal;
-    shift = remote_commands_.shift;
   } else {
-    throw std::runtime_error("invalid mode");
+    if (current_gate_mode_.data == autoware_control_msgs::GateMode::AUTO) {
+      turn_signal = auto_commands_.turn_signal;
+      shift = auto_commands_.shift;
+
+      // Don't send turn signal when autoware is not engaged
+      if (!is_engaged_) {
+        turn_signal.data = autoware_vehicle_msgs::TurnSignal::NONE;
+      }
+    } else if (current_gate_mode_.data == autoware_control_msgs::GateMode::REMOTE) {
+      turn_signal = remote_commands_.turn_signal;
+      shift = remote_commands_.shift;
+    } else {
+      throw std::runtime_error("invalid mode");
+    }
   }
 
   // Add frame_id to prevent RViz warnings
