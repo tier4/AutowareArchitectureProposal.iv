@@ -289,7 +289,20 @@ void VehicleCmdGate::onTimer()
     turn_signal = remote_commands_.turn_signal;
     shift = remote_commands_.shift;
   } else {
-    throw std::runtime_error("invalid mode");
+    if (current_gate_mode_.data == autoware_control_msgs::msg::GateMode::AUTO) {
+      turn_signal = auto_commands_.turn_signal;
+      shift = auto_commands_.shift;
+
+      // Don't send turn signal when autoware is not engaged
+      if (!is_engaged_) {
+        turn_signal.data = autoware_vehicle_msgs::msg::TurnSignal::NONE;
+      }
+    } else if (current_gate_mode_.data == autoware_control_msgs::msg::GateMode::REMOTE) {
+      turn_signal = remote_commands_.turn_signal;
+      shift = remote_commands_.shift;
+    } else {
+      throw std::runtime_error("invalid mode");
+    }
   }
 
   // Add frame_id to prevent RViz warnings
