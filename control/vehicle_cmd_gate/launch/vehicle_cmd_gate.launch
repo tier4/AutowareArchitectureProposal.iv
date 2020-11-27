@@ -8,6 +8,7 @@
     <remap from="~input/system_emergency" to="/system/emergency/is_emergency"/>
     <remap from="~input/external_emergency_stop" to="/remote/emergency_stop"/>
     <remap from="~input/gate_mode" to="/remote/gate_mode_cmd"/>
+    <remap from="~input/steering" to="/vehicle/status/steering"/>
 
     <remap from="~input/auto/control_cmd" to="trajectory_follower/control_cmd"/>
     <remap from="~input/auto/turn_signal_cmd" to="/planning/turn_signal_decider/turn_signal_cmd"/>

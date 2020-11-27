@@ -25,6 +25,7 @@
 #include <autoware_control_msgs/ControlCommandStamped.h>
 #include <autoware_control_msgs/GateMode.h>
 #include <autoware_vehicle_msgs/ShiftStamped.h>
+#include <autoware_vehicle_msgs/Steering.h>
 #include <autoware_vehicle_msgs/TurnSignal.h>
 #include <autoware_vehicle_msgs/VehicleCommand.h>
 #include <std_msgs/Bool.h>
@@ -61,15 +62,18 @@ private:
   ros::Subscriber system_emergency_sub_;
   ros::Subscriber external_emergency_stop_sub_;
   ros::Subscriber gate_mode_sub_;
+  ros::Subscriber steer_sub_;
 
   void onGateMode(const autoware_control_msgs::GateMode::ConstPtr & msg);
   void onEngage(const std_msgs::Bool::ConstPtr msg);
   void onSystemEmergency(const std_msgs::Bool::ConstPtr msg);
   void onExternalEmergencyStop(const std_msgs::Bool::ConstPtr msg);
+  void onSteering(const autoware_vehicle_msgs::Steering::ConstPtr msg);
 
   bool is_engaged_ = false;
   bool is_system_emergency_ = false;
   bool is_external_emergency_stop_ = false;
+  double current_steer_ = 0;
   autoware_control_msgs::GateMode current_gate_mode_;
 
   // Heartbeat
