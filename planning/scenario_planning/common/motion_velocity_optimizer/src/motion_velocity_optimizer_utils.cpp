@@ -101,6 +101,64 @@ int calcClosestWaypoint(
   return idx_min;
 }
 
+tf2::Vector3 getTransVector3(const geometry_msgs::Pose & from, const geometry_msgs::Pose & to)
+{
+  double dx = to.position.x - from.position.x;
+  double dy = to.position.y - from.position.y;
+  double dz = to.position.z - from.position.z;
+  return tf2::Vector3(dx, dy, dz);
+}
+
+autoware_planning_msgs::TrajectoryPoint calcClosestTrajecotoryPointWithIntepolation(
+  const autoware_planning_msgs::Trajectory & trajectory, const geometry_msgs::Pose & target_pose)
+{
+  autoware_planning_msgs::TrajectoryPoint traj_p;
+  traj_p.pose = target_pose;
+
+  if (trajectory.points.empty()) {
+    traj_p.twist.linear.x = 0.0;
+    traj_p.accel.linear.x = 0.0;
+    return traj_p;
+  }
+
+  if (trajectory.points.size() == 1) {
+    traj_p.twist.linear.x = trajectory.points.at(0).twist.linear.x;
+    traj_p.accel.linear.x = trajectory.points.at(0).accel.linear.x;
+    return traj_p;
+  }
+
+  const int closest_idx = calcClosestWaypoint(trajectory, target_pose.position);
+
+  int next_closest_idx;
+  if (closest_idx == 0) {
+    // if closest idx is first point of traj
+    next_closest_idx = closest_idx + 1;
+  } else if (closest_idx == static_cast<int>(trajectory.points.size()) - 1) {
+    //if closest idx is last point of traj
+    next_closest_idx = closest_idx - 1;
+  } else {
+    const auto dist_to_after_closest =
+      calcDist2d(trajectory.points.at(closest_idx + 1).pose.position, target_pose.position);
+    const auto dist_to_before_closest =
+      calcDist2d(trajectory.points.at(closest_idx - 1).pose.position, target_pose.position);
+    dist_to_after_closest <= dist_to_before_closest ? next_closest_idx = closest_idx + 1
+                                                    : next_closest_idx = closest_idx - 1;
+  }
+
+  auto v1 = getTransVector3(
+    trajectory.points.at(closest_idx).pose, trajectory.points.at(next_closest_idx).pose);
+  auto v2 = getTransVector3(trajectory.points.at(closest_idx).pose, target_pose);
+  const double prop = v1.dot(v2) / v1.length2();  // calc internal proportion
+
+  traj_p.twist.linear.x = trajectory.points.at(next_closest_idx).twist.linear.x * prop +
+                          trajectory.points.at(closest_idx).twist.linear.x * (1 - prop);
+
+  traj_p.accel.linear.x = trajectory.points.at(next_closest_idx).accel.linear.x * prop +
+                          trajectory.points.at(closest_idx).accel.linear.x * (1 - prop);
+
+  return traj_p;
+}
+
 bool extractPathAroundIndex(
   const autoware_planning_msgs::Trajectory & trajectory, const int index,
   const double & ahead_length, const double & behind_length,

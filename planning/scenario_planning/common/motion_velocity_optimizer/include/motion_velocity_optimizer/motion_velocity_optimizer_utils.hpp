@@ -42,6 +42,9 @@ double calcDist2d(
   const autoware_planning_msgs::TrajectoryPoint & b);
 int calcClosestWaypoint(
   const autoware_planning_msgs::Trajectory & trajectory, const geometry_msgs::Point & point);
+autoware_planning_msgs::TrajectoryPoint calcClosestTrajecotoryPointWithIntepolation(
+  const autoware_planning_msgs::Trajectory & trajectory, const geometry_msgs::Pose & target_pose);
+tf2::Vector3 getTransVector3(const geometry_msgs::Pose & from, const geometry_msgs::Pose & to);
 int calcClosestWaypoint(
   const autoware_planning_msgs::Trajectory & trajectory, const geometry_msgs::Pose & pose,
   const double delta_yaw_threshold);
