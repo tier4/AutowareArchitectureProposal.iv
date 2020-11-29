@@ -204,7 +204,8 @@ bool L2PseudoJerkOptimizer::solve(
 
   const int status_val = std::get<3>(result);
   if (status_val != 1) {
-    ROS_WARN(
+    RCLCPP_WARN(
+      rclcpp::get_logger("L2PseudoJerkOptimizer"),
       "[motion_velocity_optimizer] optimization failed : %s",
       qp_solver_.getStatusMessage().c_str());
   }

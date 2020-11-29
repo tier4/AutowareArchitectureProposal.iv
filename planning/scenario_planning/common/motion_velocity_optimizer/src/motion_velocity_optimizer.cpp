@@ -307,7 +307,7 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
   }
 
   /*
-   * Calculate the closest point on the previously planned traj
+   * Calculate the closest index on the previously planned traj
    * (used to get initial planning speed)
    */
   int prev_output_closest = vpu::calcClosestWaypoint(
@@ -316,12 +316,16 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
     get_logger(), "[calcClosestWaypoint] base_resampled.size() = %lu, prev_planned_closest_ = %d",
     traj_resampled.points.size(), prev_output_closest);
 
+  /* Calculate the closest trajectory point on the previously planned traj*/
+  const auto prev_output_closest_point = vpu::calcClosestTrajecotoryPointWithIntepolation(
+    prev_output_, traj_resampled.points.at(traj_resampled_closest).pose);
+
   /* Apply stopping velocity */
   applyStoppingVelocity(&traj_resampled);
 
   /* Optimize velocity */
-  output =
-    optimizeVelocity(traj_resampled, traj_resampled_closest, prev_output_, prev_output_closest);
+  output = optimizeVelocity(
+    traj_resampled, traj_resampled_closest, prev_output_, prev_output_closest_point);
 
   /* Max velocity filter for safety */
   vpu::maximumVelocityFilter(planning_param_.max_velocity, output);
@@ -353,19 +357,21 @@ void MotionVelocityOptimizer::insertBehindVelocity(
   const int prev_output_closest, const autoware_planning_msgs::msg::Trajectory & prev_output,
   const int output_closest, autoware_planning_msgs::msg::Trajectory & output) const
 {
-  int j = std::max(prev_output_closest - 1, 0);
-  for (int i = output_closest - 1; i >= 0; --i) {
-    if (
-      initialize_type_ == InitializeType::INIT ||
-      initialize_type_ == InitializeType::LARGE_DEVIATION_REPLAN ||
-      initialize_type_ == InitializeType::ENGAGING)
-    {
-      output.points.at(i).twist.linear.x = output.points.at(output_closest).twist.linear.x;
-    } else {
-      output.points.at(i).twist.linear.x = prev_output.points.at(j).twist.linear.x;
-    }
+  const bool keep_closest_vel_for_behind =
+    (initialize_type_ == InitializeType::INIT ||
+     initialize_type_ == InitializeType::LARGE_DEVIATION_REPLAN ||
+     initialize_type_ == InitializeType::ENGAGING);
 
-    j = std::max(j - 1, 0);
+  for (int i = output_closest - 1; i >= 0; --i) {
+    if (keep_closest_vel_for_behind) {
+      output.points.at(i).twist.linear.x = output.points.at(output_closest).twist.linear.x;
+      output.points.at(i).accel.linear.x = output.points.at(output_closest).accel.linear.x;
+    } else {
+      const auto prev_output_closest_point =
+        vpu::calcClosestTrajecotoryPointWithIntepolation(prev_output, output.points.at(i).pose);
+      output.points.at(i).twist.linear.x = prev_output_closest_point.twist.linear.x;
+      output.points.at(i).accel.linear.x = prev_output_closest_point.accel.linear.x;
+    }
   }
 }
 
@@ -446,12 +452,13 @@ bool MotionVelocityOptimizer::resampleTrajectory(
 void MotionVelocityOptimizer::calcInitialMotion(
   const double & target_vel, const autoware_planning_msgs::msg::Trajectory & reference_traj,
   const int reference_traj_closest, const autoware_planning_msgs::msg::Trajectory & prev_output,
-  const int prev_output_closest, double & initial_vel, double & initial_acc)
+  const autoware_planning_msgs::msg::TrajectoryPoint & prev_output_point, double & initial_vel,
+  double & initial_acc)
 {
   const double vehicle_speed = std::fabs(current_velocity_ptr_->twist.linear.x);
 
   /* first time */
-  if (prev_output.points.empty() || prev_output_closest == -1) {
+  if (prev_output.points.empty()) {
     initial_vel = vehicle_speed;
     initial_acc = 0.0;  // if possible, use actual vehicle acc & jerk value;
     initialize_type_ = InitializeType::INIT;
@@ -459,12 +466,12 @@ void MotionVelocityOptimizer::calcInitialMotion(
   }
 
   /* when velocity tracking deviation is large */
-  const double desired_vel = prev_output.points.at(prev_output_closest).twist.linear.x;
+  const double desired_vel = prev_output_point.twist.linear.x;
   const double vel_error = vehicle_speed - std::fabs(desired_vel);
   if (std::fabs(vel_error) > planning_param_.replan_vel_deviation) {
     initialize_type_ = InitializeType::LARGE_DEVIATION_REPLAN;
     initial_vel = vehicle_speed;  // use current vehicle speed
-    initial_acc = prev_output.points.at(prev_output_closest).accel.linear.x;
+    initial_acc = prev_output_point.accel.linear.x;
     RCLCPP_DEBUG(
       get_logger(),
       "[calcInitialMotion] : Large deviation error for speed control. Use current speed for "
@@ -513,8 +520,8 @@ void MotionVelocityOptimizer::calcInitialMotion(
 
   /* normal update: use closest in prev_output */
   initialize_type_ = InitializeType::NORMAL;
-  initial_vel = prev_output.points.at(prev_output_closest).twist.linear.x;
-  initial_acc = prev_output.points.at(prev_output_closest).accel.linear.x;
+  initial_vel = prev_output_point.twist.linear.x;
+  initial_acc = prev_output_point.accel.linear.x;
   RCLCPP_DEBUG(
     get_logger(),
     "[calcInitialMotion]: normal update. v0 = %f, a0 = %f, vehicle_speed = %f, target_vel = %f",
@@ -523,7 +530,8 @@ void MotionVelocityOptimizer::calcInitialMotion(
 
 autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::optimizeVelocity(
   const autoware_planning_msgs::msg::Trajectory & input, const int input_closest,
-  const autoware_planning_msgs::msg::Trajectory & prev_output, const int prev_output_closest)
+  const autoware_planning_msgs::msg::Trajectory & prev_output,
+  const autoware_planning_msgs::msg::TrajectoryPoint & prev_output_point)
 {
   const double target_vel = std::fabs(input.points.at(input_closest).twist.linear.x);
 
@@ -531,7 +539,7 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::optimizeVelocit
   double initial_vel = 0.0;
   double initial_acc = 0.0;
   calcInitialMotion(
-    target_vel, input, input_closest, prev_output, prev_output_closest,
+    target_vel, input, input_closest, prev_output, prev_output_point,
     /* out */ initial_vel, initial_acc);
 
   autoware_planning_msgs::msg::Trajectory optimized_traj;

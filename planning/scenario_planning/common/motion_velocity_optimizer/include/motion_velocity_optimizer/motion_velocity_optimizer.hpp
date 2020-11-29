@@ -139,13 +139,18 @@ private:
 
   autoware_planning_msgs::msg::Trajectory optimizeVelocity(
     const autoware_planning_msgs::msg::Trajectory & input, const int input_closest,
-    const autoware_planning_msgs::msg::Trajectory & prev_output_traj,
-    const int prev_output_closest);
+    const autoware_planning_msgs::msg::Trajectory & prev_output,
+    const autoware_planning_msgs::msg::TrajectoryPoint & prev_output_point);
 
   void calcInitialMotion(
     const double & base_speed, const autoware_planning_msgs::msg::Trajectory & base_waypoints,
     const int base_closest, const autoware_planning_msgs::msg::Trajectory & prev_replanned_traj,
-    const int prev_replanned_traj_closest, double & initial_vel, double & initial_acc);
+    const autoware_planning_msgs::msg::TrajectoryPoint & prev_output_point, double & initial_vel,
+    double & initial_acc);
+
+  void calcVelAccFromPrevTraj(
+    const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose current_point,
+    double * vel, double * acc);
 
   /* const methods */
   bool resampleTrajectory(
