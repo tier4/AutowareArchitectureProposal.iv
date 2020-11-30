@@ -131,10 +131,11 @@ void InitialPoseButtonPanel::pushInitializeButton()
         result){
           status_label_->setStyleSheet("QLabel { background-color : lightgreen;}");
           status_label_->setText("OK!!!");
+          
+          // unlock button
+          initialize_button_->setEnabled(true);
     });
 
-    // unlock button
-    initialize_button_->setEnabled(true);
   });
 
   thread.detach();
