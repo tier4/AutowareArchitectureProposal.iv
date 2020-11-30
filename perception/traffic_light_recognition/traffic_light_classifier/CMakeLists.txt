@@ -64,8 +64,8 @@ else()
 endif()
 
 # Download caffemodel and prototxt
-set(PRETRAINED_MODEL_LINK "https://drive.google.com/uc?id=1aZDvaTEI9-YnU9Vd3u4BM4xqb1-S0tku")
-set(PRETRAINED_MODEL_HASH 3242cc108e284b68948a77193601436c)
+set(PRETRAINED_MODEL_LINK "https://drive.google.com/uc?id=15CQceCn9TZDU6huKJacQvUnDiLHionb3")
+set(PRETRAINED_MODEL_HASH 7dc31c696b0400ddfc2cc5521586fa51)
 set(LAMP_LABEL_LINK "https://drive.google.com/uc?id=1D7n3oGSWLkWgxET6PcWqEzOhmmPcqM52")
 set(LAMP_LABEL_HASH 20167c8e9a1f9d2ec7b0b0088c4100f0)
 
