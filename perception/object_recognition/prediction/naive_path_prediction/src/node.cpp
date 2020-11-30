@@ -24,7 +24,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 
-NaivePathPredictionNode::NaivePathPredictionNode() : Node("node")
+NaivePathPredictionNode::NaivePathPredictionNode() : Node("naive_path_prediction_node")
 {
   using std::placeholders::_1;
   sub_ = this->create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>("input", 1, std::bind(&NaivePathPredictionNode::callback, this, _1));
