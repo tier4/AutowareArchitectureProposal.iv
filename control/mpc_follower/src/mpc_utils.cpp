@@ -471,7 +471,7 @@ visualization_msgs::msg::MarkerArray MPCUtils::convertTrajToMarker(
   marker_poses.header.frame_id = frame_id;
   marker_poses.header.stamp = stamp;
   marker_poses.ns = ns + "/poses";
-  marker_poses.lifetime = rclcpp::Duration(0.5);
+  marker_poses.lifetime = rclcpp::Duration::from_seconds(0.5);
   marker_poses.type = visualization_msgs::msg::Marker::ARROW;
   marker_poses.action = visualization_msgs::msg::Marker::ADD;
   marker_poses.scale.x = 0.2;
