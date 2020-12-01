@@ -40,8 +40,6 @@ namespace planning_utils
 {
 constexpr double ERROR = 1e-6;
 
-rclcpp::Logger logger = rclcpp::get_logger(PLANNING_UTILS_LOGGER);
-
 double calcCurvature(const geometry_msgs::msg::Point & target, const geometry_msgs::msg::Pose & curr_pose);
 double calcDistance2D(const geometry_msgs::msg::Point & p, const geometry_msgs::msg::Point & q);
 double calcDistSquared2D(const geometry_msgs::msg::Point & p, const geometry_msgs::msg::Point & q);

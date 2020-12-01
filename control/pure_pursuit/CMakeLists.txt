@@ -15,7 +15,6 @@ find_package(Eigen3 REQUIRED)
 
 
 include_directories(
-  include
   ${EIGEN3_INCLUDE_DIRS}
 )
 
@@ -24,10 +23,6 @@ ament_auto_add_library(pure_pursuit_core SHARED
   src/pure_pursuit_core/planning_utils.cpp
   src/pure_pursuit_core/pure_pursuit.cpp
   src/pure_pursuit_core/interpolate.cpp
-)
-
-target_link_libraries(pure_pursuit_core
-  ${EIGEN3_INCLUDE_DIRS}
 )
 
 # pure_pursuit
@@ -39,7 +34,6 @@ ament_auto_add_executable(pure_pursuit
 
 target_link_libraries(pure_pursuit
   pure_pursuit_core
-  ${EIGEN3_INCLUDE_DIRS}
 )
 
 ament_auto_package(INSTALL_TO_SHARE
