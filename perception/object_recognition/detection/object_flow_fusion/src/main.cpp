@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "ros/ros.h"
+#include "rclcpp/rclcpp.hpp"
 #include "object_flow_fusion/node.hpp"
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "object_flow_fusion");
-  object_flow_fusion::ObjectFlowFusionNode optical_flow_node;
-  ros::spin();
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<object_flow_fusion::ObjectFlowFusionNode>());
+  rclcpp::shutdown();
+
   return 0;
 }
