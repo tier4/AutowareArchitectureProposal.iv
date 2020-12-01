@@ -31,11 +31,11 @@
 
 #include <vector>
 
-#include <geometry_msgs/PoseStamped.h>
-#include <visualization_msgs/Marker.h>
-#include <visualization_msgs/MarkerArray.h>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <visualization_msgs/msg/marker.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 
-visualization_msgs::Marker createNextTargetMarker(const geometry_msgs::Point & next_target);
+visualization_msgs::msg::Marker createNextTargetMarker(const geometry_msgs::msg::Point & next_target);
 
-visualization_msgs::Marker createTrajectoryCircleMarker(
-  const geometry_msgs::Point & target, const geometry_msgs::Pose & current_pose);
+visualization_msgs::msg::Marker createTrajectoryCircleMarker(
+  const geometry_msgs::msg::Point & target, const geometry_msgs::msg::Pose & current_pose);

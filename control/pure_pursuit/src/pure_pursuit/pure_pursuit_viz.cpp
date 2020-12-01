@@ -35,17 +35,17 @@
 
 namespace
 {
-std::vector<geometry_msgs::Point> generateTrajectoryCircle(
-  const geometry_msgs::Point & target, const geometry_msgs::Pose & current_pose)
+std::vector<geometry_msgs::msg::Point> generateTrajectoryCircle(
+  const geometry_msgs::msg::Point & target, const geometry_msgs::msg::Pose & current_pose)
 {
   constexpr double theta_range = M_PI / 10;
   constexpr double step_rad = 0.005;
 
   const double radius = planning_utils::calcRadius(target, current_pose);
 
-  std::vector<geometry_msgs::Point> trajectory_circle;
+  std::vector<geometry_msgs::msg::Point> trajectory_circle;
   for (double theta = -theta_range; theta <= theta_range; theta += step_rad) {
-    geometry_msgs::Point p;
+    geometry_msgs::msg::Point p;
     p.x = radius * sin(theta);
     p.y = radius * (1 - cos(theta));
     p.z = target.z;
@@ -58,10 +58,10 @@ std::vector<geometry_msgs::Point> generateTrajectoryCircle(
 
 }  // namespace
 
-visualization_msgs::Marker createNextTargetMarker(const geometry_msgs::Point & next_target)
+visualization_msgs::msg::Marker createNextTargetMarker(const geometry_msgs::msg::Point & next_target)
 {
   auto marker = createDefaultMarker(
-    "map", "next_target", 0, visualization_msgs::Marker::SPHERE, createMarkerScale(0.3, 0.3, 0.3),
+    "map", "next_target", 0, visualization_msgs::msg::Marker::SPHERE, createMarkerScale(0.3, 0.3, 0.3),
     createMarkerColor(0.0, 1.0, 0.0, 1.0));
 
   marker.pose.position = next_target;
@@ -69,11 +69,11 @@ visualization_msgs::Marker createNextTargetMarker(const geometry_msgs::Point & n
   return marker;
 }
 
-visualization_msgs::Marker createTrajectoryCircleMarker(
-  const geometry_msgs::Point & target, const geometry_msgs::Pose & current_pose)
+visualization_msgs::msg::Marker createTrajectoryCircleMarker(
+  const geometry_msgs::msg::Point & target, const geometry_msgs::msg::Pose & current_pose)
 {
   auto marker = createDefaultMarker(
-    "map", "trajectory_circle", 0, visualization_msgs::Marker::LINE_STRIP,
+    "map", "trajectory_circle", 0, visualization_msgs::msg::Marker::LINE_STRIP,
     createMarkerScale(0.05, 0, 0), createMarkerColor(1.0, 1.0, 1.0, 1.0));
 
   const auto trajectory_circle = generateTrajectoryCircle(target, current_pose);
