@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+
+import argparse
+import sys
+
+import rospy
+import tf
+from geometry_msgs.msg import PoseStamped
+
+
+class Tf2PoseNode:
+    def __init__(self, options):
+        self._options = options
+        self._tf_listener = tf.TransformListener()
+        self._pub_pose = rospy.Publisher("~pose", PoseStamped, queue_size=1)
+        rospy.Timer(rospy.Duration(1.0 / self._options.hz), self._on_timer, reset=True)
+
+    def _on_timer(self, event):
+        try:
+            (trans, quat) = self._tf_listener.lookupTransform(self._options.tf_from, self._options.tf_to, rospy.Time(0))
+            time = self._tf_listener.getLatestCommonTime(self._options.tf_from, self._options.tf_to)
+            pose = Tf2PoseNode.create_pose(time, self._options.tf_from, trans, quat)
+            self._pub_pose.publish(pose)
+        except Exception as e:
+            print(e)
+
+    @staticmethod
+    def create_pose(time, frame_id, trans, quat):
+        pose = PoseStamped()
+
+        pose.header.stamp = time
+        pose.header.frame_id = frame_id
+
+        pose.pose.position.x = trans[0]
+        pose.pose.position.y = trans[1]
+        pose.pose.position.z = trans[2]
+        pose.pose.orientation.x = quat[0]
+        pose.pose.orientation.y = quat[1]
+        pose.pose.orientation.z = quat[2]
+        pose.pose.orientation.w = quat[3]
+
+        return pose
+
+
+def main(args):
+    rospy.init_node("tf2pose")
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("tf_from", type=str)
+    parser.add_argument("tf_to", type=str)
+    parser.add_argument("hz", type=int, default=10)
+    ns = parser.parse_args(args)
+
+    Tf2PoseNode(ns)
+    rospy.spin()
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>autoware_debug_tools</name>
+  <version>0.1.0</version>
+  <description>The autoware_debug_tools package</description>
+  <maintainer email="kenji.miyake@tier4.jp">Kenji Miyake</maintainer>
+  <license>Apache 2</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>geometry_msgs</depend>
+  <depend>tf2</depend>
+
+  <exec_depend condition="$ROS_PYTHON_VERSION == 2">python-rtree</exec_depend>
+  <exec_depend condition="$ROS_PYTHON_VERSION == 3">python3-rtree</exec_depend>
+
+  <export>
+  </export>
+</package>
