@@ -44,6 +44,7 @@
   <arg name="output_emergency_stop" default="/remote/emergency_stop" />
   <arg name="output_autoware_engage" default="/autoware/engage" />
   <arg name="output_vehicle_engage" default="/vehicle/engage" />
+  <arg name="output_goal" default="/planning/mission_planning/goal" />
   <arg name="output_route" default="/planning/mission_planning/route" />
   <arg name="output_lane_change_approval" default="/planning/scenario_planning/lane_driving/lane_change_approval" />
   <arg name="output_force_lane_change" default="/planning/scenario_planning/lane_driving/force_lane_change" />
@@ -61,6 +62,7 @@
   <arg name="set_emergency_stop" default="autoware/put/emergency_stop" />
   <arg name="set_engage" default="autoware/put/engage" />
   <arg name="set_route" default="autoware/put/route" />
+  <arg name="set_goal" default="autoware/put/goal" />
   <arg name="set_lane_change_approval" default="lane_change/put/approval" />
   <arg name="set_force_lane_change" default="lane_change/put/force" />
   <arg name="set_obstacle_avoid_approval" default="object_avoidance/put/approval" />
@@ -130,6 +132,7 @@
     <node pkg="topic_tools" type="relay" name="autoware_engage_relay" args="$(arg set_engage) $(arg output_autoware_engage)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="vehicle_engage_relay" args="$(arg set_engage) $(arg output_vehicle_engage)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="put_route_relay" args="$(arg set_route) $(arg output_route)" output="$(arg relay_output)" />
+    <node pkg="topic_tools" type="relay" name="put_goal_relay" args="$(arg set_goal) $(arg output_goal)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="lane_change_approval_relay" args="$(arg set_lane_change_approval) $(arg output_lane_change_approval)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="force_lane_change_relay" args="$(arg set_force_lane_change) $(arg output_force_lane_change)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="obstacle_avoid_approval_relay" args="$(arg set_obstacle_avoid_approval) $(arg output_obstacle_avoid_approval)" output="$(arg relay_output)" />

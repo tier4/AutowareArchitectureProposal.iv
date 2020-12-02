@@ -60,7 +60,7 @@
 | --- | :--------------------------- | :--- | :--- | :--- |
 | ✓   | autoware_planning_msgs/Route |      |      |      |
 
-### /awapi/autoware/get/route
+### /awapi/autoware/get/stop_speed_exceeded
 
 - get flag of exceeding stop speed or not
   - True: exceed the stop speed ( = "cannot stop before the stop line")
@@ -189,9 +189,18 @@
 | --- | :------------ | :--- | :--- | :--- |
 | ✓   | std_msgs/Bool |      |      |      |
 
-### /awapi/autoware/put/route
+### /awapi/autoware/put/goal
 
 - send goal pose
+- MessageType: geometry_msgs/PoseStamped
+
+| ✓   | type                      | name | unit | note |
+| --- | :------------------------ | :--- | :--- | :--- |
+|     | geometry_msgs/PoseStamped |      |      |      |
+
+### /awapi/autoware/put/route
+
+- send route
 - MessageType: autoware_planning_msgs/Route
 
 | ✓   | type                         | name | unit | note |
@@ -234,7 +243,6 @@
 
 | ✓   | type | name | unit | note |
 | --- | :--- | :--- | :--- | :--- |
-
 
 ### /awapi/traffic_light/put/traffic_light
 
