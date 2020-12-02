@@ -130,9 +130,7 @@ boost::optional<Trajectories> EBPathOptimizer::generateOptimizedTrajectory(
 {
   // processing drivable area
   auto t_start1 = std::chrono::high_resolution_clock::now();
-  CVMaps cv_maps = process_cv::getMaps(
-    enable_avoidance, path, objects, traj_param_.max_avoiding_objects_velocity_ms,
-    traj_param_.center_line_width, debug_data);
+  CVMaps cv_maps = process_cv::getMaps(enable_avoidance, path, objects, traj_param_, debug_data);
   auto t_end1 = std::chrono::high_resolution_clock::now();
   float elapsed_ms1 = std::chrono::duration<float, std::milli>(t_end1 - t_start1).count();
   ROS_INFO_COND(is_showing_debug_info_, "Processing driveable area time: = %f [ms]", elapsed_ms1);

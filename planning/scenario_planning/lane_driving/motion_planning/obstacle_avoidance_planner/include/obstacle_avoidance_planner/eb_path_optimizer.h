@@ -133,6 +133,14 @@ struct QPParam
 
 struct TrajectoryParam
 {
+  bool is_avoiding_unknown;
+  bool is_avoiding_car;
+  bool is_avoiding_truck;
+  bool is_avoiding_bus;
+  bool is_avoiding_bicycle;
+  bool is_avoiding_motorbike;
+  bool is_avoiding_pedestrian;
+  bool is_avoiding_animal;
   int num_sampling_points;
   int num_joint_buffer_points;
   int num_joint_buffer_points_for_extending;

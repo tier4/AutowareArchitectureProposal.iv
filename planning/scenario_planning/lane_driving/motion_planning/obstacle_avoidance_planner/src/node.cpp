@@ -155,6 +155,14 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
     1.0);
   pnh_.param<double>(
     "max_dist_for_extending_end_point", traj_param_->max_dist_for_extending_end_point, 5.0);
+  pnh_.param<bool>("avoiding_object_type/unknown", traj_param_->is_avoiding_unknown, true);
+  pnh_.param<bool>("avoiding_object_type/car", traj_param_->is_avoiding_car, true);
+  pnh_.param<bool>("avoiding_object_type/truck", traj_param_->is_avoiding_truck, true);
+  pnh_.param<bool>("avoiding_object_type/bus", traj_param_->is_avoiding_bus, true);
+  pnh_.param<bool>("avoiding_object_type/bicycle", traj_param_->is_avoiding_bicycle, true);
+  pnh_.param<bool>("avoiding_object_type/motorbike", traj_param_->is_avoiding_motorbike, true);
+  pnh_.param<bool>("avoiding_object_type/pedestrian", traj_param_->is_avoiding_pedestrian, true);
+  pnh_.param<bool>("avoiding_object_type/animal", traj_param_->is_avoiding_animal, true);
 
   pnh_.param<bool>(
     "is_getting_constraints_close2path_points",

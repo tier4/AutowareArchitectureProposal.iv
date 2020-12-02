@@ -21,6 +21,15 @@ max_avoiding_objects_velocity_ms: .5 # maximum velocity for avoiding objects[m/s
 max_avoiding_ego_velocity_ms: 6.0 # maximum ego velocity when avoiding objects[m/s]
 center_line_width: 1.7 # replaced with /vehicle_info/vehicle_width when is_using_vehicle_config is true, center line width around path points used for judging that object is required to avoid or not
 acceleration_for_non_deceleration_range: 1.0 # assumed acceleration for calculating non deceleration range
+avoiding_object_type: # avoiding object class
+  unknown: true
+  car: true
+  truck: true
+  bus: true
+  bicycle: true
+  motorbike: true
+  pedestrian: true
+  animal: true
 
 # solving quadratic programming
 qp_max_iteration: 10000 # max iteration when solving QP
