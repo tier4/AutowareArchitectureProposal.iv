@@ -13,6 +13,7 @@
   <depend>message_runtime</depend>
   <depend>roscpp</depend>
   <depend>std_msgs</depend>
+  <depend>geographic_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>diagnostic_msgs</depend>
   <depend>autoware_planning_msgs</depend>

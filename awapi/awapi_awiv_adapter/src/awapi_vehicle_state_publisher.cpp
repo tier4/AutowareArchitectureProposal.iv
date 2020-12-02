@@ -197,10 +197,10 @@ void AutowareIvVehicleStatePublisher::getGpsInfo(
     return;
   }
 
-  // get position (latlon)
-  status->latlon.lat = nav_sat_ptr->latitude;
-  status->latlon.lon = nav_sat_ptr->longitude;
-  status->latlon.alt = nav_sat_ptr->altitude;
+  // get geo_point
+  status->geo_point.latitude = nav_sat_ptr->latitude;
+  status->geo_point.longitude = nav_sat_ptr->longitude;
+  status->geo_point.altitude = nav_sat_ptr->altitude;
 }
 
 }  // namespace autoware_api

@@ -14,7 +14,7 @@
 | ✓   | std_msgs/Header           | header                   |                                               |                                          |
 | ✓   | geometry_msgs/Pose        | pose                     | position:[m]                                  |                                          |
 | ✓   | awapi_awiv_adapter/Euler  | eulerangle               | [rad]                                         | roll/pitch/yaw                           |
-|     | awapi_awiv_adapter/Latlon | latlon                   |                                               | lat/lon/alt                              |
+|     | geographic_msgs/GeoPoint  | geo_point                |                                               | lat/lon/alt                              |
 | ✓   | float64                   | velocity                 | [m/s]                                         |                                          |
 | ✓   | float64                   | acceleration             | [m/ss]                                        | calculate from velocity in awapi_adapter |
 | ✓   | float64                   | steering                 | [rad]                                         |                                          |
