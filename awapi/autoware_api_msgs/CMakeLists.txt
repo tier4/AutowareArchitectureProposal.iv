@@ -22,12 +22,12 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Euler.msg"
   "msg/IntersectionStatus.msg"
   "msg/LaneChangeStatus.msg"
-  "msg/Latlon.msg"
   "msg/ObstacleAvoidanceStatus.msg"
   DEPENDENCIES
     autoware_planning_msgs
     autoware_system_msgs
     diagnostic_msgs
+    geographic_msgs
     geometry_msgs
     std_msgs
 )

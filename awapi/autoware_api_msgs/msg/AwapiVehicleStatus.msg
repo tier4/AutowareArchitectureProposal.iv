@@ -1,7 +1,7 @@
 std_msgs/Header header
 geometry_msgs/Pose pose
 autoware_api_msgs/Euler eulerangle
-autoware_api_msgs/Latlon latlon
+geographic_msgs/GeoPoint geo_point
 float64 velocity
 float64 acceleration
 float64 steering
