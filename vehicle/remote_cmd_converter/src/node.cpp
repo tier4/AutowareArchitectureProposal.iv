@@ -106,6 +106,12 @@ void RemoteCmdConverter::onRemoteCmd(
   const double ref_acceleration =
     calculateAcc(raw_control_cmd_ptr->control, std::fabs(*current_velocity_ptr_));
 
+  if (ref_acceleration > 0.0 && sign == 0.0) {
+    ROS_WARN_THROTTLE(
+      0.5, "Target acceleration is positive, but the gear is not appropriate. accel: %f, gear: %d",
+      ref_acceleration, current_shift_cmd_->shift.data);
+  }
+
   double ref_velocity = *current_velocity_ptr_ + ref_acceleration * ref_vel_gain_ * sign;
   if (current_shift_cmd_->shift.data == autoware_vehicle_msgs::Shift::REVERSE) {
     ref_velocity = std::min(0.0, ref_velocity);
