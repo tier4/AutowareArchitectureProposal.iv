@@ -44,6 +44,7 @@
   <arg name="output_emergency_stop" default="/remote/emergency_stop" />
   <arg name="output_autoware_engage" default="/autoware/engage" />
   <arg name="output_vehicle_engage" default="/vehicle/engage" />
+  <arg name="output_goal" default="/planning/mission_planning/goal" />
   <arg name="output_route" default="/planning/mission_planning/route" />
   <arg name="output_lane_change_approval" default="/planning/scenario_planning/lane_driving/lane_change_approval" />
   <arg name="output_force_lane_change" default="/planning/scenario_planning/lane_driving/force_lane_change" />
@@ -63,6 +64,7 @@
   <arg name="set_emergency_stop" default="autoware/put/emergency_stop" />
   <arg name="set_engage" default="autoware/put/engage" />
   <arg name="set_route" default="autoware/put/route" />
+  <arg name="set_goal" default="autoware/put/goal" />
   <arg name="set_lane_change_approval" default="lane_change/put/approval" />
   <arg name="set_force_lane_change" default="lane_change/put/force" />
   <arg name="set_obstacle_avoid_approval" default="object_avoidance/put/approval" />
@@ -161,6 +163,11 @@
       <param name="input_topic" value="$(var set_route)" />
       <param name="output_topic" value="$(var output_route)" />
       <param name="type" value="autoware_planning_msgs/msg/Route" />
+    </node>
+    <node pkg="topic_tools" exec="relay" name="put_goal_relay" output="log" >
+      <param name="input_topic" value="$(var set_goal)" />
+      <param name="output_topic" value="$(var output_goal)" />
+      <param name="type" value="geometry_msgs/msg/PoseStamped" />
     </node>
     <node pkg="topic_tools" exec="relay" name="lane_change_approval_relay" output="log" >
       <param name="input_topic" value="$(var set_lane_change_approval)" />
