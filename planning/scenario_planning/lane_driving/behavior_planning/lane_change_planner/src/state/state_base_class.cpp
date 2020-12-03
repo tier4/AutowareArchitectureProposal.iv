@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/state/state_base_class.h>
+#include <lane_change_planner/state/state_base_class.hpp>
 
 namespace lane_change_planner
 {

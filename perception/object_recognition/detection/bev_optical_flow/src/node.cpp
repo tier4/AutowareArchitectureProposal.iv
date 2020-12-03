@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "bev_optical_flow/node.h"
+#include "bev_optical_flow/node.hpp"
 
 namespace bev_optical_flow
 {

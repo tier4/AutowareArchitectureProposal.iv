@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/lane_changer.h>
+#include <lane_change_planner/lane_changer.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 int main(int argc, char ** argv)

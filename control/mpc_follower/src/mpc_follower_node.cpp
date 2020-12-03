@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "mpc_follower/mpc_follower_core.h"
+#include "mpc_follower/mpc_follower_core.hpp"
 
 int main(int argc, char ** argv)
 {

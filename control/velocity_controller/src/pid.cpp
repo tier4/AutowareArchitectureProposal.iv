@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <velocity_controller/pid.h>
+#include <velocity_controller/pid.hpp>
 
 PIDController::PIDController()
 {

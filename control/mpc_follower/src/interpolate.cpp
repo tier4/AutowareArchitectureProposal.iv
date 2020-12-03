@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "mpc_follower/interpolate.h"
+#include "mpc_follower/interpolate.hpp"
 
 /*
  * linear interpolation

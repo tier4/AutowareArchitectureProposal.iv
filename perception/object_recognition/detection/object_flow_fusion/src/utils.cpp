@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "object_flow_fusion/utils.h"
+#include "object_flow_fusion/utils.hpp"
 
 namespace object_flow_fusion
 {

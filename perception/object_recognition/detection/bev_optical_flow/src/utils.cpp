@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "bev_optical_flow/utils.h"
+#include "bev_optical_flow/utils.hpp"
 #include "tf2/LinearMath/Matrix3x3.h"
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"

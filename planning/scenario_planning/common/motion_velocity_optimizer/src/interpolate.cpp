@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "motion_velocity_optimizer/interpolate.h"
+#include "motion_velocity_optimizer/interpolate.hpp"
 
 /*
  * linear interpolation

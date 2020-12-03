@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <velocity_controller/velocity_controller.h>
+#include <velocity_controller/velocity_controller.hpp>
 
 #include <tf2_ros/create_timer_ros.h>
 

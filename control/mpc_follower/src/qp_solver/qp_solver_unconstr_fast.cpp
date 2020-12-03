@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "mpc_follower/qp_solver/qp_solver_unconstr_fast.h"
+#include "mpc_follower/qp_solver/qp_solver_unconstr_fast.hpp"
 
 QPSolverEigenLeastSquareLLT::QPSolverEigenLeastSquareLLT() {}
 bool QPSolverEigenLeastSquareLLT::solve(

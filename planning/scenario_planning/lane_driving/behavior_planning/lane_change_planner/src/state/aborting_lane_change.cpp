@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/state/aborting_lane_change.h>
+#include <lane_change_planner/state/aborting_lane_change.hpp>
 
 namespace lane_change_planner
 {

@@ -24,7 +24,7 @@ set(MOTION_VELOCITY_OPTIMIZER_SRC
 set(MOTION_VELOCITY_OPTIMIZER_HDR
   include/motion_velocity_optimizer/motion_velocity_optimizer.hpp
   include/motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp
-  include/motion_velocity_optimizer/interpolate.h
+  include/motion_velocity_optimizer/interpolate.hpp
   include/motion_velocity_optimizer/optimizer/l2_pseudo_jerk_optimizer.hpp
   include/motion_velocity_optimizer/optimizer/linf_pseudo_jerk_optimizer.hpp
   include/motion_velocity_optimizer/optimizer/optimizer_base.hpp

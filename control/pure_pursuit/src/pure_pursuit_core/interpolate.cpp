@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "pure_pursuit/util/interpolate.h"
+#include "pure_pursuit/util/interpolate.hpp"
 
 bool LinearInterpolate::interpolate(
   const std::vector<double> & base_index, const std::vector<double> & base_value,

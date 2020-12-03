@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "object_flow_fusion/node.h"
+#include "object_flow_fusion/node.hpp"
 
 namespace object_flow_fusion
 {

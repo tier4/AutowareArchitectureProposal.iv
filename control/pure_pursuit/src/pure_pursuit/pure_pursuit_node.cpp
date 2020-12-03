@@ -30,10 +30,10 @@
  * limitations under the License.
  */
 
-#include "pure_pursuit/pure_pursuit_node.h"
-#include "pure_pursuit/pure_pursuit_viz.h"
-#include "pure_pursuit/util/planning_utils.h"
-#include "pure_pursuit/util/tf_utils.h"
+#include "pure_pursuit/pure_pursuit_node.hpp"
+#include "pure_pursuit/pure_pursuit_viz.hpp"
+#include "pure_pursuit/util/planning_utils.hpp"
+#include "pure_pursuit/util/tf_utils.hpp"
 
 namespace
 {

@@ -28,7 +28,7 @@
 #include <motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp>
 #include <motion_velocity_optimizer/optimizer/optimizer_base.hpp>
 
-#include <osqp_interface/osqp_interface.h>
+#include <osqp_interface/osqp_interface.hpp>
 
 class MotionVelocityOptimizer : public rclcpp::Node
 {

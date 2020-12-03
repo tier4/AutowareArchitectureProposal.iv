@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "mpc_follower/lowpass_filter.h"
+#include "mpc_follower/lowpass_filter.hpp"
 
 Butterworth2dFilter::Butterworth2dFilter(double dt, double f_cutoff_hz)
 {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "bev_optical_flow/flow_calculator.h"
+#include "bev_optical_flow/flow_calculator.hpp"
 
 namespace bev_optical_flow
 {

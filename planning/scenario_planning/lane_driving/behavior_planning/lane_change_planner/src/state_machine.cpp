@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/state/aborting_lane_change.h>
-#include <lane_change_planner/state/blocked_by_obstacle.h>
-#include <lane_change_planner/state/executing_lane_change.h>
-#include <lane_change_planner/state/following_lane.h>
-#include <lane_change_planner/state/forcing_lane_change.h>
-#include <lane_change_planner/state/stopping_lane_change.h>
-#include <lane_change_planner/state_machine.h>
+#include <lane_change_planner/state/aborting_lane_change.hpp>
+#include <lane_change_planner/state/blocked_by_obstacle.hpp>
+#include <lane_change_planner/state/executing_lane_change.hpp>
+#include <lane_change_planner/state/following_lane.hpp>
+#include <lane_change_planner/state/forcing_lane_change.hpp>
+#include <lane_change_planner/state/stopping_lane_change.hpp>
+#include <lane_change_planner/state_machine.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <visualization_msgs/msg/marker.hpp>

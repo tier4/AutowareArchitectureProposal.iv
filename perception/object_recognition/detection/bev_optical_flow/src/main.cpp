@@ -15,7 +15,7 @@
  */
 
 #include <ros/ros.h>
-#include "bev_optical_flow/node.h"
+#include "bev_optical_flow/node.hpp"
 
 int main(int argc, char ** argv)
 {

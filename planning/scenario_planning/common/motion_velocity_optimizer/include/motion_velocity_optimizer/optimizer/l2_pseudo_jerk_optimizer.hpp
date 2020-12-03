@@ -18,7 +18,7 @@
 #define MOTION_VELOCITY_OPTIMIZER_L2_PSEUDO_JERK_OPTIMIZER_HPP
 
 #include <autoware_planning_msgs/msg/trajectory.hpp>
-#include <osqp_interface/osqp_interface.h>
+#include <osqp_interface/osqp_interface.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <vector>
 

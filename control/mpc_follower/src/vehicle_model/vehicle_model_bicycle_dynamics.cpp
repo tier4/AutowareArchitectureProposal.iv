@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "mpc_follower/vehicle_model/vehicle_model_bicycle_dynamics.h"
+#include "mpc_follower/vehicle_model/vehicle_model_bicycle_dynamics.hpp"
 
 DynamicsBicycleModel::DynamicsBicycleModel(
   double & wheelbase, double & mass_fl, double & mass_fr, double & mass_rl, double & mass_rr,

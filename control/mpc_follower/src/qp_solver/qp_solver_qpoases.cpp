@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "mpc_follower/qp_solver/qp_solver_qpoases.h"
+#include "mpc_follower/qp_solver/qp_solver_qpoases.hpp"
 
 QPSolverQpoasesHotstart::QPSolverQpoasesHotstart(const int max_iter)
 : is_solver_initialized_(false), max_iter_(max_iter)

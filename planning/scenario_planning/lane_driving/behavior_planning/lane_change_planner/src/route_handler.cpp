@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/route_handler.h>
-#include <lane_change_planner/utilities.h>
+#include <lane_change_planner/route_handler.hpp>
+#include <lane_change_planner/utilities.hpp>
 
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/geometry/Lanelet.h>
 #include <lanelet2_core/primitives/LaneletSequence.h>
-#include <lanelet2_extension/utility/message_conversion.h>
-#include <lanelet2_extension/utility/query.h>
-#include <lanelet2_extension/utility/utilities.h>
+#include <lanelet2_extension/utility/message_conversion.hpp>
+#include <lanelet2_extension/utility/query.hpp>
+#include <lanelet2_extension/utility/utilities.hpp>
 #include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 
 #include <rclcpp/rclcpp.hpp>
