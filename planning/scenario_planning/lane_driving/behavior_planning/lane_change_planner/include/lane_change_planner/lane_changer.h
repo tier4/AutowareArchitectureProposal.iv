@@ -31,9 +31,9 @@
 #include <autoware_planning_msgs/msg/route.hpp>
 #include <autoware_planning_msgs/msg/stop_reason_array.hpp>
 
-#include <lane_change_planner/data_manager.h>
-#include <lane_change_planner/route_handler.h>
-#include <lane_change_planner/state_machine.h>
+#include <lane_change_planner/data_manager.hpp>
+#include <lane_change_planner/route_handler.hpp>
+#include <lane_change_planner/state_machine.hpp>
 
 // lanelet
 #include <lanelet2_core/LaneletMap.h>

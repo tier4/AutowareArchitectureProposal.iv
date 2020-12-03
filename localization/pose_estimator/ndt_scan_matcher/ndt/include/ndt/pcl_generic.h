@@ -17,7 +17,7 @@
 #ifndef NORMAL_DISTRIBUTIONS_TRANSFORM_PCL_GENERIC_H
 #define NORMAL_DISTRIBUTIONS_TRANSFORM_PCL_GENERIC_H
 
-#include "ndt/base.h"
+#include "ndt/base.hpp"
 
 #include <pcl/io/io.h>
 #include <pcl/io/pcd_io.h>

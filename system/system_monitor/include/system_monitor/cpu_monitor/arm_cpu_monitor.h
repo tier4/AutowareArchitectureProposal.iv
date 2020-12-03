@@ -21,7 +21,7 @@
  * @brief ARM CPU monitor class
  */
 
-#include <system_monitor/cpu_monitor/cpu_monitor_base.h>
+#include <system_monitor/cpu_monitor/cpu_monitor_base.hpp>
 
 class CPUMonitor : public CPUMonitorBase
 {

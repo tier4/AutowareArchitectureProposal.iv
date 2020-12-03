@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 */
-#include "TrtNet.h"
+#include "TrtNet.hpppp"
 #include <cublas_v2.h>
 #include <cudnn.h>
 #include <string.h>
@@ -31,7 +31,7 @@
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
-#include "EntroyCalibrator.h"
+#include "EntroyCalibrator.hpp"
 
 using namespace nvinfer1;
 using namespace nvcaffeparser1;

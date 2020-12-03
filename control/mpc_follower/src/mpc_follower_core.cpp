@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "mpc_follower/mpc_follower_core.h"
+#include "mpc_follower/mpc_follower_core.hpp"
 
 #include <tf2_ros/create_timer_ros.h>
 

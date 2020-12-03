@@ -45,7 +45,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 
-#include "pure_pursuit/pure_pursuit.h"
+#include "pure_pursuit/pure_pursuit.hpp"
 
 struct Param
 {

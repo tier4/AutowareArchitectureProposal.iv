@@ -29,8 +29,8 @@
 #include <vector>
 #include "NvCaffeParser.h"
 #include "NvInferPlugin.h"
-#include "UpsampleLayer.h"
-#include "YoloLayer.h"
+#include "UpsampleLayer.hpp"
+#include "YoloLayer.hpp"
 
 namespace Tn
 {

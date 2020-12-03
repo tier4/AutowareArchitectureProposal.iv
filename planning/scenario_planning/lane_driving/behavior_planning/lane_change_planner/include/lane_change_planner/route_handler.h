@@ -22,7 +22,7 @@
 #include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 #include <autoware_planning_msgs/msg/route.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
-#include <lanelet2_extension/utility/query.h>
+#include <lanelet2_extension/utility/query.hpp>
 // lanelet
 #include <lanelet2_routing/Route.h>
 #include <lanelet2_routing/RoutingCost.h>
@@ -30,7 +30,7 @@
 #include <lanelet2_routing/RoutingGraphContainer.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 
-#include <lane_change_planner/parameters.h>
+#include <lane_change_planner/parameters.hpp>
 
 #include <rclcpp/rclcpp.hpp>
 

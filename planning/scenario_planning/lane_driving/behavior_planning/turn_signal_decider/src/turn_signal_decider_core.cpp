@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <turn_signal_decider/turn_signal_decider.h>
+#include <turn_signal_decider/turn_signal_decider.hpp>
 
 using autoware_planning_msgs::msg::PathWithLaneId;
 using autoware_vehicle_msgs::msg::TurnSignal;

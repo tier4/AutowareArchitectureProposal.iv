@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "mpc_follower/mpc_utils.h"
+#include "mpc_follower/mpc_utils.hpp"
 
 geometry_msgs::msg::Quaternion MPCUtils::getQuaternionFromYaw(const double & yaw)
 {

@@ -37,7 +37,7 @@
 #include <lanelet2_routing/RoutingGraph.h>
 #include <lanelet2_routing/RoutingGraphContainer.h>
 
-#include <lane_change_planner/route_handler.h>
+#include <lane_change_planner/route_handler.hpp>
 
 #include <limits>
 #include <vector>

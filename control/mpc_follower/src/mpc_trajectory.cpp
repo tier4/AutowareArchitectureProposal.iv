@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "mpc_follower/mpc_trajectory.h"
+#include "mpc_follower/mpc_trajectory.hpp"
 
 void MPCTrajectory::push_back(
   const double & xp, const double & yp, const double & zp, const double & yawp, const double & vxp,

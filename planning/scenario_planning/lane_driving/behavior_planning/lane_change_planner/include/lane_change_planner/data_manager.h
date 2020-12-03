@@ -30,7 +30,7 @@
 #include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
 #include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 #include <autoware_planning_msgs/msg/route.hpp>
-#include <lane_change_planner/parameters.h>
+#include <lane_change_planner/parameters.hpp>
 
 // lanelet
 #include <lanelet2_core/LaneletMap.h>

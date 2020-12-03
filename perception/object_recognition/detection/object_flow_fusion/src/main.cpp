@@ -15,7 +15,7 @@
  */
 
 #include <ros/ros.h>
-#include "object_flow_fusion/node.h"
+#include "object_flow_fusion/node.hpp"
 
 int main(int argc, char ** argv)
 {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mpc_follower/qp_solver/qp_solver_osqp.h"
+#include "mpc_follower/qp_solver/qp_solver_osqp.hpp"
 
 QPSolverOSQP::QPSolverOSQP(const rclcpp::Logger & logger) : logger_{logger} {}
 bool QPSolverOSQP::solve(

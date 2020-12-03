@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "mpc_follower/vehicle_model/vehicle_model_interface.h"
+#include "mpc_follower/vehicle_model/vehicle_model_interface.hpp"
 
 VehicleModelInterface::VehicleModelInterface(int dim_x, int dim_u, int dim_y)
 : dim_x_(dim_x), dim_u_(dim_u), dim_y_(dim_y)

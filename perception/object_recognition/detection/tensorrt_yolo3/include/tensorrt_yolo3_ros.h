@@ -27,8 +27,8 @@
 #include <string>
 
 // local
-#include "TrtNet.h"
-#include "data_reader.h"
+#include "TrtNet.hpppp"
+#include "data_reader.hpp"
 
 class TensorrtYoloROS : public rclcpp::Node
 {

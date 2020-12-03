@@ -16,7 +16,7 @@
 #pragma once
 
 #include <boost/circular_buffer.hpp>
-#include "pointcloud_preprocessor/filter.h"
+#include "pointcloud_preprocessor/filter.hpp"
 
 namespace pointcloud_preprocessor
 {

@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <turn_signal_decider/turn_signal_decider.h>
+#include <turn_signal_decider/turn_signal_decider.hpp>
 
-#include <lanelet2_extension/utility/message_conversion.h>
-#include <lanelet2_extension/utility/utilities.h>
+#include <lanelet2_extension/utility/message_conversion.hpp>
+#include <lanelet2_extension/utility/utilities.hpp>
 
 using autoware_planning_msgs::msg::PathWithLaneId;
 

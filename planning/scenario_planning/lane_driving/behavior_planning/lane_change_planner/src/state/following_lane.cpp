@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/data_manager.h>
-#include <lane_change_planner/route_handler.h>
-#include <lane_change_planner/state/common_functions.h>
-#include <lane_change_planner/state/following_lane.h>
-#include <lane_change_planner/utilities.h>
-#include <lanelet2_extension/utility/message_conversion.h>
-#include <lanelet2_extension/utility/utilities.h>
+#include <lane_change_planner/data_manager.hpp>
+#include <lane_change_planner/route_handler.hpp>
+#include <lane_change_planner/state/common_functions.hpp>
+#include <lane_change_planner/state/following_lane.hpp>
+#include <lane_change_planner/utilities.hpp>
+#include <lanelet2_extension/utility/message_conversion.hpp>
+#include <lanelet2_extension/utility/utilities.hpp>
 
 namespace lane_change_planner
 {

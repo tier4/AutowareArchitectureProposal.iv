@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/lane_changer.h>
-#include <lane_change_planner/utilities.h>
+#include <lane_change_planner/lane_changer.hpp>
+#include <lane_change_planner/utilities.hpp>
 
 std_msgs::msg::ColorRGBA toRainbow(double ratio);
 visualization_msgs::msg::Marker convertToMarker(

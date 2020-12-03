@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "bev_optical_flow/debugger.h"
+#include "bev_optical_flow/debugger.hpp"
 
 Debugger::Debugger() : nh_(""), pnh_("~")
 {

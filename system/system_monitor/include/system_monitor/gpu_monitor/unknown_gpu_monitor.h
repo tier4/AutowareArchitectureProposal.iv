@@ -21,7 +21,7 @@
  * @brief Unknown GPU monitor class
  */
 
-#include <system_monitor/gpu_monitor/gpu_monitor_base.h>
+#include <system_monitor/gpu_monitor/gpu_monitor_base.hpp>
 
 class GPUMonitor : public GPUMonitorBase
 {

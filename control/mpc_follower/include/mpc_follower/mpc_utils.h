@@ -17,8 +17,8 @@
 #ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_UTILS_H
 #define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_UTILS_H
 
-#include "mpc_follower/interpolate.h"
-#include "mpc_follower/mpc_trajectory.h"
+#include "mpc_follower/interpolate.hpp"
+#include "mpc_follower/mpc_trajectory.hpp"
 
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>

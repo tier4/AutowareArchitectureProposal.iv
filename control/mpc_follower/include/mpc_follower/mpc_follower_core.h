@@ -24,17 +24,17 @@
 #ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_FOLLOWER_CORE_H
 #define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_FOLLOWER_CORE_H
 
-#include "mpc_follower/interpolate.h"
-#include "mpc_follower/lowpass_filter.h"
-#include "mpc_follower/mpc_trajectory.h"
-#include "mpc_follower/mpc_utils.h"
-#include "mpc_follower/qp_solver/qp_solver_osqp.h"
-#include "mpc_follower/qp_solver/qp_solver_unconstr_fast.h"
-#include "mpc_follower/vehicle_model/vehicle_model_bicycle_dynamics.h"
-#include "mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics.h"
-#include "mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.h"
+#include "mpc_follower/interpolate.hpp"
+#include "mpc_follower/lowpass_filter.hpp"
+#include "mpc_follower/mpc_trajectory.hpp"
+#include "mpc_follower/mpc_utils.hpp"
+#include "mpc_follower/qp_solver/qp_solver_osqp.hpp"
+#include "mpc_follower/qp_solver/qp_solver_unconstr_fast.hpp"
+#include "mpc_follower/vehicle_model/vehicle_model_bicycle_dynamics.hpp"
+#include "mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics.hpp"
+#include "mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp"
 
-#include <osqp_interface/osqp_interface.h>
+#include <osqp_interface/osqp_interface.hpp>
 #include <autoware_control_msgs/msg/control_command_stamped.hpp>
 #include <autoware_debug_msgs/msg/float32_multi_array_stamped.hpp>
 #include <autoware_debug_msgs/msg/float32_stamped.hpp>

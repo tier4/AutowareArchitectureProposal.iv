@@ -41,7 +41,7 @@
 #define PCL_FILTERS_IMPL_PASSTHROUGH_UINT16_HPP_
 
 #include <pcl/common/io.h>
-#include "pointcloud_preprocessor/passthrough_filter/passthrough_uint16.h"
+#include "pointcloud_preprocessor/passthrough_filter/passthrough_uint16.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <bev_optical_flow/lidar_to_image.h>
+#include <bev_optical_flow/lidar_to_image.hpp>
 
 namespace bev_optical_flow
 {

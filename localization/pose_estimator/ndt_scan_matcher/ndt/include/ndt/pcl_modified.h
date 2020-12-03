@@ -17,13 +17,13 @@
 #ifndef NORMAL_DISTRIBUTIONS_TRANSFORM_PCL_MODIFIED_H
 #define NORMAL_DISTRIBUTIONS_TRANSFORM_PCL_MODIFIED_H
 
-#include "ndt/base.h"
+#include "ndt/base.hpp"
 
 #include <pcl/io/io.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 
-#include "ndt_pcl_modified/ndt.h"
+#include "ndt_pcl_modified/ndt.hpp"
 
 template <class PointSource, class PointTarget>
 class NormalDistributionsTransformPCLModified

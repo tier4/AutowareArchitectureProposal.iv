@@ -20,7 +20,7 @@
 #include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
-#include <lane_change_planner/state/state_base_class.h>
+#include <lane_change_planner/state/state_base_class.hpp>
 #include <lanelet2_core/primitives/Primitive.h>
 #include <memory>
 

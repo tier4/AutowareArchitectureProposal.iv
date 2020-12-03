@@ -38,7 +38,7 @@
  *
  */
 
-#include "pointcloud_preprocessor/passthrough_filter/passthrough_uint16.hpp"
+#include "pointcloud_preprocessor/passthrough_filter/passthrough_uint16.hpppp"
 
 //////////////////////////////////////////////////////////////////////////
 void pcl::PassThroughUInt16<pcl::PCLPointCloud2>::applyFilter(PCLPointCloud2 & output)

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "tensorrt_yolo3_ros.h"
+#include "tensorrt_yolo3_ros.hpp"
 
 int main(int argc, char ** argv)
 {

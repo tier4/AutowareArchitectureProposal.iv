@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/utilities.h>
-#include <lanelet2_extension/utility/message_conversion.h>
-#include <lanelet2_extension/utility/query.h>
-#include <lanelet2_extension/utility/utilities.h>
+#include <lane_change_planner/utilities.hpp>
+#include <lanelet2_extension/utility/message_conversion.hpp>
+#include <lanelet2_extension/utility/query.hpp>
+#include <lanelet2_extension/utility/utilities.hpp>
 #include <tf2/utils.h>
 #include <opencv2/opencv.hpp>
 

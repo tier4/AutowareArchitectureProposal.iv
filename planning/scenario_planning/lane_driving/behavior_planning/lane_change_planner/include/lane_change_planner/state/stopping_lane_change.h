@@ -17,7 +17,7 @@
 #ifndef LANE_CHANGE_PLANNER_STATE_STOPPING_LANE_CHANGE_H
 #define LANE_CHANGE_PLANNER_STATE_STOPPING_LANE_CHANGE_H
 
-#include <lane_change_planner/state/state_base_class.h>
+#include <lane_change_planner/state/state_base_class.hpp>
 
 namespace lane_change_planner
 {

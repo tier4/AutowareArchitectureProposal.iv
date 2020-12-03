@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "astar_search/astar_search.h"
-#include "astar_search/helper.h"
+#include "astar_search/astar_search.hpp"
+#include "astar_search/helper.hpp"
 
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>

@@ -17,8 +17,8 @@
 #ifndef RAW_VEHICLE_CMD_CONVERTER_ACCEL_MAP_H
 #define RAW_VEHICLE_CMD_CONVERTER_ACCEL_MAP_H
 
-#include "raw_vehicle_cmd_converter/csv_loader.h"
-#include "raw_vehicle_cmd_converter/interpolate.h"
+#include "raw_vehicle_cmd_converter/csv_loader.hpp"
+#include "raw_vehicle_cmd_converter/interpolate.hpp"
 
 #include <rclcpp/rclcpp.hpp>
 

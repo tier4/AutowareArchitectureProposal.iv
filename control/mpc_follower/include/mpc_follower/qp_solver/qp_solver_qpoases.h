@@ -31,7 +31,7 @@
 #include <iostream>
 #include <qpoases_vendor/qpOASES.hpp>
 
-#include "mpc_follower/qp_solver/qp_solver_interface.h"
+#include "mpc_follower/qp_solver/qp_solver_interface.hpp"
 
 class QPSolverQpoasesHotstart : public QPSolverInterface
 {

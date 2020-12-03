@@ -21,9 +21,9 @@
 #include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include <scene_module/crosswalk/scene_crosswalk.h>
-#include <scene_module/crosswalk/scene_walkway.h>
-#include <scene_module/scene_module_interface.h>
+#include <scene_module/crosswalk/scene_crosswalk.hpp>
+#include <scene_module/crosswalk/scene_walkway.hpp>
+#include <scene_module/scene_module_interface.hpp>
 
 class CrosswalkModuleManager : public SceneModuleManagerInterface
 {

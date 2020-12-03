@@ -18,7 +18,7 @@
 #define LANE_CHANGE_PLANNER_STATE_EXECUTING_LANE_CHANGE_H
 
 #include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
-#include <lane_change_planner/state/state_base_class.h>
+#include <lane_change_planner/state/state_base_class.hpp>
 
 #include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>

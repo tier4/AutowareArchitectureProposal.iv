@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics.h"
+#include "mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics.hpp"
 #include <iostream>
 
 KinematicsBicycleModel::KinematicsBicycleModel(

@@ -28,7 +28,7 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Dense>
 #include <eigen3/Eigen/LU>
-#include "mpc_follower/qp_solver/qp_solver_interface.h"
+#include "mpc_follower/qp_solver/qp_solver_interface.hpp"
 
 class QPSolverEigenLeastSquareLLT : public QPSolverInterface
 {

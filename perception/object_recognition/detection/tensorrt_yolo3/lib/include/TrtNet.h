@@ -31,8 +31,8 @@
 #include <vector>
 #include "NvCaffeParser.h"
 #include "NvInferPlugin.h"
-#include "PluginFactory.h"
-#include "Utils.h"
+#include "PluginFactory.hpp"
+#include "Utils.hpppp"
 
 namespace Tn
 {

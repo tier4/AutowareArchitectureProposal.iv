@@ -17,7 +17,7 @@
 #ifndef LANE_CHANGE_PLANNER_STATE_MACHINE_H
 #define LANE_CHANGE_PLANNER_STATE_MACHINE_H
 
-#include <lane_change_planner/state/state_base_class.h>
+#include <lane_change_planner/state/state_base_class.hpp>
 #include <lanelet2_core/primitives/Lanelet.h>
 #include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 #include <autoware_planning_msgs/msg/route.hpp>

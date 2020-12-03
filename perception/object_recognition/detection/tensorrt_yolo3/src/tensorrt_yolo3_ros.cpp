@@ -16,7 +16,7 @@
 #include <boost/filesystem.hpp>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 
-#include "tensorrt_yolo3_ros.h"
+#include "tensorrt_yolo3_ros.hpp"
 
 TensorrtYoloROS::TensorrtYoloROS(/* args */) : Node("tensorrt_yolo3")
 {

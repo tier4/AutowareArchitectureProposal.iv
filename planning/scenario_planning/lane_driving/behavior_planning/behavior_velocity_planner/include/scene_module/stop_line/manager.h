@@ -21,8 +21,8 @@
 #include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include <scene_module/scene_module_interface.h>
-#include <scene_module/stop_line/scene.h>
+#include <scene_module/scene_module_interface.hpp>
+#include <scene_module/stop_line/scene.hpp>
 
 class StopLineModuleManager : public SceneModuleManagerInterface
 {
