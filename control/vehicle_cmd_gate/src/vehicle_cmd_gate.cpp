@@ -138,6 +138,8 @@ VehicleCmdGate::VehicleCmdGate()
   current_gate_mode_.data = autoware_control_msgs::GateMode::AUTO;
 
   // Service
+  srv_external_emergency_stop_ = pnh_.advertiseService(
+    "service/external_emergency_stop", &VehicleCmdGate::onExternalEmergencyStopService, this);
   srv_clear_external_emergency_stop_ = pnh_.advertiseService(
     "service/clear_external_emergency_stop", &VehicleCmdGate::onClearExternalEmergencyStopService,
     this);
@@ -455,6 +457,16 @@ double VehicleCmdGate::getDt()
   *prev_time_ = current_time;
 
   return dt;
+}
+
+bool VehicleCmdGate::onExternalEmergencyStopService(
+  std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res)
+{
+  is_external_emergency_stop_ = true;
+  res.success = true;
+  res.message = "external_emergency_stop requested was accepted.";
+
+  return true;
 }
 
 bool VehicleCmdGate::onClearExternalEmergencyStopService(

@@ -118,8 +118,11 @@ private:
   double external_emergency_stop_heartbeat_timeout_;
 
   // Service
+  ros::ServiceServer srv_external_emergency_stop_;
   ros::ServiceServer srv_clear_external_emergency_stop_;
 
+  bool onExternalEmergencyStopService(
+    std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res);
   bool onClearExternalEmergencyStopService(
     std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res);
 
