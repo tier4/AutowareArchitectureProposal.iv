@@ -16,10 +16,10 @@ set(velocity_controller_SRC
 )
 
 set(velocity_controller_HEADER
-  include/velocity_controller/lowpass_filter.h
-  include/velocity_controller/pid.h
-  include/velocity_controller/velocity_controller_mathutils.h
-  include/velocity_controller/velocity_controller.h
+  include/velocity_controller/lowpass_filter.hpp
+  include/velocity_controller/pid.hpp
+  include/velocity_controller/velocity_controller_mathutils.hpp
+  include/velocity_controller/velocity_controller.hpp
 )
 
 ament_auto_add_executable(velocity_controller
