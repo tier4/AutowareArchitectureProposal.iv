@@ -33,10 +33,10 @@
 #include <vector>
 
 #define EIGEN_MPL2_ONLY
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include "Eigen/Core"
+#include "Eigen/Geometry"
 
-#include <geometry_msgs/Pose.h>
+#include "geometry_msgs/Pose.h"
 
 namespace planning_utils
 {

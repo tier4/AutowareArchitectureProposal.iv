@@ -24,7 +24,7 @@
 #ifndef _ENTROY_CALIBRATOR_H
 #define _ENTROY_CALIBRATOR_H
 
-#include <cudnn.h>
+#include "cudnn.h"
 #include <string>
 #include <vector>
 #include "NvInfer.h"

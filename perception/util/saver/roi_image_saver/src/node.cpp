@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "roi_image_saver/node.hpp"
-#include <cv_bridge/cv_bridge.h>
-#include <opencv2/highgui/highgui.hpp>
+#include "cv_bridge/cv_bridge.h"
+#include "opencv2/highgui/highgui.hpp"
 #include <string>
 
 namespace traffic_light

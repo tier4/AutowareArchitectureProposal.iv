@@ -22,9 +22,9 @@
 #ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_QP_SOLVER_QP_SOLVER_OSQP_H
 #define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_QP_SOLVER_QP_SOLVER_OSQP_H
 
-#include <osqp_interface/osqp_interface.hpp>
-#include <eigen3/Eigen/Dense>
-#include <rclcpp/rclcpp.hpp>
+#include "osqp_interface/osqp_interface.hpp"
+#include "eigen3/Eigen/Dense"
+#include "rclcpp/rclcpp.hpp"
 #include "mpc_follower/qp_solver/qp_solver_interface.hpp"
 
 class QPSolverOSQP : public QPSolverInterface

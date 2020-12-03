@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <lane_change_planner/state/state_base_class.hpp>
+#include "lane_change_planner/state/state_base_class.hpp"
 
 namespace lane_change_planner
 {

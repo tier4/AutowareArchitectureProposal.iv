@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <motion_velocity_optimizer/interpolate.hpp>
-#include <motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp>
+#include "motion_velocity_optimizer/interpolate.hpp"
+#include "motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp"
 
 namespace vpu
 {
