@@ -84,6 +84,7 @@ private:
   rclcpp::Publisher<pacmod_msgs::msg::SteerSystemCmd>::SharedPtr steer_cmd_pub_;
   rclcpp::Publisher<pacmod_msgs::msg::SystemCmdInt>::SharedPtr shift_cmd_pub_;
   rclcpp::Publisher<pacmod_msgs::msg::SystemCmdInt>::SharedPtr turn_cmd_pub_;
+  rclcpp::Publisher<pacmod_msgs::msg::SteerSystemCmd>::SharedPtr raw_steer_cmd_pub_;  //only for debug
 
   // To Autoware
   rclcpp::Publisher<autoware_vehicle_msgs::msg::ControlMode>::SharedPtr control_mode_pub_;
@@ -139,6 +140,9 @@ private:
   pacmod_msgs::msg::SystemRptFloat::ConstSharedPtr brake_rpt_ptr_;  // [m/s]
   pacmod_msgs::msg::SystemRptInt::ConstSharedPtr shift_rpt_ptr_;    // [m/s]
   pacmod_msgs::msg::GlobalRpt::ConstSharedPtr global_rpt_ptr_;      // [m/s]
+  pacmod_msgs::msg::SystemRptInt::ConstSharedPtr turn_rpt_ptr_;
+  pacmod_msgs::msg::SteerSystemCmd prev_steer_cmd_;
+
   bool engage_cmd_ = false;
   rclcpp::Time vehicle_command_received_time_;
   rclcpp::Time last_shift_inout_matched_time_;
@@ -168,6 +172,10 @@ private:
   uint16_t toPacmodTurnCmdWithHazardRecover(const autoware_vehicle_msgs::msg::TurnSignal & turn);
   int32_t toAutowareShiftCmd(const pacmod_msgs::msg::SystemRptInt & shift);
   int32_t toAutowareTurnSignal(const pacmod_msgs::msg::SystemRptInt & turn);
+  double steerWheelRateLimiter(
+    const double current_steer_cmd, const double prev_steer_cmd,
+    const rclcpp::Time & current_steer_time, const rclcpp::Time & prev_steer_time,
+    const double steer_rate, const double current_steer_output, const bool engage);
 };
 
 #endif  // PACMOD_INTERFACE__PACMOD_INTERFACE_HPP_
