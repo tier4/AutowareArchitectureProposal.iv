@@ -83,6 +83,7 @@ private:
   ros::Publisher accel_cmd_pub_;
   ros::Publisher brake_cmd_pub_;
   ros::Publisher steer_cmd_pub_;
+  ros::Publisher raw_steer_cmd_pub_;  //only for debug
   ros::Publisher shift_cmd_pub_;
   ros::Publisher turn_cmd_pub_;
 
@@ -137,6 +138,7 @@ private:
   pacmod_msgs::SystemRptInt::ConstPtr shift_rpt_ptr_;    // [m/s]
   pacmod_msgs::GlobalRpt::ConstPtr global_rpt_ptr_;      // [m/s]
   pacmod_msgs::SystemRptInt::ConstPtr turn_rpt_ptr_;
+  pacmod_msgs::SteerSystemCmd prev_steer_cmd_;
   bool engage_cmd_ = false;
   ros::Time vehicle_command_received_time_;
   ros::Time last_shift_inout_matched_time_;
@@ -166,6 +168,10 @@ private:
   uint16_t toPacmodTurnCmdWithHazardRecover(const autoware_vehicle_msgs::TurnSignal & turn);
   int32_t toAutowareShiftCmd(const pacmod_msgs::SystemRptInt & shift);
   int32_t toAutowareTurnSignal(const pacmod_msgs::SystemRptInt & turn);
+  double steerWheelRateLimiter(
+    const double current_steer_cmd, const double prev_steer_cmd,
+    const ros::Time & current_steer_time, const ros::Time & prev_steer_time,
+    const double steer_rate, const double current_steer_output, const bool engage);
 };
 
 #endif

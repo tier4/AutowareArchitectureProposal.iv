@@ -73,6 +73,9 @@ PacmodInterface::PacmodInterface()
 
   /* parameters for turn signal recovery */
   private_nh_.param<double>("hazard_thresh_time", hazard_thresh_time_, 0.20);  //s
+  /* initialize */
+  prev_steer_cmd_.header.stamp = ros::Time::now();
+  prev_steer_cmd_.command = 0.0;
 
   /* subscribers */
   // From autoware
@@ -101,6 +104,8 @@ PacmodInterface::PacmodInterface()
   accel_cmd_pub_ = nh_.advertise<pacmod_msgs::SystemCmdFloat>("pacmod/as_rx/accel_cmd", 1);
   brake_cmd_pub_ = nh_.advertise<pacmod_msgs::SystemCmdFloat>("pacmod/as_rx/brake_cmd", 1);
   steer_cmd_pub_ = nh_.advertise<pacmod_msgs::SteerSystemCmd>("pacmod/as_rx/steer_cmd", 1);
+  raw_steer_cmd_pub_ =
+    nh_.advertise<pacmod_msgs::SteerSystemCmd>("pacmod/as_rx/raw_steer_cmd", 1);  //only for debug
   shift_cmd_pub_ = nh_.advertise<pacmod_msgs::SystemCmdInt>("pacmod/as_rx/shift_cmd", 1);
   turn_cmd_pub_ = nh_.advertise<pacmod_msgs::SystemCmdInt>("pacmod/as_rx/turn_cmd", 1);
 
@@ -368,9 +373,28 @@ void PacmodInterface::publishCommands()
     steer_cmd.ignore_overrides = false;
     steer_cmd.clear_override = clear_override;
     steer_cmd.clear_faults = false;
-    steer_cmd.command = desired_steer_wheel;
     steer_cmd.rotation_rate = calcSteerWheelRateCmd(adaptive_gear_ratio);
+    steer_cmd.command = steerWheelRateLimiter(
+      desired_steer_wheel, prev_steer_cmd_.command, current_time, prev_steer_cmd_.header.stamp,
+      steer_cmd.rotation_rate, current_steer_wheel, engage_cmd_);
     steer_cmd_pub_.publish(steer_cmd);
+    prev_steer_cmd_ = steer_cmd;
+  }
+
+  /* publish raw steering cmd for debug */
+  {
+    pacmod_msgs::SteerSystemCmd raw_steer_cmd;
+
+    raw_steer_cmd.header.frame_id = base_frame_id_;
+    raw_steer_cmd.header.stamp = current_time;
+    raw_steer_cmd.enable = engage_cmd_;
+    raw_steer_cmd.ignore_overrides = false;
+    raw_steer_cmd.clear_override = clear_override;
+    raw_steer_cmd.clear_faults = false;
+    raw_steer_cmd.command = desired_steer_wheel;
+    raw_steer_cmd.rotation_rate =
+      raw_vehicle_cmd_ptr_->control.steering_angle_velocity * adaptive_gear_ratio;
+    raw_steer_cmd_pub_.publish(raw_steer_cmd);
   }
 
   /* publish shift cmd */
@@ -531,4 +555,22 @@ int32_t PacmodInterface::toAutowareTurnSignal(const pacmod_msgs::SystemRptInt & 
   } else {
     return autoware_vehicle_msgs::TurnSignal::NONE;
   }
+}
+
+double PacmodInterface::steerWheelRateLimiter(
+  const double current_steer_cmd, const double prev_steer_cmd, const ros::Time & current_steer_time,
+  const ros::Time & prev_steer_time, const double steer_rate, const double current_steer_output,
+  const bool engage)
+{
+  if (!engage) {
+    // return current steer as steer command ( do not apply steer rate filter )
+    return current_steer_output;
+  }
+
+  const double dsteer = current_steer_cmd - prev_steer_cmd;
+  const double dt = std::max(0.0, (current_steer_time - prev_steer_time).toSec());
+  const double max_dsteer = std::fabs(steer_rate) * dt;
+  const double limitted_steer_cmd =
+    prev_steer_cmd + std::min(std::max(-max_dsteer, dsteer), max_dsteer);
+  return limitted_steer_cmd;
 }
