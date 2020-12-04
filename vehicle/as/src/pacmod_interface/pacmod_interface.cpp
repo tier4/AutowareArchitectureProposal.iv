@@ -71,6 +71,9 @@ PacmodInterface::PacmodInterface()
   private_nh_.param<double>("steering_wheel_rate_stopped", steering_wheel_rate_stopped_, 5.0);
   private_nh_.param<double>("low_vel_thresh", low_vel_thresh_, 1.389);  // 5.0kmh
 
+  /* parameters for turn signal recovery */
+  private_nh_.param<double>("hazard_thresh_time", hazard_thresh_time_, 0.20);  //s
+
   /* subscribers */
   // From autoware
   raw_vehicle_cmd_sub_ =
@@ -159,6 +162,7 @@ void PacmodInterface::callbackPacmodRpt(
   brake_rpt_ptr_ = brake_rpt;
   shift_rpt_ptr_ = shift_rpt;
   global_rpt_ptr_ = global_rpt;
+  turn_rpt_ptr_ = turn_rpt;
 
   is_pacmod_enabled_ =
     steer_wheel_rpt_ptr_->enabled && accel_rpt_ptr_->enabled && brake_rpt_ptr_->enabled;
@@ -391,7 +395,7 @@ void PacmodInterface::publishCommands()
     turn_cmd.ignore_overrides = false;
     turn_cmd.clear_override = clear_override;
     turn_cmd.clear_faults = false;
-    turn_cmd.command = toPacmodTurnCmd(*turn_signal_cmd_ptr_);
+    turn_cmd.command = toPacmodTurnCmdWithHazardRecover(*turn_signal_cmd_ptr_);
     turn_cmd_pub_.publish(turn_cmd);
   }
 }
@@ -471,6 +475,42 @@ uint16_t PacmodInterface::toPacmodTurnCmd(const autoware_vehicle_msgs::TurnSigna
   if (turn.data == TurnSignal::HAZARD) return SystemCmdInt::TURN_HAZARDS;
 
   return SystemCmdInt::TURN_NONE;
+}
+
+uint16_t PacmodInterface::toPacmodTurnCmdWithHazardRecover(
+  const autoware_vehicle_msgs::TurnSignal & turn)
+{
+  using pacmod_msgs::SystemRptInt;
+
+  if (!engage_cmd_ || turn_rpt_ptr_->command == turn_rpt_ptr_->output) {
+    last_shift_inout_matched_time_ = ros::Time::now();
+    return toPacmodTurnCmd(turn);
+  }
+
+  if ((ros::Time::now() - last_shift_inout_matched_time_).toSec() < hazard_thresh_time_) {
+    return toPacmodTurnCmd(turn);
+  }
+
+  // hazard recover mode
+  if (hazard_recover_count_ > hazard_recover_cmd_num_) {
+    last_shift_inout_matched_time_ = ros::Time::now();
+    hazard_recover_count_ = 0;
+  }
+  hazard_recover_count_++;
+
+  if (turn_rpt_ptr_->command != TURN_HAZARDS && turn_rpt_ptr_->output == TURN_HAZARDS) {
+    // publish hazard commands for turning off the hazard lights
+    return TURN_HAZARDS;
+  } else if (turn_rpt_ptr_->command == TURN_HAZARDS && turn_rpt_ptr_->output != TURN_HAZARDS) {
+    // publish none commands for turning on the hazard lights
+    return TURN_NONE;
+  } else {
+    // something wrong
+    ROS_ERROR_STREAM(
+      "turn singnal command and output do not match. "
+      << "COMMAND: " << turn_rpt_ptr_->command << "; OUTPUT: " << turn_rpt_ptr_->output);
+    return toPacmodTurnCmd(turn);
+  }
 }
 
 int32_t PacmodInterface::toAutowareTurnSignal(const pacmod_msgs::SystemRptInt & turn)

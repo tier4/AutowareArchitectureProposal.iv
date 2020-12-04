@@ -122,6 +122,10 @@ private:
 
   bool enable_steering_rate_control_;  // use steering angle speed for command [rad/s]
 
+  double hazard_thresh_time_;
+  int hazard_recover_count_ = 0;
+  const int hazard_recover_cmd_num_ = 5;
+
   /* input values */
   autoware_vehicle_msgs::RawVehicleCommand::ConstPtr raw_vehicle_cmd_ptr_;
   autoware_vehicle_msgs::TurnSignal::ConstPtr turn_signal_cmd_ptr_;
@@ -132,8 +136,10 @@ private:
   pacmod_msgs::SystemRptFloat::ConstPtr brake_rpt_ptr_;  // [m/s]
   pacmod_msgs::SystemRptInt::ConstPtr shift_rpt_ptr_;    // [m/s]
   pacmod_msgs::GlobalRpt::ConstPtr global_rpt_ptr_;      // [m/s]
+  pacmod_msgs::SystemRptInt::ConstPtr turn_rpt_ptr_;
   bool engage_cmd_ = false;
   ros::Time vehicle_command_received_time_;
+  ros::Time last_shift_inout_matched_time_;
 
   /* callbacks */
   void callbackVehicleCmd(const autoware_vehicle_msgs::RawVehicleCommand::ConstPtr & msg);
@@ -157,6 +163,7 @@ private:
   double calcSteerWheelRateCmd(const double gear_ratio);
   uint16_t toPacmodShiftCmd(const autoware_vehicle_msgs::Shift & shift);
   uint16_t toPacmodTurnCmd(const autoware_vehicle_msgs::TurnSignal & turn);
+  uint16_t toPacmodTurnCmdWithHazardRecover(const autoware_vehicle_msgs::TurnSignal & turn);
   int32_t toAutowareShiftCmd(const pacmod_msgs::SystemRptInt & shift);
   int32_t toAutowareTurnSignal(const pacmod_msgs::SystemRptInt & turn);
 };
