@@ -36,6 +36,7 @@ private:
   geometry_msgs::PoseStamped current_pose_;
   geometry_msgs::TwistStamped::ConstPtr current_twist_;
   autoware_perception_msgs::DynamicObjectArray::ConstPtr dynamic_objects_;
+  double start_distance_;
 
   lanelet::ConstLanelets original_lanes_;
   lanelet::ConstLanelets target_lanes_;

@@ -19,6 +19,8 @@
 #include <lane_change_planner/state/forcing_lane_change.h>
 #include <lane_change_planner/utilities.h>
 
+#include <lanelet2_extension/utility/utilities.h>
+
 namespace lane_change_planner
 {
 ForcingLaneChangeState::ForcingLaneChangeState(
@@ -37,6 +39,12 @@ void ForcingLaneChangeState::entry()
   target_lanes_ = route_handler_ptr_->getLaneletsFromIds(status_.lane_change_lane_ids);
   status_.lane_change_available = false;
   status_.lane_change_ready = false;
+
+  // get start arclength
+  const auto start = data_manager_ptr_->getCurrentSelfPose();
+  const auto arclength_start =
+    lanelet::utils::getArcCoordinates(target_lanes_, start.pose);
+  start_distance_ = arclength_start.length;
 }
 
 autoware_planning_msgs::PathWithLaneId ForcingLaneChangeState::getPath() const
@@ -73,14 +81,13 @@ State ForcingLaneChangeState::getNextState() const
 
 bool ForcingLaneChangeState::hasFinishedLaneChange() const
 {
-  static ros::Time start_time = ros::Time::now();
-
-  if (route_handler_ptr_->isInTargetLane(current_pose_, target_lanes_)) {
-    return (ros::Time::now() - start_time > ros::Duration(2));
-  } else {
-    start_time = ros::Time::now();
-  }
-  return false;
+  const auto arclength_current =
+    lanelet::utils::getArcCoordinates(target_lanes_, current_pose_.pose);
+  const double travel_distance = arclength_current.length - start_distance_;
+  const double finish_distance = status_.lane_change_path.preparation_length +
+                                 status_.lane_change_path.lane_change_length +
+                                 ros_parameters_.lane_change_finish_judge_buffer;
+  return travel_distance > finish_distance;
 }
 
 }  // namespace lane_change_planner

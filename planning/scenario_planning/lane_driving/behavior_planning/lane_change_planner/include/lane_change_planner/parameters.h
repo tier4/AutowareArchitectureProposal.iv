@@ -27,6 +27,7 @@ struct LaneChangerParameters
   double lane_change_prepare_duration;
   double lane_changing_duration;
   double backward_length_buffer_for_end_of_lane;
+  double lane_change_finish_judge_buffer;
   double minimum_lane_change_length;
   double minimum_lane_change_velocity;
   double prediction_duration;

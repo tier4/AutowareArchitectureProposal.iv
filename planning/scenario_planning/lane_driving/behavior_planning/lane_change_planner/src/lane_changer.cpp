@@ -62,6 +62,7 @@ void LaneChanger::init()
   pnh_.param(
     "backward_length_buffer_for_end_of_lane", parameters.backward_length_buffer_for_end_of_lane,
     5.0);
+  pnh_.param("lane_change_finish_judge_buffer", parameters.lane_change_finish_judge_buffer, 3.0);
   pnh_.param("minimum_lane_change_length", parameters.minimum_lane_change_length, 8.0);
   pnh_.param("minimum_lane_change_velocity", parameters.minimum_lane_change_velocity, 8.3);
   pnh_.param("prediction_duration", parameters.prediction_duration, 8.0);
