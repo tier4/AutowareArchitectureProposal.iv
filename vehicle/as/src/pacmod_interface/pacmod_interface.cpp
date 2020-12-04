@@ -520,12 +520,16 @@ uint16_t PacmodInterface::toPacmodTurnCmdWithHazardRecover(
   }
   hazard_recover_count_++;
 
-  if (turn_rpt_ptr_->command != TURN_HAZARDS && turn_rpt_ptr_->output == TURN_HAZARDS) {
+  if (
+    turn_rpt_ptr_->command != SystemRptInt::TURN_HAZARDS &&
+    turn_rpt_ptr_->output == SystemRptInt::TURN_HAZARDS) {
     // publish hazard commands for turning off the hazard lights
-    return TURN_HAZARDS;
-  } else if (turn_rpt_ptr_->command == TURN_HAZARDS && turn_rpt_ptr_->output != TURN_HAZARDS) {
+    return SystemRptInt::TURN_HAZARDS;
+  } else if (
+    turn_rpt_ptr_->command == SystemRptInt::TURN_HAZARDS &&
+    turn_rpt_ptr_->output != SystemRptInt::TURN_HAZARDS) {
     // publish none commands for turning on the hazard lights
-    return TURN_NONE;
+    return SystemRptInt::TURN_NONE;
   } else {
     // something wrong
     RCLCPP_ERROR_STREAM(get_logger(),
