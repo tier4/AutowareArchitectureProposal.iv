@@ -11,6 +11,7 @@
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>diagnostic_msgs</depend>
+  <depend>diagnostic_updater</depend>
   <depend>rclcpp</depend>
   <depend>std_msgs</depend>
   <depend>libnl-3-dev</depend>
