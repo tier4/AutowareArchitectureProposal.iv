@@ -7,7 +7,7 @@
   <maintainer email="yamato.ando@gmail.com">Yamato ANDO</maintainer>
   <author>Yamato ANDO</author>
 
-  <license>Apache 2</license>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
   <depend>rviz_common</depend>
