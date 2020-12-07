@@ -50,7 +50,7 @@ PoseInitializer::PoseInitializer()
     "initialpose", 10,
     std::bind(&PoseInitializer::callbackInitialPose, this, std::placeholders::_1));
   map_points_sub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
-    "pointcloud_map", 1,
+    "pointcloud_map", rclcpp::QoS{1}.transient_local(),
     std::bind(&PoseInitializer::callbackMapPoints, this, std::placeholders::_1));
 
   const bool use_first_gnss_topic = this->declare_parameter("use_first_gnss_topic", true);
@@ -189,6 +189,9 @@ void PoseInitializer::callAlignServiceAndPublishResult(
   req->pose_with_cov = *input_pose_msg;
   req->seq = ++request_id_;
 
+  const auto & tmp_position = input_pose_msg->pose.pose.position;
+  std::cerr << __LINE__ << " input " << tmp_position.x << " " << tmp_position.y << std::endl;
+
   RCLCPP_INFO(get_logger(), "call NDT Align Server");
 
   ndt_client_->async_send_request(
@@ -205,6 +208,9 @@ void PoseInitializer::callAlignServiceAndPublishResult(
       pose_with_cov.pose.covariance[3 * 6 + 3] = 0.01;
       pose_with_cov.pose.covariance[4 * 6 + 4] = 0.01;
       pose_with_cov.pose.covariance[5 * 6 + 5] = 0.2;
+      const auto & tmp_position = pose_with_cov.pose.pose.position;
+      std::cerr << __LINE__ << " input " << tmp_position.x << " " << tmp_position.y << std::endl;
+
       initial_pose_pub_->publish(pose_with_cov);
     });
 }
