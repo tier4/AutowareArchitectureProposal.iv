@@ -134,7 +134,7 @@ bool AutowareJoyControllerNode::isDataReady()
     }
 
     constexpr auto timeout = 2.0;
-    const auto time_diff = rclcpp::Clock().now() - last_joy_received_time_;
+    const auto time_diff = this->now() - last_joy_received_time_;
     if (time_diff.seconds() > timeout) {
       RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(),
         "joy msg is timeout");
@@ -151,7 +151,7 @@ bool AutowareJoyControllerNode::isDataReady()
     }
 
     constexpr auto timeout = 0.5;
-    const auto time_diff = rclcpp::Clock().now() - twist_->header.stamp;
+    const auto time_diff = this->now() - twist_->header.stamp;
     if (time_diff.seconds() > timeout) {
       RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(),
         "twist msg is timeout");
@@ -179,7 +179,7 @@ void AutowareJoyControllerNode::onTimer()
 void AutowareJoyControllerNode::publishControlCommand()
 {
   autoware_control_msgs::msg::ControlCommandStamped cmd_stamped;
-  cmd_stamped.header.stamp = rclcpp::Clock().now();
+  cmd_stamped.header.stamp = this->now();
 
   {
     auto & cmd = cmd_stamped.control;
@@ -213,7 +213,7 @@ void AutowareJoyControllerNode::publishControlCommand()
 void AutowareJoyControllerNode::publishRawControlCommand()
 {
   autoware_vehicle_msgs::msg::RawControlCommandStamped cmd_stamped;
-  cmd_stamped.header.stamp = rclcpp::Clock().now();
+  cmd_stamped.header.stamp = this->now();
 
   {
     auto & cmd = cmd_stamped.control;
@@ -233,7 +233,7 @@ void AutowareJoyControllerNode::publishShift()
   using autoware_vehicle_msgs::msg::Shift;
 
   autoware_vehicle_msgs::msg::ShiftStamped shift_stamped;
-  shift_stamped.header.stamp = rclcpp::Clock().now();
+  shift_stamped.header.stamp = this->now();
 
   {
     auto & shift = shift_stamped.shift;
@@ -265,7 +265,7 @@ void AutowareJoyControllerNode::publishTurnSignal()
   using autoware_vehicle_msgs::msg::TurnSignal;
 
   TurnSignal turn_signal;
-  turn_signal.header.stamp = rclcpp::Clock().now();
+  turn_signal.header.stamp = this->now();
 
   if (joy_->turn_signal_left() && joy_->turn_signal_right()) {
     turn_signal.data = TurnSignal::HAZARD;
@@ -359,7 +359,7 @@ void AutowareJoyControllerNode::publishVehicleEngage()
 void AutowareJoyControllerNode::publishVehicleCommand()
 {
   autoware_vehicle_msgs::msg::VehicleCommand vehicle_cmd;
-  vehicle_cmd.header.stamp = rclcpp::Clock().now();
+  vehicle_cmd.header.stamp = this->now();
   vehicle_cmd.control = prev_control_command_;
   vehicle_cmd.shift.data = prev_shift_;
 
@@ -369,7 +369,7 @@ void AutowareJoyControllerNode::publishVehicleCommand()
 void AutowareJoyControllerNode::publishRawVehicleCommand()
 {
   autoware_vehicle_msgs::msg::RawVehicleCommand vehicle_cmd;
-  vehicle_cmd.header.stamp = rclcpp::Clock().now();
+  vehicle_cmd.header.stamp = this->now();
   vehicle_cmd.control = prev_raw_control_command_;
   vehicle_cmd.shift.data = prev_shift_;
 
