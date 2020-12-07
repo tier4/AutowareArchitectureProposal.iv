@@ -21,14 +21,14 @@ class G29JoyConverter : public JoyConverterBase
 public:
   explicit G29JoyConverter(const sensor_msgs::msg::Joy & j) : j_(j) {}
 
-  const float accel() const
+  float accel() const
   {
     constexpr float eps = 0.0000001;
     if(std::fabs(AccelPedal()) < eps) return 0.0f;
     return (AccelPedal() + 1.0f) / 2;
   }
 
-  const float brake() const
+  float brake() const
   { 
     constexpr float eps = 0.0000001;
     if(std::fabs(BrakePedal()) < eps) return 0.0f;
