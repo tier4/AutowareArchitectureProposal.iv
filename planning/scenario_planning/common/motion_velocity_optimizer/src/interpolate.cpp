@@ -14,6 +14,8 @@
 
 #include "motion_velocity_optimizer/interpolate.hpp"
 
+#include <algorithm>
+#include <vector>
 /*
  * linear interpolation
  */
@@ -23,11 +25,11 @@ bool LinearInterpolate::interpolate(
   const std::vector<double> & return_index, std::vector<double> & return_value)
 {
   auto isIncrease = [](const std::vector<double> & x) {
-    for (int i = 0; i < (int)x.size() - 1; ++i) {
-      if (x[i] > x[i + 1]) return false;
-    }
-    return true;
-  };
+      for (int i = 0; i < static_cast<int>(x.size()) - 1; ++i) {
+        if (x[i] > x[i + 1]) {return false;}
+      }
+      return true;
+    };
 
   if (base_index.size() == 0 || base_value.size() == 0 || return_index.size() == 0) {
     printf(
@@ -41,7 +43,8 @@ bool LinearInterpolate::interpolate(
   if (
     !isIncrease(base_index) || !isIncrease(return_index) ||
     return_index.front() < base_index.front() || base_index.back() < return_index.back() ||
-    base_index.size() != base_value.size()) {
+    base_index.size() != base_value.size())
+  {
     std::cerr << "[isIncrease] bad index, return false" << std::endl;
     bool b1 = !isIncrease(base_index);
     bool b2 = !isIncrease(return_index);
@@ -63,8 +66,8 @@ bool LinearInterpolate::interpolate(
       return_value.push_back(base_value[i]);
       continue;
     }
-    while (base_index[i] < idx) ++i;
-    if (i <= 0 || (int)base_index.size() - 1 < i) {
+    while (base_index[i] < idx) {++i;}
+    if (i <= 0 || static_cast<int>(base_index.size()) - 1 < i) {
       std::cerr << "? something wrong. skip this idx." << std::endl;
       continue;
     }
@@ -73,8 +76,8 @@ bool LinearInterpolate::interpolate(
     const double dist_to_forward = base_index[i] - idx;
     const double dist_to_backward = idx - base_index[i - 1];
     if (dist_to_forward < 0.0 || dist_to_backward < 0.0) {
-      std::cerr << "?? something wrong. skip this idx. base_index[i - 1] = " << base_index[i - 1]
-                << ", idx = " << idx << ", base_index[i] = " << base_index[i] << std::endl;
+      std::cerr << "?? something wrong. skip this idx. base_index[i - 1] = " << base_index[i - 1] <<
+        ", idx = " << idx << ", base_index[i] = " << base_index[i] << std::endl;
       continue;
     }
 
@@ -89,9 +92,9 @@ bool LinearInterpolate::interpolate(
  * spline interpolation
  */
 
-SplineInterpolate::SplineInterpolate(){}
-SplineInterpolate::SplineInterpolate(const std::vector<double> & x) { generateSpline(x); }
-SplineInterpolate::~SplineInterpolate(){}
+SplineInterpolate::SplineInterpolate() {}
+SplineInterpolate::SplineInterpolate(const std::vector<double> & x) {generateSpline(x);}
+SplineInterpolate::~SplineInterpolate() {}
 void SplineInterpolate::generateSpline(const std::vector<double> & x)
 {
   int N = x.size();
@@ -104,7 +107,9 @@ void SplineInterpolate::generateSpline(const std::vector<double> & x)
   a_ = x;
 
   c_.push_back(0.0);
-  for (int i = 1; i < N - 1; i++) c_.push_back(3.0 * (a_[i - 1] - 2.0 * a_[i] + a_[i + 1]));
+  for (int i = 1; i < N - 1; i++) {
+    c_.push_back(3.0 * (a_[i - 1] - 2.0 * a_[i] + a_[i + 1]));
+  }
   c_.push_back(0.0);
 
   std::vector<double> w_;
@@ -117,7 +122,9 @@ void SplineInterpolate::generateSpline(const std::vector<double> & x)
     w_.push_back(tmp);
   }
 
-  for (int i = N - 2; i > 0; i--) c_[i] = c_[i] - c_[i + 1] * w_[i];
+  for (int i = N - 2; i > 0; i--) {
+    c_[i] = c_[i] - c_[i + 1] * w_[i];
+  }
 
   for (int i = 0; i < N - 1; i++) {
     d_.push_back((c_[i + 1] - c_[i]) / 3.0);
@@ -131,9 +138,9 @@ void SplineInterpolate::generateSpline(const std::vector<double> & x)
 
 double SplineInterpolate::getValue(const double & s)
 {
-  if (!initialized_) return 0.0;
+  if (!initialized_) {return 0.0;}
 
-  int j = std::max(std::min(int(std::floor(s)), (int)a_.size() - 1), 0);
+  int j = std::max(std::min(static_cast<int>(std::floor(s)), static_cast<int>(a_.size()) - 1), 0);
   const double ds = s - j;
   return a_[j] + (b_[j] + (c_[j] + d_[j] * ds) * ds) * ds;
 }
@@ -141,9 +148,9 @@ double SplineInterpolate::getValue(const double & s)
 void SplineInterpolate::getValueVector(
   const std::vector<double> & s_v, std::vector<double> & value_v)
 {
-  if (!initialized_) return;
+  if (!initialized_) {return;}
   value_v.clear();
-  for (int i = 0; i < (int)s_v.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(s_v.size()); ++i) {
     value_v.push_back(getValue(s_v[i]));
   }
 }
@@ -153,11 +160,11 @@ bool SplineInterpolate::interpolate(
   const std::vector<double> & return_index, std::vector<double> & return_value)
 {
   auto isIncrease = [](const std::vector<double> & x) {
-    for (int i = 0; i < (int)x.size() - 1; ++i) {
-      if (x[i] > x[i + 1]) return false;
-    }
-    return true;
-  };
+      for (int i = 0; i < static_cast<int>(x.size()) - 1; ++i) {
+        if (x[i] > x[i + 1]) {return false;}
+      }
+      return true;
+    };
 
   // for (int i = 0; i < base_index.size(); ++i)
   // {
@@ -172,7 +179,8 @@ bool SplineInterpolate::interpolate(
   if (
     !isIncrease(base_index) || !isIncrease(return_index) ||
     return_index.front() < base_index.front() || base_index.back() < return_index.back() ||
-    base_index.size() != base_value.size()) {
+    base_index.size() != base_value.size())
+  {
     std::cerr << "[isIncrease] bad index, return false" << std::endl;
     bool b1 = !isIncrease(base_index);
     bool b2 = !isIncrease(return_index);
@@ -196,8 +204,8 @@ bool SplineInterpolate::interpolate(
       normalized_idx.push_back(i);
       continue;
     }
-    while (base_index[i] < idx) ++i;
-    if (i <= 0 || (int)base_index.size() - 1 < i) {
+    while (base_index[i] < idx) {++i;}
+    if (i <= 0 || static_cast<int>(base_index.size()) - 1 < i) {
       std::cerr << "? something wrong. skip this idx." << std::endl;
       continue;
     }
@@ -218,7 +226,7 @@ bool SplineInterpolate::interpolate(
   generateSpline(base_value);
 
   // interpolate by spline  with normalized index
-  for (int i = 0; i < (int)normalized_idx.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(normalized_idx.size()); ++i) {
     return_value.push_back(getValue(normalized_idx[i]));
   }
   return true;

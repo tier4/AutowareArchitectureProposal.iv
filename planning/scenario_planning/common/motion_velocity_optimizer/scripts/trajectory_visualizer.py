@@ -1,42 +1,47 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import rospy
-import math
-import time
-from autoware_planning_msgs.msg import Trajectory, PathWithLaneId, Path
-from geometry_msgs.msg import PoseStamped, Pose, TwistStamped, Twist
-import matplotlib.pyplot as plt
-import numpy as np
-import tf
+# Copyright 2020 Tier IV, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import argparse
 
+import matplotlib.pyplot as plt
+import numpy as np
+import rospy
+import tf
+from autoware_planning_msgs.msg import Path, PathWithLaneId, Trajectory
+from geometry_msgs.msg import Pose, Twist, TwistStamped
+
 parser = argparse.ArgumentParser()
-parser.add_argument('-l', '--length', help='max arclength in plot')
-parser.add_argument('-t', '--type', help='Options  VEL(default): show velocity only, VEL_ACC_JERK: show vel & acc & jerk')
+parser.add_argument('-l', '--length', default=200, type=int, help='max arclength in plot')
+parser.add_argument(
+    '-t', '--type', default="VEL", choices=["VEL", "VEC_ACC_JERK"],
+    help='Show velocity only (VEL) or vel & acc & jerk (VEL_ACC_JERK)'
+)
 
 args = parser.parse_args()
-
-if args.length == None:
-    PLOT_MAX_ARCLENGTH = 200
-else:
-    PLOT_MAX_ARCLENGTH = int(args.length)
+PLOT_MAX_ARCLENGTH = args.length
 print('max arclength = ' + str(PLOT_MAX_ARCLENGTH))
 
 
-if args.type == None:
-    PLOT_TYPE = "VEL"
-elif args.type == "VEL":
-    PLOT_TYPE = "VEL"
-elif args.type == "VEL_ACC_JERK":
-    PLOT_TYPE = "VEL_ACC_JERK"
-else:
-    print("invalid type. set default VEL.")
-    PLOT_TYPE = "VEL"
+PLOT_TYPE = args.type
 print('plot type = ' + PLOT_TYPE)
 
 PATH_ORIGIN_FRAME = "map"
 SELF_POSE_FRAME = "base_link"
+
 
 class TrajectoryVisualizer():
 
@@ -58,19 +63,41 @@ class TrajectoryVisualizer():
         self.obstacle_stop_traj = Trajectory()
 
         self.plotted = [False] * 9
-        self.sub_localization_twist = rospy.Subscriber("/localization/twist", TwistStamped, self.CallbackLocalizationTwist, queue_size=1, tcp_nodelay=True)
-        self.sub_vehicle_twist = rospy.Subscriber("/vehicle/status/twist", TwistStamped, self.CallbackVehicleTwist, queue_size=1, tcp_nodelay=True)
+        self.sub_localization_twist = rospy.Subscriber(
+            "/localization/twist", TwistStamped, self.CallbackLocalizationTwist,
+            queue_size=1, tcp_nodelay=True)
+        self.sub_vehicle_twist = rospy.Subscriber(
+            "/vehicle/status/twist", TwistStamped, self.CallbackVehicleTwist,
+            queue_size=1, tcp_nodelay=True)
 
-        self.substatus1 = rospy.Subscriber("/planning/scenario_planning/motion_velocity_optimizer/debug/trajectory_external_velocity_limitted", Trajectory, self.CallBackTrajExVelLim, queue_size=1, tcp_nodelay=True)
-        self.substatus2 = rospy.Subscriber("/planning/scenario_planning/motion_velocity_optimizer/debug/trajectory_lateral_acc_filtered", Trajectory, self.CallBackTrajLatAccFiltered, queue_size=1, tcp_nodelay=True)
-        self.substatus3 = rospy.Subscriber("/planning/scenario_planning/motion_velocity_optimizer/debug/trajectory_raw", Trajectory, self.CallBackTrajRaw, queue_size=1, tcp_nodelay=True)
-        self.substatus4 = rospy.Subscriber("/planning/scenario_planning/motion_velocity_optimizer/debug/trajectory_time_resampled", Trajectory, self.CallBackTrajTimeResampled, queue_size=1, tcp_nodelay=True)
-        self.substatus5 = rospy.Subscriber("/planning/scenario_planning/trajectory", Trajectory, self.CallBackTrajFinal, queue_size=1, tcp_nodelay=True)
+        sp = "/planning/scenario_planning"
+        self.substatus1 = rospy.Subscriber(
+            sp + "/motion_velocity_optimizer/debug/trajectory_external_velocity_limitted",
+            Trajectory, self.CallBackTrajExVelLim, queue_size=1, tcp_nodelay=True)
+        self.substatus2 = rospy.Subscriber(
+            sp + "/motion_velocity_optimizer/debug/trajectory_lateral_acc_filtered",
+            Trajectory, self.CallBackTrajLatAccFiltered, queue_size=1, tcp_nodelay=True)
+        self.substatus3 = rospy.Subscriber(
+            sp + "/motion_velocity_optimizer/debug/trajectory_raw", Trajectory,
+            self.CallBackTrajRaw, queue_size=1, tcp_nodelay=True)
+        self.substatus4 = rospy.Subscriber(
+            sp + "/motion_velocity_optimizer/debug/trajectory_time_resampled", Trajectory,
+            self.CallBackTrajTimeResampled, queue_size=1, tcp_nodelay=True)
+        self.substatus5 = rospy.Subscriber(
+            sp + "/trajectory", Trajectory, self.CallBackTrajFinal, queue_size=1, tcp_nodelay=True)
 
-        self.substatus6 = rospy.Subscriber("/planning/scenario_planning/lane_driving/behavior_planning/path_with_lane_id", PathWithLaneId, self.CallBackLaneChangePath, queue_size=1, tcp_nodelay=True)
-        self.substatus7 = rospy.Subscriber("/planning/scenario_planning/lane_driving/behavior_planning/path", Path, self.CallBackBehaviorPath, queue_size=1, tcp_nodelay=True)
-        self.substatus8 = rospy.Subscriber("/planning/scenario_planning/lane_driving/motion_planning/obstacle_avoidance_planner/trajectory", Trajectory, self.CallbackObstacleAvoidTraj, queue_size=1, tcp_nodelay=True)
-        self.substatus8 = rospy.Subscriber("/planning/scenario_planning/lane_driving/trajectory", Trajectory, self.CallbackObstacleStopTraj, queue_size=1, tcp_nodelay=True)
+        self.substatus6 = rospy.Subscriber(
+            sp + "/lane_driving/behavior_planning/path_with_lane_id", PathWithLaneId,
+            self.CallBackLaneChangePath, queue_size=1, tcp_nodelay=True)
+        self.substatus7 = rospy.Subscriber(
+            sp + "/lane_driving/behavior_planning/path", Path, self.CallBackBehaviorPath,
+            queue_size=1, tcp_nodelay=True)
+        self.substatus8 = rospy.Subscriber(
+            sp + "/lane_driving/motion_planning/obstacle_avoidance_planner/trajectory",
+            Trajectory, self.CallbackObstacleAvoidTraj, queue_size=1, tcp_nodelay=True)
+        self.substatus8 = rospy.Subscriber(
+            sp + "/lane_driving/trajectory", Trajectory, self.CallbackObstacleStopTraj,
+            queue_size=1, tcp_nodelay=True)
 
         rospy.Timer(rospy.Duration(0.2), self.timerCallback)
 
@@ -116,7 +143,7 @@ class TrajectoryVisualizer():
 
     def plotTrajectoryVelocity(self):
         plt.clf()
-        ax1 = plt.subplot(1,1,1)  # row, col, index(<raw*col)
+        ax1 = plt.subplot(1, 1, 1)  # row, col, index(<raw*col)
 
         rospy.loginfo("plot called")
 
@@ -130,7 +157,6 @@ class TrajectoryVisualizer():
         trajectory_lateral_acc_filtered = self.trajectory_lateral_acc_filtered
         trajectory_time_resamped = self.trajectory_time_resamped
         trajectory_final = self.trajectory_final
-
 
         x = self.CalcArcLengthPathWLid(lane_change_path)
         y = self.ToVelListPathWLid(lane_change_path)
@@ -154,7 +180,8 @@ class TrajectoryVisualizer():
 
         x = self.CalcArcLength(trajectory_external_velocity_limitted)
         y = self.ToVelList(trajectory_external_velocity_limitted)
-        ax1.plot(x, y, label="4-2: opt external_velocity_limitted", marker="", ls="--")
+        ax1.plot(x, y, label="4-2: opt external_velocity_limitted",
+                 marker="", ls="--")
 
         x = self.CalcArcLength(trajectory_lateral_acc_filtered)
         y = self.ToVelList(trajectory_lateral_acc_filtered)
@@ -171,10 +198,10 @@ class TrajectoryVisualizer():
         closest = self.calcClosestTrajectory(trajectory_final)
         if closest >= 0:
             x_closest = x[closest]
-            ax1.plot(x_closest, self.localization_twist.linear.x, label="localization twist vx", color="r", marker="*", ls=":", markersize=10)
-            ax1.plot(x_closest, self.vehicle_twist.linear.x, label="vehicle twist vx", color="k", marker="+", ls=":", markersize=10)
-
-
+            ax1.plot(x_closest, self.localization_twist.linear.x,
+                     label="localization twist vx", color="r", marker="*", ls=":", markersize=10)
+            ax1.plot(x_closest, self.vehicle_twist.linear.x,
+                     label="vehicle twist vx", color="k", marker="+", ls=":", markersize=10)
 
         ax1.set_title("trajectorys velocity")
         ax1.legend()
@@ -182,7 +209,6 @@ class TrajectoryVisualizer():
         ax1.set_ylabel("vel [m/s]")
 
         plt.pause(0.01)
-
 
     def CalcArcLength(self, traj):
         s_arr = []
@@ -315,9 +341,8 @@ class TrajectoryVisualizer():
         trajectory_time_resamped = self.trajectory_time_resamped
         trajectory_final = self.trajectory_final
 
-
         plt.clf()
-        ax1 = plt.subplot(3,1,1)#row, col, index(<raw*col)
+        ax1 = plt.subplot(3, 1, 1)  # row, col, index(<raw*col)
         x = self.CalcArcLength(trajectory_raw)
         y = self.ToVelList(trajectory_raw)
         ax1.plot(x, y, label="0: raw", marker="")
@@ -342,7 +367,7 @@ class TrajectoryVisualizer():
         ax1.set_xlim([0, PLOT_MAX_ARCLENGTH])
         ax1.set_ylabel("vel [m/s]")
 
-        ax2 = plt.subplot(3,1,2)
+        ax2 = plt.subplot(3, 1, 2)
         x = self.CalcArcLength(trajectory_final)
         y = self.CalcAcceleration(trajectory_final)
         if len(x) == len(y):
@@ -351,10 +376,9 @@ class TrajectoryVisualizer():
             ax2.set_ylim([-5, 5])
         ax2.set_ylabel("acc [m/ss]")
 
-
         # ax2.legend()
 
-        ax3 = plt.subplot(3,1,3)
+        ax3 = plt.subplot(3, 1, 3)
         x = self.CalcArcLength(trajectory_final)
         y = self.CalcJerk(trajectory_final)
         if len(x) == len(y):
@@ -366,15 +390,15 @@ class TrajectoryVisualizer():
 
         # ax3.legend()
 
-        #plt.show()
+        # plt.show()
         plt.pause(.01)
-
 
     def calcClosestPath(self, path):
         closest = -1
         min_dist_squared = 1.0e10
         for i in range(0, len(path.points)):
-            dist_sq = self.calcSquaredDist2d(self.self_pose, path.points[i].pose)
+            dist_sq = self.calcSquaredDist2d(
+                self.self_pose, path.points[i].pose)
             if dist_sq < min_dist_squared:
                 min_dist_squared = dist_sq
                 closest = i
@@ -384,7 +408,8 @@ class TrajectoryVisualizer():
         closest = -1
         min_dist_squared = 1.0e10
         for i in range(0, len(path.points)):
-            dist_sq = self.calcSquaredDist2d(self.self_pose, path.points[i].point.pose)
+            dist_sq = self.calcSquaredDist2d(
+                self.self_pose, path.points[i].point.pose)
             if dist_sq < min_dist_squared:
                 min_dist_squared = dist_sq
                 closest = i
@@ -394,7 +419,8 @@ class TrajectoryVisualizer():
         closest = -1
         min_dist_squared = 1.0e10
         for i in range(0, len(path.points)):
-            dist_sq = self.calcSquaredDist2d(self.self_pose, path.points[i].pose)
+            dist_sq = self.calcSquaredDist2d(
+                self.self_pose, path.points[i].pose)
             if dist_sq < min_dist_squared:
                 min_dist_squared = dist_sq
                 closest = i
@@ -407,8 +433,10 @@ class TrajectoryVisualizer():
 
     def updatePose(self, from_link, to_link):
         try:
-            self.tfl.waitForTransform(from_link, to_link, rospy.Time(0), rospy.Duration(0.2))
-            (trans, quat) = self.tfl.lookupTransform(from_link, to_link, rospy.Time(0))  # parent, child
+            self.tfl.waitForTransform(
+                from_link, to_link, rospy.Time(0), rospy.Duration(0.2))
+            (trans, quat) = self.tfl.lookupTransform(
+                from_link, to_link, rospy.Time(0))  # parent, child
             self.self_pose.position.x = trans[0]
             self.self_pose.position.y = trans[1]
             self.self_pose.position.z = trans[2]
@@ -417,11 +445,12 @@ class TrajectoryVisualizer():
             self.self_pose.orientation.z = quat[2]
             self.self_pose.orientation.w = quat[3]
             return
-        except:
+        except Exception:
             trans = (0.0, 0.0, 0.0)
             quat = (0.0, 0.0, 0.0, 1.0)
             rospy.logwarn("cannot get position")
             return
+
 
 def main():
     rospy.init_node("trajectory_visualizer")
