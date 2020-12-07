@@ -132,11 +132,11 @@ void LaneChanger::run()
 {
   // wait until mandatory data is ready
   if (!route_handler_ptr_->isHandlerReady()) {
-    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5.0, "waiting for route to be ready");
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "waiting for route to be ready");
     return;
   }
   if (!data_manager_ptr_->isDataReady()) {
-    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5.0, "waiting for vehicle pose, vehicle_velocity, and obstacles");
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "waiting for vehicle pose, vehicle_velocity, and obstacles");
     return;
   }
 
