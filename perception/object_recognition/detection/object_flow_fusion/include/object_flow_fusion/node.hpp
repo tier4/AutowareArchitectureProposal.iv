@@ -22,7 +22,7 @@
 #include "message_filters/synchronizer.h"
 #include "message_filters/sync_policies/approximate_time.h"
 #include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
-#include "object_flow_fusion.h"
+#include "object_flow_fusion.hpp"
 
 namespace object_flow_fusion
 {
