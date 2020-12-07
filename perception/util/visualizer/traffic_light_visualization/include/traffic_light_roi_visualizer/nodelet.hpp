@@ -72,7 +72,6 @@ private:
   typedef message_filters::Synchronizer<SyncPolicyWithRoughRoi> SyncWithRoughRoi;
   std::shared_ptr<SyncWithRoughRoi> sync_with_rough_roi_;
 
-  std::mutex connect_mutex_;
   bool enable_fine_detection_;
 };
 
