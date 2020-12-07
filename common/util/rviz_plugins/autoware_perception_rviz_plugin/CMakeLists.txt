@@ -20,7 +20,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_definitions(-DQT_NO_KEYWORDS)
 
 ## Declare a C++ library
-ament_auto_add_library(autoware_perception_rviz_plugin
+ament_auto_add_library(autoware_perception_rviz_plugin SHARED
   src/tools/pedestrian_pose.cpp
   src/tools/car_pose.cpp
   src/tools/delete_all_objects.cpp
