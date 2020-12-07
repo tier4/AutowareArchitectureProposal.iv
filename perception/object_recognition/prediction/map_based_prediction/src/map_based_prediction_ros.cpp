@@ -191,7 +191,7 @@ MapBasedPredictionROS::MapBasedPredictionROS()
     "/perception/object_recognition/tracking/objects", 1, 
     std::bind(&MapBasedPredictionROS::objectsCallback, this, std::placeholders::_1));
   sub_map_ = this->create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
-    "/vector_map", 10, 
+    "/vector_map", rclcpp::QoS(1).transient_local(), 
     std::bind(&MapBasedPredictionROS::mapCallback, this, std::placeholders::_1));
 
   pub_objects_ = this->create_publisher<autoware_perception_msgs::msg::DynamicObjectArray>("objects", 1);
@@ -223,7 +223,7 @@ void MapBasedPredictionROS::objectsCallback(
     debug_map2lidar_transform = tf_buffer_ptr_->lookupTransform(
       "base_link",  // target
       "map",        // src
-      rclcpp::Time(), rclcpp::Duration::from_seconds(0.1));
+      rclcpp::Time());
   } catch (tf2::TransformException & ex) {
     return;
   }
