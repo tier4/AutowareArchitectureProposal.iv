@@ -31,9 +31,9 @@
 
 #include <vector>
 
-#include <geometry_msgs/PoseStamped.h>
-#include <visualization_msgs/Marker.h>
-#include <visualization_msgs/MarkerArray.h>
+#include "geometry_msgs/PoseStamped.h"
+#include "visualization_msgs/Marker.h"
+#include "visualization_msgs/MarkerArray.h"
 
 visualization_msgs::Marker createNextTargetMarker(const geometry_msgs::Point & next_target);
 

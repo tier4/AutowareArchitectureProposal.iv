@@ -14,7 +14,7 @@
 #ifndef DYNAMIC_OBJECT_VISUALIZATION_DYNAMIC_OBJECT_VISUALIZER_HPP_
 #define DYNAMIC_OBJECT_VISUALIZATION_DYNAMIC_OBJECT_VISUALIZER_HPP_
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
 #include "autoware_perception_msgs/msg/predicted_path.hpp"

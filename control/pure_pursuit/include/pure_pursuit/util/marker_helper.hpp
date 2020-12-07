@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include <visualization_msgs/MarkerArray.h>
+#include "visualization_msgs/MarkerArray.h"
 
 inline geometry_msgs::Point createMarkerPosition(double x, double y, double z)
 {

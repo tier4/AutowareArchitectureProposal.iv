@@ -15,12 +15,12 @@
 #ifndef MOTION_VELOCITY_OPTIMIZER_LINF_PSEUDO_JERK_OPTIMIZER_HPP
 #define MOTION_VELOCITY_OPTIMIZER_LINF_PSEUDO_JERK_OPTIMIZER_HPP
 
-#include <autoware_planning_msgs/msg/trajectory.hpp>
-#include <osqp_interface/osqp_interface.hpp>
-#include <rclcpp/rclcpp.hpp>
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "osqp_interface/osqp_interface.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include <vector>
 
-#include <motion_velocity_optimizer/optimizer/optimizer_base.hpp>
+#include "motion_velocity_optimizer/optimizer/optimizer_base.hpp"
 
 class LinfPseudoJerkOptimizer : public OptimizerBase
 {

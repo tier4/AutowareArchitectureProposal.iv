@@ -13,8 +13,8 @@
 // limitations under the License.
 #pragma once
 
-#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
-#include <geometry_msgs/msg/point.hpp>
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "geometry_msgs/msg/point.hpp"
 #include <vector>
 
 namespace turn_signal_decider

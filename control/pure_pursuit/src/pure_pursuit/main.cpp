@@ -28,7 +28,7 @@
  * limitations under the License.
  */
 
-#include <ros/ros.h>
+#include "ros/ros.h"
 
 #include "pure_pursuit/pure_pursuit_node.hpp"
 

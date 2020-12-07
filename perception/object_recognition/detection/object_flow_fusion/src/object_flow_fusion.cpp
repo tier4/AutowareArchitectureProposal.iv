@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "object_flow_fusion/object_flow_fusion.hpp"
-#include <eigen_conversions/eigen_msg.h>
+#include "eigen_conversions/eigen_msg.h"
 
 namespace object_flow_fusion
 {

@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 #include <chrono>
-#include <eigen3/Eigen/Core>
-#include <motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp>
-#include <motion_velocity_optimizer/optimizer/l2_pseudo_jerk_optimizer.hpp>
+#include "eigen3/Eigen/Core"
+#include "motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp"
+#include "motion_velocity_optimizer/optimizer/l2_pseudo_jerk_optimizer.hpp"
 
 L2PseudoJerkOptimizer::L2PseudoJerkOptimizer(const L2PseudoJerkOptimizer::OptimizerParam & p)
 {
