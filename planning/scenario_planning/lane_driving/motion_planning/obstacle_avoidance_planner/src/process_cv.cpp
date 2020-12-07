@@ -107,14 +107,22 @@ bool isAvoidingObject(
   if (!image_point) {
     return false;
   }
+
+  const int nearest_idx =
+    util::getNearestIdx(path_points, object.state.pose_covariance.pose.position);
+  const auto nearest_path_point = path_points[nearest_idx];
+  const auto rel_p = util::transformToRelativeCoordinate2D(
+    object.state.pose_covariance.pose.position, nearest_path_point.pose);
+  // skip object located back the beginning of path points
+  if (nearest_idx == 0 && rel_p.x < 0) {
+    return false;
+  }
+
   const float object_clearance_from_road =
     clearance_map.ptr<float>((int)image_point.get().y)[(int)image_point.get().x] *
     map_info.resolution;
   const geometry_msgs::Vector3 twist = object.state.twist_covariance.twist.linear;
   const double vel = std::sqrt(twist.x * twist.x + twist.y * twist.y + twist.z * twist.z);
-  const int nearest_idx =
-    util::getNearestIdx(path_points, object.state.pose_covariance.pose.position);
-  const auto nearest_path_point = path_points[nearest_idx];
   const auto nearest_path_point_image =
     util::transformMapToOptionalImage(nearest_path_point.pose.position, map_info);
   if (!nearest_path_point_image) {
