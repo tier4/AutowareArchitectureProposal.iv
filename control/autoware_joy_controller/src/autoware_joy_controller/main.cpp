@@ -14,7 +14,7 @@
 
 
 #include "rclcpp/rclcpp.hpp"
-#include "autoware_joy_controller/autoware_joy_controller.h"
+#include "autoware_joy_controller/autoware_joy_controller.hpp"
 
 int main(int argc, char * argv[])
 {
