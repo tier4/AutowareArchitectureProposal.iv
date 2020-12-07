@@ -249,10 +249,5 @@ void TurnSignalDisplay::updateVisualization()
 
 }  // namespace rviz_plugins
 
-<<<<<<< HEAD
-#include "pluginlib/class_list_macros.h"
-PLUGINLIB_EXPORT_CLASS(rviz_plugins::TurnSignalDisplay, rviz::Display)
-=======
 #include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::TurnSignalDisplay, rviz_common::Display)
->>>>>>> Port to ROS2
