@@ -16,6 +16,7 @@
   <arg name="input_control_mode" default="/vehicle/status/control_mode" />
   <arg name="input_gate_mode" default="/control/current_gate_mode" />
   <arg name="input_is_emergency" default="/system/emergency/is_emergency" />
+  <arg name="input_hazard_status" default="/system/emergency/hazard_status" />
   <arg name="input_stop_reason" default="/planning/scenario_planning/status/stop_reasons" />
   <arg name="input_diagnostics" default="/diagnostics_agg" />
   <arg name="input_global_rpt" default="/pacmod/parsed_tx/global_rpt" />
@@ -95,6 +96,7 @@
       <remap from="input/control_mode" to="$(var input_control_mode)" />
       <remap from="input/gate_mode" to="$(var input_gate_mode)" />
       <remap from="input/is_emergency" to="$(var input_is_emergency)" />
+      <remap from="input/hazard_status" to="$(var input_hazard_status)" />
       <remap from="input/stop_reason" to="$(var input_stop_reason)" />
       <remap from="input/diagnostics" to="$(var input_diagnostics)" />
       <remap from="input/global_rpt" to="$(var input_global_rpt)" />

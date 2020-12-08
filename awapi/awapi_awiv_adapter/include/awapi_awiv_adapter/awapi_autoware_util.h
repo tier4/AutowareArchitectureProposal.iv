@@ -34,6 +34,7 @@
 #include "autoware_planning_msgs/msg/stop_reason_array.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
 #include "autoware_system_msgs/msg/autoware_state.hpp"
+#include "autoware_system_msgs/msg/hazard_status_stamped.hpp"
 #include "autoware_vehicle_msgs/msg/control_mode.hpp"
 #include "autoware_vehicle_msgs/msg/shift_stamped.hpp"
 #include "autoware_vehicle_msgs/msg/steering.hpp"
@@ -57,7 +58,8 @@ struct AutowareInfo
   autoware_system_msgs::msg::AutowareState::ConstSharedPtr autoware_state_ptr;
   autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr control_mode_ptr;
   autoware_control_msgs::msg::GateMode::ConstSharedPtr gate_mode_ptr;
-  autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr is_emergency_ptr;
+  std_msgs::msg::Bool::ConstSharedPtr is_emergency_ptr;
+  autoware_system_msgs::msg::HazardStatusStamped::ConstSharedPtr hazard_status_ptr;
   autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr stop_reason_ptr;
   diagnostic_msgs::msg::DiagnosticArray::ConstSharedPtr diagnostic_ptr;
   pacmod_msgs::msg::GlobalRpt::ConstSharedPtr global_rpt_ptr;

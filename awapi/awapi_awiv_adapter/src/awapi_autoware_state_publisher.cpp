@@ -40,6 +40,7 @@ void AutowareIvAutowareStatePublisher::statePublisher(const AutowareInfo & aw_in
   getControlModeInfo(aw_info.control_mode_ptr, &status);
   getGateModeInfo(aw_info.gate_mode_ptr, &status);
   getIsEmergencyInfo(aw_info.is_emergency_ptr, &status);
+  getHazardStatusInfo(aw_info.hazard_status_ptr, &status);
   getStopReasonInfo(aw_info.stop_reason_ptr, &status);
   getDiagInfo(aw_info, &status);
   getErrorDiagInfo(aw_info, &status);
@@ -103,6 +104,20 @@ void AutowareIvAutowareStatePublisher::getIsEmergencyInfo(
   status->emergency_stopped = is_emergency_ptr->is_emergency;
 }
 
+void AutowareIvAutowareStatePublisher::getHazardStatusInfo(
+  const autoware_system_msgs::msg::HazardStatusStamped::ConstSharedPtr & hazard_status_ptr,
+  autoware_api_msgs::msg::AwapiAutowareStatus * status)
+{
+  if (!hazard_status_ptr) {
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */,
+      "[AutowareIvAutowareStatePublisher] hazard_status is nullptr");
+    return;
+  }
+
+  // get emergency
+  status->hazard_status = *hazard_status_ptr;
+}
+
 void AutowareIvAutowareStatePublisher::getStopReasonInfo(
   const autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr & stop_reason_ptr,
   autoware_api_msgs::msg::AwapiAutowareStatus * status)
@@ -129,11 +144,13 @@ void AutowareIvAutowareStatePublisher::getDiagInfo(
   status->diagnostics = extractLeafDiag(aw_info.diagnostic_ptr->status);
 }
 
+// This function is tentative and should be replaced with getHazardStatusInfo.
+// TODO(Kenji Miyake): Make getErrorDiagInfo users to use getHazardStatusInfo.
 void AutowareIvAutowareStatePublisher::getErrorDiagInfo(
   const AutowareInfo & aw_info, autoware_api_msgs::msg::AwapiAutowareStatus * status)
 {
   using autoware_system_msgs::msg::AutowareState;
-  using autoware_control_msgs::msg::ControlMode;
+  using autoware_vehicle_msgs::msg::ControlMode;
 
   if (!aw_info.autoware_state_ptr) {
     RCLCPP_DEBUG_STREAM_THROTTLE(
@@ -156,8 +173,15 @@ void AutowareIvAutowareStatePublisher::getErrorDiagInfo(
     return;
   }
 
+  if (!aw_info.hazard_status_ptr) {
+    RCLCPP_DEBUG_STREAM_THROTTLE(
+      logger_, *clock_, 5000 /* ms */,
+      "[AutowareIvAutowareStatePublisher] hazard_status is nullptr");
+    return;
+  }
+
   // filter by state
-  if (aw_info.autoware_state_ptr->state != AutowareState::Emergency) {
+  if (aw_info.autoware_state_ptr->state != AutowareState::EMERGENCY) {
     status->error_diagnostics = {};
     return;
   }
@@ -169,7 +193,33 @@ void AutowareIvAutowareStatePublisher::getErrorDiagInfo(
   }
 
   // get diag
-  status->error_diagnostics = extractLeafDiag(aw_info.diagnostic_ptr->status);
+  using diagnostic_msgs::msg::DiagnosticStatus;
+  const auto & hazard_status = aw_info.hazard_status_ptr->status;
+  std::vector<DiagnosticStatus> error_diagnostics;
+
+  for (const auto & hazard_diag : hazard_status.diagnostics_spf) {
+    auto diag = hazard_diag;
+    diag.level = DiagnosticStatus::ERROR;
+    error_diagnostics.push_back(hazard_diag);
+  }
+  for (const auto & hazard_diag : hazard_status.diagnostics_lf) {
+    auto diag = hazard_diag;
+    diag.level = DiagnosticStatus::ERROR;
+    error_diagnostics.push_back(hazard_diag);
+  }
+  for (const auto & hazard_diag : hazard_status.diagnostics_sf) {
+    auto diag = hazard_diag;
+    diag.level = DiagnosticStatus::WARN;
+    error_diagnostics.push_back(hazard_diag);
+  }
+  for (const auto & hazard_diag : hazard_status.diagnostics_nf) {
+    auto diag = hazard_diag;
+    diag.level = DiagnosticStatus::OK;
+    error_diagnostics.push_back(hazard_diag);
+  }
+
+  // filter leaf diag
+  status->error_diagnostics = extractLeafDiag(error_diagnostics);
 }
 
 void AutowareIvAutowareStatePublisher::getGlobalRptInfo(
