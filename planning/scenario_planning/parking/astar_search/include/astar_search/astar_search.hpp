@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SCENARIO_PLANNING_PARKING_ASTAR_PLANNER_H
-#define SCENARIO_PLANNING_PARKING_ASTAR_PLANNER_H
+#ifndef ASTAR_SEARCH__ASTAR_SEARCH_HPP_
+#define ASTAR_SEARCH__ASTAR_SEARCH_HPP_
 
 #include <cmath>
 #include <functional>
@@ -54,7 +54,7 @@ struct AstarNode
   bool is_back;                          // true if the current direction of the vehicle is back
   AstarNode * parent = nullptr;          // parent node
 
-  double cost() const { return gc + hc; }
+  double cost() const {return gc + hc;}
 };
 
 struct NodeComparison
@@ -150,13 +150,13 @@ public:
 
   explicit AstarSearch(const AstarParam & astar_param);
 
-  void setRobotShape(const RobotShape & robot_shape) { astar_param_.robot_shape = robot_shape; }
+  void setRobotShape(const RobotShape & robot_shape) {astar_param_.robot_shape = robot_shape;}
   void initializeNodes(const nav_msgs::msg::OccupancyGrid & costmap);
   bool makePlan(
     const geometry_msgs::msg::Pose & start_pose, const geometry_msgs::msg::Pose & goal_pose);
   bool hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & trajectory);
 
-  const AstarWaypoints & getWaypoints() const { return waypoints_; }
+  const AstarWaypoints & getWaypoints() const {return waypoints_;}
 
 private:
   bool search();
@@ -170,7 +170,7 @@ private:
   bool isObs(const IndexXYT & index);
   bool isGoal(const AstarNode & node);
 
-  AstarNode * getNodeRef(const IndexXYT & index) { return &nodes_[index.y][index.x][index.theta]; }
+  AstarNode * getNodeRef(const IndexXYT & index) {return &nodes_[index.y][index.x][index.theta];}
 
   AstarParam astar_param_;
 
@@ -190,4 +190,4 @@ private:
   AstarWaypoints waypoints_;
 };
 
-#endif
+#endif  // ASTAR_SEARCH__ASTAR_SEARCH_HPP_

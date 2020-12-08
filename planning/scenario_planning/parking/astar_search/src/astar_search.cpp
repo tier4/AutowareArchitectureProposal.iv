@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "astar_search/astar_search.hpp"
+
 #include "astar_search/helper.hpp"
 
 #include "tf2/utils.h"
@@ -179,7 +180,8 @@ AstarSearch::TransitionTable createTransitionTable(
 
 }  // namespace
 
-AstarSearch::AstarSearch(const AstarParam & astar_param) : astar_param_(astar_param)
+AstarSearch::AstarSearch(const AstarParam & astar_param)
+: astar_param_(astar_param)
 {
   transition_table_ = createTransitionTable(
     astar_param_.minimum_turning_radius, astar_param_.theta_size, astar_param_.use_back);
@@ -435,14 +437,14 @@ bool AstarSearch::hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & 
 
 bool AstarSearch::isOutOfRange(const IndexXYT & index)
 {
-  if (index.x < 0 || static_cast<int>(costmap_.info.width) <= index.x) return true;
-  if (index.y < 0 || static_cast<int>(costmap_.info.height) <= index.y) return true;
+  if (index.x < 0 || static_cast<int>(costmap_.info.width) <= index.x) {return true;}
+  if (index.y < 0 || static_cast<int>(costmap_.info.height) <= index.y) {return true;}
   return false;
 }
 
 bool AstarSearch::isObs(const IndexXYT & index)
 {
-  return (nodes_[index.y][index.x][0].status == NodeStatus::Obstacle);
+  return nodes_[index.y][index.x][0].status == NodeStatus::Obstacle;
 }
 
 bool AstarSearch::isGoal(const AstarNode & node)
@@ -460,7 +462,8 @@ bool AstarSearch::isGoal(const AstarNode & node)
 
   if (
     std::fabs(relative_pose.position.x) > longitudinal_goal_range ||
-    std::fabs(relative_pose.position.y) > lateral_goal_range) {
+    std::fabs(relative_pose.position.y) > lateral_goal_range)
+  {
     return false;
   }
 
