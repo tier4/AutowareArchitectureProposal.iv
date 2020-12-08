@@ -254,6 +254,8 @@ AstarNavi::AstarNavi() : Node("freespace_planner")
     astar_param_.use_back = declare_parameter("use_back", true);
     astar_param_.only_behind_solutions = declare_parameter("only_behind_solutions", false);
     astar_param_.time_limit = declare_parameter("time_limit", 5000.0);
+    is_completed_ = declare_parameter("is_completed", false);
+
 
     // robot configs
     // TODO(Kenji Miyake): obtain from vehicle_info
