@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(all_vehicle_models NONE)
+project(all_vehicle_descriptions NONE)
 
 find_package(ament_cmake_core REQUIRED)
 find_package(ament_cmake_export_dependencies REQUIRED)
