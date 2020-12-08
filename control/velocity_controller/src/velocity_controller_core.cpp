@@ -181,7 +181,7 @@ void VelocityController::blockUntilVehiclePositionAvailable(const tf2::Duration 
          rclcpp::ok()) {
     RCLCPP_INFO(
       get_logger(), "waiting %d ms for %s->%s transform to become available",
-      std::chrono::duration_cast<std::chrono::seconds>(duration).count(), input, output);
+      std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count(), input, output);
     rclcpp::sleep_for(duration);
   }
   RCLCPP_INFO(get_logger(), "transform available");
