@@ -15,3 +15,8 @@ repositories:
     type: git
     url: https://github.com/ApexAI/topic_tools.git
     version: autoware
+  vendor/lexus_description:
+    type: git
+    url: https://github.com/tier4/lexus_description.iv.universe.git
+    version: ros2
+
