@@ -143,7 +143,7 @@ void BehaviorVelocityPlannerNode::onNoGroundPointCloud(
   geometry_msgs::msg::TransformStamped transform;
   try {
     transform = tf_buffer_.lookupTransform(
-      "map", msg->header.frame_id, msg->header.stamp, rclcpp::Duration::from_seconds(0.1));
+      "map", msg->header.frame_id, rclcpp::Time(0));
   } catch (tf2::LookupException & e) {
     RCLCPP_WARN(get_logger(), "no transform found for no_ground_pointcloud");
     return;
