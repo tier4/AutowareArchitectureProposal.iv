@@ -27,14 +27,14 @@ namespace object_flow_fusion
 class Utils
 {
 public:
-  Utils() {}
+  Utils() {};
   geometry_msgs::Vector3 mptopic2kph(
-    const geometry_msgs::Vector3 & twist,
+    const geometry_msgs::Vector3& twist,
     double topic_rate);
   geometry_msgs::Vector3 kph2mptopic(
-    const geometry_msgs::Vector3 & twist,
+    const geometry_msgs::Vector3& twist,
     double topic_rate);
-  geometry_msgs::Vector3 kph2mps(const geometry_msgs::Vector3 & twist);
-  geometry_msgs::Twist kph2mps(const geometry_msgs::Twist & twist);
+  geometry_msgs::Vector3 kph2mps(const geometry_msgs::Vector3& twist);
+  geometry_msgs::Twist kph2mps(const geometry_msgs::Twist& twist);
 };
 } // object_flow_fusion

@@ -45,7 +45,7 @@ void ClusterDataAssociationNode::clusterCallback(
   const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr & input_cluster1_msg)
 {
   // Guard
-  if (associated_cluster_pub_.getNumSubscribers() < 1) {return;}
+  if (associated_cluster_pub_.getNumSubscribers() < 1) return;
 
   // build output msg
   autoware_perception_msgs::DynamicObjectWithFeatureArray output_msg;
@@ -58,19 +58,21 @@ void ClusterDataAssociationNode::clusterCallback(
     data_association_.calcScoreMatrix(*input_cluster1_msg, *input_cluster0_msg);
   data_association_.assign(score_matrix, direct_assignment, reverse_assignment);
   for (size_t cluster0_idx = 0; cluster0_idx < input_cluster0_msg->feature_objects.size();
-    ++cluster0_idx)
-  {
-    if (direct_assignment.find(cluster0_idx) != direct_assignment.end()) { // found
+       ++cluster0_idx) {
+    if (direct_assignment.find(cluster0_idx) != direct_assignment.end())  // found
+    {
       output_msg.feature_objects.push_back(input_cluster0_msg->feature_objects.at(cluster0_idx));
-    } else { // not found
+    } else  // not found
+    {
       output_msg.feature_objects.push_back(input_cluster0_msg->feature_objects.at(cluster0_idx));
     }
   }
   for (size_t cluster1_idx = 0; cluster1_idx < input_cluster1_msg->feature_objects.size();
-    ++cluster1_idx)
-  {
-    if (reverse_assignment.find(cluster1_idx) != reverse_assignment.end()) { // found
-    } else { // not found
+       ++cluster1_idx) {
+    if (reverse_assignment.find(cluster1_idx) != reverse_assignment.end())  // found
+    {
+    } else  // not found
+    {
       output_msg.feature_objects.push_back(input_cluster1_msg->feature_objects.at(cluster1_idx));
     }
   }

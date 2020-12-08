@@ -25,8 +25,7 @@
 namespace traffic_light
 {
 
-struct HSVConfig
-{
+struct HSVConfig{
   int green_min_h;
   int green_min_s;
   int green_min_v;
@@ -44,7 +43,7 @@ struct HSVConfig
   int red_min_v;
   int red_max_h;
   int red_max_s;
-  int red_max_v;
+  int red_max_v;  
 };
 
 class ColorClassifier : public ClassifierInterface
@@ -60,12 +59,10 @@ private:
   bool filterHSV(
     const cv::Mat & input_image, cv::Mat & green_image, cv::Mat & yellow_image,
     cv::Mat & red_image);
-  rcl_interfaces::msg::SetParametersResult parametersCallback(
-    const std::vector<rclcpp::Parameter> & parameters);
+  rcl_interfaces::msg::SetParametersResult parametersCallback( const std::vector<rclcpp::Parameter> & parameters);
 
 private:
-  enum HSV
-  {
+  enum HSV {
     Hue = 0,
     Sat = 1,
     Val = 2,

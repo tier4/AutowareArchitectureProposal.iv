@@ -45,7 +45,7 @@
 
 namespace traffic_light
 {
-class TrafficLightClassifierNodelet : public rclcpp::Node
+class TrafficLightClassifierNodelet: public rclcpp::Node
 {
 public:
   TrafficLightClassifierNodelet(const rclcpp::NodeOptions & options);
@@ -54,8 +54,7 @@ public:
     const autoware_perception_msgs::msg::TrafficLightRoiArray::ConstSharedPtr & input_rois_msg);
 
 private:
-  enum ClassifierType
-  {
+  enum ClassifierType {
     HSVFilter = 0,
     CNN = 1,
   };
@@ -65,12 +64,12 @@ private:
   image_transport::SubscriberFilter image_sub_;
   message_filters::Subscriber<autoware_perception_msgs::msg::TrafficLightRoiArray> roi_sub_;
   typedef message_filters::sync_policies::ExactTime<
-      sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
+    sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
     SyncPolicy;
   typedef message_filters::Synchronizer<SyncPolicy> Sync;
   std::shared_ptr<Sync> sync_;
   typedef message_filters::sync_policies::ApproximateTime<
-      sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
+    sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
     ApproximateSyncPolicy;
   typedef message_filters::Synchronizer<ApproximateSyncPolicy> ApproximateSync;
   std::shared_ptr<ApproximateSync> approximate_sync_;

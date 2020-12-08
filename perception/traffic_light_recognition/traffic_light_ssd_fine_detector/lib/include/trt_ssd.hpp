@@ -27,7 +27,7 @@ namespace ssd
 {
 struct Deleter
 {
-  template<typename T>
+  template <typename T>
   void operator()(T * obj) const
   {
     if (obj) {
@@ -36,20 +36,18 @@ struct Deleter
   }
 };
 
-template<typename T>
+template <typename T>
 using unique_ptr = std::unique_ptr<T, Deleter>;
 
 class Logger : public nvinfer1::ILogger
 {
 public:
-  Logger(bool verbose)
-  : verbose_(verbose) {}
+  Logger(bool verbose) : verbose_(verbose) {}
 
   void log(Severity severity, const char * msg) override
   {
-    if (verbose_ || ((severity != Severity::kINFO) && (severity != Severity::kVERBOSE))) {
+    if (verbose_ || ((severity != Severity::kINFO) && (severity != Severity::kVERBOSE)))
       std::cout << msg << std::endl;
-    }
   }
 
 private:

@@ -31,22 +31,21 @@ class ObjectFlowFusionNode
 public:
   ObjectFlowFusionNode();
   void callback(
-    const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr & object_msg,
-    const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr & flow_msg);
-
+    const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr& object_msg,
+    const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr& flow_msg);
 private:
   typedef message_filters::sync_policies::ApproximateTime<
-      autoware_perception_msgs::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::DynamicObjectWithFeatureArray
+  autoware_perception_msgs::DynamicObjectWithFeatureArray,
+  autoware_perception_msgs::DynamicObjectWithFeatureArray
   > ApproximateSync;
 
   typedef message_filters::sync_policies::ExactTime<
-      autoware_perception_msgs::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::DynamicObjectWithFeatureArray
-  > Sync;
+    autoware_perception_msgs::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::DynamicObjectWithFeatureArray
+    > Sync;
 
-  boost::shared_ptr<message_filters::Synchronizer<ApproximateSync>> approximate_sync_;
-  boost::shared_ptr<message_filters::Synchronizer<Sync>> sync_;
+  boost::shared_ptr<message_filters::Synchronizer<ApproximateSync> > approximate_sync_;
+  boost::shared_ptr<message_filters::Synchronizer<Sync> > sync_;
   message_filters::Subscriber<autoware_perception_msgs::DynamicObjectWithFeatureArray> object_sub_;
   message_filters::Subscriber<autoware_perception_msgs::DynamicObjectWithFeatureArray> flow_sub_;
 

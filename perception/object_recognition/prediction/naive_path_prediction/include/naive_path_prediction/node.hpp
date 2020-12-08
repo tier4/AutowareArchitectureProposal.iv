@@ -23,8 +23,7 @@
 
 class NaivePathPredictionNode
 {
-private:
-  // ros
+private:  // ros
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;
   ros::Publisher pub_;
@@ -35,5 +34,5 @@ private:
 public:
   NaivePathPredictionNode();
 
-  ~NaivePathPredictionNode() {}
+  ~NaivePathPredictionNode(){};
 };

@@ -82,12 +82,10 @@ void EuclideanClusterNodelet::pointcloudCallback(const sensor_msgs::PointCloud2C
     autoware_perception_msgs::DynamicObjectWithFeatureArray output;
     output.header = input_msg->header;
     for (std::vector<pcl::PointIndices>::const_iterator cluster_itr = cluster_indices.begin();
-      cluster_itr != cluster_indices.end(); ++cluster_itr)
-    {
+         cluster_itr != cluster_indices.end(); ++cluster_itr) {
       pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZ>);
       for (std::vector<int>::const_iterator point_itr = cluster_itr->indices.begin();
-        point_itr != cluster_itr->indices.end(); ++point_itr)
-      {
+           point_itr != cluster_itr->indices.end(); ++point_itr) {
         cloud_cluster->points.push_back(raw_pointcloud_ptr->points[*point_itr]);
       }
       cloud_cluster->width = cloud_cluster->points.size();
@@ -104,18 +102,16 @@ void EuclideanClusterNodelet::pointcloudCallback(const sensor_msgs::PointCloud2C
   }
 
   // build debug msg
-  if (debug_pub_.getNumSubscribers() < 1) {return;}
+  if (debug_pub_.getNumSubscribers() < 1) return;
   {
     sensor_msgs::PointCloud2 pointcloud_output;
 
     int i = 0;
     pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZI>);
     for (std::vector<pcl::PointIndices>::const_iterator cluster_itr = cluster_indices.begin();
-      cluster_itr != cluster_indices.end(); ++cluster_itr)
-    {
+         cluster_itr != cluster_indices.end(); ++cluster_itr) {
       for (std::vector<int>::const_iterator point_itr = cluster_itr->indices.begin();
-        point_itr != cluster_itr->indices.end(); ++point_itr)
-      {
+           point_itr != cluster_itr->indices.end(); ++point_itr) {
         pcl::PointXYZI point;
         point.x = raw_pointcloud_ptr->points[*point_itr].x;
         point.y = raw_pointcloud_ptr->points[*point_itr].y;

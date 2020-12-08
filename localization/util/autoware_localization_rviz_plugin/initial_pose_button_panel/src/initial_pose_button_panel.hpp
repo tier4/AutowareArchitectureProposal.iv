@@ -48,7 +48,6 @@ namespace autoware_localization_rviz_plugin
 class InitialPoseButtonPanel : public rviz::Panel
 {
   Q_OBJECT
-
 public:
   InitialPoseButtonPanel(QWidget * parent = 0);
   void callbackPoseCov(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr & msg);

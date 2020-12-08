@@ -54,8 +54,7 @@ double calcLookaheadDistance(
 
 }  // namespace
 
-PurePursuitNode::PurePursuitNode()
-: nh_(""), private_nh_("~"), tf_listener_(tf_buffer_)
+PurePursuitNode::PurePursuitNode() : nh_(""), private_nh_("~"), tf_listener_(tf_buffer_)
 {
   pure_pursuit_ = std::make_unique<planning_utils::PurePursuit>();
 

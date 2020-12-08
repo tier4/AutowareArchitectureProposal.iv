@@ -66,8 +66,7 @@ private:
   bool rosMsg2CvMat(const sensor_msgs::msg::Image::ConstSharedPtr image_msg, cv::Mat & image);
   bool fitInFrame(cv::Point & lt, cv::Point & rb, const cv::Size & size);
   void cvRect2TlRoiMsg(
-    const cv::Rect & rect, const int32_t id,
-    autoware_perception_msgs::msg::TrafficLightRoi & tl_roi);
+    const cv::Rect & rect, const int32_t id, autoware_perception_msgs::msg::TrafficLightRoi & tl_roi);
   bool readLabelFile(std::string filepath, std::vector<std::string> & labels);
   bool getTlrIdFromLabel(const std::vector<std::string> & labels, int & tlr_id);
 
@@ -81,13 +80,13 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
 
   typedef message_filters::sync_policies::ExactTime<
-      sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
+    sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
     SyncPolicy;
   typedef message_filters::Synchronizer<SyncPolicy> Sync;
   std::shared_ptr<Sync> sync_;
 
   typedef message_filters::sync_policies::ApproximateTime<
-      sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
+    sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
     ApproximateSyncPolicy;
   typedef message_filters::Synchronizer<ApproximateSyncPolicy> ApproximateSync;
   std::shared_ptr<ApproximateSync> approximate_sync_;

@@ -57,25 +57,25 @@ private:
 
   ros::NodeHandle nh_, private_nh_;
   ros::Publisher labeled_cluster_pub_;
-  std::vector<std::shared_ptr<ros::Subscriber>> v_camera_info_sub_;
+  std::vector<std::shared_ptr<ros::Subscriber> > v_camera_info_sub_;
   tf2_ros::Buffer tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_ptr_;
   message_filters::Subscriber<autoware_perception_msgs::DynamicObjectWithFeatureArray> cluster_sub_;
   std::vector<std::shared_ptr<
-      message_filters::Subscriber<autoware_perception_msgs::DynamicObjectWithFeatureArray>>>
-  v_roi_sub_;
+    message_filters::Subscriber<autoware_perception_msgs::DynamicObjectWithFeatureArray> > >
+    v_roi_sub_;
   message_filters::PassThrough<autoware_perception_msgs::DynamicObjectWithFeatureArray>
-  passthrough_;
+    passthrough_;
   typedef message_filters::sync_policies::ApproximateTime<
-      autoware_perception_msgs::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::DynamicObjectWithFeatureArray>
+    autoware_perception_msgs::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::DynamicObjectWithFeatureArray>
     SyncPolicy;
   typedef message_filters::Synchronizer<SyncPolicy> Sync;
   std::shared_ptr<Sync> sync_ptr_;

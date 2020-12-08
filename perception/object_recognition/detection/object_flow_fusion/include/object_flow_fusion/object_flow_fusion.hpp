@@ -32,34 +32,34 @@ class ObjectFlowFusion
 public:
   ObjectFlowFusion();
   void fusion(
-    const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr & object_msg,
-    const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr & flow_msg,
+    const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr& object_msg,
+    const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr& flow_msg,
     bool use_flow_pose, float flow_vel_thresh_,
-    autoware_perception_msgs::DynamicObjectWithFeatureArray & fusioned_msg);
-
+    autoware_perception_msgs::DynamicObjectWithFeatureArray& fusioned_msg);
 private:
+
   bool getPolygon(
-    const autoware_perception_msgs::DynamicObject & object,
-    const geometry_msgs::Polygon & input_footprint,
-    geometry_msgs::Polygon & output_footprint);
+    const autoware_perception_msgs::DynamicObject& object,
+    const geometry_msgs::Polygon& input_footprint,
+    geometry_msgs::Polygon& output_footprint);
 
   bool isInsidePolygon(
-    const geometry_msgs::Pose & pose,
-    const geometry_msgs::Polygon & footprint,
-    const geometry_msgs::Point & flow_point);
+    const geometry_msgs::Pose& pose,
+    const geometry_msgs::Polygon& footprint,
+    const geometry_msgs::Point& flow_point);
 
   bool isInsideCylinder(
-    const geometry_msgs::Pose & pose,
-    const autoware_perception_msgs::Shape & shape,
-    const geometry_msgs::Point & flow_point);
+    const geometry_msgs::Pose& pose,
+    const autoware_perception_msgs::Shape& shape,
+    const geometry_msgs::Point& flow_point);
 
   bool isInsideShape(
-    const autoware_perception_msgs::DynamicObject & object,
-    const geometry_msgs::Point & flow_point,
-    const geometry_msgs::Polygon & footprint);
+    const autoware_perception_msgs::DynamicObject& object,
+    const geometry_msgs::Point& flow_point,
+    const geometry_msgs::Polygon& footprint);
 
   geometry_msgs::Twist getLocalTwist(
-    const geometry_msgs::Pose & obj_pose, const geometry_msgs::Twist & base_coords_twist);
+    const geometry_msgs::Pose& obj_pose, const geometry_msgs::Twist& base_coords_twist);
 
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;

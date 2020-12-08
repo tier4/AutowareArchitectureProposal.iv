@@ -17,12 +17,9 @@
 
 namespace traffic_light
 {
-CNNClassifier::CNNClassifier(rclcpp::Node * node_ptr)
-: node_ptr_(node_ptr)
+CNNClassifier::CNNClassifier(rclcpp::Node * node_ptr) : node_ptr_(node_ptr)
 {
-  image_pub_ = image_transport::create_publisher(
-    node_ptr_, "output/debug/image",
-    rclcpp::QoS{1}.get_rmw_qos_profile());
+  image_pub_ = image_transport::create_publisher(node_ptr_, "output/debug/image", rclcpp::QoS{1}.get_rmw_qos_profile());
 
   std::string precision;
   std::string label_file_path;
@@ -58,9 +55,7 @@ bool CNNClassifier::getLampState(
   preProcess(image, input_data_host, true);
 
   auto input_data_device = Tn::make_unique<float[]>(num_input);
-  cudaMemcpy(
-    input_data_device.get(),
-    input_data_host.data(), num_input * sizeof(float), cudaMemcpyHostToDevice);
+  cudaMemcpy(input_data_device.get(), input_data_host.data(), num_input * sizeof(float), cudaMemcpyHostToDevice);
 
   auto output_data_device = Tn::make_unique<float[]>(num_output);
 
@@ -72,14 +67,13 @@ bool CNNClassifier::getLampState(
   std::chrono::system_clock::time_point end = std::chrono::system_clock::now();
   double elapsed_time =
     static_cast<double>(
-    std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()) /
+      std::chrono::duration_cast<std::chrono::microseconds>(end - start).count()) /
     1000;
   // ROS_INFO("inference elapsed time: %f [ms]", elapsed_time);
 
   std::vector<float> output_data_host(num_output);
   cudaMemcpy(
-    output_data_host.data(),
-    output_data_device.get(), num_output * sizeof(float), cudaMemcpyDeviceToHost);
+    output_data_host.data(), output_data_device.get(), num_output * sizeof(float), cudaMemcpyDeviceToHost);
 
   postProcess(output_data_host, states);
 
@@ -97,12 +91,12 @@ void CNNClassifier::outputDebugImage(
 {
   float probability;
   std::string label;
-  for (int i = 0; i < states.size(); i++) {
+  for (int i=0; i<states.size(); i++) {
     auto state = states.at(i);
     // all lamp confidence are the same
     probability = state.confidence;
     label += state2label_[state.type];
-    if (i < states.size() - 1) {label += ",";}
+    if (i < states.size() - 1) label += ",";
   }
 
   int expand_w = 200;
@@ -129,9 +123,9 @@ void CNNClassifier::preProcess(cv::Mat & image, std::vector<float> & input_tenso
   cv::resize(image, image, cv::Size(input_w_, input_h_));
 
   const size_t strides_cv[3] = {static_cast<size_t>(input_w_ * input_c_),
-    static_cast<size_t>(input_c_), 1};
-  const size_t strides[3] = {static_cast<size_t>(input_h_ * input_w_),
-    static_cast<size_t>(input_w_), 1};
+                                static_cast<size_t>(input_c_), 1};
+  const size_t strides[3] = {static_cast<size_t>(input_h_ * input_w_), 
+                             static_cast<size_t>(input_w_), 1};
 
   for (int i = 0; i < input_h_; i++) {
     for (int j = 0; j < input_w_; j++) {
@@ -149,8 +143,7 @@ void CNNClassifier::preProcess(cv::Mat & image, std::vector<float> & input_tenso
 }
 
 bool CNNClassifier::postProcess(
-  std::vector<float> & output_tensor,
-  std::vector<autoware_perception_msgs::msg::LampState> & states)
+  std::vector<float> & output_tensor, std::vector<autoware_perception_msgs::msg::LampState> & states)
 {
   std::vector<float> probs;
   int num_output = trt_->getNumOutput();
@@ -172,9 +165,7 @@ bool CNNClassifier::postProcess(
   boost::algorithm::split(splited_label, match_label, boost::is_any_of(","));
   for (auto label : splited_label) {
     if (label2state_.find(label) == label2state_.end()) {
-      RCLCPP_DEBUG(
-        node_ptr_->get_logger(), "cnn_classifier does not have a key [%s]",
-        label.c_str());
+      RCLCPP_DEBUG(node_ptr_->get_logger(), "cnn_classifier does not have a key [%s]", label.c_str());
       continue;
     }
     autoware_perception_msgs::msg::LampState state;
@@ -200,9 +191,7 @@ bool CNNClassifier::readLabelfile(std::string filepath, std::vector<std::string>
   return true;
 }
 
-void CNNClassifier::calcSoftmax(
-  std::vector<float> & data, std::vector<float> & probs,
-  int num_output)
+void CNNClassifier::calcSoftmax(std::vector<float> & data, std::vector<float> & probs, int num_output)
 {
   float exp_sum = 0.0;
   for (int i = 0; i < num_output; ++i) {
@@ -217,13 +206,10 @@ void CNNClassifier::calcSoftmax(
 std::vector<size_t> CNNClassifier::argsort(std::vector<float> & tensor, int num_output)
 {
   std::vector<size_t> indices(num_output);
-  for (int i = 0; i < num_output; i++) {
-    indices[i] = i;
-  }
-  std::sort(
-    indices.begin(), indices.begin() + num_output, [tensor](size_t idx1, size_t idx2) {
-      return tensor[idx1] > tensor[idx2];
-    });
+  for (int i = 0; i < num_output; i++) indices[i] = i;
+  std::sort(indices.begin(), indices.begin() + num_output, [tensor](size_t idx1, size_t idx2) {
+    return tensor[idx1] > tensor[idx2];
+  });
 
   return indices;
 }

@@ -37,16 +37,14 @@ namespace Tn
 class Logger : public nvinfer1::ILogger
 {
 public:
-  Logger()
-  : Logger(Severity::kINFO) {}
+  Logger() : Logger(Severity::kINFO) {}
 
-  Logger(Severity severity)
-  : reportableSeverity(severity) {}
+  Logger(Severity severity) : reportableSeverity(severity) {}
 
   void log(Severity severity, const char * msg) override
   {
     // suppress messages with severity enum value greater than the reportable
-    if (severity > reportableSeverity) {return;}
+    if (severity > reportableSeverity) return;
 
     switch (severity) {
       case Severity::kINTERNAL_ERROR:
@@ -75,15 +73,15 @@ void check_error(const ::cudaError_t e, decltype(__FILE__) f, decltype(__LINE__)
 
 struct InferDeleter
 {
-  void operator()(void * p) const {::cudaFree(p);}
+  void operator()(void * p) const { ::cudaFree(p); }
 };
 
-template<typename T>
+template <typename T>
 using UniquePtr = std::unique_ptr<T, InferDeleter>;
 
 // auto array = Tn::make_unique<float[]>(n);
 // ::cudaMemcpy(array.get(), src_array, sizeof(float)*n, ::cudaMemcpyHostToDevice);
-template<typename T>
+template <typename T>
 typename std::enable_if<std::is_array<T>::value, Tn::UniquePtr<T>>::type make_unique(
   const std::size_t n)
 {
@@ -95,7 +93,7 @@ typename std::enable_if<std::is_array<T>::value, Tn::UniquePtr<T>>::type make_un
 
 // auto value = Tn::make_unique<my_class>();
 // ::cudaMemcpy(value.get(), src_value, sizeof(my_class), ::cudaMemcpyHostToDevice);
-template<typename T>
+template <typename T>
 Tn::UniquePtr<T> make_unique()
 {
   T * p;
@@ -107,7 +105,7 @@ class TrtCommon
 {
 public:
   TrtCommon(std::string model_path, std::string cache_dir, std::string precision);
-  ~TrtCommon() {}
+  ~TrtCommon(){};
 
   bool loadEngine(std::string engine_file_path);
   bool buildEngineFromOnnx(std::string onnx_file_path, std::string output_engine_file_path);

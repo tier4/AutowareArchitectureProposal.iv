@@ -39,7 +39,7 @@
 
 namespace traffic_light
 {
-class MapBasedDetector : public rclcpp::Node
+class MapBasedDetector: public rclcpp::Node
 {
 public:
   MapBasedDetector();
@@ -55,12 +55,8 @@ private:
     double max_vibration_depth;
   };
 
-  struct IdLessThan
-  {
-    bool operator()(
-      const lanelet::ConstLineString3d & left,
-      const lanelet::ConstLineString3d & right) const
-    {
+  struct IdLessThan {
+    bool operator()(const lanelet::ConstLineString3d& left, const lanelet::ConstLineString3d& right) const {
       return left.id() < right.id();
     }
   };

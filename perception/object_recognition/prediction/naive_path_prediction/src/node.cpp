@@ -24,8 +24,7 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
-NaivePathPredictionNode::NaivePathPredictionNode()
-: nh_(""), pnh_("~")
+NaivePathPredictionNode::NaivePathPredictionNode() : nh_(""), pnh_("~")
 {
   sub_ = nh_.subscribe("input", 1, &NaivePathPredictionNode::callback, this);
   pub_ = nh_.advertise<autoware_perception_msgs::DynamicObjectArray>("output", 1, true);
@@ -67,6 +66,7 @@ void NaivePathPredictionNode::callback(
 
   // Publish
   pub_.publish(output_msg);
+  return;
 }
 
 int main(int argc, char ** argv)

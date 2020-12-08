@@ -59,11 +59,11 @@ bool isDirectionForward(const geometry_msgs::Pose & prev, const geometry_msgs::P
 bool isDirectionForward(const geometry_msgs::Pose & prev, const geometry_msgs::Point & next);
 
 // refer from apache's pointinpoly in http://www.visibone.com/inpoly/
-template<typename T>
+template <typename T>
 bool isInPolygon(const std::vector<T> & polygon, const T & point)
 {
   // polygons with fewer than 3 sides are excluded
-  if (polygon.size() < 3) {return false;}
+  if (polygon.size() < 3) return false;
 
   bool in_poly = false;
   double x1, x2, y1, y2;
@@ -89,18 +89,17 @@ bool isInPolygon(const std::vector<T> & polygon, const T & point)
 
     if (
       (xnew < point.x()) == (point.x() <= xold) &&
-      (point.y() - y1) * (x2 - x1) < (y2 - y1) * (point.x() - x1))
-    {
+      (point.y() - y1) * (x2 - x1) < (y2 - y1) * (point.x() - x1)) {
       in_poly = !in_poly;
     }
     xold = xnew;
     yold = ynew;
   }
 
-  return in_poly;
+  return (in_poly);
 }
 
-template<>
+template <>
 bool isInPolygon(
   const std::vector<geometry_msgs::Point> & polygon, const geometry_msgs::Point & point);
 
