@@ -56,7 +56,7 @@ private:
 
 struct BoolStamped
 {
-  explicit BoolStamped(bool in_data) : data(in_data) {}
+  explicit BoolStamped(bool in_data) : data(in_data), stamp(0,0,RCL_ROS_TIME) {}
   bool data = false;
   rclcpp::Time stamp;
 };

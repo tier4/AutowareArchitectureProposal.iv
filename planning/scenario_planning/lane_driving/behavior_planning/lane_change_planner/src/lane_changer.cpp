@@ -95,7 +95,7 @@ void LaneChanger::init()
 
   // route_handler
   vector_map_subscriber_ =
-    create_subscription<autoware_lanelet2_msgs::msg::MapBin>("input/vector_map", rclcpp::QoS{1}, std::bind(&RouteHandler::mapCallback, &(*route_handler_ptr_), std::placeholders::_1));
+    create_subscription<autoware_lanelet2_msgs::msg::MapBin>("input/vector_map", rclcpp::QoS{1}.transient_local(), std::bind(&RouteHandler::mapCallback, &(*route_handler_ptr_), std::placeholders::_1));
   route_subscriber_ =
     create_subscription<autoware_planning_msgs::msg::Route>("input/route", rclcpp::QoS{1}, std::bind(&RouteHandler::routeCallback, &(*route_handler_ptr_), std::placeholders::_1));
 
@@ -132,11 +132,11 @@ void LaneChanger::run()
 {
   // wait until mandatory data is ready
   if (!route_handler_ptr_->isHandlerReady()) {
-    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5.0, "waiting for route to be ready");
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "waiting for route to be ready");
     return;
   }
   if (!data_manager_ptr_->isDataReady()) {
-    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5.0, "waiting for vehicle pose, vehicle_velocity, and obstacles");
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "waiting for vehicle pose, vehicle_velocity, and obstacles");
     return;
   }
 

@@ -197,14 +197,17 @@ bool SurroundObstacleCheckerNode::convertPose(
 
   try {
     // get transform from source to target
-    auto tf_future =
-      tf_buffer_.waitForTransform(source, target, time, tf2::durationFromSec(0.0), [](auto &) {});
-    auto status = tf_future.wait_for(tf2::durationFromSec(0.1));
-    if (status != std::future_status::ready) {
-      RCLCPP_WARN_STREAM_THROTTLE(
-        get_logger(), *this->get_clock(), 0.5, "cannot get tf from " << source << " to " << target);
-      return false;
-    }
+    // auto tf_future =
+    //   tf_buffer_.waitForTransform(source, target, time, tf2::durationFromSec(0.1), [](auto &) {});
+    // auto status = tf_future.wait_for(tf2::durationFromSec(0.1));
+    // if (status != std::future_status::ready) {
+    //   RCLCPP_WARN_STREAM_THROTTLE(
+    //     get_logger(), *this->get_clock(), 0.5, "cannot get tf from " << source << " to " << target);
+    //   return false;
+    // }
+
+    // TODO(mitsudome-r): fix to use time
+    ros_src2tgt = tf_buffer_.lookupTransform(source, target, rclcpp::Time(0));
 
     tf2::fromMsg(ros_src2tgt.transform, src2tgt);
   } catch (tf2::TransformException & ex) {
@@ -254,16 +257,18 @@ void SurroundObstacleCheckerNode::getNearestObstacleByPointCloud(
   // waint to transform pointcloud
   geometry_msgs::msg::TransformStamped transform_stamped;
   try {
-    auto tf_future = tf_buffer_.waitForTransform(
-      "base_link", pointcloud_ptr_->header.frame_id, pointcloud_ptr_->header.stamp,
-      tf2::durationFromSec(0.0), [](auto &) {});
-    auto status = tf_future.wait_for(tf2::durationFromSec(0.5));
-    if (status != std::future_status::ready) {
-      RCLCPP_WARN_STREAM_THROTTLE(
-        get_logger(), *this->get_clock(), 0.5,
-        "failed to get base_link to " << pointcloud_ptr_->header.frame_id << " transform.");
-      return;
-    }
+    // TODO(mitsudome-r): fix to use pointcloud header stamp
+    transform_stamped = tf_buffer_.lookupTransform("base_link", pointcloud_ptr_->header.frame_id, rclcpp::Time(0));
+    // auto tf_future = tf_buffer_.waitForTransform(
+    //   "base_link", pointcloud_ptr_->header.frame_id, pointcloud_ptr_->header.stamp,
+    //   tf2::durationFromSec(0.0), [](auto &) {});
+    // auto status = tf_future.wait_for(tf2::durationFromSec(0.5));
+    // if (status != std::future_status::ready) {
+    //   RCLCPP_WARN_STREAM_THROTTLE(
+    //     get_logger(), *this->get_clock(), 0.5,
+    //     "failed to get base_link to " << pointcloud_ptr_->header.frame_id << " transform.");
+    //   return;
+    // }
   } catch (tf2::TransformException & ex) {
     RCLCPP_WARN_STREAM_THROTTLE(
       get_logger(), *this->get_clock(), 0.5,

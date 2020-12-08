@@ -84,7 +84,7 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode()
     "input/vehicle_velocity", 1,
     std::bind(&BehaviorVelocityPlannerNode::onVehicleVelocity, this, _1));
   sub_lanelet_map_ = this->create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
-    "input/vector_map", 10, std::bind(&BehaviorVelocityPlannerNode::onLaneletMap, this, _1));
+    "input/vector_map", rclcpp::QoS(10).transient_local(), std::bind(&BehaviorVelocityPlannerNode::onLaneletMap, this, _1));
   sub_traffic_light_states_ =
     this->create_subscription<autoware_perception_msgs::msg::TrafficLightStateArray>(
       "input/traffic_light_states", 10,
@@ -143,7 +143,7 @@ void BehaviorVelocityPlannerNode::onNoGroundPointCloud(
   geometry_msgs::msg::TransformStamped transform;
   try {
     transform = tf_buffer_.lookupTransform(
-      "map", msg->header.frame_id, msg->header.stamp, rclcpp::Duration::from_seconds(0.1));
+      "map", msg->header.frame_id, rclcpp::Time(0));
   } catch (tf2::LookupException & e) {
     RCLCPP_WARN(get_logger(), "no transform found for no_ground_pointcloud");
     return;
