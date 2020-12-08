@@ -94,6 +94,7 @@ private:
   ros::Publisher pub_autoware_state_;
   ros::Publisher pub_autoware_engage_;
 
+  bool isEngaged();
   void setDisengage();
 
   // Timer

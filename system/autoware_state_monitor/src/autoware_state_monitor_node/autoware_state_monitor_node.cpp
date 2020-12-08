@@ -137,7 +137,7 @@ void AutowareStateMonitorNode::onRoute(const autoware_planning_msgs::Route::Cons
     state_input_.goal_pose = geometry_msgs::Pose::ConstPtr(p);
   }
 
-  if (disengage_on_route_) {
+  if (disengage_on_route_ && isEngaged()) {
     ROS_INFO("new route received and disengage Autoware");
     setDisengage();
   }
@@ -211,7 +211,7 @@ void AutowareStateMonitorNode::onTimer(const ros::TimerEvent & event)
   }
 
   // Disengage on event
-  if (disengage_on_goal_ && autoware_state == AutowareState::ArrivedGoal) {
+  if (disengage_on_goal_ && isEngaged() && autoware_state == AutowareState::ArrivedGoal) {
     ROS_INFO("arrived goal and disengage Autoware");
     setDisengage();
   }
@@ -351,6 +351,15 @@ TfStats AutowareStateMonitorNode::getTfStats() const
   }
 
   return tf_stats;
+}
+
+bool AutowareStateMonitorNode::isEngaged()
+{
+  if (!state_input_.autoware_engage) {
+    return false;
+  }
+
+  return state_input_.autoware_engage->data;
 }
 
 void AutowareStateMonitorNode::setDisengage()
