@@ -19,6 +19,7 @@
   <depend>message_filters</depend>
   <depend>pacmod_msgs</depend>
   <depend>std_msgs</depend>
+  <depend>vehicle_info_util</depend>
 
   <export>
     <build_type>ament_cmake</build_type>
