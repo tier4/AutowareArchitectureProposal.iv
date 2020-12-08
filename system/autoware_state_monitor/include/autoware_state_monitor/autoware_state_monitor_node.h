@@ -97,6 +97,7 @@ private:
   rclcpp::Publisher<autoware_system_msgs::msg::AutowareState>::SharedPtr pub_autoware_state_;
   rclcpp::Publisher<autoware_control_msgs::msg::EngageMode>::SharedPtr pub_autoware_engage_;
 
+  bool isEngaged();
   void setDisengage();
 
   // Timer
