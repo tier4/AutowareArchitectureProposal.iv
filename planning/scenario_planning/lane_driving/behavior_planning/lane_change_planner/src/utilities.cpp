@@ -27,10 +27,11 @@ rclcpp::Duration safeSubtraction(const rclcpp::Time & t1, const rclcpp::Time & t
   try {
     duration = t1 - t2;
   } catch (std::runtime_error & err) {
-    if (t1 > t2)
+    if (t1 > t2) {
       duration = rclcpp::Duration::max() * -1.0;
-    else
+    } else {
       duration = rclcpp::Duration::max();
+    }
   }
   return duration;
 }
@@ -40,8 +41,8 @@ rclcpp::Time safeAddition(const rclcpp::Time & t1, const double seconds)
   try {
     sum = t1 + rclcpp::Duration::from_seconds(seconds);
   } catch (std::runtime_error & err) {
-    if (seconds > 0) sum = rclcpp::Time::max();
-    if (seconds < 0) sum = rclcpp::Time(0);
+    if (seconds > 0) {sum = rclcpp::Time::max();}
+    if (seconds < 0) {sum = rclcpp::Time(0);}
   }
   return sum;
 }
@@ -232,8 +233,8 @@ PredictedPath convertToPredictedPath(
     vehicle_speed = min_speed;
     RCLCPP_DEBUG_STREAM_THROTTLE(
       logger, *clock, 1.0,
-      "cannot convert PathWithLaneId with zero velocity, using minimum value " << min_speed
-                                                                               << " [m/s] instead");
+      "cannot convert PathWithLaneId with zero velocity, using minimum value " << min_speed <<
+        " [m/s] instead");
   }
 
   double length = 0;
@@ -253,7 +254,7 @@ PredictedPath convertToPredictedPath(
       travel_distance = min_speed * resolution;
     } else {
       travel_distance = prev_vehicle_speed + prev_vehicle_speed * resolution +
-                        0.5 * acceleration * resolution * resolution;
+        0.5 * acceleration * resolution * resolution;
     }
 
     length += travel_distance;
@@ -364,22 +365,24 @@ bool lerpByTimeStamp(
   }
   if (t < path.path.front().header.stamp) {
     RCLCPP_DEBUG_STREAM(
-      logger, "failed to interpolate path by time!"
-                << std::endl
-                << "path start time: " << rclcpp::Time(path.path.front().header.stamp).seconds() << std::endl
-                << "path end time  : " << rclcpp::Time(path.path.back().header.stamp).seconds() << std::endl
-                << "query time     : " << t.seconds());
+      logger, "failed to interpolate path by time!" <<
+        std::endl <<
+        "path start time: " << rclcpp::Time(
+        path.path.front().header.stamp).seconds() << std::endl <<
+        "path end time  : " << rclcpp::Time(path.path.back().header.stamp).seconds() << std::endl <<
+        "query time     : " << t.seconds());
     *lerped_pt = path.path.front().pose.pose;
     return false;
   }
 
   if (t > path.path.back().header.stamp) {
     RCLCPP_DEBUG_STREAM(
-      logger, "failed to interpolate path by time!"
-                << std::endl
-                << "path start time: " << rclcpp::Time(path.path.front().header.stamp).seconds() << std::endl
-                << "path end time  : " << rclcpp::Time(path.path.back().header.stamp).seconds() << std::endl
-                << "query time     : " << t.seconds());
+      logger, "failed to interpolate path by time!" <<
+        std::endl <<
+        "path start time: " << rclcpp::Time(
+        path.path.front().header.stamp).seconds() << std::endl <<
+        "path end time  : " << rclcpp::Time(path.path.back().header.stamp).seconds() << std::endl <<
+        "query time     : " << t.seconds());
     *lerped_pt = path.path.back().pose.pose;
 
     return false;
@@ -620,7 +623,8 @@ PathWithLaneId removeOverlappingPoints(const PathWithLaneId & input_path)
     }
     if (
       getDistance3d(filtered_path.points.back().point.pose.position, pt.point.pose.position) <
-      std::numeric_limits<double>::epsilon()) {
+      std::numeric_limits<double>::epsilon())
+    {
       filtered_path.points.back().lane_ids.push_back(pt.lane_ids.front());
     } else {
       filtered_path.points.push_back(pt);
@@ -630,7 +634,7 @@ PathWithLaneId removeOverlappingPoints(const PathWithLaneId & input_path)
   return filtered_path;
 }
 
-template <typename T>
+template<typename T>
 bool exists(std::vector<T> vec, T element)
 {
   return std::find(vec.begin(), vec.end(), element) != vec.end();
@@ -656,7 +660,8 @@ bool setGoal(
         const double dist = sqrt(x * x + y * y);
         if (
           dist < search_radius_range && dist < min_dist &&
-          exists(input.points.at(i).lane_ids, goal_lane_id)) {
+          exists(input.points.at(i).lane_ids, goal_lane_id))
+        {
           min_dist_index = i;
           min_dist = dist;
           found = true;
@@ -770,8 +775,9 @@ PathWithLaneId refinePath(
   }
 
   if (setGoal(
-        search_radius_range, search_rad_range, filtered_path, goal, goal_lane_id, &path_with_goal,
-        logger)) {
+      search_radius_range, search_rad_range, filtered_path, goal, goal_lane_id, &path_with_goal,
+      logger))
+  {
     return path_with_goal;
   } else {
     return filtered_path;
@@ -855,7 +861,8 @@ nav_msgs::msg::OccupancyGrid generateDrivableArea(
       for (std::size_t j = 0; j < i; j++) {
         const auto past_lane = drivable_lanes.at(j);
         if (boost::geometry::overlaps(
-              lane.polygon2d().basicPolygon(), past_lane.polygon2d().basicPolygon())) {
+            lane.polygon2d().basicPolygon(), past_lane.polygon2d().basicPolygon()))
+        {
           overlaps_with_past_lane = true;
           break;
         }
@@ -1040,14 +1047,18 @@ lanelet::Polygon3d getVehiclePolygon(
   const auto rear_right_transformed = tf * rear_right;
 
   lanelet::Polygon3d llt_poly;
-  llt_poly.push_back(lanelet::Point3d(
-    0, front_left_transformed.x(), front_left_transformed.y(), front_left_transformed.z()));
-  llt_poly.push_back(lanelet::Point3d(
-    0, front_right_transformed.x(), front_right_transformed.y(), front_right_transformed.z()));
-  llt_poly.push_back(lanelet::Point3d(
-    0, rear_right_transformed.x(), rear_right_transformed.y(), rear_right_transformed.z()));
-  llt_poly.push_back(lanelet::Point3d(
-    0, rear_left_transformed.x(), rear_left_transformed.y(), rear_left_transformed.z()));
+  llt_poly.push_back(
+    lanelet::Point3d(
+      0, front_left_transformed.x(), front_left_transformed.y(), front_left_transformed.z()));
+  llt_poly.push_back(
+    lanelet::Point3d(
+      0, front_right_transformed.x(), front_right_transformed.y(), front_right_transformed.z()));
+  llt_poly.push_back(
+    lanelet::Point3d(
+      0, rear_right_transformed.x(), rear_right_transformed.y(), rear_right_transformed.z()));
+  llt_poly.push_back(
+    lanelet::Point3d(
+      0, rear_left_transformed.x(), rear_left_transformed.y(), rear_left_transformed.z()));
   return llt_poly;
 }
 
@@ -1089,7 +1100,8 @@ autoware_planning_msgs::msg::PathPointWithLaneId insertStopPoint(
 /*
  * spline interpolation
  */
-SplineInterpolate::SplineInterpolate(const rclcpp::Logger & logger) : logger_(logger) {}
+SplineInterpolate::SplineInterpolate(const rclcpp::Logger & logger)
+: logger_(logger) {}
 
 void SplineInterpolate::generateSpline(
   const std::vector<double> & base_index, const std::vector<double> & base_value)
@@ -1130,7 +1142,7 @@ double SplineInterpolate::getValue(
   }
 
   size_t j = 0;
-  while (base_index[j] <= query) ++j;
+  while (base_index[j] <= query) {++j;}
   --j;
   const double ds = query - base_index[j];
   return a_[j] + (b_[j] + (c_[j] + d_[j] * ds) * ds) * ds;
@@ -1158,7 +1170,7 @@ bool SplineInterpolate::interpolate(
 bool SplineInterpolate::isIncrease(const std::vector<double> & x) const
 {
   for (int i = 0; i < static_cast<int>(x.size()) - 1; ++i) {
-    if (x[i] > x[i + 1]) return false;
+    if (x[i] > x[i + 1]) {return false;}
   }
   return true;
 }
@@ -1168,19 +1180,19 @@ bool SplineInterpolate::isValidInput(
   const std::vector<double> & return_index, std::vector<double> & return_value) const
 {
   if (base_index.empty() || base_value.empty() || return_index.empty()) {
-    std::cout << "bad index : some vector is empty. base_index: " << base_index.size()
-              << ", base_value: " << base_value.size() << ", return_index: " << return_index.size()
-              << std::endl;
+    std::cout << "bad index : some vector is empty. base_index: " << base_index.size() <<
+      ", base_value: " << base_value.size() << ", return_index: " << return_index.size() <<
+      std::endl;
     return false;
   }
   if (!isIncrease(base_index)) {
-    std::cout << "bad index : base_index is not monotonically increasing. base_index = ["
-              << base_index.front() << ", " << base_index.back() << "]" << std::endl;
+    std::cout << "bad index : base_index is not monotonically increasing. base_index = [" <<
+      base_index.front() << ", " << base_index.back() << "]" << std::endl;
     return false;
   }
   if (!isIncrease(return_index)) {
-    std::cout << "bad index : base_index is not monotonically increasing. return_index = ["
-              << return_index.front() << ", " << return_index.back() << "]" << std::endl;
+    std::cout << "bad index : base_index is not monotonically increasing. return_index = [" <<
+      return_index.front() << ", " << return_index.back() << "]" << std::endl;
     return false;
   }
   if (return_index.front() < base_index.front()) {
@@ -1213,13 +1225,13 @@ std::vector<double> SplineInterpolate::solveLinearSystem(
     for (size_t i = 1; i < a_.size() - 1; ++i) {
       const double rhs = 3.0 / h_[i] * (a_[i + 1] - a_[i]) - 3.0 / h_[i - 1] * (a_[i] - a_[i - 1]);
       ans_next[i] += omega / (2.0 * (h_[i - 1] + h_[i])) *
-                     (rhs - (h_[i - 1] * ans_next[i - 1] + 2.0 * (h_[i - 1] + h_[i]) * ans[i] +
-                             h_[i] * ans[i + 1]));
+        (rhs - (h_[i - 1] * ans_next[i - 1] + 2.0 * (h_[i - 1] + h_[i]) * ans[i] +
+        h_[i] * ans[i + 1]));
     }
     ++num_iter;
   }
 
-  if (num_iter > max_iter) RCLCPP_WARN(logger_, "[interpolate] unconverged!");
+  if (num_iter > max_iter) {RCLCPP_WARN(logger_, "[interpolate] unconverged!");}
   return ans_next;
 }
 

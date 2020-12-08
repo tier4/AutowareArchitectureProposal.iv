@@ -28,14 +28,14 @@ void KinematicsBicycleModel::calculateDiscreteMatrix(
   Eigen::MatrixXd & Ad, Eigen::MatrixXd & Bd, Eigen::MatrixXd & Cd, Eigen::MatrixXd & Wd,
   const double & dt)
 {
-  auto sign = [](double x) { return (x > 0.0) - (x < 0.0); };
+  auto sign = [](double x) {return (x > 0.0) - (x < 0.0);};
 
   /* Linearize delta around delta_r (referece delta) */
   double delta_r = atan(wheelbase_ * curvature_);
-  if (abs(delta_r) >= steer_lim_) delta_r = steer_lim_ * (double)sign(delta_r);
+  if (abs(delta_r) >= steer_lim_) {delta_r = steer_lim_ * (double)sign(delta_r);}
   double cos_delta_r_squared_inv = 1 / (cos(delta_r) * cos(delta_r));
   double velocity = velocity_;
-  if (abs(velocity_) < 1e-04) velocity = 1e-04 * (velocity_ >= 0 ? 1 : -1);
+  if (abs(velocity_) < 1e-04) {velocity = 1e-04 * (velocity_ >= 0 ? 1 : -1);}
 
   Ad << 0.0, velocity, 0.0, 0.0, 0.0, velocity / wheelbase_ * cos_delta_r_squared_inv, 0.0, 0.0,
     -1.0 / steer_tau_;
@@ -49,7 +49,7 @@ void KinematicsBicycleModel::calculateDiscreteMatrix(
 
   Wd << 0.0,
     -velocity * curvature_ +
-      velocity / wheelbase_ * (tan(delta_r) - delta_r * cos_delta_r_squared_inv),
+    velocity / wheelbase_ * (tan(delta_r) - delta_r * cos_delta_r_squared_inv),
     0.0;
   Wd *= dt;
 }

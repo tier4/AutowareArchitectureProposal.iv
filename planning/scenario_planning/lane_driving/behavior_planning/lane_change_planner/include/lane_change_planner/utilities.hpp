@@ -51,7 +51,8 @@ struct FrenetCoordinate3d
 {
   double length;
   double distance;
-  FrenetCoordinate3d() : length(0), distance(0) {}
+  FrenetCoordinate3d()
+  : length(0), distance(0) {}
 };
 
 double normalizeRadian(const double radian);
@@ -66,7 +67,8 @@ geometry_msgs::msg::PoseArray convertToGeometryPoseArray(
 autoware_perception_msgs::msg::PredictedPath convertToPredictedPath(
   const autoware_planning_msgs::msg::PathWithLaneId & path,
   const geometry_msgs::msg::Twist & vehicle_twist, const geometry_msgs::msg::Pose & vehicle_pose,
-  const double duration, const double resolution, const double acceleration, const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
+  const double duration, const double resolution, const double acceleration,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
 autoware_perception_msgs::msg::PredictedPath resamplePredictedPath(
   const autoware_perception_msgs::msg::PredictedPath & input_path, const double resolution,
   const double duration, const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);

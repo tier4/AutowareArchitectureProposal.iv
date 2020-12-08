@@ -28,7 +28,8 @@ class OpticalFlowNode
 {
 public:
   OpticalFlowNode();
-  void callback(const sensor_msgs::PointCloud2::ConstPtr& cloud_msg);
+  void callback(const sensor_msgs::PointCloud2::ConstPtr & cloud_msg);
+
 private:
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;

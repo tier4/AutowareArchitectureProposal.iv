@@ -99,7 +99,7 @@ private:
   std::shared_ptr<VehicleModelInterface> vehicle_model_ptr_;  //!< @brief vehicle model for MPC
   std::shared_ptr<QPSolverInterface> qpsolver_ptr_;           //!< @brief qp solver for MPC
   std::deque<double>
-    input_buffer_;  //!< @brief control input (mpc_output) buffer for delay time conpemsation
+  input_buffer_;    //!< @brief control input (mpc_output) buffer for delay time conpemsation
 
   /* parameters for control*/
   double ctrl_period_;  //!< @brief control frequency [s]

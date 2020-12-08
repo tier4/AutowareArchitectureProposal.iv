@@ -32,7 +32,8 @@ class TensorrtYoloROS : public rclcpp::Node
 {
 private:
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_image_;
-  rclcpp::Publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr pub_objects_;
+  rclcpp::Publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr
+    pub_objects_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_image_;
 
   std::unique_ptr<Tn::trtNet> net_ptr_;
@@ -44,6 +45,7 @@ private:
     autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & out_objects);
   void doNms(std::vector<Yolo::Detection> & detections, int classes, float nmsThresh);
   /* data */
+
 public:
   TensorrtYoloROS(/* args */);
   ~TensorrtYoloROS();

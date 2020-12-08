@@ -27,7 +27,7 @@ StoppingLaneChangeState::StoppingLaneChangeState(
 : StateBase(status, data_manager_ptr, route_handler_ptr)
 {
 }
-State StoppingLaneChangeState::getCurrentState() const { return State::STOPPING_LANE_CHANGE; }
+State StoppingLaneChangeState::getCurrentState() const {return State::STOPPING_LANE_CHANGE;}
 
 void StoppingLaneChangeState::entry()
 {

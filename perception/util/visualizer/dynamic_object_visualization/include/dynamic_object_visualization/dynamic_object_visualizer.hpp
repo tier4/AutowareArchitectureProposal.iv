@@ -27,25 +27,30 @@
 
 class DynamicObjectVisualizer : public rclcpp::Node
 {
-private:  // ros
+private:
+  // ros
   bool with_feature_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_;
   rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr sub_;
-  rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr sub_with_feature_;
+  rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr
+    sub_with_feature_;
 
   void dynamicObjectWithFeatureCallback(
     const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr input_msg);
   void dynamicObjectCallback(
     const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_msg);
   bool calcBoundingBoxLineList(
-    const autoware_perception_msgs::msg::Shape & shape, std::vector<geometry_msgs::msg::Point> & points);
+    const autoware_perception_msgs::msg::Shape & shape,
+    std::vector<geometry_msgs::msg::Point> & points);
   bool calcCylinderLineList(
-    const autoware_perception_msgs::msg::Shape & shape, std::vector<geometry_msgs::msg::Point> & points);
+    const autoware_perception_msgs::msg::Shape & shape,
+    std::vector<geometry_msgs::msg::Point> & points);
   bool calcCircleLineList(
     const geometry_msgs::msg::Point center, const double radius,
     std::vector<geometry_msgs::msg::Point> & points, const int n = 20);
   bool calcPolygonLineList(
-    const autoware_perception_msgs::msg::Shape & shape, std::vector<geometry_msgs::msg::Point> & points);
+    const autoware_perception_msgs::msg::Shape & shape,
+    std::vector<geometry_msgs::msg::Point> & points);
   bool calcPathLineList(
     const autoware_perception_msgs::msg::PredictedPath & path,
     std::vector<geometry_msgs::msg::Point> & points);
@@ -59,11 +64,11 @@ private:  // ros
   std::vector<std_msgs::msg::ColorRGBA> colors_;
 
 
-  inline std::string uuid_to_string(unique_identifier_msgs::msg::UUID const& u)
+  inline std::string uuid_to_string(unique_identifier_msgs::msg::UUID const & u)
   {
     std::stringstream ss;
     for (auto i = 0; i < 16; ++i) {
-        ss << std::hex << std::setfill('0') << std::setw(2) << +u.uuid[i];
+      ss << std::hex << std::setfill('0') << std::setw(2) << +u.uuid[i];
     }
     return ss.str();
   }

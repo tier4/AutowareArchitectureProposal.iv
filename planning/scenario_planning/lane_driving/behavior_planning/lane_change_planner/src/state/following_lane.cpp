@@ -29,7 +29,7 @@ FollowingLaneState::FollowingLaneState(
 {
 }
 
-State FollowingLaneState::getCurrentState() const { return State::FOLLOWING_LANE; }
+State FollowingLaneState::getCurrentState() const {return State::FOLLOWING_LANE;}
 
 void FollowingLaneState::entry()
 {
@@ -62,7 +62,9 @@ void FollowingLaneState::update()
   // update lanes
   {
     if (!route_handler_ptr_->getClosestLaneletWithinRoute(current_pose_.pose, &current_lane)) {
-      RCLCPP_ERROR(data_manager_ptr_->getLogger(), "failed to find closest lanelet within route!!!");
+      RCLCPP_ERROR(
+        data_manager_ptr_->getLogger(),
+        "failed to find closest lanelet within route!!!");
       return;
     }
     current_lanes_ = route_handler_ptr_->getLaneletSequence(
@@ -105,10 +107,12 @@ void FollowingLaneState::update()
       // select valid path
       LaneChangePath selected_path;
       if (state_machine::common_functions::selectLaneChangePath(
-            lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
-            dynamic_objects_, current_pose_.pose, current_twist_->twist,
-            route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
-            route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path, data_manager_ptr_->getLogger(), data_manager_ptr_->getClock())) {
+          lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
+          dynamic_objects_, current_pose_.pose, current_twist_->twist,
+          route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
+          route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path,
+          data_manager_ptr_->getLogger(), data_manager_ptr_->getClock()))
+      {
         found_safe_path = true;
       }
       debug_data_.selected_path = selected_path.path;
@@ -145,7 +149,9 @@ void FollowingLaneState::update()
 State FollowingLaneState::getNextState() const
 {
   if (current_lanes_.empty()) {
-    RCLCPP_ERROR_THROTTLE(data_manager_ptr_->getLogger(), *data_manager_ptr_->getClock(), 1.0, "current lanes empty. Keeping state.");
+    RCLCPP_ERROR_THROTTLE(
+      data_manager_ptr_->getLogger(),
+      *data_manager_ptr_->getClock(), 1.0, "current lanes empty. Keeping state.");
     return State::FOLLOWING_LANE;
   }
   if (route_handler_ptr_->isInPreferredLane(current_pose_) && isLaneBlocked(current_lanes_)) {
@@ -176,9 +182,10 @@ bool FollowingLaneState::isLaneBlocked(const lanelet::ConstLanelets & lanes) con
     lanelet::utils::getPolygonFromArcLength(lanes, arc.length, arc.length + check_distance);
 
   if (polygon.size() < 3) {
-    RCLCPP_WARN_STREAM(data_manager_ptr_->getLogger(), 
-      "could not get polygon from lanelet with arc lengths: " << arc.length << " to "
-                                                              << arc.length + check_distance);
+    RCLCPP_WARN_STREAM(
+      data_manager_ptr_->getLogger(),
+      "could not get polygon from lanelet with arc lengths: " << arc.length << " to " <<
+        arc.length + check_distance);
     return false;
   }
 
@@ -187,7 +194,8 @@ bool FollowingLaneState::isLaneBlocked(const lanelet::ConstLanelets & lanes) con
       obj.semantic.type == autoware_perception_msgs::msg::Semantic::CAR ||
       obj.semantic.type == autoware_perception_msgs::msg::Semantic::TRUCK ||
       obj.semantic.type == autoware_perception_msgs::msg::Semantic::BUS ||
-      obj.semantic.type == autoware_perception_msgs::msg::Semantic::MOTORBIKE) {
+      obj.semantic.type == autoware_perception_msgs::msg::Semantic::MOTORBIKE)
+    {
       const auto velocity = util::l2Norm(obj.state.twist_covariance.twist.linear);
       if (velocity < static_obj_velocity_thresh) {
         const auto position =
@@ -209,14 +217,14 @@ bool FollowingLaneState::isVehicleInPreferredLane() const
   return route_handler_ptr_->isInPreferredLane(current_pose_);
 }
 
-bool FollowingLaneState::isTooCloseToDeadEnd() const { return false; }
+bool FollowingLaneState::isTooCloseToDeadEnd() const {return false;}
 
-bool FollowingLaneState::isLaneChangeApproved() const { return lane_change_approved_; }
+bool FollowingLaneState::isLaneChangeApproved() const {return lane_change_approved_;}
 
-bool FollowingLaneState::laneChangeForcedByOperator() const { return force_lane_change_; }
+bool FollowingLaneState::laneChangeForcedByOperator() const {return force_lane_change_;}
 
-bool FollowingLaneState::isLaneChangeReady() const { return status_.lane_change_ready; }
+bool FollowingLaneState::isLaneChangeReady() const {return status_.lane_change_ready;}
 
-bool FollowingLaneState::isLaneChangeAvailable() const { return status_.lane_change_available; }
+bool FollowingLaneState::isLaneChangeAvailable() const {return status_.lane_change_available;}
 
 }  // namespace lane_change_planner

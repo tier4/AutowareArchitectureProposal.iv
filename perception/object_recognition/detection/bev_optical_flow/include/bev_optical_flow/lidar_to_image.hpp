@@ -33,11 +33,12 @@ class LidarToBEVImage
 {
 public:
   LidarToBEVImage();
-  void getBEVImage(const sensor_msgs::PointCloud2::ConstPtr& cloud_msg,
-    cv::Mat& bev_image);
+  void getBEVImage(
+    const sensor_msgs::PointCloud2::ConstPtr & cloud_msg,
+    cv::Mat & bev_image);
 
 private:
-  float pointToPixel(const pcl::PointXYZ& point, cv::Point2d& px, float map2base_angle);
+  float pointToPixel(const pcl::PointXYZ & point, cv::Point2d & px, float map2base_angle);
 
   std::shared_ptr<Utils> utils_;
 

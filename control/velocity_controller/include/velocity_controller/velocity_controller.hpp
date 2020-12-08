@@ -128,7 +128,8 @@ private:
   std::vector<autoware_control_msgs::msg::ControlCommandStamped> ctrl_cmd_vec_;
 
   // controller mode (0: init check, 1: PID, 2: Stop, 3: Smooth stop, 4: Emergency stop, 5: Error)
-  enum class ControlMode {
+  enum class ControlMode
+  {
     INIT = 0,
     PID_CONTROL = 1,
     STOPPED = 2,
@@ -152,7 +153,8 @@ private:
   std::shared_ptr<rclcpp::Time> prev_control_time_;
 
   // shift mode
-  enum Shift {
+  enum Shift
+  {
     Forward = 0,
     Reverse,
   } prev_shift_;
@@ -226,7 +228,8 @@ private:
 
   /* Debug */
   mutable std_msgs::msg::Float32MultiArray debug_values_;
-  enum DBGVAL {
+  enum DBGVAL
+  {
     DT = 0,
     CURR_V = 1,
     TARGET_V = 2,

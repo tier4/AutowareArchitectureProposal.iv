@@ -33,8 +33,9 @@ private:
   double gain_;  //!< @brief gain value of 1d filter
 
 public:
-  Lpf1d(double gain) : gain_(gain){};
-  Lpf1d(){};
+  Lpf1d(double gain)
+  : gain_(gain) {}
+  Lpf1d() {}
   ~Lpf1d() = default;
 
   void init(double gain)
@@ -43,7 +44,7 @@ public:
     x_ = 0.0;
   }
 
-  void reset() { x_ = 0.0; }
+  void reset() {x_ = 0.0;}
 
   double filter(double u)
   {

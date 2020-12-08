@@ -40,7 +40,10 @@ void StateMachine::init()
   state_obj_ptr_->entry();
 }
 
-void StateMachine::initCallback(const autoware_planning_msgs::msg::Route::ConstSharedPtr route) { init(); }
+void StateMachine::initCallback(const autoware_planning_msgs::msg::Route::ConstSharedPtr route)
+{
+  init();
+}
 
 void StateMachine::updateState()
 {
@@ -51,7 +54,9 @@ void StateMachine::updateState()
 
   // Transit to next state
   if (next_state != current_state) {
-    RCLCPP_INFO_STREAM(data_manager_ptr_->getLogger(), "changing state: " << current_state << " => " << next_state);
+    RCLCPP_INFO_STREAM(
+      data_manager_ptr_->getLogger(),
+      "changing state: " << current_state << " => " << next_state);
     const auto previous_status = state_obj_ptr_->getStatus();
     switch (next_state) {
       case State::FOLLOWING_LANE:
@@ -91,8 +96,8 @@ autoware_planning_msgs::msg::PathWithLaneId StateMachine::getPath() const
   return state_obj_ptr_->getPath();
 }
 
-Status StateMachine::getStatus() const { return state_obj_ptr_->getStatus(); }
-DebugData StateMachine::getDebugData() const { return state_obj_ptr_->getDebugData(); }
-State StateMachine::getState() const { return state_obj_ptr_->getCurrentState(); }
+Status StateMachine::getStatus() const {return state_obj_ptr_->getStatus();}
+DebugData StateMachine::getDebugData() const {return state_obj_ptr_->getDebugData();}
+State StateMachine::getState() const {return state_obj_ptr_->getCurrentState();}
 
 }  // namespace lane_change_planner
