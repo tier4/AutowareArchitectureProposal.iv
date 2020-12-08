@@ -3,7 +3,7 @@ string autoware_state
 int32 control_mode
 int32 gate_mode
 bool emergency_stopped
-autoware_system_msgs/HazardStatus hazard_status
+autoware_system_msgs/HazardStatusStamped hazard_status
 autoware_planning_msgs/StopReasonArray stop_reason
 diagnostic_msgs/DiagnosticStatus[] diagnostics
 diagnostic_msgs/DiagnosticStatus[] error_diagnostics
