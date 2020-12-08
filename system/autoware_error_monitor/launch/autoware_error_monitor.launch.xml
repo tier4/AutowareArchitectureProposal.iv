@@ -1,5 +1,7 @@
 <launch>
   <arg name="config_file" default="$(find-pkg-share autoware_error_monitor)/config/autoware_error_monitor.param.yaml" />
+  <arg name="ignore_missing_diagnostics" default="false" />
+  <arg name="add_leaf_diagnostics" default="true" />
 
   <arg name="agg_config_file_discard" default="$(find-pkg-share autoware_error_monitor)/config/diagnostic_aggregator/_discard.yaml" />
   <arg name="agg_config_file_control" default="$(find-pkg-share autoware_error_monitor)/config/diagnostic_aggregator/control.yaml" />
@@ -28,5 +30,7 @@
 
   <include file="$(find-pkg-share autoware_error_monitor)/launch/autoware_error_monitor_node.launch.xml">
     <arg name="config_file" value="$(var config_file)"/>
+    <arg name="ignore_missing_diagnostics" value="$(var ignore_missing_diagnostics)"/>
+    <arg name="add_leaf_diagnostics" value="$(var add_leaf_diagnostics)"/>
   </include>
 </launch>
