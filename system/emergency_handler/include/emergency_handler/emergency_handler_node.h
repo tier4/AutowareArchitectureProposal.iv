@@ -20,11 +20,13 @@
 #include "autoware_control_msgs/msg/gate_mode.hpp"
 #include "autoware_system_msgs/msg/autoware_state.hpp"
 #include "autoware_system_msgs/msg/driving_capability.hpp"
+#include "autoware_system_msgs/msg/hazard_status_stamped.hpp"
 #include "autoware_vehicle_msgs/msg/shift_stamped.hpp"
 #include "autoware_vehicle_msgs/msg/turn_signal.hpp"
 #include "autoware_vehicle_msgs/msg/vehicle_command.hpp"
 
 // ROS2 core
+#include "diagnostic_msgs/msg/diagnostic_array.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "std_msgs/msg/bool.hpp"
 #include "std_srvs/srv/trigger.hpp"
@@ -81,6 +83,11 @@ private:
   rclcpp::Publisher<autoware_vehicle_msgs::msg::ShiftStamped>::SharedPtr pub_shift_;
   rclcpp::Publisher<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr pub_turn_signal_;
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr pub_is_emergency_;
+  rclcpp::Publisher<autoware_system_msgs::msg::HazardStatusStamped>::SharedPtr pub_hazard_status_;
+  rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr pub_diagnostics_err_;
+
+  void publishHazardStatus(const autoware_system_msgs::msg::HazardStatus & hazard_status);
+  void publishControlCommands();
 
   // Timer
   rclcpp::TimerBase::SharedPtr timer_;
@@ -90,6 +97,7 @@ private:
   double data_ready_timeout_;
   double timeout_driving_capability_;
   double timeout_is_state_timeout_;
+  int emergency_hazard_level_;
   bool use_emergency_hold_;
   bool use_parking_after_stopped_;
 
@@ -104,9 +112,11 @@ private:
 
   // Algorithm
   bool is_emergency_ = false;
+  autoware_system_msgs::msg::HazardStatus hazard_status_;
 
   bool isStopped();
-  bool isEmergency();
+  bool isEmergency(const autoware_system_msgs::msg::HazardStatus & hazard_status);
+  autoware_system_msgs::msg::HazardStatus judgeHazardStatus();
   autoware_control_msgs::msg::ControlCommand selectAlternativeControlCommand();
 };
 

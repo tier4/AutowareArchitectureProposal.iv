@@ -30,7 +30,7 @@ public:
     timeout_(timeout)
   {
     using std::placeholders::_1;
-    sub_heartbeat_ = rclcpp::create_subscription<HeartbeatMsg>(
+    sub_heartbeat_ = node.create_subscription<HeartbeatMsg>(
       topic_name, rclcpp::QoS{1},
       std::bind(&HeaderlessHeartbeatChecker::onHeartbeat, this, _1));
   }

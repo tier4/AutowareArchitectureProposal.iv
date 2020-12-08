@@ -14,6 +14,130 @@
 
 #include "emergency_handler/emergency_handler_core.hpp"
 
+namespace
+{
+diagnostic_msgs::msg::DiagnosticStatus createDiagnosticStatus(
+  const int level, const std::string & name, const std::string & message)
+{
+  diagnostic_msgs::msg::DiagnosticStatus diag;
+
+  diag.level = level;
+  diag.name = name;
+  diag.message = message;
+  diag.hardware_id = "emergency_handler";
+
+  return diag;
+}
+
+diagnostic_msgs::msg::DiagnosticArray convertHazardStatusToDiagnosticArray(
+  rclcpp::Clock::SharedPtr clock,
+  const autoware_system_msgs::msg::HazardStatus & hazard_status)
+{
+  using diagnostic_msgs::msg::DiagnosticStatus;
+
+  diagnostic_msgs::msg::DiagnosticArray diag_array;
+  diag_array.header.stamp = clock->now();
+
+  const auto decorateDiag = [](const auto & hazard_diag, const std::string & label) {
+    auto diag = hazard_diag;
+
+    diag.message = label + diag.message;
+
+    return diag;
+  };
+
+  for (const auto & hazard_diag : hazard_status.diagnostics_nf) {
+    diag_array.status.push_back(decorateDiag(hazard_diag, "[No Fault]"));
+  }
+  for (const auto & hazard_diag : hazard_status.diagnostics_sf) {
+    diag_array.status.push_back(decorateDiag(hazard_diag, "[Safe Fault]"));
+  }
+  for (const auto & hazard_diag : hazard_status.diagnostics_lf) {
+    diag_array.status.push_back(decorateDiag(hazard_diag, "[Latent Fault]"));
+  }
+  for (const auto & hazard_diag : hazard_status.diagnostics_spf) {
+    diag_array.status.push_back(decorateDiag(hazard_diag, "[Single Point Fault]"));
+  }
+
+  return diag_array;
+}
+}  // namespace
+
+EmergencyHandler::EmergencyHandler()
+: Node("emergency_handler"),
+  update_rate_(declare_parameter<int>("update_rate", 10)),
+  data_ready_timeout_(declare_parameter<double>("data_ready_timeout", 30.0)),
+  timeout_driving_capability_(declare_parameter<double>("timeout_driving_capability", 0.5)),
+  timeout_is_state_timeout_(declare_parameter<double>("timeout_is_state_timeout", 0.5)),
+  emergency_hazard_level_(declare_parameter<int>("emergency_hazard_level", 2)),
+  use_emergency_hold_(declare_parameter<bool>("use_emergency_hold", false)),
+  use_parking_after_stopped_(declare_parameter<bool>("use_parking_after_stopped", false))
+{
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+  using std::placeholders::_3;
+
+  // Subscriber
+  sub_autoware_state_ = create_subscription<autoware_system_msgs::msg::AutowareState>(
+    "input/autoware_state", rclcpp::QoS{1},
+    std::bind(&EmergencyHandler::onAutowareState, this, _1));
+  sub_driving_capability_ = create_subscription<autoware_system_msgs::msg::DrivingCapability>(
+    "input/driving_capability", rclcpp::QoS{1},
+    std::bind(&EmergencyHandler::onDrivingCapability, this, _1));
+  sub_prev_control_command_ = create_subscription<autoware_vehicle_msgs::msg::VehicleCommand>(
+    "input/prev_control_command", rclcpp::QoS{1},
+    std::bind(&EmergencyHandler::onPrevControlCommand, this, _1));
+  sub_current_gate_mode_ = create_subscription<autoware_control_msgs::msg::GateMode>(
+    "input/current_gate_mode", rclcpp::QoS{1},
+    std::bind(&EmergencyHandler::onCurrentGateMode, this, _1));
+  sub_twist_ = create_subscription<geometry_msgs::msg::TwistStamped>(
+    "input/twist", rclcpp::QoS{1},
+    std::bind(&EmergencyHandler::onTwist, this, _1));
+  sub_is_state_timeout_ = create_subscription<std_msgs::msg::Bool>(
+    "input/is_state_timeout", rclcpp::QoS{1},
+    std::bind(&EmergencyHandler::onIsStateTimeout, this, _1));
+
+  // Heartbeat
+  heartbeat_driving_capability_ =
+    std::make_shared<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::DrivingCapability>>(
+      *this, "input/driving_capability", timeout_driving_capability_);
+  heartbeat_is_state_timeout_ = std::make_shared<HeaderlessHeartbeatChecker<std_msgs::msg::Bool>>(
+    *this, "input/is_state_timeout", timeout_is_state_timeout_);
+
+  // Service
+  srv_clear_emergency_ = this->create_service<std_srvs::srv::Trigger>(
+    "service/clear_emergency", std::bind(&EmergencyHandler::onClearEmergencyService, this, _1, _2, _3));
+
+  // Publisher
+  pub_control_command_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
+    "output/control_command", rclcpp::QoS{1});
+  pub_shift_ =
+    create_publisher<autoware_vehicle_msgs::msg::ShiftStamped>("output/shift", rclcpp::QoS{1});
+  pub_turn_signal_ =
+    create_publisher<autoware_vehicle_msgs::msg::TurnSignal>("output/turn_signal", rclcpp::QoS{1});
+  pub_is_emergency_ = create_publisher<std_msgs::msg::Bool>("output/is_emergency", rclcpp::QoS{1});
+  pub_hazard_status_ =
+    create_publisher<autoware_system_msgs::msg::HazardStatusStamped>("output/hazard_status", rclcpp::QoS{1});
+  pub_diagnostics_err_ =
+    create_publisher<diagnostic_msgs::msg::DiagnosticArray>("output/diagnostics_err", rclcpp::QoS{1});
+
+  // Initialize
+  twist_ = geometry_msgs::msg::TwistStamped::ConstSharedPtr(new geometry_msgs::msg::TwistStamped);
+  prev_control_command_ =
+    autoware_control_msgs::msg::ControlCommand::ConstSharedPtr(new autoware_control_msgs::msg::ControlCommand);
+
+  // Timer
+  initialized_time_ = this->now();
+  auto timer_callback = std::bind(&EmergencyHandler::onTimer, this);
+  auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<double>(update_rate_));
+
+  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
+    this->get_clock(), period, std::move(timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(timer_, nullptr);
+}
+
 void EmergencyHandler::onAutowareState(
   const autoware_system_msgs::msg::AutowareState::ConstSharedPtr msg)
 {
@@ -53,8 +177,11 @@ bool EmergencyHandler::onClearEmergencyService(
   std::shared_ptr<std_srvs::srv::Trigger::Response> response)
 {
   (void)request_header;
-  if (!isEmergency()) {
+  const auto hazard_status = judgeHazardStatus();
+  if (!isEmergency(hazard_status)) {
     is_emergency_ = false;
+    hazard_status_ = hazard_status;
+
     response->success = true;
     response->message = "Emergency state was cleared.";
   } else {
@@ -68,6 +195,55 @@ bool EmergencyHandler::onClearEmergencyService(
 void EmergencyHandler::onIsStateTimeout(const std_msgs::msg::Bool::ConstSharedPtr msg)
 {
   is_state_timeout_ = msg;
+}
+
+void EmergencyHandler::publishHazardStatus(
+  const autoware_system_msgs::msg::HazardStatus & hazard_status)
+{
+  // Create msg of is_emergency
+  std_msgs::msg::Bool is_emergency;
+  is_emergency.data = isEmergency(hazard_status);
+
+  // Create msg of hazard_status
+  autoware_system_msgs::msg::HazardStatusStamped hazard_status_stamped;
+  hazard_status_stamped.header.stamp = this->now();
+  hazard_status_stamped.status = hazard_status;
+
+  // Publish data
+  pub_is_emergency_->publish(is_emergency);
+  pub_hazard_status_->publish(hazard_status_stamped);
+  pub_diagnostics_err_->publish(
+    convertHazardStatusToDiagnosticArray(this->get_clock(), hazard_status_stamped.status));
+}
+
+void EmergencyHandler::publishControlCommands()
+{
+  // Create timestamp
+  const auto stamp = this->now();
+
+  // Publish ControlCommand
+  {
+    autoware_control_msgs::msg::ControlCommandStamped msg;
+    msg.header.stamp = stamp;
+    msg.control = selectAlternativeControlCommand();
+    pub_control_command_->publish(msg);
+  }
+
+  // Publish TurnSignal
+  {
+    autoware_vehicle_msgs::msg::TurnSignal msg;
+    msg.header.stamp = stamp;
+    msg.data = autoware_vehicle_msgs::msg::TurnSignal::HAZARD;
+    pub_turn_signal_->publish(msg);
+  }
+
+  // Publish Shift
+  if (use_parking_after_stopped_ && isStopped()) {
+    autoware_vehicle_msgs::msg::ShiftStamped msg;
+    msg.header.stamp = stamp;
+    msg.shift.data = autoware_vehicle_msgs::msg::Shift::PARKING;
+    pub_shift_->publish(msg);
+  }
 }
 
 bool EmergencyHandler::isDataReady()
@@ -105,64 +281,49 @@ bool EmergencyHandler::isDataReady()
 
 void EmergencyHandler::onTimer()
 {
+  // Wait for data ready
   if (!isDataReady()) {
     if ((this->now() - initialized_time_).seconds() > data_ready_timeout_) {
       RCLCPP_WARN_THROTTLE(
         this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
         "input data is timeout");
 
-      std_msgs::msg::Bool is_emergency;
-      is_emergency.data = true;
-      pub_is_emergency_.publish(is_emergency);
+      autoware_system_msgs::msg::HazardStatus hazard_status;
+      hazard_status.level = autoware_system_msgs::msg::HazardStatus::SINGLE_POINT_FAULT;
+
+      diagnostic_msgs::msg::DiagnosticStatus diag;
+      diag.name = "emergency_handler/input_data_timeout";
+      diag.hardware_id = "emergency_handler";
+      diag.level = diagnostic_msgs::msg::DiagnosticStatus::ERROR;
+      hazard_status.diagnostics_spf.push_back(diag);
+
+      publishHazardStatus(hazard_status);
     }
 
     return;
   }
 
-  // Create timestamp
-  const auto stamp = this->get_clock()->now();
-
   // Check if emergency
-  {
-    if (use_emergency_hold_) {
-      if (isEmergency()) {
-        is_emergency_ = true;
-      }
-    } else {
-      is_emergency_ = isEmergency();
+  if (use_emergency_hold_) {
+    if (!is_emergency_) {
+      // Update only when it is not emergency
+      hazard_status_ = judgeHazardStatus();
+      is_emergency_ = isEmergency(hazard_status_);
     }
-
-    std_msgs::msg::Bool msg;
-    msg.data = isEmergency();
-    pub_is_emergency_->publish(msg);
+  } else {
+    // Update always
+    hazard_status_ = judgeHazardStatus();
+    is_emergency_ = isEmergency(hazard_status_);
   }
 
-  // Select ControlCommand
-  autoware_control_msgs::msg::ControlCommandStamped emergency_control_command;
-  emergency_control_command.header.stamp = stamp;
-  emergency_control_command.control = selectAlternativeControlCommand();
-  pub_control_command_->publish(emergency_control_command);
-
-  // TurnSignal
-  {
-    autoware_vehicle_msgs::msg::TurnSignal turn_signal;
-    turn_signal.header.stamp = stamp;
-    turn_signal.data = autoware_vehicle_msgs::msg::TurnSignal::HAZARD;
-    pub_turn_signal_->publish(turn_signal);
-  }
-
-  // Shift
-  if (use_parking_after_stopped_ && isStopped()) {
-    autoware_vehicle_msgs::msg::ShiftStamped shift;
-    shift.header.stamp = stamp;
-    shift.shift.data = autoware_vehicle_msgs::msg::Shift::PARKING;
-    pub_shift_->publish(shift);
-  }
+  // Publish data
+  publishHazardStatus(hazard_status_);
+  publishControlCommands();
 }
 
 bool EmergencyHandler::isStopped()
 {
-  constexpr auto th_stopped_velocity = 0.1;
+  constexpr auto th_stopped_velocity = 0.001;
   if (twist_->twist.linear.x < th_stopped_velocity) {
     return true;
   }
@@ -170,96 +331,84 @@ bool EmergencyHandler::isStopped()
   return false;
 }
 
-bool EmergencyHandler::isEmergency()
+bool EmergencyHandler::isEmergency(const autoware_system_msgs::msg::HazardStatus & hazard_status)
 {
-  // Check heartbeat timeout
-  if (heartbeat_driving_capability_->isTimeout()) {
-    RCLCPP_WARN_THROTTLE(
-      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
-      "heartbeat_driving_capability is timeout");
-    return true;
-  }
+  return hazard_status.level >= emergency_hazard_level_;
+}
 
-  if (heartbeat_is_state_timeout_->isTimeout()) {
-    RCLCPP_WARN_THROTTLE(
-      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
-      "heartbeat_is_state_timeout is timeout");
-    return true;
-  }
+autoware_system_msgs::msg::HazardStatus EmergencyHandler::judgeHazardStatus()
+{
+  // Get hazard status
+  auto hazard_status = current_gate_mode_->data == autoware_control_msgs::msg::GateMode::AUTO
+                         ? driving_capability_->autonomous_driving
+                         : driving_capability_->remote_control;
 
-  // Check state timeout
-  if (is_state_timeout_->data) {
-    RCLCPP_WARN_THROTTLE(
-      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
-      "state is timeout");
-    return true;
-  }
+  // Ignore initializing and finalizing state
+  {
+    using autoware_control_msgs::msg::GateMode;
+    using autoware_system_msgs::msg::AutowareState;
+    using autoware_system_msgs::msg::HazardStatus;
 
-  using autoware_control_msgs::msg::GateMode;
-  using autoware_system_msgs::msg::AutowareState;
+    const auto is_in_auto_ignore_state =
+      (autoware_state_->state != AutowareState::INITIALIZING_VEHICLE) &&
+      (autoware_state_->state != AutowareState::WAITING_FOR_ROUTE) &&
+      (autoware_state_->state != AutowareState::PLANNING) &&
+      (autoware_state_->state != AutowareState::FINALIZING);
 
-  const auto is_in_target_state =
-    (autoware_state_->state != AutowareState::INITIALIZING_VEHICLE) &&
-    (autoware_state_->state != AutowareState::WAITING_FOR_ROUTE) &&
-    (autoware_state_->state != AutowareState::PLANNING) &&
-    (autoware_state_->state != AutowareState::FINALIZING);
+    if (current_gate_mode_->data == GateMode::AUTO && is_in_auto_ignore_state) {
+      hazard_status.level = HazardStatus::NO_FAULT;
+    }
 
-  if (!is_in_target_state) {
-    return false;
-  }
+    const auto is_in_remote_ignore_state =
+      (autoware_state_->state == AutowareState::INITIALIZING_VEHICLE) ||
+      (autoware_state_->state == AutowareState::FINALIZING);
 
-  if (current_gate_mode_->data == GateMode::AUTO) {
-    if (!driving_capability_->autonomous_driving) {
-      RCLCPP_WARN_THROTTLE(
-        this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
-        "autonomous_driving is failed");
-      return true;
+    if (current_gate_mode_->data == GateMode::REMOTE && is_in_remote_ignore_state) {
+      hazard_status.level = HazardStatus::NO_FAULT;
     }
   }
 
-  if (current_gate_mode_->data == GateMode::REMOTE) {
-    if (!driving_capability_->remote_control) {
+  // Check timeout
+  {
+    using autoware_system_msgs::msg::HazardStatus;
+    using diagnostic_msgs::msg::DiagnosticStatus;
+
+    if (heartbeat_driving_capability_->isTimeout()) {
       RCLCPP_WARN_THROTTLE(
         this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
-        "remote_control is failed");
-      return true;
+        "heartbeat_driving_capability is timeout");
+      hazard_status.level = HazardStatus::SINGLE_POINT_FAULT;
+      hazard_status.diagnostics_spf.push_back(createDiagnosticStatus(
+        DiagnosticStatus::ERROR, "emergency_handler/heartbeat_timeout",
+        "heartbeat_driving_capability is timeout"));
+    }
+
+    if (heartbeat_is_state_timeout_->isTimeout()) {
+      RCLCPP_WARN_THROTTLE(
+        this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
+        "heartbeat_is_state_timeout is timeout");
+      hazard_status.level = HazardStatus::SINGLE_POINT_FAULT;
+      hazard_status.diagnostics_spf.push_back(createDiagnosticStatus(
+        DiagnosticStatus::ERROR, "emergency_handler/heartbeat_timeout",
+        "heartbeat_is_state_timeout is timeout"));
+    }
+
+    if (is_state_timeout_->data) {
+      RCLCPP_WARN_THROTTLE(
+        this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
+        "state is timeout");
+      hazard_status.level = HazardStatus::SINGLE_POINT_FAULT;
+      hazard_status.diagnostics_spf.push_back(createDiagnosticStatus(
+        DiagnosticStatus::ERROR, "emergency_handler/state_timeout", "state is timeout"));
     }
   }
 
-  if (!driving_capability_->manual_driving) {
-    RCLCPP_WARN_THROTTLE(
-      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
-      "manual_driving is failed");
-    return true;
-  }
-
-  /* Currently not supported */
-  // if (!driving_capability_->safe_stop) {
-  //   RCLCPP_WARN_THROTTLE(
-  //     this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
-  //     "safe_stop is failed");
-  //   return true;
-  // }
-  /* Currently not supported */
-
-  if (!driving_capability_->emergency_stop) {
-    RCLCPP_WARN_THROTTLE(
-      this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
-      "emergency_stop is failed");
-    return true;
-  }
-
-  return false;
+  return hazard_status;
 }
 
 autoware_control_msgs::msg::ControlCommand EmergencyHandler::selectAlternativeControlCommand()
 {
-  /* Currently not supported */
-  // Safe Stop
-  // if (driving_capability_->safe_stop) {
   // TODO: Add safe_stop planner
-  // }
-  /* Currently not supported */
 
   // Emergency Stop
   {
@@ -271,74 +420,4 @@ autoware_control_msgs::msg::ControlCommand EmergencyHandler::selectAlternativeCo
 
     return emergency_stop_cmd;
   }
-}
-
-EmergencyHandler::EmergencyHandler()
-: Node("emergency_handler"),
-  update_rate_(declare_parameter<int>("update_rate", 10)),
-  timeout_driving_capability_(declare_parameter<double>("timeout_driving_capability", 0.5)),
-  timeout_is_state_timeout_(declare_parameter<double>("timeout_is_state_timeout", 0.5)),
-  use_emergency_hold_(declare_parameter<bool>("use_emergency_hold", false)),
-  data_ready_timeout_(declare_parameter<double>("data_ready_timeout", 30.0)),
-  use_parking_after_stopped_(declare_parameter<bool>("use_parking_after_stopped", false))
-{
-  using std::placeholders::_1;
-  using std::placeholders::_2;
-  using std::placeholders::_3;
-
-  // Subscriber
-  sub_autoware_state_ = create_subscription<autoware_system_msgs::msg::AutowareState>(
-    "input/autoware_state", rclcpp::QoS{1},
-    std::bind(&EmergencyHandler::onAutowareState, this, _1));
-  sub_driving_capability_ = create_subscription<autoware_system_msgs::msg::DrivingCapability>(
-    "input/driving_capability", rclcpp::QoS{1},
-    std::bind(&EmergencyHandler::onDrivingCapability, this, _1));
-  sub_prev_control_command_ = create_subscription<autoware_vehicle_msgs::msg::VehicleCommand>(
-    "input/prev_control_command", rclcpp::QoS{1},
-    std::bind(&EmergencyHandler::onPrevControlCommand, this, _1));
-  sub_current_gate_mode_ = create_subscription<autoware_control_msgs::msg::GateMode>(
-    "input/current_gate_mode", rclcpp::QoS{1},
-    std::bind(&EmergencyHandler::onCurrentGateMode, this, _1));
-  sub_twist_ = create_subscription<geometry_msgs::msg::TwistStamped>(
-    "input/twist", rclcpp::QoS{1},
-    std::bind(&EmergencyHandler::onTwist, this, _1));
-  sub_is_state_timeout_ = create_subscription<std_msgs::msg::Bool>(
-    "input/is_state_timeout", rclcpp::QoS{1},
-    std::bind(&EmergencyHandler::onIsStateTimeout, this, _1));
-
-  // Heartbeat
-  heartbeat_driving_capability_ =
-    std::make_shared<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::DrivingCapability>>(
-      *this, "input/driving_capability", timeout_driving_capability_);
-  heartbeat_is_state_timeout_ = std::make_shared<HeaderlessHeartbeatChecker<std_msgs::msg::Bool>>(
-    *this, "input/is_state_timeout", timeout_is_state_timeout_);
-
-  // Service
-  srv_clear_emergency_ = this->create_service<std_srvs::srv::Trigger>(
-    "service/clear_emergency", std::bind(&EmergencyHandlerNode::onClearEmergencyService, this, _1, _2, _3));
-
-  // Publisher
-  pub_control_command_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
-    "output/control_command", rclcpp::QoS{1});
-  pub_shift_ =
-    create_publisher<autoware_vehicle_msgs::msg::ShiftStamped>("output/shift", rclcpp::QoS{1});
-  pub_turn_signal_ =
-    create_publisher<autoware_vehicle_msgs::msg::TurnSignal>("output/turn_signal", rclcpp::QoS{1});
-  pub_is_emergency_ = create_publisher<std_msgs::msg::Bool>("output/is_emergency", rclcpp::QoS{1});
-
-  // Initialize
-  twist_ = geometry_msgs::msg::TwistStamped::ConstSharedPtr(new geometry_msgs::msg::TwistStamped);
-  prev_control_command_ =
-    autoware_control_msgs::msg::ControlCommand::ConstSharedPtr(new autoware_control_msgs::msg::ControlCommand);
-
-  // Timer
-  initialized_time_ = this->now();
-  auto timer_callback = std::bind(&EmergencyHandler::onTimer, this);
-  auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
-    std::chrono::duration<double>(update_rate_));
-
-  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
-    this->get_clock(), period, std::move(timer_callback),
-    this->get_node_base_interface()->get_context());
-  this->get_node_timers_interface()->add_timer(timer_, nullptr);
 }
