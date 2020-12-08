@@ -24,8 +24,10 @@
 #include <autoware_control_msgs/GateMode.h>
 #include <autoware_system_msgs/AutowareState.h>
 #include <autoware_system_msgs/DrivingCapability.h>
+#include <autoware_system_msgs/HazardStatusStamped.h>
 #include <autoware_vehicle_msgs/ShiftStamped.h>
 #include <autoware_vehicle_msgs/TurnSignal.h>
+#include <diagnostic_msgs/DiagnosticArray.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <std_msgs/Bool.h>
 #include <std_srvs/Trigger.h>
@@ -50,6 +52,7 @@ private:
   double data_ready_timeout_;
   double timeout_driving_capability_;
   double timeout_is_state_timeout_;
+  int emergency_hazard_level_;
   bool use_emergency_hold_;
   bool use_parking_after_stopped_;
 
@@ -86,6 +89,11 @@ private:
   ros::Publisher pub_shift_;
   ros::Publisher pub_turn_signal_;
   ros::Publisher pub_is_emergency_;
+  ros::Publisher pub_hazard_status_;
+  ros::Publisher pub_diagnostics_err_;
+
+  void publishHazardStatus(const autoware_system_msgs::HazardStatus & hazard_status);
+  void publishControlCommands();
 
   // Timer
   ros::Timer timer_;
@@ -101,8 +109,10 @@ private:
 
   // Algorithm
   bool is_emergency_ = false;
+  autoware_system_msgs::HazardStatus hazard_status_;
 
   bool isStopped();
-  bool isEmergency();
+  bool isEmergency(const autoware_system_msgs::HazardStatus & hazard_status);
+  autoware_system_msgs::HazardStatus judgeHazardStatus();
   autoware_control_msgs::ControlCommand selectAlternativeControlCommand();
 };

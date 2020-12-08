@@ -1,5 +1,7 @@
 <launch>
   <arg name="config_file" default="$(find autoware_error_monitor)/config/autoware_error_monitor.yaml" />
+  <arg name="ignore_missing_diagnostics" default="false" />
+  <arg name="add_leaf_diagnostics" default="true" />
 
   <arg name="agg_config_file_discard" default="$(find autoware_error_monitor)/config/diagnostic_aggregator/_discard.yaml" />
   <arg name="agg_config_file_control" default="$(find autoware_error_monitor)/config/diagnostic_aggregator/control.yaml" />
@@ -28,5 +30,7 @@
 
   <include file="$(find autoware_error_monitor)/launch/autoware_error_monitor_node.launch">
     <arg name="config_file" value="$(arg config_file)"/>
+    <arg name="ignore_missing_diagnostics" value="$(arg ignore_missing_diagnostics)"/>
+    <arg name="add_leaf_diagnostics" value="$(arg add_leaf_diagnostics)"/>
   </include>
 </launch>

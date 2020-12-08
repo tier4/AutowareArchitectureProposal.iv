@@ -40,8 +40,8 @@ required_modules:
     - { name: "/system/resource_monitoring/cpu_temperature", sf_at: "warn", lf_at: "error", spf_at: "none" }
     - { name: "/system/resource_monitoring/cpu_usage", sf_at: "warn", lf_at: "error", spf_at: "none" }
     - { name: "/system/resource_monitoring/cpu_load_average", sf_at: "warn", lf_at: "error", spf_at: "none" }
-    - { name: "/system/resource_monitoring/cpu_thermal_throttling", sf_at: "warn", lf_at: "error", spf_at: "none" }
-    - { name: "/system/resource_monitoring/hdd_temperature", sf_at: "warn", lf_at: "error", spf_at: "none" }
+    # - { name: "/system/resource_monitoring/cpu_thermal_throttling", sf_at: "warn", lf_at: "error", spf_at: "none" } # Require setup
+    # - { name: "/system/resource_monitoring/hdd_temperature", sf_at: "warn", lf_at: "error", spf_at: "none" } # Require setup
     - { name: "/system/resource_monitoring/hdd_usage", sf_at: "warn", lf_at: "error", spf_at: "none" }
     - { name: "/system/resource_monitoring/memory_usage", sf_at: "warn", lf_at: "error", spf_at: "none" }
     - { name: "/system/resource_monitoring/network_usage", sf_at: "warn", lf_at: "error", spf_at: "none" }

@@ -19,6 +19,7 @@
 #include <deque>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include <boost/optional.hpp>
 
@@ -33,16 +34,34 @@ struct DiagStamped
   diagnostic_msgs::DiagnosticStatus status;
 };
 
-using RequiredModules = std::vector<std::string>;
 using DiagBuffer = std::deque<DiagStamped>;
+
+struct DiagConfig
+{
+  explicit DiagConfig(XmlRpc::XmlRpcValue value)
+  : name(static_cast<std::string>(value["name"])),
+    sf_at(static_cast<std::string>(value["sf_at"])),
+    lf_at(static_cast<std::string>(value["lf_at"])),
+    spf_at(static_cast<std::string>(value["spf_at"]))
+  {
+    // Set default values
+    if (sf_at == "") sf_at = "none";
+    if (lf_at == "") lf_at = "warn";
+    if (spf_at == "") spf_at = "error";
+  }
+
+  std::string name;
+  std::string sf_at;
+  std::string lf_at;
+  std::string spf_at;
+};
+
+using RequiredModules = std::vector<DiagConfig>;
 
 struct KeyName
 {
-  static constexpr const char * manual_driving = "manual_driving";
   static constexpr const char * autonomous_driving = "autonomous_driving";
   static constexpr const char * remote_control = "remote_control";
-  static constexpr const char * safe_stop = "safe_stop";
-  static constexpr const char * emergency_stop = "emergency_stop";
 };
 
 class AutowareErrorMonitorNode
@@ -57,6 +76,8 @@ private:
 
   // Parameter
   double update_rate_;
+  bool ignore_missing_diagnostics_;
+  bool add_leaf_diagnostics_;
   std::unordered_map<std::string, RequiredModules> required_modules_map_;
 
   void loadRequiredModules(const std::string & key);
@@ -64,6 +85,7 @@ private:
   // Timer
   ros::Timer timer_;
 
+  bool isDataReady();
   void onTimer(const ros::TimerEvent & event);
 
   // Subscriber
@@ -73,13 +95,18 @@ private:
 
   const size_t diag_buffer_size_ = 100;
   std::unordered_map<std::string, DiagBuffer> diag_buffer_map_;
+  diagnostic_msgs::DiagnosticArray::ConstPtr diag_array_;
 
   // Publisher
   ros::Publisher pub_driving_capability_;
 
   // Algorithm
-  bool judgeCapability(const std::string & key);
   boost::optional<DiagStamped> getLatestDiag(const std::string & diag_name);
+  int getHazardLevel(const DiagConfig & required_module, const int diag_level);
+  void appendHazardDiag(
+    const DiagConfig & required_module, const diagnostic_msgs::DiagnosticStatus & diag,
+    autoware_system_msgs::HazardStatus * hazard_status);
+  autoware_system_msgs::HazardStatus judgeHazardStatus(const std::string & key);
 
   const double diag_timeout_sec_ = 1.0;
 };

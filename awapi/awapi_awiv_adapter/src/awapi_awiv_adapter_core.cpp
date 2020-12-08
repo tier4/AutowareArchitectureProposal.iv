@@ -59,6 +59,8 @@ AutowareIvAdapter::AutowareIvAdapter() : nh_(), pnh_("~"), tf_listener_(tf_buffe
   sub_gate_mode_ = pnh_.subscribe("input/gate_mode", 1, &AutowareIvAdapter::callbackGateMode, this);
   sub_emergency_ =
     pnh_.subscribe("input/is_emergency", 1, &AutowareIvAdapter::callbackIsEmergency, this);
+  sub_hazard_status_ =
+    pnh_.subscribe("input/hazard_status", 1, &AutowareIvAdapter::callbackHazardStatus, this);
   sub_stop_reason_ =
     pnh_.subscribe("input/stop_reason", 100, &AutowareIvAdapter::callbackStopReason, this);
   sub_diagnostics_ =
@@ -194,6 +196,11 @@ void AutowareIvAdapter::callbackGateMode(const autoware_control_msgs::GateMode::
 void AutowareIvAdapter::callbackIsEmergency(const std_msgs::Bool::ConstPtr & msg_ptr)
 {
   aw_info_.is_emergency_ptr = msg_ptr;
+}
+
+void AutowareIvAdapter::callbackHazardStatus(const autoware_system_msgs::HazardStatusStamped::ConstPtr & msg_ptr)
+{
+  aw_info_.hazard_status_ptr = msg_ptr;
 }
 
 void AutowareIvAdapter::callbackStopReason(

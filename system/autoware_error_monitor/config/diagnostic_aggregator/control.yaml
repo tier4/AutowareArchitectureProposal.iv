@@ -2,22 +2,34 @@ type: diagnostic_aggregator/AnalyzerGroup
 path: control
 analyzers:
   command_gate:
-    type: diagnostic_aggregator/GenericAnalyzer
+    type: diagnostic_aggregator/AnalyzerGroup
     path: command_gate
-    contains: "vehicle_cmd_gate: heartbeat"
-    timeout: 1.0
-    num_items: 0
+    analyzers:
+      alive_monitoring:
+        type: diagnostic_aggregator/AnalyzerGroup
+        path: alive_monitoring
+        analyzers:
+          heartbeat:
+            type: diagnostic_aggregator/GenericAnalyzer
+            path: heartbeat
+            contains: "vehicle_cmd_gate: heartbeat"
+            timeout: 1.0
+            num_items: 0
 
   autonomous_driving:
     type: diagnostic_aggregator/AnalyzerGroup
     path: autonomous_driving
     analyzers:
-      topic_status:
-        type: diagnostic_aggregator/GenericAnalyzer
-        path: topic_status
-        contains: ": control_topic_status"
-        timeout: 1.0
-        num_items: 0
+      alive_monitoring:
+        type: diagnostic_aggregator/AnalyzerGroup
+        path: alive_monitoring
+        analyzers:
+          topic_status:
+            type: diagnostic_aggregator/GenericAnalyzer
+            path: topic_status
+            contains: ": control_topic_status"
+            timeout: 1.0
+            num_items: 0
 
       lane_departure:
         type: diagnostic_aggregator/GenericAnalyzer
@@ -37,9 +49,13 @@ analyzers:
     type: diagnostic_aggregator/AnalyzerGroup
     path: remote_control
     analyzers:
-      topic_status:
-        type: diagnostic_aggregator/GenericAnalyzer
-        path: topic_status
-        contains: ": remote_control_topic_status"
-        timeout: 1.0
-        num_items: 0
+      alive_monitoring:
+        type: diagnostic_aggregator/AnalyzerGroup
+        path: alive_monitoring
+        analyzers:
+          topic_status:
+            type: diagnostic_aggregator/GenericAnalyzer
+            path: topic_status
+            contains: ": remote_control_topic_status"
+            timeout: 1.0
+            num_items: 0

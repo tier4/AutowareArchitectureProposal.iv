@@ -54,6 +54,9 @@ private:
   void getIsEmergencyInfo(
     const std_msgs::Bool::ConstPtr & is_emergency_ptr,
     autoware_api_msgs::AwapiAutowareStatus * status);
+  void getHazardStatusInfo(
+    const autoware_system_msgs::HazardStatusStamped::ConstPtr & hazard_status_ptr,
+    autoware_api_msgs::AwapiAutowareStatus * status);
   void getStopReasonInfo(
     const autoware_planning_msgs::StopReasonArray::ConstPtr & stop_reason_ptr,
     autoware_api_msgs::AwapiAutowareStatus * status);

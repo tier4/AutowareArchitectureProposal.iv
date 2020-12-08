@@ -47,6 +47,7 @@ private:
   ros::Subscriber sub_control_mode_;
   ros::Subscriber sub_gate_mode_;
   ros::Subscriber sub_emergency_;
+  ros::Subscriber sub_hazard_status_;
   ros::Subscriber sub_stop_reason_;
   ros::Subscriber sub_diagnostics_;
   ros::Subscriber sub_global_rpt_;
@@ -84,6 +85,7 @@ private:
   void callbackControlMode(const autoware_vehicle_msgs::ControlMode::ConstPtr & msg_ptr);
   void callbackGateMode(const autoware_control_msgs::GateMode::ConstPtr & msg_ptr);
   void callbackIsEmergency(const std_msgs::Bool::ConstPtr & msg_ptr);
+  void callbackHazardStatus(const autoware_system_msgs::HazardStatusStamped::ConstPtr & msg_ptr);
   void callbackStopReason(const autoware_planning_msgs::StopReasonArray::ConstPtr & msg_ptr);
   void callbackDiagnostics(const diagnostic_msgs::DiagnosticArray::ConstPtr & msg_ptr);
   void callbackGlobalRpt(const pacmod_msgs::GlobalRpt::ConstPtr & msg_ptr);

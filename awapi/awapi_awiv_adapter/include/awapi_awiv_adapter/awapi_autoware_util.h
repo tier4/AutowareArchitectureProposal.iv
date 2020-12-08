@@ -35,6 +35,7 @@
 #include <autoware_planning_msgs/StopReasonArray.h>
 #include <autoware_planning_msgs/Trajectory.h>
 #include <autoware_system_msgs/AutowareState.h>
+#include <autoware_system_msgs/HazardStatusStamped.h>
 #include <autoware_vehicle_msgs/ControlMode.h>
 #include <autoware_vehicle_msgs/ShiftStamped.h>
 #include <autoware_vehicle_msgs/Steering.h>
@@ -59,6 +60,7 @@ struct AutowareInfo
   autoware_vehicle_msgs::ControlMode::ConstPtr control_mode_ptr;
   autoware_control_msgs::GateMode::ConstPtr gate_mode_ptr;
   std_msgs::Bool::ConstPtr is_emergency_ptr;
+  autoware_system_msgs::HazardStatusStamped::ConstPtr hazard_status_ptr;
   autoware_planning_msgs::StopReasonArray::ConstPtr stop_reason_ptr;
   diagnostic_msgs::DiagnosticArray::ConstPtr diagnostic_ptr;
   pacmod_msgs::GlobalRpt::ConstPtr global_rpt_ptr;
