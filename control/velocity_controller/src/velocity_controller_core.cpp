@@ -26,7 +26,8 @@ double lowpass_filter(const double current_value, const double prev_value, const
 }
 }  // namespace
 
-VelocityController::VelocityController() : Node("velocity_controller")
+VelocityController::VelocityController()
+: Node("velocity_controller")
 {
   using std::placeholders::_1;
 
@@ -178,7 +179,8 @@ void VelocityController::blockUntilVehiclePositionAvailable(const tf2::Duration 
 {
   static constexpr auto input = "map", output = "base_link";
   while (!tf_buffer_->canTransform(input, output, tf2::TimePointZero, tf2::durationFromSec(0.0)) &&
-         rclcpp::ok()) {
+    rclcpp::ok())
+  {
     RCLCPP_INFO(
       get_logger(), "waiting %d ms for %s->%s transform to become available",
       std::chrono::duration_cast<std::chrono::seconds>(duration).count(), input, output);
@@ -240,15 +242,15 @@ rcl_interfaces::msg::SetParametersResult VelocityController::paramCallback(
   const std::vector<rclcpp::Parameter> & parameters)
 {
   auto update_param = [&](const std::string & name, double & v) {
-    auto it = std::find_if(
-      parameters.cbegin(), parameters.cend(),
-      [&name](const rclcpp::Parameter & parameter) { return parameter.get_name() == name; });
-    if (it != parameters.cend()) {
-      v = it->as_double();
-      return true;
-    }
-    return false;
-  };
+      auto it = std::find_if(
+        parameters.cbegin(), parameters.cend(),
+        [&name](const rclcpp::Parameter & parameter) {return parameter.get_name() == name;});
+      if (it != parameters.cend()) {
+        v = it->as_double();
+        return true;
+      }
+      return false;
+    };
 
   // closest waypoint threshold
   update_param("closest_waypoint_distance_threshold_", closest_dist_thr_);
@@ -359,7 +361,8 @@ CtrlCmd VelocityController::calcCtrlCmd()
    */
   int closest_idx;
   if (!vcutils::calcClosestWithThr(
-        *trajectory_ptr_, current_pose, closest_angle_thr_, closest_dist_thr_, closest_idx)) {
+      *trajectory_ptr_, current_pose, closest_angle_thr_, closest_dist_thr_, closest_idx))
+  {
     double vel_cmd = applyRateFilter(0.0, prev_vel_cmd_, dt, emergency_stop_acc_);
     double acc_cmd = applyRateFilter(emergency_stop_acc_, prev_acc_cmd_, dt, emergency_stop_jerk_);
     control_mode_ = ControlMode::ERROR;
@@ -389,7 +392,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
 
   /* shift check */
   const Shift shift = getCurrentShift(target_vel);
-  if (shift != prev_shift_) pid_vel_.reset();
+  if (shift != prev_shift_) {pid_vel_.reset();}
   prev_shift_ = shift;
 
   const double pitch_filtered = lpf_pitch_.filter(getPitch(current_pose.orientation));
@@ -520,7 +523,8 @@ void VelocityController::storeAccelCmd(const double accel)
     return;
   }
   if (
-    (get_clock()->now() - ctrl_cmd_vec_.at(1).header.stamp).seconds() > delay_compensation_time_) {
+    (get_clock()->now() - ctrl_cmd_vec_.at(1).header.stamp).seconds() > delay_compensation_time_)
+  {
     ctrl_cmd_vec_.erase(ctrl_cmd_vec_.begin());
   }
 }
@@ -542,7 +546,7 @@ void VelocityController::publishCtrlCmd(const double vel, const double acc)
     const double dv = current_vel_ptr_->twist.linear.x - prev_vel_ptr_->twist.linear.x;
     const double dt = std::max(
       (rclcpp::Time(current_vel_ptr_->header.stamp) - rclcpp::Time(prev_vel_ptr_->header.stamp))
-        .seconds(),
+      .seconds(),
       1e-03);
     const double accel = dv / dt;
     // apply lowpass filter
@@ -582,10 +586,12 @@ bool VelocityController::checkSmoothStop(const int closest, const double target_
 
 bool VelocityController::checkIsStopped(double current_vel, double target_vel, int closest) const
 {
-  if (is_smooth_stop_) return false;  // stopping.
+  if (is_smooth_stop_) {
+    return false;                     // stopping.
 
+  }
   // Prevent a direct transition from PID_CONTROL to STOPPED without going through SMOOTH_STOP.
-  if (control_mode_ == ControlMode::PID_CONTROL) return false;
+  if (control_mode_ == ControlMode::PID_CONTROL) {return false;}
 
   if (control_mode_ == ControlMode::STOPPED) {
     double dist = calcStopDistance(*trajectory_ptr_, closest);
@@ -600,7 +606,8 @@ bool VelocityController::checkIsStopped(double current_vel, double target_vel, i
 
   if (
     std::fabs(current_vel) < stop_state_entry_ego_speed_ &&
-    std::fabs(target_vel) < stop_state_entry_target_speed_) {
+    std::fabs(target_vel) < stop_state_entry_target_speed_)
+  {
     return true;
   } else {
     return false;
@@ -762,7 +769,8 @@ double VelocityController::predictedVelocityInTargetPoint(
   for (int i = 0; i < ctrl_cmd_vec_.size(); i++) {
     if (
       (get_clock()->now() - ctrl_cmd_vec_.at(i).header.stamp).seconds() <
-      delay_compensation_time_) {
+      delay_compensation_time_)
+    {
       if (i == 0) {
         // lack of data
         pred_vel =
@@ -910,7 +918,7 @@ void VelocityController::resetSmoothStop()
   start_time_smooth_stop_ = nullptr;
 }
 
-void VelocityController::resetEmergencyStop() { is_emergency_stop_ = false; }
+void VelocityController::resetEmergencyStop() {is_emergency_stop_ = false;}
 
 void VelocityController::writeDebugValues(
   const double dt, const double current_vel, const double predicted_velocity,

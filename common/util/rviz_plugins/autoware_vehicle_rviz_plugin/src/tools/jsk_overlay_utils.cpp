@@ -44,9 +44,9 @@ ScopedPixelBuffer::ScopedPixelBuffer(Ogre::HardwarePixelBufferSharedPtr pixel_bu
   pixel_buffer_->lock(Ogre::HardwareBuffer::HBL_NORMAL);
 }
 
-ScopedPixelBuffer::~ScopedPixelBuffer() { pixel_buffer_->unlock(); }
+ScopedPixelBuffer::~ScopedPixelBuffer() {pixel_buffer_->unlock();}
 
-Ogre::HardwarePixelBufferSharedPtr ScopedPixelBuffer::getPixelBuffer() { return pixel_buffer_; }
+Ogre::HardwarePixelBufferSharedPtr ScopedPixelBuffer::getPixelBuffer() {return pixel_buffer_;}
 
 QImage ScopedPixelBuffer::getQImage(unsigned int width, unsigned int height)
 {
@@ -77,7 +77,8 @@ QImage ScopedPixelBuffer::getQImage(OverlayObject & overlay, QColor & bg_color)
   return getQImage(overlay.getTextureWidth(), overlay.getTextureHeight(), bg_color);
 }
 
-OverlayObject::OverlayObject(const std::string & name) : name_(name)
+OverlayObject::OverlayObject(const std::string & name)
+: name_(name)
 {
   std::string material_name = name_ + "Material";
   Ogre::OverlayManager * mOverlayMgr = Ogre::OverlayManager::getSingletonPtr();
@@ -103,7 +104,7 @@ OverlayObject::~OverlayObject()
   // delete overlay_;
 }
 
-std::string OverlayObject::getName() { return name_; }
+std::string OverlayObject::getName() {return name_;}
 
 void OverlayObject::hide()
 {
@@ -119,7 +120,7 @@ void OverlayObject::show()
   }
 }
 
-bool OverlayObject::isTextureReady() { return !texture_.isNull(); }
+bool OverlayObject::isTextureReady() {return !texture_.isNull();}
 
 bool OverlayObject::updateTextureSize(unsigned int width, unsigned int height)
 {
@@ -161,14 +162,14 @@ ScopedPixelBuffer OverlayObject::getBuffer()
   }
 }
 
-void OverlayObject::setPosition(double left, double top) { panel_->setPosition(left, top); }
+void OverlayObject::setPosition(double left, double top) {panel_->setPosition(left, top);}
 
 void OverlayObject::setDimensions(double width, double height)
 {
   panel_->setDimensions(width, height);
 }
 
-bool OverlayObject::isVisible() { return overlay_->isVisible(); }
+bool OverlayObject::isVisible() {return overlay_->isVisible();}
 
 unsigned int OverlayObject::getTextureWidth()
 {

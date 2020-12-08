@@ -20,8 +20,8 @@
 class LinearInterpolate
 {
 public:
-  LinearInterpolate(){};
-  ~LinearInterpolate(){};
+  LinearInterpolate() {}
+  ~LinearInterpolate() {}
   static bool interpolate(
     const std::vector<double> & base_index, const std::vector<double> & base_value,
     const std::vector<double> & return_index, std::vector<double> & return_value);

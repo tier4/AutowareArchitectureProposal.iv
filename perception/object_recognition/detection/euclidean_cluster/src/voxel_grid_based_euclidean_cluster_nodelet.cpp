@@ -57,7 +57,6 @@ void VoxelGridBasedEuclideanClusterNodelet::pointcloudCallback(
   pcl::PointCloud<pcl::PointXYZ>::Ptr voxel_map_ptr(new pcl::PointCloud<pcl::PointXYZ>);
   voxel_grid_.setLeafSize(voxel_leaf_size_, voxel_leaf_size_, 100000.0);
   voxel_grid_.setMinimumPointsNumberPerVoxel(min_points_number_per_voxel_);
-  ;
   voxel_grid_.setInputCloud(raw_pointcloud_ptr);
   voxel_grid_.setSaveLeafLayout(true);
   voxel_grid_.filter(*voxel_map_ptr);
@@ -90,9 +89,11 @@ void VoxelGridBasedEuclideanClusterNodelet::pointcloudCallback(
   std::unordered_map</* voxel grid index */ int, /* cluster index */ int> map;
   int cluster_idx = 0;
   for (std::vector<pcl::PointIndices>::const_iterator cluster_itr = cluster_indices.begin();
-       cluster_itr != cluster_indices.end(); ++cluster_itr) {
+    cluster_itr != cluster_indices.end(); ++cluster_itr)
+  {
     for (std::vector<int>::const_iterator point_itr = cluster_itr->indices.begin();
-         point_itr != cluster_itr->indices.end(); ++point_itr) {
+      point_itr != cluster_itr->indices.end(); ++point_itr)
+    {
       map[*point_itr] = cluster_idx;
     }
     ++cluster_idx;
@@ -102,11 +103,13 @@ void VoxelGridBasedEuclideanClusterNodelet::pointcloudCallback(
   std::vector<pcl::PointCloud<pcl::PointXYZ>> v_cluster;
   v_cluster.resize(cluster_idx);
   for (size_t i = 0; i < raw_pointcloud_ptr->points.size(); ++i) {
-    const int index = voxel_grid_.getCentroidIndexAt(voxel_grid_.getGridCoordinates(
-      raw_pointcloud_ptr->points.at(i).x, raw_pointcloud_ptr->points.at(i).y,
-      raw_pointcloud_ptr->points.at(i).z));
-    if (map.find(index) != map.end())
+    const int index = voxel_grid_.getCentroidIndexAt(
+      voxel_grid_.getGridCoordinates(
+        raw_pointcloud_ptr->points.at(i).x, raw_pointcloud_ptr->points.at(i).y,
+        raw_pointcloud_ptr->points.at(i).z));
+    if (map.find(index) != map.end()) {
       v_cluster.at(map[index]).points.push_back(raw_pointcloud_ptr->points.at(i));
+    }
   }
 
   // build output msg
@@ -114,17 +117,21 @@ void VoxelGridBasedEuclideanClusterNodelet::pointcloudCallback(
     autoware_perception_msgs::DynamicObjectWithFeatureArray output;
     output.header = input_msg->header;
     for (std::vector<pcl::PointCloud<pcl::PointXYZ>>::const_iterator cluster_itr =
-           v_cluster.begin();
-         cluster_itr != v_cluster.end(); ++cluster_itr) {
+      v_cluster.begin();
+      cluster_itr != v_cluster.end(); ++cluster_itr)
+    {
       pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZ>);
       for (pcl::PointCloud<pcl::PointXYZ>::const_iterator point_itr = cluster_itr->points.begin();
-           point_itr != cluster_itr->points.end(); ++point_itr) {
+        point_itr != cluster_itr->points.end(); ++point_itr)
+      {
         cloud_cluster->points.push_back(*point_itr);
       }
       if (
         min_cluster_size_ <= cloud_cluster->points.size() &&
         cloud_cluster->points.size() <= max_cluster_size_)
+      {
         continue;
+      }
       cloud_cluster->width = cloud_cluster->points.size();
       cloud_cluster->height = 1;
       cloud_cluster->is_dense = true;
@@ -139,17 +146,19 @@ void VoxelGridBasedEuclideanClusterNodelet::pointcloudCallback(
   }
 
   // build debug msg
-  if (debug_pub_.getNumSubscribers() < 1) return;
+  if (debug_pub_.getNumSubscribers() < 1) {return;}
   {
     sensor_msgs::PointCloud2 pointcloud_output;
 
     int i = 0;
     pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZI>);
     for (std::vector<pcl::PointCloud<pcl::PointXYZ>>::const_iterator cluster_itr =
-           v_cluster.begin();
-         cluster_itr != v_cluster.end(); ++cluster_itr) {
+      v_cluster.begin();
+      cluster_itr != v_cluster.end(); ++cluster_itr)
+    {
       for (pcl::PointCloud<pcl::PointXYZ>::const_iterator point_itr = cluster_itr->points.begin();
-           point_itr != cluster_itr->points.end(); ++point_itr) {
+        point_itr != cluster_itr->points.end(); ++point_itr)
+      {
         pcl::PointXYZI point;
         point.x = point_itr->x;
         point.y = point_itr->y;

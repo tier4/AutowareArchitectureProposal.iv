@@ -27,7 +27,8 @@ struct TurnSignalParameters
   double intersection_search_distance;
 };
 
-class TurnSignalDecider : public std::enable_shared_from_this<TurnSignalDecider>, public rclcpp::Node
+class TurnSignalDecider : public std::enable_shared_from_this<TurnSignalDecider>,
+  public rclcpp::Node
 {
 private:
   // ROS variables

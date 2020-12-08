@@ -23,6 +23,7 @@ class ClassifierInterface
 {
 public:
   virtual bool getLampState(
-    const cv::Mat & input_image, std::vector<autoware_perception_msgs::msg::LampState> & states) = 0;
+    const cv::Mat & input_image,
+    std::vector<autoware_perception_msgs::msg::LampState> & states) = 0;
 };
 }  // namespace traffic_light

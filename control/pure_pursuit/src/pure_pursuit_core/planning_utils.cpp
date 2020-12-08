@@ -39,7 +39,7 @@ double calcDistSquared2D(const geometry_msgs::Point & p, const geometry_msgs::Po
 {
   const double dx = p.x - q.x;
   const double dy = p.y - q.y;
-  return (dx * dx + dy * dy);
+  return dx * dx + dy * dy;
 }
 
 /* a_vec = line_e - line_s, b_vec = point - line_s
@@ -65,10 +65,11 @@ double calcRadius(const geometry_msgs::Point & target, const geometry_msgs::Pose
   const double denominator = 2 * transformToRelativeCoordinate2D(target, current_pose).y;
   const double numerator = calcDistSquared2D(target, current_pose.position);
 
-  if (fabs(denominator) > 0)
+  if (fabs(denominator) > 0) {
     return numerator / denominator;
-  else
+  } else {
     return RADIUS_MAX;
+  }
 }
 
 double convertCurvatureToSteeringAngle(double wheel_base, double kappa)
@@ -156,19 +157,21 @@ bool isDirectionForward(const geometry_msgs::Pose & prev, const geometry_msgs::P
   return transformToRelativeCoordinate2D(next, prev).x > 0.0;
 }
 
-template <>
+template<>
 bool isInPolygon(
   const std::vector<geometry_msgs::Point> & polygon, const geometry_msgs::Point & point)
 {
   std::vector<tf2::Vector3> polygon_conv;
-  for (const auto & el : polygon) polygon_conv.emplace_back(el.x, el.y, el.z);
+  for (const auto & el : polygon) {
+    polygon_conv.emplace_back(el.x, el.y, el.z);
+  }
 
   tf2::Vector3 point_conv = tf2::Vector3(point.x, point.y, point.z);
 
   return isInPolygon<tf2::Vector3>(polygon_conv, point_conv);
 }
 
-double kmph2mps(const double velocity_kmph) { return (velocity_kmph * 1000) / (60 * 60); }
+double kmph2mps(const double velocity_kmph) {return (velocity_kmph * 1000) / (60 * 60);}
 
 double normalizeEulerAngle(const double euler)
 {

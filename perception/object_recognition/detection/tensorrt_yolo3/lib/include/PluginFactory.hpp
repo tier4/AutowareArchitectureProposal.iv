@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2018 lewes6369
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -50,7 +50,7 @@ public:
     return std::regex_match(layerName, std::regex(R"(layer(\d*)-upsample)"));
   }
 
-  inline bool isYolo(const char * layerName) { return strcmp(layerName, "yolo-det") == 0; }
+  inline bool isYolo(const char * layerName) {return strcmp(layerName, "yolo-det") == 0;}
 
   virtual nvinfer1::IPlugin * createPlugin(
     const char * layerName, const nvinfer1::Weights * weights, int nbWeights) override
@@ -59,8 +59,9 @@ public:
 
     if (isUpsample(layerName)) {
       assert(nbWeights == 0 && weights == nullptr);
-      mPluginUpsample.emplace_back(std::unique_ptr<UpsampleLayerPlugin>(
-        new UpsampleLayerPlugin(UPSAMPLE_SCALE, CUDA_THREAD_NUM)));
+      mPluginUpsample.emplace_back(
+        std::unique_ptr<UpsampleLayerPlugin>(
+          new UpsampleLayerPlugin(UPSAMPLE_SCALE, CUDA_THREAD_NUM)));
       return mPluginUpsample.back().get();
     } else if (isYolo(layerName)) {
       assert(nbWeights == 0 && weights == nullptr && mPluginYolo.get() == nullptr);
@@ -91,7 +92,7 @@ public:
     }
   }
 
-  bool isPlugin(const char * name) override { return isPluginExt(name); }
+  bool isPlugin(const char * name) override {return isPluginExt(name);}
 
   bool isPluginExt(const char * name) override
   {
@@ -101,14 +102,17 @@ public:
   // The application has to destroy the plugin when it knows it's safe to do so.
   void destroyPlugin()
   {
-    for (auto & item : mPluginUpsample) item.reset();
+    for (auto & item : mPluginUpsample) {item.reset();}
 
     mPluginYolo.reset();
   }
 
-  void (*nvPluginDeleter)(INvPlugin *){[](INvPlugin * ptr) {
-    if (ptr) ptr->destroy();
-  }};
+  void (* nvPluginDeleter)(INvPlugin *)
+  {
+    [](INvPlugin * ptr) {
+      if (ptr) {ptr->destroy();}
+    }
+  }
 
   std::vector<std::unique_ptr<UpsampleLayerPlugin>> mPluginUpsample{};
   std::unique_ptr<YoloLayerPlugin> mPluginYolo{nullptr};

@@ -46,7 +46,7 @@ private:
   std::string save_dir_;
   std::shared_ptr<ros::Rate> save_rate_ptr_;
   typedef message_filters::sync_policies::ApproximateTime<
-    sensor_msgs::Image, autoware_perception_msgs::TrafficLightRoiArray>
+      sensor_msgs::Image, autoware_perception_msgs::TrafficLightRoiArray>
     SyncPolicy;
   typedef message_filters::Synchronizer<SyncPolicy> Sync;
   Sync sync_;

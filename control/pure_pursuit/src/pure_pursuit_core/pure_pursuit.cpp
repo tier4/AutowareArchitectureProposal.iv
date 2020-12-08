@@ -34,14 +34,14 @@ namespace planning_utils
 {
 bool PurePursuit::isDataReady()
 {
-  if (!curr_wps_ptr_) return false;
-  if (!curr_pose_ptr_) return false;
+  if (!curr_wps_ptr_) {return false;}
+  if (!curr_pose_ptr_) {return false;}
   return true;
 }
 
 std::pair<bool, double> PurePursuit::run()
 {
-  if (!isDataReady()) return std::make_pair(false, std::numeric_limits<double>::quiet_NaN());
+  if (!isDataReady()) {return std::make_pair(false, std::numeric_limits<double>::quiet_NaN());}
 
   auto clst_pair =
     findClosestIdxWithDistAngThr(*curr_wps_ptr_, *curr_pose_ptr_, clst_thr_dist_, clst_thr_ang_);
@@ -135,7 +135,7 @@ std::pair<bool, geometry_msgs::Point> PurePursuit::lerpNextTarget(int32_t next_w
 int32_t PurePursuit::findNextPointIdx(int32_t search_start_idx)
 {
   // if waypoints are not given, do nothing.
-  if (curr_wps_ptr_->empty() || search_start_idx == -1) return -1;
+  if (curr_wps_ptr_->empty() || search_start_idx == -1) {return -1;}
 
   // look for the next waypoint.
   for (int32_t i = search_start_idx; i < (int32_t)curr_wps_ptr_->size(); i++) {
@@ -170,7 +170,7 @@ int32_t PurePursuit::findNextPointIdx(int32_t search_start_idx)
     const geometry_msgs::Point & curr_pose_point = curr_pose_ptr_->position;
     // if there exists an effective waypoint
     const double ds = calcDistSquared2D(curr_motion_point, curr_pose_point);
-    if (ds > std::pow(lookahead_distance_, 2)) return i;
+    if (ds > std::pow(lookahead_distance_, 2)) {return i;}
   }
 
   // if this program reaches here , it means we lost the waypoint!

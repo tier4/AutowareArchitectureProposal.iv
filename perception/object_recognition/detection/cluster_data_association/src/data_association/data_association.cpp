@@ -22,7 +22,8 @@
 #include "cluster_data_association/utils/utils.hpp"
 #include "successive_shortest_path/successive_shortest_path.hpp"
 
-DataAssociation::DataAssociation() : score_threshold_(0.1)
+DataAssociation::DataAssociation()
+: score_threshold_(0.1)
 {
   can_assgin_matrix_ = Eigen::MatrixXi::Identity(20, 20);
   can_assgin_matrix_(
@@ -55,7 +56,7 @@ DataAssociation::DataAssociation() : score_threshold_(0.1)
     autoware_perception_msgs::Semantic::MOTORBIKE, autoware_perception_msgs::Semantic::BICYCLE) = 1;
   can_assgin_matrix_(
     autoware_perception_msgs::Semantic::PEDESTRIAN, autoware_perception_msgs::Semantic::UNKNOWN) =
-    0;
+  0;
   can_assgin_matrix_(
     autoware_perception_msgs::Semantic::ANIMAL, autoware_perception_msgs::Semantic::UNKNOWN) = 0;
   max_dist_matrix_ = Eigen::MatrixXd::Constant(20, 20, 1.0);
@@ -175,7 +176,7 @@ bool DataAssociation::assign(
   // Solve
   assignment_problem::MaximizeLinearAssignment(score, &direct_assignment, &reverse_assignment);
 
-  for (auto itr = direct_assignment.begin(); itr != direct_assignment.end();) {
+  for (auto itr = direct_assignment.begin(); itr != direct_assignment.end(); ) {
     if (src(itr->first, itr->second) < score_threshold_) {
       itr = direct_assignment.erase(itr);
       continue;
@@ -183,7 +184,7 @@ bool DataAssociation::assign(
       ++itr;
     }
   }
-  for (auto itr = reverse_assignment.begin(); itr != reverse_assignment.end();) {
+  for (auto itr = reverse_assignment.begin(); itr != reverse_assignment.end(); ) {
     if (src(itr->second, itr->first) < score_threshold_) {
       itr = reverse_assignment.erase(itr);
       continue;
@@ -203,8 +204,9 @@ Eigen::MatrixXd DataAssociation::calcScoreMatrix(
     for (size_t cluster0_idx = 0; cluster0_idx < cluster0.feature_objects.size(); ++cluster0_idx) {
       double score = 0.0;
       if (can_assgin_matrix_(
-            cluster1.feature_objects.at(cluster1_idx).object.semantic.type,
-            cluster0.feature_objects.at(cluster0_idx).object.semantic.type)) {
+          cluster1.feature_objects.at(cluster1_idx).object.semantic.type,
+          cluster0.feature_objects.at(cluster0_idx).object.semantic.type))
+      {
         double max_dist = max_dist_matrix_(
           cluster1.feature_objects.at(cluster1_idx).object.semantic.type,
           cluster0.feature_objects.at(cluster0_idx).object.semantic.type);
@@ -218,7 +220,7 @@ Eigen::MatrixXd DataAssociation::calcScoreMatrix(
         // double area0 = utils::getArea(cluster0.feature_objects.at(cluster0_idx).object.shape);
         // double area1 = utils::getArea(cluster1.feature_objects.at(cluster1_idx).object.shape);
         score = (max_dist - std::min(dist, max_dist)) / max_dist;
-        if (max_dist < dist) score = 0.0;
+        if (max_dist < dist) {score = 0.0;}
         // if (area < min_area || max_area < area) score = 0.0;
       }
       score_matrix(cluster1_idx, cluster0_idx) = score;
@@ -243,8 +245,9 @@ geometry_msgs::Point DataAssociation::getCentroid(const sensor_msgs::PointCloud2
   centroid.y = 0;
   centroid.z = 0;
   for (sensor_msgs::PointCloud2ConstIterator<float> iter_x(pointcloud, "x"),
-       iter_y(pointcloud, "y"), iter_z(pointcloud, "z");
-       iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
+    iter_y(pointcloud, "y"), iter_z(pointcloud, "z");
+    iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z)
+  {
     centroid.x += *iter_x;
     centroid.y += *iter_y;
     centroid.z += *iter_z;

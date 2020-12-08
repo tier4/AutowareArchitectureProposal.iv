@@ -19,7 +19,9 @@
 
 namespace bev_optical_flow
 {
-Utils::Utils() : nh_(""), pnh_("~"), tf_listener_(tf_buffer_) {
+Utils::Utils()
+: nh_(""), pnh_("~"), tf_listener_(tf_buffer_)
+{
   pnh_.param<float>("grid_size", grid_size_, 0.25);
   pnh_.param<float>("point_radius", point_radius_, 50);
   pnh_.param<float>("z_max", z_max_, 3.0);
@@ -28,7 +30,8 @@ Utils::Utils() : nh_(""), pnh_("~"), tf_listener_(tf_buffer_) {
   pnh_.param<std::string>("target_frame", target_frame_, "base_link");
 }
 
-geometry_msgs::Vector3 Utils::mptopic2kph(const geometry_msgs::Vector3& twist,
+geometry_msgs::Vector3 Utils::mptopic2kph(
+  const geometry_msgs::Vector3 & twist,
   double topic_rate)
 {
   // convert twist to [km/h] from [m/topic_rate]
@@ -40,7 +43,7 @@ geometry_msgs::Vector3 Utils::mptopic2kph(const geometry_msgs::Vector3& twist,
 }
 
 geometry_msgs::Vector3 Utils::kph2mptopic(
-  const geometry_msgs::Vector3& twist,
+  const geometry_msgs::Vector3 & twist,
   double topic_rate)
 {
   // convert twist to [km/h] from [m/topic_rate]
@@ -51,7 +54,7 @@ geometry_msgs::Vector3 Utils::kph2mptopic(
   return converted_twist;
 }
 
-geometry_msgs::Vector3 Utils::kph2mps(const geometry_msgs::Vector3& twist)
+geometry_msgs::Vector3 Utils::kph2mps(const geometry_msgs::Vector3 & twist)
 {
   // convert twist to [km/h] from [m/topic_rate]
   geometry_msgs::Vector3 converted_twist;
@@ -64,25 +67,26 @@ geometry_msgs::Vector3 Utils::kph2mps(const geometry_msgs::Vector3& twist)
 geometry_msgs::Point Utils::pixel2point(
   const geometry_msgs::Point point,
   const geometry_msgs::Vector3 twist,
-  const cv::Size& image_size,
+  const cv::Size & image_size,
   float map2baselink_angle)
 {
-  return pixel2point
-    (cv::Point2f(point.x + twist.x, point.y + twist.y),
-      image_size, map2baselink_angle, point.z);
+  return pixel2point(
+    cv::Point2f(point.x + twist.x, point.y + twist.y),
+    image_size, map2baselink_angle, point.z);
 }
 
 geometry_msgs::Twist Utils::getObjCoordsTwist(
-  const geometry_msgs::Pose& obj_pose,
-  const geometry_msgs::Twist& base_coords_twist)
+  const geometry_msgs::Pose & obj_pose,
+  const geometry_msgs::Twist & base_coords_twist)
 {
   Eigen::Affine3d base2obj_transform;
   tf::poseMsgToEigen(obj_pose, base2obj_transform);
   Eigen::Matrix3d base2obj_rot = base2obj_transform.rotation();
   Eigen::Vector3d obj_coords_vector =
-    base2obj_rot.inverse() * Eigen::Vector3d(base_coords_twist.linear.x,
-      base_coords_twist.linear.y,
-      base_coords_twist.linear.z);
+    base2obj_rot.inverse() * Eigen::Vector3d(
+    base_coords_twist.linear.x,
+    base_coords_twist.linear.y,
+    base_coords_twist.linear.z);
   geometry_msgs::Twist obj_coords_twist;
   obj_coords_twist.linear.x = obj_coords_vector.x();
   obj_coords_twist.linear.y = obj_coords_vector.y();
@@ -91,15 +95,16 @@ geometry_msgs::Twist Utils::getObjCoordsTwist(
 }
 
 geometry_msgs::Point Utils::pixel2point(
-  const cv::Point2f& pixel,
-  const cv::Size& image_size,
+  const cv::Point2f & pixel,
+  const cv::Size & image_size,
   float map2baselink_angle,
   int depth)
 {
   // affine transform image coords to rotated coords
   Eigen::Affine2f image2rotated =
-    Eigen::Translation<float, 2>(static_cast<int>(image_size.width * 0.5),
-      static_cast<int>(image_size.height * 0.5)) *
+    Eigen::Translation<float, 2>(
+    static_cast<int>(image_size.width * 0.5),
+    static_cast<int>(image_size.height * 0.5)) *
     Eigen::Rotation2Df(180 * M_PI / 180).toRotationMatrix();
 
   // affine transform rotated coords to baselink coords
@@ -126,42 +131,47 @@ float Utils::getMap2BaseAngle(ros::Time stamp)
   float map2baselink_angle = 0;
   try {
     geometry_msgs::TransformStamped transform_stamped;
-    transform_stamped = tf_buffer_.lookupTransform
-      (world_frame_, target_frame_, stamp, ros::Duration(0.5));
+    transform_stamped = tf_buffer_.lookupTransform(
+      world_frame_, target_frame_, stamp, ros::Duration(
+        0.5));
     tf2::Quaternion quaternion;
     tf2::fromMsg(transform_stamped.transform.rotation, quaternion);
     double r, p, y;
     tf2::Matrix3x3(quaternion).getRPY(r, p, y);
     map2baselink_angle = y;
-  } catch (tf2::TransformException &ex) {
-    ROS_WARN("%s",ex.what());
+  } catch (tf2::TransformException & ex) {
+    ROS_WARN("%s", ex.what());
   }
   return map2baselink_angle;
 }
 
 cv::Point2f Utils::getVehicleVel(
-  const ros::Time& current_stamp,
-  const ros::Time& prev_stamp)
+  const ros::Time & current_stamp,
+  const ros::Time & prev_stamp)
 {
   cv::Point2f image_translation;
   try {
     geometry_msgs::TransformStamped map2currentbase;
-    map2currentbase = tf_buffer_.lookupTransform
-      (world_frame_, target_frame_, current_stamp, ros::Duration(0.5));
+    map2currentbase = tf_buffer_.lookupTransform(
+      world_frame_, target_frame_, current_stamp, ros::Duration(
+        0.5));
     geometry_msgs::TransformStamped map2prevbase;
-    map2prevbase = tf_buffer_.lookupTransform
-      (world_frame_, target_frame_, prev_stamp, ros::Duration(0.5));
+    map2prevbase = tf_buffer_.lookupTransform(
+      world_frame_, target_frame_, prev_stamp, ros::Duration(
+        0.5));
 
     cv::Point2f vehicle_translation;
     vehicle_translation =
-      cv::Point2f((map2currentbase.transform.translation.x -
-          map2prevbase.transform.translation.x),
-        (map2currentbase.transform.translation.y -
-          map2prevbase.transform.translation.y));
-    image_translation= cv::Point2f(-vehicle_translation.y / grid_size_,
+      cv::Point2f(
+      (map2currentbase.transform.translation.x -
+      map2prevbase.transform.translation.x),
+      (map2currentbase.transform.translation.y -
+      map2prevbase.transform.translation.y));
+    image_translation = cv::Point2f(
+      -vehicle_translation.y / grid_size_,
       -vehicle_translation.x / grid_size_);
-  } catch (tf2::TransformException &ex) {
-    ROS_WARN("%s",ex.what());
+  } catch (tf2::TransformException & ex) {
+    ROS_WARN("%s", ex.what());
     return image_translation;
   }
 

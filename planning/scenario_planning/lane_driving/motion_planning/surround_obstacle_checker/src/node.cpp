@@ -59,8 +59,8 @@ SurroundObstacleCheckerNode::SurroundObstacleCheckerNode()
     std::bind(&SurroundObstacleCheckerNode::pointCloudCallback, this, std::placeholders::_1));
   dynamic_object_sub_ =
     this->create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
-      "input/objects", 1,
-      std::bind(&SurroundObstacleCheckerNode::dynamicObjectCallback, this, std::placeholders::_1));
+    "input/objects", 1,
+    std::bind(&SurroundObstacleCheckerNode::dynamicObjectCallback, this, std::placeholders::_1));
   current_velocity_sub_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
     "input/twist", 1,
     std::bind(&SurroundObstacleCheckerNode::currentVelocityCallback, this, std::placeholders::_1));
@@ -275,7 +275,7 @@ void SurroundObstacleCheckerNode::getNearestObstacleByPointCloud(
   pcl::PointCloud<pcl::PointXYZ> pcl;
   pcl::fromROSMsg(*pointcloud_ptr_, pcl);
   pcl::transformPointCloud(pcl, pcl, isometry);
-  for (const auto& p : pcl) {
+  for (const auto & p : pcl) {
     // create boost point
     Point2d boost_p(p.x, p.y);
 
@@ -301,7 +301,8 @@ void SurroundObstacleCheckerNode::getNearestObstacleByDynamicObject(
     //change frame of obj_pose to base_link
     geometry_msgs::msg::Pose pose_baselink;
     if (!convertPose(
-          obj.state.pose_covariance.pose, obj_frame, "base_link", obj_time, pose_baselink)) {
+        obj.state.pose_covariance.pose, obj_frame, "base_link", obj_time, pose_baselink))
+    {
       return;
     }
 
@@ -417,7 +418,7 @@ Polygon2d SurroundObstacleCheckerNode::createObjPolygon(
 
   // rotate polygon(yaw)
   boost::geometry::strategy::transform::rotate_transformer<boost::geometry::radian, double, 2, 2>
-    rotate(-yaw);  // anti-clockwise -> :clockwise rotation
+  rotate(-yaw);    // anti-clockwise -> :clockwise rotation
   Polygon2d rotate_obj_poly;
   boost::geometry::transform(obj_poly, rotate_obj_poly, rotate);
 
@@ -445,7 +446,7 @@ Polygon2d SurroundObstacleCheckerNode::createObjPolygon(
 
   // rotate polygon(yaw)
   boost::geometry::strategy::transform::rotate_transformer<boost::geometry::radian, double, 2, 2>
-    rotate(-yaw);  // anti-clockwise -> :clockwise rotation
+  rotate(-yaw);    // anti-clockwise -> :clockwise rotation
   Polygon2d rotate_obj_poly;
   boost::geometry::transform(obj_poly, rotate_obj_poly, rotate);
 
@@ -474,9 +475,9 @@ std::string SurroundObstacleCheckerNode::jsonDumpsPose(const geometry_msgs::msg:
 {
   const std::string json_dumps_pose =
     (boost::format(
-       R"({"position":{"x":%lf,"y":%lf,"z":%lf},"orientation":{"w":%lf,"x":%lf,"y":%lf,"z":%lf}})") %
-     pose.position.x % pose.position.y % pose.position.z % pose.orientation.w % pose.orientation.x %
-     pose.orientation.y % pose.orientation.z)
-      .str();
+      R"({"position":{"x":%lf,"y":%lf,"z":%lf},"orientation":{"w":%lf,"x":%lf,"y":%lf,"z":%lf}})") %
+    pose.position.x % pose.position.y % pose.position.z % pose.orientation.w % pose.orientation.x %
+    pose.orientation.y % pose.orientation.z)
+    .str();
   return json_dumps_pose;
 }

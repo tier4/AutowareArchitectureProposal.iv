@@ -21,9 +21,9 @@ LinfPseudoJerkOptimizer::LinfPseudoJerkOptimizer(const LinfPseudoJerkOptimizer::
   param_ = p;
 }
 
-void LinfPseudoJerkOptimizer::setAccel(const double max_accel) { param_.max_accel = max_accel; }
+void LinfPseudoJerkOptimizer::setAccel(const double max_accel) {param_.max_accel = max_accel;}
 
-void LinfPseudoJerkOptimizer::setDecel(const double min_decel) { param_.min_decel = min_decel; }
+void LinfPseudoJerkOptimizer::setDecel(const double min_decel) {param_.min_decel = min_decel;}
 
 bool LinfPseudoJerkOptimizer::solve(
   const double initial_vel, const double initial_acc, const int closest,

@@ -23,7 +23,8 @@ struct FrenetCoordinate3d
 {
   double length;
   double distance;
-  FrenetCoordinate3d() : length(0), distance(0) {}
+  FrenetCoordinate3d()
+  : length(0), distance(0) {}
 };
 
 bool convertToFrenetCoordinate3d(

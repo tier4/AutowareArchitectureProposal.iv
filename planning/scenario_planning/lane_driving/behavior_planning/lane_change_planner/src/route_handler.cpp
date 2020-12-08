@@ -34,7 +34,7 @@ using autoware_planning_msgs::msg::PathWithLaneId;
 using lanelet::utils::to2D;
 namespace
 {
-template <typename T>
+template<typename T>
 bool exists(const std::vector<T> & vectors, const T & item)
 {
   for (const auto & i : vectors) {
@@ -112,7 +112,8 @@ PathWithLaneId combineReferencePath(
     //calculate query
     std::vector<double> inner_s;
     for (double d = (base_s.at(n_sample_path1 - 1) + interval); d < base_s.at(n_sample_path1);
-         d += interval) {
+      d += interval)
+    {
       inner_s.push_back(d);
     }
 
@@ -124,7 +125,8 @@ PathWithLaneId combineReferencePath(
     if (
       spline.interpolate(base_s, base_x, inner_s, inner_x) &&
       spline.interpolate(base_s, base_y, inner_s, inner_y) &&
-      spline.interpolate(base_s, base_z, inner_s, inner_z)) {
+      spline.interpolate(base_s, base_z, inner_s, inner_z))
+    {
       //set position and other data
       for (size_t i = 0; i < inner_s.size(); ++i) {
         PathPointWithLaneId inner_point;
@@ -249,7 +251,7 @@ void RouteHandler::routeCallback(const autoware_planning_msgs::msg::Route::Const
   }
 }
 
-bool RouteHandler::isHandlerReady() { return is_handler_ready_; }
+bool RouteHandler::isHandlerReady() {return is_handler_ready_;}
 
 void RouteHandler::setRouteLanelets()
 {
@@ -300,9 +302,9 @@ std::vector<lanelet::ConstLanelet> RouteHandler::getLanesAfterGoal(
   }
 }
 
-lanelet::ConstLanelets RouteHandler::getRouteLanelets() const { return route_lanelets_; }
+lanelet::ConstLanelets RouteHandler::getRouteLanelets() const {return route_lanelets_;}
 
-geometry_msgs::msg::Pose RouteHandler::getGoalPose() const { return route_msg_.goal_pose; }
+geometry_msgs::msg::Pose RouteHandler::getGoalPose() const {return route_msg_.goal_pose;}
 
 lanelet::Id RouteHandler::getGoalLaneId() const
 {
@@ -515,16 +517,16 @@ bool RouteHandler::getLaneChangeTarget(
     return false;
   }
   if (num < 0) {
-    auto right_lanelet = (!!routing_graph_ptr_->right(lanelet))
-                           ? routing_graph_ptr_->right(lanelet)
-                           : routing_graph_ptr_->adjacentRight(lanelet);
+    auto right_lanelet = (!!routing_graph_ptr_->right(lanelet)) ?
+      routing_graph_ptr_->right(lanelet) :
+      routing_graph_ptr_->adjacentRight(lanelet);
     *target_lanelet = right_lanelet.get();
   }
 
   if (num > 0) {
-    auto left_lanelet = (!!routing_graph_ptr_->left(lanelet))
-                          ? routing_graph_ptr_->left(lanelet)
-                          : routing_graph_ptr_->adjacentLeft(lanelet);
+    auto left_lanelet = (!!routing_graph_ptr_->left(lanelet)) ?
+      routing_graph_ptr_->left(lanelet) :
+      routing_graph_ptr_->adjacentLeft(lanelet);
     *target_lanelet = left_lanelet.get();
   }
   return true;
@@ -727,15 +729,15 @@ lanelet::ConstLanelets RouteHandler::getLaneChangeTarget(
 
   int num = getNumLaneToPreferredLane(lanelet);
   if (num < 0) {
-    auto right_lanelet = (!!routing_graph_ptr_->right(lanelet))
-                           ? routing_graph_ptr_->right(lanelet)
-                           : routing_graph_ptr_->adjacentRight(lanelet);
+    auto right_lanelet = (!!routing_graph_ptr_->right(lanelet)) ?
+      routing_graph_ptr_->right(lanelet) :
+      routing_graph_ptr_->adjacentRight(lanelet);
     target_lanelets = getLaneletSequence(right_lanelet.get());
   }
   if (num > 0) {
-    auto left_lanelet = (!!routing_graph_ptr_->left(lanelet))
-                          ? routing_graph_ptr_->left(lanelet)
-                          : routing_graph_ptr_->adjacentLeft(lanelet);
+    auto left_lanelet = (!!routing_graph_ptr_->left(lanelet)) ?
+      routing_graph_ptr_->left(lanelet) :
+      routing_graph_ptr_->adjacentLeft(lanelet);
     target_lanelets = getLaneletSequence(left_lanelet.get());
   }
   return target_lanelets;
@@ -768,17 +770,18 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
   const double acceleration_resolution = std::abs(maximum_deceleration) / lane_change_sampling_num;
 
   for (double acceleration = 0.0; acceleration >= -maximum_deceleration;
-       acceleration -= acceleration_resolution) {
+    acceleration -= acceleration_resolution)
+  {
     PathWithLaneId reference_path;
     const double v1 = v0 + acceleration * lane_change_prepare_duration;
     const double v2 = v1 + acceleration * lane_changing_duration;
 
     // skip if velocity becomes less than zero before finishing lane change
-    if (v2 < 0.0) continue;
+    if (v2 < 0.0) {continue;}
 
     // get path on original lanes
     const double straight_distance = v0 * lane_change_prepare_duration +
-                                     0.5 * acceleration * std::pow(lane_change_prepare_duration, 2);
+      0.5 * acceleration * std::pow(lane_change_prepare_duration, 2);
     double lane_change_distance =
       v1 * lane_changing_duration + 0.5 * acceleration * std::pow(lane_changing_duration, 2);
     lane_change_distance = std::max(lane_change_distance, minimum_lane_change_length);

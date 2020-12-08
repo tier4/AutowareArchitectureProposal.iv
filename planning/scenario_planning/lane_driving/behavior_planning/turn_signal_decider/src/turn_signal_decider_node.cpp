@@ -18,7 +18,9 @@ int main(int argc, char * argv[])
   rclcpp::init(argc, argv);
 
   rclcpp::NodeOptions node_options;
-  auto decider = std::make_shared<turn_signal_decider::TurnSignalDecider>("turn_signal_decider", node_options);
+  auto decider = std::make_shared<turn_signal_decider::TurnSignalDecider>(
+    "turn_signal_decider",
+    node_options);
 
   rclcpp::spin(decider);
 

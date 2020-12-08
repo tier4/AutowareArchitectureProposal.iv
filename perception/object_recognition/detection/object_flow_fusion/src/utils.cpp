@@ -17,7 +17,7 @@
 namespace object_flow_fusion
 {
 geometry_msgs::Vector3 Utils::mptopic2kph(
-  const geometry_msgs::Vector3& twist,
+  const geometry_msgs::Vector3 & twist,
   double topic_rate)
 {
   // convert twist to [km/h] from [m/topic_rate]
@@ -29,7 +29,7 @@ geometry_msgs::Vector3 Utils::mptopic2kph(
 }
 
 geometry_msgs::Vector3 Utils::kph2mptopic(
-  const geometry_msgs::Vector3& twist,
+  const geometry_msgs::Vector3 & twist,
   double topic_rate)
 {
   // convert twist to [km/h] from [m/topic_rate]
@@ -40,7 +40,7 @@ geometry_msgs::Vector3 Utils::kph2mptopic(
   return converted_twist;
 }
 
-geometry_msgs::Vector3 Utils::kph2mps(const geometry_msgs::Vector3& twist)
+geometry_msgs::Vector3 Utils::kph2mps(const geometry_msgs::Vector3 & twist)
 {
   // convert twist to [km/h] from [m/topic_rate]
   geometry_msgs::Vector3 converted_twist;
@@ -50,7 +50,7 @@ geometry_msgs::Vector3 Utils::kph2mps(const geometry_msgs::Vector3& twist)
   return converted_twist;
 }
 
-geometry_msgs::Twist Utils::kph2mps(const geometry_msgs::Twist& twist)
+geometry_msgs::Twist Utils::kph2mps(const geometry_msgs::Twist & twist)
 {
   // convert twist to [km/h] from [m/topic_rate]
   geometry_msgs::Twist converted_twist;

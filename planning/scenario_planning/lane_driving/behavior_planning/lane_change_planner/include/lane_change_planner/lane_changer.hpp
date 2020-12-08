@@ -55,7 +55,8 @@ private:
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr lane_change_ready_publisher_;
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr lane_change_available_publisher_;
 
-  rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr perception_subscriber_;
+  rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr
+    perception_subscriber_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr velocity_subscriber_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr lane_change_approval_subscriber_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr force_lane_change_subscriber_;

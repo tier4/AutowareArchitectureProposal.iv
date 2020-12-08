@@ -32,7 +32,7 @@ class ClusterDataAssociationNode
 {
 public:
   ClusterDataAssociationNode();
-  ~ClusterDataAssociationNode(){};
+  ~ClusterDataAssociationNode() {}
 
 private:
   void clusterCallback(
@@ -44,12 +44,12 @@ private:
   tf2_ros::TransformListener tf_listener_;
   ros::Publisher associated_cluster_pub_;
   message_filters::Subscriber<autoware_perception_msgs::DynamicObjectWithFeatureArray>
-    cluster0_sub_;
+  cluster0_sub_;
   message_filters::Subscriber<autoware_perception_msgs::DynamicObjectWithFeatureArray>
-    cluster1_sub_;
+  cluster1_sub_;
   typedef message_filters::sync_policies::ApproximateTime<
-    autoware_perception_msgs::DynamicObjectWithFeatureArray,
-    autoware_perception_msgs::DynamicObjectWithFeatureArray>
+      autoware_perception_msgs::DynamicObjectWithFeatureArray,
+      autoware_perception_msgs::DynamicObjectWithFeatureArray>
     SyncPolicy;
   typedef message_filters::Synchronizer<SyncPolicy> Sync;
   Sync sync_;

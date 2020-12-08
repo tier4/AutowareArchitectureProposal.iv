@@ -36,9 +36,10 @@ public:
     std::vector<autoware_perception_msgs::msg::LampState> & states) override;
 
 private:
-  void preProcess(cv::Mat & image, std::vector<float> &  tensor, bool normalize = true);
+  void preProcess(cv::Mat & image, std::vector<float> & tensor, bool normalize = true);
   bool postProcess(
-    std::vector<float> & output_data_host, std::vector<autoware_perception_msgs::msg::LampState> & states);
+    std::vector<float> & output_data_host,
+    std::vector<autoware_perception_msgs::msg::LampState> & states);
   bool readLabelfile(std::string filepath, std::vector<std::string> & labels);
   void calcSoftmax(std::vector<float> & data, std::vector<float> & probs, int num_output);
   std::vector<size_t> argsort(std::vector<float> & tensor, int num_output);

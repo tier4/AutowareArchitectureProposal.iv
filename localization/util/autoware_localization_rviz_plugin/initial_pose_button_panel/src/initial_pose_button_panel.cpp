@@ -49,7 +49,8 @@
 
 namespace autoware_localization_rviz_plugin
 {
-InitialPoseButtonPanel::InitialPoseButtonPanel(QWidget * parent) : rviz::Panel(parent)
+InitialPoseButtonPanel::InitialPoseButtonPanel(QWidget * parent)
+: rviz::Panel(parent)
 {
   topic_label_ = new QLabel("PoseWithCovarianceStamped ");
   topic_label_->setAlignment(Qt::AlignCenter);
@@ -112,18 +113,18 @@ void InitialPoseButtonPanel::pushInitialzeButton()
   status_label_->setText("Initialzing...");
 
   std::thread thread([this] {
-    autoware_localization_srvs::PoseWithCovarianceStamped srv;
-    srv.request.pose_with_cov = pose_cov_msg_;
-    if (client_.call(srv)) {
-      status_label_->setStyleSheet("QLabel { background-color : lightgreen;}");
-      status_label_->setText("OK!!!");
-    } else {
-      status_label_->setStyleSheet("QLabel { background-color : red;}");
-      status_label_->setText("Faild!");
-    }
-    // unlock button
-    initialize_button_->setEnabled(true);
-  });
+      autoware_localization_srvs::PoseWithCovarianceStamped srv;
+      srv.request.pose_with_cov = pose_cov_msg_;
+      if (client_.call(srv)) {
+        status_label_->setStyleSheet("QLabel { background-color : lightgreen;}");
+        status_label_->setText("OK!!!");
+      } else {
+        status_label_->setStyleSheet("QLabel { background-color : red;}");
+        status_label_->setText("Faild!");
+      }
+      // unlock button
+      initialize_button_->setEnabled(true);
+    });
 
   thread.detach();
 }

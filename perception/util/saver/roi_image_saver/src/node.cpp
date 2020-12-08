@@ -47,8 +47,8 @@ void TrafficLightRoiImageSaver::imageRoiCallback(
       cv::Mat clipped_image(
         cv_ptr->image, cv::Rect(roi.x_offset, roi.y_offset, roi.width, roi.height));
       std::stringstream save_fine_name_stream;
-      save_fine_name_stream << std::fixed << save_dir_ << "/" << input_tl_roi_msg->rois.at(i).id
-                            << "_" << current_time.toSec() << ".png";
+      save_fine_name_stream << std::fixed << save_dir_ << "/" << input_tl_roi_msg->rois.at(i).id <<
+        "_" << current_time.toSec() << ".png";
       std::string save_fine_name;
       save_fine_name_stream >> save_fine_name;
       cv::imwrite(save_fine_name, clipped_image);

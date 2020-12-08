@@ -43,5 +43,5 @@ public:
   Eigen::MatrixXd calcScoreMatrix(
     const autoware_perception_msgs::DynamicObjectWithFeatureArray & cluster0,
     const autoware_perception_msgs::DynamicObjectWithFeatureArray & cluster1);
-  virtual ~DataAssociation(){};
+  virtual ~DataAssociation() {}
 };

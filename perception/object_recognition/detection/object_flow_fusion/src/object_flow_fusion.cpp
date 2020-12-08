@@ -17,31 +17,36 @@
 
 namespace object_flow_fusion
 {
-ObjectFlowFusion::ObjectFlowFusion() : nh_(""), pnh_("~")
+ObjectFlowFusion::ObjectFlowFusion()
+: nh_(""), pnh_("~")
 {
   pnh_.param<float>("fusion_box_offset", fusion_box_offset_, 0.1);
   utils_ = std::make_shared<Utils>();
 }
 
 bool ObjectFlowFusion::isInsidePolygon(
-  const geometry_msgs::Pose& pose,
-  const geometry_msgs::Polygon& footprint,
-  const geometry_msgs::Point& flow_point)
+  const geometry_msgs::Pose & pose,
+  const geometry_msgs::Polygon & footprint,
+  const geometry_msgs::Point & flow_point)
 {
   double formed_angle_sum = 0;
   Eigen::Vector2d flow_point2d(flow_point.x, flow_point.y);
 
-  for (int i=0; i<footprint.points.size(); i++) {
+  for (int i = 0; i < footprint.points.size(); i++) {
     Eigen::Vector2d a2d, b2d;
     if (i == 0) {
-      a2d = Eigen::Vector2d(footprint.points.at(footprint.points.size()-1).x,
-        footprint.points.at(footprint.points.size()-1).y) - flow_point2d;
-      b2d = Eigen::Vector2d(footprint.points.at(i).x,
+      a2d = Eigen::Vector2d(
+        footprint.points.at(footprint.points.size() - 1).x,
+        footprint.points.at(footprint.points.size() - 1).y) - flow_point2d;
+      b2d = Eigen::Vector2d(
+        footprint.points.at(i).x,
         footprint.points.at(i).y) - flow_point2d;
     } else {
-      a2d = Eigen::Vector2d(footprint.points.at(i-1).x,
-        footprint.points.at(i-1).y) - flow_point2d;
-      b2d = Eigen::Vector2d(footprint.points.at(i).x,
+      a2d = Eigen::Vector2d(
+        footprint.points.at(i - 1).x,
+        footprint.points.at(i - 1).y) - flow_point2d;
+      b2d = Eigen::Vector2d(
+        footprint.points.at(i).x,
         footprint.points.at(i).y) - flow_point2d;
     }
     double formed_angle = std::acos(a2d.dot(b2d) / (a2d.norm() * b2d.norm()));
@@ -50,7 +55,7 @@ bool ObjectFlowFusion::isInsidePolygon(
 
   double min_angle_range = 358.0 * M_PI / 180.0;
   double max_angle_range = 362.0 * M_PI / 180.0;
-  if ( min_angle_range < formed_angle_sum && formed_angle_sum < max_angle_range) {
+  if (min_angle_range < formed_angle_sum && formed_angle_sum < max_angle_range) {
     return true;
   } else {
     return false;
@@ -58,9 +63,9 @@ bool ObjectFlowFusion::isInsidePolygon(
 }
 
 bool ObjectFlowFusion::isInsideCylinder(
-  const geometry_msgs::Pose& pose,
-  const autoware_perception_msgs::Shape& shape,
-  const geometry_msgs::Point& flow_point)
+  const geometry_msgs::Pose & pose,
+  const autoware_perception_msgs::Shape & shape,
+  const geometry_msgs::Point & flow_point)
 {
   Eigen::Affine3d base2obj_transform;
   tf::poseMsgToEigen(pose, base2obj_transform);
@@ -76,17 +81,18 @@ bool ObjectFlowFusion::isInsideCylinder(
 }
 
 bool ObjectFlowFusion::isInsideShape(
-  const autoware_perception_msgs::DynamicObject& object,
-  const geometry_msgs::Point& flow_point,
-  const geometry_msgs::Polygon& footprint)
+  const autoware_perception_msgs::DynamicObject & object,
+  const geometry_msgs::Point & flow_point,
+  const geometry_msgs::Polygon & footprint)
 {
   geometry_msgs::Pose pose = object.state.pose_covariance.pose;
   autoware_perception_msgs::Shape shape = object.shape;
 
-  if ( shape.type == autoware_perception_msgs::Shape::POLYGON ||
-    shape.type == autoware_perception_msgs::Shape::BOUNDING_BOX ) {
+  if (shape.type == autoware_perception_msgs::Shape::POLYGON ||
+    shape.type == autoware_perception_msgs::Shape::BOUNDING_BOX)
+  {
     return isInsidePolygon(pose, footprint, flow_point);
-  } else if ( shape.type == autoware_perception_msgs::Shape::CYLINDER ) {
+  } else if (shape.type == autoware_perception_msgs::Shape::CYLINDER) {
     return isInsideCylinder(pose, shape, flow_point);
   } else {
     return false;
@@ -95,15 +101,16 @@ bool ObjectFlowFusion::isInsideShape(
 }
 
 geometry_msgs::Twist ObjectFlowFusion::getLocalTwist(
-  const geometry_msgs::Pose& obj_pose, const geometry_msgs::Twist& base_coords_twist)
+  const geometry_msgs::Pose & obj_pose, const geometry_msgs::Twist & base_coords_twist)
 {
   Eigen::Affine3d base2obj_transform;
   tf::poseMsgToEigen(obj_pose, base2obj_transform);
   Eigen::Matrix3d base2obj_rot = base2obj_transform.rotation();
   Eigen::Vector3d obj_coords_vector =
-    base2obj_rot.inverse() * Eigen::Vector3d(base_coords_twist.linear.x,
-      base_coords_twist.linear.y,
-      base_coords_twist.linear.z);
+    base2obj_rot.inverse() * Eigen::Vector3d(
+    base_coords_twist.linear.x,
+    base_coords_twist.linear.y,
+    base_coords_twist.linear.z);
   geometry_msgs::Twist obj_coords_twist;
   obj_coords_twist.linear.x = obj_coords_vector.x();
   obj_coords_twist.linear.y = obj_coords_vector.y();
@@ -113,9 +120,9 @@ geometry_msgs::Twist ObjectFlowFusion::getLocalTwist(
 
 
 bool ObjectFlowFusion::getPolygon(
-  const autoware_perception_msgs::DynamicObject& object,
-  const geometry_msgs::Polygon& input_footprint,
-  geometry_msgs::Polygon& output_footprint)
+  const autoware_perception_msgs::DynamicObject & object,
+  const geometry_msgs::Polygon & input_footprint,
+  geometry_msgs::Polygon & output_footprint)
 {
   geometry_msgs::Pose pose = object.state.pose_covariance.pose;
   autoware_perception_msgs::Shape shape = object.shape;
@@ -124,7 +131,7 @@ bool ObjectFlowFusion::getPolygon(
   tf::poseMsgToEigen(pose, base2obj_transform);
 
   float offset = 0.1;
-  if ( shape.type == autoware_perception_msgs::Shape::BOUNDING_BOX ) {
+  if (shape.type == autoware_perception_msgs::Shape::BOUNDING_BOX) {
     auto eigen_c1 = base2obj_transform * Eigen::Vector3d(
       shape.dimensions.x * (0.5 + fusion_box_offset_),
       shape.dimensions.y * (0.5 + fusion_box_offset_),
@@ -161,7 +168,7 @@ bool ObjectFlowFusion::getPolygon(
     c4.y = eigen_c4.y();
     output_footprint.points.push_back(c4);
   } else if (shape.type == autoware_perception_msgs::Shape::POLYGON) {
-    for ( auto p : input_footprint.points ) {
+    for (auto p : input_footprint.points) {
       auto eigen_p = base2obj_transform * Eigen::Vector3d(p.x, p.y, p.z);
       geometry_msgs::Point32 basecoords_p;
       basecoords_p.x = eigen_p.x();
@@ -178,14 +185,15 @@ bool ObjectFlowFusion::getPolygon(
 }
 
 void ObjectFlowFusion::fusion(
-  const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr& object_msg,
-  const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr& flow_msg,
+  const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr & object_msg,
+  const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr & flow_msg,
   bool use_flow_pose, float flow_vel_thresh_,
-  autoware_perception_msgs::DynamicObjectWithFeatureArray& fusioned_msg)
+  autoware_perception_msgs::DynamicObjectWithFeatureArray & fusioned_msg)
 {
   for (auto detected_object : object_msg->feature_objects) {
     geometry_msgs::Polygon footprint;
-    bool has_polygon = getPolygon(detected_object.object,
+    bool has_polygon = getPolygon(
+      detected_object.object,
       detected_object.object.shape.footprint,
       footprint);
     if (!has_polygon) {
@@ -194,9 +202,11 @@ void ObjectFlowFusion::fusion(
     geometry_msgs::Twist twist_sum;
     size_t flow_count = 0;
     for (auto flow : flow_msg->feature_objects) {
-      if ( isInsideShape(detected_object.object,
+      if (isInsideShape(
+          detected_object.object,
           flow.object.state.pose_covariance.pose.position,
-          footprint) ) {
+          footprint) )
+      {
         twist_sum.linear.x += flow.object.state.twist_covariance.twist.linear.x;
         twist_sum.linear.y += flow.object.state.twist_covariance.twist.linear.y;
         twist_sum.linear.z += flow.object.state.twist_covariance.twist.linear.z;
@@ -208,16 +218,17 @@ void ObjectFlowFusion::fusion(
     feature_object = detected_object;
     feature_object.object.state.twist_reliable = false;
 
-    if ( flow_count > 0 ) {
+    if (flow_count > 0) {
       geometry_msgs::Twist twist_average;
       twist_average.linear.x = twist_sum.linear.x / flow_count;
       twist_average.linear.y = twist_sum.linear.y / flow_count;
       twist_average.linear.z = twist_sum.linear.z / flow_count;
       auto mps_twist_average = utils_->kph2mps(twist_average);
-      double vel = std::sqrt(std::pow(twist_average.linear.x, 2) +
+      double vel = std::sqrt(
+        std::pow(twist_average.linear.x, 2) +
         std::pow(twist_average.linear.y, 2) +
         std::pow(twist_average.linear.z, 2));
-      if ( use_flow_pose && vel > flow_vel_thresh_ ) {
+      if (use_flow_pose && vel > flow_vel_thresh_) {
         // TODO: fusion orientation_reliable the detection result and flow pose wisely.
         // (now just overwrite the flow pose to the detection result)
 
@@ -229,7 +240,9 @@ void ObjectFlowFusion::fusion(
         feature_object.object.state.orientation_reliable = true;
       }
 
-      auto local_twist = getLocalTwist(feature_object.object.state.pose_covariance.pose, mps_twist_average);
+      auto local_twist = getLocalTwist(
+        feature_object.object.state.pose_covariance.pose,
+        mps_twist_average);
       feature_object.object.state.twist_covariance.twist = local_twist;
       feature_object.object.state.twist_reliable = true;
     }

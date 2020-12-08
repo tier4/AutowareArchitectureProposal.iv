@@ -154,7 +154,7 @@ void ConsoleMeterDisplay::processMessage(const geometry_msgs::TwistStampedConstP
   white_color.setAlpha(255);
   const double velocity_ratio = std::min(
     std::max(std::fabs(msg_ptr->twist.linear.x) - meter_min_velocity_, 0.0) /
-      (meter_max_velocity_ - meter_min_velocity_),
+    (meter_max_velocity_ - meter_min_velocity_),
     1.0);
   const double theta =
     (velocity_ratio * (meter_max_angle_ - meter_min_angle_)) + meter_min_angle_ + M_PI_2;
@@ -219,7 +219,7 @@ void ConsoleMeterDisplay::updateVisualization()
   //   }
   // }
 
-  if (last_msg_ptr_ != nullptr) processMessage(last_msg_ptr_);
+  if (last_msg_ptr_ != nullptr) {processMessage(last_msg_ptr_);}
 }
 
 }  // namespace rviz_plugins

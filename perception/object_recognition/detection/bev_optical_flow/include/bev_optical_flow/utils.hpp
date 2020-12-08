@@ -32,26 +32,28 @@ public:
   geometry_msgs::Point pixel2point(
     const geometry_msgs::Point point,
     const geometry_msgs::Vector3 twist,
-    const cv::Size& image_size,
+    const cv::Size & image_size,
     float map2baselink_angle);
-  geometry_msgs::Point pixel2point(const cv::Point2f& pixel,
-    const cv::Size& image_size,
+  geometry_msgs::Point pixel2point(
+    const cv::Point2f & pixel,
+    const cv::Size & image_size,
     float map2baselink_angle,
     int depth);
   float getMap2BaseAngle(ros::Time stamp);
   geometry_msgs::Vector3 mptopic2kph(
-    const geometry_msgs::Vector3& twist,
+    const geometry_msgs::Vector3 & twist,
     double topic_rate);
   geometry_msgs::Vector3 kph2mptopic(
-    const geometry_msgs::Vector3& twist,
+    const geometry_msgs::Vector3 & twist,
     double topic_rate);
-  geometry_msgs::Vector3 kph2mps(const geometry_msgs::Vector3& twist);
+  geometry_msgs::Vector3 kph2mps(const geometry_msgs::Vector3 & twist);
   cv::Point2f getVehicleVel(
-    const ros::Time& current_stamp,
-    const ros::Time& prev_stamp);
+    const ros::Time & current_stamp,
+    const ros::Time & prev_stamp);
   geometry_msgs::Twist getObjCoordsTwist(
-    const geometry_msgs::Pose& obj_pose,
-    const geometry_msgs::Twist& base_coords_twist);
+    const geometry_msgs::Pose & obj_pose,
+    const geometry_msgs::Twist & base_coords_twist);
+
 private:
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;

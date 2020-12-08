@@ -38,7 +38,8 @@ private:
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_; //!< @brief publisher for output trajectory
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_velocity_;  //!< @brief subscriber for current velocity
   rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_current_trajectory_;  //!< @brief subscriber for reference trajectory
-  rclcpp::Subscription<autoware_planning_msgs::msg::VelocityLimit>::SharedPtr sub_external_velocity_limit_;//!< @brief subscriber for external velocity limit
+  rclcpp::Subscription<autoware_planning_msgs::msg::VelocityLimit>::SharedPtr
+    sub_external_velocity_limit_;                                                                          //!< @brief subscriber for external velocity limit
   tf2::BufferCore tf_buffer_;  //!< @brief tf butter
   tf2_ros::TransformListener tf_listener_;  //!< @brief tf listener
 
@@ -56,7 +57,8 @@ private:
 
   autoware_planning_msgs::msg::Trajectory prev_output_;  // previously published trajectory
 
-  enum class InitializeType {
+  enum class InitializeType
+  {
     INIT = 0,
     LARGE_DEVIATION_REPLAN = 1,
     ENGAGING = 2,
@@ -96,7 +98,8 @@ private:
   /* topic callback */
   void callbackCurrentVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
   void callbackCurrentTrajectory(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg);
-  void callbackExternalVelocityLimit(const autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr msg);
+  void callbackExternalVelocityLimit(
+    const autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr msg);
   void timerCallback();
 
 
@@ -113,7 +116,8 @@ private:
 
   autoware_planning_msgs::msg::Trajectory optimizeVelocity(
     const autoware_planning_msgs::msg::Trajectory & input, const int input_closest,
-    const autoware_planning_msgs::msg::Trajectory & prev_output_traj, const int prev_output_closest);
+    const autoware_planning_msgs::msg::Trajectory & prev_output_traj,
+    const int prev_output_closest);
 
   void calcInitialMotion(
     const double & base_speed, const autoware_planning_msgs::msg::Trajectory & base_waypoints,
@@ -160,9 +164,13 @@ private:
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub_dist_to_stopline_;  //!< @brief publisher for stop distance
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_raw_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_vel_lim_;
-  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_latcc_filtered_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr
+    pub_trajectory_latcc_filtered_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_resampled_;
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr debug_closest_velocity_;
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr debug_closest_acc_;
-  void publishFloat(const double & data, const rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub) const;
+  void publishFloat(
+    const double & data,
+    const rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub)
+  const;
 };
