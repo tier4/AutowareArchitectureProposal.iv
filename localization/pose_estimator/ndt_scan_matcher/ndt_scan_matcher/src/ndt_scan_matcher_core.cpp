@@ -339,6 +339,7 @@ void NDTScanMatcher::callbackSensorPoints(
   const auto initial_pose_msg =
     interpolatePose(*initial_pose_old_msg_ptr, *initial_pose_new_msg_ptr, sensor_ros_time);
 
+
   geometry_msgs::msg::PoseWithCovarianceStamped initial_pose_cov_msg;
   initial_pose_cov_msg.header = initial_pose_msg.header;
   initial_pose_cov_msg.pose.pose = initial_pose_msg.pose;
@@ -420,6 +421,9 @@ void NDTScanMatcher::callbackSensorPoints(
   if (is_converged) {
     ndt_pose_pub_->publish(result_pose_stamped_msg);
     ndt_pose_with_covariance_pub_->publish(result_pose_with_cov_msg);
+  } else {
+    RCLCPP_WARN_THROTTLE(
+      get_logger(), *get_clock(), 5000 /* ms */, "NDT is not converged. Stop publishing");
   }
 
   publishTF(map_frame_, ndt_base_frame_, result_pose_stamped_msg);
