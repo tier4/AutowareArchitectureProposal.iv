@@ -293,6 +293,7 @@ void ObstacleAvoidancePlanner::enableAvoidanceCallback(const autoware_planning_m
 autoware_planning_msgs::msg::Trajectory ObstacleAvoidancePlanner::generateTrajectory(
   const autoware_planning_msgs::msg::Path & path)
 {
+
   auto t_start = std::chrono::high_resolution_clock::now();
 
   const auto traj_points = generateOptimizedTrajectory(*current_ego_pose_ptr_, path);
@@ -318,13 +319,14 @@ std::vector<autoware_planning_msgs::msg::TrajectoryPoint>
 ObstacleAvoidancePlanner::generateOptimizedTrajectory(
   const geometry_msgs::msg::Pose & ego_pose, const autoware_planning_msgs::msg::Path & path)
 {
+
   if (!needReplan(
         ego_pose, prev_ego_pose_ptr_, path.points, prev_replanned_time_ptr_, prev_path_points_ptr_,
         prev_trajectories_ptr_)) {
     return getPrevTrajectory(path.points);
   }
   prev_ego_pose_ptr_ = std::make_unique<geometry_msgs::msg::Pose>(ego_pose);
-  prev_replanned_time_ptr_ = std::make_unique<rclcpp::Time>(rclcpp::Clock().now());
+  prev_replanned_time_ptr_ = std::make_unique<rclcpp::Time>(this->now());
 
   DebugData debug_data;
   const auto optional_trajs = eb_path_optimizer_ptr_->generateOptimizedTrajectory(
