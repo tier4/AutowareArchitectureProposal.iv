@@ -73,7 +73,7 @@ EKFLocalizer::EKFLocalizer(const std::string & node_name, const rclcpp::NodeOpti
 
   /* initialize ros system */
   auto timer_control_callback = std::bind(&EKFLocalizer::timerCallback, this);
-  auto period_control = std::chrono::duration_cast<std::chrono::seconds>(
+  auto period_control = std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<double>(ekf_dt_));
   timer_control_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_control_callback)>>(
     this->get_clock(), period_control, std::move(timer_control_callback),
@@ -81,7 +81,7 @@ EKFLocalizer::EKFLocalizer(const std::string & node_name, const rclcpp::NodeOpti
   this->get_node_timers_interface()->add_timer(timer_control_, nullptr);
 
   auto timer_tf_callback = std::bind(&EKFLocalizer::timerTFCallback, this);
-  auto period_tf = std::chrono::duration_cast<std::chrono::seconds>(
+  auto period_tf = std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<double>(1.0 / tf_rate_));
   timer_tf_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_tf_callback)>>(
     this->get_clock(), period_tf, std::move(timer_tf_callback),
@@ -145,6 +145,8 @@ void EKFLocalizer::timerCallback()
         .count();
     DEBUG_INFO(this->get_logger(), "[EKF] measurementUpdatePose calculation time = %f [ms]", elapsed * 1.0e-6);
     DEBUG_INFO(this->get_logger(), "------------------------- end Pose -------------------------\n");
+  } else {
+    DEBUG_INFO(this->get_logger(), "!!!!!!!!!!!!! Pose topic has not received yet !!!!!!!!!!!!!!\n");
   }
 
   /* twist measurement update */
@@ -157,6 +159,8 @@ void EKFLocalizer::timerCallback()
         .count();
     DEBUG_INFO(this->get_logger(), "[EKF] measurementUpdateTwist calculation time = %f [ms]", elapsed * 1.0e-6);
     DEBUG_INFO(this->get_logger(), "------------------------- end twist -------------------------\n");
+  } else {
+    DEBUG_INFO(this->get_logger(), "!!!!!!!!!!!!! Twist topic has not received yet !!!!!!!!!!!!!!\n");
   }
 
   /* set current pose, twist */
@@ -186,15 +190,11 @@ void EKFLocalizer::setCurrentResult()
   current_ekf_pose_.pose.position.y = ekf_.getXelement(IDX::Y);
 
   tf2::Quaternion q_tf;
-  double roll, pitch, yaw;
+  double roll = 0.0, pitch = 0.0, yaw;
   if (current_pose_ptr_ != nullptr) {
     current_ekf_pose_.pose.position.z = current_pose_ptr_->pose.position.z;
     tf2::fromMsg(current_pose_ptr_->pose.orientation, q_tf); /* use Pose pitch and roll */
     tf2::Matrix3x3(q_tf).getRPY(roll, pitch, yaw);
-  } else {
-    // current_ekf_pose_.pose.position.z = 0.0;
-    // roll = 0;
-    // pitch = 0;
   }
   yaw = ekf_.getXelement(IDX::YAW) + ekf_.getXelement(IDX::YAWB);
   current_ekf_pose_.pose.orientation = createQuaternionFromRPY(roll, pitch, yaw);
