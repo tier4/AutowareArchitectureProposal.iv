@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>all_vehicle_descriptions</name>
+  <version>0.0.0</version>
+  <description>A metapackage for all vehicle descriptions. Packages that read in vehicle parameters for a configurable vehicle model should depend on this package to ensure that the parameter files are available at runtime.</description>
+  <maintainer email="nikolai.morin@apex.ai">nikolai.morin</maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake_core</buildtool_depend>
+  <buildtool_depend>ament_cmake_export_dependencies</buildtool_depend>
+
+  <buildtool_export_depend>ament_cmake_core</buildtool_export_depend>
+
+  <!-- When new vehicle model packages are added, they should be listed here -->
+  <exec_depend>lexus_description</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
