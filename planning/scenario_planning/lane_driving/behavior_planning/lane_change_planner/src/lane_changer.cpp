@@ -91,7 +91,7 @@ void LaneChanger::init()
   pnh_.param(
     "abort_lane_change_distance_thresh", parameters.abort_lane_change_distance_thresh, 0.3);
   pnh_.param("refine_goal_search_radius_range", parameters.refine_goal_search_radius_range, 7.5);
-
+  pnh_.param("enable_blocked_by_obstacle", parameters.enable_blocked_by_obstacle, false);
   // validation of parameters
   if (parameters.lane_change_sampling_num < 1) {
     ROS_FATAL_STREAM(

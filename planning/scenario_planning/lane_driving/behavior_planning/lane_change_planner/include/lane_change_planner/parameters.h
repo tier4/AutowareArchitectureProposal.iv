@@ -49,6 +49,7 @@ struct LaneChangerParameters
   bool use_predicted_path_outside_lanelet;
   bool use_all_predicted_path;
   double refine_goal_search_radius_range;
+  bool enable_blocked_by_obstacle;
 };
 
 #endif
