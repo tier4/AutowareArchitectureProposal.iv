@@ -633,9 +633,11 @@ PathWithLaneId removeOverlappingPoints(const PathWithLaneId & input_path)
       filtered_path.points.push_back(pt);
       continue;
     }
+
+    constexpr double min_dist = 0.001;
     if (
       getDistance3d(filtered_path.points.back().point.pose.position, pt.point.pose.position) <
-      std::numeric_limits<double>::epsilon()) {
+      min_dist) {
       filtered_path.points.back().lane_ids.push_back(pt.lane_ids.front());
     } else {
       filtered_path.points.push_back(pt);
