@@ -12,15 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MOTION_VELOCITY_OPTIMIZER_L2_PSEUDO_JERK_OPTIMIZER_HPP
-#define MOTION_VELOCITY_OPTIMIZER_L2_PSEUDO_JERK_OPTIMIZER_HPP
+#ifndef MOTION_VELOCITY_OPTIMIZER__OPTIMIZER__L2_PSEUDO_JERK_OPTIMIZER_HPP_
+#define MOTION_VELOCITY_OPTIMIZER__OPTIMIZER__L2_PSEUDO_JERK_OPTIMIZER_HPP_
 
-#include "autoware_planning_msgs/msg/trajectory.hpp"
-#include "osqp_interface/osqp_interface.hpp"
-#include "rclcpp/rclcpp.hpp"
 #include <vector>
 
 #include "motion_velocity_optimizer/optimizer/optimizer_base.hpp"
+
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "osqp_interface/osqp_interface.hpp"
+
+#include "rclcpp/rclcpp.hpp"
 
 class L2PseudoJerkOptimizer : public OptimizerBase
 {
@@ -34,8 +36,8 @@ public:
     double over_a_weight;
   };
 
-public:
   explicit L2PseudoJerkOptimizer(const OptimizerParam & p);
+
   bool solve(
     const double initial_vel, const double initial_acc, const int closest,
     const autoware_planning_msgs::msg::Trajectory & input,
@@ -50,4 +52,4 @@ private:
   osqp::OSQPInterface qp_solver_;
 };
 
-#endif  // MOTION_VELOCITY_OPTIMIZER_L2_PSEUDO_JERK_OPTIMIZER_HPP
+#endif  // MOTION_VELOCITY_OPTIMIZER__OPTIMIZER__L2_PSEUDO_JERK_OPTIMIZER_HPP_
