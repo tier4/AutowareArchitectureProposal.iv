@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include <pluginlib/class_list_macros.h>
 #include "pointcloud_preprocessor/ground_filter/ransac_ground_filter_nodelet.h"
 #include <pcl/common/centroid.h>
 #include <pcl_ros/transforms.h>
+#include <pluginlib/class_list_macros.h>
 #include <random>
 
 namespace
@@ -77,13 +77,18 @@ geometry_msgs::Pose getDebugPose(const Eigen::Affine3d & plane_affine)
 
 namespace pointcloud_preprocessor
 {
-RANSACGroundFilterNodelet::RANSACGroundFilterNodelet() {}
+RANSACGroundFilterNodelet::RANSACGroundFilterNodelet()
+{
+  pcl::console::setVerbosityLevel(pcl::console::L_ALWAYS);
+}
 
 void RANSACGroundFilterNodelet::setDebugPublisher()
 {
   if (is_initilized_debug_message_) return;
-  debug_pose_array_pub_ = advertise<geometry_msgs::PoseArray>(*pnh_, "debug/plane_pose_array", max_queue_size_);
-  debug_ground_cloud_pub_ = advertise<sensor_msgs::PointCloud2>(*pnh_, "debug/ground/pointcloud", max_queue_size_);
+  debug_pose_array_pub_ =
+    advertise<geometry_msgs::PoseArray>(*pnh_, "debug/plane_pose_array", max_queue_size_);
+  debug_ground_cloud_pub_ =
+    advertise<sensor_msgs::PointCloud2>(*pnh_, "debug/ground/pointcloud", max_queue_size_);
   is_initilized_debug_message_ = true;
 }
 
@@ -183,8 +188,7 @@ Eigen::Affine3d RANSACGroundFilterNodelet::getPlaneAffine(
 }
 
 void RANSACGroundFilterNodelet::applyRANSAC(
-  const pcl::PointCloud<PointType>::Ptr & input,
-  pcl::PointIndices::Ptr & output_inliers,
+  const pcl::PointCloud<PointType>::Ptr & input, pcl::PointIndices::Ptr & output_inliers,
   pcl::ModelCoefficients::Ptr & output_coefficients)
 {
   pcl::SACSegmentation<PointType> seg;
@@ -221,9 +225,15 @@ void RANSACGroundFilterNodelet::filter(
   filter.filter(*downsampled_cloud);
 
   // apply ransac
-  pcl::PointIndices::Ptr inliers(new pcl::PointIndices);;
+  pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
   pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
   applyRANSAC(downsampled_cloud, inliers, coefficients);
+
+  if (coefficients->values.empty()) {
+    ROS_WARN_THROTTLE(1.0, "failed to find a plane");
+    output = *input;
+    return;
+  }
 
   // filter too tilt plane to avoid mis-fitting (e.g. fitting to wall plane)
   Eigen::Vector3d plane_normal(
@@ -241,8 +251,7 @@ void RANSACGroundFilterNodelet::filter(
   pcl::PointCloud<PointType>::Ptr segment_ground_cloud_ptr(new pcl::PointCloud<PointType>);
   pcl::PointCloud<PointType>::Ptr segment_no_ground_cloud_ptr(new pcl::PointCloud<PointType>);
   extractPointsIndices(
-    downsampled_cloud, *inliers, segment_ground_cloud_ptr,
-    segment_no_ground_cloud_ptr);
+    downsampled_cloud, *inliers, segment_ground_cloud_ptr, segment_no_ground_cloud_ptr);
   const Eigen::Affine3d plane_affine = getPlaneAffine(*segment_ground_cloud_ptr, plane_normal);
   pcl::PointCloud<PointType>::Ptr no_ground_cloud_ptr(new pcl::PointCloud<PointType>);
 
