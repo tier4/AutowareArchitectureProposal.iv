@@ -11,9 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+#ifndef OBSTACLE_STOP_PLANNER__NODE_HPP_
+#define OBSTACLE_STOP_PLANNER__NODE_HPP_
 
+#include <map>
 #include <memory>
+#include <vector>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -130,3 +133,5 @@ private:
   geometry_msgs::msg::Pose getVehicleCenterFromBase(const geometry_msgs::msg::Pose & base_pose);
 };
 }  // namespace motion_planning
+
+#endif  // OBSTACLE_STOP_PLANNER__NODE_HPP_

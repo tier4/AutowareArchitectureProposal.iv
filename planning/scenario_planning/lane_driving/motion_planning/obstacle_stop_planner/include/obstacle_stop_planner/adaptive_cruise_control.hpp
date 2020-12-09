@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef OBSTACLE_STOP_PLANNER__ADAPTIVE_CRUISE_CONTROL_HPP_
+#define OBSTACLE_STOP_PLANNER__ADAPTIVE_CRUISE_CONTROL_HPP_
 
 #include <vector>
 
@@ -83,16 +84,20 @@ private:
     //!< @brief The distance to extend the polygon width the object in pointcloud-object matching
     double object_polygon_width_margin;
 
-    //!< @breif Maximum time difference treated as continuous points in speed estimation using a point cloud
+    //!< @breif Maximum time difference treated as continuous points in speed estimation using a
+    // point cloud
     double valid_est_vel_diff_time;
 
-    //!< @brief Time width of information used for speed estimation in speed estimation using a point cloud
+    //!< @brief Time width of information used for speed estimation in speed estimation using a
+    // point cloud
     double valid_vel_que_time;
 
-    //!< @brief Maximum value of valid speed estimation results in speed estimation using a point cloud
+    //!< @brief Maximum value of valid speed estimation results in speed estimation using a point
+    // cloud
     double valid_est_vel_max;
 
-    //!< @brief Minimum value of valid speed estimation results in speed estimation using a point cloud
+    //!< @brief Minimum value of valid speed estimation results in speed estimation using a point
+    // cloud
     double valid_est_vel_min;
 
     //!< @brief Embed a stop line if the maximum speed calculated by ACC is lowar than this speed
@@ -194,9 +199,10 @@ private:
     UPPER_VEL_D = 7,
     UPPER_VEL_RAW = 8,
     UPPER_VEL = 9
-
   };
   static constexpr unsigned int num_debug_values_ = 10;
 };
 
 }  // namespace motion_planning
+
+#endif  // OBSTACLE_STOP_PLANNER__ADAPTIVE_CRUISE_CONTROL_HPP_

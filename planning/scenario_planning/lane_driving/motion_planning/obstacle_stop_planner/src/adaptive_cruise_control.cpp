@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
+#include <limits>
+#include <vector>
+
 #include "boost/algorithm/clamp.hpp"
 #include "boost/assert.hpp"
 #include "boost/assign/list_of.hpp"
@@ -106,7 +110,7 @@ constexpr double sign(const double value)
     return 0.0;
   }
 }
-} //namespace
+}  // namespace
 
 namespace motion_planning
 {
@@ -211,28 +215,28 @@ void AdaptiveCruiseController::insertAdaptiveCruiseVelocity(
   }
 
   if (!success_estm_vel) {
-    //if failed to estimate velocity, need to stop
+    // if failed to estimate velocity, need to stop
     RCLCPP_DEBUG_THROTTLE(
       get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(),
       "Failed to estimate velocity of forward vehicle. Insert stop line.");
     *need_to_stop = true;
-    prev_upper_velocity_ = current_velocity;  //reset prev_upper_velocity
+    prev_upper_velocity_ = current_velocity;  // reset prev_upper_velocity
     pub_debug_->publish(debug_values_);
     return;
   }
 
-  //calculate max(target) velocity of self
+  // calculate max(target) velocity of self
   const double upper_velocity =
     calcUpperVelocity(col_point_distance, point_velocity, current_velocity);
   pub_debug_->publish(debug_values_);
 
   if (upper_velocity <= param_.thresh_vel_to_stop) {
-    //if upper velocity is too low, need to stop
+    // if upper velocity is too low, need to stop
     RCLCPP_DEBUG_THROTTLE(
       get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(),
       "Upper velocity is too low. Insert stop line.");
     *need_to_stop = true;
-    prev_upper_velocity_ = current_velocity;  //reset prev_upper_velocity
+    prev_upper_velocity_ = current_velocity;  // reset prev_upper_velocity
     return;
   }
 
@@ -275,7 +279,7 @@ void AdaptiveCruiseController::calcDistanceToNearestPointOnPath(
 
   /* get total distance to collision point */
   double dist_to_point = 0;
-  //get distance from self to next nearest point
+  // get distance from self to next nearest point
   dist_to_point += boost::geometry::distance(
     convertPointRosToBoost(self_pose.position),
     convertPointRosToBoost(trajectory.points.at(1).pose.position));
