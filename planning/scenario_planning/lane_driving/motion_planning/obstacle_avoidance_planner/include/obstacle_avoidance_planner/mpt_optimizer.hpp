@@ -158,8 +158,7 @@ private:
   std::vector<ReferencePoint> convertToReferencePoints(
     const std::vector<autoware_planning_msgs::msg::TrajectoryPoint> & points,
     const geometry_msgs::msg::Pose & ego_pose,
-    const std::unique_ptr<Trajectories> & prev_mpt_points,
-    DebugData * debug_data) const;
+    const std::unique_ptr<Trajectories> & prev_mpt_points, DebugData * debug_data) const;
 
   std::vector<ReferencePoint> getReferencePoints(
     const geometry_msgs::msg::Pose & origin_pose, const geometry_msgs::msg::Pose & ego_pose,

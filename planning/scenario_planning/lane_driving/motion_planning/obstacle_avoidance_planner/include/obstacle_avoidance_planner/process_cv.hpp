@@ -15,8 +15,8 @@
 #define PROCESS_CV_H
 
 #include "autoware_planning_msgs/msg/path.hpp"
-#include "geometry_msgs/msg/point32.hpp"
 #include "boost/optional/optional_fwd.hpp"
+#include "geometry_msgs/msg/point32.hpp"
 
 namespace util
 {
@@ -84,8 +84,7 @@ bool isAvoidingObject(
 std::vector<cv::Point> getCVPolygon(
   const autoware_perception_msgs::msg::DynamicObject & object, const PolygonPoints & polygon_points,
   const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points,
-  const cv::Mat & clearance_map,
-  const nav_msgs::msg::MapMetaData & map_info);
+  const cv::Mat & clearance_map, const nav_msgs::msg::MapMetaData & map_info);
 
 std::vector<cv::Point> getDefaultCVPolygon(
   const std::vector<geometry_msgs::msg::Point> & points_in_image);
@@ -119,8 +118,8 @@ double getDistance(
 
 boost::optional<int> getStopIdx(
   const std::vector<util::Footprint> & vehicle_footprints,
-  const geometry_msgs::msg::Pose & ego_pose,
-  const cv::Mat & road_clearance_map, const nav_msgs::msg::MapMetaData & map_info);
+  const geometry_msgs::msg::Pose & ego_pose, const cv::Mat & road_clearance_map,
+  const nav_msgs::msg::MapMetaData & map_info);
 
 CVMaps getMaps(
   const autoware_planning_msgs::msg::Path & path,

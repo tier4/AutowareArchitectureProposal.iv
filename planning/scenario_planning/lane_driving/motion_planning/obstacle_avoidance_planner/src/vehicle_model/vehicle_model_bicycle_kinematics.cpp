@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "obstacle_avoidance_planner/vehicle_model/vehicle_model_bicycle_kinematics.hpp"
+
 #include <iostream>
 
 KinematicsBicycleModel::KinematicsBicycleModel(
@@ -28,7 +29,7 @@ void KinematicsBicycleModel::calculateDiscreteMatrix(
   Eigen::MatrixXd * Ad, Eigen::MatrixXd * Bd, Eigen::MatrixXd * Cd, Eigen::MatrixXd * Wd,
   const double ds)
 {
-  auto sign = [](double x) {return (x > 0.0) - (x < 0.0);};
+  auto sign = [](double x) { return (x > 0.0) - (x < 0.0); };
 
   /* Linearize delta around delta_r (referece delta) */
   double delta_r = atan(wheelbase_ * curvature_);
