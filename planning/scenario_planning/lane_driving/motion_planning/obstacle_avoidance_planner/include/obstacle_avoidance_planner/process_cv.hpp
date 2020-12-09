@@ -14,9 +14,12 @@
 #ifndef PROCESS_CV_H
 #define PROCESS_CV_H
 
+#include "autoware_perception_msgs/msg/dynamic_object.hpp"
 #include "autoware_planning_msgs/msg/path.hpp"
 #include "boost/optional/optional_fwd.hpp"
 #include "geometry_msgs/msg/point32.hpp"
+#include "obstacle_avoidance_planner/eb_path_optimizer.hpp"
+#include "opencv2/core.hpp"
 
 namespace util
 {

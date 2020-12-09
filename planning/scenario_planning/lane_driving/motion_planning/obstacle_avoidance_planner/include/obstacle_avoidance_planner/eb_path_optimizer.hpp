@@ -14,6 +14,7 @@
 #ifndef EB_PATH_OPTIMIZER_H
 #define EB_PATH_OPTIMIZER_H
 
+#include "rclcpp/clock.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object.hpp"
 #include "autoware_planning_msgs/msg/path.hpp"
 #include "autoware_planning_msgs/msg/path_point.hpp"

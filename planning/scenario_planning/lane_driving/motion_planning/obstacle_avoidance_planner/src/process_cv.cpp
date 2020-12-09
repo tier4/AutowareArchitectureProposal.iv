@@ -22,6 +22,7 @@
 #include "obstacle_avoidance_planner/util.hpp"
 #include "opencv2/imgproc/imgproc_c.h"
 #include "opencv2/opencv.hpp"
+#include "opencv2/core.hpp"
 #include "tf2/utils.h"
 
 namespace process_cv

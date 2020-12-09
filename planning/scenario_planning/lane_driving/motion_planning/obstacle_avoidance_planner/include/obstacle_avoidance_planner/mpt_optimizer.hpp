@@ -40,7 +40,11 @@
 #ifndef MPTOPTIMIZER_H
 #define MPTOPTIMIZER_H
 
+#include "autoware_planning_msgs/msg/path_point.hpp"
 #include "autoware_planning_msgs/msg/trajectory_point.hpp"
+#include "boost/optional/optional_fwd.hpp"
+#include "eigen3/Eigen/Core"
+#include "nav_msgs/msg/map_meta_data.hpp"
 
 namespace cv
 {

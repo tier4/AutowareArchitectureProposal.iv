@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "obstacle_avoidance_planner/mpt_optimizer.hpp"
-
 #include <chrono>
 
+#include "obstacle_avoidance_planner/mpt_optimizer.hpp"
 #include "boost/optional.hpp"
 #include "nav_msgs/msg/map_meta_data.hpp"
 #include "obstacle_avoidance_planner/eb_path_optimizer.hpp"
