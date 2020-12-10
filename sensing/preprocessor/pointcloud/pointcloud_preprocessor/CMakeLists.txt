@@ -201,6 +201,14 @@ rclcpp_components_register_node(pointcloud_accumulator
   PLUGIN "pointcloud_preprocessor::PointcloudAccumulatorComponent"
   EXECUTABLE pointcloud_accumulator_node)
 
+# ========== Vector Map Filter ==========
+ament_auto_add_library(vector_map_filter SHARED
+  src/vector_map_filter/lanelet2_map_filter_nodelet.cpp
+  )
+target_link_libraries(vector_map_filter pointcloud_preprocessor_filter_base ${Boost_LIBRARIES})
+rclcpp_components_register_node(vector_map_filter
+  PLUGIN "pointcloud_preprocessor::Lanelet2MapFilterComponent"
+  EXECUTABLE vector_map_filter_node)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
