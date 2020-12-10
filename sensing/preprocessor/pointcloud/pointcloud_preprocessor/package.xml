@@ -17,6 +17,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>nodelet</build_depend>
+  <build_depend>autoware_utils</build_depend>
   <build_depend>pcl_ros</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>sensor_msgs</build_depend>
@@ -25,7 +26,10 @@
   <build_depend>tf2_ros</build_depend>
   <build_depend>tf2_eigen</build_depend>
   <build_depend>dynamic_reconfigure</build_depend>
+  <build_depend>lanelet2_extension</build_depend>
+
   <build_export_depend>nodelet</build_export_depend>
+  <build_export_depend>autoware_utils</build_export_depend>
   <build_export_depend>pcl_ros</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>sensor_msgs</build_export_depend>
@@ -34,7 +38,10 @@
   <build_export_depend>tf2_ros</build_export_depend>
   <build_export_depend>tf2_eigen</build_export_depend>
   <build_export_depend>dynamic_reconfigure</build_export_depend>
+  <build_export_depend>lanelet2_extension</build_export_depend>
+
   <exec_depend>nodelet</exec_depend>
+  <exec_depend>autoware_utils</exec_depend>
   <exec_depend>pcl_ros</exec_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
@@ -43,16 +50,18 @@
   <exec_depend>tf2_ros</exec_depend>
   <exec_depend>tf2_eigen</exec_depend>
   <exec_depend>dynamic_reconfigure</exec_depend>
+  <exec_depend>lanelet2_extension</exec_depend>
 
   <export>
-      <nodelet plugin="${prefix}/plugins/nodelet/libpointcloud_accumulator.xml"/>
-      <nodelet plugin="${prefix}/plugins/nodelet/libcompare_map_filter.xml"/>
-      <nodelet plugin="${prefix}/plugins/nodelet/liboutlier_filter.xml"/>
-      <nodelet plugin="${prefix}/plugins/nodelet/libground_filter.xml"/>
-      <nodelet plugin="${prefix}/plugins/nodelet/libdownsample_filter.xml"/>
-      <nodelet plugin="${prefix}/plugins/nodelet/libpassthrough_filter.xml"/>
-      <nodelet plugin="${prefix}/plugins/nodelet/libcrop_box_filter.xml"/>
-      <nodelet plugin="${prefix}/plugins/nodelet/libconcatenate_data.xml"/>
+    <nodelet plugin="${prefix}/plugins/nodelet/libpointcloud_accumulator.xml"/>
+    <nodelet plugin="${prefix}/plugins/nodelet/libcompare_map_filter.xml"/>
+    <nodelet plugin="${prefix}/plugins/nodelet/liboutlier_filter.xml"/>
+    <nodelet plugin="${prefix}/plugins/nodelet/libground_filter.xml"/>
+    <nodelet plugin="${prefix}/plugins/nodelet/libdownsample_filter.xml"/>
+    <nodelet plugin="${prefix}/plugins/nodelet/libpassthrough_filter.xml"/>
+    <nodelet plugin="${prefix}/plugins/nodelet/libcrop_box_filter.xml"/>
+    <nodelet plugin="${prefix}/plugins/nodelet/libconcatenate_data.xml"/>
+    <nodelet plugin="${prefix}/plugins/nodelet/libvector_map_filter.xml"/>
   </export>
 
 </package>

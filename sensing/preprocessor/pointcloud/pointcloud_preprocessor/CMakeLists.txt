@@ -6,6 +6,8 @@ add_compile_options(-std=c++14)
 set(CMAKE_CXX_STANDARD 14)
 
 find_package(catkin REQUIRED COMPONENTS
+  autoware_utils
+  lanelet2_extension
   nodelet
   pcl_ros
   roscpp
@@ -30,6 +32,7 @@ generate_dynamic_reconfigure_options(
   cfg/RayGroundFilter.cfg
   cfg/RANSACGroundFilter.cfg
   cfg/CropBoxFilter.cfg
+  cfg/Lanelet2MapFilter.cfg
 )
 
 find_package(OpenCV REQUIRED)
@@ -40,7 +43,7 @@ find_package (OpenMP)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES pointcloud_accumulator
-  CATKIN_DEPENDS nodelet pcl_ros roscpp sensor_msgs std_msgs
+  CATKIN_DEPENDS lanelet2_extension nodelet pcl_ros roscpp sensor_msgs std_msgs
   DEPENDS Boost EIGEN3
 )
 
@@ -52,7 +55,30 @@ include_directories(
   include
   ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS})
+  ${EIGEN3_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS})
+
+# Vector Map Filter
+add_library(
+  vector_map_filter
+  src/vector_map_filter/lanelet2_map_filter_nodelet.cpp
+  )
+target_link_libraries(vector_map_filter
+                      ${Boost_LIBRARIES}
+                      ${OpenCV_LIBRARIES}
+                      ${catkin_LIBRARIES})
+add_dependencies(vector_map_filter ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
+
+add_executable(
+  lanelet2_map_filter_node
+  src/vector_map_filter/lanelet2_map_filter_node.cpp)
+target_link_libraries(lanelet2_map_filter_node
+                      vector_map_filter
+                      ${Boost_LIBRARIES}
+                      ${OpenCV_LIBRARIES}
+                      ${catkin_LIBRARIES})
+add_dependencies(lanelet2_map_filter_node
+                 ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
 
 # Compare Map Filter
 add_library(
@@ -335,6 +361,7 @@ install(
     outlier_filter
     passthrough_filter
     pointcloud_accumulator
+    vector_map_filter
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
