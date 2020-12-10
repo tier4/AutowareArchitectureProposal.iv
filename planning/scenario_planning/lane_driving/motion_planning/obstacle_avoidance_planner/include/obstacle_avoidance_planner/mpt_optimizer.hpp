@@ -80,10 +80,10 @@ struct ReferencePoint
   double s = 0;
   geometry_msgs::msg::Pose top_pose;
   geometry_msgs::msg::Pose mid_pose;
-  double delta_yaw_from_p1;
-  double delta_yaw_from_p2;
+  double delta_yaw_from_p1 = 0;
+  double delta_yaw_from_p2 = 0;
   bool is_fix = false;
-  double fixing_lat;
+  double fixing_lat = 0;
 };
 
 struct Bounds
