@@ -58,7 +58,7 @@ RayGroundFilterComponent::RayGroundFilterComponent(const rclcpp::NodeOptions & o
     general_max_slope_ = declare_parameter("general_max_slope", 8.0);
     local_max_slope_ = declare_parameter("local_max_slope", 6.0);
     initial_max_slope_ = declare_parameter("initial_max_slope", 3.0);
-    radial_divider_angle_ = declare_parameter("radial_divider_angle", 0.08);
+    radial_divider_angle_ = declare_parameter("radial_divider_angle", 1.0);
     min_height_threshold_ = declare_parameter("min_height_threshold", 0.15);
     concentric_divider_distance_ = declare_parameter("concentric_divider_distance", 0.0);
     reclass_distance_threshold_ = declare_parameter("reclass_distance_threshold", 0.1);
