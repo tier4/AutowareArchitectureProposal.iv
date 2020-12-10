@@ -26,6 +26,7 @@ required_modules:
     - { name: "/map/map_version" }
 
     - { name: "/perception/alive_monitoring" }
+
     - { name: "/planning/alive_monitoring" }
 
     - { name: "/sensing/alive_monitoring" }
@@ -36,20 +37,19 @@ required_modules:
 
     - { name: "/system/alive_monitoring" }
     - { name: "/system/emergency_stop_operation" }
-    - { name: "/system/logging" }
+    - { name: "/system/logging", sf_at: "warn", lf_at: "error", spf_at: "none" }
     - { name: "/system/resource_monitoring/cpu_temperature", sf_at: "warn", lf_at: "error", spf_at: "none" }
     - { name: "/system/resource_monitoring/cpu_usage", sf_at: "warn", lf_at: "error", spf_at: "none" }
-    - { name: "/system/resource_monitoring/cpu_load_average", sf_at: "warn", lf_at: "error", spf_at: "none" }
     # - { name: "/system/resource_monitoring/cpu_thermal_throttling", sf_at: "warn", lf_at: "error", spf_at: "none" } # Require setup
     # - { name: "/system/resource_monitoring/hdd_temperature", sf_at: "warn", lf_at: "error", spf_at: "none" } # Require setup
     - { name: "/system/resource_monitoring/hdd_usage", sf_at: "warn", lf_at: "error", spf_at: "none" }
     - { name: "/system/resource_monitoring/memory_usage", sf_at: "warn", lf_at: "error", spf_at: "none" }
     - { name: "/system/resource_monitoring/network_usage", sf_at: "warn", lf_at: "error", spf_at: "none" }
     - { name: "/system/resource_monitoring/ntp_offset", sf_at: "warn", lf_at: "error", spf_at: "none" }
-    - { name: "/system/resource_monitoring/gpu_temperature", sf_at: "warn", lf_at: "error", spf_at: "none" }
-    - { name: "/system/resource_monitoring/gpu_usage", sf_at: "warn", lf_at: "error", spf_at: "none" }
-    - { name: "/system/resource_monitoring/gpu_memory_usage", sf_at: "warn", lf_at: "error", spf_at: "none" }
-    - { name: "/system/resource_monitoring/gpu_thermal_throttling", sf_at: "warn", lf_at: "error", spf_at: "none" }
+    # - { name: "/system/resource_monitoring/gpu_temperature", sf_at: "warn", lf_at: "error", spf_at: "none" } # Require GPU
+    # - { name: "/system/resource_monitoring/gpu_usage", sf_at: "warn", lf_at: "error", spf_at: "none" } # Require GPU
+    # - { name: "/system/resource_monitoring/gpu_memory_usage", sf_at: "warn", lf_at: "error", spf_at: "none" } # Require GPU
+    # - { name: "/system/resource_monitoring/gpu_thermal_throttling", sf_at: "warn", lf_at: "error", spf_at: "none" } # Require GPU
 
     - { name: "/vehicle/alive_monitoring" }
     - { name: "/vehicle/vehicle_errors" }

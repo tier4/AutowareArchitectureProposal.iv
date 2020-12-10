@@ -46,12 +46,6 @@ analyzers:
         contains: ": CPU Usage"
         timeout: 3.0
         num_items: 0
-      cpu_load_average:
-        type: diagnostic_aggregator/GenericAnalyzer
-        path: cpu_load_average
-        contains: ": CPU Load Average"
-        timeout: 3.0
-        num_items: 0
       cpu_thermal_throttling:
         type: diagnostic_aggregator/GenericAnalyzer
         path: cpu_thermal_throttling

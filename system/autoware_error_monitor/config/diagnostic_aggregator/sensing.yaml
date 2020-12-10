@@ -67,12 +67,6 @@ analyzers:
             contains: ": livox_motor_status"
             timeout: 3.0
             num_items: 0
-          optical_window:
-            type: diagnostic_aggregator/GenericAnalyzer
-            path: optical_window
-            contains: ": livox_optical_window"
-            timeout: 3.0
-            num_items: 0
           firmware_staus:
             type: diagnostic_aggregator/GenericAnalyzer
             path: firmware_staus
