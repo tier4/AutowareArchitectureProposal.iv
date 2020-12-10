@@ -51,12 +51,12 @@ bool LinearInterpolate::interpolate(
     printf(
       "base_index.size() = %lu, base_value.size() = %lu\n", base_index.size(), base_value.size());
     printf("base_index: [");
-    for (int i = 0; i < base_index.size(); ++i) {
+    for (size_t i = 0; i < base_index.size(); ++i) {
       printf("%f, ", base_index.at(i));
     }
     printf("]\n");
     printf("base_value: [");
-    for (int i = 0; i < base_value.size(); ++i) {
+    for (size_t i = 0; i < base_value.size(); ++i) {
       printf("%f, ", base_value.at(i));
     }
     printf("]\n");
