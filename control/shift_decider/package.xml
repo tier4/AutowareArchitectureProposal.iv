@@ -10,8 +10,8 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <test_depend>ament_lint_auto</test_depend>
-  <test_depend>ament_lint_cppcheck</test_depend>
-  <test_depend>ament_lint_cpplint</test_depend>
+  <test_depend>ament_cppcheck</test_depend>
+  <test_depend>ament_cpplint</test_depend>
 
   <export>
   <build_type>ament_cmake</build_type>
