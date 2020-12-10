@@ -61,7 +61,7 @@ cv::Mat drawObstaclesOnImage(
     if (!util::transformMapToImage(point.pose.position, map_info, image_point)) {
       continue;
     }
-    const float clearance = clearance_map.ptr<float>((int)image_point.y)[(int)image_point.x];
+    const float clearance = clearance_map.ptr<float>(static_cast<int>(image_point.y))[static_cast<int>(image_point.x)];
     if (clearance < 1e-5) {
       continue;
     }
@@ -100,7 +100,7 @@ bool isAvoidingObject(
     return false;
   }
   const float object_clearance_from_road =
-    clearance_map.ptr<float>((int)image_point.get().y)[(int)image_point.get().x] *
+    clearance_map.ptr<float>(static_cast<int>(image_point.get().y))[static_cast<int>(image_point.get().x)] *
     map_info.resolution;
   const geometry_msgs::msg::Vector3 twist = object.state.twist_covariance.twist.linear;
   const double vel = std::sqrt(twist.x * twist.x + twist.y * twist.y + twist.z * twist.z);
@@ -114,7 +114,7 @@ bool isAvoidingObject(
   }
   const float nearest_path_point_clearance =
     clearance_map.ptr<float>(
-      (int)nearest_path_point_image.get().y)[(int)nearest_path_point_image.get().x] *
+      static_cast<int>(nearest_path_point_image.get().y))[static_cast<int>(nearest_path_point_image.get().x)] *
     map_info.resolution;
   if (
     nearest_path_point_clearance - center_line_width * 0.5 < object_clearance_from_road ||
@@ -184,13 +184,13 @@ PolygonPoints getPolygonPointsFromCircle(
     for (const auto & delta : deltas) {
       geometry_msgs::msg::Point point;
       point.x = std::cos(
-                  ((double)(i + delta) / (double)num_sampling_points) * 2.0 * M_PI +
-                  M_PI / (double)num_sampling_points) *
+                  ((i + delta) / static_cast<double>(num_sampling_points)) * 2.0 * M_PI +
+                  M_PI / static_cast<double>(num_sampling_points)) *
                   (radius / 2.0) +
                 center.x;
       point.y = std::sin(
-                  ((double)(i + delta) / (double)num_sampling_points) * 2.0 * M_PI +
-                  M_PI / (double)num_sampling_points) *
+                  ((i + delta) / static_cast<double>(num_sampling_points)) * 2.0 * M_PI +
+                  M_PI / static_cast<double>(num_sampling_points)) *
                   (radius / 2.0) +
                 center.y;
       point.z = center.z;
@@ -355,7 +355,7 @@ boost::optional<Edges> getEdges(
     util::transformMapToImage(nearest_path_point_pose.position, map_info);
   constexpr double ray_origin_dist_scale = 1.0;
   const float clearance =
-    clearance_map.ptr<float>((int)path_point_image.y)[(int)path_point_image.x] *
+    clearance_map.ptr<float>(static_cast<int>(path_point_image.y))[static_cast<int>(path_point_image.x)] *
     map_info.resolution * ray_origin_dist_scale;
   const Eigen::Vector2d obj2ray_origin = obj2origin.normalized() * (obj2origin.norm() + clearance);
   geometry_msgs::msg::Point ray_origin;
@@ -427,7 +427,7 @@ bool arePointsInsideDriveableArea(
 {
   bool points_inside_area = false;
   for (const auto & image_point : image_points) {
-    const float clearance = clearance_map.ptr<float>((int)image_point.y)[(int)image_point.x];
+    const float clearance = clearance_map.ptr<float>(static_cast<int>(image_point.y))[static_cast<int>(image_point.x)];
     if (clearance > 0) {
       points_inside_area = true;
     }
@@ -492,7 +492,7 @@ double getDistance(
     return default_dist;
   }
   const float clearance =
-    clearance_map.ptr<float>((int)image_point.get().y)[(int)image_point.get().x] *
+    clearance_map.ptr<float>(static_cast<int>(image_point.get().y))[static_cast<int>(image_point.get().x)] *
     map_info.resolution;
   return clearance;
 }

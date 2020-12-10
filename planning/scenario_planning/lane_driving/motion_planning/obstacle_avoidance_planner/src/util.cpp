@@ -160,7 +160,7 @@ boost::optional<geometry_msgs::msg::Point> transformMapToOptionalImage(
   double map_y_in_image_resolution = relative_p.y / resolution;
   double image_x = map_y_height - map_y_in_image_resolution;
   double image_y = map_x_width - map_x_in_image_resolution;
-  if (image_x >= 0 && image_x < (int)map_y_height && image_y >= 0 && image_y < (int)map_x_width) {
+  if (image_x >= 0 && image_x < static_cast<int>(map_y_height) && image_y >= 0 && image_y < static_cast<int>(map_x_width)) {
     geometry_msgs::msg::Point image_point;
     image_point.x = image_x;
     image_point.y = image_y;
@@ -183,7 +183,7 @@ bool transformMapToImage(
   const double map_y_in_image_resolution = relative_p.y * scale;
   const double image_x = map_y_height - map_y_in_image_resolution;
   const double image_y = map_x_width - map_x_in_image_resolution;
-  if (image_x >= 0 && image_x < (int)map_y_height && image_y >= 0 && image_y < (int)map_x_width) {
+  if (image_x >= 0 && image_x < static_cast<int>(map_y_height) && image_y >= 0 && image_y < static_cast<int>(map_x_width)) {
     image_point.x = image_x;
     image_point.y = image_y;
     return true;
@@ -828,7 +828,7 @@ std::vector<autoware_planning_msgs::msg::TrajectoryPoint> concatTraj(const Traje
   return trajectory;
 }
 
-const int getZeroVelocityIdx(
+int getZeroVelocityIdx(
   const bool is_showing_debug_info, const std::vector<geometry_msgs::msg::Point> & fine_points,
   const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points,
   const std::unique_ptr<Trajectories> & opt_trajs, const TrajectoryParam & traj_param)

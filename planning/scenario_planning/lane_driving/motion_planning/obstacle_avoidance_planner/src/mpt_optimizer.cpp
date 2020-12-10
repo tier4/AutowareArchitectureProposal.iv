@@ -115,7 +115,7 @@ std::vector<ReferencePoint> MPTOptimizer::getReferencePoints(
   const int begin_idx = util::getNearestPointIdx(ref_points, origin_pose.position);
   const auto first_it = ref_points.begin() + begin_idx;
   const int num_points =
-    std::min((int)ref_points.size() - 1 - begin_idx, traj_param_ptr_->num_sampling_points);
+    std::min(static_cast<int>(ref_points.size()) - 1 - begin_idx, traj_param_ptr_->num_sampling_points);
   return std::vector<ReferencePoint>(first_it, first_it + num_points);
 }
 
@@ -247,8 +247,8 @@ void MPTOptimizer::calcFixPoints(
 
   for (int i = 0; i < ref_points->size(); i++) {
     if (
-      i >= nearest_idx_from_ego - (int)traj_param_ptr_->num_fix_points_for_mpt / 2 &&
-      i < nearest_idx_from_ego + (int)traj_param_ptr_->num_fix_points_for_mpt / 2) {
+      i >= nearest_idx_from_ego - traj_param_ptr_->num_fix_points_for_mpt / 2 &&
+      i < nearest_idx_from_ego + traj_param_ptr_->num_fix_points_for_mpt / 2) {
       ref_points->at(i).is_fix = true;
       const int nearest_idx = util::getNearestIdx(fine_interpolated_points, ref_points->at(i).p);
       ref_points->at(i).fixing_lat =
@@ -667,7 +667,7 @@ double MPTOptimizer::getClearance(
     return default_dist;
   }
   const float clearance =
-    clearance_map.ptr<float>((int)image_point.get().y)[(int)image_point.get().x] *
+    clearance_map.ptr<float>(static_cast<int>(image_point.get().y))[static_cast<int>(image_point.get().x)] *
     map_info.resolution;
   return clearance;
 }

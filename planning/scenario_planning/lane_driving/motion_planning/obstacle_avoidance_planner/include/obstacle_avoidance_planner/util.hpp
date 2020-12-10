@@ -165,7 +165,7 @@ bool hasValidNearestPointFromEgo(
 
 std::vector<autoware_planning_msgs::msg::TrajectoryPoint> concatTraj(const Trajectories & trajs);
 
-const int getZeroVelocityIdx(
+int getZeroVelocityIdx(
   const bool is_showing_debug_info, const std::vector<geometry_msgs::msg::Point> & fine_points,
   const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points,
   const std::unique_ptr<Trajectories> & opt_trajs, const TrajectoryParam & traj_param);

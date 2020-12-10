@@ -225,7 +225,7 @@ private:
     const double initial_value, const CVMaps & maps,
     const bool search_expanding_side = false) const;
 
-  //TODO: refactor replace all relevant funcs
+  // TODO(unknown): refactor replace all relevant funcs
   double getClearance(
     const cv::Mat & clearance_map, const geometry_msgs::msg::Point & map_point,
     const nav_msgs::msg::MapMetaData & map_info, const double default_dist = 0.0) const;
