@@ -20,7 +20,7 @@ ament_auto_add_library(accel_map_converter SHARED
   src/brake_map.cpp
   src/csv_loader.cpp
   src/interpolate.cpp
-) 
+)
 
 ament_auto_add_executable(raw_vehicle_cmd_converter_node
   src/node.cpp
@@ -39,4 +39,3 @@ ament_auto_package(INSTALL_TO_SHARE
   launch
   data
 )
-
