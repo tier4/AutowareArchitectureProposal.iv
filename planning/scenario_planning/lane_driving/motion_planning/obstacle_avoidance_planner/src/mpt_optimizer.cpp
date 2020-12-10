@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
 #include <chrono>
+#include <limits>
+#include <memory>
+#include <vector>
 
 #include "obstacle_avoidance_planner/mpt_optimizer.hpp"
 #include "boost/optional.hpp"
@@ -115,7 +119,8 @@ std::vector<ReferencePoint> MPTOptimizer::getReferencePoints(
   const int begin_idx = util::getNearestPointIdx(ref_points, origin_pose.position);
   const auto first_it = ref_points.begin() + begin_idx;
   const int num_points =
-    std::min(static_cast<int>(ref_points.size()) - 1 - begin_idx, traj_param_ptr_->num_sampling_points);
+    std::min(
+    static_cast<int>(ref_points.size()) - 1 - begin_idx, traj_param_ptr_->num_sampling_points);
   return std::vector<ReferencePoint>(first_it, first_it + num_points);
 }
 
@@ -157,7 +162,7 @@ void MPTOptimizer::calcCurvature(std::vector<ReferencePoint> * ref_points) const
     p3 = ref_points->at(i + L).p;
     double den = std::max(
       util::calculate2DDistance(p1, p2) * util::calculate2DDistance(p2, p3) *
-        util::calculate2DDistance(p3, p1),
+      util::calculate2DDistance(p3, p1),
       0.0001);
     const double curvature =
       2.0 * ((p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x)) / den;
@@ -248,7 +253,8 @@ void MPTOptimizer::calcFixPoints(
   for (int i = 0; i < ref_points->size(); i++) {
     if (
       i >= nearest_idx_from_ego - traj_param_ptr_->num_fix_points_for_mpt / 2 &&
-      i < nearest_idx_from_ego + traj_param_ptr_->num_fix_points_for_mpt / 2) {
+      i < nearest_idx_from_ego + traj_param_ptr_->num_fix_points_for_mpt / 2)
+    {
       ref_points->at(i).is_fix = true;
       const int nearest_idx = util::getNearestIdx(fine_interpolated_points, ref_points->at(i).p);
       ref_points->at(i).fixing_lat =
@@ -280,9 +286,9 @@ boost::optional<MPTMatrix> MPTOptimizer::generateMPTMatrix(
   const int DIM_U = vehicle_model_ptr_->getDimU();
   const int DIM_Y = vehicle_model_ptr_->getDimY();
 
-  Eigen::MatrixXd Aex = Eigen::MatrixXd::Zero(DIM_X * N, DIM_X);      //state transition
+  Eigen::MatrixXd Aex = Eigen::MatrixXd::Zero(DIM_X * N, DIM_X);  // state transition
   Eigen::MatrixXd Bex = Eigen::MatrixXd::Zero(DIM_X * N, DIM_U * N);  // control input
-  Eigen::MatrixXd Wex = Eigen::MatrixXd::Zero(DIM_X * N, 1);          //
+  Eigen::MatrixXd Wex = Eigen::MatrixXd::Zero(DIM_X * N, 1);
   Eigen::MatrixXd Cex = Eigen::MatrixXd::Zero(DIM_Y * N, DIM_X * N);
   Eigen::MatrixXd Qex = Eigen::MatrixXd::Zero(DIM_Y * N, DIM_Y * N);
   Eigen::MatrixXd R1ex = Eigen::MatrixXd::Zero(DIM_U * N, DIM_U * N);
@@ -378,7 +384,8 @@ boost::optional<MPTMatrix> MPTOptimizer::generateMPTMatrix(
   if (
     m.Aex.array().isNaN().any() || m.Bex.array().isNaN().any() || m.Cex.array().isNaN().any() ||
     m.Wex.array().isNaN().any() || m.Qex.array().isNaN().any() || m.R1ex.array().isNaN().any() ||
-    m.R2ex.array().isNaN().any() || m.Urefex.array().isNaN().any()) {
+    m.R2ex.array().isNaN().any() || m.Urefex.array().isNaN().any())
+  {
     RCLCPP_WARN(rclcpp::get_logger("MPTOptimizer"), "[Avoidance] MPT matrix includes NaN.");
     return boost::none;
   }
@@ -589,7 +596,8 @@ std::vector<Bounds> MPTOptimizer::getReferenceBounds(
     auto lat_bounds_2 = getBound(enable_avoidance, ref_mid_point, maps);
     if (
       lat_bounds_0[0] == lat_bounds_0[1] || lat_bounds_1[0] == lat_bounds_1[1] ||
-      lat_bounds_2[0] == lat_bounds_2[1]) {
+      lat_bounds_2[0] == lat_bounds_2[1])
+    {
       auto clock = rclcpp::Clock(RCL_ROS_TIME);
       RCLCPP_WARN_THROTTLE(
         rclcpp::get_logger("MPTOptimizer"), clock, std::chrono::milliseconds(1000).count(),
@@ -633,7 +641,8 @@ std::vector<double> MPTOptimizer::getBound(
     getClearance(maps.only_objects_clearance_map, new_position, maps.map_info);
   if (
     original_clearance > mpt_param_ptr_->clearance_from_road &&
-    original_object_clearance > mpt_param_ptr_->clearance_from_object) {
+    original_object_clearance > mpt_param_ptr_->clearance_from_object)
+  {
     const double initial_dist = 0;
     right_bound =
       -1 * getTraversedDistance(enable_avoidance, ref_point, right_angle, initial_dist, maps);
@@ -667,7 +676,8 @@ double MPTOptimizer::getClearance(
     return default_dist;
   }
   const float clearance =
-    clearance_map.ptr<float>(static_cast<int>(image_point.get().y))[static_cast<int>(image_point.get().x)] *
+    clearance_map.ptr<float>(
+      static_cast<int>(image_point.get().y))[static_cast<int>(image_point.get().x)] *
     map_info.resolution;
   return clearance;
 }
@@ -678,7 +688,8 @@ ObjectiveMatrix MPTOptimizer::getObjectiveMatrix(
   const int DIM_U_N = m.Urefex.rows();
   const Eigen::MatrixXd CB = m.Cex * m.Bex;
   const Eigen::MatrixXd QCB = m.Qex * CB;
-  // Eigen::MatrixXd H = CB.transpose() * QCB + m.R1ex + m.R2ex; // This calculation is heavy. looking for a good way.
+  // Eigen::MatrixXd H = CB.transpose() * QCB + m.R1ex + m.R2ex;
+  // This calculation is heavy. looking for a good way.
   Eigen::MatrixXd H = Eigen::MatrixXd::Zero(DIM_U_N, DIM_U_N);
   H.triangularView<Eigen::Upper>() = CB.transpose() * QCB;
   H.triangularView<Eigen::Upper>() += m.R1ex + m.R2ex;
@@ -708,7 +719,9 @@ ObjectiveMatrix MPTOptimizer::getObjectiveMatrix(
 }
 
 // Set constraint: lb <= Ax <= ub
-// decision variable x := [u0, ..., uN-1 | z00, ..., z0N-1 | z10, ..., z1N-1 | z20, ..., z2N-1] \in \mathbb{R}^{N * (N_point + 1)}
+// decision variable
+// x := [u0, ..., uN-1 | z00, ..., z0N-1 | z10, ..., z1N-1 | z20, ..., z2N-1]
+//   \in \mathbb{R}^{N * (N_point + 1)}
 ConstraintMatrix MPTOptimizer::getConstraintMatrix(
   const bool enable_avoidance, const Eigen::VectorXd & x0, const MPTMatrix & m, const CVMaps & maps,
   const std::vector<ReferencePoint> & ref_points,
@@ -917,14 +930,16 @@ double MPTOptimizer::getTraversedDistance(
     if (search_expanding_side) {
       if (
         clearance > mpt_param_ptr_->clearance_from_road &&
-        object_clearance > mpt_param_ptr_->clearance_from_object) {
+        object_clearance > mpt_param_ptr_->clearance_from_object)
+      {
         traversed_dist += ds;
         break;
       }
     } else {
       if (
         clearance < mpt_param_ptr_->clearance_from_road ||
-        object_clearance < mpt_param_ptr_->clearance_from_object) {
+        object_clearance < mpt_param_ptr_->clearance_from_object)
+      {
         break;
       }
     }

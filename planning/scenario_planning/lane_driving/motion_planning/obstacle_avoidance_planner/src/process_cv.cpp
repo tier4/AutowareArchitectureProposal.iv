@@ -11,7 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//#include "ros/console.h"
+#include <algorithm>
+#include <limits>
+#include <vector>
 
 #include "obstacle_avoidance_planner/process_cv.hpp"
 
@@ -61,7 +63,8 @@ cv::Mat drawObstaclesOnImage(
     if (!util::transformMapToImage(point.pose.position, map_info, image_point)) {
       continue;
     }
-    const float clearance = clearance_map.ptr<float>(static_cast<int>(image_point.y))[static_cast<int>(image_point.x)];
+    const float clearance =
+      clearance_map.ptr<float>(static_cast<int>(image_point.y))[static_cast<int>(image_point.x)];
     if (clearance < 1e-5) {
       continue;
     }
@@ -72,8 +75,9 @@ cv::Mat drawObstaclesOnImage(
   for (const auto & object : objects) {
     const PolygonPoints polygon_points = getPolygonPoints(object, map_info);
     if (isAvoidingObject(
-          polygon_points, object, clearance_map, map_info, path_points_inside_area,
-          max_avoiding_objects_velocity_ms, center_line_width)) {
+        polygon_points, object, clearance_map, map_info, path_points_inside_area,
+        max_avoiding_objects_velocity_ms, center_line_width))
+    {
       cv_polygons.push_back(
         getCVPolygon(object, polygon_points, path_points_inside_area, clearance_map, map_info));
       debug_avoiding_objects->push_back(object);
@@ -100,7 +104,8 @@ bool isAvoidingObject(
     return false;
   }
   const float object_clearance_from_road =
-    clearance_map.ptr<float>(static_cast<int>(image_point.get().y))[static_cast<int>(image_point.get().x)] *
+    clearance_map.ptr<float>(
+      static_cast<int>(image_point.get().y))[static_cast<int>(image_point.get().x)] *
     map_info.resolution;
   const geometry_msgs::msg::Vector3 twist = object.state.twist_covariance.twist.linear;
   const double vel = std::sqrt(twist.x * twist.x + twist.y * twist.y + twist.z * twist.z);
@@ -114,12 +119,14 @@ bool isAvoidingObject(
   }
   const float nearest_path_point_clearance =
     clearance_map.ptr<float>(
-      static_cast<int>(nearest_path_point_image.get().y))[static_cast<int>(nearest_path_point_image.get().x)] *
+    static_cast<int>(nearest_path_point_image.get().y))[static_cast<int>(nearest_path_point_image.
+      get().x)] *
     map_info.resolution;
   if (
     nearest_path_point_clearance - center_line_width * 0.5 < object_clearance_from_road ||
     vel > max_avoiding_objects_velocity_ms ||
-    !arePointsInsideDriveableArea(polygon_points.points_in_image, clearance_map)) {
+    !arePointsInsideDriveableArea(polygon_points.points_in_image, clearance_map))
+  {
     return false;
   }
   return true;
@@ -184,15 +191,15 @@ PolygonPoints getPolygonPointsFromCircle(
     for (const auto & delta : deltas) {
       geometry_msgs::msg::Point point;
       point.x = std::cos(
-                  ((i + delta) / static_cast<double>(num_sampling_points)) * 2.0 * M_PI +
-                  M_PI / static_cast<double>(num_sampling_points)) *
-                  (radius / 2.0) +
-                center.x;
+        ((i + delta) / static_cast<double>(num_sampling_points)) * 2.0 * M_PI +
+        M_PI / static_cast<double>(num_sampling_points)) *
+        (radius / 2.0) +
+        center.x;
       point.y = std::sin(
-                  ((i + delta) / static_cast<double>(num_sampling_points)) * 2.0 * M_PI +
-                  M_PI / static_cast<double>(num_sampling_points)) *
-                  (radius / 2.0) +
-                center.y;
+        ((i + delta) / static_cast<double>(num_sampling_points)) * 2.0 * M_PI +
+        M_PI / static_cast<double>(num_sampling_points)) *
+        (radius / 2.0) +
+        center.y;
       point.z = center.z;
       geometry_msgs::msg::Point image_point;
       if (util::transformMapToImage(point, map_info, image_point)) {
@@ -275,12 +282,12 @@ std::vector<cv::Point> getExtendedCVPolygon(
   if (edges.back_idx == nearest_polygon_idx || edges.front_idx == nearest_polygon_idx) {
     // make polygon only with edges and extended edges
   } else if (edges.back_idx < nearest_polygon_idx) {
-    //back_idx -> nearest_idx -> frond_idx
+    // back_idx -> nearest_idx -> frond_idx
     if (edges.back_idx < edges.front_idx && nearest_polygon_idx < edges.front_idx) {
       for (int i = edges.back_idx + 1; i < edges.front_idx; i++) {
         cv_polygon.push_back(cv::Point(points_in_image[i].x, points_in_image[i].y));
       }
-      //back_idx -> vector_front -> vecotr_back -> nearest_idx -> frond_idx
+      // back_idx -> vector_front -> vecotr_back -> nearest_idx -> frond_idx
     } else if (edges.back_idx < edges.front_idx && nearest_polygon_idx > edges.front_idx) {
       for (int i = edges.back_idx - 1; i >= 0; i--) {
         cv_polygon.push_back(cv::Point(points_in_image[i].x, points_in_image[i].y));
@@ -304,21 +311,21 @@ std::vector<cv::Point> getExtendedCVPolygon(
         cv_polygon.push_back(cv::Point(points_in_image[i].x, points_in_image[i].y));
       }
       // back_idx -> vector_back -> vector_front -> nearest_idx -> front_idx
-    } else if (edges.back_idx >= edges.front_idx && nearest_polygon_idx < edges.front_idx) {
-      for (int i = edges.back_idx + 1; i < points_in_image.size(); i++) {
-        cv_polygon.push_back(cv::Point(points_in_image[i].x, points_in_image[i].y));
-      }
-      for (int i = 0; i < edges.front_idx; i++) {
-        cv_polygon.push_back(cv::Point(points_in_image[i].x, points_in_image[i].y));
-      }
-    }
-    // back_idx -> vector_front -> vector_back -> nearest_idx -> front_idx
-    else {
-      for (int i = edges.back_idx - 1; i >= 0; i--) {
-        cv_polygon.push_back(cv::Point(points_in_image[i].x, points_in_image[i].y));
-      }
-      for (int i = points_in_image.size() - 1; i > edges.front_idx; i--) {
-        cv_polygon.push_back(cv::Point(points_in_image[i].x, points_in_image[i].y));
+    } else {
+      if (edges.back_idx >= edges.front_idx && nearest_polygon_idx < edges.front_idx) {
+        for (int i = edges.back_idx + 1; i < points_in_image.size(); i++) {
+          cv_polygon.push_back(cv::Point(points_in_image[i].x, points_in_image[i].y));
+        }
+        for (int i = 0; i < edges.front_idx; i++) {
+          cv_polygon.push_back(cv::Point(points_in_image[i].x, points_in_image[i].y));
+        }
+      } else {  // back_idx -> vector_front -> vector_back -> nearest_idx -> front_idx
+        for (int i = edges.back_idx - 1; i >= 0; i--) {
+          cv_polygon.push_back(cv::Point(points_in_image[i].x, points_in_image[i].y));
+        }
+        for (int i = points_in_image.size() - 1; i > edges.front_idx; i--) {
+          cv_polygon.push_back(cv::Point(points_in_image[i].x, points_in_image[i].y));
+        }
       }
     }
   }
@@ -344,7 +351,7 @@ boost::optional<Edges> getEdges(
   const Eigen::Vector2d obj_vec(
     object.state.pose_covariance.pose.position.x, object.state.pose_covariance.pose.position.y);
   const double inner_product = rel_path_vec[0] * (obj_vec[0] - nearest_path_point_pose.position.x) +
-                               rel_path_vec[1] * (obj_vec[1] - nearest_path_point_pose.position.y);
+    rel_path_vec[1] * (obj_vec[1] - nearest_path_point_pose.position.y);
   geometry_msgs::msg::Point origin;
   origin.x = nearest_path_point_pose.position.x + rel_path_vec[0] * inner_product;
   origin.y = nearest_path_point_pose.position.y + rel_path_vec[1] * inner_product;
@@ -355,7 +362,8 @@ boost::optional<Edges> getEdges(
     util::transformMapToImage(nearest_path_point_pose.position, map_info);
   constexpr double ray_origin_dist_scale = 1.0;
   const float clearance =
-    clearance_map.ptr<float>(static_cast<int>(path_point_image.y))[static_cast<int>(path_point_image.x)] *
+    clearance_map.ptr<float>(static_cast<int>(path_point_image.y))[static_cast<int>(path_point_image
+      .x)] *
     map_info.resolution * ray_origin_dist_scale;
   const Eigen::Vector2d obj2ray_origin = obj2origin.normalized() * (obj2origin.norm() + clearance);
   geometry_msgs::msg::Point ray_origin;
@@ -407,7 +415,8 @@ boost::optional<Edges> getEdges(
   const double dist2back_edge = point2back_edge.norm() * map_info.resolution;
   if (
     dist2extended_front_edge < clearance * 2 || dist2extended_back_edge < clearance * 2 ||
-    dist2front_edge > dist2extended_front_edge || dist2back_edge > dist2extended_back_edge) {
+    dist2front_edge > dist2extended_front_edge || dist2back_edge > dist2extended_back_edge)
+  {
     return boost::none;
   }
   geometry_msgs::msg::Point extended_front;
@@ -427,7 +436,8 @@ bool arePointsInsideDriveableArea(
 {
   bool points_inside_area = false;
   for (const auto & image_point : image_points) {
-    const float clearance = clearance_map.ptr<float>(static_cast<int>(image_point.y))[static_cast<int>(image_point.x)];
+    const float clearance =
+      clearance_map.ptr<float>(static_cast<int>(image_point.y))[static_cast<int>(image_point.x)];
     if (clearance > 0) {
       points_inside_area = true;
     }
@@ -439,9 +449,10 @@ cv::Mat getDrivableAreaInCV(const nav_msgs::msg::OccupancyGrid & occupancy_grid)
 {
   cv::Mat drivable_area = cv::Mat(occupancy_grid.info.width, occupancy_grid.info.height, CV_8UC1);
 
-  drivable_area.forEach<unsigned char>([&](unsigned char & value, const int * position) -> void {
-    getOccupancyGridValue(occupancy_grid, position[0], position[1], value);
-  });
+  drivable_area.forEach<unsigned char>(
+    [&](unsigned char & value, const int * position) -> void {
+      getOccupancyGridValue(occupancy_grid, position[0], position[1], value);
+    });
   return drivable_area;
 }
 
@@ -476,7 +487,8 @@ boost::optional<int> getStopIdx(
     const double epsilon = 1e-8;
     if (
       top_left_dist < epsilon || top_right_dist < epsilon || bottom_left_dist < epsilon ||
-      bottom_right_dist < epsilon) {
+      bottom_right_dist < epsilon)
+    {
       return std::max(i - 1, 0);
     }
   }
@@ -492,7 +504,8 @@ double getDistance(
     return default_dist;
   }
   const float clearance =
-    clearance_map.ptr<float>(static_cast<int>(image_point.get().y))[static_cast<int>(image_point.get().x)] *
+    clearance_map.ptr<float>(
+      static_cast<int>(image_point.get().y))[static_cast<int>(image_point.get().x)] *
     map_info.resolution;
   return clearance;
 }

@@ -29,7 +29,7 @@ void KinematicsBicycleModel::calculateDiscreteMatrix(
   Eigen::MatrixXd * Ad, Eigen::MatrixXd * Bd, Eigen::MatrixXd * Cd, Eigen::MatrixXd * Wd,
   const double ds)
 {
-  auto sign = [](double x) { return (x > 0.0) - (x < 0.0); };
+  auto sign = [](double x) {return (x > 0.0) - (x < 0.0);};
 
   /* Linearize delta around delta_r (referece delta) */
   double delta_r = atan(wheelbase_ * curvature_);
@@ -43,7 +43,7 @@ void KinematicsBicycleModel::calculateDiscreteMatrix(
   // Eigen::MatrixXd I = Eigen::MatrixXd::Identity(dim_x_, dim_x_);
   // Ad = (I - dt * 0.5 * Ad).inverse() * (I + dt * 0.5 * Ad);  // bilinear discretization
 
-  //assuming delta time for steer tau
+  // assuming delta time for steer tau
   constexpr double dt = 0.03;
   *Ad << 1.0, ds, 0, 0.0, 1, ds / (wheelbase_ * cos_delta_r_squared_inv), 0.0, 0,
     1 - dt / steer_tau_;

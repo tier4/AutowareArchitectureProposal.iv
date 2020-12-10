@@ -37,8 +37,11 @@
  * SOFTWARE.
  */
 
-#ifndef MPTOPTIMIZER_H
-#define MPTOPTIMIZER_H
+#ifndef OBSTACLE_AVOIDANCE_PLANNER__MPT_OPTIMIZER_HPP_
+#define OBSTACLE_AVOIDANCE_PLANNER__MPT_OPTIMIZER_HPP_
+
+#include <memory>
+#include <vector>
 
 #include "autoware_planning_msgs/msg/path_point.hpp"
 #include "autoware_planning_msgs/msg/trajectory_point.hpp"
@@ -254,4 +257,4 @@ public:
     const geometry_msgs::msg::Pose & ego_pose, DebugData * debug_data);
 };
 
-#endif
+#endif  // OBSTACLE_AVOIDANCE_PLANNER__MPT_OPTIMIZER_HPP_

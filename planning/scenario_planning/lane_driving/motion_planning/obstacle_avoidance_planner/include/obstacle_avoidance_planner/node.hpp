@@ -129,7 +129,7 @@ private:
     const geometry_msgs::msg::Pose & ego_pose,
     const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points,
     const std::vector<autoware_planning_msgs::msg::TrajectoryPoint> & merged_optimized_points)
-    const;
+  const;
 
   bool needReplan(
     const geometry_msgs::msg::Pose & ego_pose,

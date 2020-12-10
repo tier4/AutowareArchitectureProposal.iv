@@ -11,8 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef EB_PATH_OPTIMIZER_H
-#define EB_PATH_OPTIMIZER_H
+#ifndef OBSTACLE_AVOIDANCE_PLANNER__EB_PATH_OPTIMIZER_HPP_
+#define OBSTACLE_AVOIDANCE_PLANNER__EB_PATH_OPTIMIZER_HPP_
+
+#include <memory>
+#include <vector>
 
 #include "rclcpp/clock.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object.hpp"
@@ -210,7 +213,8 @@ struct DebugData
   FOAData foa_data;
 };
 
-enum class OptMode : int {
+enum class OptMode : int
+{
   Normal = 0,
   Extending = 1,
   Visualizing = 2,
@@ -444,4 +448,4 @@ public:
     DebugData * debug_data);
 };
 
-#endif
+#endif  // OBSTACLE_AVOIDANCE_PLANNER__EB_PATH_OPTIMIZER_HPP_
