@@ -36,7 +36,6 @@
           '/autoware/system/logging',
           '/autoware/system/resource_monitoring/cpu_temperature',
           '/autoware/system/resource_monitoring/cpu_usage',
-          '/autoware/system/resource_monitoring/cpu_load_average',
           '/autoware/system/resource_monitoring/cpu_thermal_throttling',
           '/autoware/system/resource_monitoring/hdd_temperature',
           '/autoware/system/resource_monitoring/hdd_usage',
@@ -53,9 +52,9 @@
         diag_level:
           /autoware/localization/matching_score: { sf_at: "warn", lf_at: "error", spf_at: "none" }
           /autoware/sensing/gnss: { sf_at: "warn", lf_at: "error", spf_at: "none" }
+          /autoware/system/logging: { sf_at: "warn", lf_at: "error", spf_at: "none" }
           /autoware/system/resource_monitoring/cpu_temperature: { sf_at: "warn", lf_at: "error", spf_at: "none" }
           /autoware/system/resource_monitoring/cpu_usage: {sf_at: "warn", lf_at: "error", spf_at: "none" }
-          /autoware/system/resource_monitoring/cpu_load_average: { sf_at: "warn", lf_at: "error", spf_at: "none" }
           /autoware/system/resource_monitoring/cpu_thermal_throttling: { sf_at: "warn", lf_at: "error", spf_at: "none" }
           /autoware/system/resource_monitoring/hdd_temperature: { sf_at: "warn", lf_at: "error", spf_at: "none" }
           /autoware/system/resource_monitoring/hdd_usage: { sf_at: "warn", lf_at: "error", spf_at: "none" }
