@@ -11,10 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef NODE_H
-#define NODE_H
+#ifndef OBSTACLE_AVOIDANCE_PLANNER__NODE_HPP_
+#define OBSTACLE_AVOIDANCE_PLANNER__NODE_HPP_
 
+#include <memory>
 #include <mutex>
+#include <vector>
 
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_planning_msgs/msg/enable_avoidance.hpp"
@@ -124,7 +126,7 @@ private:
 
   void initialize();
 
-  //generate fine trajectory
+  // generate fine trajectory
   std::vector<autoware_planning_msgs::msg::TrajectoryPoint> generatePostProcessedTrajectory(
     const geometry_msgs::msg::Pose & ego_pose,
     const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points,
@@ -207,4 +209,4 @@ public:
   ~ObstacleAvoidancePlanner();
 };
 
-#endif
+#endif  // OBSTACLE_AVOIDANCE_PLANNER__NODE_HPP_

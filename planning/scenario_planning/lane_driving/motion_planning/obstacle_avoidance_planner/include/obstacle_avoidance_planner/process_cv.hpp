@@ -11,8 +11,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef PROCESS_CV_H
-#define PROCESS_CV_H
+#ifndef OBSTACLE_AVOIDANCE_PLANNER__PROCESS_CV_HPP_
+#define OBSTACLE_AVOIDANCE_PLANNER__PROCESS_CV_HPP_
+
+#include <vector>
 
 #include "autoware_perception_msgs/msg/dynamic_object.hpp"
 #include "autoware_planning_msgs/msg/path.hpp"
@@ -130,4 +132,4 @@ CVMaps getMaps(
   const double max_avoiding_objects_velocity_ms, const double center_line_width,
   DebugData * debug_data);
 }  // namespace process_cv
-#endif
+#endif  // OBSTACLE_AVOIDANCE_PLANNER__PROCESS_CV_HPP_

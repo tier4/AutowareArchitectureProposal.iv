@@ -13,8 +13,11 @@
 // limitations under the License.
 // #ifndef UTIL_H
 // #define UTIL_H
-#ifndef OBSTACLE_AVOIDANCE_PLANNER_UTIL_H
-#define OBSTACLE_AVOIDANCE_PLANNER_UTIL_H
+#ifndef OBSTACLE_AVOIDANCE_PLANNER__UTIL_HPP_
+#define OBSTACLE_AVOIDANCE_PLANNER__UTIL_HPP_
+
+#include <memory>
+#include <vector>
 
 #include "autoware_planning_msgs/msg/path_point.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
@@ -185,4 +188,4 @@ void logOSQPSolutionStatus(const int solution_status);
 
 }  // namespace util
 
-#endif
+#endif  // OBSTACLE_AVOIDANCE_PLANNER__UTIL_HPP_

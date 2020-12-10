@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -652,30 +653,34 @@ boost::optional<std::vector<ConstrainRectangle>> EBPathOptimizer::getConstrainRe
         rectangle, anchor.pose.position, map_info, only_objects_clearance_map);
       road_constrain_ranges[i] = rectangle;
       only_smooth_constrain_ranges[i] = rectangle;
-    } else if (
-      i >= num_fixed_points - traj_param_.num_joint_buffer_points &&
-      i <= num_fixed_points + traj_param_.num_joint_buffer_points)
-    {
-      const ConstrainRectangle rectangle =
-        getConstrainRectangle(path.points, anchor, clearance_map, map_info);
-      object_road_constrain_ranges[i] = getUpdatedConstrainRectangle(
-        rectangle, anchor.pose.position, map_info, only_objects_clearance_map);
-      road_constrain_ranges[i] = rectangle;
-      only_smooth_constrain_ranges[i] = rectangle;
-    } else if (i >= straight_idx) {
-      const ConstrainRectangle rectangle =
-        getConstrainRectangle(anchor, constrain_param_.clearance_for_straight_line);
-      object_road_constrain_ranges[i] = getUpdatedConstrainRectangle(
-        rectangle, anchor.pose.position, map_info, only_objects_clearance_map);
-      road_constrain_ranges[i] = rectangle;
-      only_smooth_constrain_ranges[i] = rectangle;
     } else {
-      const ConstrainRectangles constrain_rectangles =
-        getConstrainRectangles(anchor, clearance_map, only_objects_clearance_map, map_info);
-      object_road_constrain_ranges[i] = constrain_rectangles.object_constrain_rectangle;
-      road_constrain_ranges[i] = constrain_rectangles.road_constrain_rectangle;
-      only_smooth_constrain_ranges[i] =
-        getConstrainRectangle(anchor, constrain_param_.clearance_for_only_smoothing);
+      if (
+        i >= num_fixed_points - traj_param_.num_joint_buffer_points &&
+        i <= num_fixed_points + traj_param_.num_joint_buffer_points)
+      {
+        const ConstrainRectangle rectangle =
+          getConstrainRectangle(path.points, anchor, clearance_map, map_info);
+        object_road_constrain_ranges[i] = getUpdatedConstrainRectangle(
+          rectangle, anchor.pose.position, map_info, only_objects_clearance_map);
+        road_constrain_ranges[i] = rectangle;
+        only_smooth_constrain_ranges[i] = rectangle;
+      } else {
+        if (i >= straight_idx) {
+          const ConstrainRectangle rectangle =
+            getConstrainRectangle(anchor, constrain_param_.clearance_for_straight_line);
+          object_road_constrain_ranges[i] = getUpdatedConstrainRectangle(
+            rectangle, anchor.pose.position, map_info, only_objects_clearance_map);
+          road_constrain_ranges[i] = rectangle;
+          only_smooth_constrain_ranges[i] = rectangle;
+        } else {
+          const ConstrainRectangles constrain_rectangles =
+            getConstrainRectangles(anchor, clearance_map, only_objects_clearance_map, map_info);
+          object_road_constrain_ranges[i] = constrain_rectangles.object_constrain_rectangle;
+          road_constrain_ranges[i] = constrain_rectangles.road_constrain_rectangle;
+          only_smooth_constrain_ranges[i] =
+            getConstrainRectangle(anchor, constrain_param_.clearance_for_only_smoothing);
+        }
+      }
     }
   }
   debug_data->foa_data =
@@ -699,17 +704,19 @@ std::vector<ConstrainRectangle> EBPathOptimizer::getConstrainRectangleVec(
     if (i < num_fixed_points || i >= farrest_point_idx - 1) {
       ConstrainRectangle rectangle = getConstrainRectangle(anchor, 0);
       only_smooth_constrain_ranges[i] = rectangle;
-    } else if (
-      i >= num_fixed_points &&
-      i <= num_fixed_points + traj_param_.num_joint_buffer_points_for_extending)
-    {
-      ConstrainRectangle rectangle =
-        getConstrainRectangle(anchor, constrain_param_.range_for_extend_joint);
-      only_smooth_constrain_ranges[i] = rectangle;
     } else {
-      ConstrainRectangle rectangle =
-        getConstrainRectangle(anchor, constrain_param_.clearance_for_only_smoothing);
-      only_smooth_constrain_ranges[i] = rectangle;
+      if (
+        i >= num_fixed_points &&
+        i <= num_fixed_points + traj_param_.num_joint_buffer_points_for_extending)
+      {
+        ConstrainRectangle rectangle =
+          getConstrainRectangle(anchor, constrain_param_.range_for_extend_joint);
+        only_smooth_constrain_ranges[i] = rectangle;
+      } else {
+        ConstrainRectangle rectangle =
+          getConstrainRectangle(anchor, constrain_param_.clearance_for_only_smoothing);
+        only_smooth_constrain_ranges[i] = rectangle;
+      }
     }
   }
   return only_smooth_constrain_ranges;
@@ -1166,8 +1173,8 @@ OccupancyMaps EBPathOptimizer::getOccupancyMaps(
               top_left_image.x)] *
           map_info.resolution;
         top_left_objects_clearance =
-          only_objects_clearance_map.ptr<float>(static_cast<int>(top_left_image.y))[static_cast<int>(
-              top_left_image.x)] *
+          only_objects_clearance_map.ptr<float>(
+            static_cast<int>(top_left_image.y))[static_cast<int>(top_left_image.x)] *
           map_info.resolution;
       }
 
@@ -1180,8 +1187,8 @@ OccupancyMaps EBPathOptimizer::getOccupancyMaps(
               top_right_image.x)] *
           map_info.resolution;
         top_right_objects_clearance =
-          only_objects_clearance_map.ptr<float>(static_cast<int>(top_right_image.y))[static_cast<int>(
-              top_right_image.x)] *
+          only_objects_clearance_map.ptr<float>(
+            static_cast<int>(top_right_image.y))[static_cast<int>(top_right_image.x)] *
           map_info.resolution;
       }
       float bottom_left_clearance = std::numeric_limits<float>::lowest();
