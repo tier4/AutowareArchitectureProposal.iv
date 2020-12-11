@@ -101,7 +101,7 @@ GNSSStat UTM2MGRS(
       std::pow(
       10, static_cast<int>(MGRSPrecision::_1_METER) -
       static_cast<int>(precision));                 // set unit as [m]
-    mgrs.z = utm.z;                                 // TODO(user)
+    mgrs.z = utm.z;                                 // TODO(ryo.watanabe)
   } catch (const GeographicLib::GeographicErr & err) {
     RCLCPP_ERROR_STREAM(logger, "Failed to convert from UTM to MGRS" << err.what());
   }
