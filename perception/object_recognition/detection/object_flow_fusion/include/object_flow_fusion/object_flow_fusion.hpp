@@ -64,26 +64,5 @@ private:
   float point_radius_;
   std::shared_ptr<Utils> utils_;
   float fusion_box_offset_;
-
-  // NOTE(esteve): copied from eigen_conversions
-  void pointMsgToEigen(const geometry_msgs::msg::Point &m, Eigen::Vector3d &e);
-
-  // NOTE(esteve): copied from eigen_conversions
-  void poseMsgToEigen(const geometry_msgs::msg::Pose &m, Eigen::Affine3d &e);
-
-  // NOTE(esteve): copied from eigen_conversions
-  void quaternionEigenToMsg(const Eigen::Quaterniond &e, geometry_msgs::msg::Quaternion &m);
-
-  template<typename T>
-  void poseMsgToEigenImpl(const geometry_msgs::msg::Pose &m, T &e)
-  {
-    e = Eigen::Translation3d(m.position.x,
-                             m.position.y,
-                             m.position.z) *
-      Eigen::Quaterniond(m.orientation.w,
-                         m.orientation.x,
-                         m.orientation.y,
-                         m.orientation.z);
-  }
 };
 } // object_flow_fusion

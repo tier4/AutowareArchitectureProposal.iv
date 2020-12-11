@@ -15,9 +15,3 @@ repositories:
     type: git
     url: https://github.com/ApexAI/topic_tools.git
     version: autoware
-  # temporary adding geometry2 package to add support for transforming covariance
-  # TODO(esteve): remove after geometry2 package is released in Foxy anytime after 2020/12/12
-  vendor/geometry2:
-    type: git
-    url: https://github.com/ros2/geometry2.git
-    version: foxy

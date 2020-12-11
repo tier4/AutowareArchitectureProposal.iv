@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "object_flow_fusion/object_flow_fusion.hpp"
-// #include "eigen_conversions/eigen_msg.h"
+#include "tf2_eigen/tf2_eigen.h"
 
 namespace object_flow_fusion
 {
@@ -64,9 +64,9 @@ bool ObjectFlowFusion::isInsideCylinder(
   const geometry_msgs::msg::Point& flow_point)
 {
   Eigen::Affine3d base2obj_transform;
-  poseMsgToEigen(pose, base2obj_transform);
+  tf2::convert(pose, base2obj_transform);
   Eigen::Vector3d eigen_flow_point;
-  pointMsgToEigen(flow_point, eigen_flow_point);
+  tf2::convert(flow_point, eigen_flow_point);
   auto local_eigen_flow_point = base2obj_transform.inverse() * eigen_flow_point;
 
   double radius = shape.dimensions.x;
@@ -99,7 +99,7 @@ geometry_msgs::msg::Twist ObjectFlowFusion::getLocalTwist(
   const geometry_msgs::msg::Pose& obj_pose, const geometry_msgs::msg::Twist& base_coords_twist)
 {
   Eigen::Affine3d base2obj_transform;
-  poseMsgToEigen(obj_pose, base2obj_transform);
+  tf2::convert(obj_pose, base2obj_transform);
   Eigen::Matrix3d base2obj_rot = base2obj_transform.rotation();
   Eigen::Vector3d obj_coords_vector =
     base2obj_rot.inverse() * Eigen::Vector3d(base_coords_twist.linear.x,
@@ -122,7 +122,7 @@ bool ObjectFlowFusion::getPolygon(
   autoware_perception_msgs::msg::Shape shape = object.shape;
 
   Eigen::Affine3d base2obj_transform;
-  poseMsgToEigen(pose, base2obj_transform);
+  tf2::convert(pose, base2obj_transform);
 
   float offset = 0.1;
   if ( shape.type == autoware_perception_msgs::msg::Shape::BOUNDING_BOX ) {
@@ -225,7 +225,7 @@ void ObjectFlowFusion::fusion(
         double flow_yaw = std::atan2(mps_twist_average.linear.y, mps_twist_average.linear.x);
         Eigen::Quaterniond eigen_quaternion(Eigen::AngleAxisd(flow_yaw, Eigen::Vector3d::UnitZ()));
         geometry_msgs::msg::Quaternion q;
-        quaternionEigenToMsg(eigen_quaternion, q);
+        tf2::convert(eigen_quaternion, q);
         feature_object.object.state.pose_covariance.pose.orientation = q;
         feature_object.object.state.orientation_reliable = true;
       }
@@ -236,29 +236,5 @@ void ObjectFlowFusion::fusion(
     }
     fusioned_msg.feature_objects.push_back(feature_object);
   }
-}
-
-
-// NOTE(esteve): copied from eigen_conversions
-void ObjectFlowFusion::pointMsgToEigen(const geometry_msgs::msg::Point &m, Eigen::Vector3d &e)
-{
-  e(0) = m.x;
-  e(1) = m.y;
-  e(2) = m.z;
-}
-
-// NOTE(esteve): copied from eigen_conversions
-void ObjectFlowFusion::poseMsgToEigen(const geometry_msgs::msg::Pose &m, Eigen::Affine3d &e)
-{
-  poseMsgToEigenImpl(m, e);
-}
-
-// NOTE(esteve): copied from eigen_conversions
-void ObjectFlowFusion::quaternionEigenToMsg(const Eigen::Quaterniond &e, geometry_msgs::msg::Quaternion &m)
-{
-  m.x = e.x();
-  m.y = e.y();
-  m.z = e.z();
-  m.w = e.w();
 }
 } // object_flow_fusion

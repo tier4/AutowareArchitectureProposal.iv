@@ -16,6 +16,7 @@
 #include "tf2/LinearMath/Matrix3x3.h"
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "tf2_eigen/tf2_eigen.h"
 
 namespace bev_optical_flow
 {
@@ -80,7 +81,7 @@ geometry_msgs::Twist Utils::getObjCoordsTwist(
   const geometry_msgs::Twist & base_coords_twist)
 {
   Eigen::Affine3d base2obj_transform;
-  tf::poseMsgToEigen(obj_pose, base2obj_transform);
+  tf2::convert(obj_pose, base2obj_transform);
   Eigen::Matrix3d base2obj_rot = base2obj_transform.rotation();
   Eigen::Vector3d obj_coords_vector =
     base2obj_rot.inverse() * Eigen::Vector3d(
