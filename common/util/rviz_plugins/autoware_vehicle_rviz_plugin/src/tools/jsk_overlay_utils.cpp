@@ -118,19 +118,19 @@ void OverlayObject::show()
   }
 }
 
-bool OverlayObject::isTextureReady() { return !texture_.isNull(); }
+bool OverlayObject::isTextureReady() { return bool(texture_); }
 
-bool OverlayObject::updateTextureSize(unsigned int width, unsigned int height)
+void OverlayObject::updateTextureSize(unsigned int width, unsigned int height)
 {
   const std::string texture_name = name_ + "Texture";
   if (width == 0) {
     RCLCPP_WARN(rclcpp::get_logger("OverlayObject"),
-      "[OverlayObject] width=0 is specified as texture size");
+      "width=0 is specified as texture size");
     width = 1;
   }
   if (height == 0) {
     RCLCPP_WARN(rclcpp::get_logger("OverlayObject"),
-      "[OverlayObject] height=0 is specified as texture size");
+      "height=0 is specified as texture size");
     height = 1;
   }
   if (!isTextureReady() || ((width != texture_->getWidth()) || (height != texture_->getHeight()))) {

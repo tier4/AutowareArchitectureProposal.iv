@@ -1,4 +1,4 @@
-<library path="lib/libautoware_vehicle_rviz_plugin">
+<library path="autoware_vehicle_rviz_plugin">
   <class name="rviz_plugins/SteeringAngle"
          type="rviz_plugins::SteeringAngleDisplay"
          base_class_type="rviz_common::Display">
