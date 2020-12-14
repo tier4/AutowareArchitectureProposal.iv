@@ -4,6 +4,7 @@ project(ekf_localizer)
 add_compile_options(-std=c++14)
 
 find_package(catkin REQUIRED
+  kalman_filter
   roscpp
   std_msgs
   tf2
@@ -19,6 +20,7 @@ find_package(Eigen3 REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   CATKIN_DEPENDS
+    kalman_filter
     roscpp
     std_msgs
     tf2
@@ -39,9 +41,7 @@ include_directories(
 
 add_executable(ekf_localizer
 src/ekf_localizer_node.cpp
-src/ekf_localizer.cpp
-src/kalman_filter/kalman_filter.cpp
-src/kalman_filter/time_delay_kalman_filter.cpp)
+src/ekf_localizer.cpp)
 add_dependencies(ekf_localizer ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(ekf_localizer ${catkin_LIBRARIES})
 
@@ -74,9 +74,6 @@ if(CATKIN_ENABLE_TESTING)
 
   add_rostest_gtest(ekf_localizer-test test/test_ekf_localizer.test
     test/src/test_ekf_localizer.cpp
-    src/ekf_localizer.cpp
-    src/kalman_filter/kalman_filter.cpp
-    src/kalman_filter/time_delay_kalman_filter.cpp)
-
+    src/ekf_localizer.cpp)
   target_link_libraries(ekf_localizer-test ${catkin_LIBRARIES})
 endif()
