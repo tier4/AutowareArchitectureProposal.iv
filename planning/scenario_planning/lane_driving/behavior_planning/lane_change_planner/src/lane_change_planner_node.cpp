@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+
 #include "lane_change_planner/lane_changer.hpp"
 #include "rclcpp/rclcpp.hpp"
 

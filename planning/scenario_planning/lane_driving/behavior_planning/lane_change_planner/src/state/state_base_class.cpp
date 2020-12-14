@@ -14,6 +14,10 @@
 
 #include "lane_change_planner/state/state_base_class.hpp"
 
+#include <ostream>
+#include <memory>
+#include <string>
+
 namespace lane_change_planner
 {
 std::ostream & operator<<(std::ostream & ostream, const State & state)

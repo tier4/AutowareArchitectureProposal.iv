@@ -13,6 +13,13 @@
 // limitations under the License.
 
 #include "lane_change_planner/lane_changer.hpp"
+
+#include <algorithm>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "lane_change_planner/utilities.hpp"
 
 std_msgs::msg::ColorRGBA toRainbow(double ratio);
@@ -110,7 +117,7 @@ void LaneChanger::init()
   // route_handler
   vector_map_subscriber_ =
     create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
-    "input/vector_map", rclcpp::QoS{1}.transient_local(), std::bind(
+    "input/vector_map", rclcpp::QoS{1}, std::bind(
       &RouteHandler::mapCallback, &(*route_handler_ptr_),
       std::placeholders::_1));
   route_subscriber_ =
@@ -369,7 +376,7 @@ void LaneChanger::publishDebugMarkers()
     }
   }
 
-  //create stop reason array from debug_data and state
+  // create stop reason array from debug_data and state
   stop_reason_array = makeStopReasonArray(debug_data, state_machine_ptr_->getState());
 
   path_marker_publisher_->publish(debug_markers);
@@ -379,16 +386,16 @@ void LaneChanger::publishDebugMarkers()
 autoware_planning_msgs::msg::StopReasonArray LaneChanger::makeStopReasonArray(
   const DebugData & debug_data, const State & state)
 {
-  //create header
+  // create header
   std_msgs::msg::Header header;
   header.frame_id = "map";
   header.stamp = this->now();
 
-  //create stop reason array
+  // create stop reason array
   autoware_planning_msgs::msg::StopReasonArray stop_reason_array;
   stop_reason_array.header = header;
 
-  //create stop reason stamped
+  // create stop reason stamped
   autoware_planning_msgs::msg::StopReason stop_reason_msg;
   autoware_planning_msgs::msg::StopFactor stop_factor;
 
@@ -397,7 +404,7 @@ autoware_planning_msgs::msg::StopReasonArray LaneChanger::makeStopReasonArray(
   } else if (state == lane_change_planner::State::STOPPING_LANE_CHANGE) {
     stop_reason_msg.reason = autoware_planning_msgs::msg::StopReason::STOPPING_LANE_CHANGE;
   } else {
-    //not stop. return empty reason_point
+    // not stop. return empty reason_point
     stop_reason_array.stop_reasons = makeEmptyStopReasons();
     return stop_reason_array;
   }
@@ -432,7 +439,7 @@ std_msgs::msg::ColorRGBA toRainbow(double ratio)
 {
   // we want to normalize ratio so that it fits in to 6 regions
   // where each region is 256 units long
-  int normalized = int(ratio * 256 * 6);
+  int normalized = static_cast<int>(ratio * 256 * 6);
 
   // find the distance to the start of the closest region
   int x = normalized % 256;

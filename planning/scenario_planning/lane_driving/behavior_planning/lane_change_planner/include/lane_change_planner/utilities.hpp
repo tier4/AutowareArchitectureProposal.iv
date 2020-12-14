@@ -12,18 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LANE_CHANGE_PLANNER_UTILITIES_H
-#define LANE_CHANGE_PLANNER_UTILITIES_H
+#ifndef LANE_CHANGE_PLANNER__UTILITIES_HPP_
+#define LANE_CHANGE_PLANNER__UTILITIES_HPP_
+
+#include <limits>
+#include <vector>
+
+#include "lane_change_planner/route_handler.hpp"
+
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_planning_msgs/msg/path.hpp"
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "rclcpp/rclcpp.hpp"
-
-#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
-#include "autoware_planning_msgs/msg/path.hpp"
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 
 #include "boost/geometry/geometries/box.hpp"
 #include "boost/geometry/geometries/point_xy.hpp"
@@ -34,11 +39,6 @@
 #include "lanelet2_routing/Route.h"
 #include "lanelet2_routing/RoutingGraph.h"
 #include "lanelet2_routing/RoutingGraphContainer.h"
-
-#include "lane_change_planner/route_handler.hpp"
-
-#include <limits>
-#include <vector>
 
 namespace lane_change_planner
 {
@@ -166,7 +166,7 @@ class SplineInterpolate
   rclcpp::Logger logger_;
 
 public:
-  SplineInterpolate(const rclcpp::Logger & logger);
+  explicit SplineInterpolate(const rclcpp::Logger & logger);
   bool interpolate(
     const std::vector<double> & base_index, const std::vector<double> & base_value,
     const std::vector<double> & return_index, std::vector<double> & return_value);
@@ -188,4 +188,4 @@ private:
 }  // namespace util
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_UTILITIES_H
+#endif  // LANE_CHANGE_PLANNER__UTILITIES_HPP_

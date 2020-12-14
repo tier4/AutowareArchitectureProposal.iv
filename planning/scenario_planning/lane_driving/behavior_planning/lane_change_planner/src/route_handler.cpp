@@ -13,21 +13,25 @@
 // limitations under the License.
 
 #include "lane_change_planner/route_handler.hpp"
+
+#include <algorithm>
+#include <limits>
+#include <memory>
+#include <vector>
+
 #include "lane_change_planner/utilities.hpp"
 
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_core/geometry/Lanelet.h"
-#include "lanelet2_core/primitives/LaneletSequence.h"
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "lanelet2_extension/utility/message_conversion.hpp"
 #include "lanelet2_extension/utility/query.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 
+#include "lanelet2_core/geometry/Lanelet.h"
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_core/primitives/LaneletSequence.h"
 #include "rclcpp/rclcpp.hpp"
-
 #include "tf2/utils.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-#include <unordered_set>
 
 using autoware_planning_msgs::msg::PathPointWithLaneId;
 using autoware_planning_msgs::msg::PathWithLaneId;
@@ -75,7 +79,7 @@ PathWithLaneId combineReferencePath(
     path2.points.front().point.pose.position.y - path1.points.back().point.pose.position.y;
   const double ds = std::hypot(dx, dy);
   if (interval < ds) {
-    //calculate samples
+    // calculate samples
     std::vector<double> base_x;
     std::vector<double> base_y;
     std::vector<double> base_z;
@@ -109,7 +113,7 @@ PathWithLaneId combineReferencePath(
       base_s.push_back(base_s.at(i - 1) + std::hypot(base_dx, base_dy));
     }
 
-    //calculate query
+    // calculate query
     std::vector<double> inner_s;
     for (double d = (base_s.at(n_sample_path1 - 1) + interval); d < base_s.at(n_sample_path1);
       d += interval)
@@ -127,7 +131,7 @@ PathWithLaneId combineReferencePath(
       spline.interpolate(base_s, base_y, inner_s, inner_y) &&
       spline.interpolate(base_s, base_z, inner_s, inner_z))
     {
-      //set position and other data
+      // set position and other data
       for (size_t i = 0; i < inner_s.size(); ++i) {
         PathPointWithLaneId inner_point;
         inner_point.lane_ids.insert(
@@ -144,7 +148,7 @@ PathWithLaneId combineReferencePath(
         inner_points.push_back(inner_point);
       }
 
-      //set yaw
+      // set yaw
       for (size_t i = 0; i < inner_points.size(); ++i) {
         geometry_msgs::msg::Point prev, next;
         if (i == 0) {
@@ -863,7 +867,7 @@ double RouteHandler::getLaneChangeableDistance(
       lane_length = std::min(goal_arc_coordinates.length, lane_length);
     }
 
-    //subtract distance up to current position for first lane
+    // subtract distance up to current position for first lane
     if (lane == current_lane) {
       const auto current_position =
         lanelet::utils::conversion::toLaneletPoint(current_pose.position);

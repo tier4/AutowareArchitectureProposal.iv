@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LANE_CHANGE_PLANNER_PARAMETERS_H
-#define LANE_CHANGE_PLANNER_PARAMETERS_H
+#ifndef LANE_CHANGE_PLANNER__PARAMETERS_HPP_
+#define LANE_CHANGE_PLANNER__PARAMETERS_HPP_
 
 struct LaneChangerParameters
 {
@@ -42,4 +42,4 @@ struct LaneChangerParameters
   bool enable_abort_lane_change;
 };
 
-#endif
+#endif  // LANE_CHANGE_PLANNER__PARAMETERS_HPP_

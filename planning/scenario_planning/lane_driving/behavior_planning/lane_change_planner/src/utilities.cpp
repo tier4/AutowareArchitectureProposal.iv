@@ -13,6 +13,10 @@
 // limitations under the License.
 
 #include "lane_change_planner/utilities.hpp"
+
+#include <limits>
+#include <vector>
+
 #include "lanelet2_extension/utility/message_conversion.hpp"
 #include "lanelet2_extension/utility/query.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
@@ -892,10 +896,8 @@ nav_msgs::msg::OccupancyGrid generateDrivableArea(
       cv::bitwise_and(cv_image, cv_image_single_lane, cv_image);
     }
 
-    const auto & cv_image_reshaped = cv_image.reshape(1, 1);
     imageToOccupancyGrid(cv_image, &occupancy_grid);
     occupancy_grid.data[0] = 0;
-    // cv_image_reshaped.copyTo(occupancy_grid.data);
   }
   return occupancy_grid;
 }
@@ -960,7 +962,7 @@ double getDistanceToCrosswalk(
           boost::geometry::append(centerline, Point(point.x(), point.y()));
         }
 
-        //create crosswalk polygon and calculate distance
+        // create crosswalk polygon and calculate distance
         double min_distance_to_crosswalk = std::numeric_limits<double>::max();
         for (const auto & crosswalk : conflicting_crosswalks) {
           lanelet::CompoundPolygon2d lanelet_crosswalk_polygon = crosswalk.polygon2d();
