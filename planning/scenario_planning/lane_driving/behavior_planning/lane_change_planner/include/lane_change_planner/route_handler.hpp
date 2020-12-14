@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LANE_CHANGE_PLANNER_ROUTE_HANDLER_H
-#define LANE_CHANGE_PLANNER_ROUTE_HANDLER_H
+#ifndef LANE_CHANGE_PLANNER__ROUTE_HANDLER_HPP_
+#define LANE_CHANGE_PLANNER__ROUTE_HANDLER_HPP_
 
+#include <limits>
+#include <memory>
+#include <vector>
 // Autoware
 #include "autoware_lanelet2_msgs/msg/map_bin.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
@@ -31,8 +34,6 @@
 #include "lane_change_planner/parameters.hpp"
 
 #include "rclcpp/rclcpp.hpp"
-
-#include <vector>
 
 namespace lane_change_planner
 {
@@ -151,4 +152,4 @@ public:
   std::vector<lanelet::ConstLanelet> getLanesAfterGoal(const double vehicle_length) const;
 };
 }  // namespace lane_change_planner
-#endif  // LANE_CHANGE_PLANNER_ROUTE_HANDLER_H
+#endif  // LANE_CHANGE_PLANNER__ROUTE_HANDLER_HPP_

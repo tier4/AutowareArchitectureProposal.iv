@@ -12,16 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LANE_CHANGE_PLANNER_STATE_STATE_BASE_CLASS_H
-#define LANE_CHANGE_PLANNER_STATE_STATE_BASE_CLASS_H
+#ifndef LANE_CHANGE_PLANNER__STATE__STATE_BASE_CLASS_HPP_
+#define LANE_CHANGE_PLANNER__STATE__STATE_BASE_CLASS_HPP_
 
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
-#include "geometry_msgs/msg/point.hpp"
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "lane_change_planner/data_manager.hpp"
 #include "lane_change_planner/parameters.hpp"
 #include "lane_change_planner/route_handler.hpp"
-#include <iostream>
-#include <string>
+
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+
+#include "geometry_msgs/msg/point.hpp"
 
 namespace lane_change_planner
 {
@@ -68,6 +73,7 @@ protected:
   DebugData debug_data_;
 
 public:
+  virtual ~StateBase() = default;
   virtual void entry() = 0;
   virtual void update() = 0;
   virtual State getNextState() const = 0;
@@ -79,4 +85,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_STATE_STATE_BASE_CLASS_H
+#endif  // LANE_CHANGE_PLANNER__STATE__STATE_BASE_CLASS_HPP_

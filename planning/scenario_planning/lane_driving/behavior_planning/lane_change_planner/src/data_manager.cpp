@@ -13,6 +13,10 @@
 // limitations under the License.
 
 #include "lane_change_planner/data_manager.hpp"
+
+#include <memory>
+#include <string>
+
 #include "lanelet2_extension/utility/message_conversion.hpp"
 
 namespace lane_change_planner

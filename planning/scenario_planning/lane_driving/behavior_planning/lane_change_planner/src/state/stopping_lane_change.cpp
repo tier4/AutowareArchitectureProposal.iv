@@ -11,10 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+#include "lane_change_planner/state/stopping_lane_change.hpp"
+
+#include <memory>
+#include <vector>
+
 #include "lane_change_planner/data_manager.hpp"
 #include "lane_change_planner/route_handler.hpp"
 #include "lane_change_planner/state/common_functions.hpp"
-#include "lane_change_planner/state/stopping_lane_change.hpp"
 #include "lane_change_planner/utilities.hpp"
 
 #include "lanelet2_extension/utility/utilities.hpp"

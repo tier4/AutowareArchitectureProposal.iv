@@ -14,6 +14,9 @@
 
 #include "lane_change_planner/state/aborting_lane_change.hpp"
 
+#include <limits>
+#include <memory>
+
 namespace lane_change_planner
 {
 AbortingLaneChangeState::AbortingLaneChangeState(

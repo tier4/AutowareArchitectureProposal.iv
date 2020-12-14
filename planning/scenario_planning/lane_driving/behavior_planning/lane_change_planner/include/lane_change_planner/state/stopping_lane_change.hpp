@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LANE_CHANGE_PLANNER_STATE_STOPPING_LANE_CHANGE_H
-#define LANE_CHANGE_PLANNER_STATE_STOPPING_LANE_CHANGE_H
+#ifndef LANE_CHANGE_PLANNER__STATE__STOPPING_LANE_CHANGE_HPP_
+#define LANE_CHANGE_PLANNER__STATE__STOPPING_LANE_CHANGE_HPP_
+
+#include <memory>
 
 #include "lane_change_planner/state/state_base_class.hpp"
 
@@ -50,4 +52,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_STATE_ABORTING_LANE_CHANGE_H
+#endif  // LANE_CHANGE_PLANNER__STATE__STOPPING_LANE_CHANGE_HPP_

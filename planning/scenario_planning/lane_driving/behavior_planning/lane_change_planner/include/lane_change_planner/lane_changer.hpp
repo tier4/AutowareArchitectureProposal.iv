@@ -12,14 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LANE_CHANGE_PLANNER_LANE_CHANGER_H
-#define LANE_CHANGE_PLANNER_LANE_CHANGER_H
+#ifndef LANE_CHANGE_PLANNER__LANE_CHANGER_HPP_
+#define LANE_CHANGE_PLANNER__LANE_CHANGER_HPP_
 
-// ROS
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/bool.hpp"
-#include "tf2_ros/transform_listener.h"
-#include "visualization_msgs/msg/marker_array.hpp"
+#include <memory>
+#include <vector>
+
+#include "lane_change_planner/data_manager.hpp"
+#include "lane_change_planner/route_handler.hpp"
+#include "lane_change_planner/state_machine.hpp"
 
 // Autoware
 #include "autoware_lanelet2_msgs/msg/map_bin.hpp"
@@ -29,16 +30,16 @@
 #include "autoware_planning_msgs/msg/route.hpp"
 #include "autoware_planning_msgs/msg/stop_reason_array.hpp"
 
-#include "lane_change_planner/data_manager.hpp"
-#include "lane_change_planner/route_handler.hpp"
-#include "lane_change_planner/state_machine.hpp"
+// ROS
+#include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/bool.hpp"
+#include "tf2_ros/transform_listener.h"
+#include "visualization_msgs/msg/marker_array.hpp"
 
 // lanelet
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_routing/RoutingGraph.h"
 #include "lanelet2_traffic_rules/TrafficRulesFactory.h"
-
-#include <memory>
 
 namespace lane_change_planner
 {
@@ -84,4 +85,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_LANE_CHANGER_H
+#endif  // LANE_CHANGE_PLANNER__LANE_CHANGER_HPP_
