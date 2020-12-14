@@ -34,6 +34,7 @@ public:
   struct PlannerParam
   {
     double stop_margin;
+    double stop_line_distance;
     double external_input_timeout;
   };
   WalkwayModule(
