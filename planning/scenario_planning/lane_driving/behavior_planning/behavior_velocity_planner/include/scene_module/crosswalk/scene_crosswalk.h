@@ -52,6 +52,7 @@ public:
   struct PlannerParam
   {
     double stop_margin;
+    double stop_line_distance;
     double slow_margin;
     double slow_velocity;
     double stop_dynamic_object_prediction_time_margin;
@@ -74,16 +75,14 @@ private:
 
   bool checkSlowArea(
     const autoware_planning_msgs::PathWithLaneId & input,
-    const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> &
-      polygon,
+    const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> & polygon,
     const autoware_perception_msgs::DynamicObjectArray::ConstPtr & objects_ptr,
     const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
     autoware_planning_msgs::PathWithLaneId & output);
 
   bool checkStopArea(
     const autoware_planning_msgs::PathWithLaneId & input,
-    const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> &
-      polygon,
+    const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> & polygon,
     const autoware_perception_msgs::DynamicObjectArray::ConstPtr & objects_ptr,
     const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
     autoware_planning_msgs::PathWithLaneId & output, bool * insert_stop);
@@ -93,8 +92,7 @@ private:
     const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> &
       crosswalk_polygon,
     const float extended_width,
-    boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> &
-      path_polygon);
+    boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> & path_polygon);
   bool isTargetType(const autoware_perception_msgs::DynamicObject & obj);
   bool isTargetExternalInputStatus(const int target_status);
 

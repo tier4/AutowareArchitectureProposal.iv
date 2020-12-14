@@ -59,8 +59,8 @@ bool WalkwayModule::modifyPathVelocity(
       }
     } else {
       if (!insertTargetVelocityPoint(
-            input, polygon, planner_param_.stop_margin, 0.0, *planner_data_, *path, debug_data_,
-            first_stop_path_point_index_)) {
+            input, polygon, planner_param_.stop_line_distance + planner_param_.stop_margin, 0.0,
+            *planner_data_, *path, debug_data_, first_stop_path_point_index_)) {
         return false;
       }
     }

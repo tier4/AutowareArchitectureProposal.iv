@@ -59,6 +59,7 @@ CrosswalkModuleManager::CrosswalkModuleManager() : SceneModuleManagerInterface(g
   // for crosswalk parameters
   auto & cp = crosswalk_planner_param_;
   pnh.param(ns + "/crosswalk/stop_margin", cp.stop_margin, 1.0);
+  pnh.param(ns + "/crosswalk/stop_line_distance", cp.stop_line_distance, 1.5);
   pnh.param(ns + "/crosswalk/slow_margin", cp.slow_margin, 2.0);
   pnh.param(ns + "/crosswalk/slow_velocity", cp.slow_velocity, 5.0 / 3.6);
   pnh.param(
@@ -69,6 +70,7 @@ CrosswalkModuleManager::CrosswalkModuleManager() : SceneModuleManagerInterface(g
   // for walkway parameters
   auto & wp = walkway_planner_param_;
   pnh.param(ns + "/walkway/stop_margin", wp.stop_margin, 1.0);
+  pnh.param(ns + "/walkway/stop_line_distance", wp.stop_line_distance, 1.5);
   pnh.param(ns + "/walkway/external_input_timeout", wp.external_input_timeout, 1.0);
 }
 

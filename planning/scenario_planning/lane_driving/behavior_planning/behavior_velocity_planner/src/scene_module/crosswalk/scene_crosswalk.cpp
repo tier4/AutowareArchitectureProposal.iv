@@ -187,8 +187,9 @@ bool CrosswalkModule::checkStopArea(
       }
     } else {
       if (!insertTargetVelocityPoint(
-            input, crosswalk_polygon, planner_param_.stop_margin, 0.0, *planner_data_, output,
-            debug_data_, first_stop_path_point_index_)) {
+            input, crosswalk_polygon,
+            planner_param_.stop_line_distance + planner_param_.stop_margin, 0.0, *planner_data_,
+            output, debug_data_, first_stop_path_point_index_)) {
         return false;
       }
       *insert_stop = stop;
@@ -258,8 +259,9 @@ bool CrosswalkModule::checkSlowArea(
         return false;
     } else {
       if (!insertTargetVelocityPoint(
-            input, slowdown_polygon, planner_param_.slow_margin, planner_param_.slow_velocity,
-            *planner_data_, output, debug_data_, first_stop_path_point_index_))
+            input, slowdown_polygon, planner_param_.stop_line_distance + planner_param_.slow_margin,
+            planner_param_.slow_velocity, *planner_data_, output, debug_data_,
+            first_stop_path_point_index_))
         return false;
     }
   }
