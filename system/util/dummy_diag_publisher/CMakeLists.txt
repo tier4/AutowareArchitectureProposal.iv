@@ -36,7 +36,7 @@ add_executable(dummy_diag_publisher
 )
 
 target_link_libraries(dummy_diag_publisher
-  fmt
+  PRIVATE fmt::fmt-header-only
   ${catkin_LIBRARIES}
 )
 

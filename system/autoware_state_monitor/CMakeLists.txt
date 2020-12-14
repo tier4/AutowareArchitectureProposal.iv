@@ -46,7 +46,7 @@ add_executable(autoware_state_monitor
 )
 
 target_link_libraries(autoware_state_monitor
-  fmt
+  PRIVATE fmt::fmt-header-only
   ${catkin_LIBRARIES}
 )
 

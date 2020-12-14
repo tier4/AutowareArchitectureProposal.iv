@@ -32,7 +32,7 @@ add_executable(autoware_error_monitor
 )
 
 target_link_libraries(autoware_error_monitor
-  fmt
+  PRIVATE fmt::fmt-header-only
   ${catkin_LIBRARIES}
 )
 
