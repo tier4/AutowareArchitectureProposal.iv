@@ -28,6 +28,11 @@ ament_auto_add_executable(scenario_selector
   ${SCENARIO_SELECTOR_SRC}
 )
 
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
 ament_auto_package(INSTALL_TO_SHARE
   launch
 )
