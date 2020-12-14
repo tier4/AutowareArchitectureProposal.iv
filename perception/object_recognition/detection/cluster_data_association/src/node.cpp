@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "sensor_msgs/PointCloud2.h"
-#include "sensor_msgs/point_cloud2_iterator.h"
+#include "sensor_msgs/msg/point_cloud2.hpp"
+#include "sensor_msgs/point_cloud2_iterator.hpp"
 #include "tf2/LinearMath/Transform.h"
 #include "tf2/convert.h"
 #include "tf2/transform_datatypes.h"
-#include "tf2_sensor_msgs/tf2_sensor_msgs.h"
+// #include "tf2_sensor_msgs/msg/tf2_sensor_msgs.hpp"
 #include <chrono>
 #include "cluster_data_association/node.hpp"
 #define EIGEN_MPL2_ONLY
@@ -27,28 +27,27 @@
 namespace cluster_data_association
 {
 ClusterDataAssociationNode::ClusterDataAssociationNode()
-: nh_(""),
-  pnh_("~"),
+: rclcpp::Node("cluster_data_association_node"),
   tf_listener_(tf_buffer_),
-  cluster0_sub_(pnh_, "input/clusters0", 1),
-  cluster1_sub_(pnh_, "input/clusters1", 1),
+  cluster0_sub_(this, "input/clusters0", rclcpp::QoS{1}.get_rmw_qos_profile()),
+  cluster1_sub_(this, "input/clusters1", rclcpp::QoS{1}.get_rmw_qos_profile()),
   sync_(SyncPolicy(10), cluster0_sub_, cluster1_sub_)
 {
   sync_.registerCallback(boost::bind(&ClusterDataAssociationNode::clusterCallback, this, _1, _2));
 
   associated_cluster_pub_ =
-    pnh_.advertise<autoware_perception_msgs::DynamicObjectWithFeatureArray>("output/clusters", 10);
+    create_publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>("output/clusters", rclcpp::QoS{10});
 }
 
 void ClusterDataAssociationNode::clusterCallback(
-  const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr & input_cluster0_msg,
-  const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr & input_cluster1_msg)
+  const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstPtr & input_cluster0_msg,
+  const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstPtr & input_cluster1_msg)
 {
   // Guard
-  if (associated_cluster_pub_.getNumSubscribers() < 1) return;
+  if (associated_cluster_pub_->get_subscription_count() < 1) return;
 
   // build output msg
-  autoware_perception_msgs::DynamicObjectWithFeatureArray output_msg;
+  autoware_perception_msgs::msg::DynamicObjectWithFeatureArray output_msg;
   output_msg.header = input_cluster0_msg->header;
 
   /* global nearest neighboor */
@@ -78,6 +77,6 @@ void ClusterDataAssociationNode::clusterCallback(
   }
 
   // publish output msg
-  associated_cluster_pub_.publish(output_msg);
+  associated_cluster_pub_->publish(output_msg);
 }
 }  // namespace cluster_data_association

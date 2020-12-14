@@ -318,7 +318,7 @@ ScenarioSelectorNode::ScenarioSelectorNode()
       "input/parking/trajectory", rclcpp::QoS{1}, createCallback(&input_parking_.buf_trajectory));
 
   sub_lanelet_map_ = this->create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
-    "input/lanelet_map", rclcpp::QoS{1},
+    "input/lanelet_map", rclcpp::QoS{1}.transient_local(),
     std::bind(&ScenarioSelectorNode::onMap, this, std::placeholders::_1));
   sub_route_ = this->create_subscription<autoware_planning_msgs::msg::Route>(
     "input/route", rclcpp::QoS{1},
@@ -336,7 +336,7 @@ ScenarioSelectorNode::ScenarioSelectorNode()
   // Timer Callback
   auto timer_callback = std::bind(&ScenarioSelectorNode::onTimer, this);
   auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
-    std::chrono::duration<double>(update_rate_));
+    std::chrono::duration<double>(1.0 / static_cast<double>(update_rate_)));
 
   timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
     this->get_clock(), period, std::move(timer_callback),

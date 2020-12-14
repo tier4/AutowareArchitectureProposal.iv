@@ -18,14 +18,14 @@
 
 #pragma once
 #include <cmath>
-#include "autoware_perception_msgs/Shape.h"
-#include "geometry_msgs/Polygon.h"
-#include "geometry_msgs/Vector3.h"
+#include "autoware_perception_msgs/msg/shape.hpp"
+#include "geometry_msgs/msg/polygon.hpp"
+#include "geometry_msgs/msg/vector3.hpp"
 
 namespace utils
 {
-double getPolygonArea(const geometry_msgs::Polygon & footprint);
-double getRectangleArea(const geometry_msgs::Vector3 & dimensions);
-double getCircleArea(const geometry_msgs::Vector3 & dimensions);
-double getArea(const autoware_perception_msgs::Shape & shape);
+double getPolygonArea(const geometry_msgs::msg::Polygon & footprint);
+double getRectangleArea(const geometry_msgs::msg::Vector3 & dimensions);
+double getCircleArea(const geometry_msgs::msg::Vector3 & dimensions);
+double getArea(const autoware_perception_msgs::msg::Shape & shape);
 }  // namespace utils

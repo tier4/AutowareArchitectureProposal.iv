@@ -110,7 +110,7 @@ void LaneChanger::init()
   // route_handler
   vector_map_subscriber_ =
     create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
-    "input/vector_map", rclcpp::QoS{1}, std::bind(
+    "input/vector_map", rclcpp::QoS{1}.transient_local(), std::bind(
       &RouteHandler::mapCallback, &(*route_handler_ptr_),
       std::placeholders::_1));
   route_subscriber_ =

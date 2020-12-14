@@ -49,7 +49,7 @@ TurnSignalDecider::TurnSignalDecider(
     "input/path_with_lane_id", rclcpp::QoS{1},
     std::bind(&DataManager::onPathWithLaneId, &data_, _1));
   map_subscription_ = this->create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
-    "input/vector_map", rclcpp::QoS{1}, std::bind(&DataManager::onLaneletMap, &data_, _1));
+    "input/vector_map", rclcpp::QoS{1}.transient_local(), std::bind(&DataManager::onLaneletMap, &data_, _1));
 
   // get ROS parameters
   parameters_.lane_change_search_distance = this->declare_parameter(
