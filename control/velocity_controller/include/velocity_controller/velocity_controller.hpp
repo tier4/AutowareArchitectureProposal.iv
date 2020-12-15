@@ -192,7 +192,7 @@ private:
   /* check condition */
   bool checkIsStopped(double current_vel, double target_vel, int closest) const;
   bool checkSmoothStop(const int closest, const double target_vel) const;
-  bool checkEmergency(int closest, double target_vel) const;
+  bool checkEmergency(int closest) const;
 
   /* reset flags */
   void resetHandling(ControlMode control_mode);
