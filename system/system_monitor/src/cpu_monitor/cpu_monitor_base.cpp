@@ -49,9 +49,7 @@ CPUMonitorBase::CPUMonitorBase(const ros::NodeHandle & nh, const ros::NodeHandle
   temp_error_(95.0),
   usage_warn_(0.90),
   usage_error_(1.00),
-  usage_avg_(true),
-  load1_warn_(0.90),
-  load5_warn_(0.80)
+  usage_avg_(true)
 {
   gethostname(hostname_, sizeof(hostname_));
   num_cores_ = boost::thread::hardware_concurrency();
@@ -65,8 +63,6 @@ CPUMonitorBase::CPUMonitorBase(const ros::NodeHandle & nh, const ros::NodeHandle
   pnh_.param<float>("usage_warn", usage_warn_, 0.90);
   pnh_.param<float>("usage_error", usage_error_, 1.00);
   pnh_.param<bool>("usage_avg", usage_avg_, true);
-  pnh_.param<float>("load1_warn", load1_warn_, 0.90);
-  pnh_.param<float>("load5_warn", load5_warn_, 0.80);
 
   updater_.setHardwareID(hostname_);
   updater_.add("CPU Temperature", this, &CPUMonitorBase::checkTemp);
@@ -239,10 +235,7 @@ void CPUMonitorBase::checkLoad(diagnostic_updater::DiagnosticStatusWrapper & sta
   loadavg[1] /= num_cores_;
   loadavg[2] /= num_cores_;
 
-  int level = DiagStatus::OK;
-  if (loadavg[0] > load1_warn_ || loadavg[1] > load5_warn_) level = DiagStatus::WARN;
-
-  stat.summary(level, load_dict_.at(level));
+  stat.summary(DiagStatus::OK, "OK");
   stat.addf("1min", "%.2f%%", loadavg[0] * 1e2);
   stat.addf("5min", "%.2f%%", loadavg[1] * 1e2);
   stat.addf("15min", "%.2f%%", loadavg[2] * 1e2);
