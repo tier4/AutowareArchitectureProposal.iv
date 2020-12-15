@@ -1,0 +1,17 @@
+<launch>
+  <arg name="topic" doc="input topic name" />
+  <arg name="diag_name" doc="diag name" />
+  <arg name="warn_rate" doc="warn rate[Hz]" />
+  <arg name="error_rate" doc="error rate[Hz]" />
+  <arg name="timeout" doc="timeout period[s]" />
+  <arg name="window_size" default="10" doc="warn rate[Hz]" />
+
+  <node pkg="topic_state_monitor" type="topic_state_monitor_node" name="$(anon topic_state_monitor)" output="screen">
+    <param name="topic" value="$(arg topic)" />
+    <param name="diag_name" value="$(arg diag_name)" />
+    <param name="warn_rate" value="$(arg warn_rate)" />
+    <param name="error_rate" value="$(arg error_rate)" />
+    <param name="timeout" value="$(arg timeout)" />
+    <param name="window_size" value="$(arg window_size)" />
+  </node>
+</launch>
