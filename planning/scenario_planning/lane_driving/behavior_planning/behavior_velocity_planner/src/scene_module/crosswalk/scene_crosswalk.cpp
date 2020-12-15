@@ -148,7 +148,7 @@ bool CrosswalkModule::checkStopArea(
       for (const auto & object_path : object.state.predicted_paths) {
         for (size_t k = 0; k < object_path.path.size() - 1; ++k) {
           if (
-            (current_time - object_path.path.at(k).header.stamp).toSec() <
+            (object_path.path.at(k).header.stamp - current_time).toSec() <
             planner_param_.stop_dynamic_object_prediction_time_margin) {
             const auto op0 = object_path.path.at(k).pose.pose.position;
             const auto op1 = object_path.path.at(k + 1).pose.pose.position;
