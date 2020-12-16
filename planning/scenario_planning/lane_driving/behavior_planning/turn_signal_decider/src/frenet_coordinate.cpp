@@ -11,7 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+#include <limits>
+#include <vector>
+
 #include "turn_signal_decider/frenet_coordinate.hpp"
+
 #include "Eigen/Dense"
 
 namespace
