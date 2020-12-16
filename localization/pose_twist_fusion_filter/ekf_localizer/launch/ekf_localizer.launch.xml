@@ -1,6 +1,7 @@
 <launch>
 
   <arg name="show_debug_info" default="false"/>
+  <arg name="debug_input_pass_through" default="false"/>
   <arg name="enable_yaw_bias_estimation" default="True"/>
   <arg name="predict_frequency" default="50.0"/>
   <arg name="tf_rate" default="10.0"/>
@@ -70,6 +71,8 @@
     <param name="pose_frame_id" value="map"/>
 
     <param name="show_debug_info" value="$(var show_debug_info)"/>
+    <param name="debug_input_pass_through" default="$(var debug_input_pass_through)"/>
+
     <param name="enable_yaw_bias_estimation" value="$(var enable_yaw_bias_estimation)"/>
 
     <param name="predict_frequency" value="$(var predict_frequency)"/>

@@ -30,6 +30,8 @@ EKFLocalizer::EKFLocalizer(const std::string & node_name, const rclcpp::NodeOpti
 : rclcpp::Node(node_name, node_options), dim_x_(6 /* x, y, yaw, yaw_bias, vx, wz */)
 {
   show_debug_info_ = declare_parameter("show_debug_info", bool(false));
+  debug_input_pass_through_ = declare_parameter("debug_input_pass_through", bool(false));
+
   ekf_rate_ = declare_parameter("predict_frequency", double(50.0));
   ekf_dt_ = 1.0 / std::max(ekf_rate_, 0.1);
   tf_rate_ = declare_parameter("tf_rate", double(10.0));
@@ -164,7 +166,11 @@ void EKFLocalizer::timerCallback()
   }
 
   /* set current pose, twist */
-  setCurrentResult();
+  if (debug_input_pass_through_) {
+    setCurrentResultInputPassThrough();
+  } else {
+    setCurrentResult();
+  }
 
   /* publish ekf result */
   publishEstimateResult();
@@ -208,6 +214,24 @@ void EKFLocalizer::setCurrentResult()
   current_ekf_twist_.twist.linear.x = ekf_.getXelement(IDX::VX);
   current_ekf_twist_.twist.angular.z = ekf_.getXelement(IDX::WZ);
 }
+
+void EKFLocalizer::setCurrentResultInputPassThrough()
+{
+  current_ekf_pose_.header.frame_id = pose_frame_id_;
+  current_ekf_pose_.header.stamp = this->now();
+  if (current_pose_ptr_) {
+    current_ekf_pose_.pose = current_pose_ptr_->pose;
+  }
+
+  current_ekf_pose_no_yawbias_ = current_ekf_pose_;
+
+  current_ekf_twist_.header.frame_id = "base_link";
+  current_ekf_twist_.header.stamp = this->now();
+  if (current_twist_ptr_) {
+    current_ekf_twist_.twist = current_twist_ptr_->twist;
+  }
+}
+
 
 /*
  * timerTFCallback
@@ -268,17 +292,17 @@ void EKFLocalizer::callbackInitialPose(geometry_msgs::msg::PoseWithCovarianceSta
       initialpose->header.frame_id.c_str());
   };
 
+  geometry_msgs::msg::PoseWithCovarianceStamped initialpose_transformed;
+  tf2::doTransform(*initialpose, initialpose_transformed, transform);
+
   Eigen::MatrixXd X(dim_x_, 1);
   Eigen::MatrixXd P = Eigen::MatrixXd::Zero(dim_x_, dim_x_);
 
   // TODO need mutex
 
-  X(IDX::X) = initialpose->pose.pose.position.x + transform.transform.translation.x;
-  X(IDX::Y) = initialpose->pose.pose.position.y + transform.transform.translation.y;
-  current_ekf_pose_.pose.position.z =
-    initialpose->pose.pose.position.z + transform.transform.translation.z;
-  X(IDX::YAW) =
-    tf2::getYaw(initialpose->pose.pose.orientation) + tf2::getYaw(transform.transform.rotation);
+  X(IDX::X) = initialpose_transformed.pose.pose.position.x;
+  X(IDX::Y) = initialpose_transformed.pose.pose.position.y;
+  X(IDX::YAW) = tf2::getYaw(initialpose_transformed.pose.pose.orientation);
   X(IDX::YAWB) = 0.0;
   X(IDX::VX) = 0.0;
   X(IDX::WZ) = 0.0;
@@ -291,6 +315,10 @@ void EKFLocalizer::callbackInitialPose(geometry_msgs::msg::PoseWithCovarianceSta
   P(IDX::WZ, IDX::WZ) = 0.01;
 
   ekf_.init(X, P, extend_state_step_);
+
+  current_ekf_pose_.header.frame_id = pose_frame_id_;
+  current_ekf_pose_.header.stamp = initialpose->header.stamp = this->now();
+  current_ekf_pose_.pose = initialpose_transformed.pose.pose;
 
   current_pose_ptr_ = nullptr;
 };
@@ -659,7 +687,7 @@ bool EKFLocalizer::mahalanobisGate(
   const Eigen::MatrixXd & cov) const
 {
   Eigen::MatrixXd mahalanobis_squared = (x - obj_x).transpose() * cov.inverse() * (x - obj_x);
-  DEBUG_INFO(this->get_logger(), 
+  DEBUG_INFO(this->get_logger(),
     "measurement update: mahalanobis = %f, gate limit = %f", std::sqrt(mahalanobis_squared(0)),
     dist_max);
   if (mahalanobis_squared(0) > dist_max * dist_max) {
