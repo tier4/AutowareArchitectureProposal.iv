@@ -249,8 +249,8 @@ void SurroundObstacleCheckerNode::getNearestObstacleByPointCloud(
   geometry_msgs::msg::TransformStamped transform_stamped;
   try {
     transform_stamped = tf_buffer_.lookupTransform(
-      "base_link", pointcloud_ptr_->header.frame_id, pointcloud_ptr_->header.stamp, tf2::durationFromSec(
-        0.5));
+      "base_link", pointcloud_ptr_->header.frame_id, pointcloud_ptr_->header.stamp,
+      tf2::durationFromSec(0.5));
   } catch (tf2::TransformException & ex) {
     RCLCPP_WARN_STREAM_THROTTLE(
       get_logger(), *this->get_clock(), 0.5,
