@@ -23,6 +23,11 @@ ament_auto_add_executable(mission_planner
   src/mission_planner_lanelet2/utility_functions.cpp
 )
 
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
 ament_auto_package(INSTALL_TO_SHARE
   launch
 )
