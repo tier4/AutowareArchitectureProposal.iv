@@ -176,7 +176,6 @@ void ObstacleStopPlannerNode::pathCallback(
   const autoware_planning_msgs::msg::Trajectory base_path = *input_msg;
   autoware_planning_msgs::msg::Trajectory output_msg = *input_msg;
   diagnostic_msgs::msg::DiagnosticStatus stop_reason_diag;
-  const double epsilon = 0.00001;
   /*
    * trim trajectory from self pose
    */
@@ -510,7 +509,6 @@ void ObstacleStopPlannerNode::pathCallback(
       {
         Eigen::Vector2d slow_down_start_point;
         // search insert point
-        size_t slow_down_point_idx = i;
         size_t slow_down_start_point_idx = 0;
         double slow_down_vel = 0.0;
         const double slow_down_target_vel =
