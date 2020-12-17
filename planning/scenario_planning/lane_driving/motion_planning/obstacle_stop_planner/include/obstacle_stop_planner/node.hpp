@@ -67,7 +67,7 @@ private:
    * Parameter
    */
   std::unique_ptr<motion_planning::AdaptiveCruiseController> acc_controller_;
-  sensor_msgs::msg::PointCloud2::Ptr obstacle_ros_pointcloud_ptr_;
+  sensor_msgs::msg::PointCloud2::SharedPtr obstacle_ros_pointcloud_ptr_;
   geometry_msgs::msg::TwistStamped::ConstSharedPtr current_velocity_ptr_;
   autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr object_ptr_;
   double wheel_base_, front_overhang_, rear_overhang_, left_overhang_, right_overhang_,
