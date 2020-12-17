@@ -44,6 +44,11 @@ set(MPC_FOLLOWER_HDR
 
 ament_auto_add_executable(mpc_follower ${MPC_FOLLOWER_SRC} ${MPC_FOLLOWER_HDR})
 
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
 ament_auto_package(
   INSTALL_TO_SHARE
     launch
