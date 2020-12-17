@@ -42,7 +42,8 @@ public:
     const geometry_msgs::msg::Pose self_pose, const pcl::PointXYZ & nearest_collision_point,
     const rclcpp::Time nearest_collision_point_time,
     const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr object_ptr,
-    const geometry_msgs::msg::TwistStamped::ConstSharedPtr current_velocity_ptr, bool * need_to_stop,
+    const geometry_msgs::msg::TwistStamped::ConstSharedPtr current_velocity_ptr,
+    bool * need_to_stop,
     autoware_planning_msgs::msg::Trajectory * output_trajectory);
 
 private:
