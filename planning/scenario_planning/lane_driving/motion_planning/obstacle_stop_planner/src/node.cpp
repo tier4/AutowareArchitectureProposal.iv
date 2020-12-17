@@ -600,7 +600,7 @@ bool ObstacleStopPlannerNode::decimateTrajectory(
   autoware_planning_msgs::msg::Trajectory & output_trajectory)
 {
   std::map<size_t /* decimate */, size_t /* origin */> index_map;
-  decimateTrajectory(input_trajectory, step_length, output_trajectory, index_map);
+  return decimateTrajectory(input_trajectory, step_length, output_trajectory, index_map);
 }
 
 bool ObstacleStopPlannerNode::decimateTrajectory(
