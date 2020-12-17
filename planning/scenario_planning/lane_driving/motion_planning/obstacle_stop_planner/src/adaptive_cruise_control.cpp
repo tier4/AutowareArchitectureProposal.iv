@@ -172,8 +172,8 @@ void AdaptiveCruiseController::insertAdaptiveCruiseVelocity(
   const autoware_planning_msgs::msg::Trajectory & trajectory, const int nearest_collision_point_idx,
   const geometry_msgs::msg::Pose self_pose, const pcl::PointXYZ & nearest_collision_point,
   const rclcpp::Time nearest_collision_point_time,
-  const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr object_ptr,
-  const geometry_msgs::msg::TwistStamped::ConstPtr current_velocity_ptr, bool * need_to_stop,
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr object_ptr,
+  const geometry_msgs::msg::TwistStamped::ConstSharedPtr current_velocity_ptr, bool * need_to_stop,
   autoware_planning_msgs::msg::Trajectory * output_trajectory)
 {
   debug_values_.data.clear();
@@ -309,7 +309,7 @@ double AdaptiveCruiseController::calcTrajYaw(
 }
 
 bool AdaptiveCruiseController::estimatePointVelocityFromObject(
-  const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr object_ptr,
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr object_ptr,
   const double traj_yaw,
   const pcl::PointXYZ & nearest_collision_point, double * velocity)
 {
