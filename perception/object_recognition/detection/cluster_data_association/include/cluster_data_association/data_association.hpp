@@ -27,7 +27,9 @@
 class DataAssociation
 {
 private:
-  double getDistance(const geometry_msgs::msg::Point & point0, const geometry_msgs::msg::Point & point1);
+  double getDistance(
+    const geometry_msgs::msg::Point & point0,
+    const geometry_msgs::msg::Point & point1);
   geometry_msgs::msg::Point getCentroid(const sensor_msgs::msg::PointCloud2 & pointcloud);
   Eigen::MatrixXi can_assgin_matrix_;
   Eigen::MatrixXd max_dist_matrix_;
@@ -37,11 +39,11 @@ private:
 
 public:
   DataAssociation();
-  bool assign(
+  void assign(
     const Eigen::MatrixXd & src, std::unordered_map<int, int> & direct_assignment,
     std::unordered_map<int, int> & reverse_assignment);
   Eigen::MatrixXd calcScoreMatrix(
     const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & cluster0,
     const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & cluster1);
-  virtual ~DataAssociation(){};
+  virtual ~DataAssociation() {}
 };
