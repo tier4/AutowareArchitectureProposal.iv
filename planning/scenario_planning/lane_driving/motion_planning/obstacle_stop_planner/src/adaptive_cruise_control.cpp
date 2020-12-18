@@ -539,7 +539,7 @@ void AdaptiveCruiseController::insertMaxVelocityToPath(
     target_acc, param_.min_standard_acceleration, param_.max_standard_acceleration);
   double pre_vel = current_vel;
   double total_dist = -margin_to_insert;
-  for (int i = 1; i < output_trajectory->points.size(); i++) {
+  for (size_t i = 1; i < output_trajectory->points.size(); i++) {
     // calc velocity of each point by gradient deceleration
     const auto current_p = output_trajectory->points[i];
     const auto prev_p = output_trajectory->points[i - 1];
@@ -576,7 +576,7 @@ void AdaptiveCruiseController::registerQueToVelocity(
 {
   // remove old msg from que
   std::vector<int> delete_idxs;
-  for (int i = 0; i < est_vel_que_.size(); i++) {
+  for (size_t i = 0; i < est_vel_que_.size(); i++) {
     if (
       rclcpp::Clock().now().seconds() - est_vel_que_.at(i).header.stamp.sec >
       param_.valid_vel_que_time)
