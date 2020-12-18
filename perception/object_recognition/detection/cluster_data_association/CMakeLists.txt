@@ -1,4 +1,4 @@
- cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.5)
 project(cluster_data_association)
 
 find_package(PCL REQUIRED COMPONENTS common filters)
