@@ -23,9 +23,16 @@ class PacmodAdditionalDebugPublisherNode
 {
 private:
   ros::NodeHandle nh_, pnh_;
-  ros::Publisher pub_;
+  ros::Publisher debug_pub_;
+  ros::Publisher accel_cal_rpt_pub_;
+  ros::Publisher brake_cal_rpt_pub_;
+  ros::Publisher steer_cal_rpt_pub_;
   ros::Subscriber sub_;
   std_msgs::Float32MultiArray debug_value_;
+  std_msgs::Float32MultiArray accel_cal_rpt_;
+  std_msgs::Float32MultiArray brake_cal_rpt_;
+  std_msgs::Float32MultiArray steer_cal_rpt_;
+  bool calibration_active_;
   void canTxCallback(const can_msgs::FrameConstPtr & msg);
 
 public:
