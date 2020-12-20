@@ -82,6 +82,7 @@ bool DataAssociation::assign(
       ++itr;
     }
   }
+  return true;
 }
 
 Eigen::MatrixXd DataAssociation::calcScoreMatrix(
