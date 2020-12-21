@@ -1,18 +1,16 @@
-/*
- * Copyright 2020 TierIV. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 TierIV
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /*
  * Copyright 2018-2019 Autoware Foundation. All rights reserved.
@@ -46,10 +44,12 @@
  * limitations under the License.
  *****************************************************************************/
 
-#include "lidar_apollo_instance_segmentation/cluster2d.h"
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include "lidar_apollo_instance_segmentation/cluster2d.hpp"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "pcl_conversions/pcl_conversions.h"
 
-geometry_msgs::Quaternion getQuaternionFromRPY(const double r, const double p, const double y){
+geometry_msgs::msg::Quaternion getQuaternionFromRPY(const double r, const double p, const double y)
+{
   tf2::Quaternion q;
   q.setRPY(r, p, y);
   return tf2::toMsg(q);
@@ -106,7 +106,6 @@ void Cluster2D::cluster(
 
   std::vector<std::vector<Node>> nodes(rows_, std::vector<Node>(cols_, Node()));
 
-  size_t tot_point_num = pc_ptr_->size();
   valid_indices_in_pc_ = &(valid_indices.indices);
   point2grid_.assign(valid_indices_in_pc_->size(), -1);
 
@@ -130,7 +129,7 @@ void Cluster2D::cluster(
       Node * node = &nodes[row][col];
       DisjointSetMakeSet(node);
       node->is_object = (use_all_grids_for_clustering || nodes[row][col].point_num > 0) &&
-                        (*(category_pt_data + grid) >= objectness_thresh);
+        (*(category_pt_data + grid) >= objectness_thresh);
       int center_row = std::round(row + instance_pt_x_data[grid] * scale_);
       int center_col = std::round(col + instance_pt_y_data[grid] * scale_);
       center_row = std::min(std::max(center_row, 0), rows_ - 1);
@@ -240,35 +239,37 @@ void Cluster2D::classify(const std::shared_ptr<float> & inferred_data)
   }
 }
 
-autoware_perception_msgs::DynamicObjectWithFeature Cluster2D::obstacleToObject(
-  const Obstacle & in_obstacle, const std_msgs::Header & in_header)
+autoware_perception_msgs::msg::DynamicObjectWithFeature Cluster2D::obstacleToObject(
+  const Obstacle & in_obstacle, const std_msgs::msg::Header & in_header)
 {
-  autoware_perception_msgs::DynamicObjectWithFeature resulting_object;
+  autoware_perception_msgs::msg::DynamicObjectWithFeature resulting_object;
   // pcl::PointCloud<pcl::PointXYZI> in_cluster = *(in_obstacle.cloud_ptr);
 
   resulting_object.object.semantic.confidence = in_obstacle.score;
   if (in_obstacle.meta_type == MetaType::META_PEDESTRIAN) {
-    resulting_object.object.semantic.type = autoware_perception_msgs::Semantic::PEDESTRIAN;
+    resulting_object.object.semantic.type = autoware_perception_msgs::msg::Semantic::PEDESTRIAN;
   } else if (in_obstacle.meta_type == MetaType::META_NONMOT) {
-    resulting_object.object.semantic.type = autoware_perception_msgs::Semantic::MOTORBIKE;
+    resulting_object.object.semantic.type = autoware_perception_msgs::msg::Semantic::MOTORBIKE;
   } else if (in_obstacle.meta_type == MetaType::META_SMALLMOT) {
-    resulting_object.object.semantic.type = autoware_perception_msgs::Semantic::CAR;
+    resulting_object.object.semantic.type = autoware_perception_msgs::msg::Semantic::CAR;
   } else if (in_obstacle.meta_type == MetaType::META_BIGMOT) {
-    resulting_object.object.semantic.type = autoware_perception_msgs::Semantic::BUS;
+    resulting_object.object.semantic.type = autoware_perception_msgs::msg::Semantic::BUS;
   } else {
-    // resulting_object.object.semantic.type = autoware_perception_msgs::Semantic::PEDESTRIAN;
-    resulting_object.object.semantic.type = autoware_perception_msgs::Semantic::UNKNOWN;
+    // resulting_object.object.semantic.type = autoware_perception_msgs::msg::Semantic::PEDESTRIAN;
+    resulting_object.object.semantic.type = autoware_perception_msgs::msg::Semantic::UNKNOWN;
   }
 
   pcl::PointXYZ min_point;
   pcl::PointXYZ max_point;
-  for (auto pit = in_obstacle.cloud_ptr->points.begin(); pit != in_obstacle.cloud_ptr->points.end(); ++pit) {
-    if (pit->x < min_point.x) min_point.x = pit->x;
-    if (pit->y < min_point.y) min_point.y = pit->y;
-    if (pit->z < min_point.z) min_point.z = pit->z;
-    if (pit->x > max_point.x) max_point.x = pit->x;
-    if (pit->y > max_point.y) max_point.y = pit->y;
-    if (pit->z > max_point.z) max_point.z = pit->z;
+  for (auto pit = in_obstacle.cloud_ptr->points.begin(); pit != in_obstacle.cloud_ptr->points.end();
+    ++pit)
+  {
+    if (pit->x < min_point.x) {min_point.x = pit->x;}
+    if (pit->y < min_point.y) {min_point.y = pit->y;}
+    if (pit->z < min_point.z) {min_point.z = pit->z;}
+    if (pit->x > max_point.x) {max_point.x = pit->x;}
+    if (pit->y > max_point.y) {max_point.y = pit->y;}
+    if (pit->z > max_point.z) {max_point.z = pit->z;}
   }
 
 
@@ -276,22 +277,23 @@ autoware_perception_msgs::DynamicObjectWithFeature Cluster2D::obstacleToObject(
   pcl::PointCloud<pcl::PointXYZI> cluster;
   const float min_height = min_point.z + ((max_point.z - min_point.z) * 0.1f);
   for (auto pit = in_obstacle.cloud_ptr->points.begin();
-       pit != in_obstacle.cloud_ptr->points.end(); ++pit) {
-    if (min_height < pit->z) cluster.points.push_back(*pit);
+    pit != in_obstacle.cloud_ptr->points.end(); ++pit)
+  {
+    if (min_height < pit->z) {cluster.points.push_back(*pit);}
   }
   min_point.z = 0.0;
   max_point.z = 0.0;
   for (auto pit = cluster.points.begin(); pit != cluster.points.end(); ++pit) {
-    if (pit->z < min_point.z) min_point.z = pit->z;
-    if (pit->z > max_point.z) max_point.z = pit->z;
+    if (pit->z < min_point.z) {min_point.z = pit->z;}
+    if (pit->z > max_point.z) {max_point.z = pit->z;}
   }
-  sensor_msgs::PointCloud2 ros_pc;
+  sensor_msgs::msg::PointCloud2 ros_pc;
   pcl::toROSMsg(cluster, ros_pc);
   resulting_object.feature.cluster = ros_pc;
   resulting_object.feature.cluster.header = in_header;
 
   // position
-  const float height =  max_point.z - min_point.z;
+  const float height = max_point.z - min_point.z;
   const float length = max_point.x - min_point.x;
   const float width = max_point.y - min_point.y;
   resulting_object.object.state.pose_covariance.pose.position.x = min_point.x + length / 2;
@@ -299,15 +301,17 @@ autoware_perception_msgs::DynamicObjectWithFeature Cluster2D::obstacleToObject(
   resulting_object.object.state.pose_covariance.pose.position.z = min_point.z + height / 2;
 
 
-  resulting_object.object.state.pose_covariance.pose.orientation = getQuaternionFromRPY(0.0, 0.0, in_obstacle.heading);
+  resulting_object.object.state.pose_covariance.pose.orientation = getQuaternionFromRPY(
+    0.0, 0.0,
+    in_obstacle.heading);
   resulting_object.object.state.orientation_reliable = false;
   return resulting_object;
 }
 
 void Cluster2D::getObjects(
   const float confidence_thresh, const float height_thresh, const int min_pts_num,
-  autoware_perception_msgs::DynamicObjectWithFeatureArray & objects,
-  const std_msgs::Header & in_header)
+  autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & objects,
+  const std_msgs::msg::Header & in_header)
 {
   for (size_t i = 0; i < point2grid_.size(); ++i) {
     int grid = point2grid_[i];
@@ -322,7 +326,8 @@ void Cluster2D::getObjects(
     if (obstacle_id >= 0 && obstacles_[obstacle_id].score >= confidence_thresh) {
       if (
         height_thresh < 0 ||
-        pc_ptr_->points[point_id].z <= obstacles_[obstacle_id].height + height_thresh) {
+        pc_ptr_->points[point_id].z <= obstacles_[obstacle_id].height + height_thresh)
+      {
         obstacles_[obstacle_id].cloud_ptr->push_back(pc_ptr_->points[point_id]);
       }
     }
@@ -333,7 +338,9 @@ void Cluster2D::getObjects(
     if (static_cast<int>(obs->cloud_ptr->size()) < min_pts_num) {
       continue;
     }
-    autoware_perception_msgs::DynamicObjectWithFeature out_obj = obstacleToObject(*obs, in_header);
+    autoware_perception_msgs::msg::DynamicObjectWithFeature out_obj = obstacleToObject(
+      *obs,
+      in_header);
     objects.feature_objects.push_back(out_obj);
   }
   objects.header = in_header;

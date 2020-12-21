@@ -1,27 +1,31 @@
-/*
- * Copyright 2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include <lane_change_planner/data_manager.h>
-#include <lane_change_planner/route_handler.h>
-#include <lane_change_planner/state/blocked_by_obstacle.h>
-#include <lane_change_planner/state/common_functions.h>
-#include <lane_change_planner/utilities.h>
+#include "lane_change_planner/state/blocked_by_obstacle.hpp"
 
-#include <lanelet2_extension/utility/message_conversion.h>
-#include <lanelet2_extension/utility/utilities.h>
+#include <algorithm>
+#include <limits>
+#include <memory>
+#include <vector>
+
+#include "lane_change_planner/data_manager.hpp"
+#include "lane_change_planner/route_handler.hpp"
+#include "lane_change_planner/state/common_functions.hpp"
+#include "lane_change_planner/utilities.hpp"
+
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
 
 namespace lane_change_planner
 {
@@ -32,7 +36,7 @@ BlockedByObstacleState::BlockedByObstacleState(
 {
 }
 
-State BlockedByObstacleState::getCurrentState() const { return State::BLOCKED_BY_OBSTACLE; }
+State BlockedByObstacleState::getCurrentState() const {return State::BLOCKED_BY_OBSTACLE;}
 
 void BlockedByObstacleState::entry()
 {
@@ -65,7 +69,9 @@ void BlockedByObstacleState::update()
   // update lanes
   {
     if (!route_handler_ptr_->getClosestLaneletWithinRoute(current_pose_.pose, &current_lane)) {
-      RCLCPP_ERROR(data_manager_ptr_->getLogger(), "failed to find closest lanelet within route!!!");
+      RCLCPP_ERROR(
+        data_manager_ptr_->getLogger(),
+        "failed to find closest lanelet within route!!!");
       return;
     }
     lanelet::ConstLanelet right_lane;
@@ -129,10 +135,12 @@ void BlockedByObstacleState::update()
     // select valid path
     LaneChangePath selected_path;
     if (state_machine::common_functions::selectLaneChangePath(
-          lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
-          dynamic_objects_, current_pose_.pose, current_twist_->twist,
-          route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
-          route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path, data_manager_ptr_->getLogger(), data_manager_ptr_->getClock())) {
+        lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
+        dynamic_objects_, current_pose_.pose, current_twist_->twist,
+        route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
+        route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path,
+        data_manager_ptr_->getLogger(), data_manager_ptr_->getClock()))
+    {
       found_safe_path_ = true;
     }
     debug_data_.selected_path = selected_path.path;
@@ -160,11 +168,12 @@ void BlockedByObstacleState::update()
     // select valid path
     LaneChangePath selected_path;
     if (state_machine::common_functions::selectLaneChangePath(
-          lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
-          dynamic_objects_, current_pose_.pose, current_twist_->twist,
-          route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
-          route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path,
-          data_manager_ptr_->getLogger(), data_manager_ptr_->getClock())) {
+        lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
+        dynamic_objects_, current_pose_.pose, current_twist_->twist,
+        route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
+        route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path,
+        data_manager_ptr_->getLogger(), data_manager_ptr_->getClock()))
+    {
       found_safe_path_ = true;
     }
 
@@ -211,7 +220,8 @@ autoware_planning_msgs::msg::PathWithLaneId BlockedByObstacleState::setStopPoint
 
   util::FrenetCoordinate3d vehicle_frenet;
   if (!util::convertToFrenetCoordinate3d(
-        path_linestring, current_pose_.pose.position, &vehicle_frenet)) {
+      path_linestring, current_pose_.pose.position, &vehicle_frenet))
+  {
     return path;
   }
 
@@ -222,7 +232,8 @@ autoware_planning_msgs::msg::PathWithLaneId BlockedByObstacleState::setStopPoint
   for (const auto & object : blocking_objects) {
     util::FrenetCoordinate3d object_frenet;
     if (!util::convertToFrenetCoordinate3d(
-          path_linestring, object.state.pose_covariance.pose.position, &object_frenet)) {
+        path_linestring, object.state.pose_covariance.pose.position, &object_frenet))
+    {
       continue;
     }
     if (object_frenet.length > vehicle_frenet.length && object_frenet.length < closest_distance) {
@@ -286,8 +297,8 @@ BlockedByObstacleState::getBlockingObstacles() const
 
   if (polygon.size() < 3) {
     RCLCPP_WARN_STREAM(
-      data_manager_ptr_->getLogger(), "could not get polygon from lanelet with arc lengths: "
-                                        << arc.length << " to " << arc.length + check_distance);
+      data_manager_ptr_->getLogger(), "could not get polygon from lanelet with arc lengths: " <<
+        arc.length << " to " << arc.length + check_distance);
     return blocking_obstacles;
   }
 
@@ -306,14 +317,14 @@ BlockedByObstacleState::getBlockingObstacles() const
   return blocking_obstacles;
 }
 
-bool BlockedByObstacleState::isLaneChangeApproved() const { return lane_change_approved_; }
-bool BlockedByObstacleState::laneChangeForcedByOperator() const { return force_lane_change_; }
-bool BlockedByObstacleState::isLaneChangeAvailable() const { return status_.lane_change_available; }
+bool BlockedByObstacleState::isLaneChangeApproved() const {return lane_change_approved_;}
+bool BlockedByObstacleState::laneChangeForcedByOperator() const {return force_lane_change_;}
+bool BlockedByObstacleState::isLaneChangeAvailable() const {return status_.lane_change_available;}
 
 bool BlockedByObstacleState::hasEnoughDistanceToComeBack(
   const lanelet::ConstLanelets & target_lanes) const
 {
-  if (target_lanes.empty()) return false;
+  if (target_lanes.empty()) {return false;}
   const auto static_objects = getBlockingObstacles();
 
   // make sure that there is at least minimum lane change length after obstacle.
@@ -328,7 +339,7 @@ bool BlockedByObstacleState::hasEnoughDistanceToComeBack(
   return true;
 }
 
-bool BlockedByObstacleState::foundSafeLaneChangePath() const { return found_safe_path_; }
-bool BlockedByObstacleState::isLaneChangeReady() const { return status_.lane_change_ready; }
+bool BlockedByObstacleState::foundSafeLaneChangePath() const {return found_safe_path_;}
+bool BlockedByObstacleState::isLaneChangeReady() const {return status_.lane_change_ready;}
 
 }  // namespace lane_change_planner

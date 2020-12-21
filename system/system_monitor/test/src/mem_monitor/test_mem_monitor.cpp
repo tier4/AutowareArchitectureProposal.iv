@@ -1,26 +1,24 @@
-/*
- * Copyright 2020 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include <gtest/gtest.h>
-#include <ros/ros.h>
-#include <system_monitor/mem_monitor/mem_monitor.h>
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/format.hpp>
-#include <boost/process.hpp>
+#include "gtest/gtest.h"
+#include "ros/ros.h"
+#include "system_monitor/mem_monitor/mem_monitor.hpp"
+#include "boost/algorithm/string.hpp"
+#include "boost/filesystem.hpp"
+#include "boost/format.hpp"
+#include "boost/process.hpp"
 #include <string>
 
 namespace fs = boost::filesystem;
@@ -33,17 +31,18 @@ class TestMemMonitor : public MemMonitor
   friend class MemMonitorTestSuite;
 
 public:
-  TestMemMonitor(const ros::NodeHandle & nh, const ros::NodeHandle & pnh) : MemMonitor(nh, pnh) {}
+  TestMemMonitor(const ros::NodeHandle & nh, const ros::NodeHandle & pnh)
+  : MemMonitor(nh, pnh) {}
 
   void diagCallback(const diagnostic_msgs::DiagnosticArray::ConstPtr & diag_msg)
   {
     array_ = *diag_msg;
   }
 
-  void changeUsageWarn(float usage_warn) { usage_warn_ = usage_warn; }
-  void changeUsageError(float usage_error) { usage_error_ = usage_error; }
+  void changeUsageWarn(float usage_warn) {usage_warn_ = usage_warn;}
+  void changeUsageError(float usage_error) {usage_error_ = usage_error;}
 
-  void update(void) { updater_.force_update(); }
+  void update(void) {updater_.force_update();}
 
   const std::string removePrefix(const std::string & name)
   {
@@ -69,7 +68,8 @@ private:
 class MemMonitorTestSuite : public ::testing::Test
 {
 public:
-  MemMonitorTestSuite() : nh_(""), pnh_("~")
+  MemMonitorTestSuite()
+  : nh_(""), pnh_("~")
   {
     // Get directory of executable
     const fs::path exe_path(argv_[0]);
@@ -91,13 +91,13 @@ protected:
     sub_ = nh_.subscribe("/diagnostics", 1000, &TestMemMonitor::diagCallback, monitor_.get());
 
     // Remove dummy executable if exists
-    if (fs::exists(free_)) fs::remove(free_);
+    if (fs::exists(free_)) {fs::remove(free_);}
   }
 
   void TearDown(void)
   {
     // Remove dummy executable if exists
-    if (fs::exists(free_)) fs::remove(free_);
+    if (fs::exists(free_)) {fs::remove(free_);}
   }
 
   bool findValue(const DiagStatus status, const std::string & key, std::string & value)  // NOLINT

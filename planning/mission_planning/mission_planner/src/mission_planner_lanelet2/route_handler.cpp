@@ -1,21 +1,20 @@
-/*
- * Copyright 2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include <mission_planner/lanelet2_impl/route_handler.h>
-#include <rclcpp/rclcpp.hpp>
+#include "mission_planner/lanelet2_impl/route_handler.hpp"
+
+#include "rclcpp/rclcpp.hpp"
 
 namespace mission_planner
 {
@@ -208,7 +207,9 @@ lanelet::ConstLanelets RouteHandler::getPreviousLaneletSequence(
   const lanelet::ConstLanelets & lanelet_sequence) const
 {
   lanelet::ConstLanelets previous_lanelet_sequence;
-  if (lanelet_sequence.empty()) return previous_lanelet_sequence;
+  if (lanelet_sequence.empty()) {
+    return previous_lanelet_sequence;
+  }
 
   auto first_lane = lanelet_sequence.front();
   if (exists(start_lanelets_, first_lane)) {
@@ -394,7 +395,9 @@ lanelet::ConstLanelets RouteHandler::getNextLaneSequence(
   const lanelet::ConstLanelets & lane_sequence) const
 {
   lanelet::ConstLanelets next_lane_sequence;
-  if (lane_sequence.empty()) return next_lane_sequence;
+  if (lane_sequence.empty()) {
+    return next_lane_sequence;
+  }
   lanelet::ConstLanelet final_lanelet = lane_sequence.back();
   lanelet::ConstLanelet next_lanelet;
   if (!getNextLaneletWithinRoute(final_lanelet, &next_lanelet)) {

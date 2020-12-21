@@ -1,36 +1,32 @@
-/*
- * Copyright 2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include <mission_planner/lanelet2_impl/mission_planner_lanelet2.h>
-#include <mission_planner/lanelet2_impl/route_handler.h>
-#include <mission_planner/lanelet2_impl/utility_functions.h>
-
-#include <tf2/utils.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-
-#include <lanelet2_core/geometry/Lanelet.h>
-#include <lanelet2_routing/Route.h>
-#include <lanelet2_routing/RoutingCost.h>
-
-#include <lanelet2_extension/utility/message_conversion.h>
-#include <lanelet2_extension/utility/query.h>
-#include <lanelet2_extension/utility/utilities.h>
-#include <lanelet2_extension/visualization/visualization.h>
+#include "mission_planner/lanelet2_impl/mission_planner_lanelet2.hpp"
 
 #include <unordered_set>
+
+#include "lanelet2_core/geometry/Lanelet.h"
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "lanelet2_extension/utility/query.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
+#include "lanelet2_extension/visualization/visualization.hpp"
+#include "lanelet2_routing/Route.h"
+#include "lanelet2_routing/RoutingCost.h"
+#include "mission_planner/lanelet2_impl/route_handler.hpp"
+#include "mission_planner/lanelet2_impl/utility_functions.hpp"
+#include "tf2/utils.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 namespace
 {
@@ -69,10 +65,11 @@ constexpr double normalizeRadian(
   const double rad, const double min_rad = -M_PI, const double max_rad = M_PI)
 {
   const auto value = std::fmod(rad, 2 * M_PI);
-  if (min_rad < value && value <= max_rad)
+  if (min_rad < value && value <= max_rad) {
     return value;
-  else
+  } else {
     return value - std::copysign(2 * M_PI, value);
+  }
 }
 
 bool isInLane(const lanelet::ConstLanelet & lanelet, const lanelet::ConstPoint3d & point)
@@ -126,10 +123,14 @@ MissionPlannerLanelet2::MissionPlannerLanelet2()
 : MissionPlanner("mission_planner_node"), is_graph_ready_(false)
 {
   using std::placeholders::_1;
-  map_subscriber_ = create_subscription<autoware_lanelet2_msgs::msg::MapBin>("input/vector_map", 10, std::bind(&MissionPlannerLanelet2::mapCallback, this, _1));
+  map_subscriber_ = create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
+    "input/vector_map", rclcpp::QoS{10}.transient_local(), std::bind(
+      &MissionPlannerLanelet2::mapCallback, this,
+      _1));
 }
 
-void MissionPlannerLanelet2::mapCallback(const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr msg)
+void MissionPlannerLanelet2::mapCallback(
+  const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr msg)
 {
   lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(
@@ -137,7 +138,7 @@ void MissionPlannerLanelet2::mapCallback(const autoware_lanelet2_msgs::msg::MapB
   is_graph_ready_ = true;
 }
 
-bool MissionPlannerLanelet2::isRoutingGraphReady() const { return (is_graph_ready_); }
+bool MissionPlannerLanelet2::isRoutingGraphReady() const { return is_graph_ready_; }
 
 void MissionPlannerLanelet2::visualizeRoute(const autoware_planning_msgs::msg::Route & route) const
 {
@@ -322,7 +323,9 @@ RouteSections MissionPlannerLanelet2::createRouteSections(
 {
   RouteSections route_sections;
 
-  if (main_path.empty()) return route_sections;
+  if (main_path.empty()) {
+    return route_sections;
+  }
 
   for (const auto & main_llt : main_path) {
     autoware_planning_msgs::msg::RouteSection route_section_msg;

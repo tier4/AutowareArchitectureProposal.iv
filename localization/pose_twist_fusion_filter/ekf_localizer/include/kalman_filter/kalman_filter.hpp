@@ -1,23 +1,22 @@
-/*
- * Copyright 2018-2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2018-2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#pragma once
+#ifndef KALMAN_FILTER__KALMAN_FILTER_HPP_
+#define KALMAN_FILTER__KALMAN_FILTER_HPP_
 
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/LU>
+#include "eigen3/Eigen/Core"
+#include "eigen3/Eigen/LU"
 
 /**
  * @file kalman_filter.h
@@ -206,3 +205,4 @@ protected:
   Eigen::MatrixXd R_;  //!< @brief covariance matrix for measurement model y[k] = C * x[k]
   Eigen::MatrixXd P_;  //!< @brief covariance of estimated state
 };
+#endif  // KALMAN_FILTER__KALMAN_FILTER_HPP_

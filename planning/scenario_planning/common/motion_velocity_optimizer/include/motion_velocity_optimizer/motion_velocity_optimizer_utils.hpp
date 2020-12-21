@@ -1,26 +1,28 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#ifndef MOTION_VELOCITY_OPTIMIZER__MOTION_VELOCITY_OPTIMIZER_UTILS_HPP_
+#define MOTION_VELOCITY_OPTIMIZER__MOTION_VELOCITY_OPTIMIZER_UTILS_HPP_
 
 #include <iostream>
+#include <vector>
 
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <tf2/utils.h>
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "tf2/utils.h"
 
-#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include "autoware_planning_msgs/msg/trajectory.hpp"
 
 namespace vpu
 {
@@ -34,12 +36,15 @@ double calcSquaredDist2d(
   const autoware_planning_msgs::msg::TrajectoryPoint & b);
 double calcDist2d(const geometry_msgs::msg::Point & a, const geometry_msgs::msg::Point & b);
 double calcDist2d(const geometry_msgs::msg::Pose & a, const geometry_msgs::msg::Pose & b);
-double calcDist2d(const geometry_msgs::msg::PoseStamped & a, const geometry_msgs::msg::PoseStamped & b);
+double calcDist2d(
+  const geometry_msgs::msg::PoseStamped & a,
+  const geometry_msgs::msg::PoseStamped & b);
 double calcDist2d(
   const autoware_planning_msgs::msg::TrajectoryPoint & a,
   const autoware_planning_msgs::msg::TrajectoryPoint & b);
 int calcClosestWaypoint(
-  const autoware_planning_msgs::msg::Trajectory & trajectory, const geometry_msgs::msg::Point & point);
+  const autoware_planning_msgs::msg::Trajectory & trajectory,
+  const geometry_msgs::msg::Point & point);
 int calcClosestWaypoint(
   const autoware_planning_msgs::msg::Trajectory & trajectory, const geometry_msgs::msg::Pose & pose,
   const double delta_yaw_threshold);
@@ -56,8 +61,12 @@ void calcTrajectoryIntervalDistance(
 void setZeroVelocity(autoware_planning_msgs::msg::Trajectory & trajectory);
 double getMaxVelocity(const autoware_planning_msgs::msg::Trajectory & trajectory);
 double getMaxAbsVelocity(const autoware_planning_msgs::msg::Trajectory & trajectory);
-void mininumVelocityFilter(const double & min_vel, autoware_planning_msgs::msg::Trajectory & trajectory);
-void maximumVelocityFilter(const double & max_vel, autoware_planning_msgs::msg::Trajectory & trajectory);
+void mininumVelocityFilter(
+  const double & min_vel,
+  autoware_planning_msgs::msg::Trajectory & trajectory);
+void maximumVelocityFilter(
+  const double & max_vel,
+  autoware_planning_msgs::msg::Trajectory & trajectory);
 void multiplyConstantToTrajectoryVelocity(
   const double & scalar, autoware_planning_msgs::msg::Trajectory & trajectory);
 void insertZeroVelocityAfterIdx(
@@ -72,6 +81,9 @@ void convertEulerAngleToMonotonic(std::vector<double> & a);
 geometry_msgs::msg::Quaternion getQuaternionFromYaw(double yaw);
 bool linearInterpTrajectory(
   const std::vector<double> & base_index,
-  const autoware_planning_msgs::msg::Trajectory & base_trajectory, const std::vector<double> & out_index,
+  const autoware_planning_msgs::msg::Trajectory & base_trajectory,
+  const std::vector<double> & out_index,
   autoware_planning_msgs::msg::Trajectory & out_trajectory);
 }  // namespace vpu
+
+#endif  // MOTION_VELOCITY_OPTIMIZER__MOTION_VELOCITY_OPTIMIZER_UTILS_HPP_

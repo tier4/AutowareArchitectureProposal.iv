@@ -1,37 +1,35 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include <opencv2/core.hpp>
-#include<rclcpp/clock.hpp>
+#include <string>
+#include <vector>
 
-#include <tf2/utils.h>
-
-#include <autoware_perception_msgs/msg/dynamic_object.hpp>
-#include <autoware_planning_msgs/msg/trajectory_point.hpp>
-#include <geometry_msgs/msg/pose.hpp>
-#include <nav_msgs/msg/occupancy_grid.hpp>
-#include <visualization_msgs/msg/marker.hpp>
-#include <visualization_msgs/msg/marker_array.hpp>
-
-#include "obstacle_avoidance_planner/debug.h"
-#include "obstacle_avoidance_planner/eb_path_optimizer.h"
-#include "obstacle_avoidance_planner/marker_helper.h"
-#include "obstacle_avoidance_planner/mpt_optimizer.h"
-#include "obstacle_avoidance_planner/process_cv.h"
-#include "obstacle_avoidance_planner/util.h"
+#include "obstacle_avoidance_planner/debug.hpp"
+#include "rclcpp/clock.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object.hpp"
+#include "autoware_planning_msgs/msg/trajectory_point.hpp"
+#include "geometry_msgs/msg/pose.hpp"
+#include "nav_msgs/msg/occupancy_grid.hpp"
+#include "obstacle_avoidance_planner/eb_path_optimizer.hpp"
+#include "obstacle_avoidance_planner/marker_helper.hpp"
+#include "obstacle_avoidance_planner/mpt_optimizer.hpp"
+#include "obstacle_avoidance_planner/process_cv.hpp"
+#include "obstacle_avoidance_planner/util.hpp"
+#include "opencv2/core.hpp"
+#include "tf2/utils.h"
+#include "visualization_msgs/msg/marker.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 
 visualization_msgs::msg::MarkerArray getDebugVisualizationMarker(
   const DebugData & debug_data,
@@ -334,36 +332,36 @@ visualization_msgs::msg::MarkerArray getDebugConstrainMarkers(
     constrain_range_text_marker.scale = createMarkerScale(0, 0, 0.1);
     constrain_range_text_marker.color = createMarkerColor(1.0, 0, 0, 0.99);
     constrain_range_text_marker.text = std::to_string(i) + std::string(" x ") +
-                                       std::to_string(constrain_range_text_marker.pose.position.x) +
-                                       std::string("y ") +
-                                       std::to_string(constrain_range_text_marker.pose.position.y);
+      std::to_string(constrain_range_text_marker.pose.position.x) +
+      std::string("y ") +
+      std::to_string(constrain_range_text_marker.pose.position.y);
     unique_id++;
     marker_array.markers.push_back(constrain_range_text_marker);
 
     constrain_range_text_marker.id = unique_id;
     constrain_range_text_marker.pose.position = constrain_ranges[i].top_right;
     constrain_range_text_marker.text = std::to_string(i) + std::string(" x ") +
-                                       std::to_string(constrain_range_text_marker.pose.position.x) +
-                                       std::string("y ") +
-                                       std::to_string(constrain_range_text_marker.pose.position.y);
+      std::to_string(constrain_range_text_marker.pose.position.x) +
+      std::string("y ") +
+      std::to_string(constrain_range_text_marker.pose.position.y);
     unique_id++;
     marker_array.markers.push_back(constrain_range_text_marker);
 
     constrain_range_text_marker.id = unique_id;
     constrain_range_text_marker.pose.position = constrain_ranges[i].bottom_left;
     constrain_range_text_marker.text = std::to_string(i) + std::string(" x ") +
-                                       std::to_string(constrain_range_text_marker.pose.position.x) +
-                                       std::string("y ") +
-                                       std::to_string(constrain_range_text_marker.pose.position.y);
+      std::to_string(constrain_range_text_marker.pose.position.x) +
+      std::string("y ") +
+      std::to_string(constrain_range_text_marker.pose.position.y);
     unique_id++;
     marker_array.markers.push_back(constrain_range_text_marker);
 
     constrain_range_text_marker.id = unique_id;
     constrain_range_text_marker.pose.position = constrain_ranges[i].bottom_right;
     constrain_range_text_marker.text = std::to_string(i) + std::string(" x ") +
-                                       std::to_string(constrain_range_text_marker.pose.position.x) +
-                                       std::string("y ") +
-                                       std::to_string(constrain_range_text_marker.pose.position.y);
+      std::to_string(constrain_range_text_marker.pose.position.x) +
+      std::string("y ") +
+      std::to_string(constrain_range_text_marker.pose.position.y);
     unique_id++;
     marker_array.markers.push_back(constrain_range_text_marker);
   }
@@ -385,7 +383,7 @@ visualization_msgs::msg::MarkerArray getObjectsMarkerArray(
   int32_t i = 0;
   for (const auto & object : objects) {
     marker.id = i++;
-    marker.lifetime = rclcpp::Duration(1.0);
+    marker.lifetime = rclcpp::Duration::from_seconds(1.0);
     marker.type = visualization_msgs::msg::Marker::CUBE;
     marker.action = visualization_msgs::msg::Marker::ADD;
     marker.pose = object.state.pose_covariance.pose;
@@ -412,7 +410,7 @@ visualization_msgs::msg::MarkerArray getRectanglesMarkerArray(
   int unique_id = 0;
   for (const auto & rect : rects) {
     marker.id = unique_id++;
-    marker.lifetime = rclcpp::Duration(1.0);
+    marker.lifetime = rclcpp::Duration::from_seconds(1.0);
     marker.action = visualization_msgs::msg::Marker::ADD;
     marker.pose.orientation.w = 1.0;
     marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
@@ -647,11 +645,13 @@ visualization_msgs::msg::MarkerArray getTopBoundsLineMarkerArray(
     geometry_msgs::msg::Point rel_lb;
     rel_lb.x = 0;
     rel_lb.y = bounds[i].c1.lb;
-    geometry_msgs::msg::Point abs_lb = util::transformToAbsoluteCoordinate2D(rel_lb, candidate_top[i]);
+    geometry_msgs::msg::Point abs_lb =
+      util::transformToAbsoluteCoordinate2D(rel_lb, candidate_top[i]);
     geometry_msgs::msg::Point rel_ub;
     rel_ub.x = 0;
     rel_ub.y = bounds[i].c1.ub;
-    geometry_msgs::msg::Point abs_ub = util::transformToAbsoluteCoordinate2D(rel_ub, candidate_top[i]);
+    geometry_msgs::msg::Point abs_ub =
+      util::transformToAbsoluteCoordinate2D(rel_ub, candidate_top[i]);
     marker.points.push_back(abs_lb);
     marker.points.push_back(abs_ub);
     msg.markers.push_back(marker);
@@ -672,7 +672,7 @@ visualization_msgs::msg::MarkerArray getVirtualWallMarkerArray(
   marker.header.frame_id = "map";
   marker.header.stamp = current_time;
   marker.ns = ns;
-  marker.lifetime = rclcpp::Duration(1.0);
+  marker.lifetime = rclcpp::Duration::from_seconds(1.0);
   marker.type = visualization_msgs::msg::Marker::CUBE;
   marker.action = visualization_msgs::msg::Marker::ADD;
   marker.pose = pose;
@@ -694,7 +694,7 @@ visualization_msgs::msg::MarkerArray getVirtualWallTextMarkerArray(
   marker.header.frame_id = "map";
   marker.header.stamp = current_time;
   marker.ns = ns;
-  marker.lifetime = rclcpp::Duration(1.0);
+  marker.lifetime = rclcpp::Duration::from_seconds(1.0);
   marker.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
   marker.action = visualization_msgs::msg::Marker::ADD;
   marker.pose = pose;
@@ -712,8 +712,9 @@ nav_msgs::msg::OccupancyGrid getDebugCostmap(
   clearance_map.copyTo(tmp);
   cv::normalize(tmp, tmp, 0, 255, cv::NORM_MINMAX, CV_8UC1);
   nav_msgs::msg::OccupancyGrid clearance_map_in_og = occupancy_grid;
-  tmp.forEach<unsigned char>([&](const unsigned char & value, const int * position) -> void {
-    process_cv::putOccupancyGridValue(clearance_map_in_og, position[0], position[1], value);
-  });
+  tmp.forEach<unsigned char>(
+    [&](const unsigned char & value, const int * position) -> void {
+      process_cv::putOccupancyGridValue(clearance_map_in_og, position[0], position[1], value);
+    });
   return clearance_map_in_og;
 }

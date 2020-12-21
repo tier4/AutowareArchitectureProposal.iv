@@ -3,18 +3,16 @@ project(shape_estimation)
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
   add_compile_options(-Wno-unused-parameter)
 endif()
 
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(autoware_perception_msgs REQUIRED)
-find_package(tf2 REQUIRED)
-find_package(tf2_geometry_msgs REQUIRED)
-find_package(tf2_eigen REQUIRED)
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
 find_package(PCL REQUIRED COMPONENTS common)
 find_package(pcl_conversions REQUIRED)
@@ -64,7 +62,7 @@ set(SHAPE_ESTIMATION_HPPS
   src/corrector/yaw_fixed/no_corrector.hpp
 )
 
-add_executable(shape_estimation
+ament_auto_add_executable(shape_estimation
   ${SHAPE_ESTIMATION_CPPS}
   ${SHAPE_ESTIMATION_HPPS}
 )
@@ -89,16 +87,11 @@ target_include_directories(shape_estimation
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-install(TARGETS shape_estimation
-  ARCHIVE DESTINATION lib/${PROJECT_NAME}
-  LIBRARY DESTINATION lib/${PROJECT_NAME}
-  RUNTIME DESTINATION bin/${PROJECT_NAME}
-)
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
-install(
-  DIRECTORY
-    launch
-  DESTINATION share/${PROJECT_NAME}
+ament_auto_package(INSTALL_TO_SHARE
+  launch
 )
-
-ament_package()

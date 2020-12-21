@@ -1,26 +1,32 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-#include <scene_module/detection_area/manager.h>
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include <tf2/utils.h>
+#include "scene_module/detection_area/manager.hpp"
+
+#include <memory>
+#include <set>
+#include <string>
+#include <unordered_map>
+#include <utility>
+
+#include "tf2/utils.h"
 
 namespace
 {
 std::unordered_map<int64_t, lanelet::DetectionAreaConstPtr> getDetectionAreaRegElemsOnPath(
-  const autoware_planning_msgs::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const lanelet::LaneletMapPtr lanelet_map)
 {
   std::unordered_map<int64_t, lanelet::DetectionAreaConstPtr> detection_area_reg_elems;
 
@@ -37,7 +43,8 @@ std::unordered_map<int64_t, lanelet::DetectionAreaConstPtr> getDetectionAreaRegE
 }
 
 std::set<int64_t> getLaneletIdSetOnPath(
-  const autoware_planning_msgs::PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const lanelet::LaneletMapPtr lanelet_map)
 {
   std::set<int64_t> lanelet_id_set;
   for (const auto & regelem : getDetectionAreaRegElemsOnPath(path, lanelet_map)) {
@@ -47,36 +54,37 @@ std::set<int64_t> getLaneletIdSetOnPath(
 }
 }  // namespace
 
-DetectionAreaModuleManager::DetectionAreaModuleManager()
-: SceneModuleManagerInterface(getModuleName())
+DetectionAreaModuleManager::DetectionAreaModuleManager(rclcpp::Node & node)
+: SceneModuleManagerInterface(node, getModuleName())
 {
-  ros::NodeHandle pnh("~");
   const std::string ns(getModuleName());
-  auto & p = planner_param_;
-  pnh.param(ns + "/stop_margin", p.stop_margin, 0.0);
+  planner_param_.stop_margin = node.declare_parameter(ns + "/stop_margin", 0.0);
 }
 
 void DetectionAreaModuleManager::launchNewModules(
-  const autoware_planning_msgs::PathWithLaneId & path)
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   for (const auto & detection_area_reg_elem :
-       getDetectionAreaRegElemsOnPath(path, planner_data_->lanelet_map)) {
+    getDetectionAreaRegElemsOnPath(path, planner_data_->lanelet_map))
+  {
     // Use lanelet_id to unregister module when the route is changed
     const auto module_id = detection_area_reg_elem.first;
     if (!isModuleRegistered(module_id)) {
-      registerModule(std::make_shared<DetectionAreaModule>(
-        module_id, *(detection_area_reg_elem.second), planner_param_));
+      registerModule(
+        std::make_shared<DetectionAreaModule>(
+          module_id, *(detection_area_reg_elem.second), planner_param_,
+          logger_.get_child("detection_area_module"), clock_));
     }
   }
 }
 
 std::function<bool(const std::shared_ptr<SceneModuleInterface> &)>
 DetectionAreaModuleManager::getModuleExpiredFunction(
-  const autoware_planning_msgs::PathWithLaneId & path)
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   const auto lanelet_id_set = getLaneletIdSetOnPath(path, planner_data_->lanelet_map);
 
   return [lanelet_id_set](const std::shared_ptr<SceneModuleInterface> & scene_module) {
-    return lanelet_id_set.count(scene_module->getModuleId()) == 0;
-  };
+           return lanelet_id_set.count(scene_module->getModuleId()) == 0;
+         };
 }

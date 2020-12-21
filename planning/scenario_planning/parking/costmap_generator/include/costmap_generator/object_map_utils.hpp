@@ -1,18 +1,16 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /*
  * Copyright 2018-2019 Autoware Foundation. All rights reserved.
@@ -32,18 +30,21 @@
  *
  */
 
-#ifndef PROJECT_OBJECT_MAP_UTILS_H
-#define PROJECT_OBJECT_MAP_UTILS_H
+#ifndef COSTMAP_GENERATOR__OBJECT_MAP_UTILS_HPP_
+#define COSTMAP_GENERATOR__OBJECT_MAP_UTILS_HPP_
 
-#include <ros/ros.h>
+#include <string>
+#include <vector>
 
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2_ros/buffer.h>
-#include <tf2_ros/transform_listener.h>
-#include <grid_map_cv/grid_map_cv.hpp>
-#include <grid_map_ros/grid_map_ros.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <grid_map_msgs/GridMap.h>
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "tf2_ros/buffer.h"
+#include "tf2_ros/transform_listener.h"
+#include "grid_map_cv/grid_map_cv.hpp"
+#include "grid_map_ros/grid_map_ros.hpp"
+
+#include "grid_map_msgs/msg/grid_map.hpp"
 
 namespace object_map
 {
@@ -52,7 +53,9 @@ namespace object_map
  * @param[in] in_gridmap GridMap object to publish
  * @param[in] in_publisher Valid Publisher object to use
  */
-void PublishGridMap(const grid_map::GridMap & in_gridmap, const ros::Publisher & in_publisher);
+void PublishGridMap(
+  const grid_map::GridMap & in_gridmap,
+  const rclcpp::Publisher<grid_map_msgs::msg::GridMap>::SharedPtr in_publisher);
 
 /*!
  * Convert and publishes a GridMap layer to a standard Ros OccupancyGrid
@@ -64,7 +67,8 @@ void PublishGridMap(const grid_map::GridMap & in_gridmap, const ros::Publisher &
  */
 
 void PublishOccupancyGrid(
-  const grid_map::GridMap & in_gridmap, const ros::Publisher & in_publisher,
+  const grid_map::GridMap & in_gridmap,
+  const rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr in_publisher,
   const std::string & in_layer, double in_min_value, double in_max_value, double in_height);
 
 /*!
@@ -82,7 +86,7 @@ void PublishOccupancyGrid(
  */
 void FillPolygonAreas(
   grid_map::GridMap & out_grid_map,
-  const std::vector<std::vector<geometry_msgs::Point>> & in_area_points,
+  const std::vector<std::vector<geometry_msgs::msg::Point>> & in_area_points,
   const std::string & in_grid_layer_name, const int in_layer_background_value,
   const int in_fill_color, const int in_layer_min_value, const int in_layer_max_value,
   const std::string & in_tf_target_frame, const std::string & in_tf_source_frame,
@@ -90,4 +94,4 @@ void FillPolygonAreas(
 
 }  // namespace object_map
 
-#endif  // PROJECT_OBJECT_MAP_UTILS_H
+#endif  // COSTMAP_GENERATOR__OBJECT_MAP_UTILS_HPP_

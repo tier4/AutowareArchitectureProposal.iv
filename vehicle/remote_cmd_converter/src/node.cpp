@@ -1,18 +1,21 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include <algorithm>
+#include <memory>
+#include <string>
+#include <utility>
 
 #include "remote_cmd_converter/node.hpp"
 
@@ -81,7 +84,7 @@ RemoteCmdConverter::RemoteCmdConverter()
   current_shift_cmd_ = std::make_shared<autoware_vehicle_msgs::msg::ShiftStamped>();
 }
 
-void RemoteCmdConverter::onTimer() { updater_.force_update(); }
+void RemoteCmdConverter::onTimer() {updater_.force_update();}
 
 void RemoteCmdConverter::onVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
 {
@@ -164,9 +167,9 @@ double RemoteCmdConverter::getShiftVelocitySign(
 {
   using autoware_vehicle_msgs::msg::Shift;
 
-  if (cmd.shift.data == Shift::DRIVE) return 1.0;
-  if (cmd.shift.data == Shift::LOW) return 1.0;
-  if (cmd.shift.data == Shift::REVERSE) return -1.0;
+  if (cmd.shift.data == Shift::DRIVE) {return 1.0;}
+  if (cmd.shift.data == Shift::LOW) {return 1.0;}
+  if (cmd.shift.data == Shift::REVERSE) {return -1.0;}
 
   return 0.0;
 }
@@ -208,11 +211,11 @@ void RemoteCmdConverter::onGateMode(const autoware_control_msgs::msg::GateMode::
 
 bool RemoteCmdConverter::checkRemoteTopicRate()
 {
-  if (!latest_cmd_received_time_ || !current_gate_mode_) return true;
+  if (!latest_cmd_received_time_ || !current_gate_mode_) {return true;}
 
   if (current_gate_mode_->data == autoware_control_msgs::msg::GateMode::REMOTE) {
     const auto duration = (this->now() - *latest_cmd_received_time_);
-    if (duration.seconds() > time_threshold_) return false;
+    if (duration.seconds() > time_threshold_) {return false;}
   } else {
     latest_cmd_received_time_ = nullptr;  // reset;
   }

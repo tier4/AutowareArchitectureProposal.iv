@@ -1,28 +1,27 @@
-/*
- * Copyright 2015-2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2015-2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include "pose2twist/pose2twist_core.h"
+#include "pose2twist/pose2twist_core.hpp"
 
 #include <cmath>
 #include <cstddef>
 #include <functional>
 
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
-Pose2Twist::Pose2Twist() : Node("pose2twist_core")
+Pose2Twist::Pose2Twist()
+: Node("pose2twist_core")
 {
   using std::placeholders::_1;
 
@@ -30,7 +29,10 @@ Pose2Twist::Pose2Twist() : Node("pose2twist_core")
   rclcpp::QoS durable_qos(queue_size);
   durable_qos.transient_local();
 
-  pose_sub_ = create_subscription<geometry_msgs::msg::PoseStamped>("pose", queue_size, std::bind(&Pose2Twist::callbackPose, this, _1));
+  pose_sub_ =
+    create_subscription<geometry_msgs::msg::PoseStamped>(
+    "pose", queue_size,
+    std::bind(&Pose2Twist::callbackPose, this, _1));
 
 
   twist_pub_ = create_publisher<geometry_msgs::msg::TwistStamped>("twist", durable_qos);
@@ -53,15 +55,20 @@ double calcDiffForRadian(const double lhs_rad, const double rhs_rad)
 geometry_msgs::msg::Vector3 getRPY(geometry_msgs::msg::Pose::SharedPtr pose)
 {
   geometry_msgs::msg::Vector3 rpy;
-  tf2::Quaternion q(pose->orientation.x, pose->orientation.y, pose->orientation.z, pose->orientation.w);
+  tf2::Quaternion q(pose->orientation.x, pose->orientation.y, pose->orientation.z,
+    pose->orientation.w);
   tf2::Matrix3x3(q).getRPY(rpy.x, rpy.y, rpy.z);
   return rpy;
 }
 
-geometry_msgs::msg::Vector3 getRPY(geometry_msgs::msg::PoseStamped::SharedPtr pose) { return getRPY(pose); }
+geometry_msgs::msg::Vector3 getRPY(geometry_msgs::msg::PoseStamped::SharedPtr pose)
+{
+  return getRPY(pose);
+}
 
 geometry_msgs::msg::TwistStamped calcTwist(
-  geometry_msgs::msg::PoseStamped::SharedPtr pose_a, geometry_msgs::msg::PoseStamped::SharedPtr pose_b)
+  geometry_msgs::msg::PoseStamped::SharedPtr pose_a,
+  geometry_msgs::msg::PoseStamped::SharedPtr pose_b)
 {
   const double dt = (pose_b->header.stamp.sec - pose_a->header.stamp.sec);
 

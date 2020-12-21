@@ -1,38 +1,35 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#pragma once
+#ifndef OBSTACLE_STOP_PLANNER__ADAPTIVE_CRUISE_CONTROL_HPP_
+#define OBSTACLE_STOP_PLANNER__ADAPTIVE_CRUISE_CONTROL_HPP_
 
 #include <vector>
 
-#include <geometry_msgs/TwistStamped.h>
-#include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
-#include <pcl_ros/point_cloud.h>
-#include <pcl_ros/transforms.h>
-#include <ros/ros.h>
-#include <std_msgs/Float32MultiArray.h>
-#include <tf2/utils.h>
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "pcl/point_types.h"
+#include "pcl_conversions/pcl_conversions.h"
+#include "rclcpp/rclcpp.hpp"
+#include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
+#include "tf2/utils.h"
 
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <autoware_planning_msgs/Trajectory.h>
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_planning_msgs/msg/trajectory.hpp"
 
 namespace motion_planning
 {
-class AdaptiveCruiseController
+class AdaptiveCruiseController : public rclcpp::Node
 {
 public:
   AdaptiveCruiseController(
@@ -40,17 +37,17 @@ public:
     const double front_overhang);
 
   void insertAdaptiveCruiseVelocity(
-    const autoware_planning_msgs::Trajectory & trajectory, const int nearest_collision_point_idx,
-    const geometry_msgs::Pose self_pose, const pcl::PointXYZ & nearest_collision_point,
-    const ros::Time nearest_collision_point_time,
-    const autoware_perception_msgs::DynamicObjectArray::ConstPtr object_ptr,
-    const geometry_msgs::TwistStamped::ConstPtr current_velocity_ptr, bool * need_to_stop,
-    autoware_planning_msgs::Trajectory * output_trajectory);
+    const autoware_planning_msgs::msg::Trajectory & trajectory,
+    const int nearest_collision_point_idx,
+    const geometry_msgs::msg::Pose self_pose, const pcl::PointXYZ & nearest_collision_point,
+    const rclcpp::Time nearest_collision_point_time,
+    const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr object_ptr,
+    const geometry_msgs::msg::TwistStamped::ConstSharedPtr current_velocity_ptr,
+    bool * need_to_stop,
+    autoware_planning_msgs::msg::Trajectory * output_trajectory);
 
 private:
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
-  ros::Publisher pub_debug_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr pub_debug_;
 
   /*
    * Parameter
@@ -60,12 +57,12 @@ private:
   double wheel_base_;
   double front_overhang_;
 
-  ros::Time prev_collsion_point_time_;
+  rclcpp::Time prev_collsion_point_time_;
   pcl::PointXYZ prev_collsion_point_;
   double prev_target_vehicle_time_ = 0.0;
   double prev_target_vehicle_dist_ = 0.0;
   bool prev_collsion_point_valid_ = false;
-  std::vector<geometry_msgs::TwistStamped> est_vel_que_;
+  std::vector<geometry_msgs::msg::TwistStamped> est_vel_que_;
   double prev_upper_velocity_ = 0.0;
 
   struct Param
@@ -88,16 +85,20 @@ private:
     //!< @brief The distance to extend the polygon width the object in pointcloud-object matching
     double object_polygon_width_margin;
 
-    //!< @breif Maximum time difference treated as continuous points in speed estimation using a point cloud
+    //!< @breif Maximum time difference treated as continuous points in speed estimation using a
+    // point cloud
     double valid_est_vel_diff_time;
 
-    //!< @brief Time width of information used for speed estimation in speed estimation using a point cloud
+    //!< @brief Time width of information used for speed estimation in speed estimation using a
+    // point cloud
     double valid_vel_que_time;
 
-    //!< @brief Maximum value of valid speed estimation results in speed estimation using a point cloud
+    //!< @brief Maximum value of valid speed estimation results in speed estimation using a point
+    // cloud
     double valid_est_vel_max;
 
-    //!< @brief Minimum value of valid speed estimation results in speed estimation using a point cloud
+    //!< @brief Minimum value of valid speed estimation results in speed estimation using a point
+    // cloud
     double valid_est_vel_min;
 
     //!< @brief Embed a stop line if the maximum speed calculated by ACC is lowar than this speed
@@ -156,20 +157,21 @@ private:
   };
   Param param_;
 
-  double getMedianVel(const std::vector<geometry_msgs::TwistStamped> vel_que);
+  double getMedianVel(const std::vector<geometry_msgs::msg::TwistStamped> vel_que);
   double lowpass_filter(const double current_value, const double prev_value, const double gain);
   void calcDistanceToNearestPointOnPath(
-    const autoware_planning_msgs::Trajectory & trajectory, const int nearest_point_idx,
-    const geometry_msgs::Pose & self_pose, const pcl::PointXYZ & nearest_collision_point,
+    const autoware_planning_msgs::msg::Trajectory & trajectory, const int nearest_point_idx,
+    const geometry_msgs::msg::Pose & self_pose, const pcl::PointXYZ & nearest_collision_point,
     double * distance);
   double calcTrajYaw(
-    const autoware_planning_msgs::Trajectory & trajectory, const int collsion_point_idx);
+    const autoware_planning_msgs::msg::Trajectory & trajectory, const int collsion_point_idx);
   bool estimatePointVelocityFromObject(
-    const autoware_perception_msgs::DynamicObjectArray::ConstPtr object_ptr, const double traj_yaw,
+    const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr object_ptr,
+    const double traj_yaw,
     const pcl::PointXYZ & nearest_collision_point, double * velocity);
   bool estimatePointVelocityFromPcl(
     const double traj_yaw, const pcl::PointXYZ & nearest_collision_point,
-    const ros::Time & nearest_collision_point_time, double * velocity);
+    const rclcpp::Time & nearest_collision_point_time, double * velocity);
   double calcUpperVelocity(const double dist_to_col, const double obj_vel, const double self_vel);
   double calcThreshDistToForwardObstacle(const double current_vel, const double obj_vel);
   double calcBaseDistToForwardObstacle(const double current_vel, const double obj_vel);
@@ -181,12 +183,13 @@ private:
 
   void insertMaxVelocityToPath(
     const double current_vel, const double target_vel, const double dist_to_collsion_point,
-    autoware_planning_msgs::Trajectory * output_trajectory);
-  void registerQueToVelocity(const double vel, const ros::Time & vel_time);
+    autoware_planning_msgs::msg::Trajectory * output_trajectory);
+  void registerQueToVelocity(const double vel, const rclcpp::Time & vel_time);
 
   /* Debug */
-  mutable std_msgs::Float32MultiArray debug_values_;
-  enum DBGVAL {
+  mutable autoware_debug_msgs::msg::Float32MultiArrayStamped debug_values_;
+  enum DBGVAL
+  {
     ESTIMATED_VEL_PCL = 0,
     ESTIMATED_VEL_OBJ = 1,
     ESTIMATED_VEL_FINAL = 2,
@@ -197,9 +200,10 @@ private:
     UPPER_VEL_D = 7,
     UPPER_VEL_RAW = 8,
     UPPER_VEL = 9
-
   };
   static constexpr unsigned int num_debug_values_ = 10;
 };
 
 }  // namespace motion_planning
+
+#endif  // OBSTACLE_STOP_PLANNER__ADAPTIVE_CRUISE_CONTROL_HPP_

@@ -1,18 +1,16 @@
-/*
- * Copyright 2015-2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2015-2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /**
  * @file simple_planning_simulator_core.hpp
@@ -24,29 +22,29 @@
 #ifndef SIMPLE_PLANNING_SIMULATOR_CORE_H_
 #define SIMPLE_PLANNING_SIMULATOR_CORE_H_
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <std_msgs/msg/bool.hpp>
-#include <std_msgs/msg/float32.hpp>
-#include <std_msgs/msg/int32.hpp>
-#include <std_msgs/msg/string.hpp>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2/utils.h>
-#include <tf2_ros/transform_broadcaster.h>
-#include <tf2_ros/transform_listener.h>
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/LU>
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "std_msgs/msg/bool.hpp"
+#include "std_msgs/msg/float32.hpp"
+#include "std_msgs/msg/int32.hpp"
+#include "std_msgs/msg/string.hpp"
+#include "tf2/LinearMath/Quaternion.h"
+#include "tf2/utils.h"
+#include "tf2_ros/transform_broadcaster.h"
+#include "tf2_ros/transform_listener.h"
+#include "eigen3/Eigen/Core"
+#include "eigen3/Eigen/LU"
 #include <random>
 
-#include <autoware_planning_msgs/msg/trajectory.hpp>
-#include <autoware_vehicle_msgs/msg/control_mode.hpp>
-#include <autoware_vehicle_msgs/msg/shift_stamped.hpp>
-#include <autoware_vehicle_msgs/msg/steering.hpp>
-#include <autoware_vehicle_msgs/msg/turn_signal.hpp>
-#include <autoware_vehicle_msgs/msg/vehicle_command.hpp>
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "autoware_vehicle_msgs/msg/control_mode.hpp"
+#include "autoware_vehicle_msgs/msg/shift_stamped.hpp"
+#include "autoware_vehicle_msgs/msg/steering.hpp"
+#include "autoware_vehicle_msgs/msg/turn_signal.hpp"
+#include "autoware_vehicle_msgs/msg/vehicle_command.hpp"
 
 #include "simple_planning_simulator/vehicle_model/sim_model_constant_acceleration.hpp"
 #include "simple_planning_simulator/vehicle_model/sim_model_ideal.hpp"
@@ -123,7 +121,8 @@ private:
   std::shared_ptr<rclcpp::Time> prev_update_time_ptr_;  //!< @brief previously updated time
 
   /* vehicle model */
-  enum class VehicleModelType {
+  enum class VehicleModelType
+  {
     IDEAL_TWIST = 0,
     IDEAL_STEER = 1,
     DELAY_TWIST = 2,
@@ -139,15 +138,15 @@ private:
   /* to generate measurement noise */
   std::shared_ptr<std::mt19937> rand_engine_ptr_;  //!< @brief random engine for measurement noise
   std::shared_ptr<std::normal_distribution<>>
-    pos_norm_dist_ptr_;  //!< @brief Gaussian noise for position
+  pos_norm_dist_ptr_;    //!< @brief Gaussian noise for position
   std::shared_ptr<std::normal_distribution<>>
-    vel_norm_dist_ptr_;  //!< @brief Gaussian noise for velocity
+  vel_norm_dist_ptr_;    //!< @brief Gaussian noise for velocity
   std::shared_ptr<std::normal_distribution<>>
-    rpy_norm_dist_ptr_;  //!< @brief Gaussian noise for roll-pitch-yaw
+  rpy_norm_dist_ptr_;    //!< @brief Gaussian noise for roll-pitch-yaw
   std::shared_ptr<std::normal_distribution<>>
-    angvel_norm_dist_ptr_;  //!< @brief Gaussian noise for angular velocity
+  angvel_norm_dist_ptr_;    //!< @brief Gaussian noise for angular velocity
   std::shared_ptr<std::normal_distribution<>>
-    steer_norm_dist_ptr_;  //!< @brief Gaussian noise for steering angle
+  steer_norm_dist_ptr_;    //!< @brief Gaussian noise for steering angle
 
   /**
    * @brief set current_vehicle_cmd_ptr_ with received message
@@ -167,7 +166,8 @@ private:
   /**
    * @brief set initial pose for simulation with received message
    */
-  void callbackInitialPoseWithCov(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg);
+  void callbackInitialPoseWithCov(
+    const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg);
 
   /**
    * @brief set initial pose with received message
@@ -204,7 +204,9 @@ private:
    * @param [in] pose initial position and orientation
    * @param [in] twist initial velocity and angular velocity
    */
-  void setInitialState(const geometry_msgs::msg::Pose & pose, const geometry_msgs::msg::Twist & twist);
+  void setInitialState(
+    const geometry_msgs::msg::Pose & pose,
+    const geometry_msgs::msg::Twist & twist);
 
   /**
    * @brief set initial state of simulated vehicle with pose transformation based on frame_id
@@ -220,14 +222,17 @@ private:
    * @param [in] twist initial velocity and angular velocity
    */
   void setInitialStateWithPoseTransform(
-    const geometry_msgs::msg::PoseWithCovarianceStamped & pose, const geometry_msgs::msg::Twist & twist);
+    const geometry_msgs::msg::PoseWithCovarianceStamped & pose,
+    const geometry_msgs::msg::Twist & twist);
 
   /**
    * @brief publish pose and twist
    * @param [in] pose pose to be published
    * @param [in] twist twist to be published
    */
-  void publishPoseTwist(const geometry_msgs::msg::Pose & pose, const geometry_msgs::msg::Twist & twist);
+  void publishPoseTwist(
+    const geometry_msgs::msg::Pose & pose,
+    const geometry_msgs::msg::Twist & twist);
 
   /**
    * @brief publish tf

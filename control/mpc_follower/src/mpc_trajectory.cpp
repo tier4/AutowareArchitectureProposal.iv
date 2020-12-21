@@ -1,20 +1,18 @@
-/*
- * Copyright 2018-2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2018-2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include "mpc_follower/mpc_trajectory.h"
+#include "mpc_follower/mpc_trajectory.hpp"
 
 void MPCTrajectory::push_back(
   const double & xp, const double & yp, const double & zp, const double & yawp, const double & vxp,
@@ -44,7 +42,8 @@ unsigned int MPCTrajectory::size() const
 {
   if (
     x.size() == y.size() && x.size() == z.size() && x.size() == yaw.size() &&
-    x.size() == vx.size() && x.size() == k.size() && x.size() == relative_time.size()) {
+    x.size() == vx.size() && x.size() == k.size() && x.size() == relative_time.size())
+  {
     return x.size();
   } else {
     std::cerr << "[MPC trajectory] trajectory size is inappropriate" << std::endl;

@@ -1,34 +1,35 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-#ifndef GNSS_POSER_CONVERT_HPP_
-#define GNSS_POSER_CONVERT_HPP_
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+#ifndef GNSS_POSER__CONVERT_HPP_
+#define GNSS_POSER__CONVERT_HPP_
+
+#include <string>
 
 #include "gnss_poser/gnss_stat.hpp"
 #include "geo_pos_conv/geo_pos_conv.hpp"
 
-#include <GeographicLib/Geoid.hpp>
-#include <GeographicLib/MGRS.hpp>
-#include <GeographicLib/UTMUPS.hpp>
+#include "GeographicLib/Geoid.hpp"
+#include "GeographicLib/MGRS.hpp"
+#include "GeographicLib/UTMUPS.hpp"
 
-#include <sensor_msgs/msg/nav_sat_fix.hpp>
-#include <rclcpp/logging.hpp>
+#include "sensor_msgs/msg/nav_sat_fix.hpp"
+#include "rclcpp/logging.hpp"
 
 namespace GNSSPoser
 {
-enum class MGRSPrecision {
+enum class MGRSPrecision
+{
   _10_KIRO_METER = 1,
   _1_KIRO_METER = 2,
   _100_METER = 3,
@@ -91,15 +92,16 @@ GNSSStat UTM2MGRS(
       utm.zone, utm.northup, utm.x, utm.y, utm.latitude, static_cast<int>(precision), mgrs_code);
     mgrs.zone = std::stod(mgrs_code.substr(0, GZD_ID_size));
     mgrs.x = std::stod(mgrs_code.substr(GZD_ID_size, static_cast<int>(precision))) *
-             std::pow(
-               10, static_cast<int>(MGRSPrecision::_1_METER) -
-                     static_cast<int>(precision));  // set unit as [m]
-    mgrs.y = std::stod(mgrs_code.substr(
-               GZD_ID_size + static_cast<int>(precision), static_cast<int>(precision))) *
-             std::pow(
-               10, static_cast<int>(MGRSPrecision::_1_METER) -
-                     static_cast<int>(precision));  // set unit as [m]
-    mgrs.z = utm.z;                                 // TODO
+      std::pow(
+      10, static_cast<int>(MGRSPrecision::_1_METER) -
+      static_cast<int>(precision));                 // set unit as [m]
+    mgrs.y = std::stod(
+      mgrs_code.substr(
+        GZD_ID_size + static_cast<int>(precision), static_cast<int>(precision))) *
+      std::pow(
+      10, static_cast<int>(MGRSPrecision::_1_METER) -
+      static_cast<int>(precision));                 // set unit as [m]
+    mgrs.z = utm.z;                                 // TODO(ryo.watanabe)
   } catch (const GeographicLib::GeographicErr & err) {
     RCLCPP_ERROR_STREAM(logger, "Failed to convert from UTM to MGRS" << err.what());
   }
@@ -131,4 +133,4 @@ GNSSStat NavSatFix2PLANE(
 }
 }  // namespace GNSSPoser
 
-#endif
+#endif  // GNSS_POSER__CONVERT_HPP_

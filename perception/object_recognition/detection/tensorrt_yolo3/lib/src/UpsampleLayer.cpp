@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2018 lewes6369
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 */
-#include "UpsampleLayer.h"
+#include "UpsampleLayer.hpp"
 
 namespace nvinfer1
 {
@@ -36,7 +36,7 @@ UpsampleLayerPlugin::~UpsampleLayerPlugin() {}
 UpsampleLayerPlugin::UpsampleLayerPlugin(const void * data, size_t length)
 {
   using namespace Tn;
-  const char *d = reinterpret_cast<const char *>(data), *a = d;
+  const char * d = reinterpret_cast<const char *>(data), * a = d;
   read(d, mCHW);
   read(d, mDataType);
   read(d, mScale);
@@ -51,7 +51,7 @@ UpsampleLayerPlugin::UpsampleLayerPlugin(const void * data, size_t length)
 void UpsampleLayerPlugin::serialize(void * buffer)
 {
   using namespace Tn;
-  char *d = static_cast<char *>(buffer), *a = d;
+  char * d = static_cast<char *>(buffer), * a = d;
   write(d, mCHW);
   write(d, mDataType);
   write(d, mScale);

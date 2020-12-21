@@ -1,21 +1,20 @@
-/*
- * Copyright 2018-2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-#include "mpc_follower/qp_solver/qp_solver_osqp.h"
+// Copyright 2018-2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+#include "mpc_follower/qp_solver/qp_solver_osqp.hpp"
 
-QPSolverOSQP::QPSolverOSQP(const rclcpp::Logger & logger) : logger_{logger} {}
+QPSolverOSQP::QPSolverOSQP(const rclcpp::Logger & logger)
+: logger_{logger} {}
 bool QPSolverOSQP::solve(
   const Eigen::MatrixXd & Hmat, const Eigen::MatrixXd & fvec, const Eigen::MatrixXd & A,
   const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lbA,
@@ -49,7 +48,7 @@ bool QPSolverOSQP::solve(
   auto result = osqpsolver_.optimize(Hmat, osqpA, f, lower_bound, upper_bound);
 
   std::vector<double> U_osqp = std::get<0>(result);
-  U = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1> >(&U_osqp[0], U_osqp.size(), 1);
+  U = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1>>(&U_osqp[0], U_osqp.size(), 1);
 
   // polish status: successful (1), unperformed (0), (-1) unsuccessful
   int status_polish = std::get<2>(result);

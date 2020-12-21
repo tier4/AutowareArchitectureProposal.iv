@@ -1,21 +1,23 @@
-/*
- * Copyright 2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include <lane_change_planner/data_manager.h>
-#include <lanelet2_extension/utility/message_conversion.h>
+#include "lane_change_planner/data_manager.hpp"
+
+#include <memory>
+#include <string>
+
+#include "lanelet2_extension/utility/message_conversion.hpp"
 
 namespace lane_change_planner
 {
@@ -41,7 +43,8 @@ void DataManager::velocityCallback(
   vehicle_velocity_ptr_ = input_twist_msg_ptr;
 }
 
-void DataManager::laneChangeApprovalCallback(const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg)
+void DataManager::laneChangeApprovalCallback(
+  const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg)
 {
   lane_change_approval_.data = input_approval_msg->data;
   lane_change_approval_.stamp = clock_->now();
@@ -76,7 +79,7 @@ geometry_msgs::msg::PoseStamped DataManager::getCurrentSelfPose()
   return self_pose_;
 }
 
-LaneChangerParameters DataManager::getLaneChangerParameters() { return parameters_; }
+LaneChangerParameters DataManager::getLaneChangerParameters() {return parameters_;}
 
 bool DataManager::getLaneChangeApproval()
 {
@@ -122,8 +125,10 @@ bool DataManager::isDataReady()
   return true;
 }
 
-SelfPoseLinstener::SelfPoseLinstener(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
-: tf_listener_(tf_buffer_), logger_(logger), clock_(clock){}
+SelfPoseLinstener::SelfPoseLinstener(
+  const rclcpp::Logger & logger,
+  const rclcpp::Clock::SharedPtr & clock)
+: tf_listener_(tf_buffer_), logger_(logger), clock_(clock) {}
 
 bool SelfPoseLinstener::isSelfPoseReady()
 {

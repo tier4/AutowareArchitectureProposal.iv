@@ -1,36 +1,36 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-#ifndef GNSS_POSER_GNSS_POSER_CORE_HPP_
-#define GNSS_POSER_GNSS_POSER_CORE_HPP_
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+#ifndef GNSS_POSER__GNSS_POSER_CORE_HPP_
+#define GNSS_POSER__GNSS_POSER_CORE_HPP_
+
+#include <string>
 
 #include "gnss_poser/convert.hpp"
 #include "gnss_poser/gnss_stat.hpp"
 
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
-#include <sensor_msgs/msg/nav_sat_fix.hpp>
-#include <std_msgs/msg/bool.hpp>
-#include <ublox_msgs/msg/nav_pvt.hpp>
-#include <tf2/transform_datatypes.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2_ros/transform_broadcaster.h>
-#include <tf2_ros/transform_listener.h>
-#include <rclcpp/rclcpp.hpp>
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include "sensor_msgs/msg/nav_sat_fix.hpp"
+#include "std_msgs/msg/bool.hpp"
+#include "ublox_msgs/msg/nav_pvt.hpp"
+#include "tf2/transform_datatypes.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "tf2_ros/transform_broadcaster.h"
+#include "tf2_ros/transform_listener.h"
+#include "rclcpp/rclcpp.hpp"
 
-#include <boost/circular_buffer.hpp>
+#include "boost/circular_buffer.hpp"
 
 namespace GNSSPoser
 {
@@ -67,7 +67,7 @@ private:
 
   tf2::BufferCore tf2_buffer_;
   tf2_ros::TransformListener tf2_listener_;
-  std::shared_ptr<tf2_ros::TransformBroadcaster> tf2_broadcaster_;
+  tf2_ros::TransformBroadcaster tf2_broadcaster_;
 
   rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr nav_sat_fix_sub_;
   rclcpp::Subscription<ublox_msgs::msg::NavPVT>::SharedPtr nav_pvt_sub_;
@@ -91,4 +91,4 @@ private:
 };
 }  // namespace GNSSPoser
 
-#endif
+#endif  // GNSS_POSER__GNSS_POSER_CORE_HPP_

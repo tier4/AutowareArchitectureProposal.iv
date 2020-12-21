@@ -17,18 +17,18 @@
  *
  */
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <lanelet2_core/LaneletMap.h>
-#include <lanelet2_io/Io.h>
-#include <lanelet2_projection/UTM.h>
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_io/Io.h"
+#include "lanelet2_projection/UTM.h"
 
-#include <lanelet2_extension/io/autoware_osm_parser.h>
-#include <lanelet2_extension/projection/mgrs_projector.h>
-#include <lanelet2_extension/utility/message_conversion.h>
-#include <lanelet2_extension/utility/utilities.h>
+#include "lanelet2_extension/io/autoware_osm_parser.hpp"
+#include "lanelet2_extension/projection/mgrs_projector.hpp"
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
 
-#include <autoware_lanelet2_msgs/msg/map_bin.hpp>
+#include "autoware_lanelet2_msgs/msg/map_bin.hpp"
 
 #include <string>
 
@@ -36,9 +36,9 @@ void printUsage(const rclcpp::Logger & logger)
 {
   RCLCPP_ERROR_STREAM(
     logger,
-    "Usage:" << std::endl
-             << "rosrun map_loader lanelet2_map_loader [.OSM]" << std::endl
-             << "rosrun map_loader lanelet2_map_loader download [X] [Y]: WARNING not implemented");
+    "Usage:" << std::endl <<
+      "rosrun map_loader lanelet2_map_loader [.OSM]" << std::endl <<
+      "rosrun map_loader lanelet2_map_loader download [X] [Y]: WARNING not implemented");
 }
 
 int main(int argc, char ** argv)

@@ -1,24 +1,23 @@
-/*
- * Copyright 2015-2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2015-2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include "astar_search/astar_search.h"
-#include "astar_search/helper.h"
+#include "astar_search/astar_search.hpp"
 
-#include <tf2/utils.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include "astar_search/helper.hpp"
+
+#include "tf2/utils.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 
 namespace
@@ -181,7 +180,8 @@ AstarSearch::TransitionTable createTransitionTable(
 
 }  // namespace
 
-AstarSearch::AstarSearch(const AstarParam & astar_param) : astar_param_(astar_param)
+AstarSearch::AstarSearch(const AstarParam & astar_param)
+: astar_param_(astar_param)
 {
   transition_table_ = createTransitionTable(
     astar_param_.minimum_turning_radius, astar_param_.theta_size, astar_param_.use_back);
@@ -437,14 +437,14 @@ bool AstarSearch::hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & 
 
 bool AstarSearch::isOutOfRange(const IndexXYT & index)
 {
-  if (index.x < 0 || static_cast<int>(costmap_.info.width) <= index.x) return true;
-  if (index.y < 0 || static_cast<int>(costmap_.info.height) <= index.y) return true;
+  if (index.x < 0 || static_cast<int>(costmap_.info.width) <= index.x) {return true;}
+  if (index.y < 0 || static_cast<int>(costmap_.info.height) <= index.y) {return true;}
   return false;
 }
 
 bool AstarSearch::isObs(const IndexXYT & index)
 {
-  return (nodes_[index.y][index.x][0].status == NodeStatus::Obstacle);
+  return nodes_[index.y][index.x][0].status == NodeStatus::Obstacle;
 }
 
 bool AstarSearch::isGoal(const AstarNode & node)
@@ -462,7 +462,8 @@ bool AstarSearch::isGoal(const AstarNode & node)
 
   if (
     std::fabs(relative_pose.position.x) > longitudinal_goal_range ||
-    std::fabs(relative_pose.position.y) > lateral_goal_range) {
+    std::fabs(relative_pose.position.y) > lateral_goal_range)
+  {
     return false;
   }
 

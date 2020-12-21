@@ -3,6 +3,8 @@ project(ndt_omp)
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -30,12 +32,14 @@ target_include_directories(ndt_omp
     $<INSTALL_INTERFACE:include> 
 )
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  target_compile_options(ndt_omp
-    PRIVATE
-      # -mavx causes a lot of errors!!
-      -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2
-  )
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+  if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(ndt_omp
+      PRIVATE
+        # -mavx causes a lot of errors!!
+        -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2
+    )
+  endif()
 endif()
 
 set(NDT_OMP_DEPENDENCIES
@@ -107,5 +111,9 @@ install(
   INCLUDES DESTINATION include
 )
 
-ament_package()
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
+ament_package()

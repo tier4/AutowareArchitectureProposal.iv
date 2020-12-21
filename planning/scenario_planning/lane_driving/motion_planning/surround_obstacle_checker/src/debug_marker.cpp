@@ -1,21 +1,22 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <surround_obstacle_checker/debug_marker.hpp>
+#include "surround_obstacle_checker/debug_marker.hpp"
+
+#include <memory>
+
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 SurroundObstacleCheckerDebugNode::SurroundObstacleCheckerDebugNode(
   const double base_link2front, const rclcpp::Clock::SharedPtr clock, rclcpp::Node & node)
@@ -72,14 +73,14 @@ visualization_msgs::msg::MarkerArray SurroundObstacleCheckerDebugNode::makeVisua
   tf2::Transform tf_base_link2front(
     tf2::Quaternion(0.0, 0.0, 0.0, 1.0), tf2::Vector3(base_link2front_, 0.0, 0.0));
 
-  //visualize stop line
+  // visualize stop line
   if (stop_pose_ptr_ != nullptr) {
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "map";
     marker.header.stamp = current_time;
     marker.ns = "virtual_wall/no_start";
     marker.id = 0;
-    marker.lifetime = rclcpp::Duration(0.5);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.5);
     marker.type = visualization_msgs::msg::Marker::CUBE;
     marker.action = visualization_msgs::msg::Marker::ADD;
     tf2::Transform tf_map2base_link;
@@ -97,14 +98,14 @@ visualization_msgs::msg::MarkerArray SurroundObstacleCheckerDebugNode::makeVisua
     msg.markers.push_back(marker);
   }
 
-  //visualize stop reason
+  // visualize stop reason
   if (stop_pose_ptr_ != nullptr) {
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "map";
     marker.header.stamp = current_time;
     marker.ns = "factor_text/no_start";
     marker.id = 0;
-    marker.lifetime = rclcpp::Duration(0.5);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.5);
     marker.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
     marker.action = visualization_msgs::msg::Marker::ADD;
     tf2::Transform tf_map2base_link;
@@ -123,18 +124,18 @@ visualization_msgs::msg::MarkerArray SurroundObstacleCheckerDebugNode::makeVisua
     msg.markers.push_back(marker);
   }
 
-  //visualize surround object
+  // visualize surround object
   if (stop_obstacle_point_ptr_ != nullptr) {
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "map";
     marker.header.stamp = current_time;
     marker.ns = "no_start_obstacle_text";
     marker.id = 0;
-    marker.lifetime = rclcpp::Duration(0.5);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.5);
     marker.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
     marker.action = visualization_msgs::msg::Marker::ADD;
     marker.pose.position = *stop_obstacle_point_ptr_;
-    marker.pose.position.z += 2.0;  //add half of the heights of obj roughly
+    marker.pose.position.z += 2.0;  // add half of the heights of obj roughly
     marker.pose.orientation.x = 0.0;
     marker.pose.orientation.y = 0.0;
     marker.pose.orientation.z = 0.0;
@@ -155,12 +156,12 @@ visualization_msgs::msg::MarkerArray SurroundObstacleCheckerDebugNode::makeVisua
 
 autoware_planning_msgs::msg::StopReasonArray SurroundObstacleCheckerDebugNode::makeStopReasonArray()
 {
-  //create header
+  // create header
   std_msgs::msg::Header header;
   header.frame_id = "map";
   header.stamp = this->clock_->now();
 
-  //create stop reason stamped
+  // create stop reason stamped
   autoware_planning_msgs::msg::StopReason stop_reason_msg;
   stop_reason_msg.reason = autoware_planning_msgs::msg::StopReason::SURROUND_OBSTACLE_CHECK;
   autoware_planning_msgs::msg::StopFactor stop_factor;
@@ -173,7 +174,7 @@ autoware_planning_msgs::msg::StopReasonArray SurroundObstacleCheckerDebugNode::m
     stop_reason_msg.stop_factors.emplace_back(stop_factor);
   }
 
-  //create stop reason array
+  // create stop reason array
   autoware_planning_msgs::msg::StopReasonArray stop_reason_array;
   stop_reason_array.header = header;
   stop_reason_array.stop_reasons.emplace_back(stop_reason_msg);

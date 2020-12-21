@@ -19,15 +19,15 @@
 #pragma once
 
 #include <string>
-#include <autoware_perception_msgs/msg/shape.hpp>
-#include <geometry_msgs/msg/pose.hpp>
+#include "autoware_perception_msgs/msg/shape.hpp"
+#include "geometry_msgs/msg/pose.hpp"
 
 class ShapeEstimationFilterInterface
 {
 public:
-  ShapeEstimationFilterInterface(){};
+  ShapeEstimationFilterInterface() {}
 
-  virtual ~ShapeEstimationFilterInterface(){};
+  virtual ~ShapeEstimationFilterInterface() {}
 
   virtual bool filter(
     const autoware_perception_msgs::msg::Shape & shape, const geometry_msgs::msg::Pose & pose) = 0;

@@ -23,8 +23,8 @@
 #include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
 
 #define EIGEN_MPL2_ONLY
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include "Eigen/Core"
+#include "Eigen/Geometry"
 
 #include <list>
 #include <unordered_map>
@@ -49,7 +49,7 @@ public:
   Eigen::MatrixXd calcScoreMatrix(
     const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & measurements,
     const std::list<std::shared_ptr<Tracker>> & trackers);
-  virtual ~DataAssociation(){};
+  virtual ~DataAssociation() {}
 };
 
 #endif

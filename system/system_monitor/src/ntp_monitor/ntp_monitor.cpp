@@ -1,40 +1,38 @@
-/*
- * Copyright 2020 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /**
  * @file ntp_monitor.cpp
  * @brief NTP monitor class
  */
 
-#include <system_monitor/ntp_monitor/ntp_monitor.h>
-#include <boost/filesystem.hpp>
-#include <boost/format.hpp>
-#include <boost/process.hpp>
-#include <boost/regex.hpp>
+#include "system_monitor/ntp_monitor/ntp_monitor.hpp"
+#include "boost/filesystem.hpp"
+#include "boost/format.hpp"
+#include "boost/process.hpp"
+#include "boost/regex.hpp"
 #include <string>
 
 namespace bp = boost::process;
 namespace fs = boost::filesystem;
 
-NTPMonitor::NTPMonitor(const std::string & node_name, const rclcpp::NodeOptions & options) :
-Node(node_name, options),
-updater_(this),
-server_(declare_parameter<std::string>("server", "ntp.ubuntu.com")),
-offset_warn_(declare_parameter<float>("offset_warn", 0.1)),
-offset_error_(declare_parameter<float>("offset_error", 5.0))
+NTPMonitor::NTPMonitor(const std::string & node_name, const rclcpp::NodeOptions & options)
+: Node(node_name, options),
+  updater_(this),
+  server_(declare_parameter<std::string>("server", "ntp.ubuntu.com")),
+  offset_warn_(declare_parameter<float>("offset_warn", 0.1)),
+  offset_error_(declare_parameter<float>("offset_error", 5.0))
 {
   gethostname(hostname_, sizeof(hostname_));
 
@@ -48,7 +46,7 @@ offset_error_(declare_parameter<float>("offset_error", 5.0))
 
 void NTPMonitor::update()
 {
-    updater_.force_update();
+  updater_.force_update();
 }
 
 void NTPMonitor::checkOffset(diagnostic_updater::DiagnosticStatusWrapper & stat)
@@ -97,10 +95,11 @@ void NTPMonitor::checkOffset(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
   // Check an earlier offset as well
   float abs = std::abs(offset);
-  if (abs >= offset_error_)
+  if (abs >= offset_error_) {
     level = DiagStatus::ERROR;
-  else if (abs >= offset_warn_)
+  } else if (abs >= offset_warn_) {
     level = DiagStatus::WARN;
+  }
 
   stat.addf("NTP Offset", "%.6f sec", offset);
   stat.addf("NTP Delay", "%.6f sec", delay);

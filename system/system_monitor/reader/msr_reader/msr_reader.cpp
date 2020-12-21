@@ -1,18 +1,16 @@
-/*
- * Copyright 2020 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /**
  * @file msr_reader.cpp
@@ -20,22 +18,22 @@
  */
 
 #include <errno.h>
-#include <fcntl.h>
-#include <getopt.h>
-#include <msr_reader/msr_reader.h>
-#include <netinet/in.h>
+#include "fcntl.h"
+#include "getopt.h"
+#include "msr_reader/msr_reader.hpp"
+#include "netinet/in.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/socket.h>
-#include <syslog.h>
-#include <unistd.h>
+#include "sys/socket.h"
+#include "syslog.h"
+#include "unistd.h"
 #include <algorithm>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/regex.hpp>
+#include "boost/archive/text_oarchive.hpp"
+#include "boost/filesystem.hpp"
+#include "boost/format.hpp"
+#include "boost/lexical_cast.hpp"
+#include "boost/regex.hpp"
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -232,28 +230,30 @@ int main(int argc, char ** argv)
   const fs::path root("/dev/cpu");
 
   for (const fs::path & path : boost::make_iterator_range(
-         fs::recursive_directory_iterator(root), fs::recursive_directory_iterator())) {
-    if (fs::is_directory(path)) continue;
+      fs::recursive_directory_iterator(root), fs::recursive_directory_iterator()))
+  {
+    if (fs::is_directory(path)) {continue;}
 
     boost::smatch match;
     boost::regex filter(".*msr");
     std::string msr = path.generic_string();
 
     // /dev/cpu/[0-9]/msr ?
-    if (!boost::regex_match(msr, match, filter)) continue;
+    if (!boost::regex_match(msr, match, filter)) {continue;}
 
     list.push_back(path.generic_string());
   }
 
-  std::sort(list.begin(), list.end(), [](const std::string & c1, const std::string & c2) {
-    boost::smatch match;
-    boost::regex filter(".*/(\\d+)/msr");
-    int n1 = 0;
-    int n2 = 0;
-    if (boost::regex_match(c1, match, filter)) n1 = std::stoi(match[1].str());
-    if (boost::regex_match(c2, match, filter)) n2 = std::stoi(match[1].str());
-    return n1 < n2;
-  });  // NOLINT
+  std::sort(
+    list.begin(), list.end(), [](const std::string & c1, const std::string & c2) {
+      boost::smatch match;
+      boost::regex filter(".*/(\\d+)/msr");
+      int n1 = 0;
+      int n2 = 0;
+      if (boost::regex_match(c1, match, filter)) {n1 = std::stoi(match[1].str());}
+      if (boost::regex_match(c2, match, filter)) {n2 = std::stoi(match[1].str());}
+      return n1 < n2;
+    }); // NOLINT
 
   if (list.empty()) {
     printf("No msr found in /dev/cpu.\n");

@@ -1,32 +1,30 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include "dummy_diag_publisher/dummy_diag_publisher_node.h"
+#include "dummy_diag_publisher/dummy_diag_publisher_node.hpp"
 
-#include <rclcpp/create_timer.hpp>
+#include "rclcpp/create_timer.hpp"
 
 namespace
 {
-template <typename T>
+template<typename T>
 void update_param(
   const std::vector<rclcpp::Parameter> & parameters, const std::string & name, T & value)
 {
   auto it = std::find_if(
     parameters.cbegin(), parameters.cend(),
-    [&name](const rclcpp::Parameter & parameter) { return parameter.get_name() == name; });
+    [&name](const rclcpp::Parameter & parameter) {return parameter.get_name() == name;});
   if (it != parameters.cend()) {
     value = it->template get_value<T>();
   }
@@ -36,15 +34,15 @@ void update_param(
 rcl_interfaces::msg::SetParametersResult DummyDiagPublisherNode::paramCallback(
   const std::vector<rclcpp::Parameter> & parameters)
 {
-  
+
   rcl_interfaces::msg::SetParametersResult result;
   result.successful = true;
   result.reason = "success";
 
   DummyDiagPublisherConfig config = config_;
   try {
-   int status = static_cast<int>(config.status);
-   update_param(parameters, "status", status);
+    int status = static_cast<int>(config.status);
+    update_param(parameters, "status", status);
     config.status = Status(status);
     update_param(parameters, "is_active", config.is_active);
     config_ = config;
@@ -94,7 +92,10 @@ DummyDiagPublisherNode::DummyDiagPublisherNode()
   // Get configuration
   std::map<std::string, std::string> configuration_parameters;
   configuration_parameters.insert(std::pair<std::string, std::string>("diag_config.name", ""));
-  configuration_parameters.insert(std::pair<std::string, std::string>("diag_config.hardware_id", ""));
+  configuration_parameters.insert(
+    std::pair<std::string, std::string>(
+      "diag_config.hardware_id",
+      ""));
   configuration_parameters.insert(std::pair<std::string, std::string>("diag_config.msg_ok", ""));
   configuration_parameters.insert(std::pair<std::string, std::string>("diag_config.msg_warn", ""));
   configuration_parameters.insert(std::pair<std::string, std::string>("diag_config.msg_error", ""));
@@ -103,12 +104,15 @@ DummyDiagPublisherNode::DummyDiagPublisherNode()
   this->declare_parameters<std::string>("", configuration_parameters);
   this->get_parameters("diag_config", configuration_parameters);
   diag_config_ = DiagConfig(configuration_parameters);
-  
+
   // set parameter callback
   config_.status = static_cast<Status>(this->declare_parameter("status", 0));
   config_.is_active = this->declare_parameter("is_active", false);
   set_param_res_ =
-    this->add_on_set_parameters_callback(std::bind(&DummyDiagPublisherNode::paramCallback, this, std::placeholders::_1));
+    this->add_on_set_parameters_callback(
+    std::bind(
+      &DummyDiagPublisherNode::paramCallback, this,
+      std::placeholders::_1));
 
   // Diagnostic Updater
   updater_.setHardwareID(diag_config_.hardware_id);

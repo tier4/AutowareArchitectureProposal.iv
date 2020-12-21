@@ -1,39 +1,37 @@
-/*
- * Copyright 2020 TierIV. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 TierIV
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "bounding_box.hpp"
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include "pcl/point_cloud.h"
+#include "pcl/point_types.h"
+#include "pcl_conversions/pcl_conversions.h"
+#include "tf2/LinearMath/Quaternion.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include <cmath>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include "opencv2/core/core.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 #include "autoware_perception_msgs/msg/shape.h"
 
-#include <tf2_eigen/tf2_eigen.h>
+#include "tf2_eigen/tf2_eigen.h"
 #include "tf2/LinearMath/Matrix3x3.h"
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 #define EIGEN_MPL2_ONLY
 
-#include <Eigen/Core>
+#include "Eigen/Core"
 
 namespace yaw_fixed
 {
@@ -59,8 +57,8 @@ bool BoundingBoxModel::estimate(
   double min_z = 0;
   double max_z = 0;
   for (size_t i = 0; i < cluster.size(); ++i) {
-    if (cluster.at(i).z < min_z || i == 0) min_z = cluster.at(i).z;
-    if (max_z < cluster.at(i).z || i == 0) max_z = cluster.at(i).z;
+    if (cluster.at(i).z < min_z || i == 0) {min_z = cluster.at(i).z;}
+    if (max_z < cluster.at(i).z || i == 0) {max_z = cluster.at(i).z;}
   }
 
   double min_angle = 0;
@@ -113,7 +111,7 @@ bool BoundingBoxModel::estimate(
     Q.push_back(std::make_pair(theta, q));        // col.8, Algo.2
   }
 
-  double theta_star;  // col.10, Algo.2
+  double theta_star = 0.0;  // col.10, Algo.2
   double max_q = 0.0;
   for (size_t i = 0; i < Q.size(); ++i) {
     if (max_q < Q.at(i).second || i == 0) {
@@ -194,7 +192,7 @@ bool BoundingBoxModel::estimate(
     Eigen::Affine3d base2obj_transform;
     tf2::fromMsg(lshape_pose, base2obj_transform);
     Eigen::Matrix3d refine_rotation;
-    if (lshape_yaw > M_PI) lshape_yaw = lshape_yaw - (2 * M_PI);
+    if (lshape_yaw > M_PI) {lshape_yaw = lshape_yaw - (2 * M_PI);}
     double angle = lshape_yaw - original_yaw;
 
     if (std::fabs(angle) < M_PI_4 /* same direction */) {
@@ -204,7 +202,7 @@ bool BoundingBoxModel::estimate(
       std::swap(refined_shape.dimensions.x, refined_shape.dimensions.y);
     } else if ((3 * M_PI / 4) < std::fabs(angle) /* opposite direction */) {
       refine_rotation = Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitZ());
-    } else /* -90 direction */ {
+    } else { /* -90 direction */
       refine_rotation = Eigen::AngleAxisd(M_PI_2, Eigen::Vector3d::UnitZ());
       std::swap(refined_shape.dimensions.x, refined_shape.dimensions.y);
     }
@@ -222,7 +220,7 @@ bool BoundingBoxModel::estimate(
   shape_output = refined_shape;
 
   // check wrong output
-  if (shape_output.dimensions.x < ep && shape_output.dimensions.y < ep) return false;
+  if (shape_output.dimensions.x < ep && shape_output.dimensions.y < ep) {return false;}
   shape_output.dimensions.x = std::max(shape_output.dimensions.x, ep);
   shape_output.dimensions.y = std::max(shape_output.dimensions.y, ep);
   return true;

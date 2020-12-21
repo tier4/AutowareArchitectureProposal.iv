@@ -1,28 +1,26 @@
-/*
- * Copyright 2020 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /**
  * @file raspi_cpu_monitor.cpp
  * @brief Raspberry Pi CPU monitor class
  */
 
-#include <system_monitor/cpu_monitor/raspi_cpu_monitor.h>
-#include <system_monitor/system_monitor_utility.h>
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
+#include "system_monitor/cpu_monitor/raspi_cpu_monitor.hpp"
+#include "system_monitor/system_monitor_utility.hpp"
+#include "boost/algorithm/string.hpp"
+#include "boost/filesystem.hpp"
 #include <string>
 #include <vector>
 
@@ -51,15 +49,16 @@ void CPUMonitor::checkThrottling(diagnostic_updater::DiagnosticStatusWrapper & s
   ifs.close();
 
   // Consider only thermal throttling as an error
-  if ((throttled & raspiThermalThrottlingMask) == raspiThermalThrottlingMask)
+  if ((throttled & raspiThermalThrottlingMask) == raspiThermalThrottlingMask) {
     level = DiagStatus::ERROR;
+  }
 
   while (throttled) {
     int flag = throttled & ((~throttled) + 1);
     throttled ^= flag;
     status.push_back(throttledToString(flag));
   }
-  if (status.empty()) status.emplace_back("All clear");
+  if (status.empty()) {status.emplace_back("All clear");}
 
   stat.add("status", boost::algorithm::join(status, ", "));
 

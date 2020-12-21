@@ -1,36 +1,41 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-#include "ros/ros.h"
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include <lanelet2_core/geometry/Polygon.h>
-#include <lanelet2_core/primitives/BasicRegulatoryElements.h>
-#include <lanelet2_extension/regulatory_elements/road_marking.h>
-#include <lanelet2_extension/utility/query.h>
-#include <lanelet2_extension/utility/utilities.h>
+#include "scene_module/intersection/util.hpp"
 
-#include "scene_module/intersection/util.h"
-#include "utilization/interpolate.h"
-#include "utilization/util.h"
+#include <algorithm>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "lanelet2_core/geometry/Polygon.h"
+#include "lanelet2_core/primitives/BasicRegulatoryElements.h"
+#include "lanelet2_extension/regulatory_elements/road_marking.hpp"
+#include "lanelet2_extension/utility/query.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
+
+#include "rclcpp/rclcpp.hpp"
+#include "utilization/interpolate.hpp"
+#include "utilization/util.hpp"
 
 namespace bg = boost::geometry;
 
 namespace util
 {
 int insertPoint(
-  const geometry_msgs::Pose & in_pose, autoware_planning_msgs::PathWithLaneId * inout_path)
+  const geometry_msgs::msg::Pose & in_pose,
+  autoware_planning_msgs::msg::PathWithLaneId * inout_path)
 {
   static constexpr double dist_thr = 10.0;
   static constexpr double angle_thr = M_PI / 1.5;
@@ -43,7 +48,7 @@ int insertPoint(
     ++insert_idx;
   }
 
-  autoware_planning_msgs::PathPointWithLaneId inserted_point;
+  autoware_planning_msgs::msg::PathPointWithLaneId inserted_point;
   inserted_point = inout_path->points.at(closest_idx);
   inserted_point.point.pose = in_pose;
 
@@ -53,8 +58,8 @@ int insertPoint(
 }
 
 bool splineInterpolate(
-  const autoware_planning_msgs::PathWithLaneId & input, const double interval,
-  autoware_planning_msgs::PathWithLaneId * output)
+  const autoware_planning_msgs::msg::PathWithLaneId & input, const double interval,
+  autoware_planning_msgs::msg::PathWithLaneId * output, const rclcpp::Logger logger)
 {
   *output = input;
 
@@ -104,15 +109,16 @@ bool splineInterpolate(
     !spline.interpolate(
       base_s, base_y, resampled_s, resampled_y, spline_interpolation::Method::PCG) ||
     !spline.interpolate(
-      base_s, base_z, resampled_s, resampled_z, spline_interpolation::Method::PCG)) {
-    ROS_ERROR("[IntersectionModule::splineInterpolate] spline interpolation failed.");
+      base_s, base_z, resampled_s, resampled_z, spline_interpolation::Method::PCG))
+  {
+    RCLCPP_ERROR(logger, "spline interpolation failed.");
     return false;
   }
 
   // set xy
   output->points.clear();
   for (size_t i = 0; i < resampled_s.size(); i++) {
-    autoware_planning_msgs::PathPointWithLaneId p;
+    autoware_planning_msgs::msg::PathPointWithLaneId p;
     p.point.pose.position.x = resampled_x.at(i);
     p.point.pose.position.y = resampled_y.at(i);
     p.point.pose.position.z = resampled_z.at(i);
@@ -134,25 +140,25 @@ bool splineInterpolate(
   return true;
 }
 
-geometry_msgs::Pose getAheadPose(
+geometry_msgs::msg::Pose getAheadPose(
   const size_t start_idx, const double ahead_dist,
-  const autoware_planning_msgs::PathWithLaneId & path)
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   if (path.points.size() == 0) {
-    return geometry_msgs::Pose{};
+    return geometry_msgs::msg::Pose{};
   }
 
   double curr_dist = 0.0;
   double prev_dist = 0.0;
-  for (size_t i = start_idx; i < path.points.size() - 1 && i >= 0; ++i) {
-    const geometry_msgs::Pose p0 = path.points.at(i).point.pose;
-    const geometry_msgs::Pose p1 = path.points.at(i + 1).point.pose;
+  for (size_t i = start_idx; i < path.points.size() - 1; ++i) {
+    const geometry_msgs::msg::Pose p0 = path.points.at(i).point.pose;
+    const geometry_msgs::msg::Pose p1 = path.points.at(i + 1).point.pose;
     curr_dist += planning_utils::calcDist2d(p0, p1);
     if (curr_dist > ahead_dist) {
       const double dl = std::max(curr_dist - prev_dist, 0.0001 /* avoid 0 divide */);
       const double w_p0 = (curr_dist - ahead_dist) / dl;
       const double w_p1 = (ahead_dist - prev_dist) / dl;
-      geometry_msgs::Pose p;
+      geometry_msgs::msg::Pose p;
       p.position.x = w_p0 * p0.position.x + w_p1 * p1.position.x;
       p.position.y = w_p0 * p0.position.y + w_p1 * p1.position.y;
       p.position.z = w_p0 * p0.position.z + w_p1 * p1.position.z;
@@ -168,7 +174,7 @@ geometry_msgs::Pose getAheadPose(
 }
 
 bool setVelocityFrom(
-  const size_t idx, const double vel, autoware_planning_msgs::PathWithLaneId * input)
+  const size_t idx, const double vel, autoware_planning_msgs::msg::PathWithLaneId * input)
 {
   for (size_t i = idx; i < input->points.size(); ++i) {
     input->points.at(i).point.twist.linear.x =
@@ -177,23 +183,23 @@ bool setVelocityFrom(
   return true;
 }
 
-bool isAheadOf(const geometry_msgs::Pose & target, const geometry_msgs::Pose & origin)
+bool isAheadOf(const geometry_msgs::msg::Pose & target, const geometry_msgs::msg::Pose & origin)
 {
-  geometry_msgs::Pose p = planning_utils::transformRelCoordinate2D(target, origin);
+  geometry_msgs::msg::Pose p = planning_utils::transformRelCoordinate2D(target, origin);
   bool is_target_ahead = (p.position.x > 0.0);
   return is_target_ahead;
 }
 
-bool hasLaneId(const autoware_planning_msgs::PathPointWithLaneId & p, const int id)
+bool hasLaneId(const autoware_planning_msgs::msg::PathPointWithLaneId & p, const int id)
 {
   for (const auto & pid : p.lane_ids) {
-    if (pid == id) return true;
+    if (pid == id) {return true;}
   }
   return false;
 }
 
 int getFirstPointInsidePolygons(
-  const autoware_planning_msgs::PathWithLaneId & path,
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
   const std::vector<lanelet::CompoundPolygon3d> & polygons)
 {
   int first_idx_inside_lanelet = -1;
@@ -208,7 +214,7 @@ int getFirstPointInsidePolygons(
         break;
       }
     }
-    if (is_in_lanelet) break;
+    if (is_in_lanelet) {break;}
   }
   return first_idx_inside_lanelet;
 }
@@ -217,8 +223,8 @@ bool generateStopLine(
   const int lane_id, const std::vector<lanelet::CompoundPolygon3d> detection_areas,
   const std::shared_ptr<const PlannerData> & planner_data,
   const IntersectionModule::PlannerParam & planner_param,
-  autoware_planning_msgs::PathWithLaneId * path, int * stop_line_idx, int * pass_judge_line_idx,
-  int * first_idx_inside_lane)
+  autoware_planning_msgs::msg::PathWithLaneId * path, int * stop_line_idx,
+  int * pass_judge_line_idx, int * first_idx_inside_lane, const rclcpp::Logger logger)
 {
   /* set judge line dist */
   const double current_vel = planner_data->current_velocity->twist.linear.x;
@@ -231,19 +237,20 @@ bool generateStopLine(
   constexpr double interval = 0.2;
 
   const int margin_idx_dist = std::ceil(planner_param.stop_line_margin / interval);
-  const int base2front_idx_dist = std::ceil(planner_data->base_link2front / interval);
+  const int base2front_idx_dist =
+    std::ceil(planner_data->vehicle_info_.max_longitudinal_offset_m_ / interval);
   const int pass_judge_idx_dist = std::ceil(pass_judge_line_dist / interval);
 
   /* spline interpolation */
-  autoware_planning_msgs::PathWithLaneId path_ip;
-  if (!util::splineInterpolate(*path, interval, &path_ip)) return false;
+  autoware_planning_msgs::msg::PathWithLaneId path_ip;
+  if (!util::splineInterpolate(*path, interval, &path_ip, logger)) {return false;}
 
   /* generate stop point */
   // If a stop_line is defined in lanelet_map, use it.
   // else, generates a local stop_line with considering the lane conflictions.
   int first_idx_ip_inside_lane;  // first stop point index for interpolated path.
   int stop_idx_ip;               // stop point index for interpolated path.
-  geometry_msgs::Point stop_point_from_map;
+  geometry_msgs::msg::Point stop_point_from_map;
   if (getStopPoseFromMap(lane_id, &stop_point_from_map, planner_data)) {
     planning_utils::calcClosestIndex(path_ip, stop_point_from_map, stop_idx_ip, 10.0);
     stop_idx_ip = std::max(stop_idx_ip - base2front_idx_dist, 0);
@@ -251,17 +258,17 @@ bool generateStopLine(
     // get idx of first_inside_lane point
     first_idx_ip_inside_lane = getFirstPointInsidePolygons(path_ip, detection_areas);
     if (first_idx_ip_inside_lane == -1) {
-      ROS_DEBUG("[Intersection Util] generate stopline, but no intersect line found.");
+      RCLCPP_DEBUG(logger, "generate stopline, but no intersect line found.");
       return false;
     }
     // only for visualization
     const auto first_inside_point = path_ip.points.at(first_idx_ip_inside_lane).point.pose;
     planning_utils::calcClosestIndex(*path, first_inside_point, *first_idx_inside_lane, 10.0);
     if (*first_idx_inside_lane == 0) {
-      ROS_DEBUG(
-        "[Intersection Util] path[0] is already in the detection area. This happens if you have "
-        "already "
-        "crossed the stop line or are very far from the intersection. Ignore computation.");
+      RCLCPP_DEBUG(
+        logger,
+        "path[0] is already in the detection area. This happens if you have "
+        "already crossed the stop line or are very far from the intersection. Ignore computation.");
       *stop_line_idx = 0;
       *pass_judge_line_idx = 0;
       return true;
@@ -292,17 +299,17 @@ bool generateStopLine(
     ++(*stop_line_idx);  // stop index is incremented by judge line insertion
   }
 
-  ROS_DEBUG(
-    "[Intersection Util] generateStopLine() : stop_idx = %d, pass_judge_idx = %d, stop_idx_ip = "
-    "%d, "
-    "pass_judge_idx_ip = %d, has_prior_stopline = %d",
+  RCLCPP_DEBUG(
+    logger,
+    "generateStopLine() : stop_idx = %d, pass_judge_idx = %d, stop_idx_ip = "
+    "%d, pass_judge_idx_ip = %d, has_prior_stopline = %d",
     *stop_line_idx, *pass_judge_line_idx, stop_idx_ip, pass_judge_idx_ip, has_prior_stopline);
 
   return true;
 }
 
 bool getStopPoseFromMap(
-  const int lane_id, geometry_msgs::Point * stop_point,
+  const int lane_id, geometry_msgs::msg::Point * stop_point,
   const std::shared_ptr<const PlannerData> & planner_data)
 {
   lanelet::ConstLanelet lanelet = planner_data->lanelet_map->laneletLayer.get(lane_id);
@@ -316,7 +323,7 @@ bool getStopPoseFromMap(
       break;  // only one stop_line exists.
     }
   }
-  if (stop_line.empty()) return false;
+  if (stop_line.empty()) {return false;}
 
   const auto p_start = stop_line.front().front();
   const auto p_end = stop_line.front().back();
@@ -330,7 +337,7 @@ bool getStopPoseFromMap(
 bool getObjectivePolygons(
   lanelet::LaneletMapConstPtr lanelet_map_ptr, lanelet::routing::RoutingGraphPtr routing_graph_ptr,
   const int lane_id, const IntersectionModule::PlannerParam & planner_param,
-  std::vector<lanelet::CompoundPolygon3d> * polygons)
+  std::vector<lanelet::CompoundPolygon3d> * polygons, const rclcpp::Logger logger)
 {
   const auto & assigned_lanelet = lanelet_map_ptr->laneletLayer.get(lane_id);
 
@@ -404,18 +411,28 @@ bool getObjectivePolygons(
   }
 
   std::stringstream ss_c, ss_y, ss_e, ss_o, ss_os;
-  for (const auto l : conflicting_lanelets) ss_c << l.id() << ", ";
-  for (const auto l : yield_lanelets) ss_y << l.id() << ", ";
-  for (const auto l : ego_lanelets) ss_e << l.id() << ", ";
-  for (const auto l : objective_lanelets) ss_o << l.id() << ", ";
-  for (const auto l : objective_lanelets_sequences) {
-    for (const auto ll : l) ss_os << ll.id() << ", ";
+  for (const auto & l : conflicting_lanelets) {
+    ss_c << l.id() << ", ";
   }
-  ROS_DEBUG(
-    "[Intersection Util] getObjectivePolygons() conflict = %s yield = %s ego = %s",
+  for (const auto & l : yield_lanelets) {
+    ss_y << l.id() << ", ";
+  }
+  for (const auto & l : ego_lanelets) {
+    ss_e << l.id() << ", ";
+  }
+  for (const auto & l : objective_lanelets) {
+    ss_o << l.id() << ", ";
+  }
+  for (const auto & l : objective_lanelets_sequences) {
+    for (const auto & ll : l) {
+      ss_os << ll.id() << ", ";
+    }
+  }
+  RCLCPP_DEBUG(
+    logger, "getObjectivePolygons() conflict = %s yield = %s ego = %s",
     ss_c.str().c_str(), ss_y.str().c_str(), ss_e.str().c_str());
-  ROS_DEBUG(
-    "[Intersection Util] getObjectivePolygons() object = %s object_sequences = %s",
+  RCLCPP_DEBUG(
+    logger, "getObjectivePolygons() object = %s object_sequences = %s",
     ss_o.str().c_str(), ss_os.str().c_str());
   return true;
 }

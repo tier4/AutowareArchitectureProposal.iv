@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2018 lewes6369
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,9 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 */
-#include "TrtNet.h"
-#include <cublas_v2.h>
-#include <cudnn.h>
+#include "TrtNet.hpp"
+#include "cublas_v2.h"
+#include "cudnn.h"
 #include <string.h>
 #include <time.h>
 #include <cassert>
@@ -31,7 +31,7 @@
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
-#include "EntroyCalibrator.h"
+#include "EntroyCalibrator.hpp"
 
 using namespace nvinfer1;
 using namespace nvcaffeparser1;
@@ -39,11 +39,11 @@ using namespace plugin;
 
 static Tn::Logger gLogger;
 
-#define RETURN_AND_LOG(ret, severity, message)                            \
-  do {                                                                    \
+#define RETURN_AND_LOG(ret, severity, message) \
+  do { \
     std::string error_message = "ssd_error_log: " + std::string(message); \
-    gLogger.log(ILogger::Severity::k##severity, error_message.c_str());   \
-    return (ret);                                                         \
+    gLogger.log(ILogger::Severity::k ## severity, error_message.c_str()); \
+    return ret; \
   } while (0)
 
 inline void * safeCudaMalloc(size_t memSize)
@@ -182,7 +182,7 @@ void trtNet::InitEngine()
     int64_t totalSize = volume(dims) * maxBatchSize * getElementSize(dtype);
     mTrtBindBufferSize[i] = totalSize;
     mTrtCudaBuffer[i] = safeCudaMalloc(totalSize);
-    if (mTrtEngine->bindingIsInput(i)) mTrtInputCount++;
+    if (mTrtEngine->bindingIsInput(i)) {mTrtInputCount++;}
   }
 
   CUDA_CHECK(cudaStreamCreate(&mTrtCudaStream));
@@ -191,7 +191,7 @@ void trtNet::InitEngine()
 nvinfer1::ICudaEngine * trtNet::loadModelAndCreateEngine(
   const char * deployFile, const char * modelFile, int maxBatchSize, ICaffeParser * parser,
   nvcaffeparser1::IPluginFactory * pluginFactory, IInt8Calibrator * calibrator,
-  IHostMemory *& trtModelStream, const std::vector<std::string> & outputNodesName)
+  IHostMemory * & trtModelStream, const std::vector<std::string> & outputNodesName)
 {
   // Create the builder
   IBuilder * builder = createInferBuilder(gLogger);
@@ -204,14 +204,14 @@ nvinfer1::ICudaEngine * trtNet::loadModelAndCreateEngine(
   std::cout << "Begin parsing model..." << std::endl;
   const IBlobNameToTensor * blobNameToTensor =
     parser->parse(deployFile, modelFile, *network, nvinfer1::DataType::kFLOAT);
-  if (!blobNameToTensor) RETURN_AND_LOG(nullptr, ERROR, "Fail to parse");
+  if (!blobNameToTensor) {RETURN_AND_LOG(nullptr, ERROR, "Fail to parse");}
   std::cout << "End parsing model..." << std::endl;
 
   // specify which tensors are outputs
   for (auto & name : outputNodesName) {
     auto output = blobNameToTensor->find(name.c_str());
     assert(output != nullptr);
-    if (output == nullptr) std::cout << "can not find output named " << name << std::endl;
+    if (output == nullptr) {std::cout << "can not find output named " << name << std::endl;}
 
     network->markOutput(*output);
   }
@@ -221,20 +221,22 @@ nvinfer1::ICudaEngine * trtNet::loadModelAndCreateEngine(
   config->setMaxWorkspaceSize(1 << 30);  // 1G
   if (mTrtRunMode == RUN_MODE::INT8) {
     std::cout << "setInt8Mode" << std::endl;
-    if (!builder->platformHasFastInt8())
+    if (!builder->platformHasFastInt8()) {
       std::cout << "Notice: the platform do not has fast for int8" << std::endl;
+    }
     config->setFlag(BuilderFlag::kINT8);
     config->setInt8Calibrator(calibrator);
   } else if (mTrtRunMode == RUN_MODE::FLOAT16) {
     std::cout << "setFp16Mode" << std::endl;
-    if (!builder->platformHasFastFp16())
+    if (!builder->platformHasFastFp16()) {
       std::cout << "Notice: the platform do not has fast for fp16" << std::endl;
+    }
     config->setFlag(BuilderFlag::kFP16);
   }
 
   std::cout << "Begin building engine..." << std::endl;
   ICudaEngine * engine = builder->buildEngineWithConfig(*network, *config);
-  if (!engine) RETURN_AND_LOG(nullptr, ERROR, "Unable to create engine");
+  if (!engine) {RETURN_AND_LOG(nullptr, ERROR, "Unable to create engine");}
   std::cout << "End building engine..." << std::endl;
 
   // We don't need the network any more, and we can destroy the parser.
@@ -257,9 +259,10 @@ void trtNet::doInference(const void * inputData, void * outputData)
 
   // DMA the input to the GPU,  execute the batch asynchronously, and DMA it back:
   int inputIndex = 0;
-  CUDA_CHECK(cudaMemcpyAsync(
-    mTrtCudaBuffer[inputIndex], inputData, mTrtBindBufferSize[inputIndex], cudaMemcpyHostToDevice,
-    mTrtCudaStream));
+  CUDA_CHECK(
+    cudaMemcpyAsync(
+      mTrtCudaBuffer[inputIndex], inputData, mTrtBindBufferSize[inputIndex], cudaMemcpyHostToDevice,
+      mTrtCudaStream));
   auto t_start = std::chrono::high_resolution_clock::now();
   mTrtContext->execute(batchSize, &mTrtCudaBuffer[inputIndex]);
   auto t_end = std::chrono::high_resolution_clock::now();
@@ -269,8 +272,9 @@ void trtNet::doInference(const void * inputData, void * outputData)
 
   for (size_t bindingIdx = mTrtInputCount; bindingIdx < mTrtBindBufferSize.size(); ++bindingIdx) {
     auto size = mTrtBindBufferSize[bindingIdx];
-    CUDA_CHECK(cudaMemcpyAsync(
-      outputData, mTrtCudaBuffer[bindingIdx], size, cudaMemcpyDeviceToHost, mTrtCudaStream));
+    CUDA_CHECK(
+      cudaMemcpyAsync(
+        outputData, mTrtCudaBuffer[bindingIdx], size, cudaMemcpyDeviceToHost, mTrtCudaStream));
     outputData = (char *)outputData + size;
   }
 

@@ -1,34 +1,39 @@
-/*
- * Copyright 2018-2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-#include <autoware_planning_msgs/msg/trajectory.hpp>
-#include <autoware_planning_msgs/msg/velocity_limit.hpp>
-#include <autoware_debug_msgs/msg/float32_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <autoware_debug_msgs/msg/float32_multi_array_stamped.hpp>
-#include <tf2/utils.h>
-#include <tf2_ros/transform_listener.h>
+// Copyright 2018-2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#ifndef MOTION_VELOCITY_OPTIMIZER__MOTION_VELOCITY_OPTIMIZER_HPP_
+#define MOTION_VELOCITY_OPTIMIZER__MOTION_VELOCITY_OPTIMIZER_HPP_
+
 #include <iostream>
+#include <memory>
 #include <mutex>
 #include <string>
+#include <vector>
 
-#include <motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp>
-#include <motion_velocity_optimizer/optimizer/optimizer_base.hpp>
+#include "motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp"
+#include "motion_velocity_optimizer/optimizer/optimizer_base.hpp"
 
-#include <osqp_interface/osqp_interface.h>
+#include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
+#include "autoware_debug_msgs/msg/float32_stamped.hpp"
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "autoware_planning_msgs/msg/velocity_limit.hpp"
+#include "osqp_interface/osqp_interface.hpp"
+
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "tf2/utils.h"
+#include "tf2_ros/transform_listener.h"
 
 class MotionVelocityOptimizer : public rclcpp::Node
 {
@@ -37,12 +42,17 @@ public:
   ~MotionVelocityOptimizer();
 
 private:
-  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_; //!< @brief publisher for output trajectory
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_velocity_;  //!< @brief subscriber for current velocity
-  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_current_trajectory_;  //!< @brief subscriber for reference trajectory
-  rclcpp::Subscription<autoware_planning_msgs::msg::VelocityLimit>::SharedPtr sub_external_velocity_limit_;//!< @brief subscriber for external velocity limit
-  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;  //!< @brief tf butter
-  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;  //!< @brief tf listener
+  // publisher for output trajectory
+  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_;
+  // subscriber for current velocity
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_velocity_;
+  // subscriber for reference trajectory
+  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_current_trajectory_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::VelocityLimit>::SharedPtr
+  // subscriber for external velocity limit
+    sub_external_velocity_limit_;
+  tf2::BufferCore tf_buffer_;  //!< @brief tf butter
+  tf2_ros::TransformListener tf_listener_;  //!< @brief tf listener
 
   double external_velocity_limit_update_rate_;
   rclcpp::TimerBase::SharedPtr timer_;
@@ -50,15 +60,20 @@ private:
   std::mutex mutex_;
 
 
-  geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose_ptr_;           // current vehicle pose
-  geometry_msgs::msg::TwistStamped::ConstSharedPtr current_velocity_ptr_;      // current vehicle twist
-  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr base_traj_raw_ptr_;  // current base_waypoints
-  autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr external_velocity_limit_ptr_;  // current external_velocity_limit
+  // current vehicle pose
+  geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose_ptr_;
+  // current vehicle twist
+  geometry_msgs::msg::TwistStamped::ConstSharedPtr current_velocity_ptr_;
+  // current base_waypoints
+  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr base_traj_raw_ptr_;
+  // current external_velocity_limit
+  autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr external_velocity_limit_ptr_;
   std::shared_ptr<double> external_velocity_limit_filtered_;
 
   autoware_planning_msgs::msg::Trajectory prev_output_;  // previously published trajectory
 
-  enum class InitializeType {
+  enum class InitializeType
+  {
     INIT = 0,
     LARGE_DEVIATION_REPLAN = 1,
     ENGAGING = 2,
@@ -98,7 +113,8 @@ private:
   /* topic callback */
   void callbackCurrentVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
   void callbackCurrentTrajectory(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg);
-  void callbackExternalVelocityLimit(const autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr msg);
+  void callbackExternalVelocityLimit(
+    const autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr msg);
   void timerCallback();
 
 
@@ -115,7 +131,8 @@ private:
 
   autoware_planning_msgs::msg::Trajectory optimizeVelocity(
     const autoware_planning_msgs::msg::Trajectory & input, const int input_closest,
-    const autoware_planning_msgs::msg::Trajectory & prev_output_traj, const int prev_output_closest);
+    const autoware_planning_msgs::msg::Trajectory & prev_output_traj,
+    const int prev_output_closest);
 
   void calcInitialMotion(
     const double & base_speed, const autoware_planning_msgs::msg::Trajectory & base_waypoints,
@@ -159,12 +176,19 @@ private:
 
   /* debug */
 
-  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub_dist_to_stopline_;  //!< @brief publisher for stop distance
+  // publisher for stop distance
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub_dist_to_stopline_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_raw_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_vel_lim_;
-  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_latcc_filtered_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr
+    pub_trajectory_latcc_filtered_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_resampled_;
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr debug_closest_velocity_;
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr debug_closest_acc_;
-  void publishFloat(const double & data, const rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub) const;
+  void publishFloat(
+    const double & data,
+    const rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub)
+  const;
 };
+
+#endif  // MOTION_VELOCITY_OPTIMIZER__MOTION_VELOCITY_OPTIMIZER_HPP_

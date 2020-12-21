@@ -1,32 +1,30 @@
-/*
- * Copyright 2020 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /**
  * @file cpu_monitor_base.cpp
  * @brief CPU monitor base class
  */
 
-#include <system_monitor/cpu_monitor/cpu_monitor_base.h>
+#include "system_monitor/cpu_monitor/cpu_monitor_base.hpp"
 #include <algorithm>
-#include <boost/filesystem.hpp>
-#include <boost/process.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/regex.hpp>
-#include <boost/thread.hpp>
+#include "boost/filesystem.hpp"
+#include "boost/process.hpp"
+#include "boost/property_tree/json_parser.hpp"
+#include "boost/property_tree/ptree.hpp"
+#include "boost/regex.hpp"
+#include "boost/thread.hpp"
 #include <string>
 
 namespace bp = boost::process;
@@ -66,7 +64,7 @@ CPUMonitorBase::CPUMonitorBase(const std::string & node_name, const rclcpp::Node
 
 void CPUMonitorBase::update()
 {
-    updater_.force_update();
+  updater_.force_update();
 }
 
 void CPUMonitorBase::checkTemp(diagnostic_updater::DiagnosticStatusWrapper & stat)
@@ -95,16 +93,18 @@ void CPUMonitorBase::checkTemp(diagnostic_updater::DiagnosticStatusWrapper & sta
     temp /= 1000;
     stat.addf(itr->label_, "%.1f DegC", temp);
 
-    if (temp >= temp_error_)
+    if (temp >= temp_error_) {
       level = std::max(level, static_cast<int>(DiagStatus::ERROR));
-    else if (temp >= temp_warn_)
+    } else if (temp >= temp_warn_) {
       level = std::max(level, static_cast<int>(DiagStatus::WARN));
+    }
   }
 
-  if (!error_str.empty())
+  if (!error_str.empty()) {
     stat.summary(DiagStatus::ERROR, error_str);
-  else
+  } else {
     stat.summary(level, temp_dict_.at(level));
+  }
 }
 
 void CPUMonitorBase::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
@@ -153,20 +153,22 @@ void CPUMonitorBase::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & st
         for (const pt::ptree::value_type & child3 : statistics.get_child("cpu-load")) {
           const pt::ptree & cpu_load = child3.second;
 
-          if (boost::optional<std::string> v = cpu_load.get_optional<std::string>("cpu"))
+          if (boost::optional<std::string> v = cpu_load.get_optional<std::string>("cpu")) {
             cpu_name = v.get();
-          if (boost::optional<float> v = cpu_load.get_optional<float>("usr")) usr = v.get();
-          if (boost::optional<float> v = cpu_load.get_optional<float>("nice")) nice = v.get();
-          if (boost::optional<float> v = cpu_load.get_optional<float>("sys")) sys = v.get();
-          if (boost::optional<float> v = cpu_load.get_optional<float>("idle")) idle = v.get();
+          }
+          if (boost::optional<float> v = cpu_load.get_optional<float>("usr")) {usr = v.get();}
+          if (boost::optional<float> v = cpu_load.get_optional<float>("nice")) {nice = v.get();}
+          if (boost::optional<float> v = cpu_load.get_optional<float>("sys")) {sys = v.get();}
+          if (boost::optional<float> v = cpu_load.get_optional<float>("idle")) {idle = v.get();}
 
           usage = (usr + nice) * 1e-2;
 
           level = DiagStatus::OK;
-          if (usage >= usage_error_)
+          if (usage >= usage_error_) {
             level = DiagStatus::ERROR;
-          else if (usage >= usage_warn_)
+          } else if (usage >= usage_warn_) {
             level = DiagStatus::WARN;
+          }
 
           stat.add((boost::format("CPU %1%: status") % cpu_name).str(), load_dict_.at(level));
           stat.addf((boost::format("CPU %1%: usr") % cpu_name).str(), "%.2f%%", usr);
@@ -175,7 +177,7 @@ void CPUMonitorBase::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & st
           stat.addf((boost::format("CPU %1%: idle") % cpu_name).str(), "%.2f%%", idle);
 
           if (usage_avg_ == true) {
-            if (cpu_name == "all") whole_level = level;
+            if (cpu_name == "all") {whole_level = level;}
           } else {
             whole_level = std::max(whole_level, level);
           }
@@ -206,7 +208,7 @@ void CPUMonitorBase::checkLoad(diagnostic_updater::DiagnosticStatusWrapper & sta
   loadavg[2] /= num_cores_;
 
   int level = DiagStatus::OK;
-  if (loadavg[0] > load1_warn_ || loadavg[1] > load5_warn_) level = DiagStatus::WARN;
+  if (loadavg[0] > load1_warn_ || loadavg[1] > load5_warn_) {level = DiagStatus::WARN;}
 
   stat.summary(level, load_dict_.at(level));
   stat.addf("1min", "%.2f%%", loadavg[0] * 1e2);
@@ -232,9 +234,10 @@ void CPUMonitorBase::checkFrequency(diagnostic_updater::DiagnosticStatusWrapper 
     fs::ifstream ifs(path, std::ios::in);
     if (ifs) {
       std::string line;
-      if (std::getline(ifs, line))
+      if (std::getline(ifs, line)) {
         stat.addf(
           (boost::format("CPU %1%: clock") % itr->index_).str(), "%d MHz", std::stoi(line) / 1000);
+      }
     }
     ifs.close();
   }
@@ -244,7 +247,7 @@ void CPUMonitorBase::checkFrequency(diagnostic_updater::DiagnosticStatusWrapper 
 
 void CPUMonitorBase::getTempNames(void)
 {
-    RCLCPP_INFO(this->get_logger(), "CPUMonitorBase::getTempNames not implemented.");
+  RCLCPP_INFO(this->get_logger(), "CPUMonitorBase::getTempNames not implemented.");
 }
 
 void CPUMonitorBase::getFreqNames(void)
@@ -252,15 +255,16 @@ void CPUMonitorBase::getFreqNames(void)
   const fs::path root("/sys/devices/system/cpu");
 
   for (const fs::path & path :
-       boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator())) {
-    if (!fs::is_directory(path)) continue;
+    boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator()))
+  {
+    if (!fs::is_directory(path)) {continue;}
 
     boost::smatch match;
     const boost::regex filter(".*cpu(\\d+)");
     const std::string cpu_dir = path.generic_string();
 
     // /sys/devices/system/cpu[0-9] ?
-    if (!boost::regex_match(cpu_dir, match, filter)) continue;
+    if (!boost::regex_match(cpu_dir, match, filter)) {continue;}
 
     // /sys/devices/system/cpu[0-9]/cpufreq/scaling_cur_freq
     cpu_freq_info freq;
@@ -270,7 +274,8 @@ void CPUMonitorBase::getFreqNames(void)
     freqs_.push_back(freq);
   }
 
-  std::sort(freqs_.begin(), freqs_.end(), [](const cpu_freq_info & c1, const cpu_freq_info & c2) {
-    return c1.index_ < c2.index_;
-  });  // NOLINT
+  std::sort(
+    freqs_.begin(), freqs_.end(), [](const cpu_freq_info & c1, const cpu_freq_info & c2) {
+      return c1.index_ < c2.index_;
+    }); // NOLINT
 }

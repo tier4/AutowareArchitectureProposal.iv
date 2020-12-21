@@ -1,25 +1,28 @@
-/*
- * Copyright 2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-#include <lane_change_planner/data_manager.h>
-#include <lane_change_planner/route_handler.h>
-#include <lane_change_planner/state/common_functions.h>
-#include <lane_change_planner/state/stopping_lane_change.h>
-#include <lane_change_planner/utilities.h>
+// Copyright 2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include <lanelet2_extension/utility/utilities.h>
+#include "lane_change_planner/state/stopping_lane_change.hpp"
+
+#include <memory>
+#include <vector>
+
+#include "lane_change_planner/data_manager.hpp"
+#include "lane_change_planner/route_handler.hpp"
+#include "lane_change_planner/state/common_functions.hpp"
+#include "lane_change_planner/utilities.hpp"
+
+#include "lanelet2_extension/utility/utilities.hpp"
 
 namespace lane_change_planner
 {
@@ -29,7 +32,7 @@ StoppingLaneChangeState::StoppingLaneChangeState(
 : StateBase(status, data_manager_ptr, route_handler_ptr)
 {
 }
-State StoppingLaneChangeState::getCurrentState() const { return State::STOPPING_LANE_CHANGE; }
+State StoppingLaneChangeState::getCurrentState() const {return State::STOPPING_LANE_CHANGE;}
 
 void StoppingLaneChangeState::entry()
 {

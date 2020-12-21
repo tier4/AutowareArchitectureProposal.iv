@@ -1,34 +1,32 @@
-/*
- * Copyright 2020 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /**
  * @file process_monitor.cpp
  * @brief Process monitor class
  */
 
-#include <system_monitor/process_monitor/process_monitor.h>
-#include <boost/format.hpp>
-#include <boost/regex.hpp>
+#include "system_monitor/process_monitor/process_monitor.hpp"
+#include "boost/format.hpp"
+#include "boost/regex.hpp"
 #include <string>
 #include <vector>
 
-ProcessMonitor::ProcessMonitor(const std::string & node_name, const rclcpp::NodeOptions & options) :
-Node(node_name, options),
-updater_(this),
-num_of_procs_(declare_parameter<int>("num_of_procs", 5))
+ProcessMonitor::ProcessMonitor(const std::string & node_name, const rclcpp::NodeOptions & options)
+: Node(node_name, options),
+  updater_(this),
+  num_of_procs_(declare_parameter<int>("num_of_procs", 5))
 {
   int index;
 
@@ -51,7 +49,7 @@ num_of_procs_(declare_parameter<int>("num_of_procs", 5))
 
 void ProcessMonitor::update()
 {
-    updater_.force_update();
+  updater_.force_update();
 }
 
 void ProcessMonitor::monitorProcesses(diagnostic_updater::DiagnosticStatusWrapper & stat)
@@ -245,7 +243,7 @@ void ProcessMonitor::getHighMemoryProcesses(const std::string & output)
 void ProcessMonitor::getTopratedProcesses(
   std::vector<std::shared_ptr<DiagTask>> * tasks, bp::pipe * p)
 {
-  if (tasks == nullptr || p == nullptr) return;
+  if (tasks == nullptr || p == nullptr) {return;}
 
   bp::ipstream is_out;
   bp::ipstream is_err;
@@ -292,7 +290,7 @@ void ProcessMonitor::setErrorContent(
   std::vector<std::shared_ptr<DiagTask>> * tasks, const std::string & message,
   const std::string & error_command, const std::string & content)
 {
-  if (tasks == nullptr) return;
+  if (tasks == nullptr) {return;}
 
   for (auto itr = tasks->begin(); itr != tasks->end(); ++itr) {
     (*itr)->setDiagnosticsStatus(DiagStatus::ERROR, message);

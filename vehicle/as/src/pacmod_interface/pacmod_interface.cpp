@@ -1,20 +1,22 @@
-/*
- * Copyright 2017-2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2017-2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include "pacmod_interface/pacmod_interface.h"
+#include <algorithm>
+#include <memory>
+#include <utility>
+
+#include "pacmod_interface/pacmod_interface.hpp"
 
 PacmodInterface::PacmodInterface()
 : Node("pacmod_interface"),
@@ -23,7 +25,8 @@ PacmodInterface::PacmodInterface()
   is_clear_override_needed_(false),
   prev_override_(true),
   engage_cmd_(false),
-  prev_engage_cmd_(false)
+  prev_engage_cmd_(false),
+  vehicle_info_(vehicle_info_util::VehicleInfo::create(*this))
 {
   /* setup parameters */
   base_frame_id_ = declare_parameter("base_frame_id", "base_link");
@@ -31,8 +34,10 @@ PacmodInterface::PacmodInterface()
   loop_rate_ = declare_parameter("loop_rate", 30.0);
 
   /* parameters for vehicle specifications */
-  tire_radius_ = declare_parameter("vehicle_info.wheel_radius", 0.5);
-  wheel_base_ = declare_parameter("vehicle_info.wheel_base", 4.0);
+  tire_radius_ = vehicle_info_.wheel_radius_m_;
+  wheel_base_ = vehicle_info_.wheel_base_m_;
+
+
   steering_offset_ = declare_parameter("steering_offset", 0.0);
   enable_steering_rate_control_ = declare_parameter("enable_steering_rate_control", false);
 
@@ -70,10 +75,10 @@ PacmodInterface::PacmodInterface()
 
   steer_wheel_rpt_sub_ =
     std::make_unique<message_filters::Subscriber<pacmod_msgs::msg::SystemRptFloat>>(
-      this, "/pacmod/parsed_tx/steer_rpt");
+    this, "/pacmod/parsed_tx/steer_rpt");
   wheel_speed_rpt_sub_ =
     std::make_unique<message_filters::Subscriber<pacmod_msgs::msg::WheelSpeedRpt>>(
-      this, "/pacmod/parsed_tx/wheel_speed_rpt");
+    this, "/pacmod/parsed_tx/wheel_speed_rpt");
   accel_rpt_sub_ = std::make_unique<message_filters::Subscriber<pacmod_msgs::msg::SystemRptFloat>>(
     this, "/pacmod/parsed_tx/accel_rpt");
   brake_rpt_sub_ = std::make_unique<message_filters::Subscriber<pacmod_msgs::msg::SystemRptFloat>>(
@@ -87,13 +92,14 @@ PacmodInterface::PacmodInterface()
 
   pacmod_feedbacks_sync_ =
     std::make_unique<message_filters::Synchronizer<PacmodFeedbacksSyncPolicy>>(
-      PacmodFeedbacksSyncPolicy(10), *steer_wheel_rpt_sub_, *wheel_speed_rpt_sub_, *accel_rpt_sub_,
-      *brake_rpt_sub_, *shift_rpt_sub_, *turn_rpt_sub_, *global_rpt_sub_);
+    PacmodFeedbacksSyncPolicy(10), *steer_wheel_rpt_sub_, *wheel_speed_rpt_sub_, *accel_rpt_sub_,
+    *brake_rpt_sub_, *shift_rpt_sub_, *turn_rpt_sub_, *global_rpt_sub_);
 
-  pacmod_feedbacks_sync_->registerCallback(std::bind(
-    &PacmodInterface::callbackPacmodRpt, this, std::placeholders::_1, std::placeholders::_2,
-    std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6,
-    std::placeholders::_7));
+  pacmod_feedbacks_sync_->registerCallback(
+    std::bind(
+      &PacmodInterface::callbackPacmodRpt, this, std::placeholders::_1, std::placeholders::_2,
+      std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6,
+      std::placeholders::_7));
 
   /* publisher */
   // To pacmod
@@ -294,7 +300,8 @@ void PacmodInterface::publishCommands()
   if (std::fabs(current_velocity) < 0.1) {  // velocity is low -> the shift can be changed
     if (
       toPacmodShiftCmd(raw_vehicle_cmd_ptr_->shift) !=
-      shift_rpt_ptr_->output) {  // need shift change.
+      shift_rpt_ptr_->output)    // need shift change.
+    {
       desired_throttle = 0.0;
       desired_brake = brake_for_shift_trans;  // set brake to change the shift
       desired_shift = toPacmodShiftCmd(raw_vehicle_cmd_ptr_->shift);
@@ -383,7 +390,7 @@ double PacmodInterface::calculateVehicleVelocity(
 {
   double sign = (shift_rpt.output == pacmod_msgs::msg::SystemRptInt::SHIFT_REVERSE) ? -1 : 1;
   double vel = (wheel_speed_rpt.rear_left_wheel_speed + wheel_speed_rpt.rear_right_wheel_speed) *
-               0.5 * tire_radius_;
+    0.5 * tire_radius_;
   return sign * vel;
 }
 

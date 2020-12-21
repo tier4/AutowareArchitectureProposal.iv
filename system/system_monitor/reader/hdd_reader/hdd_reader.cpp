@@ -1,18 +1,16 @@
-/*
- * Copyright 2020 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /**
  * @file hdd_reader.cpp
@@ -20,26 +18,26 @@
  */
 
 #include <errno.h>
-#include <fcntl.h>
-#include <getopt.h>
-#include <hdd_reader/hdd_reader.h>
-#include <linux/nvme_ioctl.h>
-#include <netinet/in.h>
-#include <scsi/sg.h>
+#include "fcntl.h"
+#include "getopt.h"
+#include "hdd_reader/hdd_reader.hpp"
+#include "linux/nvme_ioctl.h"
+#include "netinet/in.h"
+#include "scsi/sg.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <syslog.h>
-#include <unistd.h>
+#include "sys/ioctl.h"
+#include "sys/socket.h"
+#include "syslog.h"
+#include "unistd.h"
 #include <algorithm>
-#include <boost/algorithm/string.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/regex.hpp>
+#include "boost/algorithm/string.hpp"
+#include "boost/archive/text_oarchive.hpp"
+#include "boost/filesystem.hpp"
+#include "boost/format.hpp"
+#include "boost/lexical_cast.hpp"
+#include "boost/regex.hpp"
 #include <string>
 #include <vector>
 
@@ -171,7 +169,9 @@ void usage(void)
  */
 void swap_char(char * ptr, size_t size)
 {
-  for (auto i = 0U; i < size; i += 2U) std::swap(ptr[i], ptr[i + 1]);
+  for (auto i = 0U; i < size; i += 2U) {
+    std::swap(ptr[i], ptr[i + 1]);
+  }
 }
 
 /**
@@ -548,7 +548,8 @@ int main(int argc, char ** argv)
   const fs::path root("/dev");
 
   for (const fs::path & path :
-       boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator())) {
+    boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator()))
+  {
     boost::smatch match;
     const boost::regex fsd("sd([a-z]+)");
     const boost::regex fnvme("nvme(\\d+)");

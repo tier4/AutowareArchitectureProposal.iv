@@ -1,37 +1,35 @@
-/*
- * Copyright 2020 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /**
  * @file memory_monitor.cpp
  * @brief Memory monitor class
  */
 
-#include <system_monitor/mem_monitor/mem_monitor.h>
-#include <boost/format.hpp>
-#include <boost/process.hpp>
+#include "system_monitor/mem_monitor/mem_monitor.hpp"
+#include "boost/format.hpp"
+#include "boost/process.hpp"
 #include <string>
 #include <vector>
 
 namespace bp = boost::process;
 
-MemMonitor::MemMonitor(const std::string & node_name, const rclcpp::NodeOptions & options) :
-Node(node_name, options),
-updater_(this),
-usage_warn_(declare_parameter<float>("usage_warn", 0.95)),
-usage_error_(declare_parameter<float>("usage_error", 0.99))
+MemMonitor::MemMonitor(const std::string & node_name, const rclcpp::NodeOptions & options)
+: Node(node_name, options),
+  updater_(this),
+  usage_warn_(declare_parameter<float>("usage_warn", 0.95)),
+  usage_error_(declare_parameter<float>("usage_error", 0.99))
 {
   gethostname(hostname_, sizeof(hostname_));
   updater_.setHardwareID(hostname_);
@@ -78,10 +76,11 @@ void MemMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
       // used divided by total is usage
       usage = std::atof(list[2].c_str()) / std::atof(list[1].c_str());
 
-      if (usage >= usage_error_)
+      if (usage >= usage_error_) {
         level = DiagStatus::ERROR;
-      else if (usage >= usage_warn_)
+      } else if (usage >= usage_warn_) {
         level = DiagStatus::WARN;
+      }
 
       stat.addf((boost::format("%1% usage") % list[0]).str(), "%.2f%%", usage * 1e+2);
     }

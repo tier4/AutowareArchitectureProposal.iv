@@ -1,43 +1,41 @@
-/*
- * Copyright 2020 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /**
  * @file net_monitor.cpp
  * @brief Net monitor class
  */
 
-#include <ifaddrs.h>
-#include <linux/ethtool.h>
-#include <linux/if_link.h>
-#include <linux/sockios.h>
-#include <net/if.h>
-#include <netdb.h>
-#include <sys/ioctl.h>
-#include <system_monitor/net_monitor/net_monitor.h>
+#include "ifaddrs.h"
+#include "linux/ethtool.h"
+#include "linux/if_link.h"
+#include "linux/sockios.h"
+#include "net/if.h"
+#include "netdb.h"
+#include "sys/ioctl.h"
+#include "system_monitor/net_monitor/net_monitor.hpp"
 #include <algorithm>
-#include <boost/format.hpp>
-#include <boost/range/algorithm.hpp>
+#include "boost/format.hpp"
+#include "boost/range/algorithm.hpp"
 #include <string>
 
-NetMonitor::NetMonitor(const std::string & node_name, const rclcpp::NodeOptions & options) :
-Node(node_name, options),
-updater_(this),
-last_update_time_{0, 0, this->get_clock()->get_clock_type()},
-device_params_(declare_parameter<std::vector<std::string>>("devices", {})),
-usage_warn_(declare_parameter<float>("usage_warn", 0.95))
+NetMonitor::NetMonitor(const std::string & node_name, const rclcpp::NodeOptions & options)
+: Node(node_name, options),
+  updater_(this),
+  last_update_time_{0, 0, this->get_clock()->get_clock_type()},
+  device_params_(declare_parameter<std::vector<std::string>>("devices", {})),
+  usage_warn_(declare_parameter<float>("usage_warn", 0.95))
 {
   gethostname(hostname_, sizeof(hostname_));
   updater_.setHardwareID(hostname_);
@@ -48,12 +46,12 @@ usage_warn_(declare_parameter<float>("usage_warn", 0.95))
 
 void NetMonitor::update()
 {
-    updater_.force_update();
+  updater_.force_update();
 }
 
 void NetMonitor::shutdown_nl80211()
 {
-    nl80211_.shutdown();
+  nl80211_.shutdown();
 }
 
 void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
@@ -86,16 +84,18 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
   for (ifa = ifas; ifa; ifa = ifa->ifa_next) {
     // Skip no addr
-    if (!ifa->ifa_addr) continue;
+    if (!ifa->ifa_addr) {continue;}
     // Skip loopback
-    if (ifa->ifa_flags & IFF_LOOPBACK) continue;
+    if (ifa->ifa_flags & IFF_LOOPBACK) {continue;}
     // Skip non AF_PACKET
-    if (ifa->ifa_addr->sa_family != AF_PACKET) continue;
+    if (ifa->ifa_addr->sa_family != AF_PACKET) {continue;}
     // Skip device not specified
     if (
       boost::find(device_params_, ifa->ifa_name) == device_params_.end() &&
       boost::find(device_params_, "*") == device_params_.end())
+    {
       continue;
+    }
 
     int fd;
     struct ifreq ifrm;
@@ -142,8 +142,9 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
       tx_traffic = toMbit(stats->tx_bytes - bytes_[ifa->ifa_name].tx_bytes) / duration.seconds();
       rx_usage = rx_traffic / speed;
       tx_usage = tx_traffic / speed;
-      if (rx_usage >= usage_warn_ || tx_usage > usage_warn_)
+      if (rx_usage >= usage_warn_ || tx_usage > usage_warn_) {
         level = std::max(level, static_cast<int>(DiagStatus::WARN));
+      }
     }
 
     stat.add((boost::format("Network %1%: status") % index).str(), usage_dict_.at(level));
@@ -170,10 +171,11 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
   freeifaddrs(ifas);
 
-  if (!error_str.empty())
+  if (!error_str.empty()) {
     stat.summary(DiagStatus::ERROR, error_str);
-  else
+  } else {
     stat.summary(whole_level, usage_dict_.at(whole_level));
+  }
 
   last_update_time_ = this->now();
 }

@@ -1,29 +1,29 @@
-/*
- * Copyright 2018-2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2018-2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include <iostream>
+#include <memory>
+#include <string>
+#include <utility>
+#include "geometry_msgs/msg/transform_stamped.hpp"
+#include "gtest/gtest.h"
+#include "rclcpp/rclcpp.hpp"
+#include "eigen3/Eigen/Core"
+#include "eigen3/Eigen/LU"
+#include "tf2_ros/transform_broadcaster.h"
 
-#include <geometry_msgs/msg/transform_stamped.hpp>
-#include <gtest/gtest.h>
-#include <rclcpp/rclcpp.hpp>
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/LU>
-#include <tf2_ros/transform_broadcaster.h>
-
-#include "ekf_localizer/ekf_localizer.h"
+#include "ekf_localizer/ekf_localizer.hpp"
 
 using std::placeholders::_1;
 
@@ -43,10 +43,17 @@ protected:
 class TestEKFLocalizerNode : public EKFLocalizer
 {
 public:
-  TestEKFLocalizerNode(const std::string & node_name, const rclcpp::NodeOptions & node_options) : EKFLocalizer(node_name, node_options)
+  TestEKFLocalizerNode(const std::string & node_name, const rclcpp::NodeOptions & node_options)
+  : EKFLocalizer(node_name, node_options)
   {
-    sub_twist = this->create_subscription<geometry_msgs::msg::TwistStamped>("/ekf_twist", 1, std::bind(&TestEKFLocalizerNode::testCallbackTwist, this, _1));
-    sub_pose = this->create_subscription<geometry_msgs::msg::PoseStamped>("/ekf_pose", 1, std::bind(&TestEKFLocalizerNode::testCallbackPose, this, _1));
+    sub_twist = this->create_subscription<geometry_msgs::msg::TwistStamped>(
+      "/ekf_twist", 1, std::bind(
+        &TestEKFLocalizerNode::testCallbackTwist, this,
+        _1));
+    sub_pose =
+      this->create_subscription<geometry_msgs::msg::PoseStamped>(
+      "/ekf_pose", 1,
+      std::bind(&TestEKFLocalizerNode::testCallbackPose, this, _1));
 
     auto test_timer_callback = std::bind(&TestEKFLocalizerNode::testTimerCallback, this);
     auto period = std::chrono::milliseconds(100);
@@ -71,7 +78,8 @@ public:
   void testTimerCallback()
   {
     /* !!! this should be defined before sendTransform() !!! */
-    static std::shared_ptr<tf2_ros::TransformBroadcaster> br = std::make_shared<tf2_ros::TransformBroadcaster>(shared_from_this());
+    static std::shared_ptr<tf2_ros::TransformBroadcaster> br =
+      std::make_shared<tf2_ros::TransformBroadcaster>(shared_from_this());
     geometry_msgs::msg::TransformStamped sended;
 
     rclcpp::Time current_time = this->now();
@@ -90,7 +98,7 @@ public:
     sended.transform.rotation.w = q.w();
 
     br->sendTransform(sended);
-  };
+  }
 
   void testCallbackPose(geometry_msgs::msg::PoseStamped::SharedPtr pose)
   {
@@ -144,8 +152,8 @@ TEST_F(EKFLocalizerTestSuite, measurementUpdatePose)
   bool is_succeeded = !(std::isnan(ekf_x) || std::isinf(ekf_x));
   ASSERT_EQ(true, is_succeeded) << "ekf result includes invalid value.";
 
-  ASSERT_TRUE(std::fabs(ekf_x - pos_x) < 0.1)
-    << "ekf pos x: " << ekf_x << " should be close to " << pos_x;
+  ASSERT_TRUE(std::fabs(ekf_x - pos_x) < 0.1) <<
+    "ekf pos x: " << ekf_x << " should be close to " << pos_x;
 
   /* test for invalid value */
   in_pose.pose.position.x = NAN;  // check for invalid values
@@ -186,8 +194,8 @@ TEST_F(EKFLocalizerTestSuite, measurementUpdateTwist)
   double ekf_vx = ekf->test_current_twist_ptr_->twist.linear.x;
   bool is_succeeded = !(std::isnan(ekf_vx) || std::isinf(ekf_vx));
   ASSERT_EQ(true, is_succeeded) << "ekf result includes invalid value.";
-  ASSERT_TRUE(std::fabs(ekf_vx - vx) < 0.1)
-    << "ekf vel x: " << ekf_vx << ", should be close to " << vx;
+  ASSERT_TRUE(std::fabs(ekf_vx - vx) < 0.1) <<
+    "ekf vel x: " << ekf_vx << ", should be close to " << vx;
 
   /* test for invalid value */
   in_twist.twist.linear.x = NAN;  // check for invalid values
@@ -213,7 +221,9 @@ TEST_F(EKFLocalizerTestSuite, measurementUpdatePoseWithCovariance)
   auto ekf = std::make_shared<TestEKFLocalizerNode>("EKFLocalizerTestSuite", node_options);
 
   auto pub_pose =
-    ekf->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("/in_pose_with_covariance", 1);
+    ekf->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
+    "/in_pose_with_covariance",
+    1);
   geometry_msgs::msg::PoseWithCovarianceStamped in_pose;
   in_pose.header.frame_id = "world";
   in_pose.pose.pose.position.x = 1.0;
@@ -244,8 +254,8 @@ TEST_F(EKFLocalizerTestSuite, measurementUpdatePoseWithCovariance)
   double ekf_x = ekf->test_current_pose_ptr_->pose.position.x;
   bool is_succeeded = !(std::isnan(ekf_x) || std::isinf(ekf_x));
   ASSERT_EQ(true, is_succeeded) << "ekf result includes invalid value.";
-  ASSERT_TRUE(std::fabs(ekf_x - pos_x) < 0.1)
-    << "ekf pos x: " << ekf_x << " should be close to " << pos_x;
+  ASSERT_TRUE(std::fabs(ekf_x - pos_x) < 0.1) <<
+    "ekf pos x: " << ekf_x << " should be close to " << pos_x;
 
   /* test for invalid value */
   in_pose.pose.pose.position.x = NAN;  // check for invalid values
@@ -267,7 +277,8 @@ TEST_F(EKFLocalizerTestSuite, measurementUpdateTwistWithCovariance)
   auto ekf = std::make_shared<TestEKFLocalizerNode>("EKFLocalizerTestSuite", node_options);
 
   auto pub_twist =
-    ekf->create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>("/in_twist_with_covariance", 1);
+    ekf->create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>(
+    "/in_twist_with_covariance", 1);
   geometry_msgs::msg::TwistWithCovarianceStamped in_twist;
   in_twist.header.frame_id = "base_link";
 

@@ -1,23 +1,21 @@
-/*
- * Copyright 2015-2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2015-2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#ifndef VEHICLE_INFO_UTIL_VEHICLE_INFO_CORE_HPP_
-#define VEHICLE_INFO_UTIL_VEHICLE_INFO_CORE_HPP_
+#ifndef VEHICLE_INFO_UTIL__VEHICLE_INFO_HPP_
+#define VEHICLE_INFO_UTIL__VEHICLE_INFO_HPP_
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
 namespace vehicle_info_util
 {
@@ -69,8 +67,13 @@ public:
   const double max_lateral_offset_m_;
   const double min_height_offset_m_;
   const double max_height_offset_m_;
+
+private:
+  // Used to check if parameters are already declared or not in order to avoid
+  // declaring parameters multiple times.
+  static bool parametersAlreadyDeclared(rclcpp::Node & node);
 };
 
 }  // namespace vehicle_info_util
 
-#endif
+#endif  // VEHICLE_INFO_UTIL__VEHICLE_INFO_HPP_

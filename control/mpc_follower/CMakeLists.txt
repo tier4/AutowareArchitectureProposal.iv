@@ -29,20 +29,25 @@ set(MPC_FOLLOWER_SRC
   src/qp_solver/qp_solver_osqp.cpp
 )
 set(MPC_FOLLOWER_HDR
-  include/mpc_follower/mpc_utils.h
-  include/mpc_follower/interpolate.h
-  include/mpc_follower/mpc_follower_core.h
-  include/mpc_follower/mpc_trajectory.h
-  include/mpc_follower/lowpass_filter.h
-  include/mpc_follower/vehicle_model/vehicle_model_interface.h
-  include/mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics.h
-  include/mpc_follower/vehicle_model/vehicle_model_bicycle_dynamics.h
-  include/mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.h
-  include/mpc_follower/qp_solver/qp_solver_unconstr_fast.h
-  include/mpc_follower/qp_solver/qp_solver_osqp.h
-  )
+  include/mpc_follower/mpc_utils.hpp
+  include/mpc_follower/interpolate.hpp
+  include/mpc_follower/mpc_follower_core.hpp
+  include/mpc_follower/mpc_trajectory.hpp
+  include/mpc_follower/lowpass_filter.hpp
+  include/mpc_follower/vehicle_model/vehicle_model_interface.hpp
+  include/mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics.hpp
+  include/mpc_follower/vehicle_model/vehicle_model_bicycle_dynamics.hpp
+  include/mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp
+  include/mpc_follower/qp_solver/qp_solver_unconstr_fast.hpp
+  include/mpc_follower/qp_solver/qp_solver_osqp.hpp
+)
 
 ament_auto_add_executable(mpc_follower ${MPC_FOLLOWER_SRC} ${MPC_FOLLOWER_HDR})
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 ament_auto_package(
   INSTALL_TO_SHARE

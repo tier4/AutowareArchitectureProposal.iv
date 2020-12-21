@@ -14,11 +14,11 @@
 
 #include "latlon_muxer/node.hpp"
 
-#include <rclcpp_components/register_node_macro.hpp>
-#include <rclcpp/time.hpp>
-
 #include <string>
 #include <memory>
+
+#include "rclcpp_components/register_node_macro.hpp"
+#include "rclcpp/time.hpp"
 
 LatLonMuxer::LatLonMuxer(const rclcpp::NodeOptions & node_options)
 : rclcpp::Node("latlon_muxer", node_options)

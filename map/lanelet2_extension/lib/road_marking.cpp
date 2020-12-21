@@ -1,23 +1,21 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include <boost/variant.hpp>
+#include "boost/variant.hpp"
 
-#include <lanelet2_core/primitives/RegulatoryElement.h>
-#include <lanelet2_extension/regulatory_elements/road_marking.h>
+#include "lanelet2_core/primitives/RegulatoryElement.h"
+#include "lanelet2_extension/regulatory_elements/road_marking.hpp"
 
 #include <algorithm>
 #include <vector>
@@ -42,7 +40,8 @@ RegulatoryElementDataPtr constructRoadMarkingData(
 }
 }  // namespace
 
-RoadMarking::RoadMarking(const RegulatoryElementDataPtr & data) : RegulatoryElement(data)
+RoadMarking::RoadMarking(const RegulatoryElementDataPtr & data)
+: RegulatoryElement(data)
 {
   if (getParameters<ConstLineString3d>(RoleName::Refers).size() != 1) {
     throw InvalidInputError("There must be exactly one road marking defined!");
@@ -69,7 +68,7 @@ void RoadMarking::setRoadMarking(const LineString3d & road_marking)
   parameters()[RoleName::Refers] = {road_marking};
 }
 
-void RoadMarking::removeRoadMarking() { parameters()[RoleName::Refers] = {}; }
+void RoadMarking::removeRoadMarking() {parameters()[RoleName::Refers] = {};}
 
 #if __cplusplus < 201703L
 constexpr char RoadMarking::RuleName[];  // instanciate string in cpp file

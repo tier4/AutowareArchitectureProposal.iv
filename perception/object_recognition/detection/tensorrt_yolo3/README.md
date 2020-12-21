@@ -17,6 +17,6 @@ Please note that above repository is under MIT license.
 
 ## Interface
 ### Input topic type
-  `sensor_msgs::Image`
+  `sensor_msgs::msg::Image`
 ### Output topic type
-  `autoware_perception_msgs::DynamicObjectWithFeatureArray`
+  `autoware_perception_msgs::msg::DynamicObjectWithFeatureArray`

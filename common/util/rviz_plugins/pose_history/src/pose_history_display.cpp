@@ -1,18 +1,16 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "pose_history_display.hpp"
 
@@ -44,9 +42,9 @@ void PoseHistory::onInitialize()
   lines_.reset(new rviz::BillboardLine(scene_manager_, scene_node_));
 }
 
-void PoseHistory::onEnable() { subscribe(); }
+void PoseHistory::onEnable() {subscribe();}
 
-void PoseHistory::onDisable() { unsubscribe(); }
+void PoseHistory::onDisable() {unsubscribe();}
 
 void PoseHistory::update(float wall_dt, float ros_dt)
 {
@@ -131,5 +129,5 @@ void PoseHistory::updateLines()
 
 }  // namespace rviz_plugins
 
-#include <pluginlib/class_list_macros.h>
+#include "pluginlib/class_list_macros.h"
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::PoseHistory, rviz::Display)

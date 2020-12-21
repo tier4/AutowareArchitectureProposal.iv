@@ -1,18 +1,16 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /*
  *  Copyright (c) 2018, Nagoya University
@@ -45,10 +43,11 @@
  ********************/
 
 #include <cmath>
+#include <string>
 
-#include <tf2/utils.h>
+#include "tf2/utils.h"
 
-#include <costmap_generator/objects_to_costmap.h>
+#include "costmap_generator/objects_to_costmap.hpp"
 
 // Constructor
 ObjectsToCostmap::ObjectsToCostmap()
@@ -60,7 +59,8 @@ ObjectsToCostmap::ObjectsToCostmap()
 }
 
 Eigen::MatrixXd ObjectsToCostmap::makeRectanglePoints(
-  const autoware_perception_msgs::DynamicObject & in_object, const double expand_rectangle_size)
+  const autoware_perception_msgs::msg::DynamicObject & in_object,
+  const double expand_rectangle_size)
 {
   double length = in_object.shape.dimensions.x + expand_rectangle_size;
   double width = in_object.shape.dimensions.y + expand_rectangle_size;
@@ -84,7 +84,8 @@ Eigen::MatrixXd ObjectsToCostmap::makeRectanglePoints(
 }
 
 grid_map::Polygon ObjectsToCostmap::makePolygonFromObjectBox(
-  const std_msgs::Header & header, const autoware_perception_msgs::DynamicObject & in_object,
+  const std_msgs::msg::Header & header,
+  const autoware_perception_msgs::msg::DynamicObject & in_object,
   const double expand_rectangle_size)
 {
   grid_map::Polygon polygon;
@@ -98,11 +99,12 @@ grid_map::Polygon ObjectsToCostmap::makePolygonFromObjectBox(
   return polygon;
 }
 
-geometry_msgs::Point ObjectsToCostmap::makeExpandedPoint(
-  const geometry_msgs::Point & in_centroid, const geometry_msgs::Point32 & in_corner_point,
+geometry_msgs::msg::Point ObjectsToCostmap::makeExpandedPoint(
+  const geometry_msgs::msg::Point & in_centroid,
+  const geometry_msgs::msg::Point32 & in_corner_point,
   const double expand_polygon_size)
 {
-  geometry_msgs::Point expanded_point;
+  geometry_msgs::msg::Point expanded_point;
 
   if (expand_polygon_size == 0) {
     expanded_point.x = in_corner_point.x;
@@ -120,7 +122,8 @@ geometry_msgs::Point ObjectsToCostmap::makeExpandedPoint(
 }
 
 grid_map::Polygon ObjectsToCostmap::makePolygonFromObjectConvexHull(
-  const std_msgs::Header & header, const autoware_perception_msgs::DynamicObject & in_object,
+  const std_msgs::msg::Header & header,
+  const autoware_perception_msgs::msg::DynamicObject & in_object,
   const double expand_polygon_size)
 {
   grid_map::Polygon polygon;
@@ -129,8 +132,8 @@ grid_map::Polygon ObjectsToCostmap::makePolygonFromObjectConvexHull(
   double initial_z = in_object.shape.footprint.points[0].z;
   for (size_t index = 0; index < in_object.shape.footprint.points.size(); index++) {
     if (in_object.shape.footprint.points[index].z == initial_z) {
-      geometry_msgs::Point centroid = in_object.state.pose_covariance.pose.position;
-      geometry_msgs::Point expanded_point =
+      geometry_msgs::msg::Point centroid = in_object.state.pose_covariance.pose.position;
+      geometry_msgs::msg::Point expanded_point =
         makeExpandedPoint(centroid, in_object.shape.footprint.points[index], expand_polygon_size);
       polygon.addVertex(grid_map::Position(expanded_point.x, expanded_point.y));
     }
@@ -155,7 +158,7 @@ void ObjectsToCostmap::setCostInPolygon(
 grid_map::Matrix ObjectsToCostmap::makeCostmapFromObjects(
   const grid_map::GridMap & costmap, const double expand_polygon_size,
   const double size_of_expansion_kernel,
-  const autoware_perception_msgs::DynamicObjectArray::ConstPtr & in_objects)
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr in_objects)
 {
   grid_map::GridMap objects_costmap = costmap;
   objects_costmap.add(OBJECTS_COSTMAP_LAYER_, 0);
@@ -163,11 +166,11 @@ grid_map::Matrix ObjectsToCostmap::makeCostmapFromObjects(
 
   for (const auto & object : in_objects->objects) {
     grid_map::Polygon polygon;
-    if (object.shape.type == autoware_perception_msgs::Shape::POLYGON) {
+    if (object.shape.type == autoware_perception_msgs::msg::Shape::POLYGON) {
       polygon = makePolygonFromObjectConvexHull(in_objects->header, object, expand_polygon_size);
-    } else if (object.shape.type == autoware_perception_msgs::Shape::BOUNDING_BOX) {
+    } else if (object.shape.type == autoware_perception_msgs::msg::Shape::BOUNDING_BOX) {
       polygon = makePolygonFromObjectBox(in_objects->header, object, expand_polygon_size);
-    } else if (object.shape.type == autoware_perception_msgs::Shape::CYLINDER) {
+    } else if (object.shape.type == autoware_perception_msgs::msg::Shape::CYLINDER) {
       // TODO(Kenji Miyake): Add makePolygonFromObjectCylinder
       polygon = makePolygonFromObjectBox(in_objects->header, object, expand_polygon_size);
     }
@@ -180,8 +183,9 @@ grid_map::Matrix ObjectsToCostmap::makeCostmapFromObjects(
   const grid_map::SlidingWindowIterator::EdgeHandling edge_handling =
     grid_map::SlidingWindowIterator::EdgeHandling::CROP;
   for (grid_map::SlidingWindowIterator iterator(
-         objects_costmap, BLURRED_OBJECTS_COSTMAP_LAYER_, edge_handling, size_of_expansion_kernel);
-       !iterator.isPastEnd(); ++iterator) {
+      objects_costmap, BLURRED_OBJECTS_COSTMAP_LAYER_, edge_handling, size_of_expansion_kernel);
+    !iterator.isPastEnd(); ++iterator)
+  {
     objects_costmap.at(BLURRED_OBJECTS_COSTMAP_LAYER_, *iterator) =
       iterator.getData().meanOfFinites();  // Blurring.
   }

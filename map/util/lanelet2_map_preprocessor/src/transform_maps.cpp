@@ -1,32 +1,30 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 
-#include <ros/ros.h>
+#include "ros/ros.h"
 
-#include <lanelet2_core/LaneletMap.h>
-#include <lanelet2_io/Io.h>
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_io/Io.h"
 
-#include <lanelet2_extension/io/autoware_osm_parser.h>
-#include <lanelet2_extension/projection/mgrs_projector.h>
-#include <lanelet2_extension/utility/message_conversion.h>
+#include "lanelet2_extension/io/autoware_osm_parser.hpp"
+#include "lanelet2_extension/projection/mgrs_projector.hpp"
+#include "lanelet2_extension/utility/message_conversion.hpp"
 
-#include <pcl/io/pcd_io.h>
-#include <pcl/kdtree/kdtree_flann.h>
-#include <pcl/point_types.h>
+#include "pcl/io/pcd_io.h"
+#include "pcl/kdtree/kdtree_flann.h"
+#include "pcl/point_types.h"
 
 #include <iostream>
 #include <unordered_set>
@@ -34,11 +32,11 @@
 
 void printUsage()
 {
-  std::cerr << "Please set following private parameters:" << std::endl
-            << "llt_map_path" << std::endl
-            << "pcd_map_path" << std::endl
-            << "llt_output_path" << std::endl
-            << "pcd_output_path" << std::endl;
+  std::cerr << "Please set following private parameters:" << std::endl <<
+    "llt_map_path" << std::endl <<
+    "pcd_map_path" << std::endl <<
+    "llt_output_path" << std::endl <<
+    "pcd_output_path" << std::endl;
 }
 
 bool loadLaneletMap(
@@ -61,13 +59,12 @@ bool loadLaneletMap(
 
 bool loadPCDMap(const std::string & pcd_map_path, pcl::PointCloud<pcl::PointXYZ>::Ptr & pcd_map_ptr)
 {
-  if (pcl::io::loadPCDFile<pcl::PointXYZ>(pcd_map_path, *pcd_map_ptr) == -1)  //* load the file
-  {
+  if (pcl::io::loadPCDFile<pcl::PointXYZ>(pcd_map_path, *pcd_map_ptr) == -1) { //* load the file
     PCL_ERROR("Couldn't read file test_pcd.pcd \n");
     return false;
   }
-  std::cout << "Loaded " << pcd_map_ptr->width * pcd_map_ptr->height << " data points."
-            << std::endl;
+  std::cout << "Loaded " << pcd_map_ptr->width * pcd_map_ptr->height << " data points." <<
+    std::endl;
   return true;
 }
 
@@ -107,8 +104,8 @@ Eigen::Affine3d createAffineMatrixFromXYZRPY(
   Eigen::Translation<double, 3> trans(x, y, z);
   Eigen::Matrix3d rot;
   rot = Eigen::AngleAxisd(yaw_rad, Eigen::Vector3d::UnitZ()) *
-        Eigen::AngleAxisd(pitch_rad, Eigen::Vector3d::UnitY()) *
-        Eigen::AngleAxisd(roll_rad, Eigen::Vector3d::UnitX());
+    Eigen::AngleAxisd(pitch_rad, Eigen::Vector3d::UnitY()) *
+    Eigen::AngleAxisd(roll_rad, Eigen::Vector3d::UnitX());
   return trans * rot;
 }
 
@@ -146,13 +143,13 @@ int main(int argc, char * argv[])
   pnh.param("pitch", pitch, 0.0);
   pnh.param("yaw", yaw, 0.0);
 
-  std::cout << "transforming maps with following parameters" << std::endl
-            << "x " << x << std::endl
-            << "y " << y << std::endl
-            << "z " << z << std::endl
-            << "roll " << roll << std::endl
-            << "pitch " << pitch << std::endl
-            << "yaw " << yaw << std::endl;
+  std::cout << "transforming maps with following parameters" << std::endl <<
+    "x " << x << std::endl <<
+    "y " << y << std::endl <<
+    "z " << z << std::endl <<
+    "roll " << roll << std::endl <<
+    "pitch " << pitch << std::endl <<
+    "yaw " << yaw << std::endl;
 
   lanelet::LaneletMapPtr llt_map_ptr(new lanelet::LaneletMap);
   lanelet::projection::MGRSProjector projector;

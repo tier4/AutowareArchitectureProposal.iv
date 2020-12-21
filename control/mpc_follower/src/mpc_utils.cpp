@@ -1,20 +1,18 @@
-/*
- * Copyright 2018-2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2018-2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include "mpc_follower/mpc_utils.h"
+#include "mpc_follower/mpc_utils.hpp"
 
 geometry_msgs::msg::Quaternion MPCUtils::getQuaternionFromYaw(const double & yaw)
 {
@@ -137,7 +135,8 @@ bool MPCUtils::resampleMPCTrajectoryByDistance(
     !linear_interp.interpolate(input_arclength, input.vx, output_arclength, output->vx) ||
     !spline_interp.interpolate(input_arclength, input.k, output_arclength, output->k) ||
     !linear_interp.interpolate(
-      input_arclength, input.relative_time, output_arclength, output->relative_time)) {
+      input_arclength, input.relative_time, output_arclength, output->relative_time))
+  {
     std::cerr << "linearInterpMPCTrajectory error!" << std::endl;
     return false;
   }
@@ -170,7 +169,8 @@ bool MPCUtils::linearInterpMPCTrajectory(
     !linear_interp.interpolate(in_index, in_traj.vx, out_index, out_traj->vx) ||
     !linear_interp.interpolate(in_index, in_traj.k, out_index, out_traj->k) ||
     !linear_interp.interpolate(
-      in_index, in_traj.relative_time, out_index, out_traj->relative_time)) {
+      in_index, in_traj.relative_time, out_index, out_traj->relative_time))
+  {
     std::cerr << "linearInterpMPCTrajectory error!" << std::endl;
     return false;
   }
@@ -206,7 +206,8 @@ bool MPCUtils::splineInterpMPCTrajectory(
     !spline_interp.interpolate(in_index, in_traj.z, out_index, out_traj->z) ||
     !spline_interp.interpolate(in_index, in_traj_yaw, out_index, out_traj->yaw) ||
     !spline_interp.interpolate(in_index, in_traj.vx, out_index, out_traj->vx) ||
-    !spline_interp.interpolate(in_index, in_traj.k, out_index, out_traj->k)) {
+    !spline_interp.interpolate(in_index, in_traj.k, out_index, out_traj->k))
+  {
     std::cerr << "splineInterpMPCTrajectory error!" << std::endl;
     return false;
   }
@@ -224,7 +225,7 @@ bool MPCUtils::splineInterpMPCTrajectory(
 
 void MPCUtils::calcTrajectoryYawFromXY(MPCTrajectory * traj)
 {
-  if (traj->yaw.size() == 0) return;
+  if (traj->yaw.size() == 0) {return;}
 
   for (unsigned int i = 1; i < traj->yaw.size() - 1; ++i) {
     const double dx = traj->x[i + 1] - traj->x[i - 1];
@@ -396,10 +397,10 @@ bool MPCUtils::calcNearestPoseInterp(
   }
 
   auto calcSquaredDist = [](const geometry_msgs::msg::Pose & p, const MPCTrajectory & t, int idx) {
-    const double dx = p.position.x - t.x[idx];
-    const double dy = p.position.y - t.y[idx];
-    return dx * dx + dy * dy;
-  };
+      const double dx = p.position.x - t.x[idx];
+      const double dy = p.position.y - t.y[idx];
+      return dx * dx + dy * dy;
+    };
 
   /* get second nearest index = next to nearest_index */
   int next = std::min(nearest_idx + 1, traj_size - 1);
@@ -433,7 +434,7 @@ bool MPCUtils::calcNearestPoseInterp(
   const double nearest_yaw = normalizeRadian(traj.yaw[second_nearest_index] + alpha * tmp_yaw_err);
   nearest_pose->orientation = getQuaternionFromYaw(nearest_yaw);
   *nearest_time = alpha * traj.relative_time[nearest_idx] +
-                  (1 - alpha) * traj.relative_time[second_nearest_index];
+    (1 - alpha) * traj.relative_time[second_nearest_index];
   return true;
 }
 
@@ -471,7 +472,7 @@ visualization_msgs::msg::MarkerArray MPCUtils::convertTrajToMarker(
   marker_poses.header.frame_id = frame_id;
   marker_poses.header.stamp = stamp;
   marker_poses.ns = ns + "/poses";
-  marker_poses.lifetime = rclcpp::Duration(0.5);
+  marker_poses.lifetime = rclcpp::Duration::from_seconds(0.5);
   marker_poses.type = visualization_msgs::msg::Marker::ARROW;
   marker_poses.action = visualization_msgs::msg::Marker::ADD;
   marker_poses.scale.x = 0.2;

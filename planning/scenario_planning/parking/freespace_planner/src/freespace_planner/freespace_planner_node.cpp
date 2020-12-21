@@ -1,18 +1,16 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /*
  * Copyright 2015-2019 Autoware Foundation. All rights reserved.
@@ -30,7 +28,14 @@
  * limitations under the License.
  */
 
-#include <freespace_planner/freespace_planner.h>
+#include "freespace_planner/freespace_planner.hpp"
+
+#include <algorithm>
+#include <deque>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace
 {
@@ -43,7 +48,8 @@ bool isActive(const autoware_planning_msgs::msg::Scenario::ConstSharedPtr & scen
   const auto & s = scenario->activating_scenarios;
   if (
     std::find(std::begin(s), std::end(s), autoware_planning_msgs::msg::Scenario::PARKING) !=
-    std::end(s)) {
+    std::end(s))
+  {
     return true;
   }
 
@@ -132,7 +138,7 @@ std::vector<double> calcDistances2d(
 
   std::transform(
     std::begin(trajectory.points), std::end(trajectory.points), std::back_inserter(distances),
-    [&](const auto & point) { return calcDistance2d(point.pose.position, pose.position); });
+    [&](const auto & point) {return calcDistance2d(point.pose.position, pose.position);});
 
   return distances;
 }
@@ -234,7 +240,8 @@ bool isStopped(
 
 }  // namespace
 
-AstarNavi::AstarNavi() : Node("freespace_planner")
+AstarNavi::AstarNavi()
+: Node("freespace_planner")
 {
   using std::placeholders::_1;
 
@@ -526,7 +533,8 @@ geometry_msgs::msg::TransformStamped AstarNavi::getTransform(
 {
   geometry_msgs::msg::TransformStamped tf;
   try {
-    tf = tf_buffer_->lookupTransform(from, to, rclcpp::Time(0), rclcpp::Duration(1.0));
+    tf =
+      tf_buffer_->lookupTransform(from, to, rclcpp::Time(0), rclcpp::Duration::from_seconds(1.0));
   } catch (const tf2::TransformException & ex) {
     RCLCPP_ERROR(get_logger(), "%s", ex.what());
   }

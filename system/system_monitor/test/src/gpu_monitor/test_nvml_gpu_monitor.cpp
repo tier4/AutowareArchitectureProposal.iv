@@ -1,23 +1,21 @@
-/*
- * Copyright 2020 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include <gtest/gtest.h>
-#include <ros/ros.h>
-#include <system_monitor/gpu_monitor/nvml_gpu_monitor.h>
-#include <boost/algorithm/string.hpp>
+#include "gtest/gtest.h"
+#include "ros/ros.h"
+#include "system_monitor/gpu_monitor/nvml_gpu_monitor.hpp"
+#include "boost/algorithm/string.hpp"
 #include <string>
 
 using DiagStatus = diagnostic_msgs::DiagnosticStatus;
@@ -27,29 +25,30 @@ class TestGPUMonitor : public GPUMonitor
   friend class GPUMonitorTestSuite;
 
 public:
-  TestGPUMonitor(const ros::NodeHandle & nh, const ros::NodeHandle & pnh) : GPUMonitor(nh, pnh) {}
+  TestGPUMonitor(const ros::NodeHandle & nh, const ros::NodeHandle & pnh)
+  : GPUMonitor(nh, pnh) {}
 
   void diagCallback(const diagnostic_msgs::DiagnosticArray::ConstPtr & diag_msg)
   {
     array_ = *diag_msg;
   }
 
-  void addGPU(const gpu_info & info) { gpus_.push_back(info); }
-  void clearGPU(void) { gpus_.clear(); }
+  void addGPU(const gpu_info & info) {gpus_.push_back(info);}
+  void clearGPU(void) {gpus_.clear();}
 
-  void changeTempWarn(float temp_warn) { temp_warn_ = temp_warn; }
-  void changeTempError(float temp_error) { temp_error_ = temp_error; }
+  void changeTempWarn(float temp_warn) {temp_warn_ = temp_warn;}
+  void changeTempError(float temp_error) {temp_error_ = temp_error;}
 
-  void changeGPUUsageWarn(float gpu_usage_warn) { gpu_usage_warn_ = gpu_usage_warn; }
-  void changeGPUUsageError(float gpu_usage_error) { gpu_usage_error_ = gpu_usage_error; }
+  void changeGPUUsageWarn(float gpu_usage_warn) {gpu_usage_warn_ = gpu_usage_warn;}
+  void changeGPUUsageError(float gpu_usage_error) {gpu_usage_error_ = gpu_usage_error;}
 
-  void changeMemoryUsageWarn(float memory_usage_warn) { memory_usage_warn_ = memory_usage_warn; }
+  void changeMemoryUsageWarn(float memory_usage_warn) {memory_usage_warn_ = memory_usage_warn;}
   void changeMemoryUsageError(float memory_usage_error)
   {
     memory_usage_error_ = memory_usage_error;
   }
 
-  void update(void) { updater_.force_update(); }
+  void update(void) {updater_.force_update();}
 
   const std::string removePrefix(const std::string & name)
   {
@@ -75,7 +74,8 @@ private:
 class GPUMonitorTestSuite : public ::testing::Test
 {
 public:
-  GPUMonitorTestSuite() : nh_(""), pnh_("~") {}
+  GPUMonitorTestSuite()
+  : nh_(""), pnh_("~") {}
 
 protected:
   ros::NodeHandle nh_, pnh_;
@@ -519,10 +519,11 @@ class DummyGPUMonitor : public GPUMonitorBase
   friend class GPUMonitorTestSuite;
 
 public:
-  DummyGPUMonitor(const ros::NodeHandle & nh, const ros::NodeHandle & pnh) : GPUMonitorBase(nh, pnh)
+  DummyGPUMonitor(const ros::NodeHandle & nh, const ros::NodeHandle & pnh)
+  : GPUMonitorBase(nh, pnh)
   {
   }
-  void update(void) { updater_.force_update(); }
+  void update(void) {updater_.force_update();}
 };
 
 TEST_F(GPUMonitorTestSuite, dummyGPUMonitorTest)

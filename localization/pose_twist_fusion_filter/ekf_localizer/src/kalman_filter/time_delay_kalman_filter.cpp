@@ -1,18 +1,16 @@
-/*
- * Copyright 2018-2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2018-2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "kalman_filter/time_delay_kalman_filter.hpp"
 
@@ -32,10 +30,10 @@ void TimeDelayKalmanFilter::init(
     x_.block(i * dim_x_, 0, dim_x_, 1) = x;
     P_.block(i * dim_x_, i * dim_x_, dim_x_, dim_x_) = P0;
   }
-};
+}
 
-void TimeDelayKalmanFilter::getLatestX(Eigen::MatrixXd & x) { x = x_.block(0, 0, dim_x_, 1); };
-void TimeDelayKalmanFilter::getLatestP(Eigen::MatrixXd & P) { P = P_.block(0, 0, dim_x_, dim_x_); };
+void TimeDelayKalmanFilter::getLatestX(Eigen::MatrixXd & x) {x = x_.block(0, 0, dim_x_, 1);}
+void TimeDelayKalmanFilter::getLatestP(Eigen::MatrixXd & P) {P = P_.block(0, 0, dim_x_, dim_x_);}
 
 bool TimeDelayKalmanFilter::predictWithDelay(
   const Eigen::MatrixXd & x_next, const Eigen::MatrixXd & A, const Eigen::MatrixXd & Q)
@@ -71,7 +69,7 @@ bool TimeDelayKalmanFilter::predictWithDelay(
   P_ = P_tmp;
 
   return true;
-};
+}
 
 bool TimeDelayKalmanFilter::updateWithDelay(
   const Eigen::MatrixXd & y, const Eigen::MatrixXd & C, const Eigen::MatrixXd & R,
@@ -89,7 +87,7 @@ bool TimeDelayKalmanFilter::updateWithDelay(
   C_ex.block(0, dim_x_ * delay_step, dim_y, dim_x_) = C;
 
   /* update */
-  if (!update(y, C_ex, R)) return false;
+  if (!update(y, C_ex, R)) {return false;}
 
   return true;
-};
+}

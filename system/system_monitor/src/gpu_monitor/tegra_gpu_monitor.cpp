@@ -1,29 +1,27 @@
-/*
- * Copyright 2020 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /**
  * @file tegra_gpu_monitor.cpp
  * @brief Tegra GPU monitor class
  */
 
-#include <system_monitor/gpu_monitor/tegra_gpu_monitor.h>
-#include <system_monitor/system_monitor_utility.h>
+#include "system_monitor/gpu_monitor/tegra_gpu_monitor.hpp"
+#include "system_monitor/system_monitor_utility.hpp"
 #include <algorithm>
-#include <boost/filesystem.hpp>
-#include <boost/format.hpp>
+#include "boost/filesystem.hpp"
+#include "boost/format.hpp"
 #include <string>
 #include <vector>
 
@@ -70,16 +68,18 @@ void GPUMonitor::checkTemp(diagnostic_updater::DiagnosticStatusWrapper & stat)
     stat.addf(itr->label_, "%.1f DegC", temp);
 
     level = DiagStatus::OK;
-    if (temp >= temp_error_)
+    if (temp >= temp_error_) {
       level = std::max(level, static_cast<int>(DiagStatus::ERROR));
-    else if (temp >= temp_warn_)
+    } else if (temp >= temp_warn_) {
       level = std::max(level, static_cast<int>(DiagStatus::WARN));
+    }
   }
 
-  if (!error_str.empty())
+  if (!error_str.empty()) {
     stat.summary(DiagStatus::ERROR, error_str);
-  else
+  } else {
     stat.summary(level, temp_dict_.at(level));
+  }
 }
 
 void GPUMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
@@ -109,16 +109,18 @@ void GPUMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     level = DiagStatus::OK;
     load /= 1000;
-    if (load >= gpu_usage_error_)
+    if (load >= gpu_usage_error_) {
       level = std::max(level, static_cast<int>(DiagStatus::ERROR));
-    else if (load >= gpu_usage_warn_)
+    } else if (load >= gpu_usage_warn_) {
       level = std::max(level, static_cast<int>(DiagStatus::WARN));
+    }
   }
 
-  if (!error_str.empty())
+  if (!error_str.empty()) {
     stat.summary(DiagStatus::ERROR, error_str);
-  else
+  } else {
     stat.summary(level, load_dict_.at(level));
+  }
 }
 
 void GPUMonitor::checkThrottling(diagnostic_updater::DiagnosticStatusWrapper & stat)
@@ -139,10 +141,11 @@ void GPUMonitor::checkFrequency(diagnostic_updater::DiagnosticStatusWrapper & st
     fs::ifstream ifs(path, std::ios::in);
     if (ifs) {
       std::string line;
-      if (std::getline(ifs, line))
+      if (std::getline(ifs, line)) {
         stat.addf(
           (boost::format("GPU %1%: clock") % itr->label_).str(), "%d MHz",
           std::stoi(line) / 1000000);
+      }
     }
     ifs.close();
   }
@@ -166,15 +169,16 @@ void GPUMonitor::getLoadNames(void)
   const fs::path root("/sys/devices");
 
   for (const fs::path & path :
-       boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator())) {
-    if (!fs::is_directory(path)) continue;
+    boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator()))
+  {
+    if (!fs::is_directory(path)) {continue;}
 
     boost::smatch match;
     const boost::regex filter(".*gpu\\.(\\d+)");
     const std::string str_path = path.generic_string();
 
     // /sys/devices/gpu.[0-9] ?
-    if (!boost::regex_match(str_path, match, filter)) continue;
+    if (!boost::regex_match(str_path, match, filter)) {continue;}
 
     // /sys/devices/gpu.[0-9]/load
     const fs::path load_path = path / "load";
@@ -187,9 +191,10 @@ void GPUMonitor::getFreqNames(void)
   const fs::path root("/sys/class/devfreq");
 
   for (const fs::path & path :
-       boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator())) {
+    boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator()))
+  {
     // /sys/class/devfreq/?????/cur_freq ?
-    if (!fs::is_directory(path)) continue;
+    if (!fs::is_directory(path)) {continue;}
 
     const fs::path freq_path = path / "cur_freq";
     freqs_.emplace_back(path.filename().generic_string(), freq_path.generic_string());

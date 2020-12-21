@@ -1,20 +1,18 @@
-/*
- * Copyright 2018-2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2018-2019 Autoware Foundation
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include "mpc_follower/lowpass_filter.h"
+#include "mpc_follower/lowpass_filter.hpp"
 
 Butterworth2dFilter::Butterworth2dFilter(double dt, double f_cutoff_hz)
 {
@@ -98,7 +96,6 @@ void Butterworth2dFilter::getCoefficients(std::vector<double> & coeffs)
   coeffs.push_back(b0_);
   coeffs.push_back(b1_);
   coeffs.push_back(b2_);
-  return;
 }
 
 bool MoveAverageFilter::filt_vector(const int num, std::vector<double> & u)

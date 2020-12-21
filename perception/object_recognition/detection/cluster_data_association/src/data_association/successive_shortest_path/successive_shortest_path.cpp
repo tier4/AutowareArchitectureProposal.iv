@@ -1,19 +1,17 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-#include "successive_shortest_path.h"
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+#include "successive_shortest_path.hpp"
 
 // #include <algorithm>
 // #include <cstdio>
@@ -142,9 +140,9 @@ void MaximizeLinearAssignment(
 
         // From task to agent
         adjacency_list.at(task + n_agents + 1)
-          .emplace_back(
-            agent + 1, 0, cost.at(agent).at(task) - MAX_COST, 0,
-            adjacency_list.at(agent + 1).size() - 1);
+        .emplace_back(
+          agent + 1, 0, cost.at(agent).at(task) - MAX_COST, 0,
+          adjacency_list.at(agent + 1).size() - 1);
       }
     }
   }
@@ -153,7 +151,7 @@ void MaximizeLinearAssignment(
   for (int task = 0; task < n_tasks; ++task) {
     // From task to sink
     adjacency_list.at(task + n_agents + 1)
-      .emplace_back(sink, 1, 0, 0, adjacency_list.at(sink).size());
+    .emplace_back(sink, 1, 0, 0, adjacency_list.at(sink).size());
 
     // From sink to task
     adjacency_list.at(sink).emplace_back(
@@ -170,11 +168,11 @@ void MaximizeLinearAssignment(
 
       // From dummy to agent
       adjacency_list.at(agent + n_agents + n_tasks + 2)
-        .emplace_back(agent + 1, 0, -MAX_COST, 0, adjacency_list.at(agent + 1).size() - 1);
+      .emplace_back(agent + 1, 0, -MAX_COST, 0, adjacency_list.at(agent + 1).size() - 1);
 
       // From dummy to sink
       adjacency_list.at(agent + n_agents + n_tasks + 2)
-        .emplace_back(sink, 1, 0, 0, adjacency_list.at(sink).size());
+      .emplace_back(sink, 1, 0, 0, adjacency_list.at(sink).size());
 
       // From sink to dummy
       adjacency_list.at(sink).emplace_back(
@@ -220,7 +218,7 @@ void MaximizeLinearAssignment(
     std::priority_queue<
       std::pair<double, int>, std::vector<std::pair<double, int>>,
       std::greater<std::pair<double, int>>>
-      pqueue;
+    pqueue;
 
     // Reset all trajectory states
     if (i > 0) {
@@ -259,7 +257,8 @@ void MaximizeLinearAssignment(
 
       // Loop over the incident nodes(/edges)
       for (auto it_incident_edge = adjacency_list.at(cur_node).cbegin();
-           it_incident_edge != adjacency_list.at(cur_node).cend(); it_incident_edge++) {
+        it_incident_edge != adjacency_list.at(cur_node).cend(); it_incident_edge++)
+      {
         // If the node is not visited and have capacity to increase flow, visit.
         if (!is_visited.at(it_incident_edge->dst) && it_incident_edge->capacity > 0) {
           // Calculate reduced cost
@@ -347,7 +346,8 @@ void MaximizeLinearAssignment(
     // Check if the potentials are feasible potentials
     for (int v = 0; v < n_nodes; ++v) {
       for (auto it_incident_edge = adjacency_list.at(v).cbegin();
-           it_incident_edge != adjacency_list.at(v).cend(); ++it_incident_edge) {
+        it_incident_edge != adjacency_list.at(v).cend(); ++it_incident_edge)
+      {
         if (it_incident_edge->capacity > 0) {
           double reduced_cost =
             it_incident_edge->cost + potentials.at(v) - potentials.at(it_incident_edge->dst);
@@ -361,7 +361,8 @@ void MaximizeLinearAssignment(
   // Output
   for (int agent = 0; agent < n_agents; ++agent) {
     for (auto it_incident_edge = adjacency_list.at(agent + 1).cbegin();
-         it_incident_edge != adjacency_list.at(agent + 1).cend(); ++it_incident_edge) {
+      it_incident_edge != adjacency_list.at(agent + 1).cend(); ++it_incident_edge)
+    {
       int task = it_incident_edge->dst - (n_agents + 1);
 
       // If the flow value is 1 and task is not dummy, assign the task to the agent.
@@ -384,6 +385,5 @@ void MaximizeLinearAssignment(
   }
 #endif
 
-  return;
 }
 }  // namespace assignment_problem
