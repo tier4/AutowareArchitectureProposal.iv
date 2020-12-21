@@ -1,0 +1,15 @@
+<launch>
+  <arg name="input" doc="input topic name" />
+  <arg name="output" doc="output topic name" />
+
+  <arg name="ignore_tags" doc="tags to be ignored" />
+
+  <node pkg="livox_tag_filter" type="livox_tag_filter_node" name="livox_tag_filter_node" output="screen">
+    <remap from="~input" to="$(arg input)"/>
+    <remap from="~output" to="$(arg output)"/>
+
+    <rosparam subst_value="true">
+      ignore_tags: $(arg ignore_tags)
+    </rosparam>
+  </node>
+</launch>
