@@ -112,7 +112,7 @@ public:
     [](INvPlugin * ptr) {
       if (ptr) {ptr->destroy();}
     }
-  }
+  };
 
   std::vector<std::unique_ptr<UpsampleLayerPlugin>> mPluginUpsample{};
   std::unique_ptr<YoloLayerPlugin> mPluginYolo{nullptr};

@@ -377,8 +377,6 @@ CtrlCmd VelocityController::calcCtrlCmd()
   const double current_vel = current_vel_ptr_->twist.linear.x;
   const double closest_vel = calcInterpolatedTargetValue(
     *trajectory_ptr_, *current_pose_ptr_, current_vel, closest_idx, "twist");
-  const double closest_acc = calcInterpolatedTargetValue(
-    *trajectory_ptr_, *current_pose_ptr_, current_vel, closest_idx, "accel");
   int target_idx = DelayCompensator::getTrajectoryPointIndexAfterTimeDelay(
     *trajectory_ptr_, closest_idx, delay_compensation_time_, current_vel);
   auto target_pose = DelayCompensator::calcPoseAfterTimeDelay(
@@ -396,7 +394,6 @@ CtrlCmd VelocityController::calcCtrlCmd()
   prev_shift_ = shift;
 
   const double pitch_filtered = lpf_pitch_.filter(getPitch(current_pose.orientation));
-  const double stop_dist = calcStopDistance(*trajectory_ptr_, closest_idx);
   writeDebugValues(
     dt, current_vel, pred_vel_in_target, target_vel, target_acc, shift, pitch_filtered,
     closest_idx);
@@ -420,14 +417,14 @@ CtrlCmd VelocityController::calcCtrlCmd()
   /* ===== EMERGENCY STOP =====
    *
    * If the emergency flag is true, enter the emergency state.
-   * The condition of the energency is checked in checkEmergency() function.
+   * The condition of the emergency is checked in checkEmergency() function.
    * The flag is reset when the vehicle is stopped.
    *
    * Outout velocity : "0" with maximum acceleration constraint
    * Output acceleration : "emergency_stop_acc_" with max_jerk limit.
    *
    */
-  is_emergency_stop_ = checkEmergency(closest_idx, target_vel);
+  is_emergency_stop_ = checkEmergency(closest_idx);
   if (is_emergency_stop_) {
     double vel_cmd = applyRateFilter(0.0, prev_vel_cmd_, dt, emergency_stop_acc_);
     double acc_cmd = applyRateFilter(emergency_stop_acc_, prev_acc_cmd_, dt, emergency_stop_jerk_);
@@ -614,7 +611,7 @@ bool VelocityController::checkIsStopped(double current_vel, double target_vel, i
   }
 }
 
-bool VelocityController::checkEmergency(int closest, double target_vel) const
+bool VelocityController::checkEmergency(int closest) const
 {
   // already in emergency.
   if (is_emergency_stop_) {
@@ -766,7 +763,7 @@ double VelocityController::predictedVelocityInTargetPoint(
 
   const auto past_delay_time =
     get_clock()->now() - rclcpp::Duration::from_seconds(delay_compensation_time);
-  for (int i = 0; i < ctrl_cmd_vec_.size(); i++) {
+  for (std::size_t i = 0; i < ctrl_cmd_vec_.size(); i++) {
     if (
       (get_clock()->now() - ctrl_cmd_vec_.at(i).header.stamp).seconds() <
       delay_compensation_time_)

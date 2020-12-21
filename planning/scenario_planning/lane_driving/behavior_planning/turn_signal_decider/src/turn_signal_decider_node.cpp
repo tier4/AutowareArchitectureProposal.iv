@@ -11,6 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+#include <memory>
+
 #include "turn_signal_decider/turn_signal_decider.hpp"
 
 int main(int argc, char * argv[])
@@ -18,9 +21,8 @@ int main(int argc, char * argv[])
   rclcpp::init(argc, argv);
 
   rclcpp::NodeOptions node_options;
-  auto decider = std::make_shared<turn_signal_decider::TurnSignalDecider>(
-    "turn_signal_decider",
-    node_options);
+  auto decider =
+    std::make_shared<turn_signal_decider::TurnSignalDecider>("turn_signal_decider", node_options);
 
   rclcpp::spin(decider);
 

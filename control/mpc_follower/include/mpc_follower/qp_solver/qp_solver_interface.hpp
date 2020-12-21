@@ -30,6 +30,11 @@ class QPSolverInterface
 {
 public:
   /**
+   * @brief destructor
+   */
+  virtual ~QPSolverInterface() = default;
+
+  /**
    * @brief solve QP problem : minimize J = U' * Hmat * U + fvec' * U without constraint
    * @param [in] Hmat parameter matrix in object function
    * @param [in] fvec parameter matrix in object function
