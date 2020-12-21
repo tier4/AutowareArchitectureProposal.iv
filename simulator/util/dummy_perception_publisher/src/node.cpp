@@ -65,12 +65,10 @@ void DummyPerceptionPublisherNode::timerCallback()
 
   // avoid terminal contamination.
   static rclcpp::Time failed_tf_time = rclcpp::Time(0, 0, RCL_ROS_TIME);
-  if( (this->now() - failed_tf_time).seconds() < 5.0)
-  {
+  if ( (this->now() - failed_tf_time).seconds() < 5.0) {
     return;
   }
-  if(!tf_buffer_.canTransform("base_link", /*src*/ "map", rclcpp::Time(0)))
-  {
+  if (!tf_buffer_.canTransform("base_link", /*src*/ "map", rclcpp::Time(0))) {
     failed_tf_time = this->now();
     RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "map->base_link is not available yet");
     return;

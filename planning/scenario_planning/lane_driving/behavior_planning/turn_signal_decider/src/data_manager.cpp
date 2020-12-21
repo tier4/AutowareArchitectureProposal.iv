@@ -81,16 +81,13 @@ void DataManager::onLaneletMap(autoware_lanelet2_msgs::msg::MapBin::SharedPtr ma
 
 void DataManager::onVehiclePoseUpdate()
 {
-  if(!is_pose_ready_)
-  {
+  if (!is_pose_ready_) {
     // avoid terminal contamination.
     static rclcpp::Time failed_tf_time = rclcpp::Time(0, 0, RCL_ROS_TIME);
-    if( (node_->now() - failed_tf_time).seconds() < 3.0)
-    {
+    if ( (node_->now() - failed_tf_time).seconds() < 3.0) {
       return;
     }
-    if(!tf_buffer_->canTransform("base_link", "map", rclcpp::Time(0)))
-    {
+    if (!tf_buffer_->canTransform("base_link", "map", rclcpp::Time(0))) {
       failed_tf_time = node_->now();
       RCLCPP_WARN_THROTTLE(
         node_->get_logger(), *node_->get_clock(), 3000 /* ms */,
