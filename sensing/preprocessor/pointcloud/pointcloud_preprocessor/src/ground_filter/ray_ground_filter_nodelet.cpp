@@ -212,7 +212,7 @@ void RayGroundFilterNodelet::ClassifyPointCloud(
           // check if previous point is too far from previous one, if so classify again
           if (
             points_distance > reclass_distance_threshold_ &&
-            (current_height <= height_threshold && current_height >= -height_threshold)) {
+            (current_height <= general_height_threshold && current_height >= -general_height_threshold)) {
             current_ground = true;
           } else {
             current_ground = false;
