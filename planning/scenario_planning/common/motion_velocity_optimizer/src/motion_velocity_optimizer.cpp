@@ -742,7 +742,8 @@ void MotionVelocityOptimizer::blockUntilVehiclePositionAvailable(const tf2::Dura
   {
     RCLCPP_INFO(
       get_logger(), "waiting %d ms for %s->%s transform to become available",
-      std::chrono::duration_cast<std::chrono::milliseconds>(duration * 1000).count(), input, output);
+      std::chrono::duration_cast<std::chrono::milliseconds>(duration).count(),
+      input, output);
     rclcpp::sleep_for(duration);
   }
   RCLCPP_INFO(get_logger(), "transform available");
