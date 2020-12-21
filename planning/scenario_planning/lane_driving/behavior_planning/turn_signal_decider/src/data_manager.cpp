@@ -11,10 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <turn_signal_decider/turn_signal_decider.hpp>
+#include <memory>
 
-#include <lanelet2_extension/utility/message_conversion.hpp>
-#include <lanelet2_extension/utility/utilities.hpp>
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
+#include "turn_signal_decider/turn_signal_decider.hpp"
 
 using autoware_planning_msgs::msg::PathWithLaneId;
 
@@ -83,8 +84,8 @@ void DataManager::onVehiclePoseUpdate()
   if (node_ != nullptr) {
     try {
       const auto current_time = node_->now();
-      const auto transform =
-        tf_buffer_->lookupTransform("map", "base_link", current_time, rclcpp::Duration::from_seconds(0.1));
+      const auto transform = tf_buffer_->lookupTransform(
+        "map", "base_link", current_time, rclcpp::Duration::from_seconds(0.1));
       vehicle_pose_.pose.position.x = transform.transform.translation.x;
       vehicle_pose_.pose.position.y = transform.transform.translation.y;
       vehicle_pose_.pose.position.z = transform.transform.translation.z;
@@ -98,11 +99,12 @@ void DataManager::onVehiclePoseUpdate()
     } catch (tf2::TransformException & ex) {
       // if pose has never arrived before, then wait for localizatioon
       if (!is_pose_ready_) {
-        RCLCPP_WARN_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
+        RCLCPP_WARN_STREAM_THROTTLE(
+          node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
           ex.what());
-      } else  // if tf suddenly stops comming, then there must be something wrong.
-      {
-        RCLCPP_ERROR_STREAM_THROTTLE(node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
+      } else {  // if tf suddenly stops comming, then there must be something wrong.
+        RCLCPP_ERROR_STREAM_THROTTLE(
+          node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(5000).count(),
           ex.what());
       }
     }
@@ -204,9 +206,9 @@ bool DataManager::isDataReady() const
   }
 }
 
-autoware_planning_msgs::msg::PathWithLaneId DataManager::getPath() const { return path_; }
+autoware_planning_msgs::msg::PathWithLaneId DataManager::getPath() const {return path_;}
 
-lanelet::LaneletMapPtr DataManager::getMapPtr() const { return lanelet_map_ptr_; }
+lanelet::LaneletMapPtr DataManager::getMapPtr() const {return lanelet_map_ptr_;}
 
 lanelet::ConstLanelet DataManager::getLaneFromId(const lanelet::Id & id) const
 {
@@ -222,6 +224,6 @@ lanelet::routing::RoutingGraphPtr DataManager::getRoutingGraphPtr() const
 {
   return routing_graph_ptr_;
 }
-geometry_msgs::msg::PoseStamped DataManager::getVehiclePoseStamped() const { return vehicle_pose_; }
+geometry_msgs::msg::PoseStamped DataManager::getVehiclePoseStamped() const {return vehicle_pose_;}
 
 }  // namespace turn_signal_decider

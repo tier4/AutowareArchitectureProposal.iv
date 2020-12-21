@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <awapi_awiv_adapter/awapi_autoware_state_publisher.hpp>
+#include "awapi_awiv_adapter/awapi_autoware_state_publisher.hpp"
 #include <regex>
 
 namespace autoware_api
 {
-AutowareIvAutowareStatePublisher::AutowareIvAutowareStatePublisher(rclcpp::Node& node)
+AutowareIvAutowareStatePublisher::AutowareIvAutowareStatePublisher(rclcpp::Node & node)
 : logger_(node.get_logger().get_child("awapi_awiv_autoware_state_publisher")),
   clock_(node.get_clock()),
   arrived_goal_(false)
@@ -150,13 +150,15 @@ bool AutowareIvAutowareStatePublisher::isGoal(
     arrived_goal_ = true;
   } else if (
     prev_state_ == autoware_system_msgs::msg::AutowareState::DRIVING &&
-    aw_state == autoware_system_msgs::msg::AutowareState::WAITING_FOR_ROUTE) {
+    aw_state == autoware_system_msgs::msg::AutowareState::WAITING_FOR_ROUTE)
+  {
     arrived_goal_ = true;
   }
 
   if (
     aw_state == autoware_system_msgs::msg::AutowareState::WAITING_FOR_ENGAGE ||
-    aw_state == autoware_system_msgs::msg::AutowareState::DRIVING) {
+    aw_state == autoware_system_msgs::msg::AutowareState::DRIVING)
+  {
     //cancel goal state
     arrived_goal_ = false;
   }

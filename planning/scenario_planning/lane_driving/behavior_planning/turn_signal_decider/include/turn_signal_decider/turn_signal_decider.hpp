@@ -11,23 +11,26 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+#ifndef TURN_SIGNAL_DECIDER__TURN_SIGNAL_DECIDER_HPP_
+#define TURN_SIGNAL_DECIDER__TURN_SIGNAL_DECIDER_HPP_
 
-#include <rclcpp/rclcpp.hpp>
+#include <string>
 
-#include <autoware_vehicle_msgs/msg/turn_signal.hpp>
-#include <turn_signal_decider/data_manager.hpp>
-#include <turn_signal_decider/frenet_coordinate.hpp>
+#include "autoware_vehicle_msgs/msg/turn_signal.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "turn_signal_decider/data_manager.hpp"
+#include "turn_signal_decider/frenet_coordinate.hpp"
 
 namespace turn_signal_decider
 {
 struct TurnSignalParameters
 {
-  double lane_change_search_distance;  // TODO: change this to time based threshold
+  double lane_change_search_distance;  // TODO(mitsudome-r): change this to time based threshold
   double intersection_search_distance;
 };
 
-class TurnSignalDecider : public std::enable_shared_from_this<TurnSignalDecider>, public rclcpp::Node
+class TurnSignalDecider : public std::enable_shared_from_this<TurnSignalDecider>,
+  public rclcpp::Node
 {
 private:
   // ROS variables
@@ -62,3 +65,4 @@ public:
   TurnSignalDecider(const std::string & node_name, const rclcpp::NodeOptions & node_options);
 };
 }  // namespace turn_signal_decider
+#endif  // TURN_SIGNAL_DECIDER__TURN_SIGNAL_DECIDER_HPP_

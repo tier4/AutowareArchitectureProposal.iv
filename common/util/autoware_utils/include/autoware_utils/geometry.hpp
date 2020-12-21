@@ -14,17 +14,17 @@
 
 #pragma once
 
-#include <autoware_planning_msgs/msg/path.hpp>
-#include <autoware_planning_msgs/msg/trajectory.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/quaternion.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2/LinearMath/Quaternion.h>
+#include "autoware_planning_msgs/msg/path.hpp"
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/quaternion.hpp"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "tf2/LinearMath/Quaternion.h"
 
 namespace autoware_utils
 {
-inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::Point & p) { return p; }
-inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::Pose & p) { return p.position; }
+inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::Point & p) {return p;}
+inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::Pose & p) {return p.position;}
 inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::PoseStamped & p)
 {
   return p.pose.position;
@@ -56,7 +56,7 @@ inline tf2::Quaternion createQuaternionFromRPY(
   return q;
 }
 
-template <class Point1, class Point2>
+template<class Point1, class Point2>
 double calcDistance2d(const Point1 & point1, const Point2 & point2)
 {
   const auto p1 = getPoint(point1);
@@ -64,7 +64,7 @@ double calcDistance2d(const Point1 & point1, const Point2 & point2)
   return std::hypot(p1.x - p2.x, p1.y - p2.y);
 }
 
-template <class Point1, class Point2>
+template<class Point1, class Point2>
 double calcDistance3d(const Point1 & point1, const Point2 & point2)
 {
   const auto p1 = getPoint(point1);

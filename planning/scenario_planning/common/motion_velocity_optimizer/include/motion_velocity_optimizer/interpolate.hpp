@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef MOTION_VELOCITY_OPTIMIZER__INTERPOLATE_HPP_
+#define MOTION_VELOCITY_OPTIMIZER__INTERPOLATE_HPP_
+
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -20,8 +22,8 @@
 class LinearInterpolate
 {
 public:
-  LinearInterpolate(){};
-  ~LinearInterpolate(){};
+  LinearInterpolate() {}
+  ~LinearInterpolate() {}
   static bool interpolate(
     const std::vector<double> & base_index, const std::vector<double> & base_value,
     const std::vector<double> & return_index, std::vector<double> & return_value);
@@ -37,7 +39,7 @@ class SplineInterpolate
 
 public:
   SplineInterpolate();
-  SplineInterpolate(const std::vector<double> & x);
+  explicit SplineInterpolate(const std::vector<double> & x);
   ~SplineInterpolate();
   void generateSpline(const std::vector<double> & x);
   double getValue(const double & s);
@@ -46,3 +48,5 @@ public:
     const std::vector<double> & return_index, std::vector<double> & return_value);
   void getValueVector(const std::vector<double> & s_v, std::vector<double> & value_v);
 };
+
+#endif  // MOTION_VELOCITY_OPTIMIZER__INTERPOLATE_HPP_

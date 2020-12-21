@@ -12,31 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LANE_CHANGE_PLANNER_DATA_MANAGER_H
-#define LANE_CHANGE_PLANNER_DATA_MANAGER_H
+#ifndef LANE_CHANGE_PLANNER__DATA_MANAGER_HPP_
+#define LANE_CHANGE_PLANNER__DATA_MANAGER_HPP_
 
-// ROS
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/point_cloud2.hpp>
-#include <std_msgs/msg/bool.hpp>
-#include <tf2_ros/transform_listener.h>
+#include <memory>
+
+// Own package
+#include "lane_change_planner/parameters.hpp"
 
 // Autoware
-#include <autoware_lanelet2_msgs/msg/map_bin.hpp>
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
-#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
-#include <autoware_planning_msgs/msg/route.hpp>
-#include <lane_change_planner/parameters.hpp>
+#include "autoware_lanelet2_msgs/msg/map_bin.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "autoware_planning_msgs/msg/route.hpp"
+
+// ROS
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
+#include "std_msgs/msg/bool.hpp"
+#include "tf2_ros/transform_listener.h"
 
 // lanelet
-#include <lanelet2_core/LaneletMap.h>
-#include <lanelet2_routing/RoutingGraph.h>
-#include <lanelet2_traffic_rules/TrafficRulesFactory.h>
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_routing/RoutingGraph.h"
+#include "lanelet2_traffic_rules/TrafficRulesFactory.h"
 
-// other
-#include <memory>
 
 namespace lane_change_planner
 {
@@ -56,7 +58,9 @@ private:
 
 struct BoolStamped
 {
-  explicit BoolStamped(bool in_data) : data(in_data) {}
+  explicit BoolStamped(bool in_data)
+  : data(in_data),
+    stamp(0, 0, RCL_ROS_TIME) {}
   bool data = false;
   rclcpp::Time stamp;
 };
@@ -111,4 +115,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_DATA_MANAGER_H
+#endif  // LANE_CHANGE_PLANNER__DATA_MANAGER_HPP_

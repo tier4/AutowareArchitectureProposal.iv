@@ -15,11 +15,11 @@
 #pragma once
 
 #include <iostream>
-#include <opencv2/video/tracking.hpp>
-#include <ros/ros.h>
-#include <cv_bridge/cv_bridge.h>
-#include <sensor_msgs/image_encodings.h>
-#include <autoware_perception_msgs/DynamicObjectWithFeatureArray.h>
+#include "opencv2/video/tracking.hpp"
+#include "ros/ros.h"
+#include "cv_bridge/cv_bridge.h"
+#include "sensor_msgs/image_encodings.h"
+#include "autoware_perception_msgs/DynamicObjectWithFeatureArray.h"
 #include "utils.h"
 #include "lidar_to_image.h"
 #include "debugger.h"
@@ -30,25 +30,24 @@ class FlowCalculator
 {
 public:
   FlowCalculator();
-  void setup(const sensor_msgs::PointCloud2::ConstPtr& cloud_msg);
+  void setup(const sensor_msgs::PointCloud2::ConstPtr & cloud_msg);
   bool isInitialized();
-  void run(autoware_perception_msgs::DynamicObjectWithFeatureArray& scene_flow_array);
+  void run(autoware_perception_msgs::DynamicObjectWithFeatureArray & scene_flow_array);
 
 private:
-
   bool calcOpticalFlow(
-    cv::Mat& current_image,
-    cv::Mat& prev_image,
-    std::vector<cv::Point2f>& prev_points,
-    autoware_perception_msgs::DynamicObjectWithFeatureArray& flow_array_msg);
+    cv::Mat & current_image,
+    cv::Mat & prev_image,
+    std::vector<cv::Point2f> & prev_points,
+    autoware_perception_msgs::DynamicObjectWithFeatureArray & flow_array_msg);
 
   bool getSceneFlowArray(
-    const autoware_perception_msgs::DynamicObjectWithFeatureArray& optical_flow_array,
-    autoware_perception_msgs::DynamicObjectWithFeatureArray& scene_flow_array);
+    const autoware_perception_msgs::DynamicObjectWithFeatureArray & optical_flow_array,
+    autoware_perception_msgs::DynamicObjectWithFeatureArray & scene_flow_array);
 
   bool calcSceneFlow(
-    const autoware_perception_msgs::DynamicObjectWithFeature& optical_flow,
-    autoware_perception_msgs::DynamicObjectWithFeature& scene_flow);
+    const autoware_perception_msgs::DynamicObjectWithFeature & optical_flow,
+    autoware_perception_msgs::DynamicObjectWithFeature & scene_flow);
 
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;

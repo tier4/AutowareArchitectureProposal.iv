@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2018 lewes6369
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,11 +24,11 @@
 #ifndef _ENTROY_CALIBRATOR_H
 #define _ENTROY_CALIBRATOR_H
 
-#include <cudnn.h>
+#include "cudnn.h"
 #include <string>
 #include <vector>
 #include "NvInfer.h"
-#include "Utils.hpppp"
+#include "Utils.hpp"
 
 namespace nvinfer1
 {
@@ -41,7 +41,7 @@ public:
 
   virtual ~Int8EntropyCalibrator();
 
-  int getBatchSize() const override { return mBatchSize; }
+  int getBatchSize() const override {return mBatchSize;}
 
   bool getBatch(void * bindings[], const char * names[], int nbBindings) override;
 

@@ -23,11 +23,11 @@
 #define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_QP_SOLVER_QP_SOLVER_QPOASES_H
 
 #include <cmath>
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Dense>
-#include <eigen3/Eigen/LU>
+#include "eigen3/Eigen/Core"
+#include "eigen3/Eigen/Dense"
+#include "eigen3/Eigen/LU"
 #include <iostream>
-#include <qpoases_vendor/qpOASES.hpp>
+#include "qpoases_vendor/qpOASES.hpp"
 
 #include "mpc_follower/qp_solver/qp_solver_interface.hpp"
 

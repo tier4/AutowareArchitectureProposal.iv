@@ -13,23 +13,23 @@
 // limitations under the License.
 
 #ifndef AUTOWARE_STATE_MONITOR_STATE_MACHINE_H_
-#define AUTOWARE_STATE_MONITOR_STATE_MACHINE_H_ 
+#define AUTOWARE_STATE_MONITOR_STATE_MACHINE_H_
 
 #include <deque>
 #include <string>
 #include <vector>
 
-#include <autoware_planning_msgs/msg/route.hpp>
-#include <autoware_planning_msgs/msg/trajectory.hpp>
-#include <autoware_system_msgs/msg/autoware_state.hpp>
-#include <autoware_vehicle_msgs/msg/control_mode.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <std_msgs/msg/bool.hpp>
-#include <rclcpp/time.hpp>
+#include "autoware_planning_msgs/msg/route.hpp"
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "autoware_system_msgs/msg/autoware_state.hpp"
+#include "autoware_vehicle_msgs/msg/control_mode.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "std_msgs/msg/bool.hpp"
+#include "rclcpp/time.hpp"
 
-#include <autoware_state_monitor/autoware_state.hpp>
-#include <autoware_state_monitor/config.hpp>
+#include "autoware_state_monitor/autoware_state.hpp"
+#include "autoware_state_monitor/config.hpp"
 
 struct StateInput
 {
@@ -66,11 +66,12 @@ struct Times
 class StateMachine
 {
 public:
-  explicit StateMachine(const StateParam & state_param) : state_param_(state_param) {}
+  explicit StateMachine(const StateParam & state_param)
+  : state_param_(state_param) {}
 
-  AutowareState getCurrentState() const { return autoware_state_; }
+  AutowareState getCurrentState() const {return autoware_state_;}
   AutowareState updateState(const StateInput & state_input);
-  std::vector<std::string> getMessages() const { return msgs_; }
+  std::vector<std::string> getMessages() const {return msgs_;}
 
 private:
   AutowareState autoware_state_ = AutowareState::InitializingVehicle;

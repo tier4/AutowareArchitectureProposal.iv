@@ -3,6 +3,8 @@ project(lane_change_planner)
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -22,7 +24,7 @@ ament_auto_add_executable(lane_change_planner
   src/lane_change_planner_node.cpp
   src/lane_changer.cpp
   src/data_manager.cpp
-	src/route_handler.cpp
+  src/route_handler.cpp
   src/state_machine.cpp
   src/utilities.cpp
 
@@ -38,6 +40,11 @@ ament_auto_add_executable(lane_change_planner
 target_link_libraries(lane_change_planner
   ${OpenCV_LIBRARIES}
 )
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 ament_auto_package(
 )

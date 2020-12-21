@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <bev_optical_flow/lidar_to_image.hpp>
+#include "bev_optical_flow/lidar_to_image.hpp"
 
 namespace bev_optical_flow
 {
-LidarToBEVImage::LidarToBEVImage() : nh_(""), pnh_("~") {
+LidarToBEVImage::LidarToBEVImage()
+: nh_(""), pnh_("~")
+{
   pnh_.param<float>("grid_size", grid_size_, 0.25);
   pnh_.param<float>("point_radius", point_radius_, 50);
   pnh_.param<float>("z_max", z_max_, 3.0);
@@ -29,7 +31,7 @@ LidarToBEVImage::LidarToBEVImage() : nh_(""), pnh_("~") {
 }
 
 float LidarToBEVImage::pointToPixel(
-  const pcl::PointXYZ& point, cv::Point2d& px, float map2base_angle)
+  const pcl::PointXYZ & point, cv::Point2d & px, float map2base_angle)
 {
   // affine transform base_link coords to image coords
   Eigen::Affine2f base2image =
@@ -44,8 +46,8 @@ float LidarToBEVImage::pointToPixel(
 }
 
 void LidarToBEVImage::getBEVImage(
-  const sensor_msgs::PointCloud2::ConstPtr& cloud_msg,
-  cv::Mat& bev_image)
+  const sensor_msgs::PointCloud2::ConstPtr & cloud_msg,
+  cv::Mat & bev_image)
 {
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::fromROSMsg(*cloud_msg, *cloud);
@@ -53,12 +55,13 @@ void LidarToBEVImage::getBEVImage(
 
   float map2base_angle = utils_->getMap2BaseAngle(cloud_msg->header.stamp);
 
-  size_t size=cloud->points.size();
-  for (size_t i=0; i<size; ++i) {
+  size_t size = cloud->points.size();
+  for (size_t i = 0; i < size; ++i) {
     auto p = cloud->points.at(i);
     if (p.x < -point_radius_ || point_radius_ < p.x ||
       p.y < -point_radius_ || point_radius_ < p.y ||
-      p.z < z_min_ || z_max_ < p.z) {
+      p.z < z_min_ || z_max_ < p.z)
+    {
       continue;
     }
     cv::Point2d px;

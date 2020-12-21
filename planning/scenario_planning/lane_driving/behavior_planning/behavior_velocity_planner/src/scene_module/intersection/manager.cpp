@@ -11,12 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <scene_module/intersection/manager.hpp>
 
-#include <lanelet2_core/primitives/BasicRegulatoryElements.h>
+#include "scene_module/intersection/manager.hpp"
 
-#include <utilization/boost_geometry_helper.hpp>
-#include <utilization/util.hpp>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
+#include "lanelet2_core/primitives/BasicRegulatoryElements.h"
+
+#include "utilization/boost_geometry_helper.hpp"
+#include "utilization/util.hpp"
 
 namespace
 {
@@ -64,7 +69,7 @@ IntersectionModuleManager::IntersectionModuleManager(rclcpp::Node & node)
   p.stop_line_margin = node.declare_parameter(ns + "/stop_line_margin", 1.0);
   p.stuck_vehicle_detect_dist = node.declare_parameter(ns + "/stuck_vehicle_detect_dist", 5.0);
   p.stuck_vehicle_ignore_dist = node.declare_parameter(ns + "/stuck_vehicle_ignore_dist", 5.0) +
-                                vehicle_info.max_longitudinal_offset_m_;
+    vehicle_info.max_longitudinal_offset_m_;
   p.stuck_vehicle_vel_thr = node.declare_parameter(ns + "/stuck_vehicle_vel_thr", 3.0 / 3.6);
   p.intersection_velocity = node.declare_parameter(ns + "/intersection_velocity", 10.0 / 3.6);
   p.detection_area_length = node.declare_parameter(ns + "/detection_area_length", 200.0);
@@ -97,13 +102,17 @@ void IntersectionModuleManager::launchNewModules(
       const std::string lane_location = ll.attributeOr("location", "else");
       const std::string next_lane_location = next_lane.attributeOr("location", "else");
       if (lane_location == "private" && next_lane_location != "private") {
-        registerModule(std::make_shared<MergeFromPrivateRoadModule>(
-          module_id, lane_id, planner_data_, planner_param_, logger_.get_child("merge_from_private_road_module"), clock_));
+        registerModule(
+          std::make_shared<MergeFromPrivateRoadModule>(
+            module_id, lane_id, planner_data_, planner_param_,
+            logger_.get_child("merge_from_private_road_module"), clock_));
       }
     }
 
-    registerModule(std::make_shared<IntersectionModule>(
-      module_id, lane_id, planner_data_, planner_param_, logger_.get_child("intersection_module"), clock_));
+    registerModule(
+      std::make_shared<IntersectionModule>(
+        module_id, lane_id, planner_data_, planner_param_, logger_.get_child("intersection_module"),
+        clock_));
   }
 }
 
@@ -114,6 +123,6 @@ IntersectionModuleManager::getModuleExpiredFunction(
   const auto lane_id_set = getLaneIdSetOnPath(path);
 
   return [lane_id_set](const std::shared_ptr<SceneModuleInterface> & scene_module) {
-    return lane_id_set.count(scene_module->getModuleId()) == 0;
-  };
+           return lane_id_set.count(scene_module->getModuleId()) == 0;
+         };
 }

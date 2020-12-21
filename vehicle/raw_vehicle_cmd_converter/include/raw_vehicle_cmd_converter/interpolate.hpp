@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef RAW_VEHICLE_CMD_CONVERTER_INTERPOLATE_H
-#define RAW_VEHICLE_CMD_CONVERTER_INTERPOLATE_H
+#ifndef RAW_VEHICLE_CMD_CONVERTER__INTERPOLATE_HPP_
+#define RAW_VEHICLE_CMD_CONVERTER__INTERPOLATE_HPP_
 
 #include <cmath>
 #include <iostream>
@@ -22,11 +22,11 @@
 class LinearInterpolate
 {
 public:
-  LinearInterpolate(){};
-  ~LinearInterpolate(){};
+  LinearInterpolate() {}
+  ~LinearInterpolate() {}
   static bool interpolate(
     const std::vector<double> & base_index, const std::vector<double> & base_value,
     const double & return_index, double & return_value);
 };
 
-#endif
+#endif  // RAW_VEHICLE_CMD_CONVERTER__INTERPOLATE_HPP_

@@ -1,30 +1,27 @@
-/*
- * MIT License
- * 
- * Copyright (c) 2018 Forrest
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
-*/
+// Copyright 2018 Forrest
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
 #ifndef CUBIC_SPLINE_H
 #define CUBIC_SPLINE_H
 
-#include <Eigen/Eigen>
+#include "Eigen/Eigen"
 #include <algorithm>
 #include <array>
 #include <iostream>
@@ -65,7 +62,7 @@ public:
   // Eigen::VectorXf c;
   std::vector<double> d;
 
-  Spline(){};
+  Spline() {}
   // d_i * (x-x_i)^3 + c_i * (x-x_i)^2 + b_i * (x-x_i) + a_i
   Spline(const std::vector<double> & x_, const std::vector<double> & y_)
   : x(x_), y(y_), nx(x_.size()), h(vec_diff(x_)), a(y_)
@@ -80,7 +77,7 @@ public:
       d.push_back((c[i + 1] - c[i]) / (3.0 * h[i]));
       b.push_back((a[i + 1] - a[i]) / h[i] - h[i] * (c[i + 1] + 2 * c[i]) / 3.0);
     }
-  };
+  }
 
   double calc(double t)
   {
@@ -170,7 +167,7 @@ private:
     A(nx - 1, nx - 2) = 0.0;
     A(nx - 1, nx - 1) = 1.0;
     return A;
-  };
+  }
   Eigen::VectorXd calc_B()
   {
     Eigen::VectorXd B = Eigen::VectorXd::Zero(nx);
@@ -178,7 +175,7 @@ private:
       B(i + 1) = 3.0 * (a[i + 2] - a[i + 1]) / h[i + 1] - 3.0 * (a[i + 1] - a[i]) / h[i];
     }
     return B;
-  };
+  }
 
   int bisect(double t, int start, int end)
   {
@@ -206,14 +203,14 @@ public:
     sx = Spline(s, x);
     sy = Spline(s, y);
     max_s_value_ = *std::max_element(s.begin(), s.end());
-  };
+  }
 
   std::array<double, 2> calc_position(double s_t)
   {
     double x = sx.calc(s_t, max_s_value_);
     double y = sy.calc(s_t, max_s_value_);
     return {{x, y}};
-  };
+  }
 
   double calc_curvature(double s_t)
   {
@@ -222,14 +219,14 @@ public:
     double dy = sy.calc_d(s_t, max_s_value_);
     double ddy = sy.calc_dd(s_t, max_s_value_);
     return (ddy * dx - ddx * dy) / (dx * dx + dy * dy);
-  };
+  }
 
   double calc_yaw(double s_t)
   {
     double dx = sx.calc_d(s_t, max_s_value_);
     double dy = sy.calc_d(s_t, max_s_value_);
     return std::atan2(dy, dx);
-  };
+  }
 
 private:
   std::vector<double> calc_s(const std::vector<double> & x, const std::vector<double> & y)
@@ -246,7 +243,7 @@ private:
     std::vector<double> cum_ds = cum_sum(ds);
     out_s.insert(out_s.end(), cum_ds.begin(), cum_ds.end());
     return out_s;
-  };
+  }
   double max_s_value_;
 };
 
@@ -266,7 +263,7 @@ public:
     sy = Spline(s, y);
     sv = Spline(s, v);
     max_s_value_ = *std::max_element(s.begin(), s.end());
-  };
+  }
 
   std::array<double, 3> calc_trajectory_point(double s_t)
   {
@@ -274,7 +271,7 @@ public:
     double y = sy.calc(s_t, max_s_value_);
     double v = sv.calc(s_t, max_s_value_);
     return {{x, y, v}};
-  };
+  }
 
   double calc_curvature(double s_t)
   {
@@ -283,14 +280,14 @@ public:
     double dy = sy.calc_d(s_t, max_s_value_);
     double ddy = sy.calc_dd(s_t, max_s_value_);
     return (ddy * dx - ddx * dy) / (dx * dx + dy * dy);
-  };
+  }
 
   double calc_yaw(double s_t)
   {
     double dx = sx.calc_d(s_t, max_s_value_);
     double dy = sy.calc_d(s_t, max_s_value_);
     return std::atan2(dy, dx);
-  };
+  }
 
 private:
   std::vector<double> calc_s(const std::vector<double> & x, const std::vector<double> & y)
@@ -307,7 +304,7 @@ private:
     std::vector<double> cum_ds = cum_sum(ds);
     out_s.insert(out_s.end(), cum_ds.begin(), cum_ds.end());
     return out_s;
-  };
+  }
   double max_s_value_;
 };
 
@@ -330,7 +327,7 @@ public:
     sz = Spline(s, z);
     sv = Spline(s, v);
     max_s_value_ = *std::max_element(s.begin(), s.end());
-  };
+  }
 
   std::array<double, 4> calc_trajectory_point(double s_t)
   {
@@ -339,7 +336,7 @@ public:
     double z = sz.calc(s_t, max_s_value_);
     double v = sv.calc(s_t, max_s_value_);
     return {{x, y, z, v}};
-  };
+  }
 
   double calc_curvature(double s_t)
   {
@@ -348,14 +345,14 @@ public:
     double dy = sy.calc_d(s_t, max_s_value_);
     double ddy = sy.calc_dd(s_t, max_s_value_);
     return (ddy * dx - ddx * dy) / (dx * dx + dy * dy);
-  };
+  }
 
   double calc_yaw(double s_t)
   {
     double dx = sx.calc_d(s_t, max_s_value_);
     double dy = sy.calc_d(s_t, max_s_value_);
     return std::atan2(dy, dx);
-  };
+  }
 
 private:
   std::vector<double> calc_s(const std::vector<double> & x, const std::vector<double> & y)
@@ -372,7 +369,7 @@ private:
     std::vector<double> cum_ds = cum_sum(ds);
     out_s.insert(out_s.end(), cum_ds.begin(), cum_ds.end());
     return out_s;
-  };
+  }
   double max_s_value_;
 };
 

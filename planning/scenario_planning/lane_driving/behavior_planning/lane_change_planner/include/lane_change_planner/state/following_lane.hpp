@@ -12,16 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LANE_CHANGE_PLANNER_STATE_FOLLOWING_LANE_H
-#define LANE_CHANGE_PLANNER_STATE_FOLLOWING_LANE_H
-
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <lane_change_planner/state/state_base_class.hpp>
-#include <lanelet2_core/primitives/Primitive.h>
+#ifndef LANE_CHANGE_PLANNER__STATE__FOLLOWING_LANE_HPP_
+#define LANE_CHANGE_PLANNER__STATE__FOLLOWING_LANE_HPP_
 
 #include <memory>
+
+#include "lane_change_planner/state/state_base_class.hpp"
+
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "lanelet2_core/primitives/Primitive.h"
 
 namespace lane_change_planner
 {
@@ -60,4 +62,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_STATE_FOLLOWING_LANE_H
+#endif  // LANE_CHANGE_PLANNER__STATE__FOLLOWING_LANE_HPP_

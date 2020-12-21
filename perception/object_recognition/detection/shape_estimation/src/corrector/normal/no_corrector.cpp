@@ -19,10 +19,11 @@
 
 #include "no_corrector.hpp"
 #define EIGEN_MPL2_ONLY
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include "Eigen/Core"
+#include "Eigen/Geometry"
 
-namespace normal {
+namespace normal
+{
 bool NoCorrector::correct(
   autoware_perception_msgs::msg::Shape & shape_output, geometry_msgs::msg::Pose & pose_output)
 {

@@ -15,17 +15,18 @@
 
 #include <memory>
 #include <set>
+#include <string>
 
-#include <autoware_planning_msgs/msg/path.hpp>
-#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
-#include <autoware_planning_msgs/msg/stop_reason.hpp>
-#include <autoware_planning_msgs/msg/stop_reason_array.hpp>
+#include "autoware_planning_msgs/msg/path.hpp"
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "autoware_planning_msgs/msg/stop_reason.hpp"
+#include "autoware_planning_msgs/msg/stop_reason_array.hpp"
 
-#include <behavior_velocity_planner/planner_data.hpp>
+#include "behavior_velocity_planner/planner_data.hpp"
 
 // Debug
-#include <rclcpp/rclcpp.hpp>
-#include <visualization_msgs/msg/marker_array.hpp>
+#include "rclcpp/rclcpp.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 
 class SceneModuleInterface
 {
@@ -42,13 +43,13 @@ public:
     autoware_planning_msgs::msg::StopReason * stop_reason) = 0;
   virtual visualization_msgs::msg::MarkerArray createDebugMarkerArray() = 0;
 
-  int64_t getModuleId() const { return module_id_; }
+  int64_t getModuleId() const {return module_id_;}
   void setPlannerData(const std::shared_ptr<const PlannerData> & planner_data)
   {
     planner_data_ = planner_data;
   }
 
-  boost::optional<int> getFirstStopPathPointIndex() { return first_stop_path_point_index_; }
+  boost::optional<int> getFirstStopPathPointIndex() {return first_stop_path_point_index_;}
 
 protected:
   const int64_t module_id_;
@@ -74,7 +75,7 @@ public:
 
   virtual const char * getModuleName() = 0;
 
-  boost::optional<int> getFirstStopPathPointIndex() { return first_stop_path_point_index_; }
+  boost::optional<int> getFirstStopPathPointIndex() {return first_stop_path_point_index_;}
 
   void updateSceneModuleInstances(
     const std::shared_ptr<const PlannerData> & planner_data,

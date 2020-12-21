@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <lane_change_planner/state/state_base_class.hpp>
+#include "lane_change_planner/state/state_base_class.hpp"
+
+#include <ostream>
+#include <memory>
+#include <string>
 
 namespace lane_change_planner
 {
@@ -54,6 +58,6 @@ StateBase::StateBase(
 {
 }
 
-Status StateBase::getStatus() const { return status_; }
-DebugData StateBase::getDebugData() const { return debug_data_; }
+Status StateBase::getStatus() const {return status_;}
+DebugData StateBase::getDebugData() const {return debug_data_;}
 }  // namespace lane_change_planner

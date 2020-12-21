@@ -13,29 +13,30 @@
 // limitations under the License.
 #pragma once
 
+#include <algorithm>
 #include <vector>
 
-#include <boost/assign/list_of.hpp>
-#include <boost/geometry.hpp>
-#include <boost/geometry/algorithms/area.hpp>
-#include <boost/geometry/algorithms/disjoint.hpp>
-#include <boost/geometry/algorithms/distance.hpp>
-#include <boost/geometry/algorithms/equals.hpp>
-#include <boost/geometry/algorithms/intersection.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
-#include <boost/geometry/geometries/register/point.hpp>
-#include <boost/geometry/geometries/segment.hpp>
+#include "boost/assign/list_of.hpp"
+#include "boost/geometry.hpp"
+#include "boost/geometry/algorithms/area.hpp"
+#include "boost/geometry/algorithms/disjoint.hpp"
+#include "boost/geometry/algorithms/distance.hpp"
+#include "boost/geometry/algorithms/equals.hpp"
+#include "boost/geometry/algorithms/intersection.hpp"
+#include "boost/geometry/geometries/linestring.hpp"
+#include "boost/geometry/geometries/point_xy.hpp"
+#include "boost/geometry/geometries/polygon.hpp"
+#include "boost/geometry/geometries/register/point.hpp"
+#include "boost/geometry/geometries/segment.hpp"
 
-#include <tf2/utils.h>
-#include <geometry_msgs/msg/point.hpp>
-#include <geometry_msgs/msg/polygon.hpp>
-#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include "tf2/utils.h"
+#include "geometry_msgs/msg/point.hpp"
+#include "geometry_msgs/msg/polygon.hpp"
+#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 
-#include <autoware_planning_msgs/msg/path_point.hpp>
-#include <autoware_planning_msgs/msg/path_point_with_lane_id.hpp>
-#include <autoware_planning_msgs/msg/trajectory_point.hpp>
+#include "autoware_planning_msgs/msg/path_point.hpp"
+#include "autoware_planning_msgs/msg/path_point_with_lane_id.hpp"
+#include "autoware_planning_msgs/msg/trajectory_point.hpp"
 
 using Point2d = boost::geometry::model::d2::point_xy<double>;
 using Segment2d = boost::geometry::model::segment<Point2d>;
@@ -43,11 +44,11 @@ using LineString2d = boost::geometry::model::linestring<Point2d>;
 using Polygon2d =
   boost::geometry::model::polygon<Point2d, false, false>;  // counter-clockwise, open
 
+// cppcheck-suppress unknownMacro
 BOOST_GEOMETRY_REGISTER_POINT_3D(geometry_msgs::msg::Point, double, cs::cartesian, x, y, z)
 BOOST_GEOMETRY_REGISTER_POINT_3D(
   geometry_msgs::msg::PoseWithCovarianceStamped, double, cs::cartesian, pose.pose.position.x,
   pose.pose.position.y, pose.pose.position.z)
-
 BOOST_GEOMETRY_REGISTER_POINT_3D(
   autoware_planning_msgs::msg::PathPoint, double, cs::cartesian, pose.position.x, pose.position.y,
   pose.position.z)
@@ -58,13 +59,13 @@ BOOST_GEOMETRY_REGISTER_POINT_3D(
   autoware_planning_msgs::msg::TrajectoryPoint, double, cs::cartesian, pose.position.x,
   pose.position.y, pose.position.z)
 
-template <class T>
+template<class T>
 Point2d to_bg2d(const T & p)
 {
   return Point2d(boost::geometry::get<0>(p), boost::geometry::get<1>(p));
 }
 
-template <class T>
+template<class T>
 LineString2d to_bg2d(const std::vector<T> & vec)
 {
   LineString2d ps;
@@ -105,7 +106,7 @@ inline Polygon2d lines2polygon(const LineString2d & left_line, const LineString2
 inline Polygon2d obj2polygon(
   const geometry_msgs::msg::Pose & pose, const geometry_msgs::msg::Vector3 & shape)
 {
-  //rename
+  // rename
   const double x = pose.position.x;
   const double y = pose.position.y;
   const double h = shape.x;
@@ -119,7 +120,7 @@ inline Polygon2d obj2polygon(
 
   // rotate polygon(yaw)
   boost::geometry::strategy::transform::rotate_transformer<boost::geometry::radian, double, 2, 2>
-    rotate(-yaw);  // anti-clockwise -> :clockwise rotation
+  rotate(-yaw);    // anti-clockwise -> :clockwise rotation
   Polygon2d rotate_obj_poly;
   boost::geometry::transform(obj_poly, rotate_obj_poly, rotate);
 
@@ -135,27 +136,27 @@ inline double calcOverlapAreaRate(const Polygon2d & target, const Polygon2d & ba
   /* OverlapAreaRate: common area(target && base) / target area */
 
   if (boost::geometry::within(target, base)) {
-    //target is within base, common area = target area
+    // target is within base, common area = target area
     return 1.0;
   }
 
   if (!boost::geometry::intersects(target, base)) {
-    //target and base has not intersect area
+    // target and base has not intersect area
     return 0.0;
   }
 
-  //calculate intersect polygon
+  // calculate intersect polygon
   std::vector<Polygon2d> intersects;
   boost::geometry::intersection(target, base, intersects);
 
-  //calculate area of polygon
+  // calculate area of polygon
   double intersect_area = 0.0;
   for (const auto intersect : intersects) {
     intersect_area += boost::geometry::area(intersect);
   }
   const double target_area = boost::geometry::area(target);
-  //specification of boost1.65
-  //common area is not intersect area
+  // specification of boost1.65
+  // common area is not intersect area
   const double common_area = target_area - intersect_area;
 
   return common_area / target_area;

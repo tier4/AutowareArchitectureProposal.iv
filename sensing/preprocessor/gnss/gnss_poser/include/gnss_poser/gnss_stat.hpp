@@ -11,12 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef GNSS_POSER_GNSS_STAT_HPP_
-#define GNSS_POSER_GNSS_STAT_HPP_
+#ifndef GNSS_POSER__GNSS_STAT_HPP_
+#define GNSS_POSER__GNSS_STAT_HPP_
 
 namespace GNSSPoser
 {
-enum class CoordinateSystem {
+enum class CoordinateSystem
+{
   UTM = 0,
   MGRS = 1,
   PLANE = 2,
@@ -49,4 +50,4 @@ struct GNSSStat
 };
 }  // namespace GNSSPoser
 
-#endif
+#endif  // GNSS_POSER__GNSS_STAT_HPP_

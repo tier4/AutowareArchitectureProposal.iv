@@ -12,32 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <motion_velocity_optimizer/motion_velocity_optimizer.hpp>
-#include <motion_velocity_optimizer/optimizer/l2_pseudo_jerk_optimizer.hpp>
-#include <motion_velocity_optimizer/optimizer/linf_pseudo_jerk_optimizer.hpp>
+#include "motion_velocity_optimizer/motion_velocity_optimizer.hpp"
 
-#include <tf2_ros/create_timer_ros.h>
+#include <algorithm>
 #include <chrono>
+#include <memory>
+#include <utility>
+#include <string>
+#include <vector>
+
+#include "motion_velocity_optimizer/optimizer/l2_pseudo_jerk_optimizer.hpp"
+#include "motion_velocity_optimizer/optimizer/linf_pseudo_jerk_optimizer.hpp"
+
+#include "tf2_ros/create_timer_ros.h"
 
 using std::placeholders::_1;
 
 #define UPDATE_PARAM(NAME) update_param(parameters, #NAME, planning_param_.NAME);
 namespace
 {
-template <typename T>
+template<typename T>
 void update_param(
   const std::vector<rclcpp::Parameter> & parameters, const std::string & name, T & value)
 {
   auto it = std::find_if(
     parameters.cbegin(), parameters.cend(),
-    [&name](const rclcpp::Parameter & parameter) { return parameter.get_name() == name; });
+    [&name](const rclcpp::Parameter & parameter) {return parameter.get_name() == name;});
   if (it != parameters.cend()) {
     value = it->template get_value<T>();
   }
 }
 }  // namespace
 
-MotionVelocityOptimizer::MotionVelocityOptimizer() : Node("motion_velocity_optimizer"), tf_listener_(tf_buffer_)
+MotionVelocityOptimizer::MotionVelocityOptimizer()
+: Node("motion_velocity_optimizer"), tf_listener_(tf_buffer_)
 {
   auto & p = planning_param_;
   p.max_velocity = declare_parameter("max_velocity", 20.0);  // 72.0 kmph
@@ -134,7 +142,10 @@ MotionVelocityOptimizer::MotionVelocityOptimizer() : Node("motion_velocity_optim
 
   /* parameter update */
   set_param_res_ =
-    this->add_on_set_parameters_callback(std::bind(&MotionVelocityOptimizer::paramCallback, this, _1));
+    this->add_on_set_parameters_callback(
+    std::bind(
+      &MotionVelocityOptimizer::paramCallback, this,
+      _1));
 
 
   /* wait to get vehicle position */
@@ -278,7 +289,10 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
     vpu::multiplyConstantToTrajectoryVelocity(-1.0, /* out */ traj_resampled);
   }
 
-  /* Calculate the closest point on the previously planned traj (used to get initial planning speed) */
+  /*
+   * Calculate the closest point on the previously planned traj
+   * (used to get initial planning speed)
+   */
   int prev_output_closest = vpu::calcClosestWaypoint(
     prev_output_, current_pose_ptr_->pose, planning_param_.delta_yaw_threshold);
   RCLCPP_DEBUG(
@@ -323,7 +337,8 @@ void MotionVelocityOptimizer::insertBehindVelocity(
     if (
       initialize_type_ == InitializeType::INIT ||
       initialize_type_ == InitializeType::LARGE_DEVIATION_REPLAN ||
-      initialize_type_ == InitializeType::ENGAGING) {
+      initialize_type_ == InitializeType::ENGAGING)
+    {
       output.points.at(i).twist.linear.x = output.points.at(output_closest).twist.linear.x;
     } else {
       output.points.at(i).twist.linear.x = prev_output.points.at(j).twist.linear.x;
@@ -369,9 +384,11 @@ bool MotionVelocityOptimizer::resampleTrajectory(
   for (int i = 1; i <= N; ++i) {
     double ds = ds_nominal;
     if (i > Nt) {
-      if (dist_i > planning_param_.min_trajectory_length)
+      if (dist_i > planning_param_.min_trajectory_length) {
         break;  // planning time is enough and planning distance is over min length.
-      // if the planning time is not enough to see the desired distance, change the interval distance to see far.
+      }
+      // if the planning time is not enough to see the desired distance,
+      // change the interval distance to see far.
       ds = std::max(1.0, ds_nominal);
     }
     dist_i += ds;
@@ -435,8 +452,12 @@ void MotionVelocityOptimizer::calcInitialMotion(
     return;
   }
 
-  /* if current vehicle velocity is low && base_desired speed is high, use engage_velocity for engage vehicle */
-  const double engage_vel_thr = planning_param_.engage_velocity * planning_param_.engage_exit_ratio;
+  /*
+   * if current vehicle velocity is low && base_desired speed is high,
+   * use engage_velocity for engage vehicle
+   */
+  const double engage_vel_thr =
+    planning_param_.engage_velocity * planning_param_.engage_exit_ratio;
   if (vehicle_speed < engage_vel_thr) {
     if (target_vel >= planning_param_.engage_velocity) {
       int idx = 0;
@@ -477,7 +498,6 @@ void MotionVelocityOptimizer::calcInitialMotion(
     get_logger(),
     "[calcInitialMotion]: normal update. v0 = %f, a0 = %f, vehicle_speed = %f, target_vel = %f",
     initial_vel, initial_acc, vehicle_speed, target_vel);
-  return;
 }
 
 autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::optimizeVelocity(
@@ -504,7 +524,7 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::optimizeVelocit
   bool stop_point_exists = vpu::searchZeroVelocityIdx(input, stop_idx);
   RCLCPP_DEBUG(
     get_logger(), "[replan]: target_vel = %f, stop_idx = %d, closest = %d, stop_point_exists = %d",
-    target_vel, stop_idx, input_closest, (int)stop_point_exists);
+    target_vel, stop_idx, input_closest, static_cast<int>(stop_point_exists));
 
   /* for the endpoint of the trajectory */
   if (optimized_traj.points.size() > 0) {
@@ -547,7 +567,8 @@ bool MotionVelocityOptimizer::lateralAccelerationFilter(
   output.points.back().twist = input.points.back().twist;  // keep the final speed.
 
   constexpr double curvature_calc_dist = 3.0;  // [m] calc curvature with 3m away points
-  const unsigned int idx_dist = std::max((int)(curvature_calc_dist / points_interval), 1);
+  const unsigned int idx_dist =
+    std::max(static_cast<int>(curvature_calc_dist / points_interval), 1);
 
   /* Calculate curvature assuming the trajectory points interval is constant */
   std::vector<double> curvature_v;
@@ -582,7 +603,7 @@ bool MotionVelocityOptimizer::externalVelocityLimitFilter(
   autoware_planning_msgs::msg::Trajectory & output) const
 {
   output = input;
-  if (!external_velocity_limit_filtered_) return false;
+  if (!external_velocity_limit_filtered_) {return false;}
 
   vpu::maximumVelocityFilter(*external_velocity_limit_filtered_, output);
   RCLCPP_DEBUG(
@@ -598,8 +619,9 @@ void MotionVelocityOptimizer::preventMoveToCloseStopLine(
   }
 
   int stop_idx = 0;
-  if (!vpu::searchZeroVelocityIdx(traj, stop_idx)) return;  // no obstacle.
-
+  if (!vpu::searchZeroVelocityIdx(traj, stop_idx)) {
+    return;  // no obstacle.
+  }
   /* if the desired stop line is ahead of ego-vehicle */
   double dist_to_stopline = vpu::calcDist2d(traj.points.at(stop_idx), traj.points.at(closest));
   std::string debug_msg;
@@ -625,7 +647,7 @@ bool MotionVelocityOptimizer::extractPathAroundIndex(
   const double ahead_length = planning_param_.extract_ahead_dist;
   const double behind_length = planning_param_.extract_behind_dist;
 
-  if (input.points.size() == 0 || index < 0 || (int)input.points.size() - 1 < index) {
+  if (input.points.size() == 0 || index < 0 || static_cast<int>(input.points.size()) - 1 < index) {
     RCLCPP_WARN(
       get_logger(), "extractPathAroundIndex failed. input.points.size() = %lu, base_index = %d",
       input.points.size(), index);
@@ -636,7 +658,7 @@ bool MotionVelocityOptimizer::extractPathAroundIndex(
 
   // calc ahead distance
   int ahead_index = input.points.size() - 1;
-  for (int i = index; i < (int)input.points.size() - 1; ++i) {
+  for (int i = index; i < static_cast<int>(input.points.size()) - 1; ++i) {
     dist_sum_tmp += vpu::calcDist2d(input.points.at(i), input.points.at(i + 1));
     if (dist_sum_tmp > ahead_length) {
       ahead_index = i + 1;
@@ -681,7 +703,7 @@ void MotionVelocityOptimizer::publishFloat(
 
 void MotionVelocityOptimizer::updateExternalVelocityLimit(const double dt)
 {
-  if (!external_velocity_limit_ptr_) return;
+  if (!external_velocity_limit_ptr_) {return;}
 
   if (external_velocity_limit_ptr_->data < -1.0e-5) {
     RCLCPP_WARN(get_logger(), "external velocity limit is negative. The command is ignored");
@@ -716,7 +738,8 @@ void MotionVelocityOptimizer::blockUntilVehiclePositionAvailable(const tf2::Dura
 {
   static constexpr auto input = "map", output = "base_link";
   while (!tf_buffer_.canTransform(input, output, tf2::TimePointZero) &&
-         rclcpp::ok()) {
+    rclcpp::ok())
+  {
     RCLCPP_INFO(
       get_logger(), "waiting %d ms for %s->%s transform to become available",
       std::chrono::duration_cast<std::chrono::seconds>(duration).count(), input, output);

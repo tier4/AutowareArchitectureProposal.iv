@@ -11,13 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <ros/ros.h>
-#include <cluster_data_association/node.hpp>
+#include "rclcpp/rclcpp.hpp"
+#include "cluster_data_association/node.hpp"
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "cluster_data_association_node");
-  cluster_data_association::ClusterDataAssociationNode node;
-  ros::spin();
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<cluster_data_association::ClusterDataAssociationNode>();
+  rclcpp::spin(node);
+  rclcpp::shutdown();
+
   return 0;
 }

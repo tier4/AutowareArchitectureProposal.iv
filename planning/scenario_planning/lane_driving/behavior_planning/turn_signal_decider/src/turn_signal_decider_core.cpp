@@ -11,7 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <turn_signal_decider/turn_signal_decider.hpp>
+
+#include <limits>
+#include <memory>
+#include <string>
+#include <utility>
+
+#include "turn_signal_decider/turn_signal_decider.hpp"
 
 using autoware_planning_msgs::msg::PathWithLaneId;
 using autoware_vehicle_msgs::msg::TurnSignal;
@@ -28,7 +34,8 @@ double getDistance3d(const geometry_msgs::msg::Point & p1, const geometry_msgs::
 
 namespace turn_signal_decider
 {
-TurnSignalDecider::TurnSignalDecider(const std::string & node_name, const rclcpp::NodeOptions & node_options)
+TurnSignalDecider::TurnSignalDecider(
+  const std::string & node_name, const rclcpp::NodeOptions & node_options)
 : rclcpp::Node(node_name, node_options), data_(this)
 {
   // setup data manager
@@ -37,22 +44,28 @@ TurnSignalDecider::TurnSignalDecider(const std::string & node_name, const rclcpp
   auto vehicle_pose_timer_period = std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<double>(vehicle_pose_update_period));
 
-  vehicle_pose_timer_ = std::make_shared<rclcpp::GenericTimer<decltype(vehicle_pose_timer_callback)>>(
+  vehicle_pose_timer_ =
+    std::make_shared<rclcpp::GenericTimer<decltype(vehicle_pose_timer_callback)>>(
     this->get_clock(), vehicle_pose_timer_period, std::move(vehicle_pose_timer_callback),
     this->get_node_base_interface()->get_context());
   this->get_node_timers_interface()->add_timer(vehicle_pose_timer_, nullptr);
 
   path_subscription_ = this->create_subscription<autoware_planning_msgs::msg::PathWithLaneId>(
-    "input/path_with_lane_id", rclcpp::QoS{1}, std::bind(&DataManager::onPathWithLaneId, &data_, _1));
+    "input/path_with_lane_id", rclcpp::QoS{1},
+    std::bind(&DataManager::onPathWithLaneId, &data_, _1));
   map_subscription_ = this->create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
-    "input/vector_map", rclcpp::QoS{1}, std::bind(&DataManager::onLaneletMap, &data_, _1));
+    "input/vector_map", rclcpp::QoS{1}.transient_local(),
+    std::bind(&DataManager::onLaneletMap, &data_, _1));
 
   // get ROS parameters
-  parameters_.lane_change_search_distance = this->declare_parameter("lane_change_search_distance", double(30));
-  parameters_.intersection_search_distance = this->declare_parameter("intersection_search_distance", double(30));
+  parameters_.lane_change_search_distance =
+    this->declare_parameter("lane_change_search_distance", static_cast<double>(30));
+  parameters_.intersection_search_distance =
+    this->declare_parameter("intersection_search_distance", static_cast<double>(30));
 
   // set publishers
-  turn_signal_publisher_ = this->create_publisher<TurnSignal>("output/turn_signal_cmd", rclcpp::QoS{1});
+  turn_signal_publisher_ =
+    this->create_publisher<TurnSignal>("output/turn_signal_cmd", rclcpp::QoS{1});
 
   constexpr double turn_signal_update_period = 0.1;
   auto turn_signal_timer_callback = std::bind(&TurnSignalDecider::onTurnSignalTimer, this);
@@ -76,7 +89,8 @@ void TurnSignalDecider::onTurnSignalTimer()
   const auto path = data_.getPath();
   FrenetCoordinate3d vehicle_pose_frenet;
   if (!convertToFrenetCoordinate3d(
-        path, data_.getVehiclePoseStamped().pose.position, &vehicle_pose_frenet)) {
+      path, data_.getVehiclePoseStamped().pose.position, &vehicle_pose_frenet))
+  {
     RCLCPP_ERROR_THROTTLE(
       get_logger(), *get_clock(), std::chrono::milliseconds(5000).count(),
       "failed to convert vehicle pose into frenet coordinate");
@@ -131,7 +145,8 @@ lanelet::routing::RelationType TurnSignalDecider::getRelation(
       }
       if (
         relation.get() == lanelet::routing::RelationType::Left ||
-        relation.get() == lanelet::routing::RelationType::Right) {
+        relation.get() == lanelet::routing::RelationType::Right)
+      {
         return relation.get();
       }
       prev_llt = llt;
@@ -142,8 +157,9 @@ lanelet::routing::RelationType TurnSignalDecider::getRelation(
 }
 
 bool TurnSignalDecider::isChangingLane(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const FrenetCoordinate3d & vehicle_pose_frenet,
-  TurnSignal * signal_state_ptr, double * distance_ptr) const
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const FrenetCoordinate3d & vehicle_pose_frenet, TurnSignal * signal_state_ptr,
+  double * distance_ptr) const
 {
   if (signal_state_ptr == nullptr || distance_ptr == nullptr) {
     RCLCPP_ERROR(this->get_logger(), "Given argument is nullptr.");
@@ -196,8 +212,9 @@ bool TurnSignalDecider::isChangingLane(
 }
 
 bool TurnSignalDecider::isTurning(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const FrenetCoordinate3d & vehicle_pose_frenet,
-  TurnSignal * signal_state_ptr, double * distance_ptr) const
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const FrenetCoordinate3d & vehicle_pose_frenet, TurnSignal * signal_state_ptr,
+  double * distance_ptr) const
 {
   if (signal_state_ptr == nullptr || distance_ptr == nullptr) {
     RCLCPP_ERROR(this->get_logger(), "Given argument is nullptr.");

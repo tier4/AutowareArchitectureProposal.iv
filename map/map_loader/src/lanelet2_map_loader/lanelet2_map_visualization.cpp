@@ -17,18 +17,18 @@
  *
  */
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <lanelet2_core/LaneletMap.h>
-#include <lanelet2_projection/UTM.h>
-#include <autoware_lanelet2_msgs/msg/map_bin.hpp>
-#include <sensor_msgs/msg/point_cloud2.hpp>
-#include <visualization_msgs/msg/marker_array.hpp>
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_projection/UTM.h"
+#include "autoware_lanelet2_msgs/msg/map_bin.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 
-#include <lanelet2_extension/regulatory_elements/autoware_traffic_light.hpp>
-#include <lanelet2_extension/utility/message_conversion.hpp>
-#include <lanelet2_extension/utility/query.hpp>
-#include <lanelet2_extension/visualization/visualization.hpp>
+#include "lanelet2_extension/regulatory_elements/autoware_traffic_light.hpp"
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "lanelet2_extension/utility/query.hpp"
+#include "lanelet2_extension/visualization/visualization.hpp"
 
 #include <vector>
 
@@ -91,16 +91,16 @@ void binMapCallback(const autoware_lanelet2_msgs::msg::MapBin::SharedPtr msg)
 
   insertMarkerArray(
     &map_marker_array, lanelet::visualization::laneletsBoundaryAsMarkerArray(
-                         road_lanelets, cl_ll_borders, g_viz_lanelets_centerline));
+      road_lanelets, cl_ll_borders, g_viz_lanelets_centerline));
   insertMarkerArray(
     &map_marker_array,
     lanelet::visualization::laneletsAsTriangleMarkerArray("road_lanelets", road_lanelets, cl_road));
   insertMarkerArray(
     &map_marker_array, lanelet::visualization::laneletsAsTriangleMarkerArray(
-                         "crosswalk_lanelets", crosswalk_lanelets, cl_cross));
+      "crosswalk_lanelets", crosswalk_lanelets, cl_cross));
   insertMarkerArray(
     &map_marker_array, lanelet::visualization::laneletsAsTriangleMarkerArray(
-                         "walkway_lanelets", walkway_lanelets, cl_cross));
+      "walkway_lanelets", walkway_lanelets, cl_cross));
   insertMarkerArray(
     &map_marker_array, lanelet::visualization::laneletDirectionAsMarkerArray(road_lanelets));
   insertMarkerArray(
@@ -127,7 +127,7 @@ int main(int argc, char ** argv)
   rclcpp::init(argc, argv);
   auto node = rclcpp::Node::make_shared("lanelet2_map_visualizer");
   auto bin_map_sub = node->create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
-    "input/lanelet2_map", rclcpp::QoS{1}, std::bind(&binMapCallback, std::placeholders::_1));
+    "input/lanelet2_map", rclcpp::QoS{1}.transient_local(), std::bind(&binMapCallback, std::placeholders::_1));
 
   rclcpp::QoS durable_qos{1};
   durable_qos.transient_local();

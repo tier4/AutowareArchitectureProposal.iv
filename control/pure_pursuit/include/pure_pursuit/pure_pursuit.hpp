@@ -34,8 +34,8 @@
 #include <rclcpp/rclcpp.hpp>
 
 #define EIGEN_MPL2_ONLY
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include "Eigen/Core"
+#include "Eigen/Geometry"
 
 #include <geometry_msgs/msg/pose.hpp>
 #define PURE_PURSUIT_LOGGER "pure_pursuit"

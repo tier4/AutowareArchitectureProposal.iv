@@ -16,18 +16,18 @@
 #include <functional>
 #include <memory>
 
-#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
-#include <rclcpp/rclcpp.hpp>
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "rclcpp/rclcpp.hpp"
 
-#include <scene_module/detection_area/scene.hpp>
-#include <scene_module/scene_module_interface.hpp>
+#include "scene_module/detection_area/scene.hpp"
+#include "scene_module/scene_module_interface.hpp"
 
 class DetectionAreaModuleManager : public SceneModuleManagerInterface
 {
 public:
   DetectionAreaModuleManager(rclcpp::Node & node);
 
-  const char * getModuleName() override { return "detection_area"; }
+  const char * getModuleName() override {return "detection_area";}
 
 private:
   DetectionAreaModule::PlannerParam planner_param_;

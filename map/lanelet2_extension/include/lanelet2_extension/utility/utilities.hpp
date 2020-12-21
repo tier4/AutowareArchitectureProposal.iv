@@ -19,11 +19,11 @@
 #ifndef LANELET2_EXTENSION_UTILITY_UTILITIES_H
 #define LANELET2_EXTENSION_UTILITY_UTILITIES_H
 
-#include <geometry_msgs/msg/point.hpp>
-#include <geometry_msgs/msg/pose.hpp>
+#include "geometry_msgs/msg/point.hpp"
+#include "geometry_msgs/msg/pose.hpp"
 
-#include <lanelet2_routing/Route.h>
-#include <lanelet2_routing/RoutingGraph.h>
+#include "lanelet2_routing/Route.h"
+#include "lanelet2_routing/RoutingGraph.h"
 
 #include <map>
 
@@ -39,7 +39,8 @@ lanelet::LineString3d generateFineCenterline(
  * doesn't have enough quality
  */
 void overwriteLaneletsCenterline(
-  lanelet::LaneletMapPtr lanelet_map, const double resolution = 5.0, const bool force_overwrite = false);
+  lanelet::LaneletMapPtr lanelet_map, const double resolution = 5.0,
+  const bool force_overwrite = false);
 
 lanelet::ConstLanelets getConflictingLanelets(
   const lanelet::routing::RoutingGraphConstPtr & graph, const lanelet::ConstLanelet & lanelet);

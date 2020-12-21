@@ -21,7 +21,7 @@
  * @brief Raspberry Pi CPU monitor class
  */
 
-#include <system_monitor/cpu_monitor/cpu_monitor_base.hpp>
+#include "system_monitor/cpu_monitor/cpu_monitor_base.hpp"
 
 #define raspiUnderVoltageDetected (1 << 0)              // 0x00001
 #define raspiArmFrequencyCapped (1 << 1)                // 0x00002
@@ -34,24 +34,24 @@
 
 #define raspiThermalThrottlingMask (raspiCurrentlyThrottled | raspiSoftTemperatureLimitActive)
 
-#define throttledToString(X)                                              \
-  (((X)&raspiUnderVoltageDetected)                                        \
-     ? "Under-voltage detected"                                           \
-     : ((X)&raspiArmFrequencyCapped)                                      \
-         ? "Arm frequency capped"                                         \
-         : ((X)&raspiCurrentlyThrottled)                                  \
-             ? "Currently throttled"                                      \
-             : ((X)&raspiSoftTemperatureLimitActive)                      \
-                 ? "Soft temperature limit active"                        \
-                 : ((X)&raspiUnderVoltageHasOccurred)                     \
-                     ? "Under-voltage has occurred"                       \
-                     : ((X)&raspiArmFrequencyCappedHasOccurred)           \
-                         ? "Arm frequency capped has occurred"            \
-                         : ((X)&raspiThrottlingHasOccurred)               \
-                             ? "Throttling has occurred"                  \
-                             : ((X)&raspiSoftTemperatureLimitHasOccurred) \
-                                 ? "Soft temperature limit has occurred"  \
-                                 : "UNKNOWN")
+#define throttledToString(X) \
+  (((X)&raspiUnderVoltageDetected) \
+  ? "Under-voltage detected" \
+  : ((X)&raspiArmFrequencyCapped) \
+  ? "Arm frequency capped" \
+  : ((X)&raspiCurrentlyThrottled) \
+  ? "Currently throttled" \
+  : ((X)&raspiSoftTemperatureLimitActive) \
+  ? "Soft temperature limit active" \
+  : ((X)&raspiUnderVoltageHasOccurred) \
+  ? "Under-voltage has occurred" \
+  : ((X)&raspiArmFrequencyCappedHasOccurred) \
+  ? "Arm frequency capped has occurred" \
+  : ((X)&raspiThrottlingHasOccurred) \
+  ? "Throttling has occurred" \
+  : ((X)&raspiSoftTemperatureLimitHasOccurred) \
+  ? "Soft temperature limit has occurred" \
+  : "UNKNOWN")
 
 class CPUMonitor : public CPUMonitorBase
 {

@@ -11,18 +11,22 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <scene_module/intersection/scene_merge_from_private_road.hpp>
 
-#include <lanelet2_core/geometry/Polygon.h>
-#include <lanelet2_core/primitives/BasicRegulatoryElements.h>
-#include <lanelet2_extension/regulatory_elements/road_marking.hpp>
-#include <lanelet2_extension/utility/query.hpp>
-#include <lanelet2_extension/utility/utilities.hpp>
+#include "scene_module/intersection/scene_merge_from_private_road.hpp"
 
-#include <scene_module/intersection/util.hpp>
-#include <utilization/boost_geometry_helper.hpp>
-#include <utilization/interpolate.hpp>
-#include <utilization/util.hpp>
+#include <memory>
+#include <vector>
+
+#include "lanelet2_core/geometry/Polygon.h"
+#include "lanelet2_core/primitives/BasicRegulatoryElements.h"
+#include "lanelet2_extension/regulatory_elements/road_marking.hpp"
+#include "lanelet2_extension/utility/query.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
+
+#include "scene_module/intersection/util.hpp"
+#include "utilization/boost_geometry_helper.hpp"
+#include "utilization/interpolate.hpp"
+#include "utilization/util.hpp"
 
 namespace bg = boost::geometry;
 
@@ -75,8 +79,9 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   int judge_line_idx = -1;
   int first_idx_inside_lane = -1;
   if (!util::generateStopLine(
-        lane_id_, detection_areas, planner_data_, planner_param_, path, &stop_line_idx,
-        &judge_line_idx, &first_idx_inside_lane, logger_.get_child("util"))) {
+      lane_id_, detection_areas, planner_data_, planner_param_, path, &stop_line_idx,
+      &judge_line_idx, &first_idx_inside_lane, logger_.get_child("util")))
+  {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       logger_, *clock_, 1000 /* ms */, "setStopLineIdx fail");
     return false;
@@ -113,8 +118,9 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
     const double distance =
       planning_utils::calcDist2d(current_pose.pose, path->points.at(stop_line_idx).point.pose);
     constexpr double distance_threshold = 2.0;
-    if (distance < distance_threshold && planner_data_->isVehicleStopping())
+    if (distance < distance_threshold && planner_data_->isVehicleStopping()) {
       state_machine_.setState(State::GO);
+    }
 
     return true;
   }
@@ -122,9 +128,9 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   return true;
 }
 
-void MergeFromPrivateRoadModule::StateMachine::setState(State state) { state_ = state; }
+void MergeFromPrivateRoadModule::StateMachine::setState(State state) {state_ = state;}
 
-void MergeFromPrivateRoadModule::StateMachine::setMarginTime(const double t) { margin_time_ = t; }
+void MergeFromPrivateRoadModule::StateMachine::setMarginTime(const double t) {margin_time_ = t;}
 
 MergeFromPrivateRoadModule::State MergeFromPrivateRoadModule::StateMachine::getState()
 {

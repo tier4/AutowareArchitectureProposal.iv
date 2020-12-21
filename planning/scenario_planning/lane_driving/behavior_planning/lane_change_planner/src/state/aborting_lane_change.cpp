@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <lane_change_planner/state/aborting_lane_change.hpp>
+#include "lane_change_planner/state/aborting_lane_change.hpp"
+
+#include <limits>
+#include <memory>
 
 namespace lane_change_planner
 {
@@ -22,7 +25,7 @@ AbortingLaneChangeState::AbortingLaneChangeState(
 : StateBase(status, data_manager_ptr, route_handler_ptr)
 {
 }
-State AbortingLaneChangeState::getCurrentState() const { return State::ABORTING_LANE_CHANGE; }
+State AbortingLaneChangeState::getCurrentState() const {return State::ABORTING_LANE_CHANGE;}
 
 void AbortingLaneChangeState::entry() {}
 
@@ -41,5 +44,5 @@ State AbortingLaneChangeState::getNextState() const
   return State::ABORTING_LANE_CHANGE;
 }
 
-bool AbortingLaneChangeState::hasReturnedToOriginalLane() const { return true; }
+bool AbortingLaneChangeState::hasReturnedToOriginalLane() const {return true;}
 }  // namespace lane_change_planner

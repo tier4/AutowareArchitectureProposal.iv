@@ -27,10 +27,7 @@
  * limitations under the License.
  */
 
-#pragma once
-
 #include <vector>
-
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>

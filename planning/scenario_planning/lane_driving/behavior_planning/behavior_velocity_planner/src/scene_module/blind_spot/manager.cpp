@@ -11,12 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <scene_module/blind_spot/manager.hpp>
 
-#include <lanelet2_core/primitives/BasicRegulatoryElements.h>
+#include "scene_module/blind_spot/manager.hpp"
 
-#include <utilization/boost_geometry_helper.hpp>
-#include <utilization/util.hpp>
+#include <vector>
+#include <set>
+#include <string>
+#include <memory>
+
+#include "lanelet2_core/primitives/BasicRegulatoryElements.h"
+
+#include "utilization/boost_geometry_helper.hpp"
+#include "utilization/util.hpp"
 
 namespace
 {
@@ -75,8 +81,10 @@ void BlindSpotModuleManager::launchNewModules(
       continue;
     }
 
-    registerModule(std::make_shared<BlindSpotModule>(
-      module_id, lane_id, planner_data_, planner_param_, logger_.get_child("blind_spot_module"), clock_));
+    registerModule(
+      std::make_shared<BlindSpotModule>(
+        module_id, lane_id, planner_data_, planner_param_, logger_.get_child("blind_spot_module"),
+        clock_));
   }
 }
 
@@ -87,6 +95,6 @@ BlindSpotModuleManager::getModuleExpiredFunction(
   const auto lane_id_set = getLaneIdSetOnPath(path);
 
   return [lane_id_set](const std::shared_ptr<SceneModuleInterface> & scene_module) {
-    return lane_id_set.count(scene_module->getModuleId()) == 0;
-  };
+           return lane_id_set.count(scene_module->getModuleId()) == 0;
+         };
 }

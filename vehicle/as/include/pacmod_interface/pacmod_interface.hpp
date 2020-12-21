@@ -12,12 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef VEHICLE_AS_PACMOD_INTERFACE_H
-#define VEHICLE_AS_PACMOD_INTERFACE_H
-
-#include <message_filters/subscriber.h>
-#include <message_filters/sync_policies/approximate_time.h>
-#include <message_filters/synchronizer.h>
+#ifndef PACMOD_INTERFACE__PACMOD_INTERFACE_HPP_
+#define PACMOD_INTERFACE__PACMOD_INTERFACE_HPP_
 
 #include <algorithm>
 #include <cmath>
@@ -25,23 +21,27 @@
 #include <memory>
 #include <string>
 
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/bool.hpp>
+#include "message_filters/subscriber.h"
+#include "message_filters/sync_policies/approximate_time.h"
+#include "message_filters/synchronizer.h"
 
-#include <pacmod_msgs/msg/global_rpt.hpp>
-#include <pacmod_msgs/msg/steer_system_cmd.hpp>
-#include <pacmod_msgs/msg/system_cmd_float.hpp>
-#include <pacmod_msgs/msg/system_cmd_int.hpp>
-#include <pacmod_msgs/msg/system_rpt_float.hpp>
-#include <pacmod_msgs/msg/system_rpt_int.hpp>
-#include <pacmod_msgs/msg/wheel_speed_rpt.hpp>
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/bool.hpp"
 
-#include <autoware_vehicle_msgs/msg/control_mode.hpp>
-#include <autoware_vehicle_msgs/msg/raw_vehicle_command.hpp>
-#include <autoware_vehicle_msgs/msg/shift_stamped.hpp>
-#include <autoware_vehicle_msgs/msg/steering.hpp>
-#include <autoware_vehicle_msgs/msg/turn_signal.hpp>
+#include "pacmod_msgs/msg/global_rpt.hpp"
+#include "pacmod_msgs/msg/steer_system_cmd.hpp"
+#include "pacmod_msgs/msg/system_cmd_float.hpp"
+#include "pacmod_msgs/msg/system_cmd_int.hpp"
+#include "pacmod_msgs/msg/system_rpt_float.hpp"
+#include "pacmod_msgs/msg/system_rpt_int.hpp"
+#include "pacmod_msgs/msg/wheel_speed_rpt.hpp"
+
+#include "autoware_vehicle_msgs/msg/control_mode.hpp"
+#include "autoware_vehicle_msgs/msg/raw_vehicle_command.hpp"
+#include "autoware_vehicle_msgs/msg/shift_stamped.hpp"
+#include "autoware_vehicle_msgs/msg/steering.hpp"
+#include "autoware_vehicle_msgs/msg/turn_signal.hpp"
 
 class PacmodInterface : public rclcpp::Node
 {
@@ -51,9 +51,9 @@ public:
 
 private:
   typedef message_filters::sync_policies::ApproximateTime<
-    pacmod_msgs::msg::SystemRptFloat, pacmod_msgs::msg::WheelSpeedRpt,
-    pacmod_msgs::msg::SystemRptFloat, pacmod_msgs::msg::SystemRptFloat,
-    pacmod_msgs::msg::SystemRptInt, pacmod_msgs::msg::SystemRptInt, pacmod_msgs::msg::GlobalRpt>
+      pacmod_msgs::msg::SystemRptFloat, pacmod_msgs::msg::WheelSpeedRpt,
+      pacmod_msgs::msg::SystemRptFloat, pacmod_msgs::msg::SystemRptFloat,
+      pacmod_msgs::msg::SystemRptInt, pacmod_msgs::msg::SystemRptInt, pacmod_msgs::msg::GlobalRpt>
     PacmodFeedbacksSyncPolicy;
 
   /* subscribers */
@@ -65,9 +65,9 @@ private:
 
   // From Pacmod
   std::unique_ptr<message_filters::Subscriber<pacmod_msgs::msg::SystemRptFloat>>
-    steer_wheel_rpt_sub_;
+  steer_wheel_rpt_sub_;
   std::unique_ptr<message_filters::Subscriber<pacmod_msgs::msg::WheelSpeedRpt>>
-    wheel_speed_rpt_sub_;
+  wheel_speed_rpt_sub_;
   std::unique_ptr<message_filters::Subscriber<pacmod_msgs::msg::SystemRptFloat>> accel_rpt_sub_;
   std::unique_ptr<message_filters::Subscriber<pacmod_msgs::msg::SystemRptFloat>> brake_rpt_sub_;
   std::unique_ptr<message_filters::Subscriber<pacmod_msgs::msg::SystemRptInt>> shift_rpt_sub_;
@@ -157,4 +157,4 @@ private:
   int32_t toAutowareTurnSignal(const pacmod_msgs::msg::SystemRptInt & turn);
 };
 
-#endif
+#endif  // PACMOD_INTERFACE__PACMOD_INTERFACE_HPP_

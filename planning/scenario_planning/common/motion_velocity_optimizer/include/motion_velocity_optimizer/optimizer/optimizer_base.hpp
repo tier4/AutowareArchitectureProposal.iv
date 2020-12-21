@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MOTION_VELOCITY_OPTIMIZER_OPTIMIZER_BASE_HPP
-#define MOTION_VELOCITY_OPTIMIZER_OPTIMIZER_BASE_HPP
-#include <autoware_planning_msgs/msg/trajectory.hpp>
+#ifndef MOTION_VELOCITY_OPTIMIZER__OPTIMIZER__OPTIMIZER_BASE_HPP_
+#define MOTION_VELOCITY_OPTIMIZER__OPTIMIZER__OPTIMIZER_BASE_HPP_
+
 #include <limits>
 #include <vector>
+
+#include "autoware_planning_msgs/msg/trajectory.hpp"
 
 class OptimizerBase
 {
@@ -29,6 +31,8 @@ public:
   virtual void setAccel(const double max_accel) = 0;
 
   virtual void setDecel(const double min_decel) = 0;
+
+  virtual ~OptimizerBase() = default;
 };
 
-#endif  // MOTION_VELOCITY_OPTIMIZER_OPTIMIZER_BASE_HPP
+#endif  // MOTION_VELOCITY_OPTIMIZER__OPTIMIZER__OPTIMIZER_BASE_HPP_

@@ -11,24 +11,27 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <scene_module/crosswalk/util.hpp>
-#include <utilization/util.hpp>
 
+#include "scene_module/crosswalk/util.hpp"
+
+#include <algorithm>
 #include <cmath>
 #include <string>
 #include <vector>
 
-#include <boost/assert.hpp>
-#include <boost/assign/list_of.hpp>
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
+#include "utilization/util.hpp"
+
+#include "boost/assert.hpp"
+#include "boost/assign/list_of.hpp"
+#include "boost/geometry.hpp"
+#include "boost/geometry/geometries/linestring.hpp"
+#include "boost/geometry/geometries/point_xy.hpp"
 
 #define EIGEN_MPL2_ONLY
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include "Eigen/Core"
+#include "Eigen/Geometry"
 
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 
 namespace bg = boost::geometry;
 using Point = bg::model::d2::point_xy<double>;
@@ -59,7 +62,7 @@ bool insertTargetVelocityPoint(
     std::vector<Point> collision_points;
     bg::intersection(polygon, line, collision_points);
 
-    if (collision_points.empty()) continue;
+    if (collision_points.empty()) {continue;}
     // -- debug code --
     for (const auto & cp : collision_points) {
       Eigen::Vector3d point3d(cp.x(), cp.y(), planner_data.current_pose.pose.position.z);
@@ -116,8 +119,8 @@ bool insertTargetVelocityPoint(
     target_point_with_lane_id.point.pose.position.x = target_point.x();
     target_point_with_lane_id.point.pose.position.y = target_point.y();
     if (insert_target_point_idx > 0) {
-      //calculate z-position of the target point (Internal division point of point1/point2)
-      //if insert_target_point_idx is zero, use z-position of target_velocity_point_idx
+      // calculate z-position of the target point (Internal division point of point1/point2)
+      // if insert_target_point_idx is zero, use z-position of target_velocity_point_idx
       const double internal_div_ratio =
         (point1 - target_point).norm() /
         ((point1 - target_point).norm() + (point2 - target_point).norm());
@@ -138,10 +141,11 @@ bool insertTargetVelocityPoint(
       // ----------------
     }
     // -- debug code --
-    if (velocity == 0.0)
+    if (velocity == 0.0) {
       debug_data.stop_poses.push_back(target_point_with_lane_id.point.pose);
-    else
+    } else {
       debug_data.slow_poses.push_back(target_point_with_lane_id.point.pose);
+    }
     // ----------------
 
     // insert target point
@@ -149,9 +153,10 @@ bool insertTargetVelocityPoint(
       output.points.begin() + insert_target_point_idx, target_point_with_lane_id);
 
     // insert 0 velocity after target point
-    for (size_t j = insert_target_point_idx; j < output.points.size(); ++j)
+    for (size_t j = insert_target_point_idx; j < output.points.size(); ++j) {
       output.points.at(j).point.twist.linear.x =
         std::min(velocity, output.points.at(j).point.twist.linear.x);
+    }
     return true;
   }
   return false;

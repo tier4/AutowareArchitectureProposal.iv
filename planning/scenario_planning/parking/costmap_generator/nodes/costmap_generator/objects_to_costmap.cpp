@@ -43,10 +43,11 @@
  ********************/
 
 #include <cmath>
+#include <string>
 
-#include <tf2/utils.h>
+#include "tf2/utils.h"
 
-#include <costmap_generator/objects_to_costmap.hpp>
+#include "costmap_generator/objects_to_costmap.hpp"
 
 // Constructor
 ObjectsToCostmap::ObjectsToCostmap()
@@ -58,7 +59,8 @@ ObjectsToCostmap::ObjectsToCostmap()
 }
 
 Eigen::MatrixXd ObjectsToCostmap::makeRectanglePoints(
-  const autoware_perception_msgs::msg::DynamicObject & in_object, const double expand_rectangle_size)
+  const autoware_perception_msgs::msg::DynamicObject & in_object,
+  const double expand_rectangle_size)
 {
   double length = in_object.shape.dimensions.x + expand_rectangle_size;
   double width = in_object.shape.dimensions.y + expand_rectangle_size;
@@ -82,7 +84,8 @@ Eigen::MatrixXd ObjectsToCostmap::makeRectanglePoints(
 }
 
 grid_map::Polygon ObjectsToCostmap::makePolygonFromObjectBox(
-  const std_msgs::msg::Header & header, const autoware_perception_msgs::msg::DynamicObject & in_object,
+  const std_msgs::msg::Header & header,
+  const autoware_perception_msgs::msg::DynamicObject & in_object,
   const double expand_rectangle_size)
 {
   grid_map::Polygon polygon;
@@ -97,7 +100,8 @@ grid_map::Polygon ObjectsToCostmap::makePolygonFromObjectBox(
 }
 
 geometry_msgs::msg::Point ObjectsToCostmap::makeExpandedPoint(
-  const geometry_msgs::msg::Point & in_centroid, const geometry_msgs::msg::Point32 & in_corner_point,
+  const geometry_msgs::msg::Point & in_centroid,
+  const geometry_msgs::msg::Point32 & in_corner_point,
   const double expand_polygon_size)
 {
   geometry_msgs::msg::Point expanded_point;
@@ -118,7 +122,8 @@ geometry_msgs::msg::Point ObjectsToCostmap::makeExpandedPoint(
 }
 
 grid_map::Polygon ObjectsToCostmap::makePolygonFromObjectConvexHull(
-  const std_msgs::msg::Header & header, const autoware_perception_msgs::msg::DynamicObject & in_object,
+  const std_msgs::msg::Header & header,
+  const autoware_perception_msgs::msg::DynamicObject & in_object,
   const double expand_polygon_size)
 {
   grid_map::Polygon polygon;
@@ -178,8 +183,9 @@ grid_map::Matrix ObjectsToCostmap::makeCostmapFromObjects(
   const grid_map::SlidingWindowIterator::EdgeHandling edge_handling =
     grid_map::SlidingWindowIterator::EdgeHandling::CROP;
   for (grid_map::SlidingWindowIterator iterator(
-         objects_costmap, BLURRED_OBJECTS_COSTMAP_LAYER_, edge_handling, size_of_expansion_kernel);
-       !iterator.isPastEnd(); ++iterator) {
+      objects_costmap, BLURRED_OBJECTS_COSTMAP_LAYER_, edge_handling, size_of_expansion_kernel);
+    !iterator.isPastEnd(); ++iterator)
+  {
     objects_costmap.at(BLURRED_OBJECTS_COSTMAP_LAYER_, *iterator) =
       iterator.getData().meanOfFinites();  // Blurring.
   }

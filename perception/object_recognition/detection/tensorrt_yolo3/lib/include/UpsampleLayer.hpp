@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2018 lewes6369
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,13 +25,13 @@
 #define _UPSAMPLE_LAYER_H
 
 #include <assert.h>
-#include <cublas_v2.h>
-#include <cudnn.h>
+#include "cublas_v2.h"
+#include "cudnn.h"
 #include <string.h>
 #include <cmath>
 #include <iostream>
 #include "NvInfer.h"
-#include "Utils.hpppp"
+#include "Utils.hpp"
 
 namespace nvinfer1
 {
@@ -44,7 +44,7 @@ public:
 
   ~UpsampleLayerPlugin();
 
-  int getNbOutputs() const override { return 1; }
+  int getNbOutputs() const override {return 1;}
 
   Dims getOutputDimensions(int index, const Dims * inputs, int nbInputDims) override;
 
@@ -61,9 +61,9 @@ public:
 
   int initialize() override;
 
-  virtual void terminate() override{};
+  virtual void terminate() override {}
 
-  virtual size_t getWorkspaceSize(int maxBatchSize) const override { return 0; }
+  virtual size_t getWorkspaceSize(int maxBatchSize) const override {return 0;}
 
   virtual int enqueue(
     int batchSize, const void * const * inputs, void ** outputs, void * workspace,
@@ -77,7 +77,7 @@ public:
 
   virtual void serialize(void * buffer) override;
 
-  template <typename Dtype>
+  template<typename Dtype>
   void forwardGpu(const Dtype * input, Dtype * outputint, int N, int C, int H, int W);
 
 private:
@@ -91,6 +91,6 @@ private:
   void * mInputBuffer{nullptr};
   void * mOutputBuffer{nullptr};
 };
-};  // namespace nvinfer1
+}   // namespace nvinfer1
 
 #endif

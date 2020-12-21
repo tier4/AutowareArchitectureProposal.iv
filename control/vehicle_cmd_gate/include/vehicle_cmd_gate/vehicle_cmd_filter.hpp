@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef VEHICLE_CMD_GATE_VEHICLE_CMD_FILTER_H
-#define VEHICLE_CMD_GATE_VEHICLE_CMD_FILTER_H
+#ifndef VEHICLE_CMD_GATE__VEHICLE_CMD_FILTER_HPP_
+#define VEHICLE_CMD_GATE__VEHICLE_CMD_FILTER_HPP_
 
-#include <autoware_control_msgs/msg/control_command_stamped.hpp>
+#include "autoware_control_msgs/msg/control_command_stamped.hpp"
 
 class VehicleCmdFilter
 {
@@ -23,13 +23,13 @@ public:
   VehicleCmdFilter();
   ~VehicleCmdFilter() = default;
 
-  void setWheelBase(double v) { wheel_base_ = v; };
-  void setVelLim(double v) { vel_lim_ = v; };
-  void setLonAccLim(double v) { lon_acc_lim_ = v; };
-  void setLonJerkLim(double v) { lon_jerk_lim_ = v; };
-  void setLatAccLim(double v) { lat_acc_lim_ = v; };
-  void setLatJerkLim(double v) { lat_jerk_lim_ = v; };
-  void setPrevCmd(const autoware_control_msgs::msg::ControlCommand & v) { prev_cmd_ = v; };
+  void setWheelBase(double v) {wheel_base_ = v;}
+  void setVelLim(double v) {vel_lim_ = v;}
+  void setLonAccLim(double v) {lon_acc_lim_ = v;}
+  void setLonJerkLim(double v) {lon_jerk_lim_ = v;}
+  void setLatAccLim(double v) {lat_acc_lim_ = v;}
+  void setLatJerkLim(double v) {lat_jerk_lim_ = v;}
+  void setPrevCmd(const autoware_control_msgs::msg::ControlCommand & v) {prev_cmd_ = v;}
 
   void limitLongitudinalWithVel(autoware_control_msgs::msg::ControlCommand & input);
   void limitLongitudinalWithAcc(
@@ -52,4 +52,4 @@ private:
   double limitDiff(const double curr, const double prev, const double diff_lim);
 };
 
-#endif  // VEHICLE_CMD_GATE_VEHICLE_CMD_FILTER_H
+#endif  // VEHICLE_CMD_GATE__VEHICLE_CMD_FILTER_HPP_

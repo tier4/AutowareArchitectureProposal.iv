@@ -17,15 +17,17 @@
  * @brief Process monitor node class
  */
 
-#include <rclcpp/rclcpp.hpp>
-#include <system_monitor/process_monitor/process_monitor.hpp>
-#include <system_monitor/utils.hpp>
+#include "rclcpp/rclcpp.hpp"
+#include "system_monitor/process_monitor/process_monitor.hpp"
+#include "system_monitor/utils.hpp"
 
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   rclcpp::NodeOptions options;
-  std::shared_ptr<ProcessMonitor> monitor = std::make_shared<ProcessMonitor>("process_monitor", options);
+  std::shared_ptr<ProcessMonitor> monitor = std::make_shared<ProcessMonitor>(
+    "process_monitor",
+    options);
   spin_and_update(monitor, std::chrono::seconds(1U));
   rclcpp::shutdown();
   return 0;

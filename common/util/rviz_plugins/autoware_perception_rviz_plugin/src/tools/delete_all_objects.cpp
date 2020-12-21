@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <tf2_ros/transform_listener.h>
+#include "tf2_ros/transform_listener.h"
 
 #include "delete_all_objects.hpp"
 
@@ -39,7 +39,7 @@ DeleteAllObjectsTool::DeleteAllObjectsTool()
 
   topic_property_ = new rviz_common::properties::StringProperty(
     "Pose Topic", "/simulation/dummy_perception/publisher/object_info",
-    "The topic on which to publish dummy object info.", 
+    "The topic on which to publish dummy object info.",
     getPropertyContainer(), SLOT(updateTopic()), this);
 }
 
@@ -52,7 +52,7 @@ void DeleteAllObjectsTool::onInitialize()
 
 void DeleteAllObjectsTool::updateTopic()
 {
-  rclcpp::Node::SharedPtr raw_node = 
+  rclcpp::Node::SharedPtr raw_node =
     context_->getRosNodeAbstraction().lock()->get_raw_node();
   dummy_object_info_pub_ = raw_node->
     create_publisher<dummy_perception_publisher::msg::Object>(topic_property_->getStdString(), 1);
@@ -76,5 +76,5 @@ void DeleteAllObjectsTool::onPoseSet(double x, double y, double theta)
 
 }  // end namespace rviz_plugins
 
-#include <pluginlib/class_list_macros.hpp>
+#include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::DeleteAllObjectsTool, rviz_common::Tool)

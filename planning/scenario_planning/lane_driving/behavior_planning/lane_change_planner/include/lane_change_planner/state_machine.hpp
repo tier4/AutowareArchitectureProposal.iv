@@ -12,15 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LANE_CHANGE_PLANNER_STATE_MACHINE_H
-#define LANE_CHANGE_PLANNER_STATE_MACHINE_H
+#ifndef LANE_CHANGE_PLANNER__STATE_MACHINE_HPP_
+#define LANE_CHANGE_PLANNER__STATE_MACHINE_HPP_
 
-#include <lane_change_planner/state/state_base_class.hpp>
-#include <lanelet2_core/primitives/Lanelet.h>
-#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
-#include <autoware_planning_msgs/msg/route.hpp>
 #include <memory>
-#include <rclcpp/rclcpp.hpp>
+
+#include "lane_change_planner/state/state_base_class.hpp"
+
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "autoware_planning_msgs/msg/route.hpp"
+
+#include "lanelet2_core/primitives/Lanelet.h"
+#include "rclcpp/rclcpp.hpp"
 
 namespace lane_change_planner
 {
@@ -52,4 +55,4 @@ private:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_STATE_MACHINE_H
+#endif  // LANE_CHANGE_PLANNER__STATE_MACHINE_HPP_

@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <lane_change_planner/data_manager.hpp>
-#include <lane_change_planner/route_handler.hpp>
-#include <lane_change_planner/state/forcing_lane_change.hpp>
-#include <lane_change_planner/utilities.hpp>
+#include "lane_change_planner/state/forcing_lane_change.hpp"
+
+#include <memory>
+
+#include "lane_change_planner/data_manager.hpp"
+#include "lane_change_planner/route_handler.hpp"
+#include "lane_change_planner/utilities.hpp"
 
 namespace lane_change_planner
 {
@@ -26,7 +29,7 @@ ForcingLaneChangeState::ForcingLaneChangeState(
 {
 }
 
-State ForcingLaneChangeState::getCurrentState() const { return State::FORCING_LANE_CHANGE; }
+State ForcingLaneChangeState::getCurrentState() const {return State::FORCING_LANE_CHANGE;}
 
 void ForcingLaneChangeState::entry()
 {
@@ -73,7 +76,7 @@ bool ForcingLaneChangeState::hasFinishedLaneChange() const
   static rclcpp::Time start_time = clock->now();
 
   if (route_handler_ptr_->isInTargetLane(current_pose_, target_lanes_)) {
-    return (clock->now() - start_time > rclcpp::Duration::from_seconds(2.0));
+    return clock->now() - start_time > rclcpp::Duration::from_seconds(2.0);
   } else {
     start_time = clock->now();
   }

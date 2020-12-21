@@ -16,18 +16,18 @@
 #include <functional>
 #include <memory>
 
-#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
-#include <rclcpp/rclcpp.hpp>
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "rclcpp/rclcpp.hpp"
 
-#include <scene_module/scene_module_interface.hpp>
-#include <scene_module/traffic_light/scene.hpp>
+#include "scene_module/scene_module_interface.hpp"
+#include "scene_module/traffic_light/scene.hpp"
 
 class TrafficLightModuleManager : public SceneModuleManagerInterface
 {
 public:
   TrafficLightModuleManager(rclcpp::Node & node);
 
-  const char * getModuleName() override { return "traffic_light"; }
+  const char * getModuleName() override {return "traffic_light";}
 
   virtual void modifyPathVelocity(autoware_planning_msgs::msg::PathWithLaneId * path) override;
 

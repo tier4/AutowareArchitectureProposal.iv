@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <lane_change_planner/data_manager.hpp>
-#include <lanelet2_extension/utility/message_conversion.hpp>
+#include "lane_change_planner/data_manager.hpp"
+
+#include <memory>
+#include <string>
+
+#include "lanelet2_extension/utility/message_conversion.hpp"
 
 namespace lane_change_planner
 {
@@ -39,7 +43,8 @@ void DataManager::velocityCallback(
   vehicle_velocity_ptr_ = input_twist_msg_ptr;
 }
 
-void DataManager::laneChangeApprovalCallback(const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg)
+void DataManager::laneChangeApprovalCallback(
+  const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg)
 {
   lane_change_approval_.data = input_approval_msg->data;
   lane_change_approval_.stamp = clock_->now();
@@ -74,7 +79,7 @@ geometry_msgs::msg::PoseStamped DataManager::getCurrentSelfPose()
   return self_pose_;
 }
 
-LaneChangerParameters DataManager::getLaneChangerParameters() { return parameters_; }
+LaneChangerParameters DataManager::getLaneChangerParameters() {return parameters_;}
 
 bool DataManager::getLaneChangeApproval()
 {
@@ -120,8 +125,10 @@ bool DataManager::isDataReady()
   return true;
 }
 
-SelfPoseLinstener::SelfPoseLinstener(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
-: tf_listener_(tf_buffer_), logger_(logger), clock_(clock){}
+SelfPoseLinstener::SelfPoseLinstener(
+  const rclcpp::Logger & logger,
+  const rclcpp::Clock::SharedPtr & clock)
+: tf_listener_(tf_buffer_), logger_(logger), clock_(clock) {}
 
 bool SelfPoseLinstener::isSelfPoseReady()
 {

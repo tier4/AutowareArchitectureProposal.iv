@@ -15,9 +15,9 @@
 #pragma once
 
 #include <iostream>
-#include <sensor_msgs/PointCloud2.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <autoware_perception_msgs/DynamicObjectWithFeatureArray.h>
+#include "sensor_msgs/PointCloud2.h"
+#include "geometry_msgs/TwistStamped.h"
+#include "autoware_perception_msgs/DynamicObjectWithFeatureArray.h"
 #include "utils.h"
 #include "lidar_to_image.h"
 #include "flow_calculator.h"
@@ -28,7 +28,8 @@ class OpticalFlowNode
 {
 public:
   OpticalFlowNode();
-  void callback(const sensor_msgs::PointCloud2::ConstPtr& cloud_msg);
+  void callback(const sensor_msgs::PointCloud2::ConstPtr & cloud_msg);
+
 private:
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;

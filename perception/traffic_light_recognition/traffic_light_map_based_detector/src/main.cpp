@@ -17,16 +17,16 @@
  *
  */
 
-#include <traffic_light_map_based_detector/node.hpp>
-#include <rclcpp/rclcpp.hpp>
+#include "traffic_light_map_based_detector/node.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 int main(int argc, char ** argv)
-{  
+{
   rclcpp::init(argc, argv);
-  
+
   auto node = std::make_shared<traffic_light::MapBasedDetector>();
-  
-  rclcpp::spin(node);  
+
+  rclcpp::spin(node);
   rclcpp::shutdown();
 
   return 0;

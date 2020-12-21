@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef VEHICLE_CMD_GATE_VEHICLE_CMD_GATE_H
-#define VEHICLE_CMD_GATE_VEHICLE_CMD_GATE_H
+#ifndef VEHICLE_CMD_GATE__VEHICLE_CMD_GATE_HPP_
+#define VEHICLE_CMD_GATE__VEHICLE_CMD_GATE_HPP_
 
 #include <memory>
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <autoware_control_msgs/msg/control_command_stamped.hpp>
-#include <autoware_control_msgs/msg/emergency_mode.hpp>
-#include <autoware_control_msgs/msg/engage_mode.hpp>
-#include <autoware_control_msgs/msg/gate_mode.hpp>
-#include <autoware_vehicle_msgs/msg/shift_stamped.hpp>
-#include <autoware_vehicle_msgs/msg/turn_signal.hpp>
-#include <autoware_vehicle_msgs/msg/vehicle_command.hpp>
+#include "autoware_control_msgs/msg/control_command_stamped.hpp"
+#include "autoware_control_msgs/msg/emergency_mode.hpp"
+#include "autoware_control_msgs/msg/engage_mode.hpp"
+#include "autoware_control_msgs/msg/gate_mode.hpp"
+#include "autoware_vehicle_msgs/msg/shift_stamped.hpp"
+#include "autoware_vehicle_msgs/msg/turn_signal.hpp"
+#include "autoware_vehicle_msgs/msg/vehicle_command.hpp"
 
-#include <vehicle_cmd_gate/vehicle_cmd_filter.hpp>
+#include "vehicle_cmd_gate/vehicle_cmd_filter.hpp"
 
 struct Commands
 {
@@ -117,4 +117,4 @@ private:
     const autoware_control_msgs::msg::ControlCommand & msg);
 };
 
-#endif  // VEHICLE_CMD_GATE_VEHICLE_CMD_GATE_H
+#endif  // VEHICLE_CMD_GATE__VEHICLE_CMD_GATE_HPP_

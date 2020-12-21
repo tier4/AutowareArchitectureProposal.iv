@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
 #include "ekf_localizer/ekf_localizer.hpp"
 
 int main(int argc, char ** argv)
@@ -23,4 +24,4 @@ int main(int argc, char ** argv)
   rclcpp::spin(node);
 
   return 0;
-};
+}

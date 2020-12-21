@@ -22,13 +22,18 @@
 #ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_QP_SOLVER_QP_SOLVER_INTERFACE_H
 #define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_QP_SOLVER_QP_SOLVER_INTERFACE_H
 
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Dense>
-#include <eigen3/Eigen/LU>
+#include "eigen3/Eigen/Core"
+#include "eigen3/Eigen/Dense"
+#include "eigen3/Eigen/LU"
 
 class QPSolverInterface
 {
 public:
+  /**
+   * @brief destructor
+   */
+  virtual ~QPSolverInterface() = default;
+
   /**
    * @brief solve QP problem : minimize J = U' * Hmat * U + fvec' * U without constraint
    * @param [in] Hmat parameter matrix in object function

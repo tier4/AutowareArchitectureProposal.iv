@@ -25,8 +25,8 @@
 
 #include "simple_planning_simulator/vehicle_model/sim_model_interface.hpp"
 
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/LU>
+#include "eigen3/Eigen/Core"
+#include "eigen3/Eigen/LU"
 #include <iostream>
 
 /**
@@ -47,12 +47,14 @@ public:
   ~SimModelIdealTwist() = default;
 
 private:
-  enum IDX {
+  enum IDX
+  {
     X = 0,
     Y,
     YAW,
   };
-  enum IDX_U {
+  enum IDX_U
+  {
     VX_DES = 0,
     WZ_DES,
   };
@@ -120,12 +122,14 @@ public:
   ~SimModelIdealSteer() = default;
 
 private:
-  enum IDX {
+  enum IDX
+  {
     X = 0,
     Y,
     YAW,
   };
-  enum IDX_U {
+  enum IDX_U
+  {
     VX_DES = 0,
     STEER_DES,
   };
@@ -195,13 +199,15 @@ public:
   ~SimModelIdealAccel() = default;
 
 private:
-  enum IDX {
+  enum IDX
+  {
     X = 0,
     Y,
     YAW,
     VX,
   };
-  enum IDX_U {
+  enum IDX_U
+  {
     AX_DES = 0,
     STEER_DES,
   };

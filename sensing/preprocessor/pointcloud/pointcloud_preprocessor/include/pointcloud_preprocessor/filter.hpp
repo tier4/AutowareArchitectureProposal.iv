@@ -53,39 +53,40 @@
 #define POINTS_PREPROCESSOR_PCL_ROS_FILTER_H_
 
 // PCL includes
-#include <pcl/filters/filter.h>
+#include "pcl/filters/filter.h"
 
-#include <sensor_msgs/msg/point_cloud2.h>
-#include <boost/thread/mutex.hpp>
+#include "sensor_msgs/msg/point_cloud2.h"
+#include "boost/thread/mutex.hpp"
 #include <string>
 // PCL includes
-#include <pcl/pcl_base.h>
-#include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
-#include <pcl_msgs/msg/model_coefficients.h>
-#include <pcl_msgs/msg/point_indices.h>
+#include "pcl/pcl_base.h"
+#include "pcl/point_types.h"
+#include "pcl_conversions/pcl_conversions.h"
+#include "pcl_msgs/msg/model_coefficients.h"
+#include "pcl_msgs/msg/point_indices.h"
 
-#include <message_filters/subscriber.h>
-#include <message_filters/sync_policies/approximate_time.h>
-#include <message_filters/sync_policies/exact_time.h>
-#include <message_filters/synchronizer.h>
+#include "message_filters/subscriber.h"
+#include "message_filters/sync_policies/approximate_time.h"
+#include "message_filters/sync_policies/exact_time.h"
+#include "message_filters/synchronizer.h"
 
 // Include TF
-#include <tf2_ros/buffer.h>
-#include <tf2_ros/create_timer_ros.h>
-#include <tf2_ros/transform_listener.h>
+#include "tf2_ros/buffer.h"
+#include "tf2_ros/create_timer_ros.h"
+#include "tf2_ros/transform_listener.h"
 
 namespace pointcloud_preprocessor
 {
 namespace sync_policies = message_filters::sync_policies;
 
 /** \brief For parameter service callback */
-template <typename T>
+template<typename T>
 bool get_param(const std::vector<rclcpp::Parameter> & p, const std::string & name, T & value)
 {
-  auto it = std::find_if(p.cbegin(), p.cend(), [&name](const rclcpp::Parameter & parameter) {
-    return parameter.get_name() == name;
-  });
+  auto it = std::find_if(
+    p.cbegin(), p.cend(), [&name](const rclcpp::Parameter & parameter) {
+      return parameter.get_name() == name;
+    });
   if (it != p.cend()) {
     value = it->template get_value<T>();
     return true;
@@ -220,21 +221,21 @@ protected:
         "and frame %sreceived!",
         cloud->data.size(), cloud->width, cloud->height, cloud->point_step,
         rclcpp::Time(cloud->header.stamp).seconds(), cloud->header.frame_id.c_str());
-      return (false);
+      return false;
     }
-    return (true);
+    return true;
   }
 
   inline bool isValid(
     const PointIndicesConstPtr & /*indices*/, const std::string & /*topic_name*/ = "indices")
   {
-    return (true);
+    return true;
   }
 
   inline bool isValid(
     const ModelCoefficientsConstPtr & /*model*/, const std::string & /*topic_name*/ = "model")
   {
-    return (true);
+    return true;
   }
 
 private:

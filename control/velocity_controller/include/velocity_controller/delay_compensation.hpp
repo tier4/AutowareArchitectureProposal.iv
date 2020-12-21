@@ -16,7 +16,7 @@
 #define VELOCITY_CONTROLLER_DELAY_COMPENSATION
 
 #include "velocity_controller_mathutils.hpp"
-#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include "autoware_planning_msgs/msg/trajectory.hpp"
 
 class DelayCompensator
 {

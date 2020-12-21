@@ -21,9 +21,9 @@
  * @brief HDD reader definitions
  */
 
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/serialization.hpp>
-#include <boost/serialization/string.hpp>
+#include "boost/serialization/map.hpp"
+#include "boost/serialization/serialization.hpp"
+#include "boost/serialization/string.hpp"
 #include <map>
 #include <string>
 
@@ -44,7 +44,7 @@ struct HDDInfo
    * @note NOLINT syntax is needed since this is an interface to serialization and
    * used inside boost serialization.
    */
-  template <typename archive>
+  template<typename archive>
   void serialize(archive & ar, const unsigned /*version*/)  // NOLINT(runtime/references)
   {
     ar & error_code_;

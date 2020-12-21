@@ -17,42 +17,44 @@
 #include <string>
 #include <vector>
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <autoware_perception_msgs/msg/dynamic_object.hpp>
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
-#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
-#include <geometry_msgs/msg/point.hpp>
+#include "autoware_perception_msgs/msg/dynamic_object.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "geometry_msgs/msg/point.hpp"
 
-#include <lanelet2_core/LaneletMap.h>
-#include <lanelet2_routing/RoutingGraph.h>
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_routing/RoutingGraph.h"
 
-#include <scene_module/scene_module_interface.hpp>
-#include <utilization/boost_geometry_helper.hpp>
+#include "scene_module/scene_module_interface.hpp"
+#include "utilization/boost_geometry_helper.hpp"
 
 class IntersectionModule : public SceneModuleInterface
 {
 public:
-  enum class State {
+  enum class State
+  {
     STOP = 0,
     GO,
   };
   std::string toString(const State & state)
   {
-    if (state == State::STOP)
+    if (state == State::STOP) {
       return "STOP";
-    else if (state == State::GO)
+    } else if (state == State::GO) {
       return "GO";
-    else
+    } else {
       return "UNKNOWN";
-  };
+    }
+  }
 
   /**
    * @brief Manage stop-go states with safety margin time.
    */
   class StateMachine
   {
-  public:
+public:
     StateMachine()
     {
       state_ = State::GO;
@@ -63,7 +65,7 @@ public:
     void setMarginTime(const double t);
     State getState();
 
-  private:
+private:
     State state_;                               //! current state
     double margin_time_;                        //! margin time when transit to Go from Stop
     std::shared_ptr<rclcpp::Time> start_time_;  //! first time received GO when STOP state

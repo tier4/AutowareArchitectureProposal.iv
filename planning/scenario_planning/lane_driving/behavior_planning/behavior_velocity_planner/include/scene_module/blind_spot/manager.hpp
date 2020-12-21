@@ -16,19 +16,19 @@
 #include <functional>
 #include <memory>
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 
-#include <scene_module/blind_spot/scene.hpp>
-#include <scene_module/scene_module_interface.hpp>
+#include "scene_module/blind_spot/scene.hpp"
+#include "scene_module/scene_module_interface.hpp"
 
 class BlindSpotModuleManager : public SceneModuleManagerInterface
 {
 public:
   BlindSpotModuleManager(rclcpp::Node & node);
 
-  const char * getModuleName() override { return "blind_spot"; }
+  const char * getModuleName() override {return "blind_spot";}
 
 private:
   BlindSpotModule::PlannerParam planner_param_;

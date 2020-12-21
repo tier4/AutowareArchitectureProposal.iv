@@ -11,9 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <lane_change_planner/state/common_functions.hpp>
-#include <lane_change_planner/utilities.hpp>
-#include <lanelet2_extension/utility/utilities.hpp>
+#include "lane_change_planner/state/common_functions.hpp"
+
+#include <algorithm>
+#include <vector>
+
+#include "lane_change_planner/utilities.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
 
 namespace lane_change_planner
 {
@@ -28,17 +32,20 @@ bool selectLaneChangePath(
   const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & dynamic_objects,
   const geometry_msgs::msg::Pose & current_pose, const geometry_msgs::msg::Twist & current_twist,
   const bool isInGoalRouteSection, const geometry_msgs::msg::Pose & goal_pose,
-  const LaneChangerParameters & ros_parameters, LaneChangePath * selected_path, const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+  const LaneChangerParameters & ros_parameters, LaneChangePath * selected_path,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
 {
   for (const auto & path : paths) {
     if (!isLaneChangePathSafe(
-          path.path, current_lanes, target_lanes, dynamic_objects, current_pose, current_twist,
-          ros_parameters, logger, clock, true, path.acceleration)) {
+        path.path, current_lanes, target_lanes, dynamic_objects, current_pose, current_twist,
+        ros_parameters, logger, clock, true, path.acceleration))
+    {
       continue;
     }
     if (!hasEnoughDistance(
-          path, current_lanes, target_lanes, current_pose, isInGoalRouteSection, goal_pose,
-          overall_graphs)) {
+        path, current_lanes, target_lanes, current_pose, isInGoalRouteSection, goal_pose,
+        overall_graphs))
+    {
       continue;
     }
     *selected_path = path;
@@ -69,19 +76,22 @@ bool hasEnoughDistance(
   }
 
   if (
-    lane_change_total_distance > util::getDistanceToNextIntersection(current_pose, current_lanes)) {
+    lane_change_total_distance > util::getDistanceToNextIntersection(current_pose, current_lanes))
+  {
     return false;
   }
 
   if (
     isInGoalRouteSection &&
-    lane_change_total_distance > util::getSignedDistance(current_pose, goal_pose, current_lanes)) {
+    lane_change_total_distance > util::getSignedDistance(current_pose, goal_pose, current_lanes))
+  {
     return false;
   }
 
   if (
     lane_change_total_distance >
-    util::getDistanceToCrosswalk(current_pose, current_lanes, overall_graphs)) {
+    util::getDistanceToCrosswalk(current_pose, current_lanes, overall_graphs))
+  {
     return false;
   }
   return true;
@@ -92,7 +102,8 @@ bool isLaneChangePathSafe(
   const lanelet::ConstLanelets & current_lanes, const lanelet::ConstLanelets & target_lanes,
   const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & dynamic_objects,
   const geometry_msgs::msg::Pose & current_pose, const geometry_msgs::msg::Twist & current_twist,
-  const LaneChangerParameters & ros_parameters, const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock, const bool use_buffer, const double acceleration)
+  const LaneChangerParameters & ros_parameters, const rclcpp::Logger & logger,
+  const rclcpp::Clock::SharedPtr & clock, const bool use_buffer, const double acceleration)
 {
   if (path.points.empty()) {
     return false;
@@ -137,7 +148,8 @@ bool isLaneChangePathSafe(
     vehicle_width / 2 + lateral_buffer, logger);
 
   const auto & vehicle_predicted_path = util::convertToPredictedPath(
-    path, current_twist, current_pose, target_lane_check_end_time, time_resolution, acceleration, logger, clock);
+    path, current_twist, current_pose, target_lane_check_end_time, time_resolution, acceleration,
+    logger, clock);
 
   for (const auto & i : current_lane_object_indices) {
     const auto & obj = dynamic_objects->objects.at(i);

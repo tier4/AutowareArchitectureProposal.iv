@@ -12,15 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef SURROUND_OBSTACLE_CHECKER__DEBUG_MARKER_HPP_
+#define SURROUND_OBSTACLE_CHECKER__DEBUG_MARKER_HPP_
 
+#include <memory>
 #include <string>
 
-#include <autoware_planning_msgs/msg/stop_reason_array.hpp>
-#include <geometry_msgs/msg/pose.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <visualization_msgs/msg/marker.hpp>
-#include <visualization_msgs/msg/marker_array.hpp>
+#include "autoware_planning_msgs/msg/stop_reason_array.hpp"
+#include "geometry_msgs/msg/pose.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "visualization_msgs/msg/marker.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 
 enum class PoseType : int8_t { NoStart = 0 };
 enum class PointType : int8_t { NoStart = 0 };
@@ -46,3 +48,5 @@ private:
   std::shared_ptr<geometry_msgs::msg::Pose> stop_pose_ptr_;
   rclcpp::Clock::SharedPtr clock_;
 };
+
+#endif  // SURROUND_OBSTACLE_CHECKER__DEBUG_MARKER_HPP_

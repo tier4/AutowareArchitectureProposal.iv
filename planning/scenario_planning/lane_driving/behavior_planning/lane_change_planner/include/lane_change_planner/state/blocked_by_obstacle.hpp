@@ -12,15 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LANE_CHANGE_PLANNER_STATE_BLOCKED_BY_OBSTACLE_H
-#define LANE_CHANGE_PLANNER_STATE_BLOCKED_BY_OBSTACLE_H
+#ifndef LANE_CHANGE_PLANNER__STATE__BLOCKED_BY_OBSTACLE_HPP_
+#define LANE_CHANGE_PLANNER__STATE__BLOCKED_BY_OBSTACLE_HPP_
 
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <lane_change_planner/state/state_base_class.hpp>
-#include <lanelet2_core/primitives/Primitive.h>
 #include <memory>
+#include <vector>
+
+#include "lane_change_planner/state/state_base_class.hpp"
+
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "lanelet2_core/primitives/Primitive.h"
 
 namespace lane_change_planner
 {
@@ -65,4 +69,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_STATE_BLOCKED_BY_OBSTACLE_H
+#endif  // LANE_CHANGE_PLANNER__STATE__BLOCKED_BY_OBSTACLE_HPP_

@@ -11,27 +11,30 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+#ifndef OBSTACLE_STOP_PLANNER__NODE_HPP_
+#define OBSTACLE_STOP_PLANNER__NODE_HPP_
 
-#include<memory>
+#include <map>
+#include <memory>
+#include <vector>
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
-#include <autoware_planning_msgs/msg/trajectory.hpp>
-#include <diagnostic_msgs/msg/diagnostic_status.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
-#include <pcl/point_cloud.h>
-#include <pcl/common/transforms.h>
-#include <sensor_msgs/msg/point_cloud2.hpp>
-#include <tf2/utils.h>
-#include <tf2_ros/transform_listener.h>
-#include <visualization_msgs/msg/marker_array.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "diagnostic_msgs/msg/diagnostic_status.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "pcl/point_types.h"
+#include "pcl_conversions/pcl_conversions.h"
+#include "pcl/point_cloud.h"
+#include "pcl/common/transforms.h"
+#include "sensor_msgs/msg/point_cloud2.hpp"
+#include "tf2/utils.h"
+#include "tf2_ros/transform_listener.h"
+#include "visualization_msgs/msg/marker_array.hpp"
+#include "opencv2/core/core.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 #include "obstacle_stop_planner/adaptive_cruise_control.hpp"
 #include "obstacle_stop_planner/debug_marker.hpp"
 
@@ -50,7 +53,8 @@ private:
   rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr path_sub_;
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr obstacle_pointcloud_sub_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr current_velocity_sub_;
-  rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr dynamic_object_sub_;
+  rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr
+    dynamic_object_sub_;
 
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr path_pub_;
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticStatus>::SharedPtr stop_reason_diag_pub_;
@@ -63,9 +67,9 @@ private:
    * Parameter
    */
   std::unique_ptr<motion_planning::AdaptiveCruiseController> acc_controller_;
-  sensor_msgs::msg::PointCloud2::Ptr obstacle_ros_pointcloud_ptr_;
-  geometry_msgs::msg::TwistStamped::ConstPtr current_velocity_ptr_;
-  autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr object_ptr_;
+  sensor_msgs::msg::PointCloud2::SharedPtr obstacle_ros_pointcloud_ptr_;
+  geometry_msgs::msg::TwistStamped::ConstSharedPtr current_velocity_ptr_;
+  autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr object_ptr_;
   double wheel_base_, front_overhang_, rear_overhang_, left_overhang_, right_overhang_,
     vehicle_width_, vehicle_length_;
   double stop_margin_;
@@ -99,10 +103,12 @@ private:
     std::map<size_t /* decimate */, size_t /* origin */> & index_map);
   bool trimTrajectoryFromSelfPose(
     const autoware_planning_msgs::msg::Trajectory & input_trajectory,
-    const geometry_msgs::msg::Pose self_pose, autoware_planning_msgs::msg::Trajectory & output_trajectory);
+    const geometry_msgs::msg::Pose self_pose,
+    autoware_planning_msgs::msg::Trajectory & output_trajectory);
   bool trimTrajectoryWithIndexFromSelfPose(
     const autoware_planning_msgs::msg::Trajectory & input_trajectory,
-    const geometry_msgs::msg::Pose self_pose, autoware_planning_msgs::msg::Trajectory & output_trajectory,
+    const geometry_msgs::msg::Pose self_pose,
+    autoware_planning_msgs::msg::Trajectory & output_trajectory,
     size_t & index);
   bool searchPointcloudNearTrajectory(
     const autoware_planning_msgs::msg::Trajectory & trajectory, const double radius,
@@ -127,3 +133,5 @@ private:
   geometry_msgs::msg::Pose getVehicleCenterFromBase(const geometry_msgs::msg::Pose & base_pose);
 };
 }  // namespace motion_planning
+
+#endif  // OBSTACLE_STOP_PLANNER__NODE_HPP_

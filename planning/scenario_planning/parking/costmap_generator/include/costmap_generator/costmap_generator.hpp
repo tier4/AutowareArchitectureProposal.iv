@@ -42,28 +42,29 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ********************/
 
-#ifndef COSTMAP_GENERATOR_H
-#define COSTMAP_GENERATOR_H
+#ifndef COSTMAP_GENERATOR__COSTMAP_GENERATOR_HPP_
+#define COSTMAP_GENERATOR__COSTMAP_GENERATOR_HPP_
 
 #include <memory>
 #include <string>
+#include <vector>
 
-#include <costmap_generator/objects_to_costmap.hpp>
-#include <costmap_generator/points_to_costmap.hpp>
-#include <lanelet2_extension/utility/message_conversion.hpp>
-#include <message_filters/subscriber.h>
-#include <message_filters/time_synchronizer.h>
-#include <rclcpp/rclcpp.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2_ros/buffer.h>
-#include <tf2_ros/transform_listener.h>
-#include <grid_map_ros/GridMapRosConverter.hpp>
-#include <grid_map_ros/grid_map_ros.hpp>
+#include "costmap_generator/objects_to_costmap.hpp"
+#include "costmap_generator/points_to_costmap.hpp"
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "message_filters/subscriber.h"
+#include "message_filters/time_synchronizer.h"
+#include "rclcpp/rclcpp.hpp"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "tf2_ros/buffer.h"
+#include "tf2_ros/transform_listener.h"
+#include "grid_map_ros/GridMapRosConverter.hpp"
+#include "grid_map_ros/grid_map_ros.hpp"
 
-#include <autoware_lanelet2_msgs/msg/map_bin.hpp>
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
-#include <autoware_planning_msgs/msg/scenario.hpp>
-#include <grid_map_msgs/msg/grid_map.h>
+#include "autoware_lanelet2_msgs/msg/map_bin.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_planning_msgs/msg/scenario.hpp"
+#include "grid_map_msgs/msg/grid_map.h"
 
 class CostmapGenerator : public rclcpp::Node
 {
@@ -104,7 +105,6 @@ private:
   rclcpp::Publisher<grid_map_msgs::msg::GridMap>::SharedPtr pub_costmap_;
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr pub_occupancy_grid_;
 
-  //rclcpp::Subscription<CostmapGenerator::onWaypoint>::SharedPtr sub_waypoint_;
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_points_;
   rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr sub_objects_;
   rclcpp::Subscription<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr sub_lanelet_bin_map_;
@@ -187,4 +187,4 @@ private:
   grid_map::Matrix generateCombinedCostmap();
 };
 
-#endif  // COSTMAP_GENERATOR_H
+#endif  // COSTMAP_GENERATOR__COSTMAP_GENERATOR_HPP_

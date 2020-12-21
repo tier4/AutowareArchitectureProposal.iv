@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <scenario_selector/scenario_selector_node.hpp>
+#include "scenario_selector/scenario_selector_node.hpp"
 
 #include <string>
 #include <utility>
 #include <vector>
 
-#include <lanelet2_core/geometry/BoundingBox.h>
-#include <lanelet2_core/geometry/Lanelet.h>
-#include <lanelet2_core/geometry/LineString.h>
-#include <lanelet2_core/geometry/Point.h>
-#include <lanelet2_core/geometry/Polygon.h>
-#include <lanelet2_extension/utility/message_conversion.hpp>
-#include <lanelet2_extension/utility/query.hpp>
+#include "lanelet2_core/geometry/BoundingBox.h"
+#include "lanelet2_core/geometry/Lanelet.h"
+#include "lanelet2_core/geometry/LineString.h"
+#include "lanelet2_core/geometry/Point.h"
+#include "lanelet2_core/geometry/Polygon.h"
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "lanelet2_extension/utility/query.hpp"
 
 namespace
 {
@@ -65,13 +65,13 @@ std::shared_ptr<lanelet::ConstPolygon3d> findNearestParkinglot(
   }
 }
 
-geometry_msgs::msg::PoseStamped::ConstSharedPtr getCurrentPose(const tf2_ros::Buffer & tf_buffer, const rclcpp::Logger & logger)
+geometry_msgs::msg::PoseStamped::ConstSharedPtr getCurrentPose(
+  const tf2_ros::Buffer & tf_buffer, const rclcpp::Logger & logger)
 {
   geometry_msgs::msg::TransformStamped tf_current_pose;
 
   try {
-    tf_current_pose =
-      tf_buffer.lookupTransform("map", "base_link", tf2::TimePointZero);
+    tf_current_pose = tf_buffer.lookupTransform("map", "base_link", tf2::TimePointZero);
   } catch (tf2::TransformException & ex) {
     RCLCPP_ERROR(logger, "%s", ex.what());
     return nullptr;
@@ -244,7 +244,8 @@ void ScenarioSelectorNode::onTwist(const geometry_msgs::msg::TwistStamped::Const
 
   // Delete old data in buffer
   while (true) {
-    const auto time_diff = rclcpp::Time(msg->header.stamp) - rclcpp::Time(twist_buffer_.front()->header.stamp);
+    const auto time_diff =
+      rclcpp::Time(msg->header.stamp) - rclcpp::Time(twist_buffer_.front()->header.stamp);
 
     if (time_diff.seconds() < th_stopped_time_sec_) {
       break;
@@ -318,7 +319,7 @@ ScenarioSelectorNode::ScenarioSelectorNode()
       "input/parking/trajectory", rclcpp::QoS{1}, createCallback(&input_parking_.buf_trajectory));
 
   sub_lanelet_map_ = this->create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
-    "input/lanelet_map", rclcpp::QoS{1},
+    "input/lanelet_map", rclcpp::QoS{1}.transient_local(),
     std::bind(&ScenarioSelectorNode::onMap, this, std::placeholders::_1));
   sub_route_ = this->create_subscription<autoware_planning_msgs::msg::Route>(
     "input/route", rclcpp::QoS{1},
@@ -336,7 +337,7 @@ ScenarioSelectorNode::ScenarioSelectorNode()
   // Timer Callback
   auto timer_callback = std::bind(&ScenarioSelectorNode::onTimer, this);
   auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
-    std::chrono::duration<double>(update_rate_));
+    std::chrono::duration<double>(1.0 / static_cast<double>(update_rate_)));
 
   timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
     this->get_clock(), period, std::move(timer_callback),

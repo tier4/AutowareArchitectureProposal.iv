@@ -21,7 +21,7 @@
 
 #ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_VEHICLE_MODEL_VEHICLE_MODEL_INTERFACE_H
 #define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_VEHICLE_MODEL_VEHICLE_MODEL_INTERFACE_H
-#include <eigen3/Eigen/Core>
+#include "eigen3/Eigen/Core"
 
 /**
  * @class vehicle model class
@@ -44,6 +44,11 @@ public:
    * @param [in] dim_y dimension of output y
    */
   VehicleModelInterface(int dim_x, int dim_u, int dim_y);
+
+  /**
+   * @brief destructor
+   */
+  virtual ~VehicleModelInterface() = default;
 
   /**
    * @brief get state x dimension

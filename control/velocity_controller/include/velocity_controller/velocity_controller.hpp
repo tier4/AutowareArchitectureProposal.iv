@@ -22,19 +22,19 @@
 #include "pid.hpp"
 #include "velocity_controller_mathutils.hpp"
 
-#include <autoware_control_msgs/msg/control_command_stamped.hpp>
-#include <autoware_planning_msgs/msg/trajectory.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <std_msgs/msg/bool.hpp>
-#include <std_msgs/msg/float32_multi_array.hpp>
+#include "autoware_control_msgs/msg/control_command_stamped.hpp"
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "std_msgs/msg/bool.hpp"
+#include "std_msgs/msg/float32_multi_array.hpp"
 
-#include <tf2/utils.h>
-#include <tf2_ros/transform_listener.h>
-#include <rclcpp/rclcpp.hpp>
+#include "tf2/utils.h"
+#include "tf2_ros/transform_listener.h"
+#include "rclcpp/rclcpp.hpp"
 
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Geometry>
+#include "eigen3/Eigen/Core"
+#include "eigen3/Eigen/Geometry"
 #include <memory>
 #include <string>
 #include <vector>
@@ -128,7 +128,8 @@ private:
   std::vector<autoware_control_msgs::msg::ControlCommandStamped> ctrl_cmd_vec_;
 
   // controller mode (0: init check, 1: PID, 2: Stop, 3: Smooth stop, 4: Emergency stop, 5: Error)
-  enum class ControlMode {
+  enum class ControlMode
+  {
     INIT = 0,
     PID_CONTROL = 1,
     STOPPED = 2,
@@ -152,7 +153,8 @@ private:
   std::shared_ptr<rclcpp::Time> prev_control_time_;
 
   // shift mode
-  enum Shift {
+  enum Shift
+  {
     Forward = 0,
     Reverse,
   } prev_shift_;
@@ -190,7 +192,7 @@ private:
   /* check condition */
   bool checkIsStopped(double current_vel, double target_vel, int closest) const;
   bool checkSmoothStop(const int closest, const double target_vel) const;
-  bool checkEmergency(int closest, double target_vel) const;
+  bool checkEmergency(int closest) const;
 
   /* reset flags */
   void resetHandling(ControlMode control_mode);
@@ -226,7 +228,8 @@ private:
 
   /* Debug */
   mutable std_msgs::msg::Float32MultiArray debug_values_;
-  enum DBGVAL {
+  enum DBGVAL
+  {
     DT = 0,
     CURR_V = 1,
     TARGET_V = 2,

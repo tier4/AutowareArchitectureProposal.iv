@@ -14,7 +14,7 @@
 
 #include "autoware_state_monitor/autoware_state_monitor_node.hpp"
 
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 #include <numeric>
 #include <string>
@@ -23,7 +23,7 @@
 
 namespace
 {
-template <class Config>
+template<class Config>
 std::vector<Config> getConfigs(
   rclcpp::node_interfaces::NodeParametersInterface::SharedPtr interface,
   const std::string & config_namespace)
@@ -132,7 +132,7 @@ void AutowareStateMonitorNode::onRoute(const autoware_planning_msgs::msg::Route:
   {
     geometry_msgs::msg::Pose::SharedPtr p = std::make_shared<geometry_msgs::msg::Pose>();
     *p = msg->goal_pose;
-    state_input_.goal_pose = geometry_msgs::msg::Pose::ConstPtr(p);
+    state_input_.goal_pose = geometry_msgs::msg::Pose::ConstSharedPtr(p);
   }
 
   if (disengage_on_route_) {
@@ -148,7 +148,8 @@ void AutowareStateMonitorNode::onTwist(const geometry_msgs::msg::TwistStamped::C
 
   // Delete old data in buffer
   while (true) {
-    const auto time_diff = rclcpp::Time(msg->header.stamp) - rclcpp::Time(state_input_.twist_buffer.front()->header.stamp);
+    const auto time_diff = rclcpp::Time(msg->header.stamp) - rclcpp::Time(
+      state_input_.twist_buffer.front()->header.stamp);
 
     if (time_diff.seconds() < state_param_.th_stopped_time_sec) {
       break;
@@ -224,15 +225,19 @@ void AutowareStateMonitorNode::onTopic(
   }
 }
 
-void AutowareStateMonitorNode::registerTopicCallback(const std::string & topic_name, const std::string & topic_type)
+void AutowareStateMonitorNode::registerTopicCallback(
+  const std::string & topic_name,
+  const std::string & topic_type)
 {
   // Initialize buffer
   topic_received_time_buffer_[topic_name] = {};
 
   // Register callback
-  using Callback = std::function<void(const std::shared_ptr<rclcpp::SerializedMessage>)>;
+  using Callback = std::function<void (const std::shared_ptr<rclcpp::SerializedMessage>)>;
   const auto callback =
-    static_cast<Callback>(std::bind(&AutowareStateMonitorNode::onTopic, this, std::placeholders::_1, topic_name));
+    static_cast<Callback>(std::bind(
+      &AutowareStateMonitorNode::onTopic, this, std::placeholders::_1,
+      topic_name));
   sub_topic_map_[topic_name] = rclcpp_generic::GenericSubscription::create(
     this->get_node_topics_interface(), topic_name, topic_type, rclcpp::QoS{1}, callback);
 }

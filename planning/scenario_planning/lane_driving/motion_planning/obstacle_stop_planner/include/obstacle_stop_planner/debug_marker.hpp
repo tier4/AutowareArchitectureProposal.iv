@@ -11,22 +11,26 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
-#include <autoware_planning_msgs/msg/stop_reason_array.hpp>
-#include <geometry_msgs/msg/point.hpp>
-#include <geometry_msgs/msg/pose.hpp>
-#include <pcl/point_types.h>
-#include <rclcpp/rclcpp.hpp>
-#include <visualization_msgs/msg/marker.hpp>
-#include <visualization_msgs/msg/marker_array.hpp>
+#ifndef OBSTACLE_STOP_PLANNER__DEBUG_MARKER_HPP_
+#define OBSTACLE_STOP_PLANNER__DEBUG_MARKER_HPP_
+
 #include <memory>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
 #include <string>
+#include <vector>
+
+#include "autoware_planning_msgs/msg/stop_reason_array.hpp"
+#include "geometry_msgs/msg/point.hpp"
+#include "geometry_msgs/msg/pose.hpp"
+#include "pcl/point_types.h"
+#include "rclcpp/rclcpp.hpp"
+#include "visualization_msgs/msg/marker.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
+#include "opencv2/core/core.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 #define EIGEN_MPL2_ONLY
-#include <eigen3/Eigen/Core>
-#include <eigen3/Eigen/Geometry>
+#include "eigen3/Eigen/Core"
+#include "eigen3/Eigen/Geometry"
 namespace motion_planning
 {
 enum class PolygonType : int8_t { Vehicle = 0, Collision, SlowDownRange, SlowDown };
@@ -38,8 +42,8 @@ enum class PoseType : int8_t { Stop = 0, SlowDownStart, SlowDownEnd };
 class ObstacleStopPlannerDebugNode : public rclcpp::Node
 {
 public:
-  ObstacleStopPlannerDebugNode(const double base_link2front);
-  ~ObstacleStopPlannerDebugNode(){};
+  explicit ObstacleStopPlannerDebugNode(const double base_link2front);
+  ~ObstacleStopPlannerDebugNode() {}
   bool pushPolygon(
     const std::vector<cv::Point2d> & polygon, const double z, const PolygonType & type);
   bool pushPolygon(const std::vector<Eigen::Vector3d> & polygon, const PolygonType & type);
@@ -68,3 +72,5 @@ private:
 };
 
 }  // namespace motion_planning
+
+#endif  // OBSTACLE_STOP_PLANNER__DEBUG_MARKER_HPP_

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef VEHICLE_INFO_UTIL_VEHICLE_INFO_CORE_HPP_
-#define VEHICLE_INFO_UTIL_VEHICLE_INFO_CORE_HPP_
+#ifndef VEHICLE_INFO_UTIL__VEHICLE_INFO_HPP_
+#define VEHICLE_INFO_UTIL__VEHICLE_INFO_HPP_
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
 namespace vehicle_info_util
 {
@@ -67,6 +67,7 @@ public:
   const double max_lateral_offset_m_;
   const double min_height_offset_m_;
   const double max_height_offset_m_;
+
 private:
   // Used to check if parameters are already declared or not in order to avoid
   // declaring parameters multiple times.
@@ -75,4 +76,4 @@ private:
 
 }  // namespace vehicle_info_util
 
-#endif
+#endif  // VEHICLE_INFO_UTIL__VEHICLE_INFO_HPP_

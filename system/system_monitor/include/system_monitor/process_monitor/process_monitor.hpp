@@ -21,9 +21,9 @@
  * @brief Process monitor class
  */
 
-#include <diagnostic_updater/diagnostic_updater.hpp>
-#include <system_monitor/process_monitor/diag_task.hpp>
-#include <boost/process.hpp>
+#include "diagnostic_updater/diagnostic_updater.hpp"
+#include "system_monitor/process_monitor/diag_task.hpp"
+#include "boost/process.hpp"
 #include <string>
 #include <vector>
 
@@ -114,9 +114,9 @@ protected:
 
   int num_of_procs_;  //!< @brief number of processes to show
   std::vector<std::shared_ptr<DiagTask>>
-    load_tasks_;  //!< @brief list of diagnostics tasks for high load procs
+  load_tasks_;    //!< @brief list of diagnostics tasks for high load procs
   std::vector<std::shared_ptr<DiagTask>>
-    memory_tasks_;  //!< @brief list of diagnostics tasks for high memory procs
+  memory_tasks_;    //!< @brief list of diagnostics tasks for high memory procs
 };
 
 #endif  // SYSTEM_MONITOR_PROCESS_MONITOR_PROCESS_MONITOR_H

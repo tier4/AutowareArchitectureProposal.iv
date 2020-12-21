@@ -23,11 +23,11 @@ bool LinearInterpolate::interpolate(
   const std::vector<double> & return_index, std::vector<double> & return_value)
 {
   auto isIncrease = [](const std::vector<double> & x) {
-    for (int i = 0; i < (int)x.size() - 1; ++i) {
-      if (x[i] > x[i + 1]) return false;
-    }
-    return true;
-  };
+      for (int i = 0; i < (int)x.size() - 1; ++i) {
+        if (x[i] > x[i + 1]) {return false;}
+      }
+      return true;
+    };
 
   if (base_index.size() == 0 || base_value.size() == 0 || return_index.size() == 0) {
     printf(
@@ -41,7 +41,8 @@ bool LinearInterpolate::interpolate(
   if (
     !isIncrease(base_index) || !isIncrease(return_index) ||
     return_index.front() < base_index.front() || base_index.back() < return_index.back() ||
-    base_index.size() != base_value.size()) {
+    base_index.size() != base_value.size())
+  {
     std::cerr << "[isIncrease] bad index, return false" << std::endl;
     bool b1 = !isIncrease(base_index);
     bool b2 = !isIncrease(return_index);
@@ -66,7 +67,7 @@ bool LinearInterpolate::interpolate(
     }
     while (base_index[i] < idx) {
       ++i;
-      if (i <= 0 || base_size - 1 < i) break;
+      if (i <= 0 || base_size - 1 < i) {break;}
     }
 
     if (i <= 0 || base_size - 1 < i) {
@@ -104,7 +105,7 @@ bool LinearInterpolate::interpolate(
  */
 
 SplineInterpolate::SplineInterpolate() {}
-SplineInterpolate::SplineInterpolate(const std::vector<double> & x) { generateSpline(x); }
+SplineInterpolate::SplineInterpolate(const std::vector<double> & x) {generateSpline(x);}
 SplineInterpolate::~SplineInterpolate() {}
 void SplineInterpolate::generateSpline(const std::vector<double> & x)
 {
@@ -118,7 +119,9 @@ void SplineInterpolate::generateSpline(const std::vector<double> & x)
   a_ = x;
 
   c_.push_back(0.0);
-  for (int i = 1; i < N - 1; i++) c_.push_back(3.0 * (a_[i - 1] - 2.0 * a_[i] + a_[i + 1]));
+  for (int i = 1; i < N - 1; i++) {
+    c_.push_back(3.0 * (a_[i - 1] - 2.0 * a_[i] + a_[i + 1]));
+  }
   c_.push_back(0.0);
 
   std::vector<double> w_;
@@ -131,7 +134,9 @@ void SplineInterpolate::generateSpline(const std::vector<double> & x)
     w_.push_back(tmp);
   }
 
-  for (int i = N - 2; i > 0; i--) c_[i] = c_[i] - c_[i + 1] * w_[i];
+  for (int i = N - 2; i > 0; i--) {
+    c_[i] = c_[i] - c_[i + 1] * w_[i];
+  }
 
   for (int i = 0; i < N - 1; i++) {
     d_.push_back((c_[i + 1] - c_[i]) / 3.0);
@@ -145,7 +150,7 @@ void SplineInterpolate::generateSpline(const std::vector<double> & x)
 
 double SplineInterpolate::getValue(const double & s)
 {
-  if (!initialized_) return 0.0;
+  if (!initialized_) {return 0.0;}
 
   int j = std::max(std::min(int(std::floor(s)), (int)a_.size() - 1), 0);
   const double ds = s - j;
@@ -155,7 +160,7 @@ double SplineInterpolate::getValue(const double & s)
 void SplineInterpolate::getValueVector(
   const std::vector<double> & s_v, std::vector<double> & value_v)
 {
-  if (!initialized_) return;
+  if (!initialized_) {return;}
   value_v.clear();
   for (int i = 0; i < (int)s_v.size(); ++i) {
     value_v.push_back(getValue(s_v[i]));
@@ -167,17 +172,18 @@ bool SplineInterpolate::interpolate(
   const std::vector<double> & return_index, std::vector<double> & return_value)
 {
   auto isIncrease = [](const std::vector<double> & x) {
-    for (int i = 0; i < (int)x.size() - 1; ++i) {
-      if (x[i] > x[i + 1]) return false;
-    }
-    return true;
-  };
+      for (int i = 0; i < (int)x.size() - 1; ++i) {
+        if (x[i] > x[i + 1]) {return false;}
+      }
+      return true;
+    };
 
   // check if inputs are valid
   if (
     !isIncrease(base_index) || !isIncrease(return_index) ||
     return_index.front() < base_index.front() || base_index.back() < return_index.back() ||
-    base_index.size() != base_value.size()) {
+    base_index.size() != base_value.size())
+  {
     std::cerr << "[isIncrease] bad index, return false" << std::endl;
     bool b1 = !isIncrease(base_index);
     bool b2 = !isIncrease(return_index);
@@ -205,7 +211,7 @@ bool SplineInterpolate::interpolate(
     }
     while (base_index[i] < idx) {
       ++i;
-      if (i <= 0 || base_size - 1 < i) break;
+      if (i <= 0 || base_size - 1 < i) {break;}
     }
 
     if (i <= 0 || base_size - 1 < i) {

@@ -11,19 +11,24 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#include <algorithm>
 #include <chrono>
-#include <eigen3/Eigen/Core>
-#include <motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp>
-#include <motion_velocity_optimizer/optimizer/linf_pseudo_jerk_optimizer.hpp>
+#include <limits>
+#include <vector>
+
+#include "motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp"
+#include "motion_velocity_optimizer/optimizer/linf_pseudo_jerk_optimizer.hpp"
+
+#include "eigen3/Eigen/Core"
 
 LinfPseudoJerkOptimizer::LinfPseudoJerkOptimizer(const LinfPseudoJerkOptimizer::OptimizerParam & p)
 {
   param_ = p;
 }
 
-void LinfPseudoJerkOptimizer::setAccel(const double max_accel) { param_.max_accel = max_accel; }
+void LinfPseudoJerkOptimizer::setAccel(const double max_accel) {param_.max_accel = max_accel;}
 
-void LinfPseudoJerkOptimizer::setDecel(const double min_decel) { param_.min_decel = min_decel; }
+void LinfPseudoJerkOptimizer::setDecel(const double min_decel) {param_.min_decel = min_decel;}
 
 bool LinfPseudoJerkOptimizer::solve(
   const double initial_vel, const double initial_acc, const int closest,
@@ -107,11 +112,11 @@ bool LinfPseudoJerkOptimizer::solve(
 
   /* design constraint matrix */
   // 0 < b - delta < vmax^2
-  // NOTE: The delta allows b to be negative. This is actully invalid because the definition is b=v^2.
-  // But mathematically, the strict b>0 constraint may make the problem infeasible, such as the case of
-  // v=0 & a<0. To avoid the infesibility, we allow b<0. The negative b is dealt as b=0 when it is
-  // converted to v with sqrt. If the weight of delta^2 is large (the value of delta is very small),
-  // b is almost 0, and is not a big problem.
+  // NOTE: The delta allows b to be negative. This is actually invalid because the definition is
+  // b=v^2. But mathematically, the strict b>0 constraint may make the problem infeasible, such as
+  // the case of v=0 & a<0. To avoid the infesibility, we allow b<0. The negative b is dealt as b=0
+  // when it is converted to v with sqrt. If the weight of delta^2 is large (the value of delta is
+  // very small), b is almost 0, and is not a big problem.
   for (unsigned int i = 0; i < N; ++i) {
     const int j = 2 * N + i;
     A(i, i) = 1.0;   // b_i
@@ -185,7 +190,8 @@ bool LinfPseudoJerkOptimizer::solve(
   auto ts2 = std::chrono::system_clock::now();
   const auto result = qp_solver_.optimize(P, A, q, lower_bound, upper_bound);
 
-  // [b0, b1, ..., bN, |  a0, a1, ..., aN, | delta0, delta1, ..., deltaN, | sigma0, sigme1, ..., sigmaN]
+  // [b0, b1, ..., bN, |  a0, a1, ..., aN, | delta0, delta1, ..., deltaN,
+  // | sigma0, sigma1, ..., sigmaN]
   const std::vector<double> optval = std::get<0>(result);
 
   /* get velocity & acceleration */
@@ -203,14 +209,6 @@ bool LinfPseudoJerkOptimizer::solve(
     output->points.at(i).twist.linear.x = 0.0;
     output->points.at(i).accel.linear.x = 0.0;
   }
-
-  // -- to check the all optimization variables --
-  // RCLCPP_DEBUG(rclcpp::get_logger("LinfPseudoJerkOptimizer"),"[after optimize Linf] idx, vel, acc, over_vel, over_acc ");
-  // for (unsigned int i = 0; i < N; ++i) {
-  //   RCLCPP_DEBUG(rclcpp::get_logger("LinfPseudoJerkOptimizer"),
-  //     "i = %d, v: %f, vmax: %f a: %f, b: %f, delta: %f, sigma: %f", i, std::sqrt(optval.at(i)),
-  //     vmax[i], optval.at(i + N), optval.at(i), optval.at(i + 2 * N), optval.at(i + 3 * N));
-  // }
 
   auto tf2 = std::chrono::system_clock::now();
   double dt_ms2 = std::chrono::duration_cast<std::chrono::nanoseconds>(tf2 - ts2).count() * 1.0e-6;

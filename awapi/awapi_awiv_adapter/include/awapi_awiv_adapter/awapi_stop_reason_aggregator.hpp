@@ -14,16 +14,16 @@
 
 #pragma once
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <awapi_awiv_adapter/awapi_autoware_util.hpp>
+#include "awapi_awiv_adapter/awapi_autoware_util.hpp"
 
 namespace autoware_api
 {
 class AutowareIvStopReasonAggregator
 {
 public:
-  AutowareIvStopReasonAggregator(rclcpp::Node& node, const double timeout);
+  AutowareIvStopReasonAggregator(rclcpp::Node & node, const double timeout);
   autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr updateStopReasonArray(
     const autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr & msg_ptr);
 

@@ -21,29 +21,29 @@
 #include <string>
 #include <thread>
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <tf2/transform_datatypes.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2_ros/transform_broadcaster.h>
-#include <tf2_ros/transform_listener.h>
-#include <tf2_sensor_msgs/tf2_sensor_msgs.h>
+#include "tf2/transform_datatypes.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "tf2_ros/transform_broadcaster.h"
+#include "tf2_ros/transform_listener.h"
+#include "tf2_sensor_msgs/tf2_sensor_msgs.h"
 
-#include <diagnostic_msgs/msg/diagnostic_array.hpp>
-#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <nav_msgs/msg/odometry.hpp>
-#include <sensor_msgs/msg/point_cloud2.hpp>
-#include <autoware_debug_msgs/msg/int32_stamped.hpp>
-#include <autoware_debug_msgs/msg/float32_stamped.hpp>
-#include <visualization_msgs/msg/marker_array.hpp>
+#include "diagnostic_msgs/msg/diagnostic_array.hpp"
+#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "nav_msgs/msg/odometry.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
+#include "autoware_debug_msgs/msg/int32_stamped.hpp"
+#include "autoware_debug_msgs/msg/float32_stamped.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 
-#include <autoware_localization_srvs/srv/pose_with_covariance_stamped.hpp>
-// #include <pcl/registration/ndt.h>
-// #include <pcl_registration/ndt.h>
-#include <ndt/omp.hpp>
-#include <ndt/pcl_generic.hpp>
-#include <ndt/pcl_modified.hpp>
+#include "autoware_localization_srvs/srv/pose_with_covariance_stamped.hpp"
+// #include "pcl/registration/ndt.h"
+// #include "pcl_registration/ndt.h"
+#include "ndt/omp.hpp"
+#include "ndt/pcl_generic.hpp"
+#include "ndt/pcl_modified.hpp"
 
 class NDTScanMatcher : public rclcpp::Node
 {
@@ -53,7 +53,8 @@ class NDTScanMatcher : public rclcpp::Node
   // TODO move file
   struct OMPParams
   {
-    OMPParams() : search_method(ndt_omp::NeighborSearchMethod::KDTREE), num_threads(1){};
+    OMPParams()
+    : search_method(ndt_omp::NeighborSearchMethod::KDTREE), num_threads(1) {}
     ndt_omp::NeighborSearchMethod search_method;
     int num_threads;
   };
@@ -66,7 +67,7 @@ class NDTScanMatcher : public rclcpp::Node
     : initial_pose(a_initial_pose),
       result_pose(a_result_pose),
       score(a_score),
-      iteration(a_iteration){};
+      iteration(a_iteration) {}
     geometry_msgs::msg::Pose initial_pose;
     geometry_msgs::msg::Pose result_pose;
     double score;
@@ -123,9 +124,12 @@ private:
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr exe_time_pub_;
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr transform_probability_pub_;
   rclcpp::Publisher<autoware_debug_msgs::msg::Int32Stamped>::SharedPtr iteration_num_pub_;
-  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr initial_to_result_distance_pub_;
-  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr initial_to_result_distance_old_pub_;
-  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr initial_to_result_distance_new_pub_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr
+    initial_to_result_distance_pub_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr
+    initial_to_result_distance_old_pub_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr
+    initial_to_result_distance_new_pub_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr ndt_marker_pub_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr
     ndt_monte_carlo_initial_pose_marker_pub_;
@@ -147,7 +151,7 @@ private:
   double converged_param_transform_probability_;
 
   std::deque<geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr>
-    initial_pose_msg_ptr_array_;
+  initial_pose_msg_ptr_array_;
   std::mutex ndt_map_mtx_;
 
   OMPParams omp_params_;

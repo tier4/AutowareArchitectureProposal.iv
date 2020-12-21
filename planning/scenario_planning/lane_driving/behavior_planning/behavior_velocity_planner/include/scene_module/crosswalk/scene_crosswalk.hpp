@@ -13,28 +13,28 @@
 // limitations under the License.
 #pragma once
 
-#include <boost/assert.hpp>
-#include <boost/assign/list_of.hpp>
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
+#include "boost/assert.hpp"
+#include "boost/assign/list_of.hpp"
+#include "boost/geometry.hpp"
+#include "boost/geometry/geometries/linestring.hpp"
+#include "boost/geometry/geometries/point_xy.hpp"
 
-#include <pcl/common/distances.h>
-#include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
+#include "pcl/common/distances.h"
+#include "pcl/point_types.h"
+#include "pcl_conversions/pcl_conversions.h"
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
-#include <sensor_msgs/msg/point_cloud2.hpp>
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
 
-#include <lanelet2_core/LaneletMap.h>
-#include <lanelet2_extension/utility/query.hpp>
-#include <lanelet2_routing/RoutingGraph.h>
-#include <lanelet2_routing/RoutingGraphContainer.h>
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_extension/utility/query.hpp"
+#include "lanelet2_routing/RoutingGraph.h"
+#include "lanelet2_routing/RoutingGraphContainer.h"
 
-#include <scene_module/crosswalk/util.hpp>
-#include <scene_module/scene_module_interface.hpp>
+#include "scene_module/crosswalk/util.hpp"
+#include "scene_module/scene_module_interface.hpp"
 
 class CrosswalkModule : public SceneModuleInterface
 {
@@ -64,7 +64,7 @@ private:
   bool checkSlowArea(
     const autoware_planning_msgs::msg::PathWithLaneId & input,
     const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>, false> &
-      polygon,
+    polygon,
     const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & objects_ptr,
     const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
     autoware_planning_msgs::msg::PathWithLaneId & output);
@@ -72,7 +72,7 @@ private:
   bool checkStopArea(
     const autoware_planning_msgs::msg::PathWithLaneId & input,
     const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>, false> &
-      polygon,
+    polygon,
     const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & objects_ptr,
     const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
     autoware_planning_msgs::msg::PathWithLaneId & output, bool * insert_stop);

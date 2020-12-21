@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <awapi_awiv_adapter/awapi_lane_change_state_publisher.hpp>
+#include "awapi_awiv_adapter/awapi_lane_change_state_publisher.hpp"
 
 namespace autoware_api
 {
-AutowareIvLaneChangeStatePublisher::AutowareIvLaneChangeStatePublisher(rclcpp::Node& node)
+AutowareIvLaneChangeStatePublisher::AutowareIvLaneChangeStatePublisher(rclcpp::Node & node)
 : logger_(node.get_logger().get_child("awapi_awiv_lane_change_state_publisher")),
   clock_(node.get_clock())
 {

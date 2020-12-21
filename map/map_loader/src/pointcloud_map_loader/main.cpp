@@ -28,11 +28,11 @@
  * limitations under the License.
  */
 
-#include <boost/filesystem.hpp>
+#include "boost/filesystem.hpp"
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <map_loader/pointcloud_map_loader_node.hpp>
+#include "map_loader/pointcloud_map_loader_node.hpp"
 
 namespace fs = boost::filesystem;
 
@@ -70,8 +70,7 @@ int main(int argc, char * argv[])
     }
   }
 
-  if(pcd_paths.empty())
-  {
+  if (pcd_paths.empty()) {
     const std::string msg = "no valid_path";
     throw std::runtime_error(msg);
   }

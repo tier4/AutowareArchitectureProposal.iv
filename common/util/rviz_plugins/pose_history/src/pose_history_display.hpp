@@ -15,18 +15,18 @@
 #ifndef POSE_HISTORY_HPP
 #define POSE_HISTORY_HPP
 
-#include <geometry_msgs/PoseStamped.h>
-#include <ros/ros.h>
-#include <rviz/display.h>
-#include <rviz/display_context.h>
-#include <rviz/frame_manager.h>
-#include <rviz/ogre_helpers/billboard_line.h>
-#include <rviz/properties/bool_property.h>
-#include <rviz/properties/color_property.h>
-#include <rviz/properties/float_property.h>
-#include <rviz/properties/int_property.h>
-#include <rviz/properties/ros_topic_property.h>
-//#include <rviz/ogre_helpers/arrow.h>
+#include "geometry_msgs/PoseStamped.h"
+#include "ros/ros.h"
+#include "rviz/display.h"
+#include "rviz/display_context.h"
+#include "rviz/frame_manager.h"
+#include "rviz/ogre_helpers/billboard_line.h"
+#include "rviz/properties/bool_property.h"
+#include "rviz/properties/color_property.h"
+#include "rviz/properties/float_property.h"
+#include "rviz/properties/int_property.h"
+#include "rviz/properties/ros_topic_property.h"
+//#include "rviz/ogre_helpers/arrow.h"
 #include <deque>
 #include <memory>
 
@@ -47,7 +47,6 @@ protected:
   void update(float wall_dt, float ros_dt) override;
 
 private Q_SLOTS:
-
   void updateTopic();
   void subscribe();
   void unsubscribe();

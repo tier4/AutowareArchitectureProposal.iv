@@ -14,7 +14,7 @@
 
 #include "mpc_follower/mpc_follower_core.hpp"
 
-#include <tf2_ros/create_timer_ros.h>
+#include "tf2_ros/create_timer_ros.h"
 
 #define DEG2RAD 3.1415926535 / 180.0
 #define RAD2DEG 180.0 / 3.1415926535
@@ -29,13 +29,13 @@ using namespace std::chrono_literals;
 
 namespace
 {
-template <typename T>
+template<typename T>
 void update_param(
   const std::vector<rclcpp::Parameter> & parameters, const std::string & name, T & value)
 {
   auto it = std::find_if(
     parameters.cbegin(), parameters.cend(),
-    [&name](const rclcpp::Parameter & parameter) { return parameter.get_name() == name; });
+    [&name](const rclcpp::Parameter & parameter) {return parameter.get_name() == name;});
   if (it != parameters.cend()) {
     value = it->template get_value<T>();
   }
@@ -227,8 +227,9 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::msg::ControlCommand * ctrl
   double nearest_time, lat_err, yaw_err;
   geometry_msgs::msg::Pose nearest_pose;
   if (!getVar(
-        reference_trajectory, &nearest_idx, &nearest_time, &nearest_pose, &steer, &lat_err,
-        &yaw_err)) {
+      reference_trajectory, &nearest_idx, &nearest_time, &nearest_pose, &steer, &lat_err,
+      &yaw_err))
+  {
     return false;
   }
 
@@ -358,8 +359,9 @@ bool MPCFollower::getVar(
 {
   static constexpr auto duration = (5000ms).count();
   if (!MPCUtils::calcNearestPoseInterp(
-        traj, current_pose_ptr_->pose, nearest_pose, nearest_idx, nearest_time, get_logger(),
-        *get_clock())) {
+      traj, current_pose_ptr_->pose, nearest_pose, nearest_idx, nearest_time, get_logger(),
+      *get_clock()))
+  {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       get_logger(), *get_clock(), duration,
       "calculateMPC: error in calculating nearest pose. stop mpc.");
@@ -461,7 +463,8 @@ bool MPCFollower::updateStateForDelayCompensation(
     double v = 0.0;
     if (
       !LinearInterpolate::interpolate(traj.relative_time, traj.k, mpc_curr_time, k) ||
-      !LinearInterpolate::interpolate(traj.relative_time, traj.vx, mpc_curr_time, v)) {
+      !LinearInterpolate::interpolate(traj.relative_time, traj.vx, mpc_curr_time, v))
+    {
       RCLCPP_ERROR(
         get_logger(),
         "mpc resample error at delay compensation, stop mpc calculation. check code!");
@@ -484,7 +487,7 @@ bool MPCFollower::updateStateForDelayCompensation(
 MPCTrajectory MPCFollower::calcActualVelocity(const MPCTrajectory & input)
 {
   int nearest_idx = MPCUtils::calcNearestIndex(input, current_pose_ptr_->pose);
-  if (nearest_idx < 0) return input;
+  if (nearest_idx < 0) {return input;}
 
   MPCTrajectory output = input;
   MPCUtils::dynamicSmoothingVelocity(
@@ -648,7 +651,8 @@ bool MPCFollower::executeOptimization(
   if (
     m.Aex.array().isNaN().any() || m.Bex.array().isNaN().any() || m.Cex.array().isNaN().any() ||
     m.Wex.array().isNaN().any() || m.Qex.array().isNaN().any() || m.R1ex.array().isNaN().any() ||
-    m.R2ex.array().isNaN().any() || m.Urefex.array().isNaN().any()) {
+    m.R2ex.array().isNaN().any() || m.Urefex.array().isNaN().any())
+  {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       get_logger(), *get_clock(), duration, "model matrix includes NaN, stop MPC.");
     return false;
@@ -657,7 +661,8 @@ bool MPCFollower::executeOptimization(
   if (
     m.Aex.array().isInf().any() || m.Bex.array().isInf().any() || m.Cex.array().isInf().any() ||
     m.Wex.array().isInf().any() || m.Qex.array().isInf().any() || m.R1ex.array().isInf().any() ||
-    m.R2ex.array().isInf().any() || m.Urefex.array().isInf().any()) {
+    m.R2ex.array().isInf().any() || m.Urefex.array().isInf().any())
+  {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       get_logger(), *get_clock(), duration, "model matrix includes Inf, stop MPC.");
     return false;
@@ -806,7 +811,8 @@ void MPCFollower::callbackTrajectory(autoware_planning_msgs::msg::Trajectory::Sh
   /* resampling */
   MPCUtils::convertToMPCTrajectory(*current_trajectory_ptr_, &mpc_traj_raw);
   if (!MPCUtils::resampleMPCTrajectoryByDistance(
-        mpc_traj_raw, traj_resample_dist_, &mpc_traj_resampled)) {
+      mpc_traj_raw, traj_resample_dist_, &mpc_traj_resampled))
+  {
     RCLCPP_WARN(get_logger(), "spline error!!!!!!");
     return;
   }
@@ -819,7 +825,8 @@ void MPCFollower::callbackTrajectory(autoware_planning_msgs::msg::Trajectory::Sh
       !MoveAverageFilter::filt_vector(path_filter_moving_ave_num_, mpc_traj_smoothed.x) ||
       !MoveAverageFilter::filt_vector(path_filter_moving_ave_num_, mpc_traj_smoothed.y) ||
       !MoveAverageFilter::filt_vector(path_filter_moving_ave_num_, mpc_traj_smoothed.yaw) ||
-      !MoveAverageFilter::filt_vector(path_filter_moving_ave_num_, mpc_traj_smoothed.vx)) {
+      !MoveAverageFilter::filt_vector(path_filter_moving_ave_num_, mpc_traj_smoothed.vx))
+    {
       RCLCPP_INFO_EXPRESSION(
         get_logger(), show_debug_info_, "path callback: filtering error. stop filtering.");
       mpc_traj_smoothed = mpc_traj_resampled;

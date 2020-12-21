@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <behavior_velocity_planner/planner_manager.hpp>
-#include <boost/format.hpp>
+#include "behavior_velocity_planner/planner_manager.hpp"
+
+#include <string>
+#include <memory>
+#include "boost/format.hpp"
 
 namespace
 {
@@ -21,10 +24,10 @@ std::string jsonDumpsPose(const geometry_msgs::msg::Pose & pose)
 {
   const std::string json_dumps_pose =
     (boost::format(
-       R"({"position":{"x":%lf,"y":%lf,"z":%lf},"orientation":{"w":%lf,"x":%lf,"y":%lf,"z":%lf}})") %
-     pose.position.x % pose.position.y % pose.position.z % pose.orientation.w % pose.orientation.x %
-     pose.orientation.y % pose.orientation.z)
-      .str();
+      R"({"position":{"x":%lf,"y":%lf,"z":%lf},"orientation":{"w":%lf,"x":%lf,"y":%lf,"z":%lf}})") %
+    pose.position.x % pose.position.y % pose.position.z % pose.orientation.w % pose.orientation.x %
+    pose.orientation.y % pose.orientation.z)
+    .str();
   return json_dumps_pose;
 }
 

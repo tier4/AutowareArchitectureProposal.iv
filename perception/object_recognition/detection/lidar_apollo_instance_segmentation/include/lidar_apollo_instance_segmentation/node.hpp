@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #pragma once
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp>
-#include <sensor_msgs/msg/point_cloud2.hpp>
+#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
 #include <memory>
 
 #include "lidar_apollo_instance_segmentation/debugger.hpp"
@@ -34,7 +34,8 @@ class LidarInstanceSegmentationNode : public rclcpp::Node
 {
 private:
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_sub_;
-  rclcpp::Publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr dynamic_objects_pub_;
+  rclcpp::Publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr
+    dynamic_objects_pub_;
   std::shared_ptr<LidarInstanceSegmentationInterface> detector_ptr_;
   std::shared_ptr<Debugger> debugger_ptr_;
   void pointCloudCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr msg);

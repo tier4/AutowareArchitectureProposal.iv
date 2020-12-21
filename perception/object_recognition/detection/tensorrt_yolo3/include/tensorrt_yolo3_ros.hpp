@@ -11,13 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <cv_bridge/cv_bridge.h>
-#include <sensor_msgs/msg/image.hpp>
-#include <sensor_msgs/image_encodings.hpp>
+#include "cv_bridge/cv_bridge.h"
+#include "sensor_msgs/msg/image.hpp"
+#include "sensor_msgs/image_encodings.hpp"
 
-#include <autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp>
+#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
 
 // STL
 #include <chrono>
@@ -25,14 +25,15 @@
 #include <string>
 
 // local
-#include "TrtNet.hpppp"
+#include "TrtNet.hpp"
 #include "data_reader.hpp"
 
 class TensorrtYoloROS : public rclcpp::Node
 {
 private:
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_image_;
-  rclcpp::Publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr pub_objects_;
+  rclcpp::Publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr
+    pub_objects_;
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_image_;
 
   std::unique_ptr<Tn::trtNet> net_ptr_;
@@ -44,6 +45,7 @@ private:
     autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & out_objects);
   void doNms(std::vector<Yolo::Detection> & detections, int classes, float nmsThresh);
   /* data */
+
 public:
   TensorrtYoloROS(/* args */);
   ~TensorrtYoloROS();

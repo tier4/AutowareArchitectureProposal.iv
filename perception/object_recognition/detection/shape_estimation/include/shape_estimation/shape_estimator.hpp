@@ -18,13 +18,13 @@
 
 #pragma once
 
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
+#include "pcl/point_cloud.h"
+#include "pcl/point_types.h"
+#include "pcl_conversions/pcl_conversions.h"
 #include <string>
-#include <autoware_perception_msgs/msg/shape.hpp>
-#include <autoware_perception_msgs/msg/state.hpp>
-#include <geometry_msgs/msg/pose.hpp>
+#include "autoware_perception_msgs/msg/shape.hpp"
+#include "autoware_perception_msgs/msg/state.hpp"
+#include "geometry_msgs/msg/pose.hpp"
 
 class ShapeEstimator
 {
@@ -52,13 +52,14 @@ public:
   ShapeEstimator(
     double l_shape_fitting_search_angle_range, bool use_corrector, bool orientation_reliable);
 
-  ~ShapeEstimator(){};
+  ~ShapeEstimator() {}
 
   bool getShapeAndPose(
     const int type, const pcl::PointCloud<pcl::PointXYZ> & cluster,
     autoware_perception_msgs::msg::Shape & shape_output, geometry_msgs::msg::Pose & pose_output);
   bool getShapeAndPose(
     const int type, const pcl::PointCloud<pcl::PointXYZ> & cluster,
-    const autoware_perception_msgs::msg::State & state, autoware_perception_msgs::msg::Shape & shape_output,
+    const autoware_perception_msgs::msg::State & state,
+    autoware_perception_msgs::msg::Shape & shape_output,
     geometry_msgs::msg::Pose & pose_output);
 };

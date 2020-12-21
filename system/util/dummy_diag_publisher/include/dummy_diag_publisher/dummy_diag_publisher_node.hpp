@@ -13,13 +13,13 @@
 // limitations under the License.
 
 #ifndef DUMMY_DIAG_PUBLISHER_DUMMY_DIAG_PUBLISHER_H_
-#define DUMMY_DIAG_PUBLISHER_DUMMY_DIAG_PUBLISHER_H_ 
+#define DUMMY_DIAG_PUBLISHER_DUMMY_DIAG_PUBLISHER_H_
 
 #include <string>
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <diagnostic_updater/diagnostic_updater.hpp>
+#include "diagnostic_updater/diagnostic_updater.hpp"
 
 struct DiagConfig
 {
@@ -50,7 +50,8 @@ public:
   DummyDiagPublisherNode();
 
 private:
-  enum Status {
+  enum Status
+  {
     OK,
     WARN,
     ERROR,

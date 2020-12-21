@@ -11,16 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <mission_planner/mission_planner_base.hpp>
+#include "mission_planner/mission_planner_base.hpp"
 
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <visualization_msgs/msg/marker_array.h>
-
-#include <lanelet2_routing/Route.h>
-
-#include <lanelet2_extension/utility/message_conversion.hpp>
-#include <lanelet2_extension/utility/query.hpp>
-#include <lanelet2_extension/visualization/visualization.hpp>
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "lanelet2_extension/utility/query.hpp"
+#include "lanelet2_extension/visualization/visualization.hpp"
+#include "lanelet2_routing/Route.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "visualization_msgs/msg/marker_array.h"
 
 namespace mission_planner
 {
@@ -39,7 +37,8 @@ MissionPlanner::MissionPlanner(const std::string & node_name)
 
   rclcpp::QoS durable_qos{1};
   durable_qos.transient_local();
-  route_publisher_ = create_publisher<autoware_planning_msgs::msg::Route>("output/route", durable_qos);
+  route_publisher_ =
+    create_publisher<autoware_planning_msgs::msg::Route>("output/route", durable_qos);
   marker_publisher_ =
     create_publisher<visualization_msgs::msg::MarkerArray>("debug/route_marker", durable_qos);
 }
@@ -66,7 +65,8 @@ bool MissionPlanner::transformPose(
 {
   geometry_msgs::msg::TransformStamped transform;
   try {
-    transform = tf_buffer_.lookupTransform(target_frame, input_pose.header.frame_id, tf2::TimePointZero);
+    transform =
+      tf_buffer_.lookupTransform(target_frame, input_pose.header.frame_id, tf2::TimePointZero);
     tf2::doTransform(input_pose, *output_pose, transform);
     return true;
   } catch (tf2::TransformException & ex) {
@@ -80,7 +80,8 @@ void MissionPlanner::goalPoseCallback(
 {
   // set start pose
   if (!getEgoVehiclePose(&start_pose_)) {
-    RCLCPP_ERROR(get_logger(), "Failed to get ego vehicle pose in map frame. Aborting mission planning");
+    RCLCPP_ERROR(
+      get_logger(), "Failed to get ego vehicle pose in map frame. Aborting mission planning");
     return;
   }
   // set goal pose
@@ -107,13 +108,16 @@ void MissionPlanner::checkpointCallback(
   const geometry_msgs::msg::PoseStamped::ConstSharedPtr checkpoint_msg_ptr)
 {
   if (checkpoints_.size() < 2) {
-    RCLCPP_ERROR(get_logger(), "You must set start and goal before setting checkpoints. Aborting mission planning");
+    RCLCPP_ERROR(
+      get_logger(),
+      "You must set start and goal before setting checkpoints. Aborting mission planning");
     return;
   }
 
   geometry_msgs::msg::PoseStamped transformed_checkpoint;
   if (!transformPose(*checkpoint_msg_ptr, &transformed_checkpoint, map_frame_)) {
-    RCLCPP_ERROR(get_logger(), "Failed to get checkpoint pose in map frame. Aborting mission planning");
+    RCLCPP_ERROR(
+      get_logger(), "Failed to get checkpoint pose in map frame. Aborting mission planning");
     return;
   }
 

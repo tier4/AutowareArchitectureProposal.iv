@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <mission_planner/lanelet2_impl/route_handler.hpp>
-#include <rclcpp/rclcpp.hpp>
+#include "mission_planner/lanelet2_impl/route_handler.hpp"
+
+#include "rclcpp/rclcpp.hpp"
 
 namespace mission_planner
 {
@@ -206,7 +207,9 @@ lanelet::ConstLanelets RouteHandler::getPreviousLaneletSequence(
   const lanelet::ConstLanelets & lanelet_sequence) const
 {
   lanelet::ConstLanelets previous_lanelet_sequence;
-  if (lanelet_sequence.empty()) return previous_lanelet_sequence;
+  if (lanelet_sequence.empty()) {
+    return previous_lanelet_sequence;
+  }
 
   auto first_lane = lanelet_sequence.front();
   if (exists(start_lanelets_, first_lane)) {
@@ -392,7 +395,9 @@ lanelet::ConstLanelets RouteHandler::getNextLaneSequence(
   const lanelet::ConstLanelets & lane_sequence) const
 {
   lanelet::ConstLanelets next_lane_sequence;
-  if (lane_sequence.empty()) return next_lane_sequence;
+  if (lane_sequence.empty()) {
+    return next_lane_sequence;
+  }
   lanelet::ConstLanelet final_lanelet = lane_sequence.back();
   lanelet::ConstLanelet next_lanelet;
   if (!getNextLaneletWithinRoute(final_lanelet, &next_lanelet)) {

@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <behavior_velocity_planner/node.hpp>
+#include <memory>
+
+#include "behavior_velocity_planner/node.hpp"
 
 int main(int argc, char ** argv)
 {

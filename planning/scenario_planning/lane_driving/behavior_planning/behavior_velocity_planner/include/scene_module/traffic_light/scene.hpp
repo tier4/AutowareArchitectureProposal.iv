@@ -15,23 +15,25 @@
 
 #include <memory>
 #include <string>
+#include <tuple>
+#include <vector>
 
-#include <boost/assert.hpp>
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
+#include "boost/assert.hpp"
+#include "boost/geometry.hpp"
+#include "boost/geometry/geometries/linestring.hpp"
+#include "boost/geometry/geometries/point_xy.hpp"
 
 #define EIGEN_MPL2_ONLY
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include "Eigen/Core"
+#include "Eigen/Geometry"
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <lanelet2_core/LaneletMap.h>
-#include <lanelet2_extension/utility/query.hpp>
-#include <lanelet2_routing/RoutingGraph.h>
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_extension/utility/query.hpp"
+#include "lanelet2_routing/RoutingGraph.h"
 
-#include <scene_module/scene_module_interface.hpp>
+#include "scene_module/scene_module_interface.hpp"
 
 class TrafficLightModule : public SceneModuleInterface
 {
@@ -42,9 +44,9 @@ public:
   {
     double base_link2front;
     std::vector<std::tuple<
-      std::shared_ptr<const lanelet::TrafficLight>,
-      autoware_perception_msgs::msg::TrafficLightState>>
-      tl_state;  // TODO: replace tuple with struct
+        std::shared_ptr<const lanelet::TrafficLight>,
+        autoware_perception_msgs::msg::TrafficLightState>>
+    tl_state;    // TODO: replace tuple with struct
     std::vector<geometry_msgs::msg::Pose> stop_poses;
     geometry_msgs::msg::Pose first_stop_pose;
     std::vector<geometry_msgs::msg::Pose> dead_line_poses;
@@ -72,8 +74,8 @@ public:
   inline autoware_perception_msgs::msg::TrafficLightStateStamped getTrafficLightState() const
   {
     return tl_state_;
-  };
-  inline State getTrafficLightModuleState() const { return state_; };
+  }
+  inline State getTrafficLightModuleState() const {return state_;}
 
 private:
   int64_t lane_id_;
@@ -86,7 +88,7 @@ private:
   bool insertTargetVelocityPoint(
     const autoware_planning_msgs::msg::PathWithLaneId & input,
     const boost::geometry::model::linestring<boost::geometry::model::d2::point_xy<double>> &
-      stop_line,
+    stop_line,
     const double & margin, const double & velocity,
     autoware_planning_msgs::msg::PathWithLaneId & output);
 
@@ -105,7 +107,7 @@ private:
   bool createTargetPoint(
     const autoware_planning_msgs::msg::PathWithLaneId & input,
     const boost::geometry::model::linestring<boost::geometry::model::d2::point_xy<double>> &
-      stop_line,
+    stop_line,
     const double & margin, size_t & target_point_idx, Eigen::Vector2d & target_point);
 
   bool hasLamp(

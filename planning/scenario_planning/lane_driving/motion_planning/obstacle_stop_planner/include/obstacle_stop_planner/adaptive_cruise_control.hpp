@@ -12,19 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef OBSTACLE_STOP_PLANNER__ADAPTIVE_CRUISE_CONTROL_HPP_
+#define OBSTACLE_STOP_PLANNER__ADAPTIVE_CRUISE_CONTROL_HPP_
 
 #include <vector>
 
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
-#include <rclcpp/rclcpp.hpp>
-#include <autoware_debug_msgs/msg/float32_multi_array_stamped.hpp>
-#include <tf2/utils.h>
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "pcl/point_types.h"
+#include "pcl_conversions/pcl_conversions.h"
+#include "rclcpp/rclcpp.hpp"
+#include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
+#include "tf2/utils.h"
 
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
-#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_planning_msgs/msg/trajectory.hpp"
 
 namespace motion_planning
 {
@@ -36,11 +37,13 @@ public:
     const double front_overhang);
 
   void insertAdaptiveCruiseVelocity(
-    const autoware_planning_msgs::msg::Trajectory & trajectory, const int nearest_collision_point_idx,
+    const autoware_planning_msgs::msg::Trajectory & trajectory,
+    const int nearest_collision_point_idx,
     const geometry_msgs::msg::Pose self_pose, const pcl::PointXYZ & nearest_collision_point,
     const rclcpp::Time nearest_collision_point_time,
-    const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr object_ptr,
-    const geometry_msgs::msg::TwistStamped::ConstPtr current_velocity_ptr, bool * need_to_stop,
+    const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr object_ptr,
+    const geometry_msgs::msg::TwistStamped::ConstSharedPtr current_velocity_ptr,
+    bool * need_to_stop,
     autoware_planning_msgs::msg::Trajectory * output_trajectory);
 
 private:
@@ -82,16 +85,20 @@ private:
     //!< @brief The distance to extend the polygon width the object in pointcloud-object matching
     double object_polygon_width_margin;
 
-    //!< @breif Maximum time difference treated as continuous points in speed estimation using a point cloud
+    //!< @breif Maximum time difference treated as continuous points in speed estimation using a
+    // point cloud
     double valid_est_vel_diff_time;
 
-    //!< @brief Time width of information used for speed estimation in speed estimation using a point cloud
+    //!< @brief Time width of information used for speed estimation in speed estimation using a
+    // point cloud
     double valid_vel_que_time;
 
-    //!< @brief Maximum value of valid speed estimation results in speed estimation using a point cloud
+    //!< @brief Maximum value of valid speed estimation results in speed estimation using a point
+    // cloud
     double valid_est_vel_max;
 
-    //!< @brief Minimum value of valid speed estimation results in speed estimation using a point cloud
+    //!< @brief Minimum value of valid speed estimation results in speed estimation using a point
+    // cloud
     double valid_est_vel_min;
 
     //!< @brief Embed a stop line if the maximum speed calculated by ACC is lowar than this speed
@@ -159,7 +166,8 @@ private:
   double calcTrajYaw(
     const autoware_planning_msgs::msg::Trajectory & trajectory, const int collsion_point_idx);
   bool estimatePointVelocityFromObject(
-    const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr object_ptr, const double traj_yaw,
+    const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr object_ptr,
+    const double traj_yaw,
     const pcl::PointXYZ & nearest_collision_point, double * velocity);
   bool estimatePointVelocityFromPcl(
     const double traj_yaw, const pcl::PointXYZ & nearest_collision_point,
@@ -180,7 +188,8 @@ private:
 
   /* Debug */
   mutable autoware_debug_msgs::msg::Float32MultiArrayStamped debug_values_;
-  enum DBGVAL {
+  enum DBGVAL
+  {
     ESTIMATED_VEL_PCL = 0,
     ESTIMATED_VEL_OBJ = 1,
     ESTIMATED_VEL_FINAL = 2,
@@ -191,9 +200,10 @@ private:
     UPPER_VEL_D = 7,
     UPPER_VEL_RAW = 8,
     UPPER_VEL = 9
-
   };
   static constexpr unsigned int num_debug_values_ = 10;
 };
 
 }  // namespace motion_planning
+
+#endif  // OBSTACLE_STOP_PLANNER__ADAPTIVE_CRUISE_CONTROL_HPP_

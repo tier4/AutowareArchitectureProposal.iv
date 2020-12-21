@@ -17,15 +17,15 @@
 
 #include "ndt/base.hpp"
 
-#include <pcl/io/io.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
+#include "pcl/io/io.h"
+#include "pcl/io/pcd_io.h"
+#include "pcl/point_types.h"
 
 #include "ndt_pcl_modified/ndt.hpp"
 
-template <class PointSource, class PointTarget>
+template<class PointSource, class PointTarget>
 class NormalDistributionsTransformPCLModified
-: public NormalDistributionsTransformBase<PointSource, PointTarget>
+  : public NormalDistributionsTransformBase<PointSource, PointTarget>
 {
 public:
   NormalDistributionsTransformPCLModified();

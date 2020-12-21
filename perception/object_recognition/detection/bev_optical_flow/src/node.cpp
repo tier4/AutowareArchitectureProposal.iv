@@ -16,7 +16,8 @@
 
 namespace bev_optical_flow
 {
-OpticalFlowNode::OpticalFlowNode() : nh_(""), pnh_("~")
+OpticalFlowNode::OpticalFlowNode()
+: nh_(""), pnh_("~")
 {
   cloud_sub_ = pnh_.subscribe("input_cloud", 1, &OpticalFlowNode::callback, this);
   flow_array_pub_ = pnh_.advertise<
@@ -25,11 +26,12 @@ OpticalFlowNode::OpticalFlowNode() : nh_(""), pnh_("~")
 }
 
 void OpticalFlowNode::callback(
-  const sensor_msgs::PointCloud2::ConstPtr& cloud_msg)
+  const sensor_msgs::PointCloud2::ConstPtr & cloud_msg)
 {
   flow_calculator_->setup(cloud_msg);
-  if ( !flow_calculator_->isInitialized() )
+  if (!flow_calculator_->isInitialized() ) {
     return;
+  }
   autoware_perception_msgs::DynamicObjectWithFeatureArray output_msg;
   output_msg.header = cloud_msg->header;
   flow_calculator_->run(output_msg);

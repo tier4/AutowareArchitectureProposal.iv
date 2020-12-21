@@ -11,17 +11,23 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <rclcpp/rclcpp.hpp>
 
-#include <lanelet2_core/geometry/Polygon.h>
-#include <lanelet2_core/primitives/BasicRegulatoryElements.h>
-#include <lanelet2_extension/regulatory_elements/road_marking.hpp>
-#include <lanelet2_extension/utility/query.hpp>
-#include <lanelet2_extension/utility/utilities.hpp>
+#include "scene_module/intersection/util.hpp"
 
-#include <scene_module/intersection/util.hpp>
-#include <utilization/interpolate.hpp>
-#include <utilization/util.hpp>
+#include <algorithm>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "lanelet2_core/geometry/Polygon.h"
+#include "lanelet2_core/primitives/BasicRegulatoryElements.h"
+#include "lanelet2_extension/regulatory_elements/road_marking.hpp"
+#include "lanelet2_extension/utility/query.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
+
+#include "rclcpp/rclcpp.hpp"
+#include "utilization/interpolate.hpp"
+#include "utilization/util.hpp"
 
 namespace bg = boost::geometry;
 
@@ -103,7 +109,8 @@ bool splineInterpolate(
     !spline.interpolate(
       base_s, base_y, resampled_s, resampled_y, spline_interpolation::Method::PCG) ||
     !spline.interpolate(
-      base_s, base_z, resampled_s, resampled_z, spline_interpolation::Method::PCG)) {
+      base_s, base_z, resampled_s, resampled_z, spline_interpolation::Method::PCG))
+  {
     RCLCPP_ERROR(logger, "spline interpolation failed.");
     return false;
   }
@@ -186,7 +193,7 @@ bool isAheadOf(const geometry_msgs::msg::Pose & target, const geometry_msgs::msg
 bool hasLaneId(const autoware_planning_msgs::msg::PathPointWithLaneId & p, const int id)
 {
   for (const auto & pid : p.lane_ids) {
-    if (pid == id) return true;
+    if (pid == id) {return true;}
   }
   return false;
 }
@@ -207,7 +214,7 @@ int getFirstPointInsidePolygons(
         break;
       }
     }
-    if (is_in_lanelet) break;
+    if (is_in_lanelet) {break;}
   }
   return first_idx_inside_lanelet;
 }
@@ -236,7 +243,7 @@ bool generateStopLine(
 
   /* spline interpolation */
   autoware_planning_msgs::msg::PathWithLaneId path_ip;
-  if (!util::splineInterpolate(*path, interval, &path_ip, logger)) return false;
+  if (!util::splineInterpolate(*path, interval, &path_ip, logger)) {return false;}
 
   /* generate stop point */
   // If a stop_line is defined in lanelet_map, use it.
@@ -316,7 +323,7 @@ bool getStopPoseFromMap(
       break;  // only one stop_line exists.
     }
   }
-  if (stop_line.empty()) return false;
+  if (stop_line.empty()) {return false;}
 
   const auto p_start = stop_line.front().front();
   const auto p_end = stop_line.front().back();
@@ -404,12 +411,22 @@ bool getObjectivePolygons(
   }
 
   std::stringstream ss_c, ss_y, ss_e, ss_o, ss_os;
-  for (const auto l : conflicting_lanelets) ss_c << l.id() << ", ";
-  for (const auto l : yield_lanelets) ss_y << l.id() << ", ";
-  for (const auto l : ego_lanelets) ss_e << l.id() << ", ";
-  for (const auto l : objective_lanelets) ss_o << l.id() << ", ";
-  for (const auto l : objective_lanelets_sequences) {
-    for (const auto ll : l) ss_os << ll.id() << ", ";
+  for (const auto & l : conflicting_lanelets) {
+    ss_c << l.id() << ", ";
+  }
+  for (const auto & l : yield_lanelets) {
+    ss_y << l.id() << ", ";
+  }
+  for (const auto & l : ego_lanelets) {
+    ss_e << l.id() << ", ";
+  }
+  for (const auto & l : objective_lanelets) {
+    ss_o << l.id() << ", ";
+  }
+  for (const auto & l : objective_lanelets_sequences) {
+    for (const auto & ll : l) {
+      ss_os << ll.id() << ", ";
+    }
   }
   RCLCPP_DEBUG(
     logger, "getObjectivePolygons() conflict = %s yield = %s ego = %s",

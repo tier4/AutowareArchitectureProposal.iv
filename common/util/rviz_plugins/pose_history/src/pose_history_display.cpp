@@ -42,9 +42,9 @@ void PoseHistory::onInitialize()
   lines_.reset(new rviz::BillboardLine(scene_manager_, scene_node_));
 }
 
-void PoseHistory::onEnable() { subscribe(); }
+void PoseHistory::onEnable() {subscribe();}
 
-void PoseHistory::onDisable() { unsubscribe(); }
+void PoseHistory::onDisable() {unsubscribe();}
 
 void PoseHistory::update(float wall_dt, float ros_dt)
 {
@@ -129,5 +129,5 @@ void PoseHistory::updateLines()
 
 }  // namespace rviz_plugins
 
-#include <pluginlib/class_list_macros.h>
+#include "pluginlib/class_list_macros.h"
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::PoseHistory, rviz::Display)

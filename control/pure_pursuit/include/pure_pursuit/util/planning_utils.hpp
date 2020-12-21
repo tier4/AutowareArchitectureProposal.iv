@@ -19,8 +19,8 @@
 #include <vector>
 
 #define EIGEN_MPL2_ONLY
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include "Eigen/Core"
+#include "Eigen/Geometry"
 
 #include <rclcpp/rclcpp.hpp>
 

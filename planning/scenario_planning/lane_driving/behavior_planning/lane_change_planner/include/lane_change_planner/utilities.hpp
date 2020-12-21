@@ -12,33 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LANE_CHANGE_PLANNER_UTILITIES_H
-#define LANE_CHANGE_PLANNER_UTILITIES_H
-
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <geometry_msgs/msg/point.hpp>
-#include <geometry_msgs/msg/pose.hpp>
-#include <geometry_msgs/msg/pose_array.hpp>
-#include <rclcpp/rclcpp.hpp>
-
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
-#include <autoware_planning_msgs/msg/path.hpp>
-#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
-
-#include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
-#include <boost/geometry/geometry.hpp>
-
-#include <lanelet2_core/geometry/Lanelet.h>
-#include <lanelet2_routing/Route.h>
-#include <lanelet2_routing/RoutingGraph.h>
-#include <lanelet2_routing/RoutingGraphContainer.h>
-
-#include <lane_change_planner/route_handler.hpp>
+#ifndef LANE_CHANGE_PLANNER__UTILITIES_HPP_
+#define LANE_CHANGE_PLANNER__UTILITIES_HPP_
 
 #include <limits>
 #include <vector>
+
+#include "lane_change_planner/route_handler.hpp"
+
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_planning_msgs/msg/path.hpp"
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "geometry_msgs/msg/point.hpp"
+#include "geometry_msgs/msg/pose.hpp"
+#include "geometry_msgs/msg/pose_array.hpp"
+#include "rclcpp/rclcpp.hpp"
+
+#include "boost/geometry/geometries/box.hpp"
+#include "boost/geometry/geometries/point_xy.hpp"
+#include "boost/geometry/geometries/polygon.hpp"
+#include "boost/geometry/geometry.hpp"
+
+#include "lanelet2_core/geometry/Lanelet.h"
+#include "lanelet2_routing/Route.h"
+#include "lanelet2_routing/RoutingGraph.h"
+#include "lanelet2_routing/RoutingGraphContainer.h"
 
 namespace lane_change_planner
 {
@@ -51,7 +51,8 @@ struct FrenetCoordinate3d
 {
   double length;
   double distance;
-  FrenetCoordinate3d() : length(0), distance(0) {}
+  FrenetCoordinate3d()
+  : length(0), distance(0) {}
 };
 
 double normalizeRadian(const double radian);
@@ -66,7 +67,8 @@ geometry_msgs::msg::PoseArray convertToGeometryPoseArray(
 autoware_perception_msgs::msg::PredictedPath convertToPredictedPath(
   const autoware_planning_msgs::msg::PathWithLaneId & path,
   const geometry_msgs::msg::Twist & vehicle_twist, const geometry_msgs::msg::Pose & vehicle_pose,
-  const double duration, const double resolution, const double acceleration, const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
+  const double duration, const double resolution, const double acceleration,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
 autoware_perception_msgs::msg::PredictedPath resamplePredictedPath(
   const autoware_perception_msgs::msg::PredictedPath & input_path, const double resolution,
   const double duration, const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
@@ -164,7 +166,7 @@ class SplineInterpolate
   rclcpp::Logger logger_;
 
 public:
-  SplineInterpolate(const rclcpp::Logger & logger);
+  explicit SplineInterpolate(const rclcpp::Logger & logger);
   bool interpolate(
     const std::vector<double> & base_index, const std::vector<double> & base_value,
     const std::vector<double> & return_index, std::vector<double> & return_value);
@@ -186,4 +188,4 @@ private:
 }  // namespace util
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_UTILITIES_H
+#endif  // LANE_CHANGE_PLANNER__UTILITIES_HPP_

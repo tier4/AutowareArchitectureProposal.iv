@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <rclcpp/rclcpp.hpp>
-
-#include <scenario_selector/scenario_selector_node.hpp>
+#include "rclcpp/rclcpp.hpp"
+#include "scenario_selector/scenario_selector_node.hpp"
 
 int main(int argc, char ** argv)
 {

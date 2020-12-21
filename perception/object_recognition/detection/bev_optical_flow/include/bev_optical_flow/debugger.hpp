@@ -14,11 +14,11 @@
 
 #pragma once
 
-#include <ros/ros.h>
-#include <cv_bridge/cv_bridge.h>
-#include <sensor_msgs/image_encodings.h>
-#include <autoware_perception_msgs/DynamicObjectWithFeatureArray.h>
-#include <visualization_msgs/MarkerArray.h>
+#include "ros/ros.h"
+#include "cv_bridge/cv_bridge.h"
+#include "sensor_msgs/image_encodings.h"
+#include "autoware_perception_msgs/DynamicObjectWithFeatureArray.h"
+#include "visualization_msgs/MarkerArray.h"
 #include "utils.h"
 
 class Debugger
@@ -26,19 +26,19 @@ class Debugger
 public:
   Debugger();
   bool publishDebugVisualizations(
-    const autoware_perception_msgs::DynamicObjectWithFeatureArray& optical_flow_array,
-    const autoware_perception_msgs::DynamicObjectWithFeatureArray& scene_flow_array,
-    const cv::Mat& image,
+    const autoware_perception_msgs::DynamicObjectWithFeatureArray & optical_flow_array,
+    const autoware_perception_msgs::DynamicObjectWithFeatureArray & scene_flow_array,
+    const cv::Mat & image,
     double topic_rate,
-    const cv::Point2f& vehicle_vel);
+    const cv::Point2f & vehicle_vel);
 
 private:
-  void publishOpticalFlowImage(const cv::Point2f& vehicle_vel);
+  void publishOpticalFlowImage(const cv::Point2f & vehicle_vel);
   void publishSceneFlowMarker(double topic_rate);
   bool createMarker(
-    const autoware_perception_msgs::DynamicObjectWithFeature& scene_flow,
-    visualization_msgs::Marker& debug_marker,
-    visualization_msgs::Marker& debug_text_marker,
+    const autoware_perception_msgs::DynamicObjectWithFeature & scene_flow,
+    visualization_msgs::Marker & debug_marker,
+    visualization_msgs::Marker & debug_text_marker,
     int idx,
     double topic_rate);
 

@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <lanelet2_core/geometry/Lanelet.h>
-#include <mission_planner/lanelet2_impl/utility_functions.hpp>
-#include <rclcpp/rclcpp.hpp>
+#include "mission_planner/lanelet2_impl/utility_functions.hpp"
+
+#include "lanelet2_core/geometry/Lanelet.h"
+#include "rclcpp/rclcpp.hpp"
 
 bool exists(const std::unordered_set<lanelet::Id> & set, const lanelet::Id & id)
 {
@@ -69,16 +70,18 @@ bool getClosestLanelet(
   const auto nearest_road_lanelet =
     excludeSubtypeLaneletsWithDistance(nearest_lanelet, lanelet::AttributeValueString::Crosswalk);
   if (nearest_road_lanelet.empty()) {
-    RCLCPP_ERROR_STREAM(logger,
-      "Failed to find the closest lane!" << std::endl
-                                         << "search point: " << toString(search_pose) << std::endl);
+    RCLCPP_ERROR_STREAM(
+      logger, "Failed to find the closest lane!" << std::endl
+                                                 << "search point: " << toString(search_pose)
+                                                 << std::endl);
     return false;
   }
   if (nearest_road_lanelet.front().first > distance_thresh) {
-    RCLCPP_ERROR_STREAM(logger,
-      "Closest lane is too far away!" << std::endl
-                                      << "search point: " << toString(search_pose) << std::endl
-                                      << "lane id: " << nearest_lanelet.front().second.id());
+    RCLCPP_ERROR_STREAM(
+      logger, "Closest lane is too far away!"
+                << std::endl
+                << "search point: " << toString(search_pose) << std::endl
+                << "lane id: " << nearest_lanelet.front().second.id());
     return false;
   }
 

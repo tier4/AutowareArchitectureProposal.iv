@@ -17,10 +17,10 @@
  * @brief Raspberry Pi CPU monitor class
  */
 
-#include <system_monitor/cpu_monitor/raspi_cpu_monitor.hpp>
-#include <system_monitor/system_monitor_utility.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
+#include "system_monitor/cpu_monitor/raspi_cpu_monitor.hpp"
+#include "system_monitor/system_monitor_utility.hpp"
+#include "boost/algorithm/string.hpp"
+#include "boost/filesystem.hpp"
 #include <string>
 #include <vector>
 
@@ -49,15 +49,16 @@ void CPUMonitor::checkThrottling(diagnostic_updater::DiagnosticStatusWrapper & s
   ifs.close();
 
   // Consider only thermal throttling as an error
-  if ((throttled & raspiThermalThrottlingMask) == raspiThermalThrottlingMask)
+  if ((throttled & raspiThermalThrottlingMask) == raspiThermalThrottlingMask) {
     level = DiagStatus::ERROR;
+  }
 
   while (throttled) {
     int flag = throttled & ((~throttled) + 1);
     throttled ^= flag;
     status.push_back(throttledToString(flag));
   }
-  if (status.empty()) status.emplace_back("All clear");
+  if (status.empty()) {status.emplace_back("All clear");}
 
   stat.add("status", boost::algorithm::join(status, ", "));
 

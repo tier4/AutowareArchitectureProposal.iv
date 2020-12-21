@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2018 lewes6369
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -32,7 +32,7 @@
 #include "NvCaffeParser.h"
 #include "NvInferPlugin.h"
 #include "PluginFactory.hpp"
-#include "Utils.hpppp"
+#include "Utils.hpp"
 
 namespace Tn
 {
@@ -55,14 +55,14 @@ public:
     // Release the stream and the buffers
     cudaStreamSynchronize(mTrtCudaStream);
     cudaStreamDestroy(mTrtCudaStream);
-    for (auto & item : mTrtCudaBuffer) cudaFree(item);
+    for (auto & item : mTrtCudaBuffer) {cudaFree(item);}
 
     mTrtPluginFactory.destroyPlugin();
 
-    if (!mTrtRunTime) mTrtRunTime->destroy();
-    if (!mTrtContext) mTrtContext->destroy();
-    if (!mTrtEngine) mTrtEngine->destroy();
-  };
+    if (!mTrtRunTime) {mTrtRunTime->destroy();}
+    if (!mTrtContext) {mTrtContext->destroy();}
+    if (!mTrtEngine) {mTrtEngine->destroy();}
+  }
 
   void saveEngine(std::string fileName)
   {
@@ -78,7 +78,7 @@ public:
       file.write((const char *)data->data(), data->size());
       file.close();
     }
-  };
+  }
 
   void doInference(const void * inputData, void * outputData);
 
@@ -86,21 +86,21 @@ public:
   {
     return std::accumulate(
       mTrtBindBufferSize.begin(), mTrtBindBufferSize.begin() + mTrtInputCount, 0);
-  };
+  }
 
   inline size_t getOutputSize()
   {
     return std::accumulate(
       mTrtBindBufferSize.begin() + mTrtInputCount, mTrtBindBufferSize.end(), 0);
-  };
+  }
 
-  void printTime() { mTrtProfiler.printLayerTimes(mTrtIterationTime); }
+  void printTime() {mTrtProfiler.printLayerTimes(mTrtIterationTime);}
 
 private:
   nvinfer1::ICudaEngine * loadModelAndCreateEngine(
     const char * deployFile, const char * modelFile, int maxBatchSize,
     nvcaffeparser1::ICaffeParser * parser, nvcaffeparser1::IPluginFactory * pluginFactory,
-    nvinfer1::IInt8Calibrator * calibrator, nvinfer1::IHostMemory *& trtModelStream,
+    nvinfer1::IInt8Calibrator * calibrator, nvinfer1::IHostMemory * & trtModelStream,
     const std::vector<std::string> & outputNodesName);
 
   void InitEngine();

@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
-
 #include <algorithm>
 #include <cmath>
+#include <deque>
 #include <random>
 
-#include <tf2_eigen/tf2_eigen.h>
+#include "tf2_eigen/tf2_eigen.h"
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-#include <geometry_msgs/msg/pose_array.hpp>
-#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
-#include <std_msgs/msg/color_rgba.hpp>
-#include <visualization_msgs/msg/marker_array.hpp>
+#include "geometry_msgs/msg/pose_array.hpp"
+#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "std_msgs/msg/color_rgba.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 
 // ref by http://takacity.blog.fc2.com/blog-entry-69.html
 std_msgs::msg::ColorRGBA ExchangeColorCrc(double x)
@@ -154,7 +154,7 @@ geometry_msgs::msg::Twist calcTwist(
 
 void getNearestTimeStampPose(
   const std::deque<geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr> &
-    pose_cov_msg_ptr_array,
+  pose_cov_msg_ptr_array,
   const rclcpp::Time & time_stamp,
   geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr & output_old_pose_cov_msg_ptr,
   geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr & output_new_pose_cov_msg_ptr)
@@ -180,7 +180,9 @@ geometry_msgs::msg::PoseStamped interpolatePose(
 {
   const rclcpp::Time pose_a_time_stamp = pose_a.header.stamp;
   const rclcpp::Time pose_b_time_stamp = pose_b.header.stamp;
-  if ((pose_a_time_stamp.seconds() == 0.0) || (pose_b_time_stamp.seconds() == 0.0) || (time_stamp.seconds() == 0.0)) {
+  if ((pose_a_time_stamp.seconds() == 0.0) || (pose_b_time_stamp.seconds() == 0.0) ||
+    (time_stamp.seconds() == 0.0))
+  {
     return geometry_msgs::msg::PoseStamped();
   }
 
@@ -229,7 +231,7 @@ geometry_msgs::msg::PoseStamped interpolatePose(
 
 void popOldPose(
   std::deque<geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr> &
-    pose_cov_msg_ptr_array,
+  pose_cov_msg_ptr_array,
   const rclcpp::Time & time_stamp)
 {
   while (!pose_cov_msg_ptr_array.empty()) {

@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MAP_BASED_PREDICTION_H
-#define MAP_BASED_PREDICTION_H
+#ifndef MAP_BASED_PREDICTION_HPP_
+#define MAP_BASED_PREDICTION_HPP_
 
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
-#include <autoware_perception_msgs/msg/dynamic_object.hpp>
-#include <autoware_perception_msgs/msg/predicted_path.hpp>
-#include <geometry_msgs/msg/point.hpp>
-#include <geometry_msgs/msg/pose.hpp>
+#include <vector>
+
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object.hpp"
+#include "autoware_perception_msgs/msg/predicted_path.hpp"
+
+#include "geometry_msgs/msg/point.hpp"
+#include "geometry_msgs/msg/pose.hpp"
 
 struct DynamicObjectWithLanes
 {
@@ -45,18 +48,18 @@ private:
   bool getPredictedPath(
     const double height, const double current_d_position, const double current_d_velocity,
     const double current_s_position, const double current_s_velocity,
-    const double target_s_position, const std_msgs::msg::Header & origin_header, Spline2D & spline2d,
+    const double target_s_position, const std_msgs::msg::Header & origin_header,
+    Spline2D & spline2d,
     autoware_perception_msgs::msg::PredictedPath & path);
 
-  bool getLinearPredictedPath(
+  void getLinearPredictedPath(
     const geometry_msgs::msg::Pose & object_pose, const geometry_msgs::msg::Twist & object_twist,
     const std_msgs::msg::Header & origin_header,
     autoware_perception_msgs::msg::PredictedPath & predicted_path);
 
-  // double calculateLikelyhood(const double desired_yaw, const double current_d, const double current_yaw);
-  double calculateLikelyhood(const double current_d);
+  double calculateLikelihood(const double current_d);
 
-  bool normalizeLikelyhood(std::vector<autoware_perception_msgs::msg::PredictedPath> & paths);
+  void normalizeLikelihood(std::vector<autoware_perception_msgs::msg::PredictedPath> & paths);
 
 public:
   MapBasedPrediction(
@@ -72,4 +75,4 @@ public:
     std::vector<autoware_perception_msgs::msg::DynamicObject> & out_objects);
 };
 
-#endif  // MAP_BASED_PREDICTION_H
+#endif  // MAP_BASED_PREDICTION_HPP_

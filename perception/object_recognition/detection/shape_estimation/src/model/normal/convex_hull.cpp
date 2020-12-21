@@ -18,19 +18,20 @@
  */
 
 #include "convex_hull.hpp"
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl_conversions/pcl_conversions.h>
-#include <geometry_msgs/msg/point32.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include "pcl/point_cloud.h"
+#include "pcl/point_types.h"
+#include "pcl_conversions/pcl_conversions.h"
+#include "geometry_msgs/msg/point32.hpp"
+#include "opencv2/core/core.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 #include "autoware_perception_msgs/msg/shape.hpp"
 
 namespace normal
 {
 bool ConvexHullModel::estimate(
-  const pcl::PointCloud<pcl::PointXYZ> & cluster, autoware_perception_msgs::msg::Shape & shape_output,
+  const pcl::PointCloud<pcl::PointXYZ> & cluster,
+  autoware_perception_msgs::msg::Shape & shape_output,
   geometry_msgs::msg::Pose & pose_output)
 {
   // calc centroid point for convex hull height(z)
@@ -51,8 +52,8 @@ bool ConvexHullModel::estimate(
   double min_z = 0;
   double max_z = 0;
   for (size_t i = 0; i < cluster.size(); ++i) {
-    if (cluster.at(i).z < min_z || i == 0) min_z = cluster.at(i).z;
-    if (max_z < cluster.at(i).z || i == 0) max_z = cluster.at(i).z;
+    if (cluster.at(i).z < min_z || i == 0) {min_z = cluster.at(i).z;}
+    if (max_z < cluster.at(i).z || i == 0) {max_z = cluster.at(i).z;}
   }
 
   std::vector<cv::Point> v_pointcloud;

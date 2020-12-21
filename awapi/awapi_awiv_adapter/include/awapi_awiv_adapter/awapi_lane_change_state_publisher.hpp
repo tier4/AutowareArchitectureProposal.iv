@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 
-#include <awapi_awiv_adapter/awapi_autoware_util.hpp>
-#include <autoware_api_msgs/msg/lane_change_status.hpp>
+#include "awapi_awiv_adapter/awapi_autoware_util.hpp"
+#include "autoware_api_msgs/msg/lane_change_status.hpp"
 
 namespace autoware_api
 {
 class AutowareIvLaneChangeStatePublisher
 {
 public:
-  AutowareIvLaneChangeStatePublisher(rclcpp::Node& node);
+  AutowareIvLaneChangeStatePublisher(rclcpp::Node & node);
   void statePublisher(const AutowareInfo & aw_info);
 
 private:

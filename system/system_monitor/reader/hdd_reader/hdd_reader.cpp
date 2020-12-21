@@ -18,26 +18,26 @@
  */
 
 #include <errno.h>
-#include <fcntl.h>
-#include <getopt.h>
-#include <hdd_reader/hdd_reader.hpp>
-#include <linux/nvme_ioctl.h>
-#include <netinet/in.h>
-#include <scsi/sg.h>
+#include "fcntl.h"
+#include "getopt.h"
+#include "hdd_reader/hdd_reader.hpp"
+#include "linux/nvme_ioctl.h"
+#include "netinet/in.h"
+#include "scsi/sg.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <syslog.h>
-#include <unistd.h>
+#include "sys/ioctl.h"
+#include "sys/socket.h"
+#include "syslog.h"
+#include "unistd.h"
 #include <algorithm>
-#include <boost/algorithm/string.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/regex.hpp>
+#include "boost/algorithm/string.hpp"
+#include "boost/archive/text_oarchive.hpp"
+#include "boost/filesystem.hpp"
+#include "boost/format.hpp"
+#include "boost/lexical_cast.hpp"
+#include "boost/regex.hpp"
 #include <string>
 #include <vector>
 
@@ -169,7 +169,9 @@ void usage(void)
  */
 void swap_char(char * ptr, size_t size)
 {
-  for (auto i = 0U; i < size; i += 2U) std::swap(ptr[i], ptr[i + 1]);
+  for (auto i = 0U; i < size; i += 2U) {
+    std::swap(ptr[i], ptr[i + 1]);
+  }
 }
 
 /**
@@ -546,7 +548,8 @@ int main(int argc, char ** argv)
   const fs::path root("/dev");
 
   for (const fs::path & path :
-       boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator())) {
+    boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator()))
+  {
     boost::smatch match;
     const boost::regex fsd("sd([a-z]+)");
     const boost::regex fnvme("nvme(\\d+)");
