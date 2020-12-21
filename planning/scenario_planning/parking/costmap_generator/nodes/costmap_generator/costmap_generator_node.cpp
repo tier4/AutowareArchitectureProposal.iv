@@ -122,8 +122,8 @@ CostmapGenerator::CostmapGenerator()
     try {
       tf_buffer_.lookupTransform(map_frame_, vehicle_frame_, rclcpp::Time(0));
       break;
-    } catch (tf2::TransformException ex) {
-      RCLCPP_ERROR(this->get_logger(),"waiting for initial pose...");
+    } catch (tf2::TransformException & ex) {
+      RCLCPP_ERROR(this->get_logger(), "waiting for initial pose...");
     }
     rclcpp::sleep_for(std::chrono::milliseconds(5000));
   }
