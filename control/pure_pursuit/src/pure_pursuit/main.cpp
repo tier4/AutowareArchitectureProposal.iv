@@ -28,17 +28,17 @@
  * limitations under the License.
  */
 
-#include "ros/ros.h"
+#include <rclcpp/rclcpp.hpp>
 
 #include "pure_pursuit/pure_pursuit_node.hpp"
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "pure_pursuit");
+  rclcpp::init(argc, argv);
 
-  PurePursuitNode pure_pursuit_node;
+  rclcpp::spin(std::make_shared<PurePursuitNode>());
 
-  ros::spin();
+  rclcpp::shutdown();
 
   return 0;
 }

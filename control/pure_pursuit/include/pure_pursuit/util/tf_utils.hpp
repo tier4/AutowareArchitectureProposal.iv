@@ -12,22 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
-
 #include <string>
 
 #include "boost/optional.hpp"  // To be replaced by std::optional in C++17
 
-#include "ros/ros.h"
+#include <rclcpp/rclcpp.hpp>
 
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "tf2_ros/transform_listener.h"
 
+#define TF_UTILS_LOGGER "tf_utils"
+
+
 namespace tf_utils
 {
-inline boost::optional<geometry_msgs::TransformStamped> getTransform(
+
+rclcpp::Logger logger = rclcpp::get_logger(TF_UTILS_LOGGER);
+inline boost::optional<geometry_msgs::msg::TransformStamped> getTransform(
   const tf2_ros::Buffer & tf_buffer, const std::string & from, const std::string & to,
-  const ros::Time & time, const ros::Duration & duration)
+  const rclcpp::Time & time, const rclcpp::Duration & duration)
 {
   try {
     return tf_buffer.lookupTransform(from, to, time, duration);
@@ -36,23 +39,24 @@ inline boost::optional<geometry_msgs::TransformStamped> getTransform(
   }
 }
 
-inline geometry_msgs::TransformStamped waitForTransform(
+inline geometry_msgs::msg::TransformStamped waitForTransform(
   const tf2_ros::Buffer & tf_buffer, const std::string & from, const std::string & to)
 {
-  while (ros::ok()) {
+  while (rclcpp::ok()) {
     try {
       const auto transform =
-        tf_buffer.lookupTransform(from, to, ros::Time::now(), ros::Duration(10.0));
+        tf_buffer.lookupTransform(from, to, tf2::TimePointZero, tf2::durationFromSec(10.0));
       return transform;
     } catch (tf2::TransformException & ex) {
-      ROS_INFO("waiting for transform from `%s` to `%s` ...", from.c_str(), to.c_str());
-    }
+      RCLCPP_INFO(logger, "waiting for transform from `%s` to `%s` ...", from.c_str(), to.c_str());
+      }
   }
+  return geometry_msgs::msg::TransformStamped();
 }
 
-inline geometry_msgs::PoseStamped transform2pose(const geometry_msgs::TransformStamped & transform)
+inline geometry_msgs::msg::PoseStamped transform2pose(const geometry_msgs::msg::TransformStamped & transform)
 {
-  geometry_msgs::PoseStamped pose;
+  geometry_msgs::msg::PoseStamped pose;
   pose.header = transform.header;
   pose.pose.position.x = transform.transform.translation.x;
   pose.pose.position.y = transform.transform.translation.y;
@@ -61,16 +65,16 @@ inline geometry_msgs::PoseStamped transform2pose(const geometry_msgs::TransformS
   return pose;
 }
 
-inline boost::optional<geometry_msgs::PoseStamped> getCurrentPose(
+inline boost::optional<geometry_msgs::msg::PoseStamped> getCurrentPose(
   const tf2_ros::Buffer & tf_buffer, const double timeout = 1.0)
 {
   const auto tf_current_pose =
-    getTransform(tf_buffer, "map", "base_link", ros::Time(0), ros::Duration(0));
+    getTransform(tf_buffer, "map", "base_link", rclcpp::Time(0), rclcpp::Duration(0));
   if (!tf_current_pose) {
     return {};
   }
 
-  const auto time_diff = (ros::Time::now() - tf_current_pose->header.stamp).toSec();
+  const auto time_diff = tf2::timeToSec(tf2::get_now()) - (tf_current_pose->header.stamp.sec);
   if (std::abs(time_diff) > timeout) {
     return {};
   }

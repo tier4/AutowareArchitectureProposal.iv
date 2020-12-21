@@ -27,22 +27,19 @@
  * limitations under the License.
  */
 
-#pragma once
-
 #include <memory>
 #include <vector>
 
 #include "boost/optional.hpp"  // To be replaced by std::optional in C++17
-
-#include "ros/ros.h"
+#include <rclcpp/rclcpp.hpp>
 
 #include "tf2_ros/transform_listener.h"
 
-#include "autoware_control_msgs/ControlCommandStamped.h"
-#include "autoware_planning_msgs/Trajectory.h"
-#include "geometry_msgs/PoseStamped.h"
-#include "geometry_msgs/TwistStamped.h"
-
+#include <autoware_control_msgs/msg/control_command_stamped.hpp>
+#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include "pure_pursuit/pure_pursuit_viz.hpp"
 #include "pure_pursuit/pure_pursuit.hpp"
 
 struct Param
@@ -68,49 +65,46 @@ struct TargetValues
 
 struct DebugData
 {
-  geometry_msgs::Point next_target;
+  geometry_msgs::msg::Point next_target;
 };
 
-class PurePursuitNode
+class PurePursuitNode : public rclcpp::Node
 {
 public:
   PurePursuitNode();
 
 private:
-  // Node Handle
-  ros::NodeHandle nh_;
-  ros::NodeHandle private_nh_;
 
   // Subscriber
-  ros::Subscriber sub_trajectory_;
-  ros::Subscriber sub_current_velocity_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_trajectory_;
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_velocity_;
 
-  autoware_planning_msgs::Trajectory::ConstPtr trajectory_;
-  geometry_msgs::TwistStamped::ConstPtr current_velocity_;
+  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr trajectory_;
+  geometry_msgs::msg::TwistStamped::ConstSharedPtr current_velocity_;
 
-  bool isDataReady() const;
+  bool isDataReady();
 
-  void onTrajectory(const autoware_planning_msgs::Trajectory::ConstPtr & msg);
-  void onCurrentVelocity(const geometry_msgs::TwistStamped::ConstPtr & msg);
+  void onTrajectory(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg);
+  void onCurrentVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
 
   // TF
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
-  boost::optional<geometry_msgs::PoseStamped> current_pose_;
+  boost::optional<geometry_msgs::msg::PoseStamped> current_pose_;
 
   // Publisher
-  ros::Publisher pub_ctrl_cmd_;
+  rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr pub_ctrl_cmd_;
 
-  void publishCommand(const TargetValues & targets) const;
+  void publishCommand(const TargetValues & targets);
 
   // Debug Publisher
-  ros::Publisher pub_debug_marker_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_debug_marker_;
 
   void publishDebugMarker() const;
 
   // Timer
-  ros::Timer timer_;
-  void onTimer(const ros::TimerEvent & event);
+  rclcpp::TimerBase::SharedPtr timer_;
+  void onTimer();
 
   // Parameter
   Param param_;
@@ -119,8 +113,8 @@ private:
   std::unique_ptr<planning_utils::PurePursuit> pure_pursuit_;
   TargetValues target_values_;
 
-  boost::optional<TargetValues> calcTargetValues() const;
-  boost::optional<autoware_planning_msgs::TrajectoryPoint> calcTargetPoint() const;
+  boost::optional<TargetValues> calcTargetValues();
+  boost::optional<autoware_planning_msgs::msg::TrajectoryPoint> calcTargetPoint() const;
 
   // Debug
   mutable DebugData debug_data_;
