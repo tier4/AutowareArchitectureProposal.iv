@@ -81,43 +81,43 @@ void Debuger::showImage(
         cv::line(
           cv_ptr->image, cv::Point(image_roi.x_offset, image_roi.y_offset),
           cv::Point(image_roi.x_offset + image_roi.width, image_roi.y_offset),
-          cv::Scalar(0, 0, 255), 1, CV_AA);
+          cv::Scalar(0, 0, 255), 1, cv::LINE_AA);
         cv::line(
           cv_ptr->image, cv::Point(image_roi.x_offset, image_roi.y_offset),
           cv::Point(image_roi.x_offset, image_roi.y_offset + image_roi.height),
-          cv::Scalar(0, 0, 255), 1, CV_AA);
+          cv::Scalar(0, 0, 255), 1, cv::LINE_AA);
         cv::line(
           cv_ptr->image, cv::Point(image_roi.x_offset + image_roi.width, image_roi.y_offset),
           cv::Point(image_roi.x_offset + image_roi.width, image_roi.y_offset + image_roi.height),
-          cv::Scalar(0, 0, 255), 1, CV_AA);
+          cv::Scalar(0, 0, 255), 1, cv::LINE_AA);
         cv::line(
           cv_ptr->image, cv::Point(image_roi.x_offset, image_roi.y_offset + image_roi.height),
           cv::Point(image_roi.x_offset + image_roi.width, image_roi.y_offset + image_roi.height),
-          cv::Scalar(0, 0, 255), 1, CV_AA);
+          cv::Scalar(0, 0, 255), 1, cv::LINE_AA);
       }
       for (const auto & pointcloud_roi : pointcloud_rois) {
         cv::line(
           cv_ptr->image, cv::Point(pointcloud_roi.x_offset, pointcloud_roi.y_offset),
           cv::Point(pointcloud_roi.x_offset + pointcloud_roi.width, pointcloud_roi.y_offset),
-          cv::Scalar(255, 0, 0), 1, CV_AA);
+          cv::Scalar(255, 0, 0), 1, cv::LINE_AA);
         cv::line(
           cv_ptr->image, cv::Point(pointcloud_roi.x_offset, pointcloud_roi.y_offset),
           cv::Point(pointcloud_roi.x_offset, pointcloud_roi.y_offset + pointcloud_roi.height),
-          cv::Scalar(255, 0, 0), 1, CV_AA);
+          cv::Scalar(255, 0, 0), 1, cv::LINE_AA);
         cv::line(
           cv_ptr->image,
           cv::Point(pointcloud_roi.x_offset + pointcloud_roi.width, pointcloud_roi.y_offset),
           cv::Point(
             pointcloud_roi.x_offset + pointcloud_roi.width,
             pointcloud_roi.y_offset + pointcloud_roi.height),
-          cv::Scalar(255, 0, 0), 1, CV_AA);
+          cv::Scalar(255, 0, 0), 1, cv::LINE_AA);
         cv::line(
           cv_ptr->image,
           cv::Point(pointcloud_roi.x_offset, pointcloud_roi.y_offset + pointcloud_roi.height),
           cv::Point(
             pointcloud_roi.x_offset + pointcloud_roi.width,
             pointcloud_roi.y_offset + pointcloud_roi.height),
-          cv::Scalar(255, 0, 0), 1, CV_AA);
+          cv::Scalar(255, 0, 0), 1, cv::LINE_AA);
       }
       image_pub.publish(cv_ptr->toImageMsg());
       // cv::imshow("ROI" + std::to_string(id), cv_ptr->image);
