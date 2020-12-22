@@ -112,7 +112,6 @@ void TurnSignalDecider::onTurnSignalTimer()
   }
   if (isTurning(path, vehicle_pose_frenet, &intersection_signal, &distance_to_intersection)) {
     if (min_distance > distance_to_intersection) {
-      min_distance = distance_to_lane_change;
       turn_signal = intersection_signal;
     }
   }
