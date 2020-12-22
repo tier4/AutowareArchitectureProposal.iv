@@ -31,7 +31,8 @@
 namespace bp = boost::process;
 namespace fs = boost::filesystem;
 
-NTPMonitor::NTPMonitor(const ros::NodeHandle & nh, const ros::NodeHandle & pnh) : nh_(nh), pnh_(pnh)
+NTPMonitor::NTPMonitor(const ros::NodeHandle & nh, const ros::NodeHandle & pnh)
+: nh_(nh), pnh_(pnh), error_(""), offset_(0.0f), delay_(0.0f)
 {
   gethostname(hostname_, sizeof(hostname_));
 
@@ -45,6 +46,9 @@ NTPMonitor::NTPMonitor(const ros::NodeHandle & nh, const ros::NodeHandle & pnh) 
 
   updater_.setHardwareID(hostname_);
   updater_.add("NTP Offset", this, &NTPMonitor::checkOffset);
+
+  thread_ = std::thread(&NTPMonitor::executeNtpdate, this);
+  thread_.detach();
 }
 
 void NTPMonitor::run(void)
@@ -68,47 +72,64 @@ void NTPMonitor::checkOffset(diagnostic_updater::DiagnosticStatusWrapper & stat)
     return;
   }
 
-  int level = DiagStatus::OK;
-
-  // Query NTP server
-  bp::ipstream is_out;
-  bp::ipstream is_err;
-  bp::child c(fmt::format("ntpdate -q {}", server_), bp::std_out > is_out, bp::std_err > is_err);
-  c.wait();
-  if (c.exit_code() != 0) {
-    std::ostringstream os;
-    is_err >> os.rdbuf();
+  if (!error_.empty()) {
     stat.summary(DiagStatus::ERROR, "ntpdate error");
-    stat.add("ntpdate", os.str().c_str());
+    stat.add("ntpdate", error_);
     return;
   }
 
-  std::string line;
-  float offset = 0.0f;
-  float delay = 0.0f;
-  std::cmatch match;
-  const std::regex filter("^server.*offset ([-+]?\\d+\\.\\d+), delay ([-+]?\\d+\\.\\d+)");
-
-  while (std::getline(is_out, line) && !line.empty()) {
-    if (std::regex_match(line.c_str(), match, filter)) {
-      float ofs = std::atof(match[1].str().c_str());
-      float dly = std::atof(match[2].str().c_str());
-      // Choose better network performance
-      if (dly > delay) {
-        offset = ofs;
-        delay = dly;
-      }
-    }
-  }
+  int level = DiagStatus::OK;
 
   // Check an earlier offset as well
-  float abs = std::abs(offset);
+  float abs = std::abs(offset_);
   if (abs >= offset_error_)
     level = DiagStatus::ERROR;
   else if (abs >= offset_warn_)
     level = DiagStatus::WARN;
 
-  stat.addf("NTP Offset", "%.6f sec", offset);
-  stat.addf("NTP Delay", "%.6f sec", delay);
+  stat.addf("NTP Offset", "%.6f sec", offset_);
+  stat.addf("NTP Delay", "%.6f sec", delay_);
   stat.summary(level, offset_dict_.at(level));
+}
+
+void NTPMonitor::executeNtpdate()
+{
+  ros::Rate rate(1.0);
+
+  while (ros::ok()) {
+    error_.clear();
+
+    // Query NTP server
+    bp::ipstream is_out;
+    bp::ipstream is_err;
+    bp::child c(fmt::format("ntpdate -q {}", server_), bp::std_out > is_out, bp::std_err > is_err);
+    c.wait();
+    if (c.exit_code() != 0) {
+      std::ostringstream os;
+      is_err >> os.rdbuf();
+      error_ = os.str().c_str();
+      return;
+    }
+
+    std::string line;
+    float offset = 0.0f;
+    float delay = 0.0f;
+    std::cmatch match;
+    const std::regex filter("^server.*offset ([-+]?\\d+\\.\\d+), delay ([-+]?\\d+\\.\\d+)");
+
+    while (std::getline(is_out, line) && !line.empty()) {
+      if (std::regex_match(line.c_str(), match, filter)) {
+        float ofs = std::atof(match[1].str().c_str());
+        float dly = std::atof(match[2].str().c_str());
+        // Choose better network performance
+        if (dly > delay) {
+          offset = ofs;
+          delay = dly;
+        }
+      }
+    }
+
+    offset_ = offset;
+    delay_ = delay;
+  }
 }

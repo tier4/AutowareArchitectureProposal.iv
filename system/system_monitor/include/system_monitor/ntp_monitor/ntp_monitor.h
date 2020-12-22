@@ -24,6 +24,7 @@
 #include <diagnostic_updater/diagnostic_updater.h>
 #include <map>
 #include <string>
+#include <thread>
 
 class NTPMonitor
 {
@@ -52,6 +53,11 @@ protected:
   void checkOffset(
     diagnostic_updater::DiagnosticStatusWrapper & stat);  // NOLINT(runtime/references)
 
+  /**
+   * @brief thread function to execute ntpdate
+   */
+  void executeNtpdate();
+
   ros::NodeHandle nh_;                   //!< @brief ros node handle
   ros::NodeHandle pnh_;                  //!< @brief private ros node handle
   diagnostic_updater::Updater updater_;  //!< @brief Updater class which advertises to /diagnostics
@@ -62,6 +68,11 @@ protected:
   std::string server_;  //!< @brief Reference server
   float offset_warn_;   //!< @brief NTP offset(us) to generate warning
   float offset_error_;  //!< @brief NTP offset(us) to generate error
+
+  std::thread thread_;  //!< @brief thread to execute ntpdate
+  std::string error_;   //!< @brief error output of ntpdate
+  float offset_;        //!< @brief NTP offset(us)
+  float delay_;         //!< @brief NTP delay(us)
 
   /**
    * @brief NTP offset status messages
