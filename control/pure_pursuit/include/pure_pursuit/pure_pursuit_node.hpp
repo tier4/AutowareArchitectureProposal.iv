@@ -74,7 +74,6 @@ public:
   PurePursuitNode();
 
 private:
-
   // Subscriber
   rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_trajectory_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_velocity_;

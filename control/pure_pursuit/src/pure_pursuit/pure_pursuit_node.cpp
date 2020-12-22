@@ -54,8 +54,8 @@ double calcLookaheadDistance(
 
 }  // namespace
 
-PurePursuitNode::PurePursuitNode() :
-  Node("pure_pursuit"),
+PurePursuitNode::PurePursuitNode()
+: Node("pure_pursuit"),
   tf_buffer_(this->get_clock()),
   tf_listener_(tf_buffer_)
 {
@@ -68,31 +68,36 @@ PurePursuitNode::PurePursuitNode() :
   param_.ctrl_period = this->declare_parameter<double>("control_period", 0.02);
 
   // Algorithm Parameters
-  param_.lookahead_distance_ratio = this->declare_parameter<double>("lookahead_distance_ratio", 2.2);
+  param_.lookahead_distance_ratio =
+    this->declare_parameter<double>("lookahead_distance_ratio", 2.2);
   param_.min_lookahead_distance = this->declare_parameter<double>("min_lookahead_distance", 2.5);
   param_.reverse_min_lookahead_distance = this->declare_parameter<double>(
     "reverse_min_lookahead_distance", 7.0);
 
   // Subscribers
   using std::placeholders::_1;
-  sub_trajectory_ = this->create_subscription<autoware_planning_msgs::msg::Trajectory>("input/reference_trajectory", 1, std::bind(&PurePursuitNode::onTrajectory, this, _1));
-  sub_current_velocity_ = this->create_subscription<geometry_msgs::msg::TwistStamped>("input/current_velocity", 1, std::bind(&PurePursuitNode::onCurrentVelocity, this, _1));
+  sub_trajectory_ = this->create_subscription<autoware_planning_msgs::msg::Trajectory>(
+    "input/reference_trajectory", 1, std::bind(&PurePursuitNode::onTrajectory, this, _1));
+  sub_current_velocity_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
+    "input/current_velocity", 1, std::bind(&PurePursuitNode::onCurrentVelocity, this, _1));
 
   // Publishers
-  pub_ctrl_cmd_ = this->create_publisher<autoware_control_msgs::msg::ControlCommandStamped>("output/control_raw", 1);
+  pub_ctrl_cmd_ = this->create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
+    "output/control_raw", 1);
 
   // Debug Publishers
-  pub_debug_marker_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("debug/marker", 0);
+  pub_debug_marker_ =
+    this->create_publisher<visualization_msgs::msg::MarkerArray>("debug/marker", 0);
 
   // Timer
   {
-  auto timer_callback = std::bind(&PurePursuitNode::onTimer, this);
-  auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
-    std::chrono::duration<double>(param_.ctrl_period));
-  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
-    this->get_clock(), period, std::move(timer_callback),
-    this->get_node_base_interface()->get_context());
-  this->get_node_timers_interface()->add_timer(timer_, nullptr);
+    auto timer_callback = std::bind(&PurePursuitNode::onTimer, this);
+    auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+      std::chrono::duration<double>(param_.ctrl_period));
+    timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
+      this->get_clock(), period, std::move(timer_callback),
+      this->get_node_base_interface()->get_context());
+    this->get_node_timers_interface()->add_timer(timer_, nullptr);
   }
 
 
@@ -125,7 +130,8 @@ void PurePursuitNode::onCurrentVelocity(const geometry_msgs::msg::TwistStamped::
   current_velocity_ = msg;
 }
 
-void PurePursuitNode::onTrajectory(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg)
+void PurePursuitNode::onTrajectory(
+  const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg)
 {
   trajectory_ = msg;
 }
@@ -212,7 +218,8 @@ boost::optional<TargetValues> PurePursuitNode::calcTargetValues()
   return TargetValues{kappa, target_vel, target_acc};
 }
 
-boost::optional<autoware_planning_msgs::msg::TrajectoryPoint> PurePursuitNode::calcTargetPoint() const
+boost::optional<autoware_planning_msgs::msg::TrajectoryPoint> PurePursuitNode::calcTargetPoint()
+const
 {
   const auto closest_idx_result = planning_utils::findClosestIdxWithDistAngThr(
     planning_utils::extractPoses(*trajectory_), current_pose_->pose, 3.0, M_PI_4);

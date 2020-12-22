@@ -34,20 +34,22 @@ namespace planning_utils
 {
 bool PurePursuit::isDataReady()
 {
-  if (!curr_wps_ptr_) return false;
-  if (!curr_pose_ptr_) return false;
+  if (!curr_wps_ptr_) {return false;}
+  if (!curr_pose_ptr_) {return false;}
   return true;
 }
 
 std::pair<bool, double> PurePursuit::run()
 {
-  if (!isDataReady()) return std::make_pair(false, std::numeric_limits<double>::quiet_NaN());
+  if (!isDataReady()) {return std::make_pair(false, std::numeric_limits<double>::quiet_NaN());}
 
   auto clst_pair =
     findClosestIdxWithDistAngThr(*curr_wps_ptr_, *curr_pose_ptr_, clst_thr_dist_, clst_thr_ang_);
 
   if (!clst_pair.first) {
-    RCLCPP_WARN(logger, "cannot find, curr_bool: %d, clst_idx: %d", clst_pair.first, clst_pair.second);
+    RCLCPP_WARN(
+      logger, "cannot find, curr_bool: %d, clst_idx: %d", clst_pair.first,
+      clst_pair.second);
     return std::make_pair(false, std::numeric_limits<double>::quiet_NaN());
   }
 
@@ -101,7 +103,9 @@ std::pair<bool, geometry_msgs::msg::Point> PurePursuit::lerpNextTarget(int32_t n
 
   if (fabs(lateral_error) > lookahead_distance_) {
     RCLCPP_ERROR(logger, "lateral error is larger than lookahead distance");
-    RCLCPP_ERROR(logger, "lateral error: %lf, lookahead distance: %lf", lateral_error, lookahead_distance_);
+    RCLCPP_ERROR(
+      logger, "lateral error: %lf, lookahead distance: %lf", lateral_error,
+      lookahead_distance_);
     return std::make_pair(false, geometry_msgs::msg::Point());
   }
 
@@ -135,7 +139,7 @@ std::pair<bool, geometry_msgs::msg::Point> PurePursuit::lerpNextTarget(int32_t n
 int32_t PurePursuit::findNextPointIdx(int32_t search_start_idx)
 {
   // if waypoints are not given, do nothing.
-  if (curr_wps_ptr_->empty() || search_start_idx == -1) return -1;
+  if (curr_wps_ptr_->empty() || search_start_idx == -1) {return -1;}
 
   // look for the next waypoint.
   for (int32_t i = search_start_idx; i < (int32_t)curr_wps_ptr_->size(); i++) {
@@ -170,7 +174,7 @@ int32_t PurePursuit::findNextPointIdx(int32_t search_start_idx)
     const geometry_msgs::msg::Point & curr_pose_point = curr_pose_ptr_->position;
     // if there exists an effective waypoint
     const double ds = calcDistSquared2D(curr_motion_point, curr_pose_point);
-    if (ds > std::pow(lookahead_distance_, 2)) return i;
+    if (ds > std::pow(lookahead_distance_, 2)) {return i;}
   }
 
   // if this program reaches here , it means we lost the waypoint!
