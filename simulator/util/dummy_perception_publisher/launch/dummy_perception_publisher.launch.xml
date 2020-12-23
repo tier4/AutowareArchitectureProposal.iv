@@ -20,8 +20,8 @@
         <param name="use_object_recognition" value="$(var use_object_recognition)" />
       </node>
       <include file="$(find-pkg-share shape_estimation)/launch/shape_estimation.launch.xml">
-        <let var="input/objects" value="/perception/object_recognition/detection/labeled_clusters" />
-        <let var="output/objects" value="/perception/object_recognition/detection/objects" />
+        <arg name="input/objects" value="/perception/object_recognition/detection/labeled_clusters" />
+        <arg name="output/objects" value="/perception/object_recognition/detection/objects" />
       </include>
     </group>
     <group unless="$(var real)">
@@ -40,20 +40,20 @@
   </group>
 
   <!-- preception module -->
-  <group>
+  <group ns="perception">
     <push-ros-namespace namespace="perception"/>
     <!-- object recognition module -->
-    <group>
+    <group ns="object_recognition">
       <push-ros-namespace namespace="object_recognition"/>
       <!-- detection module -->
       <!-- tracking module -->
-      <group>
+      <group ns="tracking">
         <push-ros-namespace namespace="tracking"/>
         <include file="$(find-pkg-share perception_launch)/launch/object_recognition/tracking/tracking.launch.xml">
         </include>
       </group>
       <!-- prediction module -->
-      <group>
+      <group ns="prediction">
         <push-ros-namespace namespace="prediction"/>
         <include file="$(find-pkg-share perception_launch)/launch/object_recognition/prediction/prediction.launch.xml">
           <arg name="use_vector_map" value="true" />
@@ -62,7 +62,7 @@
     </group>
 
     <!-- traffic light module -->
-    <!-- <group>
+    <!-- <group ns="traffic_light_recognition">
       <push-ros-namespace namespace="traffic_light_recognition"/>
       <include file="$(find-pkg-share perception_launch)/launch/traffic_light_recognition/traffic_light.launch.xml"></include>
     </group> -->
