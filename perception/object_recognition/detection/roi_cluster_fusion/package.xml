@@ -9,10 +9,10 @@
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
   <depend>autoware_perception_msgs</depend>
-  <depend>nodelet</depend>
   <depend>pcl_conversions</depend>
   <depend>pcl_ros</depend>
   <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
   <depend>sensor_msgs</depend>
   <depend>tf2</depend>
   <depend>tf2_sensor_msgs</depend>
@@ -21,6 +21,6 @@
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
-    <build_type>ament_cmake</build_type>
+    <build_type>ament_cmake_auto</build_type>
   </export>
 </package>
