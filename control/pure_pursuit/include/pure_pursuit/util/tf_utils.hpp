@@ -49,12 +49,13 @@ inline geometry_msgs::msg::TransformStamped waitForTransform(
       return transform;
     } catch (tf2::TransformException & ex) {
       RCLCPP_INFO(logger, "waiting for transform from `%s` to `%s` ...", from.c_str(), to.c_str());
-      }
+    }
   }
   return geometry_msgs::msg::TransformStamped();
 }
 
-inline geometry_msgs::msg::PoseStamped transform2pose(const geometry_msgs::msg::TransformStamped & transform)
+inline geometry_msgs::msg::PoseStamped transform2pose(
+  const geometry_msgs::msg::TransformStamped & transform)
 {
   geometry_msgs::msg::PoseStamped pose;
   pose.header = transform.header;

@@ -58,10 +58,12 @@ std::vector<geometry_msgs::msg::Point> generateTrajectoryCircle(
 
 }  // namespace
 
-visualization_msgs::msg::Marker createNextTargetMarker(const geometry_msgs::msg::Point & next_target)
+visualization_msgs::msg::Marker createNextTargetMarker(
+  const geometry_msgs::msg::Point & next_target)
 {
   auto marker = createDefaultMarker(
-    "map", "next_target", 0, visualization_msgs::msg::Marker::SPHERE, createMarkerScale(0.3, 0.3, 0.3),
+    "map", "next_target", 0, visualization_msgs::msg::Marker::SPHERE,
+    createMarkerScale(0.3, 0.3, 0.3),
     createMarkerColor(0.0, 1.0, 0.0, 1.0));
 
   marker.pose.position = next_target;

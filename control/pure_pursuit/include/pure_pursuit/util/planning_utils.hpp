@@ -40,32 +40,42 @@ namespace planning_utils
 {
 constexpr double ERROR = 1e-6;
 
-double calcCurvature(const geometry_msgs::msg::Point & target, const geometry_msgs::msg::Pose & curr_pose);
+double calcCurvature(
+  const geometry_msgs::msg::Point & target,
+  const geometry_msgs::msg::Pose & curr_pose);
 double calcDistance2D(const geometry_msgs::msg::Point & p, const geometry_msgs::msg::Point & q);
 double calcDistSquared2D(const geometry_msgs::msg::Point & p, const geometry_msgs::msg::Point & q);
 double calcStopDistanceWithConstantJerk(const double & v_init, const double & j);
 double calcLateralError2D(
   const geometry_msgs::msg::Point & a_start, const geometry_msgs::msg::Point & a_end,
   const geometry_msgs::msg::Point & b);
-double calcRadius(const geometry_msgs::msg::Point & target, const geometry_msgs::msg::Pose & current_pose);
+double calcRadius(
+  const geometry_msgs::msg::Point & target,
+  const geometry_msgs::msg::Pose & current_pose);
 double convertCurvatureToSteeringAngle(double wheel_base, double kappa);
 
-std::vector<geometry_msgs::msg::Pose> extractPoses(const autoware_planning_msgs::msg::Trajectory & motions);
+std::vector<geometry_msgs::msg::Pose> extractPoses(
+  const autoware_planning_msgs::msg::Trajectory & motions);
 
 std::pair<bool, int32_t> findClosestIdxWithDistAngThr(
-  const std::vector<geometry_msgs::msg::Pose> & poses, const geometry_msgs::msg::Pose & current_pose,
+  const std::vector<geometry_msgs::msg::Pose> & poses,
+  const geometry_msgs::msg::Pose & current_pose,
   const double th_dist = 3.0, const double th_yaw = M_PI_2);
 
 int8_t getLaneDirection(const std::vector<geometry_msgs::msg::Pose> & poses, double th_dist = 0.5);
-bool isDirectionForward(const geometry_msgs::msg::Pose & prev, const geometry_msgs::msg::Pose & next);
-bool isDirectionForward(const geometry_msgs::msg::Pose & prev, const geometry_msgs::msg::Point & next);
+bool isDirectionForward(
+  const geometry_msgs::msg::Pose & prev,
+  const geometry_msgs::msg::Pose & next);
+bool isDirectionForward(
+  const geometry_msgs::msg::Pose & prev,
+  const geometry_msgs::msg::Point & next);
 
 // refer from apache's pointinpoly in http://www.visibone.com/inpoly/
-template <typename T>
+template<typename T>
 bool isInPolygon(const std::vector<T> & polygon, const T & point)
 {
   // polygons with fewer than 3 sides are excluded
-  if (polygon.size() < 3) return false;
+  if (polygon.size() < 3) {return false;}
 
   bool in_poly = false;
   double x1, x2, y1, y2;
@@ -91,17 +101,18 @@ bool isInPolygon(const std::vector<T> & polygon, const T & point)
 
     if (
       (xnew < point.x()) == (point.x() <= xold) &&
-      (point.y() - y1) * (x2 - x1) < (y2 - y1) * (point.x() - x1)) {
+      (point.y() - y1) * (x2 - x1) < (y2 - y1) * (point.x() - x1))
+    {
       in_poly = !in_poly;
     }
     xold = xnew;
     yold = ynew;
   }
 
-  return (in_poly);
+  return in_poly;
 }
 
-template <>
+template<>
 bool isInPolygon(
   const std::vector<geometry_msgs::msg::Point> & polygon, const geometry_msgs::msg::Point & point);
 

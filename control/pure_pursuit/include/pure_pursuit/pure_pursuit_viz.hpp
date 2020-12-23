@@ -32,7 +32,8 @@
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
-visualization_msgs::msg::Marker createNextTargetMarker(const geometry_msgs::msg::Point & next_target);
+visualization_msgs::msg::Marker createNextTargetMarker(
+  const geometry_msgs::msg::Point & next_target);
 
 visualization_msgs::msg::Marker createTrajectoryCircleMarker(
   const geometry_msgs::msg::Point & target, const geometry_msgs::msg::Pose & current_pose);

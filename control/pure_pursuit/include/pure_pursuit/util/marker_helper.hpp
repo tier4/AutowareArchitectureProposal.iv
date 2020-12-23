@@ -28,7 +28,9 @@ inline geometry_msgs::msg::Point createMarkerPosition(double x, double y, double
   return point;
 }
 
-inline geometry_msgs::msg::Quaternion createMarkerOrientation(double x, double y, double z, double w)
+inline geometry_msgs::msg::Quaternion createMarkerOrientation(
+  double x, double y, double z,
+  double w)
 {
   geometry_msgs::msg::Quaternion quaternion;
 
