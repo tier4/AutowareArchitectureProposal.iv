@@ -40,20 +40,20 @@
   </group>
 
   <!-- preception module -->
-  <group ns="perception">
+  <group>
     <push-ros-namespace namespace="perception"/>
     <!-- object recognition module -->
-    <group ns="object_recognition">
+    <group>
       <push-ros-namespace namespace="object_recognition"/>
       <!-- detection module -->
       <!-- tracking module -->
-      <group ns="tracking">
+      <group>
         <push-ros-namespace namespace="tracking"/>
         <include file="$(find-pkg-share perception_launch)/launch/object_recognition/tracking/tracking.launch.xml">
         </include>
       </group>
       <!-- prediction module -->
-      <group ns="prediction">
+      <group>
         <push-ros-namespace namespace="prediction"/>
         <include file="$(find-pkg-share perception_launch)/launch/object_recognition/prediction/prediction.launch.xml">
           <arg name="use_vector_map" value="true" />
@@ -62,7 +62,7 @@
     </group>
 
     <!-- traffic light module -->
-    <!-- <group ns="traffic_light_recognition">
+    <!-- <group>
       <push-ros-namespace namespace="traffic_light_recognition"/>
       <include file="$(find-pkg-share perception_launch)/launch/traffic_light_recognition/traffic_light.launch.xml"></include>
     </group> -->
