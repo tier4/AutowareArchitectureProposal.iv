@@ -39,6 +39,7 @@ void AutowareIvAutowareStatePublisher::statePublisher(const AutowareInfo & aw_in
   getControlModeInfo(aw_info.control_mode_ptr, &status);
   getGateModeInfo(aw_info.gate_mode_ptr, &status);
   getIsEmergencyInfo(aw_info.is_emergency_ptr, &status);
+  getCurrentMaxVelInfo(aw_info.current_max_velocity_ptr, &status);
   getHazardStatusInfo(aw_info.hazard_status_ptr, &status);
   getStopReasonInfo(aw_info.stop_reason_ptr, &status);
   getDiagInfo(aw_info, &status);
@@ -100,6 +101,19 @@ void AutowareIvAutowareStatePublisher::getIsEmergencyInfo(
 
   // get emergency
   status->emergency_stopped = is_emergency_ptr->data;
+}
+
+void AutowareIvAutowareStatePublisher::getCurrentMaxVelInfo(
+  const std_msgs::Float32::ConstPtr current_max_velocity_ptr,
+  autoware_api_msgs::AwapiAutowareStatus * status)
+{
+  if (!current_max_velocity_ptr) {
+    ROS_DEBUG_STREAM_THROTTLE(
+      5.0, "[AutowareIvAutowareStatePublisher] currrent_max_velocity is nullptr");
+  }
+
+  //get current max velocity
+  status->current_max_velocity = current_max_velocity_ptr->data;
 }
 
 void AutowareIvAutowareStatePublisher::getHazardStatusInfo(

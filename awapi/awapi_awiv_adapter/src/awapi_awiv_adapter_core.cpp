@@ -81,6 +81,8 @@ AutowareIvAdapter::AutowareIvAdapter() : nh_(), pnh_("~"), tf_listener_(tf_buffe
     &AutowareIvAdapter::callbackLaneObstacleAvoidCandidatePath, this);
   sub_max_velocity_ =
     pnh_.subscribe("input/max_velocity", 1, &AutowareIvAdapter::callbackMaxVelocity, this);
+  sub_current_max_velocity_ = pnh_.subscribe(
+    "input/current_max_velocity", 1, &AutowareIvAdapter::callbackCurrentMaxVelocity, this);
   sub_temporary_stop_ =
     pnh_.subscribe("input/temporary_stop", 1, &AutowareIvAdapter::callbackTemporaryStop, this);
   sub_autoware_traj_ = pnh_.subscribe(
@@ -198,7 +200,8 @@ void AutowareIvAdapter::callbackIsEmergency(const std_msgs::Bool::ConstPtr & msg
   aw_info_.is_emergency_ptr = msg_ptr;
 }
 
-void AutowareIvAdapter::callbackHazardStatus(const autoware_system_msgs::HazardStatusStamped::ConstPtr & msg_ptr)
+void AutowareIvAdapter::callbackHazardStatus(
+  const autoware_system_msgs::HazardStatusStamped::ConstPtr & msg_ptr)
 {
   aw_info_.hazard_status_ptr = msg_ptr;
 }
@@ -251,6 +254,11 @@ void AutowareIvAdapter::callbackMaxVelocity(const std_msgs::Float32::ConstPtr & 
 {
   aw_info_.max_velocity_ptr = msg_ptr;
   max_velocity_publisher_->statePublisher(aw_info_);
+}
+
+void AutowareIvAdapter::callbackCurrentMaxVelocity(const std_msgs::Float32::ConstPtr & msg_ptr)
+{
+  aw_info_.current_max_velocity_ptr = msg_ptr;
 }
 
 void AutowareIvAdapter::callbackTemporaryStop(const std_msgs::Bool::ConstPtr & msg_ptr)

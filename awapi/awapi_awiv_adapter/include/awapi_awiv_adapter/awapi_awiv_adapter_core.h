@@ -57,6 +57,7 @@ private:
   ros::Subscriber sub_obstacle_avoid_ready_;
   ros::Subscriber sub_obstacle_avoid_candidate_;
   ros::Subscriber sub_max_velocity_;
+  ros::Subscriber sub_current_max_velocity_;
   ros::Subscriber sub_temporary_stop_;
   ros::Subscriber sub_autoware_traj_;
   ros::Subscriber sub_door_control_;
@@ -96,6 +97,7 @@ private:
   void callbackLaneObstacleAvoidCandidatePath(
     const autoware_planning_msgs::Trajectory::ConstPtr & msg_ptr);
   void callbackMaxVelocity(const std_msgs::Float32::ConstPtr & msg_ptr);
+  void callbackCurrentMaxVelocity(const std_msgs::Float32::ConstPtr & msg_ptr);
   void callbackTemporaryStop(const std_msgs::Bool::ConstPtr & msg_ptr);
   void callbackAutowareTrajectory(const autoware_planning_msgs::Trajectory::ConstPtr & msg_ptr);
   void callbackDoorControl(const std_msgs::Bool::ConstPtr & msg_ptr);

@@ -70,6 +70,7 @@ struct AutowareInfo
   std_msgs::Bool::ConstPtr obstacle_avoid_ready_ptr;
   autoware_planning_msgs::Trajectory::ConstPtr obstacle_avoid_candidate_ptr;
   std_msgs::Float32::ConstPtr max_velocity_ptr;
+  std_msgs::Float32::ConstPtr current_max_velocity_ptr;
   std_msgs::Bool::ConstPtr temporary_stop_ptr;
   autoware_planning_msgs::Trajectory::ConstPtr autoware_planning_traj_ptr;
   pacmod_msgs::SystemRptInt::ConstPtr door_state_ptr;
