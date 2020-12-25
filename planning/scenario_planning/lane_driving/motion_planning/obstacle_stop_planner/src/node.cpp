@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <autoware_utils/geometry/geometry.h>
 #include <pcl/filters/voxel_grid.h>
 #include <tf2/utils.h>
 #include <tf2_eigen/tf2_eigen.h>
@@ -545,14 +546,8 @@ SlowDownPoint ObstacleStopPlannerNode::createSlowDownStartPoint(
 {
   double length_sum = 0.0;
   length_sum += trajectory_vec.normalized().dot(slow_down_point_vec);
-  Eigen::Vector2d line_start_point, line_end_point;
-  {
-    line_start_point << base_path.points.at(0).pose.position.x,
-      base_path.points.at(0).pose.position.y;
-    const double yaw = getYawFromGeometryMsgsQuaternion(base_path.points.at(0).pose.orientation);
-    line_end_point << std::cos(yaw), std::sin(yaw);
-  }
-
+  Eigen::Vector2d line_start_point{};
+  Eigen::Vector2d line_end_point{};
   SlowDownPoint slow_down_point{0, Eigen::Vector2d(), 0.0};
   for (size_t j = idx; 0 < j; --j) {
     line_start_point << base_path.points.at(j).pose.position.x,
@@ -565,8 +560,15 @@ SlowDownPoint ObstacleStopPlannerNode::createSlowDownStartPoint(
     }
     length_sum += (line_end_point - line_start_point).norm();
   }
-  getBackwardPointFromBasePoint(
-    line_start_point, line_end_point, line_start_point, length_sum - margin, slow_down_point.point);
+  const double backward_length = length_sum - margin;
+  if (backward_length < 0) {
+    slow_down_point.index = 0;
+    slow_down_point.point = Eigen::Vector2d(
+      base_path.points.at(0).pose.position.x, base_path.points.at(0).pose.position.y);
+  } else {
+    getBackwardPointFromBasePoint(
+      line_start_point, line_end_point, line_start_point, backward_length, slow_down_point.point);
+  }
 
   slow_down_point.velocity = std::max(
     std::sqrt(slow_down_target_vel * slow_down_target_vel + 2 * max_deceleration_ * length_sum),
@@ -583,8 +585,14 @@ void ObstacleStopPlannerNode::insertSlowDownStartPoint(
   slow_down_start_trajectory_point.pose.position.x = slow_down_start_point.point.x();
   slow_down_start_trajectory_point.pose.position.y = slow_down_start_point.point.y();
   slow_down_start_trajectory_point.twist.linear.x = slow_down_start_point.velocity;
-  output_path.points.insert(
-    output_path.points.begin() + slow_down_start_point.index, slow_down_start_trajectory_point);
+  constexpr double epsilon = 0.001;
+  const auto & insert_target_point = output_path.points.at(slow_down_start_point.index);
+  if (
+    autoware_utils::calcDistance2d(slow_down_start_trajectory_point, insert_target_point) >
+    epsilon) {
+    output_path.points.insert(
+      output_path.points.begin() + slow_down_start_point.index, slow_down_start_trajectory_point);
+  }
   debug_ptr_->pushPose(slow_down_start_trajectory_point.pose, PoseType::SlowDownStart);
 }
 
