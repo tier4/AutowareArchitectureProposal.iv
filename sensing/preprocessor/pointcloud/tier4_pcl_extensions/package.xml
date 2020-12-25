@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<package>
+  <name>tier4_pcl_extensions</name>
+  <version>0.1.0</version>
+  <description>The tier4_pcl_extensions package</description>
+  <maintainer email="ryu.yamamoto@tier4.jp">Ryu Yamamoto</maintainer>
+  <license>Apache 2</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <export>
+  </export>
+</package>
