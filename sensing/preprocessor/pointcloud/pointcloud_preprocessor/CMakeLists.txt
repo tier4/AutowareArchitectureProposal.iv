@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
   tf2_eigen
   dynamic_reconfigure
+  tier4_pcl_extensions
 )
 
 generate_dynamic_reconfigure_options(
@@ -176,6 +177,7 @@ add_dependencies(radius_search_2d_outlier_filter_node ${catkin_EXPORTED_TARGETS}
 add_library(downsample_filter
             src/downsample_filter/voxel_grid_downsample_filter_nodelet.cpp
             src/downsample_filter/random_downsample_filter_nodelet.cpp
+            src/downsample_filter/approximate_downsample_filter_nodelet.cpp
             src/filter.cpp # copy from pcl_ros https://github.com/ros-
                            # perception/perception_pcl/issues/9
             )
@@ -199,6 +201,13 @@ target_link_libraries(random_downsample_filter_node
                       ${catkin_LIBRARIES})
 add_dependencies(random_downsample_filter_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
 
+add_executable(approximate_downsample_filter_node
+               src/downsample_filter/approximate_downsample_filter_node.cpp)
+target_link_libraries(approximate_downsample_filter_node
+                      downsample_filter
+                      ${Boost_LIBRARIES}
+                      ${catkin_LIBRARIES})
+add_dependencies(approximate_downsample_filter_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencfg)
 
 # Pointcloud Accumulator
 add_library(pointcloud_accumulator
@@ -343,6 +352,7 @@ install(
     crop_box_filter_node
     voxel_grid_downsample_filter_node
     random_downsample_filter_node
+    approximate_downsample_filter_node
     passthrough_filter_uint16_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

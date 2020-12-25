@@ -15,4 +15,12 @@
       random filter.
     </description>
   </class>
+
+  <class name="pointcloud_preprocessor/approximate_downsample_filter_nodelet"
+	 type="pointcloud_preprocessor::ApproximateDownsampleFilterNodelet"
+	 base_class_type="nodelet::Nodelet">
+    <description>
+      approximate filter.
+    </description>
+  </class>
 </library>
