@@ -38,6 +38,8 @@
 #include <autoware_vehicle_msgs/RawVehicleCommand.h>
 #include <autoware_vehicle_msgs/VehicleCommand.h>
 
+namespace autoware_joy_controller
+{
 using ShiftType = autoware_vehicle_msgs::Shift::_data_type;
 using TurnSignalType = autoware_vehicle_msgs::TurnSignal::_data_type;
 using GateModeType = autoware_control_msgs::GateMode::_data_type;
@@ -120,3 +122,4 @@ private:
   bool isDataReady();
   void onTimer(const ros::TimerEvent & event);
 };
+}  // namespace autoware_joy_controller

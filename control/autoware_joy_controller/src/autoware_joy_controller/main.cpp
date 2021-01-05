@@ -22,7 +22,7 @@ int main(int argc, char * argv[])
 {
   ros::init(argc, argv, "autoware_joy_controller");
 
-  AutowareJoyControllerNode node;
+  autoware_joy_controller::AutowareJoyControllerNode node;
 
   ros::spin();
 

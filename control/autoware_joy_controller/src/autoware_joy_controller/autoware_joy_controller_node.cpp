@@ -20,6 +20,10 @@
 
 namespace
 {
+using autoware_joy_controller::GateModeType;
+using autoware_joy_controller::ShiftType;
+using autoware_joy_controller::TurnSignalType;
+
 ShiftType getUpperShift(const ShiftType & shift)
 {
   using autoware_vehicle_msgs::Shift;
@@ -92,6 +96,8 @@ double calcMapping(const double input, const double sensitivity)
 
 }  // namespace
 
+namespace autoware_joy_controller
+{
 void AutowareJoyControllerNode::onJoy(const sensor_msgs::Joy::ConstPtr & msg)
 {
   last_joy_received_time_ = msg->header.stamp;
@@ -439,3 +445,4 @@ AutowareJoyControllerNode::AutowareJoyControllerNode()
   timer_ =
     private_nh_.createTimer(ros::Rate(update_rate_), &AutowareJoyControllerNode::onTimer, this);
 }
+}  // namespace autoware_joy_controller
