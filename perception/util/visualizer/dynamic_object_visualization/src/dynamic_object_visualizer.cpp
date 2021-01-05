@@ -19,6 +19,9 @@
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <string>
+#define EIGEN_MPL2_ONLY
+#include <Eigen/Core>
+#include <Eigen/Eigen>
 
 DynamicObjectVisualizer::DynamicObjectVisualizer() : nh_(""), private_nh_("~")
 {
@@ -52,7 +55,7 @@ void DynamicObjectVisualizer::dynamicObjectCallback(
 {
   if (pub_.getNumSubscribers() < 1) return;
   visualization_msgs::MarkerArray output;
-  constexpr double line_width = 0.05;
+  constexpr double line_width = 0.03;
   // shape
   for (size_t i = 0; i < input_msg->objects.size(); ++i) {
     if (only_known_objects_) {
@@ -163,6 +166,65 @@ void DynamicObjectVisualizer::dynamicObjectCallback(
     }
     marker.action = visualization_msgs::Marker::MODIFY;
     marker.pose = input_msg->objects.at(i).state.pose_covariance.pose;
+    marker.lifetime = ros::Duration(0.2);
+    marker.color.a = 0.999;  // Don't forget to set the alpha!
+    marker.color.r = 1.0;
+    marker.color.g = 1.0;
+    marker.color.b = 1.0;
+
+    output.markers.push_back(marker);
+  }
+
+  // position covariance
+  for (size_t i = 0; i < input_msg->objects.size(); ++i) {
+    if (
+      input_msg->objects.at(i).state.pose_covariance.covariance[6 * 0 + 0] /*x-x*/ == 0.0 ||
+      input_msg->objects.at(i).state.pose_covariance.covariance[6 * 1 + 1] /*y-y*/ == 0.0)
+      continue;
+
+    if (only_known_objects_) {
+      if (input_msg->objects.at(i).semantic.type == autoware_perception_msgs::Semantic::UNKNOWN)
+        continue;
+    }
+    visualization_msgs::Marker marker;
+    marker.header = input_msg->header;
+    marker.id = i;
+    marker.type = visualization_msgs::Marker::LINE_LIST;
+    marker.ns = std::string("position covariance");
+    marker.scale.x = line_width;
+    marker.action = visualization_msgs::Marker::MODIFY;
+    marker.pose = input_msg->objects.at(i).state.pose_covariance.pose;
+    marker.pose.orientation.x = 0.0;
+    marker.pose.orientation.y = 0.0;
+    marker.pose.orientation.z = 0.0;
+    marker.pose.orientation.w = 1.0;
+    geometry_msgs::Point point;
+    Eigen::Matrix2d pose_covariance;
+    pose_covariance << input_msg->objects.at(i).state.pose_covariance.covariance[0],
+      input_msg->objects.at(i).state.pose_covariance.covariance[1],
+      input_msg->objects.at(i).state.pose_covariance.covariance[6],
+      input_msg->objects.at(i).state.pose_covariance.covariance[7];
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d> solver(pose_covariance);
+    double sigma1 = 2.448 * std::sqrt(solver.eigenvalues().x()); // 2.448 sigma is 95%
+    double sigma2 = 2.448 * std::sqrt(solver.eigenvalues().y()); // 2.448 sigma is 95%
+    Eigen::Vector2d e1 = solver.eigenvectors().col(0);
+    Eigen::Vector2d e2 = solver.eigenvectors().col(1);
+    point.x = -e1.x() * sigma1;
+    point.y = -e1.y() * sigma1;
+    point.z = 0;
+    marker.points.push_back(point);
+    point.x = e1.x() * sigma1;
+    point.y = e1.y() * sigma1;
+    point.z = 0;
+    marker.points.push_back(point);
+    point.x = -e2.x() * sigma2;
+    point.y = -e2.y() * sigma2;
+    point.z = 0;
+    marker.points.push_back(point);
+    point.x = e2.x() * sigma2;
+    point.y = e2.y() * sigma2;
+    point.z = 0;
+    marker.points.push_back(point);
     marker.lifetime = ros::Duration(0.2);
     marker.color.a = 0.999;  // Don't forget to set the alpha!
     marker.color.r = 1.0;
@@ -404,35 +466,30 @@ bool DynamicObjectVisualizer::calcBoundingBoxLineList(
 bool DynamicObjectVisualizer::calcCylinderLineList(
   const autoware_perception_msgs::Shape & shape, std::vector<geometry_msgs::Point> & points)
 {
-  int n = 20;
-  for (int i = 0; i < n; ++i) {
+  const double radius = shape.dimensions.x * 0.5;
+  {
+    constexpr int n = 20;
     geometry_msgs::Point center;
     center.x = 0.0;
     center.y = 0.0;
-    center.z = shape.dimensions.z / 2.0;
-    calcCircleLineList(center, shape.dimensions.x, points, 20);
+    center.z = shape.dimensions.z * 0.5;
+    calcCircleLineList(center, radius, points, n);
+    center.z = -shape.dimensions.z * 0.5;
+    calcCircleLineList(center, radius, points, n);
   }
-  for (int i = 0; i < n; ++i) {
-    geometry_msgs::Point center;
-    center.x = 0.0;
-    center.y = 0.0;
-    center.z = -shape.dimensions.z / 2.0;
-    calcCircleLineList(center, shape.dimensions.x, points, 20);
-  }
-  for (int i = 0; i < n; ++i) {
-    geometry_msgs::Point point;
-    point.x = std::cos(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) *
-              (shape.dimensions.x / 2.0);
-    point.y = std::sin(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) *
-              (shape.dimensions.x / 2.0);
-    point.z = shape.dimensions.z / 2.0;
-    points.push_back(point);
-    point.x = std::cos(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) *
-              (shape.dimensions.x / 2.0);
-    point.y = std::sin(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) *
-              (shape.dimensions.x / 2.0);
-    point.z = -shape.dimensions.z / 2.0;
-    points.push_back(point);
+  {
+    constexpr int n = 4;
+    for (int i = 0; i < n; ++i) {
+      geometry_msgs::Point point;
+      point.x = std::cos(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) * radius;
+      point.y = std::sin(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) * radius;
+      point.z = shape.dimensions.z * 0.5;
+      points.push_back(point);
+      point.x = std::cos(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) * radius;
+      point.y = std::sin(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) * radius;
+      point.z = -shape.dimensions.z * 0.5;
+      points.push_back(point);
+    }
   }
   return true;
 }
@@ -443,18 +500,14 @@ bool DynamicObjectVisualizer::calcCircleLineList(
 {
   for (int i = 0; i < n; ++i) {
     geometry_msgs::Point point;
-    point.x =
-      std::cos(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) * (radius / 2.0) + center.x;
-    point.y =
-      std::sin(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) * (radius / 2.0) + center.y;
+    point.x = std::cos(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) * radius + center.x;
+    point.y = std::sin(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) * radius + center.y;
     point.z = center.z;
     points.push_back(point);
     point.x =
-      std::cos(((double)(i + 1.0) / (double)n) * 2.0 * M_PI + M_PI / (double)n) * (radius / 2.0) +
-      center.x;
+      std::cos(((double)(i + 1.0) / (double)n) * 2.0 * M_PI + M_PI / (double)n) * radius + center.x;
     point.y =
-      std::sin(((double)(i + 1.0) / (double)n) * 2.0 * M_PI + M_PI / (double)n) * (radius / 2.0) +
-      center.y;
+      std::sin(((double)(i + 1.0) / (double)n) * 2.0 * M_PI + M_PI / (double)n) * radius + center.y;
     point.z = center.z;
     points.push_back(point);
   }
@@ -513,7 +566,7 @@ bool DynamicObjectVisualizer::calcPathLineList(
     point.y = paths.path.at(i + 1).pose.pose.position.y;
     point.z = paths.path.at(i + 1).pose.pose.position.z;
     points.push_back(point);
-    calcCircleLineList(point, 0.5, points, 10);
+    calcCircleLineList(point, 0.25, points, 10);
   }
   return true;
 }
