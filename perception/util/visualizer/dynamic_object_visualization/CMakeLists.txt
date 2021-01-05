@@ -12,7 +12,10 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake_auto REQUIRED)
+find_package(Eigen3 REQUIRED)
 ament_auto_find_build_dependencies()
+
+include_directories(${EIGEN3_INCLUDE_DIR})
 
 ament_auto_add_executable(dynamic_object_visualizer_node
   src/dynamic_object_visualizer.cpp
