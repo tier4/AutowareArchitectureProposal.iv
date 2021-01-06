@@ -87,8 +87,8 @@ private:
   void onCurrentVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
 
   // TF
-  tf2_ros::Buffer tf_buffer_;
-  tf2_ros::TransformListener tf_listener_;
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
   boost::optional<geometry_msgs::msg::PoseStamped> current_pose_;
 
   // Publisher

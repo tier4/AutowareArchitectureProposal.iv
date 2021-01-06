@@ -43,7 +43,7 @@ void update_param(
 }  // namespace
 
 MPCFollower::MPCFollower()
-: Node("mpc_follower"), tf_buffer_(this->get_clock()), tf_listener_(tf_buffer_)
+: Node("mpc_follower")
 {
   using std::placeholders::_1;
 
@@ -56,6 +56,16 @@ MPCFollower::MPCFollower()
   traj_resample_dist_ = declare_parameter("traj_resample_dist", 0.1);  // [m]
   admisible_position_error_ = declare_parameter("admisible_position_error", 5.0);
   admisible_yaw_error_ = declare_parameter("admisible_yaw_error", M_PI_2);
+
+  /* tf */
+  {
+    tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+    auto timer_interface = std::make_shared<tf2_ros::CreateTimerROS>(
+      this->get_node_base_interface(), this->get_node_timers_interface());
+    tf_buffer_->setCreateTimerInterface(timer_interface);
+    tf_buffer_->setUsingDedicatedThread(true);
+    tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_, this, false);
+  }
 
   /* mpc parameters */
   double steer_lim_deg, steer_rate_lim_degs;
@@ -879,7 +889,7 @@ void MPCFollower::updateCurrentPose()
 {
   geometry_msgs::msg::TransformStamped transform;
   try {
-    transform = tf_buffer_.lookupTransform("map", "base_link", rclcpp::Time(0));
+    transform = tf_buffer_->lookupTransform("map", "base_link", rclcpp::Time(0));
   } catch (tf2::TransformException & ex) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       get_logger(), *get_clock(), (5000ms).count(),

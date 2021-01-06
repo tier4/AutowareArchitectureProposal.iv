@@ -33,6 +33,8 @@
 #include "pure_pursuit/util/planning_utils.hpp"
 #include "pure_pursuit/util/tf_utils.hpp"
 
+#include "tf2_ros/create_timer_ros.h"
+
 namespace
 {
 autoware_control_msgs::msg::ControlCommand createControlCommand(
@@ -55,9 +57,7 @@ double calcLookaheadDistance(
 }  // namespace
 
 PurePursuitNode::PurePursuitNode()
-: Node("pure_pursuit"),
-  tf_buffer_(this->get_clock()),
-  tf_listener_(tf_buffer_)
+: Node("pure_pursuit")
 {
   pure_pursuit_ = std::make_unique<planning_utils::PurePursuit>();
 
@@ -73,6 +73,16 @@ PurePursuitNode::PurePursuitNode()
   param_.min_lookahead_distance = this->declare_parameter<double>("min_lookahead_distance", 2.5);
   param_.reverse_min_lookahead_distance = this->declare_parameter<double>(
     "reverse_min_lookahead_distance", 7.0);
+
+  // TF
+  {
+    tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+    auto timer_interface = std::make_shared<tf2_ros::CreateTimerROS>(
+      this->get_node_base_interface(), this->get_node_timers_interface());
+    tf_buffer_->setCreateTimerInterface(timer_interface);
+    tf_buffer_->setUsingDedicatedThread(true);
+    tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_, this, false);
+  }
 
   // Subscribers
   using std::placeholders::_1;
@@ -100,9 +110,6 @@ PurePursuitNode::PurePursuitNode()
     this->get_node_timers_interface()->add_timer(timer_, nullptr);
   }
 
-
-  //  Wait for first current pose
-  tf_utils::waitForTransform(tf_buffer_, "map", "base_link");
 }
 
 bool PurePursuitNode::isDataReady()
@@ -138,7 +145,7 @@ void PurePursuitNode::onTrajectory(
 
 void PurePursuitNode::onTimer()
 {
-  current_pose_ = tf_utils::getCurrentPose(tf_buffer_);
+  current_pose_ = tf_utils::getCurrentPose(*tf_buffer_);
 
   if (!isDataReady()) {
     return;

@@ -180,7 +180,6 @@ private:
   void callbackTrajectory(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg);
   void callbackTimerControl();
 
-  void blockUntilVehiclePositionAvailable(const tf2::Duration & timeout);
   bool updateCurrentPose();
 
   double getPitch(const geometry_msgs::msg::Quaternion & quaternion) const;

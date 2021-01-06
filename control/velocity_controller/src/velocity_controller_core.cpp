@@ -119,7 +119,8 @@ VelocityController::VelocityController()
     auto cti = std::make_shared<tf2_ros::CreateTimerROS>(
       this->get_node_base_interface(), this->get_node_timers_interface());
     tf_buffer_->setCreateTimerInterface(cti);
-    tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
+    tf_buffer_->setUsingDedicatedThread(true);
+    tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_, this, false);
   }
 
   // initialize PID gain
@@ -158,9 +159,6 @@ VelocityController::VelocityController()
   // set parameter callback
   set_param_res_ =
     this->add_on_set_parameters_callback(std::bind(&VelocityController::paramCallback, this, _1));
-
-  // wait at end of constructor so other members are properly initialized first
-  blockUntilVehiclePositionAvailable(tf2::durationFromSec(1.0));
 }
 
 void VelocityController::callbackCurrentVelocity(
@@ -173,20 +171,6 @@ void VelocityController::callbackTrajectory(
   const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg)
 {
   trajectory_ptr_ = msg;
-}
-
-void VelocityController::blockUntilVehiclePositionAvailable(const tf2::Duration & duration)
-{
-  static constexpr auto input = "map", output = "base_link";
-  while (!tf_buffer_->canTransform(input, output, tf2::TimePointZero, tf2::durationFromSec(0.0)) &&
-    rclcpp::ok())
-  {
-    RCLCPP_INFO(
-      get_logger(), "waiting %d ms for %s->%s transform to become available",
-      std::chrono::duration_cast<std::chrono::milliseconds>(duration).count(), input, output);
-    rclcpp::sleep_for(duration);
-  }
-  RCLCPP_INFO(get_logger(), "transform available");
 }
 
 bool VelocityController::updateCurrentPose()

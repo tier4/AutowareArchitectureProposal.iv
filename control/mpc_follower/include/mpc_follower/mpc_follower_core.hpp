@@ -172,8 +172,8 @@ private:
   double lateral_error_prev_;  //< @brief previous lateral error for derivative
   double yaw_error_prev_;      //< @brief previous lateral error for derivative
 
-  tf2_ros::Buffer tf_buffer_;
-  tf2_ros::TransformListener tf_listener_;  //!< @brief tf listener
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;  //!< @brief tf listener
 
   /**
    * @brief compute and publish control command for path follow with a constant control period
