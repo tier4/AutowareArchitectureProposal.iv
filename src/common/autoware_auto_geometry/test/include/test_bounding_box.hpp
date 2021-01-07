@@ -130,7 +130,7 @@ protected:
 // Instantiate tests for given types, add more types here as they are used
 using PointTypesBoundingBox =
   ::testing::Types<geometry_msgs::msg::Point32, autoware::common::types::PointXYZIF>;
-TYPED_TEST_CASE(BoxTest, PointTypesBoundingBox);
+TYPED_TEST_CASE(BoxTest, PointTypesBoundingBox, );
 /// NOTE: This is the older version due to 1.8.0 of GTest. v1.8.1 uses TYPED_TEST_SUITE
 
 // TODO(c.ho) consider typed and paremterized tests:

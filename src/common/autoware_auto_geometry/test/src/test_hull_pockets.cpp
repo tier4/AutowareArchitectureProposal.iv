@@ -41,7 +41,7 @@ protected:
 };  // class TypedHullPocketsTest
 
 using PointTypes = ::testing::Types<geometry_msgs::msg::Point32>;
-TYPED_TEST_CASE(TypedHullPocketsTest, PointTypes);
+TYPED_TEST_CASE(TypedHullPocketsTest, PointTypes, );
 /// NOTE: This is the older version due to 1.8.0 of GTest. v1.8.1 uses TYPED_TEST_SUITE
 
 // Inner test function, shared among all the tests

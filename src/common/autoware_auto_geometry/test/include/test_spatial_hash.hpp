@@ -78,7 +78,7 @@ protected:
 
 // Instantiate tests for given types, add more types here as they are used
 using PointTypesSpatialHash = ::testing::Types<geometry_msgs::msg::Point32>;
-TYPED_TEST_CASE(TypedSpatialHashTest, PointTypesSpatialHash);
+TYPED_TEST_CASE(TypedSpatialHashTest, PointTypesSpatialHash, );
 /// NOTE: This is the older version due to 1.8.0 of GTest. v1.8.1 uses TYPED_TEST_SUITE
 
 
@@ -124,6 +124,7 @@ TYPED_TEST(TypedSpatialHashTest, one_bin)
   count = 0U;
   for (auto it : hash) {
     // TODO(c.ho) check uniqueness of stuff
+    (void) it;
     ++count;
   }
   EXPECT_EQ(count, 0U);
@@ -217,6 +218,7 @@ TYPED_TEST(TypedSpatialHashTest, 3d)
   count = 0U;
   for (auto it : hash) {
     // TODO(c.ho) check uniqueness of stuff
+    (void) it;
     ++count;
   }
   EXPECT_EQ(count, 0U);
