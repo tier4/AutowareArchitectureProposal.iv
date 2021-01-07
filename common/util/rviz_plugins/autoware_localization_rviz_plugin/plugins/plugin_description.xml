@@ -1,4 +1,4 @@
-<library path="pose_history">
+<library path="autoware_localization_rviz_plugin">
 
   <class
     type="rviz_plugins::PoseHistory"

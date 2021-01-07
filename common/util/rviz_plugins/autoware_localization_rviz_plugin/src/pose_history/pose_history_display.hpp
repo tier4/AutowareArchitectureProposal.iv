@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef POSE_HISTORY_DISPLAY_HPP_
-#define POSE_HISTORY_DISPLAY_HPP_
+#ifndef POSE_HISTORY__POSE_HISTORY_DISPLAY_HPP_
+#define POSE_HISTORY__POSE_HISTORY_DISPLAY_HPP_
 
 #include <deque>
 #include <memory>
@@ -72,9 +72,10 @@ private:
   rviz_common::properties::IntProperty * property_buffer_size_;
   rviz_common::properties::BoolProperty * property_line_view_;
   rviz_common::properties::FloatProperty * property_line_width_;
+  rviz_common::properties::FloatProperty * property_line_alpha_;
   rviz_common::properties::ColorProperty * property_line_color_;
 };
 
 }  // namespace rviz_plugins
 
-#endif  // POSE_HISTORY_DISPLAY_HPP_
+#endif  // POSE_HISTORY__POSE_HISTORY_DISPLAY_HPP_

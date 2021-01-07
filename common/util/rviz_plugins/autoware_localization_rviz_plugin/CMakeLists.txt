@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(pose_history)
+project(autoware_localization_rviz_plugin)
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
@@ -21,8 +21,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_definitions(-DQT_NO_KEYWORDS)
 
 ament_auto_add_library(${PROJECT_NAME} SHARED
-  src/pose_history_display.hpp
-  src/pose_history_display.cpp
+  src/pose_history/pose_history_display.hpp
+  src/pose_history/pose_history_display.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}

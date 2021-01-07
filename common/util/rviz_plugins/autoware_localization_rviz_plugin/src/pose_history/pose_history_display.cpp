@@ -20,6 +20,7 @@
 #include "rviz_common/properties/color_property.hpp"
 #include "rviz_common/properties/float_property.hpp"
 #include "rviz_common/properties/int_property.hpp"
+#include "rviz_common/properties/parse_color.hpp"
 #include "rviz_common/validate_floats.hpp"
 
 namespace rviz_plugins
@@ -31,6 +32,10 @@ PoseHistory::PoseHistory()
   property_line_view_ = new rviz_common::properties::BoolProperty("Line", true, "", this);
   property_line_width_ =
     new rviz_common::properties::FloatProperty("Width", 0.1, "", property_line_view_);
+  property_line_alpha_ =
+    new rviz_common::properties::FloatProperty("Alpha", 1.0, "", property_line_view_);
+  property_line_alpha_->setMin(0.0);
+  property_line_alpha_->setMax(1.0);
   property_line_color_ =
     new rviz_common::properties::ColorProperty("Color", Qt::white, "", property_line_view_);
 
@@ -108,7 +113,8 @@ void PoseHistory::updateHistory()
 
 void PoseHistory::updateLines()
 {
-  QColor color = property_line_color_->getColor();
+  Ogre::ColourValue color = rviz_common::properties::qtToOgre(property_line_color_->getColor());
+  color.a = property_line_alpha_->getFloat();
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
 
@@ -123,7 +129,7 @@ void PoseHistory::updateLines()
   lines_->setLineWidth(property_line_width_->getFloat());
   lines_->setPosition(position);
   lines_->setOrientation(orientation);
-  lines_->setColor(color.redF(), color.greenF(), color.blueF(), color.alphaF());
+  lines_->setColor(color.r, color.g, color.b, color.a);
 
   for (const auto & message : history_) {
     Ogre::Vector3 point;
