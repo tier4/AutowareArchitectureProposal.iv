@@ -27,6 +27,9 @@ PoseHistory::PoseHistory()
   property_buffer_size_ = new rviz::IntProperty("Buffer Size", 100, "", this);
   property_line_view_ = new rviz::BoolProperty("Line", true, "", this);
   property_line_width_ = new rviz::FloatProperty("Width", 0.1, "", property_line_view_);
+  property_line_alpha_ = new rviz::FloatProperty("Alpha", 1.0, "", property_line_view_);
+  property_line_alpha_->setMin(0.0);
+  property_line_alpha_->setMax(1.0);
   property_line_color_ = new rviz::ColorProperty("Color", Qt::white, "", property_line_view_);
 
   property_buffer_size_->setMin(0);
@@ -101,7 +104,8 @@ void PoseHistory::updateHistory()
 
 void PoseHistory::updateLines()
 {
-  QColor color = property_line_color_->getColor();
+  Ogre::ColourValue color = rviz::qtToOgre(property_line_color_->getColor());
+  color.a = property_line_alpha_->getFloat();
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
 
@@ -118,7 +122,7 @@ void PoseHistory::updateLines()
   lines_->setLineWidth(property_line_width_->getFloat());
   lines_->setPosition(position);
   lines_->setOrientation(orientation);
-  lines_->setColor(color.redF(), color.greenF(), color.blueF(), color.alphaF());
+  lines_->setColor(color.r, color.g, color.b, color.a);
 
   for (const auto & message : history_) {
     Ogre::Vector3 point;

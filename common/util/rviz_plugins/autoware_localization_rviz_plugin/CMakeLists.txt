@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(pose_history)
+project(autoware_localization_rviz_plugin)
 add_compile_options(-std=c++14)
 
 find_package(catkin REQUIRED COMPONENTS
@@ -24,16 +24,16 @@ include_directories(
   ${Qt5_INCLUDE_DIRS}
 )
 
-add_library(${PROJECT_NAME}
-  src/pose_history_display.hpp
-  src/pose_history_display.cpp
+add_library(autoware_localization_rviz_plugin
+  src/pose_history/pose_history_display.hpp
+  src/pose_history/pose_history_display.cpp
 )
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(autoware_localization_rviz_plugin
   ${catkin_LIBRARIES} ${QT_LIBRARIES}
 )
 
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS autoware_localization_rviz_plugin
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 

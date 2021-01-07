@@ -73,6 +73,7 @@ private:
   rviz::IntProperty * property_buffer_size_;
   rviz::BoolProperty * property_line_view_;
   rviz::FloatProperty * property_line_width_;
+  rviz::FloatProperty * property_line_alpha_;
   rviz::ColorProperty * property_line_color_;
 };
 
