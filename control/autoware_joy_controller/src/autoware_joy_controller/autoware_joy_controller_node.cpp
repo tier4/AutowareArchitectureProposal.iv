@@ -316,24 +316,23 @@ void AutowareJoyControllerNode::publishEmergencyStop()
 {
   autoware_debug_msgs::msg::BoolStamped emergency;
 
-  if (joy_->emergency()) {
+  if (joy_->emergency_stop()) {
     emergency.data = true;
     RCLCPP_INFO(get_logger(), "Emergency");
   }
 
-  if (joy_->clear_emergency()) {
+  if (joy_->clear_emergency_stop()) {
     emergency.data = false;
     RCLCPP_INFO(get_logger(), "Clear Emergency");
 
+    auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
+    auto result = client_clear_emergency_stop_->async_send_request(request); // TODO(Horibe) check usage
 
-    std_srvs::srv::Trigger srv;
-    auto result = client_clear_emergency_stop_->async_send_request(srv); // TODO(Horibe) check usage
-
-    if (result) {
-      if (srv.response.success) {
-        RRCLCPP_INFO(get_logger(), "Clear Emergency Stop");
+    if (rclcpp::spin_until_future_complete(this, result) == rclcpp::FutureReturnCode::SUCCESS) {
+      if (request->success) {
+        RCLCPP_INFO(get_logger(), "Clear Emergency Stop");
       } else {
-        RCLCPP_WARN(get_logger(), "failed to clear emergency stop: %s", srv.response.message.c_str());
+        RCLCPP_WARN(get_logger(), "failed to clear emergency stop: %s", request->message.c_str());
       }
     } else {
       RCLCPP_WARN(get_logger(), "failed to call service");
