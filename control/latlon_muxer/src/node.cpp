@@ -35,18 +35,18 @@ LatLonMuxer::LatLonMuxer(const rclcpp::NodeOptions & node_options)
     create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
     "input/longitudinal/control_cmd", rclcpp::QoS{1},
     std::bind(&LatLonMuxer::lonCtrlCmdCallback, this, std::placeholders::_1));
-  pnh_.param<double>("timeout_thr_sec", timeout_thr_sec_, 0.5);
+  timeout_thr_sec_ = declare_parameter("timeout_thr_sec", 0.5);
 }
 
-bool LatLonMuxer::checkTimeout() const
+bool LatLonMuxer::checkTimeout()
 {
-  const auto now = ros::Time::now();
-  if ((now - lat_cmd_->header.stamp).toSec() > timeout_thr_sec_) {
-    ROS_ERROR_THROTTLE(1.0, "[latlon_muxer] lat_cmd_ timeout failed.");
+  const auto now = this->now();
+  if ((now - lat_cmd_->header.stamp).seconds() > timeout_thr_sec_) {
+    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 1000/*ms*/, "lat_cmd_ timeout failed.");
     return false;
   }
-  if ((now - lon_cmd_->header.stamp).toSec() > timeout_thr_sec_) {
-    ROS_ERROR_THROTTLE(1.0, "[latlon_muxer] lon_cmd_ timeout failed.");
+  if ((now - lon_cmd_->header.stamp).seconds() > timeout_thr_sec_) {
+    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 1000/*ms*/, "lon_cmd_ timeout failed.");
     return false;
   }
   return true;
@@ -58,7 +58,7 @@ void LatLonMuxer::publishCmd()
     return;
   }
   if (!checkTimeout()) {
-    ROS_ERROR_THROTTLE(1.0, "[latlon_muxer] timeout failed. stop publish command.");
+    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 1000/*ms*/, "timeout failed. stop publish command.");
     return;
   }
 

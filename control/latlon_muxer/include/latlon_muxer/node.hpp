@@ -30,7 +30,7 @@ private:
   void latCtrlCmdCallback(const autoware_control_msgs::msg::ControlCommandStamped::SharedPtr msg);
   void lonCtrlCmdCallback(const autoware_control_msgs::msg::ControlCommandStamped::SharedPtr msg);
   void publishCmd();
-  bool checkTimeout() const;
+  bool checkTimeout();
 
   rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr control_cmd_pub_;
   rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
