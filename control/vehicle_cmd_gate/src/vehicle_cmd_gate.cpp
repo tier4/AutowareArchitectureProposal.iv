@@ -59,25 +59,10 @@ const char * getGateModeName(const autoware_control_msgs::msg::GateMode::_data_t
   return "NOT_SUPPORTED";
 }
 
-bool isHeartbeatTimeout(
-  const std::shared_ptr<ros::Time> & heartbeat_received_time, const double timeout)
-{
-  if (timeout == 0.0) {
-    return false;
-  }
-
-  if (!heartbeat_received_time) {
-    return true;
-  }
-
-  const auto time_from_heartbeat = ros::Time::now() - *heartbeat_received_time;
-
-  return time_from_heartbeat.toSec() > timeout;
-}
 }  // namespace
 
 VehicleCmdGate::VehicleCmdGate()
-: Node("vehicle_cmd_gate"), is_engaged_(false)
+: Node("vehicle_cmd_gate"), is_engaged_(false), updater_(this)
 {
   rclcpp::QoS durable_qos{1};
   durable_qos.transient_local();
@@ -159,16 +144,20 @@ VehicleCmdGate::VehicleCmdGate()
   current_gate_mode_.data = autoware_control_msgs::msg::GateMode::AUTO;
 
   // Service
-  srv_external_emergency_stop_ = pnh_.advertiseService(
-    "service/external_emergency_stop", &VehicleCmdGate::onExternalEmergencyStopService, this);
-  srv_clear_external_emergency_stop_ = pnh_.advertiseService(
-    "service/clear_external_emergency_stop", &VehicleCmdGate::onClearExternalEmergencyStopService,
-    this);
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+  using std::placeholders::_3;
+  srv_external_emergency_stop_ = this->create_service<std_srvs::srv::Trigger>(
+    "service/external_emergency_stop",
+    std::bind(&VehicleCmdGate::onExternalEmergencyStopService, this, _1, _2, _3));
+  srv_external_emergency_stop_ = this->create_service<std_srvs::srv::Trigger>(
+    "service/clear_external_emergency_stop",
+    std::bind(&VehicleCmdGate::onClearExternalEmergencyStopService, this, _1, _2, _3));
 
   // Diagnostics Updater
   updater_.setHardwareID("vehicle_cmd_gate");
   updater_.add(
-    "heartbeat", [](auto & stat) { stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Alive"); });
+    "heartbeat", [](auto & stat) { stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Alive"); });
   updater_.add("emergency_stop_operation", this, &VehicleCmdGate::checkExternalEmergencyStop);
 
   // Timer
@@ -179,6 +168,22 @@ VehicleCmdGate::VehicleCmdGate()
     this->get_clock(), period, std::move(timer_callback),
     this->get_node_base_interface()->get_context());
   this->get_node_timers_interface()->add_timer(timer_, nullptr);
+}
+
+bool VehicleCmdGate::isHeartbeatTimeout(
+  const std::shared_ptr<rclcpp::Time> & heartbeat_received_time, const double timeout)
+{
+  if (timeout == 0.0) {
+    return false;
+  }
+
+  if (!heartbeat_received_time) {
+    return true;
+  }
+
+  const auto time_from_heartbeat = this->now() - *heartbeat_received_time;
+
+  return time_from_heartbeat.seconds() > timeout;
 }
 
 // for auto
@@ -251,7 +256,7 @@ void VehicleCmdGate::onTimer()
       system_emergency_heartbeat_received_time_, system_emergency_heartbeat_timeout_);
 
     if (is_system_emergency_heartbeat_timeout_) {
-      ROS_WARN_THROTTLE(1.0, "system_emergency heartbeat is timeout.");
+      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 1000/*ms*/, "system_emergency heartbeat is timeout.");
       publishEmergencyStopControlCommands();
       return;
     }
@@ -263,7 +268,7 @@ void VehicleCmdGate::onTimer()
       external_emergency_stop_heartbeat_received_time_, external_emergency_stop_heartbeat_timeout_);
 
     if (is_external_emergency_stop_heartbeat_timeout_) {
-      ROS_WARN_THROTTLE(1.0, "external_emergency_stop heartbeat is timeout.");
+      RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 1000/*ms*/, "external_emergency_stop heartbeat is timeout.");
       is_external_emergency_stop_ = true;
     }
   }
@@ -271,7 +276,7 @@ void VehicleCmdGate::onTimer()
   // Check external emergency stop
   if (is_external_emergency_stop_) {
     if (!is_external_emergency_stop_heartbeat_timeout_) {
-      ROS_INFO_THROTTLE(1.0, "Please call `clear_external_emergency_stop` service to clear state.");
+      RCLCPP_INFO_THROTTLE(get_logger(), *get_clock(), 1000/*ms*/, "Please call `clear_external_emergency_stop` service to clear state.");
     }
 
     publishEmergencyStopControlCommands();
@@ -455,13 +460,13 @@ void VehicleCmdGate::onEngage(autoware_control_msgs::msg::EngageMode::ConstShare
 
 void VehicleCmdGate::onSystemEmergency(autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg)
 {
-  is_system_emergency_ = msg->data;
+  is_system_emergency_ = msg->is_emergency;
   system_emergency_heartbeat_received_time_ = std::make_shared<rclcpp::Time>(this->now());
 }
 
 void VehicleCmdGate::onExternalEmergencyStop(autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg)
 {
-  if (msg->data) {
+  if (msg->is_emergency) {
     is_external_emergency_stop_ = true;
   }
   external_emergency_stop_heartbeat_received_time_ = std::make_shared<rclcpp::Time>(this->now());
@@ -479,7 +484,7 @@ void VehicleCmdGate::onGateMode(autoware_control_msgs::msg::GateMode::ConstShare
   }
 }
 
-void VehicleCmdGate::onSteering(autoware_vehicle_msgs::msg::Steering::ConstPtr msg)
+void VehicleCmdGate::onSteering(autoware_vehicle_msgs::msg::Steering::ConstSharedPtr msg)
 {
   current_steer_ = msg->data;
 }
@@ -499,30 +504,34 @@ double VehicleCmdGate::getDt()
 }
 
 bool VehicleCmdGate::onExternalEmergencyStopService(
-  std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res)
+  const std::shared_ptr<rmw_request_id_t> req_header,
+  const std::shared_ptr<std_srvs::srv::Trigger::Request> req,
+  const std::shared_ptr<std_srvs::srv::Trigger::Response> res)
 {
   is_external_emergency_stop_ = true;
-  res.success = true;
-  res.message = "external_emergency_stop requested was accepted.";
+  res->success = true;
+  res->message = "external_emergency_stop requested was accepted.";
 
   return true;
 }
 
 bool VehicleCmdGate::onClearExternalEmergencyStopService(
-  std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res)
+  const std::shared_ptr<rmw_request_id_t> req_header,
+  const std::shared_ptr<std_srvs::srv::Trigger::Request> req,
+  const std::shared_ptr<std_srvs::srv::Trigger::Response> res)
 {
   if (is_external_emergency_stop_) {
     if (!is_external_emergency_stop_heartbeat_timeout_) {
       is_external_emergency_stop_ = false;
-      res.success = true;
-      res.message = "external_emergency_stop state was cleared.";
+      res->success = true;
+      res->message = "external_emergency_stop state was cleared.";
     } else {
-      res.success = false;
-      res.message = "Couldn't clear external_emergency_stop state because heartbeat is timeout.";
+      res->success = false;
+      res->message = "Couldn't clear external_emergency_stop state because heartbeat is timeout.";
     }
   } else {
-    res.success = false;
-    res.message = "Not in external_emergency_stop state.";
+    res->success = false;
+    res->message = "Not in external_emergency_stop state.";
   }
 
   return true;
@@ -530,7 +539,7 @@ bool VehicleCmdGate::onClearExternalEmergencyStopService(
 
 void VehicleCmdGate::checkExternalEmergencyStop(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
-  using diagnostic_msgs::DiagnosticStatus;
+  using diagnostic_msgs::msg::DiagnosticStatus;
 
   DiagnosticStatus status;
   if (is_external_emergency_stop_heartbeat_timeout_) {

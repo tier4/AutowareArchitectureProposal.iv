@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(vehicle_cmd_gate)
 
-<<<<<<< HEAD
 ### Compile options
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
@@ -18,32 +17,9 @@ find_package(ament_cmake REQUIRED)
 find_package(autoware_control_msgs REQUIRED)
 find_package(autoware_vehicle_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
-=======
-add_compile_options(-std=c++14)
-
-find_package(
-  catkin REQUIRED COMPONENTS
-    autoware_control_msgs
-    autoware_vehicle_msgs
-    geometry_msgs
-    roscpp
-    rostest
-    rosunit
-    roslint
-    std_msgs
-    std_srvs
-)
-
-catkin_package(
-  INCLUDE_DIRS include
-  CATKIN_DEPENDS
-    autoware_control_msgs
-    autoware_vehicle_msgs
-    geometry_msgs
-    std_msgs
-    std_srvs
-)
->>>>>>> 34624dbca... Improve remote emergency stop (#900)
+find_package(std_srvs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(diagnostic_updater REQUIRED)
 
 # Add path of include dir
 include_directories(include)
@@ -54,7 +30,10 @@ add_executable(vehicle_cmd_gate src/vehicle_cmd_gate_node.cpp src/vehicle_cmd_ga
 set(VEHICLE_CMD_GATE_DEPENDENCIES
 	autoware_control_msgs
 	autoware_vehicle_msgs
-	rclcpp
+  rclcpp
+  std_srvs
+  geometry_msgs
+  diagnostic_updater
 )
 ament_target_dependencies(vehicle_cmd_gate ${VEHICLE_CMD_GATE_DEPENDENCIES})
 ament_export_dependencies(${VEHICLE_CMD_GATE_DEPENDENCIES})

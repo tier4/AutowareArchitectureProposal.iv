@@ -17,7 +17,7 @@
 
 #include <memory>
 
-#include <diagnostic_updater/diagnostic_updater.h>
+#include "diagnostic_updater/diagnostic_updater.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
@@ -25,11 +25,12 @@
 #include "autoware_control_msgs/msg/engage_mode.hpp"
 #include "autoware_control_msgs/msg/gate_mode.hpp"
 #include "autoware_vehicle_msgs/msg/shift_stamped.hpp"
+#include "autoware_vehicle_msgs/msg/steering.hpp"
 #include "autoware_vehicle_msgs/msg/turn_signal.hpp"
 #include "autoware_vehicle_msgs/msg/vehicle_command.hpp"
 
 #include "vehicle_cmd_gate/vehicle_cmd_filter.hpp"
-#include <std_srvs/srv/trigger.h>
+#include "std_srvs/srv/trigger.hpp"
 
 struct Commands
 {
@@ -68,14 +69,15 @@ private:
   bool is_system_emergency_ = false;
   bool is_external_emergency_stop_ = false;
   double current_steer_ = 0;
-  autoware_control_msgs::GateMode current_gate_mode_;
+  autoware_control_msgs::msg::GateMode current_gate_mode_;
 
   // Heartbeat
   std::shared_ptr<rclcpp::Time> system_emergency_heartbeat_received_time_;
   bool is_system_emergency_heartbeat_timeout_ = false;
-
   std::shared_ptr<rclcpp::Time> external_emergency_stop_heartbeat_received_time_;
   bool is_external_emergency_stop_heartbeat_timeout_ = false;
+  bool isHeartbeatTimeout(
+    const std::shared_ptr<rclcpp::Time> & heartbeat_received_time, const double timeout);
 
   // Subscriber for auto
   Commands auto_commands_;
@@ -118,13 +120,16 @@ private:
   double external_emergency_stop_heartbeat_timeout_;
 
   // Service
-  ros::ServiceServer srv_external_emergency_stop_;
-  ros::ServiceServer srv_clear_external_emergency_stop_;
-
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_external_emergency_stop_;
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_clear_external_emergency_stop_;
   bool onExternalEmergencyStopService(
-    std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res);
+    const std::shared_ptr<rmw_request_id_t> req_header,
+    const std::shared_ptr<std_srvs::srv::Trigger::Request> req,
+    const std::shared_ptr<std_srvs::srv::Trigger::Response> res);
   bool onClearExternalEmergencyStopService(
-    std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res);
+    const std::shared_ptr<rmw_request_id_t> req_header,
+    const std::shared_ptr<std_srvs::srv::Trigger::Request> req,
+    const std::shared_ptr<std_srvs::srv::Trigger::Response> res);
 
   // Timer / Event
   rclcpp::TimerBase::SharedPtr timer_;

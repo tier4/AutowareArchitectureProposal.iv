@@ -13,6 +13,7 @@
   <depend>rclcpp</depend>
   <depend>geometry_msgs</depend>
   <depend>std_srvs</depend>
+  <depend>diagnostic_updater</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_cmake_cppcheck</test_depend>
