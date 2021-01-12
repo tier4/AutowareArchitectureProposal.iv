@@ -34,6 +34,7 @@ class bad_case : public ::testing::Test
 };
 
 using BadTypes = ::testing::Types<float32_t, float64_t, int32_t, uint32_t>;
+// cppcheck-suppress syntaxError
 TYPED_TEST_CASE(bad_case, BadTypes, );
 
 // Empty domain/range
