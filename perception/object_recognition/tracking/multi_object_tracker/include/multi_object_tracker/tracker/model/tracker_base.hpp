@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Autoware Foundation. All rights reserved.
+ * Copyright 2020 Tier IV, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ *
  * v1.0 Yukihiro Saito
  */
 
@@ -21,6 +22,8 @@
 #include <geometry_msgs/Point.h>
 #include <ros/ros.h>
 #include <unique_id/unique_id.h>
+#define EIGEN_MPL2_ONLY
+#include <Eigen/Core>
 
 class Tracker
 {
@@ -49,6 +52,7 @@ public:
     return (ros::Time::now() - last_update_with_measurement_time_).toSec();
   }
   virtual geometry_msgs::Point getPosition(const ros::Time & time);
+  virtual Eigen::Matrix2d getXYCovariance(const ros::Time & time);
   virtual double getArea(const ros::Time & time);
 
   /*

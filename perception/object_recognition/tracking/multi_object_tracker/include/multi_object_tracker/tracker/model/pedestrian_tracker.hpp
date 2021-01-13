@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Autoware Foundation. All rights reserved.
+ * Copyright 2020 Tier IV, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ *
  * v1.0 Yukihiro Saito
  */
 
 #pragma once
+#include <kalman_filter/kalman_filter.hpp>
 #include "autoware_perception_msgs/DynamicObject.h"
 #include "tracker_base.hpp"
 
@@ -24,25 +26,61 @@ class PedestrianTracker : public Tracker
 {
 private:
   autoware_perception_msgs::DynamicObject object_;
-  double filtered_posx_;
-  double filtered_posy_;
-  double pos_filter_gain_;
-  double filtered_vx_;
-  double filtered_vy_;
-  double v_filter_gain_;
-  double filtered_area_;
-  double area_filter_gain_;
-  double last_measurement_posx_;
-  double last_measurement_posy_;
+
+private:
+  KalmanFilter ekf_;
   ros::Time last_update_time_;
-  ros::Time last_measurement_time_;
+  enum IDX {
+    X = 0,
+    Y = 1,
+    YAW = 2,
+    VX = 3,
+    WZ = 4,
+  };
+  char dim_x_ = 5;
+  float process_noise_covariance_pos_x_;
+  float process_noise_covariance_pos_y_;
+  float process_noise_covariance_yaw_;
+  float process_noise_covariance_wz_;
+  float process_noise_covariance_vx_;
+  float initial_measurement_noise_covariance_vx_;
+  float initial_measurement_noise_covariance_wz_;
+  // if use_measurement_covariance_ is false, use following params
+  bool use_measurement_covariance_;
+  float measurement_noise_covariance_pos_x_;
+  float measurement_noise_covariance_pos_y_;
+  float measurement_noise_covariance_yaw_;
+  float initial_measurement_noise_covariance_pos_x_;
+  float initial_measurement_noise_covariance_pos_y_;
+  float initial_measurement_noise_covariance_yaw_;
+
+  double max_vx_;
+  double max_wz_;
+
+private:
+  struct BoundingBox
+  {
+    double width;
+    double length;
+    double height;
+  };
+  struct Cylinder
+  {
+    double width;
+    double height;
+  };
+  BoundingBox bounding_box_;
+  Cylinder cylinder_;
 
 public:
   PedestrianTracker(const ros::Time & time, const autoware_perception_msgs::DynamicObject & object);
 
   bool predict(const ros::Time & time) override;
+  bool predict(const double dt, KalmanFilter & ekf);
   bool measure(
     const autoware_perception_msgs::DynamicObject & object, const ros::Time & time) override;
+  bool measureWithPose(const autoware_perception_msgs::DynamicObject & object);
+  bool measureWithShape(const autoware_perception_msgs::DynamicObject & object);
   bool getEstimatedDynamicObject(
     const ros::Time & time, autoware_perception_msgs::DynamicObject & object) override;
   virtual ~PedestrianTracker(){};

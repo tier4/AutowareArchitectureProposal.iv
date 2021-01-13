@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Autoware Foundation. All rights reserved.
+ * Copyright 2020 Tier IV, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  *
  * v1.0 Yukihiro Saito
  */
@@ -52,6 +53,13 @@ private:  // ros
   std::list<std::shared_ptr<Tracker>> list_tracker_;
   std::unique_ptr<DataAssociation> data_association_;
   bool enable_delay_compensation_;
+  bool transformDynamicObjects(
+    const autoware_perception_msgs::DynamicObjectWithFeatureArray & input_msg,
+    const std::string & target_frame_id,
+    autoware_perception_msgs::DynamicObjectWithFeatureArray & output_msg);
+  void checkTrackerLifeCycle(
+    std::list<std::shared_ptr<Tracker>> & list_tracker, const ros::Time & time);
+  void publish(const ros::Time & time);
 
 public:
   MultiObjectTrackerNode();

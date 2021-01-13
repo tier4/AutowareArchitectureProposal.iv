@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Autoware Foundation. All rights reserved.
+ * Copyright 2020 Tier IV, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,44 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ *
  * v1.0 Yukihiro Saito
  */
 
 #pragma once
+#include <kalman_filter/kalman_filter.hpp>
 #include "autoware_perception_msgs/DynamicObject.h"
+#include "bicycle_tracker.hpp"
+#include "pedestrian_tracker.hpp"
 #include "tracker_base.hpp"
 
-class VehicleTracker : public Tracker
+class PedestrianAndBicycleTracker : public Tracker
 {
 private:
-  autoware_perception_msgs::DynamicObject object_;
-  double filtered_yaw_;
-  double yaw_filter_gain_;
-  bool is_fixed_yaw_;
-  double filtered_dim_x_;
-  double filtered_dim_y_;
-  double dim_filter_gain_;
-  bool is_fixed_dim_;
-  double filtered_posx_;
-  double filtered_posy_;
-  double pos_filter_gain_;
-  double filtered_vx_;
-  double filtered_vy_;
-  double v_filter_gain_;
-  double filtered_area_;
-  double area_filter_gain_;
-  double last_measurement_posx_;
-  double last_measurement_posy_;
-  ros::Time last_update_time_;
-  ros::Time last_measurement_time_;
+  PedestrianTracker pedestrian_tracker_;
+  BicycleTracker bicycle_tracker_;
 
 public:
-  VehicleTracker(const ros::Time & time, const autoware_perception_msgs::DynamicObject & object);
+  PedestrianAndBicycleTracker(
+    const ros::Time & time, const autoware_perception_msgs::DynamicObject & object);
 
   bool predict(const ros::Time & time) override;
   bool measure(
     const autoware_perception_msgs::DynamicObject & object, const ros::Time & time) override;
   bool getEstimatedDynamicObject(
     const ros::Time & time, autoware_perception_msgs::DynamicObject & object) override;
-  virtual ~VehicleTracker(){};
+  virtual ~PedestrianAndBicycleTracker(){};
 };

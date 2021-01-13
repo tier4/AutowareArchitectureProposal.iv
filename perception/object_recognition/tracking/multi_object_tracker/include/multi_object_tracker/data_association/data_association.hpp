@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Autoware Foundation. All rights reserved.
+ * Copyright 2020 Tier IV, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,9 @@ class DataAssociation
 private:
   double getDistance(
     const geometry_msgs::Point & measurement, const geometry_msgs::Point & tracker);
+  double getMahalanobisDistance(
+    const geometry_msgs::Point & measurement, const geometry_msgs::Point & tracker,
+    const Eigen::Matrix2d & covariance);
   Eigen::MatrixXi can_assign_matrix_;
   Eigen::MatrixXd max_dist_matrix_;
   Eigen::MatrixXd max_area_matrix_;

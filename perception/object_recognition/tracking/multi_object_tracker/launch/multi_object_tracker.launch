@@ -5,7 +5,7 @@
   <arg name="output" default="objects"/>
   <arg name="world_frame_id" default="map"/>
   <arg name="publish_rate" default="10"/>
-  <arg name="data_association_matrix_path" default="$(find multi_object_tracker)/config/data_assosiaction_matrix.yaml" />
+  <arg name="data_association_matrix_path" default="$(find multi_object_tracker)/config/data_association_matrix.yaml" />
   <node pkg="multi_object_tracker" type="multi_object_tracker_node" name="multi_object_tracker" output="screen">
     <remap from="~input" to="$(arg input)"/>
     <remap from="~output" to="$(arg output)"/>

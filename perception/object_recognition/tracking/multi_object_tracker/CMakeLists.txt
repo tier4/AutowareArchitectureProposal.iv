@@ -5,9 +5,11 @@ add_compile_options(-std=c++14)
 
 find_package(catkin REQUIRED COMPONENTS
   autoware_perception_msgs
+  autoware_utils
   roscpp
   tf2
   tf2_ros
+  kalman_filter
   unique_id
   uuid_msgs
 )
@@ -17,9 +19,11 @@ find_package(Eigen3 REQUIRED)
 catkin_package(
   CATKIN_DEPENDS
     autoware_perception_msgs
+    autoware_utils
     roscpp
     tf2
     tf2_ros
+    kalman_filter
     unique_id
     uuid_msgs
 )
@@ -31,9 +35,12 @@ add_executable(multi_object_tracker_node
   src/node.cpp
   src/utils/utils.cpp
   src/tracker/model/tracker_base.cpp
-  src/tracker/model/vehicle_tracker.cpp
+  src/tracker/model/big_vehicle_tracker.cpp
+  src/tracker/model/normal_vehicle_tracker.cpp
+  src/tracker/model/multiple_vehicle_tracker.cpp
   src/tracker/model/bicycle_tracker.cpp
   src/tracker/model/pedestrian_tracker.cpp
+  src/tracker/model/pedestrian_and_bicycle_tracker.cpp
   src/data_association/data_association.cpp
   src/data_association/successive_shortest_path/successive_shortest_path.cpp
 )

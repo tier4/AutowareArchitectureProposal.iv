@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Autoware Foundation. All rights reserved.
+ * Copyright 2020 Tier IV, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,17 @@ geometry_msgs::Point Tracker::getPosition(const ros::Time & time)
   position.y = object.state.pose_covariance.pose.position.y;
   position.z = object.state.pose_covariance.pose.position.z;
   return position;
+}
+
+Eigen::Matrix2d Tracker::getXYCovariance(const ros::Time & time)
+{
+  autoware_perception_msgs::DynamicObject object;
+  getEstimatedDynamicObject(time, object);
+  Eigen::Matrix2d covariance;
+  covariance << object.state.pose_covariance.covariance[0],
+    object.state.pose_covariance.covariance[1], object.state.pose_covariance.covariance[6],
+    object.state.pose_covariance.covariance[7];
+  return covariance;
 }
 
 double Tracker::getArea(const ros::Time & time)

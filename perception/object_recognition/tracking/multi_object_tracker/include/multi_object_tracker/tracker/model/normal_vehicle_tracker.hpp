@@ -22,7 +22,7 @@
 #include "autoware_perception_msgs/DynamicObject.h"
 #include "tracker_base.hpp"
 
-class BicycleTracker : public Tracker
+class NormalVehicleTracker : public Tracker
 {
 private:
   autoware_perception_msgs::DynamicObject object_;
@@ -67,7 +67,8 @@ private:
   BoundingBox bounding_box_;
 
 public:
-  BicycleTracker(const ros::Time & time, const autoware_perception_msgs::DynamicObject & object);
+  NormalVehicleTracker(
+    const ros::Time & time, const autoware_perception_msgs::DynamicObject & object);
 
   bool predict(const ros::Time & time) override;
   bool predict(const double dt, KalmanFilter & ekf);
@@ -77,5 +78,5 @@ public:
   bool measureWithShape(const autoware_perception_msgs::DynamicObject & object);
   bool getEstimatedDynamicObject(
     const ros::Time & time, autoware_perception_msgs::DynamicObject & object) override;
-  virtual ~BicycleTracker(){};
+  virtual ~NormalVehicleTracker(){};
 };
