@@ -78,6 +78,7 @@ protected:
 
 // Instantiate tests for given types, add more types here as they are used
 using PointTypesSpatialHash = ::testing::Types<geometry_msgs::msg::Point32>;
+// cppcheck-suppress syntaxError
 TYPED_TEST_CASE(TypedSpatialHashTest, PointTypesSpatialHash, );
 /// NOTE: This is the older version due to 1.8.0 of GTest. v1.8.1 uses TYPED_TEST_SUITE
 
