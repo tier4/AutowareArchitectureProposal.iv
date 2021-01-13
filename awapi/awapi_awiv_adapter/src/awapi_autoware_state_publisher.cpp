@@ -116,6 +116,7 @@ void AutowareIvAutowareStatePublisher::getCurrentMaxVelInfo(
     RCLCPP_DEBUG_STREAM_THROTTLE(
       logger_, *clock_, 5000 /* ms */,
       "[AutowareIvAutowareStatePublisher] currrent_max_velocity is nullptr");
+    return;
   }
 
   // get current max velocity
