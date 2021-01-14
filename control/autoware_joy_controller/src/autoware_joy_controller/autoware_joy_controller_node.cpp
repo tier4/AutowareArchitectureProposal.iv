@@ -323,19 +323,24 @@ void AutowareJoyControllerNode::publishEmergencyStop()
 
   if (joy_->clear_emergency_stop()) {
     emergency.data = false;
-    RCLCPP_INFO(get_logger(), "Clear Emergency");
 
-    auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
-    auto result = client_clear_emergency_stop_->async_send_request(request); // TODO(Horibe) check usage
-
-    if (rclcpp::spin_until_future_complete(this, result) == rclcpp::FutureReturnCode::SUCCESS) {
-      if (request->success) {
-        RCLCPP_INFO(get_logger(), "Clear Emergency Stop");
-      } else {
-        RCLCPP_WARN(get_logger(), "failed to clear emergency stop: %s", request->message.c_str());
-      }
+    if (!client_clear_emergency_stop_->wait_for_service(std::chrono::seconds(1))) {
+      RCLCPP_WARN(get_logger(), "failed to find clear_emergency_stop service");
     } else {
-      RCLCPP_WARN(get_logger(), "failed to call service");
+      auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
+      auto result = client_clear_emergency_stop_->async_send_request(request);
+      if (
+        rclcpp::spin_until_future_complete(this->get_node_base_interface(), result) ==
+        rclcpp::FutureReturnCode::SUCCESS) {
+        if (result.get()->success) {
+          RCLCPP_INFO(get_logger(), "Clear Emergency Stop");
+        } else {
+          RCLCPP_WARN(
+            get_logger(), "failed to clear emergency stop: %s", result.get()->message.c_str());
+        }
+      } else {
+        RCLCPP_WARN(get_logger(), "failed to call service");
+      }
     }
   }
 
