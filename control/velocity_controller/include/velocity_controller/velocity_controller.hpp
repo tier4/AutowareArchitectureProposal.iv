@@ -21,6 +21,7 @@
 #include "lowpass_filter.hpp"
 #include "pid.hpp"
 #include "velocity_controller_mathutils.hpp"
+#include "vehicle_info_util/vehicle_info.hpp"
 
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"

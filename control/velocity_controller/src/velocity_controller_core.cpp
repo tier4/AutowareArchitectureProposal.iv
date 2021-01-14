@@ -33,7 +33,7 @@ VelocityController::VelocityController()
 
   // parameters timer
   control_rate_ = declare_parameter("control_rate", 30.0);
-  wheel_base_ = 4.0; // TODO (Horibe): use vehicle info
+  wheel_base_ = vehicle_info_util::VehicleInfo::create(*this).wheel_base_m_;
 
   // parameters to enable functions
   enable_smooth_stop_ = declare_parameter("enable_smooth_stop", true);
