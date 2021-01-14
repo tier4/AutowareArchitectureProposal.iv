@@ -297,7 +297,7 @@ bool MPCUtils::convertToMPCTrajectory(
 }
 
 bool MPCUtils::convertToAutowareTrajectory(
-  const MPCTrajectory & input, autoware_planning_msgs::Trajectory * output)
+  const MPCTrajectory & input, autoware_planning_msgs::msg::Trajectory * output)
 {
   if (!output) {
     return false;
@@ -305,7 +305,7 @@ bool MPCUtils::convertToAutowareTrajectory(
 
   output->points.clear();
   for (size_t i = 0; i < input.size(); ++i) {
-    autoware_planning_msgs::TrajectoryPoint p;
+    autoware_planning_msgs::msg::TrajectoryPoint p;
     p.pose.position.x = input.x.at(i);
     p.pose.position.y = input.y.at(i);
     p.pose.position.z = input.z.at(i);

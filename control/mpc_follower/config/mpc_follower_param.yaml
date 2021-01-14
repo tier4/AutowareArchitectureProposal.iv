@@ -42,7 +42,7 @@
 
     # -- vehicle model --
     vehicle_model_type: "kinematics" # vehicle model type for mpc prediction. option is kinematics, kinematics_no_delay, and dynamics
-    input_delay: 0.24     # steering input delay time for delay compensation
+    input_delay: 0.24                # steering input delay time for delay compensation
     vehicle_model_steer_tau: 0.3     # steering dynamics time constant (1d approximation) [s]
     steer_lim_deg: 40.0              # steering angle limit [deg]
     steer_rate_lim_dps: 600.0        # steering angle rate limit [deg/s]
