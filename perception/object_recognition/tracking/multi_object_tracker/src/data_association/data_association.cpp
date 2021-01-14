@@ -98,7 +98,7 @@ Eigen::MatrixXd DataAssociation::calcScoreMatrix(
       ++measurement_idx)
     {
       double score = 0.0;
-      if (can_assgin_matrix_(
+      if (can_assign_matrix_(
           (*tracker_itr)->getType(),
           measurements.feature_objects.at(measurement_idx).object.semantic.type))
       {

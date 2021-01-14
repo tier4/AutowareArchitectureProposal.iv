@@ -205,7 +205,7 @@ void MultiObjectTracker::measurementCallback(
     }
 
     // Publish
-    dynamic_objects_pub_->publish(output_msg);
+    dynamic_object_pub_->publish(output_msg);
   }
 }
 
