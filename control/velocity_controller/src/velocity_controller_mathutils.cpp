@@ -30,7 +30,7 @@ double calcDistSquared2D(const geometry_msgs::msg::Pose & p1, const geometry_msg
   return dx * dx + dy * dy;
 }
 
-double calcPitch(const geometry_msgs::Pose & p1, const geometry_msgs::Pose & p2)
+double calcPitch(const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Pose & p2)
 {
   const double dx = p1.position.x - p2.position.x;
   const double dy = p1.position.y - p2.position.y;

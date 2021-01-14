@@ -175,7 +175,7 @@ void VelocityController::callbackTrajectory(
   const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg)
 {
   if (!isValidTrajectory(*msg)) {
-    ROS_ERROR("[velocity_controller] received invalid trajectory. ignore.");
+    RCLCPP_ERROR(get_logger(), "received invalid trajectory. ignore.");
     return;
   }
   trajectory_ptr_ = msg;
@@ -641,7 +641,7 @@ bool VelocityController::isEmergencyState(int closest, double target_vel) const
   return false;
 }
 
-bool VelocityController::isValidTrajectory(const autoware_planning_msgs::Trajectory & traj) const
+bool VelocityController::isValidTrajectory(const autoware_planning_msgs::msg::Trajectory & traj) const
 {
   for (const auto & points : traj.points) {
     const auto & p = points.pose.position;
@@ -708,14 +708,14 @@ double VelocityController::getPitchByPose(const geometry_msgs::msg::Quaternion &
 }
 
 double VelocityController::getPitchByTraj(
-  const autoware_planning_msgs::Trajectory & msg, const int32_t closest) const
+  const autoware_planning_msgs::msg::Trajectory & msg, const int32_t closest) const
 {
   if (msg.points.size() <= 1) {
     // cannot calculate pitch
     return 0.0;
   }
 
-  for (int i = closest + 1; i < msg.points.size(); i++) {
+  for (int i = closest + 1; i < static_cast<int>(msg.points.size()); i++) {
     const double dist = vcutils::calcDistance2D(msg.points.at(closest).pose, msg.points.at(i).pose);
     if (dist > wheel_base_) {
       // closest: rear wheel, i: front wheel
