@@ -28,4 +28,6 @@
   <depend>osqp_interface</depend>
   <depend>eigen</depend>
 
+  <exec_depend>rclpy</exec_depend>
+
 </package>
