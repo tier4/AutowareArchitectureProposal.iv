@@ -39,7 +39,7 @@ double calcPitch(const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::
   const double dist_2d = std::max(std::hypot(dx, dy), 1e-02);
   const double pitch = atan2(dz, dist_2d);
   return pitch;
-};
+}
 
 double normalizeEulerAngle(double euler)
 {
