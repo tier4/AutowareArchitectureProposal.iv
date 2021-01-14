@@ -38,6 +38,7 @@
 #include "autoware_planning_msgs/msg/trajectory.hpp"
 #include "autoware_vehicle_msgs/msg/steering.hpp"
 #include "osqp_interface/osqp_interface.hpp"
+#include "vehicle_info_util/vehicle_info.hpp"
 
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"

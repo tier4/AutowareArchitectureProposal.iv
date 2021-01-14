@@ -27,4 +27,5 @@
   <depend>autoware_vehicle_msgs</depend>
   <depend>osqp_interface</depend>
   <depend>visualization_msgs</depend>
+  <depend>vehicle_info_util</depend>
 </package>

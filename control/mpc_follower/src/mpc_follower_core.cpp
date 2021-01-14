@@ -67,9 +67,9 @@ MPCFollower::MPCFollower()
   double steer_lim_deg, steer_rate_lim_degs;
   steer_lim_deg = declare_parameter("steer_lim_deg", 35.0);
   steer_rate_lim_degs = declare_parameter("steer_rate_lim_degs", 150.0);
-  wheelbase_ = declare_parameter("/vehicle_info/wheel_base", 2.9); // TODO(Horibe): use vehicle info
   steer_lim_ = steer_lim_deg * DEG2RAD;
   steer_rate_lim_ = steer_rate_lim_degs * DEG2RAD;
+  wheelbase_ = vehicle_info_util::VehicleInfo::create(*this).wheel_base_m_;
 
   /* vehicle model setup */
   vehicle_model_type_ = declare_parameter("vehicle_model_type", "kinematics");
