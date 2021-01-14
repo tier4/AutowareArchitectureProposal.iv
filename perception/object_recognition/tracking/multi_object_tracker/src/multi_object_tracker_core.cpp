@@ -124,7 +124,7 @@ void MultiObjectTracker::measurementCallback(
 
   /* life cycle check */
   for (auto itr = list_tracker_.begin(); itr != list_tracker_.end(); ++itr) {
-    if (1.0 < (*itr)->getElapsedTimeFromLastUpdate()) {
+    if (1.0 < (*itr)->getElapsedTimeFromLastUpdate(rclcpp::Node::now())) {
       auto erase_itr = itr;
       --itr;
       list_tracker_.erase(erase_itr);
