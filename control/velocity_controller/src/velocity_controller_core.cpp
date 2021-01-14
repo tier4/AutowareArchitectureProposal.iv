@@ -355,7 +355,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
    *
    * If the closest is not found (when the threshold is exceeded), it is treated as an emergency stop.
    *
-   * Outout velocity : "0" with maximum acceleration constraint
+   * Output velocity : "0" with maximum acceleration constraint
    * Output acceleration : "emergency_stop_acc_" with maximum jerk constraint
    *
    */
@@ -403,7 +403,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
    * If the current velocity and target velocity is almost zero,
    * and the smooth stop is not working, enter the stop state.
    *
-   * Outout velocity : "stop_state_vel_" (assumed to be zero, depending on the vehicle interface)
+   * Output velocity : "stop_state_vel_" (assumed to be zero, depending on the vehicle interface)
    * Output acceleration : "stop_state_acc_" with max_jerk limit. (depending on the vehicle interface)
    *
    */
@@ -420,7 +420,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
    * The condition of the emergency is checked in checkEmergency() function.
    * The flag is reset when the vehicle is stopped.
    *
-   * Outout velocity : "0" with maximum acceleration constraint
+   * Output velocity : "0" with maximum acceleration constraint
    * Output acceleration : "emergency_stop_acc_" with max_jerk limit.
    *
    */
@@ -435,10 +435,10 @@ CtrlCmd VelocityController::calcCtrlCmd()
 
   /* ===== SMOOTH STOP =====
    *
-   * If the vehicle veloicity & target velocity is low ehough, and there is a stop point nearby the ego vehicle,
+   * If the vehicle velocity & target velocity is low enough, and there is a stop point nearby the ego vehicle,
    * enter the smooth stop state.
    *
-   * Outout velocity : "target_vel" from the reference trajectory
+   * Output velocity : "target_vel" from the reference trajectory
    * Output acceleration : "emergency_stop_acc_" with max_jerk limit.
    *
    */
@@ -460,7 +460,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
    *
    * Execute PID feedback control.
    *
-   * Outout velocity : "target_vel" from the reference trajectory
+   * Output velocity : "target_vel" from the reference trajectory
    * Output acceleration : calculated by PID controller with max_acceleration & max_jerk limit.
    *
    */
@@ -538,7 +538,7 @@ void VelocityController::publishCtrlCmd(const double vel, const double acc)
   cmd.control.acceleration = acc;
   pub_control_cmd_->publish(cmd);
 
-  // calculate accleration from velocity
+  // calculate acceleration from velocity
   if (prev_vel_ptr_) {
     const double dv = current_vel_ptr_->twist.linear.x - prev_vel_ptr_->twist.linear.x;
     const double dt = std::max(
@@ -616,7 +616,7 @@ bool VelocityController::checkEmergency(int closest) const
     return true;
   }
 
-  // velocity is getting high when smoth stopping.
+  // velocity is getting high when smooth stopping.
   bool has_smooth_exit_vel =
     std::fabs(current_vel_ptr_->twist.linear.x) > smooth_stop_param_.exit_ego_speed;
   if (is_smooth_stop_ && has_smooth_exit_vel) {
@@ -851,8 +851,8 @@ double VelocityController::calcInterpolatedTargetValue(
 double VelocityController::applyLimitFilter(
   const double input_val, const double max_val, const double min_val) const
 {
-  const double limitted_val = std::min(std::max(input_val, min_val), max_val);
-  return limitted_val;
+  const double limited_val = std::min(std::max(input_val, min_val), max_val);
+  return limited_val;
 }
 
 double VelocityController::applyRateFilter(
