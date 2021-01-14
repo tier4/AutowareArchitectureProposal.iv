@@ -66,8 +66,9 @@ MultiObjectTracker::MultiObjectTracker(const rclcpp::NodeOptions & node_options)
   this->declare_parameter("max_dist_matrix");
   this->declare_parameter("max_area_matrix");
   this->declare_parameter("min_area_matrix");
-  std::vector<int> can_assign_matrix =
-    this->get_parameter("can_assign_matrix").as_int_array();
+  auto can_assign_matrix_tmp =
+    this->get_parameter("can_assign_matrix").as_integer_array();
+  std::vector<int> can_assign_matrix(can_assign_matrix_tmp.begin(), can_assign_matrix_tmp.end());
   std::vector<double> max_dist_matrix =
     this->get_parameter("max_dist_matrix").as_double_array();
   std::vector<double> max_area_matrix =
