@@ -30,7 +30,7 @@ bool isIncrease(const std::vector<double> & x)
 
 bool isValidInput(
   const std::vector<double> & base_index, const std::vector<double> & base_value,
-  const std::vector<double> & return_index, const std::vector<double> & return_value)
+  const std::vector<double> & return_index)
 {
   if (base_index.empty() || base_value.empty() || return_index.empty()) {
     std::cerr << "mpc bad index : some vector is empty. base_index: " << base_index.size()
@@ -70,7 +70,7 @@ bool LinearInterpolate::interpolate(
   const std::vector<double> & return_index, std::vector<double> & return_value)
 {
   // check if inputs are valid
-  if (!isValidInput(base_index, base_value, return_index, return_value)) {
+  if (!isValidInput(base_index, base_value, return_index)) {
     std::cerr << "[mpc linear interpolate] invalid input. interpolation failed." << std::endl;
     return false;
   }
@@ -191,7 +191,7 @@ bool SplineInterpolate::interpolate(
   const std::vector<double> & return_index, std::vector<double> & return_value)
 {
   // check if inputs are valid
-  if (!isValidInput(base_index, base_value, return_index, return_value)) {
+  if (!isValidInput(base_index, base_value, return_index)) {
     std::cerr << "[mpc spline interpolate] invalid input. interpolation failed." << std::endl;
     return false;
   }
