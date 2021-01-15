@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-#include <ros/ros.h>
-#include <pacmod_additional_debug_publisher/pacmod_additional_debug_publisher_node.hpp>
+#include <algorithm>
+#include <memory>
+#include <utility>
+
+#include "pacmod_additional_debug_publisher/pacmod_additional_debug_publisher_node.hpp"
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "pacmod_additional_debug_publisher");
-  PacmodAdditionalDebugPublisherNode node;
-
-  ros::spin();
-
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<PacmodAdditionalDebugPublisherNode>();
+  rclcpp::spin(node);
+  rclcpp::shutdown();
   return 0;
-};
+}

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <pacmod_additional_debug_publisher/pacmod_additional_debug_publisher_node.hpp>
+#include "pacmod_additional_debug_publisher/pacmod_additional_debug_publisher_node.hpp"
 
 namespace
 {
@@ -26,14 +26,20 @@ bool isTargetId(uint32_t id)
 }
 }  // namespace
 
-PacmodAdditionalDebugPublisherNode::PacmodAdditionalDebugPublisherNode() : nh_(), pnh_("~")
+PacmodAdditionalDebugPublisherNode::PacmodAdditionalDebugPublisherNode()
+: Node("pacmod_additional_debug_publisher")
 {
-  pub_ = nh_.advertise<std_msgs::Float32MultiArray>("output/debug", 1);
-  sub_ = nh_.subscribe("input/can_tx", 1, &PacmodAdditionalDebugPublisherNode::canTxCallback, this);
+  using std::placeholders::_1;
+
+  pub_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>(
+    "output/debug", rclcpp::QoS{1});
+  sub_ = create_subscription<can_msgs::msg::Frame>(
+    "input/can_tx", rclcpp::QoS{1},
+    std::bind(&PacmodAdditionalDebugPublisherNode::canTxCallback, this, _1));
   debug_value_.data.resize(17);
 }
 
-void PacmodAdditionalDebugPublisherNode::canTxCallback(const can_msgs::FrameConstPtr & msg)
+void PacmodAdditionalDebugPublisherNode::canTxCallback(const can_msgs::msg::Frame::ConstSharedPtr msg)
 {
   if (isTargetId(msg->id)) {
     float debug1 = 0.0;
@@ -97,6 +103,6 @@ void PacmodAdditionalDebugPublisherNode::canTxCallback(const can_msgs::FrameCons
       default:
         break;
     }
-    pub_.publish(debug_value_);
+    pub_->publish(debug_value_);
   }
 }

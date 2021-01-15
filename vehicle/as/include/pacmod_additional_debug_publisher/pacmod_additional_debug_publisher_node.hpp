@@ -15,18 +15,17 @@
  */
 
 #pragma once
-#include <can_msgs/Frame.h>
-#include <ros/ros.h>
-#include <std_msgs/Float32MultiArray.h>
+#include "can_msgs/msg/frame.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
 
-class PacmodAdditionalDebugPublisherNode
+class PacmodAdditionalDebugPublisherNode : public rclcpp::Node
 {
 private:
-  ros::NodeHandle nh_, pnh_;
-  ros::Publisher pub_;
-  ros::Subscriber sub_;
-  std_msgs::Float32MultiArray debug_value_;
-  void canTxCallback(const can_msgs::FrameConstPtr & msg);
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr pub_;
+  rclcpp::Subscription<can_msgs::msg::Frame>::SharedPtr sub_;
+  autoware_debug_msgs::msg::Float32MultiArrayStamped debug_value_;
+  void canTxCallback(const can_msgs::msg::Frame::ConstSharedPtr msg);
 
 public:
   PacmodAdditionalDebugPublisherNode();

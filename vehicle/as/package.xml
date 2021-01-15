@@ -16,6 +16,7 @@
   <depend>automotive_platform_msgs</depend>
   <depend>autoware_control_msgs</depend>
   <depend>autoware_vehicle_msgs</depend>
+  <depend>autoware_debug_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>message_filters</depend>
   <depend>pacmod_msgs</depend>
