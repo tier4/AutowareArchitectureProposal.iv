@@ -23,6 +23,7 @@
 #include <tf2/transform_datatypes.h>
 #include <tf2_ros/transform_listener.h>
 
+#include <std_msgs/Bool.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 #include <sensor_msgs/PointCloud2.h>
 
@@ -48,6 +49,9 @@ private:
     const geometry_msgs::PoseWithCovarianceStamped::ConstPtr & pose_cov_msg_ptr);
   void callbackGNSSPoseCov(
     const geometry_msgs::PoseWithCovarianceStamped::ConstPtr & pose_cov_msg_ptr);
+  void callbackPoseInitializationRequest(
+    const std_msgs::Bool::ConstPtr & bool_msg_ptr);
+
 
   bool getHeight(
     const geometry_msgs::PoseWithCovarianceStamped & input_pose_msg,
@@ -62,6 +66,7 @@ private:
   ros::Subscriber initial_pose_sub_;
   ros::Subscriber gnss_pose_sub_;
   ros::Subscriber map_points_sub_;
+  ros::Subscriber pose_initialization_request_sub_;
 
   ros::Publisher initial_pose_pub_;
 
@@ -74,4 +79,6 @@ private:
 
   pcl::PointCloud<pcl::PointXYZ>::Ptr map_ptr_;
   std::string map_frame_;
+
+  bool enable_gnss_callback_;
 };

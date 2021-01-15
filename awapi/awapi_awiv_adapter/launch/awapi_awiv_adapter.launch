@@ -36,6 +36,7 @@
   <arg name="input_external_crosswalk_status" default="/planning/scenario_planning/lane_driving/behavior_planning/behavior_velocity_planner/input/external_crosswalk_states" />
   <arg name="input_external_intersection_status" default="/planning/scenario_planning/lane_driving/behavior_planning/behavior_velocity_planner/input/external_intersection_states" />
   <arg name="input_expand_stop_range" default="/planning/scenario_planning/lane_driving/motion_planning/obstacle_stop_planner/input/expand_stop_range" />
+  <arg name="input_pose_initialization_request" default="/localization/util/pose_initializer/pose_initialization_request" />
 
   <arg name="output_vehicle_status" default="vehicle/get/status" />
   <arg name="output_autoware_status" default="autoware/get/status" />
@@ -74,6 +75,7 @@
   <arg name="set_crosswalk_status" default="autoware/put/crosswalk_states" />
   <arg name="set_intersection_status" default="autoware/put/intersection_states" />
   <arg name="set_expand_stop_range" default="autoware/put/expand_stop_range" />
+  <arg name="set_pose_initialization_request" default="autoware/put/pose_initialization_request" />
 
   <arg name="get_route" default="autoware/get/route" />
   <arg name="get_predicted_object" default="prediction/get/objects" />
@@ -146,6 +148,7 @@
     <node pkg="topic_tools" type="relay" name="crosswalk_status_relay" args="$(arg set_crosswalk_status) $(arg input_external_crosswalk_status)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="intersection_status_relay" args="$(arg set_intersection_status) $(arg input_external_intersection_status)" output="$(arg relay_output)" />
     <node pkg="topic_tools" type="relay" name="expand_stop_range_relay" args="$(arg set_expand_stop_range) $(arg input_expand_stop_range)" output="$(arg relay_output)" />
+    <node pkg="topic_tools" type="relay" name="pose_initialization_request_relay" args="$(arg set_pose_initialization_request) $(arg input_pose_initialization_request)" output="$(arg relay_output)" />
 
   </group>
 

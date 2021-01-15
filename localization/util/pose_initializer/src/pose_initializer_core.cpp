@@ -41,14 +41,15 @@ double getGroundHeight(const pcl::PointCloud<pcl::PointXYZ>::Ptr pcdmap, const t
 PoseInitializer::PoseInitializer(ros::NodeHandle nh, ros::NodeHandle private_nh)
 : nh_(nh), private_nh_(private_nh), tf2_listener_(tf2_buffer_), map_frame_("map")
 {
+
+  private_nh_.param("enable_gnss_callback", enable_gnss_callback_ , true);
+
   initial_pose_sub_ = nh_.subscribe("initialpose", 10, &PoseInitializer::callbackInitialPose, this);
   map_points_sub_ = nh_.subscribe("pointcloud_map", 1, &PoseInitializer::callbackMapPoints, this);
+  gnss_pose_sub_ = nh_.subscribe("gnss_pose_cov", 1, &PoseInitializer::callbackGNSSPoseCov, this);
 
-  bool use_first_gnss_topic = true;
-  private_nh_.getParam("use_first_gnss_topic", use_first_gnss_topic);
-  if (use_first_gnss_topic) {
-    gnss_pose_sub_ = nh_.subscribe("gnss_pose_cov", 1, &PoseInitializer::callbackGNSSPoseCov, this);
-  }
+  // NOTE use private node handle
+  pose_initialization_request_sub_ = private_nh_.subscribe("pose_initialization_request", 1, &PoseInitializer::callbackPoseInitializationRequest, this);
 
   initial_pose_pub_ = nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>("initialpose3d", 10);
 
@@ -74,7 +75,7 @@ bool PoseInitializer::serviceInitial(
   autoware_localization_srvs::PoseWithCovarianceStamped::Request & req,
   autoware_localization_srvs::PoseWithCovarianceStamped::Response & res)
 {
-  gnss_pose_sub_.shutdown();  // get only first topic
+  enable_gnss_callback_ = false;  // get only first topic
 
   geometry_msgs::PoseWithCovarianceStamped::Ptr add_height_pose_msg_ptr(
     new geometry_msgs::PoseWithCovarianceStamped);
@@ -103,7 +104,7 @@ bool PoseInitializer::serviceInitial(
 void PoseInitializer::callbackInitialPose(
   const geometry_msgs::PoseWithCovarianceStamped::ConstPtr & pose_cov_msg_ptr)
 {
-  gnss_pose_sub_.shutdown();  // get only first topic
+  enable_gnss_callback_ = false;  // get only first topic
 
   geometry_msgs::PoseWithCovarianceStamped::Ptr add_height_pose_msg_ptr(
     new geometry_msgs::PoseWithCovarianceStamped);
@@ -130,6 +131,10 @@ void PoseInitializer::callbackInitialPose(
 void PoseInitializer::callbackGNSSPoseCov(
   const geometry_msgs::PoseWithCovarianceStamped::ConstPtr & pose_cov_msg_ptr)
 {
+  if(!enable_gnss_callback_) {
+    return;
+  }
+
   // TODO check service is available
 
   geometry_msgs::PoseWithCovarianceStamped::Ptr add_height_pose_msg_ptr(
@@ -150,8 +155,15 @@ void PoseInitializer::callbackGNSSPoseCov(
 
   if (succeeded_align) {
     initial_pose_pub_.publish(*aligned_pose_msg_ptr);
-    gnss_pose_sub_.shutdown();
+    enable_gnss_callback_ = false;
   }
+}
+
+void PoseInitializer::callbackPoseInitializationRequest(
+  const std_msgs::Bool::ConstPtr & bool_msg_ptr)
+{
+  ROS_INFO("Called Pose Initialize");
+  enable_gnss_callback_ = bool_msg_ptr->data;
 }
 
 bool PoseInitializer::getHeight(
