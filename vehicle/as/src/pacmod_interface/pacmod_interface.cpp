@@ -56,9 +56,9 @@ PacmodInterface::PacmodInterface()
   low_vel_thresh_ = declare_parameter("low_vel_thresh", 1.389);  // 5.0kmh
 
   /* parameters for turn signal recovery */
-  private_nh_.param<double>("hazard_thresh_time", hazard_thresh_time_, 0.20);  //s
+  hazard_thresh_time_ = declare_parameter("hazard_thresh_time", 0.20);  // s
   /* initialize */
-  prev_steer_cmd_.header.stamp = ros::Time::now();
+  prev_steer_cmd_.header.stamp = this->now();
   prev_steer_cmd_.command = 0.0;
 
   /* subscribers */
@@ -141,8 +141,6 @@ PacmodInterface::PacmodInterface()
   this->get_node_timers_interface()->add_timer(timer_, nullptr);
 }
 
-PacmodInterface::~PacmodInterface() {}
-
 void PacmodInterface::callbackVehicleCmd(
   const autoware_vehicle_msgs::msg::RawVehicleCommand::ConstSharedPtr msg)
 {
@@ -205,7 +203,7 @@ void PacmodInterface::callbackPacmodRpt(
     control_mode_msg.header = header;
 
     if (!global_rpt->enabled) {
-      control_mode_msg.data = autoware_vehicle_msgs::msg::msg::ControlMode::MANUAL;
+      control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::MANUAL;
     } else if (is_pacmod_enabled_) {
       control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::AUTO;
     } else {
@@ -217,8 +215,7 @@ void PacmodInterface::callbackPacmodRpt(
         control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::AUTO_STEER_ONLY;
       } else {
         RCLCPP_ERROR(
-          get_logger(), *get_clock(),
-          "global_rpt is enable, but steer & pedal is disabled. Set mode = MANUAL");
+          get_logger(), "global_rpt is enable, but steer & pedal is disabled. Set mode = MANUAL");
         control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::MANUAL;
       }
     }
@@ -231,7 +228,7 @@ void PacmodInterface::callbackPacmodRpt(
     geometry_msgs::msg::TwistStamped twist;
     twist.header = header;
     twist.twist.linear.x = current_velocity;                                        // [m/s]
-    twist.twist.angular.z = current_velocity * std::tan(curr_steer) / wheel_base_;  // [rad/s]
+    twist.twist.angular.z = current_velocity * std::tan(current_steer) / wheel_base_;  // [rad/s]
     vehicle_twist_pub_->publish(twist);
   }
 
@@ -247,7 +244,7 @@ void PacmodInterface::callbackPacmodRpt(
   {
     autoware_vehicle_msgs::msg::Steering steer_msg;
     steer_msg.header = header;
-    steer_msg.data = curr_steer;
+    steer_msg.data = current_steer;
     steering_status_pub_->publish(steer_msg);
   }
 
