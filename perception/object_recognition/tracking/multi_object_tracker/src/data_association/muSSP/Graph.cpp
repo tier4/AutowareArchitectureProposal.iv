@@ -58,7 +58,7 @@ void Graph::add_edge(int tail_id, int head_id, int edge_id, double weight) {
     V_[tail_id].add_successor(head_id, edge_id, weight);
     V_[head_id].add_precursor(tail_id, edge_id, weight);
 
-    // For formatting result to direct/reverse assignment
+    // To format results into direct/reverse assignment
     node_id2edge_id.insert({node_key(head_id, tail_id), edge_id});
     node_id2edge_id.insert({node_key(tail_id, head_id), edge_id});
     edge_tail_head.emplace_back(std::make_pair(tail_id, head_id));
