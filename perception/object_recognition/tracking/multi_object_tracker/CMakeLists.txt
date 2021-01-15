@@ -40,7 +40,7 @@ add_executable(multi_object_tracker_node
   src/data_association/muSSP/muSSP.cpp
   src/data_association/muSSP/Graph.cpp
   src/data_association/muSSP/Node.cpp
-  src/data_association/muSSP/Sink.cp
+  src/data_association/muSSP/Sink.cpp
 )
 
 add_dependencies(multi_object_tracker_node
