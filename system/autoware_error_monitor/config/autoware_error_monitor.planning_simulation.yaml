@@ -38,12 +38,12 @@ required_modules:
     - { name: "/system/alive_monitoring" }
     - { name: "/system/emergency_stop_operation" }
     - { name: "/system/logging", sf_at: "warn", lf_at: "error", spf_at: "none" }
-    # - { name: "/system/resource_monitoring/cpu_temperature", sf_at: "warn", lf_at: "error", spf_at: "none" } # Not working in VMs
-    - { name: "/system/resource_monitoring/cpu_usage", sf_at: "warn", lf_at: "error", spf_at: "none" }
+    # - { name: "/system/resource_monitoring/cpu_temperature", sf_at: "warn", lf_at: "error", spf_at: "none" } # Not working in containers
+    # - { name: "/system/resource_monitoring/cpu_usage", sf_at: "warn", lf_at: "error", spf_at: "none" } # No need to watch in simulation
     # - { name: "/system/resource_monitoring/cpu_thermal_throttling", sf_at: "warn", lf_at: "error", spf_at: "none" } # Require setup
     # - { name: "/system/resource_monitoring/hdd_temperature", sf_at: "warn", lf_at: "error", spf_at: "none" } # Require setup
-    - { name: "/system/resource_monitoring/hdd_usage", sf_at: "warn", lf_at: "error", spf_at: "none" }
-    - { name: "/system/resource_monitoring/memory_usage", sf_at: "warn", lf_at: "error", spf_at: "none" }
+    # - { name: "/system/resource_monitoring/hdd_usage", sf_at: "warn", lf_at: "error", spf_at: "none" } # Not working in containers
+    # - { name: "/system/resource_monitoring/memory_usage", sf_at: "warn", lf_at: "error", spf_at: "none" } # No need to watch in simulation
     # - { name: "/system/resource_monitoring/network_usage", sf_at: "warn", lf_at: "error", spf_at: "none" } # No need to watch in simulation
     # - { name: "/system/resource_monitoring/ntp_offset", sf_at: "warn", lf_at: "error", spf_at: "none" } # No need to watch in simulation
     # - { name: "/system/resource_monitoring/gpu_temperature", sf_at: "warn", lf_at: "error", spf_at: "none" } # Require GPU
