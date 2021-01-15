@@ -35,7 +35,12 @@ add_executable(multi_object_tracker_node
   src/tracker/model/bicycle_tracker.cpp
   src/tracker/model/pedestrian_tracker.cpp
   src/data_association/data_association.cpp
-  src/data_association/successive_shortest_path/successive_shortest_path.cpp
+  # src/data_association/successive_shortest_path/successive_shortest_path.cpp
+  src/data_association/muSSP/muSSP_wrapper.cpp
+  src/data_association/muSSP/muSSP.cpp
+  src/data_association/muSSP/Graph.cpp
+  src/data_association/muSSP/Node.cpp
+  src/data_association/muSSP/Sink.cp
 )
 
 add_dependencies(multi_object_tracker_node

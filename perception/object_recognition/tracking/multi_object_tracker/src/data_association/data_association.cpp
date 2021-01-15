@@ -19,7 +19,8 @@
 
 #include "multi_object_tracker/data_association/data_association.hpp"
 #include "multi_object_tracker/utils/utils.hpp"
-#include "successive_shortest_path/successive_shortest_path.h"
+// #include "successive_shortest_path/successive_shortest_path.h"
+#include "muSSP/muSSP_wrapper.h"
 
 DataAssociation::DataAssociation() : score_threshold_(0.1)
 {
@@ -229,7 +230,8 @@ bool DataAssociation::assign(
     }
   }
   // Solve
-  assignment_problem::MaximizeLinearAssignment(score, &direct_assignment, &reverse_assignment);
+  // assignment_problem::MaximizeLinearAssignment(score, &direct_assignment, &reverse_assignment);
+  mussp::MaximizeLinearAssignment(score, &direct_assignment, &reverse_assignment);
 
   for (auto itr = direct_assignment.begin(); itr != direct_assignment.end();) {
     if (src(itr->first, itr->second) < score_threshold_) {
