@@ -47,7 +47,6 @@ RemoteCmdConverter::RemoteCmdConverter()
   ref_vel_gain_ = declare_parameter("ref_vel_gain", 3.0);
 
   // Parameter for Hz check
-  time_threshold_ = declare_parameter("time_threshold", 3.0);
   const double timer_rate = declare_parameter("timer_rate", 10.0);
   wait_for_first_topic_ = declare_parameter("wait_for_first_topic", true);
   control_command_timeout_ = declare_parameter("control_command_timeout", 1.0);
@@ -132,8 +131,9 @@ void RemoteCmdConverter::onRemoteCmd(
     calculateAcc(raw_control_cmd_ptr->control, std::fabs(*current_velocity_ptr_));
 
   if (ref_acceleration > 0.0 && sign == 0.0) {
-    ROS_WARN_THROTTLE(
-      0.5, "Target acceleration is positive, but the gear is not appropriate. accel: %f, gear: %d",
+    RCLCPP_WARN_THROTTLE(
+      get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(),
+      "Target acceleration is positive, but the gear is not appropriate. accel: %f, gear: %d",
       ref_acceleration, current_shift_cmd_->shift.data);
   }
 
