@@ -39,7 +39,7 @@ public:
    * @param A coefficient matrix of x for process model
    * @param B coefficient matrix of u for process model
    * @param C coefficient matrix of x for measurement model
-   * @param Q covariace matrix for process model
+   * @param Q covariance matrix for process model
    * @param R covariance matrix for measurement model
    * @param P initial covariance of estimated state
    */
@@ -59,7 +59,7 @@ public:
    * @param A coefficient matrix of x for process model
    * @param B coefficient matrix of u for process model
    * @param C coefficient matrix of x for measurement model
-   * @param Q covariace matrix for process model
+   * @param Q covariance matrix for process model
    * @param R covariance matrix for measurement model
    * @param P initial covariance of estimated state
    */
@@ -94,8 +94,8 @@ public:
   void setC(const Eigen::MatrixXd & C);
 
   /**
-   * @brief set covariace matrix Q for process model
-   * @param Q covariace matrix for process model
+   * @brief set covariance matrix Q for process model
+   * @param Q covariance matrix for process model
    */
   void setQ(const Eigen::MatrixXd & Q);
 
@@ -130,7 +130,7 @@ public:
    * @param u input for model
    * @param A coefficient matrix of x for process model
    * @param B coefficient matrix of u for process model
-   * @param Q covariace matrix for process model
+   * @param Q covariance matrix for process model
    * @return bool to check matrix operations are being performed properly
    */
   bool predict(
@@ -142,7 +142,7 @@ public:
    * variable matrix.
    * @param x_next predicted state
    * @param A coefficient matrix of x for process model
-   * @param Q covariace matrix for process model
+   * @param Q covariance matrix for process model
    * @return bool to check matrix operations are being performed properly
    */
   bool predict(
@@ -158,7 +158,7 @@ public:
   bool predict(const Eigen::MatrixXd & x_next, const Eigen::MatrixXd & A);
 
   /**
-   * @brief calculate kalman filter state by prediction model with A, B and Q being class menber variables.
+   * @brief calculate kalman filter state by prediction model with A, B and Q being class member variables.
    * @param u input for the model
    * @return bool to check matrix operations are being performed properly
    */
@@ -188,7 +188,7 @@ public:
   bool update(const Eigen::MatrixXd & y, const Eigen::MatrixXd & C, const Eigen::MatrixXd & R);
 
   /**
-   * @brief calculate kalman filter state by measurement model with C and R being class menber variables.
+   * @brief calculate kalman filter state by measurement model with C and R being class member variables.
    * @param y measured values
    * @return bool to check matrix operations are being performed properly
    */
@@ -201,7 +201,7 @@ protected:
   Eigen::MatrixXd
     B_;  //!< @brief coefficient matrix of u for process model x[k+1] = A*x[k] + B*u[k]
   Eigen::MatrixXd C_;  //!< @brief coefficient matrix of x for measurement model y[k] = C * x[k]
-  Eigen::MatrixXd Q_;  //!< @brief covariace matrix for process model x[k+1] = A*x[k] + B*u[k]
+  Eigen::MatrixXd Q_;  //!< @brief covariance matrix for process model x[k+1] = A*x[k] + B*u[k]
   Eigen::MatrixXd R_;  //!< @brief covariance matrix for measurement model y[k] = C * x[k]
   Eigen::MatrixXd P_;  //!< @brief covariance of estimated state
 };
