@@ -219,14 +219,14 @@ bool RemoteCmdConverter::checkEmergencyStopTopicTimeout()
   }
 
   const auto duration = (this->now() - *latest_emergency_stop_received_time_);
-  if (duration.seconds() > emergency_stop_timeout_) return false;
+  if (duration.seconds() > emergency_stop_timeout_) {return false;}
 
   return true;
 }
 
 bool RemoteCmdConverter::checkRemoteTopicRate()
 {
-  if (!current_gate_mode_) return true;
+  if (!current_gate_mode_) {return true;}
 
   if (!latest_cmd_received_time_) {
     if (wait_for_first_topic_)
@@ -237,7 +237,7 @@ bool RemoteCmdConverter::checkRemoteTopicRate()
 
   if (current_gate_mode_->data == autoware_control_msgs::msg::GateMode::REMOTE) {
     const auto duration = (this->now() - *latest_cmd_received_time_);
-    if (duration.seconds() > control_command_timeout_) return false;
+    if (duration.seconds() > control_command_timeout_) {return false;}
   } else {
     latest_cmd_received_time_ = nullptr;  // reset;
   }
