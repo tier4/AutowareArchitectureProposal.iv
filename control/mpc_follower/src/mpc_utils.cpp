@@ -296,6 +296,26 @@ bool MPCUtils::convertToMPCTrajectory(
   return true;
 }
 
+bool MPCUtils::convertToAutowareTrajectory(
+  const MPCTrajectory & input, autoware_planning_msgs::msg::Trajectory * output)
+{
+  if (!output) {
+    return false;
+  }
+
+  output->points.clear();
+  for (size_t i = 0; i < input.size(); ++i) {
+    autoware_planning_msgs::msg::TrajectoryPoint p;
+    p.pose.position.x = input.x.at(i);
+    p.pose.position.y = input.y.at(i);
+    p.pose.position.z = input.z.at(i);
+    p.pose.orientation = getQuaternionFromYaw(input.yaw.at(i));
+    p.twist.linear.x = input.vx.at(i);
+    output->points.push_back(p);
+  }
+  return true;
+}
+
 bool MPCUtils::calcMPCTrajectoryTime(MPCTrajectory * traj)
 {
   if (!traj) {
@@ -368,6 +388,35 @@ int MPCUtils::calcNearestIndex(
   }
   return nearest_idx;
 }
+
+int MPCUtils::calcNearestIndex(
+  const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose)
+{
+  if (traj.points.size() == 0) {
+    return -1;
+  }
+  const double my_yaw = tf2::getYaw(self_pose.orientation);
+  int nearest_idx = -1;
+  double min_dist_squared = std::numeric_limits<double>::max();
+  for (uint i = 0; i < traj.points.size(); ++i) {
+    const double dx = self_pose.position.x - traj.points.at(i).pose.position.x;
+    const double dy = self_pose.position.y - traj.points.at(i).pose.position.y;
+    const double dist_squared = dx * dx + dy * dy;
+
+    /* ignore when yaw error is large, for crossing path */
+    const double traj_yaw = tf2::getYaw(traj.points.at(i).pose.orientation);
+    const double err_yaw = normalizeRadian(my_yaw - traj_yaw);
+    if (std::fabs(err_yaw) > (M_PI / 3.0)) {
+      continue;
+    }
+    if (dist_squared < min_dist_squared) {
+      min_dist_squared = dist_squared;
+      nearest_idx = i;
+    }
+  }
+  return nearest_idx;
+}
+
 bool MPCUtils::calcNearestPoseInterp(
   const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose,
   geometry_msgs::msg::Pose * nearest_pose, int * nearest_index, double * nearest_time,

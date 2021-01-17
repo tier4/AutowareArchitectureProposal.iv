@@ -65,6 +65,8 @@ double calcLateralError(
 
 bool convertToMPCTrajectory(
   const autoware_planning_msgs::msg::Trajectory & input, MPCTrajectory * output);
+bool convertToAutowareTrajectory(
+  const MPCTrajectory & input, autoware_planning_msgs::msg::Trajectory * output);
 void calcMPCTrajectoryArclength(const MPCTrajectory & trajectory, std::vector<double> * arclength);
 bool resampleMPCTrajectoryByDistance(
   const MPCTrajectory & input, const double resample_interval_dist, MPCTrajectory * output);
@@ -109,9 +111,10 @@ bool calcNearestPoseInterp(
   rclcpp::Logger logger, rclcpp::Clock & clock);
 
 int calcNearestIndex(const MPCTrajectory & traj, const geometry_msgs::msg::Pose & self_pose);
-
+int calcNearestIndex(
+  const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose);
 /**
- * @brief convert MPCTraj to visualizaton marker for visualization
+ * @brief convert MPCTraj to visualization marker for visualization
  */
 visualization_msgs::msg::MarkerArray convertTrajToMarker(
   const MPCTrajectory & traj, std::string ns, double r, double g, double b, double z,
