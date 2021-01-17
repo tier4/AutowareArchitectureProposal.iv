@@ -14,6 +14,7 @@
 #include "traffic_light_classifier/cnn_classifier.hpp"
 #include "boost/algorithm/string/split.hpp"
 #include "boost/algorithm/string/classification.hpp"
+#include "ament_index_cpp/get_package_share_directory.hpp"
 
 namespace traffic_light
 {
@@ -33,7 +34,8 @@ CNNClassifier::CNNClassifier(rclcpp::Node * node_ptr) : node_ptr_(node_ptr)
 
   readLabelfile(label_file_path, labels_);
 
-  std::string cache_dir = "/tmp/traffic_light_classifier/data";
+  std::string cache_dir =
+    ament_index_cpp::get_package_share_directory("traffic_light_classifier") + "/data";
   trt_ = std::make_shared<Tn::TrtCommon>(model_file_path, cache_dir, precision);
   trt_->setup();
 }
@@ -160,10 +162,10 @@ bool CNNClassifier::postProcess(
   // label names are assumed to be comma-separated to represent each lamp
   // e.g.
   // match_label: "left,red,right,straight"
-  // splited_label: ["left","red","right","straight"]
-  std::vector<std::string> splited_label;
-  boost::algorithm::split(splited_label, match_label, boost::is_any_of(","));
-  for (auto label : splited_label) {
+  // split_label: ["left","red","right","straight"]
+  std::vector<std::string> split_label;
+  boost::algorithm::split(split_label, match_label, boost::is_any_of(","));
+  for (auto label : split_label) {
     if (label2state_.find(label) == label2state_.end()) {
       RCLCPP_DEBUG(node_ptr_->get_logger(), "cnn_classifier does not have a key [%s]", label.c_str());
       continue;
