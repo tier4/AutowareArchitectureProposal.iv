@@ -33,6 +33,7 @@ VelocityController::VelocityController()
 
   // parameters timer
   control_rate_ = declare_parameter("control_rate", 30.0);
+  wheel_base_ = vehicle_info_util::VehicleInfo::create(*this).wheel_base_m_;
 
   // parameters to enable functions
   enable_smooth_stop_ = declare_parameter("enable_smooth_stop", true);
@@ -86,6 +87,7 @@ VelocityController::VelocityController()
   min_jerk_ = declare_parameter("min_jerk", -5.0);  // [m/s^3]
 
   // parameters for slope compensation
+  use_traj_for_pitch_ = declare_parameter("use_trajectory_for_pitch_calculation", false);
   max_pitch_rad_ = declare_parameter("max_pitch_rad", 0.1);   // [rad]
   min_pitch_rad_ = declare_parameter("min_pitch_rad", -0.1);  // [rad]
 
@@ -172,6 +174,10 @@ void VelocityController::callbackCurrentVelocity(
 void VelocityController::callbackTrajectory(
   const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg)
 {
+  if (!isValidTrajectory(*msg)) {
+    RCLCPP_ERROR(get_logger(), "received invalid trajectory. ignore.");
+    return;
+  }
   trajectory_ptr_ = msg;
 }
 
@@ -355,7 +361,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
    *
    * If the closest is not found (when the threshold is exceeded), it is treated as an emergency stop.
    *
-   * Outout velocity : "0" with maximum acceleration constraint
+   * Output velocity : "0" with maximum acceleration constraint
    * Output acceleration : "emergency_stop_acc_" with maximum jerk constraint
    *
    */
@@ -393,22 +399,24 @@ CtrlCmd VelocityController::calcCtrlCmd()
   if (shift != prev_shift_) {pid_vel_.reset();}
   prev_shift_ = shift;
 
-  const double pitch_filtered = lpf_pitch_.filter(getPitch(current_pose.orientation));
+  const double pitch = use_traj_for_pitch_
+                         ? getPitchByTraj(*trajectory_ptr_, closest_idx)
+                         : lpf_pitch_.filter(getPitchByPose(current_pose.orientation));
+
   writeDebugValues(
-    dt, current_vel, pred_vel_in_target, target_vel, target_acc, shift, pitch_filtered,
-    closest_idx);
+    dt, current_vel, pred_vel_in_target, target_vel, target_acc, shift, pitch, closest_idx);
 
   /* ===== STOPPED =====
    *
    * If the current velocity and target velocity is almost zero,
    * and the smooth stop is not working, enter the stop state.
    *
-   * Outout velocity : "stop_state_vel_" (assumed to be zero, depending on the vehicle interface)
+   * Output velocity : "stop_state_vel_" (assumed to be zero, depending on the vehicle interface)
    * Output acceleration : "stop_state_acc_" with max_jerk limit. (depending on the vehicle interface)
    *
    */
-  if (checkIsStopped(current_vel, target_vel, closest_idx)) {
-    double acc_cmd = calcFilteredAcc(stop_state_acc_, pitch_filtered, dt, shift);
+  if (isStoppedState(current_vel, target_vel, closest_idx)) {
+    double acc_cmd = calcFilteredAcc(stop_state_acc_, pitch, dt, shift);
     control_mode_ = ControlMode::STOPPED;
     RCLCPP_DEBUG(get_logger(), "[Stopped]. vel: %3.3f, acc: %3.3f", stop_state_vel_, acc_cmd);
     return CtrlCmd{stop_state_vel_, acc_cmd};
@@ -417,14 +425,14 @@ CtrlCmd VelocityController::calcCtrlCmd()
   /* ===== EMERGENCY STOP =====
    *
    * If the emergency flag is true, enter the emergency state.
-   * The condition of the emergency is checked in checkEmergency() function.
+   * The condition of the emergency is checked in isEmergencyState() function.
    * The flag is reset when the vehicle is stopped.
    *
-   * Outout velocity : "0" with maximum acceleration constraint
+   * Output velocity : "0" with maximum acceleration constraint
    * Output acceleration : "emergency_stop_acc_" with max_jerk limit.
    *
    */
-  is_emergency_stop_ = checkEmergency(closest_idx);
+  is_emergency_stop_ = isEmergencyState(closest_idx, target_vel);
   if (is_emergency_stop_) {
     double vel_cmd = applyRateFilter(0.0, prev_vel_cmd_, dt, emergency_stop_acc_);
     double acc_cmd = applyRateFilter(emergency_stop_acc_, prev_acc_cmd_, dt, emergency_stop_jerk_);
@@ -435,21 +443,21 @@ CtrlCmd VelocityController::calcCtrlCmd()
 
   /* ===== SMOOTH STOP =====
    *
-   * If the vehicle veloicity & target velocity is low ehough, and there is a stop point nearby the ego vehicle,
+   * If the vehicle velocity & target velocity is low enough, and there is a stop point nearby the ego vehicle,
    * enter the smooth stop state.
    *
-   * Outout velocity : "target_vel" from the reference trajectory
+   * Output velocity : "target_vel" from the reference trajectory
    * Output acceleration : "emergency_stop_acc_" with max_jerk limit.
    *
    */
-  is_smooth_stop_ = checkSmoothStop(closest_idx, target_vel);
+  is_smooth_stop_ = isSmoothStopState(closest_idx, target_vel);
   if (is_smooth_stop_) {
     if (!start_time_smooth_stop_) {
       start_time_smooth_stop_ = std::make_shared<rclcpp::Time>(get_clock()->now());
     }
     double smooth_stop_acc_cmd = calcSmoothStopAcc();
     double vel_cmd = 0.0;
-    double acc_cmd = calcFilteredAcc(smooth_stop_acc_cmd, pitch_filtered, dt, shift);
+    double acc_cmd = calcFilteredAcc(smooth_stop_acc_cmd, pitch, dt, shift);
     control_mode_ = ControlMode::SMOOTH_STOP;
     RCLCPP_DEBUG(
       get_logger(), "[smooth stop]: Smooth stopping. vel: %3.3f, acc: %3.3f", vel_cmd, acc_cmd);
@@ -460,12 +468,12 @@ CtrlCmd VelocityController::calcCtrlCmd()
    *
    * Execute PID feedback control.
    *
-   * Outout velocity : "target_vel" from the reference trajectory
+   * Output velocity : "target_vel" from the reference trajectory
    * Output acceleration : calculated by PID controller with max_acceleration & max_jerk limit.
    *
    */
   double feedback_acc_cmd = applyVelocityFeedback(target_acc, target_vel, dt, pred_vel_in_target);
-  double acc_cmd = calcFilteredAcc(feedback_acc_cmd, pitch_filtered, dt, shift);
+  double acc_cmd = calcFilteredAcc(feedback_acc_cmd, pitch, dt, shift);
   control_mode_ = ControlMode::PID_CONTROL;
   RCLCPP_DEBUG(
     get_logger(),
@@ -538,7 +546,7 @@ void VelocityController::publishCtrlCmd(const double vel, const double acc)
   cmd.control.acceleration = acc;
   pub_control_cmd_->publish(cmd);
 
-  // calculate accleration from velocity
+  // calculate acceleration from velocity
   if (prev_vel_ptr_) {
     const double dv = current_vel_ptr_->twist.linear.x - prev_vel_ptr_->twist.linear.x;
     const double dt = std::max(
@@ -561,7 +569,7 @@ void VelocityController::publishCtrlCmd(const double vel, const double acc)
   debug_values_.data.resize(num_debug_values_, 0.0);
 }
 
-bool VelocityController::checkSmoothStop(const int closest, const double target_vel) const
+bool VelocityController::isSmoothStopState(const int closest, const double target_vel) const
 {
   if (!enable_smooth_stop_) {
     return false;
@@ -581,14 +589,12 @@ bool VelocityController::checkSmoothStop(const int closest, const double target_
   return false;
 }
 
-bool VelocityController::checkIsStopped(double current_vel, double target_vel, int closest) const
+bool VelocityController::isStoppedState(double current_vel, double target_vel, int closest) const
 {
-  if (is_smooth_stop_) {
-    return false;                     // stopping.
+  if (is_smooth_stop_) {return false;}  // stopping.
 
-  }
   // Prevent a direct transition from PID_CONTROL to STOPPED without going through SMOOTH_STOP.
-  if (control_mode_ == ControlMode::PID_CONTROL) {return false;}
+  if (control_mode_ == ControlMode::PID_CONTROL && enable_smooth_stop_) {return false;}
 
   if (control_mode_ == ControlMode::STOPPED) {
     double dist = calcStopDistance(*trajectory_ptr_, closest);
@@ -611,14 +617,14 @@ bool VelocityController::checkIsStopped(double current_vel, double target_vel, i
   }
 }
 
-bool VelocityController::checkEmergency(int closest) const
+bool VelocityController::isEmergencyState(int closest, double target_vel) const
 {
   // already in emergency.
   if (is_emergency_stop_) {
     return true;
   }
 
-  // velocity is getting high when smoth stopping.
+  // velocity is getting high when smooth stopping.
   bool has_smooth_exit_vel =
     std::fabs(current_vel_ptr_->twist.linear.x) > smooth_stop_param_.exit_ego_speed;
   if (is_smooth_stop_ && has_smooth_exit_vel) {
@@ -633,6 +639,23 @@ bool VelocityController::checkEmergency(int closest) const
     }
   }
   return false;
+}
+
+bool VelocityController::isValidTrajectory(const autoware_planning_msgs::msg::Trajectory & traj) const
+{
+  for (const auto & points : traj.points) {
+    const auto & p = points.pose.position;
+    const auto & o = points.pose.orientation;
+    const auto & t = points.twist.linear;
+    const auto & a = points.accel.linear;
+    if (
+      !isfinite(p.x) || !isfinite(p.y) || !isfinite(p.z) || !isfinite(o.x) || !isfinite(o.y) ||
+      !isfinite(o.z) || !isfinite(o.w) || !isfinite(t.x) || !isfinite(t.y) || !isfinite(t.z) ||
+      !isfinite(a.x) || !isfinite(a.y) || !isfinite(a.z)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 double VelocityController::calcFilteredAcc(
@@ -675,13 +698,44 @@ enum VelocityController::Shift VelocityController::getCurrentShift(const double 
   return target_vel > ep ? Shift::Forward : (target_vel < -ep ? Shift::Reverse : prev_shift_);
 }
 
-double VelocityController::getPitch(const geometry_msgs::msg::Quaternion & quaternion) const
+double VelocityController::getPitchByPose(const geometry_msgs::msg::Quaternion & quaternion) const
 {
   Eigen::Quaterniond q(quaternion.w, quaternion.x, quaternion.y, quaternion.z);
   Eigen::Vector3d v = q.toRotationMatrix() * Eigen::Vector3d::UnitX();
   double den = std::max(std::sqrt(v.x() * v.x() + v.y() * v.y()), 1.0E-8 /* avoid 0 divide */);
   double pitch = (-1.0) * std::atan2(v.z(), den);
   return pitch;
+}
+
+double VelocityController::getPitchByTraj(
+  const autoware_planning_msgs::msg::Trajectory & msg, const int32_t closest) const
+{
+  if (msg.points.size() <= 1) {
+    // cannot calculate pitch
+    return 0.0;
+  }
+
+  for (int i = closest + 1; i < static_cast<int>(msg.points.size()); i++) {
+    const double dist = vcutils::calcDistance2D(msg.points.at(closest).pose, msg.points.at(i).pose);
+    if (dist > wheel_base_) {
+      // closest: rear wheel, i: front wheel
+      return vcutils::calcPitch(msg.points.at(closest).pose, msg.points.at(i).pose);
+    }
+  }
+
+  // close to goal (end of trajectory)
+  for (int i = msg.points.size() - 1; i > 0; i--) {
+    const double dist =
+      vcutils::calcDistance2D(msg.points.back().pose, msg.points.at(i).pose);
+
+    if (dist > wheel_base_) {
+      // i: rear wheel, msg.points.size()-1: front wheel
+      return vcutils::calcPitch(msg.points.at(i).pose, msg.points.back().pose);
+    }
+  }
+
+  // use full trajectory for calculate pitch
+  return vcutils::calcPitch(msg.points.at(0).pose, msg.points.back().pose);
 }
 
 double VelocityController::calcSmoothStopAcc()
@@ -853,8 +907,8 @@ double VelocityController::calcInterpolatedTargetValue(
 double VelocityController::applyLimitFilter(
   const double input_val, const double max_val, const double min_val) const
 {
-  const double limitted_val = std::min(std::max(input_val, min_val), max_val);
-  return limitted_val;
+  const double limited_val = std::min(std::max(input_val, min_val), max_val);
+  return limited_val;
 }
 
 double VelocityController::applyRateFilter(
@@ -923,7 +977,8 @@ void VelocityController::writeDebugValues(
   const int32_t closest)
 {
   constexpr double rad2deg = 180.0 / 3.141592;
-  const double raw_pitch = getPitch(current_pose_ptr_->pose.orientation);
+  const double raw_pitch = getPitchByPose(current_pose_ptr_->pose.orientation);
+  const double traj_pitch = getPitchByTraj(*trajectory_ptr_, closest);
   debug_values_.data.at(DBGVAL::DT) = dt;
   debug_values_.data.at(DBGVAL::CURR_V) = current_vel;
   debug_values_.data.at(DBGVAL::TARGET_V) = target_vel;
@@ -939,4 +994,6 @@ void VelocityController::writeDebugValues(
   debug_values_.data.at(DBGVAL::PITCH_RAW_RAD) = raw_pitch;
   debug_values_.data.at(DBGVAL::PITCH_RAW_DEG) = raw_pitch * rad2deg;
   debug_values_.data.at(DBGVAL::ERROR_V) = target_vel - current_vel;
+  debug_values_.data.at(DBGVAL::PITCH_RAW_TRAJ_RAD) = traj_pitch;
+  debug_values_.data.at(DBGVAL::PITCH_RAW_TRAJ_DEG) = traj_pitch * rad2deg;
 }
