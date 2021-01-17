@@ -57,15 +57,19 @@ void PacmodAdditionalDebugPublisherNode::canTxCallback(const can_msgs::msg::Fram
       temp = (static_cast<int16_t>(msg->data[6]) << 8) | msg->data[7];
       debug4 = temp / 100.0;
     } else {
-      uint32_t temp = 0;
-      temp = (static_cast<int32_t>(msg->data[3]) << 24) |
-             (static_cast<int32_t>(msg->data[2]) << 16) |
-             (static_cast<int32_t>(msg->data[1]) << 8) | msg->data[0];
-      debug1 = *reinterpret_cast<float *>(&temp);
-      temp = (static_cast<int32_t>(msg->data[7]) << 24) |
-             (static_cast<int32_t>(msg->data[6]) << 16) |
-             (static_cast<int32_t>(msg->data[5]) << 8) | msg->data[4];
-      debug2 = *reinterpret_cast<float *>(&temp);
+      union Data
+      {
+        uint32_t uint32_value;
+        float float_value;
+      } temp;
+      temp.uint32_value = (static_cast<int32_t>(msg->data[3]) << 24) |
+                          (static_cast<int32_t>(msg->data[2]) << 16) |
+                          (static_cast<int32_t>(msg->data[1]) << 8) | msg->data[0];
+      debug1 = temp.float_value;
+      temp.uint32_value = (static_cast<int32_t>(msg->data[7]) << 24) |
+                          (static_cast<int32_t>(msg->data[6]) << 16) |
+                          (static_cast<int32_t>(msg->data[5]) << 8) | msg->data[4];
+      debug2 = temp.float_value;
     }
     switch (msg->id) {
       case 0x32C:
@@ -73,6 +77,7 @@ void PacmodAdditionalDebugPublisherNode::canTxCallback(const can_msgs::msg::Fram
         debug_value_.data.at(1) = debug2;  // steering_eps_assist
         debug_value_.data.at(2) = debug3;  // steering rate
         debug_value_.data.at(3) = debug4;  // steering eps input
+        break;
       case 0x451:
         debug_value_.data.at(4) = debug1;  // pid command
         debug_value_.data.at(5) = debug2;  // pid output
