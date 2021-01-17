@@ -25,6 +25,7 @@
 #include "boost/process.hpp"
 #include "boost/property_tree/json_parser.hpp"
 #include "boost/property_tree/ptree.hpp"
+#include "boost/thread.hpp"
 
 #include "fmt/format.h"
 
@@ -255,7 +256,7 @@ void CPUMonitorBase::checkFrequency(diagnostic_updater::DiagnosticStatusWrapper 
       std::string line;
       if (std::getline(ifs, line)) {
         stat.addf(
-          (fmt::format("CPU %1%: clock") % itr->index_), "%d MHz", std::stoi(line) / 1000);
+          fmt::format("CPU {}: clock", itr->index_), "%d MHz", std::stoi(line) / 1000);
       }
     }
     ifs.close();

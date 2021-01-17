@@ -552,7 +552,7 @@ int main(int argc, char ** argv)
   for (const fs::path & path :
     boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator()))
   {
-    std::smatch match;
+    std::cmatch match;
     const std::regex fsd("sd([a-z]+)");
     const std::regex fnvme("nvme(\\d+)");
     const char * dir = path.filename().generic_string().c_str();

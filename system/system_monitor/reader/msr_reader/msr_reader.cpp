@@ -247,7 +247,7 @@ int main(int argc, char ** argv)
 
   std::sort(
     list.begin(), list.end(), [](const std::string & c1, const std::string & c2) {
-      std::smatch match;
+      std::cmatch match;
       const std::regex filter(".*/(\\d+)/msr");
       int n1 = 0;
       int n2 = 0;
