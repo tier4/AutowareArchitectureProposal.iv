@@ -108,6 +108,7 @@ void PacmodAdditionalDebugPublisherNode::canTxCallback(const can_msgs::msg::Fram
       default:
         break;
     }
+    debug_value_.stamp = this->now();
     pub_->publish(debug_value_);
   }
 }
