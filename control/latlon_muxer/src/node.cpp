@@ -35,11 +35,30 @@ LatLonMuxer::LatLonMuxer(const rclcpp::NodeOptions & node_options)
     create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
     "input/longitudinal/control_cmd", rclcpp::QoS{1},
     std::bind(&LatLonMuxer::lonCtrlCmdCallback, this, std::placeholders::_1));
+  timeout_thr_sec_ = declare_parameter("timeout_thr_sec", 0.5);
+}
+
+bool LatLonMuxer::checkTimeout()
+{
+  const auto now = this->now();
+  if ((now - lat_cmd_->header.stamp).seconds() > timeout_thr_sec_) {
+    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 1000/*ms*/, "lat_cmd_ timeout failed.");
+    return false;
+  }
+  if ((now - lon_cmd_->header.stamp).seconds() > timeout_thr_sec_) {
+    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 1000/*ms*/, "lon_cmd_ timeout failed.");
+    return false;
+  }
+  return true;
 }
 
 void LatLonMuxer::publishCmd()
 {
   if (!lat_cmd_ || !lon_cmd_) {
+    return;
+  }
+  if (!checkTimeout()) {
+    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 1000/*ms*/, "timeout failed. stop publish command.");
     return;
   }
 
