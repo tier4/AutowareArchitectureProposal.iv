@@ -1,7 +1,7 @@
 /**:
   ros__parameters:
     # closest waypoint threshold
-    closest_waypoint_distance_threshold: 3.9
+    closest_waypoint_distance_threshold: 3.0
     closest_waypoint_angle_threshold: 0.7854
 
     # stop state
@@ -42,6 +42,7 @@
 
     # slope compensation
     enable_slope_compensation: false
+    use_trajectory_for_pitch_calculation: false
     max_pitch_rad: 0.1
     min_pitch_rad: -0.1
     lpf_pitch_gain: 0.95

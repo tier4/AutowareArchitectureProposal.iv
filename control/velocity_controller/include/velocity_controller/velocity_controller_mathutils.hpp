@@ -27,6 +27,7 @@ namespace vcutils
 {
 double calcDistance2D(const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Pose & p2);
 double calcDistSquared2D(const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Pose & p2);
+double calcPitch(const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Pose & p2);
 double normalizeEulerAngle(double euler);
 bool calcClosestWithThr(
   const autoware_planning_msgs::msg::Trajectory & trajectory, const geometry_msgs::msg::Pose & pose,
