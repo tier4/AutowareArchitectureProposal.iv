@@ -130,7 +130,7 @@ class VelocityChecker:
         self.printInfo()
 
     def CallBackAwEngage(self, msg):
-        self.autoware_engage = msg
+        self.autoware_engage = msg.data
 
     def CallBackExternalVelLim(self, msg):
         self.external_vlim = msg.data
