@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-#include <mission_planner/goal_pose_visualizer.h>
+#include <mission_planner/goal_pose_visualizer.hpp>
 
 namespace mission_planner
 {
-GoalPoseVisualizer::GoalPoseVisualizer()
+GoalPoseVisualizer::GoalPoseVisualizer() : Node("goal_pose_visualizer_node")
 {
-  sub_route_ = pnh_.subscribe("input/route", 10, &GoalPoseVisualizer::echoBackRouteCallback, this);
-
-  pub_goal_pose_ = pnh_.advertise<geometry_msgs::PoseStamped>("output/goal_pose", 1, true);
+  sub_route_ = create_subscription<autoware_planning_msgs::msg::Route>(
+    "input/route", rclcpp::QoS{1},
+    std::bind(&GoalPoseVisualizer::echoBackRouteCallback, this, std::placeholders::_1));
+  pub_goal_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>(
+    "output/goal_pose", rclcpp::QoS{1}.transient_local());
 }
 
-void GoalPoseVisualizer::echoBackRouteCallback(const autoware_planning_msgs::RouteConstPtr & msg)
+void GoalPoseVisualizer::echoBackRouteCallback(
+  const autoware_planning_msgs::msg::Route::ConstSharedPtr msg)
 {
-  geometry_msgs::PoseStamped goal_pose;
+  geometry_msgs::msg::PoseStamped goal_pose;
   goal_pose.header = msg->header;
   goal_pose.pose = msg->goal_pose;
-  pub_goal_pose_.publish(goal_pose);
+  pub_goal_pose_->publish(goal_pose);
 }
 }  // namespace mission_planner

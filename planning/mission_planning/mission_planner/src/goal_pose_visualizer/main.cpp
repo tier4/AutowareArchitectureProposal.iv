@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-#include <mission_planner/goal_pose_visualizer.h>
-#include <ros/ros.h>
+#include <mission_planner/goal_pose_visualizer.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "goal_pose_visualizer_node");
-
-  mission_planner::GoalPoseVisualizer goal_pose_visualizer;
-
-  ros::spin();
-
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<mission_planner::GoalPoseVisualizer>();
+  rclcpp::spin(node);
+  rclcpp::shutdown();
   return 0;
 }

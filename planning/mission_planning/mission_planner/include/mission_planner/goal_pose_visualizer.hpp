@@ -17,25 +17,25 @@
 #ifndef MISSION_PLANNER_GOAL_POSE_VISUALIZER_H
 #define MISSION_PLANNER_GOAL_POSE_VISUALIZER_H
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
-#include <autoware_planning_msgs/Route.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <autoware_planning_msgs/msg/route.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 
 namespace mission_planner
 {
-class GoalPoseVisualizer
+class GoalPoseVisualizer : public rclcpp::Node
 {
 public:
   GoalPoseVisualizer();
 
 private:
-  ros::NodeHandle pnh_{"~"};
 
-  ros::Subscriber sub_route_;
-  ros::Publisher pub_goal_pose_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr sub_route_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_goal_pose_;
 
-  void echoBackRouteCallback(const autoware_planning_msgs::RouteConstPtr & msg);
+
+  void echoBackRouteCallback(const autoware_planning_msgs::msg::Route::ConstSharedPtr msg);
 };
 
 }  // namespace mission_planner
