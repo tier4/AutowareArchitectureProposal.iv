@@ -1,17 +1,29 @@
 <launch>
+  <!-- Input -->
   <arg name="input_autoware_engage" default="/autoware/engage" />
   <arg name="input_vehicle_control_mode" default="/vehicle/status/control_mode" />
   <arg name="input_is_emergency" default="/system/emergency/is_emergency" />
   <arg name="input_route" default="/planning/mission_planning/route" />
   <arg name="input_twist" default="/localization/twist" />
 
+  <!-- Output -->
   <arg name="output_autoware_state" default="/autoware/state" />
   <arg name="output_autoware_engage" default="/autoware/engage" />
 
+  <!-- Service -->
   <arg name="service_shutdown" default="/autoware/shutdown" />
   <arg name="service_reset_route" default="/autoware/reset_route" />
 
+  <!-- Config -->
   <arg name="config_file" default="$(find autoware_state_monitor)/config/autoware_state_monitor.yaml" />
+
+  <!-- Parameter -->
+  <arg name="update_rate" default="10.0" />
+  <arg name="th_arrived_distance_m" default="1.0" />
+  <arg name="th_stopped_time_sec" default="1.0" />
+  <arg name="th_stopped_velocity_mps" default="0.01" />
+  <arg name="disengage_on_route" default="true" />
+  <arg name="disengage_on_goal" default="true" />
 
   <node pkg="autoware_state_monitor" type="autoware_state_monitor" name="autoware_state_monitor" output="screen">
     <remap from="~input/autoware_engage" to="$(arg input_autoware_engage)"/>
@@ -28,12 +40,11 @@
 
     <rosparam command="load" file="$(arg config_file)" />
 
-    <param name="update_rate" value="10.0" />
-    <param name="th_arrived_distance_m" value="1.0" />
-    <param name="th_stopped_time_sec" value="1.0" />
-    <param name="th_stopped_velocity_mps" value="0.01" />
-
-    <param name="disengage_on_route" value="true" />
-    <param name="disengage_on_goal" value="true" />
+    <param name="update_rate" value="$(arg update_rate)" />
+    <param name="th_arrived_distance_m" value="$(arg th_arrived_distance_m)" />
+    <param name="th_stopped_time_sec" value="$(arg th_stopped_time_sec)" />
+    <param name="th_stopped_velocity_mps" value="$(arg th_stopped_velocity_mps)" />
+    <param name="disengage_on_route" value="$(arg disengage_on_route)" />
+    <param name="disengage_on_goal" value="$(arg disengage_on_goal)" />
   </node>
 </launch>
