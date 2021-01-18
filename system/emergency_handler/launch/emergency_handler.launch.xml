@@ -44,7 +44,7 @@
   </node>
 
   <!-- state_timeout_checker -->
-  <arg name="state_timeout_checker_config_file" default="$(find-pkg-share emergency_handler)/config/state_timeout_checker.yaml" />
+  <arg name="state_timeout_checker_config_file" default="$(find-pkg-share emergency_handler)/config/state_timeout_checker.param.yaml" />
 
   <node pkg="emergency_handler" exec="state_timeout_checker" name="state_timeout_checker" output="screen">
     <remap from="input/autoware_state" to="$(var input_autoware_state)"/>
