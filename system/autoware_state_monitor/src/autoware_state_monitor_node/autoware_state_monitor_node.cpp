@@ -191,6 +191,43 @@ bool AutowareStateMonitorNode::onShutdownService(
   return true;
 }
 
+bool AutowareStateMonitorNode::onResetRouteService(
+  std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res)
+{
+  if (state_machine_->getCurrentState() != AutowareState::WaitingForEngage) {
+    res.success = false;
+    res.message = "Reset route can be accepted only under WaitingForEngage.";
+    return true;
+  }
+
+  state_input_.is_route_reset_required = true;
+
+  const auto t_start = ros::Time::now();
+  constexpr double timeout = 3.0;
+  while (ros::ok()) {
+    ros::spinOnce();
+
+    if (state_machine_->getCurrentState() == AutowareState::WaitingForRoute) {
+      state_input_.is_route_reset_required = false;
+      res.success = true;
+      res.message = "Reset route.";
+      return true;
+    }
+
+    if ((ros::Time::now() - t_start).toSec() > timeout) {
+      res.success = false;
+      res.message = "Reset route timeout.";
+      return true;
+    }
+
+    ros::Duration(0.1).sleep();
+  }
+
+  res.success = false;
+  res.message = "Reset route failure.";
+  return true;
+}
+
 void AutowareStateMonitorNode::onTimer(const ros::TimerEvent & event)
 {
   // Prepare state input
@@ -407,6 +444,8 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   // Service
   srv_shutdown_ = private_nh_.advertiseService(
     "service/shutdown", &AutowareStateMonitorNode::onShutdownService, this);
+  srv_reset_route_ = private_nh_.advertiseService(
+    "service/reset_route", &AutowareStateMonitorNode::onResetRouteService, this);
 
   // Publisher
   pub_autoware_state_ =

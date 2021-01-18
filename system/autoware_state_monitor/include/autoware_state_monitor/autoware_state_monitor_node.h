@@ -87,8 +87,10 @@ private:
 
   // Service
   ros::ServiceServer srv_shutdown_;
+  ros::ServiceServer srv_reset_route_;
 
   bool onShutdownService(std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res);
+  bool onResetRouteService(std_srvs::Trigger::Request & req, std_srvs::Trigger::Response & res);
 
   // Publisher
   ros::Publisher pub_autoware_state_;

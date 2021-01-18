@@ -9,6 +9,7 @@
   <arg name="output_autoware_engage" default="/autoware/engage" />
 
   <arg name="service_shutdown" default="/autoware/shutdown" />
+  <arg name="service_reset_route" default="/autoware/reset_route" />
 
   <arg name="config_file" default="$(find autoware_state_monitor)/config/autoware_state_monitor.yaml" />
 
@@ -23,6 +24,7 @@
     <remap from="~output/autoware_engage" to="$(arg output_autoware_engage)"/>
 
     <remap from="~service/shutdown" to="$(arg service_shutdown)"/>
+    <remap from="~service/reset_route" to="$(arg service_reset_route)"/>
 
     <rosparam command="load" file="$(arg config_file)" />
 

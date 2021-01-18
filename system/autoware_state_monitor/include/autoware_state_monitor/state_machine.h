@@ -45,6 +45,7 @@ struct StateInput
   autoware_vehicle_msgs::ControlMode::ConstPtr vehicle_control_mode;
   std_msgs::Bool::ConstPtr is_emergency;
   bool is_finalizing = false;
+  bool is_route_reset_required = false;
   autoware_planning_msgs::Route::ConstPtr route;
   geometry_msgs::TwistStamped::ConstPtr twist;
   std::deque<geometry_msgs::TwistStamped::ConstPtr> twist_buffer;
@@ -102,4 +103,5 @@ private:
   bool isEmergency() const;
   bool hasArrivedGoal() const;
   bool isFinalizing() const;
+  bool isRouteResetRequired() const;
 };

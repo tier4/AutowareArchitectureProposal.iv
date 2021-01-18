@@ -194,6 +194,8 @@ bool StateMachine::hasArrivedGoal() const
 
 bool StateMachine::isFinalizing() const { return state_input_.is_finalizing; }
 
+bool StateMachine::isRouteResetRequired() const { return state_input_.is_route_reset_required; }
+
 AutowareState StateMachine::updateState(const StateInput & state_input)
 {
   msgs_ = {};
@@ -269,6 +271,10 @@ AutowareState StateMachine::judgeAutowareState() const
     }
 
     case (AutowareState::WaitingForEngage): {
+      if (isRouteResetRequired()) {
+        return AutowareState::WaitingForRoute;
+      }
+
       if (isRouteReceived()) {
         return AutowareState::Planning;
       }
