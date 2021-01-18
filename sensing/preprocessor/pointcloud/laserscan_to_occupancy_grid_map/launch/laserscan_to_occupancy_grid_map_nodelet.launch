@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="input" default="virtual_scan/laserscan"/>
+  <arg name="output" default="occupancy_grid"/>
+  <arg name="manager" />
+
+  <!-- run pointcloud_to_laserscan node -->
+  <node pkg="nodelet" type="nodelet" name="laserscan_to_occupancy_grid_map"
+        args="load laserscan_to_occupancy_grid_map/laserscan_to_occupancy_grid_map_nodelet $(arg manager)">
+    <remap from="~input/scan" to="$(arg input)"/>
+    <remap from="~output/occupancy_grid_map" to="$(arg output)"/>
+  </node>
+</launch>

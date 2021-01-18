@@ -1,0 +1,8 @@
+<library path="lib/liblaserscan_to_occupancy_grid_map">
+  <class name="laserscan_to_occupancy_grid_map/laserscan_to_occupancy_grid_map_nodelet" type="occupancy_grid_map::OccupancyGridMapNodelet" base_class_type="nodelet::Nodelet">
+    <description>
+      Generate prob occupancy grid map from laser scan.
+    </description>
+  </class>
+
+</library>

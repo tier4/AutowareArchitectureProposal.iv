@@ -103,17 +103,17 @@ void PointCloudToLaserScanNodelet::onInit()
     sub_.registerCallback(boost::bind(&PointCloudToLaserScanNodelet::cloudCb, this, _1));
   }
 
-  laserscan_pub_ = nh_.advertise<sensor_msgs::LaserScan>(
-    "vscan/laserscan", 1, boost::bind(&PointCloudToLaserScanNodelet::connectCb, this),
+  laserscan_pub_ = private_nh_.advertise<sensor_msgs::LaserScan>(
+    "output/laserscan", 1, boost::bind(&PointCloudToLaserScanNodelet::connectCb, this),
     boost::bind(&PointCloudToLaserScanNodelet::disconnectCb, this));
-  pointcloud_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(
-    "vscan/pointcloud", 1, boost::bind(&PointCloudToLaserScanNodelet::connectCb, this),
+  pointcloud_pub_ = private_nh_.advertise<sensor_msgs::PointCloud2>(
+    "output/pointcloud", 1, boost::bind(&PointCloudToLaserScanNodelet::connectCb, this),
     boost::bind(&PointCloudToLaserScanNodelet::disconnectCb, this));
-  ray_viz_pub_ = nh_.advertise<visualization_msgs::Marker>(
-    "vscan/ray", 1, boost::bind(&PointCloudToLaserScanNodelet::connectCb, this),
+  ray_viz_pub_ = private_nh_.advertise<visualization_msgs::Marker>(
+    "output/ray", 1, boost::bind(&PointCloudToLaserScanNodelet::connectCb, this),
     boost::bind(&PointCloudToLaserScanNodelet::disconnectCb, this));
-  stixel_viz_pub_ = nh_.advertise<visualization_msgs::MarkerArray>(
-    "vscan/stixel", 1, boost::bind(&PointCloudToLaserScanNodelet::connectCb, this),
+  stixel_viz_pub_ = private_nh_.advertise<visualization_msgs::MarkerArray>(
+    "output/stixel", 1, boost::bind(&PointCloudToLaserScanNodelet::connectCb, this),
     boost::bind(&PointCloudToLaserScanNodelet::disconnectCb, this));
 }
 
@@ -125,7 +125,7 @@ void PointCloudToLaserScanNodelet::connectCb()
      ray_viz_pub_.getNumSubscribers() > 0 || stixel_viz_pub_.getNumSubscribers() > 0) &&
     sub_.getSubscriber().getNumPublishers() == 0) {
     NODELET_INFO("Got a subscriber to scan, starting subscriber to pointcloud");
-    sub_.subscribe(nh_, "cloud_in", input_queue_size_);
+    sub_.subscribe(private_nh_, "input/pointcloud", input_queue_size_);
   }
 }
 
