@@ -377,12 +377,12 @@ bool lineStringToPolygon(
   const lanelet::ConstLineString3d & linestring, lanelet::ConstPolygon3d * polygon)
 {
   if (polygon == nullptr) {
-    ROS_ERROR_STREAM(__func__ << ": polygon is null pointer! Failed to convert to polygon.");
+    RCLCPP_ERROR_STREAM(rclcpp::get_logger("lanelet2_extension.visualization"), __func__ << ": polygon is null pointer! Failed to convert to polygon.");
     return false;
   }
   if (linestring.size() < 4) {
     if (linestring.size() < 3 || linestring.front().id() == linestring.back().id()) {
-      ROS_ERROR_STREAM(
+      RCLCPP_ERROR_STREAM(rclcpp::get_logger("lanelet2_extension.visualization"),
         __func__ << ": linestring" << linestring.id()
                  << " must have more than different 3 points! (size is " << linestring.size() << ")"
                  << std::endl
@@ -526,7 +526,7 @@ double getLaneletAngle(
 }
 
 bool isInLanelet(
-  const geometry_msgs::Pose & current_pose, const lanelet::ConstLanelet & lanelet,
+  const geometry_msgs::msg::Pose & current_pose, const lanelet::ConstLanelet & lanelet,
   const double radius)
 {
   const lanelet::BasicPoint2d p(current_pose.position.x, current_pose.position.y);

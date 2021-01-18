@@ -199,14 +199,14 @@ visualization_msgs::msg::MarkerArray parkingSpacesAsMarkerArray(
  * @param c [color of the marker]
  * @param duration [lifetime of the marker]
  * @param scale [scale of the marker]
- * @return visualization_msgs::MarkerArray
+ * @return visualization_msgs::msg::MarkerArray
  */
-visualization_msgs::MarkerArray generateLaneletIdMarker(
-  const lanelet::ConstLanelets road_lanelets, const std_msgs::ColorRGBA c,
+visualization_msgs::msg::MarkerArray generateLaneletIdMarker(
+  const lanelet::ConstLanelets road_lanelets, const std_msgs::msg::ColorRGBA c,
   const double scale = 0.5);
 
-visualization_msgs::MarkerArray obstaclePolygonsAsMarkerArray(
-  const lanelet::ConstPolygons3d & obstacle_polygons, const std_msgs::ColorRGBA & c);
+visualization_msgs::msg::MarkerArray obstaclePolygonsAsMarkerArray(
+  const lanelet::ConstPolygons3d & obstacle_polygons, const std_msgs::msg::ColorRGBA & c);
 
 }  // namespace visualization
 }  // namespace lanelet

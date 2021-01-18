@@ -19,6 +19,7 @@
 #ifndef LANELET2_EXTENSION_UTILITY_UTILITIES_H
 #define LANELET2_EXTENSION_UTILITY_UTILITIES_H
 
+#include <rclcpp/rclcpp.hpp>
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 
