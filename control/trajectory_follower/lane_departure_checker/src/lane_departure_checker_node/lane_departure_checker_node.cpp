@@ -18,6 +18,7 @@
 
 #include <autoware_utils/math/unit_conversion.h>
 #include <autoware_utils/ros/marker_helper.h>
+#include <autoware_utils/system/stop_watch.h>
 #include <lanelet2_extension/utility/query.h>
 #include <lanelet2_extension/visualization/visualization.h>
 
@@ -219,6 +220,10 @@ bool LaneDepartureCheckerNode::isDataTimeout()
 
 void LaneDepartureCheckerNode::onTimer(const ros::TimerEvent & event)
 {
+  std::map<std::string, double> processing_time_map;
+  autoware_utils::StopWatch<std::chrono::milliseconds> stop_watch;
+  stop_watch.tic("Total");
+
   current_pose_ = self_pose_listener_.getCurrentPose();
 
   if (!isDataReady()) {
@@ -229,12 +234,15 @@ void LaneDepartureCheckerNode::onTimer(const ros::TimerEvent & event)
     return;
   }
 
+  processing_time_map["Node: checkData"] = stop_watch.toc(true);
+
   // In order to wait for both of map and route will be ready, write this not in callback but here
   if (last_route_ != route_) {
     route_lanelets_ = getRouteLanelets(
       *lanelet_map_, routing_graph_, route_->route_sections, param_.vehicle_info.vehicle_length);
     last_route_ = route_;
   }
+  processing_time_map["Node: getRouteLanelets"] = stop_watch.toc(true);
 
   input_.current_pose = current_pose_;
   input_.current_twist = current_twist_;
@@ -243,10 +251,13 @@ void LaneDepartureCheckerNode::onTimer(const ros::TimerEvent & event)
   input_.route_lanelets = route_lanelets_;
   input_.reference_trajectory = reference_trajectory_;
   input_.predicted_trajectory = predicted_trajectory_;
+  processing_time_map["Node: setInputData"] = stop_watch.toc(true);
 
   output_ = lane_departure_checker_->update(input_);
+  processing_time_map["Node: update"] = stop_watch.toc(true);
 
   updater_.force_update();
+  processing_time_map["Node: updateDiagnostics"] = stop_watch.toc(true);
 
   {
     const auto & deviation = output_.trajectory_deviation;
@@ -254,10 +265,18 @@ void LaneDepartureCheckerNode::onTimer(const ros::TimerEvent & event)
     debug_publisher_.publish<std_msgs::Float64>("deviation/yaw", deviation.yaw);
     debug_publisher_.publish<std_msgs::Float64>("deviation/yaw_deg", rad2deg(deviation.yaw));
   }
+  processing_time_map["Node: publishTrajectoryDeviation"] = stop_watch.toc(true);
 
   debug_publisher_.publish<visualization_msgs::MarkerArray>("marker_array", createMarkerArray());
+  processing_time_map["Node: publishDebugMarker"] = stop_watch.toc(true);
 
-  processing_time_publisher_.publish(output_.processing_time_map);
+  // Merge processing_time_map
+  for (const auto & m : output_.processing_time_map) {
+    processing_time_map["Core: " + m.first] = m.second;
+  }
+
+  processing_time_map["Total"] = stop_watch.toc("Total");
+  processing_time_publisher_.publish(processing_time_map);
 }
 
 void LaneDepartureCheckerNode::onConfig(

@@ -29,7 +29,7 @@ namespace autoware_utils
 class ProcessingTimePublisher
 {
 public:
-  ProcessingTimePublisher() : ProcessingTimePublisher("debug/processing_time") {}
+  ProcessingTimePublisher() : ProcessingTimePublisher("debug/processing_time_ms") {}
   explicit ProcessingTimePublisher(
     const char * name, const uint32_t queue_size = 1, const bool latch = false)
   {
