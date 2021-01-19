@@ -54,7 +54,7 @@ public:
 
   void addTempName(const std::string & path) { temps_.emplace_back(path, path); }
   void clearTempNames(void) { temps_.clear(); }
-  bool isTempNamesEmpty(void) { temps_.empty(); }
+  bool isTempNamesEmpty(void) { return temps_.empty(); }
 
   void addFreqName(int index, const std::string & path) { freqs_.emplace_back(index, path); }
   void clearFreqNames(void) { freqs_.clear(); }
@@ -63,9 +63,6 @@ public:
 
   void changeUsageWarn(float usage_warn) { usage_warn_ = usage_warn; }
   void changeUsageError(float usage_error) { usage_error_ = usage_error; }
-
-  void changeLoad1Warn(float load1_warn) { load1_warn_ = load1_warn; }
-  void changeLoad5Warn(float load5_warn) { load5_warn_ = load5_warn; }
 
   void update(void) { updater_.force_update(); }
 
@@ -579,47 +576,9 @@ TEST_F(CPUMonitorTestSuite, load1WarnTest)
 
     // Verify
     DiagStatus status;
-    std::string value;
     ASSERT_TRUE(monitor_->findDiagStatus("CPU Load Average", status));
     // Depending on running situation of machine.
-    ASSERT_TRUE(status.level == DiagStatus::OK || status.level == DiagStatus::WARN);
-  }
-
-  // Verify warning
-  {
-    // Change warning level
-    monitor_->changeLoad1Warn(0.0);
-
-    // Publish topic
-    monitor_->update();
-
-    // Give time to publish
-    ros::WallDuration(0.5).sleep();
-    ros::spinOnce();
-
-    // Verify
-    DiagStatus status;
-    ASSERT_TRUE(monitor_->findDiagStatus("CPU Load Average", status));
-    ASSERT_EQ(status.level, DiagStatus::WARN);
-  }
-
-  // Verify normal behavior
-  {
-    // Change back to normal
-    monitor_->changeLoad1Warn(0.90);
-
-    // Publish topic
-    monitor_->update();
-
-    // Give time to publish
-    ros::WallDuration(0.5).sleep();
-    ros::spinOnce();
-
-    // Verify
-    DiagStatus status;
-    ASSERT_TRUE(monitor_->findDiagStatus("CPU Load Average", status));
-    // Depending on running situation of machine.
-    ASSERT_TRUE(status.level == DiagStatus::OK || status.level == DiagStatus::WARN);
+    ASSERT_TRUE(status.level == DiagStatus::OK);
   }
 }
 
@@ -639,44 +598,7 @@ TEST_F(CPUMonitorTestSuite, load5WarnTest)
     std::string value;
     ASSERT_TRUE(monitor_->findDiagStatus("CPU Load Average", status));
     // Depending on running situation of machine.
-    ASSERT_TRUE(status.level == DiagStatus::OK || status.level == DiagStatus::WARN);
-  }
-
-  // Verify warning
-  {
-    // Change warning level
-    monitor_->changeLoad5Warn(0.0);
-
-    // Publish topic
-    monitor_->update();
-
-    // Give time to publish
-    ros::WallDuration(0.5).sleep();
-    ros::spinOnce();
-
-    // Verify
-    DiagStatus status;
-    ASSERT_TRUE(monitor_->findDiagStatus("CPU Load Average", status));
-    ASSERT_EQ(status.level, DiagStatus::WARN);
-  }
-
-  // Verify normal behavior
-  {
-    // Change back to normal
-    monitor_->changeLoad5Warn(0.80);
-
-    // Publish topic
-    monitor_->update();
-
-    // Give time to publish
-    ros::WallDuration(0.5).sleep();
-    ros::spinOnce();
-
-    // Verify
-    DiagStatus status;
-    ASSERT_TRUE(monitor_->findDiagStatus("CPU Load Average", status));
-    // Depending on running situation of machine.
-    ASSERT_TRUE(status.level == DiagStatus::OK || status.level == DiagStatus::WARN);
+    ASSERT_TRUE(status.level == DiagStatus::OK);
   }
 }
 
