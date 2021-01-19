@@ -58,7 +58,7 @@ private:
   rclcpp::Subscription<autoware_system_msgs::msg::AutowareState>::SharedPtr sub_autoware_state_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::ControlMode>::SharedPtr sub_control_mode_;
   rclcpp::Subscription<autoware_control_msgs::msg::GateMode>::SharedPtr sub_gate_mode_;
-  rclcpp::Subscription<autoware_control_msgs::msg::EmergencyMode>::SharedPtr sub_emergency_;
+  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sub_emergency_;
   rclcpp::Subscription<autoware_system_msgs::msg::HazardStatusStamped>::SharedPtr sub_hazard_status_;
   rclcpp::Subscription<autoware_planning_msgs::msg::StopReasonArray>::SharedPtr sub_stop_reason_;
   rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr sub_diagnostics_;
@@ -99,7 +99,7 @@ private:
     const autoware_system_msgs::msg::AutowareState::ConstSharedPtr msg_ptr);
   void callbackControlMode(const autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr msg_ptr);
   void callbackGateMode(const autoware_control_msgs::msg::GateMode::ConstSharedPtr msg_ptr);
-  void callbackIsEmergency(const autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg_ptr);
+  void callbackIsEmergency(const std_msgs::msg::Bool::ConstSharedPtr msg_ptr);
   void callbackHazardStatus(const autoware_system_msgs::msg::HazardStatusStamped::ConstSharedPtr msg_ptr);
   void callbackStopReason(
     const autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr msg_ptr);
