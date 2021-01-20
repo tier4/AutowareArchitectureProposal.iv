@@ -75,21 +75,22 @@
 //   return resG;
 // }
 
+// Construct a graph from a cost matrix
 Graph * init_from_cost_mat(const std::vector<std::vector<double>> & cost)
 {
   // Weight value of dummy arcs
-  const double INF_WEIGHT = 100; 
+  const double INF_WEIGHT = 100;
 
   int n_rows, n_cols;
   n_rows = cost.size();
-  n_cols = cost[0].size();
+  n_cols = cost.at(0).size();
   assert(n_rows > 0 && n_cols > 0);
 
   // Num of nodes
   int n = (n_rows + n_cols + 1) * 2;
   // Num of edges
   int m = n_rows * n_cols + (n_rows + n_cols) * 3;
-  // Reduce num of edges by eliminated edges
+  // Reduce num of edges by removed edges
   for (int i = 1; i <= n_rows; i++) {
     for (int j = 1; j <= n_cols; j++) {
       if (cost.at(i - 1).at(j - 1) == 0) {
@@ -118,7 +119,7 @@ Graph * init_from_cost_mat(const std::vector<std::vector<double>> & cost)
     add_edge_wrapper(1, (j + n_rows) * 2, INF_WEIGHT);
   }
 
-  // o_j -> sink (n_nodes)
+  // h_i -> sink (n_nodes)
   for (int i = 1; i <= n_rows; i++) {
     add_edge_wrapper(i * 2 + 1, n, INF_WEIGHT);
   }
@@ -126,7 +127,7 @@ Graph * init_from_cost_mat(const std::vector<std::vector<double>> & cost)
     add_edge_wrapper((j + n_rows) * 2 + 1, n, 0);
   }
 
-  //// o_i -> h_i
+  // o_i -> h_i
   for (int i = 1; i <= n_rows; i++) {
     add_edge_wrapper(i * 2, i * 2 + 1, 0);
   }
@@ -134,7 +135,7 @@ Graph * init_from_cost_mat(const std::vector<std::vector<double>> & cost)
     add_edge_wrapper((j + n_rows) * 2, (j + n_rows) * 2 + 1, 0);
   }
 
-  //// h_i -> o_j
+  // h_i -> o_j
   for (int i = 1; i <= n_rows; i++) {
     for (int j = 1; j <= n_cols; j++) {
       if (cost.at(i - 1).at(j - 1) > 0) {
@@ -176,6 +177,7 @@ Graph * init_from_cost_mat(const std::vector<std::vector<double>> & cost)
 //   fclose(fp);
 // }
 
+// Convert network flow to assignments
 void convert_flow_to_assignment(
   Graph * resG, std::vector<std::vector<int>> path_set, int n_rows, int n_cols,
   std::unordered_map<int, int> * direct_assignment,
@@ -183,11 +185,13 @@ void convert_flow_to_assignment(
 {
   std::vector<bool> edge_visited_flag(resG->num_edges_);
 
+  // Helper function to check if the edge is a bridge (i.e., h_i -> o_j)
   auto is_bridge = [&](int a, int b) {
     return (a > resG->src_id_ && a <= n_rows * 2 && a % 2 == 0) &&
            (b > n_rows * 2 && b < resG->sink_id_ && b % 2 == 1);
   };
 
+  // Compute flow values of edges
   for (size_t i = 0; i < path_set.size(); i++) {
     for (size_t j = 0; j < path_set[i].size() - 1; j++) {
       int tail = path_set[i][j];
@@ -198,6 +202,7 @@ void convert_flow_to_assignment(
     }
   }
 
+  // Get assignments
   for (int i = 0; i < resG->num_edges_; i++) {
     if (edge_visited_flag[i]) {
       int tail = resG->edge_tail_head[i].first;
@@ -217,14 +222,7 @@ void convert_flow_to_assignment(
   }
 }
 
-///
-/// \brief main
-/// \param argc
-/// \param argv
-/// \return
-///
-// int main(int argc, char *argv[])
-
+// Solve DA by muSSP
 int solve_muSSP(
   const std::vector<std::vector<double>> & cost, std::unordered_map<int, int> * direct_assignment,
   std::unordered_map<int, int> * reverse_assignment)
