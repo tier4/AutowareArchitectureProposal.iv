@@ -11,8 +11,8 @@
 #include <limits>
 //#include <iostream>
 
-#define FINF 1000000.0 //numeric_limits<double>::max()
-#define FINFHALF FINF/2.0
+#define MUSSP_FINF 1000000.0 //numeric_limits<double>::max()
+#define MUSSP_FINFHALF MUSSP_FINF/2.0
 
 ///
 /// \brief The Sink class

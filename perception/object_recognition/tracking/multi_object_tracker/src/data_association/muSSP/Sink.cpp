@@ -7,8 +7,8 @@
 Sink::Sink(int n, double sink_cost){
     sink_cost_ = sink_cost;
 
-    sink_precursor_weights.assign(n, FINF);
-    //sink_precursor_weights[0] = FINF; // src has 0 weights
+    sink_precursor_weights.assign(n, MUSSP_FINF);
+    //sink_precursor_weights[0] = MUSSP_FINF; // src has 0 weights
 //    used_sink_precursor.assign(n, false);
 }
 /**0 is src and n is sink, 1,3,5... is former node, 2,4,6...is latter node**/
@@ -48,7 +48,7 @@ void Sink::sink_build_precursormap(std::vector<double> &ancestor_ssd, std::vecto
         if(sink_precursor_weights[i] <= ancestor_ssd[ancestor_node_id[i]])
             sink_precursors.insert(std::make_pair(sink_precursor_weights[i], i));
     }
-    sink_precursors.insert(sink_precursors.end(), std::make_pair(FINF, 0)); // worst case
+    sink_precursors.insert(sink_precursors.end(), std::make_pair(MUSSP_FINF, 0)); // worst case
 }
 void Sink::sink_update_all_half(std::vector<double> distance2src, int sink_id, int n){
     double sink_dist = distance2src[sink_id];

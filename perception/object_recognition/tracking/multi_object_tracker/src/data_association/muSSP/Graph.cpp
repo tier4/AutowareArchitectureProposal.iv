@@ -3,9 +3,9 @@
 */
 #include "Graph.h"
 /****shared macros****/
-#define MAX(x, y) ( ( (x) > (y) ) ?  x : y )
-#define MIN(x, y) ( ( (x) < (y) ) ? x : y )
-#define abs(x) ( ( (x) < 0 ) ? -x : x )
+#define MUSSP_MAX(x, y) ( ( (x) > (y) ) ?  x : y )
+#define MUSSP_MIN(x, y) ( ( (x) < (y) ) ? x : y )
+#define MUSSP_ABS(x) ( ( (x) < 0 ) ? -x : x )
 #define REDUCED_EDGE_WEIGHTS(i, j, e) {\
     edge_weights[e] += distance2src[i];\
     edge_weights[e] -= distance2src[j];\
@@ -21,7 +21,7 @@ Graph::Graph(int num_nodes, int num_edges, int src_id, int sink_id, double en_we
     sink_id_ = sink_id;
     en_weight_ = en_weight;
     ex_weight_ = ex_weight;
-    precursor_queue_top_val = FINF;
+    precursor_queue_top_val = MUSSP_FINF;
 
     V_ = std::vector<Node>(num_nodes);
     for (int i = 0; i < num_nodes; i++) {// indeed this is not needed
@@ -29,7 +29,7 @@ Graph::Graph(int num_nodes, int num_edges, int src_id, int sink_id, double en_we
     }
     parent_node_id.assign(num_nodes, 0);
     ancestor_node_id.assign(num_nodes, 0);
-    distance2src.assign(num_nodes, FINF);
+    distance2src.assign(num_nodes, MUSSP_FINF);
     sink_info = std::make_unique<Sink>(num_nodes, ex_weight);
 
     node_visited.assign(num_nodes, false);
@@ -45,7 +45,7 @@ Graph::Graph(int num_nodes, int num_edges, int src_id, int sink_id, double en_we
     edge_visited.assign(num_edges, false);
 
     // data save ancestor information
-    ancestor_ssd.assign(num_nodes, FINF);
+    ancestor_ssd.assign(num_nodes, MUSSP_FINF);
     ancestors_descendants.resize(num_nodes);
 
     time_test.resize(100, 0);
@@ -98,7 +98,7 @@ void Graph::invalid_edge_rm(){
         for (size_t j = 1; j < V_[i].successor_idx.size(); j++)//(int i = 0; i < this->V_[v].successor_idx.size(); ++i)
         {
             if (V_[i].successor_edges_weights[j] > sink_cost + V_[V_[i].successor_idx[j]].precursor_edges_weights[0]){
-                V_[i].successor_edges_weights[j] = FINF;
+                V_[i].successor_edges_weights[j] = MUSSP_FINF;
                 rm_cnt++;
             }
         }
@@ -109,7 +109,7 @@ void Graph::invalid_edge_rm(){
         for (size_t j = 1; j < V_[i].precursor_idx.size(); j++)//(int i = 0; i < this->V_[v].successor_idx.size(); ++i)
         {
             if (V_[i].precursor_edges_weights[j] > src_cost + V_[V_[i].precursor_idx[j]].successor_edges_weights[0]){
-                V_[i].precursor_edges_weights[j] = FINF;
+                V_[i].precursor_edges_weights[j] = MUSSP_FINF;
                 rm_cnt++;
             }
         }
@@ -157,7 +157,7 @@ void Graph::shortest_path_dag() {
     for (int i = 1; i<num_nodes_; i+=2)
         distance2src[i] = V_[i].precursor_edges_weights[0];
     for (int i = 2; i<num_nodes_; i+=2)
-        distance2src[i] = FINF;
+        distance2src[i] = MUSSP_FINF;
 
     distance2src[src_id_] = 0;
     ancestor_node_id[src_id_] = 0;
@@ -203,7 +203,7 @@ void Graph::update_allgraph_weights() {
 
     //// find shortest path each sub-tree
     for (int i = 2; i < num_nodes_; i += 2) {
-        ancestor_ssd[ancestor_node_id[i]] = MIN(ancestor_ssd[ancestor_node_id[i]],
+        ancestor_ssd[ancestor_node_id[i]] = MUSSP_MIN(ancestor_ssd[ancestor_node_id[i]],
                                                 sink_info->sink_precursor_weights[i]);
     }
 
@@ -337,7 +337,7 @@ void Graph::flip_path() { // erase the best one link to sink
         }
 
     //// after flipping, there is a node that no longer can access sink from itself
-    sink_info->sink_precursor_weights[sink_info->sink_precursors.begin()->second] = FINF;
+    sink_info->sink_precursor_weights[sink_info->sink_precursors.begin()->second] = MUSSP_FINF;
     sink_info->sink_precursors.erase(sink_info->sink_precursors.begin());
 }
 
@@ -371,7 +371,7 @@ void Graph::recursive_update_successors_distance(int curr_node_id, double curr_d
         int it = V_[curr_node_id].successor_idx[j];
         if (node_in_visited[it] > 0) {
             double cur_edge_weight = V_[curr_node_id].successor_edges_weights[j] - V_[curr_node_id].price + V_[it].price;
-            if (abs(cur_edge_weight) < 0.000001) { //// in the shortest path tree, permanently labeled
+            if (MUSSP_ABS(cur_edge_weight) < 0.000001) { //// in the shortest path tree, permanently labeled
                 node_in_visited[it] = 0;
                 parent_node_id[it] = curr_node_id;
                 distance2src[it] = curr_dist;
@@ -402,14 +402,14 @@ void Graph::update_shortest_path_tree_recursive(std::vector<int> &update_node_id
     std::vector<int> update_node_id4edges;
     //// order the nodes as topological order from end of shortest_path ==> start of shortest_path
     for (auto &&i : update_node_id) {
-        precursor_queue_top_val = MIN(precursor_queue_top_val, sink_info->sink_precursor_weights[i]);
+        precursor_queue_top_val = MUSSP_MIN(precursor_queue_top_val, sink_info->sink_precursor_weights[i]);
         if (!node_in_visited[i])////use this function to make all vertices for updating as not visited
             topologicalSort_counter_order(i);
     }
     node_in_visited[0] = 0;
     auto curr_best_choice = sink_info->sink_precursors.begin();
 
-    while (abs(sink_info->sink_precursor_weights[curr_best_choice->second] - curr_best_choice->first) > 0.0000001
+    while (MUSSP_ABS(sink_info->sink_precursor_weights[curr_best_choice->second] - curr_best_choice->first) > 0.0000001
            || node_in_visited[curr_best_choice->second] != 0) {
         sink_info->sink_precursors.erase(curr_best_choice);
         curr_best_choice = sink_info->sink_precursors.begin();
@@ -432,9 +432,9 @@ void Graph::update_shortest_path_tree_recursive(std::vector<int> &update_node_id
         for (size_t i = 0; i < tplog_vec.size(); i++) {
             int cur_node = tplog_vec[i];
             if (cur_node % 2 == 0) {//// parent_node_id[cur_node] == -1end-1 elements in flipped path, no use
-                distance2src[cur_node] = FINF;
+                distance2src[cur_node] = MUSSP_FINF;
             } else {
-                double cur_best_distance = MIN(distance2src[parent_node_id[cur_node]], cur_max_distance);
+                double cur_best_distance = MUSSP_MIN(distance2src[parent_node_id[cur_node]], cur_max_distance);
                 distance2src[cur_node] = cur_best_distance;
 
                 for (size_t j = 0; j < V_[cur_node].precursor_idx.size(); j++) {
@@ -502,8 +502,8 @@ void Graph::update_shortest_path_tree_recursive(std::vector<int> &update_node_id
         }
 
 
-        //// re-set precursor_queue_top_val as FINF;
-        precursor_queue_top_val = FINF;
+        //// re-set precursor_queue_top_val as MUSSP_FINF;
+        precursor_queue_top_val = MUSSP_FINF;
     }
     parent_node_id[sink_id_] = -1;
     update_node_id = update_node_id4edges;
@@ -518,7 +518,7 @@ void Graph::update_sink_info(std::vector<int> update_node_id)
     double cur_dist;
     for (auto &&i : update_node_id) {////Set updated node as not visited
         if (i % 2 == 0) { //// 2, 4, 6 ... is the sink's precursors
-            if (distance2src[i] < FINFHALF) {
+            if (distance2src[i] < MUSSP_FINFHALF) {
                 cur_dist = sink_info->sink_precursor_weights[i] + distance2src[i];
                 sink_info->sink_precursor_weights[i] = cur_dist;
                 if (cur_dist < ancestor_ssd[ancestor_node_id[i]]) {
@@ -529,11 +529,11 @@ void Graph::update_sink_info(std::vector<int> update_node_id)
         }
     }
 
-    sink_info->sink_precursor_weights[shortest_path[1]] = FINF; //// set the last but one distance as inf
+    sink_info->sink_precursor_weights[shortest_path[1]] = MUSSP_FINF; //// set the last but one distance as inf
 
     auto curr_best_choice = sink_info->sink_precursors.begin();
 
-    while (abs(sink_info->sink_precursor_weights[curr_best_choice->second] - curr_best_choice->first) > 0.0000001
+    while (MUSSP_ABS(sink_info->sink_precursor_weights[curr_best_choice->second] - curr_best_choice->first) > 0.0000001
            || node_in_visited[curr_best_choice->second] != 0) {//// if used
         sink_info->sink_precursors.erase(curr_best_choice);
         curr_best_choice = sink_info->sink_precursors.begin();
