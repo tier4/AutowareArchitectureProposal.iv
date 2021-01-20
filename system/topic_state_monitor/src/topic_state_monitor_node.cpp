@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-#include <ros/ros.h>
+#include "topic_state_monitor/topic_state_monitor_core.hpp"
 
-#include "topic_state_monitor/topic_state_monitor_node.h"
-
-int main(int argc, char * argv[])
+int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "topic_state_monitor");
-
-  topic_state_monitor::TopicStateMonitorNode node;
-
-  ros::spin();
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<topic_state_monitor::TopicStateMonitorNode>();
+  rclcpp::spin(node);
+  rclcpp::shutdown();
 
   return 0;
 }

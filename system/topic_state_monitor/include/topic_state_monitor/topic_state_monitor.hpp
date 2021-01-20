@@ -19,13 +19,14 @@
 #include <deque>
 #include <string>
 
-#include <ros/time.h>
+#include "rclcpp/rclcpp.hpp"
 
 namespace topic_state_monitor
 {
 struct Param
 {
   std::string topic;
+  std::string topic_type;
   std::string diag_name;
   double warn_rate;
   double error_rate;
@@ -44,9 +45,11 @@ enum class TopicStatus : int8_t {
 class TopicStateMonitor
 {
 public:
+  explicit TopicStateMonitor(rclcpp::Node & node);
+
   void setParam(const Param & param) { param_ = param; }
 
-  ros::Time getLastMessageTime() const { return last_message_time_; }
+  rclcpp::Time getLastMessageTime() const { return last_message_time_; }
   double getTopicRate() const { return topic_rate_; }
 
   void update();
@@ -57,9 +60,11 @@ private:
 
   static constexpr double max_rate = 100000.0;
 
-  std::deque<ros::Time> time_buffer_;
-  ros::Time last_message_time_ = ros::Time(0);
+  std::deque<rclcpp::Time> time_buffer_;
+  rclcpp::Time last_message_time_ = rclcpp::Time(0);
   double topic_rate_ = TopicStateMonitor::max_rate;
+
+  rclcpp::Clock::SharedPtr clock_;
 
   double calcTopicRate() const;
   bool isNotReceived() const;

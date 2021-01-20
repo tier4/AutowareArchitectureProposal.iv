@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-#include "topic_state_monitor/topic_state_monitor.h"
+#include "topic_state_monitor/topic_state_monitor.hpp"
 
 namespace topic_state_monitor
 {
+TopicStateMonitor::TopicStateMonitor(rclcpp::Node & node) : clock_(node.get_clock()) {}
+
 void TopicStateMonitor::update()
 {
   // Add data
-  last_message_time_ = ros::Time::now();
+  last_message_time_ = clock_->now();
   time_buffer_.push_back(last_message_time_);
 
   // Remove old data
@@ -50,7 +52,7 @@ double TopicStateMonitor::calcTopicRate() const
     return TopicStateMonitor::max_rate;
   }
 
-  const auto time_diff = (time_buffer_.back() - time_buffer_.front()).toSec();
+  const auto time_diff = (time_buffer_.back() - time_buffer_.front()).seconds();
   const auto num_intervals = time_buffer_.size() - 1;
 
   return static_cast<double>(num_intervals) / time_diff;
@@ -82,7 +84,7 @@ bool TopicStateMonitor::isTimeout() const
     return false;
   }
 
-  const auto time_diff = (ros::Time::now() - time_buffer_.back()).toSec();
+  const auto time_diff = (clock_->now() - time_buffer_.back()).seconds();
 
   return time_diff > param_.timeout;
 }

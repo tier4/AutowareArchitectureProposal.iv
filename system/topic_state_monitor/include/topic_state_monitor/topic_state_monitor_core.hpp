@@ -22,15 +22,11 @@
 #include <string>
 #include <vector>
 
-#include <diagnostic_updater/diagnostic_updater.h>
-#include <dynamic_reconfigure/server.h>
-#include <ros/ros.h>
-#include <tf2_ros/buffer.h>
-#include <tf2_ros/transform_listener.h>
-#include <topic_tools/shape_shifter.h>
+#include "diagnostic_updater/diagnostic_updater.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp_generic/generic_subscription.hpp"
 
-#include "topic_state_monitor/TopicStateMonitorConfig.h"
-#include "topic_state_monitor/topic_state_monitor.h"
+#include "topic_state_monitor/topic_state_monitor.hpp"
 
 namespace topic_state_monitor
 {
@@ -39,35 +35,30 @@ struct NodeParam
   double update_rate;
 };
 
-class TopicStateMonitorNode
+class TopicStateMonitorNode : public rclcpp::Node
 {
 public:
   TopicStateMonitorNode();
 
 private:
-  // NodeHandle
-  ros::NodeHandle nh_{""};
-  ros::NodeHandle private_nh_{"~"};
-
   // Parameter
   NodeParam node_param_;
   Param param_;
 
-  // Dynamic Reconfigure
-  void onConfig(const TopicStateMonitorConfig & config, const uint32_t level);
-  dynamic_reconfigure::Server<TopicStateMonitorConfig> dynamic_reconfigure_;
+  // Parameter Reconfigure
+  OnSetParametersCallbackHandle::SharedPtr set_param_res_;
+  rcl_interfaces::msg::SetParametersResult onParameter(
+    const std::vector<rclcpp::Parameter> & parameters);
 
   // Core
   std::unique_ptr<TopicStateMonitor> topic_state_monitor_;
 
   // Subscriber
-  ros::Subscriber sub_topic_;
-
-  void onTopic(const topic_tools::ShapeShifter::ConstPtr & msg);
+  rclcpp_generic::GenericSubscription::SharedPtr sub_topic_;
 
   // Timer
-  void onTimer(const ros::TimerEvent & event);
-  ros::Timer timer_;
+  void onTimer();
+  rclcpp::TimerBase::SharedPtr timer_;
 
   // Diagnostic Updater
   diagnostic_updater::Updater updater_;
