@@ -19,22 +19,25 @@
  * @brief Velodyne monitor class
  */
 
-#include <velodyne_monitor/velodyne_monitor.h>
+#include "velodyne_monitor/velodyne_monitor.hpp"
 
-#include <boost/algorithm/string/join.hpp>
+#include "boost/algorithm/string/join.hpp"
 
-#include <fmt/format.h>
+#define FMT_HEADER_ONLY
+#include "fmt/format.h"
 
 VelodyneMonitor::VelodyneMonitor()
+: Node("velodyne_monitor"),
+  updater_(this)
 {
-  pnh_.param<double>("timeout", timeout_, 0.5);
-  pnh_.param<std::string>("ip_address", ip_address_, "192.168.1.201");
-  pnh_.param<float>("temp_cold_warn", temp_cold_warn_, -5.0);
-  pnh_.param<float>("temp_cold_error", temp_cold_error_, -10.0);
-  pnh_.param<float>("temp_hot_warn", temp_hot_warn_, 75.0);
-  pnh_.param<float>("temp_hot_error", temp_hot_error_, 80.0);
-  pnh_.param<float>("rpm_ratio_warn", rpm_ratio_warn_, 0.80);
-  pnh_.param<float>("rpm_ratio_error", rpm_ratio_error_, 0.70);
+  timeout_ = declare_parameter("timeout", 0.5);
+  ip_address_ = declare_parameter("ip_address", "192.168.1.201");
+  temp_cold_warn_ = declare_parameter("temp_cold_warn", -5.0);
+  temp_cold_error_ = declare_parameter("temp_cold_error", -10.0);
+  temp_hot_warn_ = declare_parameter("temp_hot_warn", 75.0);
+  temp_hot_error_ = declare_parameter("temp_hot_error", 80.0);
+  rpm_ratio_warn_ = declare_parameter("rpm_ratio_warn", 0.80);
+  rpm_ratio_error_ = declare_parameter("rpm_ratio_error", 0.70);
 
   updater_.add("velodyne_connection", this, &VelodyneMonitor::checkConnection);
   updater_.add("velodyne_temperature", this, &VelodyneMonitor::checkTemperature);
@@ -49,7 +52,15 @@ VelodyneMonitor::VelodyneMonitor()
 
   updater_.setHardwareID("velodyne");
 
-  timer_ = pnh_.createTimer(ros::Rate(1.0), &VelodyneMonitor::onTimer, this);
+  // Timer
+  auto timer_callback = std::bind(&VelodyneMonitor::onTimer, this);
+  auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
+    std::chrono::duration<double>(1.0));
+
+  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
+    this->get_clock(), period, std::move(timer_callback),
+    this->get_node_base_interface()->get_context());
+  this->get_node_timers_interface()->add_timer(timer_, nullptr);
 }
 
 void VelodyneMonitor::checkConnection(diagnostic_updater::DiagnosticStatusWrapper & stat)
@@ -200,4 +211,4 @@ float VelodyneMonitor::convertTemperature(int raw)
   return std::sqrt(2.1962e6 + (1.8639 - static_cast<float>(raw) * 5.0 / 4096) / 3.88e-6) - 1481.96;
 }
 
-void VelodyneMonitor::onTimer(const ros::TimerEvent & event) { updater_.force_update(); }
+void VelodyneMonitor::onTimer() { updater_.force_update(); }

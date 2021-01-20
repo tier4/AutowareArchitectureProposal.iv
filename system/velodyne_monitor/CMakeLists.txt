@@ -1,80 +1,35 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(velodyne_monitor)
 
-## Compile as C++14, supported in ROS Melodic and newer
-add_compile_options(-std=c++14)
+### Compile options
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
+endif()
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  diagnostic_msgs
-  roslint
-  roscpp
-  std_msgs
-)
+### Dependencies
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
-find_package(fmt REQUIRED)
-
-set(ROSLINT_CPP_OPTS "--filter=-build/c++14")
-roslint_cpp()
-
-###################################
-## catkin specific configuration ##
-###################################
-catkin_package(
-  CATKIN_DEPENDS
-    std_msgs
-    diagnostic_msgs
-    diagnostic_updater
-)
-
-###########
-## Build ##
-###########
-
-## Specify additional locations of header files
-
-include_directories(
- include
- ${catkin_INCLUDE_DIRS}
-)
-
-## Declare a C++ executable
-add_executable(velodyne_monitor
+### Target executable
+ament_auto_add_executable(velodyne_monitor
   src/velodyne_monitor_node.cpp
   src/velodyne_monitor.cpp
 )
 
-## Add cmake target dependencies of the executable
-add_dependencies(velodyne_monitor ${catkin_EXPORTED_TARGETS})
-
 ## Specify libraries to link a library or executable target against
-target_link_libraries(velodyne_monitor ${catkin_LIBRARIES} cpprest crypto fmt)
+target_link_libraries(velodyne_monitor cpprest crypto fmt)
 
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
-#############
-## Install ##
-#############
-
-## Mark executables for installation
-install(
-  TARGETS
-    velodyne_monitor
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-## Mark cpp header files for installation
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-)
-
-# Install launch
-install(DIRECTORY launch/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
-)
-
-# Install config
-install(DIRECTORY config/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
+ament_auto_package(INSTALL_TO_SHARE
+  launch
+  config
 )

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef VELODYNE_MONITOR_VELODYNE_MONITOR_H_
-#define VELODYNE_MONITOR_VELODYNE_MONITOR_H_
+#ifndef VELODYNE_MONITOR_VELODYNE_MONITOR_HPP_
+#define VELODYNE_MONITOR_VELODYNE_MONITOR_HPP_
 
 /**
- * @file velodyne_monitor.h
+ * @file velodyne_monitor.hpp
  * @brief Velodyne monitor class
  */
 
@@ -27,16 +27,17 @@
 #include <string>
 #include <vector>
 
-#include <diagnostic_updater/diagnostic_updater.h>
+#include "diagnostic_updater/diagnostic_updater.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 // Include after diagnostic_updater because it causes errors
-#include <cpprest/http_client.h>
+#include "cpprest/http_client.h"
 
 namespace http = web::http;
 namespace client = web::http::client;
 namespace json = web::json;
 
-class VelodyneMonitor
+class VelodyneMonitor : public rclcpp::Node
 {
 public:
   /**
@@ -45,7 +46,7 @@ public:
   VelodyneMonitor();
 
 protected:
-  using DiagStatus = diagnostic_msgs::DiagnosticStatus;
+  using DiagStatus = diagnostic_msgs::msg::DiagnosticStatus;
 
   /**
    * @brief obtain JSON-formatted diagnostic status and check connection
@@ -96,11 +97,9 @@ protected:
    * @brief timer callback
    * @param [in] event timing information
    */
-  void onTimer(const ros::TimerEvent & event);
+  void onTimer();
 
-  ros::NodeHandle nh_{""};               //!< @brief ros node handle
-  ros::NodeHandle pnh_{"~"};             //!< @brief private ros node handle
-  ros::Timer timer_;                     //!< @brief timer
+  rclcpp::TimerBase::SharedPtr timer_;                     //!< @brief timer
   diagnostic_updater::Updater updater_;  //!< @brief updater class which advertises to /diagnostics
   std::unique_ptr<client::http_client> client_;  //!< @brief HTTP client class
   json::value info_json_;                        //!< @brief values of info.json
@@ -118,11 +117,11 @@ protected:
   float rpm_ratio_warn_;    //!< @brief the rpm threshold(%) to generate a warning
   float rpm_ratio_error_;   //!< @brief the rpm threshold(%) to generate an error
 
-  /**
+  /**const ros::TimerEvent & event
    * @brief RPM status messages
    */
   const std::map<int, const char *> rpm_dict_ = {
     {DiagStatus::OK, "OK"}, {DiagStatus::WARN, "RPM low"}, {DiagStatus::ERROR, "RPM too low"}};
 };
 
-#endif  // VELODYNE_MONITOR_VELODYNE_MONITOR_H_
+#endif  // VELODYNE_MONITOR_VELODYNE_MONITOR_HPP_
