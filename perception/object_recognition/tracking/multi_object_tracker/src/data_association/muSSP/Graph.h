@@ -1,3 +1,6 @@
+/*
+  Copied and modified from https://github.com/yu-lab-vt/muSSP
+*/
 #pragma once
 
 #include "Node.h"

@@ -1,4 +1,6 @@
-
+/*
+  Copied and modified from https://github.com/yu-lab-vt/muSSP
+*/
 #include "Graph.h"
 /****shared macros****/
 #define MAX(x, y) ( ( (x) > (y) ) ?  x : y )
