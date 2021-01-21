@@ -70,7 +70,8 @@ geometry_msgs::msg::TwistStamped calcTwist(
   geometry_msgs::msg::PoseStamped::SharedPtr pose_a,
   geometry_msgs::msg::PoseStamped::SharedPtr pose_b)
 {
-  const double dt = (pose_b->header.stamp.sec - pose_a->header.stamp.sec);
+  const double dt =
+        (rclcpp::Time(pose_b->header.stamp) - rclcpp::Time(pose_a->header.stamp)).seconds();
 
   if (dt == 0) {
     geometry_msgs::msg::TwistStamped twist;
