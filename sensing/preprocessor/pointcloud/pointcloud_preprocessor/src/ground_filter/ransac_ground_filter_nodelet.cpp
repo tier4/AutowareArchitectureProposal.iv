@@ -42,7 +42,7 @@ Eigen::Vector3d getArbitralyOrthogonalVector(const Eigen::Vector3d & input)
     unit_vec.y() = 0;
     unit_vec.z() = x;
     unit_vec = unit_vec / std::sqrt(z2 + x2);
-  } else if (z2 <= x2 && y2 <= y2) {
+  } else if (z2 <= x2 && z2 <= y2) {
     unit_vec.x() = y;
     unit_vec.y() = -x;
     unit_vec.z() = 0;
