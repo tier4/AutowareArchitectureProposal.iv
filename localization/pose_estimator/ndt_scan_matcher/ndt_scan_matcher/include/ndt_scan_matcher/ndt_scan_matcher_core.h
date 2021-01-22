@@ -108,6 +108,8 @@ private:
   bool getTransform(
     const std::string & target_frame, const std::string & source_frame,
     const geometry_msgs::TransformStamped::Ptr & transform_stamped_ptr);
+  bool isLocalOptimalSolutionOscillation(
+    const std::vector<Eigen::Matrix4f> & result_pose_matrix_array);
 
   void publishMarkerForDebug(const Particle & particle_array, const size_t i);
 
@@ -148,6 +150,8 @@ private:
   std::string ndt_base_frame_;
   std::string map_frame_;
   double converged_param_transform_probability_;
+  float inversion_vector_threshold_;
+  float oscillation_threshold_;
 
   std::deque<boost::shared_ptr<const geometry_msgs::PoseWithCovarianceStamped>>
     initial_pose_msg_ptr_array_;
