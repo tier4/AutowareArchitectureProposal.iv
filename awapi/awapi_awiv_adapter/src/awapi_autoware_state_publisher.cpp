@@ -198,23 +198,24 @@ void AutowareIvAutowareStatePublisher::getErrorDiagInfo(
 
   for (const auto & hazard_diag : hazard_status.diagnostics_spf) {
     auto diag = hazard_diag;
-    diag.level = DiagnosticStatus::ERROR;
-    error_diagnostics.push_back(hazard_diag);
+    diag.message = "[Single Point Fault]" + hazard_diag.message;
+    error_diagnostics.push_back(diag);
   }
   for (const auto & hazard_diag : hazard_status.diagnostics_lf) {
     auto diag = hazard_diag;
-    diag.level = DiagnosticStatus::ERROR;
-    error_diagnostics.push_back(hazard_diag);
+    diag.message = "[Latent Fault]" + hazard_diag.message;
+    error_diagnostics.push_back(diag);
   }
   for (const auto & hazard_diag : hazard_status.diagnostics_sf) {
     auto diag = hazard_diag;
-    diag.level = DiagnosticStatus::WARN;
-    error_diagnostics.push_back(hazard_diag);
+    diag.message = "[Safe Fault]" + hazard_diag.message;
+    error_diagnostics.push_back(diag);
   }
   for (const auto & hazard_diag : hazard_status.diagnostics_nf) {
     auto diag = hazard_diag;
+    diag.message = "[No Fault]" + hazard_diag.message;
     diag.level = DiagnosticStatus::OK;
-    error_diagnostics.push_back(hazard_diag);
+    error_diagnostics.push_back(diag);
   }
 
   // filter leaf diag
