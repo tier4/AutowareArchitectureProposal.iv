@@ -32,3 +32,10 @@ analyzers:
     contains: ": vehicle_errors"
     timeout: 1.0
     num_items: 0
+
+  obstacle_crush:
+    type: diagnostic_aggregator/GenericAnalyzer
+    path: obstacle_crush
+    contains: ": obstacle_crush"
+    timeout: 1.0
+    num_items: 0
