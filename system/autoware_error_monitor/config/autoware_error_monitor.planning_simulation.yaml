@@ -53,6 +53,7 @@ required_modules:
 
     - { name: "/vehicle/alive_monitoring" }
     - { name: "/vehicle/vehicle_errors" }
+    - { name: "/vehicle/obstacle_crush" }
 
   remote_control:
     - { name: "/control/command_gate/alive_monitoring" }
