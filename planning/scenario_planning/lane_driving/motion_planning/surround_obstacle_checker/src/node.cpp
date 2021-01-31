@@ -75,19 +75,22 @@ void SurroundObstacleCheckerNode::pathCallback(
 {
   if (use_pointcloud_ && !pointcloud_ptr_) {
     RCLCPP_WARN_THROTTLE(
-      this->get_logger(), *this->get_clock(), 1000 /* ms */, "waiting for pointcloud info...");
+      this->get_logger(), *this->get_clock(), 1000 /* ms */,
+      "waiting for pointcloud info...");
     return;
   }
 
   if (use_dynamic_object_ && !object_ptr_) {
     RCLCPP_WARN_THROTTLE(
-      this->get_logger(), *this->get_clock(), 1000 /* ms */, "waiting for dynamic object info...");
+      this->get_logger(), *this->get_clock(), 1000 /* ms */,
+      "waiting for dynamic object info...");
     return;
   }
 
   if (!current_velocity_ptr_) {
     RCLCPP_WARN_THROTTLE(
-      this->get_logger(), *this->get_clock(), 1000 /* ms */, "waiting for current velocity...");
+      this->get_logger(), *this->get_clock(), 1000 /* ms */,
+      "waiting for current velocity...");
     return;
   }
 
@@ -184,7 +187,8 @@ bool SurroundObstacleCheckerNode::getPose(
     tf2::toMsg(transform, pose);
   } catch (tf2::TransformException & ex) {
     RCLCPP_WARN_STREAM_THROTTLE(
-      get_logger(), *this->get_clock(), 500 /* ms */, "cannot get tf from " << source << " to " << target);
+      get_logger(), *this->get_clock(), 500 /* ms */,
+      "cannot get tf from " << source << " to " << target);
     return false;
   }
   return true;
@@ -202,7 +206,8 @@ bool SurroundObstacleCheckerNode::convertPose(
     tf2::fromMsg(ros_src2tgt.transform, src2tgt);
   } catch (tf2::TransformException & ex) {
     RCLCPP_WARN_STREAM_THROTTLE(
-      get_logger(), *this->get_clock(), 500 /* ms */, "cannot get tf from " << source << " to " << target);
+      get_logger(), *this->get_clock(), 500 /* ms */,
+      "cannot get tf from " << source << " to " << target);
     return false;
   }
 
