@@ -1,23 +1,27 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /**
  * @file velodyne_monitor.cpp
  * @brief Velodyne monitor class
  */
+
+#include <algorithm>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "velodyne_monitor/velodyne_monitor.hpp"
 
@@ -142,7 +146,7 @@ void VelodyneMonitor::checkTemperature(diagnostic_updater::DiagnosticStatusWrapp
   stat.addf("Top board", "%.3lf DegC", top_temp);
   stat.addf("Bottom board", "%.3lf DegC", bot_temp);
 
-  if (msg.empty()) msg.emplace_back("OK");
+  if (msg.empty()) {msg.emplace_back("OK");}
 
   stat.summary(std::max(level_top, level_bot), boost::algorithm::join(msg, ", "));
 }
@@ -175,10 +179,11 @@ void VelodyneMonitor::checkMotorRpm(diagnostic_updater::DiagnosticStatusWrapper 
   const double rpm = status_json_["motor"]["rpm"].as_double();
   const double ratio = rpm / setting;
 
-  if (ratio < rpm_ratio_error_)
+  if (ratio < rpm_ratio_error_) {
     level = DiagStatus::ERROR;
-  else if (ratio < rpm_ratio_warn_)
+  } else if (ratio < rpm_ratio_warn_) {
     level = DiagStatus::WARN;
+  }
 
   stat.addf("Ratio", "%.2lf %%", ratio * 1e2);
   stat.addf("Setting", "%.0f", setting);
@@ -211,4 +216,4 @@ float VelodyneMonitor::convertTemperature(int raw)
   return std::sqrt(2.1962e6 + (1.8639 - static_cast<float>(raw) * 5.0 / 4096) / 3.88e-6) - 1481.96;
 }
 
-void VelodyneMonitor::onTimer() { updater_.force_update(); }
+void VelodyneMonitor::onTimer() {updater_.force_update();}
