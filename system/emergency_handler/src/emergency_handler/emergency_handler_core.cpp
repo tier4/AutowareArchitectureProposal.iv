@@ -115,7 +115,8 @@ EmergencyHandler::EmergencyHandler()
     create_publisher<autoware_vehicle_msgs::msg::ShiftStamped>("output/shift", rclcpp::QoS{1});
   pub_turn_signal_ =
     create_publisher<autoware_vehicle_msgs::msg::TurnSignal>("output/turn_signal", rclcpp::QoS{1});
-  pub_is_emergency_ = create_publisher<std_msgs::msg::Bool>("output/is_emergency", rclcpp::QoS{1});
+  pub_is_emergency_ =
+    create_publisher<autoware_control_msgs::msg::EmergencyMode>("output/is_emergency", rclcpp::QoS{1});
   pub_hazard_status_ =
     create_publisher<autoware_system_msgs::msg::HazardStatusStamped>("output/hazard_status", rclcpp::QoS{1});
   pub_diagnostics_err_ =
@@ -201,8 +202,8 @@ void EmergencyHandler::publishHazardStatus(
   const autoware_system_msgs::msg::HazardStatus & hazard_status)
 {
   // Create msg of is_emergency
-  std_msgs::msg::Bool is_emergency;
-  is_emergency.data = isEmergency(hazard_status);
+  autoware_control_msgs::msg::EmergencyMode emergency_mode;
+  emergency_mode.is_emergency = isEmergency(hazard_status);
 
   // Create msg of hazard_status
   autoware_system_msgs::msg::HazardStatusStamped hazard_status_stamped;
@@ -210,7 +211,7 @@ void EmergencyHandler::publishHazardStatus(
   hazard_status_stamped.status = hazard_status;
 
   // Publish data
-  pub_is_emergency_->publish(is_emergency);
+  pub_is_emergency_->publish(emergency_mode);
   pub_hazard_status_->publish(hazard_status_stamped);
   pub_diagnostics_err_->publish(
     convertHazardStatusToDiagnosticArray(this->get_clock(), hazard_status_stamped.status));

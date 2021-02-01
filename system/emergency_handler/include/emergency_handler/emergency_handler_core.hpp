@@ -17,6 +17,7 @@
 
 // Autoware
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
+#include "autoware_control_msgs/msg/emergency_mode.hpp"
 #include "autoware_control_msgs/msg/gate_mode.hpp"
 #include "autoware_system_msgs/msg/autoware_state.hpp"
 #include "autoware_system_msgs/msg/driving_capability.hpp"
@@ -82,7 +83,7 @@ private:
     pub_control_command_;
   rclcpp::Publisher<autoware_vehicle_msgs::msg::ShiftStamped>::SharedPtr pub_shift_;
   rclcpp::Publisher<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr pub_turn_signal_;
-  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr pub_is_emergency_;
+  rclcpp::Publisher<autoware_control_msgs::msg::EmergencyMode>::SharedPtr pub_is_emergency_;
   rclcpp::Publisher<autoware_system_msgs::msg::HazardStatusStamped>::SharedPtr pub_hazard_status_;
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr pub_diagnostics_err_;
 
