@@ -170,11 +170,11 @@ bool StateMachine::isOverridden() const {return !isEngaged();}
 
 bool StateMachine::isEmergency() const
 {
-  if (!state_input_.is_emergency) {
+  if (!state_input_.emergency_mode) {
     return false;
   }
 
-  return state_input_.is_emergency->data;
+  return state_input_.emergency_mode->is_emergency;
 }
 
 bool StateMachine::hasArrivedGoal() const

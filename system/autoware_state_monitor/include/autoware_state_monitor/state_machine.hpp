@@ -21,12 +21,12 @@
 
 #include "autoware_planning_msgs/msg/route.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "autoware_control_msgs/msg/emergency_mode.hpp"
 #include "autoware_control_msgs/msg/engage_mode.hpp"
 #include "autoware_system_msgs/msg/autoware_state.hpp"
 #include "autoware_vehicle_msgs/msg/control_mode.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
-#include "std_msgs/msg/bool.hpp"
 #include "rclcpp/time.hpp"
 
 #include "autoware_state_monitor/autoware_state.hpp"
@@ -46,7 +46,7 @@ struct StateInput
 
   autoware_control_msgs::msg::EngageMode::ConstSharedPtr autoware_engage;
   autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr vehicle_control_mode;
-  std_msgs::msg::Bool::ConstSharedPtr is_emergency;
+  autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr emergency_mode;
   bool is_finalizing = false;
   autoware_planning_msgs::msg::Route::ConstSharedPtr route;
   geometry_msgs::msg::TwistStamped::ConstSharedPtr twist;

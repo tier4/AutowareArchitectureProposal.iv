@@ -120,9 +120,9 @@ void AutowareStateMonitorNode::onVehicleControlMode(
   state_input_.vehicle_control_mode = msg;
 }
 
-void AutowareStateMonitorNode::onIsEmergency(const std_msgs::msg::Bool::ConstSharedPtr msg)
+void AutowareStateMonitorNode::onIsEmergency(const autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg)
 {
-  state_input_.is_emergency = msg;
+  state_input_.emergency_mode = msg;
 }
 
 void AutowareStateMonitorNode::onRoute(const autoware_planning_msgs::msg::Route::ConstSharedPtr msg)
@@ -419,7 +419,7 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   sub_vehicle_control_mode_ = this->create_subscription<autoware_vehicle_msgs::msg::ControlMode>(
     "input/vehicle_control_mode", 1,
     std::bind(&AutowareStateMonitorNode::onVehicleControlMode, this, _1));
-  sub_is_emergency_ = this->create_subscription<std_msgs::msg::Bool>(
+  sub_is_emergency_ = this->create_subscription<autoware_control_msgs::msg::EmergencyMode>(
     "input/is_emergency", 1,
     std::bind(&AutowareStateMonitorNode::onIsEmergency, this, _1));
   sub_route_ = this->create_subscription<autoware_planning_msgs::msg::Route>(

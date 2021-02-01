@@ -21,13 +21,13 @@
 
 #include "autoware_planning_msgs/msg/route.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "autoware_control_msgs/msg/emergency_mode.hpp"
 #include "autoware_control_msgs/msg/engage_mode.hpp"
 #include "autoware_system_msgs/msg/autoware_state.hpp"
 #include "autoware_vehicle_msgs/msg/control_mode.hpp"
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
-#include "std_msgs/msg/bool.hpp"
 #include "std_srvs/srv/trigger.hpp"
 
 #include "tf2_ros/buffer.h"
@@ -66,13 +66,13 @@ private:
   rclcpp::Subscription<autoware_control_msgs::msg::EngageMode>::SharedPtr sub_autoware_engage_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::ControlMode>::SharedPtr
     sub_vehicle_control_mode_;
-  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sub_is_emergency_;
+  rclcpp::Subscription<autoware_control_msgs::msg::EmergencyMode>::SharedPtr sub_is_emergency_;
   rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr sub_route_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
 
   void onAutowareEngage(const autoware_control_msgs::msg::EngageMode::ConstSharedPtr msg);
   void onVehicleControlMode(const autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr msg);
-  void onIsEmergency(const std_msgs::msg::Bool::ConstSharedPtr msg);
+  void onIsEmergency(const autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg);
   void onRoute(const autoware_planning_msgs::msg::Route::ConstSharedPtr msg);
   void onTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
 
