@@ -55,7 +55,8 @@ private:
   // Subscription
   rclcpp::Subscription<autoware_control_msgs::msg::EngageMode>::SharedPtr engage_sub_;
   rclcpp::Subscription<autoware_control_msgs::msg::EmergencyMode>::SharedPtr system_emergency_sub_;
-  rclcpp::Subscription<autoware_control_msgs::msg::EmergencyMode>::SharedPtr external_emergency_stop_sub_;
+  rclcpp::Subscription<autoware_control_msgs::msg::EmergencyMode>::SharedPtr
+    external_emergency_stop_sub_;
   rclcpp::Subscription<autoware_control_msgs::msg::GateMode>::SharedPtr gate_mode_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::Steering>::SharedPtr steer_sub_;
 
