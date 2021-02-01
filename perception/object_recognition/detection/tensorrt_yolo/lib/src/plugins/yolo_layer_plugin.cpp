@@ -60,13 +60,15 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include "yolo_layer_plugin.hpp"
-#include <cuda_runtime_api.h>
-#include <stdio.h>
-#include <string.h>
 #include <cassert>
 #include <cmath>
-#include "yolo_layer.h"
+#include <stdio.h>
+#include <string.h>
+
+#include "cuda_runtime_api.h"
+
+#include "yolo_layer.hpp"
+#include "yolo_layer_plugin.hpp"
 
 using namespace nvinfer1;
 

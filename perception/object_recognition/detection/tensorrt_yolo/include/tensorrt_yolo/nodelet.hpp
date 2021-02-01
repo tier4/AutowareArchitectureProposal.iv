@@ -22,43 +22,41 @@
 #include <mutex>
 #include <string>
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/opencv.hpp>
+#include "opencv2/core/core.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/opencv.hpp"
 
-#include <cv_bridge/cv_bridge.h>
-#include <image_transport/image_transport.h>
-#include <nodelet/nodelet.h>
-#include <pluginlib/class_list_macros.h>
-#include <ros/ros.h>
+#include "cv_bridge/cv_bridge.h"
+#include "image_transport/image_transport.hpp"
+#include "rclcpp/rclcpp.hpp"
 
-#include <autoware_perception_msgs/DynamicObjectWithFeatureArray.h>
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/image_encodings.h>
-#include <std_msgs/Float32.h>
-#include <std_msgs/Header.h>
+#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
+#include "sensor_msgs/msg/image.hpp"
+#include "sensor_msgs/image_encodings.hpp"
+#include "std_msgs/msg/header.hpp"
 
 #include "trt_yolo.hpp"
 
 namespace object_recognition
 {
-class TensorrtYoloNodelet : public nodelet::Nodelet
+class TensorrtYoloNodelet : public rclcpp::Node
 {
 public:
-  virtual void onInit();
+  explicit TensorrtYoloNodelet(const rclcpp::NodeOptions & options);
   void connectCb();
-  void callback(const sensor_msgs::Image::ConstPtr & image_msg);
+  void callback(const sensor_msgs::msg::Image::ConstSharedPtr image_msg);
   bool readLabelFile(const std::string & filepath, std::vector<std::string> * labels);
 
 private:
-  ros::NodeHandle nh_, pnh_;
-  std::shared_ptr<image_transport::ImageTransport> it_;
   std::mutex connect_mutex_;
 
   image_transport::Publisher image_pub_;
-  ros::Publisher objects_pub_;
+  rclcpp::Publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr
+    objects_pub_;
 
   image_transport::Subscriber image_sub_;
+
+  rclcpp::TimerBase::SharedPtr timer_;
 
   yolo::Config yolo_config_;
 

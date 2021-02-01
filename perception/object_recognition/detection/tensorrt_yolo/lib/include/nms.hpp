@@ -37,8 +37,10 @@
  */
 
 #pragma once
-#include <cuda_runtime_api.h>
+
 #include <vector>
+
+#include "cuda_runtime_api.h"
 
 namespace yolo
 {

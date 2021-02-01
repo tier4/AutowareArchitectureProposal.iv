@@ -38,10 +38,10 @@
 
 #pragma once
 
-#include <NvInfer.h>
-
 #include <cassert>
 #include <vector>
+
+#include "NvInfer.h"
 
 namespace yolo
 {

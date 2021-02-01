@@ -65,8 +65,8 @@
 
 #include "math_constants.h"
 
-#include "cuda_utils.h"
-#include "yolo_layer.h"
+#include "cuda_utils.hpp"
+#include "yolo_layer.hpp"
 
 namespace yolo
 {

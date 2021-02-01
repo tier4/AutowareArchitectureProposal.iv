@@ -49,7 +49,7 @@
 #include <stdexcept>
 #include <type_traits>
 
-#include <cuda_runtime_api.h>
+#include "cuda_runtime_api.h"
 
 #define CHECK_CUDA_ERROR(e) (cuda::check_error(e, __FILE__, __LINE__))
 

@@ -44,7 +44,7 @@
 #include <string>
 #include <vector>
 
-#include <NvInferPlugin.h>
+#include "NvInferPlugin.h"
 
 namespace yolo
 {

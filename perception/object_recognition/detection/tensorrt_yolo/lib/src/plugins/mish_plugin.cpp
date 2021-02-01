@@ -43,7 +43,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "mish.h"
+#include "mish.hpp"
 #include "mish_plugin.hpp"
 
 using namespace nvinfer1;

@@ -41,9 +41,9 @@
 #include <cassert>
 #include <cmath>
 
-#include <cuda_runtime_api.h>
+#include "cuda_runtime_api.h"
 
-#include "nms.h"
+#include "nms.hpp"
 #include "nms_plugin.hpp"
 
 using namespace nvinfer1;

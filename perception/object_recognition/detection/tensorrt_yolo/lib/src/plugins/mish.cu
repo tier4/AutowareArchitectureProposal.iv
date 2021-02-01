@@ -40,9 +40,9 @@
 
 #include <stdio.h>
 
-#include <cuda_runtime_api.h>
+#include "cuda_runtime_api.h"
 
-#include "mish.h"
+#include "mish.hpp"
 
 namespace yolo
 {

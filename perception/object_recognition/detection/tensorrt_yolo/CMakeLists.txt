@@ -1,26 +1,19 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(tensorrt_yolo)
 
 if(NOT CMAKE_CXX_STANDARD)
-	set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
-
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter)
+  add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
 option(CUDA_VERBOSE "Verbose output of CUDA modules" OFF)
 
-find_package(catkin REQUIRED COMPONENTS
-  cv_bridge
-  roscpp
-  image_transport
-  message_filters
-  sensor_msgs
-  std_msgs
-  autoware_perception_msgs
-  nodelet
-)
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
 find_package(OpenCV REQUIRED)
 
@@ -177,16 +170,10 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
   include_directories(
     include
     lib/include
-    ${Opencv_INCLUDE_DIRS}
+    ${OpenCV_INCLUDE_DIRS}
     ${CUDA_INCLUDE_DIRS}
-    ${catkin_INCLUDE_DIRS}
   )
 
-  catkin_package(
-    INCLUDE_DIRS include
-    LIBRARIES ${PROJECT_NAME}
-    CATKIN_DEPENDS
-  )
 
   ### yolo ###
   cuda_add_library(mish_plugin SHARED
@@ -204,8 +191,12 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
     lib/src/plugins/nms_plugin.cpp
   )
 
-  add_library(yolo
+  ament_auto_add_library(yolo SHARED
     lib/src/trt_yolo.cpp
+  )
+
+  target_include_directories(yolo PUBLIC
+    lib/include
   )
 
   target_link_libraries(yolo
@@ -221,16 +212,11 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
     nms_plugin
   )
 
-  add_library(tensorrt_yolo_nodelet SHARED
+  ament_auto_add_library(tensorrt_yolo_nodelet SHARED
     src/nodelet.cpp
   )
 
-  add_dependencies(tensorrt_yolo_nodelet
-    ${catkin_EXPORTED_TARGETS}
-  )
-
   target_link_libraries(tensorrt_yolo_nodelet
-    ${catkin_LIBRARIES}
     ${OpenCV_LIBS}
     yolo
     mish_plugin
@@ -238,60 +224,23 @@ if(TRT_AVAIL AND CUDA_AVAIL AND CUDNN_AVAIL)
     nms_plugin
   )
 
-  add_executable(tensorrt_yolo_node
-    src/node.cpp
+  rclcpp_components_register_node(tensorrt_yolo_nodelet
+    PLUGIN "object_recognition::TensorrtYoloNodelet"
+    EXECUTABLE tensorrt_yolo_node
   )
 
-  target_link_libraries(tensorrt_yolo_node
-    tensorrt_yolo_nodelet
-    ${catkin_LIBRARIES}
-    ${OpenCV_LIBS}
-    yolo
-    mish_plugin
-    yolo_layer_plugin
-    nms_plugin
-  )
-
-  add_dependencies(tensorrt_yolo_node
-    ${catkin_EXPORTED_TARGETS}
-  )
-
-  install(TARGETS
-    tensorrt_yolo_node
-    tensorrt_yolo_nodelet
-    yolo
-    mish_plugin
-    yolo_layer_plugin
-    nms_plugin
-    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-  )
-
-  install(
-    FILES
-    tensorrt_yolo.xml
-    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-  )
-
-  install(
-    DIRECTORY
-      launch
-      data
-      calib_image
-    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  ament_auto_package(INSTALL_TO_SHARE
+    config
+    data
+    launch
   )
 
 else()
-  find_package(catkin REQUIRED)
-  catkin_package()
   message("TensorrtYolo won't be built, CUDA and/or TensorRT were not found.")
-
-  install(
-    DIRECTORY
-      launch
-    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  ament_auto_package(INSTALL_TO_SHARE
+    config
+    data
+    launch
   )
-
 endif()
 

@@ -42,10 +42,10 @@
 #include <numeric>
 #include <stdexcept>
 
-#include <NvOnnxParser.h>
+#include "NvOnnxParser.h"
 
-#include "calibrator.h"
-#include "cuda_utils.h"
+#include "calibrator.hpp"
+#include "cuda_utils.hpp"
 #include "mish_plugin.hpp"
 #include "nms_plugin.hpp"
 #include "trt_yolo.hpp"
@@ -236,18 +236,17 @@ Net::Net(
     nvinfer1::Dims4{max_batch_size, input_channel, input_height, input_width});
   config->addOptimizationProfile(profile);
 
-  // TODO: Enable int8 calibrator
-  // std::unique_ptr<yolo::Int8EntropyCalibrator> calib{nullptr};
-  // if (int8) {
-  //   if (calibration_images.size() >= static_cast<size_t>(max_batch_size)) {
-  //     config->setFlag(nvinfer1::BuilderFlag::kINT8);
-  //     yolo::ImageStream stream(max_batch_size, input_dims, calibration_images);
-  //     calib = std::make_unique<yolo::Int8EntropyCalibrator>(stream, calibration_table);
-  //     config->setInt8Calibrator(calib.get());
-  //   } else {
-  //     std::cout << "Fail to find enough images for INT8 calibration. Build FP mode..." << std::endl;
-  //   }
-  // }
+  std::unique_ptr<yolo::Int8EntropyCalibrator> calib{nullptr};
+  if (int8) {
+    if (calibration_images.size() >= static_cast<size_t>(max_batch_size)) {
+      config->setFlag(nvinfer1::BuilderFlag::kINT8);
+      yolo::ImageStream stream(max_batch_size, input_dims, calibration_images);
+      calib = std::make_unique<yolo::Int8EntropyCalibrator>(stream, calibration_table);
+      config->setInt8Calibrator(calib.get());
+    } else {
+      std::cout << "Fail to find enough images for INT8 calibration. Build FP mode..." << std::endl;
+    }
+  }
 
   // Build engine
   std::cout << "Applying optimizations and building TRT CUDA engine..." << std::endl;
