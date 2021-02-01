@@ -17,7 +17,7 @@
  */
 
 #pragma once
-#include <autoware_perception_msgs/DynamicObjectWithFeatureArray.h>
+#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
 #include <list>
 #include <unordered_map>
 #include <vector>
@@ -27,8 +27,10 @@
 class DataAssociation
 {
 private:
-  double getDistance(const geometry_msgs::Point & point0, const geometry_msgs::Point & point1);
-  geometry_msgs::Point getCentroid(const sensor_msgs::PointCloud2 & pointcloud);
+  double getDistance(
+    const geometry_msgs::msg::Point & point0,
+    const geometry_msgs::msg::Point & point1);
+  geometry_msgs::msg::Point getCentroid(const sensor_msgs::msg::PointCloud2 & pointcloud);
   Eigen::MatrixXi can_assgin_matrix_;
   Eigen::MatrixXd max_dist_matrix_;
   Eigen::MatrixXd max_area_matrix_;
@@ -41,7 +43,7 @@ public:
     const Eigen::MatrixXd & src, std::unordered_map<int, int> & direct_assignment,
     std::unordered_map<int, int> & reverse_assignment);
   Eigen::MatrixXd calcScoreMatrix(
-    const autoware_perception_msgs::DynamicObjectWithFeatureArray & object0,
-    const autoware_perception_msgs::DynamicObjectWithFeatureArray & object1);
+    const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & object0,
+    const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & object1);
   virtual ~DataAssociation(){};
 };

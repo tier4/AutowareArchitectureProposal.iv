@@ -14,43 +14,46 @@
  * limitations under the License.
  */
 
-#include <sensor_msgs/PointCloud2.h>
-#include <sensor_msgs/point_cloud2_iterator.h>
-#include <tf2/LinearMath/Transform.h>
-#include <tf2/convert.h>
-#include <tf2/transform_datatypes.h>
-#include <tf2_sensor_msgs/tf2_sensor_msgs.h>
+#include "sensor_msgs/msg/point_cloud2.hpp"
+#include "sensor_msgs/point_cloud2_iterator.hpp"
+#include "tf2/LinearMath/Transform.h"
+#include "tf2/convert.h"
+#include "tf2/transform_datatypes.h"
+// #include "tf2_sensor_msgs/msg/tf2_sensor_msgs.hpp"
 #include <chrono>
-#include <object_association_merger/node.hpp>
+#include "object_association_merger/node.hpp"
 #define EIGEN_MPL2_ONLY
-#include <Eigen/Core>
-#include <Eigen/Geometry>
+#include "Eigen/Core"
+#include "Eigen/Geometry"
 
 namespace object_association
 {
 ObjectAssociationMergerNode::ObjectAssociationMergerNode()
-: nh_(""),
-  pnh_("~"),
+: rclcpp::Node("cluster_data_association_node"),
+  tf_buffer_(get_clock()),
   tf_listener_(tf_buffer_),
-  object0_sub_(pnh_, "input/object0", 1),
-  object1_sub_(pnh_, "input/object1", 1),
+  object0_sub_(this, "input/object0", rclcpp::QoS{1}.get_rmw_qos_profile()),
+  object1_sub_(this, "input/object1", rclcpp::QoS{1}.get_rmw_qos_profile()),
   sync_(SyncPolicy(10), object0_sub_, object1_sub_)
 {
-  sync_.registerCallback(boost::bind(&ObjectAssociationMergerNode::objectsCallback, this, _1, _2));
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+  sync_.registerCallback(std::bind(&ObjectAssociationMergerNode::objectsCallback, this, _1, _2));
 
   merged_object_pub_ =
-    pnh_.advertise<autoware_perception_msgs::DynamicObjectWithFeatureArray>("output/object", 10);
+    create_publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(
+    "output/object", rclcpp::QoS{10});
 }
 
 void ObjectAssociationMergerNode::objectsCallback(
-  const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr & input_object0_msg,
-  const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr & input_object1_msg)
+  const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr & input_object0_msg,
+  const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr & input_object1_msg)
 {
   // Guard
-  if (merged_object_pub_.getNumSubscribers() < 1) return;
+  if (merged_object_pub_->get_subscription_count() < 1) return;
 
   // build output msg
-  autoware_perception_msgs::DynamicObjectWithFeatureArray output_msg;
+  autoware_perception_msgs::msg::DynamicObjectWithFeatureArray output_msg;
   output_msg.header = input_object0_msg->header;
 
   /* global nearest neighbor */
@@ -89,6 +92,6 @@ void ObjectAssociationMergerNode::objectsCallback(
   }
 
   // publish output msg
-  merged_object_pub_.publish(output_msg);
+  merged_object_pub_->publish(output_msg);
 }
 }  // namespace object_association

@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <ros/ros.h>
-#include <object_association_merger/node.hpp>
+#include "rclcpp/rclcpp.hpp"
+#include "object_association_merger/node.hpp"
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "object_association_merger_node");
-  object_association::ObjectAssociationMergerNode node;
-  ros::spin();
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<object_association::ObjectAssociationMergerNode>();
+  rclcpp::spin(node);
+  rclcpp::shutdown();
+
   return 0;
 }
