@@ -1,21 +1,26 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include <glob.h>
+
+#include <algorithm>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "tensorrt_yolo/nodelet.hpp"
-#include <glob.h>
 
 namespace
 {
@@ -47,7 +52,7 @@ TensorrtYoloNodelet::TensorrtYoloNodelet(const rclcpp::NodeOptions & options)
   yolo_config_.num_anchors = declare_parameter("num_anchors", 3);
   auto anchors = declare_parameter(
     "anchors", std::vector<double>{
-                 10, 13, 16, 30, 33, 23, 30, 61, 62, 45, 59, 119, 116, 90, 156, 198, 373, 326});
+      10, 13, 16, 30, 33, 23, 30, 61, 62, 45, 59, 119, 116, 90, 156, 198, 373, 326});
   std::vector<float> anchors_float(anchors.begin(), anchors.end());
   yolo_config_.anchors = anchors_float;
   auto scale_x_y = declare_parameter("scale_x_y", std::vector<double>{1.0, 1.0, 1.0});
@@ -96,7 +101,7 @@ TensorrtYoloNodelet::TensorrtYoloNodelet(const rclcpp::NodeOptions & options)
 
   objects_pub_ =
     this->create_publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(
-      "out/objects", 1);
+    "out/objects", 1);
   image_pub_ = image_transport::create_publisher(this, "out/image");
 
   out_scores_ =
@@ -113,9 +118,10 @@ void TensorrtYoloNodelet::connectCb()
   std::lock_guard<std::mutex> lock(connect_mutex_);
   if (objects_pub_->get_subscription_count() == 0 && image_pub_.getNumSubscribers() == 0) {
     image_sub_.shutdown();
-  } else if (!image_sub_)
+  } else if (!image_sub_) {
     image_sub_ = image_transport::create_subscription(
-    this, "in/image", std::bind(&TensorrtYoloNodelet::callback, this, _1), "raw");
+      this, "in/image", std::bind(&TensorrtYoloNodelet::callback, this, _1), "raw");
+  }
 }
 
 void TensorrtYoloNodelet::callback(const sensor_msgs::msg::Image::ConstSharedPtr in_image_msg)
@@ -130,14 +136,15 @@ void TensorrtYoloNodelet::callback(const sensor_msgs::msg::Image::ConstSharedPtr
     return;
   }
   if (!net_ptr_->detect(
-        in_image_ptr->image, out_scores_.get(), out_boxes_.get(), out_classes_.get())) {
+      in_image_ptr->image, out_scores_.get(), out_boxes_.get(), out_classes_.get()))
+  {
     RCLCPP_WARN(this->get_logger(), "Fail to inference");
     return;
   }
   const auto width = in_image_ptr->image.cols;
   const auto height = in_image_ptr->image.rows;
   for (int i = 0; i < yolo_config_.detections_per_im; ++i) {
-    if (out_scores_[i] < yolo_config_.ignore_thresh) break;
+    if (out_scores_[i] < yolo_config_.ignore_thresh) {break;}
     autoware_perception_msgs::msg::DynamicObjectWithFeature object;
     object.feature.roi.x_offset = out_boxes_[4 * i] * width;
     object.feature.roi.y_offset = out_boxes_[4 * i + 1] * height;

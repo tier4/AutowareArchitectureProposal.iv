@@ -1,18 +1,16 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /*
  * MIT License
@@ -60,17 +58,26 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include <cassert>
-#include <cmath>
 #include <stdio.h>
 #include <string.h>
+#include <cuda_runtime_api.h>
 
-#include "cuda_runtime_api.h"
+#include <cassert>
+#include <cmath>
+
+#include <vector>
 
 #include "yolo_layer.hpp"
 #include "yolo_layer_plugin.hpp"
 
-using namespace nvinfer1;
+using nvinfer1::DataType;
+using nvinfer1::DimsExprs;
+using nvinfer1::DynamicPluginTensorDesc;
+using nvinfer1::IExprBuilder;
+using nvinfer1::IPluginV2DynamicExt;
+using nvinfer1::PluginTensorDesc;
+using nvinfer1::PluginFieldCollection;
+using nvinfer1::PluginFormat;
 
 namespace
 {
@@ -78,15 +85,15 @@ const char * YOLO_LAYER_PLUGIN_VERSION{"1"};
 const char * YOLO_LAYER_PLUGIN_NAME{"YOLO_Layer_TRT"};
 const char * YOLO_LAYER_PLUGIN_NAMESPACE{""};
 
-template <typename T>
-void write(char *& buffer, const T & val)
+template<typename T>
+void write(char * & buffer, const T & val)
 {
   *reinterpret_cast<T *>(buffer) = val;
   buffer += sizeof(T);
 }
 
-template <typename T>
-void read(const char *& buffer, T & val)
+template<typename T>
+void read(const char * & buffer, T & val)
 {
   val = *reinterpret_cast<const T *>(buffer);
   buffer += sizeof(T);
@@ -127,13 +134,13 @@ YoloLayerPlugin::YoloLayerPlugin(const void * data, size_t length)
 }
 // IPluginV2 Methods
 
-const char * YoloLayerPlugin::getPluginType() const { return YOLO_LAYER_PLUGIN_NAME; }
+const char * YoloLayerPlugin::getPluginType() const {return YOLO_LAYER_PLUGIN_NAME;}
 
-const char * YoloLayerPlugin::getPluginVersion() const { return YOLO_LAYER_PLUGIN_VERSION; }
+const char * YoloLayerPlugin::getPluginVersion() const {return YOLO_LAYER_PLUGIN_VERSION;}
 
-int YoloLayerPlugin::getNbOutputs() const { return 3; }
+int YoloLayerPlugin::getNbOutputs() const {return 3;}
 
-int YoloLayerPlugin::initialize() { return 0; }
+int YoloLayerPlugin::initialize() {return 0;}
 
 void YoloLayerPlugin::terminate() {}
 
@@ -158,11 +165,11 @@ void YoloLayerPlugin::serialize(void * buffer) const
   write(d, use_darknet_layer_);
 }
 
-void YoloLayerPlugin::destroy() { delete this; }
+void YoloLayerPlugin::destroy() {delete this;}
 
 void YoloLayerPlugin::setPluginNamespace(const char * N) {}
 
-const char * YoloLayerPlugin::getPluginNamespace() const { return YOLO_LAYER_PLUGIN_NAMESPACE; }
+const char * YoloLayerPlugin::getPluginNamespace() const {return YOLO_LAYER_PLUGIN_NAMESPACE;}
 
 // IPluginV2Ext Methods
 
@@ -174,7 +181,7 @@ DataType YoloLayerPlugin::getOutputDataType(
 
 // IPluginV2DynamicExt Methods
 
-IPluginV2DynamicExt * YoloLayerPlugin::clone() const { return new YoloLayerPlugin(*this); }
+IPluginV2DynamicExt * YoloLayerPlugin::clone() const {return new YoloLayerPlugin(*this);}
 
 DimsExprs YoloLayerPlugin::getOutputDimensions(
   int outputIndex, const DimsExprs * inputs, int nbInputs, IExprBuilder & exprBuilder)
@@ -207,8 +214,8 @@ void YoloLayerPlugin::configurePlugin(
 }
 
 size_t YoloLayerPlugin::getWorkspaceSize(
-  const nvinfer1::PluginTensorDesc * inputs, int nbInputs,
-  const nvinfer1::PluginTensorDesc * outputs, int nbOutputs) const
+  const PluginTensorDesc * inputs, int nbInputs,
+  const PluginTensorDesc * outputs, int nbOutputs) const
 {
   if (size < 0) {
     const int batch_size = inputs[0].dims.d[0];
@@ -223,7 +230,7 @@ size_t YoloLayerPlugin::getWorkspaceSize(
 }
 
 int YoloLayerPlugin::enqueue(
-  const nvinfer1::PluginTensorDesc * inputDesc, const nvinfer1::PluginTensorDesc * outputDesc,
+  const PluginTensorDesc * inputDesc, const PluginTensorDesc * outputDesc,
   const void * const * inputs, void * const * outputs, void * workspace, cudaStream_t stream)
 {
   const int batch_size = inputDesc[0].dims.d[0];
@@ -241,9 +248,9 @@ int YoloLayerPlugin::enqueue(
 
 YoloLayerPluginCreator::YoloLayerPluginCreator() {}
 
-const char * YoloLayerPluginCreator::getPluginName() const { return YOLO_LAYER_PLUGIN_NAME; }
+const char * YoloLayerPluginCreator::getPluginName() const {return YOLO_LAYER_PLUGIN_NAME;}
 
-const char * YoloLayerPluginCreator::getPluginVersion() const { return YOLO_LAYER_PLUGIN_VERSION; }
+const char * YoloLayerPluginCreator::getPluginVersion() const {return YOLO_LAYER_PLUGIN_VERSION;}
 
 const char * YoloLayerPluginCreator::getPluginNamespace() const
 {
@@ -251,7 +258,7 @@ const char * YoloLayerPluginCreator::getPluginNamespace() const
 }
 
 void YoloLayerPluginCreator::setPluginNamespace(const char * N) {}
-const PluginFieldCollection * YoloLayerPluginCreator::getFieldNames() { return nullptr; }
+const PluginFieldCollection * YoloLayerPluginCreator::getFieldNames() {return nullptr;}
 
 IPluginV2DynamicExt * YoloLayerPluginCreator::createPlugin(
   const char * name, const PluginFieldCollection * fc)

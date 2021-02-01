@@ -1,18 +1,16 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /*
  * Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
@@ -36,17 +34,23 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+#include <cuda_runtime_api.h>
 #include <stdio.h>
 #include <string.h>
 #include <cassert>
 #include <cmath>
 
-#include "cuda_runtime_api.h"
-
 #include "nms.hpp"
 #include "nms_plugin.hpp"
 
-using namespace nvinfer1;
+using nvinfer1::DataType;
+using nvinfer1::DimsExprs;
+using nvinfer1::DynamicPluginTensorDesc;
+using nvinfer1::IExprBuilder;
+using nvinfer1::IPluginV2DynamicExt;
+using nvinfer1::PluginTensorDesc;
+using nvinfer1::PluginFieldCollection;
+using nvinfer1::PluginFormat;
 
 namespace
 {
@@ -54,15 +58,15 @@ const char * NMS_PLUGIN_VERSION{"1"};
 const char * NMS_PLUGIN_NAME{"YOLO_NMS_TRT"};
 const char * NMS_PLUGIN_NAMESPACE{""};
 
-template <typename T>
-void write(char *& buffer, const T & val)
+template<typename T>
+void write(char * & buffer, const T & val)
 {
   *reinterpret_cast<T *>(buffer) = val;
   buffer += sizeof(T);
 }
 
-template <typename T>
-void read(const char *& buffer, T & val)
+template<typename T>
+void read(const char * & buffer, T & val)
 {
   val = *reinterpret_cast<const T *>(buffer);
   buffer += sizeof(T);
@@ -95,13 +99,13 @@ NMSPlugin::NMSPlugin(void const * data, size_t length)
   read(d, count_);
 }
 
-const char * NMSPlugin::getPluginType() const { return NMS_PLUGIN_NAME; }
+const char * NMSPlugin::getPluginType() const {return NMS_PLUGIN_NAME;}
 
-const char * NMSPlugin::getPluginVersion() const { return NMS_PLUGIN_VERSION; }
+const char * NMSPlugin::getPluginVersion() const {return NMS_PLUGIN_VERSION;}
 
-int NMSPlugin::getNbOutputs() const { return 3; }
+int NMSPlugin::getNbOutputs() const {return 3;}
 
-int NMSPlugin::initialize() { return 0; }
+int NMSPlugin::initialize() {return 0;}
 
 void NMSPlugin::terminate() {}
 
@@ -118,11 +122,11 @@ void NMSPlugin::serialize(void * buffer) const
   write(d, count_);
 }
 
-void NMSPlugin::destroy() { delete this; }
+void NMSPlugin::destroy() {delete this;}
 
 void NMSPlugin::setPluginNamespace(const char * N) {}
 
-const char * NMSPlugin::getPluginNamespace() const { return NMS_PLUGIN_NAMESPACE; }
+const char * NMSPlugin::getPluginNamespace() const {return NMS_PLUGIN_NAMESPACE;}
 
 // IPluginV2Ext Methods
 
@@ -156,7 +160,7 @@ bool NMSPlugin::supportsFormatCombination(
   assert(nbOutputs == 3);
   assert(pos < 6);
   return inOut[pos].type == DataType::kFLOAT &&
-         inOut[pos].format == nvinfer1::PluginFormat::kLINEAR;
+         inOut[pos].format == PluginFormat::kLINEAR;
 }
 
 void NMSPlugin::configurePlugin(
@@ -192,14 +196,14 @@ int NMSPlugin::enqueue(
 
 NMSPluginCreator::NMSPluginCreator() {}
 
-const char * NMSPluginCreator::getPluginName() const { return NMS_PLUGIN_NAME; }
+const char * NMSPluginCreator::getPluginName() const {return NMS_PLUGIN_NAME;}
 
-const char * NMSPluginCreator::getPluginVersion() const { return NMS_PLUGIN_VERSION; }
+const char * NMSPluginCreator::getPluginVersion() const {return NMS_PLUGIN_VERSION;}
 
-const char * NMSPluginCreator::getPluginNamespace() const { return NMS_PLUGIN_NAMESPACE; }
+const char * NMSPluginCreator::getPluginNamespace() const {return NMS_PLUGIN_NAMESPACE;}
 
 void NMSPluginCreator::setPluginNamespace(const char * N) {}
-const PluginFieldCollection * NMSPluginCreator::getFieldNames() { return nullptr; }
+const PluginFieldCollection * NMSPluginCreator::getFieldNames() {return nullptr;}
 IPluginV2DynamicExt * NMSPluginCreator::createPlugin(
   const char * name, const PluginFieldCollection * fc)
 {

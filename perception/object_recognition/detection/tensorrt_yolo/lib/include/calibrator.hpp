@@ -1,18 +1,16 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /*
  * Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
@@ -36,12 +34,14 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#pragma once
+#ifndef CALIBRATOR_HPP_
+#define CALIBRATOR_HPP_
 
 #include <assert.h>
 
 #include <algorithm>
 #include <iterator>
+#include <string>
 #include <vector>
 
 #include "opencv2/core/core.hpp"
@@ -68,13 +68,13 @@ public:
     batch_.resize(batch_size_ * input_dims_.d[1] * input_dims_.d[2] * input_dims_.d[3]);
   }
 
-  int getBatchSize() const { return batch_size_; }
+  int getBatchSize() const {return batch_size_;}
 
-  int getMaxBatches() const { return max_batches_; }
+  int getMaxBatches() const {return max_batches_;}
 
-  float * getBatch() { return &batch_[0]; }
+  float * getBatch() {return &batch_[0];}
 
-  nvinfer1::Dims getInputDims() { return input_dims_; }
+  nvinfer1::Dims getInputDims() {return input_dims_;}
 
   std::vector<float> preprocess(const cv::Mat & in_img, const int c, const int w, const int h) const
   {
@@ -103,7 +103,7 @@ public:
 
   bool next()
   {
-    if (current_batch_ == max_batches_) return false;
+    if (current_batch_ == max_batches_) {return false;}
 
     for (int i = 0; i < batch_size_; ++i) {
       auto image =
@@ -118,7 +118,7 @@ public:
     return true;
   }
 
-  void reset() { current_batch_ = 0; }
+  void reset() {current_batch_ = 0;}
 
 private:
   int batch_size_;
@@ -142,16 +142,17 @@ public:
     CHECK_CUDA_ERROR(cudaMalloc(&device_input_, input_count_ * sizeof(float)));
   }
 
-  int getBatchSize() const override { return stream_.getBatchSize(); }
+  int getBatchSize() const override {return stream_.getBatchSize();}
 
-  virtual ~Int8EntropyCalibrator() { CHECK_CUDA_ERROR(cudaFree(device_input_)); }
+  virtual ~Int8EntropyCalibrator() {CHECK_CUDA_ERROR(cudaFree(device_input_));}
 
   bool getBatch(void * bindings[], const char * names[], int nb_bindings) override
   {
-    if (!stream_.next()) return false;
+    if (!stream_.next()) {return false;}
 
-    CHECK_CUDA_ERROR(cudaMemcpy(
-      device_input_, stream_.getBatch(), input_count_ * sizeof(float), cudaMemcpyHostToDevice));
+    CHECK_CUDA_ERROR(
+      cudaMemcpy(
+        device_input_, stream_.getBatch(), input_count_ * sizeof(float), cudaMemcpyHostToDevice));
     bindings[0] = device_input_;
     return true;
   }
@@ -161,10 +162,11 @@ public:
     calib_cache_.clear();
     std::ifstream input(calibration_cache_file_, std::ios::binary);
     input >> std::noskipws;
-    if (read_cache_ && input.good())
+    if (read_cache_ && input.good()) {
       std::copy(
         std::istream_iterator<char>(input), std::istream_iterator<char>(),
         std::back_inserter(calib_cache_));
+    }
 
     length = calib_cache_.size();
     return length ? &calib_cache_[0] : nullptr;
@@ -185,3 +187,5 @@ private:
   std::vector<char> calib_cache_;
 };
 }  // namespace yolo
+
+#endif  // CALIBRATOR_HPP_

@@ -1,18 +1,16 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /*
  * Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
@@ -39,8 +37,11 @@
 #include <algorithm>
 #include <fstream>
 #include <functional>
+#include <memory>
 #include <numeric>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 #include "NvOnnxParser.h"
 
@@ -158,7 +159,7 @@ Net::Net(
     return;
   }
   // Allow use of FP16 layers when running in INT8
-  if (fp16 || int8) config->setFlag(nvinfer1::BuilderFlag::kFP16);
+  if (fp16 || int8) {config->setFlag(nvinfer1::BuilderFlag::kFP16);}
   config->setMaxWorkspaceSize(workspace_size);
 
   // Parse ONNX FCN
@@ -290,15 +291,18 @@ bool Net::detect(const cv::Mat & in_img, float * out_scores, float * out_boxes, 
   } catch (const std::runtime_error & e) {
     return false;
   }
-  CHECK_CUDA_ERROR(cudaMemcpyAsync(
-    out_scores, out_scores_d_.get(), sizeof(float) * getMaxDetections(), cudaMemcpyDeviceToHost,
-    stream_));
-  CHECK_CUDA_ERROR(cudaMemcpyAsync(
-    out_boxes, out_boxes_d_.get(), sizeof(float) * 4 * getMaxDetections(), cudaMemcpyDeviceToHost,
-    stream_));
-  CHECK_CUDA_ERROR(cudaMemcpyAsync(
-    out_classes, out_classes_d_.get(), sizeof(float) * getMaxDetections(), cudaMemcpyDeviceToHost,
-    stream_));
+  CHECK_CUDA_ERROR(
+    cudaMemcpyAsync(
+      out_scores, out_scores_d_.get(), sizeof(float) * getMaxDetections(), cudaMemcpyDeviceToHost,
+      stream_));
+  CHECK_CUDA_ERROR(
+    cudaMemcpyAsync(
+      out_boxes, out_boxes_d_.get(), sizeof(float) * 4 * getMaxDetections(), cudaMemcpyDeviceToHost,
+      stream_));
+  CHECK_CUDA_ERROR(
+    cudaMemcpyAsync(
+      out_classes, out_classes_d_.get(), sizeof(float) * getMaxDetections(), cudaMemcpyDeviceToHost,
+      stream_));
   cudaStreamSynchronize(stream_);
   return true;
 }
@@ -322,6 +326,6 @@ int Net::getInputSize() const
   return input_size;
 }
 
-int Net::getMaxDetections() const { return engine_->getBindingDimensions(1).d[1]; }
+int Net::getMaxDetections() const {return engine_->getBindingDimensions(1).d[1];}
 
 }  // namespace yolo

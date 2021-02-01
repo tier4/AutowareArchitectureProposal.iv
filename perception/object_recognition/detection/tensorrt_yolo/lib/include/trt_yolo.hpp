@@ -1,18 +1,16 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /*
  * Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
@@ -36,8 +34,10 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#pragma once
+#ifndef TRT_YOLO_HPP_
+#define TRT_YOLO_HPP_
 
+#include <cuda_runtime.h>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -48,7 +48,6 @@
 #include "opencv2/opencv.hpp"
 
 #include "NvInfer.h"
-#include "cuda_runtime.h"
 
 #include "cuda_utils.hpp"
 #include "yolo_layer.hpp"
@@ -57,7 +56,7 @@ namespace yolo
 {
 struct Deleter
 {
-  template <typename T>
+  template<typename T>
   void operator()(T * obj) const
   {
     if (obj) {
@@ -66,18 +65,20 @@ struct Deleter
   }
 };
 
-template <typename T>
+template<typename T>
 using unique_ptr = std::unique_ptr<T, Deleter>;
 
 class Logger : public nvinfer1::ILogger
 {
 public:
-  Logger(bool verbose) : verbose_(verbose) {}
+  explicit Logger(bool verbose)
+  : verbose_(verbose) {}
 
   void log(Severity severity, const char * msg) override
   {
-    if (verbose_ || ((severity != Severity::kINFO) && (severity != Severity::kVERBOSE)))
+    if (verbose_ || ((severity != Severity::kINFO) && (severity != Severity::kVERBOSE))) {
       std::cout << msg << std::endl;
+    }
   }
 
 private:
@@ -100,13 +101,14 @@ class Net
 {
 public:
   // Create engine from engine path
-  Net(const std::string & engine_path, bool verbose = false);
+  explicit Net(const std::string & engine_path, bool verbose = false);
 
   // Create engine from serialized onnx model
   Net(
     const std::string & onnx_file_path, const std::string & precision, const int max_batch_size,
     const Config & yolo_config, const std::vector<std::string> & calibration_images,
-    const std::string & calibration_table, bool verbose = false, size_t workspace_size = (1ULL << 30));
+    const std::string & calibration_table, bool verbose = false,
+    size_t workspace_size = (1ULL << 30));
 
   ~Net();
 
@@ -147,3 +149,5 @@ private:
 };
 
 }  // namespace yolo
+
+#endif  // TRT_YOLO_HPP_

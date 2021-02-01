@@ -1,18 +1,16 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 /*
  * Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
@@ -42,14 +40,14 @@
  * https://creativecommons.org/publicdomain/zero/1.0/deed.en
  */
 
-#pragma once
+#ifndef CUDA_UTILS_HPP_
+#define CUDA_UTILS_HPP_
 
+#include <cuda_runtime_api.h>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
 #include <type_traits>
-
-#include "cuda_runtime_api.h"
 
 #define CHECK_CUDA_ERROR(e) (cuda::check_error(e, __FILE__, __LINE__))
 
@@ -59,20 +57,20 @@ void check_error(const ::cudaError_t e, const char * f, int n)
 {
   if (e != ::cudaSuccess) {
     std::stringstream s;
-    s << ::cudaGetErrorName(e) << " (" << e << ")@" << f << "#L" << n << ": "
-      << ::cudaGetErrorString(e);
+    s << ::cudaGetErrorName(e) << " (" << e << ")@" << f << "#L" << n << ": " <<
+      ::cudaGetErrorString(e);
     throw std::runtime_error{s.str()};
   }
 }
 
 struct deleter
 {
-  void operator()(void * p) const { CHECK_CUDA_ERROR(::cudaFree(p)); }
+  void operator()(void * p) const {CHECK_CUDA_ERROR(::cudaFree(p));}
 };
-template <typename T>
+template<typename T>
 using unique_ptr = std::unique_ptr<T, deleter>;
 
-template <typename T>
+template<typename T>
 typename std::enable_if<std::is_array<T>::value, cuda::unique_ptr<T>>::type make_unique(
   const std::size_t n)
 {
@@ -82,7 +80,7 @@ typename std::enable_if<std::is_array<T>::value, cuda::unique_ptr<T>>::type make
   return cuda::unique_ptr<T>{p};
 }
 
-template <typename T>
+template<typename T>
 cuda::unique_ptr<T> make_unique()
 {
   T * p;
@@ -92,7 +90,7 @@ cuda::unique_ptr<T> make_unique()
 
 constexpr size_t CUDA_ALIGN = 256;
 
-template <typename T>
+template<typename T>
 inline size_t get_size_aligned(size_t num_elem)
 {
   size_t size = num_elem * sizeof(T);
@@ -103,8 +101,8 @@ inline size_t get_size_aligned(size_t num_elem)
   return size + extra_align;
 }
 
-template <typename T>
-inline T * get_next_ptr(size_t num_elem, void *& workspace, size_t & workspace_size)
+template<typename T>
+inline T * get_next_ptr(size_t num_elem, void * & workspace, size_t & workspace_size)
 {
   size_t size = get_size_aligned<T>(num_elem);
   if (size > workspace_size) {
@@ -117,3 +115,5 @@ inline T * get_next_ptr(size_t num_elem, void *& workspace, size_t & workspace_s
 }
 
 }  // namespace cuda
+
+#endif  // CUDA_UTILS_HPP_
