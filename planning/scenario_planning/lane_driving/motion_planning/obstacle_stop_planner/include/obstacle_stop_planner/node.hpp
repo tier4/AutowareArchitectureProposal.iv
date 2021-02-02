@@ -11,7 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+#ifndef OBSTACLE_STOP_PLANNER__NODE_HPP_
+#define OBSTACLE_STOP_PLANNER__NODE_HPP_
 
 #include <map>
 #include <memory>
@@ -105,7 +106,8 @@ private:
   void dynamicObjectCallback(
     const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_msg);
   void currentVelocityCallback(const geometry_msgs::msg::TwistStamped::ConstSharedPtr input_msg);
-  void externalExpandStopRangeCallback(const autoware_debug_msgs::msg::Float32Stamped::ConstSharedPtr input_msg);
+  void externalExpandStopRangeCallback(
+    const autoware_debug_msgs::msg::Float32Stamped::ConstSharedPtr input_msg);
 
 private:
   bool convexHull(
@@ -184,6 +186,7 @@ private:
 
   autoware_planning_msgs::msg::TrajectoryPoint getExtendTrajectoryPoint(
     double extend_distance, const autoware_planning_msgs::msg::TrajectoryPoint & goal_point);
-
 };
 }  // namespace motion_planning
+
+#endif // OBSTACLE_STOP_PLANNER__NODE_HPP_

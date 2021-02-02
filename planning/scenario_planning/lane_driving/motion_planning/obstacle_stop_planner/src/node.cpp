@@ -129,18 +129,15 @@ ObstacleStopPlannerNode::ObstacleStopPlannerNode()
     std::bind(&ObstacleStopPlannerNode::pathCallback, this, std::placeholders::_1));
   current_velocity_sub_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
     "input/twist", 1,
-    std::bind(&ObstacleStopPlannerNode::currentVelocityCallback, this, std::placeholders::_1)
-  );
+    std::bind(&ObstacleStopPlannerNode::currentVelocityCallback, this, std::placeholders::_1));
   dynamic_object_sub_ =
     this->create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
-    "input/objects", 1,
-    std::bind(&ObstacleStopPlannerNode::dynamicObjectCallback, this, std::placeholders::_1)
-    );
-  expand_stop_range_sub_ =
-    this->create_subscription<autoware_debug_msgs::msg::Float32Stamped>(
+      "input/objects", 1,
+      std::bind(&ObstacleStopPlannerNode::dynamicObjectCallback, this, std::placeholders::_1));
+  expand_stop_range_sub_ = this->create_subscription<autoware_debug_msgs::msg::Float32Stamped>(
     "input/expand_stop_range", 1,
-    std::bind(&ObstacleStopPlannerNode::externalExpandStopRangeCallback, this, std::placeholders::_1)
-    );
+    std::bind(
+      &ObstacleStopPlannerNode::externalExpandStopRangeCallback, this, std::placeholders::_1));
 }
 
 void ObstacleStopPlannerNode::obstaclePointcloudCallback(
@@ -516,7 +513,8 @@ StopPoint ObstacleStopPlannerNode::searchInsertPoint(
 
 StopPoint ObstacleStopPlannerNode::createTargetPoint(
   const int idx, const double margin, const Eigen::Vector2d & trajectory_vec,
-  const Eigen::Vector2d & collision_point_vec, const autoware_planning_msgs::msg::Trajectory & base_path)
+  const Eigen::Vector2d & collision_point_vec,
+  const autoware_planning_msgs::msg::Trajectory & base_path)
 {
   double length_sum = 0.0;
   length_sum += trajectory_vec.normalized().dot(collision_point_vec);
@@ -583,7 +581,8 @@ SlowDownPoint ObstacleStopPlannerNode::createSlowDownStartPoint(
 }
 
 void ObstacleStopPlannerNode::insertSlowDownStartPoint(
-  const SlowDownPoint & slow_down_start_point, const autoware_planning_msgs::msg::Trajectory & base_path,
+  const SlowDownPoint & slow_down_start_point,
+  const autoware_planning_msgs::msg::Trajectory & base_path,
   autoware_planning_msgs::msg::Trajectory & output_path)
 {
   autoware_planning_msgs::msg::TrajectoryPoint slow_down_start_trajectory_point =
@@ -626,10 +625,9 @@ void ObstacleStopPlannerNode::insertSlowDownVelocity(
 
 double ObstacleStopPlannerNode::calcSlowDownTargetVel(const double lateral_deviation)
 {
-  return (
-    min_slow_down_vel_ + (max_slow_down_vel_ - min_slow_down_vel_) *
-                           std::max(lateral_deviation - vehicle_width_ / 2, 0.0) /
-                           expand_slow_down_range_);
+  return min_slow_down_vel_ + (max_slow_down_vel_ - min_slow_down_vel_) *
+                                std::max(lateral_deviation - vehicle_width_ / 2, 0.0) /
+                                expand_slow_down_range_;
 }
 
 void ObstacleStopPlannerNode::dynamicObjectCallback(

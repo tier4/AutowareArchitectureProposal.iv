@@ -134,7 +134,7 @@ void ObstacleStopPlannerDebugNode::publish()
 visualization_msgs::msg::MarkerArray ObstacleStopPlannerDebugNode::makeVisualizationMarker()
 {
   visualization_msgs::msg::MarkerArray msg;
-  rclcpp::Time current_time = rclcpp::Clock().now();
+  rclcpp::Time current_time = this->now();
   tf2::Transform tf_base_link2front(
     tf2::Quaternion(0.0, 0.0, 0.0, 1.0), tf2::Vector3(base_link2front_, 0.0, 0.0));
 
@@ -598,7 +598,7 @@ autoware_planning_msgs::msg::StopReasonArray ObstacleStopPlannerDebugNode::makeS
   // create header
   std_msgs::msg::Header header;
   header.frame_id = "map";
-  header.stamp = rclcpp::Clock().now();
+  header.stamp = this->now();
 
   // create stop reason stamped
   autoware_planning_msgs::msg::StopReason stop_reason_msg;

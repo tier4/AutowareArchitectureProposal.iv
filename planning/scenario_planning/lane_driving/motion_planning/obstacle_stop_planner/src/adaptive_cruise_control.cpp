@@ -417,7 +417,7 @@ bool AdaptiveCruiseController::estimatePointVelocityFromPcl(
 
 double AdaptiveCruiseController::estimateRoughPointVelocity(double current_vel)
 {
-  const double p_dt = rclcpp::Clock().now().seconds() - prev_collision_point_time_.seconds();
+  const double p_dt = this->now().seconds() - prev_collision_point_time_.seconds();
   if (param_.valid_est_vel_diff_time >= p_dt) {
     //use previous estimated velocity
     return prev_target_velocity_;
@@ -512,13 +512,13 @@ double AdaptiveCruiseController::calcTargetVelocity_I(
 double AdaptiveCruiseController::calcTargetVelocity_D(
   const double target_dist, const double current_dist)
 {
-  if (rclcpp::Clock().now().seconds() - prev_target_vehicle_time_ >= param_.d_coeff_valid_time) {
+  if (this->now().seconds() - prev_target_vehicle_time_ >= param_.d_coeff_valid_time) {
     // invalid time(prev is too old)
     return 0.0;
   }
 
   double diff_vel = (target_dist - prev_target_vehicle_dist_) /
-    (rclcpp::Clock().now().seconds() - prev_target_vehicle_time_);
+    (this->now().seconds() - prev_target_vehicle_time_);
 
   if (std::fabs(diff_vel) >= param_.d_coeff_valid_diff_vel) {
     // invalid(discontinuous) diff_vel
@@ -534,7 +534,7 @@ double AdaptiveCruiseController::calcTargetVelocity_D(
 
   // add buffer
   prev_target_vehicle_dist_ = current_dist;
-  prev_target_vehicle_time_ = rclcpp::Clock().now().seconds();
+  prev_target_vehicle_time_ = this->now().seconds();
 
   return add_vel_d;
 }
@@ -620,7 +620,7 @@ void AdaptiveCruiseController::registerQueToVelocity(
   std::vector<int> delete_idxs;
   for (size_t i = 0; i < est_vel_que_.size(); i++) {
     if (
-      rclcpp::Clock().now().seconds() - est_vel_que_.at(i).header.stamp.sec >
+      this->now().seconds() - est_vel_que_.at(i).header.stamp.sec >
       param_.valid_vel_que_time)
     {
       delete_idxs.push_back(i);
