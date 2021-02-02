@@ -20,6 +20,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "turn_signal_decider/data_manager.hpp"
 #include "turn_signal_decider/frenet_coordinate.hpp"
+#include "vehicle_info_util/vehicle_info.hpp"
 
 namespace turn_signal_decider
 {
@@ -27,6 +28,7 @@ struct TurnSignalParameters
 {
   double lane_change_search_distance;  // TODO(mitsudome-r): change this to time based threshold
   double intersection_search_distance;
+  double base_link2front;
 };
 
 class TurnSignalDecider : public std::enable_shared_from_this<TurnSignalDecider>,
