@@ -27,11 +27,8 @@
 
 DifferentialState x, y, yaw;  // pose
 DifferentialState u;
-DifferentialState ax;  // acceleration
-DifferentialState delta;  // wheel angle
-// Integral action controls
-Control jx;
-Control delta_dot;
+Control ax;  // acceleration
+Control delta;  // wheel angle
 
 // Vehicle parameters
 OnlineData L_f, L_r;  // front, rear wheelbase length
@@ -50,6 +47,4 @@ f << dot(x) == u * cos(yaw + beta);
 f << dot(y) == u * sin(yaw + beta);
 f << dot(yaw) == (u * sin(beta)) / L_r;
 f << dot(u) == ax;
-f << dot(ax) == jx;
-f << dot(delta) == delta_dot;
 #endif  // COMMON__MOTION_COMMON__SCRIPTS__AUTOGENERATION_CODE_SNIPPETS__KINEMATIC_BICYCLE_SNIPPET_HPP_  // NOLINT
