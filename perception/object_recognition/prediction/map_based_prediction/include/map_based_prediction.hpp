@@ -60,7 +60,7 @@ private:
   // double calculateLikelihood(const double desired_yaw, const double current_d, const double current_yaw);
   double calculateLikelihood(const double current_d);
 
-  bool normalizeLikelihood(std::vector<autoware_perception_msgs::msg::PredictedPath> & paths);
+  void normalizeLikelihood(std::vector<autoware_perception_msgs::msg::PredictedPath> & paths);
 
 public:
   MapBasedPrediction(

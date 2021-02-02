@@ -191,7 +191,7 @@ bool MapBasedPrediction::doLinearPrediction(
   return true;
 }
 
-bool MapBasedPrediction::normalizeLikelihood(
+void MapBasedPrediction::normalizeLikelihood(
   std::vector<autoware_perception_msgs::msg::PredictedPath> & paths)
 {
   // might not be the smartest way
