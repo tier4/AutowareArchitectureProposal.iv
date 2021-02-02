@@ -1,15 +1,15 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(object_range_splitter)
 
-add_compile_options(-std=c++14)
+if(NOT CMAKE_CXX_STANDARD)
+	set(CMAKE_CXX_STANDARD 14)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  autoware_perception_msgs
-  roscpp
-  sensor_msgs
-)
-
-catkin_package()
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
 ###########
 ## Build ##
@@ -17,34 +17,23 @@ catkin_package()
 
 include_directories(
   include
-  ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(object_range_splitter_node
+ament_auto_add_executable(object_range_splitter_node
   src/node.cpp
   src/main.cpp
 )
 
-add_dependencies(object_range_splitter_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-target_link_libraries(object_range_splitter_node
-  ${catkin_LIBRARIES}
-)
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 #############
 ## Install ##
 #############
 
-install(
-  TARGETS
-    object_range_splitter_node
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-install(
-  DIRECTORY
+ament_auto_package(
+  INSTALL_TO_SHARE
     launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

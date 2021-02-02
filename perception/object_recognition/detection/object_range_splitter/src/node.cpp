@@ -18,27 +18,30 @@
 
 namespace object_range_splitter
 {
-ObjectRangeSplitterNode::ObjectRangeSplitterNode() : nh_(""), pnh_("~")
+ObjectRangeSplitterNode::ObjectRangeSplitterNode()
+: Node("object_range_splitter_node")
 {
-  pnh_.param<float>("split_range", spilt_range_, 30.0);
-  sub_ = pnh_.subscribe("input/object", 1, &ObjectRangeSplitterNode::objectCallback, this);
-  long_range_object_pub_ = pnh_.advertise<autoware_perception_msgs::DynamicObjectWithFeatureArray>(
+  using std::placeholders::_1;
+  spilt_range_ = declare_parameter("split_range", 30.0);
+  sub_ = this->create_subscription<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(
+    "input/object", 1, std::bind(&ObjectRangeSplitterNode::objectCallback, this, _1));
+  long_range_object_pub_ = this->create_publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(
     "output/long_range_object", 10);
-  short_range_object_pub_ = pnh_.advertise<autoware_perception_msgs::DynamicObjectWithFeatureArray>(
+  short_range_object_pub_ = this->create_publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(
     "output/short_range_object", 10);
 }
 
 void ObjectRangeSplitterNode::objectCallback(
-  const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr & input_msg)
+  const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr input_msg)
 {
   // Guard
   if (
-    long_range_object_pub_.getNumSubscribers() < 1 &&
-    short_range_object_pub_.getNumSubscribers() < 1)
+    long_range_object_pub_->get_subscription_count() < 1 &&
+    short_range_object_pub_->get_subscription_count() < 1)
     return;
 
   // build output msg
-  autoware_perception_msgs::DynamicObjectWithFeatureArray output_long_range_object_msg,
+  autoware_perception_msgs::msg::DynamicObjectWithFeatureArray output_long_range_object_msg,
     output_short_range_object_msg;
   output_long_range_object_msg.header = input_msg->header;
   output_short_range_object_msg.header = input_msg->header;
@@ -56,7 +59,7 @@ void ObjectRangeSplitterNode::objectCallback(
   }
 
   // publish output msg
-  long_range_object_pub_.publish(output_long_range_object_msg);
-  short_range_object_pub_.publish(output_short_range_object_msg);
+  long_range_object_pub_->publish(output_long_range_object_msg);
+  short_range_object_pub_->publish(output_short_range_object_msg);
 }
 }  // namespace object_range_splitter

@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 #pragma once
-#include <ros/ros.h>
+
 #include <memory>
-#include "autoware_perception_msgs/DynamicObjectWithFeatureArray.h"
+
+#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace object_range_splitter
 {
-class ObjectRangeSplitterNode
+class ObjectRangeSplitterNode : public rclcpp::Node
 {
 public:
   ObjectRangeSplitterNode();
@@ -28,12 +30,11 @@ public:
 
 private:
   void objectCallback(
-    const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr & input_msg);
+    const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr input_msg);
 
-  ros::NodeHandle nh_, pnh_;
-  ros::Publisher long_range_object_pub_;
-  ros::Publisher short_range_object_pub_;
-  ros::Subscriber sub_;
+  rclcpp::Publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr long_range_object_pub_;
+  rclcpp::Publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr short_range_object_pub_;
+  rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr sub_;
 
   // ROS Parameters
   float spilt_range_;
