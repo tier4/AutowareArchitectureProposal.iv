@@ -42,11 +42,11 @@ bool LatLonMuxer::checkTimeout()
 {
   const auto now = this->now();
   if ((now - lat_cmd_->header.stamp).seconds() > timeout_thr_sec_) {
-    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 1000/*ms*/, "lat_cmd_ timeout failed.");
+    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "lat_cmd_ timeout failed.");
     return false;
   }
   if ((now - lon_cmd_->header.stamp).seconds() > timeout_thr_sec_) {
-    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 1000/*ms*/, "lon_cmd_ timeout failed.");
+    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 1000 /*ms*/, "lon_cmd_ timeout failed.");
     return false;
   }
   return true;
@@ -58,7 +58,9 @@ void LatLonMuxer::publishCmd()
     return;
   }
   if (!checkTimeout()) {
-    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 1000/*ms*/, "timeout failed. stop publish command.");
+    RCLCPP_ERROR_THROTTLE(
+      get_logger(), *get_clock(), 1000 /*ms*/,
+      "timeout failed. stop publish command.");
     return;
   }
 
