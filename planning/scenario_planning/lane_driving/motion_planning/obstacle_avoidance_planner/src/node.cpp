@@ -188,7 +188,7 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
   vehicle_param_->steer_tau = declare_parameter("steer_tau", 0.1);
 
   // mpt param
-  mpt_param_->is_hard_fix_terminal_point = declare_parameter("is_hard_fix_terminal_point", true);
+  mpt_param_->is_hard_fixing_terminal_point = declare_parameter("is_hard_fixing_terminal_point", true);
   mpt_param_->num_curvature_sampling_points = declare_parameter("num_curvature_sampling_points", 5);
   mpt_param_->base_point_weight = declare_parameter("base_point_weight", 2000.0);
   mpt_param_->top_point_weight = declare_parameter("top_point_weight", 1000.0);
@@ -589,6 +589,11 @@ void ObstacleAvoidancePlanner::publishingDebugData(
   autoware_planning_msgs::msg::IsAvoidancePossible is_avoidance_possible;
   is_avoidance_possible.is_avoidance_possible = debug_data.foa_data.is_avoidance_possible;
   is_avoidance_possible_pub_->publish(is_avoidance_possible);
+
+  std::vector<autoware_planning_msgs::msg::TrajectoryPoint> traj_points_debug = traj_points;
+  const int idx = util::getNearestIdx(
+    path.points, traj_points.back().pose, 0, traj_param_->delta_yaw_threshold_for_closest_point);
+  traj_points_debug.back().pose.position.z = path.points.at(idx).pose.position.z + 1.0;
 
   debug_markers_pub_->publish(getDebugVisualizationMarker(debug_data, traj_points));
   if (is_publishing_area_with_objects_) {
