@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
+ * Copyright 2021 Tier IV, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef GOAL_DISTANCE_CALCULATOR__GOAL_DISTANCE_CALCULATOR_HPP_
+#define GOAL_DISTANCE_CALCULATOR__GOAL_DISTANCE_CALCULATOR_HPP_
+
+// #include "autoware_utils/pose_deviation.h"
+
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <std_msgs/msg/bool.hpp>
+#include <std_msgs/msg/empty.hpp>
+#include <std_msgs/msg/float64.hpp>
+#include <std_msgs/msg/string.hpp>
+
+#include "autoware_planning_msgs/msg/route.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include <boost/optional.hpp>
 #include <map>
 #include <string>
 #include <vector>
-#include "autoware_planning_msgs/msg/route.hpp"
-#include "rclcpp/rclcpp.hpp"
-
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/bool.hpp>
-#include <std_msgs/msg/empty.hpp>
-#include <std_msgs/msg/float64.hpp>
-#include <std_msgs/msg/string.hpp>
-//#include "autoware_utils/pose_deviation.h"
 
 namespace goal_distance_calculator
 {
-//using autoware_utils::PoseDeviation;
+// using autoware_utils::PoseDeviation;
 
 struct Param
 {
@@ -47,7 +49,7 @@ struct Input
 
 struct Output
 {
-  //PoseDeviation goal_deviation;
+  // PoseDeviation goal_deviation;
 };
 
 class GoalDistanceCalculator
@@ -61,3 +63,5 @@ private:
   Param param_;
 };
 }  // namespace goal_distance_calculator
+
+#endif  // GOAL_DISTANCE_CALCULATOR__GOAL_DISTANCE_CALCULATOR_HPP_

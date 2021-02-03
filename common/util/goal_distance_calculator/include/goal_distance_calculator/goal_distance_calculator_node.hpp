@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef GOAL_DISTANCE_CALCULATOR__GOAL_DISTANCE_CALCULATOR_NODE_HPP_
+#define GOAL_DISTANCE_CALCULATOR__GOAL_DISTANCE_CALCULATOR_NODE_HPP_
 
-#include <memory>
-
+// #include <autoware_utils/ros/debug_publisher.h>
+// #include <autoware_utils/ros/self_pose_listener.h>
+#include <goal_distance_calculator/goal_distance_calculator.hpp>
+#include "autoware_planning_msgs/msg/route.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 #include <tf2_ros/transform_listener.h>
@@ -27,11 +30,8 @@
 #include <std_msgs/msg/empty.hpp>
 #include <std_msgs/msg/float64.hpp>
 #include <std_msgs/msg/string.hpp>
-#include "autoware_planning_msgs/msg/route.hpp"
 
-//#include <autoware_utils/ros/debug_publisher.h>
-//#include <autoware_utils/ros/self_pose_listener.h>
-#include <goal_distance_calculator/goal_distance_calculator.hpp>
+#include <memory>
 
 namespace goal_distance_calculator
 {
@@ -49,7 +49,7 @@ public:
 private:
   // Subscriber
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_initial_pose_;
-  //autoware_utils::SelfPoseListener self_pose_listener_;
+  // autoware_utils::SelfPoseListener self_pose_listener_;
   rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr sub_route_;
 
   // Data Buffer
@@ -60,7 +60,7 @@ private:
   void onRoute(const autoware_planning_msgs::msg::Route::ConstSharedPtr & msg);
 
   // Publisher
-  //autoware_utils::DebugPublisher debug_publisher_;
+  // autoware_utils::DebugPublisher debug_publisher_;
 
   // Timer
   rclcpp::TimerBase::SharedPtr timer_;
@@ -79,3 +79,4 @@ private:
   std::unique_ptr<GoalDistanceCalculator> goal_distance_calculator_;
 };
 }  // namespace goal_distance_calculator
+#endif  // GOAL_DISTANCE_CALCULATOR__GOAL_DISTANCE_CALCULATOR_NODE_HPP_

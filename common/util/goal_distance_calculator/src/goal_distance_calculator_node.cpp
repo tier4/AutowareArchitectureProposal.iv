@@ -1,12 +1,30 @@
+/*
+ * Copyright 2021 Tier IV, Inc. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "goal_distance_calculator/goal_distance_calculator_node.hpp"
+#include "autoware_utils/unit_conversion.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/timer.hpp"
+
 #include <chrono>
 #include <cstdio>
 #include <functional>
 #include <memory>
 #include <string>
-#include "autoware_utils/unit_conversion.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp/timer.hpp"
+#include <utility>
 
 namespace goal_distance_calculator
 {
@@ -32,10 +50,10 @@ GoalDistanceCalculatorNode::GoalDistanceCalculatorNode() : Node("goal_distance_c
     [&](const autoware_planning_msgs::msg::Route::SharedPtr msg_ptr) { route_ = msg_ptr; });
 
   // Wait for first self pose
-  //self_pose_listener_.waitForFirstPose();
+  // self_pose_listener_.waitForFirstPose();
 
   // Timer
-  double delta_time = 1.0 / (double)node_param_.update_rate;
+  double delta_time = 1.0 / static_cast<double>(node_param_.update_rate);
   auto timer_callback_ = std::bind(&GoalDistanceCalculatorNode::onTimer, this);
   const auto period_ns =
     std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::duration<double>(delta_time));
@@ -66,10 +84,9 @@ bool GoalDistanceCalculatorNode::isDataReady()
 bool GoalDistanceCalculatorNode::isDataTimeout()
 {
   rclcpp::Clock system_clock(rcl_clock_type_t RCL_SYSTEM_TIME);
-  //rclcpp::Time now = now();
   constexpr double th_pose_timeout = 1.0;
-  //const auto pose_time_diff = current_pose_->header.stamp - now();
-  if (true /*pose_time_diff.toSec() > th_pose_timeout*/) {
+  const auto pose_time_diff = /*current_pose_->header.stamp-*/ now();
+  if (pose_time_diff.seconds() > th_pose_timeout) {
     auto & clk = *this->get_clock();
     RCLCPP_WARN_THROTTLE(this->get_logger(), clk, 1000, "pose is timeout...");
     return true;
@@ -79,7 +96,7 @@ bool GoalDistanceCalculatorNode::isDataTimeout()
 
 void GoalDistanceCalculatorNode::onTimer()
 {
-  //current_pose_ = self_pose_listener_.getCurrentPose();
+  // current_pose_ = self_pose_listener_.getCurrentPose();
 
   if (!isDataReady()) {
     return;
@@ -96,7 +113,7 @@ void GoalDistanceCalculatorNode::onTimer()
 
   {
     using autoware_utils::rad2deg;
-    //const auto & deviation = output_.goal_deviation;
+    // const auto & deviation = output_.goal_deviation;
   }
 
   if (node_param_.oneshot) {
