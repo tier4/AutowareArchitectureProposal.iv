@@ -250,8 +250,9 @@ bool TurnSignalDecider::isTurning(
       const auto & lane = data_.getLaneFromId(lane_id);
       if (
         lane.attributeOr("turn_signal_distance", std::numeric_limits<double>::max()) <
-        distance_from_vehicle_front) {
-        if (1 < path_point.lane_ids.size() && lane_id == path_point.lane_ids.back()) continue;
+        distance_from_vehicle_front)
+      {
+        if (1 < path_point.lane_ids.size() && lane_id == path_point.lane_ids.back()) {continue;}
       }
       if (lane.attributeOr("turn_direction", std::string("none")) == "left") {
         signal_state_ptr->data = TurnSignal::LEFT;
