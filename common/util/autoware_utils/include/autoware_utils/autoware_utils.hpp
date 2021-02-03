@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef AUTOWARE_UTILS__AUTOWARE_UTILS_HPP_
+#define AUTOWARE_UTILS__AUTOWARE_UTILS_HPP_
 
 #include "autoware_utils/geometry/boost_geometry.hpp"
 #include "autoware_utils/geometry/geometry.hpp"
@@ -28,3 +29,5 @@
 #include "autoware_utils/ros/vehicle_info.hpp"
 #include "autoware_utils/ros/wait_for_param.hpp"
 #include "autoware_utils/system/stop_watch.hpp"
+
+#endif  // AUTOWARE_UTILS__AUTOWARE_UTILS_HPP_

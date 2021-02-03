@@ -1,20 +1,19 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#pragma once
+#ifndef AUTOWARE_UTILS__GEOMETRY__BOOST_GEOMETRY_HPP_
+#define AUTOWARE_UTILS__GEOMETRY__BOOST_GEOMETRY_HPP_
 
 #include "boost/geometry/core/cs.hpp"
 #include "boost/geometry/geometries/geometries.hpp"
@@ -53,7 +52,8 @@ using MultiPolygon3d = boost::geometry::model::multi_polygon<Point3d>;
 struct Point2d : public Eigen::Vector2d
 {
   Point2d() = default;
-  Point2d(const double x, const double y) : Eigen::Vector2d(x, y) {}
+  Point2d(const double x, const double y)
+  : Eigen::Vector2d(x, y) {}
 
   Point3d to_3d(const double z = 0.0) const;
 };
@@ -61,14 +61,15 @@ struct Point2d : public Eigen::Vector2d
 struct Point3d : public Eigen::Vector3d
 {
   Point3d() = default;
-  Point3d(const double x, const double y, const double z) : Eigen::Vector3d(x, y, z) {}
+  Point3d(const double x, const double y, const double z)
+  : Eigen::Vector3d(x, y, z) {}
 
   Point2d to_2d() const;
 };
 
-inline Point3d Point2d::to_3d(const double z) const { return Point3d{x(), y(), z}; }
+inline Point3d Point2d::to_3d(const double z) const {return Point3d{x(), y(), z};}
 
-inline Point2d Point3d::to_2d() const { return Point2d{x(), y()}; }
+inline Point2d Point3d::to_2d() const {return Point2d{x(), y()};}
 
 inline geometry_msgs::msg::Point toMsg(const Point3d & point)
 {
@@ -89,5 +90,7 @@ inline Point3d fromMsg(const geometry_msgs::msg::Point & msg)
 }
 }  // namespace autoware_utils
 
-BOOST_GEOMETRY_REGISTER_POINT_2D(autoware_utils::Point2d, double, cs::cartesian, x(), y())
-BOOST_GEOMETRY_REGISTER_POINT_3D(autoware_utils::Point3d, double, cs::cartesian, x(), y(), z())
+BOOST_GEOMETRY_REGISTER_POINT_2D(autoware_utils::Point2d, double, cs::cartesian, x(), y())  // NOLINT
+BOOST_GEOMETRY_REGISTER_POINT_3D(autoware_utils::Point3d, double, cs::cartesian, x(), y(), z())  // NOLINT
+
+#endif  // AUTOWARE_UTILS__GEOMETRY__BOOST_GEOMETRY_HPP_

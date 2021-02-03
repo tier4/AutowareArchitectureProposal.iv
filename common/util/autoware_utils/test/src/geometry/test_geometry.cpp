@@ -1,18 +1,16 @@
-/*
- * Copyright 2020 TierIV. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "gtest/gtest.h"
 
@@ -194,8 +192,9 @@ TEST(geometry, transform2pose)
     const geometry_msgs::msg::PoseStamped pose_stamped = transform2pose(transform_stamped);
 
     EXPECT_EQ(transform_stamped.header.frame_id, pose_stamped.header.frame_id);
-    EXPECT_DOUBLE_EQ(rclcpp::Time(transform_stamped.header.stamp).seconds(),
-                     rclcpp::Time(pose_stamped.header.stamp).seconds());
+    EXPECT_DOUBLE_EQ(
+      rclcpp::Time(transform_stamped.header.stamp).seconds(),
+      rclcpp::Time(pose_stamped.header.stamp).seconds());
 
     EXPECT_DOUBLE_EQ(transform_stamped.transform.translation.x, pose_stamped.pose.position.x);
     EXPECT_DOUBLE_EQ(transform_stamped.transform.translation.y, pose_stamped.pose.position.y);
@@ -244,8 +243,9 @@ TEST(geometry, pose2transform)
     const geometry_msgs::msg::TransformStamped transform_stamped = pose2transform(pose_stamped);
 
     EXPECT_EQ(pose_stamped.header.frame_id, transform_stamped.header.frame_id);
-    EXPECT_DOUBLE_EQ(rclcpp::Time(pose_stamped.header.stamp).seconds(),
-                     rclcpp::Time(transform_stamped.header.stamp).seconds());
+    EXPECT_DOUBLE_EQ(
+      rclcpp::Time(pose_stamped.header.stamp).seconds(),
+      rclcpp::Time(transform_stamped.header.stamp).seconds());
 
     EXPECT_DOUBLE_EQ(pose_stamped.pose.position.x, transform_stamped.transform.translation.x);
     EXPECT_DOUBLE_EQ(pose_stamped.pose.position.y, transform_stamped.transform.translation.y);

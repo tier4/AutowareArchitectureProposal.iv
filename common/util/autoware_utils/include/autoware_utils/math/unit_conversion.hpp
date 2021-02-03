@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef AUTOWARE_UTILS__MATH__UNIT_CONVERSION_HPP_
+#define AUTOWARE_UTILS__MATH__UNIT_CONVERSION_HPP_
 
 #include "autoware_utils/math/constants.hpp"
 
@@ -24,3 +25,5 @@ constexpr double rad2deg(const double rad) {return rad * 180.0 / pi;}
 constexpr double kmph2mps(const double kmph) {return kmph * 1000.0 / 3600.0;}
 constexpr double mps2kmph(const double mps) {return mps * 3600.0 / 1000.0;}
 }  // namespace autoware_utils
+
+#endif  // AUTOWARE_UTILS__MATH__UNIT_CONVERSION_HPP_

@@ -1,20 +1,19 @@
-/*
- * Copyright 2020 TierIV. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#pragma once
+#ifndef AUTOWARE_UTILS__GEOMETRY__GEOMETRY_HPP_
+#define AUTOWARE_UTILS__GEOMETRY__GEOMETRY_HPP_
 
 #include <vector>
 
@@ -33,9 +32,9 @@
 
 namespace autoware_utils
 {
-inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::Point & p) { return p; }
+inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::Point & p) {return p;}
 
-inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::Pose & p) { return p.position; }
+inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::Pose & p) {return p.position;}
 
 inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::PoseStamped & p)
 {
@@ -70,7 +69,7 @@ inline tf2::Quaternion createQuaternionFromRPY(
   return q;
 }
 
-template <class Point1, class Point2>
+template<class Point1, class Point2>
 double calcDistance2d(const Point1 & point1, const Point2 & point2)
 {
   const auto p1 = getPoint(point1);
@@ -78,7 +77,7 @@ double calcDistance2d(const Point1 & point1, const Point2 & point2)
   return std::hypot(p1.x - p2.x, p1.y - p2.y);
 }
 
-template <class Point1, class Point2>
+template<class Point1, class Point2>
 double calcDistance3d(const Point1 & point1, const Point2 & point2)
 {
   const auto p1 = getPoint(point1);
@@ -97,7 +96,8 @@ inline geometry_msgs::msg::Pose transform2pose(const geometry_msgs::msg::Transfo
   return pose;
 }
 
-inline geometry_msgs::msg::PoseStamped transform2pose(const geometry_msgs::msg::TransformStamped & transform)
+inline geometry_msgs::msg::PoseStamped transform2pose(
+  const geometry_msgs::msg::TransformStamped & transform)
 {
   geometry_msgs::msg::PoseStamped pose;
   pose.header = transform.header;
@@ -115,7 +115,8 @@ inline geometry_msgs::msg::Transform pose2transform(const geometry_msgs::msg::Po
   return transform;
 }
 
-inline geometry_msgs::msg::TransformStamped pose2transform(const geometry_msgs::msg::PoseStamped & pose)
+inline geometry_msgs::msg::TransformStamped pose2transform(
+  const geometry_msgs::msg::PoseStamped & pose)
 {
   geometry_msgs::msg::TransformStamped transform;
   transform.header = pose.header;
@@ -123,7 +124,8 @@ inline geometry_msgs::msg::TransformStamped pose2transform(const geometry_msgs::
   return transform;
 }
 
-inline Point3d transformPoint(const Point3d & point, const geometry_msgs::msg::Transform & transform)
+inline Point3d transformPoint(
+  const Point3d & point, const geometry_msgs::msg::Transform & transform)
 {
   const auto & translation = transform.translation;
   const auto & rotation = transform.rotation;
@@ -136,14 +138,15 @@ inline Point3d transformPoint(const Point3d & point, const geometry_msgs::msg::T
   return Point3d{transformed.x(), transformed.y(), transformed.z()};
 }
 
-inline Point2d transformPoint(const Point2d & point, const geometry_msgs::msg::Transform & transform)
+inline Point2d transformPoint(
+  const Point2d & point, const geometry_msgs::msg::Transform & transform)
 {
   Point3d point_3d{point.x(), point.y(), 0};
   const auto transformed = transformPoint(point_3d, transform);
   return Point2d{transformed.x(), transformed.y()};
 }
 
-template <class T>
+template<class T>
 T transformVector(const T & points, const geometry_msgs::msg::Transform & transform)
 {
   T transformed;
@@ -153,3 +156,5 @@ T transformVector(const T & points, const geometry_msgs::msg::Transform & transf
   return transformed;
 }
 }  // namespace autoware_utils
+
+#endif  // AUTOWARE_UTILS__GEOMETRY__GEOMETRY_HPP_

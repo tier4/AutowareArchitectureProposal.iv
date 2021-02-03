@@ -1,20 +1,19 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#pragma once
+#ifndef AUTOWARE_UTILS__ROS__PROCESSING_TIME_PUBLISHER_HPP_
+#define AUTOWARE_UTILS__ROS__PROCESSING_TIME_PUBLISHER_HPP_
 
 #include <map>
 #include <sstream>
@@ -54,7 +53,7 @@ public:
 private:
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticStatus>::SharedPtr pub_processing_time_;
 
-  template <class T>
+  template<class T>
   std::string to_string_with_precision(const T & value, const int precision)
   {
     std::ostringstream oss;
@@ -64,3 +63,5 @@ private:
   }
 };
 }  // namespace autoware_utils
+
+#endif  // AUTOWARE_UTILS__ROS__PROCESSING_TIME_PUBLISHER_HPP_

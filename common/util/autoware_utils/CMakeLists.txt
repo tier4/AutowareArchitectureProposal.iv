@@ -31,6 +31,6 @@ if(BUILD_TESTING)
   target_link_libraries(test_autoware_utils
     autoware_utils
   )
-endif ()
+endif()
 
 ament_auto_package()

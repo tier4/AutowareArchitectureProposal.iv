@@ -1,20 +1,19 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#pragma once
+#ifndef AUTOWARE_UTILS__ROS__VEHICLE_INFO_HPP_
+#define AUTOWARE_UTILS__ROS__VEHICLE_INFO_HPP_
 
 #include <string>
 
@@ -67,12 +66,20 @@ inline VehicleInfo waitForVehicleInfo(
   // Additional
   i.vehicle_length = waitForParam<double>(node, vehicle_info_node_name, ns + ".vehicle_length");
   i.vehicle_width = waitForParam<double>(node, vehicle_info_node_name, ns + ".vehicle_width");
-  i.min_longitudinal_offset = waitForParam<double>(node, vehicle_info_node_name, ns + ".min_longitudinal_offset");
-  i.max_longitudinal_offset = waitForParam<double>(node, vehicle_info_node_name, ns + ".max_longitudinal_offset");
-  i.min_lateral_offset = waitForParam<double>(node, vehicle_info_node_name, ns + ".min_lateral_offset");
-  i.max_lateral_offset = waitForParam<double>(node, vehicle_info_node_name, ns + ".max_lateral_offset");
-  i.min_height_offset = waitForParam<double>(node, vehicle_info_node_name, ns + ".min_height_offset");
-  i.max_height_offset = waitForParam<double>(node, vehicle_info_node_name, ns + ".max_height_offset");
+  i.min_longitudinal_offset =
+    waitForParam<double>(node, vehicle_info_node_name, ns + ".min_longitudinal_offset");
+  i.max_longitudinal_offset =
+    waitForParam<double>(node, vehicle_info_node_name, ns + ".max_longitudinal_offset");
+  i.min_lateral_offset =
+    waitForParam<double>(node, vehicle_info_node_name, ns + ".min_lateral_offset");
+  i.max_lateral_offset =
+    waitForParam<double>(node, vehicle_info_node_name, ns + ".max_lateral_offset");
+  i.min_height_offset =
+    waitForParam<double>(node, vehicle_info_node_name, ns + ".min_height_offset");
+  i.max_height_offset =
+    waitForParam<double>(node, vehicle_info_node_name, ns + ".max_height_offset");
 
   return i;
 }
+
+#endif  // AUTOWARE_UTILS__ROS__VEHICLE_INFO_HPP_
