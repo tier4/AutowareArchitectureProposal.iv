@@ -18,7 +18,10 @@ ament_auto_add_library(autoware_utils
 )
 
 # Test
-if(AMENT_ENABLE_TESTING)
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+
   find_package(ament_cmake_gtest REQUIRED)
 
   file(GLOB_RECURSE test_files test/**/*.cpp)
