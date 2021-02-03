@@ -18,7 +18,7 @@
 #include <limits>
 #include <vector>
 
-#include "motion_velocity_optimizer/interpolate.hpp"
+#include "motion_velocity_optimizer/interpolate.h"
 
 namespace vpu
 {
