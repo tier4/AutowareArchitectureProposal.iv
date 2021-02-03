@@ -64,7 +64,7 @@ cv::Mat drawObstaclesOnImage(
   const bool enable_avoidance,
   const std::vector<autoware_perception_msgs::msg::DynamicObject> & objects,
   const nav_msgs::msg::MapMetaData & map_info, const cv::Mat & clearance_map,
-  const double max_avoiding_objects_velocity_ms, const double center_line_width,
+  const TrajectoryParam & traj_param,
   std::vector<autoware_perception_msgs::msg::DynamicObject> * debug_avoiding_objects);
 
 PolygonPoints getPolygonPoints(
@@ -85,7 +85,10 @@ bool isAvoidingObject(
   const PolygonPoints & polygon_points, const autoware_perception_msgs::msg::DynamicObject & object,
   const cv::Mat & clearance_map, const nav_msgs::msg::MapMetaData & map_info,
   const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points,
-  const double max_avoiding_objects_velocity_ms, const double center_line_width);
+   const TrajectoryParam & traj_param);
+
+bool isAvoidingObjectType(
+  const autoware_perception_msgs::msg::DynamicObject & object, const TrajectoryParam & traj_param);
 
 std::vector<cv::Point> getCVPolygon(
   const autoware_perception_msgs::msg::DynamicObject & object, const PolygonPoints & polygon_points,
@@ -130,7 +133,6 @@ boost::optional<int> getStopIdx(
 CVMaps getMaps(
   const bool enable_avoidance, const autoware_planning_msgs::msg::Path & path,
   const std::vector<autoware_perception_msgs::msg::DynamicObject> & objects,
-  const double max_avoiding_objects_velocity_ms, const double center_line_width,
-  DebugData * debug_data);
+  const TrajectoryParam & traj_param, DebugData * debug_data);
 }  // namespace process_cv
 #endif  // OBSTACLE_AVOIDANCE_PLANNER__PROCESS_CV_HPP_

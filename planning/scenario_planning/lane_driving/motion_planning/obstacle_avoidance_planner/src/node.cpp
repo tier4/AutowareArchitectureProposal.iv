@@ -133,6 +133,14 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
     declare_parameter("acceleration_for_non_deceleration_range", 1.0);
   traj_param_->max_dist_for_extending_end_point =
     declare_parameter("max_dist_for_extending_end_point", 5.0);
+  traj_param_->is_avoiding_unknown = declare_parameter("avoiding_object_type/unknown", true);
+  traj_param_->is_avoiding_car = declare_parameter("avoiding_object_type/car", true);
+  traj_param_->is_avoiding_truck = declare_parameter("avoiding_object_type/truck", true);
+  traj_param_->is_avoiding_bus = declare_parameter("avoiding_object_type/bus", true);
+  traj_param_->is_avoiding_bicycle = declare_parameter("avoiding_object_type/bicycle", true);
+  traj_param_->is_avoiding_motorbike = declare_parameter("avoiding_object_type/motorbike", true);
+  traj_param_->is_avoiding_pedestrian = declare_parameter("avoiding_object_type/pedestrian", true);
+  traj_param_->is_avoiding_animal = declare_parameter("avoiding_object_type/animal", true);
 
   constrain_param_->is_getting_constraints_close2path_points =
     declare_parameter("is_getting_constraints_close2path_points", false);

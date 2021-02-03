@@ -54,7 +54,7 @@ cv::Mat drawObstaclesOnImage(
   const std::vector<autoware_perception_msgs::msg::DynamicObject> & objects,
   const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points,
   const nav_msgs::msg::MapMetaData & map_info, const cv::Mat & clearance_map,
-  const double max_avoiding_objects_velocity_ms, const double center_line_width,
+  const TrajectoryParam & traj_param,
   std::vector<autoware_perception_msgs::msg::DynamicObject> * debug_avoiding_objects)
 {
   std::vector<autoware_planning_msgs::msg::PathPoint> path_points_inside_area;
@@ -80,8 +80,7 @@ cv::Mat drawObstaclesOnImage(
   for (const auto & object : objects) {
     const PolygonPoints polygon_points = getPolygonPoints(object, map_info);
     if (isAvoidingObject(
-          polygon_points, object, clearance_map, map_info, path_points_inside_area,
-          max_avoiding_objects_velocity_ms, center_line_width)) {
+          polygon_points, object, clearance_map, map_info, path_points_inside_area, traj_param)) {
       cv_polygons.push_back(
         getCVPolygon(object, polygon_points, path_points_inside_area, clearance_map, map_info));
       debug_avoiding_objects->push_back(object);
@@ -97,9 +96,12 @@ bool isAvoidingObject(
   const PolygonPoints & polygon_points, const autoware_perception_msgs::msg::DynamicObject & object,
   const cv::Mat & clearance_map, const nav_msgs::msg::MapMetaData & map_info,
   const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points,
-  const double max_avoiding_objects_velocity_ms, const double center_line_width)
+  const TrajectoryParam & traj_param)
 {
   if (path_points.empty()) {
+    return false;
+  }
+  if (!isAvoidingObjectType(object, traj_param)) {
     return false;
   }
   const auto image_point =
@@ -126,12 +128,30 @@ bool isAvoidingObject(
       nearest_path_point_image.get().y))[static_cast<int>(nearest_path_point_image.get().x)] *
     map_info.resolution;
   if (
-    nearest_path_point_clearance - center_line_width * 0.5 < object_clearance_from_road ||
-    vel > max_avoiding_objects_velocity_ms ||
+    nearest_path_point_clearance - traj_param.center_line_width * 0.5 <
+      object_clearance_from_road ||
+    vel > traj_param.max_avoiding_objects_velocity_ms ||
     !arePointsInsideDriveableArea(polygon_points.points_in_image, clearance_map)) {
     return false;
   }
   return true;
+}
+
+bool isAvoidingObjectType(
+  const autoware_perception_msgs::msg::DynamicObject & object, const TrajectoryParam & traj_param)
+{
+  if (
+    (object.semantic.type == object.semantic.UNKNOWN && traj_param.is_avoiding_unknown) ||
+    (object.semantic.type == object.semantic.CAR && traj_param.is_avoiding_car) ||
+    (object.semantic.type == object.semantic.TRUCK && traj_param.is_avoiding_truck) ||
+    (object.semantic.type == object.semantic.BUS && traj_param.is_avoiding_bus) ||
+    (object.semantic.type == object.semantic.BICYCLE && traj_param.is_avoiding_bicycle) ||
+    (object.semantic.type == object.semantic.MOTORBIKE && traj_param.is_avoiding_motorbike) ||
+    (object.semantic.type == object.semantic.PEDESTRIAN && traj_param.is_avoiding_pedestrian) ||
+    (object.semantic.type == object.semantic.ANIMAL && traj_param.is_avoiding_animal)) {
+    return true;
+  }
+  return false;
 }
 
 PolygonPoints getPolygonPoints(
@@ -507,8 +527,7 @@ boost::optional<double> getDistance(
 CVMaps getMaps(
   const bool enable_avoidance, const autoware_planning_msgs::msg::Path & path,
   const std::vector<autoware_perception_msgs::msg::DynamicObject> & objects,
-  const double max_avoiding_objects_velocity_ms, const double center_line_width,
-  DebugData * debug_data)
+  const TrajectoryParam & traj_param, DebugData * debug_data)
 {
   CVMaps cv_maps;
   cv_maps.drivable_area = getDrivableAreaInCV(path.drivable_area);
@@ -517,7 +536,7 @@ CVMaps getMaps(
   std::vector<autoware_perception_msgs::msg::DynamicObject> debug_avoiding_objects;
   cv::Mat objects_image = drawObstaclesOnImage(
     enable_avoidance, objects, path.points, path.drivable_area.info, cv_maps.clearance_map,
-    max_avoiding_objects_velocity_ms, center_line_width, &debug_avoiding_objects);
+    traj_param, &debug_avoiding_objects);
   cv_maps.area_with_objects_map = getAreaWithObjects(cv_maps.drivable_area, objects_image);
   cv_maps.only_objects_clearance_map = getClearanceMap(objects_image);
   cv_maps.map_info = path.drivable_area.info;
