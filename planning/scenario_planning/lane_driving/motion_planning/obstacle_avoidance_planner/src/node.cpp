@@ -39,6 +39,7 @@
 #include "std_msgs/msg/bool.hpp"
 #include "tf2/utils.h"
 #include "tf2_ros/transform_listener.h"
+#include "vehicle_info_util/vehicle_info.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 
 ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
@@ -184,11 +185,12 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
     constrain_param_->clearance_from_object + constrain_param_->keep_space_shape_y * 0.5;
 
   // vehicle param
-  vehicle_param_->width = declare_parameter("/vehicle_info/vehicle_width", 1.5);
-  vehicle_param_->length = declare_parameter("/vehicle_info/vehicle_length", 2.0);
-  vehicle_param_->wheelbase = declare_parameter("/vehicle_info/wheel_base", 1.0);
-  vehicle_param_->rear_overhang = declare_parameter("/vehicle_info/rear_overhang", 0.5);
-  vehicle_param_->front_overhang = declare_parameter("/vehicle_info/front_overhang", 0.5);
+  vehicle_info_util::VehicleInfo vehicle_info = vehicle_info_util::VehicleInfo::create(*this);
+  vehicle_param_->width = vehicle_info.vehicle_width_m_;
+  vehicle_param_->length = vehicle_info.vehicle_length_m_;
+  vehicle_param_->wheelbase = vehicle_info.wheel_base_m_;
+  vehicle_param_->rear_overhang = vehicle_info.rear_overhang_m_;
+  vehicle_param_->front_overhang = vehicle_info.front_overhang_m_;
 
   double max_steer_deg = 0;
   max_steer_deg = declare_parameter("max_steer_deg", 30.0);
