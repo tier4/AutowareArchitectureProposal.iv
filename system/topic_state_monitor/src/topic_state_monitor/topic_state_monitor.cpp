@@ -27,7 +27,7 @@ void TopicStateMonitor::update()
   time_buffer_.push_back(last_message_time_);
 
   // Remove old data
-  while (time_buffer_.size() > param_.window_size) {
+  while (static_cast<int>(time_buffer_.size()) > param_.window_size) {
     time_buffer_.pop_front();
   }
 
