@@ -23,7 +23,7 @@
 #include <string>
 #include <utility>
 
-#include "autoware_utils/unit_conversion.hpp"
+#include "autoware_utils/math/unit_conversion.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/timer.hpp"
 
@@ -51,7 +51,7 @@ GoalDistanceCalculatorNode::GoalDistanceCalculatorNode() : Node("goal_distance_c
     [&](const autoware_planning_msgs::msg::Route::SharedPtr msg_ptr) { route_ = msg_ptr; });
 
   // Wait for first self pose
-  // self_pose_listener_.waitForFirstPose();
+  //self_pose_listener_.waitForFirstPose();
 
   // Timer
   double delta_time = 1.0 / static_cast<double>(node_param_.update_rate);
@@ -97,7 +97,7 @@ bool GoalDistanceCalculatorNode::isDataTimeout()
 
 void GoalDistanceCalculatorNode::onTimer()
 {
-  // current_pose_ = self_pose_listener_.getCurrentPose();
+  //current_pose_ = self_pose_listener_.getCurrentPose();
 
   if (!isDataReady()) {
     return;
@@ -114,7 +114,7 @@ void GoalDistanceCalculatorNode::onTimer()
 
   {
     using autoware_utils::rad2deg;
-    // const auto & deviation = output_.goal_deviation;
+    const auto & deviation = output_.goal_deviation;
   }
 
   if (node_param_.oneshot) {

@@ -17,8 +17,8 @@
 #ifndef GOAL_DISTANCE_CALCULATOR__GOAL_DISTANCE_CALCULATOR_NODE_HPP_
 #define GOAL_DISTANCE_CALCULATOR__GOAL_DISTANCE_CALCULATOR_NODE_HPP_
 
-// #include <autoware_utils/ros/debug_publisher.h>
-// #include <autoware_utils/ros/self_pose_listener.h>
+#include <autoware_utils/ros/debug_publisher.hpp>
+#include <autoware_utils/ros/self_pose_listener.hpp>
 #include <goal_distance_calculator/goal_distance_calculator.hpp>
 
 #include <tf2_ros/transform_listener.h>
@@ -50,7 +50,7 @@ public:
 private:
   // Subscriber
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_initial_pose_;
-  // autoware_utils::SelfPoseListener self_pose_listener_;
+  autoware_utils::SelfPoseListener self_pose_listener_();
   rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr sub_route_;
 
   // Data Buffer
@@ -61,7 +61,7 @@ private:
   void onRoute(const autoware_planning_msgs::msg::Route::ConstSharedPtr & msg);
 
   // Publisher
-  // autoware_utils::DebugPublisher debug_publisher_;
+  autoware_utils::DebugPublisher debug_publisher_();
 
   // Timer
   rclcpp::TimerBase::SharedPtr timer_;
