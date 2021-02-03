@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef EMERGENCY_HANDLER_EMERGENCY_HANDLER_CORE_HPP_
-#define EMERGENCY_HANDLER_EMERGENCY_HANDLER_CORE_HPP_
+#ifndef EMERGENCY_HANDLER__EMERGENCY_HANDLER_CORE_HPP_
+#define EMERGENCY_HANDLER__EMERGENCY_HANDLER_CORE_HPP_
+
+// Core
+#include <memory>
+#include <string>
 
 // Autoware
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
@@ -35,9 +39,6 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "emergency_handler/util/heartbeat_checker.hpp"
-
-// Core
-#include <string>
 
 class EmergencyHandler : public rclcpp::Node
 {
@@ -108,7 +109,7 @@ private:
   // Heartbeat
   rclcpp::Time initialized_time_;
   std::shared_ptr<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::DrivingCapability>>
-    heartbeat_driving_capability_;
+  heartbeat_driving_capability_;
   std::shared_ptr<HeaderlessHeartbeatChecker<std_msgs::msg::Bool>> heartbeat_is_state_timeout_;
 
   // Algorithm
@@ -121,4 +122,4 @@ private:
   autoware_control_msgs::msg::ControlCommand selectAlternativeControlCommand();
 };
 
-#endif
+#endif  // EMERGENCY_HANDLER__EMERGENCY_HANDLER_CORE_HPP_

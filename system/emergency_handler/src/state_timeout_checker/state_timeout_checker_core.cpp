@@ -1,18 +1,19 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include <memory>
+#include <utility>
 
 #include "emergency_handler/state_timeout_checker_core.hpp"
 
@@ -32,7 +33,8 @@ StateTimeoutChecker::StateTimeoutChecker()
     std::bind(&StateTimeoutChecker::onAutowareState, this, _1));
 
   // Publisher
-  pub_is_state_timeout_ = create_publisher<std_msgs::msg::Bool>("output/is_state_timeout", rclcpp::QoS{1});
+  pub_is_state_timeout_ =
+    create_publisher<std_msgs::msg::Bool>("output/is_state_timeout", rclcpp::QoS{1});
 
   // Timer
   auto timer_callback = std::bind(&StateTimeoutChecker::onTimer, this);
@@ -99,14 +101,17 @@ bool StateTimeoutChecker::isStateTimeout()
     return true;
   }
 
-  if (autoware_state_->state == AutowareState::INITIALIZING_VEHICLE)
+  if (autoware_state_->state == AutowareState::INITIALIZING_VEHICLE) {
     return isTimeout(state_change_time_, th_timeout_.InitializingVehicle);
+  }
 
-  if (autoware_state_->state == AutowareState::WAITING_FOR_ROUTE)
+  if (autoware_state_->state == AutowareState::WAITING_FOR_ROUTE) {
     return isTimeout(state_change_time_, th_timeout_.WaitingForRoute);
+  }
 
-  if (autoware_state_->state == AutowareState::PLANNING)
+  if (autoware_state_->state == AutowareState::PLANNING) {
     return isTimeout(state_change_time_, th_timeout_.Planning);
+  }
 
   return false;
 }

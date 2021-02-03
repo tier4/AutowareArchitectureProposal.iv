@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+#include <string>
+#include <utility>
+
 #include "emergency_handler/emergency_handler_core.hpp"
 
 namespace
@@ -39,12 +43,12 @@ diagnostic_msgs::msg::DiagnosticArray convertHazardStatusToDiagnosticArray(
   diag_array.header.stamp = clock->now();
 
   const auto decorateDiag = [](const auto & hazard_diag, const std::string & label) {
-    auto diag = hazard_diag;
+      auto diag = hazard_diag;
 
-    diag.message = label + diag.message;
+      diag.message = label + diag.message;
 
-    return diag;
-  };
+      return diag;
+    };
 
   for (const auto & hazard_diag : hazard_status.diagnostics_nf) {
     diag_array.status.push_back(decorateDiag(hazard_diag, "[No Fault]"));
@@ -100,13 +104,14 @@ EmergencyHandler::EmergencyHandler()
   // Heartbeat
   heartbeat_driving_capability_ =
     std::make_shared<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::DrivingCapability>>(
-      *this, "input/driving_capability", timeout_driving_capability_);
+    *this, "input/driving_capability", timeout_driving_capability_);
   heartbeat_is_state_timeout_ = std::make_shared<HeaderlessHeartbeatChecker<std_msgs::msg::Bool>>(
     *this, "input/is_state_timeout", timeout_is_state_timeout_);
 
   // Service
   srv_clear_emergency_ = this->create_service<std_srvs::srv::Trigger>(
-    "service/clear_emergency", std::bind(&EmergencyHandler::onClearEmergencyService, this, _1, _2, _3));
+    "service/clear_emergency",
+    std::bind(&EmergencyHandler::onClearEmergencyService, this, _1, _2, _3));
 
   // Publisher
   pub_control_command_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
@@ -115,17 +120,17 @@ EmergencyHandler::EmergencyHandler()
     create_publisher<autoware_vehicle_msgs::msg::ShiftStamped>("output/shift", rclcpp::QoS{1});
   pub_turn_signal_ =
     create_publisher<autoware_vehicle_msgs::msg::TurnSignal>("output/turn_signal", rclcpp::QoS{1});
-  pub_is_emergency_ =
-    create_publisher<autoware_control_msgs::msg::EmergencyMode>("output/is_emergency", rclcpp::QoS{1});
-  pub_hazard_status_ =
-    create_publisher<autoware_system_msgs::msg::HazardStatusStamped>("output/hazard_status", rclcpp::QoS{1});
-  pub_diagnostics_err_ =
-    create_publisher<diagnostic_msgs::msg::DiagnosticArray>("output/diagnostics_err", rclcpp::QoS{1});
+  pub_is_emergency_ = create_publisher<autoware_control_msgs::msg::EmergencyMode>(
+    "output/is_emergency", rclcpp::QoS{1});
+  pub_hazard_status_ = create_publisher<autoware_system_msgs::msg::HazardStatusStamped>(
+    "output/hazard_status", rclcpp::QoS{1});
+  pub_diagnostics_err_ = create_publisher<diagnostic_msgs::msg::DiagnosticArray>(
+    "output/diagnostics_err", rclcpp::QoS{1});
 
   // Initialize
   twist_ = geometry_msgs::msg::TwistStamped::ConstSharedPtr(new geometry_msgs::msg::TwistStamped);
-  prev_control_command_ =
-    autoware_control_msgs::msg::ControlCommand::ConstSharedPtr(new autoware_control_msgs::msg::ControlCommand);
+  prev_control_command_ = autoware_control_msgs::msg::ControlCommand::ConstSharedPtr(
+    new autoware_control_msgs::msg::ControlCommand);
 
   // Timer
   initialized_time_ = this->now();
@@ -340,9 +345,9 @@ bool EmergencyHandler::isEmergency(const autoware_system_msgs::msg::HazardStatus
 autoware_system_msgs::msg::HazardStatus EmergencyHandler::judgeHazardStatus()
 {
   // Get hazard status
-  auto hazard_status = current_gate_mode_->data == autoware_control_msgs::msg::GateMode::AUTO
-                         ? driving_capability_->autonomous_driving
-                         : driving_capability_->remote_control;
+  auto hazard_status = current_gate_mode_->data == autoware_control_msgs::msg::GateMode::AUTO ?
+    driving_capability_->autonomous_driving :
+    driving_capability_->remote_control;
 
   // Ignore initializing and finalizing state
   {
@@ -379,9 +384,10 @@ autoware_system_msgs::msg::HazardStatus EmergencyHandler::judgeHazardStatus()
         this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
         "heartbeat_driving_capability is timeout");
       hazard_status.level = HazardStatus::SINGLE_POINT_FAULT;
-      hazard_status.diagnostics_spf.push_back(createDiagnosticStatus(
-        DiagnosticStatus::ERROR, "emergency_handler/heartbeat_timeout",
-        "heartbeat_driving_capability is timeout"));
+      hazard_status.diagnostics_spf.push_back(
+        createDiagnosticStatus(
+          DiagnosticStatus::ERROR, "emergency_handler/heartbeat_timeout",
+          "heartbeat_driving_capability is timeout"));
     }
 
     if (heartbeat_is_state_timeout_->isTimeout()) {
@@ -389,9 +395,10 @@ autoware_system_msgs::msg::HazardStatus EmergencyHandler::judgeHazardStatus()
         this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
         "heartbeat_is_state_timeout is timeout");
       hazard_status.level = HazardStatus::SINGLE_POINT_FAULT;
-      hazard_status.diagnostics_spf.push_back(createDiagnosticStatus(
-        DiagnosticStatus::ERROR, "emergency_handler/heartbeat_timeout",
-        "heartbeat_is_state_timeout is timeout"));
+      hazard_status.diagnostics_spf.push_back(
+        createDiagnosticStatus(
+          DiagnosticStatus::ERROR, "emergency_handler/heartbeat_timeout",
+          "heartbeat_is_state_timeout is timeout"));
     }
 
     if (is_state_timeout_->data) {
@@ -399,8 +406,10 @@ autoware_system_msgs::msg::HazardStatus EmergencyHandler::judgeHazardStatus()
         this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
         "state is timeout");
       hazard_status.level = HazardStatus::SINGLE_POINT_FAULT;
-      hazard_status.diagnostics_spf.push_back(createDiagnosticStatus(
-        DiagnosticStatus::ERROR, "emergency_handler/state_timeout", "state is timeout"));
+      hazard_status.diagnostics_spf.push_back(
+        createDiagnosticStatus(
+          DiagnosticStatus::ERROR, "emergency_handler/state_timeout",
+          "state is timeout"));
     }
   }
 
@@ -409,7 +418,7 @@ autoware_system_msgs::msg::HazardStatus EmergencyHandler::judgeHazardStatus()
 
 autoware_control_msgs::msg::ControlCommand EmergencyHandler::selectAlternativeControlCommand()
 {
-  // TODO: Add safe_stop planner
+  // TODO(jilaada): Add safe_stop planner
 
   // Emergency Stop
   {
