@@ -1129,8 +1129,8 @@ std::vector<ReferencePoint> MPTOptimizer::getBaseReferencePoints(
   const double max_s =
     traj_param_ptr_->backward_fixing_distance + traj_param_ptr_->forward_fixing_mpt_distance;
   const int num_points = std::min(
-    (int)(reference_points.size()),
-    (int)(max_s / traj_param_ptr_->delta_arc_length_for_mpt_points));
+    static_cast<int>(reference_points.size()),
+    static_cast<int>(max_s / traj_param_ptr_->delta_arc_length_for_mpt_points));
 
   for (int i = 0; i < num_points; i++) {
     const int nearest_prev_idx =

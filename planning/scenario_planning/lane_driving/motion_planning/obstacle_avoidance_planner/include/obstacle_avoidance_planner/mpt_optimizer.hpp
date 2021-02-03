@@ -43,8 +43,6 @@
 #include <memory>
 #include <vector>
 
-#include <boost/optional.hpp>
-
 #include "autoware_planning_msgs/msg/path_point.hpp"
 #include "autoware_planning_msgs/msg/trajectory_point.hpp"
 #include "boost/optional/optional_fwd.hpp"

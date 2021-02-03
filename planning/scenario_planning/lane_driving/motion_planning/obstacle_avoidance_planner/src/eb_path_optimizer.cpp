@@ -428,7 +428,7 @@ CandidatePoints EBPathOptimizer::getCandidatePoints(
     begin_idx + traj_param_.num_offset_for_begin_idx, static_cast<int>(path_points.size()) - 1);
 
   std::vector<geometry_msgs::msg::Pose> non_fixed_points;
-  for (size_t i = begin_idx; i <= path_points.size() - 1; i++) {
+  for (size_t i = begin_idx; i < path_points.size(); i++) {
     non_fixed_points.push_back(path_points[i].pose);
   }
   CandidatePoints candidate_points;
