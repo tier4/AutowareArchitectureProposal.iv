@@ -38,7 +38,7 @@
 
 namespace util
 {
-template<typename T>
+template <typename T>
 geometry_msgs::msg::Point transformToRelativeCoordinate2D(
   const T & point, const geometry_msgs::msg::Pose & origin)
 {
@@ -137,7 +137,7 @@ geometry_msgs::msg::Quaternion getQuaternionFromPoints(
   return tf2::toMsg(quaternion);
 }
 
-template<typename T>
+template <typename T>
 geometry_msgs::msg::Point transformMapToImage(
   const T & map_point, const nav_msgs::msg::MapMetaData & occupancy_grid_info)
 {
@@ -171,9 +171,9 @@ boost::optional<geometry_msgs::msg::Point> transformMapToOptionalImage(
   double map_y_in_image_resolution = relative_p.y / resolution;
   double image_x = map_y_height - map_y_in_image_resolution;
   double image_y = map_x_width - map_x_in_image_resolution;
-  if (image_x >= 0 && image_x < static_cast<int>(map_y_height) && image_y >= 0 &&
-    image_y < static_cast<int>(map_x_width))
-  {
+  if (
+    image_x >= 0 && image_x < static_cast<int>(map_y_height) && image_y >= 0 &&
+    image_y < static_cast<int>(map_x_width)) {
     geometry_msgs::msg::Point image_point;
     image_point.x = image_x;
     image_point.y = image_y;
@@ -196,9 +196,9 @@ bool transformMapToImage(
   const double map_y_in_image_resolution = relative_p.y * scale;
   const double image_x = map_y_height - map_y_in_image_resolution;
   const double image_y = map_x_width - map_x_in_image_resolution;
-  if (image_x >= 0 && image_x < static_cast<int>(map_y_height) && image_y >= 0 &&
-    image_y < static_cast<int>(map_x_width))
-  {
+  if (
+    image_x >= 0 && image_x < static_cast<int>(map_y_height) && image_y >= 0 &&
+    image_y < static_cast<int>(map_x_width)) {
     image_point.x = image_x;
     image_point.y = image_y;
     return true;
@@ -269,8 +269,7 @@ std::vector<geometry_msgs::msg::Point> getInterpolatedPoints(
     if (i > 0) {
       if (
         std::fabs(concat_points[i].x - concat_points[i - 1].x) < 1e-6 &&
-        std::fabs(concat_points[i].y - concat_points[i - 1].y) < 1e-6)
-      {
+        std::fabs(concat_points[i].y - concat_points[i - 1].y) < 1e-6) {
         continue;
       }
     }
@@ -312,8 +311,7 @@ std::vector<geometry_msgs::msg::Point> getInterpolatedPoints(
     if (i > 0) {
       if (
         std::fabs(points[i].position.x - points[i - 1].position.x) < 1e-6 &&
-        std::fabs(points[i].position.y - points[i - 1].position.y) < 1e-6)
-      {
+        std::fabs(points[i].position.y - points[i - 1].position.y) < 1e-6) {
         continue;
       }
     }
@@ -334,8 +332,7 @@ std::vector<geometry_msgs::msg::Point> getInterpolatedPoints(
     if (i > 0) {
       if (
         std::fabs(points[i].p.x - points[i - 1].p.x) < 1e-6 &&
-        std::fabs(points[i].p.y - points[i - 1].p.y) < 1e-6)
-      {
+        std::fabs(points[i].p.y - points[i - 1].p.y) < 1e-6) {
         continue;
       }
     }
@@ -347,7 +344,7 @@ std::vector<geometry_msgs::msg::Point> getInterpolatedPoints(
   return interpolated_points;
 }
 
-template<typename T>
+template <typename T>
 std::vector<geometry_msgs::msg::Point> getInterpolatedPoints(
   const T & points, const double delta_arc_length)
 {
@@ -357,8 +354,7 @@ std::vector<geometry_msgs::msg::Point> getInterpolatedPoints(
     if (i > 0) {
       if (
         std::fabs(points[i].pose.position.x - points[i - 1].pose.position.x) < 1e-6 &&
-        std::fabs(points[i].pose.position.y - points[i - 1].pose.position.y) < 1e-6)
-      {
+        std::fabs(points[i].pose.position.y - points[i - 1].pose.position.y) < 1e-6) {
         continue;
       }
     }
@@ -376,7 +372,7 @@ template std::vector<geometry_msgs::msg::Point>
 getInterpolatedPoints<std::vector<autoware_planning_msgs::msg::PathPoint>>(
   const std::vector<autoware_planning_msgs::msg::PathPoint> &, const double);
 
-template<typename T>
+template <typename T>
 int getNearestIdx(
   const T & points, const geometry_msgs::msg::Pose & pose, const int default_idx,
   const double delta_yaw_threshold)
@@ -426,8 +422,7 @@ int getNearestIdx(
     const double norm_diff_yaw = normalizeRadian(diff_yaw);
     if (
       dist < min_dist && dist < delta_dist_threshold &&
-      std::fabs(norm_diff_yaw) < delta_yaw_threshold)
-    {
+      std::fabs(norm_diff_yaw) < delta_yaw_threshold) {
       min_dist = dist;
       nearest_idx = i;
     }
@@ -485,7 +480,7 @@ int getNearestIdx(
   return nearest_idx;
 }
 
-template<typename T>
+template <typename T>
 int getNearestIdx(const T & points, const geometry_msgs::msg::Point & point, const int default_idx)
 {
   double min_dist = std::numeric_limits<double>::max();
@@ -531,7 +526,7 @@ int getNearestIdx(
   return nearest_idx;
 }
 
-template<typename T>
+template <typename T>
 int getNearestIdx(const T & points, const geometry_msgs::msg::Point & point)
 {
   int nearest_idx = 0;
@@ -566,7 +561,7 @@ int getNearestIdx(
   return nearest_idx;
 }
 
-template<typename T>
+template <typename T>
 int getNearestPointIdx(const T & points, const geometry_msgs::msg::Point & point)
 {
   int nearest_idx = 0;
@@ -638,7 +633,7 @@ std::vector<autoware_planning_msgs::msg::TrajectoryPoint> fillTrajectoryWithVelo
   return traj_with_velo;
 }
 
-template<typename T>
+template <typename T>
 std::vector<autoware_planning_msgs::msg::TrajectoryPoint> alignVelocityWithPoints(
   const std::vector<autoware_planning_msgs::msg::TrajectoryPoint> & base_traj_points,
   const T & points, const int zero_velocity_traj_idx, const int max_skip_comparison_idx)
@@ -765,8 +760,7 @@ boost::optional<geometry_msgs::msg::Point> getLastExtendedPoint(
   const double diff_yaw = tf2::getYaw(path_point.pose.orientation) - tf2::getYaw(pose.orientation);
   const double norm_diff_yaw = normalizeRadian(diff_yaw);
   if (
-    dist > 1e-6 && dist < delta_dist_threshold && std::fabs(norm_diff_yaw) < delta_yaw_threshold)
-  {
+    dist > 1e-6 && dist < delta_dist_threshold && std::fabs(norm_diff_yaw) < delta_yaw_threshold) {
     return path_point.pose.position;
   } else {
     return boost::none;
@@ -781,8 +775,7 @@ boost::optional<autoware_planning_msgs::msg::TrajectoryPoint> getLastExtendedTra
   const double diff_yaw = tf2::getYaw(path_point.pose.orientation) - tf2::getYaw(pose.orientation);
   const double norm_diff_yaw = normalizeRadian(diff_yaw);
   if (
-    dist > 1e-6 && dist < delta_dist_threshold && std::fabs(norm_diff_yaw) < delta_yaw_threshold)
-  {
+    dist > 1e-6 && dist < delta_dist_threshold && std::fabs(norm_diff_yaw) < delta_yaw_threshold) {
     autoware_planning_msgs::msg::TrajectoryPoint tmp_traj_p;
     tmp_traj_p.pose.position = path_point.pose.position;
     tmp_traj_p.pose.orientation =
@@ -912,7 +905,7 @@ int getZeroVelocityIdx(
   return zero_velocity_idx;
 }
 
-template<typename T>
+template <typename T>
 int getZeroVelocityIdxFromPoints(
   const T & points, const std::vector<geometry_msgs::msg::Point> & fine_points,
   const int default_idx, const TrajectoryParam & traj_param)
@@ -939,7 +932,7 @@ getZeroVelocityIdxFromPoints<std::vector<autoware_planning_msgs::msg::Trajectory
   const std::vector<autoware_planning_msgs::msg::TrajectoryPoint> &,
   const std::vector<geometry_msgs::msg::Point> &, const int, const TrajectoryParam &);
 
-template<typename T>
+template <typename T>
 double getArcLength(const T & points, const int initial_idx)
 {
   double accum_arc_length = 0;
