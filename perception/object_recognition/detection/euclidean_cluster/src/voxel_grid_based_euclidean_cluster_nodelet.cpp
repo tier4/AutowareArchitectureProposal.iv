@@ -17,6 +17,7 @@
 #include "pcl/kdtree/kdtree.h"
 #include "pcl/segmentation/extract_clusters.h"
 #include "pcl_conversions/pcl_conversions.h"
+#include "sensor_msgs/point_cloud2_iterator.hpp"
 #include <unordered_map>
 
 namespace euclidean_cluster
@@ -110,8 +111,8 @@ void VoxelGridBasedEuclideanClusterNodelet::pointcloudCallback(
     for (std::vector<pcl::PointCloud<pcl::PointXYZ>>::const_iterator cluster_itr =
            v_cluster.begin();
          cluster_itr != v_cluster.end(); ++cluster_itr) {
-      if (!(min_cluster_size_ <= cluster_itr->points.size() &&
-            cluster_itr->points.size() <= max_cluster_size_))
+      if (!(min_cluster_size_ <= static_cast<int>(cluster_itr->points.size()) &&
+            static_cast<int>(cluster_itr->points.size()) <= max_cluster_size_))
         continue;
       pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZ>);
       for (pcl::PointCloud<pcl::PointXYZ>::const_iterator point_itr = cluster_itr->points.begin();
@@ -142,8 +143,8 @@ void VoxelGridBasedEuclideanClusterNodelet::pointcloudCallback(
     for (std::vector<pcl::PointCloud<pcl::PointXYZ>>::const_iterator cluster_itr =
            v_cluster.begin();
          cluster_itr != v_cluster.end(); ++cluster_itr) {
-      if (!(min_cluster_size_ <= cluster_itr->points.size() &&
-            cluster_itr->points.size() <= max_cluster_size_))
+      if (!(min_cluster_size_ <= static_cast<int>(cluster_itr->points.size()) &&
+            static_cast<int>(cluster_itr->points.size()) <= max_cluster_size_))
         continue;
       for (pcl::PointCloud<pcl::PointXYZ>::const_iterator point_itr = cluster_itr->points.begin();
            point_itr != cluster_itr->points.end(); ++point_itr) {
@@ -166,13 +167,13 @@ void VoxelGridBasedEuclideanClusterNodelet::pointcloudCallback(
 }
 
 geometry_msgs::msg::Point VoxelGridBasedEuclideanClusterNodelet::getCentroid(
-  const sensor_msgs::PointCloud2 & pointcloud)
+  const sensor_msgs::msg::PointCloud2 & pointcloud)
 {
   geometry_msgs::msg::Point centroid;
   centroid.x = 0.f;
   centroid.y = 0.f;
   centroid.z = 0.f;
-  for (sensor_msgs::msg::PointCloud2ConstIterator<float> iter_x(pointcloud, "x"),
+  for (sensor_msgs::PointCloud2ConstIterator<float> iter_x(pointcloud, "x"),
        iter_y(pointcloud, "y"), iter_z(pointcloud, "z");
        iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
     centroid.x += *iter_x;

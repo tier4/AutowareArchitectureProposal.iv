@@ -18,6 +18,7 @@
 #include "pcl/point_types.h"
 #include "pcl/segmentation/extract_clusters.h"
 #include "pcl_conversions/pcl_conversions.h"
+#include "sensor_msgs/point_cloud2_iterator.hpp"
 
 namespace euclidean_cluster
 {
@@ -131,7 +132,7 @@ geometry_msgs::msg::Point EuclideanClusterNodelet::getCentroid(
   centroid.x = 0.f;
   centroid.y = 0.f;
   centroid.z = 0.f;
-  for (sensor_msgs::msg::PointCloud2ConstIterator<float> iter_x(pointcloud, "x"),
+  for (sensor_msgs::PointCloud2ConstIterator<float> iter_x(pointcloud, "x"),
        iter_y(pointcloud, "y"), iter_z(pointcloud, "z");
        iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
     centroid.x += *iter_x;
