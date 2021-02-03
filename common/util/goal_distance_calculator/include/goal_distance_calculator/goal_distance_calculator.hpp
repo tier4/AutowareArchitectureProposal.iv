@@ -19,19 +19,21 @@
 
 // #include "autoware_utils/pose_deviation.h"
 
+#include <boost/optional.hpp>
+
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <std_msgs/msg/bool.hpp>
 #include <std_msgs/msg/empty.hpp>
 #include <std_msgs/msg/float64.hpp>
 #include <std_msgs/msg/string.hpp>
 
-#include "autoware_planning_msgs/msg/route.hpp"
-#include "rclcpp/rclcpp.hpp"
-
-#include <boost/optional.hpp>
 #include <map>
 #include <string>
 #include <vector>
+
+#include "rclcpp/rclcpp.hpp"
+
+#include "autoware_planning_msgs/msg/route.hpp"
 
 namespace goal_distance_calculator
 {
@@ -57,7 +59,7 @@ class GoalDistanceCalculator
 public:
   Output update(const Input & input);
 
-  void setParam(const Param & param) {param_ = param;}
+  void setParam(const Param & param) { param_ = param; }
 
 private:
   Param param_;

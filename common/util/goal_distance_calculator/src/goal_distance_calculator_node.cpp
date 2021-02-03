@@ -15,9 +15,6 @@
  */
 
 #include "goal_distance_calculator/goal_distance_calculator_node.hpp"
-#include "autoware_utils/unit_conversion.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp/timer.hpp"
 
 #include <chrono>
 #include <cstdio>
@@ -25,6 +22,10 @@
 #include <memory>
 #include <string>
 #include <utility>
+
+#include "autoware_utils/unit_conversion.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/timer.hpp"
 
 namespace goal_distance_calculator
 {

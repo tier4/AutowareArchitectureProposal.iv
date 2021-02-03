@@ -20,18 +20,19 @@
 // #include <autoware_utils/ros/debug_publisher.h>
 // #include <autoware_utils/ros/self_pose_listener.h>
 #include <goal_distance_calculator/goal_distance_calculator.hpp>
-#include "autoware_planning_msgs/msg/route.hpp"
-#include "rclcpp/rclcpp.hpp"
 
 #include <tf2_ros/transform_listener.h>
 #include <geometry_msgs/msg/pose_stamped.hpp>
-#include <rclcpp/rclcpp.hpp>
+
 #include <std_msgs/msg/bool.hpp>
 #include <std_msgs/msg/empty.hpp>
 #include <std_msgs/msg/float64.hpp>
 #include <std_msgs/msg/string.hpp>
 
 #include <memory>
+
+#include "autoware_planning_msgs/msg/route.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace goal_distance_calculator
 {
