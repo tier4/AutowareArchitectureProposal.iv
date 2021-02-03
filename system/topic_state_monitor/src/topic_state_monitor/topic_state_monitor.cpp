@@ -1,24 +1,23 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "topic_state_monitor/topic_state_monitor.hpp"
 
 namespace topic_state_monitor
 {
-TopicStateMonitor::TopicStateMonitor(rclcpp::Node & node) : clock_(node.get_clock()) {}
+TopicStateMonitor::TopicStateMonitor(rclcpp::Node & node)
+: clock_(node.get_clock()) {}
 
 void TopicStateMonitor::update()
 {
@@ -37,10 +36,10 @@ void TopicStateMonitor::update()
 
 TopicStatus TopicStateMonitor::getTopicStatus() const
 {
-  if (isNotReceived()) return TopicStatus::NotReceived;
-  if (isTimeout()) return TopicStatus::Timeout;
-  if (isErrorRate()) return TopicStatus::ErrorRate;
-  if (isWarnRate()) return TopicStatus::WarnRate;
+  if (isNotReceived()) {return TopicStatus::NotReceived;}
+  if (isTimeout()) {return TopicStatus::Timeout;}
+  if (isErrorRate()) {return TopicStatus::ErrorRate;}
+  if (isWarnRate()) {return TopicStatus::WarnRate;}
   return TopicStatus::Ok;
 }
 
@@ -58,7 +57,7 @@ double TopicStateMonitor::calcTopicRate() const
   return static_cast<double>(num_intervals) / time_diff;
 }
 
-bool TopicStateMonitor::isNotReceived() const { return time_buffer_.empty(); }
+bool TopicStateMonitor::isNotReceived() const {return time_buffer_.empty();}
 
 bool TopicStateMonitor::isWarnRate() const
 {
