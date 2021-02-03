@@ -108,7 +108,7 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
     declare_parameter("num_joint_buffer_points_for_extending", 4);
   traj_param_->num_offset_for_begin_idx = declare_parameter("num_offset_for_begin_idx", 2);
   traj_param_->num_fix_points_for_extending = declare_parameter("num_fix_points_for_extending", 2);
-  traj_param_->num_fix_points_for_mpt = declare_parameter("num_fix_points_for_mpt", 8);
+  traj_param_->forward_fixing_mpt_distance = declare_parameter("forward_fixing_mpt_distance", 10);
   traj_param_->delta_arc_length_for_optimization =
     declare_parameter("delta_arc_length_for_optimization", 1.0);
   traj_param_->delta_arc_length_for_mpt_points =
@@ -736,6 +736,7 @@ Trajectories ObstacleAvoidancePlanner::makePrevTrajectories(
     generatePostProcessedTrajectory(ego_pose, path_points, trajs.smoothed_trajectory);
   Trajectories trajectories;
   trajectories.smoothed_trajectory = post_processed_smoothed_traj;
+  trajectories.mpt_ref_points = trajs.mpt_ref_points;
   trajectories.model_predictive_trajectory = trajs.model_predictive_trajectory;
   trajectories.extended_trajectory = trajs.extended_trajectory;
   return trajectories;
