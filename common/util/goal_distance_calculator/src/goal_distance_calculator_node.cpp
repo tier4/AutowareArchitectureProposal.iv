@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <autoware_utils/math/unit_conversion.hpp>
-#include <goal_distance_calculator/goal_distance_calculator_node.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <rclcpp/timer.hpp>
-#include <std_msgs/msg/float64.hpp>
-
 #include <chrono>
 #include <functional>
 #include <memory>
 #include <string>
 #include <utility>
+
+#include "autoware_utils/math/unit_conversion.hpp"
+#include "goal_distance_calculator/goal_distance_calculator_node.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/timer.hpp"
+#include "std_msgs/msg/float64.hpp"
 
 namespace goal_distance_calculator
 {
@@ -119,7 +119,7 @@ void GoalDistanceCalculatorNode::onTimer()
     debug_publisher_.publish<std_msgs::msg::Float64>("deviation/yaw", deviation.yaw);
     debug_publisher_.publish<std_msgs::msg::Float64>("deviation/yaw_deg", rad2deg(deviation.yaw));
     RCLCPP_INFO_THROTTLE(
-      this->get_logger(), *this->get_clock(), 1.0,
+      this->get_logger(), *this->get_clock(), 1000,
       "lateral: %f[mm], longitudinal: %f[mm], yaw: %f[deg]", 1000 * deviation.lateral,
       1000 * deviation.longitudinal, rad2deg(deviation.yaw));
   }

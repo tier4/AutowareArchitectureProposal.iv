@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <goal_distance_calculator/goal_distance_calculator.hpp>
+#include "goal_distance_calculator/goal_distance_calculator.hpp"
 
 namespace goal_distance_calculator
 {
