@@ -36,7 +36,6 @@
 #include "QLineEdit"
 #include "QPainter"
 #include "QPushButton"
-#include "QVBoxLayout"
 
 #include "rviz_common/display_context.hpp"
 #include "initial_pose_button_panel.hpp"
