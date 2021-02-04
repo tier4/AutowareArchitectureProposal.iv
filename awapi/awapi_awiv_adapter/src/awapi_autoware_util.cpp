@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <limits>
+
 #include "awapi_awiv_adapter/awapi_autoware_util.hpp"
 
 namespace autoware_api
@@ -35,13 +37,13 @@ bool calcClosestIndex(
     const double dist = calcDist2d(getPose(traj, i).position, pose.position);
 
     /* check distance threshold */
-    if (dist > dist_thr) continue;
+    if (dist > dist_thr) {continue;}
 
     /* check angle threshold */
     double yaw_i = tf2::getYaw(getPose(traj, i).orientation);
     double yaw_diff = normalizeEulerAngle(yaw_pose - yaw_i);
 
-    if (std::fabs(yaw_diff) > angle_thr) continue;
+    if (std::fabs(yaw_diff) > angle_thr) {continue;}
 
     if (dist < dist_min) {
       dist_min = dist;
@@ -51,7 +53,7 @@ bool calcClosestIndex(
 
   output_closest_idx = static_cast<size_t>(closest_idx);
 
-  return (closest_idx != -1);
+  return closest_idx != -1;
 }
 
 double normalizeEulerAngle(double euler)
@@ -68,7 +70,8 @@ double normalizeEulerAngle(double euler)
 }
 
 double calcArcLengthFromWayPoint(
-  const autoware_planning_msgs::msg::Trajectory & input_path, const size_t src_idx, const size_t dst_idx)
+  const autoware_planning_msgs::msg::Trajectory & input_path, const size_t src_idx,
+  const size_t dst_idx)
 {
   double length = 0;
   for (size_t i = src_idx; i < dst_idx; ++i) {
@@ -82,14 +85,15 @@ double calcArcLengthFromWayPoint(
 }
 
 double calcDistanceAlongTrajectory(
-  const autoware_planning_msgs::msg::Trajectory & trajectory, const geometry_msgs::msg::Pose & current_pose,
-  const geometry_msgs::msg::Pose & target_pose)
+  const autoware_planning_msgs::msg::Trajectory & trajectory,
+  const geometry_msgs::msg::Pose & current_pose, const geometry_msgs::msg::Pose & target_pose)
 {
   size_t self_idx;
   size_t stop_idx;
   if (
     !calcClosestIndex(trajectory, current_pose, self_idx) ||
-    !calcClosestIndex(trajectory, target_pose, stop_idx)) {
+    !calcClosestIndex(trajectory, target_pose, stop_idx))
+  {
     return std::numeric_limits<double>::max();
   }
   const double dist_to_stop_pose = calcArcLengthFromWayPoint(trajectory, self_idx, stop_idx);

@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef AWAPI_AWIV_ADAPTER__AWAPI_AWIV_ADAPTER_CORE_HPP_
+#define AWAPI_AWIV_ADAPTER__AWAPI_AWIV_ADAPTER_CORE_HPP_
+
+#include <memory>
+
 #include "rclcpp/rclcpp.hpp"
 
 #include "autoware_control_msgs/msg/emergency_mode.hpp"
@@ -59,7 +64,8 @@ private:
   rclcpp::Subscription<autoware_vehicle_msgs::msg::ControlMode>::SharedPtr sub_control_mode_;
   rclcpp::Subscription<autoware_control_msgs::msg::GateMode>::SharedPtr sub_gate_mode_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sub_emergency_;
-  rclcpp::Subscription<autoware_system_msgs::msg::HazardStatusStamped>::SharedPtr sub_hazard_status_;
+  rclcpp::Subscription<autoware_system_msgs::msg::HazardStatusStamped>::SharedPtr
+    sub_hazard_status_;
   rclcpp::Subscription<autoware_planning_msgs::msg::StopReasonArray>::SharedPtr sub_stop_reason_;
   rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr sub_diagnostics_;
   rclcpp::Subscription<pacmod_msgs::msg::GlobalRpt>::SharedPtr sub_global_rpt_;
@@ -100,7 +106,8 @@ private:
   void callbackControlMode(const autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr msg_ptr);
   void callbackGateMode(const autoware_control_msgs::msg::GateMode::ConstSharedPtr msg_ptr);
   void callbackIsEmergency(const std_msgs::msg::Bool::ConstSharedPtr msg_ptr);
-  void callbackHazardStatus(const autoware_system_msgs::msg::HazardStatusStamped::ConstSharedPtr msg_ptr);
+  void callbackHazardStatus(
+    const autoware_system_msgs::msg::HazardStatusStamped::ConstSharedPtr msg_ptr);
   void callbackStopReason(
     const autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr msg_ptr);
   void callbackDiagnostics(const diagnostic_msgs::msg::DiagnosticArray::ConstSharedPtr msg_ptr);
@@ -114,7 +121,8 @@ private:
     const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr);
   void callbackMaxVelocity(const std_msgs::msg::Float32::ConstSharedPtr msg_ptr);
   void callbackTemporaryStop(const std_msgs::msg::Bool::ConstSharedPtr msg_ptr);
-  void callbackAutowareTrajectory(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr);
+  void callbackAutowareTrajectory(
+    const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr);
   void callbackDoorControl(const std_msgs::msg::Bool::ConstSharedPtr msg_ptr);
   void callbackDoorStatus(const pacmod_msgs::msg::SystemRptInt::ConstSharedPtr msg_ptr);
 
@@ -130,7 +138,8 @@ private:
   std::unique_ptr<AutowareIvAutowareStatePublisher> autoware_state_publisher_;
   std::unique_ptr<AutowareIvStopReasonAggregator> stop_reason_aggregator_;
   std::unique_ptr<AutowareIvLaneChangeStatePublisher> lane_change_state_publisher_;
-  std::unique_ptr<AutowareIvObstacleAvoidanceStatePublisher> obstacle_avoidance_state_publisher_;
+  std::unique_ptr<AutowareIvObstacleAvoidanceStatePublisher>
+  obstacle_avoidance_state_publisher_;
   std::unique_ptr<AutowareIvMaxVelocityPublisher> max_velocity_publisher_;
   double status_pub_hz_;
   double stop_reason_timeout_;
@@ -139,3 +148,5 @@ private:
 };
 
 }  // namespace autoware_api
+
+#endif  // AWAPI_AWIV_ADAPTER__AWAPI_AWIV_ADAPTER_CORE_HPP_

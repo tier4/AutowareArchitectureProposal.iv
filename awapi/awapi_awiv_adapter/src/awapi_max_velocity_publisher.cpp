@@ -1,18 +1,16 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "awapi_awiv_adapter/awapi_max_velocity_publisher.hpp"
 
@@ -30,8 +28,10 @@ void AutowareIvMaxVelocityPublisher::statePublisher(const AutowareInfo & aw_info
 {
   std_msgs::msg::Float32 max_velocity;
   if (calcMaxVelocity(
-        aw_info.max_velocity_ptr, aw_info.temporary_stop_ptr, &max_velocity.data))  // publish info
+      aw_info.max_velocity_ptr, aw_info.temporary_stop_ptr, &max_velocity.data))  // publish info
+  {
     pub_state_->publish(max_velocity);
+  }
 }
 
 bool AutowareIvMaxVelocityPublisher::calcMaxVelocity(

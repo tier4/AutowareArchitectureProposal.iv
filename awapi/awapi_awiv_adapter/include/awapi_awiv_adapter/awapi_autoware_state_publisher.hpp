@@ -12,6 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef AWAPI_AWIV_ADAPTER__AWAPI_AUTOWARE_STATE_PUBLISHER_HPP_
+#define AWAPI_AWIV_ADAPTER__AWAPI_AUTOWARE_STATE_PUBLISHER_HPP_
+
+#include <set>
+#include <string>
+#include <vector>
+
 #include "rclcpp/rclcpp.hpp"
 
 #include "awapi_awiv_adapter/awapi_autoware_util.hpp"
@@ -22,7 +29,7 @@ namespace autoware_api
 class AutowareIvAutowareStatePublisher
 {
 public:
-  AutowareIvAutowareStatePublisher(rclcpp::Node & node);
+  explicit AutowareIvAutowareStatePublisher(rclcpp::Node & node);
   void statePublisher(const AutowareInfo & aw_info);
 
 private:
@@ -75,3 +82,5 @@ private:
 };
 
 }  // namespace autoware_api
+
+#endif  // AWAPI_AWIV_ADAPTER__AWAPI_AUTOWARE_STATE_PUBLISHER_HPP_

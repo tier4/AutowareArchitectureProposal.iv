@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef AWAPI_AWIV_ADAPTER__AWAPI_STOP_REASON_AGGREGATOR_HPP_
+#define AWAPI_AWIV_ADAPTER__AWAPI_STOP_REASON_AGGREGATOR_HPP_
+
+#include <vector>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -23,7 +26,8 @@ namespace autoware_api
 class AutowareIvStopReasonAggregator
 {
 public:
-  AutowareIvStopReasonAggregator(rclcpp::Node & node, const double timeout, const double thresh_dist_to_stop_pose);
+  AutowareIvStopReasonAggregator(
+    rclcpp::Node & node, const double timeout, const double thresh_dist_to_stop_pose);
   autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr updateStopReasonArray(
     const autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr & msg_ptr,
     const AutowareInfo & aw_info);
@@ -56,3 +60,5 @@ private:
 };
 
 }  // namespace autoware_api
+
+#endif  // AWAPI_AWIV_ADAPTER__AWAPI_STOP_REASON_AGGREGATOR_HPP_

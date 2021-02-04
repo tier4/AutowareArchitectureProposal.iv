@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef AWAPI_AWIV_ADAPTER__AWAPI_AUTOWARE_UTIL_HPP_
+#define AWAPI_AWIV_ADAPTER__AWAPI_AUTOWARE_UTIL_HPP_
 
-#ifndef AWAPI_AUTOWARE_UTIL_H
-#define AWAPI_AUTOWARE_UTIL_H
+#include <memory>
+#include <string>
 
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
@@ -74,15 +75,15 @@ struct AutowareInfo
   pacmod_msgs::msg::SystemRptInt::ConstSharedPtr door_state_ptr;
 };
 
-template <class T>
+template<class T>
 T waitForParam(
   rclcpp::Node * node, const std::string & remote_node_name, const std::string & param_name)
 {
-  using namespace std::chrono_literals;
+  std::chrono::seconds sec(1);
 
   auto param_client = std::make_shared<rclcpp::SyncParametersClient>(node, remote_node_name);
 
-  while (!param_client->wait_for_service(1s)) {
+  while (!param_client->wait_for_service(sec)) {
     if (!rclcpp::ok()) {
       RCLCPP_ERROR(node->get_logger(), "Interrupted while waiting for the service.");
       return {};
@@ -108,7 +109,8 @@ bool calcClosestIndex(
   const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & pose,
   size_t & output_closest_idx, const double dist_thr = 10.0, const double angle_thr = M_PI / 2.0);
 
-inline geometry_msgs::msg::Pose getPose(const autoware_planning_msgs::msg::Trajectory & traj, const int idx)
+inline geometry_msgs::msg::Pose getPose(
+  const autoware_planning_msgs::msg::Trajectory & traj, const int idx)
 {
   return traj.points.at(idx).pose;
 }
@@ -125,11 +127,11 @@ double calcArcLengthFromWayPoint(
   const size_t dst_idx);
 
 double calcDistanceAlongTrajectory(
-  const autoware_planning_msgs::msg::Trajectory & trajectory, const geometry_msgs::msg::Pose & current_pose,
-  const geometry_msgs::msg::Pose & target_pose);
+  const autoware_planning_msgs::msg::Trajectory & trajectory,
+  const geometry_msgs::msg::Pose & current_pose, const geometry_msgs::msg::Pose & target_pose);
 
 }  // namespace planning_util
 
 }  // namespace autoware_api
 
-#endif  // AWAPI_AUTOWARE_UTIL_H
+#endif  // AWAPI_AWIV_ADAPTER__AWAPI_AUTOWARE_UTIL_HPP_

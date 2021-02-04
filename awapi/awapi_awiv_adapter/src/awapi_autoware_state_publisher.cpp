@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "awapi_awiv_adapter/awapi_autoware_state_publisher.hpp"
 #include <regex>
+#include <string>
+#include <vector>
+
+#include "awapi_awiv_adapter/awapi_autoware_state_publisher.hpp"
 
 namespace autoware_api
 {
@@ -31,7 +34,7 @@ void AutowareIvAutowareStatePublisher::statePublisher(const AutowareInfo & aw_in
 {
   autoware_api_msgs::msg::AwapiAutowareStatus status;
 
-  //input header
+  // input header
   status.header.frame_id = "base_link";
   status.header.stamp = clock_->now();
 
@@ -109,7 +112,8 @@ void AutowareIvAutowareStatePublisher::getHazardStatusInfo(
   autoware_api_msgs::msg::AwapiAutowareStatus * status)
 {
   if (!hazard_status_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */,
+    RCLCPP_DEBUG_STREAM_THROTTLE(
+      logger_, *clock_, 5000 /* ms */,
       "[AutowareIvAutowareStatePublisher] hazard_status is nullptr");
     return;
   }
@@ -238,12 +242,12 @@ void AutowareIvAutowareStatePublisher::getGlobalRptInfo(
 bool AutowareIvAutowareStatePublisher::isGoal(
   const autoware_system_msgs::msg::AutowareState::ConstSharedPtr & autoware_state)
 {
-  //rename
+  // rename
   const auto & aw_state = autoware_state->state;
 
   if (aw_state == autoware_system_msgs::msg::AutowareState::ARRIVAL_GOAL) {
     arrived_goal_ = true;
-  } else if (
+  } else if (  // NOLINT
     prev_state_ == autoware_system_msgs::msg::AutowareState::DRIVING &&
     aw_state == autoware_system_msgs::msg::AutowareState::WAITING_FOR_ROUTE)
   {
@@ -254,7 +258,7 @@ bool AutowareIvAutowareStatePublisher::isGoal(
     aw_state == autoware_system_msgs::msg::AutowareState::WAITING_FOR_ENGAGE ||
     aw_state == autoware_system_msgs::msg::AutowareState::DRIVING)
   {
-    //cancel goal state
+    // cancel goal state
     arrived_goal_ = false;
   }
 
@@ -301,7 +305,7 @@ void AutowareIvAutowareStatePublisher::updateDiagNameSet(
 
 bool AutowareIvAutowareStatePublisher::isLeaf(const diagnostic_msgs::msg::DiagnosticStatus & diag)
 {
-  //if not find diag.name in diag set, diag is leaf.
+  // if not find diag.name in diag set, diag is leaf.
   return diag_name_set_.find(diag.name) == diag_name_set_.end();
 }
 

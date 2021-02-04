@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "awapi_awiv_adapter/awapi_awiv_adapter_core.hpp"
 #include <functional>
+#include <memory>
+#include <utility>
+
+#include "awapi_awiv_adapter/awapi_awiv_adapter_core.hpp"
 
 namespace autoware_api
 {
@@ -38,7 +41,9 @@ AutowareIvAdapter::AutowareIvAdapter()
   vehicle_state_publisher_ = std::make_unique<AutowareIvVehicleStatePublisher>(*this);
   autoware_state_publisher_ = std::make_unique<AutowareIvAutowareStatePublisher>(*this);
   stop_reason_aggregator_ =
-    std::make_unique<AutowareIvStopReasonAggregator>(*this, stop_reason_timeout_, stop_reason_thresh_dist_);
+    std::make_unique<AutowareIvStopReasonAggregator>(
+    *this, stop_reason_timeout_,
+    stop_reason_thresh_dist_);
   lane_change_state_publisher_ = std::make_unique<AutowareIvLaneChangeStatePublisher>(*this);
   obstacle_avoidance_state_publisher_ =
     std::make_unique<AutowareIvObstacleAvoidanceStatePublisher>(*this);
@@ -46,8 +51,10 @@ AutowareIvAdapter::AutowareIvAdapter()
     std::make_unique<AutowareIvMaxVelocityPublisher>(*this, default_max_velocity);
 
   // publisher
-  pub_door_control_ = this->create_publisher<pacmod_msgs::msg::SystemCmdInt>("output/door_control", 1);
-  pub_door_status_ = this->create_publisher<autoware_api_msgs::msg::DoorStatus>("output/door_status", 1);
+  pub_door_control_ =
+    this->create_publisher<pacmod_msgs::msg::SystemCmdInt>("output/door_control", 1);
+  pub_door_status_ =
+    this->create_publisher<autoware_api_msgs::msg::DoorStatus>("output/door_status", 1);
 
   // subscriber
   sub_steer_ = this->create_subscription<autoware_vehicle_msgs::msg::Steering>(
@@ -94,16 +101,16 @@ AutowareIvAdapter::AutowareIvAdapter()
     std::bind(&AutowareIvAdapter::callbackLaneObstacleAvoidReady, this, _1));
   sub_obstacle_avoid_candidate_ =
     this->create_subscription<autoware_planning_msgs::msg::Trajectory>(
-      "input/obstacle_avoid_candidate_path", 1,
-      std::bind(&AutowareIvAdapter::callbackLaneObstacleAvoidCandidatePath, this, _1));
+    "input/obstacle_avoid_candidate_path", 1,
+    std::bind(&AutowareIvAdapter::callbackLaneObstacleAvoidCandidatePath, this, _1));
   sub_max_velocity_ = this->create_subscription<std_msgs::msg::Float32>(
     "input/max_velocity", 1, std::bind(&AutowareIvAdapter::callbackMaxVelocity, this, _1));
   sub_temporary_stop_ = this->create_subscription<std_msgs::msg::Bool>(
     "input/temporary_stop", 1, std::bind(&AutowareIvAdapter::callbackTemporaryStop, this, _1));
   sub_autoware_traj_ =
     this->create_subscription<autoware_planning_msgs::msg::Trajectory>(
-      "input/autoware_trajectory", 1,
-      std::bind(&AutowareIvAdapter::callbackAutowareTrajectory, this, _1));
+    "input/autoware_trajectory", 1,
+    std::bind(&AutowareIvAdapter::callbackAutowareTrajectory, this, _1));
   sub_door_control_ = this->create_subscription<std_msgs::msg::Bool>(
     "input/door_control", 1, std::bind(&AutowareIvAdapter::callbackDoorControl, this, _1));
   sub_door_status_ = this->create_subscription<pacmod_msgs::msg::SystemRptInt>(
@@ -290,7 +297,7 @@ void AutowareIvAdapter::callbackTemporaryStop(const std_msgs::msg::Bool::ConstSh
 {
   if (aw_info_.temporary_stop_ptr) {
     if (aw_info_.temporary_stop_ptr->data == msg_ptr->data) {
-      //if same value as last time is sent, ignore msg.
+      // if same value as last time is sent, ignore msg.
       return;
     }
   }
@@ -309,7 +316,7 @@ void AutowareIvAdapter::callbackDoorControl(
   const std_msgs::msg::Bool::ConstSharedPtr msg_ptr)
 {
   pub_door_control_->publish(pacmod_util::createClearOverrideDoorCommand(this->get_clock()));
-  rclcpp::Rate(10.0).sleep();  //avoid message loss
+  rclcpp::Rate(10.0).sleep();  // avoid message loss
   pub_door_control_->publish(pacmod_util::createDoorCommand(this->get_clock(), msg_ptr));
 }
 
