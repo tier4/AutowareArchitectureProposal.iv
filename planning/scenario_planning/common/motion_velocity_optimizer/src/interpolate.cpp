@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "motion_velocity_optimizer/interpolate.h"
+#include "motion_velocity_optimizer/interpolate.hpp"
 
 #include <algorithm>
 #include <vector>
