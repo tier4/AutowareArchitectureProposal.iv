@@ -108,7 +108,9 @@ int calcClosestWaypoint(
   return idx_min;
 }
 
-tf2::Vector3 getTransVector3(const geometry_msgs::msg::Pose & from, const geometry_msgs::msg::Pose & to)
+tf2::Vector3 getTransVector3(
+  const geometry_msgs::msg::Pose & from,
+  const geometry_msgs::msg::Pose & to)
 {
   double dx = to.position.x - from.position.x;
   double dy = to.position.y - from.position.y;
@@ -117,7 +119,8 @@ tf2::Vector3 getTransVector3(const geometry_msgs::msg::Pose & from, const geomet
 }
 
 autoware_planning_msgs::msg::TrajectoryPoint calcClosestTrajecotoryPointWithIntepolation(
-  const autoware_planning_msgs::msg::Trajectory & trajectory, const geometry_msgs::msg::Pose & target_pose)
+  const autoware_planning_msgs::msg::Trajectory & trajectory,
+  const geometry_msgs::msg::Pose & target_pose)
 {
   autoware_planning_msgs::msg::TrajectoryPoint traj_p;
   traj_p.pose = target_pose;
@@ -141,15 +144,15 @@ autoware_planning_msgs::msg::TrajectoryPoint calcClosestTrajecotoryPointWithInte
     // if closest idx is first point of traj
     next_closest_idx = closest_idx + 1;
   } else if (closest_idx == static_cast<int>(trajectory.points.size()) - 1) {
-    //if closest idx is last point of traj
+    // if closest idx is last point of traj
     next_closest_idx = closest_idx - 1;
   } else {
     const auto dist_to_after_closest =
       calcDist2d(trajectory.points.at(closest_idx + 1).pose.position, target_pose.position);
     const auto dist_to_before_closest =
       calcDist2d(trajectory.points.at(closest_idx - 1).pose.position, target_pose.position);
-    dist_to_after_closest <= dist_to_before_closest ? next_closest_idx = closest_idx + 1
-                                                    : next_closest_idx = closest_idx - 1;
+    dist_to_after_closest <= dist_to_before_closest ? next_closest_idx = closest_idx + 1 :
+      next_closest_idx = closest_idx - 1;
   }
 
   auto v1 = getTransVector3(
@@ -158,10 +161,10 @@ autoware_planning_msgs::msg::TrajectoryPoint calcClosestTrajecotoryPointWithInte
   const double prop = v1.dot(v2) / v1.length2();  // calc internal proportion
 
   traj_p.twist.linear.x = trajectory.points.at(next_closest_idx).twist.linear.x * prop +
-                          trajectory.points.at(closest_idx).twist.linear.x * (1 - prop);
+    trajectory.points.at(closest_idx).twist.linear.x * (1 - prop);
 
   traj_p.accel.linear.x = trajectory.points.at(next_closest_idx).accel.linear.x * prop +
-                          trajectory.points.at(closest_idx).accel.linear.x * (1 - prop);
+    trajectory.points.at(closest_idx).accel.linear.x * (1 - prop);
 
   return traj_p;
 }

@@ -22,7 +22,8 @@
 
 #include "eigen3/Eigen/Core"
 
-L2PseudoJerkOptimizer::L2PseudoJerkOptimizer(const OptimizerParam & p) {
+L2PseudoJerkOptimizer::L2PseudoJerkOptimizer(const OptimizerParam & p)
+{
   param_ = p;
   qp_solver_.updateMaxIter(4000);
   qp_solver_.updateRhoInterval(0);  // 0 means automoatic
@@ -31,7 +32,7 @@ L2PseudoJerkOptimizer::L2PseudoJerkOptimizer(const OptimizerParam & p) {
   qp_solver_.updateVerbose(false);
 }
 
-void L2PseudoJerkOptimizer::setParam(const OptimizerParam & param) { param_ = param; }
+void L2PseudoJerkOptimizer::setParam(const OptimizerParam & param) {param_ = param;}
 
 bool L2PseudoJerkOptimizer::solve(
   const double initial_vel, const double initial_acc, const int closest,
@@ -156,7 +157,7 @@ bool L2PseudoJerkOptimizer::solve(
     const unsigned int j = i - 2 * N;
     const double dsinv = 1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001);
     A(i, j) = -dsinv;     // b(i)
-    A(i, j + 1) = dsinv;  //b(i+1)
+    A(i, j + 1) = dsinv;  // b(i+1)
     A(i, j + N) = -2.0;   // a(i)
     upper_bound[i] = 0.0;
     lower_bound[i] = 0.0;

@@ -21,7 +21,8 @@
 
 #include "eigen3/Eigen/Core"
 
-LinfPseudoJerkOptimizer::LinfPseudoJerkOptimizer(const OptimizerParam & p) {
+LinfPseudoJerkOptimizer::LinfPseudoJerkOptimizer(const OptimizerParam & p)
+{
   param_ = p;
   qp_solver_.updateMaxIter(20000);
   qp_solver_.updateRhoInterval(5000);
@@ -30,7 +31,7 @@ LinfPseudoJerkOptimizer::LinfPseudoJerkOptimizer(const OptimizerParam & p) {
   qp_solver_.updateVerbose(false);
 }
 
-void LinfPseudoJerkOptimizer::setParam(const OptimizerParam & param) { param_ = param; }
+void LinfPseudoJerkOptimizer::setParam(const OptimizerParam & param) {param_ = param;}
 
 bool LinfPseudoJerkOptimizer::solve(
   const double initial_vel, const double initial_acc, const int closest,

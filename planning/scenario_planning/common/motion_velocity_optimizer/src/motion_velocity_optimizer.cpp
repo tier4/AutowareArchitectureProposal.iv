@@ -92,8 +92,10 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
   rclcpp::QoS durable_qos(1);
   durable_qos.transient_local();
   pub_velocity_limit_ =
-    create_publisher<autoware_planning_msgs::msg::VelocityLimit>("output/current_velocity_limit_mps", durable_qos);
-  pub_velocity_limit_->publish(createVelocityLimitMsg(p.max_velocity));  // publish default max velocity
+    create_publisher<autoware_planning_msgs::msg::VelocityLimit>(
+    "output/current_velocity_limit_mps", durable_qos);
+  // publish default max velocity
+  pub_velocity_limit_->publish(createVelocityLimitMsg(p.max_velocity));
 
   pub_dist_to_stopline_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
     "distance_to_stopline", rclcpp::QoS{1});
@@ -359,8 +361,8 @@ void MotionVelocityOptimizer::insertBehindVelocity(
 {
   const bool keep_closest_vel_for_behind =
     (initialize_type_ == InitializeType::INIT ||
-     initialize_type_ == InitializeType::LARGE_DEVIATION_REPLAN ||
-     initialize_type_ == InitializeType::ENGAGING);
+    initialize_type_ == InitializeType::LARGE_DEVIATION_REPLAN ||
+    initialize_type_ == InitializeType::ENGAGING);
 
   for (int i = output_closest - 1; i >= 0; --i) {
     if (keep_closest_vel_for_behind) {
@@ -586,7 +588,8 @@ void MotionVelocityOptimizer::overwriteStopPoint(
     double input_stop_vel = stop_point_exists ? input.points.at(stop_idx).twist.linear.x : -1.0;
     double output_stop_vel = stop_point_exists ? output->points.at(stop_idx).twist.linear.x : -1.0;
     RCLCPP_DEBUG(
-      get_logger(), "[replan]: input_stop_idx = %d, stop velocity : input = %f, output = %f, thr = %f", 
+      get_logger(),
+      "[replan]: input_stop_idx = %d, stop velocity : input = %f, output = %f, thr = %f",
       stop_idx, input_stop_vel, output_stop_vel, over_stop_velocity_warn_thr_);
   }
 
@@ -748,20 +751,21 @@ bool MotionVelocityOptimizer::extractPathAroundIndex(
   return true;
 }
 
-void MotionVelocityOptimizer::applyStoppingVelocity(autoware_planning_msgs::msg::Trajectory * traj) const
+void MotionVelocityOptimizer::applyStoppingVelocity(autoware_planning_msgs::msg::Trajectory * traj)
+const
 {
   int stop_idx;
-  if (!vpu::searchZeroVelocityIdx(*traj, stop_idx)) return;  // no stop point.
-
+  if (!vpu::searchZeroVelocityIdx(*traj, stop_idx)) {
+    return;  // no stop point.
+  }
   double distance_sum = 0.0;
   for (int i = stop_idx - 1; i >= 0; --i) {  // search backward
     distance_sum += vpu::calcDist2d(traj->points.at(i), traj->points.at(i + 1));
-    if (distance_sum > planning_param_.stopping_distance) break;
+    if (distance_sum > planning_param_.stopping_distance) {break;}
     if (traj->points.at(i).twist.linear.x > planning_param_.stopping_velocity) {
       traj->points.at(i).twist.linear.x = planning_param_.stopping_velocity;
     }
   }
-  return;
 }
 
 void MotionVelocityOptimizer::publishFloat(
