@@ -80,7 +80,7 @@ private:
     const geometry_msgs::msg::Pose & self_pose, const geometry_msgs::msg::Pose & line_pose) const;
 
   bool hasEnoughBrakingDistance(
-    const geometry_msgs::msg::Pose & self_pose, const geometry_msgs::Pose & line_pose) const;
+    const geometry_msgs::msg::Pose & self_pose, const geometry_msgs::msg::Pose & line_pose) const;
 
   autoware_planning_msgs::msg::PathWithLaneId insertStopPoint(
     const autoware_planning_msgs::msg::PathWithLaneId & path,

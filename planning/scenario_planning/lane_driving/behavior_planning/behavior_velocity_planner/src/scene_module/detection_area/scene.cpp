@@ -31,8 +31,8 @@ std::pair<int, double> findWayPointAndDistance(
 {
   constexpr double max_lateral_dist = 3.0;
   for (size_t i = 0; i < path.points.size() - 1; ++i) {
-    const double dx = p.position.x() - path.points.at(i).point.pose.position.x;
-    const double dy = p.position.y() - path.points.at(i).point.pose.position.y;
+    const double dx = p.position.x - path.points.at(i).point.pose.position.x;
+    const double dy = p.position.y - path.points.at(i).point.pose.position.y;
     const double dx_wp =
       path.points.at(i + 1).point.pose.position.x - path.points.at(i).point.pose.position.x;
     const double dy_wp =
@@ -71,10 +71,10 @@ double calcArcLengthFromWayPoint(
   const size_t src_idx = src >= 0 ? static_cast<size_t>(src) : 0;
   const size_t dst_idx = dst >= 0 ? static_cast<size_t>(dst) : 0;
   for (size_t i = src_idx; i < dst_idx; ++i) {
-    const double dx_wp =　path.points.at(i + 1).point.pose.position.x -
-                        　path.points.at(i).point.pose.position.x;
-    const double dy_wp =　path.points.at(i + 1).point.pose.position.y -
-                        　path.points.at(i).point.pose.position.y;
+    const double dx_wp =
+      path.points.at(i + 1).point.pose.position.x - path.points.at(i).point.pose.position.x;
+    const double dy_wp =
+      path.points.at(i + 1).point.pose.position.y - path.points.at(i).point.pose.position.y;
     length += std::hypot(dx_wp, dy_wp);
   }
   return length;
@@ -225,7 +225,7 @@ boost::optional<PathIndexWithOffset> findOffsetSegment(
   }
 }
 
-geometry_msgs::Pose calcTargetPose(
+geometry_msgs::msg::Pose calcTargetPose(
   const autoware_planning_msgs::msg::PathWithLaneId & path,
   const PathIndexWithOffset & offset_segment)
 {
@@ -324,11 +324,11 @@ bool DetectionAreaModule::modifyPathVelocity(
       debug_data_.dead_line_poses.push_back(dead_line_pose);
 
       if (isOverLine(original_path, self_pose, dead_line_pose)) {
-        RCL_CPP_WARN("[detection_area] vehicle is over dead line");
-          return true;
-        }
+        RCLCPP_WARN(logger_, "[detection_area] vehicle is over dead line");
+        return true;
       }
     }
+  }
 
   // Get stop point
   const auto stop_point = createTargetPoint(original_path, stop_line, planner_param_.stop_margin);
@@ -338,29 +338,31 @@ bool DetectionAreaModule::modifyPathVelocity(
 
   const auto & stop_pose = stop_point->second;
 
-    // Ignore objects detected after stop_line if not in STOP state
-    if (state_ != State::STOP && isOverLine(original_path, self_pose, stop_pose)) {
+  // Ignore objects detected after stop_line if not in STOP state
+  if (state_ != State::STOP && isOverLine(original_path, self_pose, stop_pose)) {
+    return true;
+  }
+
+  // Ignore objects if braking distance is not enough
+  if (planner_param_.use_pass_judge_line) {
+    if (state_ != State::STOP && hasEnoughBrakingDistance(self_pose, stop_pose)) {
+      RCLCPP_WARN_THROTTLE(
+        logger_, *clock_, std::chrono::milliseconds(1000).count(),
+        "[detection_area] vehicle is over stop border");
       return true;
     }
+  }
 
-    // Ignore objects if braking distance is not enough
-    if (planner_param_.use_pass_judge_line) {
-      if (state_ != State::STOP && hasEnoughBrakingDistance(self_pose, stop_pose)) {
-        RCLCPP_WARN_THROTTLE(1.0, "[detection_area] vehicle is over stop border");
-        return true;
-      }
-    }
-
-    // Insert stop point
-    state_ = State::STOP;
-    *path = insertStopPoint(original_path, *stop_point);
+  // Insert stop point
+  state_ = State::STOP;
+  *path = insertStopPoint(original_path, *stop_point);
 
   // For virtual wall
   debug_data_.stop_poses.push_back(stop_pose);
 
   // Create StopReason
   {
-    autoware_planning_msgs::StopFactor stop_factor;
+    autoware_planning_msgs::msg::StopFactor stop_factor;
     stop_factor.stop_pose = stop_point->second;
     stop_factor.stop_factor_points = obstacle_points;
     planning_utils::appendStopReason(stop_factor, stop_reason);
@@ -416,8 +418,8 @@ bool DetectionAreaModule::canClearStopState() const
 }
 
 bool DetectionAreaModule::isOverLine(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const geometry_msgs::Pose & self_pose,
-  const geometry_msgs::Pose & line_pose) const
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const geometry_msgs::msg::Pose & self_pose, const geometry_msgs::msg::Pose & line_pose) const
 {
   return calcSignedArcLength(path, self_pose, line_pose) < 0;
 }
@@ -474,7 +476,7 @@ boost::optional<PathIndexWithPose> DetectionAreaModule::createTargetPoint(
 
   // Calculate offset length from stop line
   // Use '-' to make the positive direction is forward
-  const double offset_length = -(margin + planner_data_->base_link2front);
+  const double offset_length = -(margin + planner_data_->vehicle_info_.max_longitudinal_offset_m_);
 
   // Find offset segment
   const auto offset_segment = findOffsetSegment(path, *collision_segment, offset_length);

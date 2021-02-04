@@ -20,6 +20,7 @@
 #include <unordered_map>
 #include <utility>
 
+#include "lanelet2_extension/utility/query.hpp"
 #include "tf2/utils.h"
 
 namespace
