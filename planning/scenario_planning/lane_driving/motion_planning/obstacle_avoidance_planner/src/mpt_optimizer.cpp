@@ -202,7 +202,7 @@ void MPTOptimizer::calcCurvature(std::vector<ReferencePoint> * ref_points) const
     p3 = ref_points->at(i + L).p;
     double den = std::max(
       util::calculate2DDistance(p1, p2) * util::calculate2DDistance(p2, p3) *
-        util::calculate2DDistance(p3, p1),
+      util::calculate2DDistance(p3, p1),
       0.0001);
     const double curvature =
       2.0 * ((p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x)) / den;
@@ -427,7 +427,8 @@ boost::optional<MPTMatrix> MPTOptimizer::generateMPTMatrix(
   if (
     m.Aex.array().isNaN().any() || m.Bex.array().isNaN().any() || m.Cex.array().isNaN().any() ||
     m.Wex.array().isNaN().any() || m.Qex.array().isNaN().any() || m.R1ex.array().isNaN().any() ||
-    m.R2ex.array().isNaN().any() || m.Urefex.array().isNaN().any()) {
+    m.R2ex.array().isNaN().any() || m.Urefex.array().isNaN().any())
+  {
     RCLCPP_WARN(rclcpp::get_logger("MPTOptimizer"), "[Avoidance] MPT matrix includes NaN.");
     return boost::none;
   }
@@ -661,7 +662,8 @@ std::vector<Bounds> MPTOptimizer::getReferenceBounds(
     if (
       !util::transformMapToOptionalImage(ref_base_point.p, maps.map_info) ||
       !util::transformMapToOptionalImage(ref_mid_point.p, maps.map_info) ||
-      !util::transformMapToOptionalImage(ref_top_point.p, maps.map_info)) {
+      !util::transformMapToOptionalImage(ref_top_point.p, maps.map_info))
+    {
       Bounds bounds;
       bounds.c0 = {1, -1};
       bounds.c1 = {1, -1};
@@ -804,11 +806,12 @@ boost::optional<std::vector<double>> MPTOptimizer::getRoughBound(
   constexpr double min_obj_clearance = 0.1;
   if (
     original_clearance.get() > min_road_clearance &&
-    original_object_clearance.get() > min_obj_clearance) {
+    original_object_clearance.get() > min_obj_clearance)
+  {
     const double initial_dist = 0;
     right_bound = -1 * getTraversedDistance(
-                         enable_avoidance, ref_point, right_angle, initial_dist, maps,
-                         min_road_clearance, min_obj_clearance);
+      enable_avoidance, ref_point, right_angle, initial_dist, maps,
+      min_road_clearance, min_obj_clearance);
     left_bound = getTraversedDistance(
       enable_avoidance, ref_point, left_angle, initial_dist, maps, min_road_clearance,
       min_obj_clearance);
@@ -850,9 +853,10 @@ boost::optional<double> MPTOptimizer::getClearance(
   if (!image_point) {
     return boost::none;
   }
-  const float clearance = clearance_map.ptr<float>(static_cast<int>(
-                            image_point.get().y))[static_cast<int>(image_point.get().x)] *
-                          map_info.resolution;
+  const float clearance = clearance_map.ptr<float>(
+    static_cast<int>(
+      image_point.get().y))[static_cast<int>(image_point.get().x)] *
+    map_info.resolution;
   return clearance;
 }
 
@@ -1117,7 +1121,8 @@ std::vector<ReferencePoint> MPTOptimizer::getBaseReferencePoints(
     }
     if (
       accum_s_for_interpolated >
-      traj_param_ptr_->num_sampling_points * traj_param_ptr_->delta_arc_length_for_mpt_points) {
+      traj_param_ptr_->num_sampling_points * traj_param_ptr_->delta_arc_length_for_mpt_points)
+    {
       break;
     }
     cropped_interpolated_points.push_back(interpolated_points[i]);
@@ -1138,7 +1143,8 @@ std::vector<ReferencePoint> MPTOptimizer::getBaseReferencePoints(
     if (
       util::calculate2DDistance(
         prev_trajs->mpt_ref_points[nearest_prev_idx].p, reference_points[i].p) >=
-      std::fabs(traj_param_ptr_->delta_arc_length_for_mpt_points)) {
+      std::fabs(traj_param_ptr_->delta_arc_length_for_mpt_points))
+    {
       continue;
     }
     const int nearest_idx =
@@ -1146,7 +1152,8 @@ std::vector<ReferencePoint> MPTOptimizer::getBaseReferencePoints(
     if (
       util::calculate2DDistance(
         fine_interpolated_points[nearest_idx], prev_trajs->mpt_ref_points[nearest_prev_idx].p) <
-      fine_resolution) {
+      fine_resolution)
+    {
       reference_points[i] = prev_trajs->mpt_ref_points[nearest_prev_idx];
       reference_points[i].fix_state = prev_trajs->mpt_ref_points[nearest_prev_idx].optimized_state;
     }

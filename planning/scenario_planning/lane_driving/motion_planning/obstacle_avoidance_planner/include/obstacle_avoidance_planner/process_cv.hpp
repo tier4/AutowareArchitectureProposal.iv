@@ -85,7 +85,7 @@ bool isAvoidingObject(
   const PolygonPoints & polygon_points, const autoware_perception_msgs::msg::DynamicObject & object,
   const cv::Mat & clearance_map, const nav_msgs::msg::MapMetaData & map_info,
   const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points,
-   const TrajectoryParam & traj_param);
+  const TrajectoryParam & traj_param);
 
 bool isAvoidingObjectType(
   const autoware_perception_msgs::msg::DynamicObject & object, const TrajectoryParam & traj_param);

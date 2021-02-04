@@ -224,7 +224,8 @@ struct DebugData
   FOAData foa_data;
 };
 
-enum class OptMode : int {
+enum class OptMode : int
+{
   Normal = 0,
   Extending = 1,
   Visualizing = 2,
