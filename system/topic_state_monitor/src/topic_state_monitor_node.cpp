@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "rclcpp/rclcpp.hpp"
+#include <memory>
 
-#include "emergency_handler/emergency_handler_core.hpp"
+#include "topic_state_monitor/topic_state_monitor_core.hpp"
 
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  auto node = std::make_shared<EmergencyHandler>();
+  auto node = std::make_shared<topic_state_monitor::TopicStateMonitorNode>();
   rclcpp::spin(node);
   rclcpp::shutdown();
 

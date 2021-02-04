@@ -17,11 +17,19 @@ ament_auto_find_build_dependencies()
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/AwapiAutowareStatus.msg"
   "msg/AwapiVehicleStatus.msg"
+  "msg/CrosswalkStatus.msg"
+  "msg/DoorStatus.msg"
   "msg/Euler.msg"
+  "msg/IntersectionStatus.msg"
   "msg/LaneChangeStatus.msg"
-  "msg/Latlon.msg"
   "msg/ObstacleAvoidanceStatus.msg"
-  DEPENDENCIES std_msgs geometry_msgs diagnostic_msgs autoware_planning_msgs
+  DEPENDENCIES
+    autoware_planning_msgs
+    autoware_system_msgs
+    diagnostic_msgs
+    geographic_msgs
+    geometry_msgs
+    std_msgs
 )
 
 if(BUILD_TESTING)
