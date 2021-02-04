@@ -17,22 +17,12 @@
 #ifndef GOAL_DISTANCE_CALCULATOR__GOAL_DISTANCE_CALCULATOR_HPP_
 #define GOAL_DISTANCE_CALCULATOR__GOAL_DISTANCE_CALCULATOR_HPP_
 
-#include <boost/optional.hpp>
-
+#include <autoware_planning_msgs/msg/route.hpp>
+#include <autoware_utils/geometry/pose_deviation.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
-#include <std_msgs/msg/bool.hpp>
-#include <std_msgs/msg/empty.hpp>
-#include <std_msgs/msg/float64.hpp>
-#include <std_msgs/msg/string.hpp>
+#include <rclcpp/rclcpp.hpp>
 
-#include <map>
-#include <string>
-#include <vector>
-
-#include "rclcpp/rclcpp.hpp"
-
-#include "autoware_planning_msgs/msg/route.hpp"
-#include "autoware_utils/geometry/pose_deviation.hpp"
+#include <boost/optional.hpp>
 
 namespace goal_distance_calculator
 {

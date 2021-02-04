@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-#include "goal_distance_calculator/goal_distance_calculator_node.hpp"
+#include <autoware_utils/math/unit_conversion.hpp>
+#include <goal_distance_calculator/goal_distance_calculator_node.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/timer.hpp>
+#include <std_msgs/msg/float64.hpp>
 
 #include <chrono>
-#include <cstdio>
 #include <functional>
 #include <memory>
 #include <string>
 #include <utility>
-
-#include "autoware_utils/math/unit_conversion.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp/timer.hpp"
-#include "std_msgs/msg/float64.hpp"
 
 namespace goal_distance_calculator
 {
