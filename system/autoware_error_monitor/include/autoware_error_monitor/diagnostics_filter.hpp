@@ -1,20 +1,19 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#pragma once
+#ifndef AUTOWARE_ERROR_MONITOR__DIAGNOSTICS_FILTER_HPP_
+#define AUTOWARE_ERROR_MONITOR__DIAGNOSTICS_FILTER_HPP_
 
 #include <string>
 #include <unordered_set>
@@ -36,7 +35,8 @@ inline std::string splitStringByLastSlash(const std::string & str)
 }
 
 inline bool isChild(
-  const diagnostic_msgs::msg::DiagnosticStatus & child, const diagnostic_msgs::msg::DiagnosticStatus & parent)
+  const diagnostic_msgs::msg::DiagnosticStatus & child,
+  const diagnostic_msgs::msg::DiagnosticStatus & parent)
 {
   auto name = splitStringByLastSlash(child.name);
   while (name != "") {
@@ -99,3 +99,5 @@ inline std::vector<diagnostic_msgs::msg::DiagnosticStatus> extractLeafChildrenDi
 }
 
 }  // namespace diagnostics_filter
+
+#endif  // AUTOWARE_ERROR_MONITOR__DIAGNOSTICS_FILTER_HPP_

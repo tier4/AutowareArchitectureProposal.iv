@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
+#include <memory>
 #include <regex>
+#include <string>
+#include <utility>
+#include <vector>
 
 #define FMT_HEADER_ONLY
 #include "fmt/format.h"
@@ -28,9 +33,9 @@ int str2level(const std::string & level_str)
   using diagnostic_msgs::msg::DiagnosticStatus;
   using std::regex_constants::icase;
 
-  if (std::regex_match(level_str, std::regex("warn", icase))) return DiagnosticStatus::WARN;
-  if (std::regex_match(level_str, std::regex("error", icase))) return DiagnosticStatus::ERROR;
-  if (std::regex_match(level_str, std::regex("stale", icase))) return DiagnosticStatus::STALE;
+  if (std::regex_match(level_str, std::regex("warn", icase))) {return DiagnosticStatus::WARN;}
+  if (std::regex_match(level_str, std::regex("error", icase))) {return DiagnosticStatus::ERROR;}
+  if (std::regex_match(level_str, std::regex("stale", icase))) {return DiagnosticStatus::STALE;}
 
   throw std::runtime_error(fmt::format("invalid level: {}", level_str));
 }
@@ -49,10 +54,10 @@ std::vector<diagnostic_msgs::msg::DiagnosticStatus> & getTargetDiagnosticsRef(
 {
   using autoware_system_msgs::msg::HazardStatus;
 
-  if (hazard_level == HazardStatus::NO_FAULT) return hazard_status->diagnostics_nf;
-  if (hazard_level == HazardStatus::SAFE_FAULT) return hazard_status->diagnostics_sf;
-  if (hazard_level == HazardStatus::LATENT_FAULT) return hazard_status->diagnostics_lf;
-  if (hazard_level == HazardStatus::SINGLE_POINT_FAULT) return hazard_status->diagnostics_spf;
+  if (hazard_level == HazardStatus::NO_FAULT) {return hazard_status->diagnostics_nf;}
+  if (hazard_level == HazardStatus::SAFE_FAULT) {return hazard_status->diagnostics_sf;}
+  if (hazard_level == HazardStatus::LATENT_FAULT) {return hazard_status->diagnostics_lf;}
+  if (hazard_level == HazardStatus::SINGLE_POINT_FAULT) {return hazard_status->diagnostics_spf;}
 
   throw std::runtime_error(fmt::format("invalid hazard level: {}", hazard_level));
 }
@@ -141,7 +146,7 @@ bool AutowareErrorMonitor::isDataReady()
 {
   if (!diag_array_) {
     RCLCPP_WARN_THROTTLE(
-      get_logger(), *get_clock(), std::chrono::milliseconds(5000).count(), "waiting for diag_array msg...");
+      get_logger(), *get_clock(), 5000, "waiting for diag_array msg...");
     return false;
   }
 
@@ -182,9 +187,9 @@ int AutowareErrorMonitor::getHazardLevel(
 {
   using autoware_system_msgs::msg::HazardStatus;
 
-  if (isOverLevel(diag_level, required_module.spf_at)) return HazardStatus::SINGLE_POINT_FAULT;
-  if (isOverLevel(diag_level, required_module.lf_at)) return HazardStatus::LATENT_FAULT;
-  if (isOverLevel(diag_level, required_module.sf_at)) return HazardStatus::SAFE_FAULT;
+  if (isOverLevel(diag_level, required_module.spf_at)) {return HazardStatus::SINGLE_POINT_FAULT;}
+  if (isOverLevel(diag_level, required_module.lf_at)) {return HazardStatus::LATENT_FAULT;}
+  if (isOverLevel(diag_level, required_module.sf_at)) {return HazardStatus::SAFE_FAULT;}
 
   return HazardStatus::NO_FAULT;
 }
@@ -200,7 +205,8 @@ void AutowareErrorMonitor::appendHazardDiag(
 
   if (add_leaf_diagnostics_) {
     for (const auto & diag :
-         diagnostics_filter::extractLeafChildrenDiagnostics(hazard_diag, diag_array_->status)) {
+      diagnostics_filter::extractLeafChildrenDiagnostics(hazard_diag, diag_array_->status))
+    {
       target_diagnostics_ref.push_back(diag);
     }
   }

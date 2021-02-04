@@ -12,18 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AUTOWARE_ERROR_MONITOR_CORE_H_
-#define AUTOWARE_ERROR_MONITOR_CORE_H_
+#ifndef AUTOWARE_ERROR_MONITOR__AUTOWARE_ERROR_MONITOR_CORE_HPP_
+#define AUTOWARE_ERROR_MONITOR__AUTOWARE_ERROR_MONITOR_CORE_HPP_
 
-#include "autoware_system_msgs/msg/driving_capability.hpp"
-#include "boost/optional.hpp"
 #include <deque>
-#include "diagnostic_msgs/msg/diagnostic_array.hpp"
-#include "rclcpp/create_timer.hpp"
-#include "rclcpp/rclcpp.hpp"
+#include <map>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#include "boost/optional.hpp"
+
+#include "autoware_system_msgs/msg/driving_capability.hpp"
+#include "diagnostic_msgs/msg/diagnostic_array.hpp"
+#include "rclcpp/create_timer.hpp"
+#include "rclcpp/rclcpp.hpp"
+
 
 struct DiagStamped
 {
@@ -44,9 +48,9 @@ struct DiagConfig
     spf_at(diag_level["spf_at"])
   {
     // Set default values
-    if (sf_at == "") sf_at = "none";
-    if (lf_at == "") lf_at = "warn";
-    if (spf_at == "") spf_at = "error";
+    if (sf_at == "") {sf_at = "none";}
+    if (lf_at == "") {lf_at = "warn";}
+    if (spf_at == "") {spf_at = "error";}
   }
 
   std::string name;
@@ -107,4 +111,4 @@ private:
   const double diag_timeout_sec_ = 1.0;
 };
 
-#endif
+#endif  // AUTOWARE_ERROR_MONITOR__AUTOWARE_ERROR_MONITOR_CORE_HPP_
