@@ -50,18 +50,18 @@ public:
 private:
   // Subscriber
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_initial_pose_;
-  autoware_utils::SelfPoseListener self_pose_listener_();
+  autoware_utils::SelfPoseListener self_pose_listener_;
   rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr sub_route_;
 
   // Data Buffer
-  geometry_msgs::msg::PoseStamped::SharedPtr current_pose_;
+  geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose_;
   autoware_planning_msgs::msg::Route::SharedPtr route_;
 
   // Callback
   void onRoute(const autoware_planning_msgs::msg::Route::ConstSharedPtr & msg);
 
   // Publisher
-  autoware_utils::DebugPublisher debug_publisher_();
+  autoware_utils::DebugPublisher debug_publisher_;
 
   // Timer
   rclcpp::TimerBase::SharedPtr timer_;

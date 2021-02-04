@@ -26,10 +26,14 @@
 #include "autoware_utils/math/unit_conversion.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/timer.hpp"
+#include "std_msgs/msg/float64.hpp"
 
 namespace goal_distance_calculator
 {
-GoalDistanceCalculatorNode::GoalDistanceCalculatorNode() : Node("goal_distance_calculator")
+GoalDistanceCalculatorNode::GoalDistanceCalculatorNode()
+: Node("goal_distance_calculator"),
+  self_pose_listener_(this),
+  debug_publisher_(this, "goal_distance_calculator")
 {
   using std::placeholders::_1;
 
@@ -48,10 +52,10 @@ GoalDistanceCalculatorNode::GoalDistanceCalculatorNode() : Node("goal_distance_c
   // Subscriber
   sub_route_ = create_subscription<autoware_planning_msgs::msg::Route>(
     "/planning/mission_planning/route", queue_size,
-    [&](const autoware_planning_msgs::msg::Route::SharedPtr msg_ptr) { route_ = msg_ptr; });
+    [&](const autoware_planning_msgs::msg::Route::SharedPtr msg_ptr) {route_ = msg_ptr;});
 
   // Wait for first self pose
-  //self_pose_listener_.waitForFirstPose();
+  self_pose_listener_.waitForFirstPose();
 
   // Timer
   double delta_time = 1.0 / static_cast<double>(node_param_.update_rate);
@@ -68,14 +72,13 @@ GoalDistanceCalculatorNode::GoalDistanceCalculatorNode() : Node("goal_distance_c
 bool GoalDistanceCalculatorNode::isDataReady()
 {
   if (!current_pose_) {
-    auto & clk = *this->get_clock();
-    RCLCPP_INFO_THROTTLE(this->get_logger(), clk, 5000, "waiting for current_pose...");
+    RCLCPP_INFO_THROTTLE(
+      this->get_logger(), *this->get_clock(), 5000, "waiting for current_pose...");
     return false;
   }
 
   if (!route_) {
-    auto & clk = *this->get_clock();
-    RCLCPP_INFO_THROTTLE(this->get_logger(), clk, 5000, "waiting for route msg...");
+    RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 5000, "waiting for route msg...");
     return false;
   }
 
@@ -84,12 +87,10 @@ bool GoalDistanceCalculatorNode::isDataReady()
 
 bool GoalDistanceCalculatorNode::isDataTimeout()
 {
-  rclcpp::Clock system_clock(rcl_clock_type_t RCL_SYSTEM_TIME);
   constexpr double th_pose_timeout = 1.0;
-  const auto pose_time_diff = /*current_pose_->header.stamp-*/ now();
+  const auto pose_time_diff = rclcpp::Time(current_pose_->header.stamp) - now();
   if (pose_time_diff.seconds() > th_pose_timeout) {
-    auto & clk = *this->get_clock();
-    RCLCPP_WARN_THROTTLE(this->get_logger(), clk, 1000, "pose is timeout...");
+    RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "pose is timeout...");
     return true;
   }
   return false;
@@ -97,7 +98,7 @@ bool GoalDistanceCalculatorNode::isDataTimeout()
 
 void GoalDistanceCalculatorNode::onTimer()
 {
-  //current_pose_ = self_pose_listener_.getCurrentPose();
+  current_pose_ = self_pose_listener_.getCurrentPose();
 
   if (!isDataReady()) {
     return;
@@ -115,6 +116,16 @@ void GoalDistanceCalculatorNode::onTimer()
   {
     using autoware_utils::rad2deg;
     const auto & deviation = output_.goal_deviation;
+
+    debug_publisher_.publish<std_msgs::msg::Float64>("deviation/lateral", deviation.lateral);
+    debug_publisher_.publish<std_msgs::msg::Float64>(
+      "deviation/longitudinal", deviation.longitudinal);
+    debug_publisher_.publish<std_msgs::msg::Float64>("deviation/yaw", deviation.yaw);
+    debug_publisher_.publish<std_msgs::msg::Float64>("deviation/yaw_deg", rad2deg(deviation.yaw));
+    RCLCPP_INFO_THROTTLE(
+      this->get_logger(), *this->get_clock(), 1.0,
+      "lateral: %f[mm], longitudinal: %f[mm], yaw: %f[deg]", 1000 * deviation.lateral,
+      1000 * deviation.longitudinal, rad2deg(deviation.yaw));
   }
 
   if (node_param_.oneshot) {
