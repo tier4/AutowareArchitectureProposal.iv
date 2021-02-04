@@ -12,6 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <deque>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "autoware_state_monitor/autoware_state_monitor_node.hpp"
 
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
@@ -24,8 +30,9 @@ std::vector<Config> getConfigs(
   const std::string & config_namespace)
 {
   std::string names_key = config_namespace + ".names";
-  if(!interface->has_parameter(names_key))
+  if (!interface->has_parameter(names_key)) {
     return std::vector<Config>{};
+  }
   interface->declare_parameter(names_key);
   std::vector<std::string> config_names = interface->get_parameter(names_key).as_string_array();
 
@@ -109,7 +116,8 @@ std::string getStateMessage(const AutowareState & state)
 
 }  // namespace
 
-void AutowareStateMonitorNode::onAutowareEngage(const autoware_control_msgs::msg::EngageMode::ConstSharedPtr msg)
+void AutowareStateMonitorNode::onAutowareEngage(
+  const autoware_control_msgs::msg::EngageMode::ConstSharedPtr msg)
 {
   state_input_.autoware_engage = msg;
 }
@@ -120,7 +128,8 @@ void AutowareStateMonitorNode::onVehicleControlMode(
   state_input_.vehicle_control_mode = msg;
 }
 
-void AutowareStateMonitorNode::onIsEmergency(const autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg)
+void AutowareStateMonitorNode::onIsEmergency(
+  const autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg)
 {
   state_input_.emergency_mode = msg;
 }
@@ -242,7 +251,7 @@ void AutowareStateMonitorNode::onTimer()
   updater_.force_update();
 }
 
-// TODO: Use generic subscription base
+// TODO(jilaada): Use generic subscription base
 void AutowareStateMonitorNode::onTopic(
   const std::shared_ptr<rclcpp::SerializedMessage> msg, const std::string & topic_name)
 {
@@ -423,7 +432,8 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
     "input/is_emergency", 1,
     std::bind(&AutowareStateMonitorNode::onIsEmergency, this, _1));
   sub_route_ = this->create_subscription<autoware_planning_msgs::msg::Route>(
-    "input/route", rclcpp::QoS{1}.transient_local(), std::bind(&AutowareStateMonitorNode::onRoute, this, _1));
+    "input/route", rclcpp::QoS{1}.transient_local(),
+    std::bind(&AutowareStateMonitorNode::onRoute, this, _1));
   sub_twist_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
     "input/twist", 100, std::bind(&AutowareStateMonitorNode::onTwist, this, _1));
 
@@ -434,7 +444,8 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   // Publisher
   pub_autoware_state_ =
     this->create_publisher<autoware_system_msgs::msg::AutowareState>("output/autoware_state", 1);
-  pub_autoware_engage_ = this->create_publisher<autoware_control_msgs::msg::EngageMode>("output/autoware_engage", 1);
+  pub_autoware_engage_ =
+    this->create_publisher<autoware_control_msgs::msg::EngageMode>("output/autoware_engage", 1);
 
   // Diagnostic Updater
   setupDiagnosticUpdater();
@@ -445,7 +456,7 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   // Timer
   auto timer_callback = std::bind(&AutowareStateMonitorNode::onTimer, this);
   auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
-    std::chrono::duration<double>(1.0/update_rate_));
+    std::chrono::duration<double>(1.0 / update_rate_));
 
   timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
     this->get_clock(), period, std::move(timer_callback),

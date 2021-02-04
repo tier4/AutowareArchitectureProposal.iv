@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AUTOWARE_STATE_MONITOR_STATE_MACHINE_H_
-#define AUTOWARE_STATE_MONITOR_STATE_MACHINE_H_
+#ifndef AUTOWARE_STATE_MONITOR__STATE_MACHINE_HPP_
+#define AUTOWARE_STATE_MONITOR__STATE_MACHINE_HPP_
 
 #include <deque>
 #include <string>
@@ -108,4 +108,4 @@ private:
   bool isFinalizing() const;
 };
 
-#endif
+#endif  // AUTOWARE_STATE_MONITOR__STATE_MACHINE_HPP_

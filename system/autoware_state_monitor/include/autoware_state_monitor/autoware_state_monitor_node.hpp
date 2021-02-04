@@ -12,8 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AUTOWARE_STATE_MONITOR_AUTOWARE_STATE_MONITOR_CORE_HPP_
-#define AUTOWARE_STATE_MONITOR_AUTOWARE_STATE_MONITOR_CORE_HPP_
+#ifndef AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_MONITOR_NODE_HPP_
+#define AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_MONITOR_NODE_HPP_
+
+#include <deque>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "autoware_state_monitor/autoware_state.hpp"
 #include "autoware_state_monitor/config.hpp"
@@ -35,12 +41,6 @@
 #include "diagnostic_updater/diagnostic_updater.hpp"
 #include "rclcpp_generic/generic_subscription.hpp"
 #include "rclcpp/rclcpp.hpp"
-
-#include <deque>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
 
 class AutowareStateMonitorNode : public rclcpp::Node
 {
@@ -124,4 +124,4 @@ private:
     diagnostic_updater::DiagnosticStatusWrapper & stat, const std::string & module_name);
 };
 
-#endif
+#endif  // AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_MONITOR_NODE_HPP_

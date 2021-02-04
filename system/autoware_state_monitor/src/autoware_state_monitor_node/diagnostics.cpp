@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <string>
+#include <vector>
+
 #include "autoware_state_monitor/autoware_state_monitor_node.hpp"
 
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"

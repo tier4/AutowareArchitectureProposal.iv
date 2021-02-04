@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef AUTOWARE_STATE_MONITOR_AUTOWARE_STATE_H_
-#define AUTOWARE_STATE_MONITOR_AUTOWARE_STATE_H_
+#ifndef AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_HPP_
+#define AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_HPP_
 
 #include <string>
 
@@ -63,4 +63,4 @@ inline std::string toString(const AutowareState & state)
   throw std::runtime_error("invalid state");
 }
 
-#endif
+#endif  // AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_HPP_

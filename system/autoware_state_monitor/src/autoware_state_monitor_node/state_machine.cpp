@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <deque>
+#include <vector>
+
 #define FMT_HEADER_ONLY
 #include "fmt/format.h"
 
@@ -191,7 +194,7 @@ bool StateMachine::hasArrivedGoal() const
   return false;
 }
 
-bool StateMachine::isFinalizing() const { return state_input_.is_finalizing; }
+bool StateMachine::isFinalizing() const {return state_input_.is_finalizing;}
 
 AutowareState StateMachine::updateState(const StateInput & state_input)
 {
@@ -223,7 +226,8 @@ AutowareState StateMachine::judgeAutowareState() const
 
           // Wait after initialize completed to avoid sync error
           constexpr double wait_time_after_initializing = 1.0;
-          const auto time_from_initializing = state_input_.current_time - times_.initializing_completed;
+          const auto time_from_initializing =
+            state_input_.current_time - times_.initializing_completed;
           if (time_from_initializing.seconds() > wait_time_after_initializing) {
             flags_.waiting_after_initializing = false;
             return AutowareState::WaitingForRoute;
@@ -316,8 +320,8 @@ AutowareState StateMachine::judgeAutowareState() const
       }
 
     case (AutowareState::Finalizing): {
-      break;
-    }
+        break;
+      }
 
     default: {
         throw std::runtime_error("invalid state");
