@@ -338,7 +338,7 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
   }
 
   /* Insert behind velocity for output's consistency */
-  insertBehindVelocity(prev_output_closest, prev_output_, traj_resampled_closest, output);
+  insertBehindVelocity(prev_output_, traj_resampled_closest, output);
 
   /* for debug */
   publishFloat(output.points.at(traj_resampled_closest).twist.linear.x, debug_closest_velocity_);
@@ -356,7 +356,7 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
 }
 
 void MotionVelocityOptimizer::insertBehindVelocity(
-  const int prev_output_closest, const autoware_planning_msgs::msg::Trajectory & prev_output,
+  const autoware_planning_msgs::msg::Trajectory & prev_output,
   const int output_closest, autoware_planning_msgs::msg::Trajectory & output) const
 {
   const bool keep_closest_vel_for_behind =

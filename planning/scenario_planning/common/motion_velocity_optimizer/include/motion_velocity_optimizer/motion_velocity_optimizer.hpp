@@ -179,7 +179,7 @@ private:
     const autoware_planning_msgs::msg::Trajectory & trajectory, const int closest) const;
 
   void insertBehindVelocity(
-    const int prev_out_closest, const autoware_planning_msgs::msg::Trajectory & prev_output,
+    const autoware_planning_msgs::msg::Trajectory & prev_output,
     const int output_closest, autoware_planning_msgs::msg::Trajectory & output) const;
 
   void applyStoppingVelocity(autoware_planning_msgs::msg::Trajectory * traj) const;
