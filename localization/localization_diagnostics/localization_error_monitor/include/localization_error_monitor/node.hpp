@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-#include <ros/ros.h>
+#ifndef LOCALIZATION_ERROR_MONITOR__NODE_HPP_
+#define LOCALIZATION_ERROR_MONITOR__NODE_HPP_
 
-#include <diagnostic_msgs/DiagnosticArray.h>
-#include <diagnostic_updater/diagnostic_updater.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <visualization_msgs/Marker.h>
+#include "rclcpp/rclcpp.hpp"
+
+#include "diagnostic_msgs/msg/diagnostic_array.hpp"
+#include "diagnostic_updater/diagnostic_updater.hpp"
+
+#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
+
 
 struct Ellipse
 {
@@ -29,15 +33,13 @@ struct Ellipse
   double yaw;
 };
 
-class LocalizationErrorMonitor
+class LocalizationErrorMonitor : public rclcpp::Node
 {
 private:
-  ros::NodeHandle nh_{""};
-  ros::NodeHandle pnh_{"~"};
-  ros::Subscriber pose_with_cov_sub_;
-  ros::Publisher ellipse_marker_pub_;
+  rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_with_cov_sub_;
+  rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr ellipse_marker_pub_;
 
-  ros::Timer timer_;
+  rclcpp::TimerBase::SharedPtr timer_;
   double scale_;
   double error_ellipse_size_;
   double warn_ellipse_size_;
@@ -45,12 +47,15 @@ private:
   diagnostic_updater::Updater updater_;
 
   void checkLocalizationAccuracy(diagnostic_updater::DiagnosticStatusWrapper & stat);
-  void onPoseWithCovariance(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr & input_msg);
-  visualization_msgs::Marker createEllipseMarker(
-    const Ellipse & ellipse, const geometry_msgs::PoseWithCovarianceStamped & pose_with_cov);
-  void onTimer(const ros::TimerEvent & event);
+  void onPoseWithCovariance(
+    geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr input_msg);
+  visualization_msgs::msg::Marker createEllipseMarker(
+    const Ellipse & ellipse,
+    geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr pose_with_cov);
+  void onTimer();
 
 public:
   LocalizationErrorMonitor();
   ~LocalizationErrorMonitor() = default;
 };
+#endif  // LOCALIZATION_ERROR_MONITOR__NODE_HPP_

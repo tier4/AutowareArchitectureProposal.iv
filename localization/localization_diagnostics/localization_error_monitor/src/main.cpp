@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-#include <ros/ros.h>
-#include <localization_error_monitor/node.hpp>
+#include <memory>
+#include "rclcpp/rclcpp.hpp"
+#include "localization_error_monitor/node.hpp"
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "localization_error_monitor");
-  LocalizationErrorMonitor node;
-  ros::spin();
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<LocalizationErrorMonitor>();
+  rclcpp::spin(node);
+  rclcpp::shutdown();
   return 0;
 }
