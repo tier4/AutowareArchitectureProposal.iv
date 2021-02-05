@@ -57,7 +57,9 @@ InitialPoseButtonPanel::InitialPoseButtonPanel(QWidget * parent)
   v_layout->addWidget(status_label_);
 
   setLayout(v_layout);
-
+}
+void InitialPoseButtonPanel::onInitialize()
+{
   rclcpp::Node::SharedPtr raw_node =
     this->getDisplayContext()->getRosNodeAbstraction().lock()->get_raw_node();
 

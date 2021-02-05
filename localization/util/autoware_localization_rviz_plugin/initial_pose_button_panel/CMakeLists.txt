@@ -18,7 +18,7 @@ set(QT_LIBRARIES Qt5::Widgets)
 add_definitions(-DQT_NO_KEYWORDS -g)
 set(CMAKE_AUTOMOC ON)
 
-ament_auto_add_library(initial_pose_button_panel
+ament_auto_add_library(initial_pose_button_panel SHARED
   src/initial_pose_button_panel.cpp)
 target_link_libraries(initial_pose_button_panel
   ${QT_LIBRARIES})

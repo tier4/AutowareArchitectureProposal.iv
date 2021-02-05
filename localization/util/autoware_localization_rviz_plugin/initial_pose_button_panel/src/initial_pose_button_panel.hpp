@@ -41,6 +41,7 @@ class InitialPoseButtonPanel : public rviz_common::Panel
 
 public:
   explicit InitialPoseButtonPanel(QWidget * parent = nullptr);
+  void onInitialize() override;
   void callbackPoseCov(const geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr msg);
 
 public Q_SLOTS:
