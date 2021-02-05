@@ -235,7 +235,7 @@ bool IntersectionModule::checkCollision(
   return collision_detected;
 }
 
-autoware_planning_msgs::PathWithLaneId IntersectionModule::trimPathWithLaneId(
+autoware_planning_msgs::msg::PathWithLaneId IntersectionModule::trimPathWithLaneId(
   const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   autoware_planning_msgs::msg::PathWithLaneId trimmed_path;
