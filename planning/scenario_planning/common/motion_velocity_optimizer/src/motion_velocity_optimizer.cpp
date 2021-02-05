@@ -28,7 +28,7 @@
 
 using std::placeholders::_1;
 
-#define UPDATE_PARAM(NAME) update_param(parameters, #NAME, planning_param_.NAME);
+#define UPDATE_PARAM(PARAM_STRUCT, NAME) update_param(parameters, #NAME, PARAM_STRUCT.NAME);
 namespace
 {
 template<typename T>
@@ -63,6 +63,9 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
   p.engage_exit_ratio = declare_parameter("engage_exit_ratio", 0.5);
   p.engage_exit_ratio = std::min(std::max(p.engage_exit_ratio, 0.0), 1.0);
 
+  p.stopping_velocity = declare_parameter("stopping_velocity", 2.778);  // 10kmph
+  p.stopping_distance = declare_parameter("stopping_distance", 0.0);
+
   p.extract_ahead_dist = declare_parameter("extract_ahead_dist", 200.0);
   p.extract_behind_dist = declare_parameter("extract_behind_dist", 3.0);
   p.max_trajectory_length = declare_parameter("max_trajectory_length", 200.0);
@@ -72,6 +75,8 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
   p.min_trajectory_interval_distance = declare_parameter("min_trajectory_interval_distance", 0.1);
   p.stop_dist_to_prohibit_engage = declare_parameter("stop_dist_to_prohibit_engage", 1.5);
   p.delta_yaw_threshold = declare_parameter("delta_yaw_threshold", M_PI / 3.0);
+
+  over_stop_velocity_warn_thr_ = declare_parameter("over_stop_velocity_warn_thr", 1.389);  // 5kmph
 
   p.algorithm_type = declare_parameter("algorithm_type", "L2");
   if (p.algorithm_type != "L2" && p.algorithm_type != "Linf") {
@@ -83,8 +88,19 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
 
   pub_trajectory_ =
     create_publisher<autoware_planning_msgs::msg::Trajectory>("output/trajectory", rclcpp::QoS{1});
+
+  rclcpp::QoS durable_qos(1);
+  durable_qos.transient_local();
+  pub_velocity_limit_ =
+    create_publisher<autoware_planning_msgs::msg::VelocityLimit>(
+    "output/current_velocity_limit_mps", durable_qos);
+  // publish default max velocity
+  pub_velocity_limit_->publish(createVelocityLimitMsg(p.max_velocity));
+
   pub_dist_to_stopline_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
     "distance_to_stopline", rclcpp::QoS{1});
+  pub_over_stop_velocity_ = create_publisher<autoware_debug_msgs::msg::BoolStamped>(
+    "stop_speed_exceeded", rclcpp::QoS{1});
   sub_current_trajectory_ = create_subscription<autoware_planning_msgs::msg::Trajectory>(
     "input/trajectory", 1,
     std::bind(&MotionVelocityOptimizer::callbackCurrentTrajectory, this, _1));
@@ -92,11 +108,11 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
     "/localization/twist", 1,
     std::bind(&MotionVelocityOptimizer::callbackCurrentVelocity, this, _1));
   sub_external_velocity_limit_ = create_subscription<autoware_planning_msgs::msg::VelocityLimit>(
-    "external_velocity_limit_mps", 1,
+    "input/external_velocity_limit_mps", 1,
     std::bind(&MotionVelocityOptimizer::callbackExternalVelocityLimit, this, _1));
 
   if (p.algorithm_type == "L2") {
-    L2PseudoJerkOptimizer::OptimizerParam param;
+    OptimizerParam param;
     param.max_accel = p.max_accel;
     param.min_decel = p.min_decel;
     param.pseudo_jerk_weight = declare_parameter("pseudo_jerk_weight", 100.0);
@@ -104,7 +120,7 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
     param.over_a_weight = declare_parameter("over_a_weight", 1000.0);
     optimizer_ = std::make_shared<L2PseudoJerkOptimizer>(param);
   } else if (p.algorithm_type == "Linf") {
-    LinfPseudoJerkOptimizer::OptimizerParam param;
+    OptimizerParam param;
     param.max_accel = p.max_accel;
     param.min_decel = p.min_decel;
     param.pseudo_jerk_weight = declare_parameter("pseudo_jerk_weight", 200.0);
@@ -120,10 +136,12 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
     create_publisher<autoware_debug_msgs::msg::Float32Stamped>("closest_velocity", rclcpp::QoS{1});
   debug_closest_acc_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
     "closest_acceleration", rclcpp::QoS{1});
+  debug_closest_jerk_ =
+    create_publisher<autoware_debug_msgs::msg::Float32Stamped>("closest_jerk", rclcpp::QoS{1});
   pub_trajectory_raw_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
     "debug/trajectory_raw", rclcpp::QoS{1});
   pub_trajectory_vel_lim_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
-    "debug/trajectory_external_velocity_limitted", rclcpp::QoS{1});
+    "debug/trajectory_external_velocity_limited", rclcpp::QoS{1});
   pub_trajectory_latcc_filtered_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
     "debug/trajectory_lateral_acc_filtered", rclcpp::QoS{1});
   pub_trajectory_resampled_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
@@ -174,6 +192,7 @@ void MotionVelocityOptimizer::callbackExternalVelocityLimit(
   const autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr msg)
 {
   external_velocity_limit_ptr_ = msg;
+  pub_velocity_limit_->publish(*msg);
 }
 
 void MotionVelocityOptimizer::updateCurrentPose()
@@ -247,24 +266,24 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
     return prev_output_;
   }
 
-  autoware_planning_msgs::msg::Trajectory traj_extracted;    // extructed around current_position
-  autoware_planning_msgs::msg::Trajectory traj_vel_limtted;  // external velocity limitted
+  autoware_planning_msgs::msg::Trajectory traj_extracted;    // extracted around current_position
+  autoware_planning_msgs::msg::Trajectory traj_vel_limited;  // external velocity limited
   autoware_planning_msgs::msg::Trajectory
-    traj_latacc_filtered;  // max lateral acceleration limitted
+    traj_latacc_filtered;  // max lateral acceleration limited
   autoware_planning_msgs::msg::Trajectory
     traj_resampled;                                // resampled depending on the current_velocity
   autoware_planning_msgs::msg::Trajectory output;  // velocity is optimized by qp solver
 
-  /* Extract trajectory around self-position with desired forward-backwaed length*/
+  /* Extract trajectory around self-position with desired forward-backward length*/
   if (!extractPathAroundIndex(traj_input, input_closest, /* out */ traj_extracted)) {
     return prev_output_;
   }
 
   /* Apply external velocity limit */
-  externalVelocityLimitFilter(traj_extracted, /* out */ traj_vel_limtted);
+  externalVelocityLimitFilter(traj_extracted, /* out */ traj_vel_limited);
 
-  /* Lateral acceleration limt */
-  if (!lateralAccelerationFilter(traj_vel_limtted, /* out */ traj_latacc_filtered)) {
+  /* Lateral acceleration limit */
+  if (!lateralAccelerationFilter(traj_vel_limited, /* out */ traj_latacc_filtered)) {
     return prev_output_;
   }
 
@@ -290,7 +309,7 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
   }
 
   /*
-   * Calculate the closest point on the previously planned traj
+   * Calculate the closest index on the previously planned traj
    * (used to get initial planning speed)
    */
   int prev_output_closest = vpu::calcClosestWaypoint(
@@ -299,9 +318,16 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
     get_logger(), "[calcClosestWaypoint] base_resampled.size() = %lu, prev_planned_closest_ = %d",
     traj_resampled.points.size(), prev_output_closest);
 
+  /* Calculate the closest trajectory point on the previously planned traj*/
+  const auto prev_output_closest_point = vpu::calcClosestTrajecotoryPointWithIntepolation(
+    prev_output_, traj_resampled.points.at(traj_resampled_closest).pose);
+
+  /* Apply stopping velocity */
+  applyStoppingVelocity(&traj_resampled);
+
   /* Optimize velocity */
-  output =
-    optimizeVelocity(traj_resampled, traj_resampled_closest, prev_output_, prev_output_closest);
+  output = optimizeVelocity(
+    traj_resampled, traj_resampled_closest, prev_output_, prev_output_closest_point);
 
   /* Max velocity filter for safety */
   vpu::maximumVelocityFilter(planning_param_.max_velocity, output);
@@ -312,15 +338,16 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
   }
 
   /* Insert behind velocity for output's consistency */
-  insertBehindVelocity(prev_output_closest, prev_output_, traj_resampled_closest, output);
+  insertBehindVelocity(prev_output_, traj_resampled_closest, output);
 
   /* for debug */
   publishFloat(output.points.at(traj_resampled_closest).twist.linear.x, debug_closest_velocity_);
   publishFloat(output.points.at(traj_resampled_closest).accel.linear.x, debug_closest_acc_);
   publishStopDistance(output, traj_resampled_closest);
+  publishClosestJerk(output.points.at(traj_resampled_closest).accel.linear.x);
   if (publish_debug_trajs_) {
     pub_trajectory_raw_->publish(traj_extracted);
-    pub_trajectory_vel_lim_->publish(traj_vel_limtted);
+    pub_trajectory_vel_lim_->publish(traj_vel_limited);
     pub_trajectory_latcc_filtered_->publish(traj_latacc_filtered);
     pub_trajectory_resampled_->publish(traj_resampled);
   }
@@ -329,22 +356,24 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
 }
 
 void MotionVelocityOptimizer::insertBehindVelocity(
-  const int prev_output_closest, const autoware_planning_msgs::msg::Trajectory & prev_output,
+  const autoware_planning_msgs::msg::Trajectory & prev_output,
   const int output_closest, autoware_planning_msgs::msg::Trajectory & output) const
 {
-  int j = std::max(prev_output_closest - 1, 0);
-  for (int i = output_closest - 1; i >= 0; --i) {
-    if (
-      initialize_type_ == InitializeType::INIT ||
-      initialize_type_ == InitializeType::LARGE_DEVIATION_REPLAN ||
-      initialize_type_ == InitializeType::ENGAGING)
-    {
-      output.points.at(i).twist.linear.x = output.points.at(output_closest).twist.linear.x;
-    } else {
-      output.points.at(i).twist.linear.x = prev_output.points.at(j).twist.linear.x;
-    }
+  const bool keep_closest_vel_for_behind =
+    (initialize_type_ == InitializeType::INIT ||
+    initialize_type_ == InitializeType::LARGE_DEVIATION_REPLAN ||
+    initialize_type_ == InitializeType::ENGAGING);
 
-    j = std::max(j - 1, 0);
+  for (int i = output_closest - 1; i >= 0; --i) {
+    if (keep_closest_vel_for_behind) {
+      output.points.at(i).twist.linear.x = output.points.at(output_closest).twist.linear.x;
+      output.points.at(i).accel.linear.x = output.points.at(output_closest).accel.linear.x;
+    } else {
+      const auto prev_output_closest_point =
+        vpu::calcClosestTrajecotoryPointWithIntepolation(prev_output, output.points.at(i).pose);
+      output.points.at(i).twist.linear.x = prev_output_closest_point.twist.linear.x;
+      output.points.at(i).accel.linear.x = prev_output_closest_point.accel.linear.x;
+    }
   }
 }
 
@@ -425,12 +454,13 @@ bool MotionVelocityOptimizer::resampleTrajectory(
 void MotionVelocityOptimizer::calcInitialMotion(
   const double & target_vel, const autoware_planning_msgs::msg::Trajectory & reference_traj,
   const int reference_traj_closest, const autoware_planning_msgs::msg::Trajectory & prev_output,
-  const int prev_output_closest, double & initial_vel, double & initial_acc)
+  const autoware_planning_msgs::msg::TrajectoryPoint & prev_output_point, double & initial_vel,
+  double & initial_acc)
 {
   const double vehicle_speed = std::fabs(current_velocity_ptr_->twist.linear.x);
 
   /* first time */
-  if (prev_output.points.empty() || prev_output_closest == -1) {
+  if (prev_output.points.empty()) {
     initial_vel = vehicle_speed;
     initial_acc = 0.0;  // if possible, use actual vehicle acc & jerk value;
     initialize_type_ = InitializeType::INIT;
@@ -438,12 +468,12 @@ void MotionVelocityOptimizer::calcInitialMotion(
   }
 
   /* when velocity tracking deviation is large */
-  const double desired_vel = prev_output.points.at(prev_output_closest).twist.linear.x;
+  const double desired_vel = prev_output_point.twist.linear.x;
   const double vel_error = vehicle_speed - std::fabs(desired_vel);
   if (std::fabs(vel_error) > planning_param_.replan_vel_deviation) {
     initialize_type_ = InitializeType::LARGE_DEVIATION_REPLAN;
     initial_vel = vehicle_speed;  // use current vehicle speed
-    initial_acc = prev_output.points.at(prev_output_closest).accel.linear.x;
+    initial_acc = prev_output_point.accel.linear.x;
     RCLCPP_DEBUG(
       get_logger(),
       "[calcInitialMotion] : Large deviation error for speed control. Use current speed for "
@@ -492,8 +522,8 @@ void MotionVelocityOptimizer::calcInitialMotion(
 
   /* normal update: use closest in prev_output */
   initialize_type_ = InitializeType::NORMAL;
-  initial_vel = prev_output.points.at(prev_output_closest).twist.linear.x;
-  initial_acc = prev_output.points.at(prev_output_closest).accel.linear.x;
+  initial_vel = prev_output_point.twist.linear.x;
+  initial_acc = prev_output_point.accel.linear.x;
   RCLCPP_DEBUG(
     get_logger(),
     "[calcInitialMotion]: normal update. v0 = %f, a0 = %f, vehicle_speed = %f, target_vel = %f",
@@ -502,7 +532,8 @@ void MotionVelocityOptimizer::calcInitialMotion(
 
 autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::optimizeVelocity(
   const autoware_planning_msgs::msg::Trajectory & input, const int input_closest,
-  const autoware_planning_msgs::msg::Trajectory & prev_output, const int prev_output_closest)
+  const autoware_planning_msgs::msg::Trajectory & prev_output,
+  const autoware_planning_msgs::msg::TrajectoryPoint & prev_output_point)
 {
   const double target_vel = std::fabs(input.points.at(input_closest).twist.linear.x);
 
@@ -510,7 +541,7 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::optimizeVelocit
   double initial_vel = 0.0;
   double initial_acc = 0.0;
   calcInitialMotion(
-    target_vel, input, input_closest, prev_output, prev_output_closest,
+    target_vel, input, input_closest, prev_output, prev_output_point,
     /* out */ initial_vel, initial_acc);
 
   autoware_planning_msgs::msg::Trajectory optimized_traj;
@@ -519,12 +550,8 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::optimizeVelocit
     // RCLCPP_WARN(get_logger(), "[optimizeVelocity] fail to solve optimization.");
   }
 
-  /* find stop point for stopVelocityFilter */
-  int stop_idx = -1;
-  bool stop_point_exists = vpu::searchZeroVelocityIdx(input, stop_idx);
-  RCLCPP_DEBUG(
-    get_logger(), "[replan]: target_vel = %f, stop_idx = %d, closest = %d, stop_point_exists = %d",
-    target_vel, stop_idx, input_closest, static_cast<int>(stop_point_exists));
+  /* set 0 velocity after input-stop-point */
+  overwriteStopPoint(input, &optimized_traj);
 
   /* for the endpoint of the trajectory */
   if (optimized_traj.points.size() > 0) {
@@ -535,6 +562,39 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::optimizeVelocit
   RCLCPP_DEBUG(
     get_logger(), "[optimizeVelocity]: optimized_traj.size() = %lu", optimized_traj.points.size());
   return optimized_traj;
+}
+
+void MotionVelocityOptimizer::overwriteStopPoint(
+  const autoware_planning_msgs::msg::Trajectory & input,
+  autoware_planning_msgs::msg::Trajectory * output) const
+{
+  int stop_idx = -1;
+  bool stop_point_exists = vpu::searchZeroVelocityIdx(input, stop_idx);
+
+  // check over velocity
+  bool is_stop_velocity_exceeded = false;
+  if (stop_point_exists) {
+    double optimized_stop_point_vel = output->points.at(stop_idx).twist.linear.x;
+    is_stop_velocity_exceeded = (optimized_stop_point_vel > over_stop_velocity_warn_thr_);
+  }
+  {
+    autoware_debug_msgs::msg::BoolStamped msg;
+    msg.data = is_stop_velocity_exceeded;
+    msg.stamp = this->now();
+    pub_over_stop_velocity_->publish(msg);
+  }
+
+  {
+    double input_stop_vel = stop_point_exists ? input.points.at(stop_idx).twist.linear.x : -1.0;
+    double output_stop_vel = stop_point_exists ? output->points.at(stop_idx).twist.linear.x : -1.0;
+    RCLCPP_DEBUG(
+      get_logger(),
+      "[replan]: input_stop_idx = %d, stop velocity : input = %f, output = %f, thr = %f",
+      stop_idx, input_stop_vel, output_stop_vel, over_stop_velocity_warn_thr_);
+  }
+
+  // keep stop point at the same position
+  vpu::insertZeroVelocityAfterIdx(stop_idx, *output);
 }
 
 bool MotionVelocityOptimizer::lateralAccelerationFilter(
@@ -561,7 +621,7 @@ bool MotionVelocityOptimizer::lateralAccelerationFilter(
   if (!vpu::linearInterpTrajectory(in_arclength, input, out_arclength, output)) {
     RCLCPP_WARN(
       get_logger(),
-      "[motion_velocity_optimizer]: interpolation failed at lateral acceleraion filter.");
+      "[motion_velocity_optimizer]: interpolation failed at lateral acceleration filter.");
     return false;
   }
   output.points.back().twist = input.points.back().twist;  // keep the final speed.
@@ -677,7 +737,7 @@ bool MotionVelocityOptimizer::extractPathAroundIndex(
     }
   }
 
-  // extruct trajectory
+  // extract trajectory
   output.points.clear();
   for (int i = behind_index; i < ahead_index + 1; ++i) {
     output.points.push_back(input.points.at(i));
@@ -689,6 +749,23 @@ bool MotionVelocityOptimizer::extractPathAroundIndex(
     "[extractPathAroundIndex] : input.size() = %lu, extract_base_index = %d, output.size() = %lu",
     input.points.size(), index, output.points.size());
   return true;
+}
+
+void MotionVelocityOptimizer::applyStoppingVelocity(autoware_planning_msgs::msg::Trajectory * traj)
+const
+{
+  int stop_idx;
+  if (!vpu::searchZeroVelocityIdx(*traj, stop_idx)) {
+    return;  // no stop point.
+  }
+  double distance_sum = 0.0;
+  for (int i = stop_idx - 1; i >= 0; --i) {  // search backward
+    distance_sum += vpu::calcDist2d(traj->points.at(i), traj->points.at(i + 1));
+    if (distance_sum > planning_param_.stopping_distance) {break;}
+    if (traj->points.at(i).twist.linear.x > planning_param_.stopping_velocity) {
+      traj->points.at(i).twist.linear.x = planning_param_.stopping_velocity;
+    }
+  }
 }
 
 void MotionVelocityOptimizer::publishFloat(
@@ -756,37 +833,62 @@ rcl_interfaces::msg::SetParametersResult MotionVelocityOptimizer::paramCallback(
   result.successful = true;
   result.reason = "success";
 
+  MotionVelocityOptimizerParam param = planning_param_;
+  OptimizerParam optimizer_param;
   try {
-    UPDATE_PARAM(max_velocity);
-    UPDATE_PARAM(max_accel);
-    UPDATE_PARAM(min_decel);
-    UPDATE_PARAM(max_lateral_accel);
-    UPDATE_PARAM(min_curve_velocity);
-    UPDATE_PARAM(decel_distance_before_curve);
-    UPDATE_PARAM(decel_distance_after_curve);
-    UPDATE_PARAM(replan_vel_deviation);
-    UPDATE_PARAM(engage_velocity);
-    UPDATE_PARAM(engage_acceleration);
-    UPDATE_PARAM(engage_exit_ratio);
-    UPDATE_PARAM(extract_ahead_dist);
-    UPDATE_PARAM(extract_behind_dist);
-    UPDATE_PARAM(stop_dist_to_prohibit_engage);
-    UPDATE_PARAM(delta_yaw_threshold);
+    UPDATE_PARAM(param, max_velocity);
+    UPDATE_PARAM(param, max_accel);
+    UPDATE_PARAM(param, min_decel);
+    UPDATE_PARAM(param, max_lateral_accel);
+    UPDATE_PARAM(param, min_curve_velocity);
+    UPDATE_PARAM(param, decel_distance_before_curve);
+    UPDATE_PARAM(param, decel_distance_after_curve);
+    UPDATE_PARAM(param, replan_vel_deviation);
+    UPDATE_PARAM(param, engage_velocity);
+    UPDATE_PARAM(param, engage_acceleration);
+    UPDATE_PARAM(param, engage_exit_ratio);
+    UPDATE_PARAM(param, stopping_velocity);
+    UPDATE_PARAM(param, stopping_distance);
+    UPDATE_PARAM(param, extract_ahead_dist);
+    UPDATE_PARAM(param, extract_behind_dist);
+    UPDATE_PARAM(param, stop_dist_to_prohibit_engage);
+    UPDATE_PARAM(param, delta_yaw_threshold);
 
-    UPDATE_PARAM(resample_time);
-    UPDATE_PARAM(resample_dt);
-    UPDATE_PARAM(max_trajectory_length);
-    UPDATE_PARAM(min_trajectory_length);
-    UPDATE_PARAM(min_trajectory_interval_distance);
+    UPDATE_PARAM(param, resample_time);
+    UPDATE_PARAM(param, resample_dt);
+    UPDATE_PARAM(param, max_trajectory_length);
+    UPDATE_PARAM(param, min_trajectory_length);
+    UPDATE_PARAM(param, min_trajectory_interval_distance);
 
-    optimizer_->setAccel(planning_param_.max_accel);
-    optimizer_->setDecel(planning_param_.min_decel);
+    optimizer_param.max_accel = param.max_accel;
+    optimizer_param.min_decel = param.min_decel;
+    UPDATE_PARAM(optimizer_param, pseudo_jerk_weight);
+    UPDATE_PARAM(optimizer_param, over_v_weight);
+    UPDATE_PARAM(optimizer_param, over_a_weight);
+
+    planning_param_ = param;
+    optimizer_->setParam(optimizer_param);
   } catch (const rclcpp::exceptions::InvalidParameterTypeException & e) {
     result.successful = false;
     result.reason = e.what();
   }
 
   return result;
+}
+
+void MotionVelocityOptimizer::publishClosestJerk(const double curr_acc)
+{
+  if (!prev_time_) {
+    prev_time_ = std::make_shared<rclcpp::Time>(this->now());
+    prev_acc_ = curr_acc;
+    return;
+  }
+  rclcpp::Time curr_time = this->now();
+  double dt = (curr_time - *prev_time_).seconds();
+  double curr_jerk = (curr_acc - prev_acc_) / dt;
+  publishFloat(curr_jerk, debug_closest_jerk_);
+  prev_acc_ = curr_acc;
+  *prev_time_ = curr_time;
 }
 
 int main(int argc, char ** argv)
