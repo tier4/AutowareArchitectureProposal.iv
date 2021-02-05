@@ -116,7 +116,10 @@ std::pair<float32_t, float32_t> eig_2d(
   // compute eigenvectors
   using point_adapter::xr_;
   using point_adapter::yr_;
-  if (fabsf(cov.xy) > autoware::common::types::FEPS) {
+  // We compare squared value against floating epsilon to make sure that eigen vectors
+  // are persistent against further calculations.
+  // (e.g. taking cross product of two eigen vectors)
+  if (fabsf(cov.xy * cov.xy) > autoware::common::types::FEPS) {
     xr_(eigvec1) = cov.xy;
     yr_(eigvec1) = ret.first - cov.xx;
     xr_(eigvec2) = cov.xy;
