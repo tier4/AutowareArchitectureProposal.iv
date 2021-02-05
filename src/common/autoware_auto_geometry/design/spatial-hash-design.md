@@ -1,4 +1,4 @@
-Spatial hash {#geometry-spatial-hash}
+Spatial Hash {#geometry-spatial-hash}
 ============
 
 The spatial hash is a data structure designed for efficient fixed-radius near-neighbor queries in

@@ -1,5 +1,5 @@
 Interval {#geometry-interval}
-============
+========
 
 The interval is a standard 1D real-valued interval.
 The class implements a representation and operations on the interval type and guarantees interval validity on construction.
