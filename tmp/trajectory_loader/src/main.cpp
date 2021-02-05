@@ -4,10 +4,7 @@
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  TrajectoryLoaderNode node;
-
   rclcpp::spin(std::make_shared<TrajectoryLoaderNode>());
   rclcpp::shutdown();
-
   return 0;
 }
