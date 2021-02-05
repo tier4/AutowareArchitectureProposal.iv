@@ -132,8 +132,8 @@ ObstacleStopPlannerNode::ObstacleStopPlannerNode()
     std::bind(&ObstacleStopPlannerNode::currentVelocityCallback, this, std::placeholders::_1));
   dynamic_object_sub_ =
     this->create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
-      "input/objects", 1,
-      std::bind(&ObstacleStopPlannerNode::dynamicObjectCallback, this, std::placeholders::_1));
+    "input/objects", 1,
+    std::bind(&ObstacleStopPlannerNode::dynamicObjectCallback, this, std::placeholders::_1));
   expand_stop_range_sub_ = this->create_subscription<autoware_debug_msgs::msg::Float32Stamped>(
     "input/expand_stop_range", 1,
     std::bind(
@@ -179,7 +179,7 @@ void ObstacleStopPlannerNode::pathCallback(
   }
 
   const geometry_msgs::msg::Pose goal_pose = input_msg->points.back().pose;
-  
+
   /*
    * extend trajectory to consider obstacles after the goal
    */
@@ -408,7 +408,8 @@ void ObstacleStopPlannerNode::pathCallback(
 
       if (
         trajectory_vec.dot(collision_point_vec) < 0.0 ||
-        (i + 1 == base_path.points.size() && 0.0 < trajectory_vec.dot(collision_point_vec))) {
+        (i + 1 == base_path.points.size() && 0.0 < trajectory_vec.dot(collision_point_vec)))
+      {
         const auto stop_point =
           searchInsertPoint(i, base_path, trajectory_vec, collision_point_vec);
         if (stop_point.index <= output_msg.points.size()) {
@@ -438,7 +439,8 @@ void ObstacleStopPlannerNode::pathCallback(
 
       if (
         trajectory_vec.dot(slow_down_point_vec) < 0.0 ||
-        (i + 1 == base_path.points.size() && 0.0 < trajectory_vec.dot(slow_down_point_vec))) {
+        (i + 1 == base_path.points.size() && 0.0 < trajectory_vec.dot(slow_down_point_vec)))
+      {
         const double slow_down_target_vel = calcSlowDownTargetVel(lateral_deviation);
         const auto slow_down_start_point = createSlowDownStartPoint(
           i, slow_down_margin_, slow_down_target_vel, trajectory_vec, slow_down_point_vec,
@@ -473,7 +475,7 @@ void ObstacleStopPlannerNode::insertStopPoint(
   diagnostic_msgs::msg::DiagnosticStatus & stop_reason_diag)
 {
   autoware_planning_msgs::msg::TrajectoryPoint stop_trajectory_point =
-    base_path.points.at(std::max((int)(stop_point.index) - 1, 0));
+    base_path.points.at(std::max(static_cast<int>(stop_point.index) - 1, 0));
   stop_trajectory_point.pose.position.x = stop_point.point.x();
   stop_trajectory_point.pose.position.y = stop_point.point.y();
   stop_trajectory_point.twist.linear.x = 0.0;
@@ -496,7 +498,7 @@ StopPoint ObstacleStopPlannerNode::searchInsertPoint(
 
   // check if stop point is already inserted by behavior planner
   bool is_inserted_already_stop_point = false;
-  for (int j = max_dist_stop_point.index - 1; j < (int)idx; ++j) {
+  for (int j = max_dist_stop_point.index - 1; j < static_cast<int>(idx); ++j) {
     if (base_path.points.at(std::max(j, 0)).twist.linear.x == 0.0) {
       is_inserted_already_stop_point = true;
       break;
@@ -586,7 +588,7 @@ void ObstacleStopPlannerNode::insertSlowDownStartPoint(
   autoware_planning_msgs::msg::Trajectory & output_path)
 {
   autoware_planning_msgs::msg::TrajectoryPoint slow_down_start_trajectory_point =
-    base_path.points.at(std::max((int)(slow_down_start_point.index) - 1, 0));
+    base_path.points.at(std::max(static_cast<int>(slow_down_start_point.index) - 1, 0));
   slow_down_start_trajectory_point.pose.position.x = slow_down_start_point.point.x();
   slow_down_start_trajectory_point.pose.position.y = slow_down_start_point.point.y();
   slow_down_start_trajectory_point.twist.linear.x = slow_down_start_point.velocity;
@@ -626,8 +628,8 @@ void ObstacleStopPlannerNode::insertSlowDownVelocity(
 double ObstacleStopPlannerNode::calcSlowDownTargetVel(const double lateral_deviation)
 {
   return min_slow_down_vel_ + (max_slow_down_vel_ - min_slow_down_vel_) *
-                                std::max(lateral_deviation - vehicle_width_ / 2, 0.0) /
-                                expand_slow_down_range_;
+         std::max(lateral_deviation - vehicle_width_ / 2, 0.0) /
+         expand_slow_down_range_;
 }
 
 void ObstacleStopPlannerNode::dynamicObjectCallback(

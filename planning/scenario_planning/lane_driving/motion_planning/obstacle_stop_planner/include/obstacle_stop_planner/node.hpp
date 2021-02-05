@@ -189,4 +189,4 @@ private:
 };
 }  // namespace motion_planning
 
-#endif // OBSTACLE_STOP_PLANNER__NODE_HPP_
+#endif  // OBSTACLE_STOP_PLANNER__NODE_HPP_

@@ -148,7 +148,8 @@ private:
     //!< @brief when failed to estimate velocity, use rough velocity estimation or not
     bool use_rough_est_vel;
 
-    //!< @brief in rough velocity estimation, front car velocity is estimated as self current velocity * this value
+    //!< @brief in rough velocity estimation, front car velocity is
+    //!< estimated as self current velocity * this value
     double rough_velocity_rate;
 
     /* parameter for pid used in acc */

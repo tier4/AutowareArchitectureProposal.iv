@@ -419,11 +419,11 @@ double AdaptiveCruiseController::estimateRoughPointVelocity(double current_vel)
 {
   const double p_dt = this->now().seconds() - prev_collision_point_time_.seconds();
   if (param_.valid_est_vel_diff_time >= p_dt) {
-    //use previous estimated velocity
+    // use previous estimated velocity
     return prev_target_velocity_;
   }
 
-  //use current velocity * rough velocity rate
+  // use current velocity * rough velocity rate
   return current_vel * param_.rough_velocity_rate;
 }
 
@@ -563,7 +563,7 @@ void AdaptiveCruiseController::insertMaxVelocityToPath(
   const geometry_msgs::msg::Pose self_pose, const double current_vel, const double target_vel,
   const double dist_to_collision_point, autoware_planning_msgs::msg::Trajectory * output_trajectory)
 {
-  //plus distance from self to next nearest point
+  // plus distance from self to next nearest point
   double dist = dist_to_collision_point;
   double dist_to_first_point = 0.0;
   if (output_trajectory->points.size() > 1) {
