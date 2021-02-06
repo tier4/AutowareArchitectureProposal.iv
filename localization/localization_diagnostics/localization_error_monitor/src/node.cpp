@@ -24,7 +24,7 @@
 LocalizationErrorMonitor::LocalizationErrorMonitor()
 : Node("localization_error_monitor"), updater_(this)
 {
-  scale_ = this->declare_parameter("scale", 3);
+  scale_ = this->declare_parameter("scale", 3.0);
   error_ellipse_size_ = this->declare_parameter("error_ellipse_size", 1.0);
   warn_ellipse_size_ = this->declare_parameter("warn_ellipse_size", 0.8);
 
