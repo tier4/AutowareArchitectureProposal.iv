@@ -324,27 +324,23 @@ void AutowareJoyControllerNode::publishEmergencyStop()
   if (joy_->clear_emergency_stop()) {
     emergency.data = false;
 
-    if (!client_clear_emergency_stop_->wait_for_service(std::chrono::seconds(1))) {
-      RCLCPP_WARN(get_logger(), "failed to find clear_emergency_stop service");
-    } else {
-      auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
-      auto result = client_clear_emergency_stop_->async_send_request(request);
-      if (
-        rclcpp::spin_until_future_complete(this->get_node_base_interface(), result) ==
-        rclcpp::FutureReturnCode::SUCCESS) {
-        if (result.get()->success) {
-          RCLCPP_INFO(get_logger(), "Clear Emergency Stop");
-        } else {
-          RCLCPP_WARN(
-            get_logger(), "failed to clear emergency stop: %s", result.get()->message.c_str());
-        }
-      } else {
-        RCLCPP_WARN(get_logger(), "failed to call service");
-      }
-    }
+    auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
+    auto result = client_clear_emergency_stop_->async_send_request(
+      request,
+      std::bind(&AutowareJoyControllerNode::clearEmergencyResponse, this, std::placeholders::_1));
   }
 
   pub_emergency_stop_->publish(emergency);
+}
+
+void AutowareJoyControllerNode::clearEmergencyResponse(
+  rclcpp::Client<std_srvs::srv::Trigger>::SharedFuture result)
+{
+  if (result.get()->success) {
+    RCLCPP_INFO(get_logger(), "Clear Emergency Stop");
+  } else {
+    RCLCPP_WARN(get_logger(), "failed to clear emergency stop: %s", result.get()->message.c_str());
+  }
 }
 
 void AutowareJoyControllerNode::publishAutowareEngage()
@@ -470,6 +466,14 @@ AutowareJoyControllerNode::AutowareJoyControllerNode()
 
   // Service Client
   client_clear_emergency_stop_ = this->create_client<std_srvs::srv::Trigger>("service/clear_emergency_stop");
+  while (!client_clear_emergency_stop_->wait_for_service(std::chrono::seconds(1))) {
+    if (!rclcpp::ok()) {
+      RCLCPP_ERROR(get_logger(), "Interrupted while waiting for service.");
+      rclcpp::shutdown();
+      return;
+    }
+    RCLCPP_INFO(get_logger(), "Waiting for clear_emergency_stop service connection...");
+  }
 
   // Timer
   initTimer(1.0 / update_rate_);

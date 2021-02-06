@@ -92,6 +92,7 @@ private:
   void publishEmergencyStop();
   void publishAutowareEngage();
   void publishVehicleEngage();
+  void clearEmergencyResponse(rclcpp::Client<std_srvs::srv::Trigger>::SharedFuture result);
 
   // Service Client
   rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr client_clear_emergency_stop_;
