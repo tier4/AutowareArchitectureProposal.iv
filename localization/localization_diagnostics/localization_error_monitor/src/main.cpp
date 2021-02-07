@@ -22,5 +22,5 @@ int main(int argc, char ** argv)
   auto node = std::make_shared<LocalizationErrorMonitor>();
   rclcpp::spin(node);
   rclcpp::shutdown();
-  return 1;
+  return 0;
 }
