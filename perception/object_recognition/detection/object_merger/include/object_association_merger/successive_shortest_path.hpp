@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef OBJECT_ASSOCIATION_MERGER__DATA_ASSOCIATION__SUCCESSIVE_SHORTEST_PATH__SUCCESSIVE_SHORTEST_PATH_HPP_
-#define OBJECT_ASSOCIATION_MERGER__DATA_ASSOCIATION__SUCCESSIVE_SHORTEST_PATH__SUCCESSIVE_SHORTEST_PATH_HPP_
+#ifndef OBJECT_ASSOCIATION_MERGER__SUCCESSIVE_SHORTEST_PATH_HPP_
+#define OBJECT_ASSOCIATION_MERGER__SUCCESSIVE_SHORTEST_PATH_HPP_
 
 #include <unordered_map>
 #include <vector>
@@ -26,4 +26,4 @@ void MaximizeLinearAssignment(
   std::unordered_map<int, int> * reverse_assignment);
 }  // namespace assignment_problem
 
-#endif  // OBJECT_ASSOCIATION_MERGER__DATA_ASSOCIATION__SUCCESSIVE_SHORTEST_PATH__SUCCESSIVE_SHORTEST_PATH_HPP_
+#endif  // OBJECT_ASSOCIATION_MERGER__SUCCESSIVE_SHORTEST_PATH_HPP_

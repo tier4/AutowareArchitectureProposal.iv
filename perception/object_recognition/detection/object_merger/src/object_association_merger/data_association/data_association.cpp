@@ -17,9 +17,9 @@
 #include <vector>
 
 #include "object_association_merger/data_association.hpp"
+#include "object_association_merger/successive_shortest_path.hpp"
 #include "sensor_msgs/point_cloud2_iterator.hpp"
 #include "object_association_merger/utils/utils.hpp"
-#include "successive_shortest_path/successive_shortest_path.hpp"
 
 DataAssociation::DataAssociation()
 : score_threshold_(0.1)
