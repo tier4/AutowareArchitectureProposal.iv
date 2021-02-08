@@ -1,30 +1,19 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #ifndef OBSTACLE_COLLISION_CHECKER__OBSTACLE_COLLISION_CHECKER_HPP_
 #define OBSTACLE_COLLISION_CHECKER__OBSTACLE_COLLISION_CHECKER_HPP_
-
-#include <map>
-#include <string>
-#include <vector>
-
-#include <boost/optional.hpp>
-
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
 
 #include <autoware_planning_msgs/msg/route.hpp>
 #include <autoware_planning_msgs/msg/trajectory.hpp>
@@ -35,6 +24,15 @@
 
 #include <autoware_utils/geometry/boost_geometry.hpp>
 #include <vehicle_info_util/vehicle_info.hpp>
+
+#include <boost/optional.hpp>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+
+#include <map>
+#include <string>
+#include <vector>
+
 
 namespace obstacle_collision_checker
 {
@@ -72,10 +70,10 @@ struct Output
 class ObstacleCollisionChecker
 {
 public:
-  ObstacleCollisionChecker(rclcpp::Node & node);
+  explicit ObstacleCollisionChecker(rclcpp::Node & node);
   Output update(const Input & input);
 
-  void setParam(const Param & param) { param_ = param; }
+  void setParam(const Param & param) {param_ = param;}
 
 private:
   Param param_;
@@ -83,17 +81,17 @@ private:
 
   //! This function assumes the input trajectory is sampled dense enough
   static autoware_planning_msgs::msg::Trajectory resampleTrajectory(
-    const autoware_planning_msgs::msg::Trajectory& trajectory, const double interval);
+    const autoware_planning_msgs::msg::Trajectory & trajectory, const double interval);
 
   static autoware_planning_msgs::msg::Trajectory cutTrajectory(
-    const autoware_planning_msgs::msg::Trajectory& trajectory, const double length);
+    const autoware_planning_msgs::msg::Trajectory & trajectory, const double length);
 
   static std::vector<LinearRing2d> createVehicleFootprints(
     const autoware_planning_msgs::msg::Trajectory & trajectory, const Param & param,
     const vehicle_info_util::VehicleInfo & vehicle_info);
 
   static std::vector<LinearRing2d> createVehiclePassingAreas(
-    const std::vector<LinearRing2d>& vehicle_footprints);
+    const std::vector<LinearRing2d> & vehicle_footprints);
 
   static LinearRing2d createHullFromFootprints(
     const LinearRing2d & area1, const LinearRing2d & area2);
@@ -105,8 +103,7 @@ private:
   static bool hasCollision(
     const pcl::PointCloud<pcl::PointXYZ> & obstacle_pointcloud,
     const LinearRing2d & vehicle_footprint);
-
 };
 }  // namespace obstacle_collision_checker
 
-#endif
+#endif  // OBSTACLE_COLLISION_CHECKER__OBSTACLE_COLLISION_CHECKER_HPP_

@@ -1,23 +1,20 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #ifndef OBSTACLE_COLLISION_CHECKER__OBSTACLE_COLLISION_CHECKER_NODE_HPP_
 #define OBSTACLE_COLLISION_CHECKER__OBSTACLE_COLLISION_CHECKER_NODE_HPP_
 
-#include <memory>
 
 #include <diagnostic_updater/diagnostic_updater.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -35,6 +32,9 @@
 #include <visualization_msgs/msg/marker_array.hpp>
 
 #include <obstacle_collision_checker/obstacle_collision_checker.hpp>
+
+#include <memory>
+#include <vector>
 
 namespace obstacle_collision_checker
 {
@@ -57,8 +57,10 @@ private:
   std::shared_ptr<autoware_utils::SelfPoseListener> self_pose_listener_;
   std::shared_ptr<TransformListener> transform_listener_;
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_obstacle_pointcloud_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_reference_trajectory_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_predicted_trajectory_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr
+    sub_reference_trajectory_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr
+    sub_predicted_trajectory_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
 
   // Data Buffer
@@ -111,4 +113,4 @@ private:
 };
 }  // namespace obstacle_collision_checker
 
-#endif
+#endif  // OBSTACLE_COLLISION_CHECKER__OBSTACLE_COLLISION_CHECKER_NODE_HPP_

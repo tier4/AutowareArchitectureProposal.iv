@@ -5,7 +5,7 @@
   <arg name="input/predicted_trajectory" default="/control/trajectory_follower/predicted_trajectory" />
   <arg name="input/twist" default="/localization/twist" />
   <arg name="config_file" default="$(find-pkg-share obstacle_collision_checker)/config/obstacle_collision_checker.yaml" />
-  <arg name="vehicle_param_file" default="/home/shin/git/AutowareArchitectureProposal.proj/src/description/vehicle/lexus_description/config/vehicle_info.yaml"/>
+  <arg name="vehicle_param_file" />
 
   <node pkg="obstacle_collision_checker" exec="obstacle_collision_checker_node" name="obstacle_collision_checker_node" output="screen">
     <param from="$(var config_file)" />

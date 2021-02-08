@@ -20,7 +20,6 @@ include_directories(
   ${PCL_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
-  ${catkin_INCLUDE_DIRS}
 )
 
 # Target

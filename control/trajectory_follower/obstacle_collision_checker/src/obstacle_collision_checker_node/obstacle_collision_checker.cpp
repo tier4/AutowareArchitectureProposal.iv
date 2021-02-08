@@ -1,23 +1,19 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#include <iostream>
-
-#include <obstacle_collision_checker/obstacle_collision_checker.hpp>
 #include <boost/geometry.hpp>
+#include <obstacle_collision_checker/obstacle_collision_checker.hpp>
 
 #include <autoware_utils/geometry/geometry.hpp>
 #include <autoware_utils/math/normalization.hpp>
@@ -25,17 +21,21 @@
 #include <autoware_utils/system/stop_watch.hpp>
 
 #include <pcl_conversions/pcl_conversions.h>
-#include <pcl_ros/transforms.hpp>
-#include <rclcpp/rclcpp.hpp>
 #include <tf2/utils.h>
 #include <tf2_eigen/tf2_eigen.h>
+#include <pcl_ros/transforms.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 #include <obstacle_collision_checker/util/create_vehicle_footprint.hpp>
+
+#include <iostream>
+#include <vector>
 
 namespace
 {
 pcl::PointCloud<pcl::PointXYZ> getTransformedPointCloud(
-  const sensor_msgs::msg::PointCloud2 & pointcloud_msg, const geometry_msgs::msg::Transform & transform)
+  const sensor_msgs::msg::PointCloud2 & pointcloud_msg,
+  const geometry_msgs::msg::Transform & transform)
 {
   const Eigen::Matrix4f transform_matrix = tf2::transformToEigen(transform).matrix().cast<float>();
 
@@ -77,8 +77,8 @@ double calcBrakingDistance(
 
 namespace obstacle_collision_checker
 {
-ObstacleCollisionChecker::ObstacleCollisionChecker(rclcpp::Node & node):
-vehicle_info_(vehicle_info_util::VehicleInfo::create(node))
+ObstacleCollisionChecker::ObstacleCollisionChecker(rclcpp::Node & node)
+: vehicle_info_(vehicle_info_util::VehicleInfo::create(node))
 {
 }
 
@@ -103,7 +103,8 @@ Output ObstacleCollisionChecker::update(const Input & input)
   const auto filtered_obstacle_pointcloud = filterPointCloudByTrajectory(
     obstacle_pointcloud, output.resampled_trajectory, param_.search_radius);
 
-  output.vehicle_footprints = createVehicleFootprints(output.resampled_trajectory, param_, vehicle_info_);
+  output.vehicle_footprints =
+    createVehicleFootprints(output.resampled_trajectory, param_, vehicle_info_);
   output.processing_time_map["createVehicleFootprints"] = stop_watch.toc(true);
 
   output.vehicle_passing_areas = createVehiclePassingAreas(output.vehicle_footprints);
@@ -181,17 +182,18 @@ autoware_planning_msgs::msg::Trajectory ObstacleCollisionChecker::cutTrajectory(
 }
 
 std::vector<LinearRing2d> ObstacleCollisionChecker::createVehicleFootprints(
-  const autoware_planning_msgs::msg::Trajectory & trajectory, const Param & param, const vehicle_info_util::VehicleInfo & vehicle_info)
+  const autoware_planning_msgs::msg::Trajectory & trajectory, const Param & param,
+  const vehicle_info_util::VehicleInfo & vehicle_info)
 {
   // Create vehicle footprint in base_link coordinate
-  const auto local_vehicle_footprint =
-    createVehicleFootprint(vehicle_info, param.footprint_margin);
+  const auto local_vehicle_footprint = createVehicleFootprint(vehicle_info, param.footprint_margin);
 
   // Create vehicle footprint on each TrajectoryPoint
   std::vector<LinearRing2d> vehicle_footprints;
   for (const auto & p : trajectory.points) {
     vehicle_footprints.push_back(
-      autoware_utils::transformVector<autoware_utils::LinearRing2d>(local_vehicle_footprint, autoware_utils::pose2transform(p.pose)));
+      autoware_utils::transformVector<autoware_utils::LinearRing2d>(
+        local_vehicle_footprint, autoware_utils::pose2transform(p.pose)));
   }
 
   return vehicle_footprints;
@@ -232,7 +234,8 @@ bool ObstacleCollisionChecker::willCollide(
 {
   for (const auto & vehicle_footprint : vehicle_footprints) {
     if (hasCollision(obstacle_pointcloud, vehicle_footprint)) {
-      RCLCPP_WARN(rclcpp::get_logger("obstacle_collision_checker"), "ObstacleCollisionChecker::willCollide");
+      RCLCPP_WARN(
+        rclcpp::get_logger("obstacle_collision_checker"), "ObstacleCollisionChecker::willCollide");
       return true;
     }
   }
@@ -246,7 +249,9 @@ bool ObstacleCollisionChecker::hasCollision(
 {
   for (const auto & point : obstacle_pointcloud) {
     if (boost::geometry::within(autoware_utils::Point2d{point.x, point.y}, vehicle_footprint)) {
-      RCLCPP_WARN(rclcpp::get_logger("obstacle_collision_checker"), "[ObstacleCollisionChecker] Collide to Point x: %f y: %f", point.x, point.y);
+      RCLCPP_WARN(
+        rclcpp::get_logger("obstacle_collision_checker"),
+        "[ObstacleCollisionChecker] Collide to Point x: %f y: %f", point.x, point.y);
       return true;
     }
   }

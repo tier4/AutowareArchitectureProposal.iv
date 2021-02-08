@@ -1,28 +1,29 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include <obstacle_collision_checker/obstacle_collision_checker_node.hpp>
 
 #include <autoware_utils/geometry/geometry.hpp>
 #include <autoware_utils/math/unit_conversion.hpp>
 #include <autoware_utils/ros/marker_helper.hpp>
+#include <obstacle_collision_checker/util/create_vehicle_footprint.hpp>
 #include <vehicle_info_util/vehicle_info.hpp>
 
-#include <obstacle_collision_checker/util/create_vehicle_footprint.hpp>
-
+#include <memory>
+#include <vector>
+#include <string>
+#include <utility>
 
 namespace
 {
@@ -41,10 +42,8 @@ void update_param(
 
 namespace obstacle_collision_checker
 {
-
-ObstacleCollisionCheckerNode::ObstacleCollisionCheckerNode():
-Node("obstacle_collision_checker_node"),
-updater_(this)
+ObstacleCollisionCheckerNode::ObstacleCollisionCheckerNode()
+: Node("obstacle_collision_checker_node"), updater_(this)
 {
   using std::placeholders::_1;
 
@@ -59,7 +58,8 @@ updater_(this)
   param_.search_radius = declare_parameter("search_radius", 5.0);
 
   // Dynamic Reconfigure
-  set_param_res_ = this->add_on_set_parameters_callback(std::bind(&ObstacleCollisionCheckerNode::paramCallback, this, _1));
+  set_param_res_ = this->add_on_set_parameters_callback(
+    std::bind(&ObstacleCollisionCheckerNode::paramCallback, this, _1));
 
   // Core
   obstacle_collision_checker_ = std::make_unique<ObstacleCollisionChecker>(*this);
@@ -70,22 +70,27 @@ updater_(this)
   transform_listener_ = std::make_shared<TransformListener>(this);
 
   sub_obstacle_pointcloud_ = create_subscription<sensor_msgs::msg::PointCloud2>(
-    "input/obstacle_pointcloud", 1, std::bind(&ObstacleCollisionCheckerNode::onObstaclePointcloud, this, _1));
+    "input/obstacle_pointcloud", 1,
+    std::bind(&ObstacleCollisionCheckerNode::onObstaclePointcloud, this, _1));
   sub_reference_trajectory_ = create_subscription<autoware_planning_msgs::msg::Trajectory>(
-    "input/reference_trajectory", 1, std::bind(&ObstacleCollisionCheckerNode::onReferenceTrajectory, this, _1));
+    "input/reference_trajectory", 1,
+    std::bind(&ObstacleCollisionCheckerNode::onReferenceTrajectory, this, _1));
   sub_predicted_trajectory_ = create_subscription<autoware_planning_msgs::msg::Trajectory>(
-    "input/predicted_trajectory", 1, std::bind(&ObstacleCollisionCheckerNode::onPredictedTrajectory, this, _1));
-  sub_twist_ =
-    create_subscription<geometry_msgs::msg::TwistStamped>("input/twist", 1, std::bind(&ObstacleCollisionCheckerNode::onTwist, this, _1));
+    "input/predicted_trajectory", 1,
+    std::bind(&ObstacleCollisionCheckerNode::onPredictedTrajectory, this, _1));
+  sub_twist_ = create_subscription<geometry_msgs::msg::TwistStamped>(
+    "input/twist", 1, std::bind(&ObstacleCollisionCheckerNode::onTwist, this, _1));
 
   // Publisher
-  debug_publisher_ = std::make_shared<autoware_utils::DebugPublisher>(this, "debug/marker"); // TODO
+  debug_publisher_ =
+    std::make_shared<autoware_utils::DebugPublisher>(this, "debug/marker");
   time_publisher_ = std::make_shared<autoware_utils::ProcessingTimePublisher>(this);
 
   // Diagnostic Updater
   updater_.setHardwareID("obstacle_collision_checker");
 
-  updater_.add("obstacle_collision_checker", this, &ObstacleCollisionCheckerNode::checkLaneDeparture);
+  updater_.add(
+    "obstacle_collision_checker", this, &ObstacleCollisionCheckerNode::checkLaneDeparture);
 
   // Wait for first self pose
   self_pose_listener_->waitForFirstPose();
@@ -131,32 +136,41 @@ void ObstacleCollisionCheckerNode::initTimer(double period_s)
 bool ObstacleCollisionCheckerNode::isDataReady()
 {
   if (!current_pose_) {
-    RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 5000 /* ms */, "waiting for current_pose...");
+    RCLCPP_INFO_THROTTLE(
+      this->get_logger(), *this->get_clock(), 5000 /* ms */, "waiting for current_pose...");
     return false;
   }
 
   if (!obstacle_pointcloud_) {
-    RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 5000 /* ms */, "waiting for obstacle_pointcloud msg...");
+    RCLCPP_INFO_THROTTLE(
+      this->get_logger(), *this->get_clock(), 5000 /* ms */,
+      "waiting for obstacle_pointcloud msg...");
     return false;
   }
 
   if (!obstacle_transform_) {
-    RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 5000 /* ms */, "waiting for obstacle_transform...");
+    RCLCPP_INFO_THROTTLE(
+      this->get_logger(), *this->get_clock(), 5000 /* ms */, "waiting for obstacle_transform...");
     return false;
   }
 
   if (!reference_trajectory_) {
-    RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 5000 /* ms */, "waiting for reference_trajectory msg...");
+    RCLCPP_INFO_THROTTLE(
+      this->get_logger(), *this->get_clock(), 5000 /* ms */,
+      "waiting for reference_trajectory msg...");
     return false;
   }
 
   if (!predicted_trajectory_) {
-    RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 5000 /* ms */, "waiting for predicted_trajectory msg...");
+    RCLCPP_INFO_THROTTLE(
+      this->get_logger(), *this->get_clock(), 5000 /* ms */,
+      "waiting for predicted_trajectory msg...");
     return false;
   }
 
   if (!current_twist_) {
-    RCLCPP_INFO_THROTTLE(this->get_logger(), *this->get_clock(), 5000 /* ms */, "waiting for current_twist msg...");
+    RCLCPP_INFO_THROTTLE(
+      this->get_logger(), *this->get_clock(), 5000 /* ms */, "waiting for current_twist msg...");
     return false;
   }
 
@@ -170,7 +184,8 @@ bool ObstacleCollisionCheckerNode::isDataTimeout()
   constexpr double th_pose_timeout = 1.0;
   const auto pose_time_diff = rclcpp::Time(current_pose_->header.stamp).seconds() - now.seconds();
   if (pose_time_diff > th_pose_timeout) {
-    RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1000 /* ms */, "pose is timeout...");
+    RCLCPP_WARN_THROTTLE(
+      this->get_logger(), *this->get_clock(), 1000 /* ms */, "pose is timeout...");
     return true;
   }
 
@@ -182,8 +197,8 @@ void ObstacleCollisionCheckerNode::onTimer()
   current_pose_ = self_pose_listener_->getCurrentPose();
   if (obstacle_pointcloud_) {
     const auto & header = obstacle_pointcloud_->header;
-    obstacle_transform_ =
-      transform_listener_->getTransform("map", header.frame_id, header.stamp, rclcpp::Duration(0.01));
+    obstacle_transform_ = transform_listener_->getTransform(
+      "map", header.frame_id, header.stamp, rclcpp::Duration(0.01));
   }
 
   if (!isDataReady()) {
@@ -210,7 +225,6 @@ void ObstacleCollisionCheckerNode::onTimer()
   time_publisher_->publish(output_.processing_time_map);
 }
 
-
 rcl_interfaces::msg::SetParametersResult ObstacleCollisionCheckerNode::paramCallback(
   const std::vector<rclcpp::Parameter> & parameters)
 {
@@ -232,7 +246,6 @@ rcl_interfaces::msg::SetParametersResult ObstacleCollisionCheckerNode::paramCall
   }
   return result;
 }
-
 
 void ObstacleCollisionCheckerNode::checkLaneDeparture(
   diagnostic_updater::DiagnosticStatusWrapper & stat)
@@ -262,8 +275,9 @@ visualization_msgs::msg::MarkerArray ObstacleCollisionCheckerNode::createMarkerA
     // Line of resampled_trajectory
     {
       auto marker = createDefaultMarker(
-        "map", this->now(), "resampled_trajectory_line", 0, visualization_msgs::msg::Marker::LINE_STRIP,
-        createMarkerScale(0.05, 0, 0), createMarkerColor(1.0, 1.0, 1.0, 0.999));
+        "map", this->now(), "resampled_trajectory_line", 0,
+        visualization_msgs::msg::Marker::LINE_STRIP, createMarkerScale(0.05, 0, 0),
+        createMarkerColor(1.0, 1.0, 1.0, 0.999));
 
       for (const auto & p : output_.resampled_trajectory.points) {
         marker.points.push_back(p.pose.position);
@@ -276,8 +290,9 @@ visualization_msgs::msg::MarkerArray ObstacleCollisionCheckerNode::createMarkerA
     // Points of resampled_trajectory
     {
       auto marker = createDefaultMarker(
-        "map", this->now(), "resampled_trajectory_points", 0, visualization_msgs::msg::Marker::SPHERE_LIST,
-        createMarkerScale(0.1, 0.1, 0.1), createMarkerColor(0.0, 1.0, 0.0, 0.999));
+        "map", this->now(), "resampled_trajectory_points", 0,
+        visualization_msgs::msg::Marker::SPHERE_LIST, createMarkerScale(0.1, 0.1, 0.1),
+        createMarkerColor(0.0, 1.0, 0.0, 0.999));
 
       for (const auto & p : output_.resampled_trajectory.points) {
         marker.points.push_back(p.pose.position);
