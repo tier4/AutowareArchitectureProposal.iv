@@ -17,6 +17,10 @@
 #ifndef LANE_CHANGE_PLANNER_LANE_CHANGER_HPP
 #define LANE_CHANGE_PLANNER_LANE_CHANGER_HPP
 
+#include <lane_change_planner/data_manager.hpp>
+#include <lane_change_planner/route_handler.hpp>
+#include <lane_change_planner/state_machine.hpp>
+
 // ROS
 #include <rclcpp/rclcpp.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
@@ -31,20 +35,17 @@
 #include <autoware_planning_msgs/msg/route.hpp>
 #include <autoware_planning_msgs/msg/stop_reason_array.hpp>
 
-#include <lane_change_planner/data_manager.hpp>
-#include <lane_change_planner/route_handler.hpp>
-#include <lane_change_planner/state_machine.hpp>
-
 // lanelet
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_routing/RoutingGraph.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 
+// STL
 #include <memory>
 
 namespace lane_change_planner
 {
-class LaneChanger
+class LaneChanger : public rclcpp::Node
 {
 private:
   rclcpp::TimerBase::SharedPtr timer_;

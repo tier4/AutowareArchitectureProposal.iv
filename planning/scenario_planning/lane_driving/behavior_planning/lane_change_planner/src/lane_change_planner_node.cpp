@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
+#include <memory>
 #include <lane_change_planner/lane_changer.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 int main(int argc, char ** argv)
 {
-#ifdef ROS2PORTING
-  ros::init(argc, argv, "lane_change_planner_node");
-
-  lane_change_planner::LaneChanger lane_changer;
-
-  ros::spin();
-
-#endif  // ROS2PORTING
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<lane_change_planner::LaneChanger>());
+  rclcpp::shutdown();
   return 0;
 }
