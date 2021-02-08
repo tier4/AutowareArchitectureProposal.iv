@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_STATE_FOLLOWING_LANE_H
-#define LANE_CHANGE_PLANNER_STATE_FOLLOWING_LANE_H
+#ifndef LANE_CHANGE_PLANNER_STATE_BLOCKED_BY_OBSTACLE_HPP
+#define LANE_CHANGE_PLANNER_STATE_BLOCKED_BY_OBSTACLE_HPP
 
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <lane_change_planner/state/state_base_class.h>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <lane_change_planner/state/state_base_class.hpp>
 #include <lanelet2_core/primitives/Primitive.h>
-
 #include <memory>
 
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
-class FollowingLaneState : public StateBase
+class BlockedByObstacleState : public StateBase
 {
 private:
   geometry_msgs::PoseStamped current_pose_;
@@ -35,21 +35,29 @@ private:
   autoware_perception_msgs::DynamicObjectArray::ConstPtr dynamic_objects_;
   bool lane_change_approved_;
   bool force_lane_change_;
+  bool found_valid_path_;
+  bool found_safe_path_;
   lanelet::ConstLanelets current_lanes_;
   lanelet::ConstLanelets lane_change_lanes_;
 
   // State transition conditions
-  bool isVehicleInPreferredLane() const;
-  bool isTooCloseToDeadEnd() const;
-  bool laneChangeForcedByOperator() const;
-  bool isLaneBlocked(const lanelet::ConstLanelets & lanes) const;
-  bool isLaneChangeReady() const;
-  // minor conditions
+  bool foundSafeLaneChangePath() const;
+  bool foundValidPath() const;
+  bool hasEnoughDistanceToComeBack(const lanelet::ConstLanelets & target_lanes) const;
   bool isLaneChangeApproved() const;
+  bool isLaneBlocked() const;
+  bool isOutOfCurrentLanes() const;
   bool isLaneChangeAvailable() const;
+  bool isLaneChangeReady() const;
+  bool laneChangeForcedByOperator() const;
+
+  // utility function
+  std::vector<autoware_perception_msgs::DynamicObject> getBlockingObstacles() const;
+  autoware_planning_msgs::PathWithLaneId setStopPointFromObstacle(
+    const autoware_planning_msgs::PathWithLaneId & path);
 
 public:
-  FollowingLaneState(
+  BlockedByObstacleState(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
     const std::shared_ptr<RouteHandler> & route_handler_ptr);
 
@@ -62,4 +70,5 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_STATE_FOLLOWING_LANE_H
+#endif  // ROS2PORTING
+#endif  // LANE_CHANGE_PLANNER_STATE_BLOCKED_BY_OBSTACLE_H

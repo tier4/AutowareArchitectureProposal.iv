@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/route_handler.h>
-#include <lane_change_planner/utilities.h>
+#include <lane_change_planner/route_handler.hpp>
+#include <lane_change_planner/utilities.hpp>
 
-#include <autoware_planning_msgs/PathWithLaneId.h>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/geometry/Lanelet.h>
 #include <lanelet2_core/primitives/LaneletSequence.h>
-#include <lanelet2_extension/utility/message_conversion.h>
-#include <lanelet2_extension/utility/query.h>
-#include <lanelet2_extension/utility/utilities.h>
+#include <lanelet2_extension/utility/message_conversion.hpp>
+#include <lanelet2_extension/utility/query.hpp>
+#include <lanelet2_extension/utility/utilities.hpp>
 
-#include <ros/ros.h>
+#include <rclcpp/rclcpp.hpp>
 
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <unordered_set>
 
-using autoware_planning_msgs::PathPointWithLaneId;
-using autoware_planning_msgs::PathWithLaneId;
+using autoware_planning_msgs::msg::PathPointWithLaneId;
+using autoware_planning_msgs::msg::PathWithLaneId;
 using lanelet::utils::to2D;
+
+#ifdef ROS2PORTING
 namespace
 {
 template <typename T>
@@ -1009,3 +1011,5 @@ lanelet::routing::RoutingGraphContainer RouteHandler::getOverallGraph() const
 }
 
 }  // namespace lane_change_planner
+
+#endif  // ROS2PORTING

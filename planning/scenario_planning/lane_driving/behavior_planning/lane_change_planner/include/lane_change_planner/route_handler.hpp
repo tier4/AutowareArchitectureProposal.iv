@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_ROUTE_HANDLER_H
-#define LANE_CHANGE_PLANNER_ROUTE_HANDLER_H
+#ifndef LANE_CHANGE_PLANNER_ROUTE_HANDLER_HPP
+#define LANE_CHANGE_PLANNER_ROUTE_HANDLER_HPP
 
 // Autoware
-#include <autoware_lanelet2_msgs/MapBin.h>
-#include <autoware_planning_msgs/PathWithLaneId.h>
-#include <autoware_planning_msgs/Route.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <lanelet2_extension/utility/query.h>
+#include <autoware_lanelet2_msgs/msg/map_bin.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <autoware_planning_msgs/msg/route.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <lanelet2_extension/utility/query.hpp>
+#include <lane_change_planner/parameters.hpp>
+
 // lanelet
 #include <lanelet2_routing/Route.h>
 #include <lanelet2_routing/RoutingCost.h>
@@ -30,10 +32,9 @@
 #include <lanelet2_routing/RoutingGraphContainer.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 
-#include <lane_change_planner/parameters.h>
-
 #include <vector>
 
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 enum class LaneChangeDirection { NONE, LEFT, RIGHT };
@@ -149,4 +150,6 @@ public:
   std::vector<lanelet::ConstLanelet> getLanesAfterGoal(const double vehicle_length) const;
 };
 }  // namespace lane_change_planner
+
+#endif  // ROS2PORTING
 #endif  // LANE_CHANGE_PLANNER_ROUTE_HANDLER_H

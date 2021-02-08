@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_DATA_MANAGER_H
-#define LANE_CHANGE_PLANNER_DATA_MANAGER_H
+#ifndef LANE_CHANGE_PLANNER_DATA_MANAGER_HPP
+#define LANE_CHANGE_PLANNER_DATA_MANAGER_HPP
 
 // ROS
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/TwistStamped.h>
-#include <ros/ros.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <std_msgs/Bool.h>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <std_msgs/msg/bool.hpp> 
 #include <tf2_ros/transform_listener.h>
 
 // Autoware
-#include <autoware_lanelet2_msgs/MapBin.h>
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <autoware_planning_msgs/PathWithLaneId.h>
-#include <autoware_planning_msgs/Route.h>
-#include <lane_change_planner/parameters.h>
+#include <autoware_lanelet2_msgs/msg/map_bin.hpp>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <autoware_planning_msgs/msg/route.hpp>
+#include <lane_change_planner/parameters.hpp>
 
 // lanelet
 #include <lanelet2_core/LaneletMap.h>
@@ -40,6 +40,7 @@
 // other
 #include <memory>
 
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 class SelfPoseListener
@@ -106,4 +107,5 @@ public:
 };
 }  // namespace lane_change_planner
 
+#endif  // ROS2PORTING
 #endif  // LANE_CHANGE_PLANNER_DATA_MANAGER_H

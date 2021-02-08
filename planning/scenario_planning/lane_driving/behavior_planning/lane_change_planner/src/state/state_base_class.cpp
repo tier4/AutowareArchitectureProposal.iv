@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/state/state_base_class.h>
+#include <lane_change_planner/state/state_base_class.hpp>
 
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 std::ostream & operator<<(std::ostream & ostream, const State & state)
@@ -59,3 +60,5 @@ StateBase::StateBase(
 Status StateBase::getStatus() const { return status_; }
 DebugData StateBase::getDebugData() const { return debug_data_; }
 }  // namespace lane_change_planner
+
+#endif  // ROS2PORTING

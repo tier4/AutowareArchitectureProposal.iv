@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/lane_changer.h>
-#include <ros/ros.h>
+#include <lane_change_planner/lane_changer.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 int main(int argc, char ** argv)
 {
+#ifdef ROS2PORTING
   ros::init(argc, argv, "lane_change_planner_node");
 
   lane_change_planner::LaneChanger lane_changer;
 
   ros::spin();
 
+#endif  // ROS2PORTING
   return 0;
 }

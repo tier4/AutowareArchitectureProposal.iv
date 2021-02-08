@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_LANE_CHANGER_H
-#define LANE_CHANGE_PLANNER_LANE_CHANGER_H
+#ifndef LANE_CHANGE_PLANNER_LANE_CHANGER_HPP
+#define LANE_CHANGE_PLANNER_LANE_CHANGER_HPP
 
 // ROS
-#include <ros/ros.h>
-#include <std_msgs/Bool.h>
+#include <rclcpp/rclcpp.hpp>
+#include <std_msgs/msg/bool.hpp>
 #include <tf2_ros/transform_listener.h>
 
 // Autoware
-#include <autoware_lanelet2_msgs/MapBin.h>
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <autoware_planning_msgs/PathWithLaneId.h>
-#include <autoware_planning_msgs/Route.h>
-#include <autoware_planning_msgs/StopReasonArray.h>
+#include <autoware_lanelet2_msgs/msg/map_bin.hpp>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <autoware_planning_msgs/msg/route.hpp>
+#include <autoware_planning_msgs/msg/stop_reason_array.hpp>
 
-#include <lane_change_planner/data_manager.h>
-#include <lane_change_planner/route_handler.h>
-#include <lane_change_planner/state_machine.h>
+#include <lane_change_planner/data_manager.hpp>
+#include <lane_change_planner/route_handler.hpp>
+#include <lane_change_planner/state_machine.hpp>
 
 // lanelet
 #include <lanelet2_core/LaneletMap.h>
@@ -40,6 +40,7 @@
 
 #include <memory>
 
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 class LaneChanger
@@ -86,4 +87,5 @@ public:
 };
 }  // namespace lane_change_planner
 
+#endif  // ROS2PORTING
 #endif  // LANE_CHANGE_PLANNER_LANE_CHANGER_H

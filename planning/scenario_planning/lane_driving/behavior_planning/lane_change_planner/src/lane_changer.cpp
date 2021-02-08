@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/lane_changer.h>
-#include <lane_change_planner/utilities.h>
-#include <visualization_msgs/MarkerArray.h>
+#include <lane_change_planner/lane_changer.hpp>
+#include <lane_change_planner/utilities.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 
+#ifdef ROS2PORTING
 std_msgs::ColorRGBA toRainbow(double ratio);
 visualization_msgs::Marker convertToMarker(
   const autoware_perception_msgs::PredictedPath & path, const int id, const std::string & ns,
@@ -575,3 +576,5 @@ visualization_msgs::MarkerArray createVirtualWall(
 
   return msg;
 }
+
+#endif  // ROS2PORTING

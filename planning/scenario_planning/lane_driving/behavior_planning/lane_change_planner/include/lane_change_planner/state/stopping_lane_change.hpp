@@ -14,21 +14,35 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_STATE_ABORTING_LANE_CHANGE_H
-#define LANE_CHANGE_PLANNER_STATE_ABORTING_LANE_CHANGE_H
+#ifndef LANE_CHANGE_PLANNER_STATE_STOPPING_LANE_CHANGE_HPP
+#define LANE_CHANGE_PLANNER_STATE_STOPPING_LANE_CHANGE_HPP
 
-#include <lane_change_planner/state/state_base_class.h>
+#include <lane_change_planner/state/state_base_class.hpp>
 
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
-class AbortingLaneChangeState : public StateBase
+class StoppingLaneChangeState : public StateBase
 {
 private:
+  geometry_msgs::PoseStamped current_pose_;
+  geometry_msgs::TwistStamped::ConstPtr current_twist_;
+  autoware_perception_msgs::DynamicObjectArray::ConstPtr dynamic_objects_;
+
+  lanelet::ConstLanelets original_lanes_;
+  lanelet::ConstLanelets target_lanes_;
+
+  autoware_planning_msgs::PathWithLaneId stop_path_;
   // State transition conditions
-  bool hasReturnedToOriginalLane() const;
+  bool isSafe() const;
+  bool isVehicleInOriginalLanes() const;
+
+  // utility function
+  autoware_planning_msgs::PathWithLaneId setStopPoint(
+    const autoware_planning_msgs::PathWithLaneId & path);
 
 public:
-  AbortingLaneChangeState(
+  StoppingLaneChangeState(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
     const std::shared_ptr<RouteHandler> & route_handler_ptr);
 
@@ -41,4 +55,5 @@ public:
 };
 }  // namespace lane_change_planner
 
+#endif  // ROS2PORTING
 #endif  // LANE_CHANGE_PLANNER_STATE_ABORTING_LANE_CHANGE_H

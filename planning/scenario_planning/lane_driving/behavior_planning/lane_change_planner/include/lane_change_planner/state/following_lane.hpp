@@ -14,36 +14,45 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_STATE_FORCING_LANE_CHANGE_H
-#define LANE_CHANGE_PLANNER_STATE_FORCING_LANE_CHANGE_H
+#ifndef LANE_CHANGE_PLANNER_STATE_FOLLOWING_LANE_HPP
+#define LANE_CHANGE_PLANNER_STATE_FOLLOWING_LANE_HPP
 
-#include <lane_change_planner/state/state_base_class.h>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <lane_change_planner/state/state_base_class.hpp>
+#include <lanelet2_core/primitives/Primitive.h>
+#include <memory>
 
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/TwistStamped.h>
-
-#include <lanelet2_core/primitives/Lanelet.h>
-
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
-class ForcingLaneChangeState : public StateBase
+class FollowingLaneState : public StateBase
 {
 private:
-  // State transition conditions
-  bool hasFinishedLaneChange() const;
   geometry_msgs::PoseStamped current_pose_;
   geometry_msgs::TwistStamped::ConstPtr current_twist_;
   autoware_perception_msgs::DynamicObjectArray::ConstPtr dynamic_objects_;
-  double start_distance_;
+  bool lane_change_approved_;
+  bool force_lane_change_;
+  lanelet::ConstLanelets current_lanes_;
+  lanelet::ConstLanelets lane_change_lanes_;
 
-  lanelet::ConstLanelets original_lanes_;
-  lanelet::ConstLanelets target_lanes_;
+  // State transition conditions
+  bool isVehicleInPreferredLane() const;
+  bool isTooCloseToDeadEnd() const;
+  bool laneChangeForcedByOperator() const;
+  bool isLaneBlocked(const lanelet::ConstLanelets & lanes) const;
+  bool isLaneChangeReady() const;
+  // minor conditions
+  bool isLaneChangeApproved() const;
+  bool isLaneChangeAvailable() const;
 
 public:
-  ForcingLaneChangeState(
+  FollowingLaneState(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
     const std::shared_ptr<RouteHandler> & route_handler_ptr);
+
   // override virtual functions
   void entry() override;
   void update() override;
@@ -53,4 +62,5 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_STATE_FORCING_LANE_CHANGE_H
+#endif  // ROS2PORTING
+#endif  // LANE_CHANGE_PLANNER_STATE_FOLLOWING_LANE_H

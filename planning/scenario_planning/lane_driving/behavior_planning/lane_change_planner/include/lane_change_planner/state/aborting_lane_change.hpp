@@ -14,41 +14,22 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_STATE_EXECUTING_LANE_CHANGE_H
-#define LANE_CHANGE_PLANNER_STATE_EXECUTING_LANE_CHANGE_H
+#ifndef LANE_CHANGE_PLANNER_STATE_ABORTING_LANE_CHANGE_HPP
+#define LANE_CHANGE_PLANNER_STATE_ABORTING_LANE_CHANGE_HPP
 
-#include <autoware_planning_msgs/PathWithLaneId.h>
-#include <lane_change_planner/state/state_base_class.h>
+#include <lane_change_planner/state/state_base_class.hpp>
 
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/TwistStamped.h>
-
-#include <lanelet2_core/primitives/Lanelet.h>
-
-#include <memory>
-
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
-class ExecutingLaneChangeState : public StateBase
+class AbortingLaneChangeState : public StateBase
 {
 private:
-  geometry_msgs::PoseStamped current_pose_;
-  geometry_msgs::TwistStamped::ConstPtr current_twist_;
-  autoware_perception_msgs::DynamicObjectArray::ConstPtr dynamic_objects_;
-  double start_distance_;
-
-  lanelet::ConstLanelets original_lanes_;
-  lanelet::ConstLanelets target_lanes_;
-
   // State transition conditions
-  bool isNearEndOfLane() const;
-  bool isCurrentSpeedLow() const;
-  bool isAbortConditionSatisfied() const;
-  bool hasFinishedLaneChange() const;
+  bool hasReturnedToOriginalLane() const;
 
 public:
-  ExecutingLaneChangeState(
+  AbortingLaneChangeState(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
     const std::shared_ptr<RouteHandler> & route_handler_ptr);
 
@@ -61,4 +42,5 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_STATE_EXECUTING_LANE_CHANGE_H
+#endif  // ROS2PORTING
+#endif  // LANE_CHANGE_PLANNER_STATE_ABORTING_LANE_CHANGE_H

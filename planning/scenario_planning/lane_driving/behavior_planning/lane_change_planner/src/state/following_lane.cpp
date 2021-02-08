@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/data_manager.h>
-#include <lane_change_planner/route_handler.h>
-#include <lane_change_planner/state/common_functions.h>
-#include <lane_change_planner/state/following_lane.h>
-#include <lane_change_planner/utilities.h>
-#include <lanelet2_extension/utility/message_conversion.h>
-#include <lanelet2_extension/utility/utilities.h>
+#include <lane_change_planner/data_manager.hpp>
+#include <lane_change_planner/route_handler.hpp>
+#include <lane_change_planner/state/common_functions.hpp>
+#include <lane_change_planner/state/following_lane.hpp>
+#include <lane_change_planner/utilities.hpp>
+#include <lanelet2_extension/utility/message_conversion.hpp>
+#include <lanelet2_extension/utility/utilities.hpp>
 
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 FollowingLaneState::FollowingLaneState(
@@ -236,3 +237,5 @@ bool FollowingLaneState::isLaneChangeReady() const { return status_.lane_change_
 bool FollowingLaneState::isLaneChangeAvailable() const { return status_.lane_change_available; }
 
 }  // namespace lane_change_planner
+
+#endif  // ROS2PORTING

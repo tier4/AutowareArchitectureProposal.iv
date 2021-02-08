@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/data_manager.h>
-#include <lanelet2_extension/utility/message_conversion.h>
+#include <lane_change_planner/data_manager.hpp>
+#include <lanelet2_extension/utility/message_conversion.hpp>
 
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 DataManager::DataManager()
@@ -137,3 +138,4 @@ bool SelfPoseListener::getSelfPose(geometry_msgs::PoseStamped & self_pose)
   }
 }
 }  // namespace lane_change_planner
+#endif  // ROS2PORTING

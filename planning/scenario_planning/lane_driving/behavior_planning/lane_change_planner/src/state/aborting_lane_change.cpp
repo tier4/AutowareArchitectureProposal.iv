@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/state/aborting_lane_change.h>
+#include <lane_change_planner/state/aborting_lane_change.hpp>
 
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 AbortingLaneChangeState::AbortingLaneChangeState(
@@ -45,3 +46,5 @@ State AbortingLaneChangeState::getNextState() const
 
 bool AbortingLaneChangeState::hasReturnedToOriginalLane() const { return true; }
 }  // namespace lane_change_planner
+
+#endif  // ROS2PORTING

@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <lane_change_planner/state/common_functions.h>
-#include <lane_change_planner/utilities.h>
-#include <lanelet2_extension/utility/utilities.h>
+#include <lane_change_planner/state/common_functions.hpp>
+#include <lane_change_planner/utilities.hpp>
+#include <lanelet2_extension/utility/utilities.hpp>
 
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 namespace state_machine
@@ -267,3 +268,5 @@ bool isObjectFront(const geometry_msgs::Pose & ego_pose, const geometry_msgs::Po
 }  // namespace common_functions
 }  // namespace state_machine
 }  // namespace lane_change_planner
+
+#endif  // ROS2PORTING

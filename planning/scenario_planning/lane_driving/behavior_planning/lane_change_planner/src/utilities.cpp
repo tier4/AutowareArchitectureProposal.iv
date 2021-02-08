@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/utilities.h>
-#include <lanelet2_extension/utility/message_conversion.h>
-#include <lanelet2_extension/utility/query.h>
-#include <lanelet2_extension/utility/utilities.h>
+#include <lane_change_planner/utilities.hpp>
+#include <lanelet2_extension/utility/message_conversion.hpp>
+#include <lanelet2_extension/utility/query.hpp>
+#include <lanelet2_extension/utility/utilities.hpp>
 #include <tf2/utils.h>
 #include <opencv2/opencv.hpp>
 
+#ifdef ROS2PORTING
 namespace
 {
 ros::Duration safeSubtraction(const ros::Time & t1, const ros::Time & t2)
@@ -1398,3 +1399,5 @@ bool SplineInterpolate::isConvergeL1(
 
 }  // namespace util
 }  // namespace lane_change_planner
+
+#endif  // ROS2PORTING

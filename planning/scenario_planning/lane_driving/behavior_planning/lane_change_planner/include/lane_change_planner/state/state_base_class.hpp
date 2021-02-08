@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_STATE_STATE_BASE_CLASS_H
-#define LANE_CHANGE_PLANNER_STATE_STATE_BASE_CLASS_H
+#ifndef LANE_CHANGE_PLANNER_STATE_STATE_BASE_CLASS_HPP
+#define LANE_CHANGE_PLANNER_STATE_STATE_BASE_CLASS_HPP
 
-#include <autoware_planning_msgs/PathWithLaneId.h>
-#include <geometry_msgs/Point.h>
-#include <lane_change_planner/data_manager.h>
-#include <lane_change_planner/parameters.h>
-#include <lane_change_planner/route_handler.h>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <geometry_msgs/msg/point.hpp>
+#include <lane_change_planner/data_manager.hpp>
+#include <lane_change_planner/parameters.hpp>
+#include <lane_change_planner/route_handler.hpp>
 #include <iostream>
 #include <string>
 
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 enum State {
@@ -80,4 +81,5 @@ public:
 };
 }  // namespace lane_change_planner
 
+#endif  // ROS2PORTING
 #endif  // LANE_CHANGE_PLANNER_STATE_STATE_BASE_CLASS_H

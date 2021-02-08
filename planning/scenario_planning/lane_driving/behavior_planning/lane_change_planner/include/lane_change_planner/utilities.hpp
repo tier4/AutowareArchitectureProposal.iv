@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_UTILITIES_H
-#define LANE_CHANGE_PLANNER_UTILITIES_H
+#ifndef LANE_CHANGE_PLANNER_UTILITIES_HPP
+#define LANE_CHANGE_PLANNER_UTILITIES_HPP
 
-#include <geometry_msgs/Point.h>
-#include <geometry_msgs/Pose.h>
-#include <geometry_msgs/PoseArray.h>
-#include <ros/ros.h>
+#include <geometry_msgs/msg/point.hpp>
+#include <geometry_msgs/msg/pose.hpp>
+#include <geometry_msgs/msg/pose_array.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-#include <autoware_perception_msgs/DynamicObjectArray.h>
-#include <autoware_planning_msgs/Path.h>
-#include <autoware_planning_msgs/PathWithLaneId.h>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <autoware_planning_msgs/msg/path.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -37,11 +37,12 @@
 #include <lanelet2_routing/RoutingGraph.h>
 #include <lanelet2_routing/RoutingGraphContainer.h>
 
-#include <lane_change_planner/route_handler.h>
+#include <lane_change_planner/route_handler.hpp>
 
 #include <limits>
 #include <vector>
 
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 namespace util
@@ -203,4 +204,5 @@ private:
 }  // namespace util
 }  // namespace lane_change_planner
 
+#endif  // ROS2PORTING
 #endif  // LANE_CHANGE_PLANNER_UTILITIES_H

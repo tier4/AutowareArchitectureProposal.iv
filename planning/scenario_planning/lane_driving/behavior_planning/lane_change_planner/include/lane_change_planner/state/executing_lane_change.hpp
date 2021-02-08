@@ -14,34 +14,39 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_STATE_STOPPING_LANE_CHANGE_H
-#define LANE_CHANGE_PLANNER_STATE_STOPPING_LANE_CHANGE_H
+#ifndef LANE_CHANGE_PLANNER_STATE_EXECUTING_LANE_CHANGE_HPP
+#define LANE_CHANGE_PLANNER_STATE_EXECUTING_LANE_CHANGE_HPP
 
-#include <lane_change_planner/state/state_base_class.h>
+#include <lane_change_planner/state/state_base_class.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <lanelet2_core/primitives/Lanelet.h>
+#include <memory>
 
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
-class StoppingLaneChangeState : public StateBase
+class ExecutingLaneChangeState : public StateBase
 {
 private:
   geometry_msgs::PoseStamped current_pose_;
   geometry_msgs::TwistStamped::ConstPtr current_twist_;
   autoware_perception_msgs::DynamicObjectArray::ConstPtr dynamic_objects_;
+  double start_distance_;
 
   lanelet::ConstLanelets original_lanes_;
   lanelet::ConstLanelets target_lanes_;
 
-  autoware_planning_msgs::PathWithLaneId stop_path_;
   // State transition conditions
-  bool isSafe() const;
-  bool isVehicleInOriginalLanes() const;
-
-  // utility function
-  autoware_planning_msgs::PathWithLaneId setStopPoint(
-    const autoware_planning_msgs::PathWithLaneId & path);
+  bool isNearEndOfLane() const;
+  bool isCurrentSpeedLow() const;
+  bool isAbortConditionSatisfied() const;
+  bool hasFinishedLaneChange() const;
 
 public:
-  StoppingLaneChangeState(
+  ExecutingLaneChangeState(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
     const std::shared_ptr<RouteHandler> & route_handler_ptr);
 
@@ -54,4 +59,5 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_STATE_ABORTING_LANE_CHANGE_H
+#endif  // ROS2PORTING
+#endif  // LANE_CHANGE_PLANNER_STATE_EXECUTING_LANE_CHANGE_H

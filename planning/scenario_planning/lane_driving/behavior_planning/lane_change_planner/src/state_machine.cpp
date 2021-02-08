@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-#include <lane_change_planner/state/aborting_lane_change.h>
-#include <lane_change_planner/state/blocked_by_obstacle.h>
-#include <lane_change_planner/state/executing_lane_change.h>
-#include <lane_change_planner/state/following_lane.h>
-#include <lane_change_planner/state/forcing_lane_change.h>
-#include <lane_change_planner/state/stopping_lane_change.h>
-#include <lane_change_planner/state_machine.h>
-#include <ros/ros.h>
+#include <lane_change_planner/state/aborting_lane_change.hpp>
+#include <lane_change_planner/state/blocked_by_obstacle.hpp>
+#include <lane_change_planner/state/executing_lane_change.hpp>
+#include <lane_change_planner/state/following_lane.hpp>
+#include <lane_change_planner/state/forcing_lane_change.hpp>
+#include <lane_change_planner/state/stopping_lane_change.hpp>
+#include <lane_change_planner/state_machine.hpp>
+#include <rclcpp/rclcpp.hpp>
 
-#include <visualization_msgs/Marker.h>
+#include <visualization_msgs/msg/marker.hpp>
 
+#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 StateMachine::StateMachine(
@@ -96,3 +97,5 @@ DebugData StateMachine::getDebugData() const { return state_obj_ptr_->getDebugDa
 State StateMachine::getState() const { return state_obj_ptr_->getCurrentState(); }
 
 }  // namespace lane_change_planner
+
+#endif  // ROS2PORTING
