@@ -1,49 +1,23 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(obstacle_collision_checker)
 
-add_compile_options(-std=c++14)
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
-find_package(catkin REQUIRED COMPONENTS
-  autoware_planning_msgs
-  autoware_utils
-  diagnostic_updater
-  dynamic_reconfigure
-  geometry_msgs
-  pcl_ros
-  roscpp
-  std_msgs
-  tf2
-  tf2_eigen
-  tf2_geometry_msgs
-  tf2_ros
-)
+### Compile options
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter -Werror)
+endif()
 
-find_package(Boost REQUIRED)
-find_package(Eigen3 REQUIRED)
-
-generate_dynamic_reconfigure_options(
-  cfg/ObstacleCollisionChecker.cfg
-)
-
-catkin_package(
-  INCLUDE_DIRS
-    include
-  CATKIN_DEPENDS
-    autoware_planning_msgs
-    autoware_utils
-    diagnostic_updater
-    dynamic_reconfigure
-    geometry_msgs
-    pcl_ros
-    std_msgs
-    tf2
-    tf2_eigen
-    tf2_geometry_msgs
-    tf2_ros
-)
 
 include_directories(
   include
+  ${PCL_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
@@ -51,43 +25,19 @@ include_directories(
 
 # Target
 ## obstacle_collision_checker_node
-add_executable(obstacle_collision_checker_node
+ament_auto_add_executable(obstacle_collision_checker_node
   src/obstacle_collision_checker_node/main.cpp
   src/obstacle_collision_checker_node/obstacle_collision_checker.cpp
   src/obstacle_collision_checker_node/obstacle_collision_checker_node.cpp
 )
 
-target_link_libraries(obstacle_collision_checker_node
-  ${Boost_LIBRARIES}
-  ${Eigen3_LIBRARIES}
-  ${catkin_LIBRARIES}
-)
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
-add_dependencies(obstacle_collision_checker_node
-  ${${PROJECT_NAME}_EXPORTED_TARGETS}
-  ${catkin_EXPORTED_TARGETS}
-  ${PROJECT_NAME}_gencfg
-)
-
-# Install
-## executables and libraries
-install(
-  TARGETS
-    obstacle_collision_checker_node
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-## project namespaced headers
-install(DIRECTORY include/${PROJECT_NAME}/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-)
-
-## directories
-install(
-  DIRECTORY
-    config
+ament_auto_package(
+  INSTALL_TO_SHARE
     launch
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+    config
 )

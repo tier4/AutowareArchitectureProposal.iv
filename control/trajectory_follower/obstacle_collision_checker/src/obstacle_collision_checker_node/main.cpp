@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-#include <ros/ros.h>
-
-#include <obstacle_collision_checker/obstacle_collision_checker_node.h>
+#include <rclcpp/rclcpp.hpp>
+#include <obstacle_collision_checker/obstacle_collision_checker_node.hpp>
 
 int main(int argc, char * argv[])
 {
-  ros::init(argc, argv, "obstacle_collision_checker_node");
-
-  obstacle_collision_checker::ObstacleCollisionCheckerNode node;
-
-  ros::spin();
-
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<obstacle_collision_checker::ObstacleCollisionCheckerNode>());
+  rclcpp::shutdown();
   return 0;
 }
