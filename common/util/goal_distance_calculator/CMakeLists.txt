@@ -10,7 +10,11 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
-ament_auto_add_executable(goal_distance_calculator src/main src/goal_distance_calculator_node.cpp src/goal_distance_calculator.cpp)
+ament_auto_add_executable(goal_distance_calculator
+  src/main.cpp
+  src/goal_distance_calculator_node.cpp
+  src/goal_distance_calculator.cpp
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
