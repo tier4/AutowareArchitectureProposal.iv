@@ -3,6 +3,6 @@
   <arg name="config_file" default="$(find-pkg-share goal_distance_calculator)/config/goal_distance_calculator.yaml" />
   <node pkg="goal_distance_calculator" exec="goal_distance_calculator" name="goal_distance_calculator_node" output="screen">
     <param from="$(var config_file)"/>
-    <param from="$(var oneshot)"/>
+    <param name="oneshot" value="$(var oneshot)"/>
   </node>
 </launch>
