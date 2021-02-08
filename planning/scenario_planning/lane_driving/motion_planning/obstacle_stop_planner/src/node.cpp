@@ -108,11 +108,11 @@ ObstacleStopPlannerNode::ObstacleStopPlannerNode()
   slow_down_search_radius_ =
     step_length_ +
     std::hypot(vehicle_width_ / 2.0 + expand_slow_down_range_, vehicle_length_ / 2.0);
-  debug_ptr_ = std::make_shared<ObstacleStopPlannerDebugNode>(wheel_base_ + front_overhang_);
+  debug_ptr_ = std::make_shared<ObstacleStopPlannerDebugNode>(this, wheel_base_ + front_overhang_);
 
   // Initializer
   acc_controller_ = std::make_unique<motion_planning::AdaptiveCruiseController>(
-    vehicle_width_, vehicle_length_, wheel_base_, front_overhang_);
+    this, vehicle_width_, vehicle_length_, wheel_base_, front_overhang_);
 
   // Publishers
   path_pub_ =
@@ -178,8 +178,6 @@ void ObstacleStopPlannerNode::pathCallback(
     return;
   }
 
-  const geometry_msgs::msg::Pose goal_pose = input_msg->points.back().pose;
-
   /*
    * extend trajectory to consider obstacles after the goal
    */
@@ -189,7 +187,7 @@ void ObstacleStopPlannerNode::pathCallback(
   const autoware_planning_msgs::msg::Trajectory base_path = *input_msg;
   autoware_planning_msgs::msg::Trajectory output_msg = *input_msg;
   diagnostic_msgs::msg::DiagnosticStatus stop_reason_diag;
-  const double epsilon = 0.00001;
+
   /*
    * trim trajectory from self pose
    */

@@ -29,12 +29,12 @@
 
 namespace motion_planning
 {
-class AdaptiveCruiseController : public rclcpp::Node
+class AdaptiveCruiseController
 {
 public:
   AdaptiveCruiseController(
-    const double vehicle_width, const double vehicle_length, const double wheel_base,
-    const double front_overhang);
+    rclcpp::Node * node, const double vehicle_width, const double vehicle_length,
+    const double wheel_base, const double front_overhang);
 
   void insertAdaptiveCruiseVelocity(
     const autoware_planning_msgs::msg::Trajectory & trajectory,
@@ -49,6 +49,7 @@ public:
 private:
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr pub_debug_;
 
+  rclcpp::Node * node_;
   /*
    * Parameter
    */

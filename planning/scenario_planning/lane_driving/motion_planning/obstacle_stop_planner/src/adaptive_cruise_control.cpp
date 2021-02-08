@@ -115,9 +115,9 @@ constexpr double sign(const double value)
 namespace motion_planning
 {
 AdaptiveCruiseController::AdaptiveCruiseController(
-  const double vehicle_width, const double vehicle_length, const double wheel_base,
-  const double front_overhang)
-: Node("adaptive_cruise_controller"),
+  rclcpp::Node * node, const double vehicle_width, const double vehicle_length,
+  const double wheel_base, const double front_overhang)
+: node_(node),
   vehicle_width_(vehicle_width),
   vehicle_length_(vehicle_length),
   wheel_base_(wheel_base),
@@ -127,49 +127,49 @@ AdaptiveCruiseController::AdaptiveCruiseController(
 
   /* config */
   param_.min_behavior_stop_margin =
-    declare_parameter("min_behavior_stop_margin", 2.0) + wheel_base_ + front_overhang_;
-  param_.use_object_to_est_vel = declare_parameter("use_object_to_estimate_vel", true);
-  param_.use_pcl_to_est_vel = declare_parameter("use_pcl_to_estimate_vel", true);
-  param_.consider_obj_velocity = declare_parameter("consider_obj_velocity", true);
+    node_->declare_parameter("min_behavior_stop_margin", 2.0) + wheel_base_ + front_overhang_;
+  param_.use_object_to_est_vel = node_->declare_parameter("use_object_to_estimate_vel", true);
+  param_.use_pcl_to_est_vel = node_->declare_parameter("use_pcl_to_estimate_vel", true);
+  param_.consider_obj_velocity = node_->declare_parameter("consider_obj_velocity", true);
 
   /* parameter for acc */
   param_.obstacle_stop_velocity_thresh =
-    declare_parameter("obstacle_stop_velocity_thresh", 1.0);
-  param_.emergency_stop_acceleration = declare_parameter("emergency_stop_acceleration", -3.5);
+    node_->declare_parameter("obstacle_stop_velocity_thresh", 1.0);
+  param_.emergency_stop_acceleration = node_->declare_parameter("emergency_stop_acceleration", -3.5);
   param_.obstacle_emergency_stop_acceleration =
-    declare_parameter("obstacle_emergency_stop_acceleration", -5.0);
-  param_.emergency_stop_idling_time = declare_parameter("emergency_stop_idling_time", 0.5);
-  param_.min_dist_stop = declare_parameter("min_dist_stop", 4.0);
-  param_.max_standard_acceleration = declare_parameter("max_standard_acceleration", 0.5);
-  param_.min_standard_acceleration = declare_parameter("min_standard_acceleration", -1.0);
-  param_.standard_idling_time = declare_parameter("standard_idling_time", 0.5);
-  param_.min_dist_standard = declare_parameter("min_dist_standard", 4.0);
+    node_->declare_parameter("obstacle_emergency_stop_acceleration", -5.0);
+  param_.emergency_stop_idling_time = node_->declare_parameter("emergency_stop_idling_time", 0.5);
+  param_.min_dist_stop = node_->declare_parameter("min_dist_stop", 4.0);
+  param_.max_standard_acceleration = node_->declare_parameter("max_standard_acceleration", 0.5);
+  param_.min_standard_acceleration = node_->declare_parameter("min_standard_acceleration", -1.0);
+  param_.standard_idling_time = node_->declare_parameter("standard_idling_time", 0.5);
+  param_.min_dist_standard = node_->declare_parameter("min_dist_standard", 4.0);
   param_.obstacle_min_standard_acceleration =
-    declare_parameter("obstacle_min_standard_acceleration", -1.5);
-  param_.margin_rate_to_change_vel = declare_parameter("margin_rate_to_change_vel", 0.3);
+    node_->declare_parameter("obstacle_min_standard_acceleration", -1.5);
+  param_.margin_rate_to_change_vel = node_->declare_parameter("margin_rate_to_change_vel", 0.3);
   param_.use_time_compensation_to_dist =
-    declare_parameter("use_time_compensation_to_calc_distance", true);
-  param_.lowpass_gain_ = declare_parameter("lowpass_gain_of_upper_velocity", 0.6);
+    node_->declare_parameter("use_time_compensation_to_calc_distance", true);
+  param_.lowpass_gain_ = node_->declare_parameter("lowpass_gain_of_upper_velocity", 0.6);
 
   /* parameter for pid in acc */
-  param_.p_coeff_pos = declare_parameter("p_coefficient_positive", 0.1);
-  param_.p_coeff_neg = declare_parameter("p_coefficient_negative", 0.3);
-  param_.d_coeff_pos = declare_parameter("d_coefficient_positive", 0.0);
-  param_.d_coeff_neg = declare_parameter("d_coefficient_negative", 0.1);
+  param_.p_coeff_pos = node_->declare_parameter("p_coefficient_positive", 0.1);
+  param_.p_coeff_neg = node_->declare_parameter("p_coefficient_negative", 0.3);
+  param_.d_coeff_pos = node_->declare_parameter("d_coefficient_positive", 0.0);
+  param_.d_coeff_neg = node_->declare_parameter("d_coefficient_negative", 0.1);
 
   /* parameter for speed estimation of obstacle */
-  param_.object_polygon_length_margin = declare_parameter("object_polygon_length_margin", 2.0);
-  param_.object_polygon_width_margin = declare_parameter("object_polygon_width_margin", 0.5);
-  param_.valid_est_vel_diff_time = declare_parameter("valid_estimated_vel_diff_time", 1.0);
-  param_.valid_vel_que_time = declare_parameter("valid_vel_que_time", 0.5);
-  param_.valid_est_vel_max = declare_parameter("valid_estimated_vel_max", 20.0);
-  param_.valid_est_vel_min = declare_parameter("valid_estimated_vel_min", -20.0);
-  param_.thresh_vel_to_stop = declare_parameter("thresh_vel_to_stop", 0.5);
-  param_.use_rough_est_vel = declare_parameter("use_rough_velocity_estimation", false);
-  param_.rough_velocity_rate = declare_parameter("rough_velocity_rate", 0.9);
+  param_.object_polygon_length_margin = node_->declare_parameter("object_polygon_length_margin", 2.0);
+  param_.object_polygon_width_margin = node_->declare_parameter("object_polygon_width_margin", 0.5);
+  param_.valid_est_vel_diff_time = node_->declare_parameter("valid_estimated_vel_diff_time", 1.0);
+  param_.valid_vel_que_time = node_->declare_parameter("valid_vel_que_time", 0.5);
+  param_.valid_est_vel_max = node_->declare_parameter("valid_estimated_vel_max", 20.0);
+  param_.valid_est_vel_min = node_->declare_parameter("valid_estimated_vel_min", -20.0);
+  param_.thresh_vel_to_stop = node_->declare_parameter("thresh_vel_to_stop", 0.5);
+  param_.use_rough_est_vel = node_->declare_parameter("use_rough_velocity_estimation", false);
+  param_.rough_velocity_rate = node_->declare_parameter("rough_velocity_rate", 0.9);
 
   /* publisher */
-  pub_debug_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>(
+  pub_debug_ = node_->create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>(
     "debug_values",
     1);
 }
@@ -228,7 +228,7 @@ void AdaptiveCruiseController::insertAdaptiveCruiseVelocity(
   if (!success_estm_vel) {
     // if failed to estimate velocity, need to stop
     RCLCPP_DEBUG_THROTTLE(
-      get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(),
+      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(1000).count(),
       "Failed to estimate velocity of forward vehicle. Insert stop line.");
     *need_to_stop = true;
     prev_upper_velocity_ = current_velocity;  // reset prev_upper_velocity
@@ -245,7 +245,7 @@ void AdaptiveCruiseController::insertAdaptiveCruiseVelocity(
   if (upper_velocity <= param_.thresh_vel_to_stop) {
     // if upper velocity is too low, need to stop
     RCLCPP_DEBUG_THROTTLE(
-      get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(),
+      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(1000).count(),
       "Upper velocity is too low. Insert stop line.");
     *need_to_stop = true;
     return;
@@ -266,7 +266,7 @@ void AdaptiveCruiseController::calcDistanceToNearestPointOnPath(
 {
   if (trajectory.points.size() == 0) {
     RCLCPP_DEBUG_THROTTLE(
-      get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(),
+      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(1000).count(),
       "input path is too short(size=0)");
     *distance = 0;
     return;
@@ -417,7 +417,7 @@ bool AdaptiveCruiseController::estimatePointVelocityFromPcl(
 
 double AdaptiveCruiseController::estimateRoughPointVelocity(double current_vel)
 {
-  const double p_dt = this->now().seconds() - prev_collision_point_time_.seconds();
+  const double p_dt = node_->now().seconds() - prev_collision_point_time_.seconds();
   if (param_.valid_est_vel_diff_time >= p_dt) {
     // use previous estimated velocity
     return prev_target_velocity_;
@@ -434,7 +434,7 @@ double AdaptiveCruiseController::calcUpperVelocity(
   if (obj_vel < param_.obstacle_stop_velocity_thresh) {
     // stop by static obstacle
     RCLCPP_DEBUG_THROTTLE(
-      get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(),
+      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(1000).count(),
       "The velocity of forward vehicle is too low. Insert stop line.");
     return 0.0;
   }
@@ -443,7 +443,7 @@ double AdaptiveCruiseController::calcUpperVelocity(
   if (thresh_dist >= dist_to_col) {
     // emergency stop
     RCLCPP_DEBUG_THROTTLE(
-      get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(),
+      node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(1000).count(),
       "Forward vehicle is too close. Insert stop line.");
     return 0.0;
   }
@@ -512,13 +512,13 @@ double AdaptiveCruiseController::calcTargetVelocity_I(
 double AdaptiveCruiseController::calcTargetVelocity_D(
   const double target_dist, const double current_dist)
 {
-  if (this->now().seconds() - prev_target_vehicle_time_ >= param_.d_coeff_valid_time) {
+  if (node_->now().seconds() - prev_target_vehicle_time_ >= param_.d_coeff_valid_time) {
     // invalid time(prev is too old)
     return 0.0;
   }
 
   double diff_vel = (target_dist - prev_target_vehicle_dist_) /
-    (this->now().seconds() - prev_target_vehicle_time_);
+    (node_->now().seconds() - prev_target_vehicle_time_);
 
   if (std::fabs(diff_vel) >= param_.d_coeff_valid_diff_vel) {
     // invalid(discontinuous) diff_vel
@@ -534,7 +534,7 @@ double AdaptiveCruiseController::calcTargetVelocity_D(
 
   // add buffer
   prev_target_vehicle_dist_ = current_dist;
-  prev_target_vehicle_time_ = this->now().seconds();
+  prev_target_vehicle_time_ = node_->now().seconds();
 
   return add_vel_d;
 }
@@ -543,7 +543,7 @@ double AdaptiveCruiseController::calcTargetVelocityByPID(
   const double current_vel, const double current_dist, const double obj_vel)
 {
   const double target_dist = calcBaseDistToForwardObstacle(current_vel, obj_vel);
-  RCLCPP_DEBUG_STREAM(get_logger(), "[adaptive cruise control] target_dist" << target_dist);
+  RCLCPP_DEBUG_STREAM(node_->get_logger(), "[adaptive cruise control] target_dist" << target_dist);
 
   const double add_vel_p = calcTargetVelocity_P(target_dist, current_dist);
   //** I is not implemented **
@@ -620,7 +620,7 @@ void AdaptiveCruiseController::registerQueToVelocity(
   std::vector<int> delete_idxs;
   for (size_t i = 0; i < est_vel_que_.size(); i++) {
     if (
-      this->now().seconds() - est_vel_que_.at(i).header.stamp.sec >
+      node_->now().seconds() - est_vel_que_.at(i).header.stamp.sec >
       param_.valid_vel_que_time)
     {
       delete_idxs.push_back(i);
@@ -641,7 +641,7 @@ double AdaptiveCruiseController::getMedianVel(
   const std::vector<geometry_msgs::msg::TwistStamped> vel_que)
 {
   if (vel_que.size() == 0) {
-    RCLCPP_WARN_STREAM(get_logger(), "size of vel que is 0. Something has wrong.");
+    RCLCPP_WARN_STREAM(node_->get_logger(), "size of vel que is 0. Something has wrong.");
     return 0.0;
   }
 
