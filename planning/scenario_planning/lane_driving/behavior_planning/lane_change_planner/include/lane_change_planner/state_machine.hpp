@@ -24,7 +24,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <memory>
 
-#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 // enum State{
@@ -56,5 +55,4 @@ private:
 };
 }  // namespace lane_change_planner
 
-#endif  // ROS2PORTING
 #endif  // LANE_CHANGE_PLANNER_STATE_MACHINE_H

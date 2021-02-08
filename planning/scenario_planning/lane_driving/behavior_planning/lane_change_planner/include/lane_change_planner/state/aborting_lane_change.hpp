@@ -19,7 +19,6 @@
 
 #include <lane_change_planner/state/state_base_class.hpp>
 
-#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 class AbortingLaneChangeState : public StateBase
@@ -42,5 +41,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // ROS2PORTING
 #endif  // LANE_CHANGE_PLANNER_STATE_ABORTING_LANE_CHANGE_H

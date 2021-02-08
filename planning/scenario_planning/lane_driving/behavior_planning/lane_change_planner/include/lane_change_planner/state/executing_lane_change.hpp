@@ -25,7 +25,6 @@
 #include <lanelet2_core/primitives/Lanelet.h>
 #include <memory>
 
-#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 class ExecutingLaneChangeState : public StateBase
@@ -59,5 +58,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // ROS2PORTING
 #endif  // LANE_CHANGE_PLANNER_STATE_EXECUTING_LANE_CHANGE_H

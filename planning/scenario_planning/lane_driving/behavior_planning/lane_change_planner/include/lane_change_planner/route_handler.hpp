@@ -34,7 +34,6 @@
 
 #include <vector>
 
-#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 enum class LaneChangeDirection { NONE, LEFT, RIGHT };
@@ -151,5 +150,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // ROS2PORTING
 #endif  // LANE_CHANGE_PLANNER_ROUTE_HANDLER_H

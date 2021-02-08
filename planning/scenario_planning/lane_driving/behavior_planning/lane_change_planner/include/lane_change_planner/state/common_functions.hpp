@@ -22,7 +22,6 @@
 #include <lanelet2_core/primitives/Primitive.h>
 #include <memory>
 
-#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 namespace state_machine
@@ -57,4 +56,3 @@ bool isObjectFront(const geometry_msgs::Pose & ego_pose, const geometry_msgs::Po
 }  // namespace common_functions
 }  // namespace state_machine
 }  // namespace lane_change_planner
-#endif  // ROS2PORTING

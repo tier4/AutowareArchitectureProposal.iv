@@ -40,7 +40,6 @@
 // other
 #include <memory>
 
-#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 class SelfPoseListener
@@ -107,5 +106,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // ROS2PORTING
 #endif  // LANE_CHANGE_PLANNER_DATA_MANAGER_H

@@ -25,7 +25,6 @@
 #include <iostream>
 #include <string>
 
-#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 enum State {
@@ -81,5 +80,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // ROS2PORTING
 #endif  // LANE_CHANGE_PLANNER_STATE_STATE_BASE_CLASS_H

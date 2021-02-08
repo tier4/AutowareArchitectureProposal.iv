@@ -17,7 +17,6 @@
 #ifndef LANE_CHANGE_PLANNER_PARAMETERS_HPP
 #define LANE_CHANGE_PLANNER_PARAMETERS_HPP
 
-#ifdef ROS2PORTING
 struct LaneChangerParameters
 {
   double min_stop_distance;
@@ -53,5 +52,4 @@ struct LaneChangerParameters
   bool enable_blocked_by_obstacle;
 };
 
-#endif  // ROS2PORTING
 #endif

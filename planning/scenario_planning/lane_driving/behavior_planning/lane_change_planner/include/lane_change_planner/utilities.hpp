@@ -42,7 +42,6 @@
 #include <limits>
 #include <vector>
 
-#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 namespace util
@@ -204,5 +203,4 @@ private:
 }  // namespace util
 }  // namespace lane_change_planner
 
-#endif  // ROS2PORTING
 #endif  // LANE_CHANGE_PLANNER_UTILITIES_H
