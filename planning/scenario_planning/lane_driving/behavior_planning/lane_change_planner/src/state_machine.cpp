@@ -23,8 +23,6 @@
 #include <lane_change_planner/state_machine.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include <visualization_msgs/msg/marker.hpp>
-
 #ifdef ROS2PORTING
 namespace lane_change_planner
 {

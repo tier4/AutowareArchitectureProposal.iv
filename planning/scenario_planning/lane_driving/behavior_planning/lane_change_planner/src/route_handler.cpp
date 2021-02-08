@@ -31,8 +31,8 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <unordered_set>
 
-using autoware_planning_msgs::msg::msg::PathPointWithLaneId;
-using autoware_planning_msgs::msg::msg::PathWithLaneId;
+using autoware_planning_msgs::msg::PathPointWithLaneId;
+using autoware_planning_msgs::msg::PathWithLaneId;
 using lanelet::utils::to2D;
 
 #ifdef ROS2PORTING

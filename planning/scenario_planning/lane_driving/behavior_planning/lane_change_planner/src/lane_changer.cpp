@@ -16,7 +16,6 @@
 
 #include <lane_change_planner/lane_changer.hpp>
 #include <lane_change_planner/utilities.hpp>
-#include <visualization_msgs/msg/marker_array.hpp>
 
 #ifdef ROS2PORTING
 std_msgs::msg::ColorRGBA toRainbow(double ratio);
