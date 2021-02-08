@@ -14,7 +14,6 @@
   <depend>vehicle_info_util</depend>
   <depend>boost</depend>
   <depend>diagnostic_updater</depend>
-  <depend>dynamic_reconfigure</depend>
   <depend>eigen</depend>
   <depend>geometry_msgs</depend>
   <depend>pcl_ros</depend>
