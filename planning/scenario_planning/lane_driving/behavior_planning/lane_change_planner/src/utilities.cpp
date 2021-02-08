@@ -24,7 +24,7 @@
 #ifdef ROS2PORTING
 namespace
 {
-ros::Duration safeSubtraction(const ros::Time & t1, const ros::Time & t2)
+ros::Duration safeSubtraction(const rclcpp::Time & t1, const rclcpp::Time & t2)
 {
   ros::Duration duration;
   try {
@@ -37,9 +37,9 @@ ros::Duration safeSubtraction(const ros::Time & t1, const ros::Time & t2)
   }
   return duration;
 }
-ros::Time safeAddition(const ros::Time & t1, const double seconds)
+rclcpp::Time safeAddition(const rclcpp::Time & t1, const double seconds)
 {
-  ros::Time sum;
+  rclcpp::Time sum;
   try {
     sum = t1 + ros::Duration(seconds);
   } catch (std::runtime_error & err) {
@@ -217,7 +217,7 @@ PredictedPath convertToPredictedPath(
   const auto & geometry_points = convertToGeometryPointArray(path);
   FrenetCoordinate3d vehicle_pose_frenet;
   convertToFrenetCoordinate3d(geometry_points, vehicle_pose.position, &vehicle_pose_frenet);
-  ros::Time start_time = ros::Time::now();
+  rclcpp::Time start_time = ros::Time::now();
   double vehicle_speed = std::abs(vehicle_twist.linear.x);
   constexpr double min_speed = 1.0;
   if (vehicle_speed < min_speed) {
@@ -267,8 +267,8 @@ PredictedPath resamplePredictedPath(
   ros::Duration prediction_duration(duration);
 
   double min_distance = std::numeric_limits<double>::max();
-  ros::Time start_time = ros::Time::now();
-  ros::Time end_time = ros::Time::now() + prediction_duration;
+  rclcpp::Time start_time = ros::Time::now();
+  rclcpp::Time end_time = ros::Time::now() + prediction_duration;
 
   for (auto t = start_time; t < end_time; t += t_delta) {
     geometry_msgs::msg::Pose pose;
@@ -339,7 +339,7 @@ geometry_msgs::msg::Point lerpByLength(
 }
 
 bool lerpByTimeStamp(
-  const PredictedPath & path, const ros::Time & t, geometry_msgs::msg::Pose * lerped_pt)
+  const PredictedPath & path, const rclcpp::Time & t, geometry_msgs::msg::Pose * lerped_pt)
 {
   if (lerped_pt == nullptr) {
     ROS_WARN_STREAM_THROTTLE(1, "failed to lerp by time due to nullptr pt");
@@ -399,8 +399,8 @@ double getDistanceBetweenPredictedPaths(
 {
   ros::Duration t_delta(resolution);
   double min_distance = std::numeric_limits<double>::max();
-  ros::Time ros_start_time = ros::Time::now() + ros::Duration(start_time);
-  ros::Time ros_end_time = ros::Time::now() + ros::Duration(end_time);
+  rclcpp::Time ros_start_time = ros::Time::now() + ros::Duration(start_time);
+  rclcpp::Time ros_end_time = ros::Time::now() + ros::Duration(end_time);
   const auto ego_path_point_array = convertToGeometryPointArray(ego_path);
   for (auto t = ros_start_time; t < ros_end_time; t += t_delta) {
     geometry_msgs::msg::Pose object_pose, ego_pose;
@@ -424,8 +424,8 @@ double getDistanceBetweenPredictedPathAndObject(
 {
   ros::Duration t_delta(resolution);
   double min_distance = std::numeric_limits<double>::max();
-  ros::Time ros_start_time = ros::Time::now() + ros::Duration(start_time);
-  ros::Time ros_end_time = ros::Time::now() + ros::Duration(end_time);
+  rclcpp::Time ros_start_time = ros::Time::now() + ros::Duration(start_time);
+  rclcpp::Time ros_end_time = ros::Time::now() + ros::Duration(end_time);
   const auto ego_path_point_array = convertToGeometryPointArray(ego_path);
   Polygon obj_polygon;
   if (!calcObjectPolygon(object, &obj_polygon)) {

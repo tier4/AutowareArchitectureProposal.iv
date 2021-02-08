@@ -58,7 +58,7 @@ struct BoolStamped
 {
   explicit BoolStamped(bool in_data) : data(in_data) {}
   bool data = false;
-  ros::Time stamp;
+  rclcpp::Time stamp;
 };
 
 class DataManager

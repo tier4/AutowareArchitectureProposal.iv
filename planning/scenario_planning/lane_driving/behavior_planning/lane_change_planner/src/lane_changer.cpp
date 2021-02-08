@@ -156,7 +156,7 @@ void LaneChanger::waitForData()
   }
 }
 
-void LaneChanger::run(const ros::TimerEvent & event)
+void LaneChanger::run()
 {
   state_machine_ptr_->updateState();
   const auto path = state_machine_ptr_->getPath();

@@ -83,7 +83,7 @@ geometry_msgs::msg::Pose lerpByPose(
 geometry_msgs::msg::Point lerpByLength(
   const std::vector<geometry_msgs::msg::Point> & array, const double length);
 bool lerpByTimeStamp(
-  const autoware_perception_msgs::msg::PredictedPath & path, const ros::Time & t,
+  const autoware_perception_msgs::msg::PredictedPath & path, const rclcpp::Time & t,
   geometry_msgs::msg::Pose * lerped_pt);
 
 double getDistance3d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2);
