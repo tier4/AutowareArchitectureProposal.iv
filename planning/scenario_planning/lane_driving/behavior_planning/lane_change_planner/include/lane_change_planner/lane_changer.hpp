@@ -26,6 +26,7 @@
 // Autoware
 #include <autoware_lanelet2_msgs/msg/map_bin.hpp>
 #include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <autoware_planning_msgs/msg/path.hpp>
 #include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 #include <autoware_planning_msgs/msg/route.hpp>
 #include <autoware_planning_msgs/msg/stop_reason_array.hpp>
@@ -46,8 +47,7 @@ namespace lane_change_planner
 class LaneChanger
 {
 private:
-
-  ros::Timer timer_;
+  rclcpp::TimerBase::SharedPtr timer_;
 
   rclcpp::Publisher<autoware_planning_msgs::msg::PathWithLaneId>::SharedPtr path_publisher_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Path>::SharedPtr candidate_path_publisher_;
@@ -57,8 +57,6 @@ private:
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr lane_change_ready_publisher_;
   rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr lane_change_available_publisher_;
 
-  ros::NodeHandle pnh_;
-
   rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr perception_subscriber_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr velocity_subscriber_;
   rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr lane_change_approval_subscriber_;
@@ -66,7 +64,6 @@ private:
   rclcpp::Subscription<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr vector_map_subscriber_;
   rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr route_subscriber_;
   rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr route_init_subscriber_;
-
 
   std::shared_ptr<DataManager> data_manager_ptr_;
   std::shared_ptr<StateMachine> state_machine_ptr_;
