@@ -10,7 +10,7 @@ endif()
 
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 4 REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 include_directories(
