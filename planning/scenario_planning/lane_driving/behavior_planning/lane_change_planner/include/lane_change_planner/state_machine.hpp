@@ -40,9 +40,9 @@ public:
     const std::shared_ptr<DataManager> & data_manager_ptr,
     const std::shared_ptr<RouteHandler> & route_handler_ptr);
   void init();
-  void init(const autoware_planning_msgs::Route & route);
+  void init(const autoware_planning_msgs::msg::Route & route);
   void updateState();
-  autoware_planning_msgs::PathWithLaneId getPath() const;
+  autoware_planning_msgs::msg::PathWithLaneId getPath() const;
   Status getStatus() const;
   DebugData getDebugData() const;
   State getState() const;

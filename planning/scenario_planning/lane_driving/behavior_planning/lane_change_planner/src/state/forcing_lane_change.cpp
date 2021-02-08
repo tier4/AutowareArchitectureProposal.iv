@@ -48,7 +48,7 @@ void ForcingLaneChangeState::entry()
   start_distance_ = arclength_start.length;
 }
 
-autoware_planning_msgs::PathWithLaneId ForcingLaneChangeState::getPath() const
+autoware_planning_msgs::msg::PathWithLaneId ForcingLaneChangeState::getPath() const
 {
   return status_.lane_change_path.path;
 }

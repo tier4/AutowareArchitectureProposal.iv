@@ -40,7 +40,7 @@ std::ostream & operator<<(std::ostream & ostream, const State & state);
 
 struct Status
 {
-  autoware_planning_msgs::PathWithLaneId lane_follow_path;
+  autoware_planning_msgs::msg::PathWithLaneId lane_follow_path;
   LaneChangePath lane_change_path;
   std::vector<uint64_t> lane_follow_lane_ids;
   std::vector<uint64_t> lane_change_lane_ids;
@@ -51,9 +51,9 @@ struct Status
 struct DebugData
 {
   std::vector<LaneChangePath> lane_change_candidate_paths;
-  autoware_planning_msgs::PathWithLaneId selected_path;
-  autoware_planning_msgs::PathPointWithLaneId stop_point;
-  geometry_msgs::Point stop_factor_point;
+  autoware_planning_msgs::msg::PathWithLaneId selected_path;
+  autoware_planning_msgs::msg::PathPointWithLaneId stop_point;
+  geometry_msgs::msg::Point stop_factor_point;
 };
 
 class StateBase
@@ -73,7 +73,7 @@ public:
   virtual void update() = 0;
   virtual State getNextState() const = 0;
   virtual State getCurrentState() const = 0;
-  virtual autoware_planning_msgs::PathWithLaneId getPath() const = 0;
+  virtual autoware_planning_msgs::msg::PathWithLaneId getPath() const = 0;
 
   Status getStatus() const;
   DebugData getDebugData() const;

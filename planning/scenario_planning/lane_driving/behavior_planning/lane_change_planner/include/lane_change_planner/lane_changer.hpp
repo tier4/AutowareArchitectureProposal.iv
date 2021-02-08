@@ -74,10 +74,10 @@ private:
 
   void run(const ros::TimerEvent & event);
   void publishDebugMarkers();
-  void publishDrivableArea(const autoware_planning_msgs::PathWithLaneId & path);
-  autoware_planning_msgs::StopReasonArray makeStopReasonArray(
+  void publishDrivableArea(const autoware_planning_msgs::msg::PathWithLaneId & path);
+  autoware_planning_msgs::msg::StopReasonArray makeStopReasonArray(
     const DebugData & debug_data, const State & state);
-  std::vector<autoware_planning_msgs::StopReason> makeEmptyStopReasons();
+  std::vector<autoware_planning_msgs::msg::StopReason> makeEmptyStopReasons();
   void waitForData();
 
 public:

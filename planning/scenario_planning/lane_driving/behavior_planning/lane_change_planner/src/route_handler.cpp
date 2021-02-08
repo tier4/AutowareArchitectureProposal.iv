@@ -31,8 +31,8 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <unordered_set>
 
-using autoware_planning_msgs::msg::PathPointWithLaneId;
-using autoware_planning_msgs::msg::PathWithLaneId;
+using autoware_planning_msgs::msg::msg::PathPointWithLaneId;
+using autoware_planning_msgs::msg::msg::PathWithLaneId;
 using lanelet::utils::to2D;
 
 #ifdef ROS2PORTING
@@ -49,7 +49,7 @@ bool exists(const std::vector<T> & vectors, const T & item)
   return false;
 }
 
-bool isRouteLooped(const autoware_planning_msgs::Route & route_msg)
+bool isRouteLooped(const autoware_planning_msgs::msg::Route & route_msg)
 {
   const auto & route_sections = route_msg.route_sections;
   for (std::size_t i = 0; i < route_sections.size(); i++) {
@@ -149,7 +149,7 @@ PathWithLaneId combineReferencePath(
 
       //set yaw
       for (size_t i = 0; i < inner_points.size(); ++i) {
-        geometry_msgs::Point prev, next;
+        geometry_msgs::msg::Point prev, next;
         if (i == 0) {
           prev = path1.points.back().point.pose.position;
         } else {
@@ -203,7 +203,7 @@ lanelet::ConstPoint3d get3DPointFrom2DArcLength(
 }
 
 bool isPathInLanelets(
-  const autoware_planning_msgs::PathWithLaneId & path,
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
   const lanelet::ConstLanelets & original_lanelets, const lanelet::ConstLanelets & target_lanelets)
 {
   for (const auto & pt : path.points) {
@@ -232,7 +232,7 @@ RouteHandler::RouteHandler()
 {
 }
 
-void RouteHandler::mapCallback(const autoware_lanelet2_msgs::MapBin & map_msg)
+void RouteHandler::mapCallback(const autoware_lanelet2_msgs::msg::MapBin & map_msg)
 {
   lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(
@@ -256,7 +256,7 @@ void RouteHandler::mapCallback(const autoware_lanelet2_msgs::MapBin & map_msg)
   setRouteLanelets();
 }
 
-void RouteHandler::routeCallback(const autoware_planning_msgs::Route & route_msg)
+void RouteHandler::routeCallback(const autoware_planning_msgs::msg::Route & route_msg)
 {
   if (!isRouteLooped(route_msg)) {
     route_msg_ = route_msg;
@@ -322,7 +322,7 @@ std::vector<lanelet::ConstLanelet> RouteHandler::getLanesAfterGoal(
 
 lanelet::ConstLanelets RouteHandler::getRouteLanelets() const { return route_lanelets_; }
 
-geometry_msgs::Pose RouteHandler::getGoalPose() const { return route_msg_.goal_pose; }
+geometry_msgs::msg::Pose RouteHandler::getGoalPose() const { return route_msg_.goal_pose; }
 
 lanelet::Id RouteHandler::getGoalLaneId() const
 {
@@ -423,7 +423,7 @@ lanelet::ConstLanelets RouteHandler::getLaneletSequenceUpTo(
 
 lanelet::ConstLanelets RouteHandler::getLaneletSequence(const lanelet::ConstLanelet & lanelet) const
 {
-  geometry_msgs::Pose tmp_pose;
+  geometry_msgs::msg::Pose tmp_pose;
   tmp_pose.orientation.w = 1;
   if (!lanelet.centerline().empty()) {
     tmp_pose.position = lanelet::utils::conversion::toGeomMsgPt(lanelet.centerline().front());
@@ -433,7 +433,7 @@ lanelet::ConstLanelets RouteHandler::getLaneletSequence(const lanelet::ConstLane
 }
 
 lanelet::ConstLanelets RouteHandler::getLaneletSequence(
-  const lanelet::ConstLanelet & lanelet, const geometry_msgs::Pose & current_pose,
+  const lanelet::ConstLanelet & lanelet, const geometry_msgs::msg::Pose & current_pose,
   const double backward_distance, const double forward_distance) const
 {
   lanelet::ConstLanelets lanelet_sequence;
@@ -466,7 +466,7 @@ lanelet::ConstLanelets RouteHandler::getLaneletSequence(
 }
 
 bool RouteHandler::getClosestLaneletWithinRoute(
-  const geometry_msgs::Pose & search_pose, lanelet::ConstLanelet * closest_lanelet) const
+  const geometry_msgs::msg::Pose & search_pose, lanelet::ConstLanelet * closest_lanelet) const
 {
   return lanelet::utils::query::getClosestLanelet(route_lanelets_, search_pose, closest_lanelet);
 }
@@ -563,7 +563,7 @@ bool RouteHandler::getLaneChangeTarget(
 }
 
 lanelet::ConstLanelets RouteHandler::getClosestLaneletSequence(
-  const geometry_msgs::Pose & pose) const
+  const geometry_msgs::msg::Pose & pose) const
 {
   lanelet::ConstLanelet lanelet;
   lanelet::ConstLanelets empty_lanelets;
@@ -597,7 +597,7 @@ int RouteHandler::getNumLaneToPreferredLane(const lanelet::ConstLanelet & lanele
   }
 }
 
-bool RouteHandler::isInPreferredLane(const geometry_msgs::PoseStamped & pose) const
+bool RouteHandler::isInPreferredLane(const geometry_msgs::msg::PoseStamped & pose) const
 {
   lanelet::ConstLanelet lanelet;
   if (!getClosestLaneletWithinRoute(pose.pose, &lanelet)) {
@@ -606,7 +606,7 @@ bool RouteHandler::isInPreferredLane(const geometry_msgs::PoseStamped & pose) co
   return exists(preferred_lanelets_, lanelet);
 }
 bool RouteHandler::isInTargetLane(
-  const geometry_msgs::PoseStamped & pose, const lanelet::ConstLanelets & target) const
+  const geometry_msgs::msg::PoseStamped & pose, const lanelet::ConstLanelets & target) const
 {
   lanelet::ConstLanelet lanelet;
   if (!getClosestLaneletWithinRoute(pose.pose, &lanelet)) {
@@ -616,7 +616,7 @@ bool RouteHandler::isInTargetLane(
 }
 
 PathWithLaneId RouteHandler::getReferencePath(
-  const lanelet::ConstLanelets & lanelet_sequence, const geometry_msgs::Pose & pose,
+  const lanelet::ConstLanelets & lanelet_sequence, const geometry_msgs::msg::Pose & pose,
   const double backward_path_length, const double forward_path_length,
   const LaneChangerParameters & parameter) const
 {
@@ -781,7 +781,7 @@ PathWithLaneId RouteHandler::updatePathTwist(const PathWithLaneId & path) const
   return updated_path;
 }
 
-lanelet::ConstLanelets RouteHandler::getLaneChangeTarget(const geometry_msgs::Pose & pose) const
+lanelet::ConstLanelets RouteHandler::getLaneChangeTarget(const geometry_msgs::msg::Pose & pose) const
 {
   lanelet::ConstLanelet lanelet;
   lanelet::ConstLanelets target_lanelets;
@@ -807,7 +807,7 @@ lanelet::ConstLanelets RouteHandler::getLaneChangeTarget(const geometry_msgs::Po
 
 std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
   const lanelet::ConstLanelets & original_lanelets, const lanelet::ConstLanelets & target_lanelets,
-  const geometry_msgs::Pose & pose, const geometry_msgs::Twist & twist,
+  const geometry_msgs::msg::Pose & pose, const geometry_msgs::msg::Twist & twist,
   const LaneChangerParameters & parameter) const
 {
   std::vector<LaneChangePath> candidate_paths;
@@ -900,7 +900,7 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
 
     // set fixed flag
     for (auto & pt : candidate_path.path.points) {
-      pt.point.type = autoware_planning_msgs::PathPoint::FIXED;
+      pt.point.type = autoware_planning_msgs::msg::PathPoint::FIXED;
     }
     candidate_paths.push_back(candidate_path);
   }
@@ -909,7 +909,7 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
 }
 
 double RouteHandler::getLaneChangeableDistance(
-  const geometry_msgs::Pose & current_pose, const LaneChangeDirection & direction)
+  const geometry_msgs::msg::Pose & current_pose, const LaneChangeDirection & direction)
 {
   lanelet::ConstLanelet current_lane;
   if (!getClosestLaneletWithinRoute(current_pose, &current_lane)) {
@@ -958,7 +958,7 @@ double RouteHandler::getLaneChangeableDistance(
 }
 
 lanelet::ConstLanelets RouteHandler::getCheckTargetLanesFromPath(
-  const autoware_planning_msgs::PathWithLaneId & path, const lanelet::ConstLanelets & target_lanes,
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::ConstLanelets & target_lanes,
   const double check_length)
 {
   std::vector<int64_t> target_lane_ids;

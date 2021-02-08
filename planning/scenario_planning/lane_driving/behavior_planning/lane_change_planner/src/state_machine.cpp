@@ -43,7 +43,7 @@ void StateMachine::init()
   state_obj_ptr_->entry();
 }
 
-void StateMachine::init(const autoware_planning_msgs::Route & route) { init(); }
+void StateMachine::init(const autoware_planning_msgs::msg::Route & route) { init(); }
 
 void StateMachine::updateState()
 {
@@ -87,7 +87,7 @@ void StateMachine::updateState()
   }
 }
 
-autoware_planning_msgs::PathWithLaneId StateMachine::getPath() const
+autoware_planning_msgs::msg::PathWithLaneId StateMachine::getPath() const
 {
   return state_obj_ptr_->getPath();
 }

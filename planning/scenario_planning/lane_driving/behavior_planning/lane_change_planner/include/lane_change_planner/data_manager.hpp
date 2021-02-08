@@ -46,7 +46,7 @@ class SelfPoseListener
 {
 public:
   SelfPoseListener();
-  bool getSelfPose(geometry_msgs::PoseStamped & self_pose);
+  bool getSelfPose(geometry_msgs::msg::PoseStamped & self_pose);
   bool isSelfPoseReady();
 
 private:
@@ -67,11 +67,11 @@ private:
   /*
    * Cache
    */
-  autoware_perception_msgs::DynamicObjectArray::ConstPtr perception_ptr_;
-  geometry_msgs::TwistStamped::ConstPtr vehicle_velocity_ptr_;
+  autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr perception_ptr_;
+  geometry_msgs::msg::TwistStamped::ConstPtr vehicle_velocity_ptr_;
   BoolStamped lane_change_approval_;
   BoolStamped force_lane_change_;
-  geometry_msgs::PoseStamped self_pose_;
+  geometry_msgs::msg::PoseStamped self_pose_;
 
   // ROS parameters
   LaneChangerParameters parameters_;
@@ -88,16 +88,16 @@ public:
 
   // callbacks
   void perceptionCallback(
-    const autoware_perception_msgs::DynamicObjectArray::ConstPtr & input_perception_msg);
-  void velocityCallback(const geometry_msgs::TwistStamped::ConstPtr & input_twist_msg);
+    const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & input_perception_msg);
+  void velocityCallback(const geometry_msgs::msg::TwistStamped::ConstPtr & input_twist_msg);
   void setLaneChangerParameters(const LaneChangerParameters & parameters);
-  void laneChangeApprovalCallback(const std_msgs::Bool & input_approval_msg);
-  void forceLaneChangeSignalCallback(const std_msgs::Bool & input_approval_msg);
+  void laneChangeApprovalCallback(const std_msgs::msg::Bool & input_approval_msg);
+  void forceLaneChangeSignalCallback(const std_msgs::msg::Bool & input_approval_msg);
 
   // getters
-  autoware_perception_msgs::DynamicObjectArray::ConstPtr getDynamicObjects();
-  geometry_msgs::PoseStamped getCurrentSelfPose();
-  geometry_msgs::TwistStamped::ConstPtr getCurrentSelfVelocity();
+  autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr getDynamicObjects();
+  geometry_msgs::msg::PoseStamped getCurrentSelfPose();
+  geometry_msgs::msg::TwistStamped::ConstPtr getCurrentSelfVelocity();
   LaneChangerParameters getLaneChangerParameters();
   bool getLaneChangeApproval();
   bool getForceLaneChangeSignal();

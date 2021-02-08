@@ -30,9 +30,9 @@ class ForcingLaneChangeState : public StateBase
 private:
   // State transition conditions
   bool hasFinishedLaneChange() const;
-  geometry_msgs::PoseStamped current_pose_;
-  geometry_msgs::TwistStamped::ConstPtr current_twist_;
-  autoware_perception_msgs::DynamicObjectArray::ConstPtr dynamic_objects_;
+  geometry_msgs::msg::PoseStamped current_pose_;
+  geometry_msgs::msg::TwistStamped::ConstPtr current_twist_;
+  autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr dynamic_objects_;
   double start_distance_;
 
   lanelet::ConstLanelets original_lanes_;
@@ -47,7 +47,7 @@ public:
   void update() override;
   State getNextState() const override;
   State getCurrentState() const override;
-  autoware_planning_msgs::PathWithLaneId getPath() const override;
+  autoware_planning_msgs::msg::PathWithLaneId getPath() const override;
 };
 }  // namespace lane_change_planner
 

@@ -27,24 +27,24 @@ DataManager::DataManager()
 }
 
 void DataManager::perceptionCallback(
-  const autoware_perception_msgs::DynamicObjectArray::ConstPtr & input_perception_msg_ptr)
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & input_perception_msg_ptr)
 {
   perception_ptr_ = input_perception_msg_ptr;
 }
 
 void DataManager::velocityCallback(
-  const geometry_msgs::TwistStamped::ConstPtr & input_twist_msg_ptr)
+  const geometry_msgs::msg::TwistStamped::ConstPtr & input_twist_msg_ptr)
 {
   vehicle_velocity_ptr_ = input_twist_msg_ptr;
 }
 
-void DataManager::laneChangeApprovalCallback(const std_msgs::Bool & input_approval_msg)
+void DataManager::laneChangeApprovalCallback(const std_msgs::msg::Bool & input_approval_msg)
 {
   lane_change_approval_.data = input_approval_msg.data;
   lane_change_approval_.stamp = ros::Time::now();
 }
 
-void DataManager::forceLaneChangeSignalCallback(const std_msgs::Bool & input_force_lane_change_msg)
+void DataManager::forceLaneChangeSignalCallback(const std_msgs::msg::Bool & input_force_lane_change_msg)
 {
   force_lane_change_.data = input_force_lane_change_msg.data;
   force_lane_change_.stamp = ros::Time::now();
@@ -56,17 +56,17 @@ void DataManager::setLaneChangerParameters(const LaneChangerParameters & paramet
   parameters_ = parameters;
 }
 
-autoware_perception_msgs::DynamicObjectArray::ConstPtr DataManager::getDynamicObjects()
+autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr DataManager::getDynamicObjects()
 {
   return perception_ptr_;
 }
 
-geometry_msgs::TwistStamped::ConstPtr DataManager::getCurrentSelfVelocity()
+geometry_msgs::msg::TwistStamped::ConstPtr DataManager::getCurrentSelfVelocity()
 {
   return vehicle_velocity_ptr_;
 }
 
-geometry_msgs::PoseStamped DataManager::getCurrentSelfPose()
+geometry_msgs::msg::PoseStamped DataManager::getCurrentSelfPose()
 {
   self_pose_listener_ptr_->getSelfPose(self_pose_);
   return self_pose_;
@@ -115,10 +115,10 @@ bool SelfPoseListener::isSelfPoseReady()
   return tf_buffer_.canTransform("map", "base_link", ros::Time(0), ros::Duration(0.1));
 }
 
-bool SelfPoseListener::getSelfPose(geometry_msgs::PoseStamped & self_pose)
+bool SelfPoseListener::getSelfPose(geometry_msgs::msg::PoseStamped & self_pose)
 {
   try {
-    geometry_msgs::TransformStamped transform;
+    geometry_msgs::msg::TransformStamped transform;
     std::string map_frame = "map";
     transform =
       tf_buffer_.lookupTransform(map_frame, "base_link", ros::Time(0), ros::Duration(0.1));

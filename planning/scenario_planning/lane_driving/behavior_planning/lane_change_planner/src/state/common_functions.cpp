@@ -28,8 +28,8 @@ std::vector<LaneChangePath> selectValidPaths(
   const std::vector<LaneChangePath> & paths, const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
   const lanelet::routing::RoutingGraphContainer & overall_graphs,
-  const geometry_msgs::Pose & current_pose, const bool isInGoalRouteSection,
-  const geometry_msgs::Pose & goal_pose)
+  const geometry_msgs::msg::Pose & current_pose, const bool isInGoalRouteSection,
+  const geometry_msgs::msg::Pose & goal_pose)
 {
   std::vector<LaneChangePath> available_paths;
 
@@ -47,8 +47,8 @@ std::vector<LaneChangePath> selectValidPaths(
 bool selectSafePath(
   const std::vector<LaneChangePath> & paths, const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
-  const autoware_perception_msgs::DynamicObjectArray::ConstPtr & dynamic_objects,
-  const geometry_msgs::Pose & current_pose, const geometry_msgs::Twist & current_twist,
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & dynamic_objects,
+  const geometry_msgs::msg::Pose & current_pose, const geometry_msgs::msg::Twist & current_twist,
   const LaneChangerParameters & ros_parameters, LaneChangePath * selected_path)
 {
   for (const auto & path : paths) {
@@ -71,8 +71,8 @@ bool selectSafePath(
 
 bool hasEnoughDistance(
   const LaneChangePath & path, const lanelet::ConstLanelets & current_lanes,
-  const lanelet::ConstLanelets & target_lanes, const geometry_msgs::Pose & current_pose,
-  const bool isInGoalRouteSection, const geometry_msgs::Pose & goal_pose,
+  const lanelet::ConstLanelets & target_lanes, const geometry_msgs::msg::Pose & current_pose,
+  const bool isInGoalRouteSection, const geometry_msgs::msg::Pose & goal_pose,
   const lanelet::routing::RoutingGraphContainer & overall_graphs)
 {
   const double lane_change_prepare_distance = path.preparation_length;
@@ -103,10 +103,10 @@ bool hasEnoughDistance(
 }
 
 bool isLaneChangePathSafe(
-  const autoware_planning_msgs::PathWithLaneId & path, const lanelet::ConstLanelets & current_lanes,
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
-  const autoware_perception_msgs::DynamicObjectArray::ConstPtr & dynamic_objects,
-  const geometry_msgs::Pose & current_pose, const geometry_msgs::Twist & current_twist,
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & dynamic_objects,
+  const geometry_msgs::msg::Pose & current_pose, const geometry_msgs::msg::Twist & current_twist,
   const LaneChangerParameters & ros_parameters, const bool use_buffer, const double acceleration)
 {
   if (path.points.empty()) {
@@ -165,7 +165,7 @@ bool isLaneChangePathSafe(
   // Collision check for objects in current lane
   for (const auto & i : current_lane_object_indices) {
     const auto & obj = dynamic_objects->objects.at(i);
-    std::vector<autoware_perception_msgs::PredictedPath> predicted_paths;
+    std::vector<autoware_perception_msgs::msg::PredictedPath> predicted_paths;
     if (ros_parameters.use_all_predicted_path) {
       predicted_paths = obj.state.predicted_paths;
     } else {
@@ -197,7 +197,7 @@ bool isLaneChangePathSafe(
   // Collision check for objects in lane change target lane
   for (const auto & i : target_lane_object_indices) {
     const auto & obj = dynamic_objects->objects.at(i);
-    std::vector<autoware_perception_msgs::PredictedPath> predicted_paths;
+    std::vector<autoware_perception_msgs::msg::PredictedPath> predicted_paths;
     if (ros_parameters.use_all_predicted_path) {
       predicted_paths = obj.state.predicted_paths;
     } else {
@@ -254,10 +254,10 @@ bool isLaneChangePathSafe(
   return true;
 }
 
-bool isObjectFront(const geometry_msgs::Pose & ego_pose, const geometry_msgs::Pose & obj_pose)
+bool isObjectFront(const geometry_msgs::msg::Pose & ego_pose, const geometry_msgs::msg::Pose & obj_pose)
 {
   tf2::Transform tf_map2ego, tf_map2obj;
-  geometry_msgs::Pose obj_from_ego;
+  geometry_msgs::msg::Pose obj_from_ego;
   tf2::fromMsg(ego_pose, tf_map2ego);
   tf2::fromMsg(obj_pose, tf_map2obj);
   tf2::toMsg(tf_map2ego.inverse() * tf_map2obj, obj_from_ego);
