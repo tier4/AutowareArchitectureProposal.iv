@@ -127,7 +127,8 @@ AdaptiveCruiseController::AdaptiveCruiseController(
 
   /* config */
   param_.min_behavior_stop_margin =
-    node_->declare_parameter("min_behavior_stop_margin", 2.0) + wheel_base_ + front_overhang_;
+    node_->get_parameter("stop_planner.min_behavior_stop_margin").as_double() + wheel_base_ +
+    front_overhang_;
   param_.use_object_to_est_vel = node_->declare_parameter("use_object_to_estimate_vel", true);
   param_.use_pcl_to_est_vel = node_->declare_parameter("use_pcl_to_estimate_vel", true);
   param_.consider_obj_velocity = node_->declare_parameter("consider_obj_velocity", true);
@@ -135,7 +136,8 @@ AdaptiveCruiseController::AdaptiveCruiseController(
   /* parameter for acc */
   param_.obstacle_stop_velocity_thresh =
     node_->declare_parameter("obstacle_stop_velocity_thresh", 1.0);
-  param_.emergency_stop_acceleration = node_->declare_parameter("emergency_stop_acceleration", -3.5);
+  param_.emergency_stop_acceleration =
+    node_->declare_parameter("emergency_stop_acceleration", -3.5);
   param_.obstacle_emergency_stop_acceleration =
     node_->declare_parameter("obstacle_emergency_stop_acceleration", -5.0);
   param_.emergency_stop_idling_time = node_->declare_parameter("emergency_stop_idling_time", 0.5);
@@ -158,7 +160,8 @@ AdaptiveCruiseController::AdaptiveCruiseController(
   param_.d_coeff_neg = node_->declare_parameter("d_coefficient_negative", 0.1);
 
   /* parameter for speed estimation of obstacle */
-  param_.object_polygon_length_margin = node_->declare_parameter("object_polygon_length_margin", 2.0);
+  param_.object_polygon_length_margin =
+    node_->declare_parameter("object_polygon_length_margin", 2.0);
   param_.object_polygon_width_margin = node_->declare_parameter("object_polygon_width_margin", 0.5);
   param_.valid_est_vel_diff_time = node_->declare_parameter("valid_estimated_vel_diff_time", 1.0);
   param_.valid_vel_que_time = node_->declare_parameter("valid_vel_que_time", 0.5);
@@ -581,7 +584,7 @@ void AdaptiveCruiseController::insertMaxVelocityToPath(
     target_acc, param_.min_standard_acceleration, param_.max_standard_acceleration);
   double pre_vel = current_vel;
   double total_dist = 0.0;
-  for (int i = 1; i < output_trajectory->points.size(); i++) {
+  for (size_t i = 1; i < output_trajectory->points.size(); i++) {
     // calc velocity of each point by gradient deceleration
     const auto current_p = output_trajectory->points[i];
     const auto prev_p = output_trajectory->points[i - 1];

@@ -31,6 +31,8 @@
 #include "boost/geometry/geometries/linestring.hpp"
 #include "boost/geometry/geometries/point_xy.hpp"
 #include "obstacle_stop_planner/node.hpp"
+#include "vehicle_info_util/vehicle_info.hpp"
+
 #define EIGEN_MPL2_ONLY
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Geometry"
@@ -80,26 +82,30 @@ ObstacleStopPlannerNode::ObstacleStopPlannerNode()
 : Node("obstacle_stop_planner"), tf_buffer_(this->get_clock()), tf_listener_(tf_buffer_)
 {
   // Vehicle Parameters
-  wheel_base_ = declare_parameter("/vehicle_info/wheel_base", 1.0);
-  front_overhang_ = declare_parameter("/vehicle_info/front_overhang", 0.5);
-  rear_overhang_ = declare_parameter("/vehicle_info/rear_overhang", 0.5);
-  left_overhang_ = declare_parameter("/vehicle_info/left_overhang", 0.5);
-  right_overhang_ = declare_parameter("/vehicle_info/right_overhang", 0.5);
-  vehicle_width_ = declare_parameter("/vehicle_info/vehicle_width", 1.5);
-  vehicle_length_ = declare_parameter("/vehicle_info/vehicle_length", 2.0);
+  auto vehicle_info(vehicle_info_util::VehicleInfo::create(*this));
+
+  wheel_base_ = vehicle_info.wheel_base_m_;
+  front_overhang_ = vehicle_info.front_overhang_m_;
+  rear_overhang_ = vehicle_info.rear_overhang_m_;
+  left_overhang_ = vehicle_info.left_overhang_m_;
+  right_overhang_ = vehicle_info.right_overhang_m_;
+  vehicle_width_ = vehicle_info.vehicle_width_m_;
+  vehicle_length_ = vehicle_info.vehicle_length_m_;
 
   // Parameters
-  stop_margin_ = declare_parameter("stop_margin", 5.0);
-  slow_down_margin_ = declare_parameter("slow_down_margin", 5.0);
-  min_behavior_stop_margin_ = declare_parameter("min_behavior_stop_margin", 2.0);
-  expand_slow_down_range_ = declare_parameter("expand_slow_down_range", 1.0);
-  expand_stop_range_ = declare_parameter("expand_stop_range", 0.0);
-  max_slow_down_vel_ = declare_parameter("max_slow_down_vel", 4.0);
-  min_slow_down_vel_ = declare_parameter("min_slow_down_vel", 2.0);
-  max_deceleration_ = declare_parameter("max_deceleration", 2.0);
+  stop_margin_ = declare_parameter("stop_planner.stop_margin", 5.0);
+  min_behavior_stop_margin_ = declare_parameter("stop_planner.min_behavior_stop_margin", 2.0);
+  step_length_ = declare_parameter("stop_planner.step_length", 1.0);
+  extend_distance_ = declare_parameter("stop_planner.extend_distance", 0.0);
+  expand_stop_range_ = declare_parameter("stop_planner.expand_stop_range", 0.0);
+
+  slow_down_margin_ = declare_parameter("slow_down_planner.slow_down_margin", 5.0);
+  expand_slow_down_range_ = declare_parameter("slow_down_planner.expand_slow_down_range", 1.0);
+  max_slow_down_vel_ = declare_parameter("slow_down_planner.max_slow_down_vel", 4.0);
+  min_slow_down_vel_ = declare_parameter("slow_down_planner.min_slow_down_vel", 2.0);
+  max_deceleration_ = declare_parameter("slow_down_planner.max_deceleration", 2.0);
   enable_slow_down_ = declare_parameter("enable_slow_down", false);
-  step_length_ = declare_parameter("step_length", 1.0);
-  extend_distance_ = declare_parameter("extend_distance", 0.0);
+
   stop_margin_ += wheel_base_ + front_overhang_;
   min_behavior_stop_margin_ += wheel_base_ + front_overhang_;
   slow_down_margin_ += wheel_base_ + front_overhang_;
