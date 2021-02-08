@@ -27,13 +27,13 @@ DataManager::DataManager()
 }
 
 void DataManager::perceptionCallback(
-  const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & input_perception_msg_ptr)
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & input_perception_msg_ptr)
 {
   perception_ptr_ = input_perception_msg_ptr;
 }
 
 void DataManager::velocityCallback(
-  const geometry_msgs::msg::TwistStamped::ConstPtr & input_twist_msg_ptr)
+  const geometry_msgs::msg::TwistStamped::ConstSharedPtr & input_twist_msg_ptr)
 {
   vehicle_velocity_ptr_ = input_twist_msg_ptr;
 }
@@ -56,12 +56,12 @@ void DataManager::setLaneChangerParameters(const LaneChangerParameters & paramet
   parameters_ = parameters;
 }
 
-autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr DataManager::getDynamicObjects()
+autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr DataManager::getDynamicObjects()
 {
   return perception_ptr_;
 }
 
-geometry_msgs::msg::TwistStamped::ConstPtr DataManager::getCurrentSelfVelocity()
+geometry_msgs::msg::TwistStamped::ConstSharedPtr DataManager::getCurrentSelfVelocity()
 {
   return vehicle_velocity_ptr_;
 }

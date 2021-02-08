@@ -30,8 +30,8 @@ class FollowingLaneState : public StateBase
 {
 private:
   geometry_msgs::msg::PoseStamped current_pose_;
-  geometry_msgs::msg::TwistStamped::ConstPtr current_twist_;
-  autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr dynamic_objects_;
+  geometry_msgs::msg::TwistStamped::ConstSharedPtr current_twist_;
+  autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr dynamic_objects_;
   bool lane_change_approved_;
   bool force_lane_change_;
   lanelet::ConstLanelets current_lanes_;

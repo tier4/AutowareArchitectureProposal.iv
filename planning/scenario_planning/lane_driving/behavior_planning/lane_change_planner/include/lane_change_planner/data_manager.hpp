@@ -67,8 +67,8 @@ private:
   /*
    * Cache
    */
-  autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr perception_ptr_;
-  geometry_msgs::msg::TwistStamped::ConstPtr vehicle_velocity_ptr_;
+  autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr perception_ptr_;
+  geometry_msgs::msg::TwistStamped::ConstSharedPtr vehicle_velocity_ptr_;
   BoolStamped lane_change_approval_;
   BoolStamped force_lane_change_;
   geometry_msgs::msg::PoseStamped self_pose_;
@@ -88,16 +88,16 @@ public:
 
   // callbacks
   void perceptionCallback(
-    const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & input_perception_msg);
-  void velocityCallback(const geometry_msgs::msg::TwistStamped::ConstPtr & input_twist_msg);
+    const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & input_perception_msg);
+  void velocityCallback(const geometry_msgs::msg::TwistStamped::ConstSharedPtr & input_twist_msg);
   void setLaneChangerParameters(const LaneChangerParameters & parameters);
   void laneChangeApprovalCallback(const std_msgs::msg::Bool & input_approval_msg);
   void forceLaneChangeSignalCallback(const std_msgs::msg::Bool & input_approval_msg);
 
   // getters
-  autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr getDynamicObjects();
+  autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr getDynamicObjects();
   geometry_msgs::msg::PoseStamped getCurrentSelfPose();
-  geometry_msgs::msg::TwistStamped::ConstPtr getCurrentSelfVelocity();
+  geometry_msgs::msg::TwistStamped::ConstSharedPtr getCurrentSelfVelocity();
   LaneChangerParameters getLaneChangerParameters();
   bool getLaneChangeApproval();
   bool getForceLaneChangeSignal();
