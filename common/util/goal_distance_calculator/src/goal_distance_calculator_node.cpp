@@ -26,8 +26,8 @@
 
 namespace goal_distance_calculator
 {
-GoalDistanceCalculatorNode::GoalDistanceCalculatorNode()
-: Node("goal_distance_calculator"),
+GoalDistanceCalculatorNode::GoalDistanceCalculatorNode(const rclcpp::NodeOptions & options)
+: Node("goal_distance_calculator", options),
   self_pose_listener_(this),
   debug_publisher_(this, "goal_distance_calculator")
 {
@@ -129,3 +129,6 @@ void GoalDistanceCalculatorNode::onTimer()
   }
 }
 }  // namespace goal_distance_calculator
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(goal_distance_calculator::GoalDistanceCalculatorNode)
