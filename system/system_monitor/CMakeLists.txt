@@ -160,6 +160,121 @@ target_link_libraries(hdd_reader ${Boost_LIBRARIES} ${LIBRARIES})
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+
+  # ament_add_gtest(test_cpu_monitor
+  #   test/src/cpu_monitor/test_${CMAKE_CPU_PLATFORM}_cpu_monitor.cpp
+  #   ${CPU_MONITOR_SOURCE}
+  # )
+
+  # ament_target_dependencies(test_cpu_monitor
+  #   "rclcpp"
+  #   "diagnostic_msgs"
+  # )
+
+  # target_include_directories(test_cpu_monitor
+  #   PRIVATE "include"
+  # )
+
+  # target_link_libraries(test_cpu_monitor ${Boost_LIBRARIES} ${LIBRARIES})
+
+  # ament_add_gtest(test_hdd_monitor
+  #   test/src/hdd_monitor/test_hdd_monitor.cpp
+  #   src/hdd_monitor/hdd_monitor.cpp
+  # )
+
+  # ament_target_dependencies(test_hdd_monitor
+  #   "rclcpp"
+  #   "diagnostic_msgs"
+  # )
+
+  # target_include_directories(test_hdd_monitor
+  #   PRIVATE "include"
+  # )
+
+  # target_link_libraries(test_hdd_monitor ${Boost_LIBRARIES} ${LIBRARIES}
+  # )
+
+  # ament_add_gtest(test_mem_monitor
+  #   test/src/mem_monitor/test_mem_monitor.cpp
+  #   src/mem_monitor/mem_monitor.cpp
+  # )
+
+  # ament_target_dependencies(test_mem_monitor
+  #   "rclcpp"
+  #   "diagnostic_msgs"
+  # )
+
+  # target_include_directories(test_mem_monitor
+  #   PRIVATE "include"
+  # )
+
+  # target_link_libraries(test_mem_monitor ${Boost_LIBRARIES} ${LIBRARIES})
+
+  # ament_add_gtest(test_net_monitor
+  #   test/src/net_monitor/test_net_monitor.cpp
+  #   src/net_monitor/net_monitor.cpp
+  #   src/net_monitor/nl80211.cpp
+  # )
+
+  # ament_target_dependencies(test_net_monitor
+  #   "rclcpp"
+  #   "diagnostic_msgs"
+  # )
+
+  # target_include_directories(test_net_monitor
+  #   PRIVATE "include"
+  # )
+
+  # target_link_libraries(test_net_monitor ${Boost_LIBRARIES} ${NL_LIBS} ${LIBRARIES})
+
+  # ament_add_gtest(test_ntp_monitor
+  #   test/src/ntp_monitor/test_ntp_monitor.cpp
+  #   src/ntp_monitor/ntp_monitor.cpp
+  # )
+
+  # ament_target_dependencies(test_ntp_monitor
+  #   "rclcpp"
+  #   "diagnostic_msgs"
+  # )
+
+  # target_include_directories(test_ntp_monitor
+  #   PRIVATE "include"
+  # )
+
+  # target_link_libraries(test_ntp_monitor ${Boost_LIBRARIES} ${LIBRARIES})
+
+  # ament_add_gtest(test_process_monitor
+  #   test/src/process_monitor/test_process_monitor.cpp
+  #   src/process_monitor/process_monitor.cpp
+  # )
+
+  # ament_target_dependencies(test_process_monitor
+  #   "rclcpp"
+  #   "diagnostic_msgs"
+  # )
+
+  # target_include_directories(test_process_monitor
+  #   PRIVATE "include"
+  # )
+
+  # target_link_libraries(test_process_monitor ${Boost_LIBRARIES} ${LIBRARIES})
+
+  # ament_add_gtest(test_gpu_monitor
+  #   test/src/gpu_monitor/test_${CMAKE_GPU_PLATFORM}_gpu_monitor.cpp
+  #   ${GPU_MONITOR_SOURCE}
+  # )
+
+  # ament_target_dependencies(test_gpu_monitor
+  #   "rclcpp"
+  #   "diagnostic_msgs"
+  # )
+
+  # target_include_directories(test_gpu_monitor
+  #   PRIVATE "include"
+  # )
+
+  # target_link_libraries(test_gpu_monitor ${GPU_LIBRARY} ${LIBRARIES})
+
 endif()
 
 #############

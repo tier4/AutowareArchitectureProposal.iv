@@ -22,12 +22,12 @@
 
 #include "fmt/format.h"
 #include "gtest/gtest.h"
-#include "ros/ros.h"
+#include "rclcpp/rclcpp.hpp"
 
 #include "system_monitor/ntp_monitor/ntp_monitor.hpp"
 
 namespace fs = boost::filesystem;
-using DiagStatus = diagnostic_msgs::DiagnosticStatus;
+using DiagStatus = diagnostic_msgs::msg::DiagnosticStatus;
 
 char ** argv_;
 
@@ -36,10 +36,10 @@ class TestNTPMonitor : public NTPMonitor
   friend class NTPMonitorTestSuite;
 
 public:
-  TestNTPMonitor(const ros::NodeHandle & nh, const ros::NodeHandle & pnh)
-  : NTPMonitor(nh, pnh) {}
+  TestNTPMonitor(const std::string & node_name, const rclcpp::NodeOptions & options)
+  : NTPMonitor(node_name, options) {}
 
-  void diagCallback(const diagnostic_msgs::DiagnosticArray::ConstPtr & diag_msg)
+  void diagCallback(const diagnostic_msgs::msg::DiagnosticArray::ConstSharedPtr diag_msg)
   {
     array_ = *diag_msg;
   }
@@ -68,15 +68,14 @@ public:
   }
 
 private:
-  diagnostic_msgs::DiagnosticArray array_;
-  const std::string prefix_ = ros::this_node::getName().substr(1) + ": ";
+  diagnostic_msgs::msg::DiagnosticArray array_;
+  const std::string prefix_ = std::string(this->get_name()) + ": ";
 };
 
 class NTPMonitorTestSuite : public ::testing::Test
 {
 public:
   NTPMonitorTestSuite()
-  : nh_(""), pnh_("~")
   {
     // Get directory of executable
     const fs::path exe_path(argv_[0]);
@@ -86,16 +85,20 @@ public:
   }
 
 protected:
-  ros::NodeHandle nh_, pnh_;
   std::unique_ptr<TestNTPMonitor> monitor_;
-  ros::Subscriber sub_;
+  rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr
+    sub_;
   std::string exe_dir_;
   std::string ntpdate_;
 
   void SetUp(void)
   {
-    monitor_ = std::make_unique<TestNTPMonitor>(nh_, pnh_);
-    sub_ = nh_.subscribe("/diagnostics", 1000, &TestNTPMonitor::diagCallback, monitor_.get());
+    using std::placeholders::_1;
+    rclcpp::init(0, nullptr);
+    rclcpp::NodeOptions node_options;
+    monitor_ = std::make_unique<TestNTPMonitor>("test_ntp_monitor", node_options);
+    sub_ = monitor_->create_subscription<diagnostic_msgs::msg::DiagnosticArray>(
+      "/diagnostics", 1000, std::bind(&TestNTPMonitor::diagCallback, monitor_.get(), _1));
 
     // Remove dummy executable if exists
     if (fs::exists(ntpdate_)) {fs::remove(ntpdate_);}
@@ -105,6 +108,7 @@ protected:
   {
     // Remove dummy executable if exists
     if (fs::exists(ntpdate_)) {fs::remove(ntpdate_);}
+    rclcpp::shutdown();
   }
 
   bool findValue(const DiagStatus status, const std::string & key, std::string & value)  // NOLINT
@@ -136,8 +140,8 @@ TEST_F(NTPMonitorTestSuite, offsetWarnTest)
     monitor_->update();
 
     // Give time to publish
-    ros::WallDuration(0.5).sleep();
-    ros::spinOnce();
+    rclcpp::WallRate(2).sleep();
+    rclcpp::spin_some(monitor_->get_node_base_interface());
 
     // Verify
     DiagStatus status;
@@ -155,8 +159,8 @@ TEST_F(NTPMonitorTestSuite, offsetWarnTest)
     monitor_->update();
 
     // Give time to publish
-    ros::WallDuration(0.5).sleep();
-    ros::spinOnce();
+    rclcpp::WallRate(2).sleep();
+    rclcpp::spin_some(monitor_->get_node_base_interface());
 
     // Verify
     DiagStatus status;
@@ -173,8 +177,8 @@ TEST_F(NTPMonitorTestSuite, offsetWarnTest)
     monitor_->update();
 
     // Give time to publish
-    ros::WallDuration(0.5).sleep();
-    ros::spinOnce();
+    rclcpp::WallRate(2).sleep();
+    rclcpp::spin_some(monitor_->get_node_base_interface());
 
     // Verify
     DiagStatus status;
@@ -191,8 +195,8 @@ TEST_F(NTPMonitorTestSuite, offsetErrorTest)
     monitor_->update();
 
     // Give time to publish
-    ros::WallDuration(0.5).sleep();
-    ros::spinOnce();
+    rclcpp::WallRate(2).sleep();
+    rclcpp::spin_some(monitor_->get_node_base_interface());
 
     // Verify
     DiagStatus status;
@@ -210,8 +214,8 @@ TEST_F(NTPMonitorTestSuite, offsetErrorTest)
     monitor_->update();
 
     // Give time to publish
-    ros::WallDuration(0.5).sleep();
-    ros::spinOnce();
+    rclcpp::WallRate(2).sleep();
+    rclcpp::spin_some(monitor_->get_node_base_interface());
 
     // Verify
     DiagStatus status;
@@ -228,8 +232,8 @@ TEST_F(NTPMonitorTestSuite, offsetErrorTest)
     monitor_->update();
 
     // Give time to publish
-    ros::WallDuration(0.5).sleep();
-    ros::spinOnce();
+    rclcpp::WallRate(2).sleep();
+    rclcpp::spin_some(monitor_->get_node_base_interface());
 
     // Verify
     DiagStatus status;
@@ -247,8 +251,8 @@ TEST_F(NTPMonitorTestSuite, offsetNtpdateNotFoundTest)
   monitor_->update();
 
   // Give time to publish
-  ros::WallDuration(0.5).sleep();
-  ros::spinOnce();
+  rclcpp::WallRate(2).sleep();
+  rclcpp::spin_some(monitor_->get_node_base_interface());
 
   // Verify
   DiagStatus status;
@@ -274,8 +278,8 @@ TEST_F(NTPMonitorTestSuite, offsetNtpdateErrorTest)
   monitor_->update();
 
   // Give time to publish
-  ros::WallDuration(0.5).sleep();
-  ros::spinOnce();
+  rclcpp::WallRate(2).sleep();
+  rclcpp::spin_some(monitor_->get_node_base_interface());
 
   // Verify
   DiagStatus status;
@@ -289,7 +293,6 @@ int main(int argc, char ** argv)
 {
   argv_ = argv;
   testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "NTPMonitorTestNode");
 
   return RUN_ALL_TESTS();
 }
