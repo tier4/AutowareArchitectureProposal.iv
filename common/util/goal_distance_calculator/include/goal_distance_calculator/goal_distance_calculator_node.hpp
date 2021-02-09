@@ -40,6 +40,7 @@ class GoalDistanceCalculatorNode : public rclcpp::Node
 public:
   explicit GoalDistanceCalculatorNode(const rclcpp::NodeOptions & options);
 
+
 private:
   // Subscriber
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_initial_pose_;

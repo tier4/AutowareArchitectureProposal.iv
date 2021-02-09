@@ -19,6 +19,14 @@
 #include <vector>
 
 #include "autoware_planning_msgs/msg/trajectory.hpp"
+struct OptimizerParam
+{
+  double max_accel;
+  double min_decel;
+  double pseudo_jerk_weight;
+  double over_v_weight;
+  double over_a_weight;
+};
 
 class OptimizerBase
 {
@@ -28,10 +36,7 @@ public:
     const autoware_planning_msgs::msg::Trajectory & input,
     autoware_planning_msgs::msg::Trajectory * output) = 0;
 
-  virtual void setAccel(const double max_accel) = 0;
-
-  virtual void setDecel(const double min_decel) = 0;
-
+  virtual void setParam(const OptimizerParam & param) = 0;
   virtual ~OptimizerBase() = default;
 };
 
