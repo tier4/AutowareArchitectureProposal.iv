@@ -45,24 +45,39 @@ public:
     array_ = *diag_msg;
   }
 
-  void addTempParams(const std::string & name, float temp_warn, float temp_error)
+  void addHDDParams(
+    const std::string & name, float temp_warn, float temp_error, float usage_warn,
+    float usage_error)
   {
-    TempParam param;
+    HDDParam param;
     param.temp_warn_ = temp_warn;
     param.temp_error_ = temp_error;
-    temp_params_[name] = param;
+    param.usage_warn_ = usage_warn;
+    param.usage_error_ = usage_error;
+    hdd_params_[name] = param;
   }
-  void changeTempParams(float temp_warn, float temp_error)
+
+  void changeHDDParams(float temp_warn, float temp_error, float usage_warn, float usage_error)
   {
-    for (auto itr = temp_params_.begin(); itr != temp_params_.end(); ++itr) {
+    for (auto itr = hdd_params_.begin(); itr != hdd_params_.end(); ++itr) {
       itr->second.temp_warn_ = temp_warn;
       itr->second.temp_error_ = temp_error;
+      itr->second.usage_warn_ = usage_warn;
+      itr->second.usage_error_ = usage_error;
     }
   }
-  void clearTempParams(void) { temp_params_.clear(); }
 
-  void changeUsageWarn(float usage_warn) { usage_warn_ = usage_warn; }
-  void changeUsageError(float usage_error) { usage_error_ = usage_error; }
+  void removeHDDParams(const std::string & name)
+  {
+    for (auto itr = hdd_params_.begin(); itr != hdd_params_.end(); ++itr) {
+      if (itr->first == name) {
+        hdd_params_.erase(itr);
+        break;
+      }
+    }
+  }
+
+  void clearHDDParams(void) { hdd_params_.clear(); }
 
   void update(void) { updater_.force_update(); }
 
@@ -198,6 +213,19 @@ void * hdd_reader(void * args)
   // Await a connection on socket FD
   int new_sock = accept(sock, reinterpret_cast<sockaddr *>(&client), &len);
   if (new_sock < 0) {
+    close(sock);
+    return nullptr;
+  }
+
+  // Receive list of device from a socket
+  char buf[1024] = "";
+  ret = recv(new_sock, buf, sizeof(buf) - 1, 0);
+  if (ret < 0) {
+    close(sock);
+    return nullptr;
+  }
+  // No data received
+  if (ret == 0) {
     close(sock);
     return nullptr;
   }
@@ -477,7 +505,7 @@ TEST_F(HDDMonitorTestSuite, tempConnectErrorTest)
 TEST_F(HDDMonitorTestSuite, tempInvalidDiskParameterTest)
 {
   // Clear list
-  monitor_->clearTempParams();
+  monitor_->clearHDDParams();
 
   // Publish topic
   monitor_->update();
@@ -496,7 +524,7 @@ TEST_F(HDDMonitorTestSuite, tempInvalidDiskParameterTest)
 TEST_F(HDDMonitorTestSuite, tempNoSuchDeviceTest)
 {
   // Add test file to list
-  monitor_->addTempParams("/dev/sdx", 55.0, 77.0);
+  monitor_->addHDDParams("/dev/sdx", 55.0, 77.0, 0.95, 0.99);
 
   pthread_t th;
   ThreadTestMode mode = Normal;
@@ -521,6 +549,9 @@ TEST_F(HDDMonitorTestSuite, tempNoSuchDeviceTest)
   ASSERT_STREQ(status.message.c_str(), "hdd_reader error");
   ASSERT_TRUE(findValue(status, "HDD 1: hdd_reader", value));
   ASSERT_STREQ(value.c_str(), strerror(ENOENT));
+
+  // Remove test fie from list
+  monitor_->removeHDDParams("/dev/sdx");
 }
 
 TEST_F(HDDMonitorTestSuite, usageWarnTest)
@@ -544,7 +575,7 @@ TEST_F(HDDMonitorTestSuite, usageWarnTest)
   // Verify warning
   {
     // Change warning level
-    monitor_->changeUsageWarn(0.0);
+    monitor_->changeHDDParams(55.0, 77.0, 0.00, 0.99);
 
     // Publish topic
     monitor_->update();
@@ -562,7 +593,7 @@ TEST_F(HDDMonitorTestSuite, usageWarnTest)
   // Verify normal behavior
   {
     // Change back to normal
-    monitor_->changeUsageWarn(0.95);
+    monitor_->changeHDDParams(55.0, 77.0, 0.95, 0.99);
 
     // Publish topic
     monitor_->update();
@@ -598,8 +629,8 @@ TEST_F(HDDMonitorTestSuite, usageErrorTest)
 
   // Verify warning
   {
-    // Change warning level
-    monitor_->changeUsageError(0.0);
+    // Change error level
+    monitor_->changeHDDParams(55.0, 77.0, 0.95, 0.00);
 
     // Publish topic
     monitor_->update();
@@ -617,7 +648,7 @@ TEST_F(HDDMonitorTestSuite, usageErrorTest)
   // Verify normal behavior
   {
     // Change back to normal
-    monitor_->changeUsageError(0.99);
+    monitor_->changeHDDParams(55.0, 77.0, 0.95, 0.99);
 
     // Publish topic
     monitor_->update();
@@ -655,7 +686,7 @@ TEST_F(HDDMonitorTestSuite, usageDfErrorTest)
   ASSERT_TRUE(monitor_->findDiagStatus("HDD Usage", status));
   ASSERT_EQ(status.level, DiagStatus::ERROR);
   ASSERT_STREQ(status.message.c_str(), "df error");
-  ASSERT_TRUE(findValue(status, "df", value));
+  ASSERT_TRUE(findValue(status, "HDD 0: df", value));
 }
 
 int main(int argc, char ** argv)

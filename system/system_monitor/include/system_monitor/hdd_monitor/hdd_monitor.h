@@ -28,12 +28,14 @@
 /**
  * @brief error and warning temperature levels
  */
-struct TempParam
+struct HDDParam
 {
-  float temp_warn_;   //!< @brief HDD temperature(DegC) to generate warning
-  float temp_error_;  //!< @brief HDD temperature(DegC) to generate error
+  float temp_warn_;    //!< @brief HDD temperature(DegC) to generate warning
+  float temp_error_;   //!< @brief HDD temperature(DegC) to generate error
+  float usage_warn_;   //!< @brief HDD usage(%) to generate warning
+  float usage_error_;  //!< @brief HDD usage(%) to generate error
 
-  TempParam() : temp_warn_(55.0), temp_error_(70.0) {}
+  HDDParam() : temp_warn_(55.0), temp_error_(70.0), usage_warn_(0.95), usage_error_(0.99) {}
 };
 
 class HDDMonitor
@@ -49,7 +51,7 @@ public:
   /**
    * @brief main loop
    */
-  void run(void);
+  void run();
 
 protected:
   using DiagStatus = diagnostic_msgs::DiagnosticStatus;
@@ -72,9 +74,9 @@ protected:
     diagnostic_updater::DiagnosticStatusWrapper & stat);  // NOLINT(runtime/references)
 
   /**
-   * @brief get temperature parameters
+   * @brief get HDD parameters
    */
-  void getTempParams(void);
+  void getHDDParams();
 
   ros::NodeHandle nh_;                   //!< @brief ros node handle
   ros::NodeHandle pnh_;                  //!< @brief private ros node handle
@@ -82,10 +84,9 @@ protected:
 
   char hostname_[HOST_NAME_MAX + 1];  //!< @brief host name
 
-  float usage_warn_;                              //!< @brief HDD usage(%) to generate warning
-  float usage_error_;                             //!< @brief HDD usage(%) to generate error
-  int hdd_reader_port_;                           //!< @brief port number to connect to hdd_reader
-  std::map<std::string, TempParam> temp_params_;  //!< @brief list of error and warning levels
+  int hdd_reader_port_;                         //!< @brief port number to connect to hdd_reader
+  std::map<std::string, HDDParam> hdd_params_;  //!< @brief list of error and warning levels
+  std::vector<std::string> hdd_devices_;        //!< @brief list of devices
 
   /**
    * @brief HDD temperature status messages

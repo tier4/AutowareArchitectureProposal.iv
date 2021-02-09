@@ -25,7 +25,9 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <boost/process.hpp>
+#include <boost/serialization/vector.hpp>
 
 #include <fmt/format.h>
 
@@ -38,9 +40,7 @@ HDDMonitor::HDDMonitor(const ros::NodeHandle & nh, const ros::NodeHandle & pnh) 
 {
   gethostname(hostname_, sizeof(hostname_));
 
-  getTempParams();
-  pnh_.param<float>("usage_warn", usage_warn_, 0.9);
-  pnh_.param<float>("usage_error", usage_error_, 1.1);
+  getHDDParams();
   pnh_.param<int>("hdd_reader_port", hdd_reader_port_, 7635);
 
   updater_.setHardwareID(hostname_);
@@ -48,7 +48,7 @@ HDDMonitor::HDDMonitor(const ros::NodeHandle & nh, const ros::NodeHandle & pnh) 
   updater_.add("HDD Usage", this, &HDDMonitor::checkUsage);
 }
 
-void HDDMonitor::run(void)
+void HDDMonitor::run()
 {
   ros::Rate rate(1.0);
 
@@ -61,7 +61,7 @@ void HDDMonitor::run(void)
 
 void HDDMonitor::checkTemp(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
-  if (temp_params_.empty()) {
+  if (hdd_params_.empty()) {
     stat.summary(DiagStatus::ERROR, "invalid disk parameter");
     return;
   }
@@ -96,6 +96,20 @@ void HDDMonitor::checkTemp(diagnostic_updater::DiagnosticStatusWrapper & stat)
   if (ret < 0) {
     stat.summary(DiagStatus::ERROR, "connect error");
     stat.add("connect", strerror(errno));
+    close(sock);
+    return;
+  }
+
+  std::ostringstream oss;
+  boost::archive::text_oarchive oa(oss);
+  oa & hdd_devices_;
+
+  // Write list of devices to FD
+  ret = write(sock, oss.str().c_str(), oss.str().length());
+  if (ret < 0) {
+    stat.summary(DiagStatus::ERROR, "write error");
+    stat.add("write", strerror(errno));
+    ROS_ERROR("write error");
     close(sock);
     return;
   }
@@ -143,7 +157,7 @@ void HDDMonitor::checkTemp(diagnostic_updater::DiagnosticStatusWrapper & stat)
   int index = 0;
   std::string error_str = "";
 
-  for (auto itr = temp_params_.begin(); itr != temp_params_.end(); ++itr, ++index) {
+  for (auto itr = hdd_params_.begin(); itr != hdd_params_.end(); ++itr, ++index) {
     // Retrieve HDD information
     auto itrh = list.find(itr->first);
     if (itrh == list.end()) {
@@ -187,60 +201,78 @@ void HDDMonitor::checkTemp(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
 void HDDMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
-  // Get summary of disk space usage of ext4
-  bp::ipstream is_out;
-  bp::ipstream is_err;
-  bp::child c("df -Pht ext4", bp::std_out > is_out, bp::std_err > is_err);
-  c.wait();
-  if (c.exit_code() != 0) {
-    std::ostringstream os;
-    is_err >> os.rdbuf();
-    stat.summary(DiagStatus::ERROR, "df error");
-    stat.add("df", os.str().c_str());
+  if (hdd_params_.empty()) {
+    stat.summary(DiagStatus::ERROR, "invalid disk parameter");
     return;
   }
 
-  int level = DiagStatus::OK;
+  int hdd_index = 0;
   int whole_level = DiagStatus::OK;
+  std::string error_str = "";
 
-  std::string line;
-  int index = 0;
-  std::vector<std::string> list;
-  float usage;
+  for (auto itr = hdd_params_.begin(); itr != hdd_params_.end(); ++itr, ++hdd_index) {
+    // Get summary of disk space usage of ext4
+    bp::ipstream is_out;
+    bp::ipstream is_err;
+    // Invoke shell to use shell wildcard expansion
+    bp::child c(
+      "/bin/sh", "-c", fmt::format("df -Pht ext4 {}*", itr->first.c_str()), bp::std_out > is_out,
+      bp::std_err > is_err);
+    c.wait();
 
-  while (std::getline(is_out, line) && !line.empty()) {
-    // Skip header
-    if (index <= 0) {
-      ++index;
+    if (c.exit_code() != 0) {
+      std::ostringstream os;
+      is_err >> os.rdbuf();
+      error_str = "df error";
+      stat.add(fmt::format("HDD {}: status", hdd_index), "df error");
+      stat.add(fmt::format("HDD {}: name", hdd_index), itr->first.c_str());
+      stat.add(fmt::format("HDD {}: df", hdd_index), os.str().c_str());
       continue;
     }
 
-    boost::split(list, line, boost::is_space(), boost::token_compress_on);
+    int level = DiagStatus::OK;
+    std::string line;
+    int index = 0;
+    std::vector<std::string> list;
+    float usage;
 
-    usage = std::atof(boost::trim_copy_if(list[4], boost::is_any_of("%")).c_str()) * 1e-2;
+    while (std::getline(is_out, line) && !line.empty()) {
+      // Skip header
+      if (index <= 0) {
+        ++index;
+        continue;
+      }
 
-    level = DiagStatus::OK;
-    if (usage >= usage_error_)
-      level = DiagStatus::ERROR;
-    else if (usage >= usage_warn_)
-      level = DiagStatus::WARN;
+      boost::split(list, line, boost::is_space(), boost::token_compress_on);
 
-    stat.add(fmt::format("HDD {}: status", index - 1), usage_dict_.at(level));
-    stat.add(fmt::format("HDD {}: filesystem", index - 1), list[0].c_str());
-    stat.add(fmt::format("HDD {}: size", index - 1), list[1].c_str());
-    stat.add(fmt::format("HDD {}: used", index - 1), list[2].c_str());
-    stat.add(fmt::format("HDD {}: avail", index - 1), list[3].c_str());
-    stat.add(fmt::format("HDD {}: use", index - 1), list[4].c_str());
-    stat.add(fmt::format("HDD {}: mounted on", index - 1), list[5].c_str());
+      usage = std::atof(boost::trim_copy_if(list[4], boost::is_any_of("%")).c_str()) * 1e-2;
 
-    whole_level = std::max(whole_level, level);
-    ++index;
+      level = DiagStatus::OK;
+      if (usage >= itr->second.usage_error_)
+        level = DiagStatus::ERROR;
+      else if (usage >= itr->second.usage_warn_)
+        level = DiagStatus::WARN;
+
+      stat.add(fmt::format("HDD {}: status", hdd_index), usage_dict_.at(level));
+      stat.add(fmt::format("HDD {}: filesystem", hdd_index), list[0].c_str());
+      stat.add(fmt::format("HDD {}: size", hdd_index), list[1].c_str());
+      stat.add(fmt::format("HDD {}: used", hdd_index), list[2].c_str());
+      stat.add(fmt::format("HDD {}: avail", hdd_index), list[3].c_str());
+      stat.add(fmt::format("HDD {}: use", hdd_index), list[4].c_str());
+      stat.add(fmt::format("HDD {}: mounted on", hdd_index), list[5].c_str());
+
+      whole_level = std::max(whole_level, level);
+      ++index;
+    }
   }
 
-  stat.summary(whole_level, usage_dict_.at(whole_level));
+  if (!error_str.empty())
+    stat.summary(DiagStatus::ERROR, error_str);
+  else
+    stat.summary(whole_level, usage_dict_.at(whole_level));
 }
 
-void HDDMonitor::getTempParams()
+void HDDMonitor::getHDDParams()
 {
   XmlRpc::XmlRpcValue params;
 
@@ -249,7 +281,7 @@ void HDDMonitor::getTempParams()
 
   for (int i = 0; i < params.size(); ++i) {
     std::string name;
-    TempParam param;
+    HDDParam param;
 
     // Skip no name
     if (!params[i]["name"].valid()) continue;
@@ -263,6 +295,14 @@ void HDDMonitor::getTempParams()
     if (params[i]["temp_error"].getType() == XmlRpc::XmlRpcValue::TypeDouble)
       param.temp_error_ = static_cast<double>(params[i]["temp_error"]);
 
-    temp_params_[name] = param;
+    if (params[i]["usage_warn"].getType() == XmlRpc::XmlRpcValue::TypeDouble)
+      param.usage_warn_ = static_cast<double>(params[i]["usage_warn"]);
+
+    if (params[i]["usage_error"].getType() == XmlRpc::XmlRpcValue::TypeDouble)
+      param.usage_error_ = static_cast<double>(params[i]["usage_error"]);
+
+    hdd_params_[name] = param;
+
+    hdd_devices_.push_back(name);
   }
 }
