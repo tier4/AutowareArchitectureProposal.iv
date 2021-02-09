@@ -49,6 +49,10 @@
  *
  */
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "pointcloud_preprocessor/filter.hpp"
 #include "pcl/io/io.h"
 #include "pcl_ros/transforms.hpp"

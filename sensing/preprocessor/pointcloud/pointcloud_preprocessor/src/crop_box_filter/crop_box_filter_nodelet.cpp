@@ -49,6 +49,8 @@
  *
  */
 
+#include <vector>
+
 #include "pointcloud_preprocessor/crop_box_filter/crop_box_filter_nodelet.hpp"
 
 namespace pointcloud_preprocessor

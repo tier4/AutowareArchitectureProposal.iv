@@ -11,7 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+
+#ifndef POINTCLOUD_PREPROCESSOR__OUTLIER_FILTER__RING_OUTLIER_FILTER_NODELET_HPP_
+#define POINTCLOUD_PREPROCESSOR__OUTLIER_FILTER__RING_OUTLIER_FILTER_NODELET_HPP_
+
+#include <vector>
 
 #include "pcl/filters/voxel_grid.h"
 #include "pcl/search/pcl_search.h"
@@ -38,7 +42,7 @@ private:
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  RingOutlierFilterComponent(const rclcpp::NodeOptions & options);
+  explicit RingOutlierFilterComponent(const rclcpp::NodeOptions & options);
 };
 
 }  // namespace pointcloud_preprocessor
@@ -61,3 +65,5 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(
   pcl::PointXYZIRADT,
   (float, x, x)(float, y, y)(float, z, z)(float, intensity, intensity)(std::uint16_t, ring, ring)(
     float, azimuth, azimuth)(float, distance, distance)(double, time_stamp, time_stamp))
+
+#endif  // POINTCLOUD_PREPROCESSOR__OUTLIER_FILTER__RING_OUTLIER_FILTER_NODELET_HPP_

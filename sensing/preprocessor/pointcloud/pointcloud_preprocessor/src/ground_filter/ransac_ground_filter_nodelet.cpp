@@ -1,18 +1,21 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include <limits>
+#include <random>
+#include <string>
+#include <vector>
 
 #include "pointcloud_preprocessor/ground_filter/ransac_ground_filter_nodelet.hpp"
 
@@ -20,7 +23,6 @@
 #include "pcl_ros/transforms.hpp"
 
 #include "tf2_eigen/tf2_eigen.h"
-#include <random>
 
 namespace
 {
@@ -118,7 +120,7 @@ RANSACGroundFilterComponent::RANSACGroundFilterComponent(const rclcpp::NodeOptio
 
 void RANSACGroundFilterComponent::setDebugPublisher()
 {
-  if (is_initilized_debug_message_) return;
+  if (is_initilized_debug_message_) {return;}
   debug_pose_array_pub_ =
     create_publisher<geometry_msgs::msg::PoseArray>("debug/plane_pose_array", max_queue_size_);
   debug_ground_cloud_pub_ =
@@ -286,10 +288,12 @@ void RANSACGroundFilterComponent::filter(
     }
   }
 
-  sensor_msgs::msg::PointCloud2::SharedPtr no_ground_cloud_msg_ptr(new sensor_msgs::msg::PointCloud2);
+  sensor_msgs::msg::PointCloud2::SharedPtr no_ground_cloud_msg_ptr(
+    new sensor_msgs::msg::PointCloud2);
   pcl::toROSMsg(*no_ground_cloud_ptr, *no_ground_cloud_msg_ptr);
   no_ground_cloud_msg_ptr->header = input->header;
-  sensor_msgs::msg::PointCloud2::SharedPtr no_ground_cloud_transed_msg_ptr(new sensor_msgs::msg::PointCloud2);
+  sensor_msgs::msg::PointCloud2::SharedPtr no_ground_cloud_transed_msg_ptr(
+    new sensor_msgs::msg::PointCloud2);
   if (!transformPointCloud(base_frame_, no_ground_cloud_msg_ptr, no_ground_cloud_transed_msg_ptr)) {
     RCLCPP_ERROR_STREAM_THROTTLE(
       this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),

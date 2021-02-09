@@ -41,9 +41,13 @@
  ********************
  *  v1.0: amc-nu (abrahammonrroy@yahoo.com)
 */
-#pragma once
+
+#ifndef POINTCLOUD_PREPROCESSOR__GROUND_FILTER__RAY_GROUND_FILTER_NODELET_HPP_
+#define POINTCLOUD_PREPROCESSOR__GROUND_FILTER__RAY_GROUND_FILTER_NODELET_HPP_
 
 #include <chrono>
+#include <string>
+#include <vector>
 
 #include "sensor_msgs/msg/point_cloud2.hpp"
 
@@ -108,8 +112,8 @@ private:
   double initial_max_slope_;              // degrees
   double radial_divider_angle_;         // distance in rads between dividers
   double concentric_divider_distance_;  // distance in meters between concentric divisions
-  double
-    min_height_threshold_;  // minimum height threshold regardless the slope, useful for close points
+  double                    // minimum height threshold regardless the slope
+    min_height_threshold_;  // useful for close points
   double
     reclass_distance_threshold_;  // distance between points at which re classification will occur
 
@@ -183,7 +187,7 @@ private:
     pcl::PointCloud<PointType_>::Ptr out_only_indices_cloud_ptr,
     pcl::PointCloud<PointType_>::Ptr out_removed_indices_cloud_ptr);
 
-  boost::optional<float> calcPointVehicleIntersection(const Point& point);
+  boost::optional<float> calcPointVehicleIntersection(const Point & point);
 
   void setVehicleFootprint(
     const double min_x, const double max_x, const double min_y, const double max_y);
@@ -196,6 +200,8 @@ private:
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  RayGroundFilterComponent(const rclcpp::NodeOptions & options);
+  explicit RayGroundFilterComponent(const rclcpp::NodeOptions & options);
 };
 }  // namespace pointcloud_preprocessor
+
+#endif  // POINTCLOUD_PREPROCESSOR__GROUND_FILTER__RAY_GROUND_FILTER_NODELET_HPP_

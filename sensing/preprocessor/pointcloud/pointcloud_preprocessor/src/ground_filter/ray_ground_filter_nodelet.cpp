@@ -29,6 +29,9 @@
  *  v1.0: amc-nu (abrahammonrroy@yahoo.com)
  */
 
+#include <string>
+#include <vector>
+
 #include "pointcloud_preprocessor/ground_filter/ray_ground_filter_nodelet.hpp"
 
 #include "pcl_ros/transforms.hpp"
@@ -107,10 +110,11 @@ void RayGroundFilterComponent::ConvertXYZIToRTZColor(
 
   for (size_t i = 0; i < in_cloud->points.size(); i++) {
     PointXYZRTColor new_point;
-    auto radius = (float)sqrt(
-      in_cloud->points[i].x * in_cloud->points[i].x +
-      in_cloud->points[i].y * in_cloud->points[i].y);
-    auto theta = (float)atan2(in_cloud->points[i].y, in_cloud->points[i].x) * 180 / M_PI;
+    auto radius = static_cast<float>(sqrt(
+        in_cloud->points[i].x * in_cloud->points[i].x +
+        in_cloud->points[i].y * in_cloud->points[i].y));
+    auto theta =
+      static_cast<float>(atan2(in_cloud->points[i].y, in_cloud->points[i].x)) * 180 / M_PI;
     if (theta < 0) {
       theta += 360;
     }
@@ -139,7 +143,6 @@ void RayGroundFilterComponent::ConvertXYZIToRTZColor(
     out_radial_divided_indices[radial_div].indices.push_back(i);
 
     out_radial_ordered_clouds[radial_div].push_back(new_point);
-
   }  // end for
 
   // order radial points on each division
@@ -221,7 +224,8 @@ void RayGroundFilterComponent::ClassifyPointCloud(
       float general_height_threshold =
         tan(DEG2RAD(general_max_slope_)) * in_radial_ordered_clouds[i][j].radius;
 
-      // for points which are very close causing the height threshold to be tiny, set a minimum value
+      // for points which are very close causing the height threshold to be tiny,
+      // set a minimum value
       if (height_threshold < min_height_threshold_) {
         height_threshold = min_height_threshold_;
       }
@@ -234,7 +238,8 @@ void RayGroundFilterComponent::ClassifyPointCloud(
           current_height <= (prev_height + height_threshold) &&
           current_height >= (prev_height - height_threshold))
         {
-          // Check again using general geometry (radius from origin) if previous points wasn't ground
+          // Check again using general geometry (radius from origin)
+          // if previous points wasn't ground
           if (!prev_ground) {
             if (
               current_height <= general_height_threshold &&

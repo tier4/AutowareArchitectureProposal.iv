@@ -30,7 +30,8 @@ include_directories(
   ${Boost_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
-  ${OpenCV_INCLUDE_DIRS})
+  ${OpenCV_INCLUDE_DIRS}
+)
 
 ament_auto_add_library(pointcloud_preprocessor_filter SHARED
   src/filter.cpp
@@ -52,20 +53,20 @@ ament_auto_add_library(pointcloud_preprocessor_filter SHARED
   src/passthrough_filter/passthrough_uint16.cpp
   src/pointcloud_accumulator/pointcloud_accumulator_nodelet.cpp
   src/vector_map_filter/lanelet2_map_filter_nodelet.cpp
-  )
+)
 
 target_link_libraries(pointcloud_preprocessor_filter
   ${Boost_LIBRARIES}
   ${OpenCV_LIBRARIES}
   ${PCL_LIBRARIES}
-  )
+)
 
-if (OPENMP_FOUND)
+if(OPENMP_FOUND)
   set_target_properties(pointcloud_preprocessor_filter PROPERTIES
     COMPILE_FLAGS ${OpenMP_CXX_FLAGS}
     LINK_FLAGS ${OpenMP_CXX_FLAGS}
-    )
-endif ()
+  )
+endif()
 
 # ========== Compare Map Filter ==========
 # -- Distance Based Compare Map Filter --
@@ -168,6 +169,9 @@ rclcpp_components_register_node(pointcloud_preprocessor_filter
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+  list(APPEND AMENT_LINT_AUTO_EXCLUDE
+    ament_cmake_uncrustify
+  )
 endif()
 
 #############

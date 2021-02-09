@@ -1,24 +1,27 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "pointcloud_preprocessor/filter.hpp"
 #include "pointcloud_preprocessor/vector_map_filter/lanelet2_map_filter_nodelet.hpp"
 
-#include <boost/geometry/algorithms/convex_hull.hpp>
-#include <boost/geometry/algorithms/intersects.hpp>
+#include "boost/geometry/algorithms/convex_hull.hpp"
+#include "boost/geometry/algorithms/intersects.hpp"
 
 #include "lanelet2_core/geometry/Polygon.h"
 #include "pcl_ros/transforms.hpp"
@@ -213,9 +216,9 @@ void Lanelet2MapFilterComponent::pointcloudCallback(const PointCloud2ConstPtr cl
   if (!transformPointCloud("map", cloud_msg, input_transed_cloud_ptr.get())) {
     RCLCPP_ERROR_STREAM_THROTTLE(
       this->get_logger(), *this->get_clock(), std::chrono::milliseconds(10000).count(),
-      "Failed transform from "
-        << "map"
-        << " to " << cloud_msg->header.frame_id);
+      "Failed transform from " <<
+        "map" <<
+        " to " << cloud_msg->header.frame_id);
     return;
   }
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
@@ -234,11 +237,12 @@ void Lanelet2MapFilterComponent::pointcloudCallback(const PointCloud2ConstPtr cl
   pcl::toROSMsg(filtered_cloud, *output_cloud_ptr);
   PointCloud2Ptr output_transed_cloud_ptr(new sensor_msgs::msg::PointCloud2);
   if (!transformPointCloud(
-        cloud_msg->header.frame_id, output_cloud_ptr, output_transed_cloud_ptr.get())) {
+      cloud_msg->header.frame_id, output_cloud_ptr, output_transed_cloud_ptr.get()))
+  {
     RCLCPP_ERROR_STREAM_THROTTLE(
       this->get_logger(), *this->get_clock(), std::chrono::milliseconds(10000).count(),
-      "Failed transform from " << cloud_msg->header.frame_id << " to "
-                               << output_cloud_ptr->header.frame_id);
+      "Failed transform from " << cloud_msg->header.frame_id << " to " <<
+        output_cloud_ptr->header.frame_id);
     return;
   }
   filtered_pointcloud_pub_->publish(*output_transed_cloud_ptr);
