@@ -20,6 +20,8 @@
 #include <lane_change_planner/utilities.hpp>
 
 #include <lanelet2_extension/utility/utilities.hpp>
+#include <vector>
+#include <memory>
 
 namespace lane_change_planner
 {
@@ -30,7 +32,7 @@ StoppingLaneChangeState::StoppingLaneChangeState(
 : StateBase(status, data_manager_ptr, route_handler_ptr, logger, clock)
 {
 }
-State StoppingLaneChangeState::getCurrentState() const { return State::STOPPING_LANE_CHANGE; }
+State StoppingLaneChangeState::getCurrentState() const {return State::STOPPING_LANE_CHANGE;}
 
 void StoppingLaneChangeState::entry()
 {

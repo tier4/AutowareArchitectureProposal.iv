@@ -28,11 +28,13 @@ visualization_msgs::msg::Marker convertToMarker(
   const std_msgs::msg::ColorRGBA & color, const rclcpp::Time & stamp);
 
 visualization_msgs::msg::MarkerArray createVirtualWall(
-  const geometry_msgs::msg::Pose & pose, const int id, const std::string & factor_text, const rclcpp::Time & stamp);
+  const geometry_msgs::msg::Pose & pose, const int id, const std::string & factor_text,
+  const rclcpp::Time & stamp);
 
 namespace lane_change_planner
 {
-LaneChanger::LaneChanger() : Node("lane_change_planner_node")
+LaneChanger::LaneChanger()
+: Node("lane_change_planner_node")
 {
   init();
 }
@@ -45,13 +47,21 @@ void LaneChanger::init()
 
   // subscription
   velocity_subscriber_ = create_subscription<geometry_msgs::msg::TwistStamped>(
-    "input/velocity", rclcpp::QoS{1}, std::bind(&DataManager::velocityCallback, data_manager_ptr_, std::placeholders::_1));
+    "input/velocity", rclcpp::QoS{1},
+    std::bind(&DataManager::velocityCallback, data_manager_ptr_, std::placeholders::_1));
   perception_subscriber_ = create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
-    "input/perception", rclcpp::QoS{1}, std::bind(&DataManager::perceptionCallback, data_manager_ptr_, std::placeholders::_1));
+    "input/perception", rclcpp::QoS{1},
+    std::bind(&DataManager::perceptionCallback, data_manager_ptr_, std::placeholders::_1));
   lane_change_approval_subscriber_ = create_subscription<std_msgs::msg::Bool>(
-    "input/lane_change_approval", rclcpp::QoS{1}, std::bind(&DataManager::laneChangeApprovalCallback, data_manager_ptr_, std::placeholders::_1));
+    "input/lane_change_approval", rclcpp::QoS{1},
+    std::bind(
+      &DataManager::laneChangeApprovalCallback, data_manager_ptr_,
+      std::placeholders::_1));
   force_lane_change_subscriber_ = create_subscription<std_msgs::msg::Bool>(
-    "input/force_lane_change", rclcpp::QoS{1}, std::bind(&DataManager::forceLaneChangeSignalCallback, data_manager_ptr_, std::placeholders::_1));
+    "input/force_lane_change", rclcpp::QoS{1},
+    std::bind(
+      &DataManager::forceLaneChangeSignalCallback, data_manager_ptr_,
+      std::placeholders::_1));
 
   // ROS parameters
   LaneChangerParameters parameters;
@@ -62,8 +72,11 @@ void LaneChanger::init()
   parameters.forward_path_length = declare_parameter("forward_path_length", 100.0);
   parameters.lane_change_prepare_duration = declare_parameter("lane_change_prepare_duration", 2.0);
   parameters.lane_changing_duration = declare_parameter("lane_changing_duration", 4.0);
-  parameters.backward_length_buffer_for_end_of_lane = declare_parameter("backward_length_buffer_for_end_of_lane", 5.0);
-  parameters.lane_change_finish_judge_buffer = declare_parameter("lane_change_finish_judge_buffer", 3.0);
+  parameters.backward_length_buffer_for_end_of_lane = declare_parameter(
+    "backward_length_buffer_for_end_of_lane", 5.0);
+  parameters.lane_change_finish_judge_buffer = declare_parameter(
+    "lane_change_finish_judge_buffer",
+    3.0);
   parameters.minimum_lane_change_length = declare_parameter("minimum_lane_change_length", 8.0);
   parameters.minimum_lane_change_velocity = declare_parameter("minimum_lane_change_velocity", 8.3);
   parameters.prediction_duration = declare_parameter("prediction_duration", 8.0);
@@ -71,61 +84,87 @@ void LaneChanger::init()
   parameters.drivable_area_resolution = declare_parameter("drivable_area_resolution", 0.1);
   parameters.drivable_area_width = declare_parameter("drivable_area_width", 100.0);
   parameters.drivable_area_height = declare_parameter("drivable_area_height", 50.0);
-  parameters.static_obstacle_velocity_thresh = declare_parameter("static_obstacle_velocity_thresh", 0.1);
+  parameters.static_obstacle_velocity_thresh = declare_parameter(
+    "static_obstacle_velocity_thresh",
+    0.1);
   parameters.maximum_deceleration = declare_parameter("maximum_deceleration", 1.0);
   parameters.lane_change_sampling_num = declare_parameter("lane_change_sampling_num", 10);
   parameters.enable_abort_lane_change = declare_parameter("enable_abort_lane_change", true);
-  parameters.enable_collision_check_at_prepare_phase = declare_parameter("enable_collision_check_at_prepare_phase", true);
-  parameters.use_predicted_path_outside_lanelet = declare_parameter("use_predicted_path_outside_lanelet", true);
+  parameters.enable_collision_check_at_prepare_phase = declare_parameter(
+    "enable_collision_check_at_prepare_phase", true);
+  parameters.use_predicted_path_outside_lanelet = declare_parameter(
+    "use_predicted_path_outside_lanelet", true);
   parameters.use_all_predicted_path = declare_parameter("use_all_predicted_path", false);
   parameters.vehicle_width = declare_parameter("/vehicle_info/vehicle_width", 2.8);
   parameters.vehicle_length = declare_parameter("/vehicle_info/vehicle_length", 5.0);
   parameters.base_link2front = declare_parameter("/vehicle_info/max_longitudinal_offset", 3.74);
-  parameters.abort_lane_change_velocity_thresh = declare_parameter("abort_lane_change_velocity_thresh", 0.5);
-  parameters.abort_lane_change_angle_thresh = declare_parameter("abort_lane_change_angle_thresh", 0.174533);  // 10 deg
-  parameters.abort_lane_change_distance_thresh = declare_parameter("abort_lane_change_distance_thresh", 0.3);
-  parameters.refine_goal_search_radius_range = declare_parameter("refine_goal_search_radius_range", 7.5);
+  parameters.abort_lane_change_velocity_thresh = declare_parameter(
+    "abort_lane_change_velocity_thresh", 0.5);
+  parameters.abort_lane_change_angle_thresh = declare_parameter(
+    "abort_lane_change_angle_thresh",
+    0.174533);                                                                                                // 10 deg
+  parameters.abort_lane_change_distance_thresh = declare_parameter(
+    "abort_lane_change_distance_thresh", 0.3);
+  parameters.refine_goal_search_radius_range = declare_parameter(
+    "refine_goal_search_radius_range",
+    7.5);
   parameters.enable_blocked_by_obstacle = declare_parameter("enable_blocked_by_obstacle", false);
 
   // validation of parameters
   if (parameters.lane_change_sampling_num < 1) {
-    RCLCPP_FATAL_STREAM(get_logger(),
-      "lane_change_sampling_num must be positive integer. Given parameter: "
-      << parameters.lane_change_sampling_num << std::endl
-      << "Terminating the program...");
+    RCLCPP_FATAL_STREAM(
+      get_logger(),
+      "lane_change_sampling_num must be positive integer. Given parameter: " <<
+        parameters.lane_change_sampling_num << std::endl <<
+        "Terminating the program...");
     exit(EXIT_FAILURE);
   }
   if (parameters.maximum_deceleration < 0.0) {
-    RCLCPP_FATAL_STREAM(get_logger(),
-      "maximum_deceleration cannot be negative value. Given parameter: "
-      << parameters.maximum_deceleration << std::endl
-      << "Terminating the program...");
+    RCLCPP_FATAL_STREAM(
+      get_logger(),
+      "maximum_deceleration cannot be negative value. Given parameter: " <<
+        parameters.maximum_deceleration << std::endl <<
+        "Terminating the program...");
     exit(EXIT_FAILURE);
   }
   data_manager_ptr_->setLaneChangerParameters(parameters);
 
   // route_handler
   vector_map_subscriber_ = create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
-    "input/vector_map", rclcpp::QoS{1}.transient_local(), std::bind(&RouteHandler::mapCallback, route_handler_ptr_, std::placeholders::_1));
+    "input/vector_map", rclcpp::QoS{1}.transient_local(),
+    std::bind(&RouteHandler::mapCallback, route_handler_ptr_, std::placeholders::_1));
   route_subscriber_ = create_subscription<autoware_planning_msgs::msg::Route>(
-    "input/route", rclcpp::QoS{1}, std::bind(&RouteHandler::routeCallback, route_handler_ptr_, std::placeholders::_1));
+    "input/route", rclcpp::QoS{1},
+    std::bind(&RouteHandler::routeCallback, route_handler_ptr_, std::placeholders::_1));
 
   // publisher
-  path_publisher_ = create_publisher<autoware_planning_msgs::msg::PathWithLaneId>("output/lane_change_path", rclcpp::QoS{1});
-  candidate_path_publisher_ = create_publisher<autoware_planning_msgs::msg::Path>("debug/lane_change_candidate_path", rclcpp::QoS{1});
-  path_marker_publisher_ = create_publisher<visualization_msgs::msg::MarkerArray>("debug/predicted_path_markers", rclcpp::QoS{1});
-  stop_reason_publisher_ = create_publisher<autoware_planning_msgs::msg::StopReasonArray>("output/stop_reasons", rclcpp::QoS{1});
-  drivable_area_publisher_ = create_publisher<nav_msgs::msg::OccupancyGrid>("debug/drivable_area", rclcpp::QoS{1});
-  lane_change_ready_publisher_ = create_publisher<std_msgs::msg::Bool>("output/lane_change_ready", rclcpp::QoS{1});
-  lane_change_available_publisher_ = create_publisher<std_msgs::msg::Bool>("output/lane_change_available", rclcpp::QoS{1});
+  path_publisher_ = create_publisher<autoware_planning_msgs::msg::PathWithLaneId>(
+    "output/lane_change_path", rclcpp::QoS{1});
+  candidate_path_publisher_ = create_publisher<autoware_planning_msgs::msg::Path>(
+    "debug/lane_change_candidate_path", rclcpp::QoS{1});
+  path_marker_publisher_ = create_publisher<visualization_msgs::msg::MarkerArray>(
+    "debug/predicted_path_markers", rclcpp::QoS{1});
+  stop_reason_publisher_ = create_publisher<autoware_planning_msgs::msg::StopReasonArray>(
+    "output/stop_reasons", rclcpp::QoS{1});
+  drivable_area_publisher_ = create_publisher<nav_msgs::msg::OccupancyGrid>(
+    "debug/drivable_area",
+    rclcpp::QoS{1});
+  lane_change_ready_publisher_ = create_publisher<std_msgs::msg::Bool>(
+    "output/lane_change_ready",
+    rclcpp::QoS{1});
+  lane_change_available_publisher_ = create_publisher<std_msgs::msg::Bool>(
+    "output/lane_change_available", rclcpp::QoS{1});
 
   waitForData();
 
   // set state_machine
-  state_machine_ptr_ = std::make_shared<StateMachine>(data_manager_ptr_, route_handler_ptr_, get_logger(), get_clock());
+  state_machine_ptr_ = std::make_shared<StateMachine>(
+    data_manager_ptr_, route_handler_ptr_,
+    get_logger(), get_clock());
   state_machine_ptr_->init();
   route_init_subscriber_ = create_subscription<autoware_planning_msgs::msg::Route>(
-    "input/route", rclcpp::QoS{1}, std::bind(&StateMachine::initCallback, state_machine_ptr_, std::placeholders::_1));
+    "input/route", rclcpp::QoS{1},
+    std::bind(&StateMachine::initCallback, state_machine_ptr_, std::placeholders::_1));
 
   // Start timer. This must be done after all data (e.g. vehicle pose, velocity) are ready.
   auto timer_callback = std::bind(&LaneChanger::run, this);
@@ -148,7 +187,9 @@ void LaneChanger::waitForData()
     loop_rate.sleep();
   }
   while (!data_manager_ptr_->isDataReady() && rclcpp::ok()) {
-    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "waiting for vehicle pose, vehicle_velocity, and obstacles");
+    RCLCPP_WARN_THROTTLE(
+      get_logger(),
+      *get_clock(), 5000, "waiting for vehicle pose, vehicle_velocity, and obstacles");
     loop_rate.sleep();
   }
 }
@@ -173,7 +214,8 @@ void LaneChanger::run()
 
   const auto ros_parameters = data_manager_ptr_->getLaneChangerParameters();
   auto refined_path = util::refinePath(
-    ros_parameters.refine_goal_search_radius_range, M_PI * 0.5, path, refined_goal, goal_lane_id, get_logger());
+    ros_parameters.refine_goal_search_radius_range, M_PI * 0.5, path, refined_goal, goal_lane_id,
+    get_logger());
   refined_path.header.frame_id = "map";
   refined_path.header.stamp = this->now();
 
@@ -227,11 +269,15 @@ void LaneChanger::publishDebugMarkers()
       status.lane_change_path.path, current_twist->twist, current_pose.pose, prediction_duration,
       time_resolution, 0, get_logger(), get_clock());
     const auto & resampled_path =
-      util::resamplePredictedPath(vehicle_predicted_path, time_resolution, prediction_duration, get_logger(), get_clock());
+      util::resamplePredictedPath(
+      vehicle_predicted_path, time_resolution, prediction_duration,
+      get_logger(), get_clock());
 
     double radius = util::l2Norm(current_twist->twist.linear) * stop_time;
     radius = std::max(radius, min_radius);
-    const auto & marker = convertToMarker(resampled_path, 1, "ego_lane_change_path", radius, this->now());
+    const auto & marker = convertToMarker(
+      resampled_path, 1, "ego_lane_change_path", radius,
+      this->now());
     debug_markers.markers.push_back(marker);
   }
 
@@ -240,11 +286,15 @@ void LaneChanger::publishDebugMarkers()
       status.lane_follow_path, current_twist->twist, current_pose.pose, prediction_duration,
       time_resolution, 0.0, get_logger(), get_clock());
     const auto & resampled_path =
-      util::resamplePredictedPath(vehicle_predicted_path, time_resolution, prediction_duration, get_logger(), get_clock());
+      util::resamplePredictedPath(
+      vehicle_predicted_path, time_resolution, prediction_duration,
+      get_logger(), get_clock());
 
     double radius = util::l2Norm(current_twist->twist.linear) * stop_time;
     radius = std::max(radius, min_radius);
-    const auto & marker = convertToMarker(resampled_path, 1, "ego_lane_follow_path", radius, this->now());
+    const auto & marker = convertToMarker(
+      resampled_path, 1, "ego_lane_follow_path", radius,
+      this->now());
     debug_markers.markers.push_back(marker);
   }
 
@@ -256,7 +306,9 @@ void LaneChanger::publishDebugMarkers()
     const auto & check_lanes = route_handler_ptr_->getCheckTargetLanesFromPath(
       status.lane_change_path.path, target_lanes, check_distance);
 
-    const auto object_indices = util::filterObjectsByLanelets(*dynamic_objects, check_lanes, get_logger());
+    const auto object_indices = util::filterObjectsByLanelets(
+      *dynamic_objects, check_lanes,
+      get_logger());
     for (const auto & i : object_indices) {
       const auto & obj = dynamic_objects->objects.at(i);
       std::vector<autoware_perception_msgs::msg::PredictedPath> predicted_paths;
@@ -264,18 +316,22 @@ void LaneChanger::publishDebugMarkers()
         predicted_paths = obj.state.predicted_paths;
       } else {
         auto & max_confidence_path = *(std::max_element(
-          obj.state.predicted_paths.begin(), obj.state.predicted_paths.end(),
-          [](const auto & path1, const auto & path2) {
-            return path1.confidence > path2.confidence;
-          }));
+            obj.state.predicted_paths.begin(), obj.state.predicted_paths.end(),
+            [](const auto & path1, const auto & path2) {
+              return path1.confidence > path2.confidence;
+            }));
         predicted_paths.push_back(max_confidence_path);
       }
       for (const auto & obj_path : predicted_paths) {
         const auto & resampled_path =
-          util::resamplePredictedPath(obj_path, time_resolution, prediction_duration, get_logger(), get_clock());
+          util::resamplePredictedPath(
+          obj_path, time_resolution, prediction_duration,
+          get_logger(), get_clock());
         double radius = util::l2Norm(obj.state.twist_covariance.twist.linear) * stop_time;
         radius = std::max(radius, min_radius);
-        const auto & marker = convertToMarker(resampled_path, i, "object_predicted_path", radius, this->now());
+        const auto & marker = convertToMarker(
+          resampled_path, i, "object_predicted_path", radius,
+          this->now());
         debug_markers.markers.push_back(marker);
       }
     }
@@ -291,14 +347,18 @@ void LaneChanger::publishDebugMarkers()
     color.b = 1;
     color.a = 0.6;
     for (const auto & path : debug_data.lane_change_candidate_paths) {
-      const auto marker = convertToMarker(path.path, i++, "candidate_lane_change_path", color, this->now());
+      const auto marker = convertToMarker(
+        path.path, i++, "candidate_lane_change_path", color,
+        this->now());
       debug_markers.markers.push_back(marker);
     }
     color.r = 1;
     color.g = 0;
     color.b = 0;
     color.a = 0.9;
-    const auto marker = convertToMarker(debug_data.selected_path, 1, "selected_path", color, this->now());
+    const auto marker = convertToMarker(
+      debug_data.selected_path, 1, "selected_path", color,
+      this->now());
     debug_markers.markers.push_back(marker);
   }
 
@@ -314,7 +374,9 @@ void LaneChanger::publishDebugMarkers()
         tf2::Vector3(ros_parameters.base_link2front, 0.0, 0.0));
       tf2::Transform tf_map2front = tf_map2base_link * tf_base_link2front;
       tf2::toMsg(tf_map2front, wall_pose);
-      const auto virtual_wall_markers = createVirtualWall(wall_pose, 1, "blockedByObstacle", this->now());
+      const auto virtual_wall_markers = createVirtualWall(
+        wall_pose, 1, "blockedByObstacle",
+        this->now());
       debug_markers.markers.insert(
         debug_markers.markers.end(), virtual_wall_markers.markers.begin(),
         virtual_wall_markers.markers.end());
@@ -525,7 +587,8 @@ visualization_msgs::msg::Marker convertToMarker(
 }
 
 visualization_msgs::msg::MarkerArray createVirtualWall(
-  const geometry_msgs::msg::Pose & pose, const int id, const std::string & factor_text, const rclcpp::Time & stamp)
+  const geometry_msgs::msg::Pose & pose, const int id, const std::string & factor_text,
+  const rclcpp::Time & stamp)
 {
   visualization_msgs::msg::MarkerArray msg;
   {

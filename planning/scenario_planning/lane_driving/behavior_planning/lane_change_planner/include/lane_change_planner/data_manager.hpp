@@ -58,7 +58,8 @@ private:
 
 struct BoolStamped
 {
-  explicit BoolStamped(bool in_data) : data(in_data) {}
+  explicit BoolStamped(bool in_data)
+  : data(in_data) {}
   bool data = false;
   rclcpp::Time stamp;
 };
@@ -93,7 +94,8 @@ public:
   ~DataManager() = default;
 
   // callbacks
-  void perceptionCallback(const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_perception_msg);
+  void perceptionCallback(
+    const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_perception_msg);
   void velocityCallback(const geometry_msgs::msg::TwistStamped::ConstSharedPtr input_twist_msg);
   void laneChangeApprovalCallback(const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg);
   void forceLaneChangeSignalCallback(const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg);

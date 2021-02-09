@@ -20,7 +20,8 @@
 namespace lane_change_planner
 {
 DataManager::DataManager(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
-: lane_change_approval_(false), force_lane_change_(false), is_parameter_set_(false), logger_(logger), clock_(clock)
+: lane_change_approval_(false), force_lane_change_(false), is_parameter_set_(false),
+  logger_(logger), clock_(clock)
 {
   self_pose_listener_ptr_ = std::make_shared<SelfPoseListener>(logger, clock);
   //self_pose_listener_ptr_ = std::make_shared<SelfPoseLinstener>(logger, clock);  // ROS2PORTING
@@ -38,13 +39,15 @@ void DataManager::velocityCallback(
   vehicle_velocity_ptr_ = input_twist_msg_ptr;
 }
 
-void DataManager::laneChangeApprovalCallback(const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg)
+void DataManager::laneChangeApprovalCallback(
+  const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg)
 {
   lane_change_approval_.data = input_approval_msg->data;
   lane_change_approval_.stamp = clock_->now();
 }
 
-void DataManager::forceLaneChangeSignalCallback(const std_msgs::msg::Bool::ConstSharedPtr input_force_lane_change_msg)
+void DataManager::forceLaneChangeSignalCallback(
+  const std_msgs::msg::Bool::ConstSharedPtr input_force_lane_change_msg)
 {
   force_lane_change_.data = input_force_lane_change_msg->data;
   force_lane_change_.stamp = clock_->now();
@@ -72,7 +75,7 @@ geometry_msgs::msg::PoseStamped DataManager::getCurrentSelfPose()
   return self_pose_;
 }
 
-LaneChangerParameters DataManager::getLaneChangerParameters() { return parameters_; }
+LaneChangerParameters DataManager::getLaneChangerParameters() {return parameters_;}
 
 bool DataManager::getLaneChangeApproval()
 {
@@ -108,8 +111,10 @@ bool DataManager::isDataReady()
   return true;
 }
 
-SelfPoseListener::SelfPoseListener(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
-  : tf_buffer_(clock), tf_listener_(tf_buffer_), logger_(logger), clock_(clock)
+SelfPoseListener::SelfPoseListener(
+  const rclcpp::Logger & logger,
+  const rclcpp::Clock::SharedPtr & clock)
+: tf_buffer_(clock), tf_listener_(tf_buffer_), logger_(logger), clock_(clock)
 {
 }
 

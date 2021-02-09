@@ -21,6 +21,8 @@
 #include <lane_change_planner/utilities.hpp>
 #include <lanelet2_extension/utility/utilities.hpp>
 #include <tf2/utils.h>
+#include <memory>
+#include <algorithm>
 
 namespace lane_change_planner
 {
@@ -32,7 +34,7 @@ ExecutingLaneChangeState::ExecutingLaneChangeState(
 {
 }
 
-State ExecutingLaneChangeState::getCurrentState() const { return State::EXECUTING_LANE_CHANGE; }
+State ExecutingLaneChangeState::getCurrentState() const {return State::EXECUTING_LANE_CHANGE;}
 
 void ExecutingLaneChangeState::entry()
 {
@@ -114,8 +116,10 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
   // find closest lanelet in original lane
   lanelet::ConstLanelet closest_lanelet;
   if (!lanelet::utils::query::getClosestLanelet(
-        original_lanes_, current_pose_.pose, &closest_lanelet)) {
-    RCLCPP_ERROR_THROTTLE(logger_, *clock_,
+      original_lanes_, current_pose_.pose, &closest_lanelet))
+  {
+    RCLCPP_ERROR_THROTTLE(
+      logger_, *clock_,
       1000, "Failed to find closest lane! Lane change aborting function is not working!");
     return false;
   }
@@ -133,7 +137,8 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
 
     is_path_safe = state_machine::common_functions::isLaneChangePathSafe(
       path.path, original_lanes_, check_lanes, dynamic_objects_, current_pose_.pose,
-      current_twist_->twist, ros_parameters_, false, status_.lane_change_path.acceleration, logger_, clock_);
+      current_twist_->twist, ros_parameters_, false, status_.lane_change_path.acceleration, logger_,
+      clock_);
   }
 
   // check vehicle velocity thresh
@@ -180,7 +185,8 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
     if (is_distance_small && is_angle_diff_small) {
       return true;
     }
-    RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_,
+    RCLCPP_WARN_STREAM_THROTTLE(
+      logger_, *clock_,
       1000, "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be cautious");
   }
 
@@ -193,8 +199,8 @@ bool ExecutingLaneChangeState::hasFinishedLaneChange() const
     lanelet::utils::getArcCoordinates(target_lanes_, current_pose_.pose);
   const double travel_distance = arclength_current.length - start_distance_;
   const double finish_distance = status_.lane_change_path.preparation_length +
-                                 status_.lane_change_path.lane_change_length +
-                                 ros_parameters_.lane_change_finish_judge_buffer;
+    status_.lane_change_path.lane_change_length +
+    ros_parameters_.lane_change_finish_judge_buffer;
   return travel_distance > finish_distance;
 }
 

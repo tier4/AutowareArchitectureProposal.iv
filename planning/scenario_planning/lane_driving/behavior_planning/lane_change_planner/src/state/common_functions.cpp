@@ -16,6 +16,8 @@
 #include <lane_change_planner/state/common_functions.hpp>
 #include <lane_change_planner/utilities.hpp>
 #include <lanelet2_extension/utility/utilities.hpp>
+#include <vector>
+#include <algorithm>
 
 namespace lane_change_planner
 {
@@ -34,8 +36,9 @@ std::vector<LaneChangePath> selectValidPaths(
 
   for (const auto & path : paths) {
     if (hasEnoughDistance(
-          path, current_lanes, target_lanes, current_pose, isInGoalRouteSection, goal_pose,
-          overall_graphs)) {
+        path, current_lanes, target_lanes, current_pose, isInGoalRouteSection, goal_pose,
+        overall_graphs))
+    {
       available_paths.push_back(path);
     }
   }
@@ -53,8 +56,9 @@ bool selectSafePath(
 {
   for (const auto & path : paths) {
     if (isLaneChangePathSafe(
-          path.path, current_lanes, target_lanes, dynamic_objects, current_pose, current_twist,
-          ros_parameters, true, path.acceleration, logger, clock)) {
+        path.path, current_lanes, target_lanes, dynamic_objects, current_pose, current_twist,
+        ros_parameters, true, path.acceleration, logger, clock))
+    {
       *selected_path = path;
       return true;
     }
@@ -84,26 +88,30 @@ bool hasEnoughDistance(
   }
 
   if (
-    lane_change_total_distance > util::getDistanceToNextIntersection(current_pose, current_lanes)) {
+    lane_change_total_distance > util::getDistanceToNextIntersection(current_pose, current_lanes))
+  {
     return false;
   }
 
   if (
     isInGoalRouteSection &&
-    lane_change_total_distance > util::getSignedDistance(current_pose, goal_pose, current_lanes)) {
+    lane_change_total_distance > util::getSignedDistance(current_pose, goal_pose, current_lanes))
+  {
     return false;
   }
 
   if (
     lane_change_total_distance >
-    util::getDistanceToCrosswalk(current_pose, current_lanes, overall_graphs)) {
+    util::getDistanceToCrosswalk(current_pose, current_lanes, overall_graphs))
+  {
     return false;
   }
   return true;
 }
 
 bool isLaneChangePathSafe(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const lanelet::ConstLanelets & current_lanes,
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
   const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr dynamic_objects,
   const geometry_msgs::msg::Pose & current_pose, const geometry_msgs::msg::Twist & current_twist,
@@ -160,7 +168,8 @@ bool isLaneChangePathSafe(
     vehicle_width / 2 + lateral_buffer, logger);
 
   const auto & vehicle_predicted_path = util::convertToPredictedPath(
-    path, current_twist, current_pose, target_lane_check_end_time, time_resolution, acceleration, logger, clock);
+    path, current_twist, current_pose, target_lane_check_end_time, time_resolution, acceleration,
+    logger, clock);
 
   // Collision check for objects in current lane
   for (const auto & i : current_lane_object_indices) {
@@ -170,10 +179,10 @@ bool isLaneChangePathSafe(
       predicted_paths = obj.state.predicted_paths;
     } else {
       auto & max_confidence_path = *(std::max_element(
-        obj.state.predicted_paths.begin(), obj.state.predicted_paths.end(),
-        [](const auto & path1, const auto & path2) {
-          return path1.confidence > path2.confidence;
-        }));
+          obj.state.predicted_paths.begin(), obj.state.predicted_paths.end(),
+          [](const auto & path1, const auto & path2) {
+            return path1.confidence > path2.confidence;
+          }));
       predicted_paths.push_back(max_confidence_path);
     }
     for (const auto & obj_path : predicted_paths) {
@@ -202,10 +211,10 @@ bool isLaneChangePathSafe(
       predicted_paths = obj.state.predicted_paths;
     } else {
       auto & max_confidence_path = *(std::max_element(
-        obj.state.predicted_paths.begin(), obj.state.predicted_paths.end(),
-        [](const auto & path1, const auto & path2) {
-          return path1.confidence > path2.confidence;
-        }));
+          obj.state.predicted_paths.begin(), obj.state.predicted_paths.end(),
+          [](const auto & path1, const auto & path2) {
+            return path1.confidence > path2.confidence;
+          }));
       predicted_paths.push_back(max_confidence_path);
     }
 
@@ -214,8 +223,9 @@ bool isLaneChangePathSafe(
       is_object_in_target = true;
     } else {
       for (const auto & llt : target_lanes) {
-        if (lanelet::utils::isInLanelet(obj.state.pose_covariance.pose, llt))
+        if (lanelet::utils::isInLanelet(obj.state.pose_covariance.pose, llt)) {
           is_object_in_target = true;
+        }
       }
     }
 
@@ -254,7 +264,9 @@ bool isLaneChangePathSafe(
   return true;
 }
 
-bool isObjectFront(const geometry_msgs::msg::Pose & ego_pose, const geometry_msgs::msg::Pose & obj_pose)
+bool isObjectFront(
+  const geometry_msgs::msg::Pose & ego_pose,
+  const geometry_msgs::msg::Pose & obj_pose)
 {
   tf2::Transform tf_map2ego, tf_map2obj;
   geometry_msgs::msg::Pose obj_from_ego;

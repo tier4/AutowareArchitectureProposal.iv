@@ -27,7 +27,8 @@
 
 namespace lane_change_planner
 {
-enum State {
+enum State
+{
   NO_STATE,
   FOLLOWING_LANE,
   EXECUTING_LANE_CHANGE,
