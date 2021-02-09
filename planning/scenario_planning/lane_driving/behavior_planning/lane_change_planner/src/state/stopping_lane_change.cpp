@@ -78,7 +78,7 @@ bool StoppingLaneChangeState::isSafe() const
     is_path_safe = state_machine::common_functions::isLaneChangePathSafe(
       status_.lane_change_path.path, original_lanes_, check_lanes, dynamic_objects_,
       current_pose_.pose, current_twist_->twist, ros_parameters_, false,
-      status_.lane_change_path.acceleration);
+      status_.lane_change_path.acceleration, logger_, clock_);
   }
   return is_path_safe;
 }

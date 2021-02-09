@@ -83,10 +83,6 @@ void BlockedByObstacleState::update()
     }
   }
 
-  const double minimum_lane_change_length = ros_parameters_.minimum_lane_change_length;
-  const double lane_change_prepare_duration = ros_parameters_.lane_change_prepare_duration;
-  const double lane_changing_duration = ros_parameters_.lane_changing_duration;
-
   // update lane_follow_path
   {
     status_.lane_follow_path = route_handler_ptr_->getReferencePath(
@@ -142,7 +138,7 @@ void BlockedByObstacleState::update()
     LaneChangePath selected_path;
     if (state_machine::common_functions::selectSafePath(
           valid_paths, current_lanes_, check_lanes, dynamic_objects_, current_pose_.pose,
-          current_twist_->twist, ros_parameters_, &selected_path)) {
+          current_twist_->twist, ros_parameters_, &selected_path, logger_, clock_)) {
       found_safe_path_ = true;
     }
     debug_data_.selected_path = selected_path.path;
@@ -179,7 +175,7 @@ void BlockedByObstacleState::update()
     LaneChangePath selected_path;
     if (state_machine::common_functions::selectSafePath(
           valid_paths, current_lanes_, check_lanes, dynamic_objects_, current_pose_.pose,
-          current_twist_->twist, ros_parameters_, &selected_path)) {
+          current_twist_->twist, ros_parameters_, &selected_path, logger_, clock_)) {
       found_safe_path_ = true;
     }
     debug_data_.selected_path = selected_path.path;

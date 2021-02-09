@@ -70,6 +70,17 @@ void imageToOccupancyGrid(const cv::Mat & cv_image, nav_msgs::msg::OccupancyGrid
   }
 }
 
+geometry_msgs::msg::TransformStamped toTransformStamped(const geometry_msgs::msg::PoseStamped pose)
+{
+  geometry_msgs::msg::TransformStamped transform;
+  transform.header = pose.header;
+  transform.transform.translation.x = pose.pose.position.x;
+  transform.transform.translation.y = pose.pose.position.y;
+  transform.transform.translation.z = pose.pose.position.z;
+  transform.transform.rotation = pose.pose.orientation;
+  return transform;
+}
+
 }  // namespace
 
 namespace lane_change_planner
@@ -272,7 +283,7 @@ PredictedPath resamplePredictedPath(
 
   for (auto t = start_time; t < end_time; t += t_delta) {
     geometry_msgs::msg::Pose pose;
-    if (!lerpByTimeStamp(input_path, t, &pose)) {
+    if (!lerpByTimeStamp(input_path, t, &pose, logger, clock)) {
       continue;
     }
     geometry_msgs::msg::PoseWithCovarianceStamped predicted_pose;
@@ -398,7 +409,8 @@ double getDistance3d(const geometry_msgs::msg::Point & p1, const geometry_msgs::
 
 double getDistanceBetweenPredictedPaths(
   const PredictedPath & object_path, const PredictedPath & ego_path, const double start_time,
-  const double end_time, const double resolution, const rclcpp::Clock::SharedPtr & clock)
+  const double end_time, const double resolution,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
 {
   rclcpp::Duration t_delta(resolution);
   double min_distance = std::numeric_limits<double>::max();
@@ -407,10 +419,10 @@ double getDistanceBetweenPredictedPaths(
   const auto ego_path_point_array = convertToGeometryPointArray(ego_path);
   for (auto t = ros_start_time; t < ros_end_time; t += t_delta) {
     geometry_msgs::msg::Pose object_pose, ego_pose;
-    if (!lerpByTimeStamp(object_path, t, &object_pose)) {
+    if (!lerpByTimeStamp(object_path, t, &object_pose, logger, clock)) {
       continue;
     }
-    if (!lerpByTimeStamp(ego_path, t, &ego_pose)) {
+    if (!lerpByTimeStamp(ego_path, t, &ego_pose, logger, clock)) {
       continue;
     }
     double distance = getDistance3d(object_pose.position, ego_pose.position);
@@ -424,7 +436,7 @@ double getDistanceBetweenPredictedPaths(
 double getDistanceBetweenPredictedPathAndObject(
   const autoware_perception_msgs::msg::DynamicObject & object, const PredictedPath & ego_path,
   const double start_time, const double end_time, const double resolution,
-  const rclcpp::Clock::SharedPtr & clock)
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
 {
   rclcpp::Duration t_delta(resolution);
   double min_distance = std::numeric_limits<double>::max();
@@ -432,12 +444,12 @@ double getDistanceBetweenPredictedPathAndObject(
   rclcpp::Time ros_end_time = clock->now() + rclcpp::Duration(end_time);
   const auto ego_path_point_array = convertToGeometryPointArray(ego_path);
   Polygon obj_polygon;
-  if (!calcObjectPolygon(object, &obj_polygon)) {
+  if (!calcObjectPolygon(object, &obj_polygon, logger)) {
     return min_distance;
   }
   for (auto t = ros_start_time; t < ros_end_time; t += t_delta) {
     geometry_msgs::msg::Pose ego_pose;
-    if (!lerpByTimeStamp(ego_path, t, &ego_pose)) {
+    if (!lerpByTimeStamp(ego_path, t, &ego_pose, logger, clock)) {
       continue;
     }
     Point ego_point = boost::geometry::make<Point>(ego_pose.position.x, ego_pose.position.y);
@@ -454,7 +466,7 @@ double getDistanceBetweenPredictedPathAndObject(
 std::vector<size_t> filterObjectsByLanelets(
   const autoware_perception_msgs::msg::DynamicObjectArray & objects,
   const lanelet::ConstLanelets & target_lanelets, const double start_arc_length,
-  const double end_arc_length)
+  const double end_arc_length, const rclcpp::Logger & logger)
 {
   std::vector<size_t> indices;
   if (target_lanelets.empty()) {
@@ -472,7 +484,7 @@ std::vector<size_t> filterObjectsByLanelets(
     const auto obj = objects.objects.at(i);
     // create object polygon
     Polygon obj_polygon;
-    if (!calcObjectPolygon(obj, &obj_polygon)) {
+    if (!calcObjectPolygon(obj, &obj_polygon, logger)) {
       continue;
     }
     // create lanelet polygon
@@ -495,7 +507,7 @@ std::vector<size_t> filterObjectsByLanelets(
 // works with random lanelets
 std::vector<size_t> filterObjectsByLanelets(
   const autoware_perception_msgs::msg::DynamicObjectArray & objects,
-  const lanelet::ConstLanelets & target_lanelets)
+  const lanelet::ConstLanelets & target_lanelets, const rclcpp::Logger & logger)
 {
   std::vector<size_t> indices;
   if (target_lanelets.empty()) {
@@ -507,7 +519,7 @@ std::vector<size_t> filterObjectsByLanelets(
     const auto obj = objects.objects.at(i);
     // create object polygon
     Polygon obj_polygon;
-    if (!calcObjectPolygon(obj, &obj_polygon)) {
+    if (!calcObjectPolygon(obj, &obj_polygon, logger)) {
       continue;
     }
 
@@ -609,13 +621,13 @@ bool calcObjectPolygon(
 std::vector<size_t> filterObjectsByPath(
   const autoware_perception_msgs::msg::DynamicObjectArray & objects,
   const std::vector<size_t> & object_indices,
-  const autoware_planning_msgs::msg::PathWithLaneId & ego_path, const double vehicle_width)
+  const autoware_planning_msgs::msg::PathWithLaneId & ego_path, const double vehicle_width, const rclcpp::Logger & logger)
 {
   std::vector<size_t> indices;
   const auto ego_path_point_array = convertToGeometryPointArray(ego_path);
   for (const auto & i : object_indices) {
     Polygon obj_polygon;
-    if (!calcObjectPolygon(objects.objects.at(i), &obj_polygon)) {
+    if (!calcObjectPolygon(objects.objects.at(i), &obj_polygon, logger)) {
       continue;
     }
     LineString ego_path_line;
@@ -863,7 +875,7 @@ nav_msgs::msg::OccupancyGrid generateDrivableArea(
     constexpr uint8_t occupied_space = 100;
     // get transform
     tf2::Stamped<tf2::Transform> tf_grid2map, tf_map2grid;
-    tf2::fromMsg(grid_origin, tf_grid2map);
+    tf2::fromMsg(toTransformStamped(grid_origin), tf_grid2map);
     tf_map2grid.setData(tf_grid2map.inverse());
     const auto geom_tf_map2grid = tf2::toMsg(tf_map2grid);
 
@@ -894,10 +906,11 @@ nav_msgs::msg::OccupancyGrid generateDrivableArea(
         occupancy_grid.info.width, occupancy_grid.info.height, CV_8UC1, cv::Scalar(occupied_space));
       std::vector<cv::Point> cv_polygon;
       for (const auto & llt_pt : lane.polygon3d()) {
-        geometry_msgs::msg::Point geom_pt = lanelet::utils::conversion::toGeomMsgPt(llt_pt);
-        geometry_msgs::msg::Point transformed_geom_pt;
-        tf2::doTransform(geom_pt, transformed_geom_pt, geom_tf_map2grid);
-        cv_polygon.push_back(toCVPoint(transformed_geom_pt, width, height, resolution));
+        geometry_msgs::msg::PointStamped geom_pt_stamped;
+        geom_pt_stamped.point = lanelet::utils::conversion::toGeomMsgPt(llt_pt);
+        geometry_msgs::msg::PointStamped transformed_geom_pt;
+        tf2::doTransform(geom_pt_stamped, transformed_geom_pt, geom_tf_map2grid);
+        cv_polygon.push_back(toCVPoint(transformed_geom_pt.point, width, height, resolution));
       }
       cv_polygons.push_back(cv_polygon);
       cv_polygon_sizes.push_back(cv_polygon.size());
@@ -1215,7 +1228,7 @@ std::vector<Polygon> getTargetLaneletPolygons(
 std::vector<Polygon> filterObstaclePolygons(
   const std::vector<Polygon> & obstacle_polygons,
   const autoware_perception_msgs::msg::DynamicObjectArray & objects,
-  const double static_obstacle_velocity_thresh)
+  const double static_obstacle_velocity_thresh, const rclcpp::Logger & logger)
 {
   std::vector<Polygon> filtered_obstacle_polygons;
   for (const auto & obstacle_polygon : obstacle_polygons) {
@@ -1230,7 +1243,7 @@ std::vector<Polygon> filterObstaclePolygons(
 
       // create object polygon
       Polygon obj_polygon;
-      if (!calcObjectPolygon(obj, &obj_polygon)) continue;
+      if (!calcObjectPolygon(obj, &obj_polygon, logger)) continue;
 
       // check the object is within the polygon
       if (boost::geometry::within(obj_polygon, obstacle_polygon)) {

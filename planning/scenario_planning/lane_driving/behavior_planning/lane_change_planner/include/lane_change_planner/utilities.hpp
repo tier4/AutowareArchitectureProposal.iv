@@ -84,35 +84,39 @@ geometry_msgs::msg::Point lerpByLength(
   const std::vector<geometry_msgs::msg::Point> & array, const double length);
 bool lerpByTimeStamp(
   const autoware_perception_msgs::msg::PredictedPath & path, const rclcpp::Time & t,
-  geometry_msgs::msg::Pose * lerped_pt);
+  geometry_msgs::msg::Pose * lerped_pt,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
 
 double getDistance3d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2);
 double getDistanceBetweenPredictedPaths(
   const autoware_perception_msgs::msg::PredictedPath & path1,
   const autoware_perception_msgs::msg::PredictedPath & path2, const double start_time,
-  const double end_time, const double resolution);
+  const double end_time, const double resolution,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
 
 double getDistanceBetweenPredictedPathAndObject(
   const autoware_perception_msgs::msg::DynamicObject & object,
   const autoware_perception_msgs::msg::PredictedPath & path, const double start_time,
-  const double end_time, const double resolution);
+  const double end_time, const double resolution,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
 
 std::vector<size_t> filterObjectsByLanelets(
   const autoware_perception_msgs::msg::DynamicObjectArray & objects,
   const lanelet::ConstLanelets & lanelets, const double start_arc_length,
-  const double end_arc_length);
+  const double end_arc_length, const rclcpp::Logger & logger);
 
 std::vector<size_t> filterObjectsByLanelets(
   const autoware_perception_msgs::msg::DynamicObjectArray & objects,
-  const lanelet::ConstLanelets & target_lanelets);
+  const lanelet::ConstLanelets & target_lanelets, const rclcpp::Logger & logger);
 
 bool calcObjectPolygon(
-  const autoware_perception_msgs::msg::DynamicObject & object, Polygon * object_polygon);
+  const autoware_perception_msgs::msg::DynamicObject & object, Polygon * object_polygon,
+  const rclcpp::Logger & logger);
 
 std::vector<size_t> filterObjectsByPath(
   const autoware_perception_msgs::msg::DynamicObjectArray & objects,
   const std::vector<size_t> & object_indices,
-  const autoware_planning_msgs::msg::PathWithLaneId & ego_path, const double vehicle_width);
+  const autoware_planning_msgs::msg::PathWithLaneId & ego_path, const double vehicle_width, const rclcpp::Logger & logger);
 
 const geometry_msgs::msg::Pose refineGoal(
   const geometry_msgs::msg::Pose & goal, const lanelet::ConstLanelet & goal_lanelet);

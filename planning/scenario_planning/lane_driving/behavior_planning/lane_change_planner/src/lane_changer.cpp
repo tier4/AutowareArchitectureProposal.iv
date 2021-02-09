@@ -256,7 +256,7 @@ void LaneChanger::publishDebugMarkers()
     const auto & check_lanes = route_handler_ptr_->getCheckTargetLanesFromPath(
       status.lane_change_path.path, target_lanes, check_distance);
 
-    const auto object_indices = util::filterObjectsByLanelets(*dynamic_objects, check_lanes);
+    const auto object_indices = util::filterObjectsByLanelets(*dynamic_objects, check_lanes, get_logger());
     for (const auto & i : object_indices) {
       const auto & obj = dynamic_objects->objects.at(i);
       std::vector<autoware_perception_msgs::msg::PredictedPath> predicted_paths;
