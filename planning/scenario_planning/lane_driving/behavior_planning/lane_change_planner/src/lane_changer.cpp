@@ -17,7 +17,6 @@
 #include <lane_change_planner/lane_changer.hpp>
 #include <lane_change_planner/utilities.hpp>
 
-#ifdef ROS2PORTING
 std_msgs::msg::ColorRGBA toRainbow(double ratio);
 visualization_msgs::msg::Marker convertToMarker(
   const autoware_perception_msgs::msg::PredictedPath & path, const int id, const std::string & ns,
@@ -32,7 +31,10 @@ visualization_msgs::msg::MarkerArray createVirtualWall(
 
 namespace lane_change_planner
 {
-LaneChanger::LaneChanger() : pnh_("~") { init(); }
+LaneChanger::LaneChanger() : Node("lane_change_planner_node")
+{
+  init();
+}
 
 void LaneChanger::init()
 {
@@ -116,18 +118,19 @@ void LaneChanger::init()
     pnh_.subscribe("input/route", 1, &RouteHandler::routeCallback, &(*route_handler_ptr_));
 
   // publisher
+  rclcpp::QoS qos(1);
   path_publisher_ =
-    pnh_.advertise<autoware_planning_msgs::msg::PathWithLaneId>("output/lane_change_path", 1);
+    create_publisher<autoware_planning_msgs::msg::PathWithLaneId>("output/lane_change_path", qos);
   candidate_path_publisher_ =
-    pnh_.advertise<autoware_planning_msgs::msg::Path>("debug/lane_change_candidate_path", 1);
+    create_publisher<autoware_planning_msgs::msg::Path>("debug/lane_change_candidate_path", qos);
   path_marker_publisher_ =
-    pnh_.advertise<visualization_msgs::msg::MarkerArray>("debug/predicted_path_markers", 1);
+    create_publisher<visualization_msgs::msg::MarkerArray>("debug/predicted_path_markers", qos);
   stop_reason_publisher_ =
-    pnh_.advertise<autoware_planning_msgs::msg::StopReasonArray>("output/stop_reasons", 1);
-  drivable_area_publisher_ = pnh_.advertise<nav_msgs::msg::OccupancyGrid>("debug/drivable_area", 1);
-  lane_change_ready_publisher_ = pnh_.advertise<std_msgs::msg::Bool>("output/lane_change_ready", 1);
+    create_publisher<autoware_planning_msgs::msg::StopReasonArray>("output/stop_reasons", qos);
+  drivable_area_publisher_ = create_publisher<nav_msgs::msg::OccupancyGrid>("debug/drivable_area", qos);
+  lane_change_ready_publisher_ = create_publisher<std_msgs::msg::Bool>("output/lane_change_ready", qos);
   lane_change_available_publisher_ =
-    pnh_.advertise<std_msgs::msg::Bool>("output/lane_change_available", 1);
+    create_publisher<std_msgs::msg::Bool>("output/lane_change_available", qos);
 
   waitForData();
 
@@ -137,7 +140,7 @@ void LaneChanger::init()
   route_init_subscriber_ =
     pnh_.subscribe("input/route", 1, &StateMachine::init, &(*state_machine_ptr_));
   // Start timer. This must be done after all data (e.g. vehicle pose, velocity) are ready.
-  timer_ = pnh_.createTimer(ros::Duration(0.1), &LaneChanger::run, this);
+  timer_ = pnh_.createTimer(rclcpp::Duration(0.1), &LaneChanger::run, this);
 }
 
 void LaneChanger::waitForData()
@@ -146,12 +149,12 @@ void LaneChanger::waitForData()
   while (!route_handler_ptr_->isHandlerReady() && ros::ok()) {
     ROS_WARN_THROTTLE(5, "waiting for route to be ready");
     ros::spinOnce();
-    ros::Duration(0.1).sleep();
+    rclcpp::Duration(0.1).sleep();
   }
   while (!data_manager_ptr_->isDataReady() && ros::ok()) {
     ROS_WARN_THROTTLE(5, "waiting for vehicle pose, vehicle_velocity, and obstacles");
     ros::spinOnce();
-    ros::Duration(0.1).sleep();
+    rclcpp::Duration(0.1).sleep();
   }
 }
 
@@ -177,10 +180,10 @@ void LaneChanger::run()
   auto refined_path = util::refinePath(
     ros_parameters.refine_goal_search_radius_range, M_PI * 0.5, path, refined_goal, goal_lane_id);
   refined_path.header.frame_id = "map";
-  refined_path.header.stamp = ros::Time::now();
+  refined_path.header.stamp = this->now();
 
   if (!path.points.empty()) {
-    path_publisher_.publish(refined_path);
+    path_publisher_->publish(refined_path);
   }
 
   publishDebugMarkers();
@@ -190,22 +193,22 @@ void LaneChanger::run()
   const auto lane_change_status = state_machine_ptr_->getStatus();
   std_msgs::msg::Bool lane_change_ready_msg;
   lane_change_ready_msg.data = lane_change_status.lane_change_ready;
-  lane_change_ready_publisher_.publish(lane_change_ready_msg);
+  lane_change_ready_publisher_->publish(lane_change_ready_msg);
 
   std_msgs::msg::Bool lane_change_available_msg;
   lane_change_available_msg.data = lane_change_status.lane_change_available;
-  lane_change_available_publisher_.publish(lane_change_available_msg);
+  lane_change_available_publisher_->publish(lane_change_available_msg);
 
   auto candidate_path =
     util::convertToPathFromPathWithLaneId(lane_change_status.lane_change_path.path);
   candidate_path.header.frame_id = "map";
-  candidate_path.header.stamp = ros::Time::now();
-  candidate_path_publisher_.publish(candidate_path);
+  candidate_path.header.stamp = this->now();
+  candidate_path_publisher_->publish(candidate_path);
 }
 
 void LaneChanger::publishDrivableArea(const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
-  drivable_area_publisher_.publish(path.drivable_area);
+  drivable_area_publisher_->publish(path.drivable_area);
 }
 
 void LaneChanger::publishDebugMarkers()
@@ -345,8 +348,8 @@ void LaneChanger::publishDebugMarkers()
   //create stop reason array from debug_data and state
   stop_reason_array = makeStopReasonArray(debug_data, state_machine_ptr_->getState());
 
-  path_marker_publisher_.publish(debug_markers);
-  stop_reason_publisher_.publish(stop_reason_array);
+  path_marker_publisher_->publish(debug_markers);
+  stop_reason_publisher_->publish(stop_reason_array);
 }
 
 autoware_planning_msgs::msg::StopReasonArray LaneChanger::makeStopReasonArray(
@@ -355,7 +358,7 @@ autoware_planning_msgs::msg::StopReasonArray LaneChanger::makeStopReasonArray(
   //create header
   std_msgs::msg::Header header;
   header.frame_id = "map";
-  header.stamp = ros::Time::now();
+  header.stamp = this->now();
 
   //create stop reason array
   autoware_planning_msgs::msg::StopReasonArray stop_reason_array;
@@ -454,11 +457,11 @@ std_msgs::msg::ColorRGBA toRainbow(double ratio)
 
 visualization_msgs::msg::Marker convertToMarker(
   const autoware_perception_msgs::msg::PredictedPath & path, const int id, const std::string & ns,
-  const double radius)
+  const double radius, const rclcpp::Time & stamp)
 {
   visualization_msgs::msg::Marker marker;
   marker.header.frame_id = "map";
-  marker.header.stamp = ros::Time::now();
+  marker.header.stamp = stamp;
   marker.ns = ns;
   marker.id = id;
   marker.type = visualization_msgs::msg::Marker::SPHERE_LIST;
@@ -481,7 +484,7 @@ visualization_msgs::msg::Marker convertToMarker(
   marker.color.b = 1.0;
   marker.color.a = 0.3;
 
-  marker.lifetime = ros::Duration(1);
+  marker.lifetime = rclcpp::Duration(1);
   marker.frame_locked = true;
 
   for (std::size_t i = 0; i < path.path.size(); i++) {
@@ -494,11 +497,11 @@ visualization_msgs::msg::Marker convertToMarker(
 
 visualization_msgs::msg::Marker convertToMarker(
   const autoware_planning_msgs::msg::PathWithLaneId & path, const int id, const std::string & ns,
-  const std_msgs::msg::ColorRGBA & color)
+  const std_msgs::msg::ColorRGBA & color, const rclcpp::Time & stamp)
 {
   visualization_msgs::msg::Marker marker;
   marker.header.frame_id = "map";
-  marker.header.stamp = ros::Time::now();
+  marker.header.stamp = stamp;
   marker.ns = ns;
   marker.id = id;
   marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
@@ -516,7 +519,7 @@ visualization_msgs::msg::Marker convertToMarker(
 
   marker.color = color;
 
-  marker.lifetime = ros::Duration(1);
+  marker.lifetime = rclcpp::Duration(1);
   marker.frame_locked = true;
 
   for (std::size_t i = 0; i < path.points.size(); i++) {
@@ -527,16 +530,16 @@ visualization_msgs::msg::Marker convertToMarker(
 }
 
 visualization_msgs::msg::MarkerArray createVirtualWall(
-  const geometry_msgs::msg::Pose & pose, const int id, const std::string & factor_text)
+  const geometry_msgs::msg::Pose & pose, const int id, const std::string & factor_text, const rclcpp::Time & stamp)
 {
   visualization_msgs::msg::MarkerArray msg;
   {
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "map";
-    marker.header.stamp = ros::Time::now();
+    marker.header.stamp = stamp;
     marker.ns = "stop_virtual_wall";
     marker.id = id;
-    marker.lifetime = ros::Duration(0.5);
+    marker.lifetime = rclcpp::Duration(0.5);
     marker.type = visualization_msgs::msg::Marker::CUBE;
     marker.action = visualization_msgs::msg::Marker::ADD;
     marker.pose = pose;
@@ -554,10 +557,10 @@ visualization_msgs::msg::MarkerArray createVirtualWall(
   {
     visualization_msgs::msg::Marker marker;
     marker.header.frame_id = "map";
-    marker.header.stamp = ros::Time::now();
+    marker.header.stamp = stamp;
     marker.ns = "factor_text";
     marker.id = id;
-    marker.lifetime = ros::Duration(0.5);
+    marker.lifetime = rclcpp::Duration(0.5);
     marker.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
     marker.action = visualization_msgs::msg::Marker::ADD;
     marker.pose = pose;
@@ -575,5 +578,3 @@ visualization_msgs::msg::MarkerArray createVirtualWall(
 
   return msg;
 }
-
-#endif  // ROS2PORTING
