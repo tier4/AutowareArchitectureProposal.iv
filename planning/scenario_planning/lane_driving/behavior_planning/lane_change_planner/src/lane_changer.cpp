@@ -40,10 +40,9 @@ LaneChanger::LaneChanger() : Node("lane_change_planner_node")
 void LaneChanger::init()
 {
   // data_manager
-  data_manager_ptr_ = std::make_shared<DataManager>();
+  data_manager_ptr_ = std::make_shared<DataManager>(get_logger(), get_clock());
   route_handler_ptr_ = std::make_shared<RouteHandler>();
 #ifdef ROS2PORTING
-  data_manager_ptr_ = std::make_shared<DataManager>(get_logger(), get_clock());
   route_handler_ptr_ = std::make_shared<RouteHandler>(get_logger(), get_clock());
 #endif
   velocity_subscriber_ = create_subscription<geometry_msgs::msg::TwistStamped>(

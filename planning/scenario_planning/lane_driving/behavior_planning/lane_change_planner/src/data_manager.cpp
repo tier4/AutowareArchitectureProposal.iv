@@ -17,13 +17,13 @@
 #include <lane_change_planner/data_manager.hpp>
 #include <lanelet2_extension/utility/message_conversion.hpp>
 
-#ifdef ROS2PORTING
 namespace lane_change_planner
 {
-DataManager::DataManager()
-: is_parameter_set_(false), lane_change_approval_(false), force_lane_change_(false)
+DataManager::DataManager(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: lane_change_approval_(false), force_lane_change_(false), is_parameter_set_(false), logger_(logger), clock_(clock)
 {
-  self_pose_listener_ptr_ = std::make_shared<SelfPoseListener>();
+  self_pose_listener_ptr_ = std::make_shared<SelfPoseListener>(logger, clock);
+  //self_pose_listener_ptr_ = std::make_shared<SelfPoseLinstener>(logger, clock);  // ROS2PORTING
 }
 
 void DataManager::perceptionCallback(
@@ -38,16 +38,16 @@ void DataManager::velocityCallback(
   vehicle_velocity_ptr_ = input_twist_msg_ptr;
 }
 
-void DataManager::laneChangeApprovalCallback(const std_msgs::msg::Bool & input_approval_msg)
+void DataManager::laneChangeApprovalCallback(const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg)
 {
-  lane_change_approval_.data = input_approval_msg.data;
-  lane_change_approval_.stamp = ros::Time::now();
+  lane_change_approval_.data = input_approval_msg->data;
+  lane_change_approval_.stamp = clock_->now();
 }
 
-void DataManager::forceLaneChangeSignalCallback(const std_msgs::msg::Bool & input_force_lane_change_msg)
+void DataManager::forceLaneChangeSignalCallback(const std_msgs::msg::Bool::ConstSharedPtr input_force_lane_change_msg)
 {
-  force_lane_change_.data = input_force_lane_change_msg.data;
-  force_lane_change_.stamp = ros::Time::now();
+  force_lane_change_.data = input_force_lane_change_msg->data;
+  force_lane_change_.stamp = clock_->now();
 }
 
 void DataManager::setLaneChangerParameters(const LaneChangerParameters & parameters)
@@ -77,7 +77,7 @@ LaneChangerParameters DataManager::getLaneChangerParameters() { return parameter
 bool DataManager::getLaneChangeApproval()
 {
   constexpr double timeout = 0.5;
-  if (ros::Time::now() - lane_change_approval_.stamp > ros::Duration(timeout)) {
+  if (clock_->now() - lane_change_approval_.stamp > rclcpp::Duration(timeout)) {
     return false;
   }
 
@@ -87,7 +87,7 @@ bool DataManager::getLaneChangeApproval()
 bool DataManager::getForceLaneChangeSignal()
 {
   constexpr double timeout = 0.5;
-  if (ros::Time::now() - force_lane_change_.stamp > ros::Duration(timeout)) {
+  if (clock_->now() - force_lane_change_.stamp > rclcpp::Duration(timeout)) {
     return false;
   } else {
     return force_lane_change_.data;
@@ -108,11 +108,14 @@ bool DataManager::isDataReady()
   return true;
 }
 
-SelfPoseListener::SelfPoseListener() : tf_listener_(tf_buffer_){};
+SelfPoseListener::SelfPoseListener(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+  : tf_buffer_(clock), tf_listener_(tf_buffer_), logger_(logger), clock_(clock)
+{
+}
 
 bool SelfPoseListener::isSelfPoseReady()
 {
-  return tf_buffer_.canTransform("map", "base_link", ros::Time(0), ros::Duration(0.1));
+  return tf_buffer_.canTransform("map", "base_link", tf2::TimePointZero);
 }
 
 bool SelfPoseListener::getSelfPose(geometry_msgs::msg::PoseStamped & self_pose)
@@ -120,8 +123,7 @@ bool SelfPoseListener::getSelfPose(geometry_msgs::msg::PoseStamped & self_pose)
   try {
     geometry_msgs::msg::TransformStamped transform;
     std::string map_frame = "map";
-    transform =
-      tf_buffer_.lookupTransform(map_frame, "base_link", ros::Time(0), ros::Duration(0.1));
+    transform = tf_buffer_.lookupTransform(map_frame, "base_link", tf2::TimePointZero);
     self_pose.pose.position.x = transform.transform.translation.x;
     self_pose.pose.position.y = transform.transform.translation.y;
     self_pose.pose.position.z = transform.transform.translation.z;
@@ -129,13 +131,12 @@ bool SelfPoseListener::getSelfPose(geometry_msgs::msg::PoseStamped & self_pose)
     self_pose.pose.orientation.y = transform.transform.rotation.y;
     self_pose.pose.orientation.z = transform.transform.rotation.z;
     self_pose.pose.orientation.w = transform.transform.rotation.w;
-    self_pose.header.stamp = ros::Time::now();
+    self_pose.header.stamp = clock_->now();
     self_pose.header.frame_id = map_frame;
     return true;
   } catch (tf2::TransformException & ex) {
-    ROS_ERROR_STREAM_THROTTLE(1, "failed to find self pose :" << ex.what());
+    RCLCPP_ERROR_STREAM_THROTTLE(logger_, *clock_, 1000, "failed to find self pose :" << ex.what());
     return false;
   }
 }
 }  // namespace lane_change_planner
-#endif  // ROS2PORTING

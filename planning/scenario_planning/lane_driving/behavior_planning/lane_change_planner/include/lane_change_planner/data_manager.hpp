@@ -22,7 +22,7 @@
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
-#include <std_msgs/msg/bool.hpp> 
+#include <std_msgs/msg/bool.hpp>
 #include <tf2_ros/transform_listener.h>
 
 // Autoware
@@ -45,13 +45,15 @@ namespace lane_change_planner
 class SelfPoseListener
 {
 public:
-  SelfPoseListener();
+  SelfPoseListener(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
   bool getSelfPose(geometry_msgs::msg::PoseStamped & self_pose);
   bool isSelfPoseReady();
 
 private:
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
+  rclcpp::Logger logger_;
+  rclcpp::Clock::SharedPtr clock_;
 };
 
 struct BoolStamped
@@ -77,13 +79,17 @@ private:
   LaneChangerParameters parameters_;
   bool is_parameter_set_;
 
+  // ROS logging
+  const rclcpp::Logger logger_;
+  const rclcpp::Clock::SharedPtr clock_;
+
   /*
    * SelfPoseListener
    */
   std::shared_ptr<SelfPoseListener> self_pose_listener_ptr_;
 
 public:
-  DataManager();
+  DataManager(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
   ~DataManager() = default;
 
   // callbacks
