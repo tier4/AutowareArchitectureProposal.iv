@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "gtest/gtest.h"
 #include "rclcpp/rclcpp.hpp"
 #include "system_monitor/net_monitor/net_monitor.hpp"
 #include "boost/algorithm/string.hpp"
 #include "boost/filesystem.hpp"
-#include <string>
-#include <vector>
 
 static constexpr const char * DOCKER_ENV = "/.dockerenv";
 

@@ -30,7 +30,7 @@ find_path(LIBNL3_INCLUDE_DIRS
   PATH_SUFFIXES libnl3
 )
 
-if (NVML_FOUND)
+if(NVML_FOUND)
   include_directories(
     include
     ${LIBNL3_INCLUDE_DIRS}
@@ -45,32 +45,32 @@ endif()
 
 ## Declare a C++ executable
 
-if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
   set(CMAKE_CPU_PLATFORM "intel")
-  ADD_DEFINITIONS(-D_CPU_INTEL_)
-elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
-  if (CMAKE_HOST_SYSTEM_VERSION MATCHES ".*raspi.*")
+  add_definitions(-D_CPU_INTEL_)
+elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
+  if(CMAKE_HOST_SYSTEM_VERSION MATCHES ".*raspi.*")
     set(CMAKE_CPU_PLATFORM "raspi")
-    ADD_DEFINITIONS(-D_CPU_RASPI_)
-  elseif (CMAKE_HOST_SYSTEM_VERSION MATCHES ".*tegra.*")
+    add_definitions(-D_CPU_RASPI_)
+  elseif(CMAKE_HOST_SYSTEM_VERSION MATCHES ".*tegra.*")
     set(CMAKE_CPU_PLATFORM "tegra")
-    ADD_DEFINITIONS(-D_CPU_TEGRA_)
+    add_definitions(-D_CPU_TEGRA_)
   else()
     set(CMAKE_CPU_PLATFORM "arm")
-    ADD_DEFINITIONS(-D_CPU_ARM_)
+    add_definitions(-D_CPU_ARM_)
   endif()
 else()
   set(CMAKE_CPU_PLATFORM "unknown")
 endif()
 
-if (NVML_FOUND)
+if(NVML_FOUND)
   set(CMAKE_GPU_PLATFORM "nvml")
-  ADD_DEFINITIONS(-D_GPU_NVML_)
+  add_definitions(-D_GPU_NVML_)
   set(GPU_LIBRARY ${NVML_LIBRARIES})
 else()
-  if (CMAKE_CPU_PLATFORM STREQUAL "tegra")
+  if(CMAKE_CPU_PLATFORM STREQUAL "tegra")
     set(CMAKE_GPU_PLATFORM "tegra")
-    ADD_DEFINITIONS(-D_GPU_TEGRA_)
+    add_definitions(-D_GPU_TEGRA_)
   else()
     set(CMAKE_GPU_PLATFORM "unknown")
   endif()

@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+#include <string>
+
 #include "gtest/gtest.h"
 #include "rclcpp/rclcpp.hpp"
 #include "system_monitor/gpu_monitor/tegra_gpu_monitor.hpp"
 #include "boost/algorithm/string.hpp"
 #include "boost/filesystem.hpp"
-#include <string>
 
 static constexpr const char * TEST_FILE = "test";
 
@@ -416,8 +418,8 @@ TEST_F(GPUMonitorTestSuite, usageFileOpenErrorTest)
   rclcpp::WallRate(2).sleep();
   rclcpp::spin_some(monitor_->get_node_base_interface());
 
-    // Verify
-    DiagStatus status;
+  // Verify
+  DiagStatus status;
   std::string value;
   ASSERT_TRUE(monitor_->findDiagStatus("GPU Usage", status));
   ASSERT_EQ(status.level, DiagStatus::ERROR);
@@ -477,7 +479,9 @@ public:
 TEST_F(GPUMonitorTestSuite, dummyGPUMonitorTest)
 {
   rclcpp::NodeOptions options;
-  std::unique_ptr<DummyGPUMonitor> monitor = std::make_unique<DummyGPUMonitor>("dummy_gpu_monitor", options);
+  std::unique_ptr<DummyGPUMonitor> monitor = std::make_unique<DummyGPUMonitor>(
+    "dummy_gpu_monitor",
+    options);
   // Publish topic
   monitor->update();
 }

@@ -61,15 +61,15 @@ GPUMonitor::GPUMonitor(const std::string & node_name, const rclcpp::NodeOptions 
     ret = nvmlDeviceGetName(info.device, info.name, NVML_DEVICE_NAME_BUFFER_SIZE);
     if (ret != NVML_SUCCESS) {
       RCLCPP_ERROR(
-        this->get_logger(), "Failed to retrieve the name of this device [%d]: %s", index, nvmlErrorString(
-          ret));
+        this->get_logger(),
+        "Failed to retrieve the name of this device [%d]: %s", index, nvmlErrorString(ret));
       continue;
     }
     ret = nvmlDeviceGetPciInfo(info.device, &info.pci);
     if (ret != NVML_SUCCESS) {
       RCLCPP_ERROR(
-        this->get_logger(), "Failed to retrieve the PCI attributes [%d]: %s", index, nvmlErrorString(
-          ret));
+        this->get_logger(),
+        "Failed to retrieve the PCI attributes [%d]: %s", index, nvmlErrorString(ret));
       continue;
     }
     gpus_.push_back(info);

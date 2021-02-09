@@ -17,13 +17,13 @@
  * @brief  CPU monitor class
  */
 
-#include "netinet/in.h"
-#include "sys/socket.h"
-
 #include <algorithm>
 #include <regex>
 #include <string>
 #include <vector>
+
+#include "netinet/in.h"
+#include "sys/socket.h"
 
 #include "boost/algorithm/string.hpp"
 #include "boost/archive/text_iarchive.hpp"

@@ -17,24 +17,26 @@
  * @brief HDD information read class
  */
 
-#include <algorithm>
-#include <regex>
-#include <string>
-#include <vector>
-
 #include <errno.h>
-#include "fcntl.h"
-#include "getopt.h"
-#include "linux/nvme_ioctl.h"
-#include "netinet/in.h"
-#include "scsi/sg.h"
+#include <fcntl.h>
+#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <syslog.h>
+#include <unistd.h>
+
+#include <algorithm>
+#include <regex>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "linux/nvme_ioctl.h"
+#include "netinet/in.h"
+#include "scsi/sg.h"
 #include "sys/ioctl.h"
 #include "sys/socket.h"
-#include "syslog.h"
-#include "unistd.h"
 
 #include "boost/algorithm/string.hpp"
 #include "boost/archive/text_oarchive.hpp"
@@ -138,8 +140,8 @@ typedef struct __attribute__((packed))  // Minimize total struct memory 514 to 5
   uint8_t extended_self_test_polling_time_;  //!< @brief Extended self-test polling time in minutes
   uint8_t
     conveyance_self_test_polling_time_;  //!< @brief Conveyance self-test polling time in minutes
-  uint16_t
-    extended_self_test_polling_time_word_;  //!< @brief Extended self-test polling time in minutes (word)
+  uint16_t                                  //!< @brief Extended self-test polling time
+    extended_self_test_polling_time_word_;  //!<   in minutes (word)
   uint8_t reserved_[9];                     //!< @brief Reserved
   uint8_t vendor_specific3_[125];           //!< @brief Vendor specific
   uint8_t data_structure_checksum_;         //!< @brief Data structure checksum
@@ -469,9 +471,7 @@ void run(int port, HDDInfoList * list)
           close(fd);
           continue;
         }
-      }
-      // NVMe device
-      else if (boost::starts_with(itr->first.c_str(), "/dev/nvme")) {
+      } else if (boost::starts_with(itr->first.c_str(), "/dev/nvme")) {  // NVMe device
         // Get Identify for NVMe drive
         info->error_code_ = get_nvme_identify(fd, info);
         if (info->error_code_ != 0) {

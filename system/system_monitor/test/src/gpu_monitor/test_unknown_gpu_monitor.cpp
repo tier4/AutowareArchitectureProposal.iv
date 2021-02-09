@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+#include <string>
+
 #include "gtest/gtest.h"
 #include "rclcpp/rclcpp.hpp"
 #include "system_monitor/gpu_monitor/unknown_gpu_monitor.hpp"

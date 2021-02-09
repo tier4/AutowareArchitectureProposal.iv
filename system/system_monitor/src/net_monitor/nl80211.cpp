@@ -131,7 +131,8 @@ float NL80211::getBitrate(const char * ifa_name)
 
   // Get index of the network interface
   index = if_nametoindex(ifa_name);
-  // Returns index number of the network interface on success or 0 on error and errno is set appropriately
+  // Returns index number of the network interface on success
+  // or 0 on error and errno is set appropriately
   if (!index) {return bitrate_;}
 
   // Allocate a new netlink message with the default maximum payload size.

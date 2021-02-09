@@ -17,6 +17,7 @@
  * @brief Process monitor class
  */
 
+#include <memory>
 #include <regex>
 #include <string>
 #include <vector>

@@ -18,15 +18,13 @@
  */
 
 #include <errno.h>
-#include "fcntl.h"
-#include "getopt.h"
-#include "netinet/in.h"
+#include <fcntl.h>
+#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "sys/socket.h"
-#include "syslog.h"
-#include "unistd.h"
+#include <syslog.h>
+#include <unistd.h>
 
 #include <algorithm>
 #include <iostream>
@@ -35,9 +33,12 @@
 #include <string>
 #include <vector>
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/lexical_cast.hpp>
+#include "netinet/in.h"
+#include "sys/socket.h"
+
+#include "boost/archive/text_oarchive.hpp"
+#include "boost/filesystem.hpp"
+#include "boost/lexical_cast.hpp"
 
 #include "msr_reader/msr_reader.hpp"
 
@@ -59,8 +60,8 @@ typedef struct
   uint64_t pkg_prochot_event_ : 1;                //!< @brief 2 Pkg PROCHOT # event (RO)
   uint64_t pkg_prochot_log_ : 1;                  //!< @brief 3 Pkg PROCHOT # log (R/WC0)
   uint64_t pkg_critical_temperature_status_ : 1;  //!< @brief 4 Pkg Critical Temperature Status (RO)
-  uint64_t
-    pkg_critical_temperature_status_log_ : 1;  //!< @brief 5 Pkg Critical Temperature Status Log (R/WC0)
+  uint64_t                                       //!< @brief 5 Pkg Critical Temperature
+    pkg_critical_temperature_status_log_ : 1;    //!<   Status Log (R/WC0)
   uint64_t pkg_thermal_threshold_1_status_ : 1;  //!< @brief 6 Pkg Thermal Threshold #1 Status (RO)
   uint64_t pkg_thermal_threshold_1_log_ : 1;     //!< @brief 7 Pkg Thermal Threshold #1 log (R/WC0)
   uint64_t pkg_thermal_threshold_2_status_ : 1;  //!< @brief 8 Pkg Thermal Threshold #2 Status (RO)

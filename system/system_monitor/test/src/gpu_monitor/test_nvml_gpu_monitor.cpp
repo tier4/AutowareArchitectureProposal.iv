@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+#include <string>
+
 #include "gtest/gtest.h"
 #include "rclcpp/rclcpp.hpp"
 #include "system_monitor/gpu_monitor/nvml_gpu_monitor.hpp"
 #include "boost/algorithm/string.hpp"
-#include <string>
+
 
 using DiagStatus = diagnostic_msgs::msg::DiagnosticStatus;
 
@@ -536,7 +539,9 @@ public:
 TEST_F(GPUMonitorTestSuite, dummyGPUMonitorTest)
 {
   rclcpp::NodeOptions options;
-  std::unique_ptr<DummyGPUMonitor> monitor = std::make_unique<DummyGPUMonitor>("dummy_gpu_monitor", options);
+  std::unique_ptr<DummyGPUMonitor> monitor = std::make_unique<DummyGPUMonitor>(
+    "dummy_gpu_monitor",
+    options);
   // Publish topic
   monitor->update();
 }

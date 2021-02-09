@@ -17,14 +17,17 @@
  * @brief Net monitor class
  */
 
-#include "ifaddrs.h"
+#include <ifaddrs.h>
+
+#include <algorithm>
+#include <string>
+#include <vector>
+
 #include "linux/ethtool.h"
 #include "linux/if_link.h"
 #include "linux/sockios.h"
 #include "net/if.h"
 #include "sys/ioctl.h"
-#include <algorithm>
-#include <string>
 
 #include "boost/range/algorithm.hpp"
 
