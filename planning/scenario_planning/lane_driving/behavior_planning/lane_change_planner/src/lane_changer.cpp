@@ -21,14 +21,14 @@
 std_msgs::msg::ColorRGBA toRainbow(double ratio);
 visualization_msgs::msg::Marker convertToMarker(
   const autoware_perception_msgs::msg::PredictedPath & path, const int id, const std::string & ns,
-  const double radius);
+  const double radius, const rclcpp::Time & stamp);
 
 visualization_msgs::msg::Marker convertToMarker(
   const autoware_planning_msgs::msg::PathWithLaneId & path, const int id, const std::string & ns,
-  const std_msgs::msg::ColorRGBA & color);
+  const std_msgs::msg::ColorRGBA & color, const rclcpp::Time & stamp);
 
 visualization_msgs::msg::MarkerArray createVirtualWall(
-  const geometry_msgs::msg::Pose & pose, const int id, const std::string & factor_text);
+  const geometry_msgs::msg::Pose & pose, const int id, const std::string & factor_text, const rclcpp::Time & stamp);
 
 namespace lane_change_planner
 {
@@ -173,7 +173,7 @@ void LaneChanger::run()
 
   const auto ros_parameters = data_manager_ptr_->getLaneChangerParameters();
   auto refined_path = util::refinePath(
-    ros_parameters.refine_goal_search_radius_range, M_PI * 0.5, path, refined_goal, goal_lane_id);
+    ros_parameters.refine_goal_search_radius_range, M_PI * 0.5, path, refined_goal, goal_lane_id, get_logger());
   refined_path.header.frame_id = "map";
   refined_path.header.stamp = this->now();
 
@@ -225,26 +225,26 @@ void LaneChanger::publishDebugMarkers()
   if (!status.lane_change_path.path.points.empty()) {
     const auto & vehicle_predicted_path = util::convertToPredictedPath(
       status.lane_change_path.path, current_twist->twist, current_pose.pose, prediction_duration,
-      time_resolution, 0);
+      time_resolution, 0, get_logger(), get_clock());
     const auto & resampled_path =
-      util::resamplePredictedPath(vehicle_predicted_path, time_resolution, prediction_duration);
+      util::resamplePredictedPath(vehicle_predicted_path, time_resolution, prediction_duration, get_logger(), get_clock());
 
     double radius = util::l2Norm(current_twist->twist.linear) * stop_time;
     radius = std::max(radius, min_radius);
-    const auto & marker = convertToMarker(resampled_path, 1, "ego_lane_change_path", radius);
+    const auto & marker = convertToMarker(resampled_path, 1, "ego_lane_change_path", radius, this->now());
     debug_markers.markers.push_back(marker);
   }
 
   if (!status.lane_follow_path.points.empty()) {
     const auto & vehicle_predicted_path = util::convertToPredictedPath(
       status.lane_follow_path, current_twist->twist, current_pose.pose, prediction_duration,
-      time_resolution, 0.0);
+      time_resolution, 0.0, get_logger(), get_clock());
     const auto & resampled_path =
-      util::resamplePredictedPath(vehicle_predicted_path, time_resolution, prediction_duration);
+      util::resamplePredictedPath(vehicle_predicted_path, time_resolution, prediction_duration, get_logger(), get_clock());
 
     double radius = util::l2Norm(current_twist->twist.linear) * stop_time;
     radius = std::max(radius, min_radius);
-    const auto & marker = convertToMarker(resampled_path, 1, "ego_lane_follow_path", radius);
+    const auto & marker = convertToMarker(resampled_path, 1, "ego_lane_follow_path", radius, this->now());
     debug_markers.markers.push_back(marker);
   }
 
@@ -272,10 +272,10 @@ void LaneChanger::publishDebugMarkers()
       }
       for (const auto & obj_path : predicted_paths) {
         const auto & resampled_path =
-          util::resamplePredictedPath(obj_path, time_resolution, prediction_duration);
+          util::resamplePredictedPath(obj_path, time_resolution, prediction_duration, get_logger(), get_clock());
         double radius = util::l2Norm(obj.state.twist_covariance.twist.linear) * stop_time;
         radius = std::max(radius, min_radius);
-        const auto & marker = convertToMarker(resampled_path, i, "object_predicted_path", radius);
+        const auto & marker = convertToMarker(resampled_path, i, "object_predicted_path", radius, this->now());
         debug_markers.markers.push_back(marker);
       }
     }
@@ -291,14 +291,14 @@ void LaneChanger::publishDebugMarkers()
     color.b = 1;
     color.a = 0.6;
     for (const auto & path : debug_data.lane_change_candidate_paths) {
-      const auto marker = convertToMarker(path.path, i++, "candidate_lane_change_path", color);
+      const auto marker = convertToMarker(path.path, i++, "candidate_lane_change_path", color, this->now());
       debug_markers.markers.push_back(marker);
     }
     color.r = 1;
     color.g = 0;
     color.b = 0;
     color.a = 0.9;
-    const auto marker = convertToMarker(debug_data.selected_path, 1, "selected_path", color);
+    const auto marker = convertToMarker(debug_data.selected_path, 1, "selected_path", color, this->now());
     debug_markers.markers.push_back(marker);
   }
 
@@ -314,7 +314,7 @@ void LaneChanger::publishDebugMarkers()
         tf2::Vector3(ros_parameters.base_link2front, 0.0, 0.0));
       tf2::Transform tf_map2front = tf_map2base_link * tf_base_link2front;
       tf2::toMsg(tf_map2front, wall_pose);
-      const auto virtual_wall_markers = createVirtualWall(wall_pose, 1, "blockedByObstacle");
+      const auto virtual_wall_markers = createVirtualWall(wall_pose, 1, "blockedByObstacle", this->now());
       debug_markers.markers.insert(
         debug_markers.markers.end(), virtual_wall_markers.markers.begin(),
         virtual_wall_markers.markers.end());
@@ -333,7 +333,7 @@ void LaneChanger::publishDebugMarkers()
         tf2::Vector3(ros_parameters.base_link2front, 0.0, 0.0));
       tf2::Transform tf_map2front = tf_map2base_link * tf_base_link2front;
       tf2::toMsg(tf_map2front, wall_pose);
-      const auto virtual_wall_markers = createVirtualWall(wall_pose, 1, "Stopping");
+      const auto virtual_wall_markers = createVirtualWall(wall_pose, 1, "Stopping", this->now());
       debug_markers.markers.insert(
         debug_markers.markers.end(), virtual_wall_markers.markers.begin(),
         virtual_wall_markers.markers.end());
