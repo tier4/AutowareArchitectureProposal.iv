@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_STATE_EXECUTING_LANE_CHANGE_HPP
-#define LANE_CHANGE_PLANNER_STATE_EXECUTING_LANE_CHANGE_HPP
+#ifndef LANE_CHANGE_PLANNER__STATE__EXECUTING_LANE_CHANGE_HPP_
+#define LANE_CHANGE_PLANNER__STATE__EXECUTING_LANE_CHANGE_HPP_
 
 #include <lane_change_planner/state/state_base_class.hpp>
 #include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
@@ -59,4 +59,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_STATE_EXECUTING_LANE_CHANGE_H
+#endif  // LANE_CHANGE_PLANNER__STATE__EXECUTING_LANE_CHANGE_HPP_

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_STATE_STATE_BASE_CLASS_HPP
-#define LANE_CHANGE_PLANNER_STATE_STATE_BASE_CLASS_HPP
+#ifndef LANE_CHANGE_PLANNER__STATE__STATE_BASE_CLASS_HPP_
+#define LANE_CHANGE_PLANNER__STATE__STATE_BASE_CLASS_HPP_
 
 #include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 #include <geometry_msgs/msg/point.hpp>
@@ -23,7 +23,9 @@
 #include <lane_change_planner/parameters.hpp>
 #include <lane_change_planner/route_handler.hpp>
 #include <iostream>
+#include <vector>
 #include <string>
+#include <memory>
 
 namespace lane_change_planner
 {
@@ -84,4 +86,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_STATE_STATE_BASE_CLASS_H
+#endif  // LANE_CHANGE_PLANNER__STATE__STATE_BASE_CLASS_HPP_

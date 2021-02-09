@@ -22,6 +22,9 @@
 #include <lane_change_planner/state/stopping_lane_change.hpp>
 #include <lane_change_planner/state_machine.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <memory>
+#include <limits>
+#include <algorithm>
 
 namespace lane_change_planner
 {

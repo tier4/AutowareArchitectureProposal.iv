@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_DATA_MANAGER_HPP
-#define LANE_CHANGE_PLANNER_DATA_MANAGER_HPP
+#ifndef LANE_CHANGE_PLANNER__DATA_MANAGER_HPP_
+#define LANE_CHANGE_PLANNER__DATA_MANAGER_HPP_
 
 // ROS
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -114,4 +114,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_DATA_MANAGER_H
+#endif  // LANE_CHANGE_PLANNER__DATA_MANAGER_HPP_

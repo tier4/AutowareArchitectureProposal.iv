@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_ROUTE_HANDLER_HPP
-#define LANE_CHANGE_PLANNER_ROUTE_HANDLER_HPP
+#ifndef LANE_CHANGE_PLANNER__ROUTE_HANDLER_HPP_
+#define LANE_CHANGE_PLANNER__ROUTE_HANDLER_HPP_
 
 // Autoware
 #include <autoware_lanelet2_msgs/msg/map_bin.hpp>
@@ -32,9 +32,10 @@
 #include <lanelet2_routing/RoutingGraphContainer.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 
-
 #include <rclcpp/rclcpp.hpp>
 #include <vector>
+#include <memory>
+#include <limits>
 
 namespace lane_change_planner
 {
@@ -51,7 +52,7 @@ struct LaneChangePath
 class RouteHandler
 {
 public:
-  RouteHandler(const rclcpp::Logger & logger);
+  explicit RouteHandler(const rclcpp::Logger & logger);
   ~RouteHandler() = default;
 
 private:
@@ -154,4 +155,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_ROUTE_HANDLER_H
+#endif  // LANE_CHANGE_PLANNER__ROUTE_HANDLER_HPP_

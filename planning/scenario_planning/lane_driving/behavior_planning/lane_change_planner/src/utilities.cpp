@@ -1036,7 +1036,7 @@ double getDistanceToCrosswalk(
           boost::geometry::append(centerline, Point(point.x(), point.y()));
         }
 
-        //create crosswalk polygon and calculate distance
+        // create crosswalk polygon and calculate distance
         double min_distance_to_crosswalk = std::numeric_limits<double>::max();
         for (const auto & crosswalk : conflicting_crosswalks) {
           lanelet::CompoundPolygon2d lanelet_crosswalk_polygon = crosswalk.polygon2d();
@@ -1231,7 +1231,8 @@ std::vector<Polygon> getTargetLaneletPolygons(
 
   for (const auto & map_polygon : map_polygons) {
     const std::string type = map_polygon.attributeOr(lanelet::AttributeName::Type, "");
-    // If the target_type is different or the number of vertices is not enough to create polygon, skip the loop
+    // If the target_type is different or the number of vertices is not enough
+    //                                        to create polygon, skip the loop
     if (type == target_type && map_polygon.size() > 2) {
       // create map polygon
       Polygon map_polygon_bg;

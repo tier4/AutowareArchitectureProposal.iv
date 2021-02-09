@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_STATE_FOLLOWING_LANE_HPP
-#define LANE_CHANGE_PLANNER_STATE_FOLLOWING_LANE_HPP
+#ifndef LANE_CHANGE_PLANNER__STATE__FOLLOWING_LANE_HPP_
+#define LANE_CHANGE_PLANNER__STATE__FOLLOWING_LANE_HPP_
 
 #include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -62,4 +62,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_STATE_FOLLOWING_LANE_H
+#endif  // LANE_CHANGE_PLANNER__STATE__FOLLOWING_LANE_HPP_

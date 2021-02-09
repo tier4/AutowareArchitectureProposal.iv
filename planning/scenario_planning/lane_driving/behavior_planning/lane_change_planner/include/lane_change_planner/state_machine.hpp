@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_STATE_MACHINE_HPP
-#define LANE_CHANGE_PLANNER_STATE_MACHINE_HPP
+#ifndef LANE_CHANGE_PLANNER__STATE_MACHINE_HPP_
+#define LANE_CHANGE_PLANNER__STATE_MACHINE_HPP_
 
 #include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 #include <autoware_planning_msgs/msg/route.hpp>
@@ -57,4 +57,4 @@ private:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_STATE_MACHINE_H
+#endif  // LANE_CHANGE_PLANNER__STATE_MACHINE_HPP_

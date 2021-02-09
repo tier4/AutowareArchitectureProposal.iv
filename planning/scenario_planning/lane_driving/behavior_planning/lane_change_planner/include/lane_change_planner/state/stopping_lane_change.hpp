@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_STATE_STOPPING_LANE_CHANGE_HPP
-#define LANE_CHANGE_PLANNER_STATE_STOPPING_LANE_CHANGE_HPP
+#ifndef LANE_CHANGE_PLANNER__STATE__STOPPING_LANE_CHANGE_HPP_
+#define LANE_CHANGE_PLANNER__STATE__STOPPING_LANE_CHANGE_HPP_
 
 #include <lane_change_planner/state/state_base_class.hpp>
+#include <memory>
 
 namespace lane_change_planner
 {
@@ -55,4 +56,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_STATE_ABORTING_LANE_CHANGE_H
+#endif  // LANE_CHANGE_PLANNER__STATE__STOPPING_LANE_CHANGE_HPP_

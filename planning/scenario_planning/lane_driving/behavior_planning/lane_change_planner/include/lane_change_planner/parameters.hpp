@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_PARAMETERS_HPP
-#define LANE_CHANGE_PLANNER_PARAMETERS_HPP
+#ifndef LANE_CHANGE_PLANNER__PARAMETERS_HPP_
+#define LANE_CHANGE_PLANNER__PARAMETERS_HPP_
 
 struct LaneChangerParameters
 {
@@ -52,4 +52,4 @@ struct LaneChangerParameters
   bool enable_blocked_by_obstacle;
 };
 
-#endif
+#endif  // LANE_CHANGE_PLANNER__PARAMETERS_HPP_

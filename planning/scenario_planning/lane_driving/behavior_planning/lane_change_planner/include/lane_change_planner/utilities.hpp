@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_UTILITIES_HPP
-#define LANE_CHANGE_PLANNER_UTILITIES_HPP
+#ifndef LANE_CHANGE_PLANNER__UTILITIES_HPP_
+#define LANE_CHANGE_PLANNER__UTILITIES_HPP_
 
 #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/pose.hpp>
@@ -39,8 +39,9 @@
 
 #include <lane_change_planner/route_handler.hpp>
 
-#include <limits>
 #include <vector>
+#include <string>
+#include <limits>
 
 namespace lane_change_planner
 {
@@ -189,7 +190,7 @@ class SplineInterpolate
   rclcpp::Logger logger_;
 
 public:
-  SplineInterpolate(const rclcpp::Logger & logger);
+  explicit SplineInterpolate(const rclcpp::Logger & logger);
   bool interpolate(
     const std::vector<double> & base_index, const std::vector<double> & base_value,
     const std::vector<double> & return_index, std::vector<double> & return_value);
@@ -211,4 +212,4 @@ private:
 }  // namespace util
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_UTILITIES_H
+#endif  // LANE_CHANGE_PLANNER__UTILITIES_HPP_

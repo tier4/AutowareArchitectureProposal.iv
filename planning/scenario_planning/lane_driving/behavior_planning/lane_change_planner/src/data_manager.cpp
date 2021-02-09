@@ -16,6 +16,8 @@
 
 #include <lane_change_planner/data_manager.hpp>
 #include <lanelet2_extension/utility/message_conversion.hpp>
+#include <string>
+#include <memory>
 
 namespace lane_change_planner
 {
@@ -24,7 +26,6 @@ DataManager::DataManager(const rclcpp::Logger & logger, const rclcpp::Clock::Sha
   logger_(logger), clock_(clock)
 {
   self_pose_listener_ptr_ = std::make_shared<SelfPoseListener>(logger, clock);
-  //self_pose_listener_ptr_ = std::make_shared<SelfPoseLinstener>(logger, clock);  // ROS2PORTING
 }
 
 void DataManager::perceptionCallback(

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef LANE_CHANGE_PLANNER_LANE_CHANGER_HPP
-#define LANE_CHANGE_PLANNER_LANE_CHANGER_HPP
+#ifndef LANE_CHANGE_PLANNER__LANE_CHANGER_HPP_
+#define LANE_CHANGE_PLANNER__LANE_CHANGER_HPP_
 
 #include <lane_change_planner/data_manager.hpp>
 #include <lane_change_planner/route_handler.hpp>
@@ -40,7 +40,7 @@
 #include <lanelet2_routing/RoutingGraph.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 
-// STL
+#include <vector>
 #include <memory>
 
 namespace lane_change_planner
@@ -86,4 +86,4 @@ public:
 };
 }  // namespace lane_change_planner
 
-#endif  // LANE_CHANGE_PLANNER_LANE_CHANGER_H
+#endif  // LANE_CHANGE_PLANNER__LANE_CHANGER_HPP_
