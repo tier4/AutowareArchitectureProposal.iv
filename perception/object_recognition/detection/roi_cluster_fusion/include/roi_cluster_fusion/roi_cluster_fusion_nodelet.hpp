@@ -35,11 +35,11 @@
 
 namespace roi_cluster_fusion
 {
-class Debuger : public rclcpp::Node
+class Debugger : public rclcpp::Node
 {
 public:
-  explicit Debuger(const rclcpp::NodeOptions & options, const int camera_num);
-  ~Debuger() = default;
+  explicit Debugger(const rclcpp::NodeOptions & options, const int camera_num);
+  ~Debugger() = default;
   void showImage(
     const int id, const rclcpp::Time & time,
     const std::vector<sensor_msgs::msg::RegionOfInterest> & image_rois,
@@ -121,7 +121,7 @@ private:
   double iou_threshold_;
   int rois_number_;
   std::map<int, sensor_msgs::msg::CameraInfo> m_camera_info_;
-  std::shared_ptr<Debuger> debuger_;
+  std::shared_ptr<Debugger> debuger_;
 };
 
 }  // namespace roi_cluster_fusion

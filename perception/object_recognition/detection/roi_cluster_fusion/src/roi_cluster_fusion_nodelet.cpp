@@ -40,26 +40,26 @@
 
 namespace roi_cluster_fusion
 {
-Debuger::Debuger(const rclcpp::NodeOptions & options, const int camera_num)
+Debugger::Debugger(const rclcpp::NodeOptions & options, const int camera_num)
 : Node("roi_cluster_fusion_node", options)
 {
   image_buffers_.resize(camera_num);
   for (int id = 0; id < camera_num; ++id) {
     image_subs_.push_back(image_transport_->subscribe(
       "input/image_raw" + std::to_string(id), 1,
-      boost::bind(&Debuger::imageCallback, this, _1, id)));
+      boost::bind(&Debugger::imageCallback, this, _1, id)));
     image_pubs_.push_back(image_transport_->advertise("output/image_raw" + std::to_string(id), 1));
     image_buffers_.at(id).set_capacity(5);
   }
 }
 
-void Debuger::imageCallback(
+void Debugger::imageCallback(
   const sensor_msgs::msg::Image::ConstSharedPtr & input_image_msg, const int id)
 {
   image_buffers_.at(id).push_front(input_image_msg);
 }
 
-void Debuger::showImage(
+void Debugger::showImage(
   const int id, const rclcpp::Time & time,
   const std::vector<sensor_msgs::msg::RegionOfInterest> & image_rois,
   const std::vector<sensor_msgs::msg::RegionOfInterest> & pointcloud_rois,
@@ -218,7 +218,7 @@ RoiClusterFusionNodelet::RoiClusterFusionNodelet(const rclcpp::NodeOptions & opt
     this->create_publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(
       "output/labeled_clusters", 10);
   if (use_iou_) {
-    debuger_ = std::make_shared<Debuger>(options, rois_number);
+    debuger_ = std::make_shared<Debugger>(options, rois_number);
   }
 }
 
