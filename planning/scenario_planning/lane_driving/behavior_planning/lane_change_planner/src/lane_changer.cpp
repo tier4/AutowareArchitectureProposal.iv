@@ -41,10 +41,7 @@ void LaneChanger::init()
 {
   // data_manager
   data_manager_ptr_ = std::make_shared<DataManager>(get_logger(), get_clock());
-  route_handler_ptr_ = std::make_shared<RouteHandler>();
-#ifdef ROS2PORTING
-  route_handler_ptr_ = std::make_shared<RouteHandler>(get_logger(), get_clock());
-#endif
+  route_handler_ptr_ = std::make_shared<RouteHandler>(get_logger());
   velocity_subscriber_ = create_subscription<geometry_msgs::msg::TwistStamped>(
     "input/velocity", rclcpp::QoS{1}, std::bind(&DataManager::velocityCallback, data_manager_ptr_, std::placeholders::_1));
   perception_subscriber_ = create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
@@ -144,11 +141,11 @@ void LaneChanger::waitForData()
   rclcpp::WallRate loop_rate(100ms);
 
   // wait until mandatory data is ready
-  while (!route_handler_ptr_->isHandlerReady()) {
+  while (!route_handler_ptr_->isHandlerReady() && rclcpp::ok()) {
     RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "waiting for route to be ready");
     loop_rate.sleep();
   }
-  while (!data_manager_ptr_->isDataReady()) {
+  while (!data_manager_ptr_->isDataReady() && rclcpp::ok()) {
     RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "waiting for vehicle pose, vehicle_velocity, and obstacles");
     loop_rate.sleep();
   }

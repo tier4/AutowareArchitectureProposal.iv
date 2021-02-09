@@ -35,7 +35,6 @@ using autoware_planning_msgs::msg::PathPointWithLaneId;
 using autoware_planning_msgs::msg::PathWithLaneId;
 using lanelet::utils::to2D;
 
-#ifdef ROS2PORTING
 namespace
 {
 template <typename T>
@@ -68,7 +67,7 @@ bool isRouteLooped(const autoware_planning_msgs::msg::Route & route_msg)
 
 PathWithLaneId combineReferencePath(
   const PathWithLaneId path1, const PathWithLaneId path2, const double interval,
-  const size_t N_sample)
+  const size_t N_sample, const rclcpp::Logger & logger)
 {
   PathWithLaneId path;
   path.points.insert(path.points.end(), path1.points.begin(), path1.points.end());
@@ -170,7 +169,7 @@ PathWithLaneId combineReferencePath(
       path.points.insert(path.points.end(), inner_points.begin(), inner_points.end());
 
     } else {
-      ROS_WARN("[LaneChangeModule::splineInterpolate] spline interpolation failed.");
+      RCLCPP_WARN(logger, "[LaneChangeModule::splineInterpolate] spline interpolation failed.");
     }
   }
   path.points.insert(path.points.end(), path2.points.begin(), path2.points.end());
@@ -227,16 +226,16 @@ bool isPathInLanelets(
 
 namespace lane_change_planner
 {
-RouteHandler::RouteHandler()
-: is_route_msg_ready_(false), is_map_msg_ready_(false), is_handler_ready_(false)
+RouteHandler::RouteHandler(const rclcpp::Logger & logger)
+  : is_map_msg_ready_(false), is_route_msg_ready_(false), is_handler_ready_(false), logger_(logger)
 {
 }
 
-void RouteHandler::mapCallback(const autoware_lanelet2_msgs::msg::MapBin & map_msg)
+void RouteHandler::mapCallback(const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr map_msg)
 {
   lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(
-    map_msg, lanelet_map_ptr_, &traffic_rules_ptr_, &routing_graph_ptr_);
+    *map_msg, lanelet_map_ptr_, &traffic_rules_ptr_, &routing_graph_ptr_);
 
   const auto traffic_rules = lanelet::traffic_rules::TrafficRulesFactory::create(
     lanelet::Locations::Germany, lanelet::Participants::Vehicle);
@@ -256,16 +255,15 @@ void RouteHandler::mapCallback(const autoware_lanelet2_msgs::msg::MapBin & map_m
   setRouteLanelets();
 }
 
-void RouteHandler::routeCallback(const autoware_planning_msgs::msg::Route & route_msg)
+void RouteHandler::routeCallback(const autoware_planning_msgs::msg::Route::ConstSharedPtr route_msg)
 {
-  if (!isRouteLooped(route_msg)) {
-    route_msg_ = route_msg;
+  if (!isRouteLooped(*route_msg)) {
+    route_msg_ = *route_msg;
     is_route_msg_ready_ = true;
     is_handler_ready_ = false;
     setRouteLanelets();
   } else {
-    ROS_ERROR(
-      "Loop detected within route! Currently, no loop is allowed for route! Using previous route");
+    RCLCPP_ERROR(logger_, "Loop detected within route! Currently, no loop is allowed for route! Using previous route");
   }
 }
 
@@ -383,7 +381,7 @@ lanelet::ConstLanelets RouteHandler::getLaneletSequenceAfter(
 
   double length = 0;
   lanelet::ConstLanelet current_lanelet = lanelet;
-  while (ros::ok() && length < min_length) {
+  while (rclcpp::ok() && length < min_length) {
     lanelet::ConstLanelet next_lanelet;
     if (!getNextLaneletWithinRoute(current_lanelet, &next_lanelet)) {
       break;
@@ -407,7 +405,7 @@ lanelet::ConstLanelets RouteHandler::getLaneletSequenceUpTo(
   lanelet::ConstLanelet current_lanelet = lanelet;
   double length = 0;
 
-  while (ros::ok() && length < min_length) {
+  while (rclcpp::ok() && length < min_length) {
     lanelet::ConstLanelet prev_lanelet;
     if (!getPreviousLaneletWithinRoute(current_lanelet, &prev_lanelet)) {
       break;
@@ -451,7 +449,7 @@ lanelet::ConstLanelets RouteHandler::getLaneletSequence(
   }
 
   // loop check
-  if (lanelet_sequence_forward.empty() > 1 && lanelet_sequence_backward.empty() > 1) {
+  if (!lanelet_sequence_forward.empty() && !lanelet_sequence_backward.empty()) {
     if (lanelet_sequence_backward.back().id() == lanelet_sequence_forward.front().id()) {
       return lanelet_sequence_forward;
     }
@@ -595,6 +593,7 @@ int RouteHandler::getNumLaneToPreferredLane(const lanelet::ConstLanelet & lanele
       return num;
     }
   }
+  return 0;
 }
 
 bool RouteHandler::isInPreferredLane(const geometry_msgs::msg::PoseStamped & pose) const
@@ -855,7 +854,6 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
 
     PathWithLaneId reference_path1;
     {
-      const double lane_length = lanelet::utils::getLaneletLength2d(original_lanelets);
       const auto arc_position = lanelet::utils::getArcCoordinates(original_lanelets, pose);
       const double s_start = arc_position.length - backward_path_length;
       const double s_end = arc_position.length + straight_distance;
@@ -885,7 +883,7 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
     }
 
     if (reference_path1.points.empty() || reference_path2.points.empty()) {
-      ROS_ERROR_STREAM("reference path is empty!! something wrong...");
+      RCLCPP_ERROR_STREAM(logger_, "reference path is empty!! something wrong...");
       continue;
     }
 
@@ -893,7 +891,7 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
     candidate_path.acceleration = acceleration;
     candidate_path.preparation_length = straight_distance;
     candidate_path.lane_change_length = lane_change_distance;
-    candidate_path.path = combineReferencePath(reference_path1, reference_path2, 5.0, 2);
+    candidate_path.path = combineReferencePath(reference_path1, reference_path2, 5.0, 2, logger_);
 
     // check candidate path is in lanelet
     if (!isPathInLanelets(candidate_path.path, original_lanelets, target_lanelets)) continue;
@@ -1011,5 +1009,3 @@ lanelet::routing::RoutingGraphContainer RouteHandler::getOverallGraph() const
 }
 
 }  // namespace lane_change_planner
-
-#endif  // ROS2PORTING

@@ -32,6 +32,8 @@
 #include <lanelet2_routing/RoutingGraphContainer.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 
+
+#include <rclcpp/rclcpp.hpp>
 #include <vector>
 
 namespace lane_change_planner
@@ -49,7 +51,7 @@ struct LaneChangePath
 class RouteHandler
 {
 public:
-  RouteHandler();
+  RouteHandler(const rclcpp::Logger & logger);
   ~RouteHandler() = default;
 
 private:
@@ -67,6 +69,8 @@ private:
   lanelet::ConstLanelets preferred_lanelets_;
   lanelet::ConstLanelets start_lanelets_;
   lanelet::ConstLanelets goal_lanelets_;
+
+  rclcpp::Logger logger_;
 
   void setRouteLanelets();
 
