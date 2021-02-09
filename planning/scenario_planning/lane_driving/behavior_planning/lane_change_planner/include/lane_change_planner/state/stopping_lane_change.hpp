@@ -43,7 +43,8 @@ private:
 public:
   StoppingLaneChangeState(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-    const std::shared_ptr<RouteHandler> & route_handler_ptr);
+    const std::shared_ptr<RouteHandler> & route_handler_ptr,
+    const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
 
   // override virtual functions
   void entry() override;

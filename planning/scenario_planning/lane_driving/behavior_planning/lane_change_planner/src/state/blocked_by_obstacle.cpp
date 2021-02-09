@@ -23,13 +23,13 @@
 #include <lanelet2_extension/utility/message_conversion.hpp>
 #include <lanelet2_extension/utility/utilities.hpp>
 
-#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 BlockedByObstacleState::BlockedByObstacleState(
   const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr)
-: StateBase(status, data_manager_ptr, route_handler_ptr)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: StateBase(status, data_manager_ptr, route_handler_ptr, logger, clock)
 {
 }
 
@@ -67,7 +67,7 @@ void BlockedByObstacleState::update()
   // update lanes
   {
     if (!route_handler_ptr_->getClosestLaneletWithinRoute(current_pose_.pose, &current_lane)) {
-      ROS_ERROR("failed to find closest lanelet within route!!!");
+      RCLCPP_ERROR(logger_, "failed to find closest lanelet within route!!!");
       return;
     }
     lanelet::ConstLanelet right_lane;
@@ -263,7 +263,7 @@ bool BlockedByObstacleState::isOutOfCurrentLanes() const
 {
   lanelet::ConstLanelet closest_lane;
   if (!route_handler_ptr_->getClosestLaneletWithinRoute(current_pose_.pose, &closest_lane)) {
-    ROS_ERROR("failed to find closest lanelet within route!!!");
+    RCLCPP_ERROR(logger_, "failed to find closest lanelet within route!!!");
     return true;
   }
   for (const auto & llt : current_lanes_) {
@@ -299,7 +299,7 @@ std::vector<autoware_perception_msgs::msg::DynamicObject> BlockedByObstacleState
     current_lanes_, arc.length, arc.length + check_distance);
 
   if (polygon.size() < 3) {
-    ROS_WARN_STREAM(
+    RCLCPP_WARN_STREAM(logger_,
       "could not get polygon from lanelet with arc lengths: " << arc.length << " to "
                                                               << arc.length + check_distance);
     return blocking_obstacles;
@@ -347,5 +347,3 @@ bool BlockedByObstacleState::foundSafeLaneChangePath() const { return found_safe
 bool BlockedByObstacleState::isLaneChangeReady() const { return status_.lane_change_ready; }
 
 }  // namespace lane_change_planner
-
-#endif  // ROS2PORTING

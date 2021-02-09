@@ -64,23 +64,23 @@ void StateMachine::updateState()
         break;
       case State::EXECUTING_LANE_CHANGE:
         state_obj_ptr_ = std::make_unique<ExecutingLaneChangeState>(
-          previous_status, data_manager_ptr_, route_handler_ptr_);
+          previous_status, data_manager_ptr_, route_handler_ptr_, logger_, clock_);
         break;
       case State::STOPPING_LANE_CHANGE:
         state_obj_ptr_ = std::make_unique<StoppingLaneChangeState>(
-          previous_status, data_manager_ptr_, route_handler_ptr_);
+          previous_status, data_manager_ptr_, route_handler_ptr_, logger_, clock_);
         break;
       case State::ABORTING_LANE_CHANGE:
         state_obj_ptr_ = std::make_unique<AbortingLaneChangeState>(
-          previous_status, data_manager_ptr_, route_handler_ptr_);
+          previous_status, data_manager_ptr_, route_handler_ptr_, logger_, clock_);
         break;
       case State::FORCING_LANE_CHANGE:
         state_obj_ptr_ = std::make_unique<ForcingLaneChangeState>(
-          previous_status, data_manager_ptr_, route_handler_ptr_);
+          previous_status, data_manager_ptr_, route_handler_ptr_, logger_, clock_);
         break;
       case State::BLOCKED_BY_OBSTACLE:
         state_obj_ptr_ = std::make_unique<BlockedByObstacleState>(
-          previous_status, data_manager_ptr_, route_handler_ptr_);
+          previous_status, data_manager_ptr_, route_handler_ptr_, logger_, clock_);
         break;
       case State::NO_STATE:
         break;

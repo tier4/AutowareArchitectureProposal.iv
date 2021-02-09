@@ -21,13 +21,13 @@
 
 #include <lanelet2_extension/utility/utilities.hpp>
 
-#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 ForcingLaneChangeState::ForcingLaneChangeState(
   const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr)
-: StateBase(status, data_manager_ptr, route_handler_ptr)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: StateBase(status, data_manager_ptr, route_handler_ptr, logger, clock)
 {
 }
 
@@ -92,5 +92,3 @@ bool ForcingLaneChangeState::hasFinishedLaneChange() const
 }
 
 }  // namespace lane_change_planner
-
-#endif  // ROS2PORTING

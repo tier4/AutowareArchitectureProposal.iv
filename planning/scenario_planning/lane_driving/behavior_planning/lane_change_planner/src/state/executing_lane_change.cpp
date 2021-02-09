@@ -22,13 +22,13 @@
 #include <lanelet2_extension/utility/utilities.hpp>
 #include <tf2/utils.h>
 
-#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 ExecutingLaneChangeState::ExecutingLaneChangeState(
   const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr)
-: StateBase(status, data_manager_ptr, route_handler_ptr)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: StateBase(status, data_manager_ptr, route_handler_ptr, logger, clock)
 {
 }
 
@@ -115,8 +115,8 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
   lanelet::ConstLanelet closest_lanelet;
   if (!lanelet::utils::query::getClosestLanelet(
         original_lanes_, current_pose_.pose, &closest_lanelet)) {
-    ROS_ERROR_THROTTLE(
-      1, "Failed to find closest lane! Lane change aborting function is not working!");
+    RCLCPP_ERROR_THROTTLE(logger_, *clock_,
+      1000, "Failed to find closest lane! Lane change aborting function is not working!");
     return false;
   }
 
@@ -180,8 +180,8 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
     if (is_distance_small && is_angle_diff_small) {
       return true;
     }
-    ROS_WARN_STREAM_THROTTLE(
-      1, "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be cautious");
+    RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_,
+      1000, "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be cautious");
   }
 
   return false;
@@ -199,5 +199,3 @@ bool ExecutingLaneChangeState::hasFinishedLaneChange() const
 }
 
 }  // namespace lane_change_planner
-
-#endif  // ROS2PORTING
