@@ -18,22 +18,23 @@
 #include <lanelet2_extension/utility/message_conversion.hpp>
 #include <lanelet2_extension/utility/query.hpp>
 #include <lanelet2_extension/utility/utilities.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <tf2/utils.h>
 #include <opencv2/opencv.hpp>
 
-#ifdef ROS2PORTING
 namespace
 {
-ros::Duration safeSubtraction(const rclcpp::Time & t1, const rclcpp::Time & t2)
+rclcpp::Duration safeSubtraction(const rclcpp::Time & t1, const rclcpp::Time & t2)
 {
-  ros::Duration duration;
+  rclcpp::Duration duration(0, 0);
   try {
     duration = t1 - t2;
-  } catch (std::runtime_error) {
-    if (t1 > t2)
-      duration = ros::DURATION_MIN;
-    else
-      duration = ros::DURATION_MAX;
+  } catch (std::runtime_error & err) {
+    if (t1 > t2) {
+      duration = rclcpp::Duration::max() * -1.0;
+    } else {
+      duration = rclcpp::Duration::max();
+    }
   }
   return duration;
 }
@@ -41,10 +42,10 @@ rclcpp::Time safeAddition(const rclcpp::Time & t1, const double seconds)
 {
   rclcpp::Time sum;
   try {
-    sum = t1 + ros::Duration(seconds);
+    sum = t1 + rclcpp::Duration(seconds);
   } catch (std::runtime_error & err) {
-    if (seconds > 0) sum = ros::TIME_MAX;
-    if (seconds < 0) sum = ros::TIME_MIN;
+    if (seconds > 0) {sum = rclcpp::Time::max();}
+    if (seconds < 0) {sum = rclcpp::Time(0);}
   }
   return sum;
 }
@@ -206,7 +207,7 @@ geometry_msgs::msg::PoseArray convertToGeometryPoseArray(const PathWithLaneId & 
 PredictedPath convertToPredictedPath(
   const PathWithLaneId & path, const geometry_msgs::msg::Twist & vehicle_twist,
   const geometry_msgs::msg::Pose & vehicle_pose, const double duration, const double resolution,
-  const double acceleration)
+  const double acceleration, const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
 {
   PredictedPath predicted_path;
   predicted_path.path.reserve(path.points.size());
@@ -217,14 +218,13 @@ PredictedPath convertToPredictedPath(
   const auto & geometry_points = convertToGeometryPointArray(path);
   FrenetCoordinate3d vehicle_pose_frenet;
   convertToFrenetCoordinate3d(geometry_points, vehicle_pose.position, &vehicle_pose_frenet);
-  rclcpp::Time start_time = ros::Time::now();
+  rclcpp::Time start_time = clock->now();
   double vehicle_speed = std::abs(vehicle_twist.linear.x);
   constexpr double min_speed = 1.0;
   if (vehicle_speed < min_speed) {
     vehicle_speed = min_speed;
-    ROS_DEBUG_STREAM_THROTTLE(
-      1, "cannot convert PathWithLaneId with zero velocity, using minimum value "
-           << min_speed << " [m/s] instead");
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger, *clock, 1000,
+      "cannot convert PathWithLaneId with zero velocity, using minimum value " << min_speed << " [m/s] instead");
   }
 
   double length = 0;
@@ -259,16 +259,16 @@ PredictedPath convertToPredictedPath(
 }
 
 PredictedPath resamplePredictedPath(
-  const PredictedPath & input_path, const double resolution, const double duration)
+  const PredictedPath & input_path, const double resolution, const double duration,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
 {
   PredictedPath resampled_path;
 
-  ros::Duration t_delta(resolution);
-  ros::Duration prediction_duration(duration);
+  rclcpp::Duration t_delta(resolution);
+  rclcpp::Duration prediction_duration(duration);
 
-  double min_distance = std::numeric_limits<double>::max();
-  rclcpp::Time start_time = ros::Time::now();
-  rclcpp::Time end_time = ros::Time::now() + prediction_duration;
+  rclcpp::Time start_time = clock->now();
+  rclcpp::Time end_time = clock->now() + prediction_duration;
 
   for (auto t = start_time; t < end_time; t += t_delta) {
     geometry_msgs::msg::Pose pose;
@@ -296,7 +296,9 @@ geometry_msgs::msg::Pose lerpByPose(
     tf2::slerp(tf_transform1.getRotation(), tf_transform2.getRotation(), t);
 
   geometry_msgs::msg::Pose pose;
-  pose.position = tf2::toMsg(tf_point, pose.position);
+  pose.position.x = tf_point.getX();
+  pose.position.y = tf_point.getY();
+  pose.position.z = tf_point.getZ();
   pose.orientation = tf2::toMsg(tf_quaternion);
   return pose;
 }
@@ -339,34 +341,35 @@ geometry_msgs::msg::Point lerpByLength(
 }
 
 bool lerpByTimeStamp(
-  const PredictedPath & path, const rclcpp::Time & t, geometry_msgs::msg::Pose * lerped_pt)
+  const PredictedPath & path, const rclcpp::Time & t, geometry_msgs::msg::Pose * lerped_pt,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
 {
   if (lerped_pt == nullptr) {
-    ROS_WARN_STREAM_THROTTLE(1, "failed to lerp by time due to nullptr pt");
+    RCLCPP_WARN_STREAM_THROTTLE(logger, *clock, 1000, "failed to lerp by time due to nullptr pt");
     return false;
   }
   if (path.path.empty()) {
-    ROS_WARN_STREAM_THROTTLE(1, "Empty path. Failed to interpolate path by time!");
+    RCLCPP_WARN_STREAM_THROTTLE(logger, *clock, 1000, "Empty path. Failed to interpolate path by time!");
     return false;
   }
   if (t < path.path.front().header.stamp) {
-    ROS_DEBUG_STREAM(
+    RCLCPP_DEBUG_STREAM(logger,
       "failed to interpolate path by time!"
       << std::endl
-      << "path start time: " << path.path.front().header.stamp << std::endl
-      << "path end time  : " << path.path.back().header.stamp << std::endl
-      << "query time     : " << t);
+      << "path start time: " << rclcpp::Time(path.path.front().header.stamp).seconds() << std::endl
+      << "path end time  : " << rclcpp::Time(path.path.back().header.stamp).seconds() << std::endl
+      << "query time     : " << t.seconds());
     *lerped_pt = path.path.front().pose.pose;
     return false;
   }
 
   if (t > path.path.back().header.stamp) {
-    ROS_DEBUG_STREAM(
+    RCLCPP_DEBUG_STREAM(logger,
       "failed to interpolate path by time!"
       << std::endl
-      << "path start time: " << path.path.front().header.stamp << std::endl
-      << "path end time  : " << path.path.back().header.stamp << std::endl
-      << "query time     : " << t);
+      << "path start time: " << rclcpp::Time(path.path.front().header.stamp).seconds() << std::endl
+      << "path end time  : " << rclcpp::Time(path.path.back().header.stamp).seconds() << std::endl
+      << "query time     : " << t.seconds());
     *lerped_pt = path.path.back().pose.pose;
 
     return false;
@@ -376,15 +379,15 @@ bool lerpByTimeStamp(
     const auto & pt = path.path.at(i);
     const auto & prev_pt = path.path.at(i - 1);
     if (t <= pt.header.stamp) {
-      const ros::Duration duration = safeSubtraction(pt.header.stamp, prev_pt.header.stamp);
+      const rclcpp::Duration duration = safeSubtraction(pt.header.stamp, prev_pt.header.stamp);
       const auto offset = t - prev_pt.header.stamp;
-      const auto ratio = offset.toSec() / duration.toSec();
+      const auto ratio = offset.seconds() / duration.seconds();
       *lerped_pt = lerpByPose(prev_pt.pose.pose, pt.pose.pose, ratio);
       return true;
     }
   }
 
-  ROS_ERROR_STREAM("Something failed in function: " << __func__);
+  RCLCPP_ERROR_STREAM(logger, "Something failed in function: " << __func__);
   return false;
 }
 
@@ -395,12 +398,12 @@ double getDistance3d(const geometry_msgs::msg::Point & p1, const geometry_msgs::
 
 double getDistanceBetweenPredictedPaths(
   const PredictedPath & object_path, const PredictedPath & ego_path, const double start_time,
-  const double end_time, const double resolution)
+  const double end_time, const double resolution, const rclcpp::Clock::SharedPtr & clock)
 {
-  ros::Duration t_delta(resolution);
+  rclcpp::Duration t_delta(resolution);
   double min_distance = std::numeric_limits<double>::max();
-  rclcpp::Time ros_start_time = ros::Time::now() + ros::Duration(start_time);
-  rclcpp::Time ros_end_time = ros::Time::now() + ros::Duration(end_time);
+  rclcpp::Time ros_start_time = clock->now() + rclcpp::Duration(start_time);
+  rclcpp::Time ros_end_time = clock->now() + rclcpp::Duration(end_time);
   const auto ego_path_point_array = convertToGeometryPointArray(ego_path);
   for (auto t = ros_start_time; t < ros_end_time; t += t_delta) {
     geometry_msgs::msg::Pose object_pose, ego_pose;
@@ -420,12 +423,13 @@ double getDistanceBetweenPredictedPaths(
 
 double getDistanceBetweenPredictedPathAndObject(
   const autoware_perception_msgs::msg::DynamicObject & object, const PredictedPath & ego_path,
-  const double start_time, const double end_time, const double resolution)
+  const double start_time, const double end_time, const double resolution,
+  const rclcpp::Clock::SharedPtr & clock)
 {
-  ros::Duration t_delta(resolution);
+  rclcpp::Duration t_delta(resolution);
   double min_distance = std::numeric_limits<double>::max();
-  rclcpp::Time ros_start_time = ros::Time::now() + ros::Duration(start_time);
-  rclcpp::Time ros_end_time = ros::Time::now() + ros::Duration(end_time);
+  rclcpp::Time ros_start_time = clock->now() + rclcpp::Duration(start_time);
+  rclcpp::Time ros_end_time = clock->now() + rclcpp::Duration(end_time);
   const auto ego_path_point_array = convertToGeometryPointArray(ego_path);
   Polygon obj_polygon;
   if (!calcObjectPolygon(object, &obj_polygon)) {
@@ -533,7 +537,8 @@ std::vector<size_t> filterObjectsByLanelets(
 }
 
 bool calcObjectPolygon(
-  const autoware_perception_msgs::msg::DynamicObject & object, Polygon * object_polygon)
+  const autoware_perception_msgs::msg::DynamicObject & object, Polygon * object_polygon,
+  const rclcpp::Logger & logger)
 {
   const double obj_x = object.state.pose_covariance.pose.position.x;
   const double obj_y = object.state.pose_covariance.pose.position.y;
@@ -593,7 +598,7 @@ bool calcObjectPolygon(
       object_polygon->outer().push_back(Point(obj_point.x, obj_point.y));
     }
   } else {
-    ROS_WARN("Object shape unknown!");
+    RCLCPP_WARN(logger, "Object shape unknown!");
     return false;
   }
   object_polygon->outer().push_back(object_polygon->outer().front());
@@ -656,7 +661,8 @@ bool exists(std::vector<T> vec, T element)
 
 bool setGoal(
   const double search_radius_range, const double search_rad_range, const PathWithLaneId & input,
-  const geometry_msgs::msg::Pose & goal, const int64_t goal_lane_id, PathWithLaneId * output_ptr)
+  const geometry_msgs::msg::Pose & goal, const int64_t goal_lane_id, PathWithLaneId * output_ptr,
+  const rclcpp::Logger & logger)
 {
   try {
     if (input.points.empty()) {
@@ -670,7 +676,6 @@ bool setGoal(
       for (size_t i = 0; i < input.points.size(); ++i) {
         const double x = input.points.at(i).point.pose.position.x - goal.position.x;
         const double y = input.points.at(i).point.pose.position.y - goal.position.y;
-        const double z = input.points.at(i).point.pose.position.z - goal.position.z;
         const double dist = sqrt(x * x + y * y);
         if (
           dist < search_radius_range && dist < min_dist &&
@@ -687,10 +692,9 @@ bool setGoal(
 
     size_t min_dist_out_of_range_index;
     {
-      for (size_t i = min_dist_index; 0 <= i; --i) {
+      for (int i = min_dist_index; 0 <= i; --i) {
         const double x = input.points.at(i).point.pose.position.x - goal.position.x;
         const double y = input.points.at(i).point.pose.position.y - goal.position.y;
-        const double z = input.points.at(i).point.pose.position.z - goal.position.z;
         goal_z = input.points.at(i).point.pose.position.z;
         const double dist = sqrt(x * x + y * y);
         min_dist_out_of_range_index = i;
@@ -731,7 +735,7 @@ bool setGoal(
     output_ptr->drivable_area = input.drivable_area;
     return true;
   } catch (std::out_of_range & ex) {
-    ROS_ERROR_STREAM("failed to set goal" << ex.what() << std::endl);
+    RCLCPP_ERROR_STREAM(logger, "failed to set goal" << ex.what() << std::endl);
     return false;
   }
 }
@@ -778,7 +782,7 @@ const geometry_msgs::msg::Pose refineGoal(
 
 PathWithLaneId refinePath(
   const double search_radius_range, const double search_rad_range, const PathWithLaneId & input,
-  const geometry_msgs::msg::Pose & goal, const int64_t goal_lane_id)
+  const geometry_msgs::msg::Pose & goal, const int64_t goal_lane_id, const rclcpp::Logger & logger)
 {
   PathWithLaneId filtered_path, path_with_goal;
   filtered_path = removeOverlappingPoints(input);
@@ -790,7 +794,7 @@ PathWithLaneId refinePath(
 
   if (setGoal(
         search_radius_range, search_rad_range, filtered_path, goal, goal_lane_id,
-        &path_with_goal)) {
+        &path_with_goal, logger)) {
     return path_with_goal;
   } else {
     return filtered_path;
@@ -1110,7 +1114,7 @@ autoware_planning_msgs::msg::PathPointWithLaneId insertStopPoint(
   double accumulated_length = 0;
   double insert_idx = 0;
   geometry_msgs::msg::Pose stop_pose;
-  for (int i = 1; i < path->points.size(); i++) {
+  for (size_t i = 1; i < path->points.size(); i++) {
     const auto prev_pose = path->points.at(i - 1).point.pose;
     const auto curr_pose = path->points.at(i).point.pose;
     const double segment_length = getDistance3d(prev_pose.position, curr_pose.position);
@@ -1128,7 +1132,7 @@ autoware_planning_msgs::msg::PathPointWithLaneId insertStopPoint(
   stop_point.point.pose = stop_pose;
   stop_point.point.type = path->points.at(insert_idx).point.type;
   path->points.insert(path->points.begin() + insert_idx, stop_point);
-  for (int i = insert_idx; i < path->points.size(); i++) {
+  for (size_t i = insert_idx; i < path->points.size(); i++) {
     geometry_msgs::msg::Twist zero_velocity;
     path->points.at(insert_idx).point.twist = zero_velocity;
   }
@@ -1253,7 +1257,9 @@ double getDistanceToNearestObstaclePolygon(
 /*
  * spline interpolation
  */
-SplineInterpolate::SplineInterpolate() {}
+SplineInterpolate::SplineInterpolate(const rclcpp::Logger & logger) : logger_(logger)
+{
+}
 
 void SplineInterpolate::generateSpline(
   const std::vector<double> & base_index, const std::vector<double> & base_value)
@@ -1268,7 +1274,7 @@ void SplineInterpolate::generateSpline(
 
   a_ = base_value;
 
-  for (size_t i = 0; i < N - 1; ++i) {
+  for (int i = 0; i < N - 1; ++i) {
     h_.push_back(base_index[i + 1] - base_index[i]);
   }
 
@@ -1283,7 +1289,7 @@ void SplineInterpolate::generateSpline(
   b_.push_back(0.0);
 
   initialized_ = true;
-};
+}
 
 double SplineInterpolate::getValue(
   const double & query, const std::vector<double> & base_index) const
@@ -1325,7 +1331,7 @@ bool SplineInterpolate::isIncrease(const std::vector<double> & x) const
     if (x[i] > x[i + 1]) return false;
   }
   return true;
-};
+}
 
 bool SplineInterpolate::isValidInput(
   const std::vector<double> & base_index, const std::vector<double> & base_value,
@@ -1383,7 +1389,7 @@ std::vector<double> SplineInterpolate::solveLinearSystem(
     ++num_iter;
   }
 
-  if (num_iter > max_iter) ROS_WARN("[interpolate] unconverged!");
+  if (num_iter > max_iter) { RCLCPP_WARN(logger_, "[interpolate] unconverged!"); }
   return ans_next;
 }
 
@@ -1399,5 +1405,3 @@ bool SplineInterpolate::isConvergeL1(
 
 }  // namespace util
 }  // namespace lane_change_planner
-
-#endif  // ROS2PORTING

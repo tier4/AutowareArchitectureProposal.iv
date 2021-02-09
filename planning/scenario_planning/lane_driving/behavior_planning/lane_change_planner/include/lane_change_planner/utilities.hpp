@@ -179,9 +179,10 @@ class SplineInterpolate
   std::vector<double> c_;
   std::vector<double> d_;
   std::vector<double> h_;
+  rclcpp::Logger logger_;
 
 public:
-  SplineInterpolate();
+  SplineInterpolate(const rclcpp::Logger & logger);
   bool interpolate(
     const std::vector<double> & base_index, const std::vector<double> & base_value,
     const std::vector<double> & return_index, std::vector<double> & return_value);

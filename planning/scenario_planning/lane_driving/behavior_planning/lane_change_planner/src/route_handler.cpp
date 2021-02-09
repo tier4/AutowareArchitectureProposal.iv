@@ -120,7 +120,7 @@ PathWithLaneId combineReferencePath(
       inner_s.push_back(d);
     }
 
-    lane_change_planner::util::SplineInterpolate spline;
+    lane_change_planner::util::SplineInterpolate spline(logger);
     std::vector<PathPointWithLaneId> inner_points;
     std::vector<double> inner_x;
     std::vector<double> inner_y;
