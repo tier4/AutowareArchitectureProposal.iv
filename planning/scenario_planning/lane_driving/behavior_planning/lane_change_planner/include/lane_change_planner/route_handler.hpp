@@ -78,8 +78,8 @@ public:
     const lanelet::routing::RoutingGraphPtr & routing_graph, const lanelet::routing::Route & route);
   bool isHandlerReady();
 
-  void mapCallback(const autoware_lanelet2_msgs::msg::MapBin & map_msg);
-  void routeCallback(const autoware_planning_msgs::msg::Route & route_msg);
+  void mapCallback(const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr map_msg);
+  void routeCallback(const autoware_planning_msgs::msg::Route::ConstSharedPtr route_msg);
 
   bool getPreviousLaneletWithinRoute(
     const lanelet::ConstLanelet & lanelet, lanelet::ConstLanelet * prev_lanelet) const;

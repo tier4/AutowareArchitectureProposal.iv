@@ -87,12 +87,12 @@ public:
   ~DataManager() = default;
 
   // callbacks
-  void perceptionCallback(
-    const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & input_perception_msg);
-  void velocityCallback(const geometry_msgs::msg::TwistStamped::ConstSharedPtr & input_twist_msg);
+  void perceptionCallback(const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_perception_msg);
+  void velocityCallback(const geometry_msgs::msg::TwistStamped::ConstSharedPtr input_twist_msg);
+  void laneChangeApprovalCallback(const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg);
+  void forceLaneChangeSignalCallback(const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg);
+
   void setLaneChangerParameters(const LaneChangerParameters & parameters);
-  void laneChangeApprovalCallback(const std_msgs::msg::Bool & input_approval_msg);
-  void forceLaneChangeSignalCallback(const std_msgs::msg::Bool & input_approval_msg);
 
   // getters
   autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr getDynamicObjects();

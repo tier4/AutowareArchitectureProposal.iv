@@ -41,7 +41,7 @@ void StateMachine::init()
   state_obj_ptr_->entry();
 }
 
-void StateMachine::init(const autoware_planning_msgs::msg::Route & route) { init(); }
+void StateMachine::initCallback(const autoware_planning_msgs::msg::Route & route) { init(); }
 
 void StateMachine::updateState()
 {

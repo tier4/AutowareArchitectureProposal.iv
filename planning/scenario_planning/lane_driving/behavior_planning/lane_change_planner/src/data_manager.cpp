@@ -27,13 +27,13 @@ DataManager::DataManager()
 }
 
 void DataManager::perceptionCallback(
-  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & input_perception_msg_ptr)
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_perception_msg_ptr)
 {
   perception_ptr_ = input_perception_msg_ptr;
 }
 
 void DataManager::velocityCallback(
-  const geometry_msgs::msg::TwistStamped::ConstSharedPtr & input_twist_msg_ptr)
+  const geometry_msgs::msg::TwistStamped::ConstSharedPtr input_twist_msg_ptr)
 {
   vehicle_velocity_ptr_ = input_twist_msg_ptr;
 }
