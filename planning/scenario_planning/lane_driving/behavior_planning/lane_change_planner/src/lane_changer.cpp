@@ -42,6 +42,8 @@ void LaneChanger::init()
   // data_manager
   data_manager_ptr_ = std::make_shared<DataManager>(get_logger(), get_clock());
   route_handler_ptr_ = std::make_shared<RouteHandler>(get_logger());
+
+  // subscription
   velocity_subscriber_ = create_subscription<geometry_msgs::msg::TwistStamped>(
     "input/velocity", rclcpp::QoS{1}, std::bind(&DataManager::velocityCallback, data_manager_ptr_, std::placeholders::_1));
   perception_subscriber_ = create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
@@ -120,7 +122,7 @@ void LaneChanger::init()
   waitForData();
 
   // set state_machine
-  state_machine_ptr_ = std::make_shared<StateMachine>(data_manager_ptr_, route_handler_ptr_);
+  state_machine_ptr_ = std::make_shared<StateMachine>(data_manager_ptr_, route_handler_ptr_, get_logger());
   state_machine_ptr_->init();
   route_init_subscriber_ = create_subscription<autoware_planning_msgs::msg::Route>(
     "input/route", rclcpp::QoS{1}, std::bind(&StateMachine::initCallback, state_machine_ptr_, std::placeholders::_1));

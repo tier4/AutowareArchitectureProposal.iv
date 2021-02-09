@@ -70,7 +70,7 @@ private:
   lanelet::ConstLanelets start_lanelets_;
   lanelet::ConstLanelets goal_lanelets_;
 
-  rclcpp::Logger logger_;
+  const rclcpp::Logger logger_;
 
   void setRouteLanelets();
 

@@ -23,13 +23,13 @@
 #include <lane_change_planner/state_machine.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 StateMachine::StateMachine(
   const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr)
-: data_manager_ptr_(data_manager_ptr), route_handler_ptr_(route_handler_ptr)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr,
+  const rclcpp::Logger & logger)
+: data_manager_ptr_(data_manager_ptr), route_handler_ptr_(route_handler_ptr), logger_(logger)
 {
 }
 
@@ -41,7 +41,10 @@ void StateMachine::init()
   state_obj_ptr_->entry();
 }
 
-void StateMachine::initCallback(const autoware_planning_msgs::msg::Route & route) { init(); }
+void StateMachine::initCallback(const autoware_planning_msgs::msg::Route::ConstSharedPtr route)
+{
+  init();
+}
 
 void StateMachine::updateState()
 {
@@ -52,7 +55,7 @@ void StateMachine::updateState()
 
   // Transit to next state
   if (next_state != current_state) {
-    ROS_INFO_STREAM("changing state: " << current_state << " => " << next_state);
+    RCLCPP_INFO_STREAM(logger_, "changing state: " << current_state << " => " << next_state);
     const auto previous_status = state_obj_ptr_->getStatus();
     switch (next_state) {
       case State::FOLLOWING_LANE:
@@ -79,6 +82,8 @@ void StateMachine::updateState()
         state_obj_ptr_ = std::make_unique<BlockedByObstacleState>(
           previous_status, data_manager_ptr_, route_handler_ptr_);
         break;
+      case State::NO_STATE:
+        break;
     }
     state_obj_ptr_->entry();
     state_obj_ptr_->update();
@@ -95,5 +100,3 @@ DebugData StateMachine::getDebugData() const { return state_obj_ptr_->getDebugDa
 State StateMachine::getState() const { return state_obj_ptr_->getCurrentState(); }
 
 }  // namespace lane_change_planner
-
-#endif  // ROS2PORTING
