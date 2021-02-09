@@ -39,7 +39,7 @@ public:
   StateMachine(
     const std::shared_ptr<DataManager> & data_manager_ptr,
     const std::shared_ptr<RouteHandler> & route_handler_ptr,
-    const rclcpp::Logger & logger);
+    const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
   void init();
   void initCallback(const autoware_planning_msgs::msg::Route::ConstSharedPtr route);
   void updateState();
@@ -53,6 +53,7 @@ private:
   std::shared_ptr<DataManager> data_manager_ptr_;
   std::shared_ptr<RouteHandler> route_handler_ptr_;
   const rclcpp::Logger logger_;
+  const rclcpp::Clock::SharedPtr clock_;
 };
 }  // namespace lane_change_planner
 

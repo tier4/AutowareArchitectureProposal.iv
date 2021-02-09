@@ -61,12 +61,15 @@ class StateBase
 protected:
   StateBase(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-    const std::shared_ptr<RouteHandler> & route_handler_ptr);
+    const std::shared_ptr<RouteHandler> & route_handler_ptr,
+    const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
   Status status_;
   LaneChangerParameters ros_parameters_;
   std::shared_ptr<DataManager> data_manager_ptr_;
   std::shared_ptr<RouteHandler> route_handler_ptr_;
   DebugData debug_data_;
+  const rclcpp::Logger logger_;
+  const rclcpp::Clock::SharedPtr clock_;
 
 public:
   virtual void entry() = 0;

@@ -22,13 +22,13 @@
 #include <lanelet2_extension/utility/message_conversion.hpp>
 #include <lanelet2_extension/utility/utilities.hpp>
 
-#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 FollowingLaneState::FollowingLaneState(
   const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr)
-: StateBase(status, data_manager_ptr, route_handler_ptr)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: StateBase(status, data_manager_ptr, route_handler_ptr, logger, clock)
 {
 }
 
@@ -66,7 +66,7 @@ void FollowingLaneState::update()
   // update lanes
   {
     if (!route_handler_ptr_->getClosestLaneletWithinRoute(current_pose_.pose, &current_lane)) {
-      ROS_ERROR("failed to find closest lanelet within route!!!");
+      RCLCPP_ERROR(logger_, "failed to find closest lanelet within route!!!");
       return;
     }
     current_lanes_ = route_handler_ptr_->getLaneletSequence(
@@ -87,9 +87,6 @@ void FollowingLaneState::update()
   // update lane_follow_path
   {
     constexpr double check_distance = 100.0;
-    const double lane_change_prepare_duration = ros_parameters_.lane_change_prepare_duration;
-    const double lane_changing_duration = ros_parameters_.lane_changing_duration;
-    const double minimum_lane_change_length = ros_parameters_.minimum_lane_change_length;
     status_.lane_follow_path = route_handler_ptr_->getReferencePath(
       current_lanes_, current_pose_.pose, backward_path_length, forward_path_length,
       ros_parameters_);
@@ -160,7 +157,7 @@ void FollowingLaneState::update()
 State FollowingLaneState::getNextState() const
 {
   if (current_lanes_.empty()) {
-    ROS_ERROR_THROTTLE(1, "current lanes empty. Keeping state.");
+    RCLCPP_ERROR_THROTTLE(logger_, *clock_, 1000, "current lanes empty. Keeping state.");
     return State::FOLLOWING_LANE;
   }
   if (ros_parameters_.enable_blocked_by_obstacle) {
@@ -193,7 +190,7 @@ bool FollowingLaneState::isLaneBlocked(const lanelet::ConstLanelets & lanes) con
     lanelet::utils::getPolygonFromArcLength(lanes, arc.length, arc.length + check_distance);
 
   if (polygon.size() < 3) {
-    ROS_WARN_STREAM(
+    RCLCPP_WARN_STREAM(logger_,
       "could not get polygon from lanelet with arc lengths: " << arc.length << " to "
                                                               << arc.length + check_distance);
     return false;
@@ -237,5 +234,3 @@ bool FollowingLaneState::isLaneChangeReady() const { return status_.lane_change_
 bool FollowingLaneState::isLaneChangeAvailable() const { return status_.lane_change_available; }
 
 }  // namespace lane_change_planner
-
-#endif  // ROS2PORTING

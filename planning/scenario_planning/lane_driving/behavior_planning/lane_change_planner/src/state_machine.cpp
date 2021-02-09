@@ -28,8 +28,8 @@ namespace lane_change_planner
 StateMachine::StateMachine(
   const std::shared_ptr<DataManager> & data_manager_ptr,
   const std::shared_ptr<RouteHandler> & route_handler_ptr,
-  const rclcpp::Logger & logger)
-: data_manager_ptr_(data_manager_ptr), route_handler_ptr_(route_handler_ptr), logger_(logger)
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: data_manager_ptr_(data_manager_ptr), route_handler_ptr_(route_handler_ptr), logger_(logger), clock_(clock)
 {
 }
 
@@ -37,7 +37,7 @@ void StateMachine::init()
 {
   Status empty_status;
   state_obj_ptr_ =
-    std::make_unique<FollowingLaneState>(empty_status, data_manager_ptr_, route_handler_ptr_);
+    std::make_unique<FollowingLaneState>(empty_status, data_manager_ptr_, route_handler_ptr_, logger_, clock_);
   state_obj_ptr_->entry();
 }
 
@@ -60,7 +60,7 @@ void StateMachine::updateState()
     switch (next_state) {
       case State::FOLLOWING_LANE:
         state_obj_ptr_ = std::make_unique<FollowingLaneState>(
-          previous_status, data_manager_ptr_, route_handler_ptr_);
+          previous_status, data_manager_ptr_, route_handler_ptr_, logger_, clock_);
         break;
       case State::EXECUTING_LANE_CHANGE:
         state_obj_ptr_ = std::make_unique<ExecutingLaneChangeState>(

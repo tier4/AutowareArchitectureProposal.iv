@@ -16,7 +16,6 @@
 
 #include <lane_change_planner/state/state_base_class.hpp>
 
-#ifdef ROS2PORTING
 namespace lane_change_planner
 {
 std::ostream & operator<<(std::ostream & ostream, const State & state)
@@ -52,13 +51,12 @@ std::ostream & operator<<(std::ostream & ostream, const State & state)
 
 StateBase::StateBase(
   const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr)
-: data_manager_ptr_(data_manager_ptr), route_handler_ptr_(route_handler_ptr), status_(status)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: status_(status), data_manager_ptr_(data_manager_ptr), route_handler_ptr_(route_handler_ptr), logger_(logger), clock_(clock)
 {
 }
 
 Status StateBase::getStatus() const { return status_; }
 DebugData StateBase::getDebugData() const { return debug_data_; }
 }  // namespace lane_change_planner
-
-#endif  // ROS2PORTING
