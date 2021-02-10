@@ -1,20 +1,19 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-#pragma once
+#ifndef LANE_DEPARTURE_CHECKER__LANE_DEPARTURE_CHECKER_HPP_
+#define LANE_DEPARTURE_CHECKER__LANE_DEPARTURE_CHECKER_HPP_
 
 #include <map>
 #include <string>
@@ -81,13 +80,14 @@ class LaneDepartureChecker
 public:
   Output update(const Input & input);
 
-  void setParam(const Param & param) { param_ = param; }
+  void setParam(const Param & param) {param_ = param;}
 
 private:
   Param param_;
 
   static PoseDeviation calcTrajectoryDeviation(
-    const autoware_planning_msgs::msg::Trajectory & trajectory, const geometry_msgs::msg::Pose & pose);
+    const autoware_planning_msgs::msg::Trajectory & trajectory,
+    const geometry_msgs::msg::Pose & pose);
 
   //! This function assumes the input trajectory is sampled dense enough
   static autoware_planning_msgs::msg::Trajectory resampleTrajectory(
@@ -113,3 +113,5 @@ private:
     const lanelet::ConstLanelets & candidate_lanelets, const LinearRing2d & vehicle_footprint);
 };
 }  // namespace lane_departure_checker
+
+#endif  // LANE_DEPARTURE_CHECKER__LANE_DEPARTURE_CHECKER_HPP_

@@ -1,18 +1,21 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "lane_departure_checker/lane_departure_checker_node.hpp"
 
@@ -27,7 +30,8 @@ using autoware_utils::rad2deg;
 
 namespace
 {
-std::array<geometry_msgs::msg::Point, 3> triangle2points(const geometry_msgs::msg::Polygon & triangle)
+std::array<geometry_msgs::msg::Point, 3> triangle2points(
+  const geometry_msgs::msg::Polygon & triangle)
 {
   std::array<geometry_msgs::msg::Point, 3> points;
   for (size_t i = 0; i < 3; ++i) {
@@ -55,7 +59,8 @@ lanelet::ConstLanelets getRouteLanelets(
 
     for (const auto & lane_id : route_sections.front().lane_ids) {
       for (const auto & lanelet_sequence : lanelet::utils::query::getPrecedingLaneletSequences(
-             routing_graph, lanelet_map.laneletLayer.get(lane_id), extention_length)) {
+          routing_graph, lanelet_map.laneletLayer.get(lane_id), extention_length))
+      {
         for (const auto & preceding_lanelet : lanelet_sequence) {
           route_lanelets.push_back(preceding_lanelet);
         }
@@ -75,7 +80,8 @@ lanelet::ConstLanelets getRouteLanelets(
 
     for (const auto & lane_id : route_sections.back().lane_ids) {
       for (const auto & lanelet_sequence : lanelet::utils::query::getSucceedingLaneletSequences(
-             routing_graph, lanelet_map.laneletLayer.get(lane_id), extention_length)) {
+          routing_graph, lanelet_map.laneletLayer.get(lane_id), extention_length))
+      {
         for (const auto & succeeding_lanelet : lanelet_sequence) {
           route_lanelets.push_back(succeeding_lanelet);
         }
@@ -86,12 +92,13 @@ lanelet::ConstLanelets getRouteLanelets(
   return route_lanelets;
 }
 
-template <typename T>
+template<typename T>
 void update_param(
   const std::vector<rclcpp::Parameter> & parameters, const std::string & name, T & value)
 {
-  auto it = std::find_if(parameters.cbegin(), parameters.cend(),
-    [&name](const rclcpp::Parameter & parameter) { return parameter.get_name() == name; });
+  auto it = std::find_if(
+    parameters.cbegin(), parameters.cend(),
+    [&name](const rclcpp::Parameter & parameter) {return parameter.get_name() == name;});
   if (it != parameters.cend()) {
     value = it->template get_value<T>();
   }
@@ -123,7 +130,7 @@ LaneDepartureCheckerNode::LaneDepartureCheckerNode(const rclcpp::NodeOptions & o
   param_.vehicle_info.wheel_tread = i.wheel_tread_m_;
   param_.vehicle_info.front_overhang = i.front_overhang_m_;
   param_.vehicle_info.rear_overhang = i.rear_overhang_m_;
-  param_.vehicle_info.left_overhang  = i.left_overhang_m_;
+  param_.vehicle_info.left_overhang = i.left_overhang_m_;
   param_.vehicle_info.right_overhang = i.right_overhang_m_;
   param_.vehicle_info.vehicle_height = i.vehicle_height_m_;
   param_.vehicle_info.vehicle_length = i.vehicle_length_m_;
@@ -159,9 +166,11 @@ LaneDepartureCheckerNode::LaneDepartureCheckerNode(const rclcpp::NodeOptions & o
   sub_route_ = this->create_subscription<autoware_planning_msgs::msg::Route>(
     "input/route", 1, std::bind(&LaneDepartureCheckerNode::onRoute, this, _1));
   sub_reference_trajectory_ = this->create_subscription<autoware_planning_msgs::msg::Trajectory>(
-    "input/reference_trajectory", 1,std::bind(&LaneDepartureCheckerNode::onReferenceTrajectory, this, _1));
+    "input/reference_trajectory", 1,
+    std::bind(&LaneDepartureCheckerNode::onReferenceTrajectory, this, _1));
   sub_predicted_trajectory_ = this->create_subscription<autoware_planning_msgs::msg::Trajectory>(
-    "input/predicted_trajectory", 1, std::bind(&LaneDepartureCheckerNode::onPredictedTrajectory, this, _1));
+    "input/predicted_trajectory", 1,
+    std::bind(&LaneDepartureCheckerNode::onPredictedTrajectory, this, _1));
 
   // Publisher
   // Nothing
@@ -194,7 +203,8 @@ void LaneDepartureCheckerNode::onTwist(const geometry_msgs::msg::TwistStamped::C
   current_twist_ = msg;
 }
 
-void LaneDepartureCheckerNode::onLaneletMapBin(const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr msg)
+void LaneDepartureCheckerNode::onLaneletMapBin(
+  const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr msg)
 {
   lanelet_map_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(*msg, lanelet_map_, &traffif_rules_, &routing_graph_);
@@ -311,7 +321,8 @@ void LaneDepartureCheckerNode::onTimer()
     debug_publisher_.publish<std_msgs::msg::Float64>("deviation/yaw_deg", rad2deg(deviation.yaw));
   }
 
-  debug_publisher_.publish<visualization_msgs::msg::MarkerArray>(std::string("marker_array"), createMarkerArray());
+  debug_publisher_.publish<visualization_msgs::msg::MarkerArray>(
+    std::string("marker_array"), createMarkerArray());
 
   processing_time_publisher_.publish(output_.processing_time_map);
 }
@@ -457,7 +468,8 @@ visualization_msgs::msg::MarkerArray LaneDepartureCheckerNode::createMarkerArray
     // Line of resampled_trajectory
     {
       auto marker = createDefaultMarker(
-        "map", this->now(), "resampled_trajectory_line", 0, visualization_msgs::msg::Marker::LINE_STRIP,
+        "map", this->now(), "resampled_trajectory_line", 0,
+        visualization_msgs::msg::Marker::LINE_STRIP,
         createMarkerScale(0.05, 0, 0), createMarkerColor(1.0, 1.0, 1.0, 0.999));
 
       for (const auto & p : output_.resampled_trajectory.points) {
@@ -471,7 +483,8 @@ visualization_msgs::msg::MarkerArray LaneDepartureCheckerNode::createMarkerArray
     // Points of resampled_trajectory
     {
       auto marker = createDefaultMarker(
-        "map", this->now(), "resampled_trajectory_points", 0, visualization_msgs::msg::Marker::SPHERE_LIST,
+        "map", this->now(), "resampled_trajectory_points", 0,
+        visualization_msgs::msg::Marker::SPHERE_LIST,
         createMarkerScale(0.1, 0.1, 0.1), createMarkerColor(0.0, 1.0, 0.0, 0.999));
 
       for (const auto & p : output_.resampled_trajectory.points) {
@@ -498,7 +511,8 @@ visualization_msgs::msg::MarkerArray LaneDepartureCheckerNode::createMarkerArray
     }
 
     auto marker = createDefaultMarker(
-      "map", this->now(), "vehicle_footprints", 0, visualization_msgs::msg::Marker::LINE_LIST,
+      "map", this->now(), "vehicle_footprints", 0,
+      visualization_msgs::msg::Marker::LINE_LIST,
       createMarkerScale(0.05, 0, 0), color);
 
     for (const auto & vehicle_footprint : output_.vehicle_footprints) {
