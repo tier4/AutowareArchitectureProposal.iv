@@ -155,7 +155,7 @@ void MPCFollower::onTimer(const ros::TimerEvent & te)
     }
     // Use previous command value as previous raw steer command
     raw_steer_cmd_prev_ = ctrl_cmd_prev_.steering_angle;
-    
+
     publishCtrlCmd(ctrl_cmd_prev_);
     return;
   }
@@ -275,8 +275,9 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::ControlCommand * ctrl_cmd)
       const double yaw = traj.yaw[i] + yaw_error;
       const double vx = traj.vx[i];
       const double k = traj.k[i];
+      const double smooth_k = traj.smooth_k[i];
       const double relative_time = traj.relative_time[i];
-      mpc_predicted_traj.push_back(x, y, z, yaw, vx, k, relative_time);
+      mpc_predicted_traj.push_back(x, y, z, yaw, vx, k, smooth_k, relative_time);
     }
 
     autoware_planning_msgs::Trajectory predicted_traj;
@@ -558,7 +559,7 @@ MPCTrajectory MPCFollower::applyVelocityDynamicsFilter(const MPCTrajectory & inp
   output.vx.back() = v_end;  // set for end point
   output.push_back(
     output.x.back(), output.y.back(), output.z.back(), output.yaw.back(), v_end, output.k.back(),
-    t_end);
+    output.smooth_k.back(), t_end);
   return output;
 }
 
@@ -608,6 +609,7 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
 
     // curvature will be 0 when vehicle stops
     const double ref_k = reference_trajectory.k[i] * sign_vx_;
+    const double ref_smooth_k = reference_trajectory.smooth_k[i] * sign_vx_;
 
     /* get discrete state matrix A, B, C, W */
     vehicle_model_ptr_->setVelocity(ref_vx);
@@ -653,6 +655,7 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
     m.R1ex.block(idx_u_i, idx_u_i, DIM_U, DIM_U) = R_adaptive;
 
     /* get reference input (feed-forward) */
+    vehicle_model_ptr_->setCurvature(ref_smooth_k);
     vehicle_model_ptr_->calculateReferenceInput(Uref);
     if (std::fabs(Uref(0, 0)) < DEG2RAD * mpc_param_.zero_ff_steer_deg) {
       Uref(0, 0) = 0.0;  // ignore curvature noise
@@ -905,7 +908,9 @@ void MPCFollower::onTrajectory(const autoware_planning_msgs::Trajectory::ConstPt
     const double t_end = t.relative_time.back() + getPredictionTime() + t_ext;
     const double v_end = 0.0;
     t.vx.back() = v_end;  // set for end point
-    t.push_back(t.x.back(), t.y.back(), t.z.back(), t.yaw.back(), v_end, t.k.back(), t_end);
+    t.push_back(
+      t.x.back(), t.y.back(), t.z.back(), t.yaw.back(), v_end, t.k.back(), t.smooth_k.back(),
+      t_end);
   }
 
   if (!mpc_traj_smoothed.size()) {

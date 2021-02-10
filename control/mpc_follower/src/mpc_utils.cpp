@@ -132,6 +132,8 @@ bool MPCUtils::resampleMPCTrajectoryByDistance(
     !spline_interp.interpolate(input_arclength, input_yaw, output_arclength, output->yaw) ||
     !linear_interp.interpolate(input_arclength, input.vx, output_arclength, output->vx) ||
     !spline_interp.interpolate(input_arclength, input.k, output_arclength, output->k) ||
+    !spline_interp.interpolate(
+      input_arclength, input.smooth_k, output_arclength, output->smooth_k) ||
     !linear_interp.interpolate(
       input_arclength, input.relative_time, output_arclength, output->relative_time)) {
     std::cerr << "linearInterpMPCTrajectory error!" << std::endl;
@@ -165,6 +167,7 @@ bool MPCUtils::linearInterpMPCTrajectory(
     !linear_interp.interpolate(in_index, in_traj_yaw, out_index, out_traj->yaw) ||
     !linear_interp.interpolate(in_index, in_traj.vx, out_index, out_traj->vx) ||
     !linear_interp.interpolate(in_index, in_traj.k, out_index, out_traj->k) ||
+    !linear_interp.interpolate(in_index, in_traj.smooth_k, out_index, out_traj->smooth_k) ||
     !linear_interp.interpolate(
       in_index, in_traj.relative_time, out_index, out_traj->relative_time)) {
     std::cerr << "linearInterpMPCTrajectory error!" << std::endl;
@@ -202,7 +205,8 @@ bool MPCUtils::splineInterpMPCTrajectory(
     !spline_interp.interpolate(in_index, in_traj.z, out_index, out_traj->z) ||
     !spline_interp.interpolate(in_index, in_traj_yaw, out_index, out_traj->yaw) ||
     !spline_interp.interpolate(in_index, in_traj.vx, out_index, out_traj->vx) ||
-    !spline_interp.interpolate(in_index, in_traj.k, out_index, out_traj->k)) {
+    !spline_interp.interpolate(in_index, in_traj.k, out_index, out_traj->k) ||
+    !spline_interp.interpolate(in_index, in_traj.smooth_k, out_index, out_traj->smooth_k)) {
     std::cerr << "splineInterpMPCTrajectory error!" << std::endl;
     return false;
   }
@@ -239,33 +243,40 @@ bool MPCUtils::calcTrajectoryCurvature(int curvature_smoothing_num, MPCTrajector
     return false;
   }
 
-  int traj_size = static_cast<int>(traj->x.size());
-  traj->k.clear();
-  traj->k.resize(traj_size, 0.0);
+  traj->k = calcTrajectoryCurvature(1, *traj);
+  traj->smooth_k = calcTrajectoryCurvature(curvature_smoothing_num, *traj);
+  return true;
+}
+
+std::vector<double> MPCUtils::calcTrajectoryCurvature(
+  const int curvature_smoothing_num, const MPCTrajectory & traj)
+{
+  const int traj_size = traj.x.size();
+  std::vector<double> curvature_vec(traj_size);
 
   /* calculate curvature by circle fitting from three points */
   geometry_msgs::Point p1, p2, p3;
   int max_smoothing_num = static_cast<int>(std::floor(0.5 * (traj_size - 1)));
   int L = std::min(curvature_smoothing_num, max_smoothing_num);
   for (int i = L; i < traj_size - L; ++i) {
-    p1.x = traj->x[i - L];
-    p2.x = traj->x[i];
-    p3.x = traj->x[i + L];
-    p1.y = traj->y[i - L];
-    p2.y = traj->y[i];
-    p3.y = traj->y[i + L];
+    p1.x = traj.x[i - L];
+    p2.x = traj.x[i];
+    p3.x = traj.x[i + L];
+    p1.y = traj.y[i - L];
+    p2.y = traj.y[i];
+    p3.y = traj.y[i + L];
     double den = std::max(calcDist2d(p1, p2) * calcDist2d(p2, p3) * calcDist2d(p3, p1), 0.0001);
     const double curvature =
       2.0 * ((p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x)) / den;
-    traj->k.at(i) = curvature;
+    curvature_vec.at(i) = curvature;
   }
 
   /* first and last curvature is copied from next value */
   for (int i = 0; i < std::min(L, traj_size); ++i) {
-    traj->k.at(i) = traj->k.at(std::min(L, traj_size - 1));
-    traj->k.at(traj_size - i - 1) = traj->k.at(std::max(traj_size - L - 1, 0));
+    curvature_vec.at(i) = curvature_vec.at(std::min(L, traj_size - 1));
+    curvature_vec.at(traj_size - i - 1) = curvature_vec.at(std::max(traj_size - L - 1, 0));
   }
-  return true;
+  return curvature_vec;
 }
 
 bool MPCUtils::convertToMPCTrajectory(
@@ -285,7 +296,7 @@ bool MPCUtils::convertToMPCTrajectory(
     const double vx = input.points.at(i).twist.linear.x;
     const double k = 0.0;
     const double t = 0.0;
-    output->push_back(x, y, z, yaw, vx, k, t);
+    output->push_back(x, y, z, yaw, vx, k, k, t);
   }
   calcMPCTrajectoryTime(output);
   return true;
