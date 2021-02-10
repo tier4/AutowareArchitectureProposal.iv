@@ -27,13 +27,18 @@
  * limitations under the License.
  */
 
-#include <vector>
+#ifndef PURE_PURSUIT__PURE_PURSUIT_VIZ_HPP_
+#define PURE_PURSUIT__PURE_PURSUIT_VIZ_HPP_
+
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
+#include <vector>
 
 visualization_msgs::msg::Marker createNextTargetMarker(
   const geometry_msgs::msg::Point & next_target);
 
 visualization_msgs::msg::Marker createTrajectoryCircleMarker(
   const geometry_msgs::msg::Point & target, const geometry_msgs::msg::Pose & current_pose);
+
+#endif  // PURE_PURSUIT__PURE_PURSUIT_VIZ_HPP_

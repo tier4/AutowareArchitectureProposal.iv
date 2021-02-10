@@ -11,11 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
 
-#include <string>
+#ifndef PURE_PURSUIT__UTIL__MARKER_HELPER_HPP_
+#define PURE_PURSUIT__UTIL__MARKER_HELPER_HPP_
+
 #include <rclcpp/rclcpp.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
+
+#include <string>
 
 inline geometry_msgs::msg::Point createMarkerPosition(double x, double y, double z)
 {
@@ -72,7 +75,7 @@ inline visualization_msgs::msg::Marker createDefaultMarker(
   visualization_msgs::msg::Marker marker;
 
   marker.header.frame_id = frame_id;
-//ToDo
+//  ToDo
 //  marker.header.stamp = rclcpp::Node::now();
   marker.ns = ns;
   marker.id = id;
@@ -97,3 +100,5 @@ inline void appendMarkerArray(
     marker_array->markers.push_back(marker);
   }
 }
+
+#endif  // PURE_PURSUIT__UTIL__MARKER_HELPER_HPP_

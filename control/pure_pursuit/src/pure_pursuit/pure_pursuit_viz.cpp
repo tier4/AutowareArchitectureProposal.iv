@@ -28,6 +28,8 @@
  * limitations under the License.
  */
 
+#include <vector>
+
 #include "pure_pursuit/pure_pursuit_viz.hpp"
 
 #include "pure_pursuit/util/marker_helper.hpp"

@@ -27,18 +27,19 @@
  * limitations under the License.
  */
 
-#pragma once
+#ifndef PURE_PURSUIT__PURE_PURSUIT_HPP_
+#define PURE_PURSUIT__PURE_PURSUIT_HPP_
+
+#include <rclcpp/rclcpp.hpp>
+#include <geometry_msgs/msg/pose.hpp>
 
 #include <memory>
+#include <utility>
 #include <vector>
-#include <rclcpp/rclcpp.hpp>
 
 #define EIGEN_MPL2_ONLY
 #include "Eigen/Core"
 #include "Eigen/Geometry"
-
-#include <geometry_msgs/msg/pose.hpp>
-#define PURE_PURSUIT_LOGGER "pure_pursuit"
 
 namespace planning_utils
 {
@@ -50,7 +51,7 @@ public:
   ~PurePursuit() = default;
 
 
-  rclcpp::Logger logger = rclcpp::get_logger(PURE_PURSUIT_LOGGER);
+  rclcpp::Logger logger = rclcpp::get_logger("pure_pursuit");
   // setter
   void setCurrentPose(const geometry_msgs::msg::Pose & msg);
   void setWaypoints(const std::vector<geometry_msgs::msg::Pose> & msg);
@@ -84,3 +85,5 @@ private:
 };
 
 }  // namespace planning_utils
+
+#endif  // PURE_PURSUIT__PURE_PURSUIT_HPP_

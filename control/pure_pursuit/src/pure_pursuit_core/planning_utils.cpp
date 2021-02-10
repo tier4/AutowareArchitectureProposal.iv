@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <vector>
+#include <utility>
+#include <limits>
+
 #include "pure_pursuit/util/planning_utils.hpp"
 
 namespace planning_utils

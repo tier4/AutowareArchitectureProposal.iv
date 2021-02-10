@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
+#include <vector>
+
 #include "pure_pursuit/util/interpolate.hpp"
 
 bool LinearInterpolate::interpolate(
@@ -19,7 +22,7 @@ bool LinearInterpolate::interpolate(
   const std::vector<double> & return_index, std::vector<double> & return_value)
 {
   auto isIncrease = [](const std::vector<double> & x) {
-      for (int i = 0; i < (int)x.size() - 1; ++i) {
+      for (int i = 0; i < static_cast<int>(x.size()) - 1; ++i) {
         if (x[i] > x[i + 1]) {return false;}
       }
       return true;
@@ -51,7 +54,7 @@ bool LinearInterpolate::interpolate(
       continue;
     }
     while (base_index[i] < idx) {++i;}
-    if (i <= 0 || (int)base_index.size() - 1 < i) {
+    if (i <= 0 || static_cast<int>(base_index.size()) - 1 < i) {
       std::cerr << "? something wrong. skip this idx." << std::endl;
       continue;
     }
@@ -123,7 +126,7 @@ double SplineInterpolate::getValue(const double & s)
 {
   if (!initialized_) {return 0.0;}
 
-  int j = std::max(std::min(int(std::floor(s)), (int)a_.size() - 1), 0);
+  int j = std::max(std::min(static_cast<int>(std::floor(s)), static_cast<int>(a_.size()) - 1), 0);
   const double ds = s - j;
   return a_[j] + (b_[j] + (c_[j] + d_[j] * ds) * ds) * ds;
 }
@@ -133,7 +136,7 @@ void SplineInterpolate::getValueVector(
 {
   if (!initialized_) {return;}
   value_v.clear();
-  for (int i = 0; i < (int)s_v.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(s_v.size()); ++i) {
     value_v.push_back(getValue(s_v[i]));
   }
 }
@@ -143,7 +146,7 @@ bool SplineInterpolate::interpolate(
   const std::vector<double> & return_index, std::vector<double> & return_value)
 {
   auto isIncrease = [](const std::vector<double> & x) {
-      for (int i = 0; i < (int)x.size() - 1; ++i) {
+      for (int i = 0; i < static_cast<int>(x.size()) - 1; ++i) {
         if (x[i] > x[i + 1]) {return false;}
       }
       return true;
@@ -186,7 +189,7 @@ bool SplineInterpolate::interpolate(
       continue;
     }
     while (base_index[i] < idx) {++i;}
-    if (i <= 0 || (int)base_index.size() - 1 < i) {
+    if (i <= 0 || static_cast<int>(base_index.size()) - 1 < i) {
       std::cerr << "? something wrong. skip this idx." << std::endl;
       continue;
     }
@@ -207,7 +210,7 @@ bool SplineInterpolate::interpolate(
   generateSpline(base_value);
 
   // interpolate by spline  with normalized index
-  for (int i = 0; i < (int)normalized_idx.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(normalized_idx.size()); ++i) {
     return_value.push_back(getValue(normalized_idx[i]));
   }
   return true;
