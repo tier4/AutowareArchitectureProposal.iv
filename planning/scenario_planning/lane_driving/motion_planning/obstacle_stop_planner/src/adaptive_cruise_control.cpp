@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <limits>
 #include <vector>
+#include <string>
 
 #include "boost/algorithm/clamp.hpp"
 #include "boost/assert.hpp"
@@ -124,52 +125,61 @@ AdaptiveCruiseController::AdaptiveCruiseController(
   front_overhang_(front_overhang)
 {
   // get parameter
+  std::string acc_ns = "adaptive_cruise_control.";
 
   /* config */
   param_.min_behavior_stop_margin =
     node_->get_parameter("stop_planner.min_behavior_stop_margin").as_double() + wheel_base_ +
     front_overhang_;
-  param_.use_object_to_est_vel = node_->declare_parameter("use_object_to_estimate_vel", true);
-  param_.use_pcl_to_est_vel = node_->declare_parameter("use_pcl_to_estimate_vel", true);
-  param_.consider_obj_velocity = node_->declare_parameter("consider_obj_velocity", true);
+  param_.use_object_to_est_vel =
+    node_->declare_parameter(acc_ns + "use_object_to_estimate_vel", true);
+  param_.use_pcl_to_est_vel = node_->declare_parameter(acc_ns + "use_pcl_to_estimate_vel", true);
+  param_.consider_obj_velocity = node_->declare_parameter(acc_ns + "consider_obj_velocity", true);
 
   /* parameter for acc */
   param_.obstacle_stop_velocity_thresh =
-    node_->declare_parameter("obstacle_stop_velocity_thresh", 1.0);
+    node_->declare_parameter(acc_ns + "obstacle_stop_velocity_thresh", 1.0);
   param_.emergency_stop_acceleration =
-    node_->declare_parameter("emergency_stop_acceleration", -3.5);
+    node_->declare_parameter(acc_ns + "emergency_stop_acceleration", -3.5);
   param_.obstacle_emergency_stop_acceleration =
-    node_->declare_parameter("obstacle_emergency_stop_acceleration", -5.0);
-  param_.emergency_stop_idling_time = node_->declare_parameter("emergency_stop_idling_time", 0.5);
-  param_.min_dist_stop = node_->declare_parameter("min_dist_stop", 4.0);
-  param_.max_standard_acceleration = node_->declare_parameter("max_standard_acceleration", 0.5);
-  param_.min_standard_acceleration = node_->declare_parameter("min_standard_acceleration", -1.0);
-  param_.standard_idling_time = node_->declare_parameter("standard_idling_time", 0.5);
-  param_.min_dist_standard = node_->declare_parameter("min_dist_standard", 4.0);
+    node_->declare_parameter(acc_ns + "obstacle_emergency_stop_acceleration", -5.0);
+  param_.emergency_stop_idling_time =
+    node_->declare_parameter(acc_ns + "emergency_stop_idling_time", 0.5);
+  param_.min_dist_stop = node_->declare_parameter(acc_ns + "min_dist_stop", 4.0);
+  param_.max_standard_acceleration =
+    node_->declare_parameter(acc_ns + "max_standard_acceleration", 0.5);
+  param_.min_standard_acceleration =
+    node_->declare_parameter(acc_ns + "min_standard_acceleration", -1.0);
+  param_.standard_idling_time = node_->declare_parameter(acc_ns + "standard_idling_time", 0.5);
+  param_.min_dist_standard = node_->declare_parameter(acc_ns + "min_dist_standard", 4.0);
   param_.obstacle_min_standard_acceleration =
-    node_->declare_parameter("obstacle_min_standard_acceleration", -1.5);
-  param_.margin_rate_to_change_vel = node_->declare_parameter("margin_rate_to_change_vel", 0.3);
+    node_->declare_parameter(acc_ns + "obstacle_min_standard_acceleration", -1.5);
+  param_.margin_rate_to_change_vel =
+    node_->declare_parameter(acc_ns + "margin_rate_to_change_vel", 0.3);
   param_.use_time_compensation_to_dist =
-    node_->declare_parameter("use_time_compensation_to_calc_distance", true);
-  param_.lowpass_gain_ = node_->declare_parameter("lowpass_gain_of_upper_velocity", 0.6);
+    node_->declare_parameter(acc_ns + "use_time_compensation_to_calc_distance", true);
+  param_.lowpass_gain_ = node_->declare_parameter(acc_ns + "lowpass_gain_of_upper_velocity", 0.6);
 
   /* parameter for pid in acc */
-  param_.p_coeff_pos = node_->declare_parameter("p_coefficient_positive", 0.1);
-  param_.p_coeff_neg = node_->declare_parameter("p_coefficient_negative", 0.3);
-  param_.d_coeff_pos = node_->declare_parameter("d_coefficient_positive", 0.0);
-  param_.d_coeff_neg = node_->declare_parameter("d_coefficient_negative", 0.1);
+  param_.p_coeff_pos = node_->declare_parameter(acc_ns + "p_coefficient_positive", 0.1);
+  param_.p_coeff_neg = node_->declare_parameter(acc_ns + "p_coefficient_negative", 0.3);
+  param_.d_coeff_pos = node_->declare_parameter(acc_ns + "d_coefficient_positive", 0.0);
+  param_.d_coeff_neg = node_->declare_parameter(acc_ns + "d_coefficient_negative", 0.1);
 
   /* parameter for speed estimation of obstacle */
   param_.object_polygon_length_margin =
-    node_->declare_parameter("object_polygon_length_margin", 2.0);
-  param_.object_polygon_width_margin = node_->declare_parameter("object_polygon_width_margin", 0.5);
-  param_.valid_est_vel_diff_time = node_->declare_parameter("valid_estimated_vel_diff_time", 1.0);
-  param_.valid_vel_que_time = node_->declare_parameter("valid_vel_que_time", 0.5);
-  param_.valid_est_vel_max = node_->declare_parameter("valid_estimated_vel_max", 20.0);
-  param_.valid_est_vel_min = node_->declare_parameter("valid_estimated_vel_min", -20.0);
-  param_.thresh_vel_to_stop = node_->declare_parameter("thresh_vel_to_stop", 0.5);
-  param_.use_rough_est_vel = node_->declare_parameter("use_rough_velocity_estimation", false);
-  param_.rough_velocity_rate = node_->declare_parameter("rough_velocity_rate", 0.9);
+    node_->declare_parameter(acc_ns + "object_polygon_length_margin", 2.0);
+  param_.object_polygon_width_margin =
+    node_->declare_parameter(acc_ns + "object_polygon_width_margin", 0.5);
+  param_.valid_est_vel_diff_time =
+    node_->declare_parameter(acc_ns + "valid_estimated_vel_diff_time", 1.0);
+  param_.valid_vel_que_time = node_->declare_parameter(acc_ns + "valid_vel_que_time", 0.5);
+  param_.valid_est_vel_max = node_->declare_parameter(acc_ns + "valid_estimated_vel_max", 20.0);
+  param_.valid_est_vel_min = node_->declare_parameter(acc_ns + "valid_estimated_vel_min", -20.0);
+  param_.thresh_vel_to_stop = node_->declare_parameter(acc_ns + "thresh_vel_to_stop", 0.5);
+  param_.use_rough_est_vel =
+    node_->declare_parameter(acc_ns + "use_rough_velocity_estimation", false);
+  param_.rough_velocity_rate = node_->declare_parameter(acc_ns + "rough_velocity_rate", 0.9);
 
   /* publisher */
   pub_debug_ = node_->create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>(
