@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-#include <lane_departure_checker/lane_departure_checker.h>
+#include "lane_departure_checker/lane_departure_checker.hpp"
 
-#include <boost/geometry.hpp>
+#include "boost/geometry.hpp"
 
-#include <autoware_utils/geometry/geometry.h>
-#include <autoware_utils/math/normalization.h>
-#include <autoware_utils/math/unit_conversion.h>
-#include <autoware_utils/system/stop_watch.h>
-#include <lanelet2_core/geometry/Polygon.h>
-#include <ros/console.h>
-#include <tf2/utils.h>
+#include "autoware_utils/geometry/geometry.hpp"
+#include "autoware_utils/math/normalization.hpp"
+#include "autoware_utils/math/unit_conversion.hpp"
+#include "autoware_utils/system/stop_watch.hpp"
+#include "lanelet2_core/geometry/Polygon.h"
+#include "tf2/utils.h"
 
-#include <lane_departure_checker/util/create_vehicle_footprint.h>
+#include "lane_departure_checker/util/create_vehicle_footprint.hpp"
 
 using autoware_utils::LinearRing2d;
 using autoware_utils::MultiPoint2d;
@@ -52,13 +51,13 @@ bool isInAnyLane(const lanelet::ConstLanelets & candidate_lanelets, const Point2
 }
 
 size_t findNearestIndex(
-  const autoware_planning_msgs::Trajectory & trajectory, const geometry_msgs::Pose & pose)
+  const autoware_planning_msgs::msg::Trajectory & trajectory, const geometry_msgs::msg::Pose & pose)
 {
   std::vector<double> distances;
   distances.reserve(trajectory.points.size());
   std::transform(
     trajectory.points.cbegin(), trajectory.points.cend(), std::back_inserter(distances),
-    [&](const autoware_planning_msgs::TrajectoryPoint & p) {
+    [&](const autoware_planning_msgs::msg::TrajectoryPoint & p) {
       const auto p1 = autoware_utils::fromMsg(p.pose.position).to_2d();
       const auto p2 = autoware_utils::fromMsg(pose.position).to_2d();
       return boost::geometry::distance(p1, p2);
@@ -156,16 +155,16 @@ Output LaneDepartureChecker::update(const Input & input)
 }
 
 PoseDeviation LaneDepartureChecker::calcTrajectoryDeviation(
-  const autoware_planning_msgs::Trajectory & trajectory, const geometry_msgs::Pose & pose)
+  const autoware_planning_msgs::msg::Trajectory & trajectory, const geometry_msgs::msg::Pose & pose)
 {
   const auto nearest_idx = findNearestIndex(trajectory, pose);
   return autoware_utils::calcPoseDeviation(trajectory.points.at(nearest_idx).pose, pose);
 }
 
-autoware_planning_msgs::Trajectory LaneDepartureChecker::resampleTrajectory(
-  const autoware_planning_msgs::Trajectory & trajectory, const double interval)
+autoware_planning_msgs::msg::Trajectory LaneDepartureChecker::resampleTrajectory(
+  const autoware_planning_msgs::msg::Trajectory & trajectory, const double interval)
 {
-  autoware_planning_msgs::Trajectory resampled;
+  autoware_planning_msgs::msg::Trajectory resampled;
   resampled.header = trajectory.header;
 
   resampled.points.push_back(trajectory.points.front());
@@ -184,10 +183,10 @@ autoware_planning_msgs::Trajectory LaneDepartureChecker::resampleTrajectory(
   return resampled;
 }
 
-autoware_planning_msgs::Trajectory LaneDepartureChecker::cutTrajectory(
-  const autoware_planning_msgs::Trajectory & trajectory, const double length)
+autoware_planning_msgs::msg::Trajectory LaneDepartureChecker::cutTrajectory(
+  const autoware_planning_msgs::msg::Trajectory & trajectory, const double length)
 {
-  autoware_planning_msgs::Trajectory cut;
+  autoware_planning_msgs::msg::Trajectory cut;
   cut.header = trajectory.header;
 
   double total_length = 0.0;
@@ -210,7 +209,7 @@ autoware_planning_msgs::Trajectory LaneDepartureChecker::cutTrajectory(
     if (remain_distance <= points_distance) {
       const Eigen::Vector3d p_interpolated = p1 + remain_distance * (p2 - p1).normalized();
 
-      autoware_planning_msgs::TrajectoryPoint p;
+      autoware_planning_msgs::msg::TrajectoryPoint p;
       p.pose.position.x = p_interpolated.x();
       p.pose.position.y = p_interpolated.y();
       p.pose.position.z = p_interpolated.z();
@@ -228,7 +227,7 @@ autoware_planning_msgs::Trajectory LaneDepartureChecker::cutTrajectory(
 }
 
 std::vector<LinearRing2d> LaneDepartureChecker::createVehicleFootprints(
-  const autoware_planning_msgs::Trajectory & trajectory, const Param & param)
+  const autoware_planning_msgs::msg::Trajectory & trajectory, const Param & param)
 {
   // Create vehicle footprint in base_link coordinate
   const auto local_vehicle_footprint =

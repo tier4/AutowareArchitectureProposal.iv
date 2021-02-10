@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
 
-#include <lane_departure_checker/lane_departure_checker_node.h>
+#include "lane_departure_checker/lane_departure_checker_node.hpp"
 
-int main(int argc, char * argv[])
+int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "lane_departure_checker_node");
+  rclcpp::init(argc, argv);
 
-  lane_departure_checker::LaneDepartureCheckerNode node;
+  rclcpp::NodeOptions options;
+  auto node =
+    std::make_shared<lane_departure_checker::LaneDepartureCheckerNode>(options);
 
-  ros::spin();
+  rclcpp::spin(node);
+
+  rclcpp::shutdown();
 
   return 0;
 }

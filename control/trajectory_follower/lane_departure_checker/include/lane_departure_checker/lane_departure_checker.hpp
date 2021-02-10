@@ -20,18 +20,19 @@
 #include <string>
 #include <vector>
 
-#include <boost/optional.hpp>
+#include "boost/optional.hpp"
 
-#include <lanelet2_core/LaneletMap.h>
+#include "lanelet2_core/LaneletMap.h"
 
-#include <autoware_planning_msgs/Route.h>
-#include <autoware_planning_msgs/Trajectory.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/TwistStamped.h>
+#include "autoware_planning_msgs/msg/route.hpp"
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "rosidl_runtime_cpp/message_initialization.hpp"
 
-#include <autoware_utils/geometry/boost_geometry.h>
-#include <autoware_utils/geometry/pose_deviation.h>
-#include <autoware_utils/ros/vehicle_info.h>
+#include "autoware_utils/geometry/boost_geometry.hpp"
+#include "autoware_utils/geometry/pose_deviation.hpp"
+#include "autoware_utils/ros/vehicle_info.hpp"
 
 namespace lane_departure_checker
 {
@@ -52,23 +53,25 @@ struct Param
 
 struct Input
 {
-  geometry_msgs::PoseStamped::ConstPtr current_pose;
-  geometry_msgs::TwistStamped::ConstPtr current_twist;
+  geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose;
+  geometry_msgs::msg::TwistStamped::ConstSharedPtr current_twist;
   lanelet::LaneletMapPtr lanelet_map;
-  autoware_planning_msgs::Route::ConstPtr route;
+  autoware_planning_msgs::msg::Route::ConstSharedPtr route;
   lanelet::ConstLanelets route_lanelets;
-  autoware_planning_msgs::Trajectory::ConstPtr reference_trajectory;
-  autoware_planning_msgs::Trajectory::ConstPtr predicted_trajectory;
+  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr reference_trajectory;
+  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr predicted_trajectory;
 };
 
 struct Output
 {
+  Output()
+  : resampled_trajectory(rosidl_runtime_cpp::MessageInitialization::ZERO) {}
   std::map<std::string, double> processing_time_map;
   bool will_leave_lane;
   bool is_out_of_lane;
   PoseDeviation trajectory_deviation;
   lanelet::ConstLanelets candidate_lanelets;
-  autoware_planning_msgs::Trajectory resampled_trajectory;
+  autoware_planning_msgs::msg::Trajectory resampled_trajectory;
   std::vector<LinearRing2d> vehicle_footprints;
   std::vector<LinearRing2d> vehicle_passing_areas;
 };
@@ -84,17 +87,17 @@ private:
   Param param_;
 
   static PoseDeviation calcTrajectoryDeviation(
-    const autoware_planning_msgs::Trajectory & trajectory, const geometry_msgs::Pose & pose);
+    const autoware_planning_msgs::msg::Trajectory & trajectory, const geometry_msgs::msg::Pose & pose);
 
   //! This function assumes the input trajectory is sampled dense enough
-  static autoware_planning_msgs::Trajectory resampleTrajectory(
-    const autoware_planning_msgs::Trajectory & trajectory, const double interval);
+  static autoware_planning_msgs::msg::Trajectory resampleTrajectory(
+    const autoware_planning_msgs::msg::Trajectory & trajectory, const double interval);
 
-  static autoware_planning_msgs::Trajectory cutTrajectory(
-    const autoware_planning_msgs::Trajectory & trajectory, const double length);
+  static autoware_planning_msgs::msg::Trajectory cutTrajectory(
+    const autoware_planning_msgs::msg::Trajectory & trajectory, const double length);
 
   static std::vector<LinearRing2d> createVehicleFootprints(
-    const autoware_planning_msgs::Trajectory & trajectory, const Param & param);
+    const autoware_planning_msgs::msg::Trajectory & trajectory, const Param & param);
 
   static std::vector<LinearRing2d> createVehiclePassingAreas(
     const std::vector<LinearRing2d> & vehicle_footprints);
