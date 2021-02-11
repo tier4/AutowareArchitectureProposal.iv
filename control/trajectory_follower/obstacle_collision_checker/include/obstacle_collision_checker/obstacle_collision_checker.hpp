@@ -40,7 +40,6 @@ using autoware_utils::LinearRing2d;
 
 struct Param
 {
-  // vehicle_info_util::VehicleInfo vehicle_info;
   double delay_time;
   double footprint_margin;
   double max_deceleration;
