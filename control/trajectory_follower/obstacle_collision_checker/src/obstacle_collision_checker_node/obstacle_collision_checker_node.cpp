@@ -240,6 +240,9 @@ rcl_interfaces::msg::SetParametersResult ObstacleCollisionCheckerNode::paramCall
     update_param(parameters, "resample_interval", param.resample_interval);
     update_param(parameters, "search_radius", param.search_radius);
     param_ = param;
+    if (obstacle_collision_checker_) {
+      obstacle_collision_checker_->setParam(param_);
+    }
   } catch (const rclcpp::exceptions::InvalidParameterTypeException & e) {
     result.successful = false;
     result.reason = e.what();
