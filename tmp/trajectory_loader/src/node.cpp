@@ -1,9 +1,27 @@
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include <fstream>
+#include <vector>
+#include <string>
+
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "trajectory_loader/node.hpp"
 
-TrajectoryLoaderNode::TrajectoryLoaderNode() : Node("trajectory_loader_node")
+TrajectoryLoaderNode::TrajectoryLoaderNode()
+: Node("trajectory_loader_node")
 {
   pub_ = this->create_publisher<autoware_planning_msgs::msg::Trajectory>("trajectory", 1);
 
@@ -40,21 +58,21 @@ bool TrajectoryLoaderNode::publish(
     double roll, pitch, yaw;
 
     for (size_t j = 0; j < file_data.at(i).size(); ++j) {
-      if (label_row_association_map.at("x") == (int)j) {
+      if (label_row_association_map.at("x") == static_cast<int>(j)) {
         point.pose.position.x = std::stof(file_data.at(i).at(j));
-      } else if (label_row_association_map.at("y") == (int)j) {
+      } else if (label_row_association_map.at("y") == static_cast<int>(j)) {
         point.pose.position.y = std::stof(file_data.at(i).at(j));
-      } else if (label_row_association_map.at("z") == (int)j) {
+      } else if (label_row_association_map.at("z") == static_cast<int>(j)) {
         point.pose.position.z = std::stof(file_data.at(i).at(j));
-      } else if (label_row_association_map.at("yaw") == (int)j) {
+      } else if (label_row_association_map.at("yaw") == static_cast<int>(j)) {
         yaw = std::stof(file_data.at(i).at(j));
-      } else if (label_row_association_map.at("linear_velocity") == (int)j) {
+      } else if (label_row_association_map.at("linear_velocity") == static_cast<int>(j)) {
         point.twist.linear.x = std::stof(file_data.at(i).at(j));
-      } else if (label_row_association_map.at("angular_velocity") == (int)j) {
+      } else if (label_row_association_map.at("angular_velocity") == static_cast<int>(j)) {
         point.twist.angular.z = std::stof(file_data.at(i).at(j));
-      } else if (label_row_association_map.at("linear_acceleration") == (int)j) {
+      } else if (label_row_association_map.at("linear_acceleration") == static_cast<int>(j)) {
         point.accel.linear.x = std::stof(file_data.at(i).at(j));
-      } else if (label_row_association_map.at("angular_acceleration") == (int)j) {
+      } else if (label_row_association_map.at("angular_acceleration") == static_cast<int>(j)) {
         point.accel.angular.z = std::stof(file_data.at(i).at(j));
       }
     }
@@ -80,7 +98,7 @@ bool TrajectoryLoaderNode::loadData(
    * open file
    */
   if (!ifs) {
-    //todo name arg of get logger
+    // todo name arg of get logger
     RCLCPP_ERROR(get_logger(), "%s cannot load", file_name.c_str());
     return false;
   }
@@ -94,7 +112,7 @@ bool TrajectoryLoaderNode::loadData(
     for (size_t i = 0; i < str_vec.size(); ++i) {
       deleteUnit(str_vec.at(i));
       deleteHeadSpace(str_vec.at(i));
-      label_row_association_map[str_vec.at(i)] = (int)i;
+      label_row_association_map[str_vec.at(i)] = static_cast<int>(i);
     }
   } else {
     RCLCPP_ERROR(get_logger(), "cannot create association map");
@@ -127,7 +145,7 @@ void TrajectoryLoaderNode::deleteHeadSpace(std::string & string)
 {
   while (string.find_first_of(' ') == 0) {
     string.erase(string.begin());
-    if (string.empty()) break;
+    if (string.empty()) {break;}
   }
 }
 
