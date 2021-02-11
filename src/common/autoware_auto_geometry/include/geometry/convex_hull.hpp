@@ -47,9 +47,10 @@ namespace details
 /// \param[inout] points A list of points, assumed to be sorted in lexical order
 /// \param[inout] hull An empty list of points, assumed to have same allocator as points
 ///                    (for splice)
-/// \tparam PointT The point type
-template<typename PointT>
-void form_lower_hull(std::list<PointT> & points, std::list<PointT> & hull)
+/// \tparam PointT The point type for the points list
+/// \tparam HullT the point type for the hull list
+template<typename PointT, typename HullT>
+void form_lower_hull(std::list<PointT> & points, std::list<HullT> & hull)
 {
   auto hull_it = hull.cbegin();
   auto point_it = points.cbegin();
@@ -82,11 +83,12 @@ void form_lower_hull(std::list<PointT> & points, std::list<PointT> & hull)
 /// \brief Moves points comprising the lower convex hull from points to hull.
 /// \param[inout] points A list of points, assumed to be sorted in lexical order, and to contain
 ///                      the leftmost point
-/// \param[inout] hull An list of points, assumed to have same allocator as points (for splice),
+/// \param[inout] hull A list of points, assumed to have same allocator as points (for splice),
 ///                    and to contain the lower hull (minus the left-most point)
-/// \tparam PointT The point type
-template<typename PointT>
-void form_upper_hull(std::list<PointT> & points, std::list<PointT> & hull)
+/// \tparam PointT The point type for the points list
+/// \tparam HullT the point type for the hull list
+template<typename PointT, typename HullT>
+void form_upper_hull(std::list<PointT> & points, std::list<HullT> & hull)
 {
   // TODO(c.ho) consider reverse iterators, not sure if they work with splice()
   auto hull_it = hull.cend();

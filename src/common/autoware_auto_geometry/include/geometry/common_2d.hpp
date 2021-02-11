@@ -95,40 +95,40 @@ inline auto & zr_(PointT & pt)
 }
 }  // namespace point_adapter
 
-/// \tparam T point type. Must have point adapters defined or have float members x and y
+/// \tparam T1, T2, T3 point type. Must have point adapters defined or have float members x and y
 /// \brief compute whether line segment rp is counter clockwise relative to line segment qp
 /// \param[in] pt shared point for both line segments
 /// \param[in] r point to check if it forms a ccw angle
 /// \param[in] q reference point
 /// \return whether angle formed is ccw. Three collinear points is considered ccw
-template<typename T>
-inline bool8_t ccw(const T & pt, const T & q, const T & r)
+template<typename T1, typename T2, typename T3>
+inline auto ccw(const T1 & pt, const T2 & q, const T3 & r)
 {
   using point_adapter::x_;
   using point_adapter::y_;
   return (((x_(q) - x_(pt)) * (y_(r) - y_(pt))) - ((y_(q) - y_(pt)) * (x_(r) - x_(pt)))) <= 0.0F;
 }
 
-/// \tparam T point type. Must have point adapters defined or have float members x and y
+/// \tparam T1, T2 point type. Must have point adapters defined or have float members x and y
 /// \brief compute p x q = p1 * q2 - p2 * q1
 /// \param[in] pt first point
 /// \param[in] q second point
 /// \return 2d cross product
-template<typename T>
-inline float32_t cross_2d(const T & pt, const T & q)
+template<typename T1, typename T2>
+inline auto cross_2d(const T1 & pt, const T2 & q)
 {
   using point_adapter::x_;
   using point_adapter::y_;
   return (x_(pt) * y_(q)) - (y_(pt) * x_(q));
 }
 
-/// \tparam T point type. Must have point adapters defined or have float members x and y
+/// \tparam T1, T2 point type. Must have point adapters defined or have float members x and y
 /// \brief compute p * q = p1 * q1 + p2 * q2
 /// \param[in] pt first point
 /// \param[in] q second point
 /// \return 2d scalar dot product
-template<typename T>
-inline float32_t dot_2d(const T & pt, const T & q)
+template<typename T1, typename T2>
+inline auto dot_2d(const T1 & pt, const T2 & q)
 {
   using point_adapter::x_;
   using point_adapter::y_;
@@ -275,7 +275,7 @@ inline T get_normal(const T & pt)
 /// \param[in] pt point to get magnitude of
 /// \return magitude of x and y components together
 template<typename T>
-inline float32_t norm_2d(const T & pt)
+inline auto norm_2d(const T & pt)
 {
   return sqrtf(dot_2d(pt, pt));
 }
@@ -335,7 +335,7 @@ inline T closest_line_point_2d(const T & p, const T & q, const T & r)
 /// \param[in] r Reference point to find the distance from the line segment to
 /// \return Distance from point r to line segment p-q
 template<typename T>
-inline float32_t point_line_segment_distance_2d(const T & p, const T & q, const T & r)
+inline auto point_line_segment_distance_2d(const T & p, const T & q, const T & r)
 {
   const T pq_r = minus_2d(closest_segment_point_2d(p, q, r), r);
   return norm_2d(pq_r);
