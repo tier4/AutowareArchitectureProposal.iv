@@ -8,24 +8,25 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter)
 endif()
 
+
+find_package(ament_lint_auto REQUIRED) 
 find_package(ament_cmake_auto REQUIRED)
-ament_auto_find_build_dependencies()
-find_package(OpenCV 4 REQUIRED)
+find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package( PCL REQUIRED )
+
+ament_auto_find_build_dependencies()
+
 
 include_directories(
   include
   ${OpenCV_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
-  ${PCL_INCLUDE_DIRS}
 )
 
 ament_auto_add_library(roi_cluster_fusion_nodelet SHARED src/roi_cluster_fusion_nodelet.cpp)
 target_link_libraries(roi_cluster_fusion_nodelet
   ${OpenCV_LIBRARIES}
   ${EIGEN3_LIBRARIES}
-  ${PCL_INCLUDE_DIRS}
 )
 
 rclcpp_components_register_node(roi_cluster_fusion_nodelet
@@ -36,3 +37,8 @@ rclcpp_components_register_node(roi_cluster_fusion_nodelet
 ament_auto_package(INSTALL_TO_SHARE
     launch
 )
+
+if(BUILD_TESTING) 
+   find_package(ament_lint_auto REQUIRED)
+   ament_lint_auto_find_test_dependencies() 
+ endif()
