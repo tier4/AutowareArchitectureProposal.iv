@@ -213,7 +213,7 @@ bool CrosswalkModule::checkStopArea(
 
 bool CrosswalkModule::checkSlowArea(
   const autoware_planning_msgs::msg::PathWithLaneId & input, const Polygon & crosswalk_polygon,
-  const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & objects_ptr,
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & objects_ptr,
   const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
   autoware_planning_msgs::msg::PathWithLaneId & output)
 {
