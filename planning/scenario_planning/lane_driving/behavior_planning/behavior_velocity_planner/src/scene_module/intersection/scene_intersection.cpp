@@ -14,6 +14,7 @@
 
 #include "scene_module/intersection/scene_intersection.hpp"
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 

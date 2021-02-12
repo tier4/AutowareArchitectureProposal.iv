@@ -42,7 +42,7 @@
 
 struct PlannerData
 {
-  PlannerData(rclcpp::Node & node)
+  explicit PlannerData(rclcpp::Node & node)
   : vehicle_info_(vehicle_info_util::VehicleInfo::create(node))
   {
     max_stop_acceleration_threshold_ = node.declare_parameter(

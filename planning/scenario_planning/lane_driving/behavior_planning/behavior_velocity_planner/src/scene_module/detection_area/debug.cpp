@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <vector>
+
 #include "scene_module/detection_area/scene.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "utilization/marker_helper.hpp"

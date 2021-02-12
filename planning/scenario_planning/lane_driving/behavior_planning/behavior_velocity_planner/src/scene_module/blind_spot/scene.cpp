@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "scene_module/intersection/util.hpp"
@@ -152,7 +153,9 @@ boost::optional<int> BlindSpotModule::getFirstPointConflictingLanelets(
   const autoware_planning_msgs::msg::PathWithLaneId & path,
   const lanelet::ConstLanelets & lanelets) const
 {
-  using namespace lanelet::utils;
+  using lanelet::utils::to2D;
+  using lanelet::utils::toHybrid;
+
   int first_idx_conflicting_lanelets = path.points.size() - 1;
   bool is_conflict = false;
   for (const auto & ll : lanelets) {
@@ -286,7 +289,7 @@ int BlindSpotModule::insertPoint(
   int insert_idx = -1;
   // initialize with epsilon so that comparison with insert_point_s = 0.0 would work
   double accum_s = 1e-6;
-  for (int i = 1; i < inout_path->points.size(); i++) {
+  for (size_t i = 1; i < inout_path->points.size(); i++) {
     accum_s += planning_utils::calcDist2d(
       inout_path->points[i].point.pose.position, inout_path->points[i - 1].point.pose.position);
     if (accum_s > insert_point_s) {

@@ -25,11 +25,11 @@
 class TrafficLightModuleManager : public SceneModuleManagerInterface
 {
 public:
-  TrafficLightModuleManager(rclcpp::Node & node);
+  explicit TrafficLightModuleManager(rclcpp::Node & node);
 
   const char * getModuleName() override {return "traffic_light";}
 
-  virtual void modifyPathVelocity(autoware_planning_msgs::msg::PathWithLaneId * path) override;
+  void modifyPathVelocity(autoware_planning_msgs::msg::PathWithLaneId * path) override;
 
 private:
   TrafficLightModule::PlannerParam planner_param_;

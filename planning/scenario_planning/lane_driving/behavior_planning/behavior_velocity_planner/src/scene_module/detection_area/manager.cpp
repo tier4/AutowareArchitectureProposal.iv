@@ -17,6 +17,7 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "scene_module/detection_area/manager.hpp"
 #include "lanelet2_extension/utility/query.hpp"

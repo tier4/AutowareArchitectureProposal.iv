@@ -18,6 +18,7 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "utilization/util.hpp"
 
