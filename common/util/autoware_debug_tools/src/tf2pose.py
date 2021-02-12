@@ -22,15 +22,15 @@ class Tf2PoseNode(Node):
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
         self._pub_pose = self.create_publisher(PoseStamped, "pose", 1)
-        self.timer = self.create_timer((1.0 / self._options.hz), self._on_timer) #todo reset=True
+        self.timer = self.create_timer((1.0 / self._options.hz), self._on_timer)
 
     def _on_timer(self):
         try:
-            (trans, quat) = self.tf_buffer.lookup_transform(self._options.tf_from, self._options.tf_to, rclpy.time.Time()) #todo rospy.Time(0)
+            (trans, quat) = self.tf_buffer.lookup_transform(self._options.tf_from, self._options.tf_to, rclpy.time.Time())
             time = self._tf_listener.getLatestCommonTime(self._options.tf_from, self._options.tf_to)
             pose = Tf2PoseNode.create_pose(time, self._options.tf_from, trans, quat)
             self._pub_pose.publish(pose)
-        except Exception as e: #todo lookup exception
+        except LookupException as e:
             print(e)
 
     @staticmethod

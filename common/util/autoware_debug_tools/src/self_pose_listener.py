@@ -18,7 +18,7 @@ class SelfPoseListener(Node):
             (trans, quat) = self.tf_buffer.lookup_transform("map", "base_link", rclpy.time.Time())
             time = self._tf_listener.getLatestCommonTime("map", "base_link")
             return SelfPoseListener.create_pose(time, "map", trans, quat)
-        except LookupException as e:
+        except LookupException:
             return None
 
     @staticmethod
