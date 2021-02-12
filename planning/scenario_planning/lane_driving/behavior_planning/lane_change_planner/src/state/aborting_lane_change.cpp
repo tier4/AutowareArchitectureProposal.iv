@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <lane_change_planner/state/aborting_lane_change.hpp>
+#include "lane_change_planner/state/aborting_lane_change.hpp"
 #include <memory>
 
 namespace lane_change_planner
