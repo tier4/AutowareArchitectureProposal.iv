@@ -23,7 +23,8 @@
 TrajectoryLoaderNode::TrajectoryLoaderNode()
 : Node("trajectory_loader_node")
 {
-  pub_ = this->create_publisher<autoware_planning_msgs::msg::Trajectory>("trajectory", rclcpp::QoS(1).transient_local());
+  pub_ = this->create_publisher<autoware_planning_msgs::msg::Trajectory>(
+    "trajectory", rclcpp::QoS(1).transient_local());
 
   // param
   std::string file_name, frame_id;
