@@ -33,7 +33,8 @@
 class IntersectionModule : public SceneModuleInterface
 {
 public:
-  enum class State {
+  enum class State
+  {
     STOP = 0,
     GO,
   };
@@ -53,7 +54,7 @@ public:
    */
   class StateMachine
   {
-  public:
+public:
     StateMachine()
     {
       state_ = State::GO;
@@ -64,7 +65,7 @@ public:
     void setMarginTime(const double t);
     State getState();
 
-  private:
+private:
     State state_;                               //! current state
     double margin_time_;                        //! margin time when transit to Go from Stop
     std::shared_ptr<rclcpp::Time> start_time_;  //! first time received GO when STOP state

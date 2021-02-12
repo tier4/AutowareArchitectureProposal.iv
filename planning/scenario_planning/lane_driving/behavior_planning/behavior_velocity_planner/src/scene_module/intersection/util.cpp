@@ -117,7 +117,8 @@ bool splineInterpolate(
     !spline.interpolate(
       base_s, base_y, resampled_s, resampled_y, spline_interpolation::Method::PCG) ||
     !spline.interpolate(
-      base_s, base_z, resampled_s, resampled_z, spline_interpolation::Method::PCG)) {
+      base_s, base_z, resampled_s, resampled_z, spline_interpolation::Method::PCG))
+  {
     RCLCPP_ERROR(logger, "spline interpolation failed.");
     return false;
   }

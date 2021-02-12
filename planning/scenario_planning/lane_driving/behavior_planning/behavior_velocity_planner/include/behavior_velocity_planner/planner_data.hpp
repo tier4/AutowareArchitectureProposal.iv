@@ -42,7 +42,8 @@
 
 struct PlannerData
 {
-  PlannerData(rclcpp::Node & node) : vehicle_info_(vehicle_info_util::VehicleInfo::create(node))
+  PlannerData(rclcpp::Node & node)
+  : vehicle_info_(vehicle_info_util::VehicleInfo::create(node))
   {
     max_stop_acceleration_threshold_ = node.declare_parameter(
       "max_accel", -5.0);  // TODO read min_acc in velocity_controller_param.yaml?
@@ -65,7 +66,7 @@ struct PlannerData
 
   // external data
   std::map<int, autoware_perception_msgs::msg::TrafficLightStateStamped>
-    external_traffic_light_id_map_;
+  external_traffic_light_id_map_;
   boost::optional<autoware_api_msgs::msg::CrosswalkStatus> external_crosswalk_status_input;
   boost::optional<autoware_api_msgs::msg::IntersectionStatus> external_intersection_status_input;
 

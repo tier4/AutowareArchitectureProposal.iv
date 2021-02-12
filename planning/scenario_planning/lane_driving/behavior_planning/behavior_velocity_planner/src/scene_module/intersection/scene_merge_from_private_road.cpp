@@ -77,8 +77,9 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   int judge_line_idx = -1;
   int first_idx_inside_lane = -1;
   if (!util::generateStopLine(
-        lane_id_, detection_areas, planner_data_, planner_param_, path, *path, &stop_line_idx,
-        &judge_line_idx, &first_idx_inside_lane, logger_.get_child("util"))) {
+      lane_id_, detection_areas, planner_data_, planner_param_, path, *path, &stop_line_idx,
+      &judge_line_idx, &first_idx_inside_lane, logger_.get_child("util")))
+  {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000 /* ms */, "setStopLineIdx fail");
     return false;
   }
@@ -123,9 +124,9 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   return true;
 }
 
-void MergeFromPrivateRoadModule::StateMachine::setState(State state) { state_ = state; }
+void MergeFromPrivateRoadModule::StateMachine::setState(State state) {state_ = state;}
 
-void MergeFromPrivateRoadModule::StateMachine::setMarginTime(const double t) { margin_time_ = t; }
+void MergeFromPrivateRoadModule::StateMachine::setMarginTime(const double t) {margin_time_ = t;}
 
 MergeFromPrivateRoadModule::State MergeFromPrivateRoadModule::StateMachine::getState()
 {

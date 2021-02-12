@@ -63,7 +63,8 @@ inline std_msgs::msg::ColorRGBA createMarkerColor(float r, float g, float b, flo
 }
 
 inline visualization_msgs::msg::Marker createDefaultMarker(
-  const char * frame_id, const builtin_interfaces::msg::Time current_time,const char * ns, const int32_t id, const int32_t type,
+  const char * frame_id, const builtin_interfaces::msg::Time current_time, const char * ns,
+  const int32_t id, const int32_t type,
   const std_msgs::msg::ColorRGBA & color)
 {
   visualization_msgs::msg::Marker marker;

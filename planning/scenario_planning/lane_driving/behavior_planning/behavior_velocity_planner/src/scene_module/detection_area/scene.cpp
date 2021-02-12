@@ -372,7 +372,8 @@ bool DetectionAreaModule::modifyPathVelocity(
 
     if (
       !first_stop_path_point_index_ ||
-      static_cast<int>(insert_idx) < first_stop_path_point_index_) {
+      static_cast<int>(insert_idx) < first_stop_path_point_index_)
+    {
       debug_data_.first_stop_pose = stop_pose;
       first_stop_path_point_index_ = static_cast<int>(insert_idx);
     }

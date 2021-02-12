@@ -85,8 +85,9 @@ bool IntersectionModule::modifyPathVelocity(
   int first_idx_inside_lane = -1;
   const auto target_path = trimPathWithLaneId(*path);
   if (!util::generateStopLine(
-        lane_id_, detection_areas, planner_data_, planner_param_, path, target_path, &stop_line_idx,
-        &pass_judge_line_idx, &first_idx_inside_lane, logger_.get_child("util"))) {
+      lane_id_, detection_areas, planner_data_, planner_param_, path, target_path, &stop_line_idx,
+      &pass_judge_line_idx, &first_idx_inside_lane, logger_.get_child("util")))
+  {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000 /* ms */, "setStopLineIdx fail");
     RCLCPP_DEBUG(logger_, "===== plan end =====");
     return false;
@@ -130,10 +131,11 @@ bool IntersectionModule::modifyPathVelocity(
   bool has_collision = checkCollision(*path, detection_areas, objects_ptr, closest_idx);
   bool is_stuck = checkStuckVehicleInIntersection(*path, closest_idx, stop_line_idx, objects_ptr);
   bool is_entry_prohibited = (has_collision || is_stuck);
-  if (external_go)
+  if (external_go) {
     is_entry_prohibited = false;
-  else if (external_stop)
+  } else if (external_stop) {
     is_entry_prohibited = true;
+  }
   state_machine_.setStateWithMarginTime(
     is_entry_prohibited ? State::STOP : State::GO, logger_.get_child("state_machine"), *clock_);
 
@@ -191,7 +193,7 @@ bool IntersectionModule::checkCollision(
   autoware_perception_msgs::msg::DynamicObjectArray target_objects;
   for (const auto & object : objects_ptr->objects) {
     // ignore non-vehicle type objects, such as pedestrian.
-    if (!isTargetCollisionVehicleType(object)) continue;
+    if (!isTargetCollisionVehicleType(object)) {continue;}
 
     // ignore vehicle in ego-lane. (TODO update check algorithm)
     const auto object_pose = object.state.pose_covariance.pose;
@@ -412,7 +414,8 @@ bool IntersectionModule::isTargetCollisionVehicleType(
     object.semantic.type == autoware_perception_msgs::msg::Semantic::BUS ||
     object.semantic.type == autoware_perception_msgs::msg::Semantic::TRUCK ||
     object.semantic.type == autoware_perception_msgs::msg::Semantic::MOTORBIKE ||
-    object.semantic.type == autoware_perception_msgs::msg::Semantic::BICYCLE) {
+    object.semantic.type == autoware_perception_msgs::msg::Semantic::BICYCLE)
+  {
     return true;
   }
   return false;
@@ -425,7 +428,8 @@ bool IntersectionModule::isTargetStuckVehicleType(
     object.semantic.type == autoware_perception_msgs::msg::Semantic::CAR ||
     object.semantic.type == autoware_perception_msgs::msg::Semantic::BUS ||
     object.semantic.type == autoware_perception_msgs::msg::Semantic::TRUCK ||
-    object.semantic.type == autoware_perception_msgs::msg::Semantic::MOTORBIKE) {
+    object.semantic.type == autoware_perception_msgs::msg::Semantic::MOTORBIKE)
+  {
     return true;
   }
   return false;
@@ -463,16 +467,16 @@ void IntersectionModule::StateMachine::setStateWithMarginTime(
   RCLCPP_ERROR(logger, "Unsuitable state. ignore request.");
 }
 
-void IntersectionModule::StateMachine::setState(State state) { state_ = state; }
+void IntersectionModule::StateMachine::setState(State state) {state_ = state;}
 
-void IntersectionModule::StateMachine::setMarginTime(const double t) { margin_time_ = t; }
+void IntersectionModule::StateMachine::setMarginTime(const double t) {margin_time_ = t;}
 
-IntersectionModule::State IntersectionModule::StateMachine::getState() { return state_; }
+IntersectionModule::State IntersectionModule::StateMachine::getState() {return state_;}
 
 bool IntersectionModule::isTargetExternalInputStatus(const int target_status)
 {
   return planner_data_->external_intersection_status_input &&
          planner_data_->external_intersection_status_input.get().status == target_status &&
          (clock_->now() - planner_data_->external_intersection_status_input.get().header.stamp)
-             .seconds() < planner_param_.external_input_timeout;
+         .seconds() < planner_param_.external_input_timeout;
 }

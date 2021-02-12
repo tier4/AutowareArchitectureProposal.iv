@@ -53,7 +53,7 @@ bool StopLineModule::modifyPathVelocity(
       bg::model::linestring<Point> line = {
         {path->points.at(i).point.pose.position.x, path->points.at(i).point.pose.position.y},
         {path->points.at(i + 1).point.pose.position.x,
-         path->points.at(i + 1).point.pose.position.y}};
+          path->points.at(i + 1).point.pose.position.y}};
       std::vector<Point> collision_points;
       bg::intersection(stop_line, line, collision_points);
       if (collision_points.empty()) {
@@ -124,7 +124,7 @@ bool StopLineModule::modifyPathVelocity(
       state_ = State::STOP;
     }
   } else if (state_ == State::STOP) {
-    if (!planner_data_->isVehicleStopping()) state_ = State::START;
+    if (!planner_data_->isVehicleStopping()) {state_ = State::START;}
   }
   return true;
 }

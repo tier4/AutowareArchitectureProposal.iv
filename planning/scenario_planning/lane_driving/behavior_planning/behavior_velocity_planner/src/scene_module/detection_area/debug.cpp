@@ -122,7 +122,7 @@ visualization_msgs::msg::MarkerArray createMarkerArray(
 }
 
 visualization_msgs::msg::MarkerArray createCorrespondenceMarkerArray(
-  const lanelet::autoware::DetectionArea & detection_area_reg_elem,const rclcpp::Time & now)
+  const lanelet::autoware::DetectionArea & detection_area_reg_elem, const rclcpp::Time & now)
 {
   visualization_msgs::msg::MarkerArray msg;
 
@@ -133,7 +133,7 @@ visualization_msgs::msg::MarkerArray createCorrespondenceMarkerArray(
   // ID
   {
     auto marker = createDefaultMarker(
-      "map",now, "detection_area_id", detection_area_reg_elem.id(),
+      "map", now, "detection_area_id", detection_area_reg_elem.id(),
       visualization_msgs::msg::Marker::TEXT_VIEW_FACING, createMarkerColor(1.0, 1.0, 1.0, 0.999));
     marker.scale = createMarkerScale(0.0, 0.0, 1.0);
     marker.lifetime = rclcpp::Duration::from_seconds(0.5);
@@ -152,7 +152,7 @@ visualization_msgs::msg::MarkerArray createCorrespondenceMarkerArray(
   // Polygon
   {
     auto marker = createDefaultMarker(
-      "map", now,"detection_area_polygon", detection_area_reg_elem.id(),
+      "map", now, "detection_area_polygon", detection_area_reg_elem.id(),
       visualization_msgs::msg::Marker::LINE_LIST, createMarkerColor(0.1, 0.1, 1.0, 0.500));
     marker.scale = createMarkerScale(0.1, 0.0, 0.0);
     marker.lifetime = rclcpp::Duration::from_seconds(0.5);
@@ -178,7 +178,7 @@ visualization_msgs::msg::MarkerArray createCorrespondenceMarkerArray(
   // Polygon to StopLine
   {
     auto marker = createDefaultMarker(
-      "map",now, "detection_area_correspondence", detection_area_reg_elem.id(),
+      "map", now, "detection_area_correspondence", detection_area_reg_elem.id(),
       visualization_msgs::msg::Marker::LINE_LIST, createMarkerColor(0.1, 0.1, 1.0, 0.500));
     marker.scale = createMarkerScale(0.1, 0.0, 0.0);
     marker.lifetime = rclcpp::Duration::from_seconds(0.5);
@@ -205,7 +205,7 @@ visualization_msgs::msg::MarkerArray createObstacleMarkerArray(
 
   {
     auto marker = createDefaultMarker(
-      "map",now, "obstacles", 0, visualization_msgs::msg::Marker::SPHERE,
+      "map", now, "obstacles", 0, visualization_msgs::msg::Marker::SPHERE,
       createMarkerColor(1.0, 0.0, 0.0, 0.999));
     marker.scale = createMarkerScale(0.3, 0.3, 0.3);
     marker.lifetime = rclcpp::Duration::from_seconds(0.5);
@@ -226,15 +226,20 @@ visualization_msgs::msg::MarkerArray createObstacleMarkerArray(
 visualization_msgs::msg::MarkerArray DetectionAreaModule::createDebugMarkerArray()
 {
   visualization_msgs::msg::MarkerArray debug_marker_array;
-  const rclcpp::Time current_time=clock_->now();
+  const rclcpp::Time current_time = clock_->now();
   appendMarkerArray(
     createMarkerArray(debug_data_, getModuleId()), current_time, &debug_marker_array);
 
   if (!debug_data_.stop_poses.empty()) {
     appendMarkerArray(
-      createCorrespondenceMarkerArray(detection_area_reg_elem_,current_time),current_time, &debug_marker_array);
+      createCorrespondenceMarkerArray(
+        detection_area_reg_elem_,
+        current_time), current_time, &debug_marker_array);
 
-    appendMarkerArray(createObstacleMarkerArray(debug_data_.obstacle_points,current_time), current_time, &debug_marker_array);
+    appendMarkerArray(
+      createObstacleMarkerArray(
+        debug_data_.obstacle_points,
+        current_time), current_time, &debug_marker_array);
   }
 
   return debug_marker_array;

@@ -59,9 +59,11 @@ autoware_planning_msgs::msg::Path interpolatePath(
   double reference_velocity;
   const double interpolation_interval = 1.0;
   for (s_t = interpolation_interval; s_t < std::min(length, spline_ptr->s.back());
-       s_t += interpolation_interval) {
+    s_t += interpolation_interval)
+  {
     while (reference_velocity_idx < spline_ptr->s.size() &&
-           spline_ptr->s.at(reference_velocity_idx) < s_t) {
+      spline_ptr->s.at(reference_velocity_idx) < s_t)
+    {
       ++reference_velocity_idx;
     }
     reference_velocity = spline_ptr->calc_trajectory_point(

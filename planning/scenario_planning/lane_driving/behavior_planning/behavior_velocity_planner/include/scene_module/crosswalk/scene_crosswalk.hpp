@@ -82,7 +82,7 @@ private:
   bool createVehiclePathPolygonInCrosswalk(
     const autoware_planning_msgs::msg::PathWithLaneId & input,
     const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> &
-      crosswalk_polygon,
+    crosswalk_polygon,
     const float extended_width,
     boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> & path_polygon);
   bool isTargetType(const autoware_perception_msgs::msg::DynamicObject & obj);

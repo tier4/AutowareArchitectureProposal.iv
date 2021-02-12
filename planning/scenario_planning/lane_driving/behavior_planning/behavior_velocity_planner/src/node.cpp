@@ -72,13 +72,13 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode()
   // Trigger Subscriber
   trigger_sub_path_with_lane_id_ =
     this->create_subscription<autoware_planning_msgs::msg::PathWithLaneId>(
-      "input/path_with_lane_id", 1, std::bind(&BehaviorVelocityPlannerNode::onTrigger, this, _1));
+    "input/path_with_lane_id", 1, std::bind(&BehaviorVelocityPlannerNode::onTrigger, this, _1));
 
   // Subscribers
   sub_dynamic_objects_ =
     this->create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
-      "input/dynamic_objects", 1,
-      std::bind(&BehaviorVelocityPlannerNode::onDynamicObjects, this, _1));
+    "input/dynamic_objects", 1,
+    std::bind(&BehaviorVelocityPlannerNode::onDynamicObjects, this, _1));
   sub_no_ground_pointcloud_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
     "input/no_ground_pointcloud", 1,
     std::bind(&BehaviorVelocityPlannerNode::onNoGroundPointCloud, this, _1));
@@ -90,20 +90,20 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode()
     std::bind(&BehaviorVelocityPlannerNode::onLaneletMap, this, _1));
   sub_traffic_light_states_ =
     this->create_subscription<autoware_perception_msgs::msg::TrafficLightStateArray>(
-      "input/traffic_light_states", 10,
-      std::bind(&BehaviorVelocityPlannerNode::onTrafficLightStates, this, _1));
+    "input/traffic_light_states", 10,
+    std::bind(&BehaviorVelocityPlannerNode::onTrafficLightStates, this, _1));
   sub_external_crosswalk_states_ =
     this->create_subscription<autoware_api_msgs::msg::CrosswalkStatus>(
-      "input/external_crosswalk_states", 10,
-      std::bind(&BehaviorVelocityPlannerNode::onExternalCrosswalkStates, this, _1));
+    "input/external_crosswalk_states", 10,
+    std::bind(&BehaviorVelocityPlannerNode::onExternalCrosswalkStates, this, _1));
   sub_external_intersection_states_ =
     this->create_subscription<autoware_api_msgs::msg::IntersectionStatus>(
-      "input/external_intersection_states", 10,
-      std::bind(&BehaviorVelocityPlannerNode::onExternalIntersectionStates, this, _1));
+    "input/external_intersection_states", 10,
+    std::bind(&BehaviorVelocityPlannerNode::onExternalIntersectionStates, this, _1));
   sub_external_traffic_light_states_ =
     this->create_subscription<autoware_perception_msgs::msg::TrafficLightStateArray>(
-      "input/external_traffic_light_states", 10,
-      std::bind(&BehaviorVelocityPlannerNode::onExternalTrafficLightStates, this, _1));
+    "input/external_traffic_light_states", 10,
+    std::bind(&BehaviorVelocityPlannerNode::onExternalTrafficLightStates, this, _1));
 
   // Publishers
   path_pub_ = this->create_publisher<autoware_planning_msgs::msg::Path>("output/path", 1);

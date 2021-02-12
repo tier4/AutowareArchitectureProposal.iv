@@ -186,7 +186,7 @@ lanelet::Optional<lanelet::ConstLineString3d> getStopLineFromMap(
       break;  // only one stop_line exists.
     }
   }
-  if (stop_line.empty()) return {};
+  if (stop_line.empty()) {return {};}
 
   return stop_line.front();
 }
@@ -207,7 +207,7 @@ bool insertTargetVelocityPoint(
     std::vector<Point> collision_points;
     bg::intersection(toHybrid(to2D(stop_line)), line, collision_points);
 
-    if (collision_points.empty()) continue;
+    if (collision_points.empty()) {continue;}
     // -- debug code --
     for (const auto & cp : collision_points) {
       Eigen::Vector3d point3d(cp.x(), cp.y(), planner_data.current_pose.pose.position.z);
@@ -286,10 +286,11 @@ bool insertTargetVelocityPoint(
       // ----------------
     }
     // -- debug code --
-    if (velocity == 0.0)
+    if (velocity == 0.0) {
       debug_data.stop_poses.push_back(target_point_with_lane_id.point.pose);
-    else
+    } else {
       debug_data.slow_poses.push_back(target_point_with_lane_id.point.pose);
+    }
     // ----------------
 
     // insert target point
@@ -297,9 +298,10 @@ bool insertTargetVelocityPoint(
       output.points.begin() + insert_target_point_idx, target_point_with_lane_id);
 
     // insert 0 velocity after target point
-    for (size_t j = insert_target_point_idx; j < output.points.size(); ++j)
+    for (size_t j = insert_target_point_idx; j < output.points.size(); ++j) {
       output.points.at(j).point.twist.linear.x =
         std::min(velocity, output.points.at(j).point.twist.linear.x);
+    }
     return true;
   }
   return false;
