@@ -1053,7 +1053,7 @@ ConstraintMatrix MPTOptimizer::getConstraintMatrix(
       if (ref_points[i + 1].fix_state && i + 1 < N_ref) {
         lb(3 * N_point * N_ref + i) = ref_points[i + 1].fix_state.get()(0) - bias(i);
         ub(3 * N_point * N_ref + i) = ref_points[i + 1].fix_state.get()(0) - bias(i);
-      } else if (i == ref_points.size() - 1 && mpt_param_ptr_->is_hard_fixing_terminal_point) {
+      } else if (i == ref_points.size() - 1 && mpt_param_ptr_->is_hard_fix_terminal_point) {
         lb(3 * N_point * N_ref + i) = -bias(i);
         ub(3 * N_point * N_ref + i) = -bias(i);
       }
