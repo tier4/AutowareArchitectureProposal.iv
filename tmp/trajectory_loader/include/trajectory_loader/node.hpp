@@ -15,8 +15,6 @@
 #ifndef TRAJECTORY_LOADER__NODE_HPP_
 #define TRAJECTORY_LOADER__NODE_HPP_
 
-#pragma once
-
 #include <string>
 #include <vector>
 #include <map>
