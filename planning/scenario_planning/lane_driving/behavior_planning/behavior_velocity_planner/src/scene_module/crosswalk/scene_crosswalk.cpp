@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "scene_module/crosswalk/scene_crosswalk.hpp"
-
-#include <vector>
-#include "utilization/util.hpp"
 
 #include <cmath>
+#include <vector>
+
+#include "rclcpp/rclcpp.hpp"
+#include "scene_module/crosswalk/scene_crosswalk.hpp"
+#include "utilization/util.hpp"
+
+
 
 namespace bg = boost::geometry;
 using Point = bg::model::d2::point_xy<double>;
@@ -95,8 +98,8 @@ bool CrosswalkModule::modifyPathVelocity(
 }
 
 bool CrosswalkModule::checkStopArea(
-  const autoware_planning_msgs::PathWithLaneId & input, const Polygon & crosswalk_polygon,
-  const autoware_perception_msgs::DynamicObjectArray::ConstPtr & objects_ptr,
+  const autoware_planning_msgs::msg::PathWithLaneId & input, const Polygon & crosswalk_polygon,
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & objects_ptr,
   const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
   autoware_planning_msgs::msg::PathWithLaneId & output, bool * insert_stop)
 {
@@ -209,8 +212,8 @@ bool CrosswalkModule::checkStopArea(
 }
 
 bool CrosswalkModule::checkSlowArea(
-  const autoware_planning_msgs::PathWithLaneId & input, const Polygon & crosswalk_polygon,
-  const autoware_perception_msgs::DynamicObjectArray::ConstPtr & objects_ptr,
+  const autoware_planning_msgs::msg::PathWithLaneId & input, const Polygon & crosswalk_polygon,
+  const autoware_perception_msgs::msg::DynamicObjectArray::ConstPtr & objects_ptr,
   const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
   autoware_planning_msgs::msg::PathWithLaneId & output)
 {
@@ -278,7 +281,7 @@ bool CrosswalkModule::checkSlowArea(
   return true;
 }
 bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
-  const autoware_planning_msgs::PathWithLaneId & input, const Polygon & crosswalk_polygon,
+  const autoware_planning_msgs::msg::PathWithLaneId & input, const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> & crosswalk_polygon,
   const float extended_width, Polygon & path_polygon)
 {
   std::vector<Point> path_collision_points;
@@ -294,8 +297,7 @@ bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
     }
   }
   if (path_collision_points.size() != 2) {
-    ROS_ERROR_THROTTLE(
-      5,
+    RCLCPP_ERROR_THROTTLE(logger_,*clock_,5.0,
       "There must be two points of conflict between the crosswalk polygon and the path. points is "
       "%d",
       (int)path_collision_points.size());
@@ -304,7 +306,7 @@ bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
 
   Polygon candidate_path_polygon;
   {
-    const double width = planner_data_->vehicle_width;
+    const double width = planner_data_->vehicle_info_.vehicle_width_m_;
     const double d = (width / 2.0) + extended_width;
     const auto cp0 = path_collision_points.at(0);
     const auto cp1 = path_collision_points.at(1);
@@ -325,7 +327,7 @@ bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
   bg::intersection(crosswalk_polygon, candidate_path_polygon, path_polygons);
 
   if (path_polygons.size() != 1) {
-    ROS_ERROR_THROTTLE(5, "Number of polygon is %d. Must be 1", (int)path_polygons.size());
+    RCLCPP_ERROR_THROTTLE(logger_,*clock_,5.0, "Number of polygon is %d. Must be 1", (int)path_polygons.size());
     return false;
   }
   path_polygon = path_polygons.at(0);

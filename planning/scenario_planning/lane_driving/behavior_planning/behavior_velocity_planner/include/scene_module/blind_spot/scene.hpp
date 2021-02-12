@@ -141,8 +141,8 @@ private:
     lanelet::LaneletMapConstPtr lanelet_map_ptr,
     lanelet::routing::RoutingGraphPtr routing_graph_ptr,
     const autoware_planning_msgs::msg::PathWithLaneId & path,
-    const autoware_perception_msgs::DynamicObjectArray::ConstPtr objects_ptr, const int closest_idx,
-    const geometry_msgs::Pose & stop_line_pose) const;
+    const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr objects_ptr,
+    const int closest_idx, const geometry_msgs::msg::Pose & stop_line_pose) const;
 
   /**
    * @brief Create half lanelet

@@ -47,7 +47,7 @@ struct DebugData
 };
 
 bool insertTargetVelocityPoint(
-  const autoware_planning_msgs::PathWithLaneId & input,
+  const autoware_planning_msgs::msg::PathWithLaneId & input,
   const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> & polygon,
   const double & margin, const double & velocity, const PlannerData & planner_data,
   autoware_planning_msgs::msg::PathWithLaneId & output, DebugData & debug_data,

@@ -103,7 +103,7 @@ bool BlindSpotModule::modifyPathVelocity(
 
   /* get debug info */
   const auto stop_line_pose =
-    util::getAheadPose(stop_line_idx, planner_data_->base_link2front, *path);
+    util::getAheadPose(stop_line_idx, planner_data_->vehicle_info_.max_longitudinal_offset_m_, *path);
   debug_data_.virtual_wall_pose = stop_line_pose;
   debug_data_.stop_point_pose = path->points.at(stop_line_idx).point.pose;
   debug_data_.judge_point_pose = path->points.at(pass_judge_line_idx).point.pose;
@@ -315,7 +315,7 @@ bool BlindSpotModule::checkObstacleInBlindSpot(
     return false;
   }
 
-  const auto areas = generateBlindSpotPolygons(
+  const auto areas_opt = generateBlindSpotPolygons(
     lanelet_map_ptr, routing_graph_ptr, path, closest_idx, stop_line_pose);
   if (!!areas_opt) {
     debug_data_.detection_area_for_blind_spot = areas_opt.get().detection_area;
@@ -333,8 +333,8 @@ bool BlindSpotModule::checkObstacleInBlindSpot(
 
       bool exist_in_detection_area = bg::within(
         to_bg2d(object.state.pose_covariance.pose.position),
-        lanelet::utils::to2D(areas.detection_area));
-      bool exist_in_conflict_area = isPredictedPathInArea(object, areas.conflict_area);
+        lanelet::utils::to2D(areas_opt.get().detection_area));
+      bool exist_in_conflict_area = isPredictedPathInArea(object, areas_opt.get().conflict_area);
       if (exist_in_detection_area && exist_in_conflict_area) {
         obstacle_detected = true;
         debug_data_.conflicting_targets.objects.push_back(object);
