@@ -28,7 +28,7 @@
  * limitations under the License.
  */
 
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 #include <memory>
 
 #include "pure_pursuit/pure_pursuit_node.hpp"
