@@ -1,3 +1,4 @@
+#! /usr/bin/env python3
 from __future__ import print_function
 
 import argparse
@@ -7,13 +8,12 @@ import sys
 import numpy as np
 import rclpy
 from rclpy.node import Node
-import tf2_ros
 from autoware_planning_msgs.msg import StopReasonArray
 from geometry_msgs.msg import PoseStamped
 from rtree import index
 
-from scripts.self_pose_listener import SelfPoseListener
-from scripts.case_converter import pascal2snake
+from self_pose_listener import SelfPoseListener
+from case_converter import pascal2snake
 
 
 class StopReason2PoseNode(Node):
@@ -24,7 +24,7 @@ class StopReason2PoseNode(Node):
         self._pub_pose_map = {}
         self._idx_map = {}
         self._pose_map = {}
-        #self._self_pose_listener = SelfPoseListener()
+        self._self_pose_listener = SelfPoseListener()
 
     def _on_stop_reasons(self, msg):
         for stop_reason in msg.stop_reasons:

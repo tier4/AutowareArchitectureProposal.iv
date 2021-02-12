@@ -11,7 +11,7 @@
     <depend>tf2_ros</depend>
 
     <!-- todo -->
-  <buildtool_depend>ament_python</buildtool_depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
     <exec_depend>rclpy</exec_depend>
     <exec_depend>launch_ros</exec_depend>
@@ -23,6 +23,6 @@
     <test_depend>python3-pytest</test_depend>
 
     <export>
-        <build_type>ament_python</build_type>
+        <build_type>ament_cmake</build_type>
     </export>
 </package>

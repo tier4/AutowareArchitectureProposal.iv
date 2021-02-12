@@ -1,18 +1,24 @@
-import rospy
-import tf
+#! /usr/bin/env python3
+import rclpy
+from rclpy.node import Node
+from tf2_ros import LookupException
+from tf2_ros.buffer import Buffer
+from tf2_ros.transform_listener import TransformListener
 from geometry_msgs.msg import PoseStamped
 
 
-class SelfPoseListener:
+class SelfPoseListener(Node):
     def __init__(self):
-        self._tf_listener = tf.TransformListener()
+        super().__init__('self_pose_listener')
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
 
     def get_current_pose(self):
         try:
-            (trans, quat) = self._tf_listener.lookupTransform("map", "base_link", rospy.Time(0))
+            (trans, quat) = self.tf_buffer.lookup_transform("map", "base_link", rclpy.time.Time())
             time = self._tf_listener.getLatestCommonTime("map", "base_link")
             return SelfPoseListener.create_pose(time, "map", trans, quat)
-        except Exception as e:
+        except LookupException as e:
             return None
 
     @staticmethod

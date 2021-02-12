@@ -20,7 +20,7 @@ endif()
 ament_package()
 
 install(PROGRAMS src/stop_reason2pose.py src/pose2tf.py src/tf2pose.py
-        DESTINATION lib/${PROJECT_NAME})
+                 src/case_converter.py src/self_pose_listener.py
+                 scripts/stop_reason2tf DESTINATION lib/${PROJECT_NAME})
 
-install(FILES src/case_converter.py src/self_pose_listener.py
-        DESTINATION share/${PROJECT_NAME})
+install(FILES DESTINATION share/${PROJECT_NAME})

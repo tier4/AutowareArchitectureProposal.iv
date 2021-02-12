@@ -1,7 +1,9 @@
+#! /usr/bin/env python3
 from __future__ import print_function
 
 import argparse
 import sys
+
 
 import rclpy
 from rclpy.node import Node
@@ -24,7 +26,6 @@ class Tf2PoseNode(Node):
 
     def _on_timer(self):
         try:
-            # (trans, quat) = self._tf_listener.lookupTransform(self._options.tf_from, self._options.tf_to, rclpy.Time(0))
             (trans, quat) = self.tf_buffer.lookup_transform(self._options.tf_from, self._options.tf_to, rclpy.time.Time()) #todo rospy.Time(0)
             time = self._tf_listener.getLatestCommonTime(self._options.tf_from, self._options.tf_to)
             pose = Tf2PoseNode.create_pose(time, self._options.tf_from, trans, quat)

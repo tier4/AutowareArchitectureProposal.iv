@@ -1,10 +1,10 @@
+#! /usr/bin/env python3
 from __future__ import print_function
 
 import argparse
 import sys
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import QoSProfile
 import tf2_ros
 from geometry_msgs.msg import PoseStamped
 
