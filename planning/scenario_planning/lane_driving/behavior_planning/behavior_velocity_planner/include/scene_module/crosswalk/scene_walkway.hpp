@@ -11,7 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+
+#define SCENE_MODULE__CROSSWALK__SCENE_WALKWAY_HPP_
+#ifndef SCENE_MODULE__CROSSWALK__SCENE_WALKWAY_HPP_
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -62,3 +64,4 @@ private:
   // Debug
   DebugData debug_data_;
 };
+#endif  // SCENE_MODULE__CROSSWALK__SCENE_WALKWAY_HPP_

@@ -11,7 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+
+#ifndef UTILIZATION__MARKER_HELPER_HPP_
+#define UTILIZATION__MARKER_HELPER_HPP_
 
 #include "visualization_msgs/msg/marker_array.hpp"
 
@@ -96,3 +98,4 @@ inline void appendMarkerArray(
     marker_array->markers.back().header.stamp = current_time;
   }
 }
+#endif  // UTILIZATION__MARKER_HELPER_HPP_

@@ -11,7 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+
+#ifndef SCENE_MODULE__DETECTION_AREA__SCENE_HPP_
+#define SCENE_MODULE__DETECTION_AREA__SCENE_HPP_
 
 #include <memory>
 #include <utility>
@@ -105,3 +107,4 @@ private:
   // Debug
   DebugData debug_data_;
 };
+#endif  // SCENE_MODULE__DETECTION_AREA__SCENE_HPP_

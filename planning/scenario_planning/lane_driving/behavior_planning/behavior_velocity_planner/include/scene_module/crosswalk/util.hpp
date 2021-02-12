@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef SCENE_MODULE__CROSSWALK__UTIL_HPP_
+#define SCENE_MODULE__CROSSWALK__UTIL_HPP_
 
 #include <memory>
 #include <string>
@@ -69,3 +70,5 @@ bool isClockWise(
 
 boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> inverseClockWise(
   const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> & polygon);
+
+#endif  // SCENE_MODULE__CROSSWALK__UTIL_HPP_

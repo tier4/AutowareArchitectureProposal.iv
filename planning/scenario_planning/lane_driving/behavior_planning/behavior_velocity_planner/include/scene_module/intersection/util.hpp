@@ -11,7 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+
+#ifndef SCENE_MODULE__INTERSECTION__UTIL_HPP_
+#define SCENE_MODULE__INTERSECTION__UTIL_HPP_
 
 #include <memory>
 #include <string>
@@ -94,3 +96,4 @@ bool getStopPoseFromMap(
   const std::shared_ptr<const PlannerData> & planner_data);
 
 }  // namespace util
+#endif  // SCENE_MODULE__INTERSECTION__UTIL_HPP_

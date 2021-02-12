@@ -11,7 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+
+#ifndef SCENE_MODULE__TRAFFIC_LIGHT__MANAGER_HPP_
+#define SCENE_MODULE__TRAFFIC_LIGHT__MANAGER_HPP_
 
 #include <functional>
 #include <memory>
@@ -42,3 +44,4 @@ private:
   rclcpp::Publisher<autoware_perception_msgs::msg::TrafficLightStateStamped>::SharedPtr
     pub_tl_state_;
 };
+#endif  // SCENE_MODULE__TRAFFIC_LIGHT__MANAGER_HPP_

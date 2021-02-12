@@ -11,7 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+
+#ifndef BEHAVIOR_VELOCITY_PLANNER__NODE_HPP_
+#define BEHAVIOR_VELOCITY_PLANNER__NODE_HPP_
 
 #include <memory>
 #include <string>
@@ -88,3 +90,4 @@ private:
   geometry_msgs::msg::PoseStamped getCurrentPose();
   bool isDataReady();
 };
+#endif  // BEHAVIOR_VELOCITY_PLANNER__NODE_HPP_

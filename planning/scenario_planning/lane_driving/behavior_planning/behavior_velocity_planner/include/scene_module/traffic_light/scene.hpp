@@ -11,7 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+
+#ifndef SCENE_MODULE__TRAFFIC_LIGHT__SCENE_HPP_
+#define SCENE_MODULE__TRAFFIC_LIGHT__SCENE_HPP_
 
 #include <memory>
 #include <string>
@@ -45,9 +47,9 @@ public:
   {
     double base_link2front;
     std::vector<std::tuple<
-      std::shared_ptr<const lanelet::TrafficLight>,
-      autoware_perception_msgs::msg::TrafficLightState>>
-      tl_state;  // TODO(someone): replace tuple with struct
+        std::shared_ptr<const lanelet::TrafficLight>,
+        autoware_perception_msgs::msg::TrafficLightState>>
+    tl_state;    // TODO(someone): replace tuple with struct
     std::vector<geometry_msgs::msg::Pose> stop_poses;
     geometry_msgs::msg::Pose first_stop_pose;
     std::vector<geometry_msgs::msg::Pose> dead_line_poses;
@@ -147,3 +149,4 @@ private:
   // Traffic Light State
   autoware_perception_msgs::msg::TrafficLightStateStamped tl_state_;
 };
+#endif  // SCENE_MODULE__TRAFFIC_LIGHT__SCENE_HPP_

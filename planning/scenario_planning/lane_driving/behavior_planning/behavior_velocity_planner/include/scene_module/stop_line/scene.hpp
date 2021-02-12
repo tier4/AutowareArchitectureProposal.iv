@@ -11,7 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#pragma once
+
+#ifndef SCENE_MODULE__STOP_LINE__SCENE_HPP_
+#define SCENE_MODULE__STOP_LINE__SCENE_HPP_
 
 #include <string>
 #include <vector>
@@ -77,3 +79,4 @@ private:
   // Debug
   DebugData debug_data_;
 };
+#endif  // SCENE_MODULE__STOP_LINE__SCENE_HPP_

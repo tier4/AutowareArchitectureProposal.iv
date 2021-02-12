@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef BEHAVIOR_VELOCITY_PLANNER__PLANNER_DATA_HPP_
+#define BEHAVIOR_VELOCITY_PLANNER__PLANNER_DATA_HPP_
 
 #include <boost/optional.hpp>
 #include <map>
@@ -105,3 +106,4 @@ struct PlannerData
       external_traffic_light_id_map_.at(id));
   }
 };
+#endif  // BEHAVIOR_VELOCITY_PLANNER__PLANNER_DATA_HPP_

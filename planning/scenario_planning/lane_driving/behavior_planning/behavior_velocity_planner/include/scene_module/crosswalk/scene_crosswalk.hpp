@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef SCENE_MODULE__CROSSWALK__SCENE_CROSSWALK_HPP_
+#define SCENE_MODULE__CROSSWALK__SCENE_CROSSWALK_HPP_
 
 #include "boost/assert.hpp"
 #include "boost/assign/list_of.hpp"
@@ -99,3 +100,4 @@ private:
   // Debug
   DebugData debug_data_;
 };
+#endif  // SCENE_MODULE__CROSSWALK__SCENE_CROSSWALK_HPP_
