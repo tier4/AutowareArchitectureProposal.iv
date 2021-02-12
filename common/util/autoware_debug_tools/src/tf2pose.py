@@ -26,8 +26,10 @@ class Tf2PoseNode(Node):
 
     def _on_timer(self):
         try:
-            (trans, quat) = self.tf_buffer.lookup_transform(self._options.tf_from, self._options.tf_to, rclpy.time.Time())
-            time = self._tf_listener.getLatestCommonTime(self._options.tf_from, self._options.tf_to)
+            (trans, quat) = self.tf_buffer.lookup_transform(
+                self._options.tf_from, self._options.tf_to, rclpy.time.Time())
+            time = self._tf_listener.getLatestCommonTime(
+                self._options.tf_from, self._options.tf_to)
             pose = Tf2PoseNode.create_pose(time, self._options.tf_from, trans, quat)
             self._pub_pose.publish(pose)
         except LookupException as e:

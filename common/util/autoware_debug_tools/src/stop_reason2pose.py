@@ -20,7 +20,8 @@ class StopReason2PoseNode(Node):
     def __init__(self, options):
         super().__init__('stop_reason2pose_node')
         self._options = options
-        self._sub_pose = self.create_subscription(StopReasonArray, self._options.topic_name, self._on_stop_reasons, 100)
+        self._sub_pose = self.create_subscription(
+            StopReasonArray, self._options.topic_name, self._on_stop_reasons, 100)
         self._pub_pose_map = {}
         self._idx_map = {}
         self._pose_map = {}
@@ -37,7 +38,8 @@ class StopReason2PoseNode(Node):
 
                 # Get nearest pose
                 th_dist = 1.0
-                nearest_pose_id = self._get_nearest_pose_id(snake_case_stop_reason, pose.pose, th_dist)
+                nearest_pose_id = self._get_nearest_pose_id(
+                    snake_case_stop_reason, pose.pose, th_dist)
                 if nearest_pose_id:
                     self._update_pose(snake_case_stop_reason, pose.pose, nearest_pose_id)
                     pose_id = nearest_pose_id
@@ -46,7 +48,8 @@ class StopReason2PoseNode(Node):
 
                 pose_topic_name = "{snake_case_stop_reason}_{pose_id}".format(**locals())
                 if pose_topic_name not in self._pub_pose_map:
-                    self._pub_pose_map[pose_topic_name] = self.create_publisher(PoseStamped, "~pose" + pose_topic_name, queue_size=1)
+                    self._pub_pose_map[pose_topic_name] = self.create_publisher(
+                        PoseStamped, "~pose" + pose_topic_name, queue_size=1)
                 self._pub_pose_map[pose_topic_name].publish(pose)
 
             # Publish nearest stop_reason without number
@@ -58,7 +61,8 @@ class StopReason2PoseNode(Node):
 
             if nearest_pose.pose:
                 if snake_case_stop_reason not in self._pub_pose_map:
-                    self._pub_pose_map[snake_case_stop_reason] = self.create_publisher(PoseStamped, "~pose" + snake_case_stop_reason, queue_size=1)
+                    self._pub_pose_map[snake_case_stop_reason] = self.create_publisher(
+                        PoseStamped, "~pose" + snake_case_stop_reason, queue_size=1)
                 self._pub_pose_map[snake_case_stop_reason].publish(nearest_pose)
 
     def _get_nearest_pose_in_array(self, stop_reason, self_pose):

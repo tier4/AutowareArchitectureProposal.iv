@@ -14,7 +14,8 @@ class Pose2TfNode(Node):
         super().__init__('pose2tf')
         self._options = options
         self._tf_broadcaster = tf2_ros.TransformBroadcaster(self)
-        self._sub_pose = self.create_subscription(PoseStamped, self._options.topic_name, self._on_pose, 1)
+        self._sub_pose = self.create_subscription(
+            PoseStamped, self._options.topic_name, self._on_pose, 1)
 
     def _on_pose(self, msg):
         try:
