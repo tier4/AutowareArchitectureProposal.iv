@@ -221,13 +221,6 @@ private:
    */
   bool isTargetExternalInputStatus(const int target_status);
 
-  /**
-   * @brief Whether target autoware_api_msgs::Intersection::status is valid or not
-   * @param target_status target autoware_api_msgs::Intersection::status
-   * @return rue if the object has a target type
-   */
-  bool isTargetExternalInputStatus(const int target_status);
-
   StateMachine state_machine_;  //! for state
 
   // Debug
