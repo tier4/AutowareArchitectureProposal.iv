@@ -208,7 +208,7 @@ bool hasLaneId(const autoware_planning_msgs::msg::PathPointWithLaneId & p, const
 }
 
 bool hasDuplicatedPoint(
-  const autoware_planning_msgs::PathWithLaneId & path, const geometry_msgs::Point & point)
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const geometry_msgs::msg::Point & point)
 {
   for (const auto & path_point : path.points) {
     const auto & p = path_point.point.pose.position;

@@ -25,7 +25,7 @@ namespace bg = boost::geometry;
 namespace
 {
 std::pair<int, double> findWayPointAndDistance(
-  const autoware_planning_msgs::PathWithLaneId & path, const geometry_msgs::Point & p)
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const geometry_msgs::msg::Point & p)
 {
   constexpr double max_lateral_dist = 3.0;
   for (size_t i = 0; i < path.points.size() - 1; ++i) {
@@ -79,8 +79,8 @@ double calcArcLengthFromWayPoint(
 }
 
 double calcSignedArcLength(
-  const autoware_planning_msgs::PathWithLaneId & path, const geometry_msgs::Point & p1,
-  const geometry_msgs::Point & p2)
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const geometry_msgs::msg::Point & p1,
+  const geometry_msgs::msg::Point & p2)
 {
   const std::pair<int, double> src = findWayPointAndDistance(path, p1);
   const std::pair<int, double> dst = findWayPointAndDistance(path, p2);
@@ -99,7 +99,7 @@ double calcSignedArcLength(
   }
 }
 
-double calcSignedDistance(const geometry_msgs::Pose & p1, const geometry_msgs::Point & p2)
+double calcSignedDistance(const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Point & p2)
 {
   Eigen::Affine3d map2p1;
   tf2::fromMsg(p1, map2p1);
