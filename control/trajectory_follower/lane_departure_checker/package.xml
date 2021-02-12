@@ -1,9 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>autoware_utils</name>
+  <name>lane_departure_checker</name>
   <version>0.1.0</version>
-  <description>The autoware_utils package</description>
-  <maintainer email="horibe.takamasa@gmail.com">Takamasa Horibe</maintainer>
+  <description>The lane_departure_checker package</description>
   <maintainer email="kenji.miyake@tier4.jp">Kenji Miyake</maintainer>
   <license>Apache 2</license>
 
@@ -11,15 +10,19 @@
 
   <depend>autoware_debug_msgs</depend>
   <depend>autoware_planning_msgs</depend>
-  <depend>builtin_interfaces</depend>
-  <depend>diagnostic_msgs</depend>
+  <depend>autoware_utils</depend>
+  <depend>boost</depend>
+  <depend>diagnostic_updater</depend>
+  <depend>eigen</depend>
   <depend>geometry_msgs</depend>
+  <depend>lanelet2_extension</depend>
   <depend>rclcpp</depend>
   <depend>tf2</depend>
+  <depend>tf2_eigen</depend>
   <depend>tf2_geometry_msgs</depend>
-  <depend>visualization_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>vehicle_info_util</depend>
 
-  <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
