@@ -453,10 +453,9 @@ visualization_msgs::msg::MarkerArray createWalkwayMarkers(
 
     visualization_msgs::msg::Marker range_marker;
     range_marker.header.frame_id = "map";
-    range_marker.header.stamp = current_time;
     range_marker.ns = "walkway stop judge range";
     range_marker.id = uid + debug_data.stop_poses.size() + j;
-    range_marker.marker.lifetime = rclcpp::Duration::from_seconds(0.5);
+    range_marker.lifetime = rclcpp::Duration::from_seconds(0.5);
     range_marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
     range_marker.action = visualization_msgs::msg::Marker::ADD;
     range_marker.pose.position.x = 0;
