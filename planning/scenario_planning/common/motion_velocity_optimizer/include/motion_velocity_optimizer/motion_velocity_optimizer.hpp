@@ -24,6 +24,7 @@
 #include "motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp"
 #include "motion_velocity_optimizer/optimizer/optimizer_base.hpp"
 
+#include "autoware_debug_msgs/msg/bool_stamped.hpp"
 #include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
 #include "autoware_debug_msgs/msg/float32_stamped.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
@@ -32,6 +33,7 @@
 
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp/time.hpp"
 #include "tf2/utils.h"
 #include "tf2_ros/transform_listener.h"
 
@@ -44,6 +46,8 @@ public:
 private:
   // publisher for output trajectory
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_;
+  // publisher for over stop velocity warning
+  rclcpp::Publisher<autoware_debug_msgs::msg::BoolStamped>::SharedPtr pub_over_stop_velocity_;
   // subscriber for current velocity
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_velocity_;
   // subscriber for reference trajectory
@@ -85,19 +89,23 @@ private:
 
   bool publish_debug_trajs_;  // publish planned trajectories
 
+  double over_stop_velocity_warn_thr_;  // threshold to publish over velocity warn
+
   struct MotionVelocityOptimizerParam
   {
     double max_velocity;                 // max velocity [m/s]
     double max_accel;                    // max acceleration in planning [m/s2] > 0
-    double min_decel;                    // min deceltion in planning [m/s2] < 0
-    double max_lateral_accel;            // max lateral acceleartion [m/ss] > 0
+    double min_decel;                    // min deceleration in planning [m/s2] < 0
+    double max_lateral_accel;            // max lateral acceleration [m/ss] > 0
     double min_curve_velocity;           // min velocity at curve [m/s]
     double decel_distance_before_curve;  // distance before slow down for lateral acc at a curve
     double decel_distance_after_curve;   // distance after slow down for lateral acc at a curve
     double replan_vel_deviation;  // if speed error exceeds this [m/s], replan from current velocity
     double engage_velocity;       // use this speed when start moving [m/s]
     double engage_acceleration;   // use this acceleration when start moving [m/ss]
-    double engage_exit_ratio;     // exit engage sequence when the speed exceeds ratio x engege_vel.
+    double engage_exit_ratio;     // exit engage sequence when the speed exceeds ratio x engage_vel.
+    double stopping_velocity;     // change target velocity to this value before v=0 point.
+    double stopping_distance;     // distance for the stopping_velocity
     double extract_ahead_dist;    // forward waypoints distance from current position [m]
     double extract_behind_dist;   // backward waypoints distance from current position [m]
     double max_trajectory_length;             // max length of the objective trajectory for resample
@@ -131,13 +139,19 @@ private:
 
   autoware_planning_msgs::msg::Trajectory optimizeVelocity(
     const autoware_planning_msgs::msg::Trajectory & input, const int input_closest,
-    const autoware_planning_msgs::msg::Trajectory & prev_output_traj,
-    const int prev_output_closest);
+    const autoware_planning_msgs::msg::Trajectory & prev_output,
+    const autoware_planning_msgs::msg::TrajectoryPoint & prev_output_point);
 
   void calcInitialMotion(
     const double & base_speed, const autoware_planning_msgs::msg::Trajectory & base_waypoints,
     const int base_closest, const autoware_planning_msgs::msg::Trajectory & prev_replanned_traj,
-    const int prev_replanned_traj_closest, double & initial_vel, double & initial_acc);
+    const autoware_planning_msgs::msg::TrajectoryPoint & prev_output_point, double & initial_vel,
+    double & initial_acc);
+
+  void calcVelAccFromPrevTraj(
+    const autoware_planning_msgs::msg::Trajectory & traj,
+    const geometry_msgs::msg::Pose current_point,
+    double * vel, double * acc);
 
   /* const methods */
   bool resampleTrajectory(
@@ -165,8 +179,22 @@ private:
     const autoware_planning_msgs::msg::Trajectory & trajectory, const int closest) const;
 
   void insertBehindVelocity(
-    const int prev_out_closest, const autoware_planning_msgs::msg::Trajectory & prev_output,
+    const autoware_planning_msgs::msg::Trajectory & prev_output,
     const int output_closest, autoware_planning_msgs::msg::Trajectory & output) const;
+
+  void applyStoppingVelocity(autoware_planning_msgs::msg::Trajectory * traj) const;
+
+  void overwriteStopPoint(
+    const autoware_planning_msgs::msg::Trajectory & input,
+    autoware_planning_msgs::msg::Trajectory * output) const;
+
+  autoware_planning_msgs::msg::VelocityLimit createVelocityLimitMsg(const double value)
+  {
+    autoware_planning_msgs::msg::VelocityLimit msg;
+    msg.data = value;
+    msg.stamp = now();
+    return msg;
+  }
 
   /* parameter update */
   OnSetParametersCallbackHandle::SharedPtr set_param_res_;
@@ -179,6 +207,7 @@ private:
   // publisher for stop distance
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub_dist_to_stopline_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_raw_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::VelocityLimit>::SharedPtr pub_velocity_limit_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_vel_lim_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr
     pub_trajectory_latcc_filtered_;
@@ -189,6 +218,12 @@ private:
     const double & data,
     const rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub)
   const;
+
+  // jerk calc
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr debug_closest_jerk_;
+  std::shared_ptr<rclcpp::Time> prev_time_;
+  double prev_acc_;
+  void publishClosestJerk(const double curr_acc);
 };
 
 #endif  // MOTION_VELOCITY_OPTIMIZER__MOTION_VELOCITY_OPTIMIZER_HPP_

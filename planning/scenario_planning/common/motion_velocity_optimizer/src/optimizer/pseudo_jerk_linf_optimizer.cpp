@@ -21,14 +21,17 @@
 
 #include "eigen3/Eigen/Core"
 
-LinfPseudoJerkOptimizer::LinfPseudoJerkOptimizer(const LinfPseudoJerkOptimizer::OptimizerParam & p)
+LinfPseudoJerkOptimizer::LinfPseudoJerkOptimizer(const OptimizerParam & p)
 {
   param_ = p;
+  qp_solver_.updateMaxIter(20000);
+  qp_solver_.updateRhoInterval(5000);
+  qp_solver_.updateEpsRel(1.0e-4);  // def: 1.0e-4
+  qp_solver_.updateEpsAbs(1.0e-8);  // def: 1.0e-4
+  qp_solver_.updateVerbose(false);
 }
 
-void LinfPseudoJerkOptimizer::setAccel(const double max_accel) {param_.max_accel = max_accel;}
-
-void LinfPseudoJerkOptimizer::setDecel(const double min_decel) {param_.min_decel = min_decel;}
+void LinfPseudoJerkOptimizer::setParam(const OptimizerParam & param) {param_ = param;}
 
 bool LinfPseudoJerkOptimizer::solve(
   const double initial_vel, const double initial_acc, const int closest,
@@ -69,7 +72,7 @@ bool LinfPseudoJerkOptimizer::solve(
   }
 
   /*
-  * x = [b0, b1, ..., bN, |  a0, a1, ..., aN, | delta0, delta1, ..., deltaN, | sigma0, sigme1, ..., sigmaN, | psi] in R^{4N+1}
+  * x = [b0, b1, ..., bN, |  a0, a1, ..., aN, | delta0, delta1, ..., deltaN, | sigma0, sigma1, ..., sigmaN, | psi] in R^{4N+1}
   * b: velocity^2
   * a: acceleration
   * delta: 0 < bi < vmax^2 + delta
@@ -114,7 +117,7 @@ bool LinfPseudoJerkOptimizer::solve(
   // 0 < b - delta < vmax^2
   // NOTE: The delta allows b to be negative. This is actually invalid because the definition is
   // b=v^2. But mathematically, the strict b>0 constraint may make the problem infeasible, such as
-  // the case of v=0 & a<0. To avoid the infesibility, we allow b<0. The negative b is dealt as b=0
+  // the case of v=0 & a<0. To avoid the infeasibility, we allow b<0. The negative b is dealt as b=0
   // when it is converted to v with sqrt. If the weight of delta^2 is large (the value of delta is
   // very small), b is almost 0, and is not a big problem.
   for (unsigned int i = 0; i < N; ++i) {
@@ -142,7 +145,7 @@ bool LinfPseudoJerkOptimizer::solve(
   // b' = 2a
   for (unsigned int i = 2 * N; i < 3 * N - 1; ++i) {
     const unsigned int j = i - 2 * N;
-    const double dsinv = 1.0 / std::max(interval_dist_arr.at(j), 0.0001);
+    const double dsinv = 1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001);
     A(i, j) = -dsinv;
     A(i, j + 1) = dsinv;
     A(i, j + N) = -2.0;
@@ -167,8 +170,8 @@ bool LinfPseudoJerkOptimizer::solve(
   for (unsigned int i = 3 * N + 1; i < 4 * N; ++i) {
     const unsigned int ia = i - (3 * N + 1) + N;
     const unsigned int ip = 4 * N;
-    const unsigned int j = i - 3 * N + 1;
-    const double dsinv = 1.0 / std::max(interval_dist_arr.at(j), 0.0001);
+    const unsigned int j = i - (3 * N + 1);
+    const double dsinv = 1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001);
 
     A(i, ia) = -dsinv;
     A(i, ia + 1) = dsinv;
@@ -208,6 +211,14 @@ bool LinfPseudoJerkOptimizer::solve(
   for (unsigned int i = N + closest; i < output->points.size(); ++i) {
     output->points.at(i).twist.linear.x = 0.0;
     output->points.at(i).accel.linear.x = 0.0;
+  }
+
+  const int status_val = std::get<3>(result);
+  if (status_val != 1) {
+    RCLCPP_WARN(
+      rclcpp::get_logger("LinfPseudoJerkOptimizer"),
+      "[motion_velocity_optimizer] optimization failed : %s",
+      qp_solver_.getStatusMessage().c_str());
   }
 
   auto tf2 = std::chrono::system_clock::now();
