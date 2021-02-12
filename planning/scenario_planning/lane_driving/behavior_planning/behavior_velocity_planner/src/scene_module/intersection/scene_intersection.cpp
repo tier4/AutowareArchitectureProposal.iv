@@ -187,7 +187,7 @@ bool IntersectionModule::checkCollision(
 {
   /* generate ego-lane polygon */
   const Polygon2d ego_poly = generateEgoIntersectionLanePolygon(
-    path, closest_idx, closest_idx, 0.0, 0.0);  // TODO use Lanelet
+    path, closest_idx, closest_idx, 0.0, 0.0);  // TODO(someone): use Lanelet
   debug_data_.ego_lane_polygon = toGeomMsg(ego_poly);
 
   /* extract target objects */
@@ -285,7 +285,7 @@ Polygon2d IntersectionModule::generateEgoIntersectionLanePolygon(
   }
 
   if (static_cast<int>(ego_area_start_idx) < closest_idx) {
-    //If ego-position is over the start_idx, use closest_idx as start
+    // If ego-position is over the start_idx, use closest_idx as start
     ego_area_start_idx = closest_idx;
   }
 

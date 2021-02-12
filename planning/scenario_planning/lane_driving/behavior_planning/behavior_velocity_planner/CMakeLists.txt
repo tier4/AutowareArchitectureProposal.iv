@@ -200,7 +200,7 @@ target_include_directories(behavior_velocity_planner_node
     $<INSTALL_INTERFACE:include>
 )
 
-ament_target_dependencies(behavior_velocity_planner_node ${BEHAVIOR_VELOCITY_PLANNER_DEPENDENCIES} )
+ament_target_dependencies(behavior_velocity_planner_node ${BEHAVIOR_VELOCITY_PLANNER_DEPENDENCIES})
 
 target_link_libraries(behavior_velocity_planner_node
   scene_module_lib

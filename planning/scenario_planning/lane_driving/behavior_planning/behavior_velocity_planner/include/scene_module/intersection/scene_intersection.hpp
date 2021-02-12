@@ -95,9 +95,9 @@ public:
     double path_expand_width;  //! path width to calculate the edge line for both side
     double stop_line_margin;   //! distance from auto-generated stopline to detection_area boundary
     double
-      stuck_vehicle_detect_dist;  //! distance from intersection end point to finish stuck vehicle check
+      stuck_vehicle_detect_dist;  //! distance from end point to finish stuck vehicle check
     double
-      stuck_vehicle_ignore_dist;  //! distance from intersection start point to start stuck vehicle check
+      stuck_vehicle_ignore_dist;  //! distance from intersection start to start stuck vehicle check
     double stuck_vehicle_vel_thr;  //! Threshold of the speed to be recognized as stopped
     double intersection_velocity;  //! used for intersection passing time
     double intersection_max_acc;   //! used for calculating intersection velocity

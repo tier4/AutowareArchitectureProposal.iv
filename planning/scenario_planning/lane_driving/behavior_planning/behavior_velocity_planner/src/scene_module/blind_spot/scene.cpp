@@ -82,14 +82,14 @@ bool BlindSpotModule::modifyPathVelocity(
   if (!generateStopLine(straight_lanelets, path, &stop_line_idx, &pass_judge_line_idx)) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       logger_, *clock_, 1000 /* ms */, "[BlindSpotModule::run] setStopLineIdx fail");
-    *path = input_path; // reset path
+    *path = input_path;  // reset path
     return false;
   }
 
   if (stop_line_idx <= 0 || pass_judge_line_idx <= 0) {
     RCLCPP_DEBUG(
       logger_, "[Blind Spot] stop line or pass judge line is at path[0], ignore planning.");
-    *path = input_path; // reset path
+    *path = input_path;  // reset path
     return true;
   }
 
@@ -98,7 +98,7 @@ bool BlindSpotModule::modifyPathVelocity(
   if (!planning_utils::calcClosestIndex(input_path, current_pose.pose, closest_idx)) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       logger_, *clock_, 1000 /* ms */, "[Blind Spot] calcClosestIndex fail");
-    *path = input_path; // reset path
+    *path = input_path;  // reset path
     return false;
   }
 
@@ -119,7 +119,7 @@ bool BlindSpotModule::modifyPathVelocity(
   }
   if (current_state == State::GO && is_over_pass_judge_line) {
     RCLCPP_DEBUG(logger_, "over the pass judge line. no plan needed.");
-    *path = input_path; // reset path
+    *path = input_path;  // reset path
     return true;  // no plan needed.
   }
 

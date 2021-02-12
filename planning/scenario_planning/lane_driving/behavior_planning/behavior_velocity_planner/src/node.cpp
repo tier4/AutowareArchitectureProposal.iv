@@ -294,7 +294,7 @@ void BehaviorVelocityPlannerNode::onTrigger(
   output_path_msg.header.frame_id = "map";
   output_path_msg.header.stamp = this->now();
 
-  // TODO: This must be updated in each scene module, but copy from input message for now.
+  // TODO(someone): This must be updated in each scene module, but copy from input message for now.
   output_path_msg.drivable_area = input_path_msg->drivable_area;
 
   path_pub_->publish(output_path_msg);

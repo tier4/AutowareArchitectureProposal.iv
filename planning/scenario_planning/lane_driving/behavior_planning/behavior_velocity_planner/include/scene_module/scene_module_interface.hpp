@@ -126,7 +126,8 @@ protected:
   {
     const auto isModuleExpired = getModuleExpiredFunction(path);
 
-    // Copy container to avoid iterator corruption due to scene_modules_.erase() in unregisterModule()
+    // Copy container to avoid iterator corruption
+    // due to scene_modules_.erase() in unregisterModule()
     const auto copied_scene_modules = scene_modules_;
 
     for (const auto & scene_module : copied_scene_modules) {

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "scene_module/crosswalk/util.hpp"
+
 
 #include <algorithm>
 #include <cmath>
@@ -20,6 +20,8 @@
 #include <vector>
 #include <memory>
 
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "scene_module/crosswalk/util.hpp"
 #include "utilization/util.hpp"
 
 #include "boost/assert.hpp"
@@ -32,12 +34,10 @@
 #include "Eigen/Core"
 #include "Eigen/Geometry"
 
-#include <lanelet2_core/primitives/BasicRegulatoryElements.h>
-#include <lanelet2_extension/regulatory_elements/road_marking.hpp>
-#include <lanelet2_extension/utility/query.hpp>
-#include <lanelet2_extension/utility/utilities.hpp>
-
-#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "lanelet2_core/primitives/BasicRegulatoryElements.h"
+#include "lanelet2_extension/regulatory_elements/road_marking.hpp"
+#include "lanelet2_extension/utility/query.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
 
 namespace bg = boost::geometry;
 using Point = bg::model::d2::point_xy<double>;
@@ -178,7 +178,7 @@ lanelet::Optional<lanelet::ConstLineString3d> getStopLineFromMap(
   const auto road_markings = lanelet.regulatoryElementsAs<lanelet::autoware::RoadMarking>();
   lanelet::ConstLineStrings3d stop_line;
   for (const auto & road_marking : road_markings) {
-    // TODO: Create regulatory element for crosswalk
+    // TODO(someone): Create regulatory element for crosswalk
     const std::string type =
       road_marking->roadMarking().attributeOr(lanelet::AttributeName::Type, "none");
     const int target_id = road_marking->roadMarking().attributeOr(attribute_name, 0);
@@ -265,8 +265,8 @@ bool insertTargetVelocityPoint(
     target_point_with_lane_id.point.pose.position.x = target_point.x();
     target_point_with_lane_id.point.pose.position.y = target_point.y();
     if (insert_target_point_idx > 0) {
-      //calculate z-position of the target point (Internal division point of point1/point2)
-      //if insert_target_point_idx is zero, use z-position of target_velocity_point_idx
+      // calculate z-position of the target point (Internal division point of point1/point2)
+      // if insert_target_point_idx is zero, use z-position of target_velocity_point_idx
       const double internal_div_ratio =
         (point1 - target_point).norm() /
         ((point1 - target_point).norm() + (point2 - target_point).norm());

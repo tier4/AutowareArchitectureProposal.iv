@@ -45,9 +45,9 @@ public:
   {
     double base_link2front;
     std::vector<std::tuple<
-        std::shared_ptr<const lanelet::TrafficLight>,
-        autoware_perception_msgs::msg::TrafficLightState>>
-    tl_state;    // TODO: replace tuple with struct
+      std::shared_ptr<const lanelet::TrafficLight>,
+      autoware_perception_msgs::msg::TrafficLightState>>
+      tl_state;  // TODO(someone): replace tuple with struct
     std::vector<geometry_msgs::msg::Pose> stop_poses;
     geometry_msgs::msg::Pose first_stop_pose;
     std::vector<geometry_msgs::msg::Pose> dead_line_poses;

@@ -294,7 +294,8 @@ bool CrosswalkModule::checkSlowArea(
 }
 bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
   const autoware_planning_msgs::msg::PathWithLaneId & input,
-  const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> & crosswalk_polygon,
+  const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>>
+   & crosswalk_polygon,
   const float extended_width, Polygon & path_polygon)
 {
   std::vector<Point> path_collision_points;
