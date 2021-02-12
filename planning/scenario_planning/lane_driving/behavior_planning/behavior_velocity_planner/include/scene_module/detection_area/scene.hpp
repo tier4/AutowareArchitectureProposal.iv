@@ -42,10 +42,10 @@ public:
   struct DebugData
   {
     double base_link2front;
-    std::vector<geometry_msgs::Pose> stop_poses;
-    std::vector<geometry_msgs::Pose> dead_line_poses;
-    geometry_msgs::Pose first_stop_pose;
-    std::vector<geometry_msgs::Point> obstacle_points;
+    std::vector<geometry_msgs::msg::Pose> stop_poses;
+    std::vector<geometry_msgs::msg::Pose> dead_line_poses;
+    geometry_msgs::msg::Pose first_stop_pose;
+    std::vector<geometry_msgs::msg::Point> obstacle_points;
   };
 
   struct PlannerParam

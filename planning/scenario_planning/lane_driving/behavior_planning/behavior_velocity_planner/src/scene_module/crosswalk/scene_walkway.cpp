@@ -73,7 +73,7 @@ bool WalkwayModule::modifyPathVelocity(
     }
 
     /* get stop point and stop factor */
-    autoware_planning_msgs::StopFactor stop_factor;
+    autoware_planning_msgs::msg::StopFactor stop_factor;
     stop_factor.stop_pose = debug_data_.first_stop_pose;
     stop_factor.stop_factor_points.emplace_back(debug_data_.nearest_collision_point);
     planning_utils::appendStopReason(stop_factor, stop_reason);

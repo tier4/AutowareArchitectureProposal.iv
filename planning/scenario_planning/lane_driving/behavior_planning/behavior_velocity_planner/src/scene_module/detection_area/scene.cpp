@@ -414,7 +414,7 @@ bool DetectionAreaModule::canClearStopState() const
   }
 
   // rollback in simulation mode
-  if (elapsed_time.toSec() < 0.0) {
+  if (elapsed_time.seconds() < 0.0) {
     return true;
   }
 

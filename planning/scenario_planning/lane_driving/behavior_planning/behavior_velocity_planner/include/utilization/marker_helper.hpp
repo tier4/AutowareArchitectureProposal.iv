@@ -62,6 +62,29 @@ inline std_msgs::msg::ColorRGBA createMarkerColor(float r, float g, float b, flo
   return color;
 }
 
+inline visualization_msgs::msg::Marker createDefaultMarker(
+  const char * frame_id, const builtin_interfaces::msg::Time current_time,const char * ns, const int32_t id, const int32_t type,
+  const std_msgs::msg::ColorRGBA & color)
+{
+  visualization_msgs::msg::Marker marker;
+
+  marker.header.frame_id = frame_id;
+  marker.header.stamp = current_time;
+  marker.ns = ns;
+  marker.id = id;
+  marker.type = type;
+  marker.action = visualization_msgs::msg::Marker::ADD;
+  marker.lifetime = rclcpp::Duration::from_seconds(0);
+
+  marker.pose.position = createMarkerPosition(0.0, 0.0, 0.0);
+  marker.pose.orientation = createMarkerOrientation(0.0, 0.0, 0.0, 1.0);
+  marker.scale = createMarkerScale(1.0, 1.0, 1.0);
+  marker.color = color;
+  marker.frame_locked = true;
+
+  return marker;
+}
+
 inline void appendMarkerArray(
   const visualization_msgs::msg::MarkerArray & additional_marker_array,
   const builtin_interfaces::msg::Time current_time,

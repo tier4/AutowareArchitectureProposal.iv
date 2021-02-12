@@ -30,20 +30,19 @@ lanelet::BasicPoint3d getCentroidPoint(const lanelet::BasicPolygon3d & poly)
   return p_sum / poly.size();
 }
 
-geometry_msgs::Point toMsg(const lanelet::BasicPoint3d & point)
+geometry_msgs::msg::Point toMsg(const lanelet::BasicPoint3d & point)
 {
-  geometry_msgs::Point msg;
+  geometry_msgs::msg::Point msg;
   msg.x = point.x();
   msg.y = point.y();
   msg.z = point.z();
   return msg;
 }
 
-visualization_msgs::MarkerArray createMarkerArray(
+visualization_msgs::msg::MarkerArray createMarkerArray(
   const DebugData & debug_data, const int64_t module_id)
 {
-  visualization_msgs::MarkerArray msg;
-  const ros::Time current_time = ros::Time::now();
+  visualization_msgs::msg::MarkerArray msg;
   const tf2::Transform tf_base_link2front(
     tf2::Quaternion(0.0, 0.0, 0.0, 1.0), tf2::Vector3(debug_data.base_link2front, 0.0, 0.0));
 
@@ -122,10 +121,10 @@ visualization_msgs::MarkerArray createMarkerArray(
   return msg;
 }
 
-visualization_msgs::MarkerArray createCorrespondenceMarkerArray(
-  const lanelet::autoware::DetectionArea & detection_area_reg_elem)
+visualization_msgs::msg::MarkerArray createCorrespondenceMarkerArray(
+  const lanelet::autoware::DetectionArea & detection_area_reg_elem,const rclcpp::Time & now)
 {
-  visualization_msgs::MarkerArray msg;
+  visualization_msgs::msg::MarkerArray msg;
 
   const lanelet::ConstLineString3d stop_line = detection_area_reg_elem.stopLine();
   const auto stop_line_center_point =
@@ -134,10 +133,10 @@ visualization_msgs::MarkerArray createCorrespondenceMarkerArray(
   // ID
   {
     auto marker = createDefaultMarker(
-      "map", "detection_area_id", detection_area_reg_elem.id(),
-      visualization_msgs::Marker::TEXT_VIEW_FACING, createMarkerColor(1.0, 1.0, 1.0, 0.999));
+      "map",now, "detection_area_id", detection_area_reg_elem.id(),
+      visualization_msgs::msg::Marker::TEXT_VIEW_FACING, createMarkerColor(1.0, 1.0, 1.0, 0.999));
     marker.scale = createMarkerScale(0.0, 0.0, 1.0);
-    marker.lifetime = ros::Duration(0.5);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.5);
 
     for (const auto & detection_area : detection_area_reg_elem.detectionAreas()) {
       const auto poly = detection_area.basicPolygon();
@@ -153,10 +152,10 @@ visualization_msgs::MarkerArray createCorrespondenceMarkerArray(
   // Polygon
   {
     auto marker = createDefaultMarker(
-      "map", "detection_area_polygon", detection_area_reg_elem.id(),
-      visualization_msgs::Marker::LINE_LIST, createMarkerColor(0.1, 0.1, 1.0, 0.500));
+      "map", now,"detection_area_polygon", detection_area_reg_elem.id(),
+      visualization_msgs::msg::Marker::LINE_LIST, createMarkerColor(0.1, 0.1, 1.0, 0.500));
     marker.scale = createMarkerScale(0.1, 0.0, 0.0);
-    marker.lifetime = ros::Duration(0.5);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.5);
 
     for (const auto & detection_area : detection_area_reg_elem.detectionAreas()) {
       const auto poly = detection_area.basicPolygon();
@@ -179,10 +178,10 @@ visualization_msgs::MarkerArray createCorrespondenceMarkerArray(
   // Polygon to StopLine
   {
     auto marker = createDefaultMarker(
-      "map", "detection_area_correspondence", detection_area_reg_elem.id(),
-      visualization_msgs::Marker::LINE_LIST, createMarkerColor(0.1, 0.1, 1.0, 0.500));
+      "map",now, "detection_area_correspondence", detection_area_reg_elem.id(),
+      visualization_msgs::msg::Marker::LINE_LIST, createMarkerColor(0.1, 0.1, 1.0, 0.500));
     marker.scale = createMarkerScale(0.1, 0.0, 0.0);
-    marker.lifetime = ros::Duration(0.5);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.5);
 
     for (const auto & detection_area : detection_area_reg_elem.detectionAreas()) {
       const auto poly = detection_area.basicPolygon();
@@ -199,17 +198,17 @@ visualization_msgs::MarkerArray createCorrespondenceMarkerArray(
   return msg;
 }
 
-visualization_msgs::MarkerArray createObstacleMarkerArray(
-  const std::vector<geometry_msgs::Point> & obstacle_points)
+visualization_msgs::msg::MarkerArray createObstacleMarkerArray(
+  const std::vector<geometry_msgs::msg::Point> & obstacle_points, const rclcpp::Time & now)
 {
-  visualization_msgs::MarkerArray msg;
+  visualization_msgs::msg::MarkerArray msg;
 
   {
     auto marker = createDefaultMarker(
-      "map", "obstacles", 0, visualization_msgs::Marker::SPHERE,
+      "map",now, "obstacles", 0, visualization_msgs::msg::Marker::SPHERE,
       createMarkerColor(1.0, 0.0, 0.0, 0.999));
     marker.scale = createMarkerScale(0.3, 0.3, 0.3);
-    marker.lifetime = ros::Duration(0.5);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.5);
 
     for (size_t i = 0; i < obstacle_points.size(); ++i) {
       marker.id = i;
@@ -227,14 +226,15 @@ visualization_msgs::MarkerArray createObstacleMarkerArray(
 visualization_msgs::msg::MarkerArray DetectionAreaModule::createDebugMarkerArray()
 {
   visualization_msgs::msg::MarkerArray debug_marker_array;
+  const rclcpp::Time current_time=clock_->now();
   appendMarkerArray(
-    createMarkerArray(debug_data_, getModuleId()), this->clock_->now(), &debug_marker_array);
+    createMarkerArray(debug_data_, getModuleId()), current_time, &debug_marker_array);
 
   if (!debug_data_.stop_poses.empty()) {
     appendMarkerArray(
-      createCorrespondenceMarkerArray(detection_area_reg_elem_), &debug_marker_array);
+      createCorrespondenceMarkerArray(detection_area_reg_elem_,current_time),current_time, &debug_marker_array);
 
-    appendMarkerArray(createObstacleMarkerArray(debug_data_.obstacle_points), &debug_marker_array);
+    appendMarkerArray(createObstacleMarkerArray(debug_data_.obstacle_points,current_time), current_time, &debug_marker_array);
   }
 
   return debug_marker_array;
