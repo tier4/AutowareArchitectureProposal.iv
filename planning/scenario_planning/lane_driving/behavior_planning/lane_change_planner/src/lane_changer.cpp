@@ -543,7 +543,7 @@ visualization_msgs::msg::Marker convertToMarker(
   marker.color.b = 1.0;
   marker.color.a = 0.3;
 
-  marker.lifetime = rclcpp::Duration(1);
+  marker.lifetime = rclcpp::Duration::from_seconds(1);
   marker.frame_locked = true;
 
   for (std::size_t i = 0; i < path.path.size(); i++) {
@@ -578,7 +578,7 @@ visualization_msgs::msg::Marker convertToMarker(
 
   marker.color = color;
 
-  marker.lifetime = rclcpp::Duration(1);
+  marker.lifetime = rclcpp::Duration::from_seconds(1);
   marker.frame_locked = true;
 
   for (std::size_t i = 0; i < path.points.size(); i++) {
@@ -599,7 +599,7 @@ visualization_msgs::msg::MarkerArray createVirtualWall(
     marker.header.stamp = stamp;
     marker.ns = "stop_virtual_wall";
     marker.id = id;
-    marker.lifetime = rclcpp::Duration(0.5);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.5);
     marker.type = visualization_msgs::msg::Marker::CUBE;
     marker.action = visualization_msgs::msg::Marker::ADD;
     marker.pose = pose;
@@ -620,7 +620,7 @@ visualization_msgs::msg::MarkerArray createVirtualWall(
     marker.header.stamp = stamp;
     marker.ns = "factor_text";
     marker.id = id;
-    marker.lifetime = rclcpp::Duration(0.5);
+    marker.lifetime = rclcpp::Duration::from_seconds(0.5);
     marker.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
     marker.action = visualization_msgs::msg::Marker::ADD;
     marker.pose = pose;

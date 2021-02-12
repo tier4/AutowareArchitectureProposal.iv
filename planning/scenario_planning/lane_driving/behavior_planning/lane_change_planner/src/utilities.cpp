@@ -29,7 +29,7 @@ namespace
 {
 rclcpp::Duration safeSubtraction(const rclcpp::Time & t1, const rclcpp::Time & t2)
 {
-  rclcpp::Duration duration(0, 0);
+  rclcpp::Duration duration = rclcpp::Duration::from_seconds(0);
   try {
     duration = t1 - t2;
   } catch (std::runtime_error & err) {
@@ -45,7 +45,7 @@ rclcpp::Time safeAddition(const rclcpp::Time & t1, const double seconds)
 {
   rclcpp::Time sum;
   try {
-    sum = t1 + rclcpp::Duration(seconds);
+    sum = t1 + rclcpp::Duration::from_seconds(seconds);
   } catch (std::runtime_error & err) {
     if (seconds > 0) {sum = rclcpp::Time::max();}
     if (seconds < 0) {sum = rclcpp::Time(0);}
@@ -280,8 +280,8 @@ PredictedPath resamplePredictedPath(
 {
   PredictedPath resampled_path;
 
-  rclcpp::Duration t_delta(resolution);
-  rclcpp::Duration prediction_duration(duration);
+  rclcpp::Duration t_delta = rclcpp::Duration::from_seconds(resolution);
+  rclcpp::Duration prediction_duration = rclcpp::Duration::from_seconds(duration);
 
   rclcpp::Time start_time = clock->now();
   rclcpp::Time end_time = clock->now() + prediction_duration;
@@ -423,10 +423,10 @@ double getDistanceBetweenPredictedPaths(
   const double end_time, const double resolution,
   const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
 {
-  rclcpp::Duration t_delta(resolution);
+  rclcpp::Duration t_delta = rclcpp::Duration::from_seconds(resolution);
   double min_distance = std::numeric_limits<double>::max();
-  rclcpp::Time ros_start_time = clock->now() + rclcpp::Duration(start_time);
-  rclcpp::Time ros_end_time = clock->now() + rclcpp::Duration(end_time);
+  rclcpp::Time ros_start_time = clock->now() + rclcpp::Duration::from_seconds(start_time);
+  rclcpp::Time ros_end_time = clock->now() + rclcpp::Duration::from_seconds(end_time);
   const auto ego_path_point_array = convertToGeometryPointArray(ego_path);
   for (auto t = ros_start_time; t < ros_end_time; t += t_delta) {
     geometry_msgs::msg::Pose object_pose, ego_pose;
@@ -449,10 +449,10 @@ double getDistanceBetweenPredictedPathAndObject(
   const double start_time, const double end_time, const double resolution,
   const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
 {
-  rclcpp::Duration t_delta(resolution);
+  rclcpp::Duration t_delta = rclcpp::Duration::from_seconds(resolution);
   double min_distance = std::numeric_limits<double>::max();
-  rclcpp::Time ros_start_time = clock->now() + rclcpp::Duration(start_time);
-  rclcpp::Time ros_end_time = clock->now() + rclcpp::Duration(end_time);
+  rclcpp::Time ros_start_time = clock->now() + rclcpp::Duration::from_seconds(start_time);
+  rclcpp::Time ros_end_time = clock->now() + rclcpp::Duration::from_seconds(end_time);
   const auto ego_path_point_array = convertToGeometryPointArray(ego_path);
   Polygon obj_polygon;
   if (!calcObjectPolygon(object, &obj_polygon, logger)) {

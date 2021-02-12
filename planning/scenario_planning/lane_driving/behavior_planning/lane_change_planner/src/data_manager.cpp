@@ -80,7 +80,7 @@ LaneChangerParameters DataManager::getLaneChangerParameters() {return parameters
 bool DataManager::getLaneChangeApproval()
 {
   constexpr double timeout = 0.5;
-  if (clock_->now() - lane_change_approval_.stamp > rclcpp::Duration(timeout)) {
+  if (clock_->now() - lane_change_approval_.stamp > rclcpp::Duration::from_seconds(timeout)) {
     return false;
   }
 
@@ -90,7 +90,7 @@ bool DataManager::getLaneChangeApproval()
 bool DataManager::getForceLaneChangeSignal()
 {
   constexpr double timeout = 0.5;
-  if (clock_->now() - force_lane_change_.stamp > rclcpp::Duration(timeout)) {
+  if (clock_->now() - force_lane_change_.stamp > rclcpp::Duration::from_seconds(timeout)) {
     return false;
   } else {
     return force_lane_change_.data;
