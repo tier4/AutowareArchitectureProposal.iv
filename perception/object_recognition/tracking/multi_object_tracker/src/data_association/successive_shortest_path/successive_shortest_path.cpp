@@ -29,7 +29,7 @@ namespace assignment_problem
 {
 struct ResidualEdge
 {
-  // Desternation node
+  // Destination node
   const int dst;
   int capacity;
   const double cost;

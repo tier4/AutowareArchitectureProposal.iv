@@ -22,7 +22,7 @@ namespace lane_change_planner
 DataManager::DataManager()
 : is_parameter_set_(false), lane_change_approval_(false), force_lane_change_(false)
 {
-  self_pose_listener_ptr_ = std::make_shared<SelfPoseLinstener>();
+  self_pose_listener_ptr_ = std::make_shared<SelfPoseListener>();
 }
 
 void DataManager::perceptionCallback(
@@ -107,14 +107,14 @@ bool DataManager::isDataReady()
   return true;
 }
 
-SelfPoseLinstener::SelfPoseLinstener() : tf_listener_(tf_buffer_){};
+SelfPoseListener::SelfPoseListener() : tf_listener_(tf_buffer_){};
 
-bool SelfPoseLinstener::isSelfPoseReady()
+bool SelfPoseListener::isSelfPoseReady()
 {
   return tf_buffer_.canTransform("map", "base_link", ros::Time(0), ros::Duration(0.1));
 }
 
-bool SelfPoseLinstener::getSelfPose(geometry_msgs::PoseStamped & self_pose)
+bool SelfPoseListener::getSelfPose(geometry_msgs::PoseStamped & self_pose)
 {
   try {
     geometry_msgs::TransformStamped transform;

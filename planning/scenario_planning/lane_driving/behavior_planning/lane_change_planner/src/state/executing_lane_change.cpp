@@ -175,7 +175,7 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
       return true;
     }
     ROS_WARN_STREAM_THROTTLE(
-      1, "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be catious");
+      1, "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be cautious");
   }
 
   return false;
@@ -184,9 +184,10 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
 bool ExecutingLaneChangeState::hasFinishedLaneChange() const
 {
   static ros::Time start_time = ros::Time::now();
+  const double duration = ros_parameters_.lane_changing_duration;
 
   if (route_handler_ptr_->isInTargetLane(current_pose_, target_lanes_)) {
-    return (ros::Time::now() - start_time > ros::Duration(2));
+    return (ros::Time::now() - start_time > ros::Duration(0.5 * duration + 0.5));
   } else {
     start_time = ros::Time::now();
   }

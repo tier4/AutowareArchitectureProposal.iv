@@ -31,7 +31,7 @@ void KinematicsBicycleModelNoDelay::calculateDiscreteMatrix(
 {
   auto sign = [](double x) { return (x > 0.0) - (x < 0.0); };
 
-  /* Linearize delta around delta_r (referece delta) */
+  /* Linearize delta around delta_r (reference delta) */
   double delta_r = atan(wheelbase_ * curvature_);
   if (abs(delta_r) >= steer_lim_) delta_r = steer_lim_ * (double)sign(delta_r);
   double cos_delta_r_squared_inv = 1 / (cos(delta_r) * cos(delta_r));

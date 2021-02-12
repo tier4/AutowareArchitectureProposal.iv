@@ -46,7 +46,7 @@ DeleteAllObjectsTool::DeleteAllObjectsTool()
   shortcut_key_ = 'd';
 
   topic_property_ = new StringProperty(
-    "Pose Topic", "/simulation/dummy_perceotion/publisher/object_info",
+    "Pose Topic", "/simulation/dummy_perception/publisher/object_info",
     "The topic on which to publish dummy object info.", getPropertyContainer(), SLOT(updateTopic()),
     this);
 }

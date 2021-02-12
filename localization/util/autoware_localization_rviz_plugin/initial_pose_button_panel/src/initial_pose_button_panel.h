@@ -54,7 +54,7 @@ public:
 
 public Q_SLOTS:
   void editTopic();
-  void pushInitialzeButton();
+  void pushInitializeButton();
 
 protected:
   ros::NodeHandle nh_;

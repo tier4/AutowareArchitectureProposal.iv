@@ -133,7 +133,7 @@ bool extractPathAroundIndex(
     }
   }
 
-  // extruct trajectory
+  // extract trajectory
   extracted_base_trajectory.points.clear();
   for (int i = behind_index; i < ahead_index + 1; ++i) {
     extracted_base_trajectory.points.push_back(trajectory.points.at(i));
@@ -218,7 +218,7 @@ double getMaxAbsVelocity(const autoware_planning_msgs::Trajectory & trajectory)
   return max_vel;
 }
 
-void mininumVelocityFilter(const double & min_vel, autoware_planning_msgs::Trajectory & trajectory)
+void minimumVelocityFilter(const double & min_vel, autoware_planning_msgs::Trajectory & trajectory)
 {
   for (auto & tp : trajectory.points) {
     if (tp.twist.linear.x < min_vel) tp.twist.linear.x = min_vel;
@@ -301,7 +301,7 @@ bool calcTrajectoryCurvatureFrom3Points(
 
   // for debug
   if (k_arr.size() == 0) {
-    ROS_ERROR("[calcTrajectoryCurvatureFrom3Points] k_arr.size() = 0, somthing wrong. pls check.");
+    ROS_ERROR("[calcTrajectoryCurvatureFrom3Points] k_arr.size() = 0, something wrong. pls check.");
     return false;
   }
 

@@ -104,7 +104,8 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
   pnh_.param<bool>("is_publishing_area_with_objects", is_publishing_area_with_objects_, false);
   pnh_.param<bool>("is_showing_debug_info", is_showing_debug_info_, true);
   pnh_.param<bool>("is_using_vehicle_config", is_using_vehicle_config_, false);
-  pnh_.param<bool>("is_stopping_if_outside_drivable_area", is_stopping_if_outside_drivable_area_, true);
+  pnh_.param<bool>(
+    "is_stopping_if_outside_drivable_area", is_stopping_if_outside_drivable_area_, true);
   pnh_.param<bool>("enable_avoidance", enable_avoidance_, true);
 
   qp_param_ = std::make_unique<QPParam>();
@@ -214,7 +215,8 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
   pnh_.param<double>("steer_tau", vehicle_param_->steer_tau, 0.1);
 
   // mpt param
-  pnh_.param<bool>("is_hard_fix_terminal_point", mpt_param_->is_hard_fix_terminal_point, true);
+  pnh_.param<bool>(
+    "is_hard_fixing_terminal_point", mpt_param_->is_hard_fixing_terminal_point, true);
   pnh_.param<int>("num_curvature_sampling_points", mpt_param_->num_curvature_sampling_points, 5);
   pnh_.param<double>("base_point_weight", mpt_param_->base_point_weight, 2000);
   pnh_.param<double>("top_point_weight", mpt_param_->top_point_weight, 1000);
@@ -594,7 +596,15 @@ void ObstacleAvoidancePlanner::publishingDebugData(
   is_avoidance_possible.data = debug_data.foa_data.is_avoidance_possible;
   is_avoidance_possible_pub_.publish(is_avoidance_possible);
 
-  debug_markers_pub_.publish(getDebugVisualizationMarker(debug_data, traj_points));
+  std::vector<autoware_planning_msgs::TrajectoryPoint> traj_points_debug = traj_points;
+  // Add z infomation for virtual wall
+  if (!traj_points_debug.empty()) {
+    const int idx = util::getNearestIdx(
+      path.points, traj_points.back().pose, 0, traj_param_->delta_yaw_threshold_for_closest_point);
+    traj_points_debug.back().pose.position.z = path.points.at(idx).pose.position.z + 1.0;
+  }
+
+  debug_markers_pub_.publish(getDebugVisualizationMarker(debug_data, traj_points_debug));
   if (is_publishing_area_with_objects_) {
     debug_area_with_objects_pub_.publish(
       getDebugCostmap(debug_data.area_with_objects_map, path.drivable_area));
@@ -658,7 +668,7 @@ boost::optional<Trajectories> ObstacleAvoidancePlanner::calcTrajectoryInsideArea
 {
   if (!is_stopping_if_outside_drivable_area_) {
     const auto stop_idx = getStopIdx(path_points, trajs, map_info, road_clearance_map, debug_data);
-    if(stop_idx){
+    if (stop_idx) {
       ROS_WARN_THROTTLE(5.0, "[Avoidance] Expecting over drivable area");
     }
     return getBaseTrajectory(path_points, trajs);

@@ -58,6 +58,8 @@ TrafficLightModuleManager::TrafficLightModuleManager()
   auto & p = planner_param_;
   pnh.param(ns + "/stop_margin", p.stop_margin, 0.0);
   pnh.param(ns + "/tl_state_timeout", p.tl_state_timeout, 1.0);
+  pnh.param(ns + "/external_tl_state_timeout", p.external_tl_state_timeout, 1.0);
+  pnh.param(ns + "/enable_pass_judge", p.enable_pass_judge, true);
   pub_tl_state_ = pnh.advertise<autoware_perception_msgs::TrafficLightStateStamped>(
     "output/traffic_light_state", 1);
 }
@@ -72,17 +74,18 @@ void TrafficLightModuleManager::modifyPathVelocity(autoware_planning_msgs::PathW
   first_stop_path_point_index_ = static_cast<int>(path->points.size());
   for (const auto & scene_module : scene_modules_) {
     autoware_planning_msgs::StopReason stop_reason;
-    std::shared_ptr<TrafficLightModule> traffc_light_scene_module(std::dynamic_pointer_cast<TrafficLightModule>(scene_module));
-    traffc_light_scene_module->setPlannerData(planner_data_);
-    traffc_light_scene_module->modifyPathVelocity(path, &stop_reason);
+    std::shared_ptr<TrafficLightModule> traffic_light_scene_module(std::dynamic_pointer_cast<TrafficLightModule>(scene_module));
+    traffic_light_scene_module->setPlannerData(planner_data_);
+    traffic_light_scene_module->modifyPathVelocity(path, &stop_reason);
     stop_reason_array.stop_reasons.emplace_back(stop_reason);
-    if (traffc_light_scene_module->getFirstStopPathPointIndex() < first_stop_path_point_index_) {
-      first_stop_path_point_index_ = traffc_light_scene_module->getFirstStopPathPointIndex();
-      if (traffc_light_scene_module->getTrafficLightModuleState() != TrafficLightModule::State::GO_OUT) {
-        tl_state = traffc_light_scene_module->getTrafficLightState();
+    if (traffic_light_scene_module->getFirstStopPathPointIndex() < first_stop_path_point_index_) {
+      first_stop_path_point_index_ = traffic_light_scene_module->getFirstStopPathPointIndex();
+      if (
+        traffic_light_scene_module->getTrafficLightModuleState() != TrafficLightModule::State::GO_OUT) {
+        tl_state = traffic_light_scene_module->getTrafficLightState();
       }
     }
-    for (const auto & marker : traffc_light_scene_module->createDebugMarkerArray().markers) {
+    for (const auto & marker : traffic_light_scene_module->createDebugMarkerArray().markers) {
       debug_marker_array.markers.push_back(marker);
     }
   }

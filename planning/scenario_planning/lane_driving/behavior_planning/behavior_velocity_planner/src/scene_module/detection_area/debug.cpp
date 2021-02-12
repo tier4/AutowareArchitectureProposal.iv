@@ -85,7 +85,7 @@ visualization_msgs::MarkerArray createMarkerArray(
     marker.header.frame_id = "map";
     marker.header.stamp = current_time;
     marker.ns = "factor_text";
-    marker.id = j;
+    marker.id = uid + j;
     marker.lifetime = ros::Duration(0.5);
     marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
     marker.action = visualization_msgs::Marker::ADD;
@@ -114,7 +114,7 @@ visualization_msgs::MarkerArray DetectionAreaModule::createDebugMarkerArray()
 {
   visualization_msgs::MarkerArray debug_marker_array;
 
-  appendMarkerArray(createMarkerArray(debug_data_, module_id_), &debug_marker_array);
+  appendMarkerArray(createMarkerArray(debug_data_, getModuleId()), &debug_marker_array);
 
   return debug_marker_array;
 }

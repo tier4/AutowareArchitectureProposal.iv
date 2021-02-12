@@ -32,6 +32,7 @@ private:
   void latCtrlCmdCallback(const autoware_control_msgs::ControlCommandStamped::ConstPtr msg);
   void lonCtrlCmdCallback(const autoware_control_msgs::ControlCommandStamped::ConstPtr msg);
   void publishCmd();
+  bool checkTimeout() const;
 
   ros::NodeHandle nh_;
   ros::NodeHandle pnh_;
@@ -41,6 +42,7 @@ private:
 
   std::shared_ptr<autoware_control_msgs::ControlCommandStamped> lat_cmd_;
   std::shared_ptr<autoware_control_msgs::ControlCommandStamped> lon_cmd_;
+  double timeout_thr_sec_;
 };
 
 #endif  // CONTROL_LATLON_MUXER_INCLUDE_LATLON_MUXER_NODE_HPP_

@@ -46,7 +46,7 @@ CarInitialPoseTool::CarInitialPoseTool()
   shortcut_key_ = 'k';
 
   topic_property_ = new StringProperty(
-    "Pose Topic", "/simulation/dummy_perceotion/publisher/object_info",
+    "Pose Topic", "/simulation/dummy_perception/publisher/object_info",
     "The topic on which to publish dummy object info.", getPropertyContainer(), SLOT(updateTopic()),
     this);
   std_dev_x_ = new FloatProperty(
@@ -103,7 +103,7 @@ void CarInitialPoseTool::onPoseSet(double x, double y, double theta)
   output_msg.shape.dimensions.y = width;
   output_msg.shape.dimensions.z = 2.0;
 
-  // inital state
+  // initial state
   // pose
   output_msg.initial_state.pose_covariance.pose.position.x = x;
   output_msg.initial_state.pose_covariance.pose.position.y = y;

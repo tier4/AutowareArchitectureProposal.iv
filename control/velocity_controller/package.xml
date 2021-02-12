@@ -8,7 +8,7 @@
 
   <maintainer email="makoto.kurihara@tier4.jp">Makoto Kurihara</maintainer>
 
-  <license>Appache2</license>
+  <license>Apache2</license>
 
   <depend>roscpp</depend>
   <depend>tf2</depend>

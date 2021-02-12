@@ -6,6 +6,9 @@ add_definitions(-std=c++14 -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2)
 set(CMAKE_CXX_FLAGS "-std=c++14 -msse -msse2 -msse3 -msse4 -msse4.1 -msse4.2")
 
 # warn performance issue of ndt_omp which is NOT built in release mode
+if (NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release")
+endif()
 string(TOUPPER ${CMAKE_BUILD_TYPE} uppercase_CMAKE_BUILD_TYPE)
 if (NOT (${uppercase_CMAKE_BUILD_TYPE} STREQUAL "RELEASE"))
   message(WARNING

@@ -25,6 +25,7 @@
 #define SIMPLE_PLANNING_SIMULATOR_SIM_MODEL_TIME_DELAY_H_
 
 #include "simple_planning_simulator/vehicle_model/sim_model_interface.hpp"
+#include "simple_planning_simulator/vehicle_model/sim_model_util.hpp"
 
 #include <deque>
 #include <eigen3/Eigen/Core>
@@ -50,10 +51,12 @@ public:
    * @param [in] vx_time_constant time constant for 1D model of velocity dynamics
    * @param [in] wx_delay time delay for angular-velocity command [s]
    * @param [in] wz_time_constant time constant for 1D model of angular-velocity dynamics
+   * @param [in] deadzone_delta_steer deadzone value of steer
    */
   SimModelTimeDelayTwist(
     double vx_lim, double angvel_lim, double vx_rate_lim, double wz_rate_lim, double dt,
-    double vx_delay, double vx_time_constant, double wz_delay, double wz_time_constant);
+    double vx_delay, double vx_time_constant, double wz_delay, double wz_time_constant,
+    double deadzone_delta_steer);
 
   /**
    * @brief default destructor
@@ -87,6 +90,7 @@ private:
   const double wz_delay_;              //!< @brief time delay for angular-velocity command [s]
   const double
     wz_time_constant_;  //!< @brief time constant for 1D model of angular-velocity dynamics
+  const double deadzone_delta_steer_;  //!<@ brief deadzone value of steer
 
   /**
    * @brief set queue buffer for input command
@@ -153,11 +157,12 @@ public:
    * @param [in] vx_time_constant time constant for 1D model of velocity dynamics
    * @param [in] steer_delay time delay for steering command [s]
    * @param [in] steer_time_constant time constant for 1D model of steering dynamics
+   * @param [in] deadzone_delta_steer deadzone value of steer
    */
   SimModelTimeDelaySteer(
     double vx_lim, double steer_lim, double vx_rate_lim, double steer_rate_lim, double wheelbase,
     double dt, double vx_delay, double vx_time_constant, double steer_delay,
-    double steer_time_constant);
+    double steer_time_constant, double deadzone_delta_steer);
 
   /**
    * @brief default destructor
@@ -188,9 +193,10 @@ private:
   std::deque<double> vx_input_queue_;     //!< @brief buffer for velocity command
   std::deque<double> steer_input_queue_;  //!< @brief buffer for steering command
   const double vx_delay_;                 //!< @brief time delay for velocity command [s]
-  const double vx_time_constant_;     //!< @brief time constant for 1D model of velocity dynamics
-  const double steer_delay_;          //!< @brief time delay for steering command [s]
-  const double steer_time_constant_;  //!< @brief time constant for 1D model of steering dynamics
+  const double vx_time_constant_;      //!< @brief time constant for 1D model of velocity dynamics
+  const double steer_delay_;           //!< @brief time delay for steering command [s]
+  const double steer_time_constant_;   //!< @brief time constant for 1D model of steering dynamics
+  const double deadzone_delta_steer_;  //!<@ brief deadzone value of steer
 
   /**
    * @brief set queue buffer for input command
@@ -257,11 +263,12 @@ public:
    * @param [in] acc_time_constant time constant for 1D model of accel dynamics
    * @param [in] steer_delay time delay for steering command [s]
    * @param [in] steer_time_constant time constant for 1D model of steering dynamics
+   * @param [in] deadzone_delta_steer deadzone value of steer
    */
   SimModelTimeDelaySteerAccel(
     double vx_lim, double steer_lim, double vx_rate_lim, double steer_rate_lim, double wheelbase,
     double dt, double acc_delay, double acc_time_constant, double steer_delay,
-    double steer_time_constant);
+    double steer_time_constant, double deadzone_delta_steer);
 
   /**
    * @brief default destructor
@@ -296,7 +303,8 @@ private:
   const double acc_delay_;                //!< @brief time delay for accel command [s]
   const double acc_time_constant_;        //!< @brief time constant for 1D model of accel dynamics
   const double steer_delay_;              //!< @brief time delay for steering command [s]
-  const double steer_time_constant_;  //!< @brief time constant for 1D model of steering dynamics
+  const double steer_time_constant_;   //!< @brief time constant for 1D model of steering dynamics
+  const double deadzone_delta_steer_;  //!<@ brief deadzone value of steer
 
   /**
    * @brief set queue buffer for input command

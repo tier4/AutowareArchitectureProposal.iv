@@ -57,11 +57,11 @@ public:
   void getLatestP(Eigen::MatrixXd & P);
 
   /**
-   * @brief calculate kalman filter covariance by predicion model with time delay. This is mainly for EKF of nonlinear
+   * @brief calculate kalman filter covariance by precision model with time delay. This is mainly for EKF of nonlinear
    * process model.
    * @param x_next predicted state by prediction model
    * @param A coefficient matrix of x for process model
-   * @param Q covariace matrix for process model
+   * @param Q covariance matrix for process model
    */
   bool predictWithDelay(
     const Eigen::MatrixXd & x_next, const Eigen::MatrixXd & A, const Eigen::MatrixXd & Q);

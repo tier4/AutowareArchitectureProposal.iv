@@ -86,7 +86,7 @@ bool LidarApolloInstanceSegmentation::transformCloud(
   sensor_msgs::PointCloud2& transformed_cloud,
   float z_offset)
 {
-  // transform pointcloud to tagret_frame
+  // transform pointcloud to target_frame
   if (target_frame_ != input.header.frame_id) {
     try {
       geometry_msgs::TransformStamped transform_stamped;

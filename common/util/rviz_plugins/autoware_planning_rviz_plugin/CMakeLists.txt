@@ -34,6 +34,8 @@ add_library(autoware_planning_rviz_plugin
   src/trajectory/display.cpp
   include/mission_checkpoint/mission_checkpoint.hpp
   src/mission_checkpoint/mission_checkpoint.cpp
+  src/tools/jsk_overlay_utils.cpp
+  src/tools/max_velocity.cpp
 )
 
 target_link_libraries(autoware_planning_rviz_plugin

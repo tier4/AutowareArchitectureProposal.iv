@@ -46,6 +46,7 @@ set(simple_planning_simulator_SRC
   src/vehicle_model/sim_model_ideal.cpp
   src/vehicle_model/sim_model_constant_acceleration.cpp
   src/vehicle_model/sim_model_time_delay.cpp
+  src/vehicle_model/sim_model_util.cpp
 )
 add_executable(simple_planning_simulator src/simple_planning_simulator_node.cpp ${simple_planning_simulator_SRC})
 target_link_libraries(simple_planning_simulator ${catkin_LIBRARIES})

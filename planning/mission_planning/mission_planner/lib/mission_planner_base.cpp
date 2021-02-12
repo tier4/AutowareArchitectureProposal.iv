@@ -122,7 +122,7 @@ void MissionPlanner::checkpointCallback(
 void MissionPlanner::publishRoute(const autoware_planning_msgs::Route & route) const
 {
   if (!route.route_sections.empty()) {
-    ROS_INFO("Route successfuly planned. Publishing...");
+    ROS_INFO("Route successfully planned. Publishing...");
     route_publisher_.publish(route);
     visualizeRoute(route);
   } else {

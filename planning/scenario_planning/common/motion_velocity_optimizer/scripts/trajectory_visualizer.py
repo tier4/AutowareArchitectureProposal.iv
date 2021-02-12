@@ -70,10 +70,10 @@ class TrajectoryVisualizer():
         self.localization_twist = Twist()
         self.vehicle_twist = Twist()
 
-        self.trajectory_external_velocity_limitted = Trajectory()
+        self.trajectory_external_velocity_limited = Trajectory()
         self.trajectory_lateral_acc_filtered = Trajectory()
         self.trajectory_raw = Trajectory()
-        self.trajectory_time_resamped = Trajectory()
+        self.trajectory_time_resampled = Trajectory()
         self.trajectory_final = Trajectory()
 
         self.lane_change_path = PathWithLaneId()
@@ -223,9 +223,9 @@ class TrajectoryVisualizer():
         obstacle_avoid_traj = self.obstacle_avoid_traj
         obstacle_stop_traj = self.obstacle_stop_traj
         trajectory_raw = self.trajectory_raw
-        trajectory_external_velocity_limitted = self.trajectory_external_velocity_limitted
+        trajectory_external_velocity_limited = self.trajectory_external_velocity_limited
         trajectory_lateral_acc_filtered = self.trajectory_lateral_acc_filtered
-        trajectory_time_resamped = self.trajectory_time_resamped
+        trajectory_time_resampled = self.trajectory_time_resampled
         trajectory_final = self.trajectory_final
 
         if self.update_lanechange_path:
@@ -450,9 +450,9 @@ class TrajectoryVisualizer():
 
         # copy
         trajectory_raw = self.trajectory_raw
-        trajectory_external_velocity_limitted = self.trajectory_external_velocity_limitted
+        trajectory_external_velocity_limited = self.trajectory_external_velocity_limited
         trajectory_lateral_acc_filtered = self.trajectory_lateral_acc_filtered
-        trajectory_time_resamped = self.trajectory_time_resamped
+        trajectory_time_resampled = self.trajectory_time_resampled
         trajectory_final = self.trajectory_final
 
         # ax1

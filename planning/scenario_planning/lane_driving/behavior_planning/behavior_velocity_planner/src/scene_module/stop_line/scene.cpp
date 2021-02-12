@@ -78,7 +78,7 @@ bool StopLineModule::modifyPathVelocity(
 
       // create stop point
       autoware_planning_msgs::PathPointWithLaneId stop_point_with_lane_id;
-      getBackwordPointFromBasePoint(point2, point1, point2, length_sum - stop_length, stop_point);
+      getBackwardPointFromBasePoint(point2, point1, point2, length_sum - stop_length, stop_point);
       const int stop_point_idx = std::max(static_cast<int>(insert_stop_point_idx - 1), 0);
       stop_point_with_lane_id = path->points.at(stop_point_idx);
       stop_point_with_lane_id.point.pose.position.x = stop_point.x();
@@ -94,8 +94,18 @@ bool StopLineModule::modifyPathVelocity(
       path->points.insert(path->points.begin() + insert_stop_point_idx, stop_point_with_lane_id);
 
       // insert 0 velocity after stop point
-      for (size_t j = insert_stop_point_idx; j < path->points.size(); ++j)
+      for (size_t j = insert_stop_point_idx; j < path->points.size(); ++j) {
         path->points.at(j).point.twist.linear.x = 0.0;
+      }
+
+      // get stop point and stop factor
+      if (state_ != State::START) {
+        autoware_planning_msgs::StopFactor stop_factor;
+        stop_factor.stop_pose = debug_data_.first_stop_pose;
+        stop_factor.stop_factor_points.emplace_back(getCenterOfStopLine(stop_line_));
+        planning_utils::appendStopReason(stop_factor, stop_reason);
+      }
+
       break;
     }
 
@@ -109,16 +119,11 @@ bool StopLineModule::modifyPathVelocity(
     return true;
   } else if (state_ == State::STOP) {
     if (!planner_data_->isVehicleStopping()) state_ = State::START;
-    /* get stop point and stop factor */
-    autoware_planning_msgs::StopFactor stop_factor;
-    stop_factor.stop_pose = debug_data_.first_stop_pose;
-    stop_factor.stop_factor_points.emplace_back(getCenterOfStopLine(stop_line_));
-    planning_utils::appendStopReason(stop_factor, stop_reason);
     return true;
   }
 }
 
-bool StopLineModule::getBackwordPointFromBasePoint(
+bool StopLineModule::getBackwardPointFromBasePoint(
   const Eigen::Vector2d & line_point1, const Eigen::Vector2d & line_point2,
   const Eigen::Vector2d & base_point, const double backward_length, Eigen::Vector2d & output_point)
 {

@@ -242,8 +242,8 @@ PredictedPath convertToPredictedPath(
     if (accelerated_velocity < min_speed) {
       travel_distance = min_speed * resolution;
     } else {
-      travel_distance = prev_vehicle_speed + prev_vehicle_speed * resolution +
-                        0.5 * acceleration * resolution * resolution;
+      travel_distance =
+        prev_vehicle_speed * resolution + 0.5 * acceleration * resolution * resolution;
     }
 
     length += travel_distance;
@@ -494,7 +494,7 @@ std::vector<size_t> filterObjectsByLanelets(
 {
   std::vector<size_t> indices;
   if (target_lanelets.empty()) {
-    return indices;
+    return {};
   }
 
   for (size_t i = 0; i < objects.objects.size(); i++) {
@@ -509,6 +509,10 @@ std::vector<size_t> filterObjectsByLanelets(
     for (const auto & llt : target_lanelets) {
       // create lanelet polygon
       const auto polygon2d = llt.polygon2d().basicPolygon();
+      if (polygon2d.empty()) {
+        // no lanelet polygon
+        continue;
+      }
       Polygon lanelet_polygon;
       for (const auto & lanelet_point : polygon2d) {
         lanelet_polygon.outer().push_back(

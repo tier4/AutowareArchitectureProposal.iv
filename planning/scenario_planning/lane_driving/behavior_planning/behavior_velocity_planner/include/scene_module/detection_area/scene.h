@@ -16,31 +16,31 @@
 #pragma once
 
 #include <memory>
-#include <string>
-#include <unordered_map>
+#include <utility>
+#include <vector>
 
-#include <boost/assert.hpp>
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/optional.hpp>
 
 #define EIGEN_MPL2_ONLY
 #include <Eigen/Core>
-#include <Eigen/Geometry>
 
 #include <ros/ros.h>
+#include <tf2/LinearMath/Transform.h>
 
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_extension/regulatory_elements/detection_area.h>
-#include <lanelet2_extension/utility/query.h>
-#include <lanelet2_routing/RoutingGraph.h>
 
 #include <scene_module/scene_module_interface.h>
+#include <utilization/boost_geometry_helper.h>
+
+using PathIndexWithPose = std::pair<size_t, geometry_msgs::Pose>;  // front index, pose
+using PathIndexWithPoint2d = std::pair<size_t, Point2d>;           // front index, point2d
+using PathIndexWithOffset = std::pair<size_t, double>;             // front index, offset
 
 class DetectionAreaModule : public SceneModuleInterface
 {
 public:
-  enum class State { APPROACH, STOP, PASS };
+  enum class State { GO, STOP };
 
   struct DebugData
   {
@@ -48,12 +48,15 @@ public:
     std::vector<geometry_msgs::Pose> stop_poses;
     std::vector<geometry_msgs::Pose> dead_line_poses;
     geometry_msgs::Pose first_stop_pose;
-    std::vector<geometry_msgs::Point> detection_points;
   };
 
   struct PlannerParam
   {
     double stop_margin;
+    bool use_dead_line;
+    double dead_line_margin;
+    bool use_pass_judge_line;
+    double state_clear_time;
   };
 
 public:
@@ -68,44 +71,33 @@ public:
   visualization_msgs::MarkerArray createDebugMarkerArray() override;
 
 private:
-  int64_t module_id_;
+  LineString2d getStopLineGeometry2d() const;
 
-  using Point = boost::geometry::model::d2::point_xy<double>;
-  using Line = boost::geometry::model::linestring<Point>;
-  using Polygon = boost::geometry::model::polygon<Point, false>;
+  std::vector<geometry_msgs::Point> getObstaclePoints() const;
 
-  bool isPointsWithinDetectionArea(
-    const pcl::PointCloud<pcl::PointXYZ>::ConstPtr & no_ground_pointcloud_ptr,
-    const lanelet::ConstPolygons3d & detection_areas);
+  bool canClearStopState() const;
 
-  bool getBackwordPointFromBasePoint(
-    const Eigen::Vector2d & line_point1, const Eigen::Vector2d & line_point2,
-    const Eigen::Vector2d & base_point, const double backward_length,
-    Eigen::Vector2d & output_point);
+  bool isOverLine(
+    const autoware_planning_msgs::PathWithLaneId & path, const geometry_msgs::Pose & self_pose,
+    const geometry_msgs::Pose & line_pose) const;
 
-  bool insertTargetVelocityPoint(
-    const autoware_planning_msgs::PathWithLaneId & input,
-    const boost::geometry::model::linestring<boost::geometry::model::d2::point_xy<double>> &
-      stop_line,
-    const double & margin, const double & velocity,
-    autoware_planning_msgs::PathWithLaneId & output);
+  bool hasEnoughBrakingDistance(
+    const geometry_msgs::Pose & self_pose, const geometry_msgs::Pose & line_pose) const;
 
-  bool createTargetPoint(
-    const autoware_planning_msgs::PathWithLaneId & input,
-    const boost::geometry::model::linestring<boost::geometry::model::d2::point_xy<double>> &
-      stop_line,
-    const double & margin, size_t & target_point_idx, Eigen::Vector2d & target_point);
+  autoware_planning_msgs::PathWithLaneId insertStopPoint(
+    const autoware_planning_msgs::PathWithLaneId & path,
+    const PathIndexWithPose & stop_point) const;
 
-  bool isOverDeadLine(
-    const geometry_msgs::Pose & self_pose, const autoware_planning_msgs::PathWithLaneId & input_path,
-    const size_t & dead_line_point_idx, const Eigen::Vector2d & dead_line_point,
-    const double dead_line_range);
+  boost::optional<PathIndexWithPose> createTargetPoint(
+    const autoware_planning_msgs::PathWithLaneId & path, const LineString2d & stop_line,
+    const double margin) const;
 
   // Key Feature
   const lanelet::autoware::DetectionArea & detection_area_reg_elem_;
 
   // State
   State state_;
+  std::shared_ptr<const ros::Time> last_obstacle_found_time_;
 
   // Parameter
   PlannerParam planner_param_;

@@ -58,15 +58,16 @@ IntersectionModuleManager::IntersectionModuleManager()
   ros::NodeHandle pnh("~");
   const std::string ns(getModuleName());
   auto & p = planner_param_;
-  pnh.param(ns + "/state_transit_mergin_time", p.state_transit_mergin_time, 2.0);
-  pnh.param(ns + "/decel_velocoity", p.decel_velocoity, 30.0 / 3.6);
+  pnh.param(ns + "/state_transit_margin_time", p.state_transit_margin_time, 2.0);
+  pnh.param(ns + "/decel_velocity", p.decel_velocity, 30.0 / 3.6);
   pnh.param(ns + "/path_expand_width", p.path_expand_width, 2.0);
   pnh.param(ns + "/stop_line_margin", p.stop_line_margin, 1.0);
-  pnh.param(ns + "/stuck_vehicle_detect_dist", p.stuck_vehicle_detect_dist, 5.0);
+  pnh.param(ns + "/stuck_vehicle_detect_dist", p.stuck_vehicle_detect_dist, 3.0);
   pnh.param(ns + "/stuck_vehicle_ignore_dist", p.stuck_vehicle_ignore_dist, 5.0) +
     planner_data_->base_link2front;
   pnh.param(ns + "/stuck_vehicle_vel_thr", p.stuck_vehicle_vel_thr, 3.0 / 3.6);
   pnh.param(ns + "/intersection_velocity", p.intersection_velocity, 10.0 / 3.6);
+  pnh.param(ns + "/intersection_max_accel", p.intersection_max_acc, 0.5);
   pnh.param(ns + "/detection_area_length", p.detection_area_length, 200.0);
   pnh.param(ns + "/walkway/external_input_timeout", p.external_input_timeout, 1.0);
 }

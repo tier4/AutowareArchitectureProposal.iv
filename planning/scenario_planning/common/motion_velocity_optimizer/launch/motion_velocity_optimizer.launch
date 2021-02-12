@@ -14,7 +14,8 @@
     <param name="show_debug_info" value="$(arg show_debug_info)"/>
     <param name="show_debug_info_all" value="$(arg show_debug_info_all)"/>
     <param name="publish_debug_trajs" value="$(arg publish_debug_trajs)"/>
-    <remap from="~external_velocity_limit_mps" to="/planning/scenario_planning/max_velocity"/>
+    <remap from="~input/external_velocity_limit_mps" to="/planning/scenario_planning/max_velocity"/> <!-- Topic for setting maximum speed from the outside　(input topic) -->
+    <remap from="~output/current_velocity_limit_mps" to="/planning/scenario_planning/current_max_velocity"/> <!-- Topic for displaying the set maximum speed　(output topic) -->
   </node>
 
 </launch>

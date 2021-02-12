@@ -41,7 +41,6 @@
 #include <lanelet2_routing/RoutingGraphContainer.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 
-
 struct PlannerData
 {
   // tf
@@ -67,8 +66,10 @@ struct PlannerData
   // parameters
   double wheel_base;
   double front_overhang;
+  double rear_overhang;
   double vehicle_width;
   double base_link2front;
+  double vehicle_length;
 
   // additional parameters
   double max_stop_acceleration_threshold_;
@@ -80,11 +81,23 @@ struct PlannerData
     return current_velocity->twist.linear.x < 0.1;
   }
 
-  std::shared_ptr<autoware_perception_msgs::TrafficLightStateStamped> getTrafficLightState(const int id) const
+  std::shared_ptr<autoware_perception_msgs::TrafficLightStateStamped> getTrafficLightState(
+    const int id) const
   {
     if (traffic_light_id_map_.count(id) == 0) {
       return {};
     }
-    return std::make_shared<autoware_perception_msgs::TrafficLightStateStamped>(traffic_light_id_map_.at(id));
+    return std::make_shared<autoware_perception_msgs::TrafficLightStateStamped>(
+      traffic_light_id_map_.at(id));
+  }
+
+  std::shared_ptr<autoware_perception_msgs::TrafficLightStateStamped> getExternalTrafficLightState(
+    const int id) const
+  {
+    if (external_traffic_light_id_map_.count(id) == 0) {
+      return {};
+    }
+    return std::make_shared<autoware_perception_msgs::TrafficLightStateStamped>(
+      external_traffic_light_id_map_.at(id));
   }
 };

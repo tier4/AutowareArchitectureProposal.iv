@@ -40,6 +40,7 @@ class TrafficLightModule : public SceneModuleInterface
 {
 public:
   enum class State { APPROACH, GO_OUT };
+  enum class Input { PERCEPTION, EXTERNAL, NONE };  // EXTERNAL: FOA, V2X, etc.
 
   struct DebugData
   {
@@ -57,6 +58,8 @@ public:
   {
     double stop_margin;
     double tl_state_timeout;
+    double external_tl_state_timeout;
+    bool enable_pass_judge;
   };
 
 public:
@@ -75,11 +78,12 @@ public:
     return tl_state_;
   };
   inline State getTrafficLightModuleState() const { return state_; };
+  inline Input getTrafficLightModuleInput() const { return input_; };
 
 private:
   int64_t lane_id_;
 
-  bool getBackwordPointFromBasePoint(
+  bool getBackwardPointFromBasePoint(
     const Eigen::Vector2d & line_point1, const Eigen::Vector2d & line_point2,
     const Eigen::Vector2d & base_point, const double backward_length,
     Eigen::Vector2d & output_point);
@@ -114,6 +118,10 @@ private:
   geometry_msgs::Point getTrafficLightPosition(
     const lanelet::ConstLineStringOrPolygon3d traffic_light);
 
+  bool getExternalTrafficLightState(
+    const lanelet::ConstLineStringsOrPolygons3d & traffic_lights,
+    autoware_perception_msgs::TrafficLightStateStamped & external_tl_state);
+
   // Key Feature
   const lanelet::TrafficLight & traffic_light_reg_elem_;
   lanelet::ConstLanelet lane_;
@@ -121,11 +129,17 @@ private:
   // State
   State state_;
 
+  // Input
+  Input input_;
+
   // Parameter
   PlannerParam planner_param_;
 
   // Debug
   DebugData debug_data_;
+
+  // prevent paththrough chattering
+  bool is_prev_state_stop_;
 
   // Traffic Light State
   autoware_perception_msgs::TrafficLightStateStamped tl_state_;
