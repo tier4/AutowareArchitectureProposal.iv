@@ -40,16 +40,16 @@ void DataManager::velocityCallback(
 }
 
 void DataManager::laneChangeApprovalCallback(
-  const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg)
+  const autoware_planning_msgs::msg::LaneChangeCommand::ConstSharedPtr input_approval_msg)
 {
-  lane_change_approval_.data = input_approval_msg->data;
+  lane_change_approval_.data = input_approval_msg->command;
   lane_change_approval_.stamp = clock_->now();
 }
 
 void DataManager::forceLaneChangeSignalCallback(
-  const std_msgs::msg::Bool::ConstSharedPtr input_force_lane_change_msg)
+  const autoware_planning_msgs::msg::LaneChangeCommand::ConstSharedPtr input_force_lane_change_msg)
 {
-  force_lane_change_.data = input_force_lane_change_msg->data;
+  force_lane_change_.data = input_force_lane_change_msg->command;
   force_lane_change_.stamp = clock_->now();
 }
 

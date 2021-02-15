@@ -20,13 +20,14 @@
 #include <memory>
 #include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
-#include "std_msgs/msg/bool.hpp"
 #include "tf2_ros/transform_listener.h"
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_routing/RoutingGraph.h"
 #include "lanelet2_traffic_rules/TrafficRulesFactory.h"
 #include "autoware_lanelet2_msgs/msg/map_bin.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_planning_msgs/msg/lane_change_command.hpp"
+#include "autoware_planning_msgs/msg/lane_change_status.hpp"
 #include "autoware_planning_msgs/msg/path.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "autoware_planning_msgs/msg/route.hpp"
@@ -47,14 +48,14 @@ private:
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr path_marker_publisher_;
   rclcpp::Publisher<autoware_planning_msgs::msg::StopReasonArray>::SharedPtr stop_reason_publisher_;
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr drivable_area_publisher_;
-  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr lane_change_ready_publisher_;
-  rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr lane_change_available_publisher_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::LaneChangeStatus>::SharedPtr lane_change_ready_publisher_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::LaneChangeStatus>::SharedPtr lane_change_available_publisher_;
 
   rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr
     perception_subscriber_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr velocity_subscriber_;
-  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr lane_change_approval_subscriber_;
-  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr force_lane_change_subscriber_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::LaneChangeCommand>::SharedPtr lane_change_approval_subscriber_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::LaneChangeCommand>::SharedPtr force_lane_change_subscriber_;
   rclcpp::Subscription<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr vector_map_subscriber_;
   rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr route_subscriber_;
   rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr route_init_subscriber_;

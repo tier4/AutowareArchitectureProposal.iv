@@ -56,12 +56,12 @@ void LaneChanger::init()
   perception_subscriber_ = create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
     "input/perception", rclcpp::QoS{1},
     std::bind(&DataManager::perceptionCallback, data_manager_ptr_, std::placeholders::_1));
-  lane_change_approval_subscriber_ = create_subscription<std_msgs::msg::Bool>(
+  lane_change_approval_subscriber_ = create_subscription<autoware_planning_msgs::msg::LaneChangeCommand>(
     "input/lane_change_approval", rclcpp::QoS{1},
     std::bind(
       &DataManager::laneChangeApprovalCallback, data_manager_ptr_,
       std::placeholders::_1));
-  force_lane_change_subscriber_ = create_subscription<std_msgs::msg::Bool>(
+  force_lane_change_subscriber_ = create_subscription<autoware_planning_msgs::msg::LaneChangeCommand>(
     "input/force_lane_change", rclcpp::QoS{1},
     std::bind(
       &DataManager::forceLaneChangeSignalCallback, data_manager_ptr_,
@@ -151,10 +151,10 @@ void LaneChanger::init()
   drivable_area_publisher_ = create_publisher<nav_msgs::msg::OccupancyGrid>(
     "debug/drivable_area",
     rclcpp::QoS{1});
-  lane_change_ready_publisher_ = create_publisher<std_msgs::msg::Bool>(
+  lane_change_ready_publisher_ = create_publisher<autoware_planning_msgs::msg::LaneChangeStatus>(
     "output/lane_change_ready",
     rclcpp::QoS{1});
-  lane_change_available_publisher_ = create_publisher<std_msgs::msg::Bool>(
+  lane_change_available_publisher_ = create_publisher<autoware_planning_msgs::msg::LaneChangeStatus>(
     "output/lane_change_available", rclcpp::QoS{1});
 
   waitForData();
@@ -230,12 +230,14 @@ void LaneChanger::run()
 
   // publish lane change status
   const auto lane_change_status = state_machine_ptr_->getStatus();
-  std_msgs::msg::Bool lane_change_ready_msg;
-  lane_change_ready_msg.data = lane_change_status.lane_change_ready;
+  autoware_planning_msgs::msg::LaneChangeStatus lane_change_ready_msg;
+  lane_change_ready_msg.stamp = this->now();
+  lane_change_ready_msg.status = lane_change_status.lane_change_ready;
   lane_change_ready_publisher_->publish(lane_change_ready_msg);
 
-  std_msgs::msg::Bool lane_change_available_msg;
-  lane_change_available_msg.data = lane_change_status.lane_change_available;
+  autoware_planning_msgs::msg::LaneChangeStatus lane_change_available_msg;
+  lane_change_available_msg.stamp = this->now();
+  lane_change_available_msg.status = lane_change_status.lane_change_available;
   lane_change_available_publisher_->publish(lane_change_available_msg);
 
   auto candidate_path =

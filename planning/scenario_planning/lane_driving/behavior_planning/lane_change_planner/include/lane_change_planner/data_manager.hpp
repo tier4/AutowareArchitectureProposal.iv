@@ -21,12 +21,12 @@
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
-#include "std_msgs/msg/bool.hpp"
 #include "tf2_ros/transform_listener.h"
 #include "autoware_lanelet2_msgs/msg/map_bin.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "autoware_planning_msgs/msg/route.hpp"
+#include "autoware_planning_msgs/msg/lane_change_command.hpp"
 #include "lane_change_planner/parameters.hpp"
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_routing/RoutingGraph.h"
@@ -89,8 +89,8 @@ public:
   void perceptionCallback(
     const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_perception_msg);
   void velocityCallback(const geometry_msgs::msg::TwistStamped::ConstSharedPtr input_twist_msg);
-  void laneChangeApprovalCallback(const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg);
-  void forceLaneChangeSignalCallback(const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg);
+  void laneChangeApprovalCallback(const autoware_planning_msgs::msg::LaneChangeCommand::ConstSharedPtr input_approval_msg);
+  void forceLaneChangeSignalCallback(const autoware_planning_msgs::msg::LaneChangeCommand::ConstSharedPtr input_approval_msg);
 
   void setLaneChangerParameters(const LaneChangerParameters & parameters);
 
