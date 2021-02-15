@@ -27,3 +27,4 @@ vel_lim: 50.0
 vel_noise_stddev: 0.0
 vel_time_constant: 0.61
 vel_time_delay: 0.25
+deadzone_delta_steer: 0.00

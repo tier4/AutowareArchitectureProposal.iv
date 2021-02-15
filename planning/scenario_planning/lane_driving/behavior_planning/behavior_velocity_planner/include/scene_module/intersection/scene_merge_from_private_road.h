@@ -36,7 +36,7 @@
 
 /**
  * @brief This module makes sure that vehicle will stop before entering public road from private road.
- *        This module is meant to be regesistered with intersection module, which looks at intersecting lanes
+ *        This module is meant to be registered with intersection module, which looks at intersecting lanes
  *        before entering intersection
  */
 

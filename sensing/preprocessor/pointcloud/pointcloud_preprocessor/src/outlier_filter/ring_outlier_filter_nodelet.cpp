@@ -73,7 +73,7 @@ void RingOutlierFilterNodelet::filter(
       float azimuth_diff = (iter+1)->azimuth - iter->azimuth;
       azimuth_diff = azimuth_diff < 0.f ? azimuth_diff + 36000.f : azimuth_diff;
 
-      if (min_dist > 0.f && max_dist > 0.f && azimuth_diff < 100.f && max_dist / min_dist < distance_ratio_) {
+      if (max_dist <  min_dist * distance_ratio_ && azimuth_diff < 100.f) {
         continue;
       } else {
 

@@ -25,7 +25,7 @@
 
 SimModelTimeDelayTwist::SimModelTimeDelayTwist(
   double vx_lim, double wz_lim, double vx_rate_lim, double wz_rate_lim, double dt, double vx_delay,
-  double vx_time_constant, double wz_delay, double wz_time_constant)
+  double vx_time_constant, double wz_delay, double wz_time_constant, double deadzone_delta_steer)
 : SimModelInterface(5 /* dim x */, 2 /* dim u */),
   MIN_TIME_CONSTANT(0.03),
   vx_lim_(vx_lim),
@@ -35,7 +35,8 @@ SimModelTimeDelayTwist::SimModelTimeDelayTwist(
   vx_delay_(vx_delay),
   vx_time_constant_(std::max(vx_time_constant, MIN_TIME_CONSTANT)),
   wz_delay_(wz_delay),
-  wz_time_constant_(std::max(wz_time_constant, MIN_TIME_CONSTANT))
+  wz_time_constant_(std::max(wz_time_constant, MIN_TIME_CONSTANT)),
+  deadzone_delta_steer_(deadzone_delta_steer)
 {
   if (vx_time_constant < MIN_TIME_CONSTANT) {
     ROS_WARN("Settings vx_time_constant is too small, replace it by %f", MIN_TIME_CONSTANT);
@@ -62,7 +63,7 @@ void SimModelTimeDelayTwist::update(const double & dt)
   wz_input_queue_.push_back(input_(IDX_U::WZ_DES));
   delayed_input(IDX_U::WZ_DES) = wz_input_queue_.front();
   wz_input_queue_.pop_front();
-
+  // do not use deadzone_delta_steer (Steer IF does not exist in this model)
   updateRungeKutta(dt, delayed_input);
 };
 void SimModelTimeDelayTwist::initializeInputQueue(const double & dt)
@@ -110,7 +111,7 @@ Eigen::VectorXd SimModelTimeDelayTwist::calcModel(
 SimModelTimeDelaySteer::SimModelTimeDelaySteer(
   double vx_lim, double steer_lim, double vx_rate_lim, double steer_rate_lim, double wheelbase,
   double dt, double vx_delay, double vx_time_constant, double steer_delay,
-  double steer_time_constant)
+  double steer_time_constant, double deadzone_delta_steer)
 : SimModelInterface(5 /* dim x */, 2 /* dim u */),
   MIN_TIME_CONSTANT(0.03),
   vx_lim_(vx_lim),
@@ -121,7 +122,8 @@ SimModelTimeDelaySteer::SimModelTimeDelaySteer(
   vx_delay_(vx_delay),
   vx_time_constant_(std::max(vx_time_constant, MIN_TIME_CONSTANT)),
   steer_delay_(steer_delay),
-  steer_time_constant_(std::max(steer_time_constant, MIN_TIME_CONSTANT))
+  steer_time_constant_(std::max(steer_time_constant, MIN_TIME_CONSTANT)),
+  deadzone_delta_steer_(deadzone_delta_steer)
 {
   if (vx_time_constant < MIN_TIME_CONSTANT) {
     ROS_WARN("Settings vx_time_constant is too small, replace it by %f", MIN_TIME_CONSTANT);
@@ -150,7 +152,9 @@ void SimModelTimeDelaySteer::update(const double & dt)
   delayed_input(IDX_U::VX_DES) = vx_input_queue_.front();
   vx_input_queue_.pop_front();
   steer_input_queue_.push_back(input_(IDX_U::STEER_DES));
-  delayed_input(IDX_U::STEER_DES) = steer_input_queue_.front();
+  const double raw_steer_command = steer_input_queue_.front();
+  delayed_input(IDX_U::STEER_DES) = sim_model_util::getDummySteerCommandWithFriction(
+    getSteer(), raw_steer_command, deadzone_delta_steer_);
   steer_input_queue_.pop_front();
 
   updateRungeKutta(dt, delayed_input);
@@ -195,7 +199,7 @@ Eigen::VectorXd SimModelTimeDelaySteer::calcModel(
 SimModelTimeDelaySteerAccel::SimModelTimeDelaySteerAccel(
   double vx_lim, double steer_lim, double vx_rate_lim, double steer_rate_lim, double wheelbase,
   double dt, double acc_delay, double acc_time_constant, double steer_delay,
-  double steer_time_constant)
+  double steer_time_constant, double deadzone_delta_steer)
 : SimModelInterface(6 /* dim x */, 3 /* dim u */),
   MIN_TIME_CONSTANT(0.03),
   vx_lim_(vx_lim),
@@ -206,7 +210,8 @@ SimModelTimeDelaySteerAccel::SimModelTimeDelaySteerAccel(
   acc_delay_(acc_delay),
   acc_time_constant_(std::max(acc_time_constant, MIN_TIME_CONSTANT)),
   steer_delay_(steer_delay),
-  steer_time_constant_(std::max(steer_time_constant, MIN_TIME_CONSTANT))
+  steer_time_constant_(std::max(steer_time_constant, MIN_TIME_CONSTANT)),
+  deadzone_delta_steer_(deadzone_delta_steer)
 {
   if (acc_time_constant < MIN_TIME_CONSTANT) {
     ROS_WARN("Settings acc_time_constant is too small, replace it by %f", MIN_TIME_CONSTANT);
@@ -235,7 +240,9 @@ void SimModelTimeDelaySteerAccel::update(const double & dt)
   delayed_input(IDX_U::ACCX_DES) = acc_input_queue_.front();
   acc_input_queue_.pop_front();
   steer_input_queue_.push_back(input_(IDX_U::STEER_DES));
-  delayed_input(IDX_U::STEER_DES) = steer_input_queue_.front();
+  const double raw_steer_command = steer_input_queue_.front();
+  delayed_input(IDX_U::STEER_DES) = sim_model_util::getDummySteerCommandWithFriction(
+    getSteer(), raw_steer_command, deadzone_delta_steer_);
   steer_input_queue_.pop_front();
   delayed_input(IDX_U::DRIVE_SHIFT) = input_(IDX_U::DRIVE_SHIFT);
 

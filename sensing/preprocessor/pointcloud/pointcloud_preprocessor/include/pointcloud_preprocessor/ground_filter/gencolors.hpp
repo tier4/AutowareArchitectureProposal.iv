@@ -63,7 +63,7 @@ inline static void downsamplePoints(const Mat & src, Mat & dst, size_t count)
   dst.create(1, (int)count, CV_8UC3);
   // TODO: optimize by exploiting symmetry in the distance matrix
   Mat dists((int)src.total(), (int)src.total(), CV_32FC1, Scalar(0));
-  if (dists.empty()) std::cerr << "Such big matrix cann't be created." << std::endl;
+  if (dists.empty()) std::cerr << "Such big matrix can't be created." << std::endl;
 
   for (int i = 0; i < dists.rows; i++) {
     for (int j = i; j < dists.cols; j++) {
@@ -111,7 +111,7 @@ inline void generateColors(std::vector<Scalar> & colors, size_t count, size_t fa
     return;
   }
 
-  // Generate a set of colors in RGB space. A size of the set is severel times (=factor) larger then
+  // Generate a set of colors in RGB space. A size of the set is several times (=factor) larger then
   // the needed count of colors.
   Mat bgr(1, (int)(count * factor), CV_8UC3);
   randu(bgr, 0, 256);

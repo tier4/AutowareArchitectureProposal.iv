@@ -137,6 +137,9 @@ bool CrosswalkModule::checkStopArea(
     if (isTargetType(object)) {
       Point point(
         object.state.pose_covariance.pose.position.x, object.state.pose_covariance.pose.position.y);
+      if (!bg::within(point, crosswalk_polygon)) {
+        continue;
+      }
       if (bg::within(point, stop_polygon)) {
         pedestrian_found = true;
         debug_data_.stop_factor_points.emplace_back(object.state.pose_covariance.pose.position);

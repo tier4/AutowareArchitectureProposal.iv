@@ -189,13 +189,13 @@ TEST_F(TestSuite, TestMPCFollower)
     }
 
     ASSERT_TRUE(std::isfinite(twist_raw_.twist.linear.x))
-      << "expected keepping old path and publish finite values";
+      << "expected keeping old path and publish finite values";
     ASSERT_TRUE(std::isfinite(twist_raw_.twist.angular.z))
-      << "expected keepping old path and publish finite values";
+      << "expected keeping old path and publish finite values";
     ASSERT_TRUE(std::isfinite(ctrl_cmd_.cmd.linear_velocity))
-      << "expected keepping old path and publish finite values";
+      << "expected keeping old path and publish finite values";
     ASSERT_TRUE(std::isfinite(ctrl_cmd_.cmd.steering_angle))
-      << "expected keepping old path and publish finite values";
+      << "expected keeping old path and publish finite values";
   }
 
   /*  == TestMPCFollowerInvalidPose == */

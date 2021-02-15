@@ -65,7 +65,7 @@ public:
 private:
   int64_t module_id_;
 
-  bool getBackwordPointFromBasePoint(
+  bool getBackwardPointFromBasePoint(
     const Eigen::Vector2d & line_point1, const Eigen::Vector2d & line_point2,
     const Eigen::Vector2d & base_point, const double backward_length,
     Eigen::Vector2d & output_point);
@@ -75,7 +75,7 @@ private:
   lanelet::ConstLineString3d stop_line_;
   State state_;
 
-  // Paramter
+  // Parameter
   PlannerParam planner_param_;
 
   // Debug

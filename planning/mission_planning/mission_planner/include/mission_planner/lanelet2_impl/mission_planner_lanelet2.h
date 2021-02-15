@@ -49,6 +49,7 @@ private:
   lanelet::LaneletMapPtr lanelet_map_ptr_;
   lanelet::routing::RoutingGraphPtr routing_graph_ptr_;
   lanelet::traffic_rules::TrafficRulesPtr traffic_rules_ptr_;
+  lanelet::ConstLanelets road_lanelets_;
 
   ros::Subscriber map_subscriber_;
 

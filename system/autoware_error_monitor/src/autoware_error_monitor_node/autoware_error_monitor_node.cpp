@@ -18,16 +18,16 @@
 
 #include <fmt/format.h>
 
-void AutowareErrorMonitorNode::loadRequiredConditions(const std::string & key)
+void AutowareErrorMonitorNode::loadRequiredModules(const std::string & key)
 {
-  const auto param_key = std::string("required_conditions") + key;
+  const auto param_key = std::string("required_modules/") + key;
 
-  RequiredConditions value;
+  RequiredModules value;
   if (!private_nh_.getParam(param_key, value)) {
     throw std::runtime_error(fmt::format("no parameter found: {}", param_key));
   }
 
-  required_conditions_map_.insert(std::make_pair(key, value));
+  required_modules_map_.insert(std::make_pair(key, value));
 }
 
 void AutowareErrorMonitorNode::onDiagArray(const diagnostic_msgs::DiagnosticArray::ConstPtr & msg)
@@ -63,8 +63,8 @@ void AutowareErrorMonitorNode::onTimer(const ros::TimerEvent & event)
 
 bool AutowareErrorMonitorNode::judgeCapability(const std::string & key)
 {
-  for (const auto & required_condition : required_conditions_map_.at(key)) {
-    const auto diag_name = fmt::format("/{}", required_condition);
+  for (const auto & required_module : required_modules_map_.at(key)) {
+    const auto diag_name = required_module;
     const auto & latest_diag = getLatestDiag(diag_name);
 
     if (!latest_diag) {
@@ -103,11 +103,11 @@ AutowareErrorMonitorNode::AutowareErrorMonitorNode()
 {
   // Parameter
   private_nh_.param("update_rate", update_rate_, 10.0);
-  loadRequiredConditions(KeyName::manual_driving);
-  loadRequiredConditions(KeyName::autonomous_driving);
-  loadRequiredConditions(KeyName::remote_control);
-  loadRequiredConditions(KeyName::safe_stop);
-  loadRequiredConditions(KeyName::emergency_stop);
+  loadRequiredModules(KeyName::manual_driving);
+  loadRequiredModules(KeyName::autonomous_driving);
+  loadRequiredModules(KeyName::remote_control);
+  loadRequiredModules(KeyName::safe_stop);
+  loadRequiredModules(KeyName::emergency_stop);
 
   // Subscriber
   sub_diag_array_ =

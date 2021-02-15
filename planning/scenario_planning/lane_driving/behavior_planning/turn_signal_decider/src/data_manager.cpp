@@ -91,10 +91,10 @@ void DataManager::onVehiclePoseUpdate(const ros::TimerEvent & event)
     vehicle_pose_.header.stamp = current_time;
     is_pose_ready_ = true;
   } catch (tf2::TransformException & ex) {
-    // if pose has never arrived before, then wait for localizatioon
+    // if pose has never arrived before, then wait for localization
     if (!is_pose_ready_) {
       ROS_WARN_STREAM_THROTTLE(5, ex.what());
-    } else  // if tf suddenly stops comming, then there must be something wrong.
+    } else  // if tf suddenly stops coming, then there must be something wrong.
     {
       ROS_ERROR_STREAM_THROTTLE(5, ex.what());
     }

@@ -78,8 +78,8 @@ private:
   {
     double max_velocity;                 // max velocity [m/s]
     double max_accel;                    // max acceleration in planning [m/s2] > 0
-    double min_decel;                    // min deceltion in planning [m/s2] < 0
-    double max_lateral_accel;            // max lateral acceleartion [m/ss] > 0
+    double min_decel;                    // min deceleration in planning [m/s2] < 0
+    double max_lateral_accel;            // max lateral acceleration [m/ss] > 0
     double min_curve_velocity;           // min velocity at curve [m/s]
     double decel_distance_before_curve;  // distance before slow down for lateral acc at a curve
     double decel_distance_after_curve;   // distance after slow down for lateral acc at a curve
@@ -210,6 +210,7 @@ private:
   /* debug */
   ros::Publisher pub_dist_to_stopline_;  //!< @brief publisher for stop distance
   ros::Publisher pub_trajectory_raw_;
+  ros::Publisher pub_velocity_limit_;
   ros::Publisher pub_trajectory_vel_lim_;
   ros::Publisher pub_trajectory_latcc_filtered_;
   ros::Publisher pub_trajectory_resampled_;

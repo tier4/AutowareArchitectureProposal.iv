@@ -196,7 +196,7 @@ void PointCloudConcatenateDataSynchronizerNodelet::combineClouds(
     if (std::fabs(dt) > 0.1) {
       ROS_WARN_STREAM_THROTTLE(
         10,
-        "Time difference is too large. Cloud not interpolate. Please comfirm twist topic and "
+        "Time difference is too large. Cloud not interpolate. Please confirm twist topic and "
         "timestamp");
       break;
     }

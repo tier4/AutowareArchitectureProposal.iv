@@ -53,7 +53,7 @@ void ClusterDataAssociationNode::clusterCallback(
   autoware_perception_msgs::DynamicObjectWithFeatureArray output_msg;
   output_msg.header = input_cluster0_msg->header;
 
-  /* global nearest neighboor */
+  /* global nearest neighbor */
   std::unordered_map<int, int> direct_assignment;
   std::unordered_map<int, int> reverse_assignment;
   Eigen::MatrixXd score_matrix =

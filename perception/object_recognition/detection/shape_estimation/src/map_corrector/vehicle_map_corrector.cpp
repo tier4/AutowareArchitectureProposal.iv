@@ -43,7 +43,7 @@ bool VehicleMapCorrector::correct(
     tf2::Matrix3x3(tf_quaternion).getRPY(map_coord_tf_roll, map_coord_tf_pitch, map_coord_tf_yaw);
     const double vector_map_yaw = map_coord_vector_yaw - map_coord_tf_yaw;
 
-    // calc yaw from currrent orientation
+    // calc yaw from current orientation
     double input_roll, input_pitch, input_yaw;
     tf2::Quaternion input_quaternion;
     tf2::fromMsg(pose_output.orientation, input_quaternion);

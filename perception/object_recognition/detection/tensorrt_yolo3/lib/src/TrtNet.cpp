@@ -161,7 +161,7 @@ trtNet::trtNet(const std::string & engineFile)
   assert(mTrtEngine != nullptr);
 
   InitEngine();
-  // std::cerr << "finised deserializing " << std::endl;
+  // std::cerr << "finished deserializing " << std::endl;
 }
 
 void trtNet::InitEngine()

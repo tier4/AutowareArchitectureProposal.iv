@@ -90,8 +90,8 @@ public:
 public:
   struct PlannerParam
   {
-    double state_transit_mergin_time;
-    double decel_velocoity;    //! used when in straight and traffic_light lane
+    double state_transit_margin_time;
+    double decel_velocity;    //! used when in straight and traffic_light lane
     double path_expand_width;  //! path width to calculate the edge line for both side
     double stop_line_margin;   //! distance from auto-generated stopline to detection_area boundary
     double
@@ -100,6 +100,7 @@ public:
       stuck_vehicle_ignore_dist;  //! distance from intersection start point to start stuck vehicle check
     double stuck_vehicle_vel_thr;  //! Threshold of the speed to be recognized as stopped
     double intersection_velocity;  //! used for intersection passing time
+    double intersection_max_acc;   //! used for calculating intersection velocity
     double detection_area_length;  //! used to create detection area polygon
     double external_input_timeout;  //! used to disenable external input
   };
@@ -130,7 +131,7 @@ private:
    * @brief check collision for all lanelet area & dynamic objects (call checkPathCollision() as
    * actual collision check algorithm inside this function)
    * @param path             ego-car lane
-   * @param detection_areas  collidion check is performed for vehicles that exist in this area
+   * @param detection_areas  collision check is performed for vehicles that exist in this area
    * @param objects_ptr      target objects
    * @param closest_idx      ego-car position index on the lane
    * @return true if collision is detected
@@ -166,6 +167,14 @@ private:
     const double extra_dist, const double ignore_dist) const;
 
   /**
+   * @brief trimming the path with target lane id
+   * @param path           ego-car lane
+   * @return generated path
+   */
+  autoware_planning_msgs::PathWithLaneId trimPathWithLaneId(
+    const autoware_planning_msgs::PathWithLaneId & path);
+
+  /**
    * @brief Modify objects predicted path. remove path point if the time exceeds timer_thr.
    * @param objects_ptr target objects
    * @param time_thr    time threshold to cut path
@@ -185,11 +194,25 @@ private:
     const int objective_lane_id) const;
 
   /**
-   * @brief check if the object has a terget type
+   * @brief check if the object has a target type for collision check
    * @param object target object
    * @return true if the object has a target type
    */
-  bool isTargetVehicleType(const autoware_perception_msgs::DynamicObject & object) const;
+  bool isTargetCollisionVehicleType(const autoware_perception_msgs::DynamicObject & object) const;
+
+  /**
+   * @brief check if the object has a terget type for stuck check
+   * @param object target object
+   * @return true if the object has a target type
+   */
+  bool isTargetStuckVehicleType(const autoware_perception_msgs::DynamicObject & object) const;
+
+  /**
+   * @brief convert object to footprint polygon
+   * @param object detected object
+   * @return 2d polygon of the object footprint
+   */
+  Polygon2d toFootprintPolygon(const autoware_perception_msgs::DynamicObject & object) const;
 
   /**
    * @brief Whether target autoware_api_msgs::Intersection::status is valid or not

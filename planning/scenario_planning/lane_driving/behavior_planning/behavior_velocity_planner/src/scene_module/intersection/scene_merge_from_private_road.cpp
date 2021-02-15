@@ -69,7 +69,7 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   int judge_line_idx = -1;
   int first_idx_inside_lane = -1;
   if (!util::generateStopLine(
-        lane_id_, detection_areas, planner_data_, planner_param_, path, &stop_line_idx,
+        lane_id_, detection_areas, planner_data_, planner_param_, path, *path, &stop_line_idx,
         &judge_line_idx, &first_idx_inside_lane)) {
     ROS_WARN_DELAYED_THROTTLE(1.0, "[MergeFromPrivateRoadModule::run] setStopLineIdx fail");
     return false;
@@ -90,7 +90,7 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   /* set stop speed */
   if (state_machine_.getState() == State::STOP) {
     constexpr double stop_vel = 0.0;
-    const double decel_vel = planner_param_.decel_velocoity;
+    const double decel_vel = planner_param_.decel_velocity;
     double v = (has_traffic_light_ && turn_direction_ == "straight") ? decel_vel : stop_vel;
     util::setVelocityFrom(stop_line_idx, v, path);
 

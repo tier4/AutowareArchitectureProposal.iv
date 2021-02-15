@@ -74,7 +74,7 @@ void MapBasedDetector::cameraInfoCallback(const sensor_msgs::CameraInfo::ConstPt
     camera_pose_stamped.pose.orientation.z = transform.transform.rotation.z;
     camera_pose_stamped.pose.orientation.w = transform.transform.rotation.w;
   } catch (tf2::TransformException & ex) {
-    ROS_WARN_THROTTLE(5, "cannot get transform frome map frame to camera frame");
+    ROS_WARN_THROTTLE(5, "cannot get transform from map frame to camera frame");
     return;
   }
 
@@ -191,7 +191,7 @@ void MapBasedDetector::mapCallback(const autoware_lanelet2_msgs::MapBin & input_
 
     auto lights = tl->trafficLights();
     for (auto lsp : lights) {
-      if (!lsp.isLineString())  // traffic ligths must be linestrings
+      if (!lsp.isLineString())  // traffic lights must be linestrings
         continue;
       all_traffic_lights_ptr_->insert(static_cast<lanelet::ConstLineString3d>(lsp));
     }
@@ -201,7 +201,7 @@ void MapBasedDetector::mapCallback(const autoware_lanelet2_msgs::MapBin & input_
 void MapBasedDetector::routeCallback(const autoware_planning_msgs::Route::ConstPtr & input_msg)
 {
   if (lanelet_map_ptr_ == nullptr) {
-    ROS_WARN("cannot set traffic light in route because don't recieve map");
+    ROS_WARN("cannot set traffic light in route because don't receive map");
     return;
   }
   lanelet::ConstLanelets route_lanelets;
@@ -219,7 +219,7 @@ void MapBasedDetector::routeCallback(const autoware_planning_msgs::Route::ConstP
 
     auto lights = tl->trafficLights();
     for (auto lsp : lights) {
-      if (!lsp.isLineString())  // traffic ligths must be linestrings
+      if (!lsp.isLineString())  // traffic lights must be linestrings
         continue;
       route_traffic_lights_ptr_->insert(static_cast<lanelet::ConstLineString3d>(lsp));
     }
@@ -376,7 +376,7 @@ void MapBasedDetector::publishVisibleTrafficLights(
     marker.points.push_back(point);
 
     marker.lifetime = ros::Duration(0.2);
-    marker.color.a = 1.0;  // Don't forget to set the alpha!
+    marker.color.a = 0.999;  // Don't forget to set the alpha!
     marker.color.r = 0.0;
     marker.color.g = 1.0;
     marker.color.b = 0.0;

@@ -73,8 +73,9 @@ bool IntersectionModule::modifyPathVelocity(
   int stop_line_idx = -1;
   int pass_judge_line_idx = -1;
   int first_idx_inside_lane = -1;
+  const auto target_path = trimPathWithLaneId(*path);
   if (!util::generateStopLine(
-        lane_id_, detection_areas, planner_data_, planner_param_, path, &stop_line_idx,
+        lane_id_, detection_areas, planner_data_, planner_param_, path, target_path, &stop_line_idx,
         &pass_judge_line_idx, &first_idx_inside_lane)) {
     ROS_WARN_DELAYED_THROTTLE(1.0, "[IntersectionModule::run] setStopLineIdx fail");
     ROS_DEBUG("[intersection] ===== plan end =====");
@@ -128,7 +129,7 @@ bool IntersectionModule::modifyPathVelocity(
   /* set stop speed : TODO behavior on straight lane should be improved*/
   if (state_machine_.getState() == State::STOP) {
     constexpr double stop_vel = 0.0;
-    const double decel_vel = planner_param_.decel_velocoity;
+    const double decel_vel = planner_param_.decel_velocity;
     double v =
       (!is_stuck && has_traffic_light_ && turn_direction_ == "straight") ? decel_vel : stop_vel;
     util::setVelocityFrom(stop_line_idx, v, path);
@@ -174,11 +175,11 @@ bool IntersectionModule::checkCollision(
     path, closest_idx, closest_idx, 0.0, 0.0);  // TODO use Lanelet
   debug_data_.ego_lane_polygon = toGeomMsg(ego_poly);
 
-  /* extruct target objects */
+  /* extract target objects */
   autoware_perception_msgs::DynamicObjectArray target_objects;
   for (const auto & object : objects_ptr->objects) {
     // ignore non-vehicle type objects, such as pedestrian.
-    if (!isTargetVehicleType(object)) continue;
+    if (!isTargetCollisionVehicleType(object)) continue;
 
     // ignore vehicle in ego-lane. (TODO update check algorithm)
     const auto object_pose = object.state.pose_covariance.pose;
@@ -188,13 +189,7 @@ bool IntersectionModule::checkCollision(
     }
 
     // keep vehicle in detection_area
-    Polygon2d obj_poly;
-    if (object.shape.type == autoware_perception_msgs::Shape::POLYGON) {
-      obj_poly = toBoostPoly(object.shape.footprint);
-    } else {
-      // cylinder type is treated as square-polygon
-      obj_poly = obj2polygon(object_pose, object.shape.dimensions);
-    }
+    const Polygon2d obj_poly = toFootprintPolygon(object);
 
     for (const auto & detection_area : detection_areas) {
       const auto detection_poly = lanelet::utils::to2D(detection_area).basicPolygon();
@@ -228,6 +223,21 @@ bool IntersectionModule::checkCollision(
   }
 
   return collision_detected;
+}
+
+autoware_planning_msgs::PathWithLaneId IntersectionModule::trimPathWithLaneId(
+  const autoware_planning_msgs::PathWithLaneId & path)
+{
+  autoware_planning_msgs::PathWithLaneId trimmed_path;
+  trimmed_path.header = path.header;
+  trimmed_path.drivable_area = path.drivable_area;
+
+  for (const auto & point : path.points) {
+    if (util::hasLaneId(point, lane_id_)) {
+      trimmed_path.points.emplace_back(point);
+    }
+  }
+  return trimmed_path;
 }
 
 Polygon2d IntersectionModule::generateEgoIntersectionLanePolygon(
@@ -264,7 +274,7 @@ Polygon2d IntersectionModule::generateEgoIntersectionLanePolygon(
 
   size_t ego_area_end_idx = assigned_lane_end_idx;
   {
-    //decide end idx with cosidering extra_dist
+    //decide end idx with considering extra_dist
     double dist_sum = 0.0;
     for (size_t i = assigned_lane_end_idx + 1; i < path.points.size(); ++i) {
       dist_sum += planning_utils::calcDist2d(path.points.at(i), path.points.at(i - 1));
@@ -296,11 +306,25 @@ double IntersectionModule::calcIntersectionPassingTime(
   const autoware_planning_msgs::PathWithLaneId & path, const int closest_idx,
   const int objective_lane_id) const
 {
+  double closest_vel =
+    (std::max(1e-01, std::fabs(planner_data_->current_velocity->twist.linear.x)));
   double dist_sum = 0.0;
+  double passing_time = 0.0;
   int assigned_lane_found = false;
 
   for (int i = closest_idx + 1; i < path.points.size(); ++i) {
-    dist_sum += planning_utils::calcDist2d(path.points.at(i - 1), path.points.at(i));
+    const double dist = planning_utils::calcDist2d(path.points.at(i - 1), path.points.at(i));
+    dist_sum += dist;
+    // calc vel in idx i+1 (v_{i+1}^2 - v_{i}^2 = 2ax)
+    const double next_vel = std::min(
+      std::sqrt(std::pow(closest_vel, 2.0) + 2.0 * planner_param_.intersection_max_acc * dist),
+      planner_param_.intersection_velocity);
+    // calc average vel in idx i~i+1
+    const double average_vel =
+      std::min((closest_vel + next_vel) / 2.0, planner_param_.intersection_velocity);
+    passing_time += dist / average_vel;
+    closest_vel = next_vel;
+
     bool has_objective_lane_id = util::hasLaneId(path.points.at(i), objective_lane_id);
 
     if (assigned_lane_found && !has_objective_lane_id) {
@@ -309,9 +333,6 @@ double IntersectionModule::calcIntersectionPassingTime(
     assigned_lane_found = has_objective_lane_id;
   }
   if (!assigned_lane_found) return 0.0;  // has already passed the intersection.
-
-  // TODO set to be reasonable
-  const double passing_time = dist_sum / planner_param_.intersection_velocity;
 
   ROS_DEBUG("[intersection] intersection dist = %f, passing_time = %f", dist_sum, passing_time);
 
@@ -322,21 +343,25 @@ bool IntersectionModule::checkStuckVehicleInIntersection(
   const autoware_planning_msgs::PathWithLaneId & path, const int closest_idx, const int stop_idx,
   const autoware_perception_msgs::DynamicObjectArray::ConstPtr objects_ptr) const
 {
+  const double detect_length =
+    planner_param_.stuck_vehicle_detect_dist + planner_data_->vehicle_length;
   const Polygon2d stuck_vehicle_detect_area = generateEgoIntersectionLanePolygon(
-    path, closest_idx, stop_idx, planner_param_.stuck_vehicle_detect_dist,
-    planner_param_.stuck_vehicle_ignore_dist);
+    path, closest_idx, stop_idx, detect_length, planner_param_.stuck_vehicle_ignore_dist);
   debug_data_.stuck_vehicle_detect_area = toGeomMsg(stuck_vehicle_detect_area);
 
   for (const auto & object : objects_ptr->objects) {
-    if (!isTargetVehicleType(object)) {
+    if (!isTargetStuckVehicleType(object)) {
       continue;  // not target vehicle type
     }
     const auto obj_v = std::fabs(object.state.twist_covariance.twist.linear.x);
     if (obj_v > planner_param_.stuck_vehicle_vel_thr) {
       continue;  // not stop vehicle
     }
-    const auto object_pos = object.state.pose_covariance.pose.position;
-    if (bg::within(to_bg2d(object_pos), stuck_vehicle_detect_area)) {
+
+    // check if the footprint is in the stuck detect area
+    const Polygon2d obj_footprint = toFootprintPolygon(object);
+    const bool is_in_stuck_area = !bg::disjoint(obj_footprint, stuck_vehicle_detect_area);
+    if (is_in_stuck_area) {
       ROS_DEBUG("[intersection] stuck vehicle found.");
       debug_data_.stuck_targets.objects.push_back(object);
       return true;
@@ -345,7 +370,20 @@ bool IntersectionModule::checkStuckVehicleInIntersection(
   return false;
 }
 
-bool IntersectionModule::isTargetVehicleType(
+Polygon2d IntersectionModule::toFootprintPolygon(
+  const autoware_perception_msgs::DynamicObject & object) const
+{
+  Polygon2d obj_footprint;
+  if (object.shape.type == autoware_perception_msgs::Shape::POLYGON) {
+    obj_footprint = toBoostPoly(object.shape.footprint);
+  } else {
+    // cylinder type is treated as square-polygon
+    obj_footprint = obj2polygon(object.state.pose_covariance.pose, object.shape.dimensions);
+  }
+  return obj_footprint;
+}
+
+bool IntersectionModule::isTargetCollisionVehicleType(
   const autoware_perception_msgs::DynamicObject & object) const
 {
   if (
@@ -354,6 +392,19 @@ bool IntersectionModule::isTargetVehicleType(
     object.semantic.type == autoware_perception_msgs::Semantic::TRUCK ||
     object.semantic.type == autoware_perception_msgs::Semantic::MOTORBIKE ||
     object.semantic.type == autoware_perception_msgs::Semantic::BICYCLE) {
+    return true;
+  }
+  return false;
+}
+
+bool IntersectionModule::isTargetStuckVehicleType(
+  const autoware_perception_msgs::DynamicObject & object) const
+{
+  if (
+    object.semantic.type == autoware_perception_msgs::Semantic::CAR ||
+    object.semantic.type == autoware_perception_msgs::Semantic::BUS ||
+    object.semantic.type == autoware_perception_msgs::Semantic::TRUCK ||
+    object.semantic.type == autoware_perception_msgs::Semantic::MOTORBIKE) {
     return true;
   }
   return false;

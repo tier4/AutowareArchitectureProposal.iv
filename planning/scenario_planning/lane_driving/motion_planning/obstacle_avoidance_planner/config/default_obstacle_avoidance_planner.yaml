@@ -60,7 +60,7 @@ delta_yaw_threshold_for_straight: 0.02 # delta dist thres for straight point
 
 # mpt param
 # vehicle param for mpt
-max_steer_deg: 30.0   # max steering angle [deg]
+max_steer_deg: 40.0   # max steering angle [deg]
 steer_tau: 0.1        # steering dynamics time constant (1d approzimation) [s]
 
 # trajectory param for mpt

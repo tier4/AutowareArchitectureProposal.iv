@@ -95,7 +95,7 @@ struct NodeUpdate
     return result;
   }
 
-  NodeUpdate fliped() const
+  NodeUpdate flipped() const
   {
     NodeUpdate result = *this;
     result.shift_y = -result.shift_y;
@@ -132,7 +132,7 @@ struct AstarParam
   double minimum_turning_radius;  // [m]]
 
   // search configs
-  int theta_size;                  // descritized angle table size [-]
+  int theta_size;                  // discretized angle table size [-]
   double curve_weight;             // curve moving cost [-]
   double reverse_weight;           // backward moving cost [-]
   double lateral_goal_range;       // reaching threshold, lateral error [m]

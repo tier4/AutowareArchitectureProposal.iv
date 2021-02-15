@@ -214,7 +214,7 @@ bool SurroundObstacleCheckerNode::convertPose(
     tf2::fromMsg(ros_src2tgt.transform, src2tgt);
   } catch (tf2::TransformException & ex) {
     ROS_WARN_STREAM_THROTTLE(
-      0.5, "[surround obstacle chekcer] cannot get tf from " << source << " to " << target);
+      0.5, "[surround obstacle checker] cannot get tf from " << source << " to " << target);
     return false;
   }
 
@@ -257,7 +257,7 @@ void SurroundObstacleCheckerNode::getNearestObstacle(
 void SurroundObstacleCheckerNode::getNearestObstacleByPointCloud(
   double * min_dist_to_obj, geometry_msgs::Point * nearest_obj_point)
 {
-  // waint to transform pointcloud
+  // wait to transform pointcloud
   geometry_msgs::TransformStamped transform_stamped;
   try {
     transform_stamped = tf_buffer_.lookupTransform(
@@ -265,7 +265,7 @@ void SurroundObstacleCheckerNode::getNearestObstacleByPointCloud(
       ros::Duration(0.5));
   } catch (tf2::TransformException & ex) {
     ROS_WARN_STREAM_THROTTLE(
-      0.5, "[surround obstacle chekcer] failed to get base_link to "
+      0.5, "[surround obstacle checker] failed to get base_link to "
              << pointcloud_ptr_->header.frame_id << " transform.");
     return;
   }
@@ -393,8 +393,8 @@ Polygon2d SurroundObstacleCheckerNode::createSelfPolygon()
 {
   double front = front_overhang_ + wheel_base_;
   double rear = -rear_overhang_;
-  double left = wheel_tread_ / 2.0 + left_overhang_ / 2.0;
-  double right = -(wheel_tread_ / 2.0 + right_overhang_ / 2.0);
+  double left = wheel_tread_ / 2.0 + left_overhang_;
+  double right = -(wheel_tread_ / 2.0 + right_overhang_);
 
   Polygon2d poly;
   boost::geometry::exterior_ring(poly) = boost::assign::list_of<Point2d>(front, left)(front, right)(
