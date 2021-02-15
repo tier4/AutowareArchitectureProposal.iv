@@ -59,11 +59,11 @@ DetectionAreaModuleManager::DetectionAreaModuleManager(rclcpp::Node & node)
 : SceneModuleManagerInterface(node, getModuleName())
 {
   const std::string ns(getModuleName());
-  planner_param_.stop_margin = node.declare_parameter(ns + "/stop_margin", 0.0);
-  planner_param_.use_dead_line = node.declare_parameter(ns + "/use_dead_line", false);
-  planner_param_.dead_line_margin = node.declare_parameter(ns + "/dead_line_margin", 5.0);
-  planner_param_.use_pass_judge_line = node.declare_parameter(ns + "/use_pass_judge_line", false);
-  planner_param_.state_clear_time = node.declare_parameter(ns + "/state_clear_time", 2.0);
+  planner_param_.stop_margin = node.declare_parameter(ns + ".stop_margin", 0.0);
+  planner_param_.use_dead_line = node.declare_parameter(ns + ".use_dead_line", false);
+  planner_param_.dead_line_margin = node.declare_parameter(ns + ".dead_line_margin", 5.0);
+  planner_param_.use_pass_judge_line = node.declare_parameter(ns + ".use_pass_judge_line", false);
+  planner_param_.state_clear_time = node.declare_parameter(ns + ".state_clear_time", 2.0);
 }
 
 void DetectionAreaModuleManager::launchNewModules(
