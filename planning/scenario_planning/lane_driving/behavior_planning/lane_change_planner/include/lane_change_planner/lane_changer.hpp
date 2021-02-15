@@ -16,31 +16,24 @@
 #ifndef LANE_CHANGE_PLANNER__LANE_CHANGER_HPP_
 #define LANE_CHANGE_PLANNER__LANE_CHANGER_HPP_
 
-#include "lane_change_planner/data_manager.hpp"
-#include "lane_change_planner/route_handler.hpp"
-#include "lane_change_planner/state_machine.hpp"
-
-// ROS
+#include <vector>
+#include <memory>
 #include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 #include "std_msgs/msg/bool.hpp"
 #include "tf2_ros/transform_listener.h"
-
-// Autoware
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_routing/RoutingGraph.h"
+#include "lanelet2_traffic_rules/TrafficRulesFactory.h"
 #include "autoware_lanelet2_msgs/msg/map_bin.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_planning_msgs/msg/path.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "autoware_planning_msgs/msg/route.hpp"
 #include "autoware_planning_msgs/msg/stop_reason_array.hpp"
-
-// lanelet
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_routing/RoutingGraph.h"
-#include "lanelet2_traffic_rules/TrafficRulesFactory.h"
-
-#include <vector>
-#include <memory>
+#include "lane_change_planner/data_manager.hpp"
+#include "lane_change_planner/route_handler.hpp"
+#include "lane_change_planner/state_machine.hpp"
 
 namespace lane_change_planner
 {

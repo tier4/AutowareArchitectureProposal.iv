@@ -16,31 +16,26 @@
 #ifndef LANE_CHANGE_PLANNER__UTILITIES_HPP_
 #define LANE_CHANGE_PLANNER__UTILITIES_HPP_
 
+#include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometry.hpp>
+#include <vector>
+#include <string>
+#include <limits>
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-
-#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
-#include "autoware_planning_msgs/msg/path.hpp"
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
-
-#include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
-#include <boost/geometry/geometry.hpp>
-
 #include "lanelet2_core/geometry/Lanelet.h"
 #include "lanelet2_routing/Route.h"
 #include "lanelet2_routing/RoutingGraph.h"
 #include "lanelet2_routing/RoutingGraphContainer.h"
-
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_planning_msgs/msg/path.hpp"
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "lane_change_planner/route_handler.hpp"
-
-#include <vector>
-#include <string>
-#include <limits>
 
 namespace lane_change_planner
 {

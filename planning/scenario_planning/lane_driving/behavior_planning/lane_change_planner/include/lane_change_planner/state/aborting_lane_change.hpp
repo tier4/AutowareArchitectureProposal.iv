@@ -16,8 +16,8 @@
 #ifndef LANE_CHANGE_PLANNER__STATE__ABORTING_LANE_CHANGE_HPP_
 #define LANE_CHANGE_PLANNER__STATE__ABORTING_LANE_CHANGE_HPP_
 
-#include "lane_change_planner/state/state_base_class.hpp"
 #include <memory>
+#include "lane_change_planner/state/state_base_class.hpp"
 
 namespace lane_change_planner
 {

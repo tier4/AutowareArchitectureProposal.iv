@@ -14,13 +14,13 @@
 // limitations under the License.
 
 #include "lane_change_planner/lane_changer.hpp"
-#include "lane_change_planner/utilities.hpp"
 #include <vector>
 #include <string>
 #include <memory>
 #include <chrono>
 #include <algorithm>
 #include <utility>
+#include "lane_change_planner/utilities.hpp"
 
 std_msgs::msg::ColorRGBA toRainbow(double ratio);
 visualization_msgs::msg::Marker convertToMarker(

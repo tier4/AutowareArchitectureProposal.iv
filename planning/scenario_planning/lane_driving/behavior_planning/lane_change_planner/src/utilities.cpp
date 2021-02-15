@@ -14,16 +14,16 @@
 // limitations under the License.
 
 #include "lane_change_planner/utilities.hpp"
-#include "lanelet2_extension/utility/message_conversion.hpp"
-#include "lanelet2_extension/utility/query.hpp"
-#include "lanelet2_extension/utility/utilities.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "tf2/utils.h"
-#include "opencv2/opencv.hpp"
 #include <string>
 #include <vector>
 #include <limits>
 #include <algorithm>
+#include "rclcpp/rclcpp.hpp"
+#include "tf2/utils.h"
+#include "opencv2/opencv.hpp"
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "lanelet2_extension/utility/query.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
 
 namespace
 {

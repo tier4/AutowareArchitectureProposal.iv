@@ -13,13 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "lane_change_planner/state/forcing_lane_change.hpp"
+#include <memory>
+#include "lanelet2_extension/utility/utilities.hpp"
 #include "lane_change_planner/data_manager.hpp"
 #include "lane_change_planner/route_handler.hpp"
-#include "lane_change_planner/state/forcing_lane_change.hpp"
 #include "lane_change_planner/utilities.hpp"
 
-#include "lanelet2_extension/utility/utilities.hpp"
-#include <memory>
 
 namespace lane_change_planner
 {
