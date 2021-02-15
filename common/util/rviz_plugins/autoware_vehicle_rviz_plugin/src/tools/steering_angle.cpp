@@ -191,6 +191,7 @@ void SteeringAngleDisplay::processMessage(
 
   painter.end();
   last_msg_ptr_ = msg_ptr;
+  updateVisualization();
 }
 
 void SteeringAngleDisplay::updateVisualization()
@@ -210,8 +211,6 @@ void SteeringAngleDisplay::updateVisualization()
   //     hud_.setPixel(i, j, background_color.rgba());
   //   }
   // }
-
-  if (last_msg_ptr_ != nullptr) {processMessage(last_msg_ptr_);}
 }
 
 }  // namespace rviz_plugins

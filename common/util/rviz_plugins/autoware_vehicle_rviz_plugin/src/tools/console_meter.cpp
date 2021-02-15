@@ -158,6 +158,7 @@ void ConsoleMeterDisplay::processMessage(
     velocity_ss.str().c_str());
   painter.end();
   last_msg_ptr_ = msg_ptr;
+  updateVisualization();
 }
 
 void ConsoleMeterDisplay::updateVisualization()
@@ -202,10 +203,6 @@ void ConsoleMeterDisplay::updateVisualization()
   outer_arc_.y1 = h / 4;
   outer_arc_.start_angle = autoware_utils::rad2deg(min_range_theta - M_PI);
   outer_arc_.end_angle = autoware_utils::rad2deg(max_range_theta - min_range_theta);
-
-  if (last_msg_ptr_ != nullptr) {
-    processMessage(last_msg_ptr_);
-  }
 }
 
 }  // namespace rviz_plugins

@@ -100,13 +100,13 @@ void TurnSignalDisplay::processMessage(
     painter.drawPolygon(left_arrow_polygon_, 7);
     painter.setBrush(QBrush(Qt::white, Qt::SolidPattern));
     painter.setPen(QPen(white_color, static_cast<int>(2), Qt::SolidLine));
-    painter.drawPolygon(left_arrow_polygon_, 7);
+    painter.drawPolygon(right_arrow_polygon_, 7);
   } else if (msg_ptr->data == autoware_vehicle_msgs::msg::TurnSignal::LEFT) {
     painter.setPen(QPen(white_color, static_cast<int>(2), Qt::DotLine));
     painter.drawPolygon(right_arrow_polygon_, 7);
     painter.setBrush(QBrush(Qt::white, Qt::SolidPattern));
     painter.setPen(QPen(white_color, static_cast<int>(2), Qt::SolidLine));
-    painter.drawPolygon(right_arrow_polygon_, 7);
+    painter.drawPolygon(left_arrow_polygon_, 7);
   } else if (msg_ptr->data == autoware_vehicle_msgs::msg::TurnSignal::HAZARD) {
     painter.setBrush(QBrush(Qt::white, Qt::SolidPattern));
     painter.setPen(QPen(white_color, static_cast<int>(2), Qt::SolidLine));
@@ -119,6 +119,7 @@ void TurnSignalDisplay::processMessage(
   }
   painter.end();
   last_msg_ptr_ = msg_ptr;
+  updateVisualization();
 }
 
 void TurnSignalDisplay::updateVisualization()
@@ -159,8 +160,6 @@ void TurnSignalDisplay::updateVisualization()
   left_arrow_polygon_[5].setY(static_cast<float>(h) * 3.0 / 5.0);
   left_arrow_polygon_[6].setX(static_cast<float>(w) * 1.0 / 5.0);
   left_arrow_polygon_[6].setY(static_cast<float>(h) * 4.0 / 5.0);
-
-  if (last_msg_ptr_ != nullptr) {processMessage(last_msg_ptr_);}
 }
 
 }  // namespace rviz_plugins
