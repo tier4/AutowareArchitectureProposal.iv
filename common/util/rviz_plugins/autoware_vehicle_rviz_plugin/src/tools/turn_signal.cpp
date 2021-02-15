@@ -160,7 +160,7 @@ void TurnSignalDisplay::updateVisualization()
   left_arrow_polygon_[6].setX((float)w * 1.0 / 5.0);
   left_arrow_polygon_[6].setY((float)h * 4.0 / 5.0);
 
-  if (last_msg_ptr_ != nullptr) processMessage(last_msg_ptr_);
+  if (last_msg_ptr_ != nullptr) {processMessage(last_msg_ptr_);}
 }
 
 }  // namespace rviz_plugins

@@ -42,7 +42,7 @@
 namespace rviz_plugins
 {
 class TurnSignalDisplay
-: public rviz_common::MessageFilterDisplay<autoware_vehicle_msgs::msg::TurnSignal>
+  : public rviz_common::MessageFilterDisplay<autoware_vehicle_msgs::msg::TurnSignal>
 {
   Q_OBJECT
 

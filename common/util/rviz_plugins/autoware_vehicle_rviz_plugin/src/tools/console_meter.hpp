@@ -44,7 +44,7 @@
 namespace rviz_plugins
 {
 class ConsoleMeterDisplay
-: public rviz_common::MessageFilterDisplay<geometry_msgs::msg::TwistStamped>
+  : public rviz_common::MessageFilterDisplay<geometry_msgs::msg::TwistStamped>
 {
   Q_OBJECT
 

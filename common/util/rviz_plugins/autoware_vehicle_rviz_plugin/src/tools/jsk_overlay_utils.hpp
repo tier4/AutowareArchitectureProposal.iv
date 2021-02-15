@@ -90,10 +90,9 @@ private:
 class OverlayObject
 {
 public:
-
   typedef std::shared_ptr<OverlayObject> Ptr;
 
-  OverlayObject(Ogre::SceneManager* manager, rclcpp::Logger logger, const std::string & name);
+  OverlayObject(Ogre::SceneManager * manager, rclcpp::Logger logger, const std::string & name);
   virtual ~OverlayObject();
 
   virtual std::string getName();

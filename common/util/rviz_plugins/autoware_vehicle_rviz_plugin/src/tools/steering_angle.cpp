@@ -54,9 +54,9 @@ std::unique_ptr<Ogre::ColourValue> SteeringAngleDisplay::setColorDependsOnVeloci
 
 SteeringAngleDisplay::SteeringAngleDisplay()
 : handle_image_(std::string(
-                  ament_index_cpp::get_package_share_directory("autoware_vehicle_rviz_plugin") +
-                  "/images/handle.png")
-                  .c_str())
+      ament_index_cpp::get_package_share_directory("autoware_vehicle_rviz_plugin") +
+      "/images/handle.png")
+    .c_str())
 {
   property_text_color_ = new rviz_common::properties::ColorProperty(
     "Text Color", QColor(25, 255, 240), "text color", this, SLOT(updateVisualization()), this);
@@ -157,8 +157,9 @@ void SteeringAngleDisplay::processMessage(
   const int h = overlay_->getTextureHeight();
 
   QMatrix rotation_matrix;
-  rotation_matrix.rotate(static_cast<qreal>(
-    std::round(property_handle_angle_scale_->getFloat() * (msg_ptr->data / M_PI) * -180.0)));
+  rotation_matrix.rotate(
+    static_cast<qreal>(
+      std::round(property_handle_angle_scale_->getFloat() * (msg_ptr->data / M_PI) * -180.0)));
   // else
   // rotation_matrix.rotate((property_handle_angle_scale_->getFloat() * (msg_ptr->data / M_PI) * -180.0));
   int handle_image_width = handle_image_.width(), handle_image_height = handle_image_.height();
@@ -204,7 +205,7 @@ void SteeringAngleDisplay::updateVisualization()
   //   }
   // }
 
-  if (last_msg_ptr_ != nullptr) processMessage(last_msg_ptr_);
+  if (last_msg_ptr_ != nullptr) {processMessage(last_msg_ptr_);}
 }
 
 }  // namespace rviz_plugins

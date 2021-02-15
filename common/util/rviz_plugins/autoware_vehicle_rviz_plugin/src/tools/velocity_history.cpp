@@ -100,7 +100,7 @@ void VelocityHistoryDisplay::reset()
 bool VelocityHistoryDisplay::validateFloats(
   const geometry_msgs::msg::TwistStamped::ConstSharedPtr & msg_ptr)
 {
-  if (!rviz_common::validateFloats(msg_ptr->twist.linear.x)) return false;
+  if (!rviz_common::validateFloats(msg_ptr->twist.linear.x)) {return false;}
 
   return true;
 }
@@ -134,7 +134,7 @@ void VelocityHistoryDisplay::processMessage(
 
 void VelocityHistoryDisplay::updateVisualization()
 {
-  if (histories_.empty()) return;
+  if (histories_.empty()) {return;}
   velocity_manual_object_->clear();
 
   Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName(
@@ -147,9 +147,11 @@ void VelocityHistoryDisplay::updateVisualization()
     if (
       property_velocity_timeout_->getFloat() <
       (current_time - std::get<0>(histories_.front())->header.stamp).seconds())
+    {
       histories_.pop_front();
-    else
+    } else {
       break;
+    }
   }
 
   // std::cout << __LINE__ << ":" <<std::get<1>(histories_.front()) <<std::endl;
@@ -167,7 +169,7 @@ void VelocityHistoryDisplay::updateVisualization()
       color = *dynamic_color_ptr;
     }
     color.a = 1.0 - (current_time - std::get<0>(history)->header.stamp).seconds() /
-                      property_velocity_timeout_->getFloat();
+      property_velocity_timeout_->getFloat();
     color.a = std::min(std::max(color.a, 0.0f), 1.0f);
     // std::cout << __LINE__ << ":" <<std::get<1>(histories_.front()) <<std::endl;
 
@@ -175,7 +177,7 @@ void VelocityHistoryDisplay::updateVisualization()
     velocity_manual_object_->position(
       std::get<1>(history).x, std::get<1>(history).y,
       std::get<1>(history).z +
-        std::get<0>(history)->twist.linear.x * property_velocity_scale_->getFloat());
+      std::get<0>(history)->twist.linear.x * property_velocity_scale_->getFloat());
     velocity_manual_object_->colour(color);
   }
   velocity_manual_object_->end();

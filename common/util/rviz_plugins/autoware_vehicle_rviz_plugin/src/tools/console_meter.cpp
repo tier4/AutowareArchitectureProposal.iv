@@ -116,7 +116,7 @@ void ConsoleMeterDisplay::processMessage(
   white_color.setAlpha(255);
   const float velocity_ratio = std::min(
     std::max(std::fabs(msg_ptr->twist.linear.x) - meter_min_velocity_, 0.0) /
-      (meter_max_velocity_ - meter_min_velocity_),
+    (meter_max_velocity_ - meter_min_velocity_),
     1.0);
   const float theta =
     (velocity_ratio * (meter_max_angle_ - meter_min_angle_)) + meter_min_angle_ + M_PI_2;
@@ -167,15 +167,15 @@ void ConsoleMeterDisplay::updateVisualization()
   min_range_line_.x0 = (w / 2.0) + line_width_ / 2.0 + ((float)w / 8.0) * std::cos(min_range_theta);
   min_range_line_.y0 = (h / 2.0) + line_width_ / 2.0 + ((float)h / 8.0) * std::sin(min_range_theta);
   min_range_line_.x1 = (w / 2.0) + line_width_ / 2.0 +
-                       ((float)w / 2.0 - (line_width_ / 2.0)) * std::cos(min_range_theta);
+    ((float)w / 2.0 - (line_width_ / 2.0)) * std::cos(min_range_theta);
   min_range_line_.y1 = (h / 2.0) + line_width_ / 2.0 +
-                       ((float)h / 2.0 - (line_width_ / 2.0)) * std::sin(min_range_theta);
+    ((float)h / 2.0 - (line_width_ / 2.0)) * std::sin(min_range_theta);
   max_range_line_.x0 = (w / 2.0) + line_width_ / 2.0 + ((float)w / 8.0) * std::cos(max_range_theta);
   max_range_line_.y0 = (h / 2.0) + line_width_ / 2.0 + ((float)h / 8.0) * std::sin(max_range_theta);
   max_range_line_.x1 = (w * 0.5) + line_width_ * 0.5 +
-                       ((float)w / 2.0 - (line_width_ * 0.5)) * std::cos(max_range_theta);
+    ((float)w / 2.0 - (line_width_ * 0.5)) * std::cos(max_range_theta);
   max_range_line_.y1 = (h * 0.5) + line_width_ * 0.5 +
-                       ((float)h / 2.0 - (line_width_ * 0.5)) * std::sin(max_range_theta);
+    ((float)h / 2.0 - (line_width_ * 0.5)) * std::sin(max_range_theta);
   inner_arc_.x0 = line_width_ / 2.0;
   inner_arc_.y0 = line_width_ / 2.0;
   inner_arc_.x1 = w;
@@ -189,7 +189,7 @@ void ConsoleMeterDisplay::updateVisualization()
   outer_arc_.start_angle = autoware_utils::rad2deg(min_range_theta - M_PI);
   outer_arc_.end_angle = autoware_utils::rad2deg(max_range_theta - min_range_theta);
 
-  if (last_msg_ptr_ != nullptr) processMessage(last_msg_ptr_);
+  if (last_msg_ptr_ != nullptr) {processMessage(last_msg_ptr_);}
 }
 
 }  // namespace rviz_plugins

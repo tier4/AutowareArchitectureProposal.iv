@@ -39,7 +39,7 @@
 namespace rviz_plugins
 {
 class VelocityHistoryDisplay
-: public rviz_common::MessageFilterDisplay<geometry_msgs::msg::TwistStamped>
+  : public rviz_common::MessageFilterDisplay<geometry_msgs::msg::TwistStamped>
 {
   Q_OBJECT
 
@@ -69,7 +69,7 @@ protected:
 
 private:
   std::deque<std::tuple<geometry_msgs::msg::TwistStamped::ConstSharedPtr, Ogre::Vector3>>
-    histories_;
+  histories_;
   bool validateFloats(const geometry_msgs::msg::TwistStamped::ConstSharedPtr & msg_ptr);
 };
 

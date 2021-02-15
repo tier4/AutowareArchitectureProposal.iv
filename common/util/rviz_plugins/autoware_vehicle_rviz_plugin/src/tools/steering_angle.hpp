@@ -43,7 +43,7 @@
 namespace rviz_plugins
 {
 class SteeringAngleDisplay
-: public rviz_common::MessageFilterDisplay<autoware_vehicle_msgs::msg::Steering>
+  : public rviz_common::MessageFilterDisplay<autoware_vehicle_msgs::msg::Steering>
 {
   Q_OBJECT
 
