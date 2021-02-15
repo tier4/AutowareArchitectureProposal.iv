@@ -138,7 +138,7 @@ void LaneChanger::init()
     "input/vector_map", rclcpp::QoS{1}.transient_local(),
     std::bind(&RouteHandler::mapCallback, route_handler_ptr_, std::placeholders::_1));
   route_subscriber_ = create_subscription<autoware_planning_msgs::msg::Route>(
-    "input/route", rclcpp::QoS{1},
+    "input/route", rclcpp::QoS{1}.transient_local(),
     std::bind(&RouteHandler::routeCallback, route_handler_ptr_, std::placeholders::_1));
 
   // publisher
