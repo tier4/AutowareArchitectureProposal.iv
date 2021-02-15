@@ -89,8 +89,10 @@ public:
   void perceptionCallback(
     const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_perception_msg);
   void velocityCallback(const geometry_msgs::msg::TwistStamped::ConstSharedPtr input_twist_msg);
-  void laneChangeApprovalCallback(const autoware_planning_msgs::msg::LaneChangeCommand::ConstSharedPtr input_approval_msg);
-  void forceLaneChangeSignalCallback(const autoware_planning_msgs::msg::LaneChangeCommand::ConstSharedPtr input_approval_msg);
+  void laneChangeApprovalCallback(
+    const autoware_planning_msgs::msg::LaneChangeCommand::ConstSharedPtr input_approval_msg);
+  void forceLaneChangeSignalCallback(
+    const autoware_planning_msgs::msg::LaneChangeCommand::ConstSharedPtr input_approval_msg);
 
   void setLaneChangerParameters(const LaneChangerParameters & parameters);
 

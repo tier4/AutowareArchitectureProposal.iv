@@ -48,14 +48,18 @@ private:
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr path_marker_publisher_;
   rclcpp::Publisher<autoware_planning_msgs::msg::StopReasonArray>::SharedPtr stop_reason_publisher_;
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr drivable_area_publisher_;
-  rclcpp::Publisher<autoware_planning_msgs::msg::LaneChangeStatus>::SharedPtr lane_change_ready_publisher_;
-  rclcpp::Publisher<autoware_planning_msgs::msg::LaneChangeStatus>::SharedPtr lane_change_available_publisher_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::LaneChangeStatus>::SharedPtr
+    lane_change_ready_publisher_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::LaneChangeStatus>::SharedPtr
+    lane_change_available_publisher_;
 
   rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr
     perception_subscriber_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr velocity_subscriber_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::LaneChangeCommand>::SharedPtr lane_change_approval_subscriber_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::LaneChangeCommand>::SharedPtr force_lane_change_subscriber_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::LaneChangeCommand>::SharedPtr
+    lane_change_approval_subscriber_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::LaneChangeCommand>::SharedPtr
+    force_lane_change_subscriber_;
   rclcpp::Subscription<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr vector_map_subscriber_;
   rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr route_subscriber_;
   rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr route_init_subscriber_;

@@ -56,12 +56,14 @@ void LaneChanger::init()
   perception_subscriber_ = create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
     "input/perception", rclcpp::QoS{1},
     std::bind(&DataManager::perceptionCallback, data_manager_ptr_, std::placeholders::_1));
-  lane_change_approval_subscriber_ = create_subscription<autoware_planning_msgs::msg::LaneChangeCommand>(
+  lane_change_approval_subscriber_ =
+    create_subscription<autoware_planning_msgs::msg::LaneChangeCommand>(
     "input/lane_change_approval", rclcpp::QoS{1},
     std::bind(
       &DataManager::laneChangeApprovalCallback, data_manager_ptr_,
       std::placeholders::_1));
-  force_lane_change_subscriber_ = create_subscription<autoware_planning_msgs::msg::LaneChangeCommand>(
+  force_lane_change_subscriber_ =
+    create_subscription<autoware_planning_msgs::msg::LaneChangeCommand>(
     "input/force_lane_change", rclcpp::QoS{1},
     std::bind(
       &DataManager::forceLaneChangeSignalCallback, data_manager_ptr_,
@@ -154,7 +156,8 @@ void LaneChanger::init()
   lane_change_ready_publisher_ = create_publisher<autoware_planning_msgs::msg::LaneChangeStatus>(
     "output/lane_change_ready",
     rclcpp::QoS{1});
-  lane_change_available_publisher_ = create_publisher<autoware_planning_msgs::msg::LaneChangeStatus>(
+  lane_change_available_publisher_ =
+    create_publisher<autoware_planning_msgs::msg::LaneChangeStatus>(
     "output/lane_change_available", rclcpp::QoS{1});
 
   waitForData();
