@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
+
 #include "console_meter.hpp"
 #include "QPainter"
 #include "rviz_common/uniform_string_stream.hpp"
@@ -123,8 +125,11 @@ void ConsoleMeterDisplay::processMessage(
 
   painter.setPen(QPen(white_color, hand_width_, Qt::SolidLine));
   painter.drawLine(
-    w * 0.5, h * 0.5, (w * 0.5) + ((float)w * 0.5 - ((float)hand_width_ * 0.5)) * std::cos(theta),
-    (h * 0.5) + ((float)h * 0.5 - ((float)hand_width_ * 0.5)) * std::sin(theta));
+    w * 0.5, h * 0.5,
+    (w * 0.5) +
+    (static_cast<float>(w) * 0.5 - (static_cast<float>(hand_width_) * 0.5)) * std::cos(theta),
+    (h * 0.5) +
+    (static_cast<float>(h) * 0.5 - (static_cast<float>(hand_width_) * 0.5)) * std::sin(theta));
 
   painter.setPen(QPen(white_color, line_width_, Qt::SolidLine));
   painter.drawLine(min_range_line_.x0, min_range_line_.y0, min_range_line_.x1, min_range_line_.y1);
@@ -139,9 +144,10 @@ void ConsoleMeterDisplay::processMessage(
   // text
   QColor text_color(property_text_color_->getColor());
   text_color.setAlpha(255);
-  painter.setPen(QPen(text_color, int(2), Qt::SolidLine));
+  painter.setPen(QPen(text_color, static_cast<int>(2), Qt::SolidLine));
   QFont font = painter.font();
-  font.setPixelSize(std::max(int(double(w) * property_value_scale_->getFloat()), 1));
+  font.setPixelSize(
+    std::max(static_cast<int>(static_cast<double>(w) * property_value_scale_->getFloat()), 1));
   font.setBold(true);
   painter.setFont(font);
   std::ostringstream velocity_ss;
@@ -164,18 +170,26 @@ void ConsoleMeterDisplay::updateVisualization()
   const int w = overlay_->getTextureWidth() - line_width_;
   const int h = overlay_->getTextureHeight() - line_width_;
 
-  min_range_line_.x0 = (w / 2.0) + line_width_ / 2.0 + ((float)w / 8.0) * std::cos(min_range_theta);
-  min_range_line_.y0 = (h / 2.0) + line_width_ / 2.0 + ((float)h / 8.0) * std::sin(min_range_theta);
-  min_range_line_.x1 = (w / 2.0) + line_width_ / 2.0 +
-    ((float)w / 2.0 - (line_width_ / 2.0)) * std::cos(min_range_theta);
-  min_range_line_.y1 = (h / 2.0) + line_width_ / 2.0 +
-    ((float)h / 2.0 - (line_width_ / 2.0)) * std::sin(min_range_theta);
-  max_range_line_.x0 = (w / 2.0) + line_width_ / 2.0 + ((float)w / 8.0) * std::cos(max_range_theta);
-  max_range_line_.y0 = (h / 2.0) + line_width_ / 2.0 + ((float)h / 8.0) * std::sin(max_range_theta);
-  max_range_line_.x1 = (w * 0.5) + line_width_ * 0.5 +
-    ((float)w / 2.0 - (line_width_ * 0.5)) * std::cos(max_range_theta);
-  max_range_line_.y1 = (h * 0.5) + line_width_ * 0.5 +
-    ((float)h / 2.0 - (line_width_ * 0.5)) * std::sin(max_range_theta);
+  min_range_line_.x0 =
+    (w / 2.0) + line_width_ / 2.0 + (static_cast<float>(w) / 8.0) * std::cos(min_range_theta);
+  min_range_line_.y0 =
+    (h / 2.0) + line_width_ / 2.0 + (static_cast<float>(h) / 8.0) * std::sin(min_range_theta);
+  min_range_line_.x1 =
+    (w / 2.0) + line_width_ / 2.0 +
+    (static_cast<float>(w) / 2.0 - (line_width_ / 2.0)) * std::cos(min_range_theta);
+  min_range_line_.y1 =
+    (h / 2.0) + line_width_ / 2.0 +
+    (static_cast<float>(h) / 2.0 - (line_width_ / 2.0)) * std::sin(min_range_theta);
+  max_range_line_.x0 =
+    (w / 2.0) + line_width_ / 2.0 + (static_cast<float>(w) / 8.0) * std::cos(max_range_theta);
+  max_range_line_.y0 =
+    (h / 2.0) + line_width_ / 2.0 + (static_cast<float>(h) / 8.0) * std::sin(max_range_theta);
+  max_range_line_.x1 =
+    (w * 0.5) + line_width_ * 0.5 +
+    (static_cast<float>(w) / 2.0 - (line_width_ * 0.5)) * std::cos(max_range_theta);
+  max_range_line_.y1 =
+    (h * 0.5) + line_width_ * 0.5 +
+    (static_cast<float>(h) / 2.0 - (line_width_ * 0.5)) * std::sin(max_range_theta);
   inner_arc_.x0 = line_width_ / 2.0;
   inner_arc_.y0 = line_width_ / 2.0;
   inner_arc_.x1 = w;
@@ -189,10 +203,12 @@ void ConsoleMeterDisplay::updateVisualization()
   outer_arc_.start_angle = autoware_utils::rad2deg(min_range_theta - M_PI);
   outer_arc_.end_angle = autoware_utils::rad2deg(max_range_theta - min_range_theta);
 
-  if (last_msg_ptr_ != nullptr) {processMessage(last_msg_ptr_);}
+  if (last_msg_ptr_ != nullptr) {
+    processMessage(last_msg_ptr_);
+  }
 }
 
 }  // namespace rviz_plugins
 
-#include <pluginlib/class_list_macros.hpp>
+#include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::ConsoleMeterDisplay, rviz_common::Display)

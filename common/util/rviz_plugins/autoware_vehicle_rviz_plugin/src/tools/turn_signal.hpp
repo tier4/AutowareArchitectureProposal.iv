@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef TOOLS__TURN_SIGNAL_HPP_
+#define TOOLS__TURN_SIGNAL_HPP_
+
+#include <deque>
+#include <memory>
 
 #ifndef Q_MOC_RUN
 #include "rclcpp/rclcpp.hpp"
@@ -30,9 +34,6 @@
 #include "OgreManualObject.h"
 #include "OgreSceneManager.h"
 #include "OgreSceneNode.h"
-
-#include <deque>
-#include <memory>
 
 #include "autoware_vehicle_msgs/msg/turn_signal.hpp"
 
@@ -74,3 +75,5 @@ private:
 };
 
 }  // namespace rviz_plugins
+
+#endif  // TOOLS__TURN_SIGNAL_HPP_

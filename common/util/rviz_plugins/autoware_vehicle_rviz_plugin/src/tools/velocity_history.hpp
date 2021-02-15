@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef TOOLS__VELOCITY_HISTORY_HPP_
+#define TOOLS__VELOCITY_HISTORY_HPP_
+
+#include <deque>
+#include <memory>
+#include <tuple>
 
 #include "OgreBillboardSet.h"
 #include "OgreManualObject.h"
@@ -29,10 +34,6 @@
 #include "rviz_common/properties/float_property.hpp"
 #include "rviz_common/properties/parse_color.hpp"
 #include "rviz_common/validate_floats.hpp"
-
-#include <deque>
-#include <memory>
-#include <tuple>
 
 #include "geometry_msgs/msg/twist_stamped.hpp"
 
@@ -74,3 +75,5 @@ private:
 };
 
 }  // namespace rviz_plugins
+
+#endif  // TOOLS__VELOCITY_HISTORY_HPP_

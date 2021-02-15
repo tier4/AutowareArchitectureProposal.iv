@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef TOOLS__CONSOLE_METER_HPP_
+#define TOOLS__CONSOLE_METER_HPP_
+
+#include <deque>
+#include <iomanip>
+#include <memory>
 
 #ifndef Q_MOC_RUN
 #include "rclcpp/rclcpp.hpp"
@@ -30,10 +35,6 @@
 #include "OgreManualObject.h"
 #include "OgreSceneManager.h"
 #include "OgreSceneNode.h"
-
-#include <deque>
-#include <iomanip>
-#include <memory>
 
 #include "autoware_utils/autoware_utils.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
@@ -96,3 +97,5 @@ private:
 };
 
 }  // namespace rviz_plugins
+
+#endif  // TOOLS__CONSOLE_METER_HPP_

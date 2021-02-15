@@ -96,24 +96,24 @@ void TurnSignalDisplay::processMessage(
   QColor white_color(Qt::white);
   white_color.setAlpha(255);
   if (msg_ptr->data == autoware_vehicle_msgs::msg::TurnSignal::RIGHT) {
-    painter.setPen(QPen(white_color, int(2), Qt::DotLine));
+    painter.setPen(QPen(white_color, static_cast<int>(2), Qt::DotLine));
     painter.drawPolygon(left_arrow_polygon_, 7);
     painter.setBrush(QBrush(Qt::white, Qt::SolidPattern));
-    painter.setPen(QPen(white_color, int(2), Qt::SolidLine));
+    painter.setPen(QPen(white_color, static_cast<int>(2), Qt::SolidLine));
     painter.drawPolygon(left_arrow_polygon_, 7);
   } else if (msg_ptr->data == autoware_vehicle_msgs::msg::TurnSignal::LEFT) {
-    painter.setPen(QPen(white_color, int(2), Qt::DotLine));
+    painter.setPen(QPen(white_color, static_cast<int>(2), Qt::DotLine));
     painter.drawPolygon(right_arrow_polygon_, 7);
     painter.setBrush(QBrush(Qt::white, Qt::SolidPattern));
-    painter.setPen(QPen(white_color, int(2), Qt::SolidLine));
+    painter.setPen(QPen(white_color, static_cast<int>(2), Qt::SolidLine));
     painter.drawPolygon(right_arrow_polygon_, 7);
   } else if (msg_ptr->data == autoware_vehicle_msgs::msg::TurnSignal::HAZARD) {
     painter.setBrush(QBrush(Qt::white, Qt::SolidPattern));
-    painter.setPen(QPen(white_color, int(2), Qt::SolidLine));
+    painter.setPen(QPen(white_color, static_cast<int>(2), Qt::SolidLine));
     painter.drawPolygon(right_arrow_polygon_, 7);
     painter.drawPolygon(left_arrow_polygon_, 7);
   } else {
-    painter.setPen(QPen(white_color, int(2), Qt::DotLine));
+    painter.setPen(QPen(white_color, static_cast<int>(2), Qt::DotLine));
     painter.drawPolygon(right_arrow_polygon_, 7);
     painter.drawPolygon(left_arrow_polygon_, 7);
   }
@@ -130,40 +130,40 @@ void TurnSignalDisplay::updateVisualization()
   const int w = overlay_->getTextureWidth();
   const int h = overlay_->getTextureHeight();
 
-  right_arrow_polygon_[0].setX((float)w * 5.0 / 5.0);
-  right_arrow_polygon_[0].setY((float)h * 1.0 / 2.0);
-  right_arrow_polygon_[1].setX((float)w * 4.0 / 5.0);
-  right_arrow_polygon_[1].setY((float)h * 1.0 / 5.0);
-  right_arrow_polygon_[2].setX((float)w * 4.0 / 5.0);
-  right_arrow_polygon_[2].setY((float)h * 2.0 / 5.0);
-  right_arrow_polygon_[3].setX((float)w * 3.0 / 5.0);
-  right_arrow_polygon_[3].setY((float)h * 2.0 / 5.0);
-  right_arrow_polygon_[4].setX((float)w * 3.0 / 5.0);
-  right_arrow_polygon_[4].setY((float)h * 3.0 / 5.0);
-  right_arrow_polygon_[5].setX((float)w * 4.0 / 5.0);
-  right_arrow_polygon_[5].setY((float)h * 3.0 / 5.0);
-  right_arrow_polygon_[6].setX((float)w * 4.0 / 5.0);
-  right_arrow_polygon_[6].setY((float)h * 4.0 / 5.0);
+  right_arrow_polygon_[0].setX(static_cast<float>(w) * 5.0 / 5.0);
+  right_arrow_polygon_[0].setY(static_cast<float>(h) * 1.0 / 2.0);
+  right_arrow_polygon_[1].setX(static_cast<float>(w) * 4.0 / 5.0);
+  right_arrow_polygon_[1].setY(static_cast<float>(h) * 1.0 / 5.0);
+  right_arrow_polygon_[2].setX(static_cast<float>(w) * 4.0 / 5.0);
+  right_arrow_polygon_[2].setY(static_cast<float>(h) * 2.0 / 5.0);
+  right_arrow_polygon_[3].setX(static_cast<float>(w) * 3.0 / 5.0);
+  right_arrow_polygon_[3].setY(static_cast<float>(h) * 2.0 / 5.0);
+  right_arrow_polygon_[4].setX(static_cast<float>(w) * 3.0 / 5.0);
+  right_arrow_polygon_[4].setY(static_cast<float>(h) * 3.0 / 5.0);
+  right_arrow_polygon_[5].setX(static_cast<float>(w) * 4.0 / 5.0);
+  right_arrow_polygon_[5].setY(static_cast<float>(h) * 3.0 / 5.0);
+  right_arrow_polygon_[6].setX(static_cast<float>(w) * 4.0 / 5.0);
+  right_arrow_polygon_[6].setY(static_cast<float>(h) * 4.0 / 5.0);
 
-  left_arrow_polygon_[0].setX((float)w * 0.0 / 5.0);
-  left_arrow_polygon_[0].setY((float)h * 1.0 / 2.0);
-  left_arrow_polygon_[1].setX((float)w * 1.0 / 5.0);
-  left_arrow_polygon_[1].setY((float)h * 1.0 / 5.0);
-  left_arrow_polygon_[2].setX((float)w * 1.0 / 5.0);
-  left_arrow_polygon_[2].setY((float)h * 2.0 / 5.0);
-  left_arrow_polygon_[3].setX((float)w * 2.0 / 5.0);
-  left_arrow_polygon_[3].setY((float)h * 2.0 / 5.0);
-  left_arrow_polygon_[4].setX((float)w * 2.0 / 5.0);
-  left_arrow_polygon_[4].setY((float)h * 3.0 / 5.0);
-  left_arrow_polygon_[5].setX((float)w * 1.0 / 5.0);
-  left_arrow_polygon_[5].setY((float)h * 3.0 / 5.0);
-  left_arrow_polygon_[6].setX((float)w * 1.0 / 5.0);
-  left_arrow_polygon_[6].setY((float)h * 4.0 / 5.0);
+  left_arrow_polygon_[0].setX(static_cast<float>(w) * 0.0 / 5.0);
+  left_arrow_polygon_[0].setY(static_cast<float>(h) * 1.0 / 2.0);
+  left_arrow_polygon_[1].setX(static_cast<float>(w) * 1.0 / 5.0);
+  left_arrow_polygon_[1].setY(static_cast<float>(h) * 1.0 / 5.0);
+  left_arrow_polygon_[2].setX(static_cast<float>(w) * 1.0 / 5.0);
+  left_arrow_polygon_[2].setY(static_cast<float>(h) * 2.0 / 5.0);
+  left_arrow_polygon_[3].setX(static_cast<float>(w) * 2.0 / 5.0);
+  left_arrow_polygon_[3].setY(static_cast<float>(h) * 2.0 / 5.0);
+  left_arrow_polygon_[4].setX(static_cast<float>(w) * 2.0 / 5.0);
+  left_arrow_polygon_[4].setY(static_cast<float>(h) * 3.0 / 5.0);
+  left_arrow_polygon_[5].setX(static_cast<float>(w) * 1.0 / 5.0);
+  left_arrow_polygon_[5].setY(static_cast<float>(h) * 3.0 / 5.0);
+  left_arrow_polygon_[6].setX(static_cast<float>(w) * 1.0 / 5.0);
+  left_arrow_polygon_[6].setY(static_cast<float>(h) * 4.0 / 5.0);
 
   if (last_msg_ptr_ != nullptr) {processMessage(last_msg_ptr_);}
 }
 
 }  // namespace rviz_plugins
 
-#include <pluginlib/class_list_macros.hpp>
+#include "pluginlib/class_list_macros.hpp"
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::TurnSignalDisplay, rviz_common::Display)

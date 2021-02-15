@@ -12,7 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef TOOLS__STEERING_ANGLE_HPP_
+#define TOOLS__STEERING_ANGLE_HPP_
+
+#include <deque>
+#include <iomanip>
+#include <memory>
 
 #ifndef Q_MOC_RUN
 #include "rclcpp/rclcpp.hpp"
@@ -30,10 +35,6 @@
 #include "OgreManualObject.h"
 #include "OgreSceneManager.h"
 #include "OgreSceneNode.h"
-
-#include <deque>
-#include <iomanip>
-#include <memory>
 
 #include "autoware_vehicle_msgs/msg/steering.hpp"
 
@@ -80,3 +81,5 @@ private:
 };
 
 }  // namespace rviz_plugins
+
+#endif  // TOOLS__STEERING_ANGLE_HPP_
