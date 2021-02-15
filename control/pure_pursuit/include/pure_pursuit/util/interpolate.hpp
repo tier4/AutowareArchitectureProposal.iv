@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef PURE_PURSUIT__UTIL__INTERPOLATE_HPP_
+#define PURE_PURSUIT__UTIL__INTERPOLATE_HPP_
+
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -37,7 +39,7 @@ class SplineInterpolate
 
 public:
   SplineInterpolate();
-  SplineInterpolate(const std::vector<double> & x);
+  explicit SplineInterpolate(const std::vector<double> & x);
   ~SplineInterpolate();
   void generateSpline(const std::vector<double> & x);
   double getValue(const double & s);
@@ -46,3 +48,5 @@ public:
     const std::vector<double> & return_index, std::vector<double> & return_value);
   void getValueVector(const std::vector<double> & s_v, std::vector<double> & value_v);
 };
+
+#endif  // PURE_PURSUIT__UTIL__INTERPOLATE_HPP_
