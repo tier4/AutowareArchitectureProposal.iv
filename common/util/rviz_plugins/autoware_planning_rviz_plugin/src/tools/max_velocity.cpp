@@ -1,22 +1,24 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-#include "max_velocity.hpp"
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include <algorithm>
 #include <iomanip>
+#include <string>
+
 #include "OgreHardwarePixelBuffer.h"
 #include "QPainter"
+#include "max_velocity.hpp"
 #include "rviz_common/display_context.hpp"
 #include "rviz_common/uniform_string_stream.hpp"
 
@@ -107,7 +109,7 @@ void MaxVelocityDisplay::subscribe()
   }
 }
 
-void MaxVelocityDisplay::unsubscribe() { max_vel_sub_.reset(); }
+void MaxVelocityDisplay::unsubscribe() {max_vel_sub_.reset();}
 
 void MaxVelocityDisplay::processMessage(const std_msgs::msg::Float32::ConstSharedPtr msg_ptr)
 {
@@ -150,14 +152,15 @@ void MaxVelocityDisplay::processMessage(const std_msgs::msg::Float32::ConstShare
   // text
   QColor text_color(property_text_color_->getColor());
   text_color.setAlpha(255);
-  painter.setPen(QPen(text_color, int(2), Qt::SolidLine));
+  painter.setPen(QPen(text_color, static_cast<int>(2), Qt::SolidLine));
   QFont font = painter.font();
-  font.setPixelSize(std::max(int(double(w) * property_value_scale_->getFloat()), 1));
+  font.setPixelSize(
+    std::max(static_cast<int>(static_cast<double>(w) * property_value_scale_->getFloat()), 1));
   font.setBold(true);
   painter.setFont(font);
   std::ostringstream velocity_ss;
-  velocity_ss << std::fixed << std::setprecision(0) << "limited" << std::endl
-              << msg_ptr->data * 3.6 << "km/h";
+  velocity_ss << std::fixed << std::setprecision(0) << "limited" << std::endl <<
+    msg_ptr->data * 3.6 << "km/h";
   painter.drawText(
     static_cast<int>(line_width * 0.5), std::min(static_cast<int>(line_width * 0.5), h - 1), w,
     std::max(h, 1), Qt::AlignCenter | Qt::AlignVCenter, velocity_ss.str().c_str());
@@ -171,7 +174,7 @@ void MaxVelocityDisplay::updateVisualization()
   overlay_->setPosition(property_left_->getInt(), property_top_->getInt());
   overlay_->setDimensions(overlay_->getTextureWidth(), overlay_->getTextureHeight());
 
-  if (last_msg_ptr_ != nullptr) processMessage(last_msg_ptr_);
+  if (last_msg_ptr_ != nullptr) {processMessage(last_msg_ptr_);}
 }
 
 }  // namespace rviz_plugins
