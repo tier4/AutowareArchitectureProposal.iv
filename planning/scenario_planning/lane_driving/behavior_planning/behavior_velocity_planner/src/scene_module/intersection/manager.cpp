@@ -74,7 +74,7 @@ IntersectionModuleManager::IntersectionModuleManager(rclcpp::Node & node)
   p.intersection_velocity = node.declare_parameter(ns + ".intersection_velocity", 10.0 / 3.6);
   p.intersection_max_acc = node.declare_parameter(ns + ".intersection_max_accel", 0.5);
   p.detection_area_length = node.declare_parameter(ns + ".detection_area_length", 200.0);
-  p.external_input_timeout = node.declare_parameter(ns + ".walkway/external_input_timeout", 1.0);
+  p.external_input_timeout = node.declare_parameter(ns + ".walkway.external_input_timeout", 1.0);
 }
 
 void IntersectionModuleManager::launchNewModules(
