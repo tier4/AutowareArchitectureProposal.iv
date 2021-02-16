@@ -1,15 +1,33 @@
-#pragma once
-#include <autoware_planning_msgs/Path.h>
-#include <ros/ros.h>
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-class PathTestPublisherNode {
- private:
-  ros::NodeHandle nh_, pnh_;
-  ros::Publisher pub_;
-  ros::Timer timer_;
-  void timerCallback(const ros::TimerEvent&);
+#ifndef PATH_TEST_PUBLISHER__NODE_HPP_
+#define PATH_TEST_PUBLISHER__NODE_HPP_
 
- public:
+#include "rclcpp/rclcpp.hpp"
+#include "autoware_planning_msgs/msg/path.hpp"
+
+class PathTestPublisherNode : public rclcpp::Node
+{
+private:
+  rclcpp::Publisher<autoware_planning_msgs::msg::Path>::SharedPtr pub_;
+  rclcpp::TimerBase::SharedPtr timer_;
+  void timerCallback();
+
+public:
   PathTestPublisherNode();
-  ~PathTestPublisherNode(){};
+  ~PathTestPublisherNode() = default;
 };
+
+#endif  // PATH_TEST_PUBLISHER__NODE_HPP_
