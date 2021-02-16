@@ -312,7 +312,7 @@ bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
   }
   if (path_collision_points.size() != 2) {
     RCLCPP_ERROR_THROTTLE(
-      logger_, *clock_, 5.0,
+      logger_, *clock_, 5000,
       "There must be two points of conflict between the crosswalk polygon and the path. points is "
       "%d",
       (int)path_collision_points.size());
@@ -343,7 +343,7 @@ bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
 
   if (path_polygons.size() != 1) {
     RCLCPP_ERROR_THROTTLE(
-      logger_, *clock_, 5.0, "Number of polygon is %d. Must be 1",
+      logger_, *clock_, 5000, "Number of polygon is %d. Must be 1",
       (int)path_polygons.size());
     return false;
   }
