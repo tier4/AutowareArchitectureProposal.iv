@@ -32,7 +32,7 @@ private:
 
 public:
   TrajectoryTestPublisherNode();
-  ~TrajectoryTestPublisherNode(){};
+  ~TrajectoryTestPublisherNode() {}
 };
 
 #endif  // TRAJECTORY_TEST_PUBLISHER__NODE_HPP_
