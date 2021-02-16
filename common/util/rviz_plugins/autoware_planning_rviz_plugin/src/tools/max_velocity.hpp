@@ -37,7 +37,7 @@
 #include "OgreSceneManager.h"
 #include "OgreSceneNode.h"
 
-#include "std_msgs/msg/float32.hpp"
+#include "autoware_planning_msgs/msg/velocity_limit.hpp"
 
 #include "jsk_overlay_utils.hpp"
 #endif
@@ -63,7 +63,7 @@ private Q_SLOTS:
   void updateVisualization();
 
 protected:
-  void processMessage(const std_msgs::msg::Float32::ConstSharedPtr msg_ptr);
+  void processMessage(const autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr msg_ptr);
   jsk_rviz_plugins::OverlayObject::Ptr overlay_;
   rviz_common::properties::ColorProperty * property_text_color_;
   rviz_common::properties::IntProperty * property_left_;
@@ -73,8 +73,8 @@ protected:
   rviz_common::properties::FloatProperty * property_value_scale_;
 
 private:
-  rclcpp::Subscription<std_msgs::msg::Float32>::SharedPtr max_vel_sub_;
-  std_msgs::msg::Float32::ConstSharedPtr last_msg_ptr_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::VelocityLimit>::SharedPtr max_vel_sub_;
+  autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr last_msg_ptr_;
 };
 
 }  // namespace rviz_plugins

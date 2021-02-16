@@ -104,14 +104,15 @@ void MaxVelocityDisplay::subscribe()
   std::string topic_name = property_topic_name_->getStdString();
   if (topic_name.length() > 0 && topic_name != "/") {
     rclcpp::Node::SharedPtr raw_node = context_->getRosNodeAbstraction().lock()->get_raw_node();
-    max_vel_sub_ = raw_node->create_subscription<std_msgs::msg::Float32>(
+    max_vel_sub_ = raw_node->create_subscription<autoware_planning_msgs::msg::VelocityLimit>(
       topic_name, 10, std::bind(&MaxVelocityDisplay::processMessage, this, std::placeholders::_1));
   }
 }
 
 void MaxVelocityDisplay::unsubscribe() {max_vel_sub_.reset();}
 
-void MaxVelocityDisplay::processMessage(const std_msgs::msg::Float32::ConstSharedPtr msg_ptr)
+void MaxVelocityDisplay::processMessage(
+  const autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr msg_ptr)
 {
   if (!isEnabled()) {
     return;
@@ -174,7 +175,9 @@ void MaxVelocityDisplay::updateVisualization()
   overlay_->setPosition(property_left_->getInt(), property_top_->getInt());
   overlay_->setDimensions(overlay_->getTextureWidth(), overlay_->getTextureHeight());
 
-  if (last_msg_ptr_ != nullptr) {processMessage(last_msg_ptr_);}
+  if (last_msg_ptr_ != nullptr) {
+    processMessage(last_msg_ptr_);
+  }
 }
 
 }  // namespace rviz_plugins
