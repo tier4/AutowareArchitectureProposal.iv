@@ -5,7 +5,7 @@
   <version>0.1.0</version>
   <description>The path_test_publisher package</description>
   <maintainer email="tier4@todo.todo">tier4</maintainer>
-  <license>TODO</license>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
   <depend>rclcpp</depend>
