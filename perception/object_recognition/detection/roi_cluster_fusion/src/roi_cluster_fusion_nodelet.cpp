@@ -40,7 +40,8 @@
 
 namespace roi_cluster_fusion
 {
-Debugger::Debugger(rclcpp::Node * node, const int camera_num) : node_(node)
+Debugger::Debugger(rclcpp::Node * node, const int camera_num)
+: node_(node)
 {
   image_buffers_.resize(camera_num);
   for (int id = 0; id < camera_num; ++id) {
