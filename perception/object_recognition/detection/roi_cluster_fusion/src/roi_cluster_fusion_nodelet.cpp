@@ -40,16 +40,16 @@
 
 namespace roi_cluster_fusion
 {
-Debugger::Debugger(const rclcpp::NodeOptions & options, const int camera_num)
-: Node("roi_cluster_fusion_node", options)
+Debugger::Debugger(rclcpp::Node * node, const int camera_num) : node_(node)
 {
   image_buffers_.resize(camera_num);
   for (int id = 0; id < camera_num; ++id) {
-    image_subs_.push_back(
-      image_transport_->subscribe(
-        "input/image_raw" + std::to_string(id), 1,
-        boost::bind(&Debugger::imageCallback, this, _1, id)));
-    image_pubs_.push_back(image_transport_->advertise("output/image_raw" + std::to_string(id), 1));
+    auto sub = image_transport::create_subscription(
+      node, "input/image_raw" + std::to_string(id),
+      boost::bind(&Debugger::imageCallback, this, _1, id), "raw");
+    image_subs_.push_back(sub);
+    auto pub = image_transport::create_publisher(node, "output/image_raw" + std::to_string(id));
+    image_pubs_.push_back(pub);
     image_buffers_.at(id).set_capacity(5);
   }
 }
@@ -134,11 +134,12 @@ RoiClusterFusionNodelet::RoiClusterFusionNodelet(const rclcpp::NodeOptions & opt
   tf_buffer_(this->get_clock()),
   tf_listener_ptr_(tf_buffer_)
 {
-  use_iou_x_ = this->declare_parameter("use_iou_x", true);
-  use_iou_y_ = this->declare_parameter("use_iou_y", false);
-  use_iou_ = this->declare_parameter("debug_mode", false);
-  use_cluster_semantic_type_ = this->declare_parameter("use_cluster_semantic_type", false);
-  int rois_number = this->declare_parameter("rois_number", 1);
+  use_iou_x_ = declare_parameter("use_iou_x", true);
+  use_iou_y_ = declare_parameter("use_iou_y", false);
+  use_iou_ = declare_parameter("use_iou", false);
+  use_cluster_semantic_type_ = declare_parameter("use_cluster_semantic_type", false);
+  iou_threshold_ = declare_parameter("iou_threshold", 0.1);
+  int rois_number = declare_parameter("rois_number", 1);
   if (rois_number < 1) {
     RCLCPP_WARN(this->get_logger(), "minimum roi_num is 1. current roi_num is %d", rois_number);
     rois_number = 1;
@@ -221,7 +222,7 @@ RoiClusterFusionNodelet::RoiClusterFusionNodelet(const rclcpp::NodeOptions & opt
     this->create_publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(
     "output/labeled_clusters", 10);
   if (use_iou_) {
-    debuger_ = std::make_shared<Debugger>(options, rois_number);
+    debuger_ = std::make_shared<Debugger>(this, rois_number);
   }
 }
 

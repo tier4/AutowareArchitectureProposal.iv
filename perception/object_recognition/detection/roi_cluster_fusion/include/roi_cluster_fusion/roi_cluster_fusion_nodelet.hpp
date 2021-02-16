@@ -35,11 +35,12 @@
 
 namespace roi_cluster_fusion
 {
-class Debugger : public rclcpp::Node
+class Debugger
 {
 public:
-  explicit Debugger(const rclcpp::NodeOptions & options, const int camera_num);
+  explicit Debugger(rclcpp::Node * node, const int camera_num);
   ~Debugger() = default;
+  rclcpp::Node * node_;
   void showImage(
     const int id, const rclcpp::Time & time,
     const std::vector<sensor_msgs::msg::RegionOfInterest> & image_rois,
