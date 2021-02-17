@@ -195,7 +195,7 @@ private:
   double yaw_error_prev_ = 0.0;       //!< @brief previous lateral error for derivative
 
   std::shared_ptr<double> steer_prediction_prev_;
-  rclcpp::Time time_prev_ = rclcpp::Time(0);
+  rclcpp::Time time_prev_ = rclcpp::Time(0, 0, RCL_ROS_TIME);
   double sign_vx_ = 0.0;  //!< @brief sign of previous target speed to calculate curvature when the target speed is 0.
   std::vector<autoware_control_msgs::msg::ControlCommandStamped>
     ctrl_cmd_vec_;  //!< buffer of send command
