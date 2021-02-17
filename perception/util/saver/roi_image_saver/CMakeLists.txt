@@ -1,37 +1,29 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.5)
 project(roi_image_saver)
 
-add_compile_options(-std=c++14)
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies()
 
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  autoware_perception_msgs
-  sensor_msgs
-  cv_bridge
-  image_transport
-  message_filters
-)
+### Compile options
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter -Werror)
+endif()
 
-catkin_package(INCLUDE_DIRS include
-  CATKIN_DEPENDS
-)
-
-include_directories(include ${catkin_INCLUDE_DIRS})
-
-add_executable(traffic_light_roi_image_saver_node
+ament_auto_add_executable(traffic_light_roi_image_saver_node
   src/node.cpp
   src/main.cpp
 )
 
-add_dependencies(traffic_light_roi_image_saver_node
-  ${${PROJECT_NAME}_EXPORTED_TARGETS}
-  ${catkin_EXPORTED_TARGETS}
-)
-
 target_link_libraries(traffic_light_roi_image_saver_node ${catkin_LIBRARIES})
 
-install(TARGETS traffic_light_roi_image_saver_node
-        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
+ament_auto_package()

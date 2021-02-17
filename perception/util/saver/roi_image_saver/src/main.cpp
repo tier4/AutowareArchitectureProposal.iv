@@ -11,14 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "ros/ros.h"
+#include <memory>
+#include "rclcpp/rclcpp.hpp"
 #include "roi_image_saver/node.hpp"
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "traffic_light_roi_image_saver_node");
-  traffic_light::TrafficLightRoiImageSaver node;
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<traffic_light::TrafficLightRoiImageSaver>());
+  rclcpp::shutdown();
 
-  ros::spin();
   return 0;
 }
