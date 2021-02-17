@@ -75,7 +75,6 @@ private:
   autoware_planning_msgs::msg::StopReasonArray makeStopReasonArray(
     const DebugData & debug_data, const State & state);
   std::vector<autoware_planning_msgs::msg::StopReason> makeEmptyStopReasons();
-  void waitForData();
 
 public:
   LaneChanger();

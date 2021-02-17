@@ -74,6 +74,7 @@ protected:
   const rclcpp::Clock::SharedPtr clock_;
 
 public:
+  virtual ~StateBase() = default;
   virtual void entry() = 0;
   virtual void update() = 0;
   virtual State getNextState() const = 0;

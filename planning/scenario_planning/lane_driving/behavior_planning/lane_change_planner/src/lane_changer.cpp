@@ -17,7 +17,6 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <chrono>
 #include <algorithm>
 #include <utility>
 #include "lane_change_planner/utilities.hpp"
@@ -160,8 +159,6 @@ void LaneChanger::init()
     create_publisher<autoware_planning_msgs::msg::LaneChangeStatus>(
     "output/lane_change_available", rclcpp::QoS{1});
 
-  waitForData();
-
   // set state_machine
   state_machine_ptr_ = std::make_shared<StateMachine>(
     data_manager_ptr_, route_handler_ptr_,
@@ -181,26 +178,22 @@ void LaneChanger::init()
   this->get_node_timers_interface()->add_timer(timer_, nullptr);
 }
 
-void LaneChanger::waitForData()
-{
-  using namespace std::literals::chrono_literals;
-  rclcpp::WallRate loop_rate(100ms);
-
-  // wait until mandatory data is ready
-  while (!route_handler_ptr_->isHandlerReady() && rclcpp::ok()) {
-    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "waiting for route to be ready");
-    loop_rate.sleep();
-  }
-  while (!data_manager_ptr_->isDataReady() && rclcpp::ok()) {
-    RCLCPP_WARN_THROTTLE(
-      get_logger(),
-      *get_clock(), 5000, "waiting for vehicle pose, vehicle_velocity, and obstacles");
-    loop_rate.sleep();
-  }
-}
-
 void LaneChanger::run()
 {
+  // wait until mandatory data is ready
+  if (!route_handler_ptr_->isHandlerReady()) {
+    RCLCPP_WARN_THROTTLE(
+      get_logger(), *get_clock(),
+      5000, "waiting for route to be ready");
+    return;
+  }
+  if (!data_manager_ptr_->isDataReady()) {
+    RCLCPP_WARN_THROTTLE(
+      get_logger(), *get_clock(),
+      5000, "waiting for vehicle pose, vehicle_velocity, and obstacles");
+    return;
+  }
+
   state_machine_ptr_->updateState();
   const auto path = state_machine_ptr_->getPath();
 
