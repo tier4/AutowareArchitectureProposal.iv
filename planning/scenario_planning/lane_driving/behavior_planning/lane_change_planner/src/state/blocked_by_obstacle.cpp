@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,26 +14,24 @@
 // limitations under the License.
 
 #include "lane_change_planner/state/blocked_by_obstacle.hpp"
-
-#include <algorithm>
-#include <limits>
-#include <memory>
 #include <vector>
-
+#include <memory>
+#include <limits>
+#include <algorithm>
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
 #include "lane_change_planner/data_manager.hpp"
 #include "lane_change_planner/route_handler.hpp"
 #include "lane_change_planner/state/common_functions.hpp"
 #include "lane_change_planner/utilities.hpp"
 
-#include "lanelet2_extension/utility/message_conversion.hpp"
-#include "lanelet2_extension/utility/utilities.hpp"
-
 namespace lane_change_planner
 {
 BlockedByObstacleState::BlockedByObstacleState(
   const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr)
-: StateBase(status, data_manager_ptr, route_handler_ptr)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: StateBase(status, data_manager_ptr, route_handler_ptr, logger, clock)
 {
 }
 
@@ -43,6 +42,7 @@ void BlockedByObstacleState::entry()
   ros_parameters_ = data_manager_ptr_->getLaneChangerParameters();
   lane_change_approved_ = false;
   force_lane_change_ = false;
+  found_valid_path_ = false;
   found_safe_path_ = false;
   current_lanes_ = route_handler_ptr_->getLaneletsFromIds(status_.lane_follow_lane_ids);
 }
@@ -69,9 +69,7 @@ void BlockedByObstacleState::update()
   // update lanes
   {
     if (!route_handler_ptr_->getClosestLaneletWithinRoute(current_pose_.pose, &current_lane)) {
-      RCLCPP_ERROR(
-        data_manager_ptr_->getLogger(),
-        "failed to find closest lanelet within route!!!");
+      RCLCPP_ERROR(logger_, "failed to find closest lanelet within route!!!");
       return;
     }
     lanelet::ConstLanelet right_lane;
@@ -87,13 +85,11 @@ void BlockedByObstacleState::update()
     }
   }
 
-  const double minimum_lane_change_length = ros_parameters_.minimum_lane_change_length;
-
   // update lane_follow_path
   {
     status_.lane_follow_path = route_handler_ptr_->getReferencePath(
       current_lanes_, current_pose_.pose, backward_path_length, forward_path_length,
-      minimum_lane_change_length);
+      ros_parameters_);
     status_.lane_follow_path = setStopPointFromObstacle(status_.lane_follow_path);
     status_.lane_follow_lane_ids = util::getIds(current_lanes_);
   }
@@ -133,13 +129,18 @@ void BlockedByObstacleState::update()
     }
 
     // select valid path
+    const auto valid_paths = state_machine::common_functions::selectValidPaths(
+      lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
+      current_pose_.pose, route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
+      route_handler_ptr_->getGoalPose());
+    debug_data_.lane_change_candidate_paths = valid_paths;
+    found_valid_path_ = !valid_paths.empty();
+
+    // select safe path
     LaneChangePath selected_path;
-    if (state_machine::common_functions::selectLaneChangePath(
-        lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
-        dynamic_objects_, current_pose_.pose, current_twist_->twist,
-        route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
-        route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path,
-        data_manager_ptr_->getLogger(), data_manager_ptr_->getClock()))
+    if (state_machine::common_functions::selectSafePath(
+        valid_paths, current_lanes_, check_lanes, dynamic_objects_, current_pose_.pose,
+        current_twist_->twist, ros_parameters_, &selected_path, logger_, clock_))
     {
       found_safe_path_ = true;
     }
@@ -166,17 +167,21 @@ void BlockedByObstacleState::update()
     }
 
     // select valid path
+    const auto valid_paths = state_machine::common_functions::selectValidPaths(
+      lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
+      current_pose_.pose, route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
+      route_handler_ptr_->getGoalPose());
+    debug_data_.lane_change_candidate_paths = valid_paths;
+    found_valid_path_ = !valid_paths.empty();
+
+    // select safe path
     LaneChangePath selected_path;
-    if (state_machine::common_functions::selectLaneChangePath(
-        lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
-        dynamic_objects_, current_pose_.pose, current_twist_->twist,
-        route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
-        route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path,
-        data_manager_ptr_->getLogger(), data_manager_ptr_->getClock()))
+    if (state_machine::common_functions::selectSafePath(
+        valid_paths, current_lanes_, check_lanes, dynamic_objects_, current_pose_.pose,
+        current_twist_->twist, ros_parameters_, &selected_path, logger_, clock_))
     {
       found_safe_path_ = true;
     }
-
     debug_data_.selected_path = selected_path.path;
     status_.lane_change_path = selected_path;
   }
@@ -185,7 +190,7 @@ void BlockedByObstacleState::update()
   {
     status_.lane_change_ready = false;
     status_.lane_change_available = false;
-    if (!left_lanes.empty() || !right_lanes.empty()) {
+    if (foundValidPath()) {
       status_.lane_change_available = true;
       if (foundSafeLaneChangePath()) {
         status_.lane_change_ready = true;
@@ -260,7 +265,7 @@ bool BlockedByObstacleState::isOutOfCurrentLanes() const
 {
   lanelet::ConstLanelet closest_lane;
   if (!route_handler_ptr_->getClosestLaneletWithinRoute(current_pose_.pose, &closest_lane)) {
-    RCLCPP_ERROR(data_manager_ptr_->getLogger(), "failed to find closest lanelet within route!!!");
+    RCLCPP_ERROR(logger_, "failed to find closest lanelet within route!!!");
     return true;
   }
   for (const auto & llt : current_lanes_) {
@@ -277,8 +282,9 @@ bool BlockedByObstacleState::isLaneBlocked() const
   return !blocking_objects.empty();
 }
 
-std::vector<autoware_perception_msgs::msg::DynamicObject>
-BlockedByObstacleState::getBlockingObstacles() const
+std::vector<autoware_perception_msgs::msg::DynamicObject> BlockedByObstacleState::
+getBlockingObstacles()
+const
 {
   std::vector<autoware_perception_msgs::msg::DynamicObject> blocking_obstacles;
 
@@ -297,8 +303,9 @@ BlockedByObstacleState::getBlockingObstacles() const
 
   if (polygon.size() < 3) {
     RCLCPP_WARN_STREAM(
-      data_manager_ptr_->getLogger(), "could not get polygon from lanelet with arc lengths: " <<
-        arc.length << " to " << arc.length + check_distance);
+      logger_,
+      "could not get polygon from lanelet with arc lengths: " << arc.length << " to " <<
+        arc.length + check_distance);
     return blocking_obstacles;
   }
 
@@ -339,6 +346,7 @@ bool BlockedByObstacleState::hasEnoughDistanceToComeBack(
   return true;
 }
 
+bool BlockedByObstacleState::foundValidPath() const {return found_valid_path_;}
 bool BlockedByObstacleState::foundSafeLaneChangePath() const {return found_safe_path_;}
 bool BlockedByObstacleState::isLaneChangeReady() const {return status_.lane_change_ready;}
 

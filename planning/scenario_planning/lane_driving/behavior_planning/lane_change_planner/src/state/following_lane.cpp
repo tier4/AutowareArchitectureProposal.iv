@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,24 +14,23 @@
 // limitations under the License.
 
 #include "lane_change_planner/state/following_lane.hpp"
-
-#include <algorithm>
 #include <limits>
 #include <memory>
-
+#include <algorithm>
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
 #include "lane_change_planner/data_manager.hpp"
 #include "lane_change_planner/route_handler.hpp"
 #include "lane_change_planner/state/common_functions.hpp"
 #include "lane_change_planner/utilities.hpp"
-#include "lanelet2_extension/utility/message_conversion.hpp"
-#include "lanelet2_extension/utility/utilities.hpp"
 
 namespace lane_change_planner
 {
 FollowingLaneState::FollowingLaneState(
   const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr)
-: StateBase(status, data_manager_ptr, route_handler_ptr)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: StateBase(status, data_manager_ptr, route_handler_ptr, logger, clock)
 {
 }
 
@@ -63,20 +63,23 @@ void FollowingLaneState::update()
   const double backward_path_length = ros_parameters_.backward_path_length;
   const double forward_path_length = ros_parameters_.forward_path_length;
 
+  bool found_valid_path = false;
   bool found_safe_path = false;
   // update lanes
   {
     if (!route_handler_ptr_->getClosestLaneletWithinRoute(current_pose_.pose, &current_lane)) {
-      RCLCPP_ERROR(
-        data_manager_ptr_->getLogger(),
-        "failed to find closest lanelet within route!!!");
+      RCLCPP_ERROR(logger_, "failed to find closest lanelet within route!!!");
       return;
     }
     current_lanes_ = route_handler_ptr_->getLaneletSequence(
       current_lane, current_pose_.pose, backward_path_length, forward_path_length);
+    const double lane_change_prepare_length =
+      current_twist_->twist.linear.x * ros_parameters_.lane_change_prepare_duration;
+    lanelet::ConstLanelets current_check_lanes = route_handler_ptr_->getLaneletSequence(
+      current_lane, current_pose_.pose, 0.0, lane_change_prepare_length);
     lanelet::ConstLanelet lane_change_lane;
-    if (route_handler_ptr_->getLaneChangeTarget(current_lane, &lane_change_lane)) {
-      constexpr double lane_change_lane_length = 100.0;
+    if (route_handler_ptr_->getLaneChangeTarget(current_check_lanes, &lane_change_lane)) {
+      constexpr double lane_change_lane_length = 200.0;
       lane_change_lanes_ = route_handler_ptr_->getLaneletSequence(
         lane_change_lane, current_pose_.pose, lane_change_lane_length, lane_change_lane_length);
     } else {
@@ -86,17 +89,15 @@ void FollowingLaneState::update()
   // update lane_follow_path
   {
     constexpr double check_distance = 100.0;
-    const double minimum_lane_change_length = ros_parameters_.minimum_lane_change_length;
     status_.lane_follow_path = route_handler_ptr_->getReferencePath(
       current_lanes_, current_pose_.pose, backward_path_length, forward_path_length,
-      minimum_lane_change_length);
+      ros_parameters_);
 
     if (!lane_change_lanes_.empty()) {
       // find candidate paths
       const auto lane_change_paths = route_handler_ptr_->getLaneChangePaths(
         current_lanes_, lane_change_lanes_, current_pose_.pose, current_twist_->twist,
         ros_parameters_);
-      debug_data_.lane_change_candidate_paths = lane_change_paths;
 
       // get lanes used for detection
       lanelet::ConstLanelets check_lanes;
@@ -110,13 +111,18 @@ void FollowingLaneState::update()
       }
 
       // select valid path
+      const auto valid_paths = state_machine::common_functions::selectValidPaths(
+        lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
+        current_pose_.pose, route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
+        route_handler_ptr_->getGoalPose());
+      debug_data_.lane_change_candidate_paths = valid_paths;
+      found_valid_path = !valid_paths.empty();
+
+      // select safe path
       LaneChangePath selected_path;
-      if (state_machine::common_functions::selectLaneChangePath(
-          lane_change_paths, current_lanes_, check_lanes, route_handler_ptr_->getOverallGraph(),
-          dynamic_objects_, current_pose_.pose, current_twist_->twist,
-          route_handler_ptr_->isInGoalRouteSection(current_lanes_.back()),
-          route_handler_ptr_->getGoalPose(), ros_parameters_, &selected_path,
-          data_manager_ptr_->getLogger(), data_manager_ptr_->getClock()))
+      if (state_machine::common_functions::selectSafePath(
+          valid_paths, current_lanes_, check_lanes, dynamic_objects_, current_pose_.pose,
+          current_twist_->twist, ros_parameters_, &selected_path, logger_, clock_))
       {
         found_safe_path = true;
       }
@@ -142,7 +148,7 @@ void FollowingLaneState::update()
     status_.lane_change_ready = false;
     status_.lane_change_available = false;
 
-    if (!lane_change_lanes_.empty()) {
+    if (found_valid_path) {
       status_.lane_change_available = true;
       if (found_safe_path && !isLaneBlocked(lane_change_lanes_)) {
         status_.lane_change_ready = true;
@@ -154,13 +160,13 @@ void FollowingLaneState::update()
 State FollowingLaneState::getNextState() const
 {
   if (current_lanes_.empty()) {
-    RCLCPP_ERROR_THROTTLE(
-      data_manager_ptr_->getLogger(),
-      *data_manager_ptr_->getClock(), 1.0, "current lanes empty. Keeping state.");
+    RCLCPP_ERROR_THROTTLE(logger_, *clock_, 1000, "current lanes empty. Keeping state.");
     return State::FOLLOWING_LANE;
   }
-  if (route_handler_ptr_->isInPreferredLane(current_pose_) && isLaneBlocked(current_lanes_)) {
-    return State::BLOCKED_BY_OBSTACLE;
+  if (ros_parameters_.enable_blocked_by_obstacle) {
+    if (route_handler_ptr_->isInPreferredLane(current_pose_) && isLaneBlocked(current_lanes_)) {
+      return State::BLOCKED_BY_OBSTACLE;
+    }
   }
   if (isLaneChangeAvailable() && laneChangeForcedByOperator()) {
     return State::FORCING_LANE_CHANGE;
@@ -188,7 +194,7 @@ bool FollowingLaneState::isLaneBlocked(const lanelet::ConstLanelets & lanes) con
 
   if (polygon.size() < 3) {
     RCLCPP_WARN_STREAM(
-      data_manager_ptr_->getLogger(),
+      logger_,
       "could not get polygon from lanelet with arc lengths: " << arc.length << " to " <<
         arc.length + check_distance);
     return false;

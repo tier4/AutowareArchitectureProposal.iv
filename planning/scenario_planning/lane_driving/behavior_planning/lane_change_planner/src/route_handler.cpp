@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,29 +14,27 @@
 // limitations under the License.
 
 #include "lane_change_planner/route_handler.hpp"
-
-#include <algorithm>
-#include <limits>
-#include <memory>
 #include <vector>
-
-#include "lane_change_planner/utilities.hpp"
-
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
-#include "lanelet2_extension/utility/message_conversion.hpp"
-#include "lanelet2_extension/utility/query.hpp"
-#include "lanelet2_extension/utility/utilities.hpp"
-
-#include "lanelet2_core/geometry/Lanelet.h"
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_core/primitives/LaneletSequence.h"
+#include <unordered_set>
+#include <memory>
+#include <limits>
+#include <algorithm>
 #include "rclcpp/rclcpp.hpp"
 #include "tf2/utils.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_core/geometry/Lanelet.h"
+#include "lanelet2_core/primitives/LaneletSequence.h"
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "lanelet2_extension/utility/query.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
+#include "lane_change_planner/utilities.hpp"
 
 using autoware_planning_msgs::msg::PathPointWithLaneId;
 using autoware_planning_msgs::msg::PathWithLaneId;
 using lanelet::utils::to2D;
+
 namespace
 {
 template<typename T>
@@ -83,8 +82,8 @@ PathWithLaneId combineReferencePath(
     std::vector<double> base_x;
     std::vector<double> base_y;
     std::vector<double> base_z;
-    int n_sample_path1 = 0;
 
+    int n_sample_path1 = 0;
     for (size_t i = 0; i < N_sample; ++i) {
       const int idx = static_cast<int>(path1.points.size()) - N_sample + i;
       if (idx < 0) {
@@ -95,6 +94,7 @@ PathWithLaneId combineReferencePath(
       base_z.push_back(path1.points.at(idx).point.pose.position.z);
       n_sample_path1++;
     }
+
     int n_sample_path2 = 0;
     for (size_t i = 0; i < N_sample; ++i) {
       if (i >= path2.points.size()) {
@@ -140,8 +140,8 @@ PathWithLaneId combineReferencePath(
         inner_point.lane_ids.insert(
           inner_point.lane_ids.end(), path2.points.front().lane_ids.begin(),
           path2.points.front().lane_ids.end());
-        inner_point.point.type = path1.points.back().point.type;
-        inner_point.point.twist = path1.points.back().point.twist;
+        inner_point.point.type = path2.points.front().point.type;
+        inner_point.point.twist = path2.points.front().point.twist;
         inner_point.point.pose.position.x = inner_x.at(i);
         inner_point.point.pose.position.y = inner_y.at(i);
         inner_point.point.pose.position.z = inner_z.at(i);
@@ -171,8 +171,7 @@ PathWithLaneId combineReferencePath(
       path.points.insert(path.points.end(), inner_points.begin(), inner_points.end());
 
     } else {
-      RCLCPP_WARN(
-        logger, "[LaneChageModule::splineInterpolate] spline interpolation failed.");
+      RCLCPP_WARN(logger, "[LaneChangeModule::splineInterpolate] spline interpolation failed.");
     }
   }
   path.points.insert(path.points.end(), path2.points.begin(), path2.points.end());
@@ -204,16 +203,33 @@ lanelet::ConstPoint3d get3DPointFrom2DArcLength(
   return lanelet::ConstPoint3d();
 }
 
+bool isPathInLanelets(
+  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const lanelet::ConstLanelets & original_lanelets, const lanelet::ConstLanelets & target_lanelets)
+{
+  for (const auto & pt : path.points) {
+    bool is_in_lanelet = false;
+    for (const auto & llt : original_lanelets) {
+      if (lanelet::utils::isInLanelet(pt.point.pose, llt, 0.1)) {
+        is_in_lanelet = true;
+      }
+    }
+    for (const auto & llt : target_lanelets) {
+      if (lanelet::utils::isInLanelet(pt.point.pose, llt, 0.1)) {
+        is_in_lanelet = true;
+      }
+    }
+    if (!is_in_lanelet) {return false;}
+  }
+  return true;
+}
+
 }  // namespace
 
 namespace lane_change_planner
 {
-RouteHandler::RouteHandler(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
-: is_map_msg_ready_(false),
-  is_route_msg_ready_(false),
-  is_handler_ready_(false),
-  logger_(logger),
-  clock_(clock)
+RouteHandler::RouteHandler(const rclcpp::Logger & logger)
+: is_map_msg_ready_(false), is_route_msg_ready_(false), is_handler_ready_(false), logger_(logger)
 {
 }
 
@@ -513,27 +529,39 @@ bool RouteHandler::getLeftLaneletWithinRoute(
 }
 
 bool RouteHandler::getLaneChangeTarget(
-  const lanelet::ConstLanelet & lanelet, lanelet::ConstLanelet * target_lanelet) const
+  const lanelet::ConstLanelets & lanelets, lanelet::ConstLanelet * target_lanelet) const
 {
-  int num = getNumLaneToPreferredLane(lanelet);
-  if (num == 0) {
-    *target_lanelet = lanelet;
-    return false;
-  }
-  if (num < 0) {
-    auto right_lanelet = (!!routing_graph_ptr_->right(lanelet)) ?
-      routing_graph_ptr_->right(lanelet) :
-      routing_graph_ptr_->adjacentRight(lanelet);
-    *target_lanelet = right_lanelet.get();
+  for (auto it = lanelets.begin(); it != lanelets.end(); ++it) {
+    const auto lanelet = *it;
+
+    int num = getNumLaneToPreferredLane(lanelet);
+    if (num == 0) {
+      continue;
+    }
+
+    if (num < 0) {
+      if (!!routing_graph_ptr_->right(lanelet)) {
+        auto right_lanelet = routing_graph_ptr_->right(lanelet);
+        *target_lanelet = right_lanelet.get();
+        return true;
+      } else {
+        continue;
+      }
+    }
+
+    if (num > 0) {
+      if (!!routing_graph_ptr_->left(lanelet)) {
+        auto left_lanelet = routing_graph_ptr_->left(lanelet);
+        *target_lanelet = left_lanelet.get();
+        return true;
+      } else {
+        continue;
+      }
+    }
   }
 
-  if (num > 0) {
-    auto left_lanelet = (!!routing_graph_ptr_->left(lanelet)) ?
-      routing_graph_ptr_->left(lanelet) :
-      routing_graph_ptr_->adjacentLeft(lanelet);
-    *target_lanelet = left_lanelet.get();
-  }
-  return true;
+  *target_lanelet = lanelets.front();
+  return false;
 }
 
 lanelet::ConstLanelets RouteHandler::getClosestLaneletSequence(
@@ -593,7 +621,7 @@ bool RouteHandler::isInTargetLane(
 PathWithLaneId RouteHandler::getReferencePath(
   const lanelet::ConstLanelets & lanelet_sequence, const geometry_msgs::msg::Pose & pose,
   const double backward_path_length, const double forward_path_length,
-  const double minimum_lane_change_length) const
+  const LaneChangerParameters & parameter) const
 {
   PathWithLaneId reference_path;
 
@@ -606,10 +634,12 @@ PathWithLaneId RouteHandler::getReferencePath(
   const double s_backward = std::max(0., s - backward_path_length);
   double s_forward = s + forward_path_length;
 
-  constexpr double buffer = 1.0;  // buffer for min_lane_change_length
+  const double buffer =
+    parameter.backward_length_buffer_for_end_of_lane;  // buffer for min_lane_change_length
   const int num_lane_change = std::abs(getNumLaneToPreferredLane(lanelet_sequence.back()));
   const double lane_length = lanelet::utils::getLaneletLength2d(lanelet_sequence);
-  const double lane_change_buffer = num_lane_change * (minimum_lane_change_length + buffer);
+  const double lane_change_buffer =
+    num_lane_change * (parameter.minimum_lane_change_length + buffer);
 
   if (isDeadEndLanelet(lanelet_sequence.back())) {
     s_forward = std::min(s_forward, lane_length - lane_change_buffer);
@@ -621,12 +651,14 @@ PathWithLaneId RouteHandler::getReferencePath(
     s_forward = std::min(s_forward, goal_arc_coordinates.length - lane_change_buffer);
   }
 
-  return getReferencePath(lanelet_sequence, s_backward, s_forward, true);
+  return getReferencePath(
+    lanelet_sequence, s_backward, s_forward, parameter.lane_change_prepare_duration,
+    lane_change_buffer, true);
 }
 
 PathWithLaneId RouteHandler::getReferencePath(
   const lanelet::ConstLanelets & lanelet_sequence, const double s_start, const double s_end,
-  bool use_exact) const
+  const double lane_change_prepare_duration, const double lane_change_buffer, bool use_exact) const
 {
   PathWithLaneId reference_path;
   double s = 0;
@@ -682,9 +714,40 @@ PathWithLaneId RouteHandler::getReferencePath(
       }
       s += distance;
     }
+
+    // velocity planning to secure distance for lane change
+    if (
+      isDeadEndLanelet(lanelet_sequence.back()) &&
+      lane_change_prepare_duration > std::numeric_limits<double>::epsilon())
+    {
+      for (auto & point : reference_path.points) {
+        const double lane_length = lanelet::utils::getLaneletLength2d(lanelet_sequence);
+        const auto arclength =
+          lanelet::utils::getArcCoordinates(lanelet_sequence, point.point.pose);
+        const double distance_to_end =
+          std::max(0.0, lane_length - lane_change_buffer - arclength.length);
+        point.point.twist.linear.x =
+          std::min(point.point.twist.linear.x, (distance_to_end / lane_change_prepare_duration));
+      }
+    }
   }
 
   reference_path = util::removeOverlappingPoints(reference_path);
+
+  // append a point only when having one point so that yaw calculation would work
+  if (reference_path.points.size() == 1) {
+    const int lane_id = reference_path.points.front().lane_ids.front();
+    const auto lanelet = lanelet_map_ptr_->laneletLayer.get(lane_id);
+    const auto point = reference_path.points.front().point.pose.position;
+    const auto lane_yaw = lanelet::utils::getLaneletAngle(lanelet, point);
+    PathPointWithLaneId path_point;
+    path_point.lane_ids.push_back(lane_id);
+    constexpr double ds = 0.1;
+    path_point.point.pose.position.x = point.x + ds * std::cos(lane_yaw);
+    path_point.point.pose.position.y = point.y + ds * std::sin(lane_yaw);
+    path_point.point.pose.position.z = point.z;
+    reference_path.points.push_back(path_point);
+  }
 
   // set angle
   for (size_t i = 0; i < reference_path.points.size(); i++) {
@@ -722,8 +785,8 @@ PathWithLaneId RouteHandler::updatePathTwist(const PathWithLaneId & path) const
   return updated_path;
 }
 
-lanelet::ConstLanelets RouteHandler::getLaneChangeTarget(
-  const geometry_msgs::msg::Pose & pose) const
+lanelet::ConstLanelets RouteHandler::getLaneChangeTarget(const geometry_msgs::msg::Pose & pose)
+const
 {
   lanelet::ConstLanelet lanelet;
   lanelet::ConstLanelets target_lanelets;
@@ -764,6 +827,7 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
   const double lane_change_prepare_duration = parameter.lane_change_prepare_duration;
   const double lane_changing_duration = parameter.lane_changing_duration;
   const double minimum_lane_change_length = parameter.minimum_lane_change_length;
+  const double minimum_lane_change_velocity = parameter.minimum_lane_change_velocity;
   const double maximum_deceleration = parameter.maximum_deceleration;
   const int lane_change_sampling_num = parameter.lane_change_sampling_num;
 
@@ -772,6 +836,9 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
 
   constexpr double buffer = 1.0;  // buffer for min_lane_change_length
   const double acceleration_resolution = std::abs(maximum_deceleration) / lane_change_sampling_num;
+
+  const double target_distance =
+    util::getArcLengthToTargetLanelet(original_lanelets, target_lanelets.front(), pose);
 
   for (double acceleration = 0.0; acceleration >= -maximum_deceleration;
     acceleration -= acceleration_resolution)
@@ -790,13 +857,19 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
       v1 * lane_changing_duration + 0.5 * acceleration * std::pow(lane_changing_duration, 2);
     lane_change_distance = std::max(lane_change_distance, minimum_lane_change_length);
 
+    if (straight_distance < target_distance) {continue;}
+
     PathWithLaneId reference_path1;
     {
       const auto arc_position = lanelet::utils::getArcCoordinates(original_lanelets, pose);
       const double s_start = arc_position.length - backward_path_length;
       const double s_end = arc_position.length + straight_distance;
-      reference_path1 = getReferencePath(original_lanelets, s_start, s_end);
+      reference_path1 = getReferencePath(original_lanelets, s_start, s_end, 0.0, 0.0);
     }
+
+    reference_path1.points.back().point.twist.linear.x = std::min(
+      reference_path1.points.back().point.twist.linear.x,
+      std::max(straight_distance / lane_change_prepare_duration, minimum_lane_change_velocity));
 
     PathWithLaneId reference_path2;
     {
@@ -808,7 +881,13 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
       double s_end = s_start + forward_path_length;
       s_end = std::min(s_end, lane_length - num * (minimum_lane_change_length + buffer));
       s_end = std::max(s_end, s_start + std::numeric_limits<double>::epsilon());
-      reference_path2 = getReferencePath(target_lanelets, s_start, s_end);
+      reference_path2 = getReferencePath(target_lanelets, s_start, s_end, 0.0, 0.0);
+    }
+
+    for (auto & point : reference_path2.points) {
+      point.point.twist.linear.x = std::min(
+        point.point.twist.linear.x,
+        std::max(lane_change_distance / lane_changing_duration, minimum_lane_change_velocity));
     }
 
     if (reference_path1.points.empty() || reference_path2.points.empty()) {
@@ -821,6 +900,9 @@ std::vector<LaneChangePath> RouteHandler::getLaneChangePaths(
     candidate_path.preparation_length = straight_distance;
     candidate_path.lane_change_length = lane_change_distance;
     candidate_path.path = combineReferencePath(reference_path1, reference_path2, 5.0, 2, logger_);
+
+    // check candidate path is in lanelet
+    if (!isPathInLanelets(candidate_path.path, original_lanelets, target_lanelets)) {continue;}
 
     // set fixed flag
     for (auto & pt : candidate_path.path.points) {
@@ -883,7 +965,8 @@ double RouteHandler::getLaneChangeableDistance(
 
 lanelet::ConstLanelets RouteHandler::getCheckTargetLanesFromPath(
   const autoware_planning_msgs::msg::PathWithLaneId & path,
-  const lanelet::ConstLanelets & target_lanes, const double check_length)
+  const lanelet::ConstLanelets & target_lanes,
+  const double check_length)
 {
   std::vector<int64_t> target_lane_ids;
   target_lane_ids.reserve(target_lanes.size());

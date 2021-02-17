@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,12 +17,9 @@
 #define LANE_CHANGE_PLANNER__STATE_MACHINE_HPP_
 
 #include <memory>
-
-#include "lane_change_planner/state/state_base_class.hpp"
-
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "autoware_planning_msgs/msg/route.hpp"
-
+#include "lane_change_planner/state/state_base_class.hpp"
 #include "lanelet2_core/primitives/Lanelet.h"
 #include "rclcpp/rclcpp.hpp"
 
@@ -39,7 +37,8 @@ class StateMachine
 public:
   StateMachine(
     const std::shared_ptr<DataManager> & data_manager_ptr,
-    const std::shared_ptr<RouteHandler> & route_handler_ptr);
+    const std::shared_ptr<RouteHandler> & route_handler_ptr,
+    const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
   void init();
   void initCallback(const autoware_planning_msgs::msg::Route::ConstSharedPtr route);
   void updateState();
@@ -52,6 +51,8 @@ private:
   std::unique_ptr<StateBase> state_obj_ptr_;
   std::shared_ptr<DataManager> data_manager_ptr_;
   std::shared_ptr<RouteHandler> route_handler_ptr_;
+  const rclcpp::Logger logger_;
+  const rclcpp::Clock::SharedPtr clock_;
 };
 }  // namespace lane_change_planner
 

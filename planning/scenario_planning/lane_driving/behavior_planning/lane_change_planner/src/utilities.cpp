@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,21 +14,22 @@
 // limitations under the License.
 
 #include "lane_change_planner/utilities.hpp"
-
-#include <limits>
+#include <string>
 #include <vector>
-
+#include <limits>
+#include <algorithm>
+#include "rclcpp/rclcpp.hpp"
+#include "tf2/utils.h"
+#include "opencv2/opencv.hpp"
 #include "lanelet2_extension/utility/message_conversion.hpp"
 #include "lanelet2_extension/utility/query.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
-#include "tf2/utils.h"
-#include "opencv2/opencv.hpp"
 
 namespace
 {
 rclcpp::Duration safeSubtraction(const rclcpp::Time & t1, const rclcpp::Time & t2)
 {
-  rclcpp::Duration duration(0, 0);
+  rclcpp::Duration duration = rclcpp::Duration::from_seconds(0);
   try {
     duration = t1 - t2;
   } catch (std::runtime_error & err) {
@@ -236,7 +238,7 @@ PredictedPath convertToPredictedPath(
   if (vehicle_speed < min_speed) {
     vehicle_speed = min_speed;
     RCLCPP_DEBUG_STREAM_THROTTLE(
-      logger, *clock, 1.0,
+      logger, *clock, 1000,
       "cannot convert PathWithLaneId with zero velocity, using minimum value " << min_speed <<
         " [m/s] instead");
   }
@@ -257,8 +259,8 @@ PredictedPath convertToPredictedPath(
     if (accelerated_velocity < min_speed) {
       travel_distance = min_speed * resolution;
     } else {
-      travel_distance = prev_vehicle_speed + prev_vehicle_speed * resolution +
-        0.5 * acceleration * resolution * resolution;
+      travel_distance =
+        prev_vehicle_speed * resolution + 0.5 * acceleration * resolution * resolution;
     }
 
     length += travel_distance;
@@ -359,17 +361,19 @@ bool lerpByTimeStamp(
   const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
 {
   if (lerped_pt == nullptr) {
-    RCLCPP_WARN_STREAM_THROTTLE(logger, *clock, 1.0, "failed to lerp by time due to nullptr pt");
+    RCLCPP_WARN_STREAM_THROTTLE(logger, *clock, 1000, "failed to lerp by time due to nullptr pt");
     return false;
   }
   if (path.path.empty()) {
     RCLCPP_WARN_STREAM_THROTTLE(
-      logger, *clock, 1.0, "Empty path. Failed to interpolate path by time!");
+      logger, *clock, 1000,
+      "Empty path. Failed to interpolate path by time!");
     return false;
   }
   if (t < path.path.front().header.stamp) {
     RCLCPP_DEBUG_STREAM(
-      logger, "failed to interpolate path by time!" <<
+      logger,
+      "failed to interpolate path by time!" <<
         std::endl <<
         "path start time: " << rclcpp::Time(
         path.path.front().header.stamp).seconds() << std::endl <<
@@ -381,7 +385,8 @@ bool lerpByTimeStamp(
 
   if (t > path.path.back().header.stamp) {
     RCLCPP_DEBUG_STREAM(
-      logger, "failed to interpolate path by time!" <<
+      logger,
+      "failed to interpolate path by time!" <<
         std::endl <<
         "path start time: " << rclcpp::Time(
         path.path.front().header.stamp).seconds() << std::endl <<
@@ -415,10 +420,10 @@ double getDistance3d(const geometry_msgs::msg::Point & p1, const geometry_msgs::
 
 double getDistanceBetweenPredictedPaths(
   const PredictedPath & object_path, const PredictedPath & ego_path, const double start_time,
-  const double end_time, const double resolution, const rclcpp::Logger & logger,
-  const rclcpp::Clock::SharedPtr & clock)
+  const double end_time, const double resolution,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
 {
-  rclcpp::Duration t_delta(resolution);
+  rclcpp::Duration t_delta = rclcpp::Duration::from_seconds(resolution);
   double min_distance = std::numeric_limits<double>::max();
   rclcpp::Time ros_start_time = clock->now() + rclcpp::Duration::from_seconds(start_time);
   rclcpp::Time ros_end_time = clock->now() + rclcpp::Duration::from_seconds(end_time);
@@ -432,6 +437,35 @@ double getDistanceBetweenPredictedPaths(
       continue;
     }
     double distance = getDistance3d(object_pose.position, ego_pose.position);
+    if (distance < min_distance) {
+      min_distance = distance;
+    }
+  }
+  return min_distance;
+}
+
+double getDistanceBetweenPredictedPathAndObject(
+  const autoware_perception_msgs::msg::DynamicObject & object, const PredictedPath & ego_path,
+  const double start_time, const double end_time, const double resolution,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+{
+  rclcpp::Duration t_delta = rclcpp::Duration::from_seconds(resolution);
+  double min_distance = std::numeric_limits<double>::max();
+  rclcpp::Time ros_start_time = clock->now() + rclcpp::Duration::from_seconds(start_time);
+  rclcpp::Time ros_end_time = clock->now() + rclcpp::Duration::from_seconds(end_time);
+  const auto ego_path_point_array = convertToGeometryPointArray(ego_path);
+  Polygon obj_polygon;
+  if (!calcObjectPolygon(object, &obj_polygon, logger)) {
+    return min_distance;
+  }
+  for (auto t = ros_start_time; t < ros_end_time; t += t_delta) {
+    geometry_msgs::msg::Pose ego_pose;
+    if (!lerpByTimeStamp(ego_path, t, &ego_pose, logger, clock)) {
+      continue;
+    }
+    Point ego_point = boost::geometry::make<Point>(ego_pose.position.x, ego_pose.position.y);
+
+    double distance = boost::geometry::distance(obj_polygon, ego_point);
     if (distance < min_distance) {
       min_distance = distance;
     }
@@ -488,7 +522,7 @@ std::vector<size_t> filterObjectsByLanelets(
 {
   std::vector<size_t> indices;
   if (target_lanelets.empty()) {
-    return indices;
+    return {};
   }
 
   for (size_t i = 0; i < objects.objects.size(); i++) {
@@ -503,6 +537,10 @@ std::vector<size_t> filterObjectsByLanelets(
     for (const auto & llt : target_lanelets) {
       // create lanelet polygon
       const auto polygon2d = llt.polygon2d().basicPolygon();
+      if (polygon2d.empty()) {
+        // no lanelet polygon
+        continue;
+      }
       Polygon lanelet_polygon;
       for (const auto & lanelet_point : polygon2d) {
         lanelet_polygon.outer().push_back(
@@ -625,9 +663,11 @@ PathWithLaneId removeOverlappingPoints(const PathWithLaneId & input_path)
       filtered_path.points.push_back(pt);
       continue;
     }
+
+    constexpr double min_dist = 0.001;
     if (
       getDistance3d(filtered_path.points.back().point.pose.position, pt.point.pose.position) <
-      std::numeric_limits<double>::epsilon())
+      min_dist)
     {
       filtered_path.points.back().lane_ids.push_back(pt.lane_ids.front());
     } else {
@@ -678,7 +718,7 @@ bool setGoal(
 
     size_t min_dist_out_of_range_index;
     {
-      for (size_t i = min_dist_index; ; --i) {
+      for (int i = min_dist_index; 0 <= i; --i) {
         const double x = input.points.at(i).point.pose.position.x - goal.position.x;
         const double y = input.points.at(i).point.pose.position.y - goal.position.y;
         goal_z = input.points.at(i).point.pose.position.z;
@@ -779,8 +819,8 @@ PathWithLaneId refinePath(
   }
 
   if (setGoal(
-      search_radius_range, search_rad_range, filtered_path, goal, goal_lane_id, &path_with_goal,
-      logger))
+      search_radius_range, search_rad_range, filtered_path, goal, goal_lane_id,
+      &path_with_goal, logger))
   {
     return path_with_goal;
   } else {
@@ -882,9 +922,8 @@ nav_msgs::msg::OccupancyGrid generateDrivableArea(
         occupancy_grid.info.width, occupancy_grid.info.height, CV_8UC1, cv::Scalar(occupied_space));
       std::vector<cv::Point> cv_polygon;
       for (const auto & llt_pt : lane.polygon3d()) {
-        geometry_msgs::msg::Point geom_pt = lanelet::utils::conversion::toGeomMsgPt(llt_pt);
         geometry_msgs::msg::PointStamped geom_pt_stamped;
-        geom_pt_stamped.point = geom_pt;
+        geom_pt_stamped.point = lanelet::utils::conversion::toGeomMsgPt(llt_pt);
         geometry_msgs::msg::PointStamped transformed_geom_pt;
         tf2::doTransform(geom_pt_stamped, transformed_geom_pt, geom_tf_map2grid);
         cv_polygon.push_back(toCVPoint(transformed_geom_pt.point, width, height, resolution));
@@ -896,8 +935,10 @@ nav_msgs::msg::OccupancyGrid generateDrivableArea(
       cv::bitwise_and(cv_image, cv_image_single_lane, cv_image);
     }
 
+    const auto & cv_image_reshaped = cv_image.reshape(1, 1);
     imageToOccupancyGrid(cv_image, &occupancy_grid);
     occupancy_grid.data[0] = 0;
+    // cv_image_reshaped.copyTo(occupancy_grid.data);
   }
   return occupancy_grid;
 }
@@ -927,7 +968,22 @@ double getDistanceToNextIntersection(
       is_after_current_lanelet = true;
     }
     if (is_after_current_lanelet && llt.hasAttribute("turn_direction")) {
-      return distance - arc_coordinates.length;
+      bool is_lane_change_yes = false;
+      const auto right_line = llt.rightBound();
+      if (right_line.hasAttribute(lanelet::AttributeNamesString::LaneChange)) {
+        const auto attr = right_line.attribute(lanelet::AttributeNamesString::LaneChange);
+        if (attr.value() == std::string("yes")) {
+          is_lane_change_yes = true;
+        }
+      }
+      const auto left_line = llt.leftBound();
+      if (left_line.hasAttribute(lanelet::AttributeNamesString::LaneChange)) {
+        const auto attr = left_line.attribute(lanelet::AttributeNamesString::LaneChange);
+        if (attr.value() == std::string("yes")) {
+          is_lane_change_yes = true;
+        }
+      }
+      if (!is_lane_change_yes) {return distance - arc_coordinates.length;}
     }
     distance += lanelet::utils::getLaneletLength3d(llt);
   }
@@ -952,7 +1008,24 @@ double getDistanceToCrosswalk(
     if (llt == current_lanelet) {
       is_after_current_lanelet = true;
     }
-    if (is_after_current_lanelet) {
+    // check lane change tag
+    bool is_lane_change_yes = false;
+    const auto right_line = llt.rightBound();
+    if (right_line.hasAttribute(lanelet::AttributeNamesString::LaneChange)) {
+      const auto attr = right_line.attribute(lanelet::AttributeNamesString::LaneChange);
+      if (attr.value() == std::string("yes")) {
+        is_lane_change_yes = true;
+      }
+    }
+    const auto left_line = llt.leftBound();
+    if (left_line.hasAttribute(lanelet::AttributeNamesString::LaneChange)) {
+      const auto attr = left_line.attribute(lanelet::AttributeNamesString::LaneChange);
+      if (attr.value() == std::string("yes")) {
+        is_lane_change_yes = true;
+      }
+    }
+
+    if (is_after_current_lanelet && !is_lane_change_yes) {
       const auto conflicting_crosswalks = overall_graphs.conflictingInGraph(llt, 1);
       if (!(conflicting_crosswalks.empty())) {
         // create centerline
@@ -1099,11 +1172,132 @@ autoware_planning_msgs::msg::PathPointWithLaneId insertStopPoint(
   return stop_point;
 }
 
+double getArcLengthToTargetLanelet(
+  const lanelet::ConstLanelets & current_lanes, const lanelet::ConstLanelet & target_lane,
+  const geometry_msgs::msg::Pose & pose)
+{
+  const auto arc_pose = lanelet::utils::getArcCoordinates(current_lanes, pose);
+
+  const auto target_center_line = target_lane.centerline().basicLineString();
+
+  geometry_msgs::msg::Pose front_pose, back_pose;
+
+  {
+    const auto front_point = lanelet::utils::conversion::toGeomMsgPt(target_center_line.front());
+    const double front_yaw = lanelet::utils::getLaneletAngle(target_lane, front_point);
+    front_pose.position = front_point;
+    tf2::Quaternion tf_quat;
+    tf_quat.setRPY(0, 0, front_yaw);
+    front_pose.orientation = tf2::toMsg(tf_quat);
+  }
+
+  {
+    const auto back_point = lanelet::utils::conversion::toGeomMsgPt(target_center_line.back());
+    const double back_yaw = lanelet::utils::getLaneletAngle(target_lane, back_point);
+    back_pose.position = back_point;
+    tf2::Quaternion tf_quat;
+    tf_quat.setRPY(0, 0, back_yaw);
+    back_pose.orientation = tf2::toMsg(tf_quat);
+  }
+
+  const auto arc_front = lanelet::utils::getArcCoordinates(current_lanes, front_pose);
+  const auto arc_back = lanelet::utils::getArcCoordinates(current_lanes, back_pose);
+
+  return std::max(
+    std::min(arc_front.length - arc_pose.length, arc_back.length - arc_pose.length), 0.0);
+}
+
+std::vector<Polygon> getTargetLaneletPolygons(
+  const lanelet::PolygonLayer & map_polygons, lanelet::ConstLanelets & lanelets,
+  const geometry_msgs::msg::Pose & pose, const double check_length, const std::string & target_type)
+{
+  std::vector<Polygon> polygons;
+
+  // create lanelet polygon
+  const auto arclength = lanelet::utils::getArcCoordinates(lanelets, pose);
+  const auto llt_polygon = lanelet::utils::getPolygonFromArcLength(
+    lanelets, arclength.length, arclength.length + check_length);
+  const auto llt_polygon_2d = lanelet::utils::to2D(llt_polygon).basicPolygon();
+
+  // If the number of vertices is not enough to create polygon, return empty polygon container
+  if (llt_polygon_2d.size() < 3) {return polygons;}
+
+  Polygon llt_polygon_bg;
+  for (const auto & llt_pt : llt_polygon_2d) {
+    llt_polygon_bg.outer().push_back(Point(llt_pt.x(), llt_pt.y()));
+  }
+  llt_polygon_bg.outer().push_back(llt_polygon_bg.outer().front());
+
+  for (const auto & map_polygon : map_polygons) {
+    const std::string type = map_polygon.attributeOr(lanelet::AttributeName::Type, "");
+    // If the target_type is different or the number of vertices is not enough
+    //                                        to create polygon, skip the loop
+    if (type == target_type && map_polygon.size() > 2) {
+      // create map polygon
+      Polygon map_polygon_bg;
+      for (const auto & pt : map_polygon) {
+        map_polygon_bg.outer().push_back(Point(pt.x(), pt.y()));
+      }
+      map_polygon_bg.outer().push_back(map_polygon_bg.outer().front());
+      if (boost::geometry::intersects(llt_polygon_bg, map_polygon_bg)) {
+        polygons.push_back(map_polygon_bg);
+      }
+    }
+  }
+  return polygons;
+}
+
+std::vector<Polygon> filterObstaclePolygons(
+  const std::vector<Polygon> & obstacle_polygons,
+  const autoware_perception_msgs::msg::DynamicObjectArray & objects,
+  const double static_obstacle_velocity_thresh, const rclcpp::Logger & logger)
+{
+  std::vector<Polygon> filtered_obstacle_polygons;
+  for (const auto & obstacle_polygon : obstacle_polygons) {
+    for (const auto & obj : objects.objects) {
+      const auto velocity = l2Norm(obj.state.twist_covariance.twist.linear);
+      if (
+        velocity > static_obstacle_velocity_thresh ||
+        (obj.semantic.type != autoware_perception_msgs::msg::Semantic::CAR &&
+        obj.semantic.type != autoware_perception_msgs::msg::Semantic::TRUCK &&
+        obj.semantic.type != autoware_perception_msgs::msg::Semantic::BUS))
+      {
+        continue;
+      }
+
+      // create object polygon
+      Polygon obj_polygon;
+      if (!calcObjectPolygon(obj, &obj_polygon, logger)) {continue;}
+
+      // check the object is within the polygon
+      if (boost::geometry::within(obj_polygon, obstacle_polygon)) {
+        filtered_obstacle_polygons.push_back(obstacle_polygon);
+        break;
+      }
+    }
+  }
+  return filtered_obstacle_polygons;
+}
+
+double getDistanceToNearestObstaclePolygon(
+  const std::vector<Polygon> & obstacle_polygons, const geometry_msgs::msg::Pose & pose)
+{
+  double min_distance = std::numeric_limits<double>::max();
+  Point pt(pose.position.x, pose.position.y);
+  for (const auto & polygon : obstacle_polygons) {
+    const double distance = boost::geometry::distance(polygon, pt);
+    if (distance < min_distance) {min_distance = distance;}
+  }
+  return min_distance;
+}
+
 /*
  * spline interpolation
  */
 SplineInterpolate::SplineInterpolate(const rclcpp::Logger & logger)
-: logger_(logger) {}
+: logger_(logger)
+{
+}
 
 void SplineInterpolate::generateSpline(
   const std::vector<double> & base_index, const std::vector<double> & base_value)

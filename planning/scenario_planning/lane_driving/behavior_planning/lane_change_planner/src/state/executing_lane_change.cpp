@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,24 +14,22 @@
 // limitations under the License.
 
 #include "lane_change_planner/state/executing_lane_change.hpp"
-
-#include <algorithm>
 #include <memory>
-
+#include <algorithm>
+#include "tf2/utils.h"
+#include "lanelet2_extension/utility/utilities.hpp"
 #include "lane_change_planner/data_manager.hpp"
 #include "lane_change_planner/route_handler.hpp"
 #include "lane_change_planner/state/common_functions.hpp"
 #include "lane_change_planner/utilities.hpp"
 
-#include "lanelet2_extension/utility/utilities.hpp"
-#include "tf2/utils.h"
-
 namespace lane_change_planner
 {
 ExecutingLaneChangeState::ExecutingLaneChangeState(
   const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr)
-: StateBase(status, data_manager_ptr, route_handler_ptr)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: StateBase(status, data_manager_ptr, route_handler_ptr, logger, clock)
 {
 }
 
@@ -44,6 +43,12 @@ void ExecutingLaneChangeState::entry()
   target_lanes_ = route_handler_ptr_->getLaneletsFromIds(status_.lane_change_lane_ids);
   status_.lane_change_available = false;
   status_.lane_change_ready = false;
+
+  // get start arclength
+  const auto start = data_manager_ptr_->getCurrentSelfPose();
+  const auto arclength_start =
+    lanelet::utils::getArcCoordinates(target_lanes_, start.pose);
+  start_distance_ = arclength_start.length;
 }
 
 autoware_planning_msgs::msg::PathWithLaneId ExecutingLaneChangeState::getPath() const
@@ -62,9 +67,6 @@ void ExecutingLaneChangeState::update()
     lanelet::ConstLanelets lanes;
     lanes.insert(lanes.end(), original_lanes_.begin(), original_lanes_.end());
     lanes.insert(lanes.end(), target_lanes_.begin(), target_lanes_.end());
-
-    status_.lane_change_path.path =
-      route_handler_ptr_->updatePathTwist(status_.lane_change_path.path);
 
     const double width = ros_parameters_.drivable_area_width;
     const double height = ros_parameters_.drivable_area_height;
@@ -116,8 +118,8 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
       original_lanes_, current_pose_.pose, &closest_lanelet))
   {
     RCLCPP_ERROR_THROTTLE(
-      data_manager_ptr_->getLogger(), *data_manager_ptr_->getClock(),
-      1.0, "Failed to find closest lane! Lane change aborting function is not working!");
+      logger_, *clock_,
+      1000, "Failed to find closest lane! Lane change aborting function is not working!");
     return false;
   }
 
@@ -134,9 +136,8 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
 
     is_path_safe = state_machine::common_functions::isLaneChangePathSafe(
       path.path, original_lanes_, check_lanes, dynamic_objects_, current_pose_.pose,
-      current_twist_->twist, ros_parameters_,
-      data_manager_ptr_->getLogger(),
-      data_manager_ptr_->getClock(), false, status_.lane_change_path.acceleration);
+      current_twist_->twist, ros_parameters_, false, status_.lane_change_path.acceleration, logger_,
+      clock_);
   }
 
   // check vehicle velocity thresh
@@ -184,8 +185,8 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
       return true;
     }
     RCLCPP_WARN_STREAM_THROTTLE(
-      data_manager_ptr_->getLogger(), *data_manager_ptr_->getClock(),
-      1.0, "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be catious");
+      logger_, *clock_,
+      1000, "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be cautious");
   }
 
   return false;
@@ -193,15 +194,13 @@ bool ExecutingLaneChangeState::isAbortConditionSatisfied() const
 
 bool ExecutingLaneChangeState::hasFinishedLaneChange() const
 {
-  const auto & clock = data_manager_ptr_->getClock();
-  static rclcpp::Time start_time = clock->now();
-
-  if (route_handler_ptr_->isInTargetLane(current_pose_, target_lanes_)) {
-    return clock->now() - start_time > rclcpp::Duration::from_seconds(2.0);
-  } else {
-    start_time = clock->now();
-  }
-  return false;
+  const auto arclength_current =
+    lanelet::utils::getArcCoordinates(target_lanes_, current_pose_.pose);
+  const double travel_distance = arclength_current.length - start_distance_;
+  const double finish_distance = status_.lane_change_path.preparation_length +
+    status_.lane_change_path.lane_change_length +
+    ros_parameters_.lane_change_finish_judge_buffer;
+  return travel_distance > finish_distance;
 }
 
 }  // namespace lane_change_planner

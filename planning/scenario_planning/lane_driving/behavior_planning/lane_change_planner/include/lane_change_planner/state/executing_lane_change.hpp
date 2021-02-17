@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,12 +17,9 @@
 #define LANE_CHANGE_PLANNER__STATE__EXECUTING_LANE_CHANGE_HPP_
 
 #include <memory>
-
 #include "lane_change_planner/state/state_base_class.hpp"
-
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
-
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "lanelet2_core/primitives/Lanelet.h"
@@ -34,6 +32,7 @@ private:
   geometry_msgs::msg::PoseStamped current_pose_;
   geometry_msgs::msg::TwistStamped::ConstSharedPtr current_twist_;
   autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr dynamic_objects_;
+  double start_distance_;
 
   lanelet::ConstLanelets original_lanes_;
   lanelet::ConstLanelets target_lanes_;
@@ -47,7 +46,8 @@ private:
 public:
   ExecutingLaneChangeState(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-    const std::shared_ptr<RouteHandler> & route_handler_ptr);
+    const std::shared_ptr<RouteHandler> & route_handler_ptr,
+    const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
 
   // override virtual functions
   void entry() override;

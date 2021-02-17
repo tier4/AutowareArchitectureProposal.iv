@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,41 +17,32 @@
 #define LANE_CHANGE_PLANNER__DATA_MANAGER_HPP_
 
 #include <memory>
-
-// Own package
-#include "lane_change_planner/parameters.hpp"
-
-// Autoware
-#include "autoware_lanelet2_msgs/msg/map_bin.hpp"
-#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
-#include "autoware_planning_msgs/msg/route.hpp"
-
-// ROS
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
-#include "std_msgs/msg/bool.hpp"
 #include "tf2_ros/transform_listener.h"
-
-// lanelet
+#include "autoware_lanelet2_msgs/msg/map_bin.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "autoware_planning_msgs/msg/route.hpp"
+#include "autoware_planning_msgs/msg/lane_change_command.hpp"
+#include "lane_change_planner/parameters.hpp"
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_routing/RoutingGraph.h"
 #include "lanelet2_traffic_rules/TrafficRulesFactory.h"
 
-
 namespace lane_change_planner
 {
-class SelfPoseLinstener
+class SelfPoseListener
 {
 public:
-  SelfPoseLinstener(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
+  SelfPoseListener(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
   bool getSelfPose(geometry_msgs::msg::PoseStamped & self_pose);
   bool isSelfPoseReady();
 
 private:
-  tf2::BufferCore tf_buffer_;
+  tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
   rclcpp::Logger logger_;
   rclcpp::Clock::SharedPtr clock_;
@@ -81,13 +73,14 @@ private:
   LaneChangerParameters parameters_;
   bool is_parameter_set_;
 
-  rclcpp::Logger logger_;
-  rclcpp::Clock::SharedPtr clock_;
+  // ROS logging
+  const rclcpp::Logger logger_;
+  const rclcpp::Clock::SharedPtr clock_;
 
   /*
-   * SelfPoseLinstener
+   * SelfPoseListener
    */
-  std::shared_ptr<SelfPoseLinstener> self_pose_listener_ptr_;
+  std::shared_ptr<SelfPoseListener> self_pose_listener_ptr_;
 
 public:
   DataManager(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
@@ -97,9 +90,12 @@ public:
   void perceptionCallback(
     const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_perception_msg);
   void velocityCallback(const geometry_msgs::msg::TwistStamped::ConstSharedPtr input_twist_msg);
+  void laneChangeApprovalCallback(
+    const autoware_planning_msgs::msg::LaneChangeCommand::ConstSharedPtr input_approval_msg);
+  void forceLaneChangeSignalCallback(
+    const autoware_planning_msgs::msg::LaneChangeCommand::ConstSharedPtr input_approval_msg);
+
   void setLaneChangerParameters(const LaneChangerParameters & parameters);
-  void laneChangeApprovalCallback(const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg);
-  void forceLaneChangeSignalCallback(const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg);
 
   // getters
   autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr getDynamicObjects();
@@ -108,8 +104,6 @@ public:
   LaneChangerParameters getLaneChangerParameters();
   bool getLaneChangeApproval();
   bool getForceLaneChangeSignal();
-  rclcpp::Logger & getLogger();
-  rclcpp::Clock::SharedPtr getClock();
 
   bool isDataReady();
 };
