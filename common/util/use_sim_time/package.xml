@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>use_sim_time</name>
+  <version>0.1.0</version>
+  <description>The use sim time package</description>
+  <maintainer email="daisuke.nishimatsu@tier4.jp">Daisuke Nishimatsu</maintainer>
+  <author email="daisuke.nishimatsu@tier4.jp">Daisuke Nishimatsu</author>
+
+  <license>Apache License 2.0</license>
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
+
+  <depend>rclcpp</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
