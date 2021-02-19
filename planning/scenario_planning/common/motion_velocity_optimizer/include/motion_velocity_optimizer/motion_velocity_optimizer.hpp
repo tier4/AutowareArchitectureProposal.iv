@@ -27,8 +27,10 @@
 #include "autoware_debug_msgs/msg/bool_stamped.hpp"
 #include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
 #include "autoware_debug_msgs/msg/float32_stamped.hpp"
+#include "autoware_planning_msgs/msg/stop_speed_exceeded.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
 #include "autoware_planning_msgs/msg/velocity_limit.hpp"
+#include "autoware_planning_msgs/msg/stop_speed_exceeded.hpp"
 #include "osqp_interface/osqp_interface.hpp"
 
 #include "geometry_msgs/msg/twist_stamped.hpp"
@@ -47,7 +49,7 @@ private:
   // publisher for output trajectory
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_;
   // publisher for over stop velocity warning
-  rclcpp::Publisher<autoware_debug_msgs::msg::BoolStamped>::SharedPtr pub_over_stop_velocity_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::StopSpeedExceeded>::SharedPtr pub_over_stop_velocity_;
   // subscriber for current velocity
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_velocity_;
   // subscriber for reference trajectory
@@ -191,7 +193,7 @@ private:
   autoware_planning_msgs::msg::VelocityLimit createVelocityLimitMsg(const double value)
   {
     autoware_planning_msgs::msg::VelocityLimit msg;
-    msg.data = value;
+    msg.max_velocity = value;
     msg.stamp = now();
     return msg;
   }
