@@ -18,11 +18,14 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/AwapiAutowareStatus.msg"
   "msg/AwapiVehicleStatus.msg"
   "msg/CrosswalkStatus.msg"
+  "msg/DoorControlCommand.msg"
   "msg/DoorStatus.msg"
   "msg/Euler.msg"
   "msg/IntersectionStatus.msg"
   "msg/LaneChangeStatus.msg"
   "msg/ObstacleAvoidanceStatus.msg"
+  "msg/StopCommand.msg"
+  "msg/VelocityLimit.msg"
   DEPENDENCIES
     autoware_planning_msgs
     autoware_system_msgs
