@@ -787,7 +787,9 @@ void MotionVelocityOptimizer::updateExternalVelocityLimit(const double dt)
     return;
   }
 
-  double v_lim = std::min<double>(external_velocity_limit_ptr_->max_velocity, planning_param_.max_velocity);
+  double v_lim = std::min<double>(
+    external_velocity_limit_ptr_->max_velocity,
+    planning_param_.max_velocity);
 
   if (!external_velocity_limit_filtered_) {
     external_velocity_limit_filtered_ = std::make_shared<double>(v_lim);

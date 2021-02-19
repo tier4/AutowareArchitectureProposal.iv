@@ -69,10 +69,13 @@ private:
   rclcpp::Subscription<autoware_planning_msgs::msg::StopReasonArray>::SharedPtr sub_stop_reason_;
   rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr sub_diagnostics_;
   rclcpp::Subscription<pacmod_msgs::msg::GlobalRpt>::SharedPtr sub_global_rpt_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::LaneChangeStatus>::SharedPtr sub_lane_change_available_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::LaneChangeStatus>::SharedPtr sub_lane_change_ready_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::LaneChangeStatus>::SharedPtr
+    sub_lane_change_available_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::LaneChangeStatus>::SharedPtr
+    sub_lane_change_ready_;
   rclcpp::Subscription<autoware_planning_msgs::msg::Path>::SharedPtr sub_lane_change_candidate_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::IsAvoidancePossible>::SharedPtr sub_obstacle_avoid_ready_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::IsAvoidancePossible>::SharedPtr
+    sub_obstacle_avoid_ready_;
   rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr
     sub_obstacle_avoid_candidate_;
   rclcpp::Subscription<autoware_api_msgs::msg::VelocityLimit>::SharedPtr sub_max_velocity_;
@@ -112,18 +115,22 @@ private:
     const autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr msg_ptr);
   void callbackDiagnostics(const diagnostic_msgs::msg::DiagnosticArray::ConstSharedPtr msg_ptr);
   void callbackGlobalRpt(const pacmod_msgs::msg::GlobalRpt::ConstSharedPtr msg_ptr);
-  void callbackLaneChangeAvailable(const autoware_planning_msgs::msg::LaneChangeStatus::ConstSharedPtr msg_ptr);
-  void callbackLaneChangeReady(const autoware_planning_msgs::msg::LaneChangeStatus::ConstSharedPtr msg_ptr);
+  void callbackLaneChangeAvailable(
+    const autoware_planning_msgs::msg::LaneChangeStatus::ConstSharedPtr msg_ptr);
+  void callbackLaneChangeReady(
+    const autoware_planning_msgs::msg::LaneChangeStatus::ConstSharedPtr msg_ptr);
   void callbackLaneChangeCandidatePath(
     const autoware_planning_msgs::msg::Path::ConstSharedPtr msg_ptr);
-  void callbackLaneObstacleAvoidReady(const autoware_planning_msgs::msg::IsAvoidancePossible::ConstSharedPtr msg_ptr);
+  void callbackLaneObstacleAvoidReady(
+    const autoware_planning_msgs::msg::IsAvoidancePossible::ConstSharedPtr msg_ptr);
   void callbackLaneObstacleAvoidCandidatePath(
     const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr);
   void callbackMaxVelocity(const autoware_api_msgs::msg::VelocityLimit::ConstSharedPtr msg_ptr);
   void callbackTemporaryStop(const autoware_api_msgs::msg::StopCommand::ConstSharedPtr msg_ptr);
   void callbackAutowareTrajectory(
     const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr);
-  void callbackDoorControl(const autoware_api_msgs::msg::DoorControlCommand::ConstSharedPtr msg_ptr);
+  void callbackDoorControl(
+    const autoware_api_msgs::msg::DoorControlCommand::ConstSharedPtr msg_ptr);
   void callbackDoorStatus(const pacmod_msgs::msg::SystemRptInt::ConstSharedPtr msg_ptr);
 
   // timer function

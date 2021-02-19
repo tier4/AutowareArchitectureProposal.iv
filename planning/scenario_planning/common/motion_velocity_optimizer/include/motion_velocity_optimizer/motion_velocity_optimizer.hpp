@@ -49,7 +49,8 @@ private:
   // publisher for output trajectory
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_;
   // publisher for over stop velocity warning
-  rclcpp::Publisher<autoware_planning_msgs::msg::StopSpeedExceeded>::SharedPtr pub_over_stop_velocity_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::StopSpeedExceeded>::SharedPtr
+    pub_over_stop_velocity_;
   // subscriber for current velocity
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_velocity_;
   // subscriber for reference trajectory

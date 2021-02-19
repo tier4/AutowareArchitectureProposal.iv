@@ -31,7 +31,8 @@ autoware_api_msgs::msg::DoorStatus getDoorStatusMsg(
 pacmod_msgs::msg::SystemCmdInt createClearOverrideDoorCommand(
   const rclcpp::Clock::SharedPtr & clock);
 pacmod_msgs::msg::SystemCmdInt createDoorCommand(
-  const rclcpp::Clock::SharedPtr & clock, const autoware_api_msgs::msg::DoorControlCommand::ConstSharedPtr & msg_ptr);
+  const rclcpp::Clock::SharedPtr & clock,
+  const autoware_api_msgs::msg::DoorControlCommand::ConstSharedPtr & msg_ptr);
 }  // namespace pacmod_util
 
 }  // namespace autoware_api
