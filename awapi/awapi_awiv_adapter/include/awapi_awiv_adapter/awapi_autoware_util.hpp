@@ -37,7 +37,6 @@
 #include "autoware_planning_msgs/msg/stop_reason_array.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
 #include "autoware_system_msgs/msg/autoware_state.hpp"
-#include "autoware_system_msgs/msg/emergency_status.hpp"
 #include "autoware_system_msgs/msg/hazard_status_stamped.hpp"
 #include "autoware_vehicle_msgs/msg/battery_status.hpp"
 #include "autoware_vehicle_msgs/msg/control_mode.hpp"
