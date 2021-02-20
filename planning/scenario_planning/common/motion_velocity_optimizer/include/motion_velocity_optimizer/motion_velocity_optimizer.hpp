@@ -30,7 +30,6 @@
 #include "autoware_planning_msgs/msg/stop_speed_exceeded.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
 #include "autoware_planning_msgs/msg/velocity_limit.hpp"
-#include "autoware_planning_msgs/msg/stop_speed_exceeded.hpp"
 #include "osqp_interface/osqp_interface.hpp"
 
 #include "geometry_msgs/msg/twist_stamped.hpp"

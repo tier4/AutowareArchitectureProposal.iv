@@ -29,7 +29,9 @@ void AutowareIvMaxVelocityPublisher::statePublisher(const AutowareInfo & aw_info
 {
   autoware_planning_msgs::msg::VelocityLimit max_velocity;
   if (calcMaxVelocity(
-      aw_info.max_velocity_ptr, aw_info.temporary_stop_ptr, &max_velocity.max_velocity))  // publish info
+      aw_info.max_velocity_ptr,
+      aw_info.temporary_stop_ptr,
+      &max_velocity.max_velocity))                  // publish info
   {
     pub_state_->publish(max_velocity);
   }
