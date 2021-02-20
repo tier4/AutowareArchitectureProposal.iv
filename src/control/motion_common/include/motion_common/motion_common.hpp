@@ -106,9 +106,35 @@ Heading from_angle(RealT angle) noexcept
 {
   static_assert(std::is_floating_point<RealT>::value, "angle must be floating point");
   Heading ret{};
-  ret.real = std::cos(angle * RealT{0.5});
-  ret.imag = std::sin(angle * RealT{0.5});
+  ret.real = static_cast<decltype(ret.real)>(std::cos(angle * RealT{0.5}));
+  ret.imag = static_cast<decltype(ret.imag)>(std::sin(angle * RealT{0.5}));
   return ret;
+}
+
+/// \brief Converts a quaternion-like object to a simple heading representation
+/// \tparam QuatT A quaternion-like object with at least z and w members
+/// \param[in] quat A quaternion-like object to be converted to a heading object
+/// \returns A converted heading object
+template<typename QuatT>
+Heading from_quat(QuatT quat) noexcept
+{
+  Heading ret{};
+  ret.real = static_cast<decltype(ret.real)>(quat.w);
+  ret.imag = static_cast<decltype(ret.imag)>(quat.z);
+  return ret;
+}
+
+/// \brief Converts a simple heading representation into a quaternion-like object
+/// \tparam QuatT A quaternion-like object with at least z and w members
+/// \param[in] heading A heading object to be converted to a quaternion-like object
+/// \returns A converted quaternion-like object
+template<typename QuatT>
+QuatT to_quat(Heading heading) noexcept
+{
+  QuatT quat{};
+  quat.w = static_cast<decltype(quat.z)>(heading.real);
+  quat.z = static_cast<decltype(quat.w)>(heading.imag);
+  return quat;
 }
 
 /// Standard clamp implementation

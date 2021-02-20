@@ -19,12 +19,16 @@ if(BUILD_TESTING)
   # Linters
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+
   # Unit test
   apex_test_tools_add_gtest(motion_common_unit_tests
-    test/gtest_main.cpp
+    test/sanity_checks.cpp
     test/interpolation.cpp)
   target_link_libraries(motion_common_unit_tests ${PROJECT_NAME})
   add_dependencies(motion_common_unit_tests ${PROJECT_NAME})
+  ament_target_dependencies(motion_common_unit_tests
+    "geometry_msgs"
+  )
 endif()
 
 # Install snippets for code generation
