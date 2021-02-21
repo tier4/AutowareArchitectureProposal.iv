@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 /// \file
-/// \brief This file includes common transoform functionaly for autoware_auto_msgs
+/// \brief This file includes common transform functionality for autoware_auto_msgs
 
 #ifndef AUTOWARE_AUTO_TF2__TF2_AUTOWARE_AUTO_MSGS_HPP_
 #define AUTOWARE_AUTO_TF2__TF2_AUTOWARE_AUTO_MSGS_HPP_
