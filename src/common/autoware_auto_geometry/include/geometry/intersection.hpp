@@ -54,6 +54,7 @@ using Point = geometry_msgs::msg::Point32;
 namespace details
 {
 
+/// Alias for a std::pair of two points
 using Line = std::pair<Point, Point>;
 
 /// \tparam Iter1 Iterator over point-types that must have point adapters

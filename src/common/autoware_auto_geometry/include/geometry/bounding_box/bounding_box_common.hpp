@@ -66,9 +66,12 @@ void compute_height(const IT begin, const IT end, BoundingBox & box)
 
 namespace details
 {
+
+/// Templated alias for getting a type without CV or reference qualification
 template<typename T>
 using base_type = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
 
+/// Templated alias for an array of 4 objects of type PointT
 template<typename PointT>
 using Point4 = std::array<PointT, 4U>;
 
