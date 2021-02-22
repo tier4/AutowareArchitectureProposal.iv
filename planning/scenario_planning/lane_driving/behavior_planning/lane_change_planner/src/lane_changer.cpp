@@ -100,9 +100,10 @@ void LaneChanger::init()
   parameters.use_predicted_path_outside_lanelet = declare_parameter(
     "use_predicted_path_outside_lanelet", true);
   parameters.use_all_predicted_path = declare_parameter("use_all_predicted_path", false);
-  parameters.vehicle_width = declare_parameter("/vehicle_info/vehicle_width", 2.8);
-  parameters.vehicle_length = declare_parameter("/vehicle_info/vehicle_length", 5.0);
-  parameters.base_link2front = declare_parameter("/vehicle_info/max_longitudinal_offset", 3.74);
+  auto vehicle_info(vehicle_info_util::VehicleInfo::create(*this));
+  parameters.vehicle_width = vehicle_info.vehicle_width_m_;
+  parameters.vehicle_length = vehicle_info.vehicle_length_m_;
+  parameters.base_link2front = vehicle_info.max_longitudinal_offset_m_;
   parameters.abort_lane_change_velocity_thresh = declare_parameter(
     "abort_lane_change_velocity_thresh", 0.5);
   parameters.abort_lane_change_angle_thresh = declare_parameter(
