@@ -99,7 +99,7 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
 
   pub_dist_to_stopline_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
     "distance_to_stopline", rclcpp::QoS{1});
-  pub_over_stop_velocity_ = create_publisher<autoware_debug_msgs::msg::BoolStamped>(
+  pub_over_stop_velocity_ = create_publisher<autoware_planning_msgs::msg::StopSpeedExceeded>(
     "stop_speed_exceeded", rclcpp::QoS{1});
   sub_current_trajectory_ = create_subscription<autoware_planning_msgs::msg::Trajectory>(
     "input/trajectory", 1,
@@ -578,8 +578,8 @@ void MotionVelocityOptimizer::overwriteStopPoint(
     is_stop_velocity_exceeded = (optimized_stop_point_vel > over_stop_velocity_warn_thr_);
   }
   {
-    autoware_debug_msgs::msg::BoolStamped msg;
-    msg.data = is_stop_velocity_exceeded;
+    autoware_planning_msgs::msg::StopSpeedExceeded msg;
+    msg.stop_speed_exceeded = is_stop_velocity_exceeded;
     msg.stamp = this->now();
     pub_over_stop_velocity_->publish(msg);
   }
@@ -782,12 +782,14 @@ void MotionVelocityOptimizer::updateExternalVelocityLimit(const double dt)
 {
   if (!external_velocity_limit_ptr_) {return;}
 
-  if (external_velocity_limit_ptr_->data < -1.0e-5) {
+  if (external_velocity_limit_ptr_->max_velocity < -1.0e-5) {
     RCLCPP_WARN(get_logger(), "external velocity limit is negative. The command is ignored");
     return;
   }
 
-  double v_lim = std::min<double>(external_velocity_limit_ptr_->data, planning_param_.max_velocity);
+  double v_lim = std::min<double>(
+    external_velocity_limit_ptr_->max_velocity,
+    planning_param_.max_velocity);
 
   if (!external_velocity_limit_filtered_) {
     external_velocity_limit_filtered_ = std::make_shared<double>(v_lim);
