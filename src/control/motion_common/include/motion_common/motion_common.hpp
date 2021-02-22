@@ -132,8 +132,8 @@ template<typename QuatT>
 QuatT to_quat(Heading heading) noexcept
 {
   QuatT quat{};
-  quat.w = static_cast<decltype(quat.z)>(heading.real);
-  quat.z = static_cast<decltype(quat.w)>(heading.imag);
+  quat.w = static_cast<decltype(quat.w)>(heading.real);
+  quat.z = static_cast<decltype(quat.z)>(heading.imag);
   return quat;
 }
 
