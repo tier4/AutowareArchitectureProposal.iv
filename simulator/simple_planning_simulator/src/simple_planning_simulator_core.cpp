@@ -93,19 +93,19 @@ Simulator::Simulator(const std::string & node_name, const rclcpp::NodeOptions & 
   {
     auto vehicle_model_type_str = declare_parameter("vehicle_model_type", "IDEAL_STEER");
     RCLCPP_INFO(get_logger(), "vehicle_model_type = %s", vehicle_model_type_str.c_str());
-    auto tread_length = declare_parameter("tread_length", 2.0);
-    auto angvel_lim = declare_parameter("angvel_lim", 3.0);
+    // auto tread_length = declare_parameter("tread_length", 2.0);
+    // auto angvel_lim = declare_parameter("angvel_lim", 3.0);
     auto vel_lim = declare_parameter("vel_lim", 50.0);
     auto steer_lim = declare_parameter("steer_lim", 1.0);
     auto accel_rate = declare_parameter("accel_rate", 10.0);
-    auto angvel_rate = declare_parameter("angvel_rate", 1.0);
+    // auto angvel_rate = declare_parameter("angvel_rate", 1.0);
     auto steer_rate_lim = declare_parameter("steer_rate_lim", 5.0);
     auto vel_time_delay = declare_parameter("vel_time_delay", 0.25);
     auto vel_time_constant = declare_parameter("vel_time_constant", 0.5);
     auto steer_time_delay = declare_parameter("steer_time_delay", 0.3);
     auto steer_time_constant = declare_parameter("steer_time_constant", 0.3);
-    auto angvel_time_delay = declare_parameter("angvel_time_delay", 0.3);
-    auto angvel_time_constant = declare_parameter("angvel_time_constant", 0.3);
+    // auto angvel_time_delay = declare_parameter("angvel_time_delay", 0.3);
+    // auto angvel_time_constant = declare_parameter("angvel_time_constant", 0.3);
     auto acc_time_delay = declare_parameter("acc_time_delay", 0.1);
     auto acc_time_constant = declare_parameter("acc_time_constant", 0.1);
     simulator_engage_ = declare_parameter("initial_engage_state", true);
