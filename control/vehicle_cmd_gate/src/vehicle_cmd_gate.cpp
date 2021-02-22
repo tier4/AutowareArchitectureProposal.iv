@@ -131,7 +131,7 @@ VehicleCmdGate::VehicleCmdGate()
     declare_parameter("external_emergency_stop_heartbeat_timeout", 0.5);
 
   // Vehicle Parameter
-  double wheel_base = declare_parameter("/vehicle_info/wheel_base", 2.79);
+  double wheel_base = vehicle_info_util::VehicleInfo::create(*this).wheel_base_m_;
   double vel_lim = declare_parameter("vel_lim", 25.0);
   double lon_acc_lim = declare_parameter("lon_acc_lim", 5.0);
   double lon_jerk_lim = declare_parameter("lon_jerk_lim", 5.0);

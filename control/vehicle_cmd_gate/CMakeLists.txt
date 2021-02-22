@@ -20,6 +20,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(diagnostic_updater REQUIRED)
+find_package(vehicle_info_util REQUIRED)
 
 # Add path of include dir
 include_directories(include)
@@ -34,6 +35,7 @@ set(VEHICLE_CMD_GATE_DEPENDENCIES
   std_srvs
   geometry_msgs
   diagnostic_updater
+  vehicle_info_util
 )
 ament_target_dependencies(vehicle_cmd_gate ${VEHICLE_CMD_GATE_DEPENDENCIES})
 ament_export_dependencies(${VEHICLE_CMD_GATE_DEPENDENCIES})
