@@ -1,2 +1,2 @@
 builtin_interfaces/Time stamp
-float64 max_velocity
+float32 max_velocity
