@@ -1209,7 +1209,7 @@ double MPTOptimizer::getTraversedDistance(
       obj_clearance.emplace(0);
     }
     if (!enable_avoidance) {
-      *obj_clearance = std::numeric_limits<double>::max();
+      obj_clearance.emplace(std::numeric_limits<double>::max());
     }
     if (search_expanding_side) {
       if (clearance.get() > min_road_clearance && obj_clearance.get() > min_obj_clearance) {
