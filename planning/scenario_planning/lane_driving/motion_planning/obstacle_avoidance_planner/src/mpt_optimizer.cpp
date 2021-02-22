@@ -1205,8 +1205,8 @@ double MPTOptimizer::getTraversedDistance(
     auto clearance = getClearance(maps.clearance_map, new_position, maps.map_info);
     auto obj_clearance = getClearance(maps.only_objects_clearance_map, new_position, maps.map_info);
     if (!clearance || !obj_clearance) {
-      *clearance = 0;
-      *obj_clearance = 0;
+      clearance.emplace(0);
+      obj_clearance.emplace(0);
     }
     if (!enable_avoidance) {
       *obj_clearance = std::numeric_limits<double>::max();
