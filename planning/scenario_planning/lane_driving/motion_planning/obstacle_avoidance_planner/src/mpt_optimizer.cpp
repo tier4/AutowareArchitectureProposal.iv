@@ -800,7 +800,7 @@ boost::optional<std::vector<double>> MPTOptimizer::getRoughBound(
     return boost::none;
   }
   if (!enable_avoidance) {
-    *original_object_clearance = std::numeric_limits<double>::max();
+    original_object_clearance.emplace(std::numeric_limits<double>::max());
   }
   constexpr double min_road_clearance = 0.1;
   constexpr double min_obj_clearance = 0.1;
