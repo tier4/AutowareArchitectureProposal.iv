@@ -22,7 +22,7 @@ import rclpy
 from rclpy.node import Node
 import tf2_ros
 from geometry_msgs.msg import PoseStamped
-
+from geometry_msgs.msg import TransformStamped
 
 class Pose2TfNode(Node):
     def __init__(self, options):
@@ -34,19 +34,27 @@ class Pose2TfNode(Node):
 
     def _on_pose(self, msg):
         try:
-            (trans, quat) = Pose2TfNode.create_transform(msg.pose)
-            self._tf_broadcaster.sendTransform(
-                trans, quat, msg.header.stamp, self._options.tf_name, msg.header.frame_id
-            )
+            tfs = Pose2TfNode.create_transform(self, msg)
+            transforms = []
+            transforms.append(tfs)
+            self._tf_broadcaster.sendTransform(transforms)
         except Exception as e:
             print(e)
 
     @staticmethod
-    def create_transform(pose):
-        trans = [pose.position.x, pose.position.y, pose.position.z]
-        quat = [pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w]
-
-        return (trans, quat)
+    def create_transform(self, msg):
+        tfs = TransformStamped()
+        tfs.header.frame_id = msg.header.frame_id
+        tfs.header.stamp = msg.header.stamp
+        tfs.child_frame_id = self._options.tf_name
+        tfs.transform.translation.x = msg.pose.position.x
+        tfs.transform.translation.y = msg.pose.position.y
+        tfs.transform.translation.z = msg.pose.position.z
+        tfs.transform.rotation.x = msg.pose.orientation.x
+        tfs.transform.rotation.y = msg.pose.orientation.y
+        tfs.transform.rotation.z = msg.pose.orientation.z
+        tfs.transform.rotation.w = msg.pose.orientation.w
+        return tfs
 
 
 def main(args):
