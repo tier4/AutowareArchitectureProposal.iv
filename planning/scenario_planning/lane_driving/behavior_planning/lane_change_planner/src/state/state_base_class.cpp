@@ -13,10 +13,8 @@
 // limitations under the License.
 
 #include "lane_change_planner/state/state_base_class.hpp"
-
-#include <ostream>
-#include <memory>
 #include <string>
+#include <memory>
 
 namespace lane_change_planner
 {
@@ -53,8 +51,10 @@ std::ostream & operator<<(std::ostream & ostream, const State & state)
 
 StateBase::StateBase(
   const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr)
-: status_(status), data_manager_ptr_(data_manager_ptr), route_handler_ptr_(route_handler_ptr)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: status_(status), data_manager_ptr_(data_manager_ptr), route_handler_ptr_(route_handler_ptr),
+  logger_(logger), clock_(clock)
 {
 }
 

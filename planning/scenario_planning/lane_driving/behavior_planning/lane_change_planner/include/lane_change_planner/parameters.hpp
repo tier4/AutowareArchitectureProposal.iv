@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +25,10 @@ struct LaneChangerParameters
   double forward_path_length;
   double lane_change_prepare_duration;
   double lane_changing_duration;
+  double backward_length_buffer_for_end_of_lane;
+  double lane_change_finish_judge_buffer;
   double minimum_lane_change_length;
+  double minimum_lane_change_velocity;
   double prediction_duration;
   double prediction_time_resolution;
   double drivable_area_resolution;
@@ -40,6 +44,11 @@ struct LaneChangerParameters
   double abort_lane_change_angle_thresh;
   double abort_lane_change_distance_thresh;
   bool enable_abort_lane_change;
+  bool enable_collision_check_at_prepare_phase;
+  bool use_predicted_path_outside_lanelet;
+  bool use_all_predicted_path;
+  double refine_goal_search_radius_range;
+  bool enable_blocked_by_obstacle;
 };
 
 #endif  // LANE_CHANGE_PLANNER__PARAMETERS_HPP_

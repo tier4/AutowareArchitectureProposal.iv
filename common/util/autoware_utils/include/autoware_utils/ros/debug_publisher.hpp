@@ -21,14 +21,22 @@
 
 #include "rclcpp/publisher_base.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "rclcpp/serialization.hpp"
+#include "rosidl_runtime_cpp/traits.hpp"
+
+#include "autoware_utils/ros/debug_traits.hpp"
 
 namespace debug_publisher
 {
-template<class T_msg, class T>
-T_msg toMsg(const T & data)
+template<
+  class T_msg, class T,
+  std::enable_if_t<
+    autoware_utils::debug_traits::is_debug_message<T_msg>::value,
+    std::nullptr_t> =
+  nullptr>
+T_msg toDebugMsg(const T & data, const rclcpp::Time & stamp)
 {
   T_msg msg;
+  msg.stamp = stamp;
   msg.data = data;
   return msg;
 }
@@ -44,7 +52,7 @@ public:
 
   template<
     class T, std::enable_if_t<
-      !rclcpp::serialization_traits::is_serialized_message_class<T>::value,
+      rosidl_generator_traits::is_message<T>::value,
       std::nullptr_t> = nullptr>
   void publish(const std::string & name, const T & data, const rclcpp::QoS & qos = rclcpp::QoS(1))
   {
@@ -58,11 +66,11 @@ public:
   template<
     class T_msg, class T,
     std::enable_if_t<
-      !rclcpp::serialization_traits::is_serialized_message_class<T>::value, std::nullptr_t> =
+      !rosidl_generator_traits::is_message<T>::value, std::nullptr_t> =
     nullptr>
   void publish(const std::string & name, const T & data, const rclcpp::QoS & qos = rclcpp::QoS(1))
   {
-    publish(name, debug_publisher::toMsg<T_msg>(data), qos);
+    publish(name, debug_publisher::toDebugMsg<T_msg>(data, node_->now()), qos);
   }
 
 private:

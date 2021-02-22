@@ -48,6 +48,8 @@
  *
  */
 
+#include <vector>
+
 #include "pointcloud_preprocessor/passthrough_filter/passthrough_filter_nodelet.hpp"
 
 #include "pcl/kdtree/kdtree_flann.h"

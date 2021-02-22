@@ -12,25 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef PURE_PURSUIT__UTIL__PLANNING_UTILS_HPP_
+#define PURE_PURSUIT__UTIL__PLANNING_UTILS_HPP_
 
 #include <memory>
 #include <utility>
 #include <vector>
 
+#include "rclcpp/rclcpp.hpp"
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "tf2/transform_datatypes.h"
+#include "tf2/utils.h"
+#include "tf2_eigen/tf2_eigen.h"
+
 #define EIGEN_MPL2_ONLY
 #include "Eigen/Core"
 #include "Eigen/Geometry"
-
-#include <rclcpp/rclcpp.hpp>
-
-#include <autoware_planning_msgs/msg/trajectory.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
-
-#include <tf2/transform_datatypes.h>
-#include <tf2/utils.h>
-#include <tf2_eigen/tf2_eigen.h>
 
 #include "interpolate.hpp"
 
@@ -128,3 +127,5 @@ geometry_msgs::msg::Point transformToRelativeCoordinate2D(
 geometry_msgs::msg::Quaternion getQuaternionFromYaw(const double _yaw);
 
 }  // namespace planning_utils
+
+#endif  // PURE_PURSUIT__UTIL__PLANNING_UTILS_HPP_

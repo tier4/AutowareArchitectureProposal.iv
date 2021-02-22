@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,17 +17,14 @@
 #define LANE_CHANGE_PLANNER__STATE__STATE_BASE_CLASS_HPP_
 
 #include <iostream>
-#include <memory>
-#include <string>
 #include <vector>
-
+#include <string>
+#include <memory>
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "geometry_msgs/msg/point.hpp"
 #include "lane_change_planner/data_manager.hpp"
 #include "lane_change_planner/parameters.hpp"
 #include "lane_change_planner/route_handler.hpp"
-
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
-
-#include "geometry_msgs/msg/point.hpp"
 
 namespace lane_change_planner
 {
@@ -65,12 +63,15 @@ class StateBase
 protected:
   StateBase(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-    const std::shared_ptr<RouteHandler> & route_handler_ptr);
+    const std::shared_ptr<RouteHandler> & route_handler_ptr,
+    const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
   Status status_;
   LaneChangerParameters ros_parameters_;
   std::shared_ptr<DataManager> data_manager_ptr_;
   std::shared_ptr<RouteHandler> route_handler_ptr_;
   DebugData debug_data_;
+  const rclcpp::Logger logger_;
+  const rclcpp::Clock::SharedPtr clock_;
 
 public:
   virtual ~StateBase() = default;

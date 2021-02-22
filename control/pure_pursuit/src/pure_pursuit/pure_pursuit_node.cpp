@@ -28,10 +28,15 @@
  * limitations under the License.
  */
 
+#include <algorithm>
+#include <memory>
+#include <utility>
+
+#include "vehicle_info_util/vehicle_info.hpp"
 #include "pure_pursuit/pure_pursuit_node.hpp"
-#include "pure_pursuit/pure_pursuit_viz.hpp"
 #include "pure_pursuit/util/planning_utils.hpp"
 #include "pure_pursuit/util/tf_utils.hpp"
+#include "pure_pursuit/pure_pursuit_viz.hpp"
 
 namespace
 {
@@ -61,8 +66,8 @@ PurePursuitNode::PurePursuitNode()
 {
   pure_pursuit_ = std::make_unique<planning_utils::PurePursuit>();
 
-  // Global Parameters
-  param_.wheel_base = this->declare_parameter<double>("/vehicle_info/wheel_base", 2.7);
+  // Vehicle Parameters
+  param_.wheel_base = vehicle_info_util::VehicleInfo::create(*this).wheel_base_m_;
 
   // Node Parameters
   param_.ctrl_period = this->declare_parameter<double>("control_period", 0.02);
@@ -192,7 +197,7 @@ boost::optional<TargetValues> PurePursuitNode::calcTargetValues()
   const double target_vel = target_point->twist.linear.x;
   const double target_acc = target_point->accel.linear.x;
 
-  // Calculate lookahead ditance
+  // Calculate lookahead distance
   const bool is_reverse = (target_vel < 0);
   const double min_lookahead_distance =
     is_reverse ? param_.reverse_min_lookahead_distance : param_.min_lookahead_distance;

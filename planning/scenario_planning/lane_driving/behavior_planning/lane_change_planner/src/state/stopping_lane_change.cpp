@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,23 +14,21 @@
 // limitations under the License.
 
 #include "lane_change_planner/state/stopping_lane_change.hpp"
-
-#include <memory>
 #include <vector>
-
+#include <memory>
+#include "lanelet2_extension/utility/utilities.hpp"
 #include "lane_change_planner/data_manager.hpp"
 #include "lane_change_planner/route_handler.hpp"
 #include "lane_change_planner/state/common_functions.hpp"
 #include "lane_change_planner/utilities.hpp"
 
-#include "lanelet2_extension/utility/utilities.hpp"
-
 namespace lane_change_planner
 {
 StoppingLaneChangeState::StoppingLaneChangeState(
   const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr)
-: StateBase(status, data_manager_ptr, route_handler_ptr)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: StateBase(status, data_manager_ptr, route_handler_ptr, logger, clock)
 {
 }
 State StoppingLaneChangeState::getCurrentState() const {return State::STOPPING_LANE_CHANGE;}
@@ -46,7 +45,7 @@ void StoppingLaneChangeState::entry()
 
 autoware_planning_msgs::msg::PathWithLaneId StoppingLaneChangeState::getPath() const
 {
-  return status_.lane_change_path.path;
+  return isVehicleInOriginalLanes() ? status_.lane_change_path.path : stop_path_;
 }
 
 void StoppingLaneChangeState::update()
@@ -54,9 +53,8 @@ void StoppingLaneChangeState::update()
   current_twist_ = data_manager_ptr_->getCurrentSelfVelocity();
   current_pose_ = data_manager_ptr_->getCurrentSelfPose();
   dynamic_objects_ = data_manager_ptr_->getDynamicObjects();
-
   if (isVehicleInOriginalLanes()) {
-    status_.lane_change_path.path = setStopPoint(status_.lane_change_path.path);
+    stop_path_ = setStopPoint(status_.lane_change_path.path);
   }
 }
 
@@ -80,8 +78,8 @@ bool StoppingLaneChangeState::isSafe() const
 
     is_path_safe = state_machine::common_functions::isLaneChangePathSafe(
       status_.lane_change_path.path, original_lanes_, check_lanes, dynamic_objects_,
-      current_pose_.pose, current_twist_->twist, ros_parameters_, data_manager_ptr_->getLogger(),
-      data_manager_ptr_->getClock(), false, status_.lane_change_path.acceleration);
+      current_pose_.pose, current_twist_->twist, ros_parameters_, false,
+      status_.lane_change_path.acceleration, logger_, clock_);
   }
   return is_path_safe;
 }

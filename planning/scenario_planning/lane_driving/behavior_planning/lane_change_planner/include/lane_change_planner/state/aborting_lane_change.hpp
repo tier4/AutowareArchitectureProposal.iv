@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +17,6 @@
 #define LANE_CHANGE_PLANNER__STATE__ABORTING_LANE_CHANGE_HPP_
 
 #include <memory>
-
 #include "lane_change_planner/state/state_base_class.hpp"
 
 namespace lane_change_planner
@@ -30,7 +30,8 @@ private:
 public:
   AbortingLaneChangeState(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-    const std::shared_ptr<RouteHandler> & route_handler_ptr);
+    const std::shared_ptr<RouteHandler> & route_handler_ptr,
+    const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
 
   // override virtual functions
   void entry() override;

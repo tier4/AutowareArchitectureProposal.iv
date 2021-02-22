@@ -27,6 +27,11 @@
  * limitations under the License.
  */
 
+#include <utility>
+#include <limits>
+#include <memory>
+#include <vector>
+
 #include "pure_pursuit/pure_pursuit.hpp"
 #include "pure_pursuit/util/planning_utils.hpp"
 

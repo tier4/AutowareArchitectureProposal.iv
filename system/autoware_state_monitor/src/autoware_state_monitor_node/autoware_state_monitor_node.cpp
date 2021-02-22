@@ -30,9 +30,6 @@ std::vector<Config> getConfigs(
   const std::string & config_namespace)
 {
   std::string names_key = config_namespace + ".names";
-  if (!interface->has_parameter(names_key)) {
-    return std::vector<Config>{};
-  }
   interface->declare_parameter(names_key);
   std::vector<std::string> config_names = interface->get_parameter(names_key).as_string_array();
 
@@ -117,7 +114,7 @@ std::string getStateMessage(const AutowareState & state)
 }  // namespace
 
 void AutowareStateMonitorNode::onAutowareEngage(
-  const autoware_control_msgs::msg::EngageMode::ConstSharedPtr msg)
+  const autoware_vehicle_msgs::msg::Engage::ConstSharedPtr msg)
 {
   state_input_.autoware_engage = msg;
 }
@@ -376,13 +373,14 @@ bool AutowareStateMonitorNode::isEngaged()
     return false;
   }
 
-  return state_input_.autoware_engage->is_engaged;
+  return state_input_.autoware_engage->engage;
 }
 
 void AutowareStateMonitorNode::setDisengage()
 {
-  autoware_control_msgs::msg::EngageMode msg;
-  msg.is_engaged = false;
+  autoware_vehicle_msgs::msg::Engage msg;
+  msg.stamp = this->now();
+  msg.engage = false;
   pub_autoware_engage_->publish(msg);
 }
 
@@ -411,8 +409,6 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   // Config
   topic_configs_ = getConfigs<TopicConfig>(
     this->get_node_parameters_interface(), "topic_configs");
-  param_configs_ = getConfigs<ParamConfig>(
-    this->get_node_parameters_interface(), "param_configs");
   tf_configs_ = getConfigs<TfConfig>(
     this->get_node_parameters_interface(), "tf_configs");
 
@@ -422,7 +418,7 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   }
 
   // Subscriber
-  sub_autoware_engage_ = this->create_subscription<autoware_control_msgs::msg::EngageMode>(
+  sub_autoware_engage_ = this->create_subscription<autoware_vehicle_msgs::msg::Engage>(
     "input/autoware_engage", 1,
     std::bind(&AutowareStateMonitorNode::onAutowareEngage, this, _1));
   sub_vehicle_control_mode_ = this->create_subscription<autoware_vehicle_msgs::msg::ControlMode>(
@@ -445,7 +441,7 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   pub_autoware_state_ =
     this->create_publisher<autoware_system_msgs::msg::AutowareState>("output/autoware_state", 1);
   pub_autoware_engage_ =
-    this->create_publisher<autoware_control_msgs::msg::EngageMode>("output/autoware_engage", 1);
+    this->create_publisher<autoware_vehicle_msgs::msg::Engage>("output/autoware_engage", 1);
 
   // Diagnostic Updater
   setupDiagnosticUpdater();

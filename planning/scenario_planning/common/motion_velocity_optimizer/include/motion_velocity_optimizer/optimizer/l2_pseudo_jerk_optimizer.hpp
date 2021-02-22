@@ -27,15 +27,6 @@
 class L2PseudoJerkOptimizer : public OptimizerBase
 {
 public:
-  struct OptimizerParam
-  {
-    double max_accel;
-    double min_decel;
-    double pseudo_jerk_weight;
-    double over_v_weight;
-    double over_a_weight;
-  };
-
   explicit L2PseudoJerkOptimizer(const OptimizerParam & p);
 
   bool solve(
@@ -43,9 +34,7 @@ public:
     const autoware_planning_msgs::msg::Trajectory & input,
     autoware_planning_msgs::msg::Trajectory * output) override;
 
-  void setAccel(const double max_accel) override;
-
-  void setDecel(const double min_decel) override;
+  void setParam(const OptimizerParam & param) override;
 
 private:
   OptimizerParam param_;

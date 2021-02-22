@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,25 +16,21 @@
 #ifndef LANE_CHANGE_PLANNER__ROUTE_HANDLER_HPP_
 #define LANE_CHANGE_PLANNER__ROUTE_HANDLER_HPP_
 
-#include <limits>
-#include <memory>
 #include <vector>
-// Autoware
-#include "autoware_lanelet2_msgs/msg/map_bin.hpp"
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
-#include "autoware_planning_msgs/msg/route.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "lanelet2_extension/utility/query.hpp"
-// lanelet
+#include <memory>
+#include <limits>
+#include "rclcpp/rclcpp.hpp"
 #include "lanelet2_routing/Route.h"
 #include "lanelet2_routing/RoutingCost.h"
 #include "lanelet2_routing/RoutingGraph.h"
 #include "lanelet2_routing/RoutingGraphContainer.h"
 #include "lanelet2_traffic_rules/TrafficRulesFactory.h"
-
+#include "autoware_lanelet2_msgs/msg/map_bin.hpp"
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "autoware_planning_msgs/msg/route.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "lanelet2_extension/utility/query.hpp"
 #include "lane_change_planner/parameters.hpp"
-
-#include "rclcpp/rclcpp.hpp"
 
 namespace lane_change_planner
 {
@@ -50,7 +47,7 @@ struct LaneChangePath
 class RouteHandler
 {
 public:
-  RouteHandler(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
+  explicit RouteHandler(const rclcpp::Logger & logger);
   ~RouteHandler() = default;
 
 private:
@@ -69,8 +66,7 @@ private:
   lanelet::ConstLanelets start_lanelets_;
   lanelet::ConstLanelets goal_lanelets_;
 
-  rclcpp::Logger logger_;
-  rclcpp::Clock::SharedPtr clock_;
+  const rclcpp::Logger logger_;
 
   void setRouteLanelets();
 
@@ -130,14 +126,15 @@ public:
   autoware_planning_msgs::msg::PathWithLaneId getReferencePath(
     const lanelet::ConstLanelets & lanelet_sequence, const geometry_msgs::msg::Pose & pose,
     const double backward_path_length, const double forward_path_length,
-    const double minimum_lane_change_length) const;
+    const LaneChangerParameters & parameter) const;
   autoware_planning_msgs::msg::PathWithLaneId getReferencePath(
     const lanelet::ConstLanelets & lanelet_sequence, const double s_start, const double s_end,
+    const double lane_change_prepare_duration, const double lane_change_buffer,
     bool use_exact = true) const;
   autoware_planning_msgs::msg::PathWithLaneId updatePathTwist(
     const autoware_planning_msgs::msg::PathWithLaneId & path) const;
   bool getLaneChangeTarget(
-    const lanelet::ConstLanelet & lanelet, lanelet::ConstLanelet * target_lanelet) const;
+    const lanelet::ConstLanelets & lanelets, lanelet::ConstLanelet * target_lanelet) const;
   lanelet::ConstLanelets getLaneChangeTarget(const geometry_msgs::msg::Pose & pose) const;
 
   double getLaneChangeableDistance(
@@ -152,4 +149,5 @@ public:
   std::vector<lanelet::ConstLanelet> getLanesAfterGoal(const double vehicle_length) const;
 };
 }  // namespace lane_change_planner
+
 #endif  // LANE_CHANGE_PLANNER__ROUTE_HANDLER_HPP_

@@ -22,14 +22,17 @@
 
 #include "eigen3/Eigen/Core"
 
-L2PseudoJerkOptimizer::L2PseudoJerkOptimizer(const L2PseudoJerkOptimizer::OptimizerParam & p)
+L2PseudoJerkOptimizer::L2PseudoJerkOptimizer(const OptimizerParam & p)
 {
   param_ = p;
+  qp_solver_.updateMaxIter(4000);
+  qp_solver_.updateRhoInterval(0);  // 0 means automoatic
+  qp_solver_.updateEpsRel(1.0e-4);  // def: 1.0e-4
+  qp_solver_.updateEpsAbs(1.0e-4);  // def: 1.0e-4
+  qp_solver_.updateVerbose(false);
 }
 
-void L2PseudoJerkOptimizer::setAccel(const double max_accel) {param_.max_accel = max_accel;}
-
-void L2PseudoJerkOptimizer::setDecel(const double min_decel) {param_.min_decel = min_decel;}
+void L2PseudoJerkOptimizer::setParam(const OptimizerParam & param) {param_ = param;}
 
 bool L2PseudoJerkOptimizer::solve(
   const double initial_vel, const double initial_acc, const int closest,
@@ -71,7 +74,7 @@ bool L2PseudoJerkOptimizer::solve(
   }
 
   /*
-   * x = [b0, b1, ..., bN, |  a0, a1, ..., aN, | delta0, delta1, ..., deltaN, | sigma0, sigme1, ..., sigmaN] in R^{4N}
+   * x = [b0, b1, ..., bN, |  a0, a1, ..., aN, | delta0, delta1, ..., deltaN, | sigma0, sigma1, ..., sigmaN] in R^{4N}
    * b: velocity^2
    * a: acceleration
    * delta: 0 < bi < vmax^2 + delta
@@ -104,7 +107,8 @@ bool L2PseudoJerkOptimizer::solve(
   // pseudo jerk: d(ai)/ds -> minimize weight * (a1 - a0)^2
   for (unsigned int i = N; i < 2 * N - 1; ++i) {
     unsigned int j = i - N;
-    const double w_x_dsinv = smooth_weight * (1.0 / std::max(interval_dist_arr.at(j), 0.0001));
+    const double w_x_dsinv =
+      smooth_weight * (1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001));
     P(i, i) += w_x_dsinv;
     P(i, i + 1) -= w_x_dsinv;
     P(i + 1, i) -= w_x_dsinv;
@@ -123,7 +127,7 @@ bool L2PseudoJerkOptimizer::solve(
   // 0 < b - delta < vmax^2
   // NOTE: The delta allows b to be negative. This is actually invalid because the definition is
   // b=v^2. But mathematically, the strict b>0 constraint may make the problem infeasible, such as
-  // the case of v=0 & a<0. To avoid the infesibility, we allow b<0. The negative b is dealt as b=0
+  // the case of v=0 & a<0. To avoid the infeasibility, we allow b<0. The negative b is dealt as b=0
   // when it is converted to v with sqrt. If the weight of delta^2 is large (the value of delta is
   // very small), b is almost 0, and is not a big problem.
   for (unsigned int i = 0; i < N; ++i) {
@@ -148,13 +152,13 @@ bool L2PseudoJerkOptimizer::solve(
     }
   }
 
-  // b' = 2a
+  // b' = 2a ... (b(i+1) - b(i)) / ds = 2a(i)
   for (unsigned int i = 2 * N; i < 3 * N - 1; ++i) {
     const unsigned int j = i - 2 * N;
-    const double dsinv = 1.0 / std::max(interval_dist_arr.at(j), 0.0001);
-    A(i, j) = -dsinv;
-    A(i, j + 1) = dsinv;
-    A(i, j + N) = -2.0;
+    const double dsinv = 1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001);
+    A(i, j) = -dsinv;     // b(i)
+    A(i, j + 1) = dsinv;  // b(i+1)
+    A(i, j + N) = -2.0;   // a(i)
     upper_bound[i] = 0.0;
     lower_bound[i] = 0.0;
   }
@@ -197,6 +201,14 @@ bool L2PseudoJerkOptimizer::solve(
   for (unsigned int i = N + closest; i < output->points.size(); ++i) {
     output->points.at(i).twist.linear.x = 0.0;
     output->points.at(i).accel.linear.x = 0.0;
+  }
+
+  const int status_val = std::get<3>(result);
+  if (status_val != 1) {
+    RCLCPP_WARN(
+      rclcpp::get_logger("L2PseudoJerkOptimizer"),
+      "[motion_velocity_optimizer] optimization failed : %s",
+      qp_solver_.getStatusMessage().c_str());
   }
 
   auto tf2 = std::chrono::system_clock::now();

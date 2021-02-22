@@ -64,18 +64,18 @@ VelocityController::VelocityController()
   // parameters for smooth stop
   {
     auto & p = smooth_stop_param_;
-    p.stop_dist_ = declare_parameter("smooth_stop/stop_dist", 3.0);                   // [m/s^2]
-    p.exit_ego_speed = declare_parameter("smooth_stop/exit_ego_speed", 2.0);          // [m/s]
-    p.exit_target_speed = declare_parameter("smooth_stop/exit_target_speed", 2.0);    // [m/s]
-    p.entry_ego_speed = declare_parameter("smooth_stop/entry_ego_speed", 1.0);        // [m/s]
-    p.entry_target_speed = declare_parameter("smooth_stop/entry_target_speed", 1.0);  // [m/s]
-    p.weak_brake_time = declare_parameter("smooth_stop/weak_brake_time", 3.0);        // [sec]
-    p.weak_brake_acc = declare_parameter("smooth_stop/weak_brake_acc", -0.4);         // [m/s^2]
-    p.increasing_brake_time = declare_parameter("smooth_stop/increasing_brake_time", 3.0);  // [sec]
+    p.stop_dist_ = declare_parameter("smooth_stop.stop_dist", 3.0);                   // [m/s^2]
+    p.exit_ego_speed = declare_parameter("smooth_stop.exit_ego_speed", 2.0);          // [m/s]
+    p.exit_target_speed = declare_parameter("smooth_stop.exit_target_speed", 2.0);    // [m/s]
+    p.entry_ego_speed = declare_parameter("smooth_stop.entry_ego_speed", 1.0);        // [m/s]
+    p.entry_target_speed = declare_parameter("smooth_stop.entry_target_speed", 1.0);  // [m/s]
+    p.weak_brake_time = declare_parameter("smooth_stop.weak_brake_time", 3.0);        // [sec]
+    p.weak_brake_acc = declare_parameter("smooth_stop.weak_brake_acc", -0.4);         // [m/s^2]
+    p.increasing_brake_time = declare_parameter("smooth_stop.increasing_brake_time", 3.0);  // [sec]
     p.increasing_brake_gradient =
-      declare_parameter("smooth_stop/increasing_brake_gradient", -0.05);        // [m/s^3]
-    p.stop_brake_time = declare_parameter("smooth_stop/stop_brake_time", 2.0);  // [sec]
-    p.stop_brake_acc = declare_parameter("smooth_stop/stop_brake_acc", -1.7);   // [m/s^2]
+      declare_parameter("smooth_stop.increasing_brake_gradient", -0.05);        // [m/s^3]
+    p.stop_brake_time = declare_parameter("smooth_stop.stop_brake_time", 2.0);  // [sec]
+    p.stop_brake_acc = declare_parameter("smooth_stop.stop_brake_acc", -1.7);   // [m/s^2]
   }
 
   // parameters for acceleration limit
@@ -92,7 +92,7 @@ VelocityController::VelocityController()
   min_pitch_rad_ = declare_parameter("min_pitch_rad", -0.1);  // [rad]
 
   current_vel_threshold_pid_integrate_ = declare_parameter(
-    "pid_controller/current_vel_threshold_pid_integration",
+    "pid_controller.current_vel_threshold_pid_integration",
     0.5);  // [m/s]
 
   // subscriber, publisher
@@ -126,28 +126,28 @@ VelocityController::VelocityController()
 
   // initialize PID gain
   {
-    double kp = declare_parameter("pid_controller/kp", 0.0);
-    double ki = declare_parameter("pid_controller/ki", 0.0);
-    double kd = declare_parameter("pid_controller/kd", 0.0);
+    double kp = declare_parameter("pid_controller.kp", 0.0);
+    double ki = declare_parameter("pid_controller.ki", 0.0);
+    double kd = declare_parameter("pid_controller.kd", 0.0);
     pid_vel_.setGains(kp, ki, kd);
   }
 
   // initialize PID limits
   {
-    double max_pid = declare_parameter("pid_controller/max_out", 0.0);     // [m/s^2]
-    double min_pid = declare_parameter("pid_controller/min_out", 0.0);     // [m/s^2]
-    double max_p = declare_parameter("pid_controller/max_p_effort", 0.0);  // [m/s^2]
-    double min_p = declare_parameter("pid_controller/min_p_effort", 0.0);  // [m/s^2]
-    double max_i = declare_parameter("pid_controller/max_i_effort", 0.0);  // [m/s^2]
-    double min_i = declare_parameter("pid_controller/min_i_effort", 0.0);  // [m/s^2]
-    double max_d = declare_parameter("pid_controller/max_d_effort", 0.0);  // [m/s^2]
-    double min_d = declare_parameter("pid_controller/min_d_effort", 0.0);  // [m/s^2]
+    double max_pid = declare_parameter("pid_controller.max_out", 0.0);     // [m/s^2]
+    double min_pid = declare_parameter("pid_controller.min_out", 0.0);     // [m/s^2]
+    double max_p = declare_parameter("pid_controller.max_p_effort", 0.0);  // [m/s^2]
+    double min_p = declare_parameter("pid_controller.min_p_effort", 0.0);  // [m/s^2]
+    double max_i = declare_parameter("pid_controller.max_i_effort", 0.0);  // [m/s^2]
+    double min_i = declare_parameter("pid_controller.min_i_effort", 0.0);  // [m/s^2]
+    double max_d = declare_parameter("pid_controller.max_d_effort", 0.0);  // [m/s^2]
+    double min_d = declare_parameter("pid_controller.min_d_effort", 0.0);  // [m/s^2]
     pid_vel_.setLimits(max_pid, min_pid, max_p, min_p, max_i, min_i, max_d, min_d);
   }
 
   // set lowpass filter
   {
-    double lpf_vel_error_gain = declare_parameter("pid_controller/lpf_vel_error_gain", 0.9);
+    double lpf_vel_error_gain = declare_parameter("pid_controller.lpf_vel_error_gain", 0.9);
     lpf_vel_error_.init(lpf_vel_error_gain);
 
     double lpf_pitch_gain = declare_parameter("lpf_pitch_gain", 0.95);
@@ -315,33 +315,33 @@ rcl_interfaces::msg::SetParametersResult VelocityController::paramCallback(
   {
     // TODO(Takamasa Horibe) Combine the getter and setter into one function,
     // or having them in the class member.
-    double kp = get_parameter("pid_controller/kp").as_double();
-    double ki = get_parameter("pid_controller/ki").as_double();
-    double kd = get_parameter("pid_controller/kd").as_double();
-    update_param("pid_controller/kp", kp);
-    update_param("pid_controller/ki", ki);
-    update_param("pid_controller/kd", kd);
+    double kp = get_parameter("pid_controller.kp").as_double();
+    double ki = get_parameter("pid_controller.ki").as_double();
+    double kd = get_parameter("pid_controller.kd").as_double();
+    update_param("pid_controller.kp", kp);
+    update_param("pid_controller.ki", ki);
+    update_param("pid_controller.kd", kd);
     pid_vel_.setGains(kp, ki, kd);
   }
 
   // PID limits
   {
-    double max_pid = get_parameter("pid_controller/max_out").as_double();
-    double min_pid = get_parameter("pid_controller/min_out").as_double();
-    double max_p = get_parameter("pid_controller/max_p_effort").as_double();
-    double min_p = get_parameter("pid_controller/min_p_effort").as_double();
-    double max_i = get_parameter("pid_controller/max_i_effort").as_double();
-    double min_i = get_parameter("pid_controller/min_i_effort").as_double();
-    double max_d = get_parameter("pid_controller/max_d_effort").as_double();
-    double min_d = get_parameter("pid_controller/min_d_effort").as_double();
-    update_param("pid_controller/max_out", max_pid);
-    update_param("pid_controller/min_out", min_pid);
-    update_param("pid_controller/max_p_effort", max_p);
-    update_param("pid_controller/min_p_effort", min_p);
-    update_param("pid_controller/max_i_effort", max_i);
-    update_param("pid_controller/min_i_effort", min_i);
-    update_param("pid_controller/max_d_effort", max_d);
-    update_param("pid_controller/min_d_effort", min_d);
+    double max_pid = get_parameter("pid_controller.max_out").as_double();
+    double min_pid = get_parameter("pid_controller.min_out").as_double();
+    double max_p = get_parameter("pid_controller.max_p_effort").as_double();
+    double min_p = get_parameter("pid_controller.min_p_effort").as_double();
+    double max_i = get_parameter("pid_controller.max_i_effort").as_double();
+    double min_i = get_parameter("pid_controller.min_i_effort").as_double();
+    double max_d = get_parameter("pid_controller.max_d_effort").as_double();
+    double min_d = get_parameter("pid_controller.min_d_effort").as_double();
+    update_param("pid_controller.max_out", max_pid);
+    update_param("pid_controller.min_out", min_pid);
+    update_param("pid_controller.max_p_effort", max_p);
+    update_param("pid_controller.min_p_effort", min_p);
+    update_param("pid_controller.max_i_effort", max_i);
+    update_param("pid_controller.min_i_effort", min_i);
+    update_param("pid_controller.max_d_effort", max_d);
+    update_param("pid_controller.min_d_effort", min_d);
     pid_vel_.setLimits(max_pid, min_pid, max_p, min_p, max_i, min_i, max_d, min_d);
   }
 

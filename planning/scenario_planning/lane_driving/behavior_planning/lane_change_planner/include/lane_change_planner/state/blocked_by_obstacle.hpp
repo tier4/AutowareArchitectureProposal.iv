@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,15 +16,12 @@
 #ifndef LANE_CHANGE_PLANNER__STATE__BLOCKED_BY_OBSTACLE_HPP_
 #define LANE_CHANGE_PLANNER__STATE__BLOCKED_BY_OBSTACLE_HPP_
 
-#include <memory>
 #include <vector>
-
-#include "lane_change_planner/state/state_base_class.hpp"
-
+#include <memory>
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
-
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
+#include "lane_change_planner/state/state_base_class.hpp"
 #include "lanelet2_core/primitives/Primitive.h"
 
 namespace lane_change_planner
@@ -36,12 +34,14 @@ private:
   autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr dynamic_objects_;
   bool lane_change_approved_;
   bool force_lane_change_;
+  bool found_valid_path_;
   bool found_safe_path_;
   lanelet::ConstLanelets current_lanes_;
   lanelet::ConstLanelets lane_change_lanes_;
 
   // State transition conditions
   bool foundSafeLaneChangePath() const;
+  bool foundValidPath() const;
   bool hasEnoughDistanceToComeBack(const lanelet::ConstLanelets & target_lanes) const;
   bool isLaneChangeApproved() const;
   bool isLaneBlocked() const;
@@ -58,7 +58,8 @@ private:
 public:
   BlockedByObstacleState(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-    const std::shared_ptr<RouteHandler> & route_handler_ptr);
+    const std::shared_ptr<RouteHandler> & route_handler_ptr,
+    const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
 
   // override virtual functions
   void entry() override;

@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,25 +14,25 @@
 // limitations under the License.
 
 #include "lane_change_planner/state_machine.hpp"
-
 #include <memory>
-
+#include <limits>
+#include <algorithm>
+#include "rclcpp/rclcpp.hpp"
 #include "lane_change_planner/state/aborting_lane_change.hpp"
 #include "lane_change_planner/state/blocked_by_obstacle.hpp"
 #include "lane_change_planner/state/executing_lane_change.hpp"
 #include "lane_change_planner/state/following_lane.hpp"
 #include "lane_change_planner/state/forcing_lane_change.hpp"
 #include "lane_change_planner/state/stopping_lane_change.hpp"
-#include "rclcpp/rclcpp.hpp"
-
-#include "visualization_msgs/msg/marker.hpp"
 
 namespace lane_change_planner
 {
 StateMachine::StateMachine(
   const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr)
-: data_manager_ptr_(data_manager_ptr), route_handler_ptr_(route_handler_ptr)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+: data_manager_ptr_(data_manager_ptr), route_handler_ptr_(route_handler_ptr), logger_(logger),
+  clock_(clock)
 {
 }
 
@@ -39,7 +40,9 @@ void StateMachine::init()
 {
   Status empty_status;
   state_obj_ptr_ =
-    std::make_unique<FollowingLaneState>(empty_status, data_manager_ptr_, route_handler_ptr_);
+    std::make_unique<FollowingLaneState>(
+    empty_status, data_manager_ptr_, route_handler_ptr_,
+    logger_, clock_);
   state_obj_ptr_->entry();
 }
 
@@ -57,36 +60,34 @@ void StateMachine::updateState()
 
   // Transit to next state
   if (next_state != current_state) {
-    RCLCPP_INFO_STREAM(
-      data_manager_ptr_->getLogger(),
-      "changing state: " << current_state << " => " << next_state);
+    RCLCPP_INFO_STREAM(logger_, "changing state: " << current_state << " => " << next_state);
     const auto previous_status = state_obj_ptr_->getStatus();
     switch (next_state) {
       case State::FOLLOWING_LANE:
         state_obj_ptr_ = std::make_unique<FollowingLaneState>(
-          previous_status, data_manager_ptr_, route_handler_ptr_);
+          previous_status, data_manager_ptr_, route_handler_ptr_, logger_, clock_);
         break;
       case State::EXECUTING_LANE_CHANGE:
         state_obj_ptr_ = std::make_unique<ExecutingLaneChangeState>(
-          previous_status, data_manager_ptr_, route_handler_ptr_);
+          previous_status, data_manager_ptr_, route_handler_ptr_, logger_, clock_);
         break;
       case State::STOPPING_LANE_CHANGE:
         state_obj_ptr_ = std::make_unique<StoppingLaneChangeState>(
-          previous_status, data_manager_ptr_, route_handler_ptr_);
+          previous_status, data_manager_ptr_, route_handler_ptr_, logger_, clock_);
         break;
       case State::ABORTING_LANE_CHANGE:
         state_obj_ptr_ = std::make_unique<AbortingLaneChangeState>(
-          previous_status, data_manager_ptr_, route_handler_ptr_);
+          previous_status, data_manager_ptr_, route_handler_ptr_, logger_, clock_);
         break;
       case State::FORCING_LANE_CHANGE:
         state_obj_ptr_ = std::make_unique<ForcingLaneChangeState>(
-          previous_status, data_manager_ptr_, route_handler_ptr_);
+          previous_status, data_manager_ptr_, route_handler_ptr_, logger_, clock_);
         break;
       case State::BLOCKED_BY_OBSTACLE:
         state_obj_ptr_ = std::make_unique<BlockedByObstacleState>(
-          previous_status, data_manager_ptr_, route_handler_ptr_);
+          previous_status, data_manager_ptr_, route_handler_ptr_, logger_, clock_);
         break;
-      default:
+      case State::NO_STATE:
         break;
     }
     state_obj_ptr_->entry();

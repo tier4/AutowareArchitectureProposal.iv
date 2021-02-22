@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,22 +14,17 @@
 // limitations under the License.
 
 #include "lane_change_planner/data_manager.hpp"
-
-#include <memory>
 #include <string>
-
+#include <memory>
 #include "lanelet2_extension/utility/message_conversion.hpp"
 
 namespace lane_change_planner
 {
 DataManager::DataManager(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
-: lane_change_approval_(false),
-  force_lane_change_(false),
-  is_parameter_set_(false),
-  logger_(logger),
-  clock_(clock)
+: lane_change_approval_(false), force_lane_change_(false), is_parameter_set_(false),
+  logger_(logger), clock_(clock)
 {
-  self_pose_listener_ptr_ = std::make_shared<SelfPoseLinstener>(logger, clock);
+  self_pose_listener_ptr_ = std::make_shared<SelfPoseListener>(logger, clock);
 }
 
 void DataManager::perceptionCallback(
@@ -44,16 +40,16 @@ void DataManager::velocityCallback(
 }
 
 void DataManager::laneChangeApprovalCallback(
-  const std_msgs::msg::Bool::ConstSharedPtr input_approval_msg)
+  const autoware_planning_msgs::msg::LaneChangeCommand::ConstSharedPtr input_approval_msg)
 {
-  lane_change_approval_.data = input_approval_msg->data;
+  lane_change_approval_.data = input_approval_msg->command;
   lane_change_approval_.stamp = clock_->now();
 }
 
 void DataManager::forceLaneChangeSignalCallback(
-  const std_msgs::msg::Bool::ConstSharedPtr input_force_lane_change_msg)
+  const autoware_planning_msgs::msg::LaneChangeCommand::ConstSharedPtr input_force_lane_change_msg)
 {
-  force_lane_change_.data = input_force_lane_change_msg->data;
+  force_lane_change_.data = input_force_lane_change_msg->command;
   force_lane_change_.stamp = clock_->now();
 }
 
@@ -101,16 +97,6 @@ bool DataManager::getForceLaneChangeSignal()
   }
 }
 
-rclcpp::Logger & DataManager::getLogger()
-{
-  return logger_;
-}
-
-rclcpp::Clock::SharedPtr DataManager::getClock()
-{
-  return clock_;
-}
-
 bool DataManager::isDataReady()
 {
   if (!perception_ptr_) {
@@ -125,23 +111,24 @@ bool DataManager::isDataReady()
   return true;
 }
 
-SelfPoseLinstener::SelfPoseLinstener(
+SelfPoseListener::SelfPoseListener(
   const rclcpp::Logger & logger,
   const rclcpp::Clock::SharedPtr & clock)
-: tf_listener_(tf_buffer_), logger_(logger), clock_(clock) {}
+: tf_buffer_(clock), tf_listener_(tf_buffer_), logger_(logger), clock_(clock)
+{
+}
 
-bool SelfPoseLinstener::isSelfPoseReady()
+bool SelfPoseListener::isSelfPoseReady()
 {
   return tf_buffer_.canTransform("map", "base_link", tf2::TimePointZero);
 }
 
-bool SelfPoseLinstener::getSelfPose(geometry_msgs::msg::PoseStamped & self_pose)
+bool SelfPoseListener::getSelfPose(geometry_msgs::msg::PoseStamped & self_pose)
 {
   try {
     geometry_msgs::msg::TransformStamped transform;
     std::string map_frame = "map";
-    transform =
-      tf_buffer_.lookupTransform(map_frame, "base_link", tf2::TimePointZero);
+    transform = tf_buffer_.lookupTransform(map_frame, "base_link", tf2::TimePointZero);
     self_pose.pose.position.x = transform.transform.translation.x;
     self_pose.pose.position.y = transform.transform.translation.y;
     self_pose.pose.position.z = transform.transform.translation.z;
@@ -153,7 +140,7 @@ bool SelfPoseLinstener::getSelfPose(geometry_msgs::msg::PoseStamped & self_pose)
     self_pose.header.frame_id = map_frame;
     return true;
   } catch (tf2::TransformException & ex) {
-    RCLCPP_ERROR_STREAM_THROTTLE(logger_, *clock_, 1.0, "failed to find self pose :" << ex.what());
+    RCLCPP_ERROR_STREAM_THROTTLE(logger_, *clock_, 1000, "failed to find self pose :" << ex.what());
     return false;
   }
 }

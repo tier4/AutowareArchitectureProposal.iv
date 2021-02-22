@@ -1,4 +1,5 @@
-// Copyright 2019 Autoware Foundation
+// Copyright 2019 Autoware Foundation. All rights reserved.
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,30 +16,26 @@
 #ifndef LANE_CHANGE_PLANNER__UTILITIES_HPP_
 #define LANE_CHANGE_PLANNER__UTILITIES_HPP_
 
-#include <limits>
+#include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometry.hpp>
 #include <vector>
-
-#include "lane_change_planner/route_handler.hpp"
-
-#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
-#include "autoware_planning_msgs/msg/path.hpp"
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
-
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include <string>
+#include <limits>
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "rclcpp/rclcpp.hpp"
-
-#include "boost/geometry/geometries/box.hpp"
-#include "boost/geometry/geometries/point_xy.hpp"
-#include "boost/geometry/geometries/polygon.hpp"
-#include "boost/geometry/geometry.hpp"
-
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "lanelet2_core/geometry/Lanelet.h"
 #include "lanelet2_routing/Route.h"
 #include "lanelet2_routing/RoutingGraph.h"
 #include "lanelet2_routing/RoutingGraphContainer.h"
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_planning_msgs/msg/path.hpp"
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "lane_change_planner/route_handler.hpp"
 
 namespace lane_change_planner
 {
@@ -66,9 +63,9 @@ geometry_msgs::msg::PoseArray convertToGeometryPoseArray(
 
 autoware_perception_msgs::msg::PredictedPath convertToPredictedPath(
   const autoware_planning_msgs::msg::PathWithLaneId & path,
-  const geometry_msgs::msg::Twist & vehicle_twist, const geometry_msgs::msg::Pose & vehicle_pose,
-  const double duration, const double resolution, const double acceleration,
-  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
+  const geometry_msgs::msg::Twist & vehicle_twist,
+  const geometry_msgs::msg::Pose & vehicle_pose, const double duration, const double resolution,
+  const double acceleration, const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
 autoware_perception_msgs::msg::PredictedPath resamplePredictedPath(
   const autoware_perception_msgs::msg::PredictedPath & input_path, const double resolution,
   const double duration, const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
@@ -84,15 +81,21 @@ geometry_msgs::msg::Point lerpByLength(
   const std::vector<geometry_msgs::msg::Point> & array, const double length);
 bool lerpByTimeStamp(
   const autoware_perception_msgs::msg::PredictedPath & path, const rclcpp::Time & t,
-  geometry_msgs::msg::Pose * lerped_pt, const rclcpp::Logger & logger,
-  const rclcpp::Clock::SharedPtr & clock);
+  geometry_msgs::msg::Pose * lerped_pt,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
 
 double getDistance3d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2);
 double getDistanceBetweenPredictedPaths(
   const autoware_perception_msgs::msg::PredictedPath & path1,
   const autoware_perception_msgs::msg::PredictedPath & path2, const double start_time,
-  const double end_time, const double resolution, const rclcpp::Logger & logger,
-  const rclcpp::Clock::SharedPtr & clock);
+  const double end_time, const double resolution,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
+
+double getDistanceBetweenPredictedPathAndObject(
+  const autoware_perception_msgs::msg::DynamicObject & object,
+  const autoware_perception_msgs::msg::PredictedPath & path, const double start_time,
+  const double end_time, const double resolution,
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
 
 std::vector<size_t> filterObjectsByLanelets(
   const autoware_perception_msgs::msg::DynamicObjectArray & objects,
@@ -154,6 +157,22 @@ lanelet::Polygon3d getVehiclePolygon(
 autoware_planning_msgs::msg::PathPointWithLaneId insertStopPoint(
   double length, autoware_planning_msgs::msg::PathWithLaneId * path);
 
+double getArcLengthToTargetLanelet(
+  const lanelet::ConstLanelets & current_lanes, const lanelet::ConstLanelet & target_lane,
+  const geometry_msgs::msg::Pose & pose);
+
+std::vector<Polygon> getTargetLaneletPolygons(
+  const lanelet::ConstLanelets & lanelets, const geometry_msgs::msg::Pose & pose,
+  const double check_length, const std::string & target_type);
+
+std::vector<Polygon> filterObstaclePolygons(
+  const std::vector<Polygon> & obstacle_polygons,
+  const autoware_perception_msgs::msg::DynamicObjectArray & objects,
+  const double static_obstacle_velocity_thresh);
+
+double getDistanceToNearestObstaclePolygon(
+  const std::vector<Polygon> & obstacle_polygons, const geometry_msgs::msg::Pose & pose);
+
 class SplineInterpolate
 {
   bool initialized_;
@@ -162,7 +181,6 @@ class SplineInterpolate
   std::vector<double> c_;
   std::vector<double> d_;
   std::vector<double> h_;
-
   rclcpp::Logger logger_;
 
 public:
