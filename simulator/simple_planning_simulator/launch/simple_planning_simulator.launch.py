@@ -29,6 +29,10 @@ def generate_launch_description():
         default_value=simple_planning_simulator_param_file,
         description='Path to config file for simple_planning_simulator'
     )
+    vehicle_param_file_param = DeclareLaunchArgument(
+        'vehicle_param_file',
+        description='Path to config file for vehicle param'
+    )
 
     simple_planning_simulator = Node(
         package='simple_planning_simulator',
@@ -36,11 +40,10 @@ def generate_launch_description():
         node_name='simple_planning_simulator',
         node_namespace='simulation',
         output='screen',
-        parameters=[LaunchConfiguration('simple_planning_simulator_param_file'),
-            {
-                "/vehicle_info/wheel_base": 4.0,
-                "random_seed": 1
-            }
+        parameters=
+        [
+            LaunchConfiguration('simple_planning_simulator_param_file'),
+            LaunchConfiguration('vehicle_param_file'),
         ],
         remappings=[
             ('base_trajectory', '/planning/scenario_planning/trajectory'),
@@ -59,5 +62,6 @@ def generate_launch_description():
 
     return LaunchDescription([
         simple_planning_simulator_param,
+        vehicle_param_file_param,
         simple_planning_simulator
     ])
