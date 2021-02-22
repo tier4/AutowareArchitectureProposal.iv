@@ -41,29 +41,29 @@ class Tf2PoseNode(Node):
 
     def _on_timer(self):
         try:
-            (trans, quat) = self.tf_buffer.lookup_transform(
+            tf = self.tf_buffer.lookup_transform(
                 self._options.tf_from, self._options.tf_to, rclpy.time.Time())
-            time = self._tf_listener.getLatestCommonTime(
+            time = self.tf_buffer.get_latest_common_time(
                 self._options.tf_from, self._options.tf_to)
-            pose = Tf2PoseNode.create_pose(time, self._options.tf_from, trans, quat)
+            pose = Tf2PoseNode.create_pose(time, self._options.tf_from, tf)
             self._pub_pose.publish(pose)
         except LookupException as e:
             print(e)
 
     @staticmethod
-    def create_pose(time, frame_id, trans, quat):
+    def create_pose(time, frame_id, tf):
         pose = PoseStamped()
 
-        pose.header.stamp = time
+        pose.header.stamp = time.to_msg()
         pose.header.frame_id = frame_id
 
-        pose.pose.position.x = trans[0]
-        pose.pose.position.y = trans[1]
-        pose.pose.position.z = trans[2]
-        pose.pose.orientation.x = quat[0]
-        pose.pose.orientation.y = quat[1]
-        pose.pose.orientation.z = quat[2]
-        pose.pose.orientation.w = quat[3]
+        pose.pose.position.x = tf.transform.translation.x
+        pose.pose.position.y = tf.transform.translation.y
+        pose.pose.position.z = tf.transform.translation.z
+        pose.pose.orientation.x = tf.transform.rotation.x
+        pose.pose.orientation.y = tf.transform.rotation.y
+        pose.pose.orientation.z = tf.transform.rotation.z
+        pose.pose.orientation.w = tf.transform.rotation.w
 
         return pose
 
