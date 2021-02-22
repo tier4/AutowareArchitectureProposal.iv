@@ -26,7 +26,7 @@ class SelfPoseListener(Node):
     def __init__(self):
         super().__init__('self_pose_listener')
         self.tf_buffer = Buffer()
-        self.tf_listener = TransformListener(self.tf_buffer, self)
+        self._tf_listener = TransformListener(self.tf_buffer, self)
 
     def get_current_pose(self):
         try:
