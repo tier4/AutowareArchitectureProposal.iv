@@ -41,6 +41,8 @@ class StopReason2PoseNode(Node):
         self._idx_map = {}
         self._pose_map = {}
         self._self_pose_listener = SelfPoseListener()
+        self.timer = self.create_timer(
+            (1.0 / 100), self._self_pose_listener.get_current_pose())
 
     def _on_stop_reasons(self, msg):
         for stop_reason in msg.stop_reasons:
@@ -67,21 +69,19 @@ class StopReason2PoseNode(Node):
                     **locals())
                 if pose_topic_name not in self._pub_pose_map:
                     self._pub_pose_map[pose_topic_name] = self.create_publisher(
-                        PoseStamped, "~pose" + pose_topic_name, 1)
+                        PoseStamped, "pose" + pose_topic_name, 1)
                 self._pub_pose_map[pose_topic_name].publish(pose)
 
             # Publish nearest stop_reason without number
-            self_pose = self._self_pose_listener.get_current_pose()
-
             nearest_pose = PoseStamped()
             nearest_pose.header = msg.header
             nearest_pose.pose = self._get_nearest_pose_in_array(
-                stop_reason, self_pose.pose)
+                stop_reason, self._self_pose_listener.self_pose)
 
             if nearest_pose.pose:
                 if snake_case_stop_reason not in self._pub_pose_map:
                     self._pub_pose_map[snake_case_stop_reason] = self.create_publisher(
-                        PoseStamped, "~pose" + snake_case_stop_reason, 1)
+                        PoseStamped, "pose" + snake_case_stop_reason, 1)
                 self._pub_pose_map[snake_case_stop_reason].publish(
                     nearest_pose)
 
