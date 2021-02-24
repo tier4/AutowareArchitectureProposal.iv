@@ -56,7 +56,7 @@ The overall flowchart of the `motion_velocity_optimizer` is described below.
 
 # Parameter description
 
-The parameters are described on `config/default_motion_velocity_optimizer.param.yaml`
+The parameters are described on `config/motion_velocity_optimizer.param.yaml`
 
 ## Constrant parameters
 |Name|Type|Description|Default value|
