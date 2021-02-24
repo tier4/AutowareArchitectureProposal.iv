@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="mpc_follower_param_path" default="$(find-pkg-share mpc_follower)/config/mpc_follower_param.yaml"/>
+  <arg name="mpc_follower_param_path" default="$(find-pkg-share mpc_follower)/config/mpc_follower.param.yaml"/>
   <arg name="vehicle_param_file"/>
 
   <!-- mpc for trajectory following -->
