@@ -67,7 +67,7 @@ class StopReason2PoseNode(Node):
                     **locals())
                 if pose_topic_name not in self._pub_pose_map:
                     self._pub_pose_map[pose_topic_name] = self.create_publisher(
-                        PoseStamped, "~pose" + pose_topic_name, queue_size=1)
+                        PoseStamped, "~pose" + pose_topic_name, 1)
                 self._pub_pose_map[pose_topic_name].publish(pose)
 
             # Publish nearest stop_reason without number
@@ -81,7 +81,7 @@ class StopReason2PoseNode(Node):
             if nearest_pose.pose:
                 if snake_case_stop_reason not in self._pub_pose_map:
                     self._pub_pose_map[snake_case_stop_reason] = self.create_publisher(
-                        PoseStamped, "~pose" + snake_case_stop_reason, queue_size=1)
+                        PoseStamped, "~pose" + snake_case_stop_reason, 1)
                 self._pub_pose_map[snake_case_stop_reason].publish(
                     nearest_pose)
 
