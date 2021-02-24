@@ -56,12 +56,15 @@ class StopReason2PoseNode(Node):
                 nearest_pose_id = self._get_nearest_pose_id(
                     snake_case_stop_reason, pose.pose, th_dist)
                 if nearest_pose_id:
-                    self._update_pose(snake_case_stop_reason, pose.pose, nearest_pose_id)
+                    self._update_pose(
+                        snake_case_stop_reason, pose.pose, nearest_pose_id)
                     pose_id = nearest_pose_id
                 else:
-                    pose_id = self._register_pose(snake_case_stop_reason, pose.pose)
+                    pose_id = self._register_pose(
+                        snake_case_stop_reason, pose.pose)
 
-                pose_topic_name = "{snake_case_stop_reason}_{pose_id}".format(**locals())
+                pose_topic_name = "{snake_case_stop_reason}_{pose_id}".format(
+                    **locals())
                 if pose_topic_name not in self._pub_pose_map:
                     self._pub_pose_map[pose_topic_name] = self.create_publisher(
                         PoseStamped, "~pose" + pose_topic_name, queue_size=1)
@@ -72,20 +75,24 @@ class StopReason2PoseNode(Node):
 
             nearest_pose = PoseStamped()
             nearest_pose.header = msg.header
-            nearest_pose.pose = self._get_nearest_pose_in_array(stop_reason, self_pose.pose)
+            nearest_pose.pose = self._get_nearest_pose_in_array(
+                stop_reason, self_pose.pose)
 
             if nearest_pose.pose:
                 if snake_case_stop_reason not in self._pub_pose_map:
                     self._pub_pose_map[snake_case_stop_reason] = self.create_publisher(
                         PoseStamped, "~pose" + snake_case_stop_reason, queue_size=1)
-                self._pub_pose_map[snake_case_stop_reason].publish(nearest_pose)
+                self._pub_pose_map[snake_case_stop_reason].publish(
+                    nearest_pose)
 
     def _get_nearest_pose_in_array(self, stop_reason, self_pose):
         poses = [stop_factor.stop_pose for stop_factor in stop_reason.stop_factors]
         if not poses:
             return None
 
-        dists = map(lambda p: StopReason2PoseNode.calc_distance2d(p, self_pose), poses)
+        dists = map(
+            lambda p: StopReason2PoseNode.calc_distance2d(
+                p, self_pose), poses)
         nearest_idx = np.argmin(dists)
 
         return poses[nearest_idx]
@@ -94,7 +101,8 @@ class StopReason2PoseNode(Node):
         if name not in self._idx_map:
             self._idx_map[name] = index.Index()
 
-        return self._idx_map[name].nearest(StopReason2PoseNode.pose2boundingbox(pose), 1)
+        return self._idx_map[name].nearest(
+            StopReason2PoseNode.pose2boundingbox(pose), 1)
 
     def _get_nearest_pose_id(self, name, pose, th_dist):
         nearest_pose_ids = list(self._find_nearest_pose_id(name, pose))
@@ -120,7 +128,8 @@ class StopReason2PoseNode(Node):
 
     def _update_pose(self, name, pose, id):
         self._pose_map[name][id] = pose
-        self._idx_map[name].insert(id, StopReason2PoseNode.pose2boundingbox(pose))
+        self._idx_map[name].insert(
+            id, StopReason2PoseNode.pose2boundingbox(pose))
 
     def _register_pose(self, name, pose):
         if name not in self._pose_map:
@@ -128,7 +137,8 @@ class StopReason2PoseNode(Node):
 
         id = len(self._pose_map[name]) + 1
         self._pose_map[name][id] = pose
-        self._idx_map[name].insert(id, StopReason2PoseNode.pose2boundingbox(pose))
+        self._idx_map[name].insert(
+            id, StopReason2PoseNode.pose2boundingbox(pose))
         return id
 
     @staticmethod
@@ -139,7 +149,8 @@ class StopReason2PoseNode(Node):
 
     @staticmethod
     def pose2boundingbox(pose):
-        return [pose.position.x, pose.position.y, pose.position.x, pose.position.y]
+        return [pose.position.x, pose.position.y,
+                pose.position.x, pose.position.y]
 
 
 def main(args):

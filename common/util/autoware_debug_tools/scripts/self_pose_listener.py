@@ -30,7 +30,8 @@ class SelfPoseListener(Node):
 
     def get_current_pose(self):
         try:
-            (trans, quat) = self.tf_buffer.lookup_transform("map", "base_link", rclpy.time.Time())
+            (trans, quat) = self.tf_buffer.lookup_transform(
+                "map", "base_link", rclpy.time.Time())
             time = self._tf_listener.getLatestCommonTime("map", "base_link")
             return SelfPoseListener.create_pose(time, "map", trans, quat)
         except LookupException:
