@@ -21,7 +21,6 @@ from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
 from geometry_msgs.msg import PoseStamped
 
-
 class SelfPoseListener(Node):
     def __init__(self):
         super().__init__('self_pose_listener')
@@ -30,26 +29,27 @@ class SelfPoseListener(Node):
 
     def get_current_pose(self):
         try:
-            (trans, quat) = self.tf_buffer.lookup_transform(
-                "map", "base_link", rclpy.time.Time())
-            time = self._tf_listener.getLatestCommonTime("map", "base_link")
-            return SelfPoseListener.create_pose(time, "map", trans, quat)
-        except LookupException:
+            tf = self.tf_buffer.lookup_transform("map", "base_link", rclpy.time.Time())
+            tf_time = self.tf_buffer.get_latest_common_time("map", "base_link")
+            pose = SelfPoseListener.create_pose(tf_time, "map", tf)
+            return pose
+        except LookupException as e:
+            self.get_logger().warn('Required transformation not found: `{}`'.format(str(e)))
             return None
 
     @staticmethod
-    def create_pose(time, frame_id, trans, quat):
+    def create_pose(time, frame_id, tf):
         pose = PoseStamped()
 
-        pose.header.stamp = time
+        pose.header.stamp = time.to_msg()
         pose.header.frame_id = frame_id
 
-        pose.pose.position.x = trans[0]
-        pose.pose.position.y = trans[1]
-        pose.pose.position.z = trans[2]
-        pose.pose.orientation.x = quat[0]
-        pose.pose.orientation.y = quat[1]
-        pose.pose.orientation.z = quat[2]
-        pose.pose.orientation.w = quat[3]
+        pose.pose.position.x = tf.transform.translation.x
+        pose.pose.position.y = tf.transform.translation.y
+        pose.pose.position.z = tf.transform.translation.z
+        pose.pose.orientation.x = tf.transform.rotation.x
+        pose.pose.orientation.y = tf.transform.rotation.y
+        pose.pose.orientation.z = tf.transform.rotation.z
+        pose.pose.orientation.w = tf.transform.rotation.w
 
         return pose
