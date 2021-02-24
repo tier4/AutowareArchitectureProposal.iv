@@ -36,17 +36,21 @@ class StopReason2PoseNode(Node):
         super().__init__('stop_reason2pose_node')
         self._options = options
         self._sub_pose = self.create_subscription(
-            StopReasonArray, self._options.topic_name, self._on_stop_reasons, 100)
+            StopReasonArray, self._options.topic_name, self._on_stop_reasons, 1)
         self._pub_pose_map = {}
         self._idx_map = {}
         self._pose_map = {}
         self._self_pose_listener = SelfPoseListener()
         self.timer = self.create_timer(
-            (1.0 / 100), self._self_pose_listener.get_current_pose())
+            (1.0 / 100), self._self_pose_listener.get_current_pose)
 
     def _on_stop_reasons(self, msg):
         for stop_reason in msg.stop_reasons:
             snake_case_stop_reason = pascal2snake(stop_reason.reason)
+
+            if len(stop_reason.stop_factors) == 0:
+                self.get_logger().warn('stop_factor is null')
+                return
 
             for stop_factor in stop_reason.stop_factors:
                 pose = PoseStamped()
@@ -67,9 +71,10 @@ class StopReason2PoseNode(Node):
 
                 pose_topic_name = "{snake_case_stop_reason}_{pose_id}".format(
                     **locals())
+                topic_ns = "/autoware_debug_tools/stop_reason2pose/"
                 if pose_topic_name not in self._pub_pose_map:
                     self._pub_pose_map[pose_topic_name] = self.create_publisher(
-                        PoseStamped, "pose" + pose_topic_name, 1)
+                        PoseStamped, topic_ns + pose_topic_name, 1)
                 self._pub_pose_map[pose_topic_name].publish(pose)
 
             # Publish nearest stop_reason without number
@@ -80,8 +85,9 @@ class StopReason2PoseNode(Node):
 
             if nearest_pose.pose:
                 if snake_case_stop_reason not in self._pub_pose_map:
+                    topic_ns = "/autoware_debug_tools/stop_reason2pose/"
                     self._pub_pose_map[snake_case_stop_reason] = self.create_publisher(
-                        PoseStamped, "pose" + snake_case_stop_reason, 1)
+                        PoseStamped, topic_ns + snake_case_stop_reason, 1)
                 self._pub_pose_map[snake_case_stop_reason].publish(
                     nearest_pose)
 
