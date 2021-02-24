@@ -18,7 +18,7 @@
 
         lidar:
           type: 'diagnostic_aggregator/AnalyzerGroup'
-          path: velodyne
+          path: lidar
           analyzers:
             connection:
               type: diagnostic_aggregator/GenericAnalyzer
