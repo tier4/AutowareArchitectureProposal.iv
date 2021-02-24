@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef VELOCITY_CONTROLLER_MATHUTILS
-#define VELOCITY_CONTROLLER_MATHUTILS
+#ifndef VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_MATHUTILS_HPP_
+#define VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_MATHUTILS_HPP_
 
 #include <cmath>
 
@@ -36,4 +36,4 @@ geometry_msgs::msg::Point transformToRelativeCoordinate2D(
   const geometry_msgs::msg::Point & point, const geometry_msgs::msg::Pose & origin);
 }  // namespace vcutils
 
-#endif
+#endif  // VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_MATHUTILS_HPP_"

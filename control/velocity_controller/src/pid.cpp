@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
+#include <vector>
+#include <memory>
+
 #include "velocity_controller/pid.hpp"
 
 PIDController::PIDController()
