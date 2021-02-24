@@ -9,7 +9,7 @@
   <arg name="input_trajectory" default="input/trajectory" />
   <arg name="output_trajectory" default="output/trajectory" />
 
-  <arg name="param_path" default="$(find-pkg-share motion_velocity_optimizer)/config/default_motion_velocity_optimizer.yaml" />
+  <arg name="param_path" default="$(find-pkg-share motion_velocity_optimizer)/config/default_motion_velocity_optimizer.param.yaml" />
 
   <node pkg="motion_velocity_optimizer" exec="motion_velocity_optimizer" name="motion_velocity_optimizer" output="log">
     <param from="$(var param_path)" />

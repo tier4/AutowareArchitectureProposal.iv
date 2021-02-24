@@ -9,7 +9,7 @@
   <arg name="enable_smooth_stop" default="true" />
   <arg name="enable_pub_debug" default="true" />
 
-  <arg name="velocity_controller_param_path" default="$(find-pkg-share velocity_controller)/config/velocity_controller_param.yaml" />
+  <arg name="velocity_controller_param_path" default="$(find-pkg-share velocity_controller)/config/velocity_controller.param.yaml" />
   <arg name="vehicle_param_file"/>
 
   <node pkg="velocity_controller" exec="velocity_controller" name="velocity_controller" output="screen">
