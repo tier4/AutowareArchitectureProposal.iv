@@ -18,6 +18,7 @@
 
 #include "emergency_handler/emergency_handler_core.hpp"
 
+
 namespace
 {
 diagnostic_msgs::msg::DiagnosticStatus createDiagnosticStatus(
@@ -97,7 +98,7 @@ EmergencyHandler::EmergencyHandler()
   sub_twist_ = create_subscription<geometry_msgs::msg::TwistStamped>(
     "input/twist", rclcpp::QoS{1},
     std::bind(&EmergencyHandler::onTwist, this, _1));
-  sub_is_state_timeout_ = create_subscription<std_msgs::msg::Bool>(
+  sub_is_state_timeout_ = create_subscription<autoware_system_msgs::msg::TimeoutNotification>(
     "input/is_state_timeout", rclcpp::QoS{1},
     std::bind(&EmergencyHandler::onIsStateTimeout, this, _1));
 
@@ -105,7 +106,7 @@ EmergencyHandler::EmergencyHandler()
   heartbeat_driving_capability_ =
     std::make_shared<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::DrivingCapability>>(
     *this, "input/driving_capability", timeout_driving_capability_);
-  heartbeat_is_state_timeout_ = std::make_shared<HeaderlessHeartbeatChecker<std_msgs::msg::Bool>>(
+  heartbeat_is_state_timeout_ = std::make_shared<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::TimeoutNotification>>(
     *this, "input/is_state_timeout", timeout_is_state_timeout_);
 
   // Service
@@ -198,7 +199,7 @@ bool EmergencyHandler::onClearEmergencyService(
   return true;
 }
 
-void EmergencyHandler::onIsStateTimeout(const std_msgs::msg::Bool::ConstSharedPtr msg)
+void EmergencyHandler::onIsStateTimeout(const autoware_system_msgs::msg::TimeoutNotification::ConstSharedPtr msg)
 {
   is_state_timeout_ = msg;
 }
