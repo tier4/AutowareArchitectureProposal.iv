@@ -36,7 +36,6 @@
           '/autoware/system/logging',
           '/autoware/system/resource_monitoring/cpu_temperature',
           '/autoware/system/resource_monitoring/cpu_usage',
-          '/autoware/system/resource_monitoring/cpu_load_average',
           # '/autoware/system/resource_monitoring/cpu_thermal_throttling', # Require setup
           # '/autoware/system/resource_monitoring/hdd_temperature', # Require setup
           '/autoware/system/resource_monitoring/hdd_usage',
