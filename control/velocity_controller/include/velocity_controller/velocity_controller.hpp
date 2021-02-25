@@ -14,31 +14,29 @@
  * limitations under the License.
  */
 
-#ifndef AUTOWARE_CONTROL_VELOCITY_CONTROLLER_H
-#define AUTOWARE_CONTROL_VELOCITY_CONTROLLER_H
+#ifndef VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_HPP_
+#define VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_HPP_
+
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "delay_compensation.hpp"
 #include "lowpass_filter.hpp"
 #include "pid.hpp"
-#include "velocity_controller_mathutils.hpp"
 #include "vehicle_info_util/vehicle_info.hpp"
-
+#include "velocity_controller_mathutils.hpp"
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
-#include "std_msgs/msg/bool.hpp"
-#include "std_msgs/msg/float32_multi_array.hpp"
-
+#include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
 #include "tf2/utils.h"
 #include "tf2_ros/transform_listener.h"
 #include "rclcpp/rclcpp.hpp"
-
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Geometry"
-#include <memory>
-#include <string>
-#include <vector>
+
 
 struct CtrlCmd
 {
@@ -56,7 +54,7 @@ private:
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_vel_;
   rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_trajectory_;
   rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr pub_control_cmd_;
-  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr pub_debug_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr pub_debug_;
   rclcpp::TimerBase::SharedPtr timer_control_;
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
@@ -236,7 +234,7 @@ private:
     const autoware_planning_msgs::msg::Trajectory & trajectory, const int closest) const;
 
   /* Debug */
-  mutable std_msgs::msg::Float32MultiArray debug_values_;
+  mutable autoware_debug_msgs::msg::Float32MultiArrayStamped debug_values_;
   enum DBGVAL
   {
     DT = 0,
@@ -276,4 +274,4 @@ private:
     const int32_t closest_waypoint_index);
 };
 
-#endif
+#endif  // VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_HPP_

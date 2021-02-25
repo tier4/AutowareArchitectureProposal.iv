@@ -19,8 +19,8 @@
  * @date 2019.05.01
  */
 
-#ifndef VELOCITY_CONTROLLER_LOWPASS_FILTER
-#define VELOCITY_CONTROLLER_LOWPASS_FILTER
+#ifndef VELOCITY_CONTROLLER__LOWPASS_FILTER_HPP_
+#define VELOCITY_CONTROLLER__LOWPASS_FILTER_HPP_
 
 /**
  * @class 1D low-pass filter
@@ -33,7 +33,7 @@ private:
   double gain_;  //!< @brief gain value of 1d filter
 
 public:
-  Lpf1d(double gain)
+  explicit Lpf1d(double gain)
   : gain_(gain) {}
   Lpf1d() {}
   ~Lpf1d() = default;
@@ -54,4 +54,4 @@ public:
   }
 };
 
-#endif
+#endif  // VELOCITY_CONTROLLER__LOWPASS_FILTER_HPP_

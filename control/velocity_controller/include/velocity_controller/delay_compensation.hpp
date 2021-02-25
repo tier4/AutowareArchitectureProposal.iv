@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef VELOCITY_CONTROLLER_DELAY_COMPENSATION
-#define VELOCITY_CONTROLLER_DELAY_COMPENSATION
+#ifndef VELOCITY_CONTROLLER__DELAY_COMPENSATION_HPP_
+#define VELOCITY_CONTROLLER__DELAY_COMPENSATION_HPP_
 
 #include "velocity_controller_mathutils.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
@@ -87,5 +87,4 @@ public:
     return point_after_delay.twist.linear.x;
   }
 };
-
-#endif
+#endif  // VELOCITY_CONTROLLER__DELAY_COMPENSATION_HPP_

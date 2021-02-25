@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-#include "velocity_controller/velocity_controller.hpp"
+#include <vector>
+#include <utility>
+#include <string>
+#include <algorithm>
+#include <limits>
+#include <memory>
 
+#include "velocity_controller/velocity_controller.hpp"
 #include "tf2_ros/create_timer_ros.h"
+
 
 namespace
 {
@@ -102,7 +109,8 @@ VelocityController::VelocityController()
     "current_trajectory", 1, std::bind(&VelocityController::callbackTrajectory, this, _1));
   pub_control_cmd_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
     "control_cmd", rclcpp::QoS{1});
-  pub_debug_ = create_publisher<std_msgs::msg::Float32MultiArray>("debug_values", rclcpp::QoS{1});
+  pub_debug_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>(
+    "debug_values", rclcpp::QoS{1});
 
   // Timer
   {
@@ -399,9 +407,9 @@ CtrlCmd VelocityController::calcCtrlCmd()
   if (shift != prev_shift_) {pid_vel_.reset();}
   prev_shift_ = shift;
 
-  const double pitch = use_traj_for_pitch_
-                         ? getPitchByTraj(*trajectory_ptr_, closest_idx)
-                         : lpf_pitch_.filter(getPitchByPose(current_pose.orientation));
+  const double pitch = use_traj_for_pitch_ ?
+    getPitchByTraj(*trajectory_ptr_, closest_idx) :
+    lpf_pitch_.filter(getPitchByPose(current_pose.orientation));
 
   writeDebugValues(
     dt, current_vel, pred_vel_in_target, target_vel, target_acc, shift, pitch, closest_idx);
@@ -564,6 +572,7 @@ void VelocityController::publishCtrlCmd(const double vel, const double acc)
   // debug
   debug_values_.data.at(DBGVAL::CTRL_MODE) = static_cast<double>(control_mode_);
   debug_values_.data.at(DBGVAL::ACCCMD_PUBLISHED) = acc;
+  debug_values_.stamp = this->now();
   pub_debug_->publish(debug_values_);
   debug_values_.data.clear();
   debug_values_.data.resize(num_debug_values_, 0.0);
@@ -641,7 +650,8 @@ bool VelocityController::isEmergencyState(int closest, double target_vel) const
   return false;
 }
 
-bool VelocityController::isValidTrajectory(const autoware_planning_msgs::msg::Trajectory & traj) const
+bool VelocityController::isValidTrajectory(
+  const autoware_planning_msgs::msg::Trajectory & traj) const
 {
   for (const auto & points : traj.points) {
     const auto & p = points.pose.position;
@@ -651,7 +661,8 @@ bool VelocityController::isValidTrajectory(const autoware_planning_msgs::msg::Tr
     if (
       !isfinite(p.x) || !isfinite(p.y) || !isfinite(p.z) || !isfinite(o.x) || !isfinite(o.y) ||
       !isfinite(o.z) || !isfinite(o.w) || !isfinite(t.x) || !isfinite(t.y) || !isfinite(t.z) ||
-      !isfinite(a.x) || !isfinite(a.y) || !isfinite(a.z)) {
+      !isfinite(a.x) || !isfinite(a.y) || !isfinite(a.z))
+    {
       return false;
     }
   }

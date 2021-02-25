@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "velocity_controller/velocity_controller.hpp"
+#include <memory>
 
 int main(int argc, char * argv[])
 {
