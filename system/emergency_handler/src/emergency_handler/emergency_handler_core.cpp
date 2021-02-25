@@ -106,7 +106,8 @@ EmergencyHandler::EmergencyHandler()
   heartbeat_driving_capability_ =
     std::make_shared<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::DrivingCapability>>(
     *this, "input/driving_capability", timeout_driving_capability_);
-  heartbeat_is_state_timeout_ = std::make_shared<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::TimeoutNotification>>(
+  heartbeat_is_state_timeout_ =
+    std::make_shared<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::TimeoutNotification>>(
     *this, "input/is_state_timeout", timeout_is_state_timeout_);
 
   // Service
@@ -199,7 +200,8 @@ bool EmergencyHandler::onClearEmergencyService(
   return true;
 }
 
-void EmergencyHandler::onIsStateTimeout(const autoware_system_msgs::msg::TimeoutNotification::ConstSharedPtr msg)
+void EmergencyHandler::onIsStateTimeout(
+  const autoware_system_msgs::msg::TimeoutNotification::ConstSharedPtr msg)
 {
   is_state_timeout_ = msg;
 }
