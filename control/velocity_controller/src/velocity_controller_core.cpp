@@ -650,8 +650,8 @@ bool VelocityController::isEmergencyState(int closest, double target_vel) const
   return false;
 }
 
-bool VelocityController::isValidTrajectory(const autoware_planning_msgs::msg::Trajectory & traj)
-const
+bool VelocityController::isValidTrajectory(
+  const autoware_planning_msgs::msg::Trajectory & traj) const
 {
   for (const auto & points : traj.points) {
     const auto & p = points.pose.position;
