@@ -88,9 +88,10 @@ void MultiObjectTracker::measurementCallback(
   input_objects_msg)
 {
   /* transform to world coordinate */
-    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray input_transformed_objects;
+  autoware_perception_msgs::msg::DynamicObjectWithFeatureArray input_transformed_objects;
   if (!MultiObjectTracker::transformDynamicObjects(
-        *input_objects_msg, world_frame_id_, input_transformed_objects)) {
+      *input_objects_msg, world_frame_id_, input_transformed_objects))
+  {
     return;
   }
   /* tracker prediction */
@@ -131,17 +132,21 @@ void MultiObjectTracker::measurementCallback(
     }
     const int & type = input_transformed_objects.feature_objects.at(i).object.semantic.type;
     if (type == SemanticType::CAR || type == SemanticType::TRUCK || type == SemanticType::BUS) {
-      list_tracker_.push_back(std::make_shared<MultipleVehicleTracker>(
+      list_tracker_.push_back(
+        std::make_shared<MultipleVehicleTracker>(
           measurement_time, input_transformed_objects.feature_objects.at(i).object));
     } else if (type == SemanticType::PEDESTRIAN) {
-      list_tracker_.push_back(std::make_shared<PedestrianAndBicycleTracker>(
+      list_tracker_.push_back(
+        std::make_shared<PedestrianAndBicycleTracker>(
           measurement_time, input_transformed_objects.feature_objects.at(i).object));
     } else if (type == SemanticType::BICYCLE || type == SemanticType::MOTORBIKE) {
-      list_tracker_.push_back(std::make_shared<PedestrianAndBicycleTracker>(
+      list_tracker_.push_back(
+        std::make_shared<PedestrianAndBicycleTracker>(
           measurement_time, input_transformed_objects.feature_objects.at(i).object));
     } else {
-      list_tracker_.push_back(std::make_shared<PedestrianAndBicycleTracker>(
-        measurement_time, input_transformed_objects.feature_objects.at(i).object));
+      list_tracker_.push_back(
+        std::make_shared<PedestrianAndBicycleTracker>(
+          measurement_time, input_transformed_objects.feature_objects.at(i).object));
     }
   }
 
@@ -167,7 +172,6 @@ bool MultiObjectTracker::transformDynamicObjects(
   const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & input_msg,
   const std::string & target_frame_id,
   autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & output_msg)
-
 {
   output_msg = input_msg;
 
@@ -220,10 +224,10 @@ void MultiObjectTracker::checkTrackerLifeCycle(
       constexpr double distance_threshold = 5.0f;
       const double distance = std::hypot(
         object1.state.pose_covariance.pose.position.x -
-          object2.state.pose_covariance.pose.position.x,
+        object2.state.pose_covariance.pose.position.x,
         object1.state.pose_covariance.pose.position.y -
-          object2.state.pose_covariance.pose.position.y);
-      if (distance_threshold < distance) continue;
+        object2.state.pose_covariance.pose.position.y);
+      if (distance_threshold < distance) {continue;}
       if (0.1 < utils::get2dIoU(object1, object2)) {
         if ((*itr1)->getTotalMeasurementCount() < (*itr2)->getTotalMeasurementCount()) {
           itr1 = list_tracker.erase(itr1);
@@ -240,14 +244,15 @@ void MultiObjectTracker::checkTrackerLifeCycle(
 
 void MultiObjectTracker::publish(const rclcpp::Time & time)
 {
-  const auto subscriber_count = dynamic_object_pub_->get_subscription_count() + dynamic_object_pub_->get_intra_process_subscription_count();
-  if (subscriber_count < 1) return;
+  const auto subscriber_count = dynamic_object_pub_->get_subscription_count() +
+    dynamic_object_pub_->get_intra_process_subscription_count();
+  if (subscriber_count < 1) {return;}
   // Create output msg
   autoware_perception_msgs::msg::DynamicObjectArray output_msg;
   output_msg.header.frame_id = world_frame_id_;
   output_msg.header.stamp = time;
   for (auto itr = list_tracker_.begin(); itr != list_tracker_.end(); ++itr) {
-    if ((*itr)->getTotalMeasurementCount() < 3) continue;
+    if ((*itr)->getTotalMeasurementCount() < 3) {continue;}
     autoware_perception_msgs::msg::DynamicObject object;
     (*itr)->getEstimatedDynamicObject(time, object);
     output_msg.objects.push_back(object);

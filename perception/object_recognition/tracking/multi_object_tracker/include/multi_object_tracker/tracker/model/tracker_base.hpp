@@ -62,6 +62,7 @@ public:
   /*
    *　Pure virtual function
    */
+
 protected:
   virtual bool measure(
     const autoware_perception_msgs::msg::DynamicObject & object, const rclcpp::Time & time) = 0;

@@ -88,7 +88,7 @@ double get2dIoU(
     intersection_area += boost::geometry::area(intersection_polygon);
   }
   double iou;
-  if (union_area < 0.01) iou = 0.0f;
+  if (union_area < 0.01) {iou = 0.0f;}
   iou = std::min(1.0, intersection_area / union_area);
   return iou;
 }
@@ -130,14 +130,18 @@ void toPolygon2d(
     offset1 = rotation * Eigen::Vector2d(object.shape.dimensions.x, -object.shape.dimensions.y);
     offset2 = rotation * Eigen::Vector2d(-object.shape.dimensions.x, -object.shape.dimensions.y);
     offset3 = rotation * Eigen::Vector2d(-object.shape.dimensions.x, object.shape.dimensions.y);
-    output.outer().push_back(boost::geometry::make<autoware_utils::Point2d>(
-      pose.position.x + offset0.x(), pose.position.y + offset0.y()));
-    output.outer().push_back(boost::geometry::make<autoware_utils::Point2d>(
-      pose.position.x + offset1.x(), pose.position.y + offset1.y()));
-    output.outer().push_back(boost::geometry::make<autoware_utils::Point2d>(
-      pose.position.x + offset2.x(), pose.position.y + offset2.y()));
-    output.outer().push_back(boost::geometry::make<autoware_utils::Point2d>(
-      pose.position.x + offset3.x(), pose.position.y + offset3.y()));
+    output.outer().push_back(
+      boost::geometry::make<autoware_utils::Point2d>(
+        pose.position.x + offset0.x(), pose.position.y + offset0.y()));
+    output.outer().push_back(
+      boost::geometry::make<autoware_utils::Point2d>(
+        pose.position.x + offset1.x(), pose.position.y + offset1.y()));
+    output.outer().push_back(
+      boost::geometry::make<autoware_utils::Point2d>(
+        pose.position.x + offset2.x(), pose.position.y + offset2.y()));
+    output.outer().push_back(
+      boost::geometry::make<autoware_utils::Point2d>(
+        pose.position.x + offset3.x(), pose.position.y + offset3.y()));
     output.outer().push_back(output.outer().front());
   } else if (object.shape.type == autoware_perception_msgs::msg::Shape::CYLINDER) {
     const auto & center = object.state.pose_covariance.pose.position;
@@ -159,9 +163,11 @@ void toPolygon2d(
     // double yaw = autoware_utils::normalizeRadian(tf2::getYaw(pose.orientation));
     // Eigen::Matrix2d rotation;
     // rotation << std::cos(yaw), -std::sin(yaw), std::sin(yaw), std::cos(yaw);
-    for (const auto & point : object.shape.footprint.points)
-      output.outer().push_back(boost::geometry::make<autoware_utils::Point2d>(
-        pose.position.x + point.x, pose.position.y + point.y));
+    for (const auto & point : object.shape.footprint.points) {
+      output.outer().push_back(
+        boost::geometry::make<autoware_utils::Point2d>(
+          pose.position.x + point.x, pose.position.y + point.y));
+    }
     output.outer().push_back(output.outer().front());
   }
   output = isClockWise(output) ? output : inverseClockWise(output);

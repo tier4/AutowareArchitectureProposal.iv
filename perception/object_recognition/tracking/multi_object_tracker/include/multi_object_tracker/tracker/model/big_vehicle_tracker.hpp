@@ -31,7 +31,8 @@ private:
 private:
   KalmanFilter ekf_;
   rclcpp::Time last_update_time_;
-  enum IDX {
+  enum IDX
+  {
     X = 0,
     Y = 1,
     YAW = 2,
@@ -68,15 +69,18 @@ private:
   BoundingBox bounding_box_;
 
 public:
-  BigVehicleTracker(const rclcpp::Time & time, const autoware_perception_msgs::msg::DynamicObject & object);
+  BigVehicleTracker(
+    const rclcpp::Time & time,
+    const autoware_perception_msgs::msg::DynamicObject & object);
 
   bool predict(const rclcpp::Time & time) override;
   bool predict(const double dt, KalmanFilter & ekf);
   bool measure(
-    const autoware_perception_msgs::msg::DynamicObject & object, const rclcpp::Time & time) override;
+    const autoware_perception_msgs::msg::DynamicObject & object,
+    const rclcpp::Time & time) override;
   bool measureWithPose(const autoware_perception_msgs::msg::DynamicObject & object);
   bool measureWithShape(const autoware_perception_msgs::msg::DynamicObject & object);
   bool getEstimatedDynamicObject(
     const rclcpp::Time & time, autoware_perception_msgs::msg::DynamicObject & object) override;
-  virtual ~BigVehicleTracker(){};
+  virtual ~BigVehicleTracker() {}
 };

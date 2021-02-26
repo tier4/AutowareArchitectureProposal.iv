@@ -31,7 +31,8 @@
 
 BigVehicleTracker::BigVehicleTracker(
   const rclcpp::Time & time, const autoware_perception_msgs::msg::DynamicObject & object)
-: Tracker(time, object.semantic.type), last_update_time_(time), logger_(rclcpp::get_logger("BigVehicleTracker"))
+: Tracker(time, object.semantic.type), last_update_time_(time),
+  logger_(rclcpp::get_logger("BigVehicleTracker"))
 {
   object_ = object;
 
@@ -87,20 +88,21 @@ BigVehicleTracker::BigVehicleTracker(
     !use_measurement_covariance_ ||
     object.state.pose_covariance.covariance[utils::MSG_COV_IDX::X_X] == 0.0 ||
     object.state.pose_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0 ||
-    object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] == 0.0) {
+    object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] == 0.0)
+  {
     const double cos_yaw = std::cos(X(IDX::YAW));
     const double sin_yaw = std::sin(X(IDX::YAW));
     const double sin_2yaw = std::sin(2.0f * X(IDX::YAW));
     // Rotate the covariance matrix according to the vehicle yaw
     // because initial_measurement_noise_covariance_pos_x and y are in the vehicle coordinate system.
     P(IDX::X, IDX::X) = initial_measurement_noise_covariance_pos_x_ * cos_yaw * cos_yaw +
-                        initial_measurement_noise_covariance_pos_y_ * sin_yaw * sin_yaw;
+      initial_measurement_noise_covariance_pos_y_ * sin_yaw * sin_yaw;
     P(IDX::X, IDX::Y) =
       0.5f *
       (initial_measurement_noise_covariance_pos_x_ - initial_measurement_noise_covariance_pos_y_) *
       sin_2yaw;
     P(IDX::Y, IDX::Y) = initial_measurement_noise_covariance_pos_x_ * sin_yaw * sin_yaw +
-                        initial_measurement_noise_covariance_pos_y_ * cos_yaw * cos_yaw;
+      initial_measurement_noise_covariance_pos_y_ * cos_yaw * cos_yaw;
     P(IDX::Y, IDX::X) = P(IDX::X, IDX::Y);
     P(IDX::YAW, IDX::YAW) = initial_measurement_noise_covariance_yaw_;
     P(IDX::VX, IDX::VX) = initial_measurement_noise_covariance_vx_;
@@ -120,11 +122,12 @@ BigVehicleTracker::BigVehicleTracker(
     }
   }
 
-  if (object.shape.type == autoware_perception_msgs::msg::Shape::BOUNDING_BOX)
+  if (object.shape.type == autoware_perception_msgs::msg::Shape::BOUNDING_BOX) {
     bounding_box_ = {
       object.shape.dimensions.x, object.shape.dimensions.y, object.shape.dimensions.z};
-  else
+  } else {
     bounding_box_ = {2.0, 7.0, 2.0};
+  }
   ekf_.init(X, P);
 }
 
@@ -132,7 +135,7 @@ bool BigVehicleTracker::predict(const rclcpp::Time & time)
 {
   const double dt = (time - last_update_time_).seconds();
   bool ret = predict(dt, ekf_);
-  if (ret) last_update_time_ = time;
+  if (ret) {last_update_time_ = time;}
   return ret;
 }
 
@@ -185,14 +188,14 @@ bool BigVehicleTracker::predict(const double dt, KalmanFilter & ekf)
   // Rotate the covariance matrix according to the vehicle yaw
   // because process_noise_covariance_pos_x and y are in the vehicle coordinate system.
   Q(IDX::X, IDX::X) = (process_noise_covariance_pos_x_ * cos_yaw * cos_yaw +
-                       process_noise_covariance_pos_y_ * sin_yaw * sin_yaw) *
-                      dt * dt;
+    process_noise_covariance_pos_y_ * sin_yaw * sin_yaw) *
+    dt * dt;
   Q(IDX::X, IDX::Y) =
     (0.5f * (process_noise_covariance_pos_x_ - process_noise_covariance_pos_y_) * sin_2yaw) * dt *
     dt;
   Q(IDX::Y, IDX::Y) = (process_noise_covariance_pos_x_ * sin_yaw * sin_yaw +
-                       process_noise_covariance_pos_y_ * cos_yaw * cos_yaw) *
-                      dt * dt;
+    process_noise_covariance_pos_y_ * cos_yaw * cos_yaw) *
+    dt * dt;
   Q(IDX::Y, IDX::X) = Q(IDX::X, IDX::Y);
   Q(IDX::YAW, IDX::YAW) = process_noise_covariance_yaw_ * dt * dt;
   Q(IDX::VX, IDX::VX) = process_noise_covariance_vx_ * dt * dt;
@@ -200,7 +203,7 @@ bool BigVehicleTracker::predict(const double dt, KalmanFilter & ekf)
   Eigen::MatrixXd B = Eigen::MatrixXd::Zero(dim_x_, dim_x_);
   Eigen::MatrixXd u = Eigen::MatrixXd::Zero(dim_x_, 1);
 
-  if (!ekf_.predict(X_next_t, A, Q)) RCLCPP_WARN(logger_, "Cannot predict");
+  if (!ekf_.predict(X_next_t, A, Q)) {RCLCPP_WARN(logger_, "Cannot predict");}
 
   return true;
 }
@@ -216,7 +219,8 @@ bool BigVehicleTracker::measureWithPose(const autoware_perception_msgs::msg::Dyn
     measurement_noise_covariance_pos_y_ = std::pow(measurement_noise_stddev_pos_y, 2.0);
   } else if (
     object.semantic.type == autoware_perception_msgs::msg::Semantic::TRUCK ||
-    object.semantic.type == autoware_perception_msgs::msg::Semantic::BUS) {
+    object.semantic.type == autoware_perception_msgs::msg::Semantic::BUS)
+  {
     measurement_noise_covariance_pos_x = measurement_noise_covariance_pos_x_;
     measurement_noise_covariance_pos_y = measurement_noise_covariance_pos_y_;
   } else {
@@ -240,7 +244,7 @@ bool BigVehicleTracker::measureWithPose(const autoware_perception_msgs::msg::Dyn
     float theta = std::acos(
       std::cos(X_t(IDX::YAW)) * std::cos(measurement_yaw) +
       std::sin(X_t(IDX::YAW)) * std::sin(measurement_yaw));
-    if (autoware_utils::deg2rad(60) < std::fabs(theta)) return false;
+    if (autoware_utils::deg2rad(60) < std::fabs(theta)) {return false;}
   }
 
   /* Set measurement matrix */
@@ -260,16 +264,17 @@ bool BigVehicleTracker::measureWithPose(const autoware_perception_msgs::msg::Dyn
     !use_measurement_covariance_ ||
     object.state.pose_covariance.covariance[utils::MSG_COV_IDX::X_X] == 0.0 ||
     object.state.pose_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0 ||
-    object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] == 0.0) {
+    object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] == 0.0)
+  {
     const double cos_yaw = std::cos(measurement_yaw);
     const double sin_yaw = std::sin(measurement_yaw);
     const double sin_2yaw = std::sin(2.0f * measurement_yaw);
     R(0, 0) = measurement_noise_covariance_pos_x * cos_yaw * cos_yaw +
-              measurement_noise_covariance_pos_y * sin_yaw * sin_yaw;  // x - x
+      measurement_noise_covariance_pos_y * sin_yaw * sin_yaw;          // x - x
     R(0, 1) = 0.5f * (measurement_noise_covariance_pos_x - measurement_noise_covariance_pos_y) *
-              sin_2yaw;  // x - y
+      sin_2yaw;          // x - y
     R(1, 1) = measurement_noise_covariance_pos_x * sin_yaw * sin_yaw +
-              measurement_noise_covariance_pos_y * cos_yaw * cos_yaw;  // y - y
+      measurement_noise_covariance_pos_y * cos_yaw * cos_yaw;          // y - y
     R(1, 0) = R(0, 1);                                                 // y - x
     R(2, 2) = measurement_noise_covariance_yaw_;                       // yaw - yaw
   } else {
@@ -283,7 +288,7 @@ bool BigVehicleTracker::measureWithPose(const autoware_perception_msgs::msg::Dyn
     R(2, 1) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_Y];
     R(2, 2) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW];
   }
-  if (!ekf_.update(Y, C, R)) RCLCPP_WARN(logger_, "Cannot update");
+  if (!ekf_.update(Y, C, R)) {RCLCPP_WARN(logger_, "Cannot update");}
 
   // normalize yaw and limit vx, wz
   {
@@ -292,18 +297,21 @@ bool BigVehicleTracker::measureWithPose(const autoware_perception_msgs::msg::Dyn
     ekf_.getX(X_t);
     ekf_.getP(P_t);
     X_t(IDX::YAW) = autoware_utils::normalizeRadian(X_t(IDX::YAW));
-    if (!(-max_vx_ <= X_t(IDX::VX) && X_t(IDX::VX) <= max_vx_))
+    if (!(-max_vx_ <= X_t(IDX::VX) && X_t(IDX::VX) <= max_vx_)) {
       X_t(IDX::VX) = X_t(IDX::VX) < 0 ? -max_vx_ : max_vx_;
-    if (!(-max_wz_ <= X_t(IDX::WZ) && X_t(IDX::WZ) <= max_wz_))
+    }
+    if (!(-max_wz_ <= X_t(IDX::WZ) && X_t(IDX::WZ) <= max_wz_)) {
       X_t(IDX::WZ) = X_t(IDX::WZ) < 0 ? -max_wz_ : max_wz_;
+    }
     ekf_.init(X_t, P_t);
   }
   return true;
 }
 
-bool BigVehicleTracker::measureWithShape(const autoware_perception_msgs::msg::DynamicObject & object)
+bool BigVehicleTracker::measureWithShape(
+  const autoware_perception_msgs::msg::DynamicObject & object)
 {
-  if (object.shape.type != autoware_perception_msgs::msg::Shape::BOUNDING_BOX) return false;
+  if (object.shape.type != autoware_perception_msgs::msg::Shape::BOUNDING_BOX) {return false;}
   constexpr float gain = 0.9;
 
   bounding_box_.width = gain * bounding_box_.width + (1.0 - gain) * object.shape.dimensions.x;
@@ -319,7 +327,8 @@ bool BigVehicleTracker::measure(
   object_ = object;
 
   if (0.01 /*10msec*/ < std::fabs((time - last_update_time_).seconds())) {
-    RCLCPP_WARN(logger_,
+    RCLCPP_WARN(
+      logger_,
       "There is a large gap between predicted time and measurement time. (%f)",
       (time - last_update_time_).seconds());
   }

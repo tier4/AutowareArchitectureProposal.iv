@@ -51,7 +51,8 @@ bool MultipleVehicleTracker::getEstimatedDynamicObject(
     normal_vehicle_tracker_.getEstimatedDynamicObject(time, object);
   } else if (
     getType() == autoware_perception_msgs::msg::Semantic::BUS ||
-    getType() == autoware_perception_msgs::msg::Semantic::TRUCK) {
+    getType() == autoware_perception_msgs::msg::Semantic::TRUCK)
+  {
     big_vehicle_tracker_.getEstimatedDynamicObject(time, object);
   }
   object.id = getUUID();

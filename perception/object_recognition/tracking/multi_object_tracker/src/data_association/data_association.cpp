@@ -119,18 +119,18 @@ Eigen::MatrixXd DataAssociation::calcScoreMatrix(
         score = (max_dist - std::min(dist, max_dist)) / max_dist;
 
         // dist gate
-        if (max_dist < dist) score = 0.0;
+        if (max_dist < dist) {score = 0.0;}
         // area gate
-        if (area < min_area || max_area < area) score = 0.0;
+        if (area < min_area || max_area < area) {score = 0.0;}
         // mahalanobis dist gate
         if (score < score_threshold_) {
           double mahalanobis_dist = getMahalanobisDistance(
             measurements.feature_objects.at(measurement_idx)
-              .object.state.pose_covariance.pose.position,
+            .object.state.pose_covariance.pose.position,
             (*tracker_itr)->getPosition(measurements.header.stamp),
             (*tracker_itr)->getXYCovariance(measurements.header.stamp));
 
-          if (2.448 <= mahalanobis_dist) score = 0.0;
+          if (2.448 <= mahalanobis_dist) {score = 0.0;}
         }
         // if ((*tracker_itr)->getType() == measurements.feature_objects.at(measurement_idx).object.semantic.type &&
         //     measurements.feature_objects.at(measurement_idx).object.semantic.type !=
@@ -164,6 +164,6 @@ double DataAssociation::getMahalanobisDistance(
   Eigen::Vector2d tracker_point;
   tracker_point << tracker.x, tracker.y;
   Eigen::MatrixXd mahalanobis_squared = (measurement_point - tracker_point).transpose() *
-                                        covariance.inverse() * (measurement_point - tracker_point);
+    covariance.inverse() * (measurement_point - tracker_point);
   return std::sqrt(mahalanobis_squared(0));
 }

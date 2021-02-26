@@ -39,7 +39,8 @@ double getArea(const autoware_perception_msgs::msg::Shape & shape);
 double get2dIoU(
   const autoware_perception_msgs::msg::DynamicObject & object1,
   const autoware_perception_msgs::msg::DynamicObject & object2);
-enum MSG_COV_IDX {
+enum MSG_COV_IDX
+{
   X_X = 0,
   X_Y = 1,
   X_Z = 2,

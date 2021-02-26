@@ -51,7 +51,8 @@ bool PedestrianAndBicycleTracker::getEstimatedDynamicObject(
     pedestrian_tracker_.getEstimatedDynamicObject(time, object);
   } else if (
     getType() == autoware_perception_msgs::msg::Semantic::BICYCLE ||
-    getType() == autoware_perception_msgs::msg::Semantic::MOTORBIKE) {
+    getType() == autoware_perception_msgs::msg::Semantic::MOTORBIKE)
+  {
     bicycle_tracker_.getEstimatedDynamicObject(time, object);
   }
   object.id = getUUID();
