@@ -35,7 +35,7 @@ private:
   bool calcMaxVelocity(
     const autoware_api_msgs::msg::VelocityLimit::ConstSharedPtr & max_velocity_ptr,
     const autoware_api_msgs::msg::StopCommand::ConstSharedPtr & temporary_stop_ptr,
-    double * max_velocity);
+    float * max_velocity);
 
   double default_max_velocity_;
 };

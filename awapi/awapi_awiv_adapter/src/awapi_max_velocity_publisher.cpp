@@ -40,7 +40,7 @@ void AutowareIvMaxVelocityPublisher::statePublisher(const AutowareInfo & aw_info
 bool AutowareIvMaxVelocityPublisher::calcMaxVelocity(
   const autoware_api_msgs::msg::VelocityLimit::ConstSharedPtr & max_velocity_ptr,
   const autoware_api_msgs::msg::StopCommand::ConstSharedPtr & temporary_stop_ptr,
-  double * max_velocity)
+  float * max_velocity)
 {
   if (!max_velocity_ptr && !temporary_stop_ptr) {
     // receive no max velocity information
@@ -49,7 +49,7 @@ bool AutowareIvMaxVelocityPublisher::calcMaxVelocity(
 
   // input max velocity
   *max_velocity =
-    static_cast<double>(max_velocity_ptr ? max_velocity_ptr->max_velocity : default_max_velocity_);
+    static_cast<float>(max_velocity_ptr ? max_velocity_ptr->max_velocity : default_max_velocity_);
 
   if (temporary_stop_ptr && temporary_stop_ptr->stop) {
     // if temporary_stop is true, max velocity is 0

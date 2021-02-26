@@ -118,7 +118,7 @@ void AutowareIvAutowareStatePublisher::getCurrentMaxVelInfo(
       "[AutowareIvAutowareStatePublisher] currrent_max_velocity is nullptr");
   }
 
-  //get current max velocity
+  // get current max velocity
   status->current_max_velocity = current_max_velocity_ptr->max_velocity;
 }
 
