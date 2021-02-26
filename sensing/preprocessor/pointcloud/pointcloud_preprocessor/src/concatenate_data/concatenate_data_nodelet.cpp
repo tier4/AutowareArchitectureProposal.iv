@@ -266,7 +266,9 @@ void PointCloudConcatenateDataSynchronizerComponent::publish()
         "(not_subscribed_topic_name size = )" << not_subscribed_topic_name.size());
   }
 
-  pub_output_->publish(*concat_cloud_ptr_);
+  if (concat_cloud_ptr_) {
+    pub_output_->publish(*concat_cloud_ptr_);
+  }
 
   std_msgs::msg::Int32 concat_num_msg;
   concat_num_msg.data = concat_num;
