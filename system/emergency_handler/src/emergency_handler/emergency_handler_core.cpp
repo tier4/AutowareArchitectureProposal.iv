@@ -109,8 +109,9 @@ EmergencyHandler::EmergencyHandler()
     *this, "input/driving_capability", timeout_driving_capability_);
   heartbeat_is_state_timeout_ =
     std::make_shared<HeaderlessHeartbeatChecker
-      <autoware_system_msgs::msg::TimeoutNotificationStamped>>
-      (*this, "input/is_state_timeout", timeout_is_state_timeout_);
+      <autoware_system_msgs::msg::TimeoutNotificationStamped>>(
+    *this, "input/is_state_timeout",
+    timeout_is_state_timeout_);
 
   // Service
   srv_clear_emergency_ = this->create_service<std_srvs::srv::Trigger>(
