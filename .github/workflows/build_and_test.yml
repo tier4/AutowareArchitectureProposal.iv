@@ -5,10 +5,12 @@ on:
     branches:
       - ros2
       - ros2-v0.8.0-beta
+      - ros2-v0.9.0-beta
   push:
     branches:
       - ros2
       - ros2-v0.8.0-beta
+      - ros2-v0.9.0-beta
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
