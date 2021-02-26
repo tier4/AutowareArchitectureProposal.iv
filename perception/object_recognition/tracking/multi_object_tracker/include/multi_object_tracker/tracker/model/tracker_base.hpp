@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Autoware Foundation. All rights reserved.
+ * Copyright 2020 Tier IV, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ *
  * v1.0 Yukihiro Saito
  */
 
@@ -24,6 +25,8 @@
 #include "geometry_msgs/msg/point.hpp"
 #include "unique_identifier_msgs/msg/uuid.hpp"
 #include "rclcpp/rclcpp.hpp"
+#define EIGEN_MPL2_ONLY
+#include <Eigen/Core>
 
 class Tracker
 {
@@ -53,12 +56,12 @@ public:
     return (current_time - last_update_with_measurement_time_).seconds();
   }
   virtual geometry_msgs::msg::Point getPosition(const rclcpp::Time & time);
+  virtual Eigen::Matrix2d getXYCovariance(const rclcpp::Time & time);
   virtual double getArea(const rclcpp::Time & time);
 
   /*
    *　Pure virtual function
    */
-
 protected:
   virtual bool measure(
     const autoware_perception_msgs::msg::DynamicObject & object, const rclcpp::Time & time) = 0;

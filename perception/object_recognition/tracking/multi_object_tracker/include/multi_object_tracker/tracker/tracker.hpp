@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Autoware Foundation. All rights reserved.
+ * Copyright 2020 Tier IV, Inc. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ *
  * v1.0 Yukihiro Saito
  */
 
 #pragma once
 #include "model/bicycle_tracker.hpp"
+#include "model/big_vehicle_tracker.hpp"
+#include "model/multiple_vehicle_tracker.hpp"
+#include "model/normal_vehicle_tracker.hpp"
+#include "model/pedestrian_and_bicycle_tracker.hpp"
 #include "model/pedestrian_tracker.hpp"
 #include "model/tracker_base.hpp"
-#include "model/vehicle_tracker.hpp"

@@ -17,23 +17,21 @@
  * v1.0 Yukihiro Saito
  */
 
-#include "multi_object_tracker/tracker/model/pedestrian_tracker.hpp"
+#include "multi_object_tracker/tracker/model/normal_vehicle_tracker.hpp"
 #include "autoware_utils/autoware_utils.hpp"
 #include <bits/stdc++.h>
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/utils.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include "multi_object_tracker/utils/utils.hpp"
-
-#include "tf2/LinearMath/Matrix3x3.h"
-#include "tf2/LinearMath/Quaternion.h"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-#include "tf2/utils.h"
-
 #define EIGEN_MPL2_ONLY
-#include "Eigen/Core"
-#include "Eigen/Geometry"
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 
-PedestrianTracker::PedestrianTracker(
+NormalVehicleTracker::NormalVehicleTracker(
   const rclcpp::Time & time, const autoware_perception_msgs::msg::DynamicObject & object)
-: Tracker(time, object.semantic.type), last_update_time_(time), logger_(rclcpp::get_logger("PedestrianTracker"))
+: Tracker(time, object.semantic.type), last_update_time_(time), logger_(rclcpp::get_logger("NormalVehicleTracker"))
 {
   object_ = object;
 
@@ -42,16 +40,16 @@ PedestrianTracker::PedestrianTracker(
   float process_noise_stddev_pos_x = 0.0;                                      // [m/s]
   float process_noise_stddev_pos_y = 0.0;                                      // [m/s]
   float process_noise_stddev_yaw = autoware_utils::deg2rad(20);                // [rad/s]
-  float process_noise_stddev_vx = autoware_utils::kmph2mps(5);                 // [m/(s*s)]
+  float process_noise_stddev_vx = autoware_utils::kmph2mps(10);                // [m/(s*s)]
   float process_noise_stddev_wz = autoware_utils::deg2rad(20);                 // [rad/(s*s)]
-  float measurement_noise_stddev_pos_x = 0.4;                                  // [m]
-  float measurement_noise_stddev_pos_y = 0.4;                                  // [m]
+  float measurement_noise_stddev_pos_x = 1.0;                                  // [m]
+  float measurement_noise_stddev_pos_y = 0.3;                                  // [m]
   float measurement_noise_stddev_yaw = autoware_utils::deg2rad(30);            // [rad]
   float initial_measurement_noise_stddev_pos_x = 1.0;                          // [m/s]
-  float initial_measurement_noise_stddev_pos_y = 1.0;                          // [m/s]
-  float initial_measurement_noise_stddev_yaw = autoware_utils::deg2rad(1000);  // [rad/s]
-  float initial_measurement_noise_stddev_vx = autoware_utils::kmph2mps(5);     // [m/(s*s)]
-  float initial_measurement_noise_stddev_wz = autoware_utils::deg2rad(10);     // [rad/(s*s)]
+  float initial_measurement_noise_stddev_pos_y = 0.3;                          // [m/s]
+  float initial_measurement_noise_stddev_yaw = autoware_utils::deg2rad(30);    // [rad]
+  float initial_measurement_noise_stddev_vx = autoware_utils::kmph2mps(1000);  // [m/s]
+  float initial_measurement_noise_stddev_wz = autoware_utils::deg2rad(10);     // [rad/s]
   process_noise_covariance_pos_x_ = std::pow(process_noise_stddev_pos_x, 2.0);
   process_noise_covariance_pos_y_ = std::pow(process_noise_stddev_pos_y, 2.0);
   process_noise_covariance_yaw_ = std::pow(process_noise_stddev_yaw, 2.0);
@@ -67,8 +65,8 @@ PedestrianTracker::PedestrianTracker(
   initial_measurement_noise_covariance_yaw_ = std::pow(initial_measurement_noise_stddev_yaw, 2.0);
   initial_measurement_noise_covariance_vx_ = std::pow(initial_measurement_noise_stddev_vx, 2.0);
   initial_measurement_noise_covariance_wz_ = std::pow(initial_measurement_noise_stddev_wz, 2.0);
-  max_vx_ = autoware_utils::kmph2mps(10);  // [m/s]
-  max_wz_ = autoware_utils::deg2rad(30);   // [rad/s]
+  max_vx_ = autoware_utils::kmph2mps(100);  // [m/s]
+  max_wz_ = autoware_utils::deg2rad(30);    // [rad/s]
 
   // initialize X matrix
   Eigen::MatrixXd X(dim_x_, 1);
@@ -122,18 +120,15 @@ PedestrianTracker::PedestrianTracker(
     }
   }
 
-  bounding_box_ = {0.5, 0.5, 1.7};
-  cylinder_ = {0.3, 1.7};
   if (object.shape.type == autoware_perception_msgs::msg::Shape::BOUNDING_BOX)
     bounding_box_ = {
       object.shape.dimensions.x, object.shape.dimensions.y, object.shape.dimensions.z};
-  else if (object.shape.type == autoware_perception_msgs::msg::Shape::CYLINDER)
-    cylinder_ = {object.shape.dimensions.x, object.shape.dimensions.z};
-
+  else
+    bounding_box_ = {1.7, 4.0, 2.0};
   ekf_.init(X, P);
 }
 
-bool PedestrianTracker::predict(const rclcpp::Time & time)
+bool NormalVehicleTracker::predict(const rclcpp::Time & time)
 {
   const double dt = (time - last_update_time_).seconds();
   bool ret = predict(dt, ekf_);
@@ -141,7 +136,7 @@ bool PedestrianTracker::predict(const rclcpp::Time & time)
   return ret;
 }
 
-bool PedestrianTracker::predict(const double dt, KalmanFilter & ekf)
+bool NormalVehicleTracker::predict(const double dt, KalmanFilter & ekf)
 {
   /*  == Nonlinear model ==
    *
@@ -210,56 +205,83 @@ bool PedestrianTracker::predict(const double dt, KalmanFilter & ekf)
   return true;
 }
 
-bool PedestrianTracker::measureWithPose(const autoware_perception_msgs::msg::DynamicObject & object)
+bool NormalVehicleTracker::measureWithPose(const autoware_perception_msgs::msg::DynamicObject & object)
 {
-  constexpr int dim_y = 2;  // pos x, pos y depending on Pose output
-  // double measurement_yaw = autoware_utils::normalizeRadian(tf2::getYaw(object.state.pose_covariance.pose.orientation));
-  // {
-  //   Eigen::MatrixXd X_t(dim_x_, 1);
-  //   ekf_.getX(X_t);
-  //   while (M_PI_2 <= X_t(IDX::YAW) - measurement_yaw) {
-  //     measurement_yaw = measurement_yaw + M_PI;
-  //   }
-  //   while (M_PI_2 <= measurement_yaw - X_t(IDX::YAW)) {
-  //     measurement_yaw = measurement_yaw - M_PI;
-  //   }
-  //   float theta = std::acos(
-  //     std::cos(X_t(IDX::YAW)) * std::cos(measurement_yaw) +
-  //     std::sin(X_t(IDX::YAW)) * std::sin(measurement_yaw));
-  //   if (autoware_utils::deg2rad(60) < std::fabs(theta)) return false;
-  // }
+  float measurement_noise_covariance_pos_x;
+  float measurement_noise_covariance_pos_y;
+  if (object.semantic.type == autoware_perception_msgs::msg::Semantic::CAR) {
+    measurement_noise_covariance_pos_x = measurement_noise_covariance_pos_x_;
+    measurement_noise_covariance_pos_y = measurement_noise_covariance_pos_y_;
+  } else if (
+    object.semantic.type == autoware_perception_msgs::msg::Semantic::TRUCK ||
+    object.semantic.type == autoware_perception_msgs::msg::Semantic::BUS) {
+    constexpr float measurement_noise_stddev_pos_x = 8.0;  // [m]
+    constexpr float measurement_noise_stddev_pos_y = 0.8;  // [m]
+    measurement_noise_covariance_pos_x_ = std::pow(measurement_noise_stddev_pos_x, 2.0);
+    measurement_noise_covariance_pos_y_ = std::pow(measurement_noise_stddev_pos_y, 2.0);
+  } else {
+    measurement_noise_covariance_pos_x = measurement_noise_covariance_pos_x_;
+    measurement_noise_covariance_pos_y = measurement_noise_covariance_pos_y_;
+  }
+
+  constexpr int dim_y = 3;  // pos x, pos y, yaw, depending on Pose output
+  double measurement_yaw =
+    autoware_utils::normalizeRadian(tf2::getYaw(object.state.pose_covariance.pose.orientation));
+  {
+    Eigen::MatrixXd X_t(dim_x_, 1);
+    ekf_.getX(X_t);
+    // Fixed measurement_yaw to be in the range of +-180 degrees of X_t(IDX::YAW)
+    while (M_PI_2 <= X_t(IDX::YAW) - measurement_yaw) {
+      measurement_yaw = measurement_yaw + M_PI;
+    }
+    while (M_PI_2 <= measurement_yaw - X_t(IDX::YAW)) {
+      measurement_yaw = measurement_yaw - M_PI;
+    }
+    float theta = std::acos(
+      std::cos(X_t(IDX::YAW)) * std::cos(measurement_yaw) +
+      std::sin(X_t(IDX::YAW)) * std::sin(measurement_yaw));
+    if (autoware_utils::deg2rad(60) < std::fabs(theta)) return false;
+  }
 
   /* Set measurement matrix */
   Eigen::MatrixXd Y(dim_y, 1);
-  Y << object.state.pose_covariance.pose.position.x, object.state.pose_covariance.pose.position.y;
+  Y << object.state.pose_covariance.pose.position.x, object.state.pose_covariance.pose.position.y,
+    measurement_yaw;
 
   /* Set measurement matrix */
   Eigen::MatrixXd C = Eigen::MatrixXd::Zero(dim_y, dim_x_);
-  C(0, IDX::X) = 1.0;  // for pos x
-  C(1, IDX::Y) = 1.0;  // for pos y
-  // C(2, IDX::YAW) = 1.0;  // for yaw
+  C(0, IDX::X) = 1.0;    // for pos x
+  C(1, IDX::Y) = 1.0;    // for pos y
+  C(2, IDX::YAW) = 1.0;  // for yaw
 
   /* Set measurement noise covariance */
   Eigen::MatrixXd R = Eigen::MatrixXd::Zero(dim_y, dim_y);
   if (
     !use_measurement_covariance_ ||
     object.state.pose_covariance.covariance[utils::MSG_COV_IDX::X_X] == 0.0 ||
-    object.state.pose_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0) {
-    R(0, 0) = measurement_noise_covariance_pos_x_;  // x - x
-    R(0, 1) = 0.0;                                  // x - y
-    R(1, 1) = measurement_noise_covariance_pos_y_;  // y - y
-    R(1, 0) = R(0, 1);                              // y - x
-    // R(2, 2) = measurement_noise_covariance_yaw_;                        // yaw - yaw
+    object.state.pose_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0 ||
+    object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] == 0.0) {
+    const double cos_yaw = std::cos(measurement_yaw);
+    const double sin_yaw = std::sin(measurement_yaw);
+    const double sin_2yaw = std::sin(2.0f * measurement_yaw);
+    R(0, 0) = measurement_noise_covariance_pos_x * cos_yaw * cos_yaw +
+              measurement_noise_covariance_pos_y * sin_yaw * sin_yaw;  // x - x
+    R(0, 1) = 0.5f * (measurement_noise_covariance_pos_x - measurement_noise_covariance_pos_y) *
+              sin_2yaw;  // x - y
+    R(1, 1) = measurement_noise_covariance_pos_x * sin_yaw * sin_yaw +
+              measurement_noise_covariance_pos_y * cos_yaw * cos_yaw;  // y - y
+    R(1, 0) = R(0, 1);                                                 // y - x
+    R(2, 2) = measurement_noise_covariance_yaw_;                       // yaw - yaw
   } else {
     R(0, 0) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::X_X];
     R(0, 1) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::X_Y];
-    // R(0, 2) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::X_YAW];
+    R(0, 2) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::X_YAW];
     R(1, 0) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::Y_X];
     R(1, 1) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::Y_Y];
-    // R(1, 2) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::Y_YAW];
-    // R(2, 0) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_X];
-    // R(2, 1) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_Y];
-    // R(2, 2) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW];
+    R(1, 2) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::Y_YAW];
+    R(2, 0) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_X];
+    R(2, 1) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_Y];
+    R(2, 2) = object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW];
   }
   if (!ekf_.update(Y, C, R)) RCLCPP_WARN(logger_, "Cannot update");
 
@@ -279,24 +301,19 @@ bool PedestrianTracker::measureWithPose(const autoware_perception_msgs::msg::Dyn
   return true;
 }
 
-bool PedestrianTracker::measureWithShape(const autoware_perception_msgs::msg::DynamicObject & object)
+bool NormalVehicleTracker::measureWithShape(const autoware_perception_msgs::msg::DynamicObject & object)
 {
+  if (object.shape.type != autoware_perception_msgs::msg::Shape::BOUNDING_BOX) return false;
   constexpr float gain = 0.9;
-  if (object.shape.type == autoware_perception_msgs::msg::Shape::BOUNDING_BOX) {
-    bounding_box_.width = gain * bounding_box_.width + (1.0 - gain) * object.shape.dimensions.x;
-    bounding_box_.length = gain * bounding_box_.length + (1.0 - gain) * object.shape.dimensions.y;
-    bounding_box_.height = gain * bounding_box_.height + (1.0 - gain) * object.shape.dimensions.z;
-  } else if (object.shape.type == autoware_perception_msgs::msg::Shape::CYLINDER) {
-    cylinder_.width = gain * cylinder_.width + (1.0 - gain) * object.shape.dimensions.x;
-    cylinder_.height = gain * cylinder_.height + (1.0 - gain) * object.shape.dimensions.z;
-  } else {
-    return false;
-  }
+
+  bounding_box_.width = gain * bounding_box_.width + (1.0 - gain) * object.shape.dimensions.x;
+  bounding_box_.length = gain * bounding_box_.length + (1.0 - gain) * object.shape.dimensions.y;
+  bounding_box_.height = gain * bounding_box_.height + (1.0 - gain) * object.shape.dimensions.z;
 
   return true;
 }
 
-bool PedestrianTracker::measure(
+bool NormalVehicleTracker::measure(
   const autoware_perception_msgs::msg::DynamicObject & object, const rclcpp::Time & time)
 {
   object_ = object;
@@ -313,7 +330,7 @@ bool PedestrianTracker::measure(
   return true;
 }
 
-bool PedestrianTracker::getEstimatedDynamicObject(
+bool NormalVehicleTracker::getEstimatedDynamicObject(
   const rclcpp::Time & time, autoware_perception_msgs::msg::DynamicObject & object)
 {
   object = object_;
@@ -363,15 +380,9 @@ bool PedestrianTracker::getEstimatedDynamicObject(
   object.state.twist_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] = P(IDX::WZ, IDX::WZ);
 
   // set shape
-  if (object.shape.type == autoware_perception_msgs::msg::Shape::BOUNDING_BOX) {
-    object.shape.dimensions.x = bounding_box_.width;
-    object.shape.dimensions.y = bounding_box_.length;
-    object.shape.dimensions.z = bounding_box_.height;
-  } else if (object.shape.type == autoware_perception_msgs::msg::Shape::CYLINDER) {
-    object.shape.dimensions.x = cylinder_.width;
-    object.shape.dimensions.y = cylinder_.width;
-    object.shape.dimensions.z = cylinder_.height;
-  }
+  object.shape.dimensions.x = bounding_box_.width;
+  object.shape.dimensions.y = bounding_box_.length;
+  object.shape.dimensions.z = bounding_box_.height;
 
   // set velocity
   object.state.twist_covariance.twist.linear.x = X_t(IDX::VX);
