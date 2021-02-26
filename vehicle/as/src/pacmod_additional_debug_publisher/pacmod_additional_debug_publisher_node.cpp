@@ -37,9 +37,12 @@ PacmodAdditionalDebugPublisherNode::PacmodAdditionalDebugPublisherNode()
   debug_value_.data.resize(17);
   calibration_active_ = this->declare_parameter("calibration_active", false);
   if (calibration_active_) {
-    accel_cal_rpt_pub_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>("output/accel_cal_rpt", 1);
-    brake_cal_rpt_pub_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>("output/brake_cal_rpt", 1);
-    steer_cal_rpt_pub_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>("output/steer_cal_rpt", 1);
+    accel_cal_rpt_pub_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>(
+      "output/accel_cal_rpt", 1);
+    brake_cal_rpt_pub_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>(
+      "output/brake_cal_rpt", 1);
+    steer_cal_rpt_pub_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>(
+      "output/steer_cal_rpt", 1);
     accel_cal_rpt_.data.resize(3);
     brake_cal_rpt_.data.resize(5);
     steer_cal_rpt_.data.resize(3);
@@ -57,32 +60,32 @@ void PacmodAdditionalDebugPublisherNode::canTxCallback(
     if (msg->id == 0x790) {
       int16_t temp = 0;
       temp = (static_cast<int16_t>(msg->data[0]) << 8) | msg->data[1];
-      accel_cal_rpt_.data.at(0) = static_cast<double>(temp / 1000.0); // accel_a_volt
+      accel_cal_rpt_.data.at(0) = static_cast<double>(temp / 1000.0);  // accel_a_volt
       temp = (static_cast<int16_t>(msg->data[2]) << 8) | msg->data[3];
-      accel_cal_rpt_.data.at(1) = static_cast<double>(temp / 1000.0); // accel_b_volt
+      accel_cal_rpt_.data.at(1) = static_cast<double>(temp / 1000.0);  // accel_b_volt
       temp = (static_cast<int16_t>(msg->data[4]) << 8) | msg->data[5];
-      accel_cal_rpt_.data.at(2) = static_cast<double>(temp / 1000.0); // output
+      accel_cal_rpt_.data.at(2) = static_cast<double>(temp / 1000.0);  // output
     } else if (msg->id == 0x791) {
       int16_t temp = 0;
       int8_t temp1 = 0;
       temp = (static_cast<int16_t>(msg->data[0]) << 8) | msg->data[1];
-      brake_cal_rpt_.data.at(0) = static_cast<double>(temp / 1000.0); // sks1_volt
+      brake_cal_rpt_.data.at(0) = static_cast<double>(temp / 1000.0);  // sks1_volt
       temp = (static_cast<int16_t>(msg->data[2]) << 8) | msg->data[3];
-      brake_cal_rpt_.data.at(1) = static_cast<double>(temp / 1000.0); // sks2_volt
+      brake_cal_rpt_.data.at(1) = static_cast<double>(temp / 1000.0);  // sks2_volt
       temp1 = static_cast<int8_t>(msg->data[4]);
-      brake_cal_rpt_.data.at(2) = static_cast<double>(temp1 / 100.0); // pedal_position
+      brake_cal_rpt_.data.at(2) = static_cast<double>(temp1 / 100.0);  // pedal_position
       temp1 = static_cast<int8_t>(msg->data[5]);
-      brake_cal_rpt_.data.at(3) = static_cast<double>(temp1 / 100.0); // brake_cmd
+      brake_cal_rpt_.data.at(3) = static_cast<double>(temp1 / 100.0);  // brake_cmd
       temp = (static_cast<int16_t>(msg->data[6]) << 8) | msg->data[7];
-      brake_cal_rpt_.data.at(4) = static_cast<double>(temp / 1000.0); // globe_position
+      brake_cal_rpt_.data.at(4) = static_cast<double>(temp / 1000.0);  // globe_position
     } else if (msg->id == 0x792) {
       int16_t temp = 0;
       temp = (static_cast<int16_t>(msg->data[0]) << 8) | msg->data[1];
-      steer_cal_rpt_.data.at(0) = static_cast<double>(temp / 1000.0); // trq1_volt
+      steer_cal_rpt_.data.at(0) = static_cast<double>(temp / 1000.0);  // trq1_volt
       temp = (static_cast<int16_t>(msg->data[2]) << 8) | msg->data[3];
-      steer_cal_rpt_.data.at(1) = static_cast<double>(temp / 1000.0); // trq2_volt
+      steer_cal_rpt_.data.at(1) = static_cast<double>(temp / 1000.0);  // trq2_volt
       temp = (static_cast<int16_t>(msg->data[4]) << 8) | msg->data[5];
-      steer_cal_rpt_.data.at(2) = static_cast<double>(temp / 1000.0); // position
+      steer_cal_rpt_.data.at(2) = static_cast<double>(temp / 1000.0);  // position
     } else if (msg->id == 0x32C) {
       int16_t temp = 0;
       temp = (static_cast<int16_t>(msg->data[0]) << 8) | msg->data[1];

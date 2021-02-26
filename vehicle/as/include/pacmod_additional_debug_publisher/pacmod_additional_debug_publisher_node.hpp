@@ -23,9 +23,12 @@ class PacmodAdditionalDebugPublisherNode : public rclcpp::Node
 {
 private:
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr debug_pub_;
-  rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr accel_cal_rpt_pub_;
-  rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr brake_cal_rpt_pub_;
-  rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr steer_cal_rpt_pub_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr
+    accel_cal_rpt_pub_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr
+    brake_cal_rpt_pub_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr
+    steer_cal_rpt_pub_;
 
   rclcpp::Subscription<can_msgs::msg::Frame>::SharedPtr sub_;
   autoware_debug_msgs::msg::Float32MultiArrayStamped debug_value_;
