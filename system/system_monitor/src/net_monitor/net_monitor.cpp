@@ -198,9 +198,9 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
   // Check if specified device exists
   for (const auto & device : device_params_) {
     // Skip if all devices specified
-    if (device == "*") continue;
+    if (device == "*") {continue;}
     // Skip if device already entried
-    if (boost::find(entried, device) != entried.end()) continue;
+    if (boost::find(entried, device) != entried.end()) {continue;}
 
     stat.add(fmt::format("Network {}: status", index), "No Such Device");
     stat.add(fmt::format("Network {}: interface name", index), device);
