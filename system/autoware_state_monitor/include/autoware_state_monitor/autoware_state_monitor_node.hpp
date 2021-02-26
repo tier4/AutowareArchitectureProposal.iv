@@ -87,11 +87,17 @@ private:
 
   // Service
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_shutdown_;
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_reset_route_;
 
   bool onShutdownService(
     const std::shared_ptr<rmw_request_id_t> request_header,
     const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
     std::shared_ptr<std_srvs::srv::Trigger::Response> response);
+  bool onResetRouteService(
+    const std::shared_ptr<rmw_request_id_t> request_header,
+    const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
+    std::shared_ptr<std_srvs::srv::Trigger::Response> response);
+
 
   // Publisher
   rclcpp::Publisher<autoware_system_msgs::msg::AutowareState>::SharedPtr pub_autoware_state_;

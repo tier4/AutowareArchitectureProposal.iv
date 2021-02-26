@@ -200,6 +200,45 @@ bool AutowareStateMonitorNode::onShutdownService(
   return true;
 }
 
+bool AutowareStateMonitorNode::onResetRouteService(
+  const std::shared_ptr<rmw_request_id_t> request_header,
+  const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
+  const std::shared_ptr<std_srvs::srv::Trigger::Response> response)
+{
+  if (state_machine_->getCurrentState() != AutowareState::WaitingForEngage) {
+    response->success = false;
+    response->message = "Reset route can be accepted only under WaitingForEngage.";
+    return true;
+  }
+
+  state_input_.is_route_reset_required = true;
+
+  const auto t_start = this->now();
+  constexpr double timeout = 3.0;
+  while (rclcpp::ok()) {
+    rclcpp::spin_some(this->get_node_base_interface());
+
+    if (state_machine_->getCurrentState() == AutowareState::WaitingForRoute) {
+      state_input_.is_route_reset_required = false;
+      response->success = true;
+      response->message = "Reset route.";
+      return true;
+    }
+
+    if ((this->now() - t_start).seconds() > timeout) {
+      response->success = false;
+      response->message = "Reset route timeout.";
+      return true;
+    }
+
+    rclcpp::Rate(10.0).sleep();
+  }
+
+  response->success = false;
+  response->message = "Reset route failure.";
+  return true;
+}
+
 void AutowareStateMonitorNode::onTimer()
 {
   // Prepare state input
@@ -433,6 +472,9 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   // Service
   srv_shutdown_ = this->create_service<std_srvs::srv::Trigger>(
     "service/shutdown", std::bind(&AutowareStateMonitorNode::onShutdownService, this, _1, _2, _3));
+  srv_reset_route_ = this->create_service<std_srvs::srv::Trigger>(
+    "service/reset_route",
+    std::bind(&AutowareStateMonitorNode::onResetRouteService, this, _1, _2, _3));
 
   // Publisher
   pub_autoware_state_ =
