@@ -34,7 +34,8 @@
 
 #include "std_srvs/srv/trigger.hpp"
 
-
+namespace autoware_joy_controller
+{
 using ShiftType = autoware_vehicle_msgs::msg::Shift::_data_type;
 using TurnSignalType = autoware_vehicle_msgs::msg::TurnSignal::_data_type;
 using GateModeType = autoware_control_msgs::msg::GateMode::_data_type;
@@ -118,3 +119,4 @@ private:
   bool isDataReady();
   void onTimer();
 };
+}  // namespace autoware_joy_controller

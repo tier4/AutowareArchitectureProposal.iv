@@ -16,6 +16,8 @@
 
 #include "autoware_joy_controller/joy_converter/joy_converter_base.hpp"
 
+namespace autoware_joy_controller
+{
 class G29JoyConverter : public JoyConverterBase
 {
 public:
@@ -82,3 +84,4 @@ private:
 
   bool reverse() const {return Share();}
 };
+}
