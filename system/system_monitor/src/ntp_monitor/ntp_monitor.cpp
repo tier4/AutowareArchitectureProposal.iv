@@ -90,8 +90,6 @@ void NTPMonitor::checkOffset(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
 void NTPMonitor::executeNtpdate()
 {
-  rclcpp::Rate rate(1.0);
-
   while (rclcpp::ok()) {
     error_.clear();
 
