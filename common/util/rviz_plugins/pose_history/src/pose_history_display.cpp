@@ -14,18 +14,25 @@
 
 #include "pose_history_display.hpp"
 
+#include "rviz_rendering/objects/billboard_line.hpp"
+
+#include "rviz_common/properties/bool_property.hpp"
+#include "rviz_common/properties/color_property.hpp"
+#include "rviz_common/properties/float_property.hpp"
+#include "rviz_common/properties/int_property.hpp"
+#include "rviz_common/validate_floats.hpp"
+
 namespace rviz_plugins
 {
 PoseHistory::PoseHistory()
+: last_stamp_(0, 0, RCL_ROS_TIME)
 {
-  const char * topic_type = ros::message_traits::datatype<geometry_msgs::PoseStamped>();
-  const char * topic_desc = "Name of topic to display";
-  property_topic_ =
-    new rviz::RosTopicProperty("Topic", "", topic_type, topic_desc, this, SLOT(updateTopic()));
-  property_buffer_size_ = new rviz::IntProperty("Buffer Size", 100, "", this);
-  property_line_view_ = new rviz::BoolProperty("Line", true, "", this);
-  property_line_width_ = new rviz::FloatProperty("Width", 0.1, "", property_line_view_);
-  property_line_color_ = new rviz::ColorProperty("Color", Qt::white, "", property_line_view_);
+  property_buffer_size_ = new rviz_common::properties::IntProperty("Buffer Size", 100, "", this);
+  property_line_view_ = new rviz_common::properties::BoolProperty("Line", true, "", this);
+  property_line_width_ =
+    new rviz_common::properties::FloatProperty("Width", 0.1, "", property_line_view_);
+  property_line_color_ =
+    new rviz_common::properties::ColorProperty("Color", Qt::white, "", property_line_view_);
 
   property_buffer_size_->setMin(0);
   property_buffer_size_->setMax(16000);
@@ -39,7 +46,8 @@ PoseHistory::~PoseHistory()
 
 void PoseHistory::onInitialize()
 {
-  lines_.reset(new rviz::BillboardLine(scene_manager_, scene_node_));
+  MFDClass::onInitialize();
+  lines_.reset(new rviz_rendering::BillboardLine(scene_manager_, scene_node_));
 }
 
 void PoseHistory::onEnable() {subscribe();}
@@ -48,6 +56,9 @@ void PoseHistory::onDisable() {unsubscribe();}
 
 void PoseHistory::update(float wall_dt, float ros_dt)
 {
+  (void) wall_dt;
+  (void) ros_dt;
+
   if (!history_.empty()) {
     lines_->clear();
     if (property_line_view_->getBool()) {
@@ -56,42 +67,40 @@ void PoseHistory::update(float wall_dt, float ros_dt)
   }
 }
 
-void PoseHistory::updateTopic()
-{
-  unsubscribe();
-  subscribe();
-}
-
 void PoseHistory::subscribe()
 {
-  auto topic_name = property_topic_->getTopicStd();
-  if (1 < topic_name.length()) {
-    sub_ = nh_.subscribe(topic_name, 10, &PoseHistory::onMessage, this);
-  }
+  MFDClass::subscribe();
 }
 
 void PoseHistory::unsubscribe()
 {
-  sub_.shutdown();
+  MFDClass::unsubscribe();
 
   history_.clear();
   lines_->clear();
 }
 
-void PoseHistory::onMessage(const geometry_msgs::PoseStamped & message)
+void PoseHistory::processMessage(const geometry_msgs::msg::PoseStamped::ConstSharedPtr message)
 {
-  if (target_frame_ != message.header.frame_id) {
+  if (!rviz_common::validateFloats(message->pose)) {
+    setStatus(
+      rviz_common::properties::StatusProperty::Error, "Topic",
+      "Message contained invalid floating point values (nans or infs)");
+    return;
+  }
+  if (target_frame_ != message->header.frame_id) {
     history_.clear();
-    target_frame_ = message.header.frame_id;
+    target_frame_ = message->header.frame_id;
   }
   history_.emplace_back(message);
+  last_stamp_ = message->header.stamp;
 
   updateHistory();
 }
 
 void PoseHistory::updateHistory()
 {
-  int buffer_size = property_buffer_size_->getInt();
+  const auto buffer_size = static_cast<size_t>(property_buffer_size_->getInt());
   while (buffer_size < history_.size()) {
     history_.pop_front();
   }
@@ -104,14 +113,12 @@ void PoseHistory::updateLines()
   Ogre::Quaternion orientation;
 
   auto frame_manager = context_->getFrameManager();
-  if (!frame_manager->getTransform(target_frame_, ros::Time(0), position, orientation)) {
-    std::string error;
-    frame_manager->transformHasProblems(target_frame_, ros::Time(0), error);
-    setStatusStd(rviz::StatusProperty::Error, "Transform", error);
+  if (!frame_manager->getTransform(target_frame_, last_stamp_, position, orientation)) {
+    setMissingTransformToFixedFrame(target_frame_);
     return;
   }
 
-  setStatusStd(rviz::StatusProperty::Ok, "Transform", "Transform OK");
+  setTransformOk();
   lines_->setMaxPointsPerLine(history_.size());
   lines_->setLineWidth(property_line_width_->getFloat());
   lines_->setPosition(position);
@@ -120,14 +127,14 @@ void PoseHistory::updateLines()
 
   for (const auto & message : history_) {
     Ogre::Vector3 point;
-    point.x = message.pose.position.x;
-    point.y = message.pose.position.y;
-    point.z = message.pose.position.z;
+    point.x = message->pose.position.x;
+    point.y = message->pose.position.y;
+    point.z = message->pose.position.z;
     lines_->addPoint(point);
   }
 }
 
 }  // namespace rviz_plugins
 
-#include "pluginlib/class_list_macros.h"
-PLUGINLIB_EXPORT_CLASS(rviz_plugins::PoseHistory, rviz::Display)
+#include "pluginlib/class_list_macros.hpp"
+PLUGINLIB_EXPORT_CLASS(rviz_plugins::PoseHistory, rviz_common::Display)
