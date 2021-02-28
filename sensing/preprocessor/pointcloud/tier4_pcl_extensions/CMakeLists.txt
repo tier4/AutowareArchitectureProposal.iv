@@ -14,12 +14,22 @@ endif()
 find_package(ament_cmake_auto REQUIRED)
 find_package(PCL REQUIRED COMPONENTS common)
 
+find_package(eigen3_cmake_module REQUIRED)
+find_package(Eigen3 REQUIRED)
+
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-ament_auto_add_library(tier4_pcl_extensions SHARED src/voxel_grid_nearest_centroid.cpp)
+ament_auto_add_library(tier4_pcl_extensions SHARED
+  src/voxel_grid_nearest_centroid.cpp
+)
 
 target_link_libraries(tier4_pcl_extensions ${PCL_LIBRARIES})
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 ament_auto_package()
