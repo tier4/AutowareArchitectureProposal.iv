@@ -11,8 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef DYNAMIC_OBJECT_VISUALIZATION_DYNAMIC_OBJECT_VISUALIZER_HPP_
-#define DYNAMIC_OBJECT_VISUALIZATION_DYNAMIC_OBJECT_VISUALIZER_HPP_
+#ifndef DYNAMIC_OBJECT_VISUALIZATION__DYNAMIC_OBJECT_VISUALIZER_HPP_
+#define DYNAMIC_OBJECT_VISUALIZATION__DYNAMIC_OBJECT_VISUALIZER_HPP_
+
+#include <iomanip>
+#include <string>
+#include <vector>
 
 #include "rclcpp/rclcpp.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
@@ -22,8 +26,6 @@
 #include "geometry_msgs/msg/pose.hpp"
 #include "std_msgs/msg/color_rgba.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
-
-#include <iomanip>
 
 class DynamicObjectVisualizer : public rclcpp::Node
 {
@@ -78,4 +80,4 @@ public:
   virtual ~DynamicObjectVisualizer() {}
 };
 
-#endif // #define DYNAMIC_OBJECT_VISUALIZATION_DYNAMIC_OBJECT_VISUALIZER_HPP_
+#endif  // DYNAMIC_OBJECT_VISUALIZATION__DYNAMIC_OBJECT_VISUALIZER_HPP_
