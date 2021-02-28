@@ -1,38 +1,40 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- *
- * v1.0 Yukihiro Saito
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+//
+// Author: v1.0 Yukihiro Saito
+//
 
-#include "multi_object_tracker/tracker/model/normal_vehicle_tracker.hpp"
-#include "autoware_utils/autoware_utils.hpp"
 #include <bits/stdc++.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/utils.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include "multi_object_tracker/utils/utils.hpp"
+
 #define EIGEN_MPL2_ONLY
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include "multi_object_tracker/tracker/model/normal_vehicle_tracker.hpp"
+#include "autoware_utils/autoware_utils.hpp"
+#include "multi_object_tracker/utils/utils.hpp"
+
 NormalVehicleTracker::NormalVehicleTracker(
   const rclcpp::Time & time, const autoware_perception_msgs::msg::DynamicObject & object)
-: Tracker(time, object.semantic.type), last_update_time_(time),
-  logger_(rclcpp::get_logger("NormalVehicleTracker"))
+: Tracker(time, object.semantic.type),
+  logger_(rclcpp::get_logger("NormalVehicleTracker")),
+  last_update_time_(time)
 {
   object_ = object;
 
@@ -94,7 +96,8 @@ NormalVehicleTracker::NormalVehicleTracker(
     const double sin_yaw = std::sin(X(IDX::YAW));
     const double sin_2yaw = std::sin(2.0f * X(IDX::YAW));
     // Rotate the covariance matrix according to the vehicle yaw
-    // because initial_measurement_noise_covariance_pos_x and y are in the vehicle coordinate system.
+    // because initial_measurement_noise_covariance_pos_x and y are in the
+    // vehicle coordinate system.
     P(IDX::X, IDX::X) = initial_measurement_noise_covariance_pos_x_ * cos_yaw * cos_yaw +
       initial_measurement_noise_covariance_pos_y_ * sin_yaw * sin_yaw;
     P(IDX::X, IDX::Y) =
@@ -211,15 +214,14 @@ bool NormalVehicleTracker::predict(const double dt, KalmanFilter & ekf)
 bool NormalVehicleTracker::measureWithPose(
   const autoware_perception_msgs::msg::DynamicObject & object)
 {
-  float measurement_noise_covariance_pos_x;
-  float measurement_noise_covariance_pos_y;
-  if (object.semantic.type == autoware_perception_msgs::msg::Semantic::CAR) {
+  float measurement_noise_covariance_pos_x = 0.0f;
+  float measurement_noise_covariance_pos_y = 0.0f;
+  using autoware_perception_msgs::msg::Semantic;
+  const auto & semantic_type = object.semantic.type;
+  if (semantic_type == Semantic::CAR) {
     measurement_noise_covariance_pos_x = measurement_noise_covariance_pos_x_;
     measurement_noise_covariance_pos_y = measurement_noise_covariance_pos_y_;
-  } else if (
-    object.semantic.type == autoware_perception_msgs::msg::Semantic::TRUCK ||
-    object.semantic.type == autoware_perception_msgs::msg::Semantic::BUS)
-  {
+  } else if (semantic_type == Semantic::TRUCK || semantic_type == Semantic::BUS) {
     constexpr float measurement_noise_stddev_pos_x = 8.0;  // [m]
     constexpr float measurement_noise_stddev_pos_y = 0.8;  // [m]
     measurement_noise_covariance_pos_x_ = std::pow(measurement_noise_stddev_pos_x, 2.0);
@@ -374,7 +376,7 @@ bool NormalVehicleTracker::getEstimatedDynamicObject(
     object.state.pose_covariance.pose.orientation.w = filtered_quaternion.w();
   }
 
-  //set covariance
+  // set covariance
   object.state.pose_covariance.covariance[utils::MSG_COV_IDX::X_X] = P(IDX::X, IDX::X);
   object.state.pose_covariance.covariance[utils::MSG_COV_IDX::X_Y] = P(IDX::X, IDX::Y);
   object.state.pose_covariance.covariance[utils::MSG_COV_IDX::X_YAW] = P(IDX::X, IDX::YAW);

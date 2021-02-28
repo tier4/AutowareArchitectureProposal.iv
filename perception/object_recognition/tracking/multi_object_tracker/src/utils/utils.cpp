@@ -1,26 +1,29 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- *
- * v1.0 Yukihiro Saito
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+//
+// Author: v1.0 Yukihiro Saito
+//
 
-#include "multi_object_tracker/utils/utils.hpp"
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/utils.h>
 #include <boost/geometry.hpp>
+
+#include <algorithm>
+#include <vector>
+
+#include "multi_object_tracker/utils/utils.hpp"
 
 namespace utils
 {
@@ -46,8 +49,8 @@ double getPolygonArea(const geometry_msgs::msg::Polygon & footprint)
 {
   double area = 0.0;
 
-  for (int i = 0; i < (int)footprint.points.size(); ++i) {
-    int j = (i + 1) % (int)footprint.points.size();
+  for (int i = 0; i < static_cast<int>(footprint.points.size()); ++i) {
+    int j = (i + 1) % static_cast<int>(footprint.points.size());
     area += 0.5 * (footprint.points.at(i).x * footprint.points.at(j).y -
       footprint.points.at(j).x * footprint.points.at(i).y);
   }
@@ -57,19 +60,18 @@ double getPolygonArea(const geometry_msgs::msg::Polygon & footprint)
 
 double getRectangleArea(const geometry_msgs::msg::Vector3 & dimensions)
 {
-  return double(dimensions.x * dimensions.y);
+  return static_cast<double>(dimensions.x * dimensions.y);
 }
 
 double getCircleArea(const geometry_msgs::msg::Vector3 & dimensions)
 {
-  return double((dimensions.x / 2.0) * (dimensions.x / 2.0) * M_PI);
+  return static_cast<double>((dimensions.x / 2.0) * (dimensions.x / 2.0) * M_PI);
 }
 
 double get2dIoU(
   const autoware_perception_msgs::msg::DynamicObject & object1,
   const autoware_perception_msgs::msg::DynamicObject & object2)
 {
-  double area = 0.0;
   autoware_utils::Polygon2d polygon1, polygon2;
   toPolygon2d(object1, polygon1);
   toPolygon2d(object2, polygon2);
@@ -108,7 +110,7 @@ bool isClockWise(const autoware_utils::Polygon2d & polygon)
   const double x_offset = polygon.outer().at(0).x();
   const double y_offset = polygon.outer().at(0).y();
   double sum = 0.0;
-  for (int i = 0; i < polygon.outer().size(); ++i) {
+  for (std::size_t i = 0; i < polygon.outer().size(); ++i) {
     sum +=
       (polygon.outer().at(i).x() - x_offset) * (polygon.outer().at((i + 1) % n).y() - y_offset) -
       (polygon.outer().at(i).y() - y_offset) * (polygon.outer().at((i + 1) % n).x() - x_offset);
@@ -150,9 +152,13 @@ void toPolygon2d(
     for (int i = 0; i < n; ++i) {
       Eigen::Vector2d point;
       point.x() =
-        std::cos(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) * radius + center.x;
+        std::cos(
+        (static_cast<double>(i) / static_cast<double>(n)) * 2.0 * M_PI + M_PI /
+        static_cast<double>(n)) * radius + center.x;
       point.y() =
-        std::sin(((double)i / (double)n) * 2.0 * M_PI + M_PI / (double)n) * radius + center.y;
+        std::sin(
+        (static_cast<double>(i) / static_cast<double>(n)) * 2.0 * M_PI + M_PI /
+        static_cast<double>(n)) * radius + center.y;
       output.outer().push_back(
         boost::geometry::make<autoware_utils::Point2d>(point.x(), point.y()));
     }

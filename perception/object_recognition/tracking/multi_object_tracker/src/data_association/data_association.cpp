@@ -1,21 +1,26 @@
-/*
- * Copyright 2020 Tier IV, Inc. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- *
- * v1.0 Yukihiro Saito
- */
+// Copyright 2020 Tier IV, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+//
+// Author: v1.0 Yukihiro Saito
+//
+
+#include <algorithm>
+#include <list>
+#include <memory>
+#include <unordered_map>
+#include <vector>
 
 #include "multi_object_tracker/data_association/data_association.hpp"
 #include "successive_shortest_path/successive_shortest_path.hpp"
@@ -132,12 +137,6 @@ Eigen::MatrixXd DataAssociation::calcScoreMatrix(
 
           if (2.448 <= mahalanobis_dist) {score = 0.0;}
         }
-        // if ((*tracker_itr)->getType() == measurements.feature_objects.at(measurement_idx).object.semantic.type &&
-        //     measurements.feature_objects.at(measurement_idx).object.semantic.type !=
-        //     autoware_perception_msgs::msg::Semantic::UNKNOWN) score += 1.0;
-        // if (measurements.feature_objects.at(measurement_idx).object.semantic.type !=
-        // autoware_perception_msgs::msg::Semantic::UNKNOWN)
-        //     score += 1.0;
       }
       score_matrix(tracker_idx, measurement_idx) = score;
     }
