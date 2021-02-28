@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
 
 #include "rclcpp/rclcpp.hpp"
 #include "autoware_joy_controller/autoware_joy_controller.hpp"

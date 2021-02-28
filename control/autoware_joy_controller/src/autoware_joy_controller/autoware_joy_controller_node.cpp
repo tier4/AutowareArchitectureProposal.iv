@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
+#include <memory>
+#include <string>
+#include <utility>
+
 #include "autoware_joy_controller/autoware_joy_controller.hpp"
 #include "autoware_joy_controller/joy_converter/g29_joy_converter.hpp"
 #include "autoware_joy_controller/joy_converter/ds4_joy_converter.hpp"
@@ -471,7 +476,8 @@ AutowareJoyControllerNode::AutowareJoyControllerNode()
     1);
 
   // Service Client
-  client_clear_emergency_stop_ = this->create_client<std_srvs::srv::Trigger>("service/clear_emergency_stop");
+  client_clear_emergency_stop_ = this->create_client<std_srvs::srv::Trigger>(
+    "service/clear_emergency_stop");
   while (!client_clear_emergency_stop_->wait_for_service(std::chrono::seconds(1))) {
     if (!rclcpp::ok()) {
       RCLCPP_ERROR(get_logger(), "Interrupted while waiting for service.");

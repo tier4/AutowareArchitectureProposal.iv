@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef AUTOWARE_JOY_CONTROLLER__AUTOWARE_JOY_CONTROLLER_HPP_
+#define AUTOWARE_JOY_CONTROLLER__AUTOWARE_JOY_CONTROLLER_HPP_
 
 #include <algorithm>
 #include <memory>
@@ -120,3 +121,5 @@ private:
   void onTimer();
 };
 }  // namespace autoware_joy_controller
+
+#endif  // AUTOWARE_JOY_CONTROLLER__AUTOWARE_JOY_CONTROLLER_HPP_
