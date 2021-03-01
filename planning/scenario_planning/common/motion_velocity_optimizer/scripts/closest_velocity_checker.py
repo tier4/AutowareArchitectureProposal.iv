@@ -24,11 +24,12 @@ import time
 import copy
 import numpy as np
 
-from autoware_planning_msgs.msg import Path, PathWithLaneId, Trajectory
+from autoware_planning_msgs.msg import Path, PathWithLaneId, Trajectory, VelocityLimit
 from autoware_control_msgs.msg import ControlCommandStamped
-from autoware_vehicle_msgs.msg import VehicleCommand
+from autoware_vehicle_msgs.msg import Engage, VehicleCommand
 from geometry_msgs.msg import Pose, PoseStamped, PoseWithCovarianceStamped, Quaternion, Twist, TwistStamped
-from std_msgs.msg import Bool, Float32, Header, Int32, Float32MultiArray
+from std_msgs.msg import Header
+from autoware_debug.msg import Float32MultiArrayStamped
 
 from tf2_ros import LookupException
 from tf2_ros.buffer import Buffer
@@ -84,8 +85,8 @@ class VelocityChecker(Node):
         self.sub7 = self.create_subscription(VehicleCommand, "/control/vehicle_cmd", self.CallBackVehicleCmd, 1)
 
         # others related to velocity
-        self.sub8 = self.create_subscription(Bool, "/autoware/engage", self.CallBackAwEngage, 1)
-        self.sub9 = self.create_subscription(Float32, "/planning/scenario_planning/max_velocity", self.CallBackExternalVelLim, 1)
+        self.sub8 = self.create_subscription(Engage, "/autoware/engage", self.CallBackAwEngage, 1)
+        self.sub9 = self.create_subscription(VelocityLimit, "/planning/scenario_planning/max_velocity", self.CallBackExternalVelLim, 1)
 
         # self twist
         self.sub10 = self.create_subscription(TwistStamped, "/localization/twist", self.CallBackLocalizationTwist, 1)
@@ -135,7 +136,7 @@ class VelocityChecker(Node):
         self.autoware_engage = msg.engage
 
     def CallBackExternalVelLim(self, msg):
-        self.external_vlim = msg.data
+        self.external_vlim = msg.max_velocity
 
     def CallBackLocalizationTwist(self, msg):
         self.localization_twist = msg.twist
