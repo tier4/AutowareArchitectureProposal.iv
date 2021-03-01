@@ -27,7 +27,7 @@ namespace livox_tag_filter
 class LivoxTagFilterNode : public rclcpp::Node
 {
 public:
-  LivoxTagFilterNode();
+  explicit LivoxTagFilterNode(const rclcpp::NodeOptions & node_options);
 
 private:
   // Parameter

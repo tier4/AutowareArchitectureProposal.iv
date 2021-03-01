@@ -35,8 +35,8 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(
 
 namespace livox_tag_filter
 {
-LivoxTagFilterNode::LivoxTagFilterNode()
-: Node("livox_tag_filter")
+LivoxTagFilterNode::LivoxTagFilterNode(const rclcpp::NodeOptions & node_options)
+: Node("livox_tag_filter", node_options)
 {
   // Parameter
   ignore_tags_ = this->declare_parameter("ignore_tags", std::vector<std::int64_t>{});
@@ -85,3 +85,6 @@ void LivoxTagFilterNode::onPointCloud(const sensor_msgs::msg::PointCloud2::Const
 }
 
 }  // namespace livox_tag_filter
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(livox_tag_filter::LivoxTagFilterNode)

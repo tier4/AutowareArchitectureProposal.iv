@@ -19,13 +19,17 @@ include_directories(${PCL_INCLUDE_DIRS})
 
 # Target
 ## livox_tag_filter_node
-ament_auto_add_executable(livox_tag_filter_node
-  src/livox_tag_filter_node/main.cpp
+ament_auto_add_library(livox_tag_filter SHARED
   src/livox_tag_filter_node/livox_tag_filter_node.cpp
 )
 
-target_link_libraries(livox_tag_filter_node
+target_link_libraries(livox_tag_filter
   ${PCL_LIBRARIES}
+)
+
+rclcpp_components_register_node(livox_tag_filter
+  PLUGIN "livox_tag_filter::LivoxTagFilterNode"
+  EXECUTABLE livox_tag_filter_node
 )
 
 if(BUILD_TESTING)
