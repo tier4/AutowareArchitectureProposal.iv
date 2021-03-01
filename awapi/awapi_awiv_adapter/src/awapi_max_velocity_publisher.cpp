@@ -53,7 +53,7 @@ bool AutowareIvMaxVelocityPublisher::calcMaxVelocity(
 
   if (temporary_stop_ptr && temporary_stop_ptr->stop) {
     // if temporary_stop is true, max velocity is 0
-    *max_velocity = static_cast<double>(0.0);
+    *max_velocity = static_cast<float>(0.0);
   }
 
   return true;
