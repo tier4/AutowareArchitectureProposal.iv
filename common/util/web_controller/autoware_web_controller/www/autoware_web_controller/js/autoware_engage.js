@@ -25,12 +25,18 @@ if (!AutowareEngagePublisher) {
 
             if(value == 'Engage'){
                 var str = new ROSLIB.Message({
-                    is_engaged: true
+                    stamp:{
+                        sec: 0,
+                        nanosec: 0},
+                    engage: true
                 });
                 pub.publish(str);
             } else {
                 var str = new ROSLIB.Message({
-                    is_engaged: false
+                    stamp:{
+                        sec: 0,
+                        nanosec: 0},
+                    engage: false
                 });
                 pub.publish(str);
             }
