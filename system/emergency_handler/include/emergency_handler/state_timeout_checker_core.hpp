@@ -20,7 +20,7 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "autoware_system_msgs/msg/autoware_state.hpp"
-#include "autoware_system_msgs/msg/timeout_notification.hpp"
+#include "autoware_system_msgs/msg/timeout_notification_stamped.hpp"
 
 struct TimeoutThreshold
 {
@@ -50,7 +50,7 @@ private:
   void onAutowareState(const autoware_system_msgs::msg::AutowareState::ConstSharedPtr msg);
 
   // Publisher
-  rclcpp::Publisher<autoware_system_msgs::msg::TimeoutNotification>::SharedPtr
+  rclcpp::Publisher<autoware_system_msgs::msg::TimeoutNotificationStamped>::SharedPtr
     pub_is_state_timeout_;
 
   // Timer
