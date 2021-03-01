@@ -268,6 +268,8 @@ void PointCloudConcatenateDataSynchronizerComponent::publish()
 
   if (concat_cloud_ptr_) {
     pub_output_->publish(*concat_cloud_ptr_);
+  } else {
+    RCLCPP_WARN(this->get_logger(), "concat_cloud_ptr_ is nullptr, skipping pointcloud publish.");
   }
 
   std_msgs::msg::Int32 concat_num_msg;
