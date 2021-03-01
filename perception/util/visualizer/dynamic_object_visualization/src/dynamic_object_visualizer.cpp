@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#define EIGEN_MPL2_ONLY
-#include <Eigen/Core>
-#include <Eigen/Eigen>
-
 #include <memory>
 #include <string>
 #include <vector>
+
+#define EIGEN_MPL2_ONLY
+#include "Eigen/Core"
+#include "Eigen/Eigen"
 
 #include "dynamic_object_visualization/dynamic_object_visualizer.hpp"
 #include "geometry_msgs/msg/point.hpp"
