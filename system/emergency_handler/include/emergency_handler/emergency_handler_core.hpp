@@ -26,7 +26,7 @@
 #include "autoware_system_msgs/msg/autoware_state.hpp"
 #include "autoware_system_msgs/msg/driving_capability.hpp"
 #include "autoware_system_msgs/msg/hazard_status_stamped.hpp"
-#include "autoware_system_msgs/msg/timeout_notification_stamped.hpp"
+#include "autoware_system_msgs/msg/timeout_notification.hpp"
 #include "autoware_vehicle_msgs/msg/shift_stamped.hpp"
 #include "autoware_vehicle_msgs/msg/turn_signal.hpp"
 #include "autoware_vehicle_msgs/msg/vehicle_command.hpp"
@@ -54,7 +54,7 @@ private:
     sub_prev_control_command_;
   rclcpp::Subscription<autoware_control_msgs::msg::GateMode>::SharedPtr sub_current_gate_mode_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
-  rclcpp::Subscription<autoware_system_msgs::msg::TimeoutNotificationStamped>::SharedPtr
+  rclcpp::Subscription<autoware_system_msgs::msg::TimeoutNotification>::SharedPtr
     sub_is_state_timeout_;
 
   autoware_system_msgs::msg::AutowareState::ConstSharedPtr autoware_state_;
@@ -62,7 +62,7 @@ private:
   autoware_control_msgs::msg::ControlCommand::ConstSharedPtr prev_control_command_;
   autoware_control_msgs::msg::GateMode::ConstSharedPtr current_gate_mode_;
   geometry_msgs::msg::TwistStamped::ConstSharedPtr twist_;
-  autoware_system_msgs::msg::TimeoutNotificationStamped::ConstSharedPtr is_state_timeout_;
+  autoware_system_msgs::msg::TimeoutNotification::ConstSharedPtr is_state_timeout_;
 
   void onAutowareState(const autoware_system_msgs::msg::AutowareState::ConstSharedPtr msg);
   void onDrivingCapability(const autoware_system_msgs::msg::DrivingCapability::ConstSharedPtr msg);
@@ -71,7 +71,7 @@ private:
   void onCurrentGateMode(const autoware_control_msgs::msg::GateMode::ConstSharedPtr msg);
   void onTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
   void onIsStateTimeout(
-    const autoware_system_msgs::msg::TimeoutNotificationStamped::ConstSharedPtr msg);
+    const autoware_system_msgs::msg::TimeoutNotification::ConstSharedPtr msg);
 
   // Service
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_clear_emergency_;
@@ -112,7 +112,7 @@ private:
   rclcpp::Time initialized_time_;
   std::shared_ptr<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::DrivingCapability>>
   heartbeat_driving_capability_;
-  std::shared_ptr<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::TimeoutNotificationStamped>>
+  std::shared_ptr<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::TimeoutNotification>>
   heartbeat_is_state_timeout_;
 
   // Algorithm
