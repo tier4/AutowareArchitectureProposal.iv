@@ -84,52 +84,71 @@ bool isLaneletAttributeValue(
   return false;
 }
 
-void lightAsMarker(
-  lanelet::ConstPoint3d p, visualization_msgs::msg::Marker * marker, const std::string ns)
+void initLightMarker(visualization_msgs::msg::Marker * marker, const std::string ns)
 {
   if (marker == nullptr) {
     std::cerr << __FUNCTION__ << ": marker is null pointer!" << std::endl;
     return;
   }
 
+  float s = 0.3;
+
   marker->header.frame_id = "map";
   marker->header.stamp = rclcpp::Time();
   marker->frame_locked - true;
   marker->ns = ns;
-  marker->id = p.id();
+  marker->id = 0;
   marker->lifetime = rclcpp::Duration(0, 0);
-  marker->type = visualization_msgs::msg::Marker::SPHERE;
-  marker->pose.position.x = p.x();
-  marker->pose.position.y = p.y();
-  marker->pose.position.z = p.z();
+  marker->type = visualization_msgs::msg::Marker::SPHERE_LIST;
+  marker->pose.position.x = 0;
+  marker->pose.position.y = 0;
+  marker->pose.position.z = 0;
   marker->pose.orientation.x = 0.0;
   marker->pose.orientation.y = 0.0;
   marker->pose.orientation.z = 0.0;
   marker->pose.orientation.w = 1.0;
-
-  float s = 0.3;
-
   marker->scale.x = s;
   marker->scale.y = s;
   marker->scale.z = s;
+  marker->color.r = 1.0f;
+  marker->color.g = 1.0f;
+  marker->color.b = 1.0f;
+  marker->color.a = 1.0f;
+}
 
-  marker->color.r = 0.0f;
-  marker->color.g = 0.0f;
-  marker->color.b = 0.0f;
-  marker->color.a = 0.999f;
+void pushLightMarker(visualization_msgs::msg::Marker * marker, lanelet::ConstPoint3d p)
+{
+  if (marker == nullptr) {
+    std::cerr << __FUNCTION__ << ": marker is null pointer!" << std::endl;
+    return;
+  }
+
+  geometry_msgs::msg::Point point;
+  point.x = p.x();
+  point.y = p.y();
+  point.z = p.z();
+
+  std_msgs::msg::ColorRGBA color;
+  color.r = 0.0f;
+  color.g = 0.0f;
+  color.b = 0.0f;
+  color.a = 0.999f;
 
   if (isAttributeValue(p, "color", "red")) {
-    marker->color.r = 1.0f;
+    color.r = 1.0f;
   } else if (isAttributeValue(p, "color", "green")) {
-    marker->color.g = 1.0f;
+    color.g = 1.0f;
   } else if (isAttributeValue(p, "color", "yellow")) {
-    marker->color.r = 1.0f;
-    marker->color.g = 1.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
   } else {
-    marker->color.r = 1.0f;
-    marker->color.g = 1.0f;
-    marker->color.b = 1.0f;
+    color.r = 1.0f;
+    color.g = 1.0f;
+    color.b = 1.0f;
   }
+
+  marker->points.push_back(point);
+  marker->colors.push_back(color);
 }
 
 void laneletDirectionAsMarker(
@@ -468,42 +487,39 @@ visualization_msgs::msg::MarkerArray visualization::autowareTrafficLightsAsMarke
   const std::vector<lanelet::AutowareTrafficLightConstPtr> tl_reg_elems,
   const std_msgs::msg::ColorRGBA c, const rclcpp::Duration duration, const double scale)
 {
-  visualization_msgs::msg::MarkerArray tl_marker_array;
-
   int tl_count = 0;
+  visualization_msgs::msg::Marker marker_tri;
+  visualization_msgs::msg::Marker marker_sph;
+  visualization::initTrafficLightTriangleMarker(&marker_tri, "traffic_light_triangle", duration);
+  initLightMarker(&marker_sph, "traffic_light");
+
   for (auto tli = tl_reg_elems.begin(); tli != tl_reg_elems.end(); tli++) {
     lanelet::ConstLineStrings3d light_bulbs;
     lanelet::AutowareTrafficLightConstPtr tl = *tli;
 
     const auto lights = tl->trafficLights();
     for (const auto & lsp : lights) {
-      if (lsp.isLineString())  // traffic lights can either polygons or
-      {                        // linestrings
+      if (lsp.isLineString()) { // traffic lights can either polygons or linestrings
         lanelet::ConstLineString3d ls = static_cast<lanelet::ConstLineString3d>(lsp);
-
-        visualization_msgs::msg::Marker marker;
-        visualization::trafficLight2TriangleMarker(
-          ls, &marker, "traffic_light_triangle", c, duration, scale);
-        tl_marker_array.markers.push_back(marker);
+        visualization::pushTrafficLightTriangleMarker(&marker_tri, ls, c, scale);
       }
     }
 
     light_bulbs = tl->lightBulbs();
     for (auto ls : light_bulbs) {
       lanelet::ConstLineString3d l = static_cast<lanelet::ConstLineString3d>(ls);
-
       for (auto pt : l) {
         if (pt.hasAttribute("color")) {
-          visualization_msgs::msg::Marker marker;
-          lightAsMarker(pt, &marker, "traffic_light");
-          tl_marker_array.markers.push_back(marker);
-
+          pushLightMarker(&marker_sph, pt);
           tl_count++;
         }
       }
     }
   }
 
+  visualization_msgs::msg::MarkerArray tl_marker_array;
+  tl_marker_array.markers.push_back(marker_tri);
+  tl_marker_array.markers.push_back(marker_sph);
   return tl_marker_array;
 }
 
@@ -770,7 +786,8 @@ visualization_msgs::msg::MarkerArray visualization::trafficLightsAsTriangleMarke
 
   int tl_count = 0;
   std::vector<lanelet::ConstLineString3d> line_strings;
-  visualization_msgs::msg::MarkerArray marker_array;
+  visualization_msgs::msg::Marker marker;
+  visualization::initTrafficLightTriangleMarker(&marker, "traffic_light_triangle", duration);
 
   for (auto tli = tl_reg_elems.begin(); tli != tl_reg_elems.end(); tli++) {
     lanelet::TrafficLightConstPtr tl = *tli;
@@ -778,19 +795,17 @@ visualization_msgs::msg::MarkerArray visualization::trafficLightsAsTriangleMarke
 
     auto lights = tl->trafficLights();
     for (auto lsp : lights) {
-      if (lsp.isLineString())  // traffic lights can either polygons or
-      {                        // linestrings
+      if (lsp.isLineString())  // traffic lights can either polygons or linestrings
+      {
         lanelet::ConstLineString3d ls = static_cast<lanelet::ConstLineString3d>(lsp);
-
-        visualization_msgs::msg::Marker marker;
-        visualization::trafficLight2TriangleMarker(
-          ls, &marker, "traffic_light_triangle", c, duration, scale);
-        marker_array.markers.push_back(marker);
+        visualization::pushTrafficLightTriangleMarker(&marker, ls, c, scale);
         tl_count++;
       }
     }
   }
 
+  visualization_msgs::msg::MarkerArray marker_array;
+  marker_array.markers.push_back(marker);
   return marker_array;
 }
 
@@ -848,10 +863,9 @@ visualization_msgs::msg::MarkerArray visualization::laneletsAsTriangleMarkerArra
   return marker_array;
 }
 
-void visualization::trafficLight2TriangleMarker(
-  const lanelet::ConstLineString3d ls, visualization_msgs::msg::Marker * marker,
-  const std::string ns,
-  const std_msgs::msg::ColorRGBA cl, const rclcpp::Duration duration, const double scale)
+void visualization::initTrafficLightTriangleMarker(
+  visualization_msgs::msg::Marker * marker,
+  const std::string ns, const rclcpp::Duration duration)
 {
   if (marker == nullptr) {
     std::cerr << __FUNCTION__ << ": marker is null pointer!" << std::endl;
@@ -862,7 +876,7 @@ void visualization::trafficLight2TriangleMarker(
   marker->header.stamp = rclcpp::Time();
   marker->frame_locked = true;
   marker->ns = ns;
-  marker->id = ls.id();
+  marker->id = 0;
   marker->type = visualization_msgs::msg::Marker::TRIANGLE_LIST;
   marker->lifetime = duration;
 
@@ -880,6 +894,16 @@ void visualization::trafficLight2TriangleMarker(
   marker->color.g = 1.0f;
   marker->color.b = 1.0f;
   marker->color.a = 0.999;
+}
+
+void visualization::pushTrafficLightTriangleMarker(
+  visualization_msgs::msg::Marker * marker, const lanelet::ConstLineString3d ls,
+  const std_msgs::msg::ColorRGBA cl, const double scale)
+{
+  if (marker == nullptr) {
+    std::cerr << __FUNCTION__ << ": marker is null pointer!" << std::endl;
+    return;
+  }
 
   double h = 0.7;
   if (ls.hasAttribute("height")) {

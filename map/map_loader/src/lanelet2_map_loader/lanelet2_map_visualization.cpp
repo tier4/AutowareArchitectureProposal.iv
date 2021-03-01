@@ -135,10 +135,15 @@ void binMapCallback(const autoware_lanelet2_msgs::msg::MapBin::SharedPtr msg)
     &map_marker_array,
     lanelet::visualization::laneletsAsTriangleMarkerArray("road_lanelets", road_lanelets, cl_road));
 
+#if 1
   for (const visualization_msgs::msg::Marker& marker : map_marker_array.markers)
   {
-    RCLCPP_INFO((*g_logger), "NS=%s, ID=%d, N=%d", marker.ns.c_str(), marker.id, marker.points.size());
+    if (marker.type != visualization_msgs::msg::Marker::TEXT_VIEW_FACING)
+    {
+      RCLCPP_INFO((*g_logger), "NS=%s, ID=%d, N=%d", marker.ns.c_str(), marker.id, marker.points.size());
+    }
   }
+#endif
 
   g_map_pub->publish(map_marker_array);
 }
