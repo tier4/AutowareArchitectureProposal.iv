@@ -76,7 +76,7 @@ if (!AutowareEngageStatusSubscriber) {
                 if (div.hasChildNodes()) {
                     div.removeChild(div.firstChild);
                 }
-                var res = message.is_engaged;
+                var res = message.engage;
                 var el = document.createElement("span");
                 el.innerHTML = res
                 document.getElementById("autoware_engage_status").appendChild(el);
