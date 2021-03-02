@@ -95,9 +95,9 @@ PointCloudConcatenateDataSynchronizerComponent::PointCloudConcatenateDataSynchro
   // Publishers
   {
     pub_output_ = this->create_publisher<PointCloud2>("output", maximum_queue_size_);
-    pub_concat_num_ = this->create_publisher<std_msgs::msg::Int32>("concat_num", 10);
+    pub_concat_num_ = this->create_publisher<autoware_debug_msgs::msg::Int32Stamped>("concat_num", 10);
     pub_not_subscribed_topic_name_ =
-      this->create_publisher<std_msgs::msg::String>("not_subscribed_topic_name", 10);
+      this->create_publisher<autoware_debug_msgs::msg::StringStamped>("not_subscribed_topic_name", 10);
   }
 
   // Subscribers
@@ -272,11 +272,13 @@ void PointCloudConcatenateDataSynchronizerComponent::publish()
     RCLCPP_WARN(this->get_logger(), "concat_cloud_ptr_ is nullptr, skipping pointcloud publish.");
   }
 
-  std_msgs::msg::Int32 concat_num_msg;
+  autoware_debug_msgs::msg::Int32Stamped concat_num_msg;
+  concat_num_msg.stamp = this->now();
   concat_num_msg.data = concat_num;
   pub_concat_num_->publish(concat_num_msg);
 
-  std_msgs::msg::String not_subscribed_topic_name_msg;
+  autoware_debug_msgs::msg::StringStamped not_subscribed_topic_name_msg;
+  not_subscribed_topic_name_msg.stamp = this->now();
   not_subscribed_topic_name_msg.data = not_subscribed_topic_name;
   pub_not_subscribed_topic_name_->publish(not_subscribed_topic_name_msg);
 
