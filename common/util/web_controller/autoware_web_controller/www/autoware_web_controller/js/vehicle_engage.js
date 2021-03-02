@@ -15,7 +15,7 @@ if (!VehicleEngagePublisher) {
             });
             this.ros.connect('ws://' + location.hostname + ':9090');
         },
-        send: function('value') {
+        send: function(value) {
             var pub = new ROSLIB.Topic({
                 ros: this.ros,
                 name: '/vehicle/engage',
