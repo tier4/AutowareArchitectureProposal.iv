@@ -144,6 +144,7 @@ private:
   void convertToXYZCloud(
     const sensor_msgs::msg::PointCloud2 & input_cloud,
     sensor_msgs::msg::PointCloud2 & output_cloud);
+  void setPeriod(const int64_t new_period);
   void cloud_callback(
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr & input_ptr,
     const std::string & topic_name);
