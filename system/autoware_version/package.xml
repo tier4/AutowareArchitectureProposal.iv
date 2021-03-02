@@ -4,7 +4,7 @@
 
   <name>autoware_version</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>The autoware version package</description>
   <maintainer email="isamu.takagi@tier4.jp">Takagi, Isamu</maintainer>
   <license>Apache License 2.0</license>
 
