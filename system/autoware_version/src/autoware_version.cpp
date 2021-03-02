@@ -31,14 +31,13 @@ public:
         message.ros_version = std::atoi(ptr);
       }
     }
-    std::string ros_distro{""};
+    RCLCPP_INFO(get_logger(), "ROS_VERSION=%d", message.ros_version);
     {
       const char * ptr = std::getenv("ROS_DISTRO");
       if (ptr) {
         message.ros_distro = ptr;
       }
     }
-    RCLCPP_INFO(get_logger(), "ROS_VERSION=%d", message.ros_version);
     RCLCPP_INFO(get_logger(), "ROS_DISTRO=%s", message.ros_distro.c_str());
 
     publisher_ = create_publisher<autoware_system_msgs::msg::AutowareVersion>(
