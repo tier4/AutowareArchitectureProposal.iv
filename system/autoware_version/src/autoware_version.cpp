@@ -22,7 +22,7 @@ class AutowareVersionNode : public rclcpp::Node
 {
 public:
   AutowareVersionNode()
-  : Node("lane_change_planner_node")
+  : Node("autoware_version_node")
   {
     autoware_system_msgs::msg::AutowareVersion message;
     {
