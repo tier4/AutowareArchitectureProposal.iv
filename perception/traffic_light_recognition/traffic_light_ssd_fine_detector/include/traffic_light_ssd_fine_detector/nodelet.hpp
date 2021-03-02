@@ -36,7 +36,7 @@
 #include "cv_bridge/cv_bridge.h"
 #include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/image_encodings.hpp"
-#include "autoware_debug_msgs/msg/Float32Stamped.hpp"
+#include "autoware_debug_msgs/msg/float32_stamped.hpp"
 
 #include "autoware_perception_msgs/msg/traffic_light_roi_array.hpp"
 

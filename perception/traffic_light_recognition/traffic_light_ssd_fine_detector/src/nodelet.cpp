@@ -79,7 +79,7 @@ TrafficLightSSDFineDetectorNodelet::TrafficLightSSDFineDetectorNodelet(const rcl
 
   std::lock_guard<std::mutex> lock(connect_mutex_);
   output_roi_pub_ = this->create_publisher<autoware_perception_msgs::msg::TrafficLightRoiArray>("output/rois", 1);
-  exe_time_pub_ = this->create_publisher<autware_debug_msgs::msg::Float32Stamped>("debug/exe_time_ms", 1);
+  exe_time_pub_ = this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("debug/exe_time_ms", 1);
   if (is_approximate_sync_) {
     approximate_sync_.reset(new ApproximateSync(ApproximateSyncPolicy(10), image_sub_, roi_sub_));
     approximate_sync_->registerCallback(
