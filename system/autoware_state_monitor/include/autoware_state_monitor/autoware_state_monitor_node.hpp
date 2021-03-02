@@ -62,6 +62,10 @@ private:
   tf2_ros::TransformListener tf_listener_;
   geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose_;
 
+  // CallbackGroups
+  rclcpp::CallbackGroup::SharedPtr callback_group_subscribers_;
+  rclcpp::CallbackGroup::SharedPtr callback_group_services_;
+
   // Subscriber
   rclcpp::Subscription<autoware_vehicle_msgs::msg::Engage>::SharedPtr sub_autoware_engage_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::ControlMode>::SharedPtr
