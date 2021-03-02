@@ -95,9 +95,11 @@ PointCloudConcatenateDataSynchronizerComponent::PointCloudConcatenateDataSynchro
   // Publishers
   {
     pub_output_ = this->create_publisher<PointCloud2>("output", maximum_queue_size_);
-    pub_concat_num_ = this->create_publisher<autoware_debug_msgs::msg::Int32Stamped>("concat_num", 10);
+    pub_concat_num_ =
+      this->create_publisher<autoware_debug_msgs::msg::Int32Stamped>("concat_num", 10);
     pub_not_subscribed_topic_name_ =
-      this->create_publisher<autoware_debug_msgs::msg::StringStamped>("not_subscribed_topic_name", 10);
+      this->create_publisher<autoware_debug_msgs::msg::StringStamped>(
+        "not_subscribed_topic_name", 10);
   }
 
   // Subscribers
@@ -373,8 +375,7 @@ void PointCloudConcatenateDataSynchronizerComponent::timer_callback()
   if (mutex_.try_lock()) {
     publish();
     mutex_.unlock();
-  }
-  else {
+  } else {
     try {
       std::chrono::nanoseconds period = 10ms;
       setPeriod(period.count());

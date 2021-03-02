@@ -104,7 +104,8 @@ private:
   rclcpp::Publisher<PointCloud2>::SharedPtr pub_output_;
 
   rclcpp::Publisher<autoware_debug_msgs::msg::Int32Stamped>::SharedPtr pub_concat_num_;
-  rclcpp::Publisher<autoware_debug_msgs::msg::StringStamped>::SharedPtr pub_not_subscribed_topic_name_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::StringStamped>::SharedPtr
+    pub_not_subscribed_topic_name_;
 
   /** \brief The maximum number of messages that we can store in the queue. */
   int maximum_queue_size_ = 3;
