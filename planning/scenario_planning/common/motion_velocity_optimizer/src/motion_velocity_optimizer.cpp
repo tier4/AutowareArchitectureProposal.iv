@@ -94,9 +94,6 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
   pub_velocity_limit_ =
     create_publisher<autoware_planning_msgs::msg::VelocityLimit>(
     "output/current_velocity_limit_mps", durable_qos);
-  // publish default max velocity
-  pub_velocity_limit_->publish(createVelocityLimitMsg(p.max_velocity));
-
   pub_dist_to_stopline_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
     "distance_to_stopline", rclcpp::QoS{1});
   pub_over_stop_velocity_ = create_publisher<autoware_planning_msgs::msg::StopSpeedExceeded>(
@@ -168,6 +165,9 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
 
   /* wait to get vehicle position */
   blockUntilVehiclePositionAvailable(tf2::durationFromSec(1.0));
+
+  // publish default max velocity
+  pub_velocity_limit_->publish(createVelocityLimitMsg(p.max_velocity));
 }
 MotionVelocityOptimizer::~MotionVelocityOptimizer() {}
 
