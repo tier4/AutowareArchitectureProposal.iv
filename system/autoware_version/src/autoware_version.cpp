@@ -16,6 +16,7 @@
 #include <chrono>
 #include <memory>
 #include <string>
+#include <utility>
 #include "rclcpp/rclcpp.hpp"
 #include "autoware_system_msgs/msg/autoware_version.hpp"
 
@@ -41,11 +42,11 @@ public:
     }
     RCLCPP_INFO(get_logger(), "ROS_DISTRO=%s", message.ros_distro.c_str());
 
-    // TODO: use transient_local after rosbrigde supports it
+    // TODO(isamu-takagi): use transient_local after rosbrigde supports it
     publisher_ = create_publisher<autoware_system_msgs::msg::AutowareVersion>(
       "autoware_version", rclcpp::QoS{1});
 
-    auto callback = [this, message] { publisher_->publish(message); };
+    auto callback = [this, message] {publisher_->publish(message);};
     timer_ = std::make_shared<rclcpp::GenericTimer<decltype(callback)>>(
       get_clock(),
       std::chrono::seconds{1},
