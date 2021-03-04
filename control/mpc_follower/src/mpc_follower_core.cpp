@@ -135,13 +135,13 @@ MPCFollower::MPCFollower()
     "input/current_steering", rclcpp::QoS{1}, std::bind(&MPCFollower::onSteering, this, _1));
 
   /* for debug */
-  pub_debug_marker_ = create_publisher<visualization_msgs::msg::MarkerArray>("debug/markers", 10);
+  pub_debug_marker_ = create_publisher<visualization_msgs::msg::MarkerArray>("~/debug/markers", 10);
   pub_debug_mpc_calc_time_ =
-    create_publisher<autoware_debug_msgs::msg::Float32Stamped>("debug/mpc_calc_time", 1);
+    create_publisher<autoware_debug_msgs::msg::Float32Stamped>("~/debug/mpc_calc_time", 1);
   pub_debug_values_ =
-    create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>("debug/debug_values", 1);
+    create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>("~/debug/debug_values", 1);
   pub_debug_steer_cmd_ =
-    create_publisher<autoware_vehicle_msgs::msg::Steering>("debug/steering_cmd", 1);
+    create_publisher<autoware_vehicle_msgs::msg::Steering>("~/debug/steering_cmd", 1);
 
   // TODO(Frederik.Beaujean) ctor is too long, should factor out parameter declarations
   declareMPCparameters();
