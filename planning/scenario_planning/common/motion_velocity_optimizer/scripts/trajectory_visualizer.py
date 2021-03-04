@@ -111,7 +111,7 @@ class TrajectoryVisualizer(Node):
         # BUFFER_SIZE = 65536*100
         optimizer_debug = "/planning/scenario_planning/debug/"
         # optimizer_debug = "/planning/scenario_planning/motion_velocity_optimizer/debug/"
-        self.sub1 = message_filters.Subscriber(self, Trajectory, optimizer_debug+"trajectory_external_velocity_limitted")
+        self.sub1 = message_filters.Subscriber(self, Trajectory, optimizer_debug+"trajectory_external_velocity_limited")
         self.sub2 = message_filters.Subscriber(self, Trajectory, optimizer_debug+"trajectory_lateral_acc_filtered")
         self.sub3 = message_filters.Subscriber(self, Trajectory, optimizer_debug+"trajectory_raw")
         self.sub4 = message_filters.Subscriber(self, Trajectory, optimizer_debug+"trajectory_time_resampled")
