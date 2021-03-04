@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <cstdlib>
+#include <chrono>
 #include <memory>
 #include <string>
 #include "rclcpp/rclcpp.hpp"
@@ -41,12 +42,21 @@ public:
     RCLCPP_INFO(get_logger(), "ROS_DISTRO=%s", message.ros_distro.c_str());
 
     publisher_ = create_publisher<autoware_system_msgs::msg::AutowareVersion>(
-      "autoware_version", rclcpp::QoS{1}.transient_local());
-    publisher_->publish(message);
+      "autoware_version", rclcpp::QoS{1});
+
+    auto callback = [this, message] { publisher_->publish(message); };
+    timer_ = std::make_shared<rclcpp::GenericTimer<decltype(callback)>>(
+      get_clock(),
+      std::chrono::seconds{1},
+      std::move(callback),
+      get_node_base_interface()->get_context()
+    );
+    get_node_timers_interface()->add_timer(timer_, nullptr);
   }
 
 private:
   rclcpp::Publisher<autoware_system_msgs::msg::AutowareVersion>::SharedPtr publisher_;
+  rclcpp::TimerBase::SharedPtr timer_;
 };
 
 int main(int argc, char ** argv)
