@@ -102,7 +102,9 @@ class VelocityChecker(Node):
         self.sub4 = self.create_subscription(
             Trajectory,
             scenario +
-            "/motion_velocity_optimizer/debug/trajectory_lateral_acc_filtered",
+            "/debug/trajectory_lateral_acc_filtered",
+            # TODO: change to following string after fixing bug of autoware
+            # "/motion_velocity_optimizer/debug/trajectory_lateral_acc_filtered",
             self.CallBackLataccTrajectory,
             1)
         self.sub5 = self.create_subscription(
