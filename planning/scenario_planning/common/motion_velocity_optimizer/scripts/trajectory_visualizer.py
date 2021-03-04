@@ -113,6 +113,7 @@ class TrajectoryVisualizer(Node):
 
         # BUFFER_SIZE = 65536*100
         optimizer_debug = "/planning/scenario_planning/debug/"
+        # TODO: change optimizer_debug to following after fixing bug of autoware
         # optimizer_debug = "/planning/scenario_planning/motion_velocity_optimizer/debug/"
         self.sub1 = message_filters.Subscriber(
             self, Trajectory, optimizer_debug + "trajectory_external_velocity_limited")
