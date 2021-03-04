@@ -113,7 +113,7 @@ namespace lane_departure_checker
 LaneDepartureCheckerNode::LaneDepartureCheckerNode(const rclcpp::NodeOptions & options)
 : Node("lane_departure_checker_node", options),
   self_pose_listener_(this),
-  debug_publisher_(this, "lane_departure_checker"),
+  debug_publisher_(this, "~/debug"),
   processing_time_publisher_(this),
   updater_(this)
 {
