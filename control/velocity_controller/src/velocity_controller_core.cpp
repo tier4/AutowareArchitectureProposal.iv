@@ -110,7 +110,7 @@ VelocityController::VelocityController()
   pub_control_cmd_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
     "control_cmd", rclcpp::QoS{1});
   pub_debug_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>(
-    "debug_values", rclcpp::QoS{1});
+    "~/debug_values", rclcpp::QoS{1});
 
   // Timer
   {
