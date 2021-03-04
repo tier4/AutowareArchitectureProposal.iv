@@ -17,6 +17,7 @@
 
 import rclpy
 from rclpy.node import Node
+from rclpy import qos
 
 import math
 import sys
@@ -71,22 +72,25 @@ class VelocityChecker(Node):
 
 
         # planning path and trajectories
+        profile = rclpy.qos.QoSProfile(
+            depth=1,
+            durability=rclpy.qos.QoSDurabilityPolicy.RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL)
         lane_drv = "/planning/scenario_planning/lane_driving"
-        scenareio = "/planning/scenario_planning"
+        scenario = "/planning/scenario_planning"
         self.sub0 = self.create_subscription(PathWithLaneId, lane_drv+"/behavior_planning/path_with_lane_id", self.CallBackBehaviorPathWLid, 1)
         self.sub1 = self.create_subscription(Path, lane_drv+"/behavior_planning/path", self.CallBackBehaviorPath, 1)
         self.sub2 = self.create_subscription(Trajectory, lane_drv+"/motion_planning/obstacle_avoidance_planner/trajectory", self.CallBackAvoidTrajectory, 1)
         self.sub3 = self.create_subscription(Trajectory, lane_drv+"/trajectory", self.CallBackLaneDriveTrajectory, 1)
-        self.sub4 = self.create_subscription(Trajectory, scenareio+"/motion_velocity_optimizer/debug/trajectory_lateral_acc_filtered", self.CallBackLataccTrajectory, 1)
-        self.sub5 = self.create_subscription(Trajectory, scenareio+"/trajectory", self.CallBackScenarioTrajectory, 1)
+        self.sub4 = self.create_subscription(Trajectory, scenario+"/motion_velocity_optimizer/debug/trajectory_lateral_acc_filtered", self.CallBackLataccTrajectory, 1)
+        self.sub5 = self.create_subscription(Trajectory, scenario+"/trajectory", self.CallBackScenarioTrajectory, 1)
 
         # control commands
         self.sub6 = self.create_subscription(ControlCommandStamped, "/control/control_cmd", self.CallBackControlCmd, 1)
         self.sub7 = self.create_subscription(VehicleCommand, "/control/vehicle_cmd", self.CallBackVehicleCmd, 1)
 
         # others related to velocity
-        self.sub8 = self.create_subscription(Engage, "/autoware/engage", self.CallBackAwEngage, 1)
-        self.sub9 = self.create_subscription(VelocityLimit, "/planning/scenario_planning/max_velocity", self.CallBackExternalVelLim, 1)
+        self.sub8 = self.create_subscription(Engage, "/autoware/engage", self.CallBackAwEngage, profile)
+        self.sub9 = self.create_subscription(VelocityLimit, "/planning/scenario_planning/current_max_velocity", self.CallBackExternalVelLim, profile)
 
         # self twist
         self.sub10 = self.create_subscription(TwistStamped, "/localization/twist", self.CallBackLocalizationTwist, 1)
