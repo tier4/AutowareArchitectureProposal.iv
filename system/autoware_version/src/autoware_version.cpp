@@ -41,6 +41,7 @@ public:
     }
     RCLCPP_INFO(get_logger(), "ROS_DISTRO=%s", message.ros_distro.c_str());
 
+    // TODO: use transient_local after rosbrigde supports it
     publisher_ = create_publisher<autoware_system_msgs::msg::AutowareVersion>(
       "autoware_version", rclcpp::QoS{1});
 
