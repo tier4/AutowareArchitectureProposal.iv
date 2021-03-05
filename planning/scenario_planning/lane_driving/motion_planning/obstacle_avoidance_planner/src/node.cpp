@@ -57,17 +57,17 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
     "/planning/scenario_planning/lane_driving/obstacle_avoidance_candidate_trajectory",
     durable_qos);
   debug_smoothed_points_pub_ =
-    create_publisher<autoware_planning_msgs::msg::Trajectory>("debug/smoothed_poins", durable_qos);
+    create_publisher<autoware_planning_msgs::msg::Trajectory>("~/debug/smoothed_poins", durable_qos);
   is_avoidance_possible_pub_ = create_publisher<autoware_planning_msgs::msg::IsAvoidancePossible>(
     "/planning/scenario_planning/lane_driving/obstacle_avoidance_ready", durable_qos);
   debug_markers_pub_ =
-    create_publisher<visualization_msgs::msg::MarkerArray>("debug/marker", durable_qos);
+    create_publisher<visualization_msgs::msg::MarkerArray>("~/debug/marker", durable_qos);
   debug_clearance_map_pub_ =
-    create_publisher<nav_msgs::msg::OccupancyGrid>("debug/clearance_map", durable_qos);
+    create_publisher<nav_msgs::msg::OccupancyGrid>("~/debug/clearance_map", durable_qos);
   debug_object_clearance_map_pub_ =
-    create_publisher<nav_msgs::msg::OccupancyGrid>("debug/object_clearance_map", durable_qos);
+    create_publisher<nav_msgs::msg::OccupancyGrid>("~/debug/object_clearance_map", durable_qos);
   debug_area_with_objects_pub_ =
-    create_publisher<nav_msgs::msg::OccupancyGrid>("debug/area_with_objects", durable_qos);
+    create_publisher<nav_msgs::msg::OccupancyGrid>("~/debug/area_with_objects", durable_qos);
 
   path_sub_ = create_subscription<autoware_planning_msgs::msg::Path>(
     "input/path", rclcpp::QoS{1},
