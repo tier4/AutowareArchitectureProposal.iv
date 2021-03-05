@@ -145,13 +145,13 @@ void LaneChanger::init()
   path_publisher_ = create_publisher<autoware_planning_msgs::msg::PathWithLaneId>(
     "output/lane_change_path", rclcpp::QoS{1});
   candidate_path_publisher_ = create_publisher<autoware_planning_msgs::msg::Path>(
-    "debug/lane_change_candidate_path", rclcpp::QoS{1});
+    "~/debug/lane_change_candidate_path", rclcpp::QoS{1});
   path_marker_publisher_ = create_publisher<visualization_msgs::msg::MarkerArray>(
-    "debug/predicted_path_markers", rclcpp::QoS{1});
+    "~/debug/predicted_path_markers", rclcpp::QoS{1});
   stop_reason_publisher_ = create_publisher<autoware_planning_msgs::msg::StopReasonArray>(
     "output/stop_reasons", rclcpp::QoS{1});
   drivable_area_publisher_ = create_publisher<nav_msgs::msg::OccupancyGrid>(
-    "debug/drivable_area",
+    "~/debug/drivable_area",
     rclcpp::QoS{1});
   lane_change_ready_publisher_ = create_publisher<autoware_planning_msgs::msg::LaneChangeStatus>(
     "output/lane_change_ready",
