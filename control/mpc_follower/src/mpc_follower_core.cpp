@@ -124,15 +124,15 @@ MPCFollower::MPCFollower()
   initTimer(ctrl_period_);
 
   pub_ctrl_cmd_ =
-    create_publisher<autoware_control_msgs::msg::ControlCommandStamped>("output/control_raw", 1);
+    create_publisher<autoware_control_msgs::msg::ControlCommandStamped>("~/output/control_raw", 1);
   pub_predicted_traj_ =
-    create_publisher<autoware_planning_msgs::msg::Trajectory>("output/predicted_trajectory", 1);
+    create_publisher<autoware_planning_msgs::msg::Trajectory>("~/output/predicted_trajectory", 1);
   sub_ref_path_ = create_subscription<autoware_planning_msgs::msg::Trajectory>(
-    "input/reference_trajectory", rclcpp::QoS{1}, std::bind(&MPCFollower::onTrajectory, this, _1));
+    "~/input/reference_trajectory", rclcpp::QoS{1}, std::bind(&MPCFollower::onTrajectory, this, _1));
   sub_current_vel_ = create_subscription<geometry_msgs::msg::TwistStamped>(
-    "input/current_velocity", rclcpp::QoS{1}, std::bind(&MPCFollower::onVelocity, this, _1));
+    "~/input/current_velocity", rclcpp::QoS{1}, std::bind(&MPCFollower::onVelocity, this, _1));
   sub_steering_ = create_subscription<autoware_vehicle_msgs::msg::Steering>(
-    "input/current_steering", rclcpp::QoS{1}, std::bind(&MPCFollower::onSteering, this, _1));
+    "~/input/current_steering", rclcpp::QoS{1}, std::bind(&MPCFollower::onSteering, this, _1));
 
   /* for debug */
   pub_debug_marker_ = create_publisher<visualization_msgs::msg::MarkerArray>("~/debug/markers", 10);
