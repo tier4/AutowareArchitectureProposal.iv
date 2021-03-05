@@ -52,7 +52,7 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
   rclcpp::QoS durable_qos{1};
   durable_qos.transient_local();
 
-  trajectory_pub_ = create_publisher<autoware_planning_msgs::msg::Trajectory>("output/path", 1);
+  trajectory_pub_ = create_publisher<autoware_planning_msgs::msg::Trajectory>("~/output/path", 1);
   avoiding_traj_pub_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
     "/planning/scenario_planning/lane_driving/obstacle_avoidance_candidate_trajectory",
     durable_qos);
@@ -70,13 +70,13 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
     create_publisher<nav_msgs::msg::OccupancyGrid>("~/debug/area_with_objects", durable_qos);
 
   path_sub_ = create_subscription<autoware_planning_msgs::msg::Path>(
-    "input/path", rclcpp::QoS{1},
+    "~/input/path", rclcpp::QoS{1},
     std::bind(&ObstacleAvoidancePlanner::pathCallback, this, std::placeholders::_1));
   twist_sub_ = create_subscription<geometry_msgs::msg::TwistStamped>(
     "/localization/twist", rclcpp::QoS{1},
     std::bind(&ObstacleAvoidancePlanner::twistCallback, this, std::placeholders::_1));
   objects_sub_ = create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
-    "input/objects", rclcpp::QoS{10},
+    "~/input/objects", rclcpp::QoS{10},
     std::bind(&ObstacleAvoidancePlanner::objectsCallback, this, std::placeholders::_1));
   is_avoidance_sub_ = create_subscription<autoware_planning_msgs::msg::EnableAvoidance>(
     "/planning/scenario_planning/lane_driving/obstacle_avoidance_approval", rclcpp::QoS{10},
