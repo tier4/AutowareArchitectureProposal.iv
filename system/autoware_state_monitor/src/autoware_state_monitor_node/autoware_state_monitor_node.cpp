@@ -463,7 +463,8 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
 
   // Topic Callback
   for (const auto & topic_config : topic_configs_) {
-    registerTopicCallback(topic_config.name, topic_config.type,
+    registerTopicCallback(
+      topic_config.name, topic_config.type,
       topic_config.transient_local, topic_config.best_effort);
   }
 
