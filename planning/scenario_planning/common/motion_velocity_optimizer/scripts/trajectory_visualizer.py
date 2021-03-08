@@ -598,7 +598,7 @@ class TrajectoryVisualizer(Node):
             self.self_pose.orientation.y = tf.transform.rotation.y
             self.self_pose.orientation.z = tf.transform.rotation.z
             self.self_pose.orientation.w = tf.transform.rotation.w
-            print("updatePose succeeded")
+            self.get_logger().info("updatePose succeeded")
             self.self_pose_received = True
             return
         except BaseException:
