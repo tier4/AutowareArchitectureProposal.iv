@@ -31,6 +31,7 @@ struct Param
   double error_rate;
   double timeout;
   int window_size;
+  bool transient_local;
 };
 
 enum class TopicStatus : int8_t

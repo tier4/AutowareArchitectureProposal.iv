@@ -10,6 +10,7 @@
   <arg name="warn_rate" doc="warn rate[Hz]" />
   <arg name="error_rate" doc="error rate[Hz]" />
   <arg name="timeout" doc="timeout period[s]" />
+  <arg name="transient_local" default="false" doc="add transient_local option to subscriber or not" />
   <arg name="window_size" default="10" doc="warn rate[Hz]" />
 
   <node pkg="topic_state_monitor" exec="topic_state_monitor_node" name="$(var node_name)" output="screen">
@@ -19,6 +20,7 @@
     <param name="warn_rate" value="$(var warn_rate)" />
     <param name="error_rate" value="$(var error_rate)" />
     <param name="timeout" value="$(var timeout)" />
+    <param name="transient_local" value="$(var transient_local)" />
     <param name="window_size" value="$(var window_size)" />
   </node>
 </launch>
