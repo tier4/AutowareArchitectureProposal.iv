@@ -92,11 +92,7 @@ class OverlayObject
 public:
   typedef std::shared_ptr<OverlayObject> Ptr;
 
-<<<<<<< HEAD
-  OverlayObject(Ogre::SceneManager * manager, rclcpp::Logger logger, const std::string & name);
-=======
-  OverlayObject(const std::string & name);
->>>>>>> parent of c24aaaab... Fix bugs in autoware vehicle rviz plugin (#246)
+  explicit OverlayObject(const std::string & name);
   virtual ~OverlayObject();
 
   virtual std::string getName();
