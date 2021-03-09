@@ -16,11 +16,11 @@
   <node pkg="topic_state_monitor" exec="topic_state_monitor_node" name="$(var node_name)" output="screen">
     <param name="topic" value="$(var topic)" />
     <param name="topic_type" value="$(var topic_type)" />
+    <param name="transient_local" value="$(var transient_local)" />
     <param name="diag_name" value="$(var diag_name)" />
     <param name="warn_rate" value="$(var warn_rate)" />
     <param name="error_rate" value="$(var error_rate)" />
     <param name="timeout" value="$(var timeout)" />
-    <param name="transient_local" value="$(var transient_local)" />
     <param name="window_size" value="$(var window_size)" />
   </node>
 </launch>
