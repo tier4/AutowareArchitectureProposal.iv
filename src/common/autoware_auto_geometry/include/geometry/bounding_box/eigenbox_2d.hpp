@@ -104,7 +104,7 @@ std::pair<float32_t, float32_t> eig_2d(
   const float32_t tr_2 = (cov.xx + cov.yy) * 0.5F;
   const float32_t det = (cov.xx * cov.yy) - (cov.xy * cov.xy);
   // Add a small fudge to alleviate floating point errors
-  float32_t disc = ((tr_2 * tr_2) - det) + autoware::common::types::FEPS;
+  float32_t disc = ((tr_2 * tr_2) - det) + std::numeric_limits<float32_t>::epsilon();
   if (disc < 0.0F) {
     throw std::runtime_error(
             "pca_2d: negative discriminant! Should never happen for well formed "
@@ -119,7 +119,7 @@ std::pair<float32_t, float32_t> eig_2d(
   // We compare squared value against floating epsilon to make sure that eigen vectors
   // are persistent against further calculations.
   // (e.g. taking cross product of two eigen vectors)
-  if (fabsf(cov.xy * cov.xy) > autoware::common::types::FEPS) {
+  if (fabsf(cov.xy * cov.xy) > std::numeric_limits<float32_t>::epsilon()) {
     xr_(eigvec1) = cov.xy;
     yr_(eigvec1) = ret.first - cov.xx;
     xr_(eigvec2) = cov.xy;

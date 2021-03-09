@@ -40,8 +40,16 @@ void size_2d(
   const decltype(BoundingBox::corners) & corners,
   geometry_msgs::msg::Point32 & ret)
 {
-  ret.x = std::max(norm_2d(minus_2d(corners[1U], corners[0U])), autoware::common::types::FEPS);
-  ret.y = std::max(norm_2d(minus_2d(corners[2U], corners[1U])), autoware::common::types::FEPS);
+  ret.x = std::max(
+    norm_2d(
+      minus_2d(
+        corners[1U],
+        corners[0U])), std::numeric_limits<float32_t>::epsilon());
+  ret.y = std::max(
+    norm_2d(
+      minus_2d(
+        corners[2U],
+        corners[1U])), std::numeric_limits<float32_t>::epsilon());
 }
 ////////////////////////////////////////////////////////////////////////////////
 void finalize_box(const decltype(BoundingBox::corners) & corners, BoundingBox & box)

@@ -19,6 +19,7 @@
 
 #include <geometry_msgs/msg/point32.hpp>
 
+#include <limits>
 #include <list>
 #include <vector>
 
@@ -156,7 +157,7 @@ TYPED_TEST(BoxTest, point_segment_distance)
   r = this->make(-5.0F, 0.0F);
   t = closest_segment_point_2d(p, q, r);
   ASSERT_FLOAT_EQ(x_(t), -2.0F);
-  ASSERT_NEAR(y_(t), 0.0F, autoware::common::types::FEPS);
+  ASSERT_NEAR(y_(t), 0.0F, std::numeric_limits<float32_t>::epsilon());
   ASSERT_FLOAT_EQ(point_line_segment_distance_2d(p, q, r), 3.0F);
   // singular case
   p = this->make(1.0F, 5.0F);
@@ -184,7 +185,7 @@ TYPED_TEST(BoxTest, closest_point_on_line)
   r = this->make(-5.0F, 0.0F);
   t = closest_line_point_2d(p, q, r);
   ASSERT_FLOAT_EQ(x_(t), -5.0F);
-  ASSERT_NEAR(y_(t), 0.0F, autoware::common::types::FEPS);
+  ASSERT_NEAR(y_(t), 0.0F, std::numeric_limits<float32_t>::epsilon());
   // singular case
   p = this->make(1.0F, 5.0F);
   q = this->make(1.0F, 5.0F);

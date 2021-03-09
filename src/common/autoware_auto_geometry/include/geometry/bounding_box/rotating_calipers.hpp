@@ -53,7 +53,9 @@ uint32_t update_angles(const Point4<PointT> & edges, Point4<PointT> & directions
   uint32_t advance_idx = 0U;
   for (uint32_t idx = 0U; idx < edges.size(); ++idx) {
     const float32_t edge_dir_mag =
-      std::max(norm_2d(edges[idx]) * norm_2d(directions[idx]), autoware::common::types::FEPS);
+      std::max(
+      norm_2d(edges[idx]) * norm_2d(
+        directions[idx]), std::numeric_limits<float32_t>::epsilon());
     const float32_t cos_th = dot_2d(edges[idx], directions[idx]) / edge_dir_mag;
     if (cos_th > best_cos_th) {
       best_cos_th = cos_th;
