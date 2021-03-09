@@ -87,7 +87,6 @@ VelocityHistoryDisplay::~VelocityHistoryDisplay()
 void VelocityHistoryDisplay::onInitialize()
 {
   MFDClass::onInitialize();
-  rviz_ros_node_ = context_->getRosNodeAbstraction();
 
   velocity_manual_object_ = scene_manager_->createManualObject();
   velocity_manual_object_->setDynamic(true);
@@ -123,11 +122,9 @@ void VelocityHistoryDisplay::processMessage(
   std_msgs::msg::Header header;
   header = msg_ptr->header;
   header.frame_id = "base_link";
-
   if (!context_->getFrameManager()->getTransform(header, position, orientation)) {
-    auto logger = rviz_ros_node_.lock()->get_raw_node()->get_logger();
-    RCLCPP_DEBUG(
-      logger, "Error transforming from frame '%s' to frame '%s'", header.frame_id.c_str(),
+    RCLCPP_DEBUG(rclcpp::get_logger("VelocityHistoryDisplay"),
+      "Error transforming from frame '%s' to frame '%s'", header.frame_id.c_str(),
       qPrintable(fixed_frame_));
   }
 
@@ -144,7 +141,7 @@ void VelocityHistoryDisplay::updateVisualization()
     "BaseWhiteNoLighting", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
   material->setSceneBlending(Ogre::SBT_TRANSPARENT_ALPHA);
   material->setDepthWriteEnabled(false);
-  rclcpp::Time current_time = rviz_ros_node_.lock()->get_raw_node()->get_clock()->now();
+  rclcpp::Time current_time = rclcpp::Clock().now();
 
   while (!histories_.empty()) {
     if (
