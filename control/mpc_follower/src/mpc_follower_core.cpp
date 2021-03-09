@@ -986,7 +986,7 @@ void MPCFollower::updateCurrentPose()
 {
   geometry_msgs::msg::TransformStamped transform;
   try {
-    transform = tf_buffer_.lookupTransform("map", "base_link", rclcpp::Time(0));
+    transform = tf_buffer_.lookupTransform("map", "base_link", tf2::TimePointZero);
   } catch (tf2::TransformException & ex) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       get_logger(), *get_clock(), (5000ms).count(),
