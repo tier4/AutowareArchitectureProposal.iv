@@ -44,12 +44,12 @@ TopicStateMonitorNode::TopicStateMonitorNode()
   node_param_.update_rate = declare_parameter("update_rate", 10.0);
   param_.topic = declare_parameter("topic").get<std::string>();
   param_.topic_type = declare_parameter("topic_type").get<std::string>();
+  param_.transient_local = declare_parameter("transient_local", false);
   param_.diag_name = declare_parameter("diag_name").get<std::string>();
   param_.warn_rate = declare_parameter("warn_rate", 0.5);
   param_.error_rate = declare_parameter("error_rate", 0.1);
   param_.timeout = declare_parameter("timeout", 1.0);
   param_.window_size = declare_parameter("window_size", 10);
-  param_.transient_local = declare_parameter("transient_local", false);
 
   // Parameter Reconfigure
   set_param_res_ =
