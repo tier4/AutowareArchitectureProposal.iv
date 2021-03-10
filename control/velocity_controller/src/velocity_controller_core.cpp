@@ -192,9 +192,8 @@ void VelocityController::callbackTrajectory(
 void VelocityController::blockUntilVehiclePositionAvailable(const tf2::Duration & duration)
 {
   static constexpr auto input = "map", output = "base_link";
-  while (!tf_buffer_->canTransform(input, output, tf2::TimePointZero, tf2::durationFromSec(0.0)) &&
-    rclcpp::ok())
-  {
+  std::string error;
+  while (!tf_buffer_->canTransform(input, output, tf2::TimePointZero, &error) && rclcpp::ok()) {
     RCLCPP_INFO(
       get_logger(), "waiting %d ms for %s->%s transform to become available",
       std::chrono::duration_cast<std::chrono::milliseconds>(duration).count(), input, output);
