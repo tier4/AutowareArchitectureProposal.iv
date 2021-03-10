@@ -25,7 +25,8 @@ namespace autoware_utils
 class SelfPoseListener
 {
 public:
-  explicit SelfPoseListener(rclcpp::Node * node) : transform_listener_(node) {}
+  explicit SelfPoseListener(rclcpp::Node * node)
+  : transform_listener_(node) {}
 
   void waitForFirstPose()
   {

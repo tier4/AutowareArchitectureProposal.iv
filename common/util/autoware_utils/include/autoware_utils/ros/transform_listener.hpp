@@ -69,7 +69,7 @@ public:
     return std::make_shared<const geometry_msgs::msg::TransformStamped>(tf);
   }
 
-  rclcpp::Logger getLogger() { return logger_; }
+  rclcpp::Logger getLogger() {return logger_;}
 
 private:
   rclcpp::Clock::SharedPtr clock_;
