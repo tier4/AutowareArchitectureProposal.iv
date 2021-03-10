@@ -15,6 +15,8 @@
 #ifndef AUTOWARE_UTILS__ROS__SELF_POSE_LISTENER_HPP_
 #define AUTOWARE_UTILS__ROS__SELF_POSE_LISTENER_HPP_
 
+#include <memory>
+
 #include "rclcpp/rclcpp.hpp"
 
 #include "autoware_utils/geometry/geometry.hpp"
