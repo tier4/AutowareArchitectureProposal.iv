@@ -383,7 +383,7 @@ autoware_system_msgs::msg::HazardStatus EmergencyHandler::judgeHazardStatus()
     const auto is_in_heartbeat_timeout_ignore_state =
       (autoware_state_->state == AutowareState::INITIALIZING_VEHICLE);
 
-    if (heartbeat_driving_capability_->isTimeout() && !is_in_heartbeat_timeout_ignore_state) {
+    if (!is_in_heartbeat_timeout_ignore_state && heartbeat_driving_capability_->isTimeout()) {
       RCLCPP_WARN_THROTTLE(
         this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
         "heartbeat_driving_capability is timeout");
@@ -394,7 +394,7 @@ autoware_system_msgs::msg::HazardStatus EmergencyHandler::judgeHazardStatus()
           "heartbeat_driving_capability is timeout"));
     }
 
-    if (heartbeat_is_state_timeout_->isTimeout() && !is_in_heartbeat_timeout_ignore_state) {
+    if (!is_in_heartbeat_timeout_ignore_state && heartbeat_is_state_timeout_->isTimeout()) {
       RCLCPP_WARN_THROTTLE(
         this->get_logger(), *this->get_clock(), std::chrono::milliseconds(1000).count(),
         "heartbeat_is_state_timeout is timeout");
