@@ -105,10 +105,9 @@ bool Lanelet2MapFilterComponent::transformPointCloud(
   geometry_msgs::msg::TransformStamped transform_stamped;
   try {
     transform_stamped = tf_buffer_->lookupTransform(
-      in_target_frame, in_cloud_ptr->header.frame_id, in_cloud_ptr->header.stamp,
-      rclcpp::Duration::from_seconds(1.0));
+      in_target_frame, in_cloud_ptr->header.frame_id, tf2::TimePointZero);
   } catch (tf2::TransformException & ex) {
-    RCLCPP_WARN(this->get_logger(), "%s", ex.what());
+    RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 10000, "%s", ex.what());
     return false;
   }
   // tf2::doTransform(*in_cloud_ptr, *out_cloud_ptr, transform_stamped);
@@ -209,6 +208,8 @@ pcl::PointCloud<pcl::PointXYZ> Lanelet2MapFilterComponent::getLaneFilteredPointC
 void Lanelet2MapFilterComponent::pointcloudCallback(const PointCloud2ConstPtr cloud_msg)
 {
   if (!lanelet_map_ptr_) {
+    RCLCPP_WARN_THROTTLE(
+      this->get_logger(), *this->get_clock(), 10000, "No vector map");
     return;
   }
   // transform pointcloud to map frame
