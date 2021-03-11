@@ -31,11 +31,7 @@ TimeT duration_to_msg(std::chrono::nanoseconds dt)
   }
   // rounds towards zero
   const auto dt_sec = std::chrono::duration_cast<std::chrono::seconds>(dt);
-#ifdef ROS_DISTRO_DASHING
-  TimeT ret{rosidl_generator_cpp::MessageInitialization::ALL};
-#elif defined ROS_DISTRO_FOXY
   TimeT ret{rosidl_runtime_cpp::MessageInitialization::ALL};
-#endif
   // Clamp value to receptive field of retval seconds
   {
     using SecT = decltype(ret.sec);

@@ -163,11 +163,7 @@ Real to_angle(Heading heading) noexcept
 Heading nlerp(Heading a, Heading b, Real t)
 {
   // Could technically use none, but I get basically nothing from that
-#ifdef ROS_DISTRO_DASHING
-  Heading ret{rosidl_generator_cpp::MessageInitialization::ALL};
-#elif defined ROS_DISTRO_FOXY
   Heading ret{rosidl_runtime_cpp::MessageInitialization::ALL};
-#endif
   // check dot product: if negative, reflect one quaternion (360 deg rotation)
   {
     const auto dot = (a.real * b.real) + (a.imag * b.imag);
@@ -227,11 +223,7 @@ namespace msg
 Complex32 operator+(Complex32 a, Complex32 b) noexcept
 {
   // Could technically use none, but I get basically nothing from that
-#ifdef ROS_DISTRO_DASHING
-  Complex32 ret{rosidl_generator_cpp::MessageInitialization::ALL};
-#elif defined ROS_DISTRO_FOXY
   Complex32 ret{rosidl_runtime_cpp::MessageInitialization::ALL};
-#endif
   // check dot product: if negative, reflect one quaternion (360 deg rotation)
   {
     const auto dot = (a.real * b.real) + (a.imag * b.imag);

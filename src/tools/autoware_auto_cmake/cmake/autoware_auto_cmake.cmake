@@ -39,13 +39,6 @@ if(TIDY_WITH_CLANG)
   message(${CMAKE_CXX_CLANG_TIDY})
 endif()
 
-set(ROS_DISTRO $ENV{ROS_DISTRO})
-if(${ROS_DISTRO} STREQUAL "dashing")
-  add_definitions(-DROS_DISTRO_DASHING)
-elseif(${ROS_DISTRO} STREQUAL "foxy")
-  add_definitions(-DROS_DISTRO_FOXY)
-endif()
-
 # Try to adhere to strict ISO C++ as much as possible:
 #    from https://lefticus.gitbooks.io/cpp-best-practices/content/02-Use_the_Tools_Available.html
 function(autoware_set_compile_options target)

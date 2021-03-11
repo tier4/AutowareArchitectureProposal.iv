@@ -166,11 +166,7 @@ MOTION_COMMON_PUBLIC Heading nlerp(Heading a, Heading b, Real t);
 template<typename SlerpF>
 Point interpolate(Point a, Point b, Real t, SlerpF slerp_fn)
 {
-#ifdef ROS_DISTRO_DASHING
-  Point ret{rosidl_generator_cpp::MessageInitialization::ALL};
-#elif defined ROS_DISTRO_FOXY
   Point ret{rosidl_runtime_cpp::MessageInitialization::ALL};
-#endif
   {
     const auto dt0 = time_utils::from_message(a.time_from_start);
     const auto dt1 = time_utils::from_message(b.time_from_start);

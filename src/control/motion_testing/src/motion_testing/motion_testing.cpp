@@ -30,11 +30,7 @@ State make_state(
   float turn_rate,
   std::chrono::system_clock::time_point t)
 {
-#ifdef ROS_DISTRO_DASHING
-  State start_state{rosidl_generator_cpp::MessageInitialization::ALL};
-#elif defined ROS_DISTRO_FOXY
   State start_state{rosidl_runtime_cpp::MessageInitialization::ALL};
-#endif
   start_state.state.x = x0;
   start_state.state.y = y0;
   start_state.state.heading.real = std::cos(heading / 2.0F);
@@ -52,11 +48,7 @@ State make_state(
 ////////////////////////////////////////////////////////////////////////////////
 State generate_state(Generator & gen)
 {
-#ifdef ROS_DISTRO_DASHING
-  State ret{rosidl_generator_cpp::MessageInitialization::ALL};
-#elif defined ROS_DISTRO_FOXY
   State ret{rosidl_runtime_cpp::MessageInitialization::ALL};
-#endif
   // Parameters with positive and negative supports
   std::normal_distribution<decltype(ret.state.x)> normal{0.0F, 1.0F};
   ret.state.x = 10.0F * normal(gen);
@@ -77,11 +69,7 @@ State generate_state(Generator & gen)
 ////////////////////////////////////////////////////////////////////////////////
 Trajectory generate_trajectory(const State & start_state, Generator & gen)
 {
-#ifdef ROS_DISTRO_DASHING
-  Trajectory ret{rosidl_generator_cpp::MessageInitialization::ALL};
-#elif defined ROS_DISTRO_FOXY
   Trajectory ret{rosidl_runtime_cpp::MessageInitialization::ALL};
-#endif
   (void)start_state;
   (void)gen;
   return ret;
@@ -90,11 +78,7 @@ Trajectory generate_trajectory(const State & start_state, Generator & gen)
 ////////////////////////////////////////////////////////////////////////////////
 Trajectory constant_trajectory(const State & start_state, const std::chrono::nanoseconds dt)
 {
-#ifdef ROS_DISTRO_DASHING
-  Trajectory ret{rosidl_generator_cpp::MessageInitialization::ALL};
-#elif defined ROS_DISTRO_FOXY
   Trajectory ret{rosidl_runtime_cpp::MessageInitialization::ALL};
-#endif
   const auto capacity = 100LL;  // TEMP
   ret.points.reserve(capacity);
   const auto dt_s = std::chrono::duration_cast<std::chrono::duration<float>>(dt).count();
@@ -134,11 +118,7 @@ Trajectory constant_trajectory(const State & start_state, const std::chrono::nan
 ////////////////////////////////////////////////////////////////////////////////
 Trajectory bad_heading_trajectory(const State & start_state, const std::chrono::nanoseconds dt)
 {
-#ifdef ROS_DISTRO_DASHING
-  Trajectory ret{rosidl_generator_cpp::MessageInitialization::ALL};
-#elif defined ROS_DISTRO_FOXY
   Trajectory ret{rosidl_runtime_cpp::MessageInitialization::ALL};
-#endif
   const auto capacity = 100LL;  // TEMP
   ret.points.reserve(capacity);
   const auto dt_s = std::chrono::duration_cast<std::chrono::duration<float>>(dt).count();
