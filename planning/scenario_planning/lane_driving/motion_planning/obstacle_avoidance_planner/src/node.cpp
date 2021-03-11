@@ -56,8 +56,8 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
   avoiding_traj_pub_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
     "/planning/scenario_planning/lane_driving/obstacle_avoidance_candidate_trajectory",
     durable_qos);
-  debug_smoothed_points_pub_ =
-    create_publisher<autoware_planning_msgs::msg::Trajectory>("~/debug/smoothed_poins", durable_qos);
+  debug_smoothed_points_pub_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
+    "~/debug/smoothed_poins", durable_qos);
   is_avoidance_possible_pub_ = create_publisher<autoware_planning_msgs::msg::IsAvoidancePossible>(
     "/planning/scenario_planning/lane_driving/obstacle_avoidance_ready", durable_qos);
   debug_markers_pub_ =

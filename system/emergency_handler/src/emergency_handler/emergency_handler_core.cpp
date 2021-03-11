@@ -121,10 +121,10 @@ EmergencyHandler::EmergencyHandler()
   // Publisher
   pub_control_command_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
     "~/output/control_command", rclcpp::QoS{1});
-  pub_shift_ =
-    create_publisher<autoware_vehicle_msgs::msg::ShiftStamped>("~/output/shift", rclcpp::QoS{1});
-  pub_turn_signal_ =
-    create_publisher<autoware_vehicle_msgs::msg::TurnSignal>("~/output/turn_signal", rclcpp::QoS{1});
+  pub_shift_ = create_publisher<autoware_vehicle_msgs::msg::ShiftStamped>(
+    "~/output/shift", rclcpp::QoS{1});
+  pub_turn_signal_ = create_publisher<autoware_vehicle_msgs::msg::TurnSignal>(
+    "~/output/turn_signal", rclcpp::QoS{1});
   pub_is_emergency_ = create_publisher<autoware_control_msgs::msg::EmergencyMode>(
     "~/output/is_emergency", rclcpp::QoS{1});
   pub_hazard_status_ = create_publisher<autoware_system_msgs::msg::HazardStatusStamped>(
