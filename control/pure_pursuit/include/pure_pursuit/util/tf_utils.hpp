@@ -44,10 +44,11 @@ inline geometry_msgs::msg::TransformStamped waitForTransform(
   while (rclcpp::ok()) {
     try {
       const auto transform =
-        tf_buffer.lookupTransform(from, to, tf2::TimePointZero, tf2::durationFromSec(10.0));
+        tf_buffer.lookupTransform(from, to, tf2::TimePointZero);
       return transform;
     } catch (tf2::TransformException & ex) {
       RCLCPP_INFO(logger, "waiting for transform from `%s` to `%s` ...", from.c_str(), to.c_str());
+      rclcpp::sleep_for(std::chrono::milliseconds(5000));
     }
   }
   return geometry_msgs::msg::TransformStamped();
