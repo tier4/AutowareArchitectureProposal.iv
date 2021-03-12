@@ -20,7 +20,7 @@ namespace traffic_light
 {
 CNNClassifier::CNNClassifier(rclcpp::Node * node_ptr) : node_ptr_(node_ptr)
 {
-  image_pub_ = image_transport::create_publisher(node_ptr_, "output/debug/image", rclcpp::QoS{1}.get_rmw_qos_profile());
+  image_pub_ = image_transport::create_publisher(node_ptr_, "~/output/debug/image", rclcpp::QoS{1}.get_rmw_qos_profile());
 
   std::string precision;
   std::string label_file_path;
@@ -126,7 +126,7 @@ void CNNClassifier::preProcess(cv::Mat & image, std::vector<float> & input_tenso
 
   const size_t strides_cv[3] = {static_cast<size_t>(input_w_ * input_c_),
                                 static_cast<size_t>(input_c_), 1};
-  const size_t strides[3] = {static_cast<size_t>(input_h_ * input_w_), 
+  const size_t strides[3] = {static_cast<size_t>(input_h_ * input_w_),
                              static_cast<size_t>(input_w_), 1};
 
   for (int i = 0; i < input_h_; i++) {

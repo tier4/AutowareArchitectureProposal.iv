@@ -34,7 +34,7 @@ TrafficLightClassifierNodelet::TrafficLightClassifierNodelet(const rclcpp::NodeO
 
 
   tl_states_pub_ = this->create_publisher<autoware_perception_msgs::msg::TrafficLightStateArray>(
-    "output/traffic_light_states", rclcpp::QoS{1});
+    "~/output/traffic_light_states", rclcpp::QoS{1});
 
   //
   auto timer_callback = std::bind(&TrafficLightClassifierNodelet::connectCb, this);
@@ -67,8 +67,8 @@ void TrafficLightClassifierNodelet::connectCb()
     image_sub_.unsubscribe();
     roi_sub_.unsubscribe();
   } else if (!image_sub_.getSubscriber()) {
-    image_sub_.subscribe(this, "input/image", "raw", rclcpp::QoS{1}.get_rmw_qos_profile());
-    roi_sub_.subscribe(this, "input/rois", rclcpp::QoS{1}.get_rmw_qos_profile());
+    image_sub_.subscribe(this, "~/input/image", "raw", rclcpp::QoS{1}.get_rmw_qos_profile());
+    roi_sub_.subscribe(this, "~/input/rois", rclcpp::QoS{1}.get_rmw_qos_profile());
   }
 }
 

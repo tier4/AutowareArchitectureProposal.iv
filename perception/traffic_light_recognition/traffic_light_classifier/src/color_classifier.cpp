@@ -21,7 +21,7 @@ ColorClassifier::ColorClassifier(rclcpp::Node * node_ptr)
 : ratio_threshold_(0.02), node_ptr_(node_ptr)
 {
   using std::placeholders::_1;
-  image_pub_ = image_transport::create_publisher(node_ptr_, "debug/image", rclcpp::QoS{1}.get_rmw_qos_profile());
+  image_pub_ = image_transport::create_publisher(node_ptr_, "~/debug/image", rclcpp::QoS{1}.get_rmw_qos_profile());
 
   hsv_config_.green_min_h = node_ptr_->declare_parameter("green_min_h", 50);
   hsv_config_.green_min_s = node_ptr_->declare_parameter("green_min_s", 100);
@@ -222,7 +222,7 @@ rcl_interfaces::msg::SetParametersResult ColorClassifier::parametersCallback(
   update_param("red_max_h", hsv_config_.red_max_h);
   update_param("red_max_s", hsv_config_.red_max_s);
   update_param("red_max_v", hsv_config_.red_max_v);
-  
+
   min_hsv_green_ = cv::Scalar(hsv_config_.green_min_h, hsv_config_.green_min_s, hsv_config_.green_min_v);
   max_hsv_green_ = cv::Scalar(hsv_config_.green_max_h, hsv_config_.green_max_s, hsv_config_.green_max_v);
   min_hsv_yellow_ = cv::Scalar(hsv_config_.yellow_min_h, hsv_config_.yellow_min_s, hsv_config_.yellow_min_v);
