@@ -57,7 +57,7 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
     "/planning/scenario_planning/lane_driving/obstacle_avoidance_candidate_trajectory",
     durable_qos);
   debug_smoothed_points_pub_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
-    "~/debug/smoothed_poins", durable_qos);
+    "~/debug/smoothed_points", durable_qos);
   is_avoidance_possible_pub_ = create_publisher<autoware_planning_msgs::msg::IsAvoidancePossible>(
     "/planning/scenario_planning/lane_driving/obstacle_avoidance_ready", durable_qos);
   debug_markers_pub_ =
@@ -566,19 +566,19 @@ ObstacleAvoidancePlanner::convertPointsToTrajectory(
   const int zero_velocity_idx = util::getZeroVelocityIdx(
     is_showing_debug_info_, candidate_points, path_points, prev_trajectories_ptr_, *traj_param_);
 
-  auto traj_points = util::convertPointsToTrajectoryPoinsWithYaw(candidate_points);
+  auto traj_points = util::convertPointsToTrajectoryPointsWithYaw(candidate_points);
   traj_points = util::fillTrajectoryWithVelocity(traj_points, 1e4);
   if (prev_trajectories_ptr_) {
-    const int max_skip_comparison_velocity_idx_for_optimized_poins =
+    const int max_skip_comparison_velocity_idx_for_optimized_points =
       calculateNonDecelerationRange(traj_points, *current_ego_pose_ptr_, current_twist_ptr_->twist);
     const auto optimized_trajectory = util::concatTraj(*prev_trajectories_ptr_);
     traj_points = util::alignVelocityWithPoints(
       traj_points, optimized_trajectory, zero_velocity_idx,
-      max_skip_comparison_velocity_idx_for_optimized_poins);
+      max_skip_comparison_velocity_idx_for_optimized_points);
   }
-  const int max_skip_comparison_idx_for_path_poins = -1;
+  const int max_skip_comparison_idx_for_path_points = -1;
   traj_points = util::alignVelocityWithPoints(
-    traj_points, path_points, zero_velocity_idx, max_skip_comparison_idx_for_path_poins);
+    traj_points, path_points, zero_velocity_idx, max_skip_comparison_idx_for_path_points);
 
   return traj_points;
 }
