@@ -815,7 +815,8 @@ void MotionVelocityOptimizer::timerCallback()
 void MotionVelocityOptimizer::blockUntilVehiclePositionAvailable(const tf2::Duration & duration)
 {
   static constexpr auto input = "map", output = "base_link";
-  while (!tf_buffer_.canTransform(input, output, tf2::TimePointZero) &&
+  std::string error;
+  while (!tf_buffer_.canTransform(input, output, tf2::TimePointZero, &error) &&
     rclcpp::ok())
   {
     RCLCPP_INFO(

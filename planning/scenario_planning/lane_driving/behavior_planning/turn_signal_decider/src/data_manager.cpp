@@ -11,7 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 #include <memory>
+#include <string>
 
 #include "lanelet2_extension/utility/message_conversion.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
@@ -87,7 +89,9 @@ void DataManager::onVehiclePoseUpdate()
     if ( (node_->now() - failed_tf_time).seconds() < 3.0) {
       return;
     }
-    if (!tf_buffer_->canTransform("base_link", "map", rclcpp::Time(0))) {
+
+    std::string error;
+    if (!tf_buffer_->canTransform("base_link", "map", tf2::TimePointZero, &error)) {
       failed_tf_time = node_->now();
       RCLCPP_WARN_THROTTLE(
         node_->get_logger(), *node_->get_clock(), 3000 /* ms */,
