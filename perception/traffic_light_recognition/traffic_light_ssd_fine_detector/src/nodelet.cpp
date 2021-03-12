@@ -24,7 +24,7 @@ inline std::vector<float> toFloatVector(const std::vector<double> double_vector)
   return std::vector<float>(double_vector.begin(), double_vector.end());
 }
 
-TrafficLightSSDFineDetectorNodelet::TrafficLightSSDFineDetectorNodelet(const rclcpp::NodeOptions & options) 
+TrafficLightSSDFineDetectorNodelet::TrafficLightSSDFineDetectorNodelet(const rclcpp::NodeOptions & options)
 : Node("traffic_light_ssd_fine_detector_node", options)
 {
   using std::placeholders::_1;
@@ -50,7 +50,7 @@ TrafficLightSSDFineDetectorNodelet::TrafficLightSSDFineDetectorNodelet(const rcl
     RCLCPP_INFO(this->get_logger(), "Found %s", engine_path.c_str());
     net_ptr_.reset(new ssd::Net(engine_path, false));
     if (max_batch_size != net_ptr_->getMaxBatchSize()) {
-      RCLCPP_INFO(this->get_logger(), 
+      RCLCPP_INFO(this->get_logger(),
         "Required max batch size %d does not correspond to Profile max batch size %d. Rebuild "
         "engine "
         "from onnx",
@@ -78,8 +78,10 @@ TrafficLightSSDFineDetectorNodelet::TrafficLightSSDFineDetectorNodelet(const rcl
   this->get_node_timers_interface()->add_timer(timer_, nullptr);
 
   std::lock_guard<std::mutex> lock(connect_mutex_);
-  output_roi_pub_ = this->create_publisher<autoware_perception_msgs::msg::TrafficLightRoiArray>("output/rois", 1);
-  exe_time_pub_ = this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("debug/exe_time_ms", 1);
+  output_roi_pub_ = this->create_publisher<autoware_perception_msgs::msg::TrafficLightRoiArray>(
+    "~/output/rois", 1);
+  exe_time_pub_ = this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
+    "~/debug/exe_time_ms", 1);
   if (is_approximate_sync_) {
     approximate_sync_.reset(new ApproximateSync(ApproximateSyncPolicy(10), image_sub_, roi_sub_));
     approximate_sync_->registerCallback(
@@ -103,8 +105,8 @@ void TrafficLightSSDFineDetectorNodelet::connectCb()
     image_sub_.unsubscribe();
     roi_sub_.unsubscribe();
   } else if (!image_sub_.getSubscriber()) {
-    image_sub_.subscribe(this, "input/image", "raw", rclcpp::QoS{1}.get_rmw_qos_profile());
-    roi_sub_.subscribe(this, "input/rois", rclcpp::QoS{1}.get_rmw_qos_profile());
+    image_sub_.subscribe(this, "~/input/image", "raw", rclcpp::QoS{1}.get_rmw_qos_profile());
+    roi_sub_.subscribe(this, "~/input/rois", rclcpp::QoS{1}.get_rmw_qos_profile());
   }
 }
 
@@ -277,7 +279,7 @@ bool TrafficLightSSDFineDetectorNodelet::fitInFrame(cv::Point & lt, cv::Point & 
     if (lt.x < 0) lt.x = 0;
     if (lt.y < 0) lt.y = 0;
   } catch (cv::Exception & e) {
-    RCLCPP_ERROR(this->get_logger(), 
+    RCLCPP_ERROR(this->get_logger(),
       "Failed to fit bounding rect in size [%d, %d] \n%s", size.width, size.height, e.what());
     return false;
   }
