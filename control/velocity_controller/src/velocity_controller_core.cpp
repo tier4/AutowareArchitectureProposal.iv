@@ -104,13 +104,13 @@ VelocityController::VelocityController()
 
   // subscriber, publisher
   sub_current_vel_ = create_subscription<geometry_msgs::msg::TwistStamped>(
-    "current_velocity", 1, std::bind(&VelocityController::callbackCurrentVelocity, this, _1));
+    "~/current_velocity", 1, std::bind(&VelocityController::callbackCurrentVelocity, this, _1));
   sub_trajectory_ = create_subscription<autoware_planning_msgs::msg::Trajectory>(
-    "current_trajectory", 1, std::bind(&VelocityController::callbackTrajectory, this, _1));
+    "~/current_trajectory", 1, std::bind(&VelocityController::callbackTrajectory, this, _1));
   pub_control_cmd_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
-    "control_cmd", rclcpp::QoS{1});
+    "~/control_cmd", rclcpp::QoS{1});
   pub_debug_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>(
-    "debug_values", rclcpp::QoS{1});
+    "~/debug_values", rclcpp::QoS{1});
 
   // Timer
   {

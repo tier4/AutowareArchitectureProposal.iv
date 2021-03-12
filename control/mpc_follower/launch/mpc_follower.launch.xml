@@ -7,11 +7,11 @@
   <node pkg="mpc_follower" exec="mpc_follower" name="mpc_follower" output="screen">
     <param from="$(var mpc_follower_param_path)"/>
     <param from="$(var vehicle_param_file)" />
-    <remap from="input/reference_trajectory" to="/planning/scenario_planning/trajectory"/>
-    <remap from="input/current_velocity" to="/localization/twist"/>
-    <remap from="input/current_steering" to="/vehicle/status/steering"/>
-    <remap from="output/control_raw" to="lateral/control_cmd"/>
-    <remap from="output/predicted_trajectory" to="predicted_trajectory"/>
+    <remap from="~/input/reference_trajectory" to="/planning/scenario_planning/trajectory"/>
+    <remap from="~/input/current_velocity" to="/localization/twist"/>
+    <remap from="~/input/current_steering" to="/vehicle/status/steering"/>
+    <remap from="~/output/control_raw" to="lateral/control_cmd"/>
+    <remap from="~/output/predicted_trajectory" to="predicted_trajectory"/>
   </node>
 
 </launch>

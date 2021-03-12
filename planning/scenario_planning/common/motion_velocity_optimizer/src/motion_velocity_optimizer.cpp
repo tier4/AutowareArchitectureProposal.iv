@@ -86,26 +86,25 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
 
   publish_debug_trajs_ = declare_parameter("publish_debug_trajs", false);
 
-  pub_trajectory_ =
-    create_publisher<autoware_planning_msgs::msg::Trajectory>("output/trajectory", rclcpp::QoS{1});
+  pub_trajectory_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
+    "~/output/trajectory", rclcpp::QoS{1});
 
   rclcpp::QoS durable_qos(1);
   durable_qos.transient_local();
-  pub_velocity_limit_ =
-    create_publisher<autoware_planning_msgs::msg::VelocityLimit>(
-    "output/current_velocity_limit_mps", durable_qos);
+  pub_velocity_limit_ = create_publisher<autoware_planning_msgs::msg::VelocityLimit>(
+    "~/output/current_velocity_limit_mps", durable_qos);
   pub_dist_to_stopline_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
-    "distance_to_stopline", rclcpp::QoS{1});
+    "~/distance_to_stopline", rclcpp::QoS{1});
   pub_over_stop_velocity_ = create_publisher<autoware_planning_msgs::msg::StopSpeedExceeded>(
-    "stop_speed_exceeded", rclcpp::QoS{1});
+    "~/stop_speed_exceeded", rclcpp::QoS{1});
   sub_current_trajectory_ = create_subscription<autoware_planning_msgs::msg::Trajectory>(
-    "input/trajectory", 1,
+    "~/input/trajectory", 1,
     std::bind(&MotionVelocityOptimizer::callbackCurrentTrajectory, this, _1));
   sub_current_velocity_ = create_subscription<geometry_msgs::msg::TwistStamped>(
     "/localization/twist", 1,
     std::bind(&MotionVelocityOptimizer::callbackCurrentVelocity, this, _1));
   sub_external_velocity_limit_ = create_subscription<autoware_planning_msgs::msg::VelocityLimit>(
-    "input/external_velocity_limit_mps", 1,
+    "~/input/external_velocity_limit_mps", 1,
     std::bind(&MotionVelocityOptimizer::callbackExternalVelocityLimit, this, _1));
 
   if (p.algorithm_type == "L2") {
@@ -129,20 +128,20 @@ MotionVelocityOptimizer::MotionVelocityOptimizer()
   }
 
   /* debug */
-  debug_closest_velocity_ =
-    create_publisher<autoware_debug_msgs::msg::Float32Stamped>("closest_velocity", rclcpp::QoS{1});
+  debug_closest_velocity_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
+    "~/closest_velocity", rclcpp::QoS{1});
   debug_closest_acc_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
-    "closest_acceleration", rclcpp::QoS{1});
-  debug_closest_jerk_ =
-    create_publisher<autoware_debug_msgs::msg::Float32Stamped>("closest_jerk", rclcpp::QoS{1});
+    "~/closest_acceleration", rclcpp::QoS{1});
+  debug_closest_jerk_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
+    "~/closest_jerk", rclcpp::QoS{1});
   pub_trajectory_raw_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
-    "debug/trajectory_raw", rclcpp::QoS{1});
+    "~/debug/trajectory_raw", rclcpp::QoS{1});
   pub_trajectory_vel_lim_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
-    "debug/trajectory_external_velocity_limited", rclcpp::QoS{1});
+    "~/debug/trajectory_external_velocity_limited", rclcpp::QoS{1});
   pub_trajectory_latcc_filtered_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
-    "debug/trajectory_lateral_acc_filtered", rclcpp::QoS{1});
+    "~/debug/trajectory_lateral_acc_filtered", rclcpp::QoS{1});
   pub_trajectory_resampled_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
-    "debug/trajectory_time_resampled", rclcpp::QoS{1});
+    "~/debug/trajectory_time_resampled", rclcpp::QoS{1});
 
   /* timer */
   {

@@ -16,9 +16,9 @@
     <param from="$(var velocity_controller_param_path)"/>
     <param from="$(var vehicle_param_file)"/>
 
-    <remap from="current_velocity" to="/localization/twist"/>
-    <remap from="control_cmd" to="longitudinal/control_cmd"/>
-    <remap from="current_trajectory" to="/planning/scenario_planning/trajectory"/>
+    <remap from="~/current_velocity" to="/localization/twist"/>
+    <remap from="~/control_cmd" to="longitudinal/control_cmd"/>
+    <remap from="~/current_trajectory" to="/planning/scenario_planning/trajectory"/>
 
     <!-- system -->
     <param name="control_rate" value="$(var control_rate)"/>
