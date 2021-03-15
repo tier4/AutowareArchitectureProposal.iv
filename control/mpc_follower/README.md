@@ -46,8 +46,8 @@ The default parameters are adjusted to the AutonomouStuff Lexus RX 450h for unde
 |path_smoothing_times|int|number of times of applying path smoothing filter|1|
 |curvature_smoothing_num|double|index distance of points used in curvature calculation: p(i-num), p(i), p(i+num). larger num makes less noisy values.|35|
 |steering_lpf_cutoff_hz|double| cutoff frequency of lowpass filter for steering output command [hz]|3.0|
-|admisible_position_error|double| stop vehicle when following position error is larger than this value [m].|5.0|
-|admisible_yaw_error_deg|double|stop vehicle when following yaw angle error is larger than this value [deg].|90.0|
+|admissible_position_error|double| stop vehicle when following position error is larger than this value [m].|5.0|
+|admissible_yaw_error_deg|double|stop vehicle when following yaw angle error is larger than this value [deg].|90.0|
 
 ## mpc algorithm 
 
