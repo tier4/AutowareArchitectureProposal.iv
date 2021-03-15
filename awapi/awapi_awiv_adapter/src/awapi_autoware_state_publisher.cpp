@@ -17,9 +17,7 @@
 #include <vector>
 
 #include "awapi_awiv_adapter/awapi_autoware_state_publisher.hpp"
-
-#include <awapi_awiv_adapter/awapi_autoware_state_publisher.hpp>
-#include <awapi_awiv_adapter/diagnostics_filter.hpp>
+#include "awapi_awiv_adapter/diagnostics_filter.hpp"
 
 namespace autoware_api
 {

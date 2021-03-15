@@ -23,6 +23,7 @@
 #include <climits>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "diagnostic_updater/diagnostic_updater.hpp"
 
