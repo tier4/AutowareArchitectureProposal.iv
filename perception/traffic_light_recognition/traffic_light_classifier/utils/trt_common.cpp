@@ -81,7 +81,7 @@ bool TrtCommon::loadEngine(std::string engine_file_path)
   runtime_ = UniquePtr<nvinfer1::IRuntime>(nvinfer1::createInferRuntime(logger_));
   engine_ = UniquePtr<nvinfer1::ICudaEngine>(
     runtime_->deserializeCudaEngine(
-      reinterpret_cast<void *>(engine_str.data()), engine_str.size(), nullptr));
+      reinterpret_cast<const void *>(engine_str.data()), engine_str.size(), nullptr));
   return true;
 }
 

@@ -126,18 +126,18 @@ public:
 
 private:
   Logger logger_;
-  bool is_initialized_;
-  size_t max_batch_size_;
   std::string model_file_path_;
   UniquePtr<nvinfer1::IRuntime> runtime_;
   UniquePtr<nvinfer1::ICudaEngine> engine_;
 
   nvinfer1::Dims input_dims_;
   nvinfer1::Dims output_dims_;
+  std::string cache_dir_;
+  std::string precision_;
   std::string input_name_;
   std::string output_name_;
-  std::string precision_;
-  std::string cache_dir_;
+  bool is_initialized_;
+  size_t max_batch_size_;
 };
 
 }  // namespace Tn
