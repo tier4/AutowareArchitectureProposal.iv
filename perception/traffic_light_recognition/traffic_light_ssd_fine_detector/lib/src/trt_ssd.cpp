@@ -108,7 +108,7 @@ Net::Net(
   parser->parseFromFile(
     onnx_file_path.c_str(), static_cast<int>(nvinfer1::ILogger::Severity::kERROR));
 
-  // TODO: int8 calibrator
+  // TODO(someone): int8 calibrator
   /* std::unique_ptr<nvinfer1::Int8EntropyCalibrator> calib;
     if (int8) {
         config->setFlag(BuilderFlag::kINT8);
