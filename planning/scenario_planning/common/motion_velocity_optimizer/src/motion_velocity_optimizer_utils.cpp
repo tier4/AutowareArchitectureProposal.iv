@@ -118,7 +118,7 @@ tf2::Vector3 getTransVector3(
   return tf2::Vector3(dx, dy, dz);
 }
 
-autoware_planning_msgs::msg::TrajectoryPoint calcClosestTrajecotoryPointWithIntepolation(
+autoware_planning_msgs::msg::TrajectoryPoint calcClosestTrajectoryPointWithInterpolation(
   const autoware_planning_msgs::msg::Trajectory & trajectory,
   const geometry_msgs::msg::Pose & target_pose)
 {

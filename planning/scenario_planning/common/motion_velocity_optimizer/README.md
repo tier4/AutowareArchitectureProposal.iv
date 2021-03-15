@@ -58,7 +58,7 @@ The overall flowchart of the `motion_velocity_optimizer` is described below.
 
 The parameters are described on `config/motion_velocity_optimizer.param.yaml`
 
-## Constrant parameters
+## Constraint parameters
 |Name|Type|Description|Default value|
 |:--|:--|:--|:--|
 |max_velocity|  double|   Max velocity limit [m/s] | 20.0  |
@@ -79,7 +79,7 @@ The parameters are described on `config/motion_velocity_optimizer.param.yaml`
 |replan_vel_deviation| double | Velocity deviation to replan initial velocity [m/s]|5.53|
 |engage_velocity| double | Engage velocity threshold [m/s] (if the trajectory velocity is higher than this value, use this velocity for engage vehicle speed)|0.25|
 |engage_acceleration| double | Engage acceleration [m/ss] (use this acceleration when engagement)|0.1 |
-|engage_exit_ratio| double  | Exit engage sequence to normal velocity plannning when the velocity exceeds engage_exit_ratio x engage_velocity.|0.5 |
+|engage_exit_ratio| double  | Exit engage sequence to normal velocity planning when the velocity exceeds engage_exit_ratio x engage_velocity.|0.5 |
 |stop_dist_to_prohibit_engage| double | If the stop point is in this distance, the speed is set to 0 not to move the vehicle [m]|0.5 |
 
 ## For trajectory clipping & resampling
@@ -87,7 +87,7 @@ The parameters are described on `config/motion_velocity_optimizer.param.yaml`
 |:--|:--|:--|:--|
 |extract_ahead_dist| double | Forward trajectory distance used for planning [m] |  200.0  |
 |extract_behind_dist| double | backward trajectory distance used for planning [m] |  5.0    |
-|delta_yaw_threshold| double | Allowed delta yaw between ego pose and trajecotory pose [radian] |  1.0472 |
+|delta_yaw_threshold| double | Allowed delta yaw between ego pose and trajectory pose [radian] |  1.0472 |
 |max_trajectory_length| double |Max trajectory length for resampling [m]|  200.0|
 |min_trajectory_length| double |Min trajectory length for resampling [m]|  30.0 |
 |resample_time| double |Resample total time [s]|  10.0 |

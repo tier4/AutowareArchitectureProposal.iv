@@ -45,7 +45,7 @@ double calcDist2d(
 int calcClosestWaypoint(
   const autoware_planning_msgs::msg::Trajectory & trajectory,
   const geometry_msgs::msg::Point & point);
-autoware_planning_msgs::msg::TrajectoryPoint calcClosestTrajecotoryPointWithIntepolation(
+autoware_planning_msgs::msg::TrajectoryPoint calcClosestTrajectoryPointWithInterpolation(
   const autoware_planning_msgs::msg::Trajectory & trajectory,
   const geometry_msgs::msg::Pose & target_pose);
 tf2::Vector3 getTransVector3(

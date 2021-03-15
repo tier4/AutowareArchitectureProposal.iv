@@ -318,7 +318,7 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
     traj_resampled.points.size(), prev_output_closest);
 
   /* Calculate the closest trajectory point on the previously planned traj*/
-  const auto prev_output_closest_point = vpu::calcClosestTrajecotoryPointWithIntepolation(
+  const auto prev_output_closest_point = vpu::calcClosestTrajectoryPointWithInterpolation(
     prev_output_, traj_resampled.points.at(traj_resampled_closest).pose);
 
   /* Apply stopping velocity */
@@ -369,7 +369,7 @@ void MotionVelocityOptimizer::insertBehindVelocity(
       output.points.at(i).accel.linear.x = output.points.at(output_closest).accel.linear.x;
     } else {
       const auto prev_output_closest_point =
-        vpu::calcClosestTrajecotoryPointWithIntepolation(prev_output, output.points.at(i).pose);
+        vpu::calcClosestTrajectoryPointWithInterpolation(prev_output, output.points.at(i).pose);
       output.points.at(i).twist.linear.x = prev_output_closest_point.twist.linear.x;
       output.points.at(i).accel.linear.x = prev_output_closest_point.accel.linear.x;
     }
