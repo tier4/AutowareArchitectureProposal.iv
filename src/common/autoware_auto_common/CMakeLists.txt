@@ -28,7 +28,10 @@ endif()
 
 ## dependencies
 find_package(ament_cmake_auto REQUIRED)
+find_package(Eigen3 REQUIRED)
 ament_auto_find_build_dependencies()
+
+include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -65,11 +68,12 @@ if(BUILD_TESTING)
           test/test_float_comparisons.cpp
           test/test_bool_comparisons.cpp
           test/test_byte_reader.cpp
+          test/test_mahalanobis_distance.cpp
           test/test_type_traits.cpp
           test/test_type_name.cpp
           test/test_message_field_adapters.cpp)
   target_include_directories(${TEST_COMMON} PRIVATE include)
-  ament_target_dependencies(${TEST_COMMON} builtin_interfaces)
+  ament_target_dependencies(${TEST_COMMON} builtin_interfaces Eigen3)
 endif()
 
 # Ament Exporting
