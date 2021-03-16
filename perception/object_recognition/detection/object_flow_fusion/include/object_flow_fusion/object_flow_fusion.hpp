@@ -35,7 +35,7 @@ public:
     const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr& object_msg,
     const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr& flow_msg,
     bool use_flow_pose, float flow_vel_thresh_,
-    autoware_perception_msgs::DynamicObjectWithFeatureArray& fusioned_msg);
+    autoware_perception_msgs::DynamicObjectWithFeatureArray& fused_msg);
 private:
 
   bool getPolygon(
