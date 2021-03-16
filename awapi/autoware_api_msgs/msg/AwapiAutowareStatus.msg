@@ -8,5 +8,5 @@ autoware_system_msgs/HazardStatusStamped hazard_status
 autoware_planning_msgs/StopReasonArray stop_reason
 diagnostic_msgs/DiagnosticStatus[] diagnostics
 diagnostic_msgs/DiagnosticStatus[] error_diagnostics
-bool autonomous_overriden
+bool autonomous_overridden
 bool arrived_goal
