@@ -12,14 +12,14 @@
     extra_desired_clearance_from_road: 0.0 # extra desired clearance from road
 
     # clearance for unique points
-    clearance_for_straight_line_: 0.05 # minimum optimizing range around straight points
-    clearance_for_joint_: 0.1 # minimum optimizing range around joint points
+    clearance_for_straight_line: 0.05 # minimum optimizing range around straight points
+    clearance_for_joint: 0.1 # minimum optimizing range around joint points
     clearance_for_only_smoothing: 0.1 # minimum optimizing range when applying only smoothing
     range_for_extend_joint: 0.1 # minimum optimizing range around joint points for extending
     clearance_from_object_for_straight: 10.0 # minimum clearance from object when judging straight line
 
     # avoiding param
-    max_avoiding_objects_velocity_ms: .5 # maximum velocity for avoiding objects[m/s]
+    max_avoiding_objects_velocity_ms: 0.5 # maximum velocity for avoiding objects[m/s]
     max_avoiding_ego_velocity_ms: 6.0 # maximum ego velocity when avoiding objects[m/s]
     center_line_width: 1.7 # replaced with /vehicle_info/vehicle_width when is_using_vehicle_config is true. center line width around path points used for judging that object is required to avoid or not
     acceleration_for_non_deceleration_range: 1.0 # assumed acceleration for calculating non deceleration range

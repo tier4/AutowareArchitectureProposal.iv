@@ -147,7 +147,7 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner()
     declare_parameter("is_getting_constraints_close2path_points", false);
   constrain_param_->clearance_for_straight_line =
     declare_parameter("clearance_for_straight_line", 0.05);
-  constrain_param_->clearance_for_joint = declare_parameter("clearance_for_joint", 3.2);
+  constrain_param_->clearance_for_joint = declare_parameter("clearance_for_joint", 0.1);
   constrain_param_->range_for_extend_joint = declare_parameter("range_for_extend_joint", 1.6);
   constrain_param_->clearance_for_only_smoothing =
     declare_parameter("clearance_for_only_smoothing", 0.1);
