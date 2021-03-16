@@ -19,7 +19,7 @@
 
 /// This function will spin the given node and update the diagnostic state at each iteration
 /// \tparam MonitorT Monitor type
-/// \param monitor_ptr Shared pointer of a monitor node to be spinned.
+/// \param monitor_ptr Shared pointer of a monitor node to be spin().
 /// \param period Spin period.
 
 #ifndef SYSTEM_MONITOR__UTILS_HPP_
