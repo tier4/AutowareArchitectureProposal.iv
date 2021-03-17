@@ -29,7 +29,7 @@
 /// \tparam MonitorT Monitor type
 /// \param monitor_ptr Shared pointer of a monitor node to be spin().
 /// \param period Spin period.
-template <typename MonitorT>
+template<typename MonitorT>
 void spin_and_update(const std::shared_ptr<MonitorT> & monitor_ptr, std::chrono::seconds period)
 {
   while (rclcpp::ok()) {
