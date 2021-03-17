@@ -17,20 +17,19 @@
  * @brief Utility functions used by different system monitor nodes.
  */
 
+#ifndef SYSTEM_MONITOR__UTILS_HPP_
+#define SYSTEM_MONITOR__UTILS_HPP_
+
+#include <chrono>
+#include <memory>
+
+#include "rclcpp/rclcpp.hpp"
+
 /// This function will spin the given node and update the diagnostic state at each iteration
 /// \tparam MonitorT Monitor type
 /// \param monitor_ptr Shared pointer of a monitor node to be spin().
 /// \param period Spin period.
-
-#ifndef SYSTEM_MONITOR__UTILS_HPP_
-#define SYSTEM_MONITOR__UTILS_HPP_
-
-#include <memory>
-#include <chrono>
-
-#include "rclcpp/rclcpp.hpp"
-
-template<typename MonitorT>
+template <typename MonitorT>
 void spin_and_update(const std::shared_ptr<MonitorT> & monitor_ptr, std::chrono::seconds period)
 {
   while (rclcpp::ok()) {
