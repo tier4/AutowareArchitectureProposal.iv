@@ -86,7 +86,7 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
   float tx_traffic;
   float rx_usage;
   float tx_usage;
-  std::vector<std::string> appended;
+  std::vector<std::string> interface_names;
 
   for (ifa = ifas; ifa; ifa = ifa->ifa_next) {
     // Skip no addr
@@ -124,7 +124,7 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
       ++index;
       close(fd);
-      appended.push_back(ifa->ifa_name);
+      interface_names.push_back(ifa->ifa_name);
       continue;
     }
 
@@ -149,7 +149,7 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
         ++index;
         close(fd);
-        appended.push_back(ifa->ifa_name);
+        interface_names.push_back(ifa->ifa_name);
         continue;
       }
     } else {
@@ -190,7 +190,7 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
     whole_level = std::max(whole_level, level);
     ++index;
 
-    appended.push_back(ifa->ifa_name);
+    interface_names.push_back(ifa->ifa_name);
   }
 
   freeifaddrs(ifas);
@@ -200,7 +200,7 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
     // Skip if all devices specified
     if (device == "*") {continue;}
     // Skip if device already appended
-    if (boost::find(appended, device) != appended.end()) {continue;}
+    if (boost::find(interface_names, device) != interface_names.end()) {continue;}
 
     stat.add(fmt::format("Network {}: status", index), "No Such Device");
     stat.add(fmt::format("Network {}: interface name", index), device);
