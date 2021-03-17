@@ -219,7 +219,8 @@ EBPathOptimizer::getOptimizedTrajectory(
   }
 
   const auto traj_points =
-    calculateTrajectory(padded_interpolated_points, rectangles.get(), farthest_idx, OptMode::Normal);
+    calculateTrajectory(
+    padded_interpolated_points, rectangles.get(), farthest_idx, OptMode::Normal);
   debug_data->smoothed_points = traj_points;
   return traj_points;
 }

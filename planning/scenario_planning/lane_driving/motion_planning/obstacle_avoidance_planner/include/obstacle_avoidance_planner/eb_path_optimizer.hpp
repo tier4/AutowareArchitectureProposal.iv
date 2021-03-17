@@ -315,7 +315,8 @@ private:
     const cv::Mat & only_objects_clearance_map, const nav_msgs::msg::MapMetaData & map_info) const;
 
   int getStraightLineIdx(
-    const std::vector<geometry_msgs::msg::Point> & interpolated_points, const int farthest_point_idx,
+    const std::vector<geometry_msgs::msg::Point> & interpolated_points,
+    const int farthest_point_idx,
     const cv::Mat & only_objects_clearance, const nav_msgs::msg::MapMetaData & map_info,
     std::vector<geometry_msgs::msg::Point> & debug_detected_straight_points);
 
