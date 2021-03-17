@@ -4,7 +4,7 @@
   <version>0.1.0</version>
   <description>The trajectory_loader package</description>
   <maintainer email="yukky.saito@gmail.com">Yukihiro Saito</maintainer>
-  <license>TODO</license>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
