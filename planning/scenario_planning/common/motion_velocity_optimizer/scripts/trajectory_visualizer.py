@@ -487,7 +487,7 @@ class TrajectoryVisualizer(Node):
         self.ax3.set_ylim([-2, 2])
         self.ax3.set_xlabel("arclength [m]")
         self.ax3.set_ylabel("jerk [m/sss]")
-        self.im4, = self.ax3.plot([], [], label="final jark")
+        self.im4, = self.ax3.plot([], [], label="final jerk")
 
         return self.im0, self.im1, self.im2, self.im3, self.im4
 
