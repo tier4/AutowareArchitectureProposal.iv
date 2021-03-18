@@ -89,6 +89,7 @@ private:
 
   rclcpp::TimerBase::SharedPtr timer_;
   std::vector<rclcpp::Parameter> vehicle_info_params;
+  std::vector<std::string> set_node_list_;
   double request_timeout_sec_ = 0.2;
 };
 
