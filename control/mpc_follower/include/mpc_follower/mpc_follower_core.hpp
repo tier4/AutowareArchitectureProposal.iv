@@ -91,9 +91,9 @@ private:
   rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr
     sub_ref_path_;  //!< @brief topic subscription for reference waypoints
   rclcpp::Subscription<autoware_vehicle_msgs::msg::Steering>::SharedPtr
-    sub_steering_;  //!< @brief subscription for currrent steering
+    sub_steering_;  //!< @brief subscription for current steering
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr
-    sub_current_vel_;  //!< @brief subscription for currrent velocity
+    sub_current_vel_;  //!< @brief subscription for current velocity
 
   rclcpp::TimerBase::SharedPtr timer_;  //!< @brief timer to update after a given interval
   void initTimer(double period_s);  //!< initialize timer to work in real, simulation, and replay
@@ -110,8 +110,8 @@ private:
   /* parameters for control*/
   double ctrl_period_;               //!< @brief control frequency [s]
   double steering_lpf_cutoff_hz_;    //!< @brief cutoff frequency for steering command [Hz]
-  double admisible_position_error_;  //!< @brief use stop cmd when lateral error exceeds this [m]
-  double admisible_yaw_error_;       //!< @briefuse stop cmd when yaw error exceeds this [rad]
+  double admissible_position_error_; //!< @brief use stop cmd when lateral error exceeds this [m]
+  double admissible_yaw_error_rad_;  //!< @briefuse stop cmd when yaw error exceeds this [rad]
   double steer_lim_;                 //!< @brief steering command limit [rad]
   double steer_rate_lim_;            //!< @brief steering rate limit [rad/s]
   double wheelbase_;                 //!< @brief vehicle wheelbase length [m]
