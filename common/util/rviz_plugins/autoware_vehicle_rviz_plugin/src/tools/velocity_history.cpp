@@ -86,7 +86,7 @@ VelocityHistoryDisplay::~VelocityHistoryDisplay()
 
 void VelocityHistoryDisplay::onInitialize()
 {
-  MFDClass::onInitialize();
+  RTDClass::onInitialize();
 
   velocity_manual_object_ = scene_manager_->createManualObject();
   velocity_manual_object_->setDynamic(true);
@@ -95,7 +95,7 @@ void VelocityHistoryDisplay::onInitialize()
 
 void VelocityHistoryDisplay::reset()
 {
-  MFDClass::reset();
+  RTDClass::reset();
   velocity_manual_object_->clear();
 }
 
