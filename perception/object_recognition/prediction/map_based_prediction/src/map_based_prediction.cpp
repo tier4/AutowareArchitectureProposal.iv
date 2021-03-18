@@ -295,7 +295,8 @@ void MapBasedPrediction::getLinearPredictedPath(
   for (double dt = 0.0; dt < time_horizon + ep; dt += sampling_delta_time) {
     geometry_msgs::msg::PoseWithCovarianceStamped pose_cov_stamped;
     pose_cov_stamped.header = origin_header;
-    pose_cov_stamped.header.stamp = rclcpp::Time(origin_header.stamp) + rclcpp::Duration::from_seconds(dt);
+    pose_cov_stamped.header.stamp = rclcpp::Time(origin_header.stamp) +
+      rclcpp::Duration::from_seconds(dt);
     geometry_msgs::msg::Pose object_frame_pose;
     geometry_msgs::msg::Pose world_frame_pose;
     object_frame_pose.position.x = object_twist.linear.x * dt;
