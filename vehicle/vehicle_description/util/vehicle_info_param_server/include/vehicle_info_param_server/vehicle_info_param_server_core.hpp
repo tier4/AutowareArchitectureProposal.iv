@@ -55,9 +55,11 @@ private:
     std::vector<rclcpp::Parameter> params)
   {
     auto set_parameters_results = client->set_parameters(params);
-    return rclcpp::spin_until_future_complete(
-      this->get_node_base_interface(), set_parameters_results) ==
-           rclcpp::executor::FutureReturnCode::SUCCESS &&
+    const auto timeout_chrono = std::chrono::duration<double>(timeout);
+    using rclcpp::spin_until_future_complete;
+    return spin_until_future_complete(
+      this->get_node_base_interface(), set_parameters_results, timeout_chrono) ==
+           rclcpp::FutureReturnCode::SUCCESS ||
            set_parameters_results.get().front().successful;
   }
 
@@ -87,7 +89,7 @@ private:
 
   rclcpp::TimerBase::SharedPtr timer_;
   std::vector<rclcpp::Parameter> vehicle_info_params;
-  double request_timeout_sec_ = 0.1;
+  double request_timeout_sec_ = 0.2;
 };
 
 #endif  // VEHICLE_INFO_PARAM_SERVER__VEHICLE_INFO_PARAM_SERVER_CORE_HPP_

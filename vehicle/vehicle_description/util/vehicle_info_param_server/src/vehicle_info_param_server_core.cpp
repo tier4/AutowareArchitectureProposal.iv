@@ -45,13 +45,10 @@ VehicleInfoParamServer::VehicleInfoParamServer()
   vehicle_info_params.emplace_back(rclcpp::Parameter("ready_vehicle_info_param", true));
 
   // timer
-  auto timer_callback = std::bind(&VehicleInfoParamServer::setVehicleInfoParameters, this);
-  auto period =
-    std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::duration<double>(1.0));
-  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
-    this->get_clock(), period, std::move(timer_callback),
-    this->get_node_base_interface()->get_context());
-  this->get_node_timers_interface()->add_timer(timer_, nullptr);
+  while (rclcpp::ok()) {
+    setVehicleInfoParameters();
+    rclcpp::Rate(10.0).sleep();
+  }
 }
 
 void VehicleInfoParamServer::setVehicleInfoParameters()
@@ -59,6 +56,9 @@ void VehicleInfoParamServer::setVehicleInfoParameters()
   std::vector<std::string> node_names = get_node_names();
 
   for (const auto & n : node_names) {
+    // remove self node
+    // remove the node that already checked
+
     if (!rclcpp::ok()) {
       RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting.");
       break;
@@ -100,6 +100,5 @@ void VehicleInfoParamServer::setVehicleInfoParameters()
       rclcpp::Rate(100.0).sleep();
     }
 
-    RCLCPP_INFO_STREAM(get_logger(), "Set vehicle_info_param: " << n);
   }
 }

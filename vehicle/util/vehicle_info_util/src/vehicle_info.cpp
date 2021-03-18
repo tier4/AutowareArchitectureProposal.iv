@@ -94,6 +94,7 @@ void VehicleInfo::waitVehicleInfo(rclcpp::Node & node)
   while (rclcpp::ok() && !node.get_parameter("ready_vehicle_info_param").as_bool()) {
     RCLCPP_INFO_STREAM_THROTTLE(
       node.get_logger(), *node.get_clock(), 5000 /* ms */, "wait for vehicle info");
+    rclcpp::spin_some(node.get_node_base_interface());
     rclcpp::Rate(100.0).sleep();
   }
 }
