@@ -484,7 +484,7 @@ double MPCFollower::getSteerCmdSum(
 
 void MPCFollower::storeSteerCmd(const double steer)
 {
-  const auto time_delayed = this->now() + rclcpp::Duration(mpc_param_.input_delay);
+  const auto time_delayed = this->now() + rclcpp::Duration::from_seconds(mpc_param_.input_delay);
   autoware_control_msgs::msg::ControlCommandStamped cmd;
   cmd.header.stamp = time_delayed;
   cmd.control.steering_angle = steer;

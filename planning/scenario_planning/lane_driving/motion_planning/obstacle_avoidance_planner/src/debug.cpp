@@ -230,7 +230,7 @@ visualization_msgs::msg::MarkerArray getDebugPointsMarkers(
 
   unique_id = 0;
   visualization_msgs::msg::Marker straight_points_marker;
-  straight_points_marker.lifetime = rclcpp::Duration(40);
+  straight_points_marker.lifetime = rclcpp::Duration::from_seconds(40);
   straight_points_marker.header.frame_id = "map";
   straight_points_marker.header.stamp = rclcpp::Time(0);
   straight_points_marker.ns = std::string("straight_points_marker");
@@ -269,7 +269,7 @@ visualization_msgs::msg::MarkerArray getDebugPointsMarkers(
   }
 
   visualization_msgs::msg::Marker non_fixed_marker;
-  non_fixed_marker.lifetime = rclcpp::Duration(20);
+  non_fixed_marker.lifetime = rclcpp::Duration::from_seconds(20);
   non_fixed_marker.header.frame_id = "map";
   non_fixed_marker.header.stamp = rclcpp::Time(0);
   non_fixed_marker.ns = std::string("non_fixed_points_marker");
