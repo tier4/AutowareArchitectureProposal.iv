@@ -12,9 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "vehicle_info_param_server/vehicle_info_param_server_core.hpp"
 
-VehicleInfoParamServer::VehicleInfoParamServer() : Node("vehicle_info_param_server")
+VehicleInfoParamServer::VehicleInfoParamServer()
+: Node("vehicle_info_param_server")
 {
   const double wheel_radius_m = this->declare_parameter("wheel_radius").get<double>();
   const double wheel_width_m = this->declare_parameter("wheel_width").get<double>();
@@ -71,7 +77,8 @@ void VehicleInfoParamServer::setVehicleInfoParameters()
     if (
       !hasParameter(
         parameters_client, "ready_vehicle_info_param", request_timeout_sec_, &has_param) ||
-      !has_param) {
+      !has_param)
+    {
       // No need to set vehicle parameter.
       continue;
     }
@@ -82,7 +89,8 @@ void VehicleInfoParamServer::setVehicleInfoParameters()
       !getParameter<bool>(
         parameters_client, "ready_vehicle_info_param", request_timeout_sec_,
         &ready_vehicle_info_param) ||
-      ready_vehicle_info_param) {
+      ready_vehicle_info_param)
+    {
       // Already vehicle_info_params are already set.
       continue;
     }

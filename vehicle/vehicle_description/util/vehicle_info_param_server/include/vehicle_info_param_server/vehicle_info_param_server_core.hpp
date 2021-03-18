@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <string>
+#include <vector>
+
 #include "rclcpp/rclcpp.hpp"
 
 #ifndef VEHICLE_INFO_PARAM_SERVER__VEHICLE_INFO_PARAM_SERVER_CORE_HPP_
@@ -36,7 +39,8 @@ private:
     using rclcpp::spin_until_future_complete;
     if (
       spin_until_future_complete(this->get_node_base_interface(), list_param, timeout_chrono) ==
-      rclcpp::FutureReturnCode::SUCCESS) {
+      rclcpp::FutureReturnCode::SUCCESS)
+    {
       auto vars = list_param.get();
       *result = vars.names.size() > 0;
       return true;
@@ -44,7 +48,7 @@ private:
     // timeout
     RCLCPP_DEBUG(get_logger(), "Timeout: hasParameter()");
     return false;
-  };
+  }
 
   bool setParameter(
     const rclcpp::AsyncParametersClient::SharedPtr client, const double timeout,
@@ -52,12 +56,12 @@ private:
   {
     auto set_parameters_results = client->set_parameters(params);
     return rclcpp::spin_until_future_complete(
-             this->get_node_base_interface(), set_parameters_results) ==
-             rclcpp::executor::FutureReturnCode::SUCCESS &&
+      this->get_node_base_interface(), set_parameters_results) ==
+           rclcpp::executor::FutureReturnCode::SUCCESS &&
            set_parameters_results.get().front().successful;
-  };
+  }
 
-  template <class T>
+  template<class T>
   bool getParameter(
     const rclcpp::AsyncParametersClient::SharedPtr client, const std::string & param_name,
     const double timeout, T * result)
@@ -70,7 +74,8 @@ private:
     using rclcpp::spin_until_future_complete;
     if (
       spin_until_future_complete(this->get_node_base_interface(), get_param, timeout_chrono) ==
-      rclcpp::FutureReturnCode::SUCCESS) {
+      rclcpp::FutureReturnCode::SUCCESS)
+    {
       auto vars = get_param.get();
       *result = vars.front().get_value<T>();
       return true;
