@@ -113,7 +113,7 @@ private:
   double ctrl_period_;               //!< @brief control frequency [s]
   double steering_lpf_cutoff_hz_;    //!< @brief cutoff frequency for steering command [Hz]
   double admissible_position_error_; //!< @brief use stop cmd when lateral error exceeds this [m]
-  double admissible_yaw_error_rad_;  //!< @briefuse stop cmd when yaw error exceeds this [rad]
+  double admissible_yaw_error_rad_;  //!< @brief use stop cmd when yaw error exceeds this [rad]
   double steer_lim_;                 //!< @brief steering command limit [rad]
   double steer_rate_lim_;            //!< @brief steering rate limit [rad/s]
   double wheelbase_;                 //!< @brief vehicle wheelbase length [m]
