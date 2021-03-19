@@ -55,15 +55,16 @@ void VehicleInfoParamServer::setVehicleInfoParameters()
 {
   std::vector<std::string> node_names = get_node_names();
 
+  // remove self node
+  node_names.erase(
+    std::remove_if(
+      node_names.begin(), node_names.end(),
+      [](std::string s) {
+        return s.find(std::string("vehicle_info_param_server")) != std::string::npos;
+      }),
+    node_names.end());
+
   for (const auto & n : node_names) {
-
-    // remove self node
-    node_names.erase(
-      std::remove_if(
-        node_names.begin(), node_names.end(),
-        [](std::string s) {return s.find(std::string("vehicle_info_param_server")) != std::string::npos;}),
-      node_names.end());
-
     // remove nodes that already checked
     if (std::find(set_node_list_.begin(), set_node_list_.end(), n) != set_node_list_.end()) {
       continue;
@@ -90,7 +91,7 @@ void VehicleInfoParamServer::setVehicleInfoParameters()
       !has_param)
     {
       // No need to set vehicle parameter.
-      if(has_param) set_node_list_.emplace_back(n);
+      if (has_param) {set_node_list_.emplace_back(n);}
       continue;
     }
 
@@ -103,7 +104,7 @@ void VehicleInfoParamServer::setVehicleInfoParameters()
       ready_vehicle_info_param)
     {
       // Already vehicle_info_params are already set.
-      if(ready_vehicle_info_param) set_node_list_.emplace_back(n);
+      if (ready_vehicle_info_param) {set_node_list_.emplace_back(n);}
       continue;
     }
 
@@ -111,7 +112,7 @@ void VehicleInfoParamServer::setVehicleInfoParameters()
     while (!setParameter(parameters_client, request_timeout_sec_, vehicle_info_params)) {
       rclcpp::Rate(100.0).sleep();
     }
-      set_node_list_.emplace_back(n);
-      RCLCPP_INFO_STREAM(this->get_logger(), "Set vehicle info parameter: " << n);
+    set_node_list_.emplace_back(n);
+    RCLCPP_INFO_STREAM(this->get_logger(), "Set vehicle info parameter: " << n);
   }
 }
