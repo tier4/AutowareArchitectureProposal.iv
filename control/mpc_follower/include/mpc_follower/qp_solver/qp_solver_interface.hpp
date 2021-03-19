@@ -19,8 +19,8 @@
  * @date 2019.05.01
  */
 
-#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_QP_SOLVER_QP_SOLVER_INTERFACE_H
-#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_QP_SOLVER_QP_SOLVER_INTERFACE_H
+#ifndef MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_INTERFACE_HPP_
+#define MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_INTERFACE_HPP_
 
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Dense"
@@ -51,4 +51,4 @@ public:
     const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lbA,
     const Eigen::VectorXd & ubA, Eigen::VectorXd & U) = 0;
 };
-#endif
+#endif  // MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_INTERFACE_HPP_

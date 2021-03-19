@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_INTERPOLATE_H
-#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_INTERPOLATE_H
+#ifndef MPC_FOLLOWER__INTERPOLATE_HPP_
+#define MPC_FOLLOWER__INTERPOLATE_HPP_
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -41,7 +41,7 @@ class SplineInterpolate
 
 public:
   SplineInterpolate();
-  SplineInterpolate(const std::vector<double> & x);
+  explicit SplineInterpolate(const std::vector<double> & x);
   ~SplineInterpolate();
   void generateSpline(const std::vector<double> & x);
   double getValue(const double & s);
@@ -50,4 +50,4 @@ public:
     const std::vector<double> & return_index, std::vector<double> & return_value);
   void getValueVector(const std::vector<double> & s_v, std::vector<double> & value_v);
 };
-#endif
+#endif  // MPC_FOLLOWER__INTERPOLATE_HPP__

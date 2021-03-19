@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_TRAJECTORY_H
-#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_TRAJECTORY_H
+#ifndef MPC_FOLLOWER__MPC_TRAJECTORY_HPP_
+#define MPC_FOLLOWER__MPC_TRAJECTORY_HPP_
 #include <iostream>
 #include <vector>
 
@@ -50,4 +50,4 @@ public:
    */
   unsigned int size() const;
 };
-#endif
+#endif  // MPC_FOLLOWER__MPC_TRAJECTORY_HPP_

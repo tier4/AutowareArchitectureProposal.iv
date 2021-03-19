@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_UTILS_H
-#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_UTILS_H
+#ifndef MPC_FOLLOWER__MPC_UTILS_HPP_
+#define MPC_FOLLOWER__MPC_UTILS_HPP_
+
+#include <cmath>
+#include <string>
+#include <vector>
 
 #include "mpc_follower/interpolate.hpp"
 #include "mpc_follower/mpc_trajectory.hpp"
@@ -28,8 +32,6 @@
 
 #include "eigen3/Eigen/Core"
 
-#include <cmath>
-#include <vector>
 
 namespace MPCUtils
 {
@@ -128,4 +130,4 @@ visualization_msgs::msg::MarkerArray convertTrajToMarker(
   const std::string & frame_id, const builtin_interfaces::msg::Time & stamp);
 
 }  // namespace MPCUtils
-#endif
+#endif  // MPC_FOLLOWER__MPC_UTILS_HPP_

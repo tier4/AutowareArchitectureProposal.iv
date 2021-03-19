@@ -19,8 +19,8 @@
  * @date 2019.05.01
  */
 
-#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_LOWPASS_FILTER_H
-#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_LOWPASS_FILTER_H
+#ifndef MPC_FOLLOWER__LOWPASS_FILTER_HPP_
+#define MPC_FOLLOWER__LOWPASS_FILTER_HPP_
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -55,7 +55,7 @@ public:
    * @param [in] dt sampling time
    * @param [in] f_cutoff_hz cutoff frequency [Hz]
    */
-  Butterworth2dFilter(double dt = 0.01, double f_cutoff_hz = 5.0);
+  explicit Butterworth2dFilter(double dt = 0.01, double f_cutoff_hz = 5.0);
 
   /**
    * @brief destructor
@@ -123,4 +123,4 @@ public:
    */
   static bool filt_vector(const int num, std::vector<double> & u);
 };
-#endif
+#endif  // MPC_FOLLOWER__LOWPASS_FILTER_HPP_
