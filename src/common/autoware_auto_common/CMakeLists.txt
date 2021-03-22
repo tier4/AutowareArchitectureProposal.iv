@@ -65,8 +65,9 @@ if(BUILD_TESTING)
           test/test_float_comparisons.cpp
           test/test_bool_comparisons.cpp
           test/test_byte_reader.cpp
-          test/test_message_field_adapters.cpp
-          test/test_template_utils.cpp)
+          test/test_type_traits.cpp
+          test/test_type_name.cpp
+          test/test_message_field_adapters.cpp)
   target_include_directories(${TEST_COMMON} PRIVATE include)
   ament_target_dependencies(${TEST_COMMON} builtin_interfaces)
 endif()
