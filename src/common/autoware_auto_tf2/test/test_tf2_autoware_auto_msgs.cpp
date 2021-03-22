@@ -164,8 +164,8 @@ TEST(Tf2AutowareAuto, TransformBoundingBoxArray)
   bb1.corners[3].z = 34;
 
   BoundingBox bb2;
-  bb2.orientation.w = 0.707;
-  bb2.orientation.x = -0.706;
+  bb2.orientation.w = 0.707f;
+  bb2.orientation.x = -0.706f;
   bb2.orientation.y = 0;
   bb2.orientation.z = 0;
   bb2.centroid.x = 50;

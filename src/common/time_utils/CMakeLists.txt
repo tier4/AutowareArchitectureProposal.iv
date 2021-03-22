@@ -5,11 +5,10 @@ project(time_utils)
 ### Dependencies
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
-### Compile options
-set(CMAKE_CXX_STANDARD 14)
 
 ### Build
 ament_auto_add_library(${PROJECT_NAME} SHARED src/time_utils/time_utils.cpp)
+autoware_set_compile_options(${PROJECT_NAME})
 
 ### Test
 if(BUILD_TESTING)

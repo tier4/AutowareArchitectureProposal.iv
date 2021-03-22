@@ -18,15 +18,6 @@ cmake_minimum_required(VERSION 3.5)
 ### Export headers
 project(autoware_auto_geometry)
 
-# Default to C++14
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
-endif()
-
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
-
 ## dependencies
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
@@ -56,6 +47,8 @@ if(BUILD_TESTING)
     test/src/lookup_table.cpp
   )
   ament_add_gtest(${GEOMETRY_GTEST} ${GEOMETRY_SRC})
+  autoware_set_compile_options(${GEOMETRY_GTEST})
+  target_compile_options(${GEOMETRY_GTEST} PRIVATE -Wno-conversion -Wno-sign-conversion)
   target_include_directories(${GEOMETRY_GTEST} PRIVATE "test/include" "include")
   ament_target_dependencies(${GEOMETRY_GTEST}
     "autoware_auto_common"

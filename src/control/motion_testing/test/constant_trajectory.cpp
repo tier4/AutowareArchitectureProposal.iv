@@ -59,10 +59,10 @@ TEST(constant_trajectory, constant_velocity)
   const auto dt = std::chrono::milliseconds(100LL);
   const auto traj = motion::motion_testing::constant_velocity_trajectory(
     x0, y0, heading, v0, dt);
-  const auto dt_s = std::chrono::duration_cast<std::chrono::duration<float>>(dt).count();
+  const auto dt_s = std::chrono::duration_cast<std::chrono::duration<float_t>>(dt).count();
   for (auto i = 0U; i < traj.points.size(); ++i) {
     const auto & t = traj.points[i];
-    const auto ds = v0 * i * dt_s;
+    const auto ds = v0 * static_cast<float_t>(i) * dt_s;
     constexpr auto TOL = 1.0E-4F;
     EXPECT_LT(std::abs(t.x - (x0 + (ds * c))), TOL);
     EXPECT_LT(std::abs(t.y - (y0 + (ds * s))), TOL);
@@ -97,10 +97,10 @@ TEST(constant_trajectory, constant_acceleration)
   const auto dt = std::chrono::milliseconds(100LL);
   const auto traj = motion::motion_testing::constant_acceleration_trajectory(
     x0, y0, heading, v0, a0, dt);
-  const auto dt_s = std::chrono::duration_cast<std::chrono::duration<float>>(dt).count();
+  const auto dt_s = std::chrono::duration_cast<std::chrono::duration<float_t>>(dt).count();
   for (auto i = 0U; i < traj.points.size(); ++i) {
     const auto & t = traj.points[i];
-    const auto dT = i * dt_s;
+    const auto dT = static_cast<float_t>(i) * dt_s;
     const auto ds = dT * (v0 + (0.5F * dT * a0));
     constexpr auto TOL = 1.0E-4F;
     EXPECT_LT(std::abs(t.x - (x0 + (ds * c))), TOL);

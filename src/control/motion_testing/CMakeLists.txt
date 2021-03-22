@@ -5,11 +5,10 @@ project(motion_testing)
 ### Dependencies
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
-### Compile options
-set(CMAKE_CXX_STANDARD 14)
 
 ### Build
 ament_auto_add_library(${PROJECT_NAME} SHARED src/motion_testing/motion_testing.cpp)
+autoware_set_compile_options(${PROJECT_NAME})
 
 ### Test
 if(BUILD_TESTING)
@@ -21,6 +20,8 @@ if(BUILD_TESTING)
     test/gtest_main.cpp
     test/constant_trajectory.cpp
     test/trajectory_checks.cpp)
+  autoware_set_compile_options(motion_testing_unit_tests)
+  target_compile_options(motion_testing_unit_tests PRIVATE -Wno-sign-conversion)
   target_link_libraries(motion_testing_unit_tests ${PROJECT_NAME})
   add_dependencies(motion_testing_unit_tests ${PROJECT_NAME})
 endif()
