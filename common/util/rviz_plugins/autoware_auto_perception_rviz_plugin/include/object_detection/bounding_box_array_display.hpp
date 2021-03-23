@@ -18,6 +18,8 @@
 #define OBJECT_DETECTION__BOUNDING_BOX_ARRAY_DISPLAY_HPP_
 
 #include <rviz_common/display.hpp>
+#include <rviz_common/properties/color_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
 #include <rviz_default_plugins/displays/marker/marker_common.hpp>
 #include <rviz_default_plugins/displays/marker_array/marker_array_display.hpp>
 #include <autoware_auto_msgs/msg/bounding_box_array.hpp>
@@ -35,6 +37,8 @@ namespace rviz_plugins
 class AUTOWARE_RVIZ_PLUGINS_PUBLIC BoundingBoxArrayDisplay
   : public rviz_common::RosTopicDisplay<autoware_auto_msgs::msg::BoundingBoxArray>
 {
+  Q_OBJECT
+
 public:
   using MarkerCommon = rviz_default_plugins::displays::MarkerCommon;
   using Marker = visualization_msgs::msg::Marker;
@@ -47,6 +51,9 @@ public:
   void update(float32_t wall_dt, float32_t ros_dt) override;
   void reset() override;
 
+private Q_SLOTS:
+  void updateProperty();
+
 private:
   // Convert boxes into markers, push them to the display queue
   void processMessage(BoundingBoxArray::ConstSharedPtr array) override;
@@ -54,6 +61,14 @@ private:
   Marker::SharedPtr get_marker(const BoundingBox & box) const;
 
   std::unique_ptr<MarkerCommon> m_marker_common;
+  BoundingBoxArray::ConstSharedPtr msg_cache{};
+  rviz_common::properties::ColorProperty * no_label_color_property_;
+  rviz_common::properties::ColorProperty * car_color_property_;
+  rviz_common::properties::ColorProperty * pedestrian_color_property_;
+  rviz_common::properties::ColorProperty * cyclist_color_property_;
+  rviz_common::properties::ColorProperty * motorcycle_color_property_;
+  rviz_common::properties::ColorProperty * other_color_property_;
+  rviz_common::properties::FloatProperty * alpha_property_;
 };
 }  // namespace rviz_plugins
 }  // namespace autoware
