@@ -181,7 +181,7 @@ void ObjectFlowFusion::fusion(
   const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr& object_msg,
   const autoware_perception_msgs::DynamicObjectWithFeatureArray::ConstPtr& flow_msg,
   bool use_flow_pose, float flow_vel_thresh_,
-  autoware_perception_msgs::DynamicObjectWithFeatureArray& fusioned_msg)
+  autoware_perception_msgs::DynamicObjectWithFeatureArray& fused_msg)
 {
   for (auto detected_object : object_msg->feature_objects) {
     geometry_msgs::Polygon footprint;
@@ -233,7 +233,7 @@ void ObjectFlowFusion::fusion(
       feature_object.object.state.twist_covariance.twist = local_twist;
       feature_object.object.state.twist_reliable = true;
     }
-    fusioned_msg.feature_objects.push_back(feature_object);
+    fused_msg.feature_objects.push_back(feature_object);
   }
 }
 } // object_flow_fusion

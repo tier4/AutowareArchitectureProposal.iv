@@ -57,7 +57,7 @@ private:
   int block_size_;
   float harris_k_;
   int max_corners_;
-  int sparce_size_;
+  int sparse_size_;
   int num_split_;
   bool debug_;
 

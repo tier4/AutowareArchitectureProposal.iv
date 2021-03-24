@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <launch>
-  <!-- <arg name="input" default="shape_estimeted_objects"/> -->
+  <!-- <arg name="input" default="shape_estimated_objects"/> -->
   <arg name="input" default="tracker/objects"/>
   <arg name="with_feature" default="false"/>
   <arg name="only_known_objects" default="true"/>

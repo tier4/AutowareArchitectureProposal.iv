@@ -25,7 +25,7 @@ FlowCalculator::FlowCalculator()
   pnh_.param<float>("harris_k", harris_k_, 0.04);
   pnh_.param<int>("max_corners", max_corners_, 10000);
 
-  pnh_.param<int>("sparce_size", sparce_size_, 4);
+  pnh_.param<int>("sparse_size", sparse_size_, 4);
   pnh_.param<int>("num_split", num_split_, 3);
   pnh_.param<bool>("debug", debug_, false);
 
