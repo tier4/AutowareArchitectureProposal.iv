@@ -102,21 +102,7 @@ void SteeringAngleDisplay::onInitialize()
 
   overlay_->show();
 
-  overlay_->updateTextureSize(property_length_->getInt(), property_length_->getInt());
-  overlay_->setPosition(property_left_->getInt(), property_top_->getInt());
-  overlay_->setDimensions(overlay_->getTextureWidth(), overlay_->getTextureHeight());
-
-  // QColor background_color;
-  // background_color.setAlpha(0);
-  // jsk_rviz_plugins::ScopedPixelBuffer buffer = overlay_->getBuffer();
-  // hud_ = buffer.getQImage(*overlay_);
-  // for (int i = 0; i < overlay_->getTextureWidth(); i++)
-  // {
-  //   for (int j = 0; j < overlay_->getTextureHeight(); j++)
-  //   {
-  //     hud_.setPixel(i, j, background_color.rgba());
-  //   }
-  // }
+  updateVisualization();
 }
 
 void SteeringAngleDisplay::onEnable()
@@ -132,19 +118,24 @@ void SteeringAngleDisplay::onDisable()
   overlay_->hide();
 }
 
-void SteeringAngleDisplay::processMessage(
-  const autoware_vehicle_msgs::msg::Steering::ConstSharedPtr msg_ptr)
+void SteeringAngleDisplay::update(float wall_dt, float ros_dt)
 {
-  if (!isEnabled()) {
-    return;
-  }
-  if (!overlay_->isVisible()) {
-    return;
+  (void) wall_dt;
+  (void) ros_dt;
+
+  {
+    std::lock_guard<std::mutex> message_lock(mutex_);
+    if (!last_msg_ptr_) {
+      return;
+    }
   }
 
   QColor background_color;
   background_color.setAlpha(0);
   jsk_rviz_plugins::ScopedPixelBuffer buffer = overlay_->getBuffer();
+  if (!buffer.getPixelBuffer())
+    return;
+
   QImage hud = buffer.getQImage(*overlay_);
   hud.fill(background_color);
 
@@ -159,7 +150,7 @@ void SteeringAngleDisplay::processMessage(
 
   QMatrix rotation_matrix;
   rotation_matrix.rotate(
-    std::round(property_handle_angle_scale_->getFloat() * (msg_ptr->data / M_PI) * -180.0));
+    std::round(property_handle_angle_scale_->getFloat() * (last_msg_ptr_->data / M_PI) * -180.0));
   // else
   // rotation_matrix.rotate
   // ((property_handle_angle_scale_->getFloat() * (msg_ptr->data / M_PI) * -180.0));
@@ -179,15 +170,28 @@ void SteeringAngleDisplay::processMessage(
   font.setBold(true);
   painter.setFont(font);
   std::ostringstream steering_angle_ss;
-  steering_angle_ss << std::fixed << std::setprecision(1) << msg_ptr->data * 180.0 / M_PI << "deg";
+  steering_angle_ss << std::fixed << std::setprecision(1) << last_msg_ptr_->data * 180.0 / M_PI << "deg";
   painter.drawText(
     0, std::min(property_value_height_offset_->getInt(), h - 1), w,
     std::max(h - property_value_height_offset_->getInt(), 1), Qt::AlignCenter | Qt::AlignVCenter,
     steering_angle_ss.str().c_str());
 
   painter.end();
-  last_msg_ptr_ = msg_ptr;
-  updateVisualization();
+}
+
+void SteeringAngleDisplay::processMessage(
+  const autoware_vehicle_msgs::msg::Steering::ConstSharedPtr msg_ptr)
+{
+  if (!isEnabled()) {
+    return;
+  }
+
+  {
+    std::lock_guard<std::mutex> message_lock(mutex_);
+    last_msg_ptr_ = msg_ptr;
+  }
+
+  queueRender();
 }
 
 void SteeringAngleDisplay::updateVisualization()
@@ -195,18 +199,6 @@ void SteeringAngleDisplay::updateVisualization()
   overlay_->updateTextureSize(property_length_->getInt(), property_length_->getInt());
   overlay_->setPosition(property_left_->getInt(), property_top_->getInt());
   overlay_->setDimensions(overlay_->getTextureWidth(), overlay_->getTextureHeight());
-
-  // QColor background_color;
-  // background_color.setAlpha(0);
-  // jsk_rviz_plugins::ScopedPixelBuffer buffer = overlay_->getBuffer();
-  // hud_ = buffer.getQImage(*overlay_);
-  // for (int i = 0; i < overlay_->getTextureWidth(); i++)
-  // {
-  //   for (int j = 0; j < overlay_->getTextureHeight(); j++)
-  //   {
-  //     hud_.setPixel(i, j, background_color.rgba());
-  //   }
-  // }
 }
 
 }  // namespace rviz_plugins
