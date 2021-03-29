@@ -19,18 +19,12 @@
 #include <memory>
 #include <tuple>
 
-#include "OgreBillboardSet.h"
+#include "OgreColourValue.h"
 #include "OgreManualObject.h"
-#include "OgreMaterialManager.h"
-#include "OgreSceneManager.h"
-#include "OgreSceneNode.h"
-#include "rclcpp/rclcpp.hpp"
-#include "rviz_common/display_context.hpp"
-#include "rviz_common/frame_manager_iface.hpp"
+#include "OgreVector3.h"
 #include "rviz_common/ros_topic_display.hpp"
 #include "rviz_common/properties/bool_property.hpp"
 #include "rviz_common/properties/color_property.hpp"
-#include "rviz_common/properties/enum_property.hpp"
 #include "rviz_common/properties/float_property.hpp"
 #include "rviz_common/properties/parse_color.hpp"
 #include "rviz_common/validate_floats.hpp"

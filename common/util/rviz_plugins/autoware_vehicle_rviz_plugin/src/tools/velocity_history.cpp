@@ -15,6 +15,8 @@
 #include <memory>
 #include <algorithm>
 
+#include "OgreMaterialManager.h"
+
 #include "velocity_history.hpp"
 #define EIGEN_MPL2_ONLY
 #include "Eigen/Core"
