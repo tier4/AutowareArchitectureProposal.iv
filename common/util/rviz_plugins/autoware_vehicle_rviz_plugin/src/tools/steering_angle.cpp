@@ -133,8 +133,9 @@ void SteeringAngleDisplay::update(float wall_dt, float ros_dt)
   QColor background_color;
   background_color.setAlpha(0);
   jsk_rviz_plugins::ScopedPixelBuffer buffer = overlay_->getBuffer();
-  if (!buffer.getPixelBuffer())
+  if (!buffer.getPixelBuffer()) {
     return;
+  }
 
   QImage hud = buffer.getQImage(*overlay_);
   hud.fill(background_color);
@@ -170,7 +171,8 @@ void SteeringAngleDisplay::update(float wall_dt, float ros_dt)
   font.setBold(true);
   painter.setFont(font);
   std::ostringstream steering_angle_ss;
-  steering_angle_ss << std::fixed << std::setprecision(1) << last_msg_ptr_->data * 180.0 / M_PI << "deg";
+  steering_angle_ss << std::fixed << std::setprecision(1) << last_msg_ptr_->data * 180.0 / M_PI <<
+    "deg";
   painter.drawText(
     0, std::min(property_value_height_offset_->getInt(), h - 1), w,
     std::max(h - property_value_height_offset_->getInt(), 1), Qt::AlignCenter | Qt::AlignVCenter,
