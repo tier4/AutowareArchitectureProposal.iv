@@ -123,11 +123,13 @@ void SteeringAngleDisplay::update(float wall_dt, float ros_dt)
   (void) wall_dt;
   (void) ros_dt;
 
+  double steering = 0;
   {
     std::lock_guard<std::mutex> message_lock(mutex_);
     if (!last_msg_ptr_) {
       return;
     }
+    steering = last_msg_ptr_->data;
   }
 
   QColor background_color;
@@ -151,7 +153,8 @@ void SteeringAngleDisplay::update(float wall_dt, float ros_dt)
 
   QMatrix rotation_matrix;
   rotation_matrix.rotate(
-    std::round(property_handle_angle_scale_->getFloat() * (last_msg_ptr_->data / M_PI) * -180.0));
+    std::round(property_handle_angle_scale_->getFloat() * (steering / M_PI) * -180.0));
+
   // else
   // rotation_matrix.rotate
   // ((property_handle_angle_scale_->getFloat() * (msg_ptr->data / M_PI) * -180.0));
@@ -171,7 +174,7 @@ void SteeringAngleDisplay::update(float wall_dt, float ros_dt)
   font.setBold(true);
   painter.setFont(font);
   std::ostringstream steering_angle_ss;
-  steering_angle_ss << std::fixed << std::setprecision(1) << last_msg_ptr_->data * 180.0 / M_PI <<
+  steering_angle_ss << std::fixed << std::setprecision(1) << steering * 180.0 / M_PI <<
     "deg";
   painter.drawText(
     0, std::min(property_value_height_offset_->getInt(), h - 1), w,
