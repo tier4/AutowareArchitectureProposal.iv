@@ -16,9 +16,10 @@
 #define TOOLS__CONSOLE_METER_HPP_
 
 #include <memory>
+#include <mutex>
 
 #ifndef Q_MOC_RUN
-#include "rviz_common/ros_topic_display.hpp"
+#include "rviz_common/message_filter_display.hpp"
 #include "rviz_common/properties/color_property.hpp"
 #include "rviz_common/properties/float_property.hpp"
 #include "rviz_common/properties/int_property.hpp"
@@ -32,7 +33,7 @@
 namespace rviz_plugins
 {
 class ConsoleMeterDisplay
-  : public rviz_common::RosTopicDisplay<geometry_msgs::msg::TwistStamped>
+  : public rviz_common::MessageFilterDisplay<geometry_msgs::msg::TwistStamped>
 {
   Q_OBJECT
 
@@ -48,6 +49,7 @@ private Q_SLOTS:
   void updateVisualization();
 
 protected:
+  void update(float wall_dt, float ros_dt) override;
   void processMessage(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg_ptr) override;
   jsk_rviz_plugins::OverlayObject::Ptr overlay_;
   rviz_common::properties::ColorProperty * property_text_color_;
@@ -80,6 +82,8 @@ private:
   };
   Arc inner_arc_;
   Arc outer_arc_;
+
+  std::mutex mutex_;
   geometry_msgs::msg::TwistStamped::ConstSharedPtr last_msg_ptr_;
 };
 

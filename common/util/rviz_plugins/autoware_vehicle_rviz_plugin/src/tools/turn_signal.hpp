@@ -16,9 +16,10 @@
 #define TOOLS__TURN_SIGNAL_HPP_
 
 #include <memory>
+#include <mutex>
 
 #ifndef Q_MOC_RUN
-#include "rviz_common/ros_topic_display.hpp"
+#include "rviz_common/message_filter_display.hpp"
 #include "rviz_common/properties/int_property.hpp"
 
 #include "autoware_vehicle_msgs/msg/turn_signal.hpp"
@@ -29,7 +30,7 @@
 namespace rviz_plugins
 {
 class TurnSignalDisplay
-  : public rviz_common::RosTopicDisplay<autoware_vehicle_msgs::msg::TurnSignal>
+  : public rviz_common::MessageFilterDisplay<autoware_vehicle_msgs::msg::TurnSignal>
 {
   Q_OBJECT
 
@@ -45,6 +46,7 @@ private Q_SLOTS:
   void updateVisualization();
 
 protected:
+  void update(float wall_dt, float ros_dt) override;
   void processMessage(
     const autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr msg_ptr) override;
   jsk_rviz_plugins::OverlayObject::Ptr overlay_;
@@ -57,6 +59,8 @@ protected:
 private:
   QPointF right_arrow_polygon_[7];
   QPointF left_arrow_polygon_[7];
+
+  std::mutex mutex_;
   autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr last_msg_ptr_;
 };
 

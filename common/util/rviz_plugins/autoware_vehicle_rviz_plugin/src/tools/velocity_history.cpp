@@ -88,7 +88,7 @@ VelocityHistoryDisplay::~VelocityHistoryDisplay()
 
 void VelocityHistoryDisplay::onInitialize()
 {
-  RTDClass::onInitialize();
+  MFDClass::onInitialize();
 
   velocity_manual_object_ = scene_manager_->createManualObject();
   velocity_manual_object_->setDynamic(true);
@@ -97,7 +97,7 @@ void VelocityHistoryDisplay::onInitialize()
 
 void VelocityHistoryDisplay::reset()
 {
-  RTDClass::reset();
+  MFDClass::reset();
   velocity_manual_object_->clear();
 }
 
@@ -109,9 +109,21 @@ bool VelocityHistoryDisplay::validateFloats(
   return true;
 }
 
+void VelocityHistoryDisplay::update(float wall_dt, float ros_dt)
+{
+  (void) wall_dt;
+  (void) ros_dt;
+
+  updateVisualization();
+}
+
 void VelocityHistoryDisplay::processMessage(
   const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg_ptr)
 {
+  if (!isEnabled()) {
+    return;
+  }
+
   if (!validateFloats(msg_ptr)) {
     setStatus(
       rviz_common::properties::StatusProperty::Error, "Topic",
@@ -131,12 +143,16 @@ void VelocityHistoryDisplay::processMessage(
       qPrintable(fixed_frame_));
   }
 
-  histories_.emplace_back(msg_ptr, position);
-  updateVisualization();
+  {
+    std::lock_guard<std::mutex> message_lock(mutex_);
+    histories_.emplace_back(msg_ptr, position);
+  }
+  queueRender();
 }
 
 void VelocityHistoryDisplay::updateVisualization()
 {
+  std::lock_guard<std::mutex> message_lock(mutex_);
   if (histories_.empty()) {return;}
   velocity_manual_object_->clear();
 

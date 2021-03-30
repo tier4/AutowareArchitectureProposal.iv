@@ -17,12 +17,13 @@
 
 #include <deque>
 #include <memory>
+#include <mutex>
 #include <tuple>
 
 #include "OgreColourValue.h"
 #include "OgreManualObject.h"
 #include "OgreVector3.h"
-#include "rviz_common/ros_topic_display.hpp"
+#include "rviz_common/message_filter_display.hpp"
 #include "rviz_common/properties/bool_property.hpp"
 #include "rviz_common/properties/color_property.hpp"
 #include "rviz_common/properties/float_property.hpp"
@@ -34,7 +35,7 @@
 namespace rviz_plugins
 {
 class VelocityHistoryDisplay
-  : public rviz_common::RosTopicDisplay<geometry_msgs::msg::TwistStamped>
+  : public rviz_common::MessageFilterDisplay<geometry_msgs::msg::TwistStamped>
 {
   Q_OBJECT
 
@@ -49,6 +50,7 @@ private Q_SLOTS:
   void updateVisualization();
 
 protected:
+  void update(float wall_dt, float ros_dt) override;
   void processMessage(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg_ptr) override;
   std::unique_ptr<Ogre::ColourValue> setColorDependsOnVelocity(
     const double vel_max, const double cmd_vel);
@@ -66,6 +68,7 @@ private:
   std::deque<std::tuple<geometry_msgs::msg::TwistStamped::ConstSharedPtr, Ogre::Vector3>>
   histories_;
   bool validateFloats(const geometry_msgs::msg::TwistStamped::ConstSharedPtr & msg_ptr);
+  std::mutex mutex_;
 };
 
 }  // namespace rviz_plugins
