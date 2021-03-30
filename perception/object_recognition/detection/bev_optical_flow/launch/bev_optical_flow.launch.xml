@@ -15,9 +15,7 @@
   <arg name="harris_k" default="0.04" />
   <arg name="max_corners" default="200" />
 
-  <node name="optical_flow_node"
-        pkg="bev_optical_flow" type="optical_flow_node"
-        output="screen">
+  <node name="optical_flow_node" pkg="bev_optical_flow" type="optical_flow_node" output="screen">
     <param name="use_sim_time" value="$(env AW_ROS2_USE_SIM_TIME false)"/>
     <remap from="~input_cloud" to="$(arg input_cloud)" />
     <rosparam subst_value="true">
