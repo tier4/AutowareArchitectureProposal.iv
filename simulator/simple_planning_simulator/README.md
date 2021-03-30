@@ -8,7 +8,7 @@ This node simulates the vehicle motion for a vehicle command in 2D using a simpl
  - /initialpose [`geometry_msgs/PoseWithCovarianceStamped`] : for initial pose
  - /initialtwist [`geometry_msgs/TwistStamped`] : for initial velocity
  - /planning/scenario_planning/trajectory [`autoware_planning_msgs/Trajectory`]: for z position
- - /vehicle/engage
+ - /vehicle/engage : if true, the vehicle starts to move. if false, stops.
 
 **output**
  - /tf [`tf2_msgs/TFMessage`] : simulated vehicle pose (base_link)
