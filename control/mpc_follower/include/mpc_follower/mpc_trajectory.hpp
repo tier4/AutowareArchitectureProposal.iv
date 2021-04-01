@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_TRAJECTORY_H
-#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_TRAJECTORY_H
+#ifndef MPC_FOLLOWER__MPC_TRAJECTORY_HPP_
+#define MPC_FOLLOWER__MPC_TRAJECTORY_HPP_
 #include <iostream>
 #include <vector>
 
@@ -30,6 +30,7 @@ public:
   std::vector<double> yaw;            //!< @brief yaw pose yaw vector
   std::vector<double> vx;             //!< @brief vx velocity vx vector
   std::vector<double> k;              //!< @brief k curvature k vector
+  std::vector<double> smooth_k;       //!< @brief k smoothed-curvature k vector
   std::vector<double> relative_time;  //!< @brief relative_time duration time from start point
 
   /**
@@ -37,7 +38,7 @@ public:
    */
   void push_back(
     const double & xp, const double & yp, const double & zp, const double & yawp,
-    const double & vxp, const double & kp, const double & tp);
+    const double & vxp, const double & kp, const double & smooth_kp, const double & tp);
   /**
    * @brief clear for all values
    */
@@ -49,4 +50,4 @@ public:
    */
   unsigned int size() const;
 };
-#endif
+#endif  // MPC_FOLLOWER__MPC_TRAJECTORY_HPP_

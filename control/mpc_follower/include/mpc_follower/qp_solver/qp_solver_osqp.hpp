@@ -19,8 +19,8 @@
  * @date 2020.02
  */
 
-#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_QP_SOLVER_QP_SOLVER_OSQP_H
-#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_QP_SOLVER_QP_SOLVER_OSQP_H
+#ifndef MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_OSQP_HPP_
+#define MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_OSQP_HPP_
 
 #include "osqp_interface/osqp_interface.hpp"
 #include "eigen3/Eigen/Dense"
@@ -33,7 +33,7 @@ public:
   /**
    * @brief constructor
    */
-  QPSolverOSQP(const rclcpp::Logger & logger);
+  explicit QPSolverOSQP(const rclcpp::Logger & logger);
 
   /**
    * @brief destructor
@@ -61,4 +61,4 @@ private:
   osqp::OSQPInterface osqpsolver_;
   rclcpp::Logger logger_;
 };
-#endif
+#endif  // MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_OSQP_HPP_

@@ -9,10 +9,10 @@
 
   <!-- model parameters -->
   <arg name="simulator_model" default="$(find-pkg-share simple_planning_simulator)/config/simple_planning_simulator.param.yaml"/>
-  <arg name="vehicle_param_file"/>
 
   <!-- simple_planning_simulator node -->
   <node pkg="simple_planning_simulator" exec="simple_planning_simulator_exe" name="simple_planning_simulator" output="screen">
+    <param name="use_sim_time" value="$(env AW_ROS2_USE_SIM_TIME false)"/>
     <remap from="/base_trajectory" to="/planning/scenario_planning/trajectory" />
     <remap from="output/current_pose" to="current_pose" />
     <remap from="output/current_twist" to="/vehicle/status/twist" />
@@ -25,7 +25,6 @@
     <remap from="input/engage" to="/vehicle/engage" />
 
     <param from="$(var simulator_model)"/>
-    <param from="$(var vehicle_param_file)"/>
 
     <param name="loop_rate" value="$(var loop_rate)"/>
     <param name="simulation_frame_id" value="$(var simulation_frame_id)"/>
@@ -36,6 +35,7 @@
   </node>
 
   <node pkg="topic_tools" exec="relay" name="twist_relay" output="log" >
+    <param name="use_sim_time" value="$(env AW_ROS2_USE_SIM_TIME false)"/>
     <param name="input_topic" value="/vehicle/status/twist" />
     <param name="output_topic" value="/localization/twist" />
     <param name="type" value="geometry_msgs/msg/TwistStamped" />

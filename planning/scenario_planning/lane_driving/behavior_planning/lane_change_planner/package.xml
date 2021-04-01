@@ -5,7 +5,7 @@
   <version>0.8.0</version>
   <description>The lane_change_planner package</description>
   <maintainer email="mitsudome-r@todo.todo">mitsudome-r</maintainer>
-  <license>TODO</license>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
   <depend>autoware_perception_msgs</depend>

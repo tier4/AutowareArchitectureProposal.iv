@@ -1,0 +1,180 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<root version="2.3.8">
+ <tabbed_widget parent="main_window" name="Main Window">
+  <Tab tab_name="MPC Follower" containers="1">
+   <Container>
+    <DockSplitter orientation="-" count="1" sizes="1">
+     <DockSplitter orientation="-" count="2" sizes="0.500772;0.499228">
+      <DockSplitter orientation="|" count="3" sizes="0.333333;0.333333;0.333333">
+       <DockArea name="mpc info">
+        <plot mode="TimeSeries" style="Lines">
+         <range left="130.024005" top="0.061687" bottom="-0.315669" right="195.287438"/>
+         <limitY/>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.5" color="#1f77b4">
+          <transform alias="lateral error" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.8" color="#d62728">
+          <transform alias="yaw error" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.0" color="#1ac938">
+          <transform alias="steer cmd" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.2" color="#ff7f0e">
+          <transform alias="steer cmd (FF-filtered)" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.3" color="#f14cc1">
+          <transform alias="steer cmd (FF-raw)" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.4" color="#9467bd">
+          <transform alias="steer measured" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.1" color="#17becf">
+          <transform alias="mpc steer raw" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+        </plot>
+       </DockArea>
+       <DockArea name="velocity">
+        <plot mode="TimeSeries" style="Lines">
+         <range left="130.024005" top="0.256250" bottom="-0.006250" right="195.287438"/>
+         <limitY/>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.9" color="#1f77b4">
+          <transform alias="trajectory velocity" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.10" color="#d62728">
+          <transform alias="current velocity" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+        </plot>
+       </DockArea>
+       <DockArea name="path curvature">
+        <plot mode="TimeSeries" style="Lines">
+         <range left="130.024005" top="0.073564" bottom="0.015337" right="195.287438"/>
+         <limitY/>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.14" color="#d62728">
+          <transform alias="smoothed" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.16" color="#1f77b4">
+          <transform alias="raw" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+      <DockSplitter orientation="|" count="3" sizes="0.333333;0.333333;0.333333">
+       <DockArea name="mpc info(angvel)">
+        <plot mode="TimeSeries" style="Lines">
+         <range left="130.023079" top="1.025000" bottom="-0.025000" right="195.291189"/>
+         <limitY/>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.11" color="#1ac938">
+          <transform alias="steering cmd" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.12" color="#ff7f0e">
+          <transform alias="measured steer" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.13" color="#d62728">
+          <transform alias="path curvature" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.17" color="#1f77b4">
+          <transform alias="steer prediction" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+         <curve name="/vehicle/status/control_mode/data" color="#f14cc1">
+          <transform alias="control mode" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+        </plot>
+       </DockArea>
+       <DockArea name="yaw">
+        <plot mode="TimeSeries" style="Lines">
+         <range left="130.024005" top="0.517228" bottom="0.472266" right="195.287438"/>
+         <limitY/>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.7" color="#1ac938">
+          <transform alias="desired yaw" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+         <curve name="/control/trajectory_follower/mpc_follower/debug/debug_values/data.6" color="#ff7f0e">
+          <transform alias="current yaw" name="Scale/Offset">
+           <options value_offset="0" value_scale="1.0" time_offset="0"/>
+          </transform>
+         </curve>
+        </plot>
+       </DockArea>
+       <DockArea name="...">
+        <plot mode="TimeSeries" style="Lines">
+         <range left="0.000000" top="1.000000" bottom="0.000000" right="1.000000"/>
+         <limitY/>
+        </plot>
+       </DockArea>
+      </DockSplitter>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <currentTabIndex index="0"/>
+ </tabbed_widget>
+ <use_relative_time_offset enabled="1"/>
+ <!-- - - - - - - - - - - - - - - -->
+ <!-- - - - - - - - - - - - - - - -->
+ <Plugins>
+  <plugin ID="DataLoad CSV">
+   <default time_axis=""/>
+  </plugin>
+  <plugin ID="DataLoad ROS2 bags">
+   <use_header_stamp value="false"/>
+   <discard_large_arrays value="true"/>
+   <max_array_size value="100"/>
+  </plugin>
+  <plugin ID="DataLoad ULog"/>
+  <plugin ID="MQTT Subscriber"/>
+  <plugin ID="ROS2 Topic Subscriber">
+   <use_header_stamp value="false"/>
+   <discard_large_arrays value="false"/>
+   <max_array_size value="true"/>
+   <selected_topics>
+    <topic name="/control/trajectory_follower/mpc_follower/debug/debug_values"/>
+    <topic name="/vehicle/status/control_mode"/>
+   </selected_topics>
+  </plugin>
+  <plugin ID="UDP Server"/>
+  <plugin ID="WebSocket Server"/>
+  <plugin ID="ZMQ Subscriber"/>
+  <plugin status="idle" ID="ROS2 Topic Re-Publisher"/>
+ </Plugins>
+ <!-- - - - - - - - - - - - - - - -->
+ <previouslyLoaded_Datafiles/>
+ <previouslyLoaded_Streamer name="ROS2 Topic Subscriber"/>
+ <!-- - - - - - - - - - - - - - - -->
+ <customMathEquations/>
+ <snippets/>
+ <!-- - - - - - - - - - - - - - - -->
+</root>
+

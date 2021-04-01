@@ -12,6 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
+#include <deque>
+#include <limits>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "mpc_follower/mpc_follower_core.hpp"
 
 #include "tf2_ros/create_timer_ros.h"
@@ -53,8 +61,8 @@ MPCFollower::MPCFollower()
   path_filter_moving_ave_num_ = declare_parameter("path_filter_moving_ave_num", 35);
   curvature_smoothing_num_ = declare_parameter("curvature_smoothing_num", 35);
   traj_resample_dist_ = declare_parameter("traj_resample_dist", 0.1);  // [m]
-  admisible_position_error_ = declare_parameter("admisible_position_error", 5.0);
-  admisible_yaw_error_ = declare_parameter("admisible_yaw_error", M_PI_2);
+  admissible_position_error_ = declare_parameter("admissible_position_error", 5.0);
+  admissible_yaw_error_rad_ = declare_parameter("admissible_yaw_error_rad", M_PI_2);
   use_steer_prediction_ = declare_parameter("use_steer_prediction", false);
   mpc_param_.steer_tau = declare_parameter("vehicle_model_steer_tau", 0.1);
 
@@ -86,7 +94,7 @@ MPCFollower::MPCFollower()
     double cf = declare_parameter("cf", 155494.663);
     double cr = declare_parameter("cr", 155494.663);
 
-    // vehicle_model_ptr_ is only assigned in ctor, so parameter value have to be passed at init time
+    // vehicle_model_ptr_ is only assigned in ctor, so parameter value have to be passed at init time  // NOLINT
     vehicle_model_ptr_ = std::make_shared<DynamicsBicycleModel>(
       wheelbase_, mass_fl, mass_fr, mass_rl, mass_rr, cf, cr);
   } else {
@@ -128,7 +136,8 @@ MPCFollower::MPCFollower()
   pub_predicted_traj_ =
     create_publisher<autoware_planning_msgs::msg::Trajectory>("~/output/predicted_trajectory", 1);
   sub_ref_path_ = create_subscription<autoware_planning_msgs::msg::Trajectory>(
-    "~/input/reference_trajectory", rclcpp::QoS{1}, std::bind(&MPCFollower::onTrajectory, this, _1));
+    "~/input/reference_trajectory", rclcpp::QoS{1},
+    std::bind(&MPCFollower::onTrajectory, this, _1));
   sub_current_vel_ = create_subscription<geometry_msgs::msg::TwistStamped>(
     "~/input/current_velocity", rclcpp::QoS{1}, std::bind(&MPCFollower::onVelocity, this, _1));
   sub_steering_ = create_subscription<autoware_vehicle_msgs::msg::Steering>(
@@ -258,7 +267,9 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::msg::ControlCommand * ctrl
   MPCTrajectory mpc_resampled_ref_traj;
   const double mpc_start_time = mpc_data.nearest_time + mpc_param_.input_delay;
   if (!resampleMPCTrajectoryByTime(mpc_start_time, reference_trajectory, &mpc_resampled_ref_traj)) {
-    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), (1000ms).count(), "trajectory resampling failed.");
+    RCLCPP_WARN_THROTTLE(
+      get_logger(), *get_clock(),
+      (1000ms).count(), "trajectory resampling failed.");
     return false;
   }
 
@@ -312,8 +323,9 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::msg::ControlCommand * ctrl
       const double yaw = traj.yaw[i] + yaw_error;
       const double vx = traj.vx[i];
       const double k = traj.k[i];
+      const double smooth_k = traj.smooth_k[i];
       const double relative_time = traj.relative_time[i];
-      mpc_predicted_traj.push_back(x, y, z, yaw, vx, k, relative_time);
+      mpc_predicted_traj.push_back(x, y, z, yaw, vx, k, smooth_k, relative_time);
     }
 
     autoware_planning_msgs::msg::Trajectory predicted_traj;
@@ -333,8 +345,9 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::msg::ControlCommand * ctrl
     double curr_v = current_velocity_ptr_->twist.linear.x;
     double nearest_k = 0.0;
     if (!LinearInterpolate::interpolate(
-          reference_trajectory.relative_time, reference_trajectory.k, mpc_data.nearest_time,
-          nearest_k)) {
+        reference_trajectory.relative_time, reference_trajectory.k, mpc_data.nearest_time,
+        nearest_k))
+    {
       RCLCPP_WARN(get_logger(), "interpolate error in debug. ignore.");
       return true;
     }
@@ -386,8 +399,9 @@ bool MPCFollower::getData(const MPCTrajectory & traj, MPCData * data)
 {
   static constexpr auto duration = (5000ms).count();
   if (!MPCUtils::calcNearestPoseInterp(
-        traj, current_pose_ptr_->pose, &(data->nearest_pose), &(data->nearest_idx),
-        &(data->nearest_time), get_logger(), *get_clock())) {
+      traj, current_pose_ptr_->pose, &(data->nearest_pose), &(data->nearest_idx),
+      &(data->nearest_time), get_logger(), *get_clock()))
+  {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       get_logger(), *get_clock(), duration,
       "calculateMPC: error in calculating nearest pose. stop mpc.");
@@ -409,18 +423,18 @@ bool MPCFollower::getData(const MPCTrajectory & traj, MPCData * data)
 
   /* check error limit */
   const double dist_err = MPCUtils::calcDist2d(current_pose_ptr_->pose, data->nearest_pose);
-  if (dist_err > admisible_position_error_) {
+  if (dist_err > admissible_position_error_) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       get_logger(), *get_clock(), duration, "position error is over limit. error = %fm, limit: %fm",
-      dist_err, admisible_position_error_);
+      dist_err, admissible_position_error_);
     return false;
   }
 
   /* check yaw error limit */
-  if (std::fabs(data->yaw_err) > admisible_yaw_error_) {
+  if (std::fabs(data->yaw_err) > admissible_yaw_error_rad_) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       get_logger(), *get_clock(), duration, "yaw error is over limit. error = %fdeg, limit %fdeg",
-      RAD2DEG * data->yaw_err, RAD2DEG * admisible_yaw_error_);
+      RAD2DEG * data->yaw_err, RAD2DEG * admissible_yaw_error_rad_);
     return false;
   }
 
@@ -445,20 +459,20 @@ double MPCFollower::calcSteerPrediction()
 
   const double initial_response = std::exp(-duration / time_constant) * (*steer_prediction_prev_);
 
-  if (ctrl_cmd_vec_.size() <= 2) return initial_response;
+  if (ctrl_cmd_vec_.size() <= 2) {return initial_response;}
 
   return initial_response + getSteerCmdSum(t_start, t_end, time_constant);
 }
 
 double MPCFollower::getSteerCmdSum(
-  const rclcpp::Time &t_start, const rclcpp::Time &t_end, const double time_constant)
+  const rclcpp::Time & t_start, const rclcpp::Time & t_end, const double time_constant)
 {
-  if (ctrl_cmd_vec_.size() <= 2) return 0.0;
+  if (ctrl_cmd_vec_.size() <= 2) {return 0.0;}
 
   // Find first index of control command container
   size_t idx = 1;
   while (t_start > rclcpp::Time(ctrl_cmd_vec_.at(idx).header.stamp)) {
-    if ((idx + 1) >= ctrl_cmd_vec_.size()) return 0.0;
+    if ((idx + 1) >= ctrl_cmd_vec_.size()) {return 0.0;}
     ++idx;
   }
 
@@ -471,7 +485,7 @@ double MPCFollower::getSteerCmdSum(
     steer_sum +=
       (1 - std::exp(-duration / time_constant)) * ctrl_cmd_vec_.at(idx - 1).control.steering_angle;
     ++idx;
-    if (idx >= ctrl_cmd_vec_.size()) break;
+    if (idx >= ctrl_cmd_vec_.size()) {break;}
   }
 
   const double duration = (t_end - t).seconds();
@@ -483,7 +497,7 @@ double MPCFollower::getSteerCmdSum(
 
 void MPCFollower::storeSteerCmd(const double steer)
 {
-  const auto time_delayed = this->now() + rclcpp::Duration(mpc_param_.input_delay);
+  const auto time_delayed = this->now() + rclcpp::Duration::from_seconds(mpc_param_.input_delay);
   autoware_control_msgs::msg::ControlCommandStamped cmd;
   cmd.header.stamp = time_delayed;
   cmd.control.steering_angle = steer;
@@ -499,7 +513,8 @@ void MPCFollower::storeSteerCmd(const double steer)
   constexpr double store_time = 0.3;
   if (
     (time_delayed - ctrl_cmd_vec_.at(1).header.stamp).seconds() >
-    mpc_param_.input_delay + store_time) {
+    mpc_param_.input_delay + store_time)
+  {
     ctrl_cmd_vec_.erase(ctrl_cmd_vec_.begin());
   }
 }
@@ -606,7 +621,7 @@ MPCTrajectory MPCFollower::applyVelocityDynamicsFilter(const MPCTrajectory & inp
   output.vx.back() = v_end;  // set for end point
   output.push_back(
     output.x.back(), output.y.back(), output.z.back(), output.yaw.back(), v_end, output.k.back(),
-    t_end);
+    output.smooth_k.back(), t_end);
   return output;
 }
 
@@ -656,6 +671,7 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
 
     // curvature will be 0 when vehicle stops
     const double ref_k = reference_trajectory.k[i] * sign_vx_;
+    const double ref_smooth_k = reference_trajectory.smooth_k[i] * sign_vx_;
 
     /* get discrete state matrix A, B, C, W */
     vehicle_model_ptr_->setVelocity(ref_vx);
@@ -701,6 +717,7 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
     m.R1ex.block(idx_u_i, idx_u_i, DIM_U, DIM_U) = R_adaptive;
 
     /* get reference input (feed-forward) */
+    vehicle_model_ptr_->setCurvature(ref_smooth_k);
     vehicle_model_ptr_->calculateReferenceInput(Uref);
     if (std::fabs(Uref(0, 0)) < DEG2RAD * mpc_param_.zero_ff_steer_deg) {
       Uref(0, 0) = 0.0;  // ignore curvature noise
@@ -762,7 +779,7 @@ bool MPCFollower::executeOptimization(
   // cost function: 1/2 * Uex' * H * Uex + f' * Uex,  H = B' * C' * Q * C * B + R
   const MatrixXd CB = m.Cex * m.Bex;
   const MatrixXd QCB = m.Qex * CB;
-  // MatrixXd H = CB.transpose() * QCB + m.R1ex + m.R2ex; // This calculation is heavy. looking for a good way.
+  // MatrixXd H = CB.transpose() * QCB + m.R1ex + m.R2ex; // This calculation is heavy. looking for a good way.  //NOLINT
   MatrixXd H = MatrixXd::Zero(DIM_U_N, DIM_U_N);
   H.triangularView<Eigen::Upper>() = CB.transpose() * QCB;
   H.triangularView<Eigen::Upper>() += m.R1ex + m.R2ex;
@@ -793,7 +810,7 @@ bool MPCFollower::executeOptimization(
   {
     auto t = std::chrono::duration_cast<std::chrono::nanoseconds>(t_end - t_start).count() * 1.0e-6;
     RCLCPP_DEBUG(
-    get_logger(), "qp solver calculation time = %f [ms]", t);
+      get_logger(), "qp solver calculation time = %f [ms]", t);
   }
 
   if (Uex->array().isNaN().any()) {
@@ -886,14 +903,16 @@ bool MPCFollower::isValid(const MPCMatrix & m) const
   if (
     m.Aex.array().isNaN().any() || m.Bex.array().isNaN().any() || m.Cex.array().isNaN().any() ||
     m.Wex.array().isNaN().any() || m.Qex.array().isNaN().any() || m.R1ex.array().isNaN().any() ||
-    m.R2ex.array().isNaN().any() || m.Urefex.array().isNaN().any()) {
+    m.R2ex.array().isNaN().any() || m.Urefex.array().isNaN().any())
+  {
     return false;
   }
 
   if (
     m.Aex.array().isInf().any() || m.Bex.array().isInf().any() || m.Cex.array().isInf().any() ||
     m.Wex.array().isInf().any() || m.Qex.array().isInf().any() || m.R1ex.array().isInf().any() ||
-    m.R2ex.array().isInf().any() || m.Urefex.array().isInf().any()) {
+    m.R2ex.array().isInf().any() || m.Urefex.array().isInf().any())
+  {
     return false;
   }
 
@@ -957,7 +976,9 @@ void MPCFollower::onTrajectory(const autoware_planning_msgs::msg::Trajectory::Sh
     const double t_end = t.relative_time.back() + getPredictionTime() + t_ext;
     const double v_end = 0.0;
     t.vx.back() = v_end;  // set for end point
-    t.push_back(t.x.back(), t.y.back(), t.z.back(), t.yaw.back(), v_end, t.k.back(), t_end);
+    t.push_back(
+      t.x.back(), t.y.back(), t.z.back(), t.yaw.back(), v_end, t.k.back(), t.smooth_k.back(),
+      t_end);
   }
 
   if (!mpc_traj_smoothed.size()) {
@@ -975,9 +996,13 @@ void MPCFollower::onTrajectory(const autoware_planning_msgs::msg::Trajectory::Sh
     std::string frame = msg->header.frame_id;
     m = convertTrajToMarker(mpc_traj_raw, "trajectory raw", 0.9, 0.5, 0.0, 0.05, frame, stamp);
     pub_debug_marker_->publish(m);
-    m = convertTrajToMarker(mpc_traj_resampled, "trajectory spline", 0.5, 0.1, 1.0, 0.05, frame, stamp);
+    m = convertTrajToMarker(
+      mpc_traj_resampled, "trajectory spline", 0.5, 0.1, 1.0, 0.05, frame,
+      stamp);
     pub_debug_marker_->publish(m);
-    m = convertTrajToMarker(mpc_traj_smoothed, "trajectory smoothed", 0.0, 1.0, 0.0, 0.05, frame, stamp);
+    m = convertTrajToMarker(
+      mpc_traj_smoothed, "trajectory smoothed", 0.0, 1.0, 0.0, 0.05, frame,
+      stamp);
     pub_debug_marker_->publish(m);
   }
 }
@@ -1037,10 +1062,11 @@ bool MPCFollower::isStoppedState() const
 {
   const int nearest = MPCUtils::calcNearestIndex(*current_trajectory_ptr_, current_pose_ptr_->pose);
   // If the nearest index is not found, return false
-  if (nearest < 0) return false;
+  if (nearest < 0) {return false;}
   const double dist = calcStopDistance(nearest);
   if (dist < stop_state_keep_stopping_dist_) {
-    RCLCPP_DEBUG(get_logger(),
+    RCLCPP_DEBUG(
+      get_logger(),
       "stop_dist = %f < %f : stop_state_keep_stopping_dist_. keep stopping.", dist,
       stop_state_keep_stopping_dist_);
     return true;
@@ -1051,7 +1077,8 @@ bool MPCFollower::isStoppedState() const
   const double target_vel = current_trajectory_ptr_->points.at(nearest).twist.linear.x;
   if (
     std::fabs(current_vel) < stop_state_entry_ego_speed_ &&
-    std::fabs(target_vel) < stop_state_entry_target_speed_) {
+    std::fabs(target_vel) < stop_state_entry_target_speed_)
+  {
     return true;
   } else {
     return false;
@@ -1067,7 +1094,8 @@ double MPCFollower::calcStopDistance(const int origin) const
   // search forward
   if (std::fabs(origin_velocity) > zero_velocity) {
     for (int i = origin + 1; i < static_cast<int>(current_trajectory_ptr_->points.size()) - 1;
-         ++i) {
+      ++i)
+    {
       const auto & p0 = current_trajectory_ptr_->points.at(i);
       const auto & p1 = current_trajectory_ptr_->points.at(i - 1);
       stop_dist += MPCUtils::calcDist2d(p0.pose, p1.pose);
@@ -1119,7 +1147,7 @@ void MPCFollower::initTimer(double period_s)
 
 void MPCFollower::declareMPCparameters()
 {
-  // the type of the ROS parameter is defined by the type of the default value, so 50 is not equivalent to 50.0!
+  // the type of the ROS parameter is defined by the type of the default value, so 50 is not equivalent to 50.0!  //NOLINT
   DECLARE_MPC_PARAM(mpc_param_, prediction_horizon, 50);
   DECLARE_MPC_PARAM(mpc_param_, prediction_dt, 0.1);
   DECLARE_MPC_PARAM(mpc_param_, weight_lat_error, 0.1);
@@ -1213,7 +1241,8 @@ bool MPCFollower::isValidTrajectory(const autoware_planning_msgs::msg::Trajector
     if (
       !isfinite(p.x) || !isfinite(p.y) || !isfinite(p.z) || !isfinite(o.x) || !isfinite(o.y) ||
       !isfinite(o.z) || !isfinite(o.w) || !isfinite(t.x) || !isfinite(t.y) || !isfinite(t.z) ||
-      !isfinite(a.x) || !isfinite(a.y) || !isfinite(a.z)) {
+      !isfinite(a.x) || !isfinite(a.y) || !isfinite(a.z))
+    {
       return false;
     }
   }

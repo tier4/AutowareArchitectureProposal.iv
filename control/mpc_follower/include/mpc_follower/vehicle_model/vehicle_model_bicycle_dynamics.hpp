@@ -49,8 +49,8 @@
  * Institute, Carnegie Mellon University, February 2009.
  */
 
-#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_VEHICLE_MODEL_VEHICLE_MODEL_BICYCLE_DYNAMICS_H
-#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_VEHICLE_MODEL_VEHICLE_MODEL_BICYCLE_DYNAMICS_H
+#ifndef MPC_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_DYNAMICS_HPP_
+#define MPC_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_DYNAMICS_HPP_
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/LU"
 #include "mpc_follower/vehicle_model/vehicle_model_interface.hpp"
@@ -108,4 +108,4 @@ private:
   double cf_;         //!< @brief front cornering power [N/rad]
   double cr_;         //!< @brief rear cornering power [N/rad]
 };
-#endif
+#endif  // MPC_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_DYNAMICS_HPP_

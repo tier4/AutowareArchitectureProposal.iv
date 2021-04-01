@@ -238,7 +238,7 @@ bool MapBasedPrediction::getPredictedPath(
   Eigen::Vector3d x_3;
   x_3 = a_3_inv * b_3;
 
-  // Quatric polynominal
+  // Quadric polynominal
   // A_inv = np.matrix([[1/(T**2), -1/(3*T)],
   //                         [-1/(2*T**3), 1/(4*T**2)]])
   // b = np.matrix([[vxe - self.a1 - 2 * self.a2 * T],
@@ -275,7 +275,7 @@ bool MapBasedPrediction::getPredictedPath(
     tmp_point.pose.pose.orientation.z = 0;
     tmp_point.pose.pose.orientation.w = 1;
     tmp_point.header = origin_header;
-    tmp_point.header.stamp = rclcpp::Time(origin_header.stamp) + rclcpp::Duration(i);
+    tmp_point.header.stamp = rclcpp::Time(origin_header.stamp) + rclcpp::Duration::from_seconds(i);
     path.path.push_back(tmp_point);
   }
   path.confidence = calculateLikelihood(current_d_position);
@@ -295,7 +295,8 @@ void MapBasedPrediction::getLinearPredictedPath(
   for (double dt = 0.0; dt < time_horizon + ep; dt += sampling_delta_time) {
     geometry_msgs::msg::PoseWithCovarianceStamped pose_cov_stamped;
     pose_cov_stamped.header = origin_header;
-    pose_cov_stamped.header.stamp = rclcpp::Time(origin_header.stamp) + rclcpp::Duration(dt);
+    pose_cov_stamped.header.stamp = rclcpp::Time(origin_header.stamp) +
+      rclcpp::Duration::from_seconds(dt);
     geometry_msgs::msg::Pose object_frame_pose;
     geometry_msgs::msg::Pose world_frame_pose;
     object_frame_pose.position.x = object_twist.linear.x * dt;

@@ -26,7 +26,7 @@ L2PseudoJerkOptimizer::L2PseudoJerkOptimizer(const OptimizerParam & p)
 {
   param_ = p;
   qp_solver_.updateMaxIter(4000);
-  qp_solver_.updateRhoInterval(0);  // 0 means automoatic
+  qp_solver_.updateRhoInterval(0);  // 0 means automatic
   qp_solver_.updateEpsRel(1.0e-4);  // def: 1.0e-4
   qp_solver_.updateEpsAbs(1.0e-4);  // def: 1.0e-4
   qp_solver_.updateVerbose(false);

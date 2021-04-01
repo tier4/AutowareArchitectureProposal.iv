@@ -519,7 +519,8 @@ geometry_msgs::msg::Point TrafficLightModule::getTrafficLightPosition(
   const lanelet::ConstLineStringOrPolygon3d traffic_light)
 {
   geometry_msgs::msg::Point tl_center;
-  for (const auto & tl_point : *traffic_light.lineString()) {
+  const auto tl_linestring = *traffic_light.lineString();
+  for (const auto & tl_point : tl_linestring) {
     tl_center.x += tl_point.x() / (*traffic_light.lineString()).size();
     tl_center.y += tl_point.y() / (*traffic_light.lineString()).size();
     tl_center.z += tl_point.z() / (*traffic_light.lineString()).size();
@@ -559,8 +560,8 @@ bool TrafficLightModule::getExternalTrafficLightState(
     found = true;
   }
   if (!found) {
-    RCLCPP_WARN_THROTTLE(
-      logger_, *clock_, 1000 /* ms */,
+    RCLCPP_DEBUG_THROTTLE(
+      logger_, *clock_, 5000 /* ms */,
       "[traffic_light] cannot find external traffic light lamp state (%s).", reason.c_str());
     return false;
   }

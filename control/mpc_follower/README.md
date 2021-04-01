@@ -8,7 +8,7 @@ There are 2 nodes related to MPC follower.
  - `/mpc_waypoint_converter` : converts `/final_waypoints` to `/mpc_waypoints` which includes waypoints behind the self position. This is to solve temporary conflict of planning system and mpc follower so that mpc follower can be used in the same way as pure_pursuit. This will be removed in a future release.
  - `/mpc_follower` : generates control command (`/twist_raw` or/and `/ctrl_raw`) to follow `/mpc_waypoints`.
 
-[Video](https://www.youtube.com/watch?v=4IO1zxsY4wU&t=18s) : comparison of pure_pursuit and mpc_follower with gazebo simulation. 
+[Video](https://www.youtube.com/watch?v=4IO1zxsY4wU&t=18s) : comparison of pure_pursuit and mpc_follower with gazebo simulation.
 
 
 
@@ -33,7 +33,7 @@ There are 2 nodes related to MPC follower.
 The default parameters are adjusted to the AutonomouStuff Lexus RX 450h for under 40 km/h driving.
 
 
-## overall 
+## overall
 
 |Name|Type|Description|Default value|
 |:---|:---|:---|:---|
@@ -46,10 +46,10 @@ The default parameters are adjusted to the AutonomouStuff Lexus RX 450h for unde
 |path_smoothing_times|int|number of times of applying path smoothing filter|1|
 |curvature_smoothing_num|double|index distance of points used in curvature calculation: p(i-num), p(i), p(i+num). larger num makes less noisy values.|35|
 |steering_lpf_cutoff_hz|double| cutoff frequency of lowpass filter for steering output command [hz]|3.0|
-|admisible_position_error|double| stop vehicle when following position error is larger than this value [m].|5.0|
-|admisible_yaw_error_deg|double|stop vehicle when following yaw angle error is larger than this value [deg].|90.0|
+|admissible_position_error|double| stop vehicle when following position error is larger than this value [m].|5.0|
+|admissible_yaw_error_rad|double|stop vehicle when following yaw angle error is larger than this value [rad].|1.57|
 
-## mpc algorithm 
+## mpc algorithm
 
 |Name|Type|Description|Default value|
 |:---|:---|:---|:---|
@@ -112,6 +112,6 @@ Other parameters can be adjusted like below.
  - `weight_terminal_lat_error`: Preferable to set a higher value than normal lateral weight `weight_lat_error` for stability.
  - `weight_terminal_heading_error`: Preferable to set a higher value than normal heading weight `weight_heading_error` for stability.
 
- # reference 
+ # reference
 
  [1] Jarrod M. Snider, "Automatic Steering Methods for Autonomous Automobile Path Tracking", Robotics Institute, Carnegie Mellon University, February 2009.

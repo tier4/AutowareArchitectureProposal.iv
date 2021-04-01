@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_UTILS_H
-#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_MPC_UTILS_H
+#ifndef MPC_FOLLOWER__MPC_UTILS_HPP_
+#define MPC_FOLLOWER__MPC_UTILS_HPP_
+
+#include <cmath>
+#include <string>
+#include <vector>
 
 #include "mpc_follower/interpolate.hpp"
 #include "mpc_follower/mpc_trajectory.hpp"
@@ -28,8 +32,6 @@
 
 #include "eigen3/Eigen/Core"
 
-#include <cmath>
-#include <vector>
 
 namespace MPCUtils
 {
@@ -94,6 +96,14 @@ void calcTrajectoryYawFromXY(MPCTrajectory * traj);
 bool calcTrajectoryCurvature(int curvature_smoothing_num, MPCTrajectory * traj);
 
 /**
+ * @brief Calculate path curvature by 3-points circle fitting with smoothing num (use nearest 3 points when num = 1)
+ * @param [in] curvature_smoothing_num index distance for 3 points for curvature calculation
+ * @param [inout] curvature vector
+ */
+std::vector<double> calcTrajectoryCurvature(
+  const int curvature_smoothing_num, const MPCTrajectory & traj);
+
+/**
  * @brief calculate nearest pose on MPCTrajectory with linear interpolation
  * @param [in] traj reference trajectory
  * @param [in] self_pose object pose
@@ -120,4 +130,4 @@ visualization_msgs::msg::MarkerArray convertTrajToMarker(
   const std::string & frame_id, const builtin_interfaces::msg::Time & stamp);
 
 }  // namespace MPCUtils
-#endif
+#endif  // MPC_FOLLOWER__MPC_UTILS_HPP_

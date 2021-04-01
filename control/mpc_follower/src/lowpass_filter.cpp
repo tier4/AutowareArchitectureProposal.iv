@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <vector>
+
 #include "mpc_follower/lowpass_filter.hpp"
 
 Butterworth2dFilter::Butterworth2dFilter(double dt, double f_cutoff_hz)
@@ -100,19 +102,19 @@ void Butterworth2dFilter::getCoefficients(std::vector<double> & coeffs)
 
 bool MoveAverageFilter::filt_vector(const int num, std::vector<double> & u)
 {
-  if ((int)u.size() < num) {
-    // std::cout << "[MovingAverageFilter] vector size is lower than moving average number" << std::endl;
+  if (static_cast<int>(u.size()) < num) {
+    // std::cout << "[MovingAverageFilter] vector size is lower than moving average number" << std::endl;  // NOLINT
     return false;
   }
   std::vector<double> filtered_u(u);
-  for (int i = 0; i < (int)u.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(u.size()); ++i) {
     double tmp = 0.0;
     int num_tmp = 0;
     int count = 0;
     if (i - num < 0) {
       num_tmp = i;
-    } else if (i + num > (int)u.size() - 1) {
-      num_tmp = (int)u.size() - i - 1;
+    } else if (i + num > static_cast<int>(u.size()) - 1) {
+      num_tmp = static_cast<int>(u.size()) - i - 1;
     } else {
       num_tmp = num;
     }

@@ -45,8 +45,8 @@
  *
  */
 
-#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_VEHICLE_MODEL_VEHICLE_MODEL_BICYCLE_KINEMATICS_H
-#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_VEHICLE_MODEL_VEHICLE_MODEL_BICYCLE_KINEMATICS_H
+#ifndef MPC_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_HPP_
+#define MPC_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_HPP_
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/LU"
 #include "mpc_follower/vehicle_model/vehicle_model_interface.hpp"
@@ -95,4 +95,4 @@ private:
   double steer_lim_;  //!< @brief steering angle limit [rad]
   double steer_tau_;  //!< @brief steering time constant for 1d-model
 };
-#endif
+#endif  // MPC_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_HPP_

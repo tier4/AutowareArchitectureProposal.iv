@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
+
 #include "mpc_follower/vehicle_model/vehicle_model_bicycle_dynamics.hpp"
 
 DynamicsBicycleModel::DynamicsBicycleModel(

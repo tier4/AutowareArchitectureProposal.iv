@@ -1,12 +1,13 @@
 <launch>
   <arg name="input_topic_name" default="/sensing/lidar/top/pointcloud_raw" />
-  <arg name="output_topic_name" default="/sensing/lidar/top/random_downsample_filterd/pointcloud" />
+  <arg name="output_topic_name" default="/sensing/lidar/top/random_downsample_filter/pointcloud" />
 
   <arg name="sample_num" default="1500" />
   <arg name="input_frame" default="" />
   <arg name="output_frame" default="base_link" />
 
   <node pkg="pointcloud_preprocessor" exec="random_downsample_filter_node" name="random_downsample_filter">
+    <param name="use_sim_time" value="$(env AW_ROS2_USE_SIM_TIME false)"/>
     <remap from="input" to="$(var input_topic_name)" />
     <remap from="output" to="$(var output_topic_name)" />
 

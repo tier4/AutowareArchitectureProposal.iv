@@ -19,14 +19,14 @@
  * @date 2019.05.01
  */
 
-#ifndef CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_QP_SOLVER_QP_SOLVER_QPOASES_H
-#define CONTROL_MPC_FOLLOWER_INCLUDE_MPC_FOLLOWER_QP_SOLVER_QP_SOLVER_QPOASES_H
+#ifndef MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_QPOASES_HPP_
+#define MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_QPOASES_HPP_
 
 #include <cmath>
+#include <iostream>
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Dense"
 #include "eigen3/Eigen/LU"
-#include <iostream>
 #include "qpoases_vendor/qpOASES.hpp"
 
 #include "mpc_follower/qp_solver/qp_solver_interface.hpp"
@@ -43,7 +43,7 @@ public:
    * @brief constructor
    * @param max_iter max iteration for QP
    */
-  QPSolverQpoasesHotstart(const int max_iter);
+  explicit QPSolverQpoasesHotstart(const int max_iter);
 
   /**
    * @brief destructor
@@ -67,4 +67,4 @@ public:
     const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lbA,
     const Eigen::VectorXd & ubA, Eigen::VectorXd & U) override;
 };
-#endif
+#endif  // MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_QPOASES_HPP_
