@@ -43,12 +43,10 @@ if(BUILD_TESTING)
   list(FILTER FILES_MINUS_SOME EXCLUDE REGEX ".*filesystem.hpp")
 
   # Re-enable cpplint
-  set(ament_cmake_cpplint_FOUND FALSE)
   find_package(ament_cmake_cpplint)
   ament_cpplint(${FILES_MINUS_SOME})
 
   # Re-enable uncrustify
-  set(ament_cmake_uncrustify_FOUND FALSE)
   find_package(ament_cmake_uncrustify)
   ament_uncrustify(${FILES_MINUS_SOME})
 
