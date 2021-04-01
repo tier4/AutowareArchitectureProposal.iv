@@ -63,7 +63,7 @@ SteeringAngleDisplay::~SteeringAngleDisplay()
 
 void SteeringAngleDisplay::onInitialize()
 {
-  MFDClass::onInitialize();
+  RTDClass::onInitialize();
   static int count = 0;
   rviz_common::UniformStringStream ss;
   ss << "SteeringAngleDisplayObject" << count++;

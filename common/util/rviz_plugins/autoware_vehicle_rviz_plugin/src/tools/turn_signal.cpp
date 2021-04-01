@@ -45,7 +45,7 @@ TurnSignalDisplay::~TurnSignalDisplay()
 
 void TurnSignalDisplay::onInitialize()
 {
-  MFDClass::onInitialize();
+  RTDClass::onInitialize();
   static int count = 0;
   rviz_common::UniformStringStream ss;
   ss << "TurnSignalDisplayObject" << count++;

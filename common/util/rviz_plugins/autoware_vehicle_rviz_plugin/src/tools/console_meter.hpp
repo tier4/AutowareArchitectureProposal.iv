@@ -19,7 +19,7 @@
 #include <mutex>
 
 #ifndef Q_MOC_RUN
-#include "rviz_common/message_filter_display.hpp"
+#include "rviz_common/ros_topic_display.hpp"
 #include "rviz_common/properties/color_property.hpp"
 #include "rviz_common/properties/float_property.hpp"
 #include "rviz_common/properties/int_property.hpp"
@@ -33,7 +33,7 @@
 namespace rviz_plugins
 {
 class ConsoleMeterDisplay
-  : public rviz_common::MessageFilterDisplay<geometry_msgs::msg::TwistStamped>
+  : public rviz_common::RosTopicDisplay<geometry_msgs::msg::TwistStamped>
 {
   Q_OBJECT
 

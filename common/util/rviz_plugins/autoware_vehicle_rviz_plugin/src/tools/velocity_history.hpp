@@ -23,7 +23,7 @@
 #include "OgreColourValue.h"
 #include "OgreManualObject.h"
 #include "OgreVector3.h"
-#include "rviz_common/message_filter_display.hpp"
+#include "rviz_common/ros_topic_display.hpp"
 #include "rviz_common/properties/bool_property.hpp"
 #include "rviz_common/properties/color_property.hpp"
 #include "rviz_common/properties/float_property.hpp"
@@ -35,7 +35,7 @@
 namespace rviz_plugins
 {
 class VelocityHistoryDisplay
-  : public rviz_common::MessageFilterDisplay<geometry_msgs::msg::TwistStamped>
+  : public rviz_common::RosTopicDisplay<geometry_msgs::msg::TwistStamped>
 {
   Q_OBJECT
 

@@ -19,7 +19,7 @@
 #include <mutex>
 
 #ifndef Q_MOC_RUN
-#include "rviz_common/message_filter_display.hpp"
+#include "rviz_common/ros_topic_display.hpp"
 #include "rviz_common/properties/int_property.hpp"
 
 #include "autoware_vehicle_msgs/msg/turn_signal.hpp"
@@ -30,7 +30,7 @@
 namespace rviz_plugins
 {
 class TurnSignalDisplay
-  : public rviz_common::MessageFilterDisplay<autoware_vehicle_msgs::msg::TurnSignal>
+  : public rviz_common::RosTopicDisplay<autoware_vehicle_msgs::msg::TurnSignal>
 {
   Q_OBJECT
 

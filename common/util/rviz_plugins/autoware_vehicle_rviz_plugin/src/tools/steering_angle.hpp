@@ -19,7 +19,7 @@
 #include <mutex>
 
 #ifndef Q_MOC_RUN
-#include "rviz_common/message_filter_display.hpp"
+#include "rviz_common/ros_topic_display.hpp"
 #include "rviz_common/properties/color_property.hpp"
 #include "rviz_common/properties/float_property.hpp"
 #include "rviz_common/properties/int_property.hpp"
@@ -32,7 +32,7 @@
 namespace rviz_plugins
 {
 class SteeringAngleDisplay
-  : public rviz_common::MessageFilterDisplay<autoware_vehicle_msgs::msg::Steering>
+  : public rviz_common::RosTopicDisplay<autoware_vehicle_msgs::msg::Steering>
 {
   Q_OBJECT
 
