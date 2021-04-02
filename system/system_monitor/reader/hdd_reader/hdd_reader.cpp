@@ -53,7 +53,7 @@ constexpr int PORT = 7635;
 /**
  * @brief HDD information
  */
-using HDD_Info = struct
+struct HDD_Info
 {
   std::string model_;   //!< @brief Model number
   std::string serial_;  //!< @brief Serial number
@@ -66,7 +66,7 @@ using HDD_Info = struct
  * - ATA Command Pass-Through
  *   https://www.t10.org/ftp/t10/document.04/04-262r8.pdf
  */
-using ATAPassThrough12 = struct
+struct ATAPassThrough12
 {
   uint8_t operation_code_;      //!< @brief OPERATION CODE (A1h)
   uint8_t reserved0_ : 1;       //!< @brief Reserved
@@ -95,7 +95,7 @@ using ATAPassThrough12 = struct
  * - SMART Attribute Overview
  *   http://www.t13.org/Documents/UploadedDocuments/docs2005/e05171r0-ACS-SMARTAttributes_Overview.pdf
  */
-using AttributeEntry = struct __attribute__((packed))  // Minimize total struct memory 16 to 12
+struct AttributeEntry
 {
   uint8_t attribute_id_;  //!< @brief Attribute ID
   //  Flags
@@ -112,7 +112,7 @@ using AttributeEntry = struct __attribute__((packed))  // Minimize total struct 
   uint32_t data_;                //!< @brief Data
   uint16_t attribute_specific_;  //!< @brief Attribute-specific
   uint8_t threshold_;            //!< @brief Threshold
-};
+} __attribute__((packed));       // Minimize total struct memory 16 to 12
 
 /**
  * @brief Device SMART data structure
@@ -122,7 +122,7 @@ using AttributeEntry = struct __attribute__((packed))  // Minimize total struct 
  * - SMART Attribute Overview
  *   http://www.t13.org/Documents/UploadedDocuments/docs2005/e05171r0-ACS-SMARTAttributes_Overview.pdf
  */
-using SMARTData = struct __attribute__((packed))  // Minimize total struct memory 514 to 512
+struct SMARTData
 {
   // Offset 0..361 X Vendor specific
   uint16_t smart_structure_version_;    //!< @brief SMART structure version
@@ -145,7 +145,7 @@ using SMARTData = struct __attribute__((packed))  // Minimize total struct memor
   uint8_t reserved_[9];                     //!< @brief Reserved
   uint8_t vendor_specific3_[125];           //!< @brief Vendor specific
   uint8_t data_structure_checksum_;         //!< @brief Data structure checksum
-};
+} __attribute__((packed));                  // Minimize total struct memory 514 to 512
 
 /**
  * @brief print usage
