@@ -457,6 +457,7 @@ void run(int port)
       oa & hdd_devices;
     } catch (const std::exception & e) {
       syslog(LOG_ERR, "exception. %s\n", e.what());
+      close(new_sock);
       close(sock);
       return;
     }
