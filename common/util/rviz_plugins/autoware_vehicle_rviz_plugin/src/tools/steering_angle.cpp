@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <iomanip>
 #include <memory>
 #include <string>
 #include <algorithm>
@@ -23,38 +24,6 @@
 
 namespace rviz_plugins
 {
-std::unique_ptr<Ogre::ColourValue> SteeringAngleDisplay::gradation(
-  const QColor & color_min, const QColor & color_max, const double ratio)
-{
-  std::unique_ptr<Ogre::ColourValue> color_ptr(new Ogre::ColourValue);
-  color_ptr->g = color_max.greenF() * ratio + color_min.greenF() * (1.0 - ratio);
-  color_ptr->r = color_max.redF() * ratio + color_min.redF() * (1.0 - ratio);
-  color_ptr->b = color_max.blueF() * ratio + color_min.blueF() * (1.0 - ratio);
-
-  return color_ptr;
-}
-
-std::unique_ptr<Ogre::ColourValue> SteeringAngleDisplay::setColorDependsOnVelocity(
-  const double vel_max, const double cmd_vel)
-{
-  const double cmd_vel_abs = std::fabs(cmd_vel);
-  const double vel_min = 0.0;
-
-  std::unique_ptr<Ogre::ColourValue> color_ptr(new Ogre::ColourValue());
-  if (vel_min < cmd_vel_abs && cmd_vel_abs <= (vel_max / 2.0)) {
-    double ratio = (cmd_vel_abs - vel_min) / (vel_max / 2.0 - vel_min);
-    color_ptr = gradation(Qt::red, Qt::yellow, ratio);
-  } else if ((vel_max / 2.0) < cmd_vel_abs && cmd_vel_abs <= vel_max) {
-    double ratio = (cmd_vel_abs - vel_max / 2.0) / (vel_max - vel_max / 2.0);
-    color_ptr = gradation(Qt::yellow, Qt::green, ratio);
-  } else if (vel_max < cmd_vel_abs) {
-    *color_ptr = Ogre::ColourValue::Green;
-  } else {
-    *color_ptr = Ogre::ColourValue::Red;
-  }
-
-  return color_ptr;
-}
 
 SteeringAngleDisplay::SteeringAngleDisplay()
 : handle_image_(
