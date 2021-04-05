@@ -32,6 +32,7 @@
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
 #include "tf2/utils.h"
+#include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 #include "rclcpp/rclcpp.hpp"
 #include "eigen3/Eigen/Core"

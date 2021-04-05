@@ -21,6 +21,7 @@
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
+#include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 #include "autoware_lanelet2_msgs/msg/map_bin.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
