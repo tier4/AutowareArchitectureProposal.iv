@@ -70,7 +70,9 @@ inline boost::optional<geometry_msgs::msg::PoseStamped> getCurrentPose(
   const tf2_ros::Buffer & tf_buffer, const double timeout = 1.0)
 {
   const auto tf_current_pose =
-    getTransform(tf_buffer, "map", "base_link", rclcpp::Time(0), rclcpp::Duration(0));
+    getTransform(
+    tf_buffer, "map", "base_link", rclcpp::Time(0),
+    rclcpp::Duration::from_seconds(0.0));
   if (!tf_current_pose) {
     return {};
   }
