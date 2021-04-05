@@ -18,6 +18,7 @@
 #include <deque>
 #include <iomanip>
 #include <memory>
+#include <mutex>
 
 #ifndef Q_MOC_RUN
 #include "rclcpp/rclcpp.hpp"
@@ -60,6 +61,7 @@ private Q_SLOTS:
   void updateVisualization();
 
 protected:
+  void update(float wall_dt, float ros_dt) override;
   void processMessage(const autoware_vehicle_msgs::msg::Steering::ConstSharedPtr msg_ptr) override;
   std::unique_ptr<Ogre::ColourValue> setColorDependsOnVelocity(
     const double vel_max, const double cmd_vel);
@@ -77,6 +79,7 @@ protected:
   // QImage hud_;
 
 private:
+  std::mutex mutex_;
   autoware_vehicle_msgs::msg::Steering::ConstSharedPtr last_msg_ptr_;
 };
 
