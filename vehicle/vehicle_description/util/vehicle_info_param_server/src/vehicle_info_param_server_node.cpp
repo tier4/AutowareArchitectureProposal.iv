@@ -12,23 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef TRAFFIC_LIGHT_CLASSIFIER__CLASSIFIER_INTERFACE_HPP_
-#define TRAFFIC_LIGHT_CLASSIFIER__CLASSIFIER_INTERFACE_HPP_
+#include <memory>
 
-#include <vector>
-#include "autoware_perception_msgs/msg/lamp_state.hpp"
-#include "opencv2/core/core.hpp"
-#include "opencv2/highgui/highgui.hpp"
+#include "rclcpp/rclcpp.hpp"
 
-namespace traffic_light
+#include "vehicle_info_param_server/vehicle_info_param_server_core.hpp"
+
+int main(int argc, char ** argv)
 {
-class ClassifierInterface
-{
-public:
-  virtual bool getLampState(
-    const cv::Mat & input_image,
-    std::vector<autoware_perception_msgs::msg::LampState> & states) = 0;
-};
-}  // namespace traffic_light
+  rclcpp::init(argc, argv);
+  rclcpp::spin(std::make_shared<VehicleInfoParamServer>());
+  rclcpp::shutdown();
 
-#endif  // TRAFFIC_LIGHT_CLASSIFIER__CLASSIFIER_INTERFACE_HPP_
+  return 0;
+}
