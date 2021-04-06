@@ -74,10 +74,14 @@ void SteeringOffsetEstimator::timerCallback()
 {
   if (updateSteeringOffset()) {
     autoware_vehicle_msgs::msg::SteeringOffset msg;
+    msg.header.frame_id = "base_link";
+    msg.header.stamp = now();
     msg.data = estimated_steer_offset_;
     steering_offset_pub_->publish(msg);
 
     autoware_vehicle_msgs::msg::SteeringOffsetCovariance cov_msg;
+    cov_msg.header.frame_id = "base_link";
+    cov_msg.header.stamp = now();
     cov_msg.data = covariance_;
     steering_offset_cov_pub_->publish(cov_msg);
   }
