@@ -14,16 +14,21 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter -Werror)
 endif()
 
-ament_auto_add_library(steering_offset_estimator_node SHARED src/node.cpp)
+ament_auto_add_library(steering_offset_estimator_node SHARED src/steer_offset_estimator_node.cpp)
 
 rclcpp_components_register_node(steering_offset_estimator_node
-  PLUGIN "SteeringOffsetEstimtaor"
+  PLUGIN "SteeringOffsetEstimator"
   EXECUTABLE steering_offset_estimator
 )
+
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-ament_auto_package()
+ament_auto_package(
+  INSTALL_TO_SHARE
+  launch
+)
