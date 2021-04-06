@@ -24,6 +24,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ControlMode.msg"
   "msg/TurnSignal.msg"
   "msg/Steering.msg"
+  "msg/SteeringOffset.msg"
+  "msg/SteeringOffsetCovariance.msg"
   "msg/RawVehicleCommand.msg"
   "msg/RawControlCommand.msg"
   "msg/RawControlCommandStamped.msg"
