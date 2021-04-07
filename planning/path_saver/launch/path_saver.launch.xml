@@ -1,0 +1,12 @@
+<launch>
+  <arg name="file_name" default="$(find-pkg-share path_loader)/data/sample.csv" />
+  <arg name="dist_threshold" default="1.0" />
+  <arg name="time_threshold" default="0.1" />
+  <arg name="input_twist" default="/localization/twist" />
+  <node pkg="path_saver" exec="path_saver_node" name="path_saver" output="screen">
+    <remap from="input/twist" to="$(var input_twist)" />
+    <param name="path_file_name" value="$(var file_name)" />
+    <param name="dist_threshold" value="$(var dist_threshold)" />
+    <param name="time_threshold" value="$(var time_threshold)" />
+  </node>
+</launch>
