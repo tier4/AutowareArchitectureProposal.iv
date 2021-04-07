@@ -1,0 +1,8 @@
+<launch>
+  <arg name="file_name" default="$(find-pkg-share path_loader)/data/sample.csv" />
+  <arg name="output_path_topic" default="/behavior_planning/path" />
+  <node pkg="path_loader" exec="path_loader_node" name="path_loader" output="screen">
+    <remap from="path" to="$(var output_path_topic)" />
+    <param name="path_file_name" value="$(var file_name)" />
+    </node>
+</launch>
