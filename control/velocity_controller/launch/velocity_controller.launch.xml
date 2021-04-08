@@ -2,7 +2,7 @@
 
 
   <!-- system -->
-  <arg name="control_rate" default="30.0" doc="controller execution rate [Hz]" />
+  <arg name="control_rate" default="30.0" description="controller execution rate [Hz]" />
 
   <!-- enable flags -->
   <arg name="show_debug_info" default="false" />
