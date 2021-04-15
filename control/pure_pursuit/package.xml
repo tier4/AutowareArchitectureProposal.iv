@@ -5,7 +5,7 @@
   <description>The pure_pursuit package</description>
   <maintainer email="kenji.miyake@tier4.jp">Kenji Miyake</maintainer>
   <maintainer email="horibe.takamasa@gmail.com">Takamasa Horibe</maintainer>
-  <license>Apache 2</license>
+  <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
