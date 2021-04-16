@@ -45,6 +45,7 @@ if(BUILD_TESTING)
     test/src/test_hull_pockets.cpp
     test/src/test_interval.cpp
     test/src/lookup_table.cpp
+    test/src/test_area.cpp
   )
   ament_add_gtest(${GEOMETRY_GTEST} ${GEOMETRY_SRC})
   autoware_set_compile_options(${GEOMETRY_GTEST})
