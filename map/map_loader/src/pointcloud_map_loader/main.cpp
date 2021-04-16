@@ -43,6 +43,12 @@ int main(int argc, char * argv[])
 
   std::vector<std::string> pcd_paths;
   for (int i = 1; i < argc; ++i) {
+    const char* tmp_prm = "/tmp/launch_params_";
+    if((strlen(argv[i]) > strlen(tmp_prm)) && (NULL != strstr(argv[i], tmp_prm)))
+    {
+      continue;
+    }
+
     const fs::path arg(argv[i]);
 
     if (!fs::exists(arg)) {
