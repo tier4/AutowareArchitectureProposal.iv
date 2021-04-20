@@ -32,10 +32,18 @@ namespace common
 {
 namespace types
 {
+// Aliases to conform to MISRA C++ Rule 3-9-2 (Directive 4.6 in MISRA C).
+// Similarly, the stdint typedefs should be used instead of plain int, long etc. types.
+// We don't currently require code to comply to MISRA, but we should try to where it is
+// easily possible.
 using bool8_t = bool;
 using char8_t = char;
 using uchar8_t = unsigned char;
+// If we ever compile on a platform where this is not true, float32_t and float64_t definitions
+// need to be adjusted.
+static_assert(sizeof(float) == 4, "float is assumed to be 32-bit");
 using float32_t = float;
+static_assert(sizeof(double) == 8, "double is assumed to be 64-bit");
 using float64_t = double;
 
 /// pi = tau / 2
