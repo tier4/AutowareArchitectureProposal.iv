@@ -21,7 +21,9 @@
 
 #include <cstdint>
 #include <vector>
+#include <limits>
 
+#include "helper_functions/float_comparisons.hpp"
 #include "common/visibility_control.hpp"
 
 namespace autoware
@@ -60,6 +62,34 @@ struct COMMON_PUBLIC PointXYZF
   float32_t z{0};
   uint16_t id{0};
   static constexpr uint16_t END_OF_SCAN_ID = 65535u;
+};
+
+struct COMMON_PUBLIC PointXYZI
+{
+  PointXYZI() = default;
+  PointXYZI(float32_t x, float32_t y, float32_t z, float32_t intensity)
+  : x(x), y(y), z(z), intensity(intensity) {}
+  float32_t x{0.0F};
+  float32_t y{0.0F};
+  float32_t z{0.0F};
+  float32_t intensity{0.0F};
+  friend bool operator==(
+    const PointXYZI & p1,
+    const PointXYZI & p2) noexcept
+  {
+    return
+      helper_functions::comparisons::rel_eq(
+      p1.x, p2.x, std::numeric_limits<float32_t>::epsilon()) &&
+
+      helper_functions::comparisons::rel_eq(
+      p1.y, p2.y, std::numeric_limits<float32_t>::epsilon()) &&
+
+      helper_functions::comparisons::rel_eq(
+      p1.z, p2.z, std::numeric_limits<float32_t>::epsilon()) &&
+
+      helper_functions::comparisons::rel_eq(
+      p1.intensity, p2.intensity, std::numeric_limits<float32_t>::epsilon());
+  }
 };
 
 using PointBlock = std::vector<PointXYZIF>;
