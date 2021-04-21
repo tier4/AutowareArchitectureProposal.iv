@@ -48,7 +48,7 @@ struct CtrlCmd
 class VelocityController : public rclcpp::Node
 {
 public:
-  VelocityController();
+  explicit VelocityController(const rclcpp::NodeOptions & node_options);
   ~VelocityController() = default;
 
 private:

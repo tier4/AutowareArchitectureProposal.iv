@@ -28,14 +28,18 @@ ament_auto_add_library(pure_pursuit_core SHARED
 )
 
 # pure_pursuit
-ament_auto_add_executable(pure_pursuit
-  src/pure_pursuit/main.cpp
+ament_auto_add_library(pure_pursuit_node SHARED
   src/pure_pursuit/pure_pursuit_node.cpp
   src/pure_pursuit/pure_pursuit_viz.cpp
 )
 
-target_link_libraries(pure_pursuit
+target_link_libraries(pure_pursuit_node
   pure_pursuit_core
+)
+
+rclcpp_components_register_node(pure_pursuit_node
+  PLUGIN "PurePursuitNode"
+  EXECUTABLE pure_pursuit
 )
 
 if(BUILD_TESTING)

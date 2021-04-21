@@ -59,8 +59,8 @@ double calcLookaheadDistance(
 
 }  // namespace
 
-PurePursuitNode::PurePursuitNode()
-: Node("pure_pursuit"),
+PurePursuitNode::PurePursuitNode(const rclcpp::NodeOptions & node_options)
+: Node("pure_pursuit", node_options),
   tf_buffer_(this->get_clock()),
   tf_listener_(tf_buffer_)
 {
@@ -236,3 +236,6 @@ const
 
   return trajectory_->points.at(closest_idx_result.second);
 }
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(PurePursuitNode)

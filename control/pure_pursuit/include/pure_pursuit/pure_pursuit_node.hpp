@@ -73,7 +73,7 @@ struct DebugData
 class PurePursuitNode : public rclcpp::Node
 {
 public:
-  PurePursuitNode();
+  explicit PurePursuitNode(const rclcpp::NodeOptions & node_options);
 
 private:
   // Subscriber

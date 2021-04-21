@@ -18,7 +18,6 @@ set(MPC_FOLLOWER_SRC
   src/mpc_utils.cpp
   src/interpolate.cpp
   src/mpc_follower_core.cpp
-  src/mpc_follower_node.cpp
   src/mpc_trajectory.cpp
   src/lowpass_filter.cpp
   src/vehicle_model/vehicle_model_interface.cpp
@@ -28,21 +27,15 @@ set(MPC_FOLLOWER_SRC
   src/qp_solver/qp_solver_unconstr_fast.cpp
   src/qp_solver/qp_solver_osqp.cpp
 )
-set(MPC_FOLLOWER_HDR
-  include/mpc_follower/mpc_utils.hpp
-  include/mpc_follower/interpolate.hpp
-  include/mpc_follower/mpc_follower_core.hpp
-  include/mpc_follower/mpc_trajectory.hpp
-  include/mpc_follower/lowpass_filter.hpp
-  include/mpc_follower/vehicle_model/vehicle_model_interface.hpp
-  include/mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics.hpp
-  include/mpc_follower/vehicle_model/vehicle_model_bicycle_dynamics.hpp
-  include/mpc_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp
-  include/mpc_follower/qp_solver/qp_solver_unconstr_fast.hpp
-  include/mpc_follower/qp_solver/qp_solver_osqp.hpp
+
+ament_auto_add_library(mpc_follower_core SHARED
+  ${MPC_FOLLOWER_SRC}
 )
 
-ament_auto_add_executable(mpc_follower ${MPC_FOLLOWER_SRC} ${MPC_FOLLOWER_HDR})
+rclcpp_components_register_node(mpc_follower_core
+  PLUGIN "MPCFollower"
+  EXECUTABLE mpc_follower
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

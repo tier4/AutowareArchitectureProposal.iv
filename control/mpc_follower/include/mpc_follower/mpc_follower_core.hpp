@@ -79,7 +79,7 @@ public:
   /**
    * @brief constructor
    */
-  MPCFollower();
+  explicit MPCFollower(const rclcpp::NodeOptions & node_options);
 
   /**
    * @brief destructor

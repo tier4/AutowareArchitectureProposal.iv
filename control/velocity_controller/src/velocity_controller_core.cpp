@@ -33,7 +33,7 @@ double lowpass_filter(const double current_value, const double prev_value, const
 }
 }  // namespace
 
-VelocityController::VelocityController()
+VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
 : Node("velocity_controller")
 {
   using std::placeholders::_1;
@@ -1007,3 +1007,6 @@ void VelocityController::writeDebugValues(
   debug_values_.data.at(DBGVAL::PITCH_RAW_TRAJ_RAD) = traj_pitch;
   debug_values_.data.at(DBGVAL::PITCH_RAW_TRAJ_DEG) = traj_pitch * rad2deg;
 }
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(VelocityController)

@@ -50,8 +50,9 @@ void update_param(
 }
 }  // namespace
 
-MPCFollower::MPCFollower()
-: Node("mpc_follower"), tf_buffer_(this->get_clock()), tf_listener_(tf_buffer_)
+MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
+: Node("mpc_follower", node_options),
+  tf_buffer_(this->get_clock()), tf_listener_(tf_buffer_)
 {
   using std::placeholders::_1;
 
@@ -1248,3 +1249,6 @@ bool MPCFollower::isValidTrajectory(const autoware_planning_msgs::msg::Trajector
   }
   return true;
 }
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(MPCFollower)
