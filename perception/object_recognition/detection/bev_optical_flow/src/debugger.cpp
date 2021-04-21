@@ -1,4 +1,4 @@
-// Copyright 2020 TierIV
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,40 +12,39 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+
 #include "bev_optical_flow/debugger.hpp"
 
-Debugger::Debugger()
-: nh_(""), pnh_("~")
+Debugger::Debugger(rclcpp::Node & node)
+: logger_(node.get_logger()), clock_(node.get_clock())
 {
-  debug_image_pub_ =
-    pnh_.advertise<sensor_msgs::Image>("output/debug_image", 1);
+  debug_image_pub_ = node.create_publisher<sensor_msgs::msg::Image>("output/debug_image", 1);
   debug_marker_array_pub_ =
-    pnh_.advertise<visualization_msgs::MarkerArray>("output/debug_marker_line", 1);
+    node.create_publisher<visualization_msgs::msg::MarkerArray>("output/debug_marker_line", 1);
   debug_text_marker_array_pub_ =
-    pnh_.advertise<visualization_msgs::MarkerArray>("output/debug_text_marker", 1);
-  utils_ = std::make_shared<bev_optical_flow::Utils>();
+    node.create_publisher<visualization_msgs::msg::MarkerArray>("output/debug_text_marker", 1);
+  utils_ = std::make_shared<bev_optical_flow::Utils>(node);
 }
 
 bool Debugger::createMarker(
-  const autoware_perception_msgs::DynamicObjectWithFeature & scene_flow,
-  visualization_msgs::Marker & debug_marker,
-  visualization_msgs::Marker & debug_text_marker,
-  int idx,
-  double topic_rate)
+  const autoware_perception_msgs::msg::DynamicObjectWithFeature & scene_flow,
+  visualization_msgs::msg::Marker & debug_marker,
+  visualization_msgs::msg::Marker & debug_text_marker, int idx, double topic_rate)
 {
   auto current_point = scene_flow.object.state.pose_covariance.pose.position;
   auto kph_twist = scene_flow.object.state.twist_covariance.twist;
-  geometry_msgs::Vector3 mptopic_twist = utils_->kph2mptopic(kph_twist.linear, topic_rate);
-  geometry_msgs::Point prev_point;
+  geometry_msgs::msg::Vector3 mptopic_twist = utils_->kph2mptopic(kph_twist.linear, topic_rate);
+  geometry_msgs::msg::Point prev_point;
   prev_point.x = current_point.x - mptopic_twist.x;
   prev_point.y = current_point.y - mptopic_twist.y;
   prev_point.z = current_point.z - mptopic_twist.z;
 
   debug_marker.ns = "flow" + std::to_string(idx);
   debug_marker.id = idx;
-  debug_marker.action = visualization_msgs::Marker::ADD;
+  debug_marker.action = visualization_msgs::msg::Marker::ADD;
   debug_marker.pose.orientation.w = 1.0;
-  debug_marker.type = visualization_msgs::Marker::LINE_STRIP;
+  debug_marker.type = visualization_msgs::msg::Marker::LINE_STRIP;
   debug_marker.scale.x = 0.05;
   debug_marker.color.g = 1.0;
   debug_marker.color.a = 1.0;
@@ -54,13 +53,12 @@ bool Debugger::createMarker(
 
   debug_text_marker.ns = "flow" + std::to_string(idx);
   debug_text_marker.id = idx;
-  debug_text_marker.action = visualization_msgs::Marker::ADD;
+  debug_text_marker.action = visualization_msgs::msg::Marker::ADD;
   debug_text_marker.pose.orientation.w = 1.0;
-  debug_text_marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+  debug_text_marker.type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
   debug_text_marker.pose.position = current_point;
   float v = std::sqrt(
-    std::pow(kph_twist.linear.x, 2) +
-    std::pow(kph_twist.linear.y, 2) +
+    std::pow(kph_twist.linear.x, 2) + std::pow(kph_twist.linear.y, 2) +
     std::pow(kph_twist.linear.z, 2));
   debug_text_marker.text = std::to_string(v) + "[km/h]";
   debug_text_marker.scale.x = 0.3;
@@ -79,15 +77,14 @@ void Debugger::publishOpticalFlowImage(const cv::Point2f & vehicle_vel)
   // publish messages
   cv::Mat debug_image;
   cv::cvtColor(image_, debug_image, CV_GRAY2BGR);
-  cv::Point2f current_point(static_cast<int>
-    (image_.cols * 0.5), static_cast<int>(image_.rows * 0.5));
+  cv::Point2f current_point(
+    static_cast<int>(image_.cols * 0.5), static_cast<int>(image_.rows * 0.5));
   cv::Point2f prev_point = current_point - vehicle_vel;
   cv::line(debug_image, current_point, prev_point, cv::Scalar(0, 255, 0), 1, 8, 0);
   cv::circle(debug_image, current_point, 2, cv::Scalar(255, 0, 0), -1);
   cv::circle(debug_image, current_point, 20, cv::Scalar(255, 200, 100));
   cv::circle(
-    debug_image, current_point, static_cast<int>(image_.cols * 0.5),
-    cv::Scalar(100, 100, 100));
+    debug_image, current_point, static_cast<int>(image_.cols * 0.5), cv::Scalar(100, 100, 100));
 
   for (size_t i = 0; i < optical_flow_array_.feature_objects.size(); i++) {
     auto flow = optical_flow_array_.feature_objects.at(i);
@@ -101,22 +98,20 @@ void Debugger::publishOpticalFlowImage(const cv::Point2f & vehicle_vel)
     cv::circle(debug_image, current_px, 0, cv::Scalar(255, 100, 0), -1);
   }
 
-  sensor_msgs::ImagePtr output_image_msg =
-    cv_bridge::CvImage(
-    optical_flow_array_.header,
-    sensor_msgs::image_encodings::BGR8,
-    debug_image).toImageMsg();
-  debug_image_pub_.publish(output_image_msg);
+  sensor_msgs::msg::Image output_image_msg =
+    *cv_bridge::CvImage(optical_flow_array_.header, sensor_msgs::image_encodings::BGR8, debug_image)
+    .toImageMsg();
+  debug_image_pub_->publish(output_image_msg);
 }
 
 void Debugger::publishSceneFlowMarker(double topic_rate)
 {
-  visualization_msgs::MarkerArray debug_marker_array;
-  visualization_msgs::MarkerArray debug_text_marker_array;
+  visualization_msgs::msg::MarkerArray debug_marker_array;
+  visualization_msgs::msg::MarkerArray debug_text_marker_array;
   for (size_t i = 0; i < scene_flow_array_.feature_objects.size(); i++) {
     auto scene_flow = scene_flow_array_.feature_objects.at(i);
-    visualization_msgs::Marker debug_marker;
-    visualization_msgs::Marker debug_text_marker;
+    visualization_msgs::msg::Marker debug_marker;
+    visualization_msgs::msg::Marker debug_text_marker;
     createMarker(scene_flow, debug_marker, debug_text_marker, i, topic_rate);
     // line marker
     debug_marker.header = scene_flow_array_.header;
@@ -124,18 +119,15 @@ void Debugger::publishSceneFlowMarker(double topic_rate)
     // text marker
     debug_text_marker.header = scene_flow_array_.header;
     debug_text_marker_array.markers.push_back(debug_text_marker);
-
   }
-  debug_marker_array_pub_.publish(debug_marker_array);
-  debug_text_marker_array_pub_.publish(debug_text_marker_array);
+  debug_marker_array_pub_->publish(debug_marker_array);
+  debug_text_marker_array_pub_->publish(debug_text_marker_array);
 }
 
 bool Debugger::publishDebugVisualizations(
-  const autoware_perception_msgs::DynamicObjectWithFeatureArray & optical_flow_array,
-  const autoware_perception_msgs::DynamicObjectWithFeatureArray & scene_flow_array,
-  const cv::Mat & image,
-  double topic_rate,
-  const cv::Point2f & vehicle_vel)
+  const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & optical_flow_array,
+  const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & scene_flow_array,
+  const cv::Mat & image, double topic_rate, const cv::Point2f & vehicle_vel)
 {
   optical_flow_array_ = optical_flow_array;
   scene_flow_array_ = scene_flow_array;

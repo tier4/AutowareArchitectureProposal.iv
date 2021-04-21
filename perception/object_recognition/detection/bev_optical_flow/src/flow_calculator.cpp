@@ -1,4 +1,4 @@
-// Copyright 2020 TierIV
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,37 +12,36 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <vector>
+#include <utility>
+#include <memory>
+
 #include "bev_optical_flow/flow_calculator.hpp"
 
 namespace bev_optical_flow
 {
-FlowCalculator::FlowCalculator()
-: nh_(""), pnh_("~")
+FlowCalculator::FlowCalculator(rclcpp::Node & node)
+: logger_(node.get_logger()), clock_(node.get_clock()), debugger_(node)
 {
-  pnh_.param<float>("quality_level", quality_level_, 0.01);
-  pnh_.param<int>("min_distance", min_distance_, 10);
-  pnh_.param<int>("block_size", block_size_, 3);
-  pnh_.param<float>("harris_k", harris_k_, 0.04);
-  pnh_.param<int>("max_corners", max_corners_, 10000);
+  quality_level_ = node.declare_parameter("quality_level", 0.01);
+  min_distance_ = node.declare_parameter("min_distance", 10);
+  block_size_ = node.declare_parameter("block_size", 3);
+  harris_k_ = node.declare_parameter("harris_k", 0.04);
+  max_corners_ = node.declare_parameter("max_corners", 10000);
 
-  pnh_.param<int>("sparse_size", sparse_size_, 4);
-  pnh_.param<int>("num_split", num_split_, 3);
-  pnh_.param<bool>("debug", debug_, false);
+  sparse_size_ = node.declare_parameter("sparse_size", 4);
+  num_split_ = node.declare_parameter("num_split", 3);
+  debug_ = node.declare_parameter("debug", false);
 
-  utils_ = std::make_shared<Utils>();
-  lidar_to_image_ = std::make_shared<LidarToBEVImage>();
+  utils_ = std::make_shared<bev_optical_flow::Utils>(node);
+  lidar_to_image_ = std::make_shared<LidarToBEVImage>(node);
 }
 
-bool FlowCalculator::isInitialized()
-{
-  return setup_;
-}
+bool FlowCalculator::isInitialized() {return setup_;}
 
 bool FlowCalculator::calcOpticalFlow(
-  cv::Mat & current_image,
-  cv::Mat & prev_image,
-  std::vector<cv::Point2f> & prev_points,
-  autoware_perception_msgs::DynamicObjectWithFeatureArray & flow_array_msg)
+  cv::Mat & current_image, cv::Mat & prev_image, std::vector<cv::Point2f> & prev_points,
+  autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & flow_array_msg)
 {
   if (prev_image.empty()) {
     current_image.copyTo(prev_image);
@@ -50,18 +49,18 @@ bool FlowCalculator::calcOpticalFlow(
 
   std::vector<cv::Point2f> current_points;
   cv::goodFeaturesToTrack(
-    current_image, current_points, max_corners_, quality_level_, min_distance_,
-    cv::Mat(), block_size_, true, harris_k_);
+    current_image, current_points, max_corners_, quality_level_, min_distance_, cv::Mat(),
+    block_size_, true, harris_k_);
 
   cv::TermCriteria termcrit(cv::TermCriteria::MAX_ITER + cv::TermCriteria::EPS, 30, 0.01);
   // cv::cornerSubPix(current_image, current_points, cv::Size(10, 10), cv::Size(-1, -1), termcrit);
 
-  if (!prev_points.empty() ) {
+  if (!prev_points.empty()) {
     std::vector<unsigned char> status;
     std::vector<float> err;
     cv::calcOpticalFlowPyrLK(
-      prev_image, current_image, current_points, prev_points,
-      status, err, cv::Size(15, 15), 2, termcrit, 0, 0.01);
+      prev_image, current_image, current_points, prev_points, status, err, cv::Size(15, 15), 2,
+      termcrit, 0, 0.01);
 
     for (size_t i = 0; i < current_points.size(); i++) {
       if (!status[i]) {
@@ -69,14 +68,14 @@ bool FlowCalculator::calcOpticalFlow(
       }
       int depth = static_cast<int>(image_.at<uchar>(current_points[i].y, current_points[i].x));
       if (depth > 0) {
-        autoware_perception_msgs::DynamicObjectWithFeature flow;
+        autoware_perception_msgs::msg::DynamicObjectWithFeature flow;
         flow.object.state.pose_covariance.pose.position.x = current_points[i].x;
         flow.object.state.pose_covariance.pose.position.y = current_points[i].y;
         flow.object.state.pose_covariance.pose.position.z = depth;
-        flow.object.state.twist_covariance.twist.linear.x = current_points[i].x - prev_points[i].x -
-          vehicle_vel_.x;
-        flow.object.state.twist_covariance.twist.linear.y = current_points[i].y - prev_points[i].y -
-          vehicle_vel_.y;
+        flow.object.state.twist_covariance.twist.linear.x =
+          current_points[i].x - prev_points[i].x - vehicle_vel_.x;
+        flow.object.state.twist_covariance.twist.linear.y =
+          current_points[i].y - prev_points[i].y - vehicle_vel_.y;
         flow_array_msg.feature_objects.push_back(flow);
       }
     }
@@ -88,26 +87,21 @@ bool FlowCalculator::calcOpticalFlow(
 }
 
 bool FlowCalculator::calcSceneFlow(
-  const autoware_perception_msgs::DynamicObjectWithFeature & optical_flow,
-  autoware_perception_msgs::DynamicObjectWithFeature & scene_flow)
+  const autoware_perception_msgs::msg::DynamicObjectWithFeature & optical_flow,
+  autoware_perception_msgs::msg::DynamicObjectWithFeature & scene_flow)
 {
-  geometry_msgs::Point current_point =
-    utils_->pixel2point(
+  geometry_msgs::msg::Point current_point = utils_->pixel2point(
+    optical_flow.object.state.pose_covariance.pose.position, geometry_msgs::msg::Vector3(),
+    image_.size(), utils_->getMap2BaseAngle(current_stamp_));
+  geometry_msgs::msg::Point prev_point = utils_->pixel2point(
     optical_flow.object.state.pose_covariance.pose.position,
-    geometry_msgs::Vector3(),
-    image_.size(),
+    optical_flow.object.state.twist_covariance.twist.linear, image_.size(),
     utils_->getMap2BaseAngle(current_stamp_));
-  geometry_msgs::Point prev_point =
-    utils_->pixel2point(
-    optical_flow.object.state.pose_covariance.pose.position,
-    optical_flow.object.state.twist_covariance.twist.linear,
-    image_.size(),
-    utils_->getMap2BaseAngle(current_stamp_));
-  geometry_msgs::Vector3 mptopic_twist;
+  geometry_msgs::msg::Vector3 mptopic_twist;
   mptopic_twist.x = current_point.x - prev_point.x;
   mptopic_twist.y = current_point.y - prev_point.y;
   mptopic_twist.z = current_point.z - prev_point.z;
-  geometry_msgs::Vector3 kph_twist = utils_->mptopic2kph(mptopic_twist, topic_rate_);
+  geometry_msgs::msg::Vector3 kph_twist = utils_->mptopic2kph(mptopic_twist, topic_rate_);
   scene_flow.object.state.pose_covariance.pose.position = current_point;
   scene_flow.object.state.twist_covariance.twist.linear = kph_twist;
 
@@ -115,25 +109,27 @@ bool FlowCalculator::calcSceneFlow(
 }
 
 bool FlowCalculator::getSceneFlowArray(
-  const autoware_perception_msgs::DynamicObjectWithFeatureArray & optical_flow_array,
-  autoware_perception_msgs::DynamicObjectWithFeatureArray & scene_flow_array)
+  const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & optical_flow_array,
+  autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & scene_flow_array)
 {
   for (auto optical_flow : optical_flow_array.feature_objects) {
-    autoware_perception_msgs::DynamicObjectWithFeature scene_flow;
+    autoware_perception_msgs::msg::DynamicObjectWithFeature scene_flow;
     calcSceneFlow(optical_flow, scene_flow);
     scene_flow_array.feature_objects.push_back(scene_flow);
   }
   return true;
 }
 
-void FlowCalculator::setup(const sensor_msgs::PointCloud2::ConstPtr & cloud_msg)
+void FlowCalculator::setup(const sensor_msgs::msg::PointCloud2::SharedPtr cloud_msg)
 {
-  if (prev_stamp_.sec == 0) {
+  if (prev_stamp_.seconds() == 0) {
     setup_ = false;
     prev_stamp_ = cloud_msg->header.stamp;
     return;
   }
-  topic_rate_ = (cloud_msg->header.stamp - prev_stamp_).toSec();
+
+  rclcpp::Time cloud_stamp(cloud_msg->header.stamp);
+  topic_rate_ = (cloud_stamp - prev_stamp_).seconds();
 
   cv::Mat image;
   lidar_to_image_->getBEVImage(cloud_msg, image);
@@ -149,9 +145,9 @@ void FlowCalculator::setup(const sensor_msgs::PointCloud2::ConstPtr & cloud_msg)
 }
 
 void FlowCalculator::run(
-  autoware_perception_msgs::DynamicObjectWithFeatureArray & scene_flow_array)
+  autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & scene_flow_array)
 {
-  autoware_perception_msgs::DynamicObjectWithFeatureArray optical_flow_array;
+  autoware_perception_msgs::msg::DynamicObjectWithFeatureArray optical_flow_array;
   optical_flow_array.header = scene_flow_array.header;
 
   calcOpticalFlow(image_, prev_image_, prev_points_, optical_flow_array);
@@ -161,9 +157,8 @@ void FlowCalculator::run(
 
   if (debug_) {
     debugger_.publishDebugVisualizations(
-      optical_flow_array, scene_flow_array, image_, topic_rate_,
-      vehicle_vel_);
+      optical_flow_array, scene_flow_array, image_, topic_rate_, vehicle_vel_);
   }
 }
 
-} //bev_optical_flow
+}  // namespace bev_optical_flow

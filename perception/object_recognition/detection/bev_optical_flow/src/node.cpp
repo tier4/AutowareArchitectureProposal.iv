@@ -1,4 +1,4 @@
-// Copyright 2020 TierIV
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,29 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+
 #include "bev_optical_flow/node.hpp"
 
 namespace bev_optical_flow
 {
 OpticalFlowNode::OpticalFlowNode()
-: nh_(""), pnh_("~")
+: rclcpp::Node("bev_optical_flow")
 {
-  cloud_sub_ = pnh_.subscribe("input_cloud", 1, &OpticalFlowNode::callback, this);
-  flow_array_pub_ = pnh_.advertise<
-    autoware_perception_msgs::DynamicObjectWithFeatureArray>("output/flows", 1);
-  flow_calculator_ = std::make_shared<FlowCalculator>();
+  cloud_sub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
+    "input_cloud", 1, std::bind(&OpticalFlowNode::callback, this, std::placeholders::_1));
+  flow_array_pub_ =
+    this->create_publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(
+    "output/flows", 1);
+  flow_calculator_ = std::make_shared<FlowCalculator>(*this);
 }
 
-void OpticalFlowNode::callback(
-  const sensor_msgs::PointCloud2::ConstPtr & cloud_msg)
+void OpticalFlowNode::callback(const sensor_msgs::msg::PointCloud2::SharedPtr cloud_msg)
 {
   flow_calculator_->setup(cloud_msg);
-  if (!flow_calculator_->isInitialized() ) {
+  if (!flow_calculator_->isInitialized()) {
     return;
   }
-  autoware_perception_msgs::DynamicObjectWithFeatureArray output_msg;
+  autoware_perception_msgs::msg::DynamicObjectWithFeatureArray output_msg;
   output_msg.header = cloud_msg->header;
   flow_calculator_->run(output_msg);
-  flow_array_pub_.publish(output_msg);
+  flow_array_pub_->publish(output_msg);
 }
-} // bev_optical_flow
+}  // namespace bev_optical_flow

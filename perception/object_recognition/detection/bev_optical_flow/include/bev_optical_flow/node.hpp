@@ -1,4 +1,4 @@
-// Copyright 2020 TierIV
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,34 +12,39 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef BEV_OPTICAL_FLOW__NODE_HPP_
+#define BEV_OPTICAL_FLOW__NODE_HPP_
 
 #include <iostream>
-#include "sensor_msgs/PointCloud2.h"
-#include "geometry_msgs/TwistStamped.h"
-#include "autoware_perception_msgs/DynamicObjectWithFeatureArray.h"
-#include "utils.h"
-#include "lidar_to_image.h"
-#include "flow_calculator.h"
+#include <memory>
+
+#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
+#include "bev_optical_flow/flow_calculator.hpp"
+#include "bev_optical_flow/lidar_to_image.hpp"
+#include "bev_optical_flow/utils.hpp"
+#include "geometry_msgs/msg/twist_stamped.h"
+#include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/point_cloud2.h"
 
 namespace bev_optical_flow
 {
-class OpticalFlowNode
+class OpticalFlowNode : public rclcpp::Node
 {
 public:
   OpticalFlowNode();
-  void callback(const sensor_msgs::PointCloud2::ConstPtr & cloud_msg);
+  void callback(const sensor_msgs::msg::PointCloud2::SharedPtr cloud_msg);
 
 private:
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
-  ros::Subscriber cloud_sub_;
-  ros::Publisher flow_array_pub_;
+  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr cloud_sub_;
+  rclcpp::Publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr
+    flow_array_pub_;
 
-  ros::Time prev_stamp_;
+  rclcpp::Time prev_stamp_;
 
   std::shared_ptr<LidarToBEVImage> lidar_to_image_;
   std::shared_ptr<FlowCalculator> flow_calculator_;
   std::shared_ptr<Utils> utils_;
 };
-} // bev_optical_flow
+}  // namespace bev_optical_flow
+
+#endif  // BEV_OPTICAL_FLOW__NODE_HPP_

@@ -1,4 +1,4 @@
-// Copyright 2020 TierIV
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,33 +12,44 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
+#include <string>
+
 #include "bev_optical_flow/lidar_to_image.hpp"
 
 namespace bev_optical_flow
 {
-LidarToBEVImage::LidarToBEVImage()
-: nh_(""), pnh_("~")
+LidarToBEVImage::LidarToBEVImage(rclcpp::Node & node)
+: logger_(node.get_logger()), clock_(node.get_clock())
 {
-  pnh_.param<float>("grid_size", grid_size_, 0.25);
-  pnh_.param<float>("point_radius", point_radius_, 50);
-  pnh_.param<float>("z_max", z_max_, 3.0);
-  pnh_.param<float>("z_min", z_min_, 0.0);
-  pnh_.param<int>("depth_max", depth_max_, 255);
-  pnh_.param<int>("depth_min", depth_min_, 0);
+  grid_size_ = static_cast<float>(get_double_param(node, "grid_size", 0.25));
+  point_radius_ = static_cast<float>(get_double_param(node, "point_radius", 50.0));
+  z_max_ = static_cast<float>(get_double_param(node, "z_max", 3.0));
+  z_min_ = static_cast<float>(get_double_param(node, "z_min", -3.0));
+  depth_max_ = node.declare_parameter("depth_max", 255);
+  depth_min_ = node.declare_parameter("depth_min", 0);
 
   image_size_ = 2 * static_cast<int>(point_radius_ / grid_size_);
-  utils_ = std::make_shared<Utils>();
+  utils_ = std::make_shared<Utils>(node);
+}
+
+double LidarToBEVImage::get_double_param(
+  rclcpp::Node & node, std::string p, const double default_value)
+{
+  if (node.has_parameter(p)) {
+    return node.get_parameter(p).as_double();
+  } else {
+    return node.declare_parameter(p, default_value);
+  }
 }
 
 float LidarToBEVImage::pointToPixel(
   const pcl::PointXYZ & point, cv::Point2d & px, float map2base_angle)
 {
   // affine transform base_link coords to image coords
-  Eigen::Affine2f base2image =
-    Eigen::Translation<float, 2>(point_radius_, point_radius_) *
+  Eigen::Affine2f base2image = Eigen::Translation<float, 2>(point_radius_, point_radius_) *
     Eigen::Rotation2Df(M_PI + map2base_angle).toRotationMatrix();
-  Eigen::Vector2f transformed_p =
-    (base2image * Eigen::Vector2f(point.x, point.y)) / grid_size_;
+  Eigen::Vector2f transformed_p = (base2image * Eigen::Vector2f(point.x, point.y)) / grid_size_;
   px.x = transformed_p[1];
   px.y = transformed_p[0];
   float intensity = (point.z + std::abs(z_min_)) / (z_max_ - z_min_);
@@ -46,8 +57,7 @@ float LidarToBEVImage::pointToPixel(
 }
 
 void LidarToBEVImage::getBEVImage(
-  const sensor_msgs::PointCloud2::ConstPtr & cloud_msg,
-  cv::Mat & bev_image)
+  const sensor_msgs::msg::PointCloud2::SharedPtr cloud_msg, cv::Mat & bev_image)
 {
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::fromROSMsg(*cloud_msg, *cloud);
@@ -58,18 +68,18 @@ void LidarToBEVImage::getBEVImage(
   size_t size = cloud->points.size();
   for (size_t i = 0; i < size; ++i) {
     auto p = cloud->points.at(i);
-    if (p.x < -point_radius_ || point_radius_ < p.x ||
-      p.y < -point_radius_ || point_radius_ < p.y ||
+    if (
+      p.x < -point_radius_ || point_radius_ < p.x || p.y < -point_radius_ || point_radius_ < p.y ||
       p.z < z_min_ || z_max_ < p.z)
     {
       continue;
     }
     cv::Point2d px;
     float depth = pointToPixel(p, px, map2base_angle);
-    // bev_image.at<unsigned char>(static_cast<int>(px.y), static_cast<int>(px.x)) = static_cast<int>(depth);
+    // bev_image.at<unsigned char>(static_cast<int>(px.y),
+    // static_cast<int>(px.x)) = static_cast<int>(depth);
     cv::circle(bev_image, px, 0, static_cast<int>(depth), -1);
   }
 }
 
-
-} // bev_optical_flow
+}  // namespace bev_optical_flow

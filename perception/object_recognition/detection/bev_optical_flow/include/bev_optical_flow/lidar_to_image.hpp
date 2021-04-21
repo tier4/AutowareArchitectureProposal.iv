@@ -1,4 +1,4 @@
-// Copyright 2020 TierIV
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,38 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef BEV_OPTICAL_FLOW__LIDAR_TO_IMAGE_HPP_
+#define BEV_OPTICAL_FLOW__LIDAR_TO_IMAGE_HPP_
 
-#include <iostream>
 #include <math.h>
+#include <iostream>
+#include <string>
+#include <memory>
 
-#include "ros/ros.h"
 #include "cv_bridge/cv_bridge.h"
-#include "sensor_msgs/image_encodings.h"
 
-#include "sensor_msgs/PointCloud2.h"
-#include "sensor_msgs/Image.h"
+#include "bev_optical_flow/utils.hpp"
 #include "pcl_conversions/pcl_conversions.h"
-
-#include "utils.h"
+#include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/image.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
 
 namespace bev_optical_flow
 {
 class LidarToBEVImage
 {
 public:
-  LidarToBEVImage();
-  void getBEVImage(
-    const sensor_msgs::PointCloud2::ConstPtr & cloud_msg,
-    cv::Mat & bev_image);
+  explicit LidarToBEVImage(rclcpp::Node & node);
+  void getBEVImage(const sensor_msgs::msg::PointCloud2::SharedPtr cloud_msg, cv::Mat & bev_image);
 
 private:
+  double get_double_param(rclcpp::Node & node, std::string p, const double default_value);
   float pointToPixel(const pcl::PointXYZ & point, cv::Point2d & px, float map2base_angle);
 
-  std::shared_ptr<Utils> utils_;
+  std::shared_ptr<bev_optical_flow::Utils> utils_;
 
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
+  rclcpp::Logger logger_;
+  rclcpp::Clock::SharedPtr clock_;
 
   int image_size_;
   float grid_size_;
@@ -53,4 +53,6 @@ private:
   int depth_max_;
   int depth_min_;
 };
-} // bev_optical_flow
+}  // namespace bev_optical_flow
+
+#endif  // BEV_OPTICAL_FLOW__LIDAR_TO_IMAGE_HPP_

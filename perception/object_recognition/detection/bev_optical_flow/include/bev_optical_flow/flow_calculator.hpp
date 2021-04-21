@@ -1,4 +1,4 @@
-// Copyright 2020 TierIV
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,45 +12,48 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef BEV_OPTICAL_FLOW__FLOW_CALCULATOR_HPP_
+#define BEV_OPTICAL_FLOW__FLOW_CALCULATOR_HPP_
 
 #include <iostream>
-#include "opencv2/video/tracking.hpp"
-#include "ros/ros.h"
+#include <vector>
+#include <memory>
+
 #include "cv_bridge/cv_bridge.h"
-#include "sensor_msgs/image_encodings.h"
-#include "autoware_perception_msgs/DynamicObjectWithFeatureArray.h"
-#include "utils.h"
-#include "lidar_to_image.h"
-#include "debugger.h"
+
+#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
+#include "bev_optical_flow/debugger.hpp"
+#include "bev_optical_flow/lidar_to_image.hpp"
+#include "bev_optical_flow/utils.hpp"
+#include "opencv2/video/tracking.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/point_cloud.hpp"
 
 namespace bev_optical_flow
 {
 class FlowCalculator
 {
 public:
-  FlowCalculator();
-  void setup(const sensor_msgs::PointCloud2::ConstPtr & cloud_msg);
+  explicit FlowCalculator(rclcpp::Node & node);
+  void setup(const sensor_msgs::msg::PointCloud2::SharedPtr cloud_msg);
   bool isInitialized();
-  void run(autoware_perception_msgs::DynamicObjectWithFeatureArray & scene_flow_array);
+  void run(autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & scene_flow_array);
 
 private:
   bool calcOpticalFlow(
-    cv::Mat & current_image,
-    cv::Mat & prev_image,
-    std::vector<cv::Point2f> & prev_points,
-    autoware_perception_msgs::DynamicObjectWithFeatureArray & flow_array_msg);
+    cv::Mat & current_image, cv::Mat & prev_image, std::vector<cv::Point2f> & prev_points,
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & flow_array_msg);
 
   bool getSceneFlowArray(
-    const autoware_perception_msgs::DynamicObjectWithFeatureArray & optical_flow_array,
-    autoware_perception_msgs::DynamicObjectWithFeatureArray & scene_flow_array);
+    const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & optical_flow_array,
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & scene_flow_array);
 
   bool calcSceneFlow(
-    const autoware_perception_msgs::DynamicObjectWithFeature & optical_flow,
-    autoware_perception_msgs::DynamicObjectWithFeature & scene_flow);
+    const autoware_perception_msgs::msg::DynamicObjectWithFeature & optical_flow,
+    autoware_perception_msgs::msg::DynamicObjectWithFeature & scene_flow);
 
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
+  rclcpp::Logger logger_;
+  rclcpp::Clock::SharedPtr clock_;
 
   float quality_level_;
   int min_distance_;
@@ -65,8 +68,8 @@ private:
   std::vector<cv::Point2f> prev_points_;
 
   cv::Mat image_;
-  ros::Time current_stamp_;
-  ros::Time prev_stamp_;
+  rclcpp::Time current_stamp_;
+  rclcpp::Time prev_stamp_;
   cv::Point2f vehicle_vel_;
   double topic_rate_;
   bool setup_;
@@ -76,4 +79,6 @@ private:
 
   Debugger debugger_;
 };
-} // bev_optical_flow
+}  // namespace bev_optical_flow
+
+#endif  // BEV_OPTICAL_FLOW__FLOW_CALCULATOR_HPP_

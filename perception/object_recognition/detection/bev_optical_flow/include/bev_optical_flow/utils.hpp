@@ -1,4 +1,4 @@
-// Copyright 2020 TierIV
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,51 +12,55 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef BEV_OPTICAL_FLOW__UTILS_HPP_
+#define BEV_OPTICAL_FLOW__UTILS_HPP_
 
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/core/core.hpp"
-#include "geometry_msgs/TwistStamped.h"
-#include "autoware_perception_msgs/DynamicObjectWithFeatureArray.h"
-#include "tf2_ros/transform_listener.h"
+#include <memory>
+#include <string>
+
 #include "tf2_eigen/tf2_eigen.h"
-#include "eigen_conversions/eigen_msg.h"
+#include "tf2_ros/transform_listener.h"
+
+#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "opencv2/core/core.hpp"
+#include "opencv2/highgui/highgui.hpp"
 
 namespace bev_optical_flow
 {
 class Utils
 {
 public:
-  Utils();
+  explicit Utils(rclcpp::Node & node);
 
-  geometry_msgs::Point pixel2point(
-    const geometry_msgs::Point point,
-    const geometry_msgs::Vector3 twist,
-    const cv::Size & image_size,
-    float map2baselink_angle);
-  geometry_msgs::Point pixel2point(
-    const cv::Point2f & pixel,
-    const cv::Size & image_size,
-    float map2baselink_angle,
-    int depth);
-  float getMap2BaseAngle(ros::Time stamp);
-  geometry_msgs::Vector3 mptopic2kph(
-    const geometry_msgs::Vector3 & twist,
-    double topic_rate);
-  geometry_msgs::Vector3 kph2mptopic(
-    const geometry_msgs::Vector3 & twist,
-    double topic_rate);
-  geometry_msgs::Vector3 kph2mps(const geometry_msgs::Vector3 & twist);
-  cv::Point2f getVehicleVel(
-    const ros::Time & current_stamp,
-    const ros::Time & prev_stamp);
-  geometry_msgs::Twist getObjCoordsTwist(
-    const geometry_msgs::Pose & obj_pose,
-    const geometry_msgs::Twist & base_coords_twist);
+  geometry_msgs::msg::Point pixel2point(
+    const geometry_msgs::msg::Point point, const geometry_msgs::msg::Vector3 twist,
+    const cv::Size & image_size, float map2baselink_angle);
+  geometry_msgs::msg::Point pixel2point(
+    const cv::Point2f & pixel, const cv::Size & image_size, float map2baselink_angle, int depth);
+  float getMap2BaseAngle(const rclcpp::Time & stamp);
+  geometry_msgs::msg::Vector3 mptopic2kph(
+    const geometry_msgs::msg::Vector3 & twist, double topic_rate);
+  geometry_msgs::msg::Vector3 kph2mptopic(
+    const geometry_msgs::msg::Vector3 & twist, double topic_rate);
+  geometry_msgs::msg::Vector3 kph2mps(const geometry_msgs::msg::Vector3 & twist);
+  cv::Point2f getVehicleVel(const rclcpp::Time & current_stamp, const rclcpp::Time & prev_stamp);
+  geometry_msgs::msg::Twist getObjCoordsTwist(
+    const geometry_msgs::msg::Pose & obj_pose, const geometry_msgs::msg::Twist & base_coords_twist);
 
 private:
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
+  template<typename T>
+  T get_param(rclcpp::Node & node, std::string p, const T default_value)
+  {
+    if (node.has_parameter(p)) {
+      return node.get_parameter(p).get_value<T>();
+    } else {
+      return node.declare_parameter(p, default_value);
+    }
+  }
+
+  rclcpp::Logger logger_;
+  rclcpp::Clock::SharedPtr clock_;
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
   float grid_size_;
@@ -66,4 +70,6 @@ private:
   std::string world_frame_;
   std::string target_frame_;
 };
-} // bev_optical_flow
+}  // namespace bev_optical_flow
+
+#endif  // BEV_OPTICAL_FLOW__UTILS_HPP_
