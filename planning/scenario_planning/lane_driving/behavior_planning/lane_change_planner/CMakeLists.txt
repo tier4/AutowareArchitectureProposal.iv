@@ -21,8 +21,7 @@ include_directories(
   ${OpenCV_INCLUDE_DIRS}
 )
 
-ament_auto_add_executable(lane_change_planner
-  src/lane_change_planner_node.cpp
+ament_auto_add_library(lane_change_planner_node SHARED
   src/lane_changer.cpp
   src/data_manager.cpp
   src/route_handler.cpp
@@ -37,8 +36,14 @@ ament_auto_add_executable(lane_change_planner
   src/state/stopping_lane_change.cpp
   src/state/common_functions.cpp
 )
-target_link_libraries(lane_change_planner
+
+target_link_libraries(lane_change_planner_node
   ${OpenCV_LIBRARIES}
+)
+
+rclcpp_components_register_node(lane_change_planner_node
+  PLUGIN "lane_change_planner::LaneChanger"
+  EXECUTABLE lane_change_planner
 )
 
 if(BUILD_TESTING)

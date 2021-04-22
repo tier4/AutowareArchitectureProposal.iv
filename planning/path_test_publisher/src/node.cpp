@@ -16,8 +16,8 @@
 #include <utility>
 #include "path_test_publisher/node.hpp"
 
-PathTestPublisherNode::PathTestPublisherNode()
-: rclcpp::Node("path_test_publisher")
+PathTestPublisherNode::PathTestPublisherNode(const rclcpp::NodeOptions & node_options)
+: rclcpp::Node("path_test_publisher", node_options)
 {
   pub_ = create_publisher<autoware_planning_msgs::msg::Path>("path", rclcpp::QoS{1});
 
@@ -54,3 +54,6 @@ void PathTestPublisherNode::timerCallback()
   }
   pub_->publish(path_msg);
 }
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(PathTestPublisherNode)

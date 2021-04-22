@@ -44,8 +44,8 @@ void update_param(
 }
 }  // namespace
 
-MotionVelocityOptimizer::MotionVelocityOptimizer()
-: Node("motion_velocity_optimizer"), tf_listener_(tf_buffer_)
+MotionVelocityOptimizer::MotionVelocityOptimizer(const rclcpp::NodeOptions & node_options)
+: Node("motion_velocity_optimizer", node_options), tf_listener_(tf_buffer_)
 {
   auto & p = planning_param_;
   p.max_velocity = declare_parameter("max_velocity", 20.0);  // 72.0 kmph
@@ -893,10 +893,5 @@ void MotionVelocityOptimizer::publishClosestJerk(const double curr_acc)
   *prev_time_ = curr_time;
 }
 
-int main(int argc, char ** argv)
-{
-  rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<MotionVelocityOptimizer>());
-  rclcpp::shutdown();
-  return 0;
-}
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(MotionVelocityOptimizer)

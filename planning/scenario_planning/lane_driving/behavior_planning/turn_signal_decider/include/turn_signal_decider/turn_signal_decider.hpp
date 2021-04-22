@@ -64,7 +64,7 @@ private:
     const lanelet::ConstLanelet & prev_lane, const lanelet::ConstLanelet & next_lane) const;
 
 public:
-  TurnSignalDecider(const std::string & node_name, const rclcpp::NodeOptions & node_options);
+  explicit TurnSignalDecider(const rclcpp::NodeOptions & node_options);
 };
 }  // namespace turn_signal_decider
 #endif  // TURN_SIGNAL_DECIDER__TURN_SIGNAL_DECIDER_HPP_

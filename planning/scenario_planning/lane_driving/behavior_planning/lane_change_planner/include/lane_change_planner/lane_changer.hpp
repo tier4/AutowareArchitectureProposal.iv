@@ -78,7 +78,7 @@ private:
   std::vector<autoware_planning_msgs::msg::StopReason> makeEmptyStopReasons();
 
 public:
-  LaneChanger();
+  explicit LaneChanger(const rclcpp::NodeOptions & node_options);
   void init();
 };
 }  // namespace lane_change_planner

@@ -36,8 +36,8 @@ visualization_msgs::msg::MarkerArray createVirtualWall(
 
 namespace lane_change_planner
 {
-LaneChanger::LaneChanger()
-: Node("lane_change_planner_node")
+LaneChanger::LaneChanger(const rclcpp::NodeOptions & node_options)
+: Node("lane_change_planner_node", node_options)
 {
   init();
 }
@@ -637,3 +637,6 @@ visualization_msgs::msg::MarkerArray createVirtualWall(
 
   return msg;
 }
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(lane_change_planner::LaneChanger)

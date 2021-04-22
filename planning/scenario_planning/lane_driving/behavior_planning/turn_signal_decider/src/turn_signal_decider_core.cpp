@@ -34,9 +34,8 @@ double getDistance3d(const geometry_msgs::msg::Point & p1, const geometry_msgs::
 
 namespace turn_signal_decider
 {
-TurnSignalDecider::TurnSignalDecider(
-  const std::string & node_name, const rclcpp::NodeOptions & node_options)
-: rclcpp::Node(node_name, node_options), data_(this)
+TurnSignalDecider::TurnSignalDecider(const rclcpp::NodeOptions & node_options)
+: rclcpp::Node("turn_signal_decider", node_options), data_(this)
 {
   // setup data manager
   constexpr double vehicle_pose_update_period = 0.1;
@@ -272,3 +271,6 @@ bool TurnSignalDecider::isTurning(
 }
 
 }  // namespace turn_signal_decider
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(turn_signal_decider::TurnSignalDecider)

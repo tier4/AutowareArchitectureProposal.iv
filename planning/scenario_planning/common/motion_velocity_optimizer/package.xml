@@ -19,6 +19,7 @@
   </export>
 
   <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
   <depend>boost</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>

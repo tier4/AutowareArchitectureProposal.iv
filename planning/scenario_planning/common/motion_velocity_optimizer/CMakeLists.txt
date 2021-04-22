@@ -32,9 +32,14 @@ set(MOTION_VELOCITY_OPTIMIZER_HDR
   include/motion_velocity_optimizer/optimizer/optimizer_base.hpp
 )
 
-ament_auto_add_executable(motion_velocity_optimizer
+ament_auto_add_library(motion_velocity_optimizer_node SHARED
   ${MOTION_VELOCITY_OPTIMIZER_SRC}
   ${MOTION_VELOCITY_OPTIMIZER_HDR}
+)
+
+rclcpp_components_register_node(motion_velocity_optimizer_node
+  PLUGIN "MotionVelocityOptimizer"
+  EXECUTABLE motion_velocity_optimizer
 )
 
 if(BUILD_TESTING)

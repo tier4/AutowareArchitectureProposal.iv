@@ -41,7 +41,7 @@
 class MotionVelocityOptimizer : public rclcpp::Node
 {
 public:
-  MotionVelocityOptimizer();
+  explicit MotionVelocityOptimizer(const rclcpp::NodeOptions & node_options);
   ~MotionVelocityOptimizer();
 
 private:

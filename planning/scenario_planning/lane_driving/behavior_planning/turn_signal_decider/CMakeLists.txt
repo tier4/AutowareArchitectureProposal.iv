@@ -16,7 +16,16 @@ endif()
 
 find_package(Eigen3 REQUIRED)
 
-ament_auto_add_executable(turn_signal_decider src/turn_signal_decider_node.cpp src/turn_signal_decider_core.cpp src/data_manager.cpp src/frenet_coordinate.cpp)
+ament_auto_add_library(turn_signal_decider_core SHARED
+  src/turn_signal_decider_core.cpp
+  src/data_manager.cpp
+  src/frenet_coordinate.cpp
+)
+
+rclcpp_components_register_node(turn_signal_decider_core
+  PLUGIN "turn_signal_decider::TurnSignalDecider"
+  EXECUTABLE turn_signal_decider
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

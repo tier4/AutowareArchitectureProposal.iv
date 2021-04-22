@@ -26,7 +26,7 @@ private:
   void timerCallback();
 
 public:
-  PathTestPublisherNode();
+  explicit PathTestPublisherNode(const rclcpp::NodeOptions & node_options);
   ~PathTestPublisherNode() = default;
 };
 

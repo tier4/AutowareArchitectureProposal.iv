@@ -14,9 +14,13 @@ endif()
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-ament_auto_add_executable(path_test_publisher_node
+ament_auto_add_library(path_test_publisher SHARED
   src/node.cpp
-  src/main.cpp
+)
+
+rclcpp_components_register_node(path_test_publisher
+  PLUGIN "PathTestPublisherNode"
+  EXECUTABLE path_test_publisher_node
 )
 
 if(BUILD_TESTING)
