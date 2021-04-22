@@ -34,7 +34,7 @@ double lowpass_filter(const double current_value, const double prev_value, const
 }  // namespace
 
 VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
-: Node("velocity_controller")
+: Node("velocity_controller", node_options)
 {
   using std::placeholders::_1;
 
