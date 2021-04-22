@@ -10,6 +10,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
+  <depend>rclcpp</depend>
   <depend>autoware_perception_msgs</depend>
   <depend>cv_bridge</depend>
   <depend>image_transport</depend>
@@ -18,7 +19,7 @@
   <depend>visualization_msgs</depend>
   <depend>pcl_conversions</depend>
   <depend>pcl_ros</depend>
-  <depend>tf</depend>
+  <depend>tf2_ros</depend>
   <depend>tf2_eigen</depend>
 
   <test_depend>ament_lint_auto</test_depend>
