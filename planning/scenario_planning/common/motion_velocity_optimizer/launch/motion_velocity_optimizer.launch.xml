@@ -12,7 +12,6 @@
   <arg name="param_path" default="$(find-pkg-share motion_velocity_optimizer)/config/motion_velocity_optimizer.param.yaml" />
 
   <node pkg="motion_velocity_optimizer" exec="motion_velocity_optimizer" name="motion_velocity_optimizer" output="log">
-    <param name="use_sim_time" value="$(env AW_ROS2_USE_SIM_TIME false)"/>
     <param from="$(var param_path)" />
     <param name="show_debug_info" value="$(var show_debug_info)"/>
     <param name="show_debug_info_all" value="$(var show_debug_info_all)"/>

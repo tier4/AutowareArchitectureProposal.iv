@@ -5,7 +5,6 @@
   <arg name="flow_vel_thresh" default="10.0" />
 
   <node name="object_flow_fusion_node" pkg="object_flow_fusion" type="object_flow_fusion_node" output="screen">
-    <param name="use_sim_time" value="$(env AW_ROS2_USE_SIM_TIME false)"/>
     <remap from="~input_object" to="$(arg input_object)" />
     <remap from="~input_flow" to="$(arg input_flows)" />
     <rosparam subst_value="true">

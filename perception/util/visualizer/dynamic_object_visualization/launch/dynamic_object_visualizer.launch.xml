@@ -7,7 +7,6 @@
   <arg name="only_known_objects" default="true"/>
 
   <node pkg="dynamic_object_visualization" exec="dynamic_object_visualizer_node" name="$(anon dynamic_object_visualization)" output="screen">
-    <param name="use_sim_time" value="$(env AW_ROS2_USE_SIM_TIME false)"/>
     <remap from="input" to="$(var input)"/>
     <remap from="output" to="$(var input)/visualization"/>
     <param name="with_feature" value="$(var with_feature)"/>

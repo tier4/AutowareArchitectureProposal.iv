@@ -7,7 +7,6 @@
   <arg name="output/control_raw" default="lateral/control_cmd"/>
 
   <node pkg="pure_pursuit" exec="pure_pursuit" name="pure_pursuit" output="screen">
-    <param name="use_sim_time" value="$(env AW_ROS2_USE_SIM_TIME false)"/>
     <remap from="input/reference_trajectory" to="$(var input/reference_trajectory)"/>
     <remap from="input/current_velocity" to="$(var input/current_velocity)"/>
     <remap from="output/control_raw" to="$(var output/control_raw)"/>

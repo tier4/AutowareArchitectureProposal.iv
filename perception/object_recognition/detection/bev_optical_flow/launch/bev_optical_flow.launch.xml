@@ -16,7 +16,6 @@
   <arg name="max_corners" default="200" />
 
   <node pkg="bev_optical_flow" exec="optical_flow_node" output="screen">
-    <param name="use_sim_time" value="$(env AW_ROS2_USE_SIM_TIME false)"/>
     <remap from="input_cloud" to="$(var input_cloud)" />
     <param name="debug" value="$(var debug)"/>
     <param name="grid_size" value="$(var grid_size)"/>

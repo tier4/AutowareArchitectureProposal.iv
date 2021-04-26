@@ -12,7 +12,6 @@
   <arg name="velocity_controller_param_path" default="$(find-pkg-share velocity_controller)/config/velocity_controller.param.yaml" />
 
   <node pkg="velocity_controller" exec="velocity_controller" name="velocity_controller" output="screen">
-    <param name="use_sim_time" value="$(env AW_ROS2_USE_SIM_TIME false)"/>
     <param from="$(var velocity_controller_param_path)"/>
 
     <remap from="~/current_velocity" to="/localization/twist"/>
