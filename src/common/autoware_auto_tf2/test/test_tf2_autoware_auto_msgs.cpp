@@ -62,6 +62,25 @@ TEST(Tf2AutowareAuto, DoTransformPoint32)
 }
 
 
+TEST(Tf2AutowareAuto, DoTransformPolygon)
+{
+  const auto trans = filled_transfom();
+  geometry_msgs::msg::Polygon poly;
+  geometry_msgs::msg::Point32 p1;
+  p1.x = 1;
+  p1.y = 2;
+  p1.z = 3;
+  poly.points.push_back(p1);
+  // doTransform
+  geometry_msgs::msg::Polygon poly_out;
+  tf2::doTransform(poly, poly_out, trans);
+
+  EXPECT_NEAR(poly_out.points[0].x, 11, EPS);
+  EXPECT_NEAR(poly_out.points[0].y, 18, EPS);
+  EXPECT_NEAR(poly_out.points[0].z, 27, EPS);
+}
+
+
 TEST(Tf2AutowareAuto, DoTransformQuaternion32)
 {
   const auto trans = filled_transfom();
