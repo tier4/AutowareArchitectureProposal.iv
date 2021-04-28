@@ -116,7 +116,7 @@ class VelocityChecker(Node):
         # control commands
         self.sub6 = self.create_subscription(
             ControlCommandStamped,
-            "/control/control_cmd",
+            "/control/trajectory_follower/control_cmd",
             self.CallBackControlCmd,
             1)
         self.sub7 = self.create_subscription(
