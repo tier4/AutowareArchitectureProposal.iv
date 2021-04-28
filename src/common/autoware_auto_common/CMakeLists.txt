@@ -60,6 +60,7 @@ if(BUILD_TESTING)
           test/test_mahalanobis_distance.cpp
           test/test_message_field_adapters.cpp
           test/test_template_utils.cpp
+          test/test_angle_utils.cpp
           test/test_type_name.cpp
           test/test_type_traits.cpp)
   autoware_set_compile_options(${TEST_COMMON})
