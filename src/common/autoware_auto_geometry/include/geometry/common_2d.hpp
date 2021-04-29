@@ -208,8 +208,8 @@ template<typename T>
 T times_2d(const T & p, const float32_t a)
 {
   T r;
-  point_adapter::xr_(r) = point_adapter::x_(p) * a;
-  point_adapter::yr_(r) = point_adapter::y_(p) * a;
+  point_adapter::xr_(r) = static_cast<float32_t>(point_adapter::x_(p)) * a;
+  point_adapter::yr_(r) = static_cast<float32_t>(point_adapter::y_(p)) * a;
   return r;
 }
 
@@ -293,7 +293,7 @@ inline T get_normal(const T & pt)
 template<typename T>
 inline auto norm_2d(const T & pt)
 {
-  return sqrtf(dot_2d(pt, pt));
+  return sqrtf(static_cast<float32_t>(dot_2d(pt, pt)));
 }
 
 /// \tparam T point type. Must have point adapters defined or have float members x and y
@@ -308,11 +308,11 @@ template<typename T>
 inline T closest_segment_point_2d(const T & p, const T & q, const T & r)
 {
   const T qp = minus_2d(q, p);
-  const float32_t len2 = dot_2d(qp, qp);
+  const float32_t len2 = static_cast<float32_t>(dot_2d(qp, qp));
   T ret = p;
   if (len2 > std::numeric_limits<float32_t>::epsilon()) {
     const Interval_f unit_interval(0.0f, 1.0f);
-    const float32_t val = dot_2d(minus_2d(r, p), qp) / len2;
+    const float32_t val = static_cast<float32_t>(dot_2d(minus_2d(r, p), qp)) / len2;
     const float32_t t = Interval_f::clamp_to(unit_interval, val);
     ret = plus_2d(p, times_2d(qp, t));
   }
