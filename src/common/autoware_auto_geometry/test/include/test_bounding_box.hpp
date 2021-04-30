@@ -193,7 +193,6 @@ TYPED_TEST(BoxTest, closest_point_on_line)
   EXPECT_THROW(t = closest_line_point_2d(p, q, r), std::runtime_error);
 }
 
-////////////////////////////////////////////////
 
 TYPED_TEST(BoxTest, basic)
 {
@@ -663,4 +662,8 @@ TYPED_TEST(BoxTest, eig_underflow)
   // EXPECT_LT(discriminant(c6), 0.0F);
   EXPECT_NO_THROW(autoware::common::geometry::bounding_box::details::eig_2d(c6, u, v));
 }
+
+
+////////////////////////////////////////////////
+
 #endif  // TEST_BOUNDING_BOX_HPP_

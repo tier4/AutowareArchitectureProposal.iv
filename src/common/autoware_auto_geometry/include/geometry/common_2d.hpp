@@ -29,6 +29,8 @@
 using autoware::common::types::float32_t;
 using autoware::common::types::bool8_t;
 
+namespace comparison = autoware::common::helper_functions::comparisons;
+
 namespace autoware
 {
 namespace common
@@ -370,17 +372,19 @@ inline T make_unit_vector2d(float th)
   return r;
 }
 
-/// \brief Check if the given point is strictly to the left of the infinite line passing from p1
-///        to p2. Logic based on http://geomalgorithms.com/a01-_area.html#isLeft()
+/// \brief Check the given point's position relative the infinite line passing
+/// from p1 to p2. Logic based on http://geomalgorithms.com/a01-_area.html#isLeft()
 /// \tparam T  T  point type. Must have point adapters defined or have float members x and y
 /// \param p1 point 1 laying on the infinite line
 /// \param p2 point 2 laying on the infinite line
 /// \param q point to be checked against the line
-/// \return True if q is strictly to the left of infinite line through p1-p2. False otherwise
+/// \return > 0 for point q left of the line through p1 to p2
+///         = 0 for point q on the line through p1 to p2
+///         < 0 for point q right of the line through p1 to p2
 template<typename T>
-inline bool is_left_of_line_2d(const T & p1, const T & p2, const T & q)
+inline auto check_point_position_to_line_2d(const T & p1, const T & p2, const T & q)
 {
-  return cross_2d(minus_2d(p2, p1), minus_2d(q, p1)) > 0.0F;
+  return cross_2d(minus_2d(p2, p1), minus_2d(q, p1));
 }
 
 /// Check if all points are CCW in x-y plane: This function does not check for convexity
@@ -399,7 +403,10 @@ bool all_ccw(const IT begin, const IT end) noexcept
   for (auto line_start = begin; line_start != end; ++line_start) {
     const auto line_end = details::circular_next(begin, end, line_start);
     const auto query_point = details::circular_next(begin, end, line_end);
-    if (!is_left_of_line_2d(*line_start, *line_end, *query_point)) {
+    if (comparison::abs_lte(
+        check_point_position_to_line_2d(*line_start, *line_end, *query_point), 0.0F,
+        1e-3F))
+    {
       return false;
     }
   }
@@ -442,6 +449,60 @@ auto area_checked_2d(const IT begin, const IT end)
   }
   return area_2d(begin, end);
 }
+
+/// \brief Check if the given point is inside or on the edge of the given polygon
+/// \tparam IteratorType iterator type. The value pointed to by this must have point adapters
+///                         defined or have float members x and y
+/// \tparam PointType point type. Must have point adapters defined or have float members x and y
+/// \param start_it iterator pointing to the first vertex of the polygon
+/// \param end_it iterator pointing to the last vertex of the polygon. The vertices should be in
+///               order.
+/// \param p point to be searched
+/// \return True if the point is inside or on the edge of the polygon. False otherwise
+template<typename IteratorType, typename PointType>
+bool is_point_inside_polygon_2d(
+  const IteratorType & start_it, const IteratorType & end_it, const PointType & p)
+{
+  std::int32_t winding_num = 0;
+
+  for (IteratorType it = start_it; it != end_it; ++it) {
+    auto next_it = std::next(it);
+    if (next_it == end_it) {
+      next_it = start_it;
+    }
+    if (point_adapter::y_(*it) <= point_adapter::y_(p)) {
+      // Upward crossing edge
+      if (point_adapter::y_(*next_it) >= point_adapter::y_(p)) {
+        if (comparison::abs_gt(check_point_position_to_line_2d(*it, *next_it, p), 0.0F, 1e-3F)) {
+          ++winding_num;
+        } else {
+          if (comparison::abs_eq_zero(
+              check_point_position_to_line_2d(*it, *next_it, p),
+              1e-3F))
+          {
+            return true;
+          }
+        }
+      }
+    } else {
+      // Downward crossing edge
+      if (point_adapter::y_(*next_it) <= point_adapter::y_(p)) {
+        if (comparison::abs_lt(check_point_position_to_line_2d(*it, *next_it, p), 0.0F, 1e-3F)) {
+          --winding_num;
+        } else {
+          if (comparison::abs_eq_zero(
+              check_point_position_to_line_2d(*it, *next_it, p),
+              1e-3F))
+          {
+            return true;
+          }
+        }
+      }
+    }
+  }
+  return winding_num != 0;
+}
+
 
 }  // namespace geometry
 }  // namespace common
