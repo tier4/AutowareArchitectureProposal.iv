@@ -133,12 +133,14 @@ public:
 
   /// \brief Given a reference index triple, compute the first and last bin
   /// \param[in] ref The reference index triple
+  /// \param[in] radius The allowable radius for any point in the reference bin to any point in the
+  ///                   range
   /// \return A pair where the first element is an index triple of the first bin, and the second
   ///         element is an index triple for the last bin
-  details::BinRange bin_range(const details::Index3 & ref) const
+  details::BinRange bin_range(const details::Index3 & ref, const float radius) const
   {
     // Compute distance in units of voxels
-    constexpr Index iradius = 1;
+    const Index iradius = static_cast<Index>(std::ceil(radius / m_side_length));
     // Dumb ternary because potentially unsigned Index type
     const Index xmin = (ref.x > iradius) ? (ref.x - iradius) : 0U;
     const Index ymin = (ref.y > iradius) ? (ref.y - iradius) : 0U;
@@ -150,6 +152,7 @@ public:
     // return bottom-left portion of cube and top-right portion of cube
     return {{xmin, ymin, zmin}, {xmax, ymax, zmax}};
   }
+
   /// \brief Get next index within a given range
   /// \return True if idx is valid and still in range
   /// \param[in] range The max and min bin indices
@@ -200,11 +203,15 @@ public:
   ///        such that their distance is within a certain threshold
   /// \param[in] ref The index triple of the bin containing the reference point
   /// \param[in] query The index triple of the bin being queried
+  /// \param[in] ref_distance2 The squared threshold distance
   /// \return True if query and ref could possibly hold points within reference distance to one
   ///         another
-  bool8_t is_candidate_bin(const details::Index3 & ref, const details::Index3 & query) const
+  bool is_candidate_bin(
+    const details::Index3 & ref,
+    const details::Index3 & query,
+    const float ref_distance2) const
   {
-    return this->impl().valid(ref, query);
+    return this->impl().valid(ref, query, ref_distance2);
   }
   /// \brief Compute the decomposed index given a point
   /// \param[in] x The x component of the point
@@ -302,6 +309,12 @@ protected:
     return std::max(dist, 0.0F);
   }
 
+  /// \brief Get side length squared
+  float side_length2() const
+  {
+    return m_side_length2;
+  }
+
 private:
   /// \brief Sanity check a range in a basis direction
   /// \return The number of voxels in the given basis direction
@@ -366,9 +379,13 @@ public:
   ///        reference bin for the 2D case
   /// \param[in] ref The decomposed index triple of the reference bin
   /// \param[in] query The decomposed index triple of the bin being queried
+  /// \param[in] ref_distance2 The squared threshold distance
   /// \return True if the reference bin and query bin could possibly hold a point within the
   ///         reference distance
-  bool8_t valid(const details::Index3 & ref, const details::Index3 & query) const;
+  bool valid(
+    const details::Index3 & ref,
+    const details::Index3 & query,
+    const float ref_distance2) const;
   /// \brief Compute the decomposed index given a point, 2d implementation
   /// \param[in] x The x component of the point
   /// \param[in] y The y component of the point
@@ -432,9 +449,13 @@ public:
   ///        reference bin for the 3D case
   /// \param[in] ref The decomposed index triple of the reference bin
   /// \param[in] query The decomposed index triple of the bin being queried
+  /// \param[in] ref_distance2 The squared threshold distance
   /// \return True if the reference bin and query bin could possibly hold a point within the
   ///         reference distance
-  bool8_t valid(const details::Index3 & ref, const details::Index3 & query) const;
+  bool valid(
+    const details::Index3 & ref,
+    const details::Index3 & query,
+    const float ref_distance2) const;
   /// \brief Compute the decomposed index given a point, 3d implementation
   /// \param[in] x The x component of the point
   /// \param[in] y The y component of the point

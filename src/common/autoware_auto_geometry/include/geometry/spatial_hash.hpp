@@ -149,6 +149,22 @@ private:
     }
   }
 
+  /// \brief Removes the specified element from the data structure
+  /// \param[in] point An iterator pointing to a point to be removed
+  /// \return An iterator pointing to the element after the erased element
+  /// \throw std::domain_error If pt is invalid or does not belong to this data structure
+  ///
+  /// \note There is no reliable way to check if an iterator is invalid. The checks here are
+  /// based on a heuristic and is not guaranteed to find all invalid iterators. This method
+  /// should be used with care and only on valid iterators
+  IT erase(const IT point)
+  {
+    if (end() == m_hash.find(point->first)) {
+      throw std::domain_error{"SpatialHash: Attempting to erase invalid iterator"};
+    }
+    return m_hash.erase(point);
+  }
+
   /// \brief Reset the state of the data structure
   void clear()
   {
@@ -219,32 +235,35 @@ protected:
   /// \param[in] y The y component of the reference point
   /// \param[in] z The z component of the reference point, respected only if the spatial hash is not
   ///              2D.
+  /// \param[in] radius The radius within which to find all near points
   /// \return A const reference to a vector containing iterators pointing to
   ///         all points within the radius, and the actual distance to the reference point
   const OutputVector & near_impl(
     const float32_t x,
     const float32_t y,
-    const float32_t z)
+    const float32_t z,
+    const float32_t radius)
   {
     // reset output
     m_neighbors.clear();
     // Compute bin, bin range
     const Index3 ref_idx = m_config.index3(x, y, z);
-    const details::BinRange idx_range = m_config.bin_range(ref_idx);
+    const float32_t radius2 = radius * radius;
+    const details::BinRange idx_range = m_config.bin_range(ref_idx, radius);
     Index3 idx = idx_range.first;
     // For bins in radius
     do {  // guaranteed to have at least the bin ref_idx is in
       // update book-keeping
       ++m_bins_hit;
       // Iterating in a square/cube pattern is easier than constructing sphere pattern
-      if (m_config.is_candidate_bin(ref_idx, idx)) {
+      if (m_config.is_candidate_bin(ref_idx, idx, radius2)) {
         // For point in bin
         const Index jdx = m_config.index(idx);
         const auto range = m_hash.equal_range(jdx);
         for (auto it = range.first; it != range.second; ++it) {
           const auto & pt = it->second;
           const float32_t dist2 = m_config.distance_squared(x, y, z, pt);
-          if (dist2 <= m_config.radius2()) {
+          if (dist2 <= radius2) {
             // Only compute true distance if necessary
             m_neighbors.emplace_back(it, sqrtf(dist2));
           }
@@ -296,22 +315,25 @@ public:
   /// \brief Finds all points within a fixed radius of a reference point
   /// \param[in] x The x component of the reference point
   /// \param[in] y The y component of the reference point
+  /// \param[in] radius The radius within which to find all near points
   /// \return A const reference to a vector containing iterators pointing to
-  ///         all points within the configured radius, and the actual distance to the reference
-  ///         point
-  const OutputVector & near(const float32_t x, const float32_t y)
+  ///         all points within the radius, and the actual distance to the reference point
+  const OutputVector & near(
+    const float32_t x,
+    const float32_t y,
+    const float32_t radius)
   {
-    return this->near_impl(x, y, 0.0F);
+    return this->near_impl(x, y, 0.0F, radius);
   }
 
   /// \brief Finds all points within a fixed radius of a reference point
   /// \param[in] pt The reference point. Only the x and y members are respected.
+  /// \param[in] radius The radius within which to find all near points
   /// \return A const reference to a vector containing iterators pointing to
-  ///         all points within the configured radius, and the actual distance to the reference
-  ///         point
-  const OutputVector & near(const PointT & pt)
+  ///         all points within the radius, and the actual distance to the reference point
+  const OutputVector & near(const PointT & pt, const float32_t radius)
   {
-    return near(point_adapter::x_(pt), point_adapter::y_(pt));
+    return near(point_adapter::x_(pt), point_adapter::y_(pt), radius);
   }
 };
 
@@ -331,22 +353,28 @@ public:
   /// \param[in] y The y component of the reference point
   /// \param[in] z The z component of the reference point, respected only if the spatial hash is not
   ///              2D.
+  /// \param[in] radius The radius within which to find all near points
   /// \return A const reference to a vector containing iterators pointing to
-  ///         all points within the configured radius, and the actual distance to the reference
-  ///         point
-  const OutputVector & near(const float32_t x, const float32_t y, const float32_t z)
+  ///         all points within the radius, and the actual distance to the reference point
+  const OutputVector & near(
+    const float32_t x,
+    const float32_t y,
+    const float32_t z,
+    const float32_t radius)
   {
-    return this->near_impl(x, y, z);
+    return this->near_impl(x, y, z, radius);
   }
 
   /// \brief Finds all points within a fixed radius of a reference point
   /// \param[in] pt The reference point.
+  /// \param[in] radius The radius within which to find all near points
   /// \return A const reference to a vector containing iterators pointing to
-  ///         all points within the configured radius, and the actual distance to the reference
-  ///         point
-  const OutputVector & near(const PointT & pt)
+  ///         all points within the radius, and the actual distance to the reference point
+  const OutputVector & near(const PointT & pt, const float32_t radius)
   {
-    return near(point_adapter::x_(pt), point_adapter::y_(pt), point_adapter::z_(pt));
+    return near(
+      point_adapter::x_(pt), point_adapter::y_(pt), point_adapter::z_(pt),
+      radius);
   }
 };
 

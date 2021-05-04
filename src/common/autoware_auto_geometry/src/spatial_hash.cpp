@@ -48,12 +48,15 @@ Index Config2d::bin_(const float32_t x, const float32_t y, const float32_t z) co
   return bin_impl(x, y);
 }
 ////////////////////////////////////////////////////////////////////////////////
-bool8_t Config2d::valid(const details::Index3 & ref, const details::Index3 & query) const
+bool Config2d::valid(
+  const details::Index3 & ref,
+  const details::Index3 & query,
+  const float ref_distance2) const
 {
-  const float32_t dx = idx_distance(ref.x, query.x);
-  const float32_t dy = idx_distance(ref.y, query.y);
+  const float dx = idx_distance(ref.x, query.x);
+  const float dy = idx_distance(ref.y, query.y);
   // minor algebraic manipulation happening below
-  return (((dx * dx) + (dy * dy))) <= 1.0F;
+  return (((dx * dx) + (dy * dy)) * side_length2()) <= ref_distance2;
 }
 ////////////////////////////////////////////////////////////////////////////////
 details::Index3 Config2d::index3_(const float32_t x, const float32_t y, const float32_t z) const
@@ -85,13 +88,16 @@ Index Config3d::bin_(const float32_t x, const float32_t y, const float32_t z) co
   return bin_impl(x, y, z);
 }
 ////////////////////////////////////////////////////////////////////////////////
-bool8_t Config3d::valid(const details::Index3 & ref, const details::Index3 & query) const
+bool Config3d::valid(
+  const details::Index3 & ref,
+  const details::Index3 & query,
+  const float ref_distance2) const
 {
-  const float32_t dx = idx_distance(ref.x, query.x);
-  const float32_t dy = idx_distance(ref.y, query.y);
-  const float32_t dz = idx_distance(ref.z, query.z);
+  const float dx = idx_distance(ref.x, query.x);
+  const float dy = idx_distance(ref.y, query.y);
+  const float dz = idx_distance(ref.z, query.z);
   // minor algebraic manipulation happening below
-  return (((dx * dx) + (dy * dy) + (dz * dz))) <= 1.0F;
+  return (((dx * dx) + (dy * dy) + (dz * dz)) * side_length2()) <= ref_distance2;
 }
 ////////////////////////////////////////////////////////////////////////////////
 details::Index3 Config3d::index3_(const float32_t x, const float32_t y, const float32_t z) const

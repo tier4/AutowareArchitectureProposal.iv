@@ -90,7 +90,7 @@ TYPED_TEST(TypedSpatialHashTest, one_bin)
 {
   using PointT = TypeParam;
   const float32_t dr = 1.0F;
-  Config2d cfg{-10.0F, 10.0F, -10.0F, 10.0F, dr + this->EPS, 1024U};
+  Config2d cfg{-10.0F, 10.0F, -10.0F, 10.0F, 3.0F, 1024U};
   SpatialHash2d<PointT> hash{cfg};
 
   // build concentric rings around origin
@@ -99,19 +99,24 @@ TYPED_TEST(TypedSpatialHashTest, one_bin)
   this->add_points(hash, PTS_PER_RING, NUM_RINGS, dr);
 
   // loop through all points
-  const auto & neighbors = hash.near(this->ref);
-  uint32_t points_seen = 0U;
-  for (const auto & itd : neighbors) {
-    const PointT & pt = itd;
-    const float32_t dist = sqrtf((pt.x * pt.x) + (pt.y * pt.y));
-    ASSERT_LT(dist, dr + this->EPS);
-    ASSERT_FLOAT_EQ(dist, itd.get_distance());
-    ++points_seen;
+  float r = dr - this->EPS;
+  for (uint32_t rdx = 0U; rdx < NUM_RINGS + 1U; ++rdx) {
+    const uint32_t n_pts = rdx * PTS_PER_RING;
+    const auto & neighbors = hash.near(this->ref, r);
+    uint32_t points_seen = 0U;
+    for (const auto & itd : neighbors) {
+      const PointT & pt = itd;
+      const float dist = sqrtf((pt.x * pt.x) + (pt.y * pt.y));
+      ASSERT_LT(dist, r);
+      ASSERT_FLOAT_EQ(dist, itd.get_distance());
+      ++points_seen;
+    }
+    ASSERT_EQ(points_seen, n_pts);
+    r += dr;
+    // Make sure statistics are consistent
+    EXPECT_EQ(hash.bins_hit(), 9U * (1U + rdx));
+    EXPECT_EQ(hash.neighbors_found(), rdx * PTS_PER_RING);
   }
-  ASSERT_EQ(points_seen, PTS_PER_RING * NUM_RINGS);
-  // Make sure statistics are consistent
-  EXPECT_EQ(hash.bins_hit(), 9U);
-  EXPECT_EQ(hash.neighbors_found(), PTS_PER_RING);
   // check iterators etc.
   uint32_t count = 0U;
   for (auto iter = hash.cbegin(); iter != hash.cend(); ++iter) {
@@ -145,7 +150,7 @@ TYPED_TEST(TypedSpatialHashTest, oob)
   // loop through all points
   float32_t r = dr + this->EPS;
   const uint32_t n_pts = PTS_PER_RING;
-  const auto & nbrs = hash.near(this->ref);
+  const auto & nbrs = hash.near(this->ref, r);
   uint32_t points_seen = 0U;
   for (const auto itd : nbrs) {
     const PointT & pt = itd;
@@ -194,7 +199,7 @@ TYPED_TEST(TypedSpatialHashTest, 3d)
 
   // loop through all points
   const uint32_t n_pts = num_rings * points_per_ring;
-  const auto & neighbors = hash.near(this->ref);
+  const auto & neighbors = hash.near(this->ref, r + this->EPS);
   uint32_t points_seen = 0U;
   for (const auto & itd : neighbors) {
     const PointT & pt = itd;
