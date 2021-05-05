@@ -11,6 +11,7 @@ ament_auto_find_build_dependencies()
 
 set(OD_PLUGIN_LIB_SRC
   src/object_detection/bounding_box_array_display.cpp
+  src/object_detection/tracked_objects_display.cpp
   src/planning/trajectory_display.cpp
 )
 
@@ -20,6 +21,18 @@ set(OD_PLUGIN_LIB_HEADERS
 set(OD_PLUGIN_LIB_HEADERS_TO_WRAP
   include/planning/trajectory_display.hpp
   include/object_detection/bounding_box_array_display.hpp
+  include/object_detection/tracked_objects_display.hpp
+)
+
+set(COMMON_HEADERS
+  include/common/color_alpha_property.hpp
+  include/object_detection/object_polygon_detail.hpp
+  include/object_detection/object_polygon_display_base.hpp
+)
+
+set(COMMON_SRC
+  src/common/color_alpha_property.cpp
+  src/object_detection/object_polygon_detail.cpp
 )
 
 foreach(header "${OD_PLUGIN_LIB_HEADERS_TO_WRAP}")
@@ -27,6 +40,8 @@ foreach(header "${OD_PLUGIN_LIB_HEADERS_TO_WRAP}")
 endforeach()
 
 ament_auto_add_library(${PROJECT_NAME} SHARED
+  ${COMMON_HEADERS}
+  ${COMMON_SRC}
   ${OD_PLUGIN_LIB_HEADERS}
   ${OD_PLUGIN_LIB_HEADERS_MOC}
   ${OD_PLUGIN_LIB_SRC}
