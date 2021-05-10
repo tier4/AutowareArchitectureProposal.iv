@@ -30,10 +30,6 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   src/bounding_box.cpp)
 autoware_set_compile_options(${PROJECT_NAME})
 
-# static allocators from containers package need this
-target_compile_options(${PROJECT_NAME} PRIVATE
-    -Wno-double-promotion)
-
 if(BUILD_TESTING)
   # run linters
   find_package(ament_lint_auto REQUIRED)
