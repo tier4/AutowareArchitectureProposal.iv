@@ -1,49 +1,36 @@
 name: Build and test
 
 on:
-  pull_request:
-    branches:
-      - ros2
-      - ros2-v0.8.0-beta
-      - ros2-v0.9.0-beta
-  push:
-    branches:
-      - ros2
-      - ros2-v0.8.0-beta
-      - ros2-v0.9.0-beta
+  schedule:
+    - cron: "0 19 * * *" # run at 4 AM JST
+  workflow_dispatch:
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    container: ros:foxy
+    container: osrf/ros:foxy-desktop
 
     steps:
-    - name: Check out repo
-      uses: actions/checkout@v2
+      - name: Check out repo
+        uses: actions/checkout@v2
 
-    - name: Clone dependency packages
-      run: |
-        mkdir dependency_ws
-        vcs import dependency_ws < build_depends.repos
+      - name: Clone dependency packages
+        run: |
+          mkdir dependency_ws
+          vcs import dependency_ws < build_depends.repos
+          apt-get -y update
+          rosdep update
+          rosdep install -y --from-paths . --ignore-src --rosdistro foxy
 
-    - name: Install missing dependencies
-      run: |
-        sudo apt-get update
-        rosdep update
-        DEBIAN_FRONTEND=noninteractive rosdep install --from-paths . --ignore-src --rosdistro foxy -y
-        sudo apt-get install -y \
-          ros-foxy-tf2>=0.13.6-1focal.20201028.172335 \
-          ros-foxy-tf2-geometry-msgs>=0.13.6-1focal.20201028.172335 \
-          ros-foxy-tf2-ros>=0.13.6-1focal.20201028.172335 \
-          ros-foxy-tf2-sensor-msgs>=0.13.6-1focal.20201028.172335
+      - name: Build
+        run: |
+          . /opt/ros/foxy/setup.sh
+          colcon build --event-handlers console_cohesion+ \
+            --cmake-args -DCMAKE_BUILD_TYPE=Release
 
-    - name: Build
-      run: |
-        . /opt/ros/foxy/setup.sh
-        colcon build --event-handlers console_cohesion+
-
-    - name: Run tests
-      run: |
-        . /opt/ros/foxy/setup.sh
-        colcon test \
-          --event-handlers console_cohesion+ \
-          --return-code-on-test-failure
+      - name: Run tests
+        run: |
+          . /opt/ros/foxy/setup.sh
+          colcon test \
+            --event-handlers console_cohesion+ \
+            --return-code-on-test-failure
