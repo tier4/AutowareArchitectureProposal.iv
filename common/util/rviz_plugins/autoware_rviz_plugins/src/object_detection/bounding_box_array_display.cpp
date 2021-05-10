@@ -50,7 +50,7 @@ BoundingBoxArrayDisplay::BoundingBoxArrayDisplay()
     this, SLOT(updateProperty()));
 
   alpha_property_ = new rviz_common::properties::FloatProperty(
-    "Alpha", 0.7, "Amount of transparency to apply to the boundingbox.",
+    "Alpha", 0.7f, "Amount of transparency to apply to the boundingbox.",
     this, SLOT(updateProperty()));
   alpha_property_->setMin(0);
   alpha_property_->setMax(1);
@@ -87,7 +87,7 @@ void BoundingBoxArrayDisplay::processMessage(
     const auto marker_ptr = get_marker(msg->boxes[idx]);
     marker_ptr->ns = "bounding_box";
     marker_ptr->header = msg->header;
-    marker_ptr->id = idx;
+    marker_ptr->id = static_cast<int>(idx);
     m_marker_common->addMessage(marker_ptr);
   }
 }
@@ -123,9 +123,9 @@ visualization_msgs::msg::Marker::SharedPtr BoundingBoxArrayDisplay::get_marker(
       break;
   }
 
-  marker->color.r = color.redF();
-  marker->color.g = color.greenF();
-  marker->color.b = color.blueF();
+  marker->color.r = static_cast<float>(color.redF());
+  marker->color.g = static_cast<float>(color.greenF());
+  marker->color.b = static_cast<float>(color.blueF());
   marker->pose.position.x = static_cast<float64_t>(box.centroid.x);
   marker->pose.position.y = static_cast<float64_t>(box.centroid.y);
   marker->pose.position.z = static_cast<float64_t>(box.centroid.z);
