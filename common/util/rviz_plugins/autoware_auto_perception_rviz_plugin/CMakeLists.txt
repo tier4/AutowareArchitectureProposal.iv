@@ -45,10 +45,6 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE "OBJECT_DETECTION_PLUGINS_BUI
 # Export the plugin to be imported by rviz2
 pluginlib_export_plugin_description_file(rviz_common plugins_description.xml)
 
-# Minimal amount of error suppression needed to build the rviz/qt related stuff
-target_compile_options(${PROJECT_NAME} PRIVATE -Wno-sign-conversion -Wno-conversion -Wno-useless-cast
-        -Wno-old-style-cast -Wno-double-promotion -Wno-pedantic -Wno-unused-parameter -Wno-overloaded-virtual)
-
 if(BUILD_TESTING)
   # run linters
   find_package(ament_lint_auto REQUIRED)
