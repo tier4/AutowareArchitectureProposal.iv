@@ -387,8 +387,8 @@ private:
 
   double getWeightSteerInputSqVel(const double curvature)
   {
-    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_steering_input_squared_vel
-                                     : mpc_param_.weight_steering_input_squared_vel;
+    return isLowCurvature(curvature) ? mpc_param_.low_curvature_weight_steering_input_squared_vel :
+           mpc_param_.weight_steering_input_squared_vel;
   }
 
   double getWeightLatJerk(const double curvature)
