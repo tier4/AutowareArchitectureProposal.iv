@@ -78,7 +78,8 @@ MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
   steer_rate_lim_degs = declare_parameter("steer_rate_lim_degs", 150.0);
   steer_lim_ = steer_lim_deg * DEG2RAD;
   steer_rate_lim_ = steer_rate_lim_degs * DEG2RAD;
-  wheelbase_ = vehicle_info_util::VehicleInfo::create(*this).wheel_base_m_;
+  const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo();
+  wheelbase_ = vehicle_info.wheel_base_m;
 
   /* vehicle model setup */
   vehicle_model_type_ = declare_parameter("vehicle_model_type", "kinematics");

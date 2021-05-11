@@ -40,7 +40,8 @@ VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
 
   // parameters timer
   control_rate_ = declare_parameter("control_rate", 30.0);
-  wheel_base_ = vehicle_info_util::VehicleInfo::create(*this).wheel_base_m_;
+  const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo();
+  wheel_base_ = vehicle_info.wheel_base_m;
 
   // parameters to enable functions
   enable_smooth_stop_ = declare_parameter("enable_smooth_stop", true);

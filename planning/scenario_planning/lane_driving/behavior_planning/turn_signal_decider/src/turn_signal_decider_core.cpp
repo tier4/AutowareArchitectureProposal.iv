@@ -62,8 +62,8 @@ TurnSignalDecider::TurnSignalDecider(const rclcpp::NodeOptions & node_options)
   parameters_.intersection_search_distance =
     this->declare_parameter("intersection_search_distance", static_cast<double>(30));
 
-  vehicle_info_util::VehicleInfo vehicle_info = vehicle_info_util::VehicleInfo::create(*this);
-  parameters_.base_link2front = vehicle_info.wheel_base_m_ + vehicle_info.front_overhang_m_;
+  const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo();
+  parameters_.base_link2front = vehicle_info.wheel_base_m + vehicle_info.front_overhang_m;
 
   // set publishers
   turn_signal_publisher_ =

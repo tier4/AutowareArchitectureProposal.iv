@@ -32,7 +32,7 @@
 #include <memory>
 #include <utility>
 
-#include "vehicle_info_util/vehicle_info.hpp"
+#include "vehicle_info_util/vehicle_info_util.hpp"
 #include "pure_pursuit/pure_pursuit_node.hpp"
 #include "pure_pursuit/util/planning_utils.hpp"
 #include "pure_pursuit/util/tf_utils.hpp"
@@ -67,7 +67,8 @@ PurePursuitNode::PurePursuitNode(const rclcpp::NodeOptions & node_options)
   pure_pursuit_ = std::make_unique<planning_utils::PurePursuit>();
 
   // Vehicle Parameters
-  param_.wheel_base = vehicle_info_util::VehicleInfo::create(*this).wheel_base_m_;
+  const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo();
+  param_.wheel_base = vehicle_info.wheel_base_m;
 
   // Node Parameters
   param_.ctrl_period = this->declare_parameter<double>("control_period", 0.02);

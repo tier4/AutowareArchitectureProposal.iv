@@ -20,7 +20,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "turn_signal_decider/data_manager.hpp"
 #include "turn_signal_decider/frenet_coordinate.hpp"
-#include "vehicle_info_util/vehicle_info.hpp"
+#include "vehicle_info_util/vehicle_info_util.hpp"
 
 namespace turn_signal_decider
 {
