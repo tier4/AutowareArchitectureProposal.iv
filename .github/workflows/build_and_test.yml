@@ -11,7 +11,7 @@ jobs:
     container: osrf/ros:foxy-desktop
 
     steps:
-      - name: Check out repo
+      - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Clone dependency packages
