@@ -29,6 +29,9 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
+# Get user-provided variables
+set(DOWNLOAD_ARTIFACTS OFF CACHE BOOL "enable artifact download")
+
 # Clang tidy
 if(TIDY_WITH_CLANG)
   string(CONCAT CMAKE_CXX_CLANG_TIDY
