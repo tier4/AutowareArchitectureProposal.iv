@@ -36,6 +36,5 @@ jobs:
       - name: Run tests
         run: |
           . /opt/ros/foxy/setup.sh
-          colcon test \
-            --event-handlers console_cohesion+ \
+          colcon test --event-handlers console_cohesion+ \
             --return-code-on-test-failure

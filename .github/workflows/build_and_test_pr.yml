@@ -48,8 +48,8 @@ jobs:
         run: |
           . /opt/ros/foxy/setup.sh
           colcon build --event-handlers console_cohesion+ \
-            --cmake-args -DCMAKE_BUILD_TYPE=Release \
-            --packages-above-and-dependencies ${{ steps.list_packages.outputs.package_list }}
+            --packages-above-and-dependencies ${{ steps.list_packages.outputs.package_list }} \
+            --cmake-args -DCMAKE_BUILD_TYPE=Release
 
       - name: Run tests
         if: ${{ steps.list_packages.outputs.package_list != '' }}
