@@ -14,6 +14,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Install pip
+        run: |
+          apt-get -y update
+          apt-get -y install python3-pip
+
       - name: Clone dependency packages
         run: |
           mkdir dependency_ws
