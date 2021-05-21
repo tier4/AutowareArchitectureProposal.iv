@@ -1,4 +1,4 @@
-// Copyright 2020 TierIV
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,29 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef OBJECT_FLOW_FUSION__UTILS_HPP_
+#define OBJECT_FLOW_FUSION__UTILS_HPP_
 
-#include "opencv2/highgui/highgui.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.h"
+#include "geometry_msgs/msg/twist_stamped.h"
 #include "opencv2/core/core.hpp"
-#include "geometry_msgs/TwistStamped.h"
-#include "autoware_perception_msgs/DynamicObjectWithFeatureArray.h"
-#include "tf2_ros/transform_listener.h"
+#include "opencv2/highgui/highgui.hpp"
 #include "tf2_eigen/tf2_eigen.h"
-#include "eigen_conversions/eigen_msg.h"
+#include "tf2_ros/transform_listener.h"
 
 namespace object_flow_fusion
 {
 class Utils
 {
 public:
-  Utils() {};
-  geometry_msgs::Vector3 mptopic2kph(
-    const geometry_msgs::Vector3& twist,
-    double topic_rate);
-  geometry_msgs::Vector3 kph2mptopic(
-    const geometry_msgs::Vector3& twist,
-    double topic_rate);
-  geometry_msgs::Vector3 kph2mps(const geometry_msgs::Vector3& twist);
-  geometry_msgs::Twist kph2mps(const geometry_msgs::Twist& twist);
+  Utils() {}
+  geometry_msgs::msg::Vector3 mptopic2kph(
+    const geometry_msgs::msg::Vector3 & twist, double topic_rate);
+  geometry_msgs::msg::Vector3 kph2mptopic(
+    const geometry_msgs::msg::Vector3 & twist, double topic_rate);
+  geometry_msgs::msg::Vector3 kph2mps(const geometry_msgs::msg::Vector3 & twist);
+  geometry_msgs::msg::Twist kph2mps(const geometry_msgs::msg::Twist & twist);
 };
-} // object_flow_fusion
+}  // namespace object_flow_fusion
+
+#endif  // OBJECT_FLOW_FUSION__UTILS_HPP_

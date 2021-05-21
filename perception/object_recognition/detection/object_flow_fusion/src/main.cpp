@@ -1,4 +1,4 @@
-// Copyright 2020 TierIV
+// Copyright 2020 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,13 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "ros/ros.h"
+#include <memory>
+
 #include "object_flow_fusion/node.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 int main(int argc, char ** argv)
 {
-  ros::init(argc, argv, "object_flow_fusion");
-  object_flow_fusion::ObjectFlowFusionNode optical_flow_node;
-  ros::spin();
+  rclcpp::init(argc, argv);
+
+  rclcpp::spin(std::make_shared<object_flow_fusion::ObjectFlowFusionNode>());
+  rclcpp::shutdown();
+
   return 0;
 }

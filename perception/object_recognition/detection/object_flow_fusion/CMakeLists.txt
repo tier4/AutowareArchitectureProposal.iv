@@ -1,62 +1,45 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(object_flow_fusion)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wno-unused-parameter -Wall -Wextra -Wpedantic)
+endif()
 
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  rospy
-  geometry_msgs
-  sensor_msgs
-  pcl_conversions
-  pcl_ros
-  tf
-  autoware_perception_msgs
-  eigen_conversions
-  )
 
+### Dependencies
+find_package(ament_cmake_auto REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(Eigen3 REQUIRED)
+ament_auto_find_build_dependencies()
 
+# Add path of include dir
 include_directories(
   include
-  ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
-  )
-
-add_definitions(-std=c++14)
-
-catkin_package(
-  INCLUDE_DIRS
-  include
-  CATKIN_DEPENDS
-  LIBRARIES ${PROJECT_NAME}
 )
 
-add_executable(object_flow_fusion_node
-  src/main.cpp
-  src/node.cpp
-  src/object_flow_fusion.cpp
-  src/utils.cpp
-  )
+# Generate exe file
+ament_auto_add_executable(object_flow_fusion_node
+src/main.cpp
+src/node.cpp
+src/object_flow_fusion.cpp
+src/utils.cpp
+)
+
 target_link_libraries(object_flow_fusion_node
-  ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
-  )
+)
 
-install(
-  TARGETS
-  object_flow_fusion_node
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-  )
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
-install(DIRECTORY launch/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
-  )
-
-install(DIRECTORY include/
-  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}/${PROJECT_NAME}/
-  )
+ament_auto_package(
+  INSTALL_TO_SHARE
+  launch
+)
