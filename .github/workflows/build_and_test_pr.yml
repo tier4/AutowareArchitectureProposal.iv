@@ -18,6 +18,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
+          # Fetch with depth=0 to calculate modified packages
           fetch-depth: 0
 
       - name: Install pip
