@@ -44,10 +44,6 @@ rclcpp_components_register_node(motion_velocity_optimizer_node
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
-  # ignore python
-  set(ament_cmake_flake8_FOUND TRUE)
-  set(ament_cmake_pyflake_FOUND TRUE)
-
   ament_lint_auto_find_test_dependencies()
 endif()
 

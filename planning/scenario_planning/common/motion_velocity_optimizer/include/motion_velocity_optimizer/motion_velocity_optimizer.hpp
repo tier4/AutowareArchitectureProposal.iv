@@ -212,7 +212,7 @@ private:
   rclcpp::Publisher<autoware_planning_msgs::msg::VelocityLimit>::SharedPtr pub_velocity_limit_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_vel_lim_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr
-    pub_trajectory_latcc_filtered_;
+    pub_trajectory_lat_acc_filtered_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_resampled_;
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr debug_closest_velocity_;
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr debug_closest_acc_;

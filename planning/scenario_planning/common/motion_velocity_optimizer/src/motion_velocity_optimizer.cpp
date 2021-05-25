@@ -138,7 +138,7 @@ MotionVelocityOptimizer::MotionVelocityOptimizer(const rclcpp::NodeOptions & nod
     "~/debug/trajectory_raw", rclcpp::QoS{1});
   pub_trajectory_vel_lim_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
     "~/debug/trajectory_external_velocity_limited", rclcpp::QoS{1});
-  pub_trajectory_latcc_filtered_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
+  pub_trajectory_lat_acc_filtered_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
     "~/debug/trajectory_lateral_acc_filtered", rclcpp::QoS{1});
   pub_trajectory_resampled_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
     "~/debug/trajectory_time_resampled", rclcpp::QoS{1});
@@ -347,7 +347,7 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
   if (publish_debug_trajs_) {
     pub_trajectory_raw_->publish(traj_extracted);
     pub_trajectory_vel_lim_->publish(traj_vel_limited);
-    pub_trajectory_latcc_filtered_->publish(traj_latacc_filtered);
+    pub_trajectory_lat_acc_filtered_->publish(traj_latacc_filtered);
     pub_trajectory_resampled_->publish(traj_resampled);
   }
 
