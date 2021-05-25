@@ -214,11 +214,11 @@ where `b_k` is the yaw-bias.
 
 ## time delay model
 
-The measurement time delay is handled by an autmented states [1] (See, Section 7.3 FIXED-LAG SMOOTHING).
+The measurement time delay is handled by an augmented states [1] (See, Section 7.3 FIXED-LAG SMOOTHING).
 
 <img src="./media/delay_model_eq.png" width="320">
 
-Note that, although the dimension gets larger, since the analytical expansion can be applied based on the specific structures of the augumented states, the computational complexity does not significantly change.
+Note that, although the dimension gets larger, since the analytical expansion can be applied based on the specific structures of the augmented states, the computational complexity does not significantly change.
 
 # Test Result with Autoware NDT
 
