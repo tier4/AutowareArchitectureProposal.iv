@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "mpc_follower/mpc_utils.hpp"
+#include "spline_interpolation/spline_interpolation.hpp"
 
 geometry_msgs::msg::Quaternion MPCUtils::getQuaternionFromYaw(const double & yaw)
 {
@@ -131,7 +132,7 @@ bool MPCUtils::resampleMPCTrajectoryByDistance(
   MPCUtils::convertEulerAngleToMonotonic(&input_yaw);
 
   LinearInterpolate linear_interp;
-  SplineInterpolate spline_interp;
+  spline_interpolation::SplineInterpolator spline_interp;
   if (
     !spline_interp.interpolate(input_arclength, input.x, output_arclength, output->x) ||
     !spline_interp.interpolate(input_arclength, input.y, output_arclength, output->y) ||
