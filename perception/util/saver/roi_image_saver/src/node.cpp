@@ -20,8 +20,9 @@
 
 namespace traffic_light
 {
-TrafficLightRoiImageSaver::TrafficLightRoiImageSaver()
-: rclcpp::Node("traffic_light_roi_image_saver_node"), sync_(SyncPolicy(10), image_sub_, roi_sub_)
+TrafficLightRoiImageSaver::TrafficLightRoiImageSaver(const rclcpp::NodeOptions & node_options)
+: rclcpp::Node("traffic_light_roi_image_saver_node", node_options),
+  sync_(SyncPolicy(10), image_sub_, roi_sub_)
 {
   using std::placeholders::_1;
   using std::placeholders::_2;
@@ -34,8 +35,6 @@ TrafficLightRoiImageSaver::TrafficLightRoiImageSaver()
   double save_rate = declare_parameter("save_rate", 1.0);
   save_rate_ptr_ = std::make_shared<rclcpp::Rate>(save_rate);
 }
-
-TrafficLightRoiImageSaver::~TrafficLightRoiImageSaver() {}
 
 void TrafficLightRoiImageSaver::imageRoiCallback(
   const sensor_msgs::msg::Image::ConstSharedPtr & input_image_msg,
@@ -65,3 +64,6 @@ void TrafficLightRoiImageSaver::imageRoiCallback(
   save_rate_ptr_->sleep();
 }
 }  // namespace traffic_light
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(traffic_light::TrafficLightRoiImageSaver)

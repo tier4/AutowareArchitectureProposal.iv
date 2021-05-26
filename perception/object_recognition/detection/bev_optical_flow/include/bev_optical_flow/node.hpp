@@ -31,7 +31,7 @@ namespace bev_optical_flow
 class OpticalFlowNode : public rclcpp::Node
 {
 public:
-  OpticalFlowNode();
+  explicit OpticalFlowNode(const rclcpp::NodeOptions & node_options);
   void callback(const sensor_msgs::msg::PointCloud2::SharedPtr cloud_msg);
 
 private:

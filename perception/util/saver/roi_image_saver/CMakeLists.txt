@@ -14,12 +14,14 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter -Werror)
 endif()
 
-ament_auto_add_executable(traffic_light_roi_image_saver_node
+ament_auto_add_library(traffic_light_roi_image_saver SHARED
   src/node.cpp
-  src/main.cpp
 )
 
-target_link_libraries(traffic_light_roi_image_saver_node ${catkin_LIBRARIES})
+rclcpp_components_register_node(traffic_light_roi_image_saver
+  PLUGIN "traffic_light::TrafficLightRoiImageSaver"
+  EXECUTABLE traffic_light_roi_image_saver_node
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

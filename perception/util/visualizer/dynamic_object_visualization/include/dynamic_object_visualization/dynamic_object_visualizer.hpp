@@ -76,8 +76,7 @@ private:
   }
 
 public:
-  DynamicObjectVisualizer(const std::string & node_name, const rclcpp::NodeOptions & node_options);
-  virtual ~DynamicObjectVisualizer() {}
+  explicit DynamicObjectVisualizer(const rclcpp::NodeOptions & node_options);
 };
 
 #endif  // DYNAMIC_OBJECT_VISUALIZATION__DYNAMIC_OBJECT_VISUALIZER_HPP_

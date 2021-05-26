@@ -31,7 +31,7 @@ namespace object_flow_fusion
 class ObjectFlowFusionNode : public rclcpp::Node
 {
 public:
-  ObjectFlowFusionNode();
+  explicit ObjectFlowFusionNode(const rclcpp::NodeOptions & node_options);
   void callback(
     const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr object_msg,
     const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr flow_msg);

@@ -23,17 +23,21 @@ include_directories(
 )
 
 # Generate exe file
-ament_auto_add_executable(optical_flow_node
-src/main.cpp
-src/node.cpp
-src/lidar_to_image.cpp
-src/flow_calculator.cpp
-src/utils.cpp
-src/debugger.cpp
+ament_auto_add_library(optical_flow SHARED
+  src/node.cpp
+  src/lidar_to_image.cpp
+  src/flow_calculator.cpp
+  src/utils.cpp
+  src/debugger.cpp
 )
 
-target_link_libraries(optical_flow_node
+target_link_libraries(optical_flow
   ${OpenCV_LIBRARIES}
+)
+
+rclcpp_components_register_node(optical_flow
+  PLUGIN "bev_optical_flow::OpticalFlowNode"
+  EXECUTABLE optical_flow_node
 )
 
 if(BUILD_TESTING)

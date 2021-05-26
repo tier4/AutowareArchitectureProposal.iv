@@ -31,8 +31,7 @@ namespace traffic_light
 class TrafficLightRoiImageSaver : public rclcpp::Node
 {
 public:
-  TrafficLightRoiImageSaver();
-  virtual ~TrafficLightRoiImageSaver();
+  explicit TrafficLightRoiImageSaver(const rclcpp::NodeOptions & node_options);
 
 private:
   void imageRoiCallback(

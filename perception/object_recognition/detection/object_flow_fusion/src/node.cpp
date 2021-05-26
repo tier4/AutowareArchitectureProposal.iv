@@ -18,8 +18,8 @@
 
 namespace object_flow_fusion
 {
-ObjectFlowFusionNode::ObjectFlowFusionNode()
-: Node("object_flow_fusion")
+ObjectFlowFusionNode::ObjectFlowFusionNode(const rclcpp::NodeOptions & node_options)
+: Node("object_flow_fusion", node_options)
 {
   is_approximate_sync_ = declare_parameter<bool>("is_approximate_sync", true);
   use_flow_pose_ = declare_parameter<bool>("use_flow_pose", true);
@@ -56,3 +56,6 @@ void ObjectFlowFusionNode::callback(
 }
 
 }  // namespace object_flow_fusion
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(object_flow_fusion::ObjectFlowFusionNode)

@@ -7,10 +7,10 @@
   <maintainer email="taichi.higashide@tier4.jp">Taichi Higashide</maintainer>
   <license>Apache License 2.0</license>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
   <depend>autoware_perception_msgs</depend>
   <depend>cv_bridge</depend>
   <depend>image_transport</depend>

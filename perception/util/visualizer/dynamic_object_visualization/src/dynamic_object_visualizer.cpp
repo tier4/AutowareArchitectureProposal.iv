@@ -27,10 +27,8 @@
 
 using namespace std::placeholders;
 
-DynamicObjectVisualizer::DynamicObjectVisualizer(
-  const std::string & node_name,
-  const rclcpp::NodeOptions & node_options)
-: rclcpp::Node(node_name, node_options)
+DynamicObjectVisualizer::DynamicObjectVisualizer(const rclcpp::NodeOptions & node_options)
+: rclcpp::Node("dynamic_object_visualizer", node_options)
 {
   with_feature_ = declare_parameter("with_feature", true);
   only_known_objects_ = declare_parameter("only_known_objects", true);
@@ -734,3 +732,6 @@ void DynamicObjectVisualizer::initColorList(std::vector<std_msgs::msg::ColorRGBA
   sample_color.b = 0.5;
   colors.push_back(sample_color);  // spring green
 }
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(DynamicObjectVisualizer)

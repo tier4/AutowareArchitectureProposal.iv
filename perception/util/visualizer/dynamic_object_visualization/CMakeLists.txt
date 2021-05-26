@@ -17,9 +17,13 @@ ament_auto_find_build_dependencies()
 
 include_directories(${EIGEN3_INCLUDE_DIR})
 
-ament_auto_add_executable(dynamic_object_visualizer_node
+ament_auto_add_library(dynamic_object_visualizer SHARED
   src/dynamic_object_visualizer.cpp
-  src/main.cpp
+)
+
+rclcpp_components_register_node(dynamic_object_visualizer
+  PLUGIN "DynamicObjectVisualizer"
+  EXECUTABLE dynamic_object_visualizer_node
 )
 
 if(BUILD_TESTING)

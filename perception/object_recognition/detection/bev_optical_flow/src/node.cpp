@@ -18,8 +18,8 @@
 
 namespace bev_optical_flow
 {
-OpticalFlowNode::OpticalFlowNode()
-: rclcpp::Node("bev_optical_flow")
+OpticalFlowNode::OpticalFlowNode(const rclcpp::NodeOptions & node_options)
+: rclcpp::Node("bev_optical_flow", node_options)
 {
   cloud_sub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
     "input_cloud", 1, std::bind(&OpticalFlowNode::callback, this, std::placeholders::_1));
@@ -41,3 +41,6 @@ void OpticalFlowNode::callback(const sensor_msgs::msg::PointCloud2::SharedPtr cl
   flow_array_pub_->publish(output_msg);
 }
 }  // namespace bev_optical_flow
+
+#include "rclcpp_components/register_node_macro.hpp"
+RCLCPP_COMPONENTS_REGISTER_NODE(bev_optical_flow::OpticalFlowNode)

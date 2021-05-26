@@ -23,15 +23,19 @@ include_directories(
 )
 
 # Generate exe file
-ament_auto_add_executable(object_flow_fusion_node
-src/main.cpp
-src/node.cpp
-src/object_flow_fusion.cpp
-src/utils.cpp
+ament_auto_add_library(object_flow_fusion SHARED
+  src/node.cpp
+  src/object_flow_fusion.cpp
+  src/utils.cpp
 )
 
-target_link_libraries(object_flow_fusion_node
+target_link_libraries(object_flow_fusion
   ${OpenCV_LIBRARIES}
+)
+
+rclcpp_components_register_node(object_flow_fusion
+  PLUGIN "object_flow_fusion::ObjectFlowFusionNode"
+  EXECUTABLE object_flow_fusion_node
 )
 
 if(BUILD_TESTING)
