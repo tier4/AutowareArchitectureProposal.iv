@@ -74,9 +74,6 @@ struct COMMON_PUBLIC PointXYZF
 
 struct COMMON_PUBLIC PointXYZI
 {
-  PointXYZI() = default;
-  PointXYZI(float32_t x, float32_t y, float32_t z, float32_t intensity)
-  : x(x), y(y), z(z), intensity(intensity) {}
   float32_t x{0.0F};
   float32_t y{0.0F};
   float32_t z{0.0F};
