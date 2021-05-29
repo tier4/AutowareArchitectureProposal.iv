@@ -74,9 +74,6 @@ bool resampleMPCTrajectoryByDistance(
 bool linearInterpMPCTrajectory(
   const std::vector<double> & in_index, const MPCTrajectory & in_traj,
   const std::vector<double> & out_index, MPCTrajectory * out_traj);
-bool splineInterpMPCTrajectory(
-  const std::vector<double> & in_index, const MPCTrajectory & in_traj,
-  const std::vector<double> & out_index, MPCTrajectory * out_traj);
 bool calcMPCTrajectoryTime(MPCTrajectory * traj);
 void dynamicSmoothingVelocity(
   const int start_idx, const double start_vel, const double acc_lim, const double tau,
