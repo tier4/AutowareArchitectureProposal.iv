@@ -42,6 +42,15 @@ double calcDist2d(
 double calcDist2d(
   const autoware_planning_msgs::msg::TrajectoryPoint & a,
   const autoware_planning_msgs::msg::TrajectoryPoint & b);
+double calcDist2dToLine(
+  const geometry_msgs::msg::Pose & pose1, const geometry_msgs::msg::Pose & pose2,
+  const geometry_msgs::msg::Pose & pose_target);
+double calcTriangleVerticalInterpolatedLength(
+  const geometry_msgs::msg::Point & top, const geometry_msgs::msg::Point & bottom_target,
+  const geometry_msgs::msg::Point & bottom_other);
+bool calcWhichSideOfLine(
+  const geometry_msgs::msg::Point & p_from, const geometry_msgs::msg::Point & p_to,
+  const geometry_msgs::msg::Point & p_target);
 int calcClosestWaypoint(
   const autoware_planning_msgs::msg::Trajectory & trajectory,
   const geometry_msgs::msg::Point & point);

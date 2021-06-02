@@ -177,8 +177,12 @@ private:
 
   void publishTrajectory(const autoware_planning_msgs::msg::Trajectory & traj) const;
 
-  void publishStopDistance(
-    const autoware_planning_msgs::msg::Trajectory & trajectory, const int closest) const;
+  void calcRoundWaypointFromCurrentPose(
+    const autoware_planning_msgs::msg::Trajectory & traj, bool before_stopline,
+    int current_pose_idx,
+    int stop_idx, int & current_pose_round_idx, double & length_to_round_waypoint) const;
+
+  void publishStopDistance() const;
 
   void insertBehindVelocity(
     const autoware_planning_msgs::msg::Trajectory & prev_output,
@@ -207,7 +211,8 @@ private:
   /* debug */
 
   // publisher for stop distance
-  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub_dist_to_stopline_;
+  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr
+    pub_distance_to_stopline_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_raw_;
   rclcpp::Publisher<autoware_planning_msgs::msg::VelocityLimit>::SharedPtr pub_velocity_limit_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_vel_lim_;

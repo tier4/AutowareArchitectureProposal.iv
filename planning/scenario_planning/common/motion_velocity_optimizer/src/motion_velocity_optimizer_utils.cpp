@@ -67,6 +67,45 @@ double calcDist2d(
   return std::sqrt(calcSquaredDist2d(a, b));
 }
 
+double calcDist2dToLine(
+  const geometry_msgs::msg::Pose & pose1, const geometry_msgs::msg::Pose & pose2,
+  const geometry_msgs::msg::Pose & pose_target)
+{
+  double a = pose1.position.y - pose2.position.y;
+  double b = pose2.position.x - pose1.position.x;
+  double c = pose1.position.x * pose2.position.y - pose2.position.x * pose1.position.y;
+  return std::abs(a * pose_target.position.x + b * pose_target.position.y + c) / std::hypot(a, b);
+}
+
+double calcTriangleVerticalInterpolatedLength(
+  const geometry_msgs::msg::Point & top, const geometry_msgs::msg::Point & bottom_target,
+  const geometry_msgs::msg::Point & bottom_other)
+{
+  double l_a = std::hypot(bottom_target.x - bottom_other.x, bottom_target.y - bottom_other.y);
+  double l_b = std::hypot(top.x - bottom_other.x, top.y - bottom_other.y);
+  double l_c = std::hypot(top.x - bottom_target.x, top.y - bottom_target.y);
+
+  if (std::abs(l_a) < 1e-6) {
+    return 0;
+  }
+  return (std::pow(l_a, 2) + std::pow(l_c, 2) - std::pow(l_b, 2)) / (2 * l_a);
+}
+
+bool calcWhichSideOfLine(
+  const geometry_msgs::msg::Point & p_from, const geometry_msgs::msg::Point & p_to,
+  const geometry_msgs::msg::Point & p_target)
+{
+  double x0 = p_from.x;
+  double y0 = p_from.y;
+  double x1 = p_to.x;
+  double y1 = p_to.y;
+  double x2 = p_target.x;
+  double y2 = p_target.y;
+  double same_side = ((y1 - y0) * y1 + (x1 - x0) * x1 - (x1 - x0) * x0 - (y1 - y0) * y0) * \
+    ((y1 - y0) * y2 + (x1 - x0) * x2 - (x1 - x0) * x0 - (y1 - y0) * y0);
+  return same_side > 0;
+}
+
 int calcClosestWaypoint(
   const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point)
 {
