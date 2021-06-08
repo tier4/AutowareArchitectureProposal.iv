@@ -58,7 +58,7 @@ visualization_msgs::msg::Marker::SharedPtr TrackedObjectsDisplay::get_marker_ptr
   marker_ptr->action = Marker::ADD;
   marker_ptr->scale.z = kTextSize;
   marker_ptr->color = get_color_rgba(track.classification);
-  marker_ptr->pose = track.kinematics.pose.pose;
+  marker_ptr->pose.position = track.kinematics.centroid_position;
 
   return marker_ptr;
 }
