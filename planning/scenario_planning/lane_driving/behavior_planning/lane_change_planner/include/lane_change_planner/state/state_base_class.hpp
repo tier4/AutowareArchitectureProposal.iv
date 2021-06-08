@@ -42,8 +42,8 @@ std::ostream & operator<<(std::ostream & ostream, const State & state);
 
 struct Status
 {
-  autoware_planning_msgs::msg::PathWithLaneId lane_follow_path;
-  LaneChangePath lane_change_path;
+  autoware_planning_msgs::msg::PathWithLaneId lane_follow_path{};
+  LaneChangePath lane_change_path{};
   std::vector<uint64_t> lane_follow_lane_ids;
   std::vector<uint64_t> lane_change_lane_ids;
   bool lane_change_available;

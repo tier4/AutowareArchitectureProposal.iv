@@ -38,7 +38,7 @@ StateMachine::StateMachine(
 
 void StateMachine::init()
 {
-  Status empty_status;
+  Status empty_status{};
   state_obj_ptr_ =
     std::make_unique<FollowingLaneState>(
     empty_status, data_manager_ptr_, route_handler_ptr_,

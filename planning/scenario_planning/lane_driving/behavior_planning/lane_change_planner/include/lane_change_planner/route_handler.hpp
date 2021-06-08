@@ -38,7 +38,7 @@ enum class LaneChangeDirection { NONE, LEFT, RIGHT };
 
 struct LaneChangePath
 {
-  autoware_planning_msgs::msg::PathWithLaneId path;
+  autoware_planning_msgs::msg::PathWithLaneId path{};
   double acceleration = 0.0;
   double preparation_length = 0.0;
   double lane_change_length = 0.0;
