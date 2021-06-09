@@ -27,7 +27,7 @@ TrafficLightRoiImageSaver::TrafficLightRoiImageSaver(const rclcpp::NodeOptions &
   using std::placeholders::_1;
   using std::placeholders::_2;
 
-  image_sub_.subscribe(this, "input/image", "raw", rclcpp::QoS{1}.get_rmw_qos_profile());
+  image_sub_.subscribe(this, "input/image", "raw", rmw_qos_profile_sensor_data);
   roi_sub_.subscribe(this, "input/rois", rclcpp::QoS{1}.get_rmw_qos_profile());
   sync_.registerCallback(std::bind(&TrafficLightRoiImageSaver::imageRoiCallback, this, _1, _2));
 
