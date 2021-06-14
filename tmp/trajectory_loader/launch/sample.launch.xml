@@ -1,6 +1,0 @@
-<launch>
-  <arg name="file_name" default="$(find-pkg-share trajectory_loader)/data/sample.csv" />
-  <node pkg="trajectory_loader" name="trajectory_loader" exec="trajectory_loader" output="log">
-    <param name="trajectory_file_name" value="$(var file_name)" />
-  </node>
-</launch>
