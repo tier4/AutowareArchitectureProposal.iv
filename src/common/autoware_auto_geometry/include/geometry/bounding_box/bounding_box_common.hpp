@@ -21,8 +21,11 @@
 #define GEOMETRY__BOUNDING_BOX__BOUNDING_BOX_COMMON_HPP_
 
 #include <autoware_auto_msgs/msg/bounding_box.hpp>
+#include <autoware_auto_msgs/msg/detected_object.hpp>
+#include <autoware_auto_msgs/msg/shape.hpp>
 #include <geometry/visibility_control.hpp>
 #include <geometry/common_2d.hpp>
+#include <geometry_msgs/msg/pose.hpp>
 #include <array>
 #include <limits>
 
@@ -62,6 +65,32 @@ void compute_height(const IT begin, const IT end, BoundingBox & box)
     corner.z = box.centroid.z;
   }
   box.size.z = (max_z - min_z) * 0.5F;
+}
+
+/// \brief Computes height of bounding box given a full list of points
+/// \param[in] begin Iterator pointing to the start of the range of points
+/// \param[in] end Iterator pointing the the end of the range of points
+/// \param[out] shape A shape in which vertices z values and height field will be set
+/// \tparam IT An iterator type, must dereference into a point type with float member z, or
+///            appropriate point adapter defined
+template<typename IT>
+void compute_height(const IT begin, const IT end, autoware_auto_msgs::msg::Shape & shape)
+{
+  float32_t max_z = -std::numeric_limits<float32_t>::max();
+  float32_t min_z = std::numeric_limits<float32_t>::max();
+  for (auto it = begin; it != end; ++it) {
+    const float32_t z = point_adapter::z_(*it);
+    if (z <= min_z) {
+      min_z = z;
+    }
+    if (z >= max_z) {
+      max_z = z;
+    }
+  }
+  for (auto & corner : shape.polygon.points) {
+    corner.z = min_z;
+  }
+  shape.height = max_z - min_z;
 }
 
 namespace details
@@ -123,6 +152,22 @@ void compute_corners(
   }
 }
 // TODO(c.ho) type trait enum base
+
+/// \brief Copy vertices of the given box into a Shape type
+/// \param box Box to be converted
+/// \return Shape type filled with box vertices
+autoware_auto_msgs::msg::Shape GEOMETRY_PUBLIC make_shape(const BoundingBox & box);
+
+/// \brief Copy centroid and orientation info of the box into Pose type
+/// \param box BoundingBox to be converted
+/// \return Pose type filled with centroid and orientation from box
+geometry_msgs::msg::Pose GEOMETRY_PUBLIC make_pose(const BoundingBox & box);
+
+/// \brief Fill DetectedObject type with contents from a BoundingBox type
+/// \param box BoundingBox to be converted
+/// \return Filled DetectedObject type
+autoware_auto_msgs::msg::DetectedObject GEOMETRY_PUBLIC make_detected_object(
+  const BoundingBox & box);
 
 }  // namespace details
 }  // namespace bounding_box

@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <limits>
 #include <list>
+#include <utility>
 #include <vector>
 
 namespace autoware
@@ -63,8 +64,41 @@ void finalize_box(const decltype(BoundingBox::corners) & corners, BoundingBox & 
   // centroid
   box.centroid = times_2d(plus_2d(corners[0U], corners[2U]), 0.5F);
 }
+
+
+autoware_auto_msgs::msg::Shape make_shape(const BoundingBox & box)
+{
+  autoware_auto_msgs::msg::Shape ret;
+  for (auto corner_pt : box.corners) {
+    corner_pt.z -= box.size.z;
+    ret.polygon.points.push_back(corner_pt);
+  }
+  ret.height = 2.0F * box.size.z;
+  return ret;
+}
+
+autoware_auto_msgs::msg::DetectedObject make_detected_object(const BoundingBox & box)
+{
+  autoware_auto_msgs::msg::DetectedObject ret;
+
+  ret.kinematics.centroid_position.x = static_cast<double>(box.centroid.x);
+  ret.kinematics.centroid_position.y = static_cast<double>(box.centroid.y);
+  ret.kinematics.centroid_position.z = static_cast<double>(box.centroid.z);
+
+  ret.shape = make_shape(box);
+
+  ret.existence_probability = 1.0F;
+
+  autoware_auto_msgs::msg::ObjectClassification label;
+  label.classification = autoware_auto_msgs::msg::ObjectClassification::UNKNOWN;
+  label.probability = 1.0F;
+  ret.classification.emplace_back(std::move(label));
+
+  return ret;
+}
+
 }  // namespace details
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // precompilation
 using autoware::common::types::PointXYZIF;
 template BoundingBox minimum_area_bounding_box<PointXYZIF>(std::list<PointXYZIF> & list);
