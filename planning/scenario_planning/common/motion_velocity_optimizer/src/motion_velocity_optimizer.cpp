@@ -515,7 +515,7 @@ void MotionVelocityOptimizer::publishStopDistance() const
 
   /* calculate distance to stopline */
   double length_on_waypoints = vpu::calcLengthOnWaypoints(*traj, current_pose_round_idx, stop_idx);
-  double stop_dist = (length_on_waypoints + length_to_round_waypoint) * (before_stopline ? -1 : 1);
+  double stop_dist = (length_on_waypoints + length_to_round_waypoint) * (before_stopline ? 1 : -1);
 
   /* publish */
   autoware_debug_msgs::msg::Float32Stamped distance_to_stopline;
