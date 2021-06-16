@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <vector>
+
 #include "astar_search/astar_search.hpp"
 
 #include "astar_search/helper.hpp"
@@ -140,7 +142,8 @@ geometry_msgs::msg::Pose node2pose(const AstarNode & node)
 }
 
 AstarSearch::TransitionTable createTransitionTable(
-  const double minimum_turning_radius, const double theta_size, const bool use_back)
+  const double minimum_turning_radius, const double maximum_turning_radius,
+  const int turning_radius_size, const double theta_size, const bool use_back)
 {
   // Vehicle moving for each angle
   AstarSearch::TransitionTable transition_table;
@@ -150,27 +153,34 @@ AstarSearch::TransitionTable createTransitionTable(
 
   // Minimum moving distance with one state update
   // arc  = r * theta
-  const auto & R = minimum_turning_radius;
-  const double step = R * dtheta;
+  const auto & R_min = minimum_turning_radius;
+  const auto & R_max = maximum_turning_radius;
+  const double step_min = R_min * dtheta;
+  const double dR = (R_max - R_min) / turning_radius_size;
 
   // NodeUpdate actions
-  const NodeUpdate forward_straight{step, 0.0, 0.0, step, false, false};
-  const NodeUpdate forward_left{R * sin(dtheta), R * (1 - cos(dtheta)), dtheta, step, true, false};
-  const NodeUpdate forward_right = forward_left.flipped();
-  const NodeUpdate backward_straight = forward_straight.reversed();
-  const NodeUpdate backward_left = forward_left.reversed();
-  const NodeUpdate backward_right = forward_right.reversed();
+  std::vector<NodeUpdate> forward_node_candidates;
+  const NodeUpdate forward_straight{step_min, 0.0, 0.0, step_min, false, false};
+  forward_node_candidates.push_back(forward_straight);
+  for (int i = 0; i < turning_radius_size + 1; ++i) {
+    double R = R_min + i * dR;
+    double step = R * dtheta;
+    NodeUpdate forward_left{R * sin(dtheta), R * (1 - cos(dtheta)), dtheta, step, true, false};
+    NodeUpdate forward_right = forward_left.flipped();
+    forward_node_candidates.push_back(forward_left);
+    forward_node_candidates.push_back(forward_right);
+  }
 
   for (int i = 0; i < theta_size; i++) {
     const double theta = dtheta * i;
 
-    for (const auto & nu : {forward_straight, forward_left, forward_right}) {
+    for (const auto & nu : forward_node_candidates) {
       transition_table[i].push_back(nu.rotated(theta));
     }
 
     if (use_back) {
-      for (const auto & nu : {backward_straight, backward_left, backward_right}) {
-        transition_table[i].push_back(nu.rotated(theta));
+      for (const auto & nu : forward_node_candidates) {
+        transition_table[i].push_back(nu.reversed().rotated(theta));
       }
     }
   }
@@ -184,7 +194,8 @@ AstarSearch::AstarSearch(const AstarParam & astar_param)
 : astar_param_(astar_param)
 {
   transition_table_ = createTransitionTable(
-    astar_param_.minimum_turning_radius, astar_param_.theta_size, astar_param_.use_back);
+    astar_param_.minimum_turning_radius, astar_param_.maximum_turning_radius,
+    astar_param_.turning_radius_size, astar_param_.theta_size, astar_param_.use_back);
 }
 
 void AstarSearch::initializeNodes(const nav_msgs::msg::OccupancyGrid & costmap)
@@ -310,6 +321,8 @@ bool AstarSearch::search()
     const auto index_theta = discretizeAngle(current_node->theta, astar_param_.theta_size);
     for (const auto & transition : transition_table_[index_theta]) {
       const bool is_turning_point = transition.is_back != current_node->is_back;
+
+      // TODO(T.Horibe): change step to distance (just rename)
       const double move_cost =
         is_turning_point ? astar_param_.reverse_weight * transition.step : transition.step;
 

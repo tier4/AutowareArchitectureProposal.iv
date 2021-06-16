@@ -128,7 +128,9 @@ struct AstarParam
 
   // robot configs
   RobotShape robot_shape;
-  double minimum_turning_radius;  // [m]]
+  double minimum_turning_radius;  // [m]
+  double maximum_turning_radius;  // [m]
+  int turning_radius_size;        // discretized turning radius table size [-]
 
   // search configs
   int theta_size;                  // discretized angle table size [-]
