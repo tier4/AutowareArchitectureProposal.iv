@@ -130,5 +130,6 @@ TYPED_TEST(area_test, not_ccw)
   this->add_point(0.0, 0.0);
   this->add_point(1.0, 1.0);
   this->add_point(1.0, 0.0);
+  this->add_point(2.0, 1.0);
   EXPECT_THROW(this->area(), std::domain_error);
 }

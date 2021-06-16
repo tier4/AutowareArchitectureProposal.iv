@@ -387,33 +387,46 @@ inline auto check_point_position_to_line_2d(const T & p1, const T & p2, const T 
   return cross_2d(minus_2d(p2, p1), minus_2d(q, p1));
 }
 
-/// Check if all points are CCW in x-y plane: This function does not check for convexity
+/// Check if all points are ordered in x-y plane (in either clockwise or counter-clockwise
+/// direction): This function does not check for convexity
 /// \tparam IT Iterator type pointing to a point containing float x and float y
 /// \param[in] begin Beginning of point sequence
-/// \param[in] end one past the last of the point sequence
-/// \return Whether or not all point triples p_i, p_{i+1}, p_{i+2} are ccw
+/// \param[in] end One past the last of the point sequence
+/// \return Whether or not all point triples p_i, p_{i+1}, p_{i+2} are in a particular order.
+///         Returns true for collinear points as well
 template<typename IT>
-bool all_ccw(const IT begin, const IT end) noexcept
+bool all_ordered(const IT begin, const IT end) noexcept
 {
   // Short circuit: a line or point is always CCW or otherwise ill-defined
   if (std::distance(begin, end) <= 2U) {
     return true;
   }
+  bool is_first_point_cw = false;
   // Can't use std::all_of because that works directly on the values
   for (auto line_start = begin; line_start != end; ++line_start) {
     const auto line_end = details::circular_next(begin, end, line_start);
     const auto query_point = details::circular_next(begin, end, line_end);
-    if (comparison::abs_lte(
-        check_point_position_to_line_2d(*line_start, *line_end, *query_point), 0.0F,
-        1e-3F))
-    {
+    // Check if 3 points starting from current point are in clockwise direction
+    const bool is_cw = comparison::abs_lte(
+      check_point_position_to_line_2d(*line_start, *line_end, *query_point),
+      0.0F, 1e-3F
+    );
+    if (is_cw) {
+      if (line_start == begin) {
+        is_first_point_cw = true;
+      } else {
+        if (!is_first_point_cw) {
+          return false;
+        }
+      }
+    } else if (is_first_point_cw) {
       return false;
     }
   }
   return true;
 }
 
-/// Compute the area of a convex hull, points are assumed to be in CCW order
+/// Compute the area of a convex hull, points are assumed to be ordered (in either CW or CCW)
 /// \tparam IT Iterator type pointing to a point containing float x and float y
 /// \param[in] begin Iterator pointing to the beginning of the polygon points
 /// \param[in] end Iterator pointing to one past the last of the polygon points
@@ -431,12 +444,12 @@ auto area_2d(const IT begin, const IT end) noexcept
     area += x_(*it) * y_(*next);
     area -= x_(*next) * y_(*it);
   }
-  return T{0.5} *area;
+  return std::abs(T{0.5} *area);
 }
 
-/// Compute area of convex hull, throw if points are not in CCW order (convexity check is not
+/// Compute area of convex hull, throw if points are not ordered (convexity check is not
 /// implemented)
-/// \throw std::domain_error if points are not in CCW order
+/// \throw std::domain_error if points are not ordered either CW or CCW
 /// \tparam IT Iterator type pointing to a point containing float x and float y
 /// \param[in] begin Iterator pointing to the beginning of the polygon points
 /// \param[in] end Iterator pointing to one past the last of the polygon points
@@ -444,8 +457,8 @@ auto area_2d(const IT begin, const IT end) noexcept
 template<typename IT>
 auto area_checked_2d(const IT begin, const IT end)
 {
-  if (!all_ccw(begin, end)) {
-    throw std::domain_error{"Cannot compute area: points are not CCW"};
+  if (!all_ordered(begin, end)) {
+    throw std::domain_error{"Cannot compute area: points are not ordered"};
   }
   return area_2d(begin, end);
 }
