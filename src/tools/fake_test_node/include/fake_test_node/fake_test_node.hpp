@@ -92,13 +92,15 @@ public:
   ///
   /// @tparam     MsgT          Type of messages to publish.
   ///
+  /// @throws     runtime_error If no matching subscriber for `topic` found within `timeout`
+  ///
   /// @return     A publisher pointer;
   ///
   template<typename MsgT>
   typename rclcpp::Publisher<MsgT>::SharedPtr create_publisher(
     const std::string & topic,
     const std::chrono::milliseconds & timeout = std::chrono::seconds{10LL},
-    const std::int32_t history_size = 10)
+    const std::size_t history_size = 10)
   {
     typename rclcpp::Publisher<MsgT>::SharedPtr publisher =
       m_fake_node->create_publisher<MsgT>(topic, history_size);
@@ -107,7 +109,11 @@ public:
     std::chrono::milliseconds dt{100LL};
     while (m_fake_node->count_subscribers(topic) < 1) {
       spent_time += dt;
-      EXPECT_LT(spent_time, timeout) << "Nobody is listening to the mock topic we publish.";
+      if (spent_time > timeout) {
+        throw std::runtime_error(
+                std::string(
+                  "No matching subscriber to the mock topic '") + topic + "' that we publish");
+      }
       std::this_thread::sleep_for(dt);
     }
     return publisher;
@@ -126,6 +132,8 @@ public:
   /// @tparam     MsgT             Message type to which this must subscribe
   /// @tparam     NodeT            The type of the node under test
   ///
+  /// @throws     runtime_error If no matching publisher for `topic` is found within `timeout`
+  ///
   /// @return     Returns a subscription pointer.
   ///
   template<typename MsgT, typename NodeT>
@@ -140,7 +148,13 @@ public:
     std::chrono::milliseconds dt{100LL};
     while (publishing_node.count_publishers(topic) < 1) {
       spent_time += dt;
-      EXPECT_LT(spent_time, timeout) << "The node under test is not publishing what we listen to.";
+      if (spent_time > timeout) {
+        throw std::runtime_error(
+                std::string(
+                  "The node under test '") + publishing_node.get_name() +
+                "' is not publishing the topic '" + topic +
+                "' that we listen to.");
+      }
       std::this_thread::sleep_for(dt);
     }
     return subscription;

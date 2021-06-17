@@ -24,24 +24,24 @@ After including the relevant header the user can use a typedef to use a custom f
 the provided classes as fixtures in `TEST_F` and `TEST_P` tests directly.
 
 ## Example usage
-Let's say there is a node `RepublishingNodeUnderTest` that requires testing. It just subscribes to
-`std_msgs::msg::Bool` messages and republishes them without change. To test such a node the
-following code can be used utilizing the `autoware::tools::testing::FakeTestNode`:
+Let's say there is a node `NodeUnderTest` that requires testing. It just
+subscribes to `std_msgs::msg::Int32` messages and publishes a
+`std_msgs::msg::Bool` to indicate that the input is positive. To test such a
+node the following code can be used utilizing the
+`autoware::tools::testing::FakeTestNode`:
 
 ```cpp
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
 /// @test Test that we can use a non-parametrized test.
 TEST_F(FakeNodeFixture, Test) {
-  std_msgs::msg::Bool msg{};
-  msg.data = true;
-  const auto node = std::make_shared<RepublishingNodeUnderTest>();
+  Int32 msg{};
+  msg.data = 15;
+  const auto node = std::make_shared<NodeUnderTest>();
 
   Bool::SharedPtr last_received_msg{};
-  auto fake_odom_publisher = create_publisher<Bool>("/input_topic");
-  auto result_odom_subscription = create_result_subscription<Bool>(
-    "/input_topic",
-    node.get(),
+  auto fake_odom_publisher = create_publisher<Int32>("/input_topic");
+  auto result_odom_subscription = create_subscription<Bool>("/output_topic", *node,
     [&last_received_msg](const Bool::SharedPtr msg) {last_received_msg = msg;});
 
   const auto dt{std::chrono::milliseconds{100LL}};
@@ -57,10 +57,10 @@ TEST_F(FakeNodeFixture, Test) {
       FAIL() << "Did not receive a message soon enough.";
     }
   }
-  EXPECT_EQ(last_received_msg->data, true);
+  EXPECT_TRUE(last_received_msg->data);
   SUCCEED();
 }
 ```
 
 Here only the `TEST_F` example is shown but a `TEST_P` usage is very similar with a little bit more
-boilerplate to set up all the parameter values, see the `fake_test_node.cpp` for an example usage.
+boilerplate to set up all the parameter values, see `test_fake_test_node.cpp` for an example usage.
