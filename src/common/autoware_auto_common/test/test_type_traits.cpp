@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//    http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -63,4 +63,33 @@ TEST(TestCommonTypeTraits, Visit) {
       sum += static_cast<float64_t>(element);
     });
   EXPECT_DOUBLE_EQ(67.0, sum);
+}
+
+TEST(TestCommonTypeTraits, HasType) {
+  struct T1 {};
+  struct T2 {};
+  struct T3 {};
+  EXPECT_TRUE(
+    (autoware::common::type_traits::has_type<T1, std::tuple<T1, T2>>::value));
+  EXPECT_FALSE(
+    (autoware::common::type_traits::has_type<T3, std::tuple<T1, T2>>::value));
+  EXPECT_FALSE(
+    (autoware::common::type_traits::has_type<T1, std::tuple<>>::value));
+}
+
+TEST(TestCommonTypeTraits, TypeIntersection) {
+  struct T1 {};
+  struct T2 {};
+  struct T3 {};
+  using A = std::tuple<T1, T2>;
+  using B = std::tuple<T2, T3>;
+  using C = std::tuple<T3>;
+  EXPECT_TRUE(
+    (std::is_same<std::tuple<T2>,
+    autoware::common::type_traits::intersect<A, B>::type>::value));
+  EXPECT_TRUE(
+    (std::is_same<A, autoware::common::type_traits::intersect<A, A>::type>::value));
+  EXPECT_TRUE(
+    (std::is_same<std::tuple<>,
+    autoware::common::type_traits::intersect<A, C>::type>::value));
 }

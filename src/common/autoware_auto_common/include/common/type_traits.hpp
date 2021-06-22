@@ -58,12 +58,12 @@ struct COMMON_PUBLIC index<QueryT, std::tuple<HeadT, Tail...>>
 /// @return     Does not return anything. Capture variables in a lambda to return any values.
 ///
 template<std::size_t I = 0UL, typename Callable, typename ... TypesT>
-COMMON_PUBLIC inline typename std::enable_if_t<I == sizeof...(TypesT)>
-visit(std::tuple<TypesT...> &, Callable) {}
+COMMON_PUBLIC inline constexpr typename std::enable_if_t<I == sizeof...(TypesT)>
+visit(std::tuple<TypesT...> &, Callable) noexcept {}
 /// @brief      Same as the previous specialization but for const tuple.
 template<std::size_t I = 0UL, typename Callable, typename ... TypesT>
-COMMON_PUBLIC inline typename std::enable_if_t<I == sizeof...(TypesT)>
-visit(const std::tuple<TypesT...> &, Callable) {}
+COMMON_PUBLIC inline constexpr typename std::enable_if_t<I == sizeof...(TypesT)>
+visit(const std::tuple<TypesT...> &, Callable) noexcept {}
 
 ///
 /// @brief      Visit every element in a tuple.
@@ -81,16 +81,16 @@ visit(const std::tuple<TypesT...> &, Callable) {}
 /// @return     Does not return anything. Capture variables in a lambda to return any values.
 ///
 template<std::size_t I = 0UL, typename Callable, typename ... TypesT>
-COMMON_PUBLIC inline typename std::enable_if_t<I != sizeof...(TypesT)>
-visit(std::tuple<TypesT...> & tuple, Callable callable)
+COMMON_PUBLIC inline constexpr typename std::enable_if_t<I != sizeof...(TypesT)>
+visit(std::tuple<TypesT...> & tuple, Callable callable) noexcept
 {
   callable(std::get<I>(tuple));
   visit<I + 1UL, Callable, TypesT...>(tuple, callable);
 }
 /// @brief      Same as the previous specialization but for const tuple.
 template<std::size_t I = 0UL, typename Callable, typename ... TypesT>
-COMMON_PUBLIC inline typename std::enable_if_t<I != sizeof...(TypesT)>
-visit(const std::tuple<TypesT...> & tuple, Callable callable)
+COMMON_PUBLIC inline constexpr typename std::enable_if_t<I != sizeof...(TypesT)>
+visit(const std::tuple<TypesT...> & tuple, Callable callable) noexcept
 {
   callable(std::get<I>(tuple));
   visit<I + 1UL, Callable, TypesT...>(tuple, callable);
@@ -105,6 +105,81 @@ struct COMMON_PUBLIC conjunction<TraitT>: TraitT {};
 template<class TraitT, class ... TraitsTs>
 struct COMMON_PUBLIC conjunction<TraitT, TraitsTs...>
   : std::conditional_t<static_cast<bool>(TraitT::value), conjunction<TraitsTs...>, TraitT> {};
+
+
+///
+/// @brief      A trait to check if a tuple has a type.
+///
+/// @details    Taken from https://stackoverflow.com/a/25958302/678093
+///
+/// @tparam     QueryT  A query type.
+/// @tparam     TupleT  A tuple to search the type in.
+///
+template<typename QueryT, typename TupleT>
+struct has_type;
+
+///
+/// @brief      An overload of the general trait that signifies that nothing can be found in an
+///             empty tuple.
+///
+/// @tparam     QueryT     Any type.
+///
+template<typename QueryT>
+struct has_type<QueryT, std::tuple<>>: std::false_type {};
+
+///
+/// @brief      Recursive override of the main trait.
+///
+/// @tparam     QueryT  Query type.
+/// @tparam     HeadT   Head type in the tuple.
+/// @tparam     TailTs  Rest of the tuple types.
+///
+template<typename QueryT, typename HeadT, typename ... TailTs>
+struct has_type<QueryT, std::tuple<HeadT, TailTs...>>: has_type<QueryT, std::tuple<TailTs...>> {};
+
+///
+/// @brief      End of recursion for the main `has_type` trait. Becomes a `true_type` when the first
+///             type in the tuple matches the query type.
+///
+/// @tparam     QueryT  Query type.
+/// @tparam     TailTs  Other types in the tuple.
+///
+template<typename QueryT, typename ... TailTs>
+struct has_type<QueryT, std::tuple<QueryT, TailTs...>>: std::true_type {};
+
+
+///
+/// @brief      A trait used to intersect types stored in tuples at compile time. The resulting
+///             typedef `type` will hold a tuple with the intersection of the types provided in the
+///             input tuples.
+///
+/// @details    Taken from https://stackoverflow.com/a/41200732/1763680
+///
+/// @tparam     TupleT1  Tuple 1
+/// @tparam     TupleT2  Tuple 2
+///
+template<typename TupleT1, typename TupleT2>
+struct intersect
+{
+  ///
+  /// @brief      Intersect the types.
+  ///
+  /// @details    This function "iterates" over the types in TupleT1 and checks if those are in
+  ///             TupleT2. If this is true, these types are concatenated into a new tuple.
+  ///
+  template<std::size_t... Indices>
+  static constexpr auto make_intersection(std::index_sequence<Indices...>)
+  {
+    return std::tuple_cat(
+      std::conditional_t<
+        has_type<std::tuple_element_t<Indices, TupleT1>, TupleT2>::value,
+        std::tuple<std::tuple_element_t<Indices, TupleT1>>,
+        std::tuple<>>{} ...);
+  }
+  /// The resulting tuple type.
+  using type =
+    decltype(make_intersection(std::make_index_sequence<std::tuple_size<TupleT1>::value> {}));
+};
 
 }  // namespace type_traits
 }  // namespace common
