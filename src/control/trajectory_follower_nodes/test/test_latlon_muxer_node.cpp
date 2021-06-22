@@ -77,7 +77,8 @@ protected:
 
 const rclcpp::Duration one_second(1, 0);
 
-TEST_F(TestROS, test_correct_output)
+// TODO(Maxime CLEMENT): tests are flacky [issue #1189]
+TEST_F(TestROS, DISABLED_test_correct_output)
 {
   // Prepare messages
   LateralCommand lat_msg;
@@ -105,7 +106,7 @@ TEST_F(TestROS, test_correct_output)
   ASSERT_GT(rclcpp::Time(m_cmd_msg.stamp), rclcpp::Time(lon_msg.stamp));
 }
 
-TEST_F(TestROS, test_lateral_timeout)
+TEST_F(TestROS, DISABLED_test_lateral_timeout)
 {
   // Prepare empty messages
   LateralCommand lat_msg;
@@ -121,7 +122,7 @@ TEST_F(TestROS, test_lateral_timeout)
   ASSERT_FALSE(m_received_combined_command);
 }
 
-TEST_F(TestROS, test_longitudinal_timeout)
+TEST_F(TestROS, DISABLED_test_longitudinal_timeout)
 {
   // Prepare empty messages
   LateralCommand lat_msg;
@@ -136,7 +137,7 @@ TEST_F(TestROS, test_longitudinal_timeout)
   // Ensure the inputs were not combined
   ASSERT_FALSE(m_received_combined_command);
 }
-TEST_F(TestROS, test_latlon_timeout)
+TEST_F(TestROS, DISABLED_test_latlon_timeout)
 {
   // Prepare empty messages
   LateralCommand lat_msg;
