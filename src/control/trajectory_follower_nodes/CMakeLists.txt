@@ -36,7 +36,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(LATLON_MUXER_TEST test_latlon_muxer_node)
   ament_add_gtest(${LATLON_MUXER_TEST} test/test_latlon_muxer_node.cpp)
-  target_compile_options(${LATLON_MUXER_TEST} PRIVATE -Wno-error=old-style-cast)
+  ament_target_dependencies(${LATLON_MUXER_TEST} fake_test_node)
   autoware_set_compile_options(${LATLON_MUXER_TEST})
   target_link_libraries(${LATLON_MUXER_TEST} ${LATLON_MUXER_NODE})
 
