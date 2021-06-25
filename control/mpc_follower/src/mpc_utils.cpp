@@ -18,7 +18,6 @@
 #include <vector>
 
 #include "mpc_follower/mpc_utils.hpp"
-#include "spline_interpolation/spline_interpolation.hpp"
 
 geometry_msgs::msg::Quaternion MPCUtils::getQuaternionFromYaw(const double & yaw)
 {
@@ -126,11 +125,13 @@ bool MPCUtils::resampleMPCTrajectoryByDistance(
     output_arclength.push_back(s);
   }
 
+  // splineInterpMPCTrajectory(input_arclength, input, output_arclength, output);
+
   std::vector<double> input_yaw = input.yaw;
   MPCUtils::convertEulerAngleToMonotonic(&input_yaw);
 
   LinearInterpolate linear_interp;
-  spline_interpolation::SplineInterpolator spline_interp;
+  SplineInterpolate spline_interp;
   if (
     !spline_interp.interpolate(input_arclength, input.x, output_arclength, output->x) ||
     !spline_interp.interpolate(input_arclength, input.y, output_arclength, output->y) ||
@@ -184,6 +185,47 @@ bool MPCUtils::linearInterpMPCTrajectory(
 
   if (out_traj->size() == 0) {
     std::cerr << "[mpc util] linear interpolation error" << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+bool MPCUtils::splineInterpMPCTrajectory(
+  const std::vector<double> & in_index, const MPCTrajectory & in_traj,
+  const std::vector<double> & out_index, MPCTrajectory * out_traj)
+{
+  if (!out_traj) {
+    return false;
+  }
+  if (in_traj.size() == 0) {
+    *out_traj = in_traj;
+    return true;
+  }
+
+  std::vector<double> in_traj_yaw = in_traj.yaw;
+  MPCUtils::convertEulerAngleToMonotonic(&in_traj_yaw);
+
+  out_traj->clear();
+  SplineInterpolate spline_interp;
+  if (
+    !spline_interp.interpolate(in_index, in_traj.x, out_index, out_traj->x) ||
+    !spline_interp.interpolate(in_index, in_traj.y, out_index, out_traj->y) ||
+    !spline_interp.interpolate(in_index, in_traj.z, out_index, out_traj->z) ||
+    !spline_interp.interpolate(in_index, in_traj_yaw, out_index, out_traj->yaw) ||
+    !spline_interp.interpolate(in_index, in_traj.vx, out_index, out_traj->vx) ||
+    !spline_interp.interpolate(in_index, in_traj.k, out_index, out_traj->k) ||
+    !spline_interp.interpolate(in_index, in_traj.smooth_k, out_index, out_traj->smooth_k))
+  {
+    std::cerr << "splineInterpMPCTrajectory error!" << std::endl;
+    return false;
+  }
+
+  // use linear interpolation for time.
+  calcMPCTrajectoryTime(out_traj);
+
+  if (out_traj->size() == 0) {
+    std::cerr << "[mpc util] spline interpolation error" << std::endl;
     return false;
   }
 
