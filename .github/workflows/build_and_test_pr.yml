@@ -26,7 +26,7 @@ jobs:
           apt-get -y update
           apt-get -y install python3-pip
 
-      - name: Search modified package
+      - name: Search modified packages
         id: list_packages
         run: |
           ${GITHUB_WORKSPACE}/.github/workflows/get_modified_package.sh
