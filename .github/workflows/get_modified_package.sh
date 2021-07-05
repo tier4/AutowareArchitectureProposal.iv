@@ -1,5 +1,5 @@
 #!/bin/bash
-# Search for packages that have been modified from the main branch.
+# Search for packages that have been modified from the develop branch.
 
 set -e
 
@@ -40,8 +40,8 @@ function find_package_from_file() {
   return 1
 }
 
-# Find modified files after merging origin/main
-merge_base=$(git merge-base HEAD origin/main)
+# Find modified files after merging origin/develop
+merge_base=$(git merge-base HEAD origin/develop)
 modified_files=$(git diff --name-only "$merge_base")
 
 # Find modified packages
