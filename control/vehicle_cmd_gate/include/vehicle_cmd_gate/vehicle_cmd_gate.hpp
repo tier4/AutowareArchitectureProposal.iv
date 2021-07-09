@@ -20,6 +20,9 @@
 #include "diagnostic_updater/diagnostic_updater.hpp"
 #include "rclcpp/rclcpp.hpp"
 
+
+#include "autoware_external_api_msgs/srv/engage.hpp"
+#include "autoware_external_api_msgs/srv/set_emergency.hpp"
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
 #include "autoware_control_msgs/msg/emergency_mode.hpp"
 #include "autoware_control_msgs/msg/gate_mode.hpp"
@@ -52,19 +55,18 @@ private:
   rclcpp::Publisher<autoware_vehicle_msgs::msg::ShiftStamped>::SharedPtr shift_cmd_pub_;
   rclcpp::Publisher<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr turn_signal_cmd_pub_;
   rclcpp::Publisher<autoware_control_msgs::msg::GateMode>::SharedPtr gate_mode_pub_;
+  rclcpp::Publisher<autoware_vehicle_msgs::msg::Engage>::SharedPtr engage_pub_;
 
   // Subscription
   rclcpp::Subscription<autoware_control_msgs::msg::EmergencyMode>::SharedPtr system_emergency_sub_;
   rclcpp::Subscription<autoware_control_msgs::msg::EmergencyMode>::SharedPtr
     external_emergency_stop_sub_;
   rclcpp::Subscription<autoware_control_msgs::msg::GateMode>::SharedPtr gate_mode_sub_;
-  rclcpp::Subscription<autoware_vehicle_msgs::msg::Engage>::SharedPtr engage_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::Steering>::SharedPtr steer_sub_;
 
   void onGateMode(autoware_control_msgs::msg::GateMode::ConstSharedPtr msg);
   void onSystemEmergency(autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg);
   void onExternalEmergencyStop(autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg);
-  void onEngage(autoware_vehicle_msgs::msg::Engage::ConstSharedPtr msg);
   void onSteering(autoware_vehicle_msgs::msg::Steering::ConstSharedPtr msg);
 
   bool is_engaged_;
@@ -122,9 +124,22 @@ private:
   double external_emergency_stop_heartbeat_timeout_;
 
   // Service
+  rclcpp::Service<autoware_external_api_msgs::srv::Engage>::SharedPtr srv_engage_;
+  rclcpp::Service<autoware_external_api_msgs::srv::SetEmergency>::SharedPtr srv_external_emergency_;
+  void onEngageService(
+    const autoware_external_api_msgs::srv::Engage::Request::SharedPtr request,
+    const autoware_external_api_msgs::srv::Engage::Response::SharedPtr response);
+  void onExternalEmergencyStopService(
+    const std::shared_ptr<rmw_request_id_t> request_header,
+    const std::shared_ptr<autoware_external_api_msgs::srv::SetEmergency::Request> request,
+    const std::shared_ptr<autoware_external_api_msgs::srv::SetEmergency::Response> response);
+
+  // TODO(Takagi, Isamu): deprecated
+  rclcpp::Subscription<autoware_vehicle_msgs::msg::Engage>::SharedPtr engage_sub_;
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_external_emergency_stop_;
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr srv_clear_external_emergency_stop_;
-  bool onExternalEmergencyStopService(
+  void onEngage(autoware_vehicle_msgs::msg::Engage::ConstSharedPtr msg);
+  bool onSetExternalEmergencyStopService(
     const std::shared_ptr<rmw_request_id_t> req_header,
     const std::shared_ptr<std_srvs::srv::Trigger::Request> req,
     const std::shared_ptr<std_srvs::srv::Trigger::Response> res);
