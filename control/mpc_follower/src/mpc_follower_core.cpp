@@ -52,7 +52,6 @@ MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
 
   ctrl_period_ = declare_parameter("ctrl_period", 0.03);
   enable_path_smoothing_ = declare_parameter("enable_path_smoothing", true);
-  enable_yaw_recalculation_ = declare_parameter("enable_yaw_recalculation", false);
   path_filter_moving_ave_num_ = declare_parameter("path_filter_moving_ave_num", 35);
   curvature_smoothing_num_ = declare_parameter("curvature_smoothing_num", 35);
   traj_resample_dist_ = declare_parameter("traj_resample_dist", 0.1);  // [m]
@@ -957,10 +956,8 @@ void MPCFollower::onTrajectory(const autoware_planning_msgs::msg::Trajectory::Sh
   }
 
   /* calculate yaw angle */
-  if (enable_yaw_recalculation_) {
-    MPCUtils::calcTrajectoryYawFromXY(&mpc_traj_smoothed);
-    MPCUtils::convertEulerAngleToMonotonic(&mpc_traj_smoothed.yaw);
-  }
+  MPCUtils::calcTrajectoryYawFromXY(&mpc_traj_smoothed);
+  MPCUtils::convertEulerAngleToMonotonic(&mpc_traj_smoothed.yaw);
 
   /* calculate curvature */
   MPCUtils::calcTrajectoryCurvature(curvature_smoothing_num_, &mpc_traj_smoothed);

@@ -41,7 +41,6 @@ The default parameters are adjusted to the AutonomouStuff Lexus RX 450h for unde
 |ctrl_period|double|control period [s]|0.03|
 |traj_resample_dist|double|distance of waypoints in resampling [m]|0.1|
 |enable_path_smoothing|bool|path smoothing flag. This should be true when uses path resampling to reduce resampling noise.|true|
-|enable_yaw_recalculation|bool|recalculate yaw angle after resampling. Set true if yaw in received waypoints is noisy.|false|
 |path_filter_moving_ave_num|int|number of data points moving average filter for path smoothing|35|
 |path_smoothing_times|int|number of times of applying path smoothing filter|1|
 |curvature_smoothing_num|double|index distance of points used in curvature calculation: p(i-num), p(i), p(i+num). larger num makes less noisy values.|35|

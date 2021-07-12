@@ -121,7 +121,6 @@ private:
 
   /* parameters for path smoothing */
   bool enable_path_smoothing_;      //!< @brief flag for path smoothing
-  bool enable_yaw_recalculation_;   //!< @brief flag for recalculation of yaw angle after resampling
   bool use_steer_prediction_;       //!< @brief flag to use predicted steer, not measured steer.
   int path_filter_moving_ave_num_;  //!< @brief param of moving average filter for path smoothing
   int curvature_smoothing_num_;  //!< @brief point-to-point index distance for curvature calculation
