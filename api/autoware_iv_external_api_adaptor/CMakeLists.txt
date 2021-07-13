@@ -18,10 +18,12 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   src/door.cpp
   src/emergency.cpp
   src/engage.cpp
+  src/version.cpp
 )
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Door")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Emergency")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Engage")
+rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Version")
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

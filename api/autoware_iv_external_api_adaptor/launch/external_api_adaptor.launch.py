@@ -32,6 +32,7 @@ def generate_launch_description():
         _create_api_node("door", "Door"),
         _create_api_node("emergency", "Emergency"),
         _create_api_node("engage", "Engage"),
+        _create_api_node("version", "Version"),
     ]
     container = ComposableNodeContainer(
         namespace="external_api",
