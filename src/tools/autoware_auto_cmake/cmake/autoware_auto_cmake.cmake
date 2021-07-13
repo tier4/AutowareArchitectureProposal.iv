@@ -74,6 +74,7 @@ function(autoware_set_compile_options target)
       -Wconversion
       -Wsign-conversion
       -Wdouble-promotion
+      -Waddress
       #-Wnull-dereference    # gcc6
       #-Wduplicated-branches # gcc7
       #-Wduplicated-cond     # gcc6
