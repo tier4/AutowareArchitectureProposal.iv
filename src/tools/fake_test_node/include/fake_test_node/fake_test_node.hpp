@@ -187,12 +187,7 @@ private:
 ///
 /// @return     The full test name.
 ///
-std::string get_test_name(const ::testing::TestInfo * info)
-{
-  if (!info) {throw std::runtime_error("No test info available.");}
-  return std::string{info->test_case_name()} + "_" + info->name();
-}
-
+FAKE_TEST_NODE_PUBLIC std::string get_test_name(const ::testing::TestInfo * info);
 
 }  // namespace detail
 
@@ -237,15 +232,12 @@ public:
   ///
   /// @brief      Override the setup function of the fixture.
   ///
-  void SetUp() override
-  {
-    set_up(detail::get_test_name(::testing::UnitTest::GetInstance()->current_test_info()));
-  }
+  void SetUp() override;
 
   ///
   /// @brief      Override the tear down function of the fixture.
   ///
-  void TearDown() override {tear_down();}
+  void TearDown() override;
 };
 
 

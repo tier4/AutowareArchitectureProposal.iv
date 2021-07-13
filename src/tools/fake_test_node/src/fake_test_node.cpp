@@ -57,6 +57,22 @@ void detail::FakeNodeCore::tear_down()
   (void)rclcpp::shutdown();
 }
 
+std::string detail::get_test_name(const ::testing::TestInfo * info)
+{
+  if (!info) {throw std::runtime_error("No test info available.");}
+  return std::string{info->test_case_name()} + "_" + info->name();
+}
+
+void FakeTestNode::SetUp()
+{
+  set_up(detail::get_test_name(::testing::UnitTest::GetInstance()->current_test_info()));
+}
+
+void FakeTestNode::TearDown()
+{
+  tear_down();
+}
+
 
 }  // namespace testing
 }  // namespace tools
