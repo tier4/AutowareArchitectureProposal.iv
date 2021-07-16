@@ -37,7 +37,7 @@ public:
   create_service(
     const std::string & service_name,
     CallbackT && callback,
-    const rmw_qos_profile_t & qos_profile,
+    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_services_default,
     rclcpp::CallbackGroup::SharedPtr group = nullptr)
   {
     auto wrapped_callback = Service<ServiceT>::template wrap<CallbackT>(
@@ -51,7 +51,7 @@ public:
   typename Client<ServiceT>::SharedPtr
   create_client(
     const std::string & service_name,
-    const rmw_qos_profile_t & qos_profile,
+    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_services_default,
     rclcpp::CallbackGroup::SharedPtr group = nullptr)
   {
     return Client<ServiceT>::make_shared(

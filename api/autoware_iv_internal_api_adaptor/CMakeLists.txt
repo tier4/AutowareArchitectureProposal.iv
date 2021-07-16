@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(autoware_iv_external_api_adaptor)
+project(autoware_iv_internal_api_adaptor)
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
@@ -15,19 +15,9 @@ find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
 ament_auto_add_library(${PROJECT_NAME} SHARED
-  src/diagnostics.cpp
-  src/door.cpp
-  src/emergency.cpp
-  src/engage.cpp
   src/route.cpp
-  src/version.cpp
 )
-rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Diagnostics")
-rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Door")
-rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Emergency")
-rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Engage")
-rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Route")
-rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Version")
+rclcpp_components_register_nodes(${PROJECT_NAME} "internal_api::Route")
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
