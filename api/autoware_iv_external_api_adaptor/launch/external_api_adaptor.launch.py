@@ -29,6 +29,7 @@ def _create_api_node(node_name, class_name, **kwargs):
 
 def generate_launch_description():
     components = [
+        _create_api_node("diagnostics", "Diagnostics"),
         _create_api_node("door", "Door"),
         _create_api_node("emergency", "Emergency"),
         _create_api_node("engage", "Engage"),

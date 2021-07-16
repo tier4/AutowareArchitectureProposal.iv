@@ -15,11 +15,13 @@ find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
 ament_auto_add_library(${PROJECT_NAME} SHARED
+  src/diagnostics.cpp
   src/door.cpp
   src/emergency.cpp
   src/engage.cpp
   src/version.cpp
 )
+rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Diagnostics")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Door")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Emergency")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Engage")
