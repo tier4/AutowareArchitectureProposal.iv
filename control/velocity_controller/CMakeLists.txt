@@ -31,6 +31,16 @@ rclcpp_components_register_node(velocity_controller_core
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+
+  # Unit tests
+  set(TEST_SOURCES
+    test/test_pid.cpp
+    test/test_smooth_stop.cpp
+  )
+  set(TEST_VELOCITY_CONTROLLER test_velocity_controller)
+  ament_add_gtest(${TEST_VELOCITY_CONTROLLER} ${TEST_SOURCES})
+  target_link_libraries(${TEST_VELOCITY_CONTROLLER} velocity_controller_core)
+
 endif()
 
 ament_auto_package(

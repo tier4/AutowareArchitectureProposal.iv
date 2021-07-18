@@ -464,6 +464,7 @@ VelocityController::ControlState VelocityController::updateControlState(
 
     if (enable_smooth_stop_) {
       if (stopping_condition) {
+        // predictions after input time delay
         const double pred_vel_in_target =
           predictedVelocityInTargetPoint(control_data.current_motion, delay_compensation_time_);
         const double pred_stop_dist =

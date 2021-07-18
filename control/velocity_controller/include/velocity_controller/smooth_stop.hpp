@@ -21,9 +21,12 @@
 #include <vector>
 
 #include "boost/optional.hpp"
-
 #include "rclcpp/rclcpp.hpp"
 
+
+/**
+ * @brief Smooth stop class to implement vehicle specific deceleration profiles
+ */
 class SmoothStop
 {
 public:
@@ -31,10 +34,8 @@ public:
   {
     weak_acc_time_ = rclcpp::Clock{RCL_ROS_TIME}.now();
 
-    constexpr double epsilon = 1e-3;
-
     // when distance to stopline is near the car
-    if (pred_stop_dist < epsilon) {
+    if (pred_stop_dist < std::numeric_limits<double>::epsilon()) {
       strong_acc_ = params_.min_strong_acc;
       return;
     }
@@ -68,8 +69,6 @@ public:
   boost::optional<double> calcTimeToStop(
     const std::vector<std::pair<rclcpp::Time, double>> & vel_hist) const
   {
-    constexpr double epsilon = 1e-5;
-
     // return when vel_hist is empty
     const size_t vel_hist_size = vel_hist.size();
     if (vel_hist_size == 0) {
@@ -94,7 +93,7 @@ public:
 
     // return when gradient a (of v = at + b) cannot be calculated.
     // See the following calculation of a
-    if (std::abs(vel_hist_size * mean_t * mean_t - sum_tt) < epsilon) {
+    if (std::abs(vel_hist_size * mean_t * mean_t - sum_tt) < ) {
       return {};
     }
 
@@ -104,7 +103,7 @@ public:
     const double b = mean_v - a * mean_t;
 
     // return when v is independent of time (v = b)
-    if (std::abs(a) < epsilon) {
+    if (std::abs(a) < std::numeric_limits<double>::epsilon()) {
       return {};
     }
 
