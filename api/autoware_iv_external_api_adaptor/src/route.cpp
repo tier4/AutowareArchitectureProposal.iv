@@ -25,13 +25,19 @@ Route::Route(const rclcpp::NodeOptions & options)
   autoware_api_utils::ServiceProxyNodeInterface proxy(this);
 
   group_ = create_callback_group(rclcpp::callback_group::CallbackGroupType::MutuallyExclusive);
-  srv_ = proxy.create_service<autoware_external_api_msgs::srv::SetRoute>(
+  srv_set_route_ = proxy.create_service<autoware_external_api_msgs::srv::SetRoute>(
     "/api/external/set/route",
     std::bind(&Route::setRoute, this, _1, _2),
     rmw_qos_profile_services_default, group_);
-  cli_ = proxy.create_client<autoware_external_api_msgs::srv::SetRoute>(
-    "/api/autoware/set/route",
-    rmw_qos_profile_services_default);
+  srv_clear_route_ = proxy.create_service<autoware_external_api_msgs::srv::ClearRoute>(
+    "/api/external/set/clear_route",
+    std::bind(&Route::clearRoute, this, _1, _2),
+    rmw_qos_profile_services_default, group_);
+
+  cli_set_route_ = proxy.create_client<autoware_external_api_msgs::srv::SetRoute>(
+    "/api/autoware/set/route");
+  cli_clear_route_ = proxy.create_client<autoware_external_api_msgs::srv::ClearRoute>(
+    "/api/autoware/set/clear_route");
   sub_ = create_subscription<autoware_system_msgs::msg::AutowareState>(
     "/autoware/state", rclcpp::QoS(1),
     std::bind(&Route::onAutowareState, this, _1));
@@ -48,7 +54,20 @@ void Route::setRoute(
     return;
   }
 
-  auto [status, resp] = cli_->call(request);
+  auto [status, resp] = cli_set_route_->call(request);
+  if (!autoware_api_utils::is_success(status)) {
+    response->status = status;
+    return;
+  }
+  response->status = resp->status;
+}
+
+void Route::clearRoute(
+  const autoware_external_api_msgs::srv::ClearRoute::Request::SharedPtr request,
+  const autoware_external_api_msgs::srv::ClearRoute::Response::SharedPtr response)
+{
+  // TODO(Takagi, Isamu): add a check after changing the state transition
+  auto [status, resp] = cli_clear_route_->call(request);
   if (!autoware_api_utils::is_success(status)) {
     response->status = status;
     return;

@@ -19,8 +19,10 @@
 #include "autoware_api_utils/autoware_api_utils.hpp"
 #include "autoware_external_api_msgs/srv/set_pose.hpp"
 #include "autoware_external_api_msgs/srv/set_route.hpp"
+#include "autoware_external_api_msgs/srv/clear_route.hpp"
 #include "autoware_planning_msgs/msg/route.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "std_srvs/srv/trigger.hpp"
 
 namespace internal_api
 {
@@ -31,15 +33,25 @@ public:
   explicit Route(const rclcpp::NodeOptions & options);
 
 private:
+  using ClearRoute = autoware_external_api_msgs::srv::ClearRoute;
+  using SetRoute = autoware_external_api_msgs::srv::SetRoute;
+  using SetPose = autoware_external_api_msgs::srv::SetPose;
+
   // ros interface
-  autoware_api_utils::Service<autoware_external_api_msgs::srv::SetRoute>::SharedPtr srv_route_;
-  autoware_api_utils::Service<autoware_external_api_msgs::srv::SetPose>::SharedPtr srv_goal_;
-  autoware_api_utils::Service<autoware_external_api_msgs::srv::SetPose>::SharedPtr srv_checkpoint_;
-  rclcpp::Publisher<autoware_planning_msgs::msg::Route>::SharedPtr pub_route_;
-  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_goal_;
-  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_checkpoint_;
+  rclcpp::callback_group::CallbackGroup::SharedPtr group_;
+  autoware_api_utils::Service<ClearRoute>::SharedPtr srv_clear_route_;
+  autoware_api_utils::Service<SetRoute>::SharedPtr srv_set_route_;
+  autoware_api_utils::Service<SetPose>::SharedPtr srv_set_goal_;
+  autoware_api_utils::Service<SetPose>::SharedPtr srv_set_checkpoint_;
+  autoware_api_utils::Client<std_srvs::srv::Trigger>::SharedPtr cli_clear_route_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::Route>::SharedPtr pub_set_route_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_set_goal_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_set_checkpoint_;
 
   // ros callback
+  void clearRoute(
+    const autoware_external_api_msgs::srv::ClearRoute::Request::SharedPtr request,
+    const autoware_external_api_msgs::srv::ClearRoute::Response::SharedPtr response);
   void setRoute(
     const autoware_external_api_msgs::srv::SetRoute::Request::SharedPtr request,
     const autoware_external_api_msgs::srv::SetRoute::Response::SharedPtr response);

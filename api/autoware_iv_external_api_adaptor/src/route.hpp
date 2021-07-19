@@ -18,6 +18,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "autoware_api_utils/autoware_api_utils.hpp"
 #include "autoware_external_api_msgs/srv/set_route.hpp"
+#include "autoware_external_api_msgs/srv/clear_route.hpp"
 #include "autoware_system_msgs/msg/autoware_state.hpp"
 
 namespace external_api
@@ -29,10 +30,15 @@ public:
   explicit Route(const rclcpp::NodeOptions & options);
 
 private:
+  using SetRoute = autoware_external_api_msgs::srv::SetRoute;
+  using ClearRoute = autoware_external_api_msgs::srv::ClearRoute;
+
   // ros interface
   rclcpp::callback_group::CallbackGroup::SharedPtr group_;
-  autoware_api_utils::Service<autoware_external_api_msgs::srv::SetRoute>::SharedPtr srv_;
-  autoware_api_utils::Client<autoware_external_api_msgs::srv::SetRoute>::SharedPtr cli_;
+  autoware_api_utils::Service<SetRoute>::SharedPtr srv_set_route_;
+  autoware_api_utils::Client<SetRoute>::SharedPtr cli_set_route_;
+  autoware_api_utils::Service<ClearRoute>::SharedPtr srv_clear_route_;
+  autoware_api_utils::Client<ClearRoute>::SharedPtr cli_clear_route_;
   rclcpp::Subscription<autoware_system_msgs::msg::AutowareState>::SharedPtr sub_;
 
   // class state
@@ -42,6 +48,9 @@ private:
   void setRoute(
     const autoware_external_api_msgs::srv::SetRoute::Request::SharedPtr request,
     const autoware_external_api_msgs::srv::SetRoute::Response::SharedPtr response);
+  void clearRoute(
+    const autoware_external_api_msgs::srv::ClearRoute::Request::SharedPtr request,
+    const autoware_external_api_msgs::srv::ClearRoute::Response::SharedPtr response);
   void onAutowareState(
     const autoware_system_msgs::msg::AutowareState::SharedPtr message);
 };
