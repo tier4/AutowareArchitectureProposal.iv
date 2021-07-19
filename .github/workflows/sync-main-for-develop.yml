@@ -6,7 +6,6 @@ on:
   workflow_dispatch:
 
 env:
-  UPSTREAM_REPO: https://github.com/tier4/autoware.proj.git
   BASE_BRANCH: develop
   SYNC_TARGET_BRANCH: main
   SYNC_BRANCH: sync-main-for-develop
@@ -30,45 +29,34 @@ jobs:
       - name: Set git config for private repositories
         run: |
           git config --local --unset-all http.https://github.com/.extraheader || true
-          git config --global url.https://${{ secrets.GITHUB_TOKEN }}@github.com.insteadOf 'https://github.com'
+          git config --global url.https://${{ secrets.REPO_TOKEN_WRITE }}@github.com.insteadOf 'https://github.com'
 
-      - name: Check conflicts
-        id: check_conflicts
+      - name: Merge target branch
         run: |
           git config --local user.email "noreply@github.com"
           git config --local user.name "Github"
-          git merge --no-commit --no-ff upstream/${{ env.SYNC_TARGET_BRANCH }} || true
-          echo "::set-output name=has_conflicts::${$?}"
-
-      - name: Force add diff
-        run: |
-          git add .
-
-      - name: Set message
-        id: set_message
-        run: |
-          if [ ${{ steps.check_conflicts.outputs.has_conflicts }} != '0' ]; then
-            message="This PR contains some conflicts, please resolve them manually."
-          else
-            message="This PR was created without conflicts."
-          fi
-          echo "::set-output name=message::$message"
+          git merge --no-ff origin/${{ env.SYNC_TARGET_BRANCH }}
 
       - name: Create PR
         id: create_pr
         uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.REPO_TOKEN_WRITE }}
           commit-message: sync main for develop
           committer: GitHub <noreply@github.com>
-          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          author: GitHub <noreply@github.com>
           signoff: false
           base: ${{ env.BASE_BRANCH }}
           branch: ${{ env.SYNC_BRANCH }}
           delete-branch: true
           title: sync main for develop
           body: |
-            ${{ steps.set_message.outputs.message }}
+            sync main for develop
           labels: |
             sync-main-for-develop
           draft: false
+
+      - name: Check outputs
+        run: |
+          echo "Pull Request Number - ${{ steps.create_pr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.create_pr.outputs.pull-request-url }}"
