@@ -47,7 +47,7 @@ velocity_controllerは目標軌道上の各点に設定された目標速度を�
 
  - カーブに近づくので減速したい
  - 車両が経路から逸れている場合は低速走行で経路に復帰したい
- 
+
  ただし、これらは制御の内部情報を利用せずに実行可能であるため、これらの機能は上段の速度計画や経路計画モジュールに置いて適切に設計されることを想定しています。
  制御モジュールは、あくまで計画された速度/経路位置を守るためのものであり、このモジュール自体が期待する挙動自体（計画モジュールの出力）を上書きすることはありません。
 
@@ -174,7 +174,7 @@ Ideally, this message should be defined as a specific debug message with meaning
 
 # References / External links
 
- - 
+ -
 
 # Future extensions / Unimplemented parts
 
@@ -183,4 +183,4 @@ Ideally, this message should be defined as a specific debug message with meaning
 
 # Related issues
 
- - 
+ -

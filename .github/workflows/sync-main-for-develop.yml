@@ -1,0 +1,62 @@
+name: sync main for develop
+
+on:
+  schedule:
+    - cron: "0 19 * * 0" # run at 4 AM JST on Sundays
+  workflow_dispatch:
+
+env:
+  BASE_BRANCH: develop
+  SYNC_TARGET_BRANCH: main
+  SYNC_BRANCH: sync-main-for-develop
+
+jobs:
+  sync-main-for-develop:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ env.BASE_BRANCH }}
+          fetch-depth: 0
+
+      - name: Install tools
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -y install curl git
+
+      - name: Set git config for private repositories
+        run: |
+          git config --local --unset-all http.https://github.com/.extraheader || true
+          git config --global url.https://${{ secrets.REPO_TOKEN_WRITE }}@github.com.insteadOf 'https://github.com'
+
+      - name: Merge target branch
+        run: |
+          git config --local user.email "noreply@github.com"
+          git config --local user.name "Github"
+          git merge --no-ff origin/${{ env.SYNC_TARGET_BRANCH }}
+
+      - name: Create PR
+        id: create_pr
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.REPO_TOKEN_WRITE }}
+          commit-message: sync main for develop
+          committer: GitHub <noreply@github.com>
+          author: GitHub <noreply@github.com>
+          signoff: false
+          base: ${{ env.BASE_BRANCH }}
+          branch: ${{ env.SYNC_BRANCH }}
+          delete-branch: true
+          title: sync main for develop
+          body: |
+            sync main for develop
+          labels: |
+            sync-main-for-develop
+          draft: false
+
+      - name: Check outputs
+        run: |
+          echo "Pull Request Number - ${{ steps.create_pr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.create_pr.outputs.pull-request-url }}"

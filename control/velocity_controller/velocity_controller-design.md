@@ -50,7 +50,7 @@ On the other hand, in the following cases, lateral and longitudinal movements sh
 
  - the vehicle should decelerate when it is approaching a curve
  - the vehicle should drive at low speed when it deviates from the path.
- 
+
  However, since these can be done without using the internal information of the controller modules, it is assumed that these functions are properly designed in the previous path/velocity planning modules.
  The control module is only meant to follow the planned trajectory as accurately as possible, and this module itself will not override the desired motion.
 
@@ -176,7 +176,7 @@ In this controller, the predicted ego-velocity and the target velocity after the
 
 # References / External links
 
- - 
+ -
 
 # Future extensions / Unimplemented parts
 
@@ -185,4 +185,4 @@ In this controller, the predicted ego-velocity and the target velocity after the
 
 # Related issues
 
- - 
+ -

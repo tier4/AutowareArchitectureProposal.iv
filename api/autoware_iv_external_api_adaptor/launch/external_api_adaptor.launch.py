@@ -19,29 +19,29 @@ from launch_ros.descriptions import ComposableNode
 
 def _create_api_node(node_name, class_name, **kwargs):
     return ComposableNode(
-        namespace="external_api",
+        namespace='external_api',
         name=node_name,
-        package="autoware_iv_external_api_adaptor",
-        plugin="external_api::" + class_name,
+        package='autoware_iv_external_api_adaptor',
+        plugin='external_api::' + class_name,
         **kwargs
     )
 
 
 def generate_launch_description():
     components = [
-        _create_api_node("diagnostics", "Diagnostics"),
-        _create_api_node("door", "Door"),
-        _create_api_node("emergency", "Emergency"),
-        _create_api_node("engage", "Engage"),
-        _create_api_node("route", "Route"),
-        _create_api_node("version", "Version"),
+        _create_api_node('diagnostics', 'Diagnostics'),
+        _create_api_node('door', 'Door'),
+        _create_api_node('emergency', 'Emergency'),
+        _create_api_node('engage', 'Engage'),
+        _create_api_node('route', 'Route'),
+        _create_api_node('version', 'Version'),
     ]
     container = ComposableNodeContainer(
-        namespace="external_api",
-        name="autoware_iv_adaptor",
-        package="rclcpp_components",
-        executable="component_container_mt",
+        namespace='external_api',
+        name='autoware_iv_adaptor',
+        package='rclcpp_components',
+        executable='component_container_mt',
         composable_node_descriptions=components,
-        output="screen",
+        output='screen',
     )
     return launch.LaunchDescription([container])

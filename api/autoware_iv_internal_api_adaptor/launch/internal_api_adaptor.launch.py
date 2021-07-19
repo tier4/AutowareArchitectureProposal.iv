@@ -19,24 +19,24 @@ from launch_ros.descriptions import ComposableNode
 
 def _create_api_node(node_name, class_name, **kwargs):
     return ComposableNode(
-        namespace="internal_api",
+        namespace='internal_api',
         name=node_name,
-        package="autoware_iv_internal_api_adaptor",
-        plugin="internal_api::" + class_name,
+        package='autoware_iv_internal_api_adaptor',
+        plugin='internal_api::' + class_name,
         **kwargs
     )
 
 
 def generate_launch_description():
     components = [
-        _create_api_node("route", "Route"),
+        _create_api_node('route', 'Route'),
     ]
     container = ComposableNodeContainer(
-        namespace="internal_api",
-        name="autoware_iv_adaptor",
-        package="rclcpp_components",
-        executable="component_container_mt",
+        namespace='internal_api',
+        name='autoware_iv_adaptor',
+        package='rclcpp_components',
+        executable='component_container_mt',
         composable_node_descriptions=components,
-        output="screen",
+        output='screen',
     )
     return launch.LaunchDescription([container])

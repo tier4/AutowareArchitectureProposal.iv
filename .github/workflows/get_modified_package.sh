@@ -29,8 +29,10 @@ function find_package_from_file() {
 
     # Output package name if package.xml found
     if [ -f "$target_dir/package.xml" ] ; then
-      get_package_name_from_xml "$target_dir"/package.xml
-      return 0
+      if [ ! -f "$target_dir/COLCON_IGNORE" ] ; then
+        get_package_name_from_xml "$target_dir"/package.xml
+        return 0
+      fi
     fi
 
     # Move to parent dir
