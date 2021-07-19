@@ -73,7 +73,7 @@ bool calcClosestWithThr(
     double yaw_pose = tf2::getYaw(pose.orientation);
     double yaw_ref = tf2::getYaw(trajectory.points.at(i).pose.orientation);
     double yaw_diff = normalizeEulerAngle(yaw_pose - yaw_ref);
-    
+
     if (std::fabs(yaw_diff) > angle_thr) {continue;}
 
     if (ds < dist_squared_min) {
