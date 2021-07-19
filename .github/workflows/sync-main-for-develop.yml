@@ -1,0 +1,74 @@
+name: sync main for develop
+
+on:
+  schedule:
+    - cron: "0 19 * * 0" # run at 4 AM JST on Sundays
+  workflow_dispatch:
+
+env:
+  UPSTREAM_REPO: https://github.com/tier4/autoware.proj.git
+  BASE_BRANCH: develop
+  SYNC_TARGET_BRANCH: main
+  SYNC_BRANCH: sync-main-for-develop
+
+jobs:
+  sync-main-for-develop:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ env.BASE_BRANCH }}
+          fetch-depth: 0
+
+      - name: Install tools
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -y install curl git
+
+      - name: Set git config for private repositories
+        run: |
+          git config --local --unset-all http.https://github.com/.extraheader || true
+          git config --global url.https://${{ secrets.GITHUB_TOKEN }}@github.com.insteadOf 'https://github.com'
+
+      - name: Check conflicts
+        id: check_conflicts
+        run: |
+          git config --local user.email "noreply@github.com"
+          git config --local user.name "Github"
+          git merge --no-commit --no-ff upstream/${{ env.SYNC_TARGET_BRANCH }} || true
+          echo "::set-output name=has_conflicts::${$?}"
+
+      - name: Force add diff
+        run: |
+          git add .
+
+      - name: Set message
+        id: set_message
+        run: |
+          if [ ${{ steps.check_conflicts.outputs.has_conflicts }} != '0' ]; then
+            message="This PR contains some conflicts, please resolve them manually."
+          else
+            message="This PR was created without conflicts."
+          fi
+          echo "::set-output name=message::$message"
+
+      - name: Create PR
+        id: create_pr
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: sync main for develop
+          committer: GitHub <noreply@github.com>
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          signoff: false
+          base: ${{ env.BASE_BRANCH }}
+          branch: ${{ env.SYNC_BRANCH }}
+          delete-branch: true
+          title: sync main for develop
+          body: |
+            ${{ steps.set_message.outputs.message }}
+          labels: |
+            sync-main-for-develop
+          draft: false
