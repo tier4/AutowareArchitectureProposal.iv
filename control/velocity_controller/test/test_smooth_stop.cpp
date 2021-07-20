@@ -47,55 +47,53 @@ TEST(test_smooth_stop, calculate_stopping_acceleration) {
   double current_vel;
   double current_acc = 0.0;
   const Time now = rclcpp::Clock{RCL_ROS_TIME}.now();
-  const std::vector<std::pair<Time, double>> velocity_history_fast = {
-    {now - Duration(3, 0), 2.0}, {now - Duration(1, 0), 2.0}, {now - Duration(1, 0), 0.5}};
-  const std::vector<std::pair<Time, double>> velocity_history_long = {
-    {now - Duration(3, 0), 10.0}, {now - Duration(2, 0), 9.0}, {now - Duration(1, 0), 8.0}};
+  const std::vector<std::pair<Time, double>> velocity_history = {
+    {now - Duration(3, 0), 3.0}, {now - Duration(2, 0), 2.0}, {now - Duration(1, 0), 1.0}};
   double accel;
   // strong stop when the stop distance is below the threshold
+  vel_in_target = 5.0;
   stop_dist = strong_stop_dist - 0.1;
   current_vel = 2.0;
   ss.init(vel_in_target, stop_dist);
-  accel = ss.calculate(stop_dist, current_vel, current_acc, velocity_history_long, delay_time);
+  accel = ss.calculate(stop_dist, current_vel, current_acc, velocity_history, delay_time);
   EXPECT_EQ(accel, strong_stop_acc);
   // weak stop when the stop distance is below the threshold (but not bellow the strong_stop_dist)
   stop_dist = weak_stop_dist - 0.1;
   current_vel = 2.0;
   ss.init(vel_in_target, stop_dist);
-  accel = ss.calculate(stop_dist, current_vel, current_acc, velocity_history_long, delay_time);
+  accel = ss.calculate(stop_dist, current_vel, current_acc, velocity_history, delay_time);
   EXPECT_EQ(accel, weak_stop_acc);
   // if not running, weak accel for 0.5 seconds after the previous init or previous weak_acc
-  while ((rclcpp::Clock{RCL_ROS_TIME}.now() - now).seconds() <= 0.5) {
-    stop_dist = 0.0;
-    current_vel = 0.0;
-    accel = ss.calculate(stop_dist, current_vel, current_acc, velocity_history_long, delay_time);
-    EXPECT_EQ(accel, weak_acc);
-  }
-  // strong stop when the car is not running (and is at least 0.5seconds after initialization)
-  vel_in_target = 0.0;
+  rclcpp::Rate rate_quart(1.0 / 0.25);
+  rclcpp::Rate rate_half(1.0 / 0.5);
   stop_dist = 0.0;
   current_vel = 0.0;
-  // ss.init(vel_in_target, stop_dist);  // this resets the timer and would cause a weak_stop_acc instead
-  accel = ss.calculate(stop_dist, current_vel, current_acc, velocity_history_long, delay_time);
-  EXPECT_EQ(accel, strong_stop_acc);
+  EXPECT_EQ(
+    ss.calculate(stop_dist, current_vel, current_acc, velocity_history, delay_time), weak_acc);
+  rate_quart.sleep();
+  EXPECT_EQ(
+    ss.calculate(stop_dist, current_vel, current_acc, velocity_history, delay_time), weak_acc);
+  rate_half.sleep();
+  EXPECT_NE(
+    ss.calculate(stop_dist, current_vel, current_acc, velocity_history, delay_time), weak_acc);
+  // strong stop when the car is not running (and is at least 0.5seconds after initialization)
+  EXPECT_EQ(
+    ss.calculate(stop_dist, current_vel, current_acc, velocity_history, delay_time),
+    strong_stop_acc);
   // accel betwen min/max_strong_acc when the car is running, not predicted to excede the stop line,
   // and is predicted to stop after weak_stop_time + delay
   stop_dist = 1.0;
-  current_vel = 2.0;
+  current_vel = 1.0;
+  vel_in_target = 1.0;
   ss.init(vel_in_target, stop_dist);
-  accel = ss.calculate(stop_dist, current_vel, current_acc, velocity_history_long, delay_time);
-  EXPECT_GE(accel, min_strong_acc);
-  EXPECT_LE(accel, max_strong_acc);
-  // weak accel when the car can stop smoothly (predicted time to stop is low)
-  vel_in_target = 0.0;
-  stop_dist = 5.0;
+  EXPECT_EQ(ss.calculate(stop_dist, current_vel, current_acc, velocity_history, delay_time), max_strong_acc);
+  vel_in_target = std::sqrt(2.0);
   ss.init(vel_in_target, stop_dist);
-  accel = ss.calculate(stop_dist, current_vel, current_acc, velocity_history_fast, delay_time);
-  EXPECT_EQ(accel, weak_acc);
-  // weak accel when the car can stop smoothly (no velocity history and not running too fast)
-  vel_in_target = 0.0;
-  stop_dist = 5.0;
-  ss.init(vel_in_target, stop_dist);
-  accel = ss.calculate(stop_dist, current_vel, current_acc, {}, delay_time);
-  EXPECT_EQ(accel, weak_acc);
+  EXPECT_EQ(ss.calculate(stop_dist, current_vel, current_acc, velocity_history, delay_time), min_strong_acc);
+  for(double vel_in_target = 1.1; vel_in_target < std::sqrt(2.0); vel_in_target += 0.1) {
+    ss.init(vel_in_target, stop_dist);
+    accel = ss.calculate(stop_dist, current_vel, current_acc, velocity_history, delay_time);
+    EXPECT_GT(accel, min_strong_acc);
+    EXPECT_LT(accel, max_strong_acc);
+  }
 }

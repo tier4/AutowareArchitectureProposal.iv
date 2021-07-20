@@ -86,19 +86,7 @@ public:
   /**
    * @brief predict time when car stops by fitting some latest observed velocity history
    *        with linear function (v = at + b)
-   * @param [in] max_strong_acc maximum strong acceleration value [m/s²]
-   * @param [in] min_strong_acc minumum strong acceleration value [m/s²]
-   * @param [in] weak_acc weak acceleration value [m/s²]
-   * @param [in] weak_stop_acc weak stopping acceleration value [m/s²]
-   * @param [in] strong_stop_acc strong stopping acceleration value [m/s²]
-   * @param [in] min_fast_vel minumum velocity to consider ego to be running fast [m/s]
-   * @param [in] min_running_vel minimum velocity to consider ego to be running [m/s]
-   * @param [in] min_running_acc minimum acceleration to consider ego to be running [m/s]
-   * @param [in] weak_stop_time time allowed for stopping with a weak acceleration [s]
-   * @param [in] weak_stop_dist distance to the stop point bellow which
-   *                            a weak accel is applied [m]
-   * @param [in] strong_stop_dist distance to the stop point bellow which
-   *                              a strong accel is applied [m]
+   * @param [in] vel_hist history of previous ego velocities as (rclcpp::Time, double[m/s]) pairs
    */
   boost::optional<double> calcTimeToStop(
     const std::vector<std::pair<rclcpp::Time, double>> & vel_hist) const
@@ -127,7 +115,7 @@ public:
 
     // return when gradient a (of v = at + b) cannot be calculated.
     // See the following calculation of a
-    if (std::abs(vel_hist_size * mean_t * mean_t - sum_tt) < ) {
+    if (std::abs(vel_hist_size * mean_t * mean_t - sum_tt) < std::numeric_limits<double>::epsilon()) {
       return {};
     }
 
