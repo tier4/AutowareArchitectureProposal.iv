@@ -29,7 +29,7 @@ jobs:
       - name: Set git config for private repositories
         run: |
           git config --local --unset-all http.https://github.com/.extraheader || true
-          git config --global url.https://${{ secrets.REPO_TOKEN_WRITE }}@github.com.insteadOf 'https://github.com'
+          git config --global url.https://${{ secrets.GITHUB_TOKEN }}@github.com.insteadOf 'https://github.com'
 
       - name: Merge target branch
         run: |
@@ -41,7 +41,7 @@ jobs:
         id: create_pr
         uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ secrets.REPO_TOKEN_WRITE }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: sync main for develop
           committer: GitHub <noreply@github.com>
           author: GitHub <noreply@github.com>
