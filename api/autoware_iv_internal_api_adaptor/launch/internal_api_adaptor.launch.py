@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import launch
+import os
+from ament_index_python.packages import get_package_share_directory
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 
@@ -39,4 +41,10 @@ def generate_launch_description():
         composable_node_descriptions=components,
         output='screen',
     )
-    return launch.LaunchDescription([container])
+    relay = launch.actions.IncludeLaunchDescription(
+        launch.launch_description_sources.AnyLaunchDescriptionSource(
+            os.path.join(get_package_share_directory('autoware_iv_internal_api_adaptor'),
+                         'launch', 'internal_api_adaptor_relay.launch.xml')
+        )
+    )
+    return launch.LaunchDescription([container, relay])
