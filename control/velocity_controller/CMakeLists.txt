@@ -37,6 +37,7 @@ if(BUILD_TESTING)
     test/test_debug_values.cpp
     test/test_pid.cpp
     test/test_smooth_stop.cpp
+    test/test_velocity_controller_utils.cpp
   )
   set(TEST_VELOCITY_CONTROLLER test_velocity_controller)
   ament_add_gtest(${TEST_VELOCITY_CONTROLLER} ${TEST_SOURCES})

@@ -13,14 +13,7 @@
 // limitations under the License.
 
 #include "gtest/gtest.h"
-#include "velocity_controller/debug_values.hpp"
+#include "velocity_controller/velocity_controller.hpp"
 
-TEST(test_debug_values, assign_and_get) {
-  DebugValues debug;
-
-  EXPECT_EQ(debug.getValues().size(), static_cast<size_t>(DebugValues::TYPE::SIZE));
-  debug.setValues(DebugValues::TYPE::DT, 42.0);
-  EXPECT_EQ(debug.getValues().at(debug.getValuesIdx(DebugValues::TYPE::DT)), 42.0);
-  debug.setValues(debug.getValuesIdx(DebugValues::TYPE::DT), 4.0);
-  EXPECT_EQ(debug.getValues().at(debug.getValuesIdx(DebugValues::TYPE::DT)), 4.0);
+TEST(test_velocity_controller, smoke_test) {
 }
