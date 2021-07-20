@@ -16,8 +16,10 @@ ament_auto_find_build_dependencies()
 
 ament_auto_add_library(${PROJECT_NAME} SHARED
   src/route.cpp
+  src/velocity.cpp
 )
 rclcpp_components_register_nodes(${PROJECT_NAME} "internal_api::Route")
+rclcpp_components_register_nodes(${PROJECT_NAME} "internal_api::Velocity")
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
