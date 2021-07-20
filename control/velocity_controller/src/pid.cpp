@@ -49,6 +49,7 @@ double PIDController::calculate(
 
   prev_error_ = error;
 
+  pid_contributions.resize(3);
   pid_contributions.at(0) = ret_p;
   pid_contributions.at(1) = ret_i;
   pid_contributions.at(2) = ret_d;

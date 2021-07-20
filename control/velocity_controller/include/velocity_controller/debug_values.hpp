@@ -17,9 +17,11 @@
 
 #include <array>
 
+/// Debug Values used for debugging or controller tuning
 class DebugValues
 {
 public:
+  /// Types of debug values
   enum class TYPE
   {
     DT = 0,
@@ -54,10 +56,28 @@ public:
     SIZE  // this is the number of enum elements
   };
 
+  /**
+   * @brief get the index corresponding to the given value TYPE
+   * @param [in] type the TYPE enum for which to get the index
+   * @return index of the type
+   */
   int getValuesIdx(const TYPE type) const {return static_cast<int>(type);}
+  /**
+   * @brief get all the debug values as an std::array
+   * @return array of all debug values
+   */
   std::array<double, static_cast<int>(TYPE::SIZE)> getValues() const {return values_;}
-
+  /**
+   * @brief set the given type to the given value
+   * @param [in] type TYPE of the value
+   * @param [in] value value to set
+   */
   void setValues(const TYPE type, const double val) {values_.at(static_cast<int>(type)) = val;}
+  /**
+   * @brief set the given type to the given value
+   * @param [in] type index of the type
+   * @param [in] value value to set
+   */
   void setValues(const int type, const double val) {values_.at(type) = val;}
 
 private:
