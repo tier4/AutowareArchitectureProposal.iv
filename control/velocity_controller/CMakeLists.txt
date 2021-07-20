@@ -34,6 +34,7 @@ if(BUILD_TESTING)
 
   # Unit tests
   set(TEST_SOURCES
+    test/test_debug_values.cpp
     test/test_pid.cpp
     test/test_smooth_stop.cpp
   )
