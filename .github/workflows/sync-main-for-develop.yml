@@ -2,7 +2,7 @@ name: sync main for develop
 
 on:
   schedule:
-    - cron: "0 19 * * 0" # run at 4 AM JST on Sundays
+    - cron: "0 19 * * *" # run at 4 AM JST
   workflow_dispatch:
 
 env:
@@ -21,27 +21,23 @@ jobs:
           ref: ${{ env.BASE_BRANCH }}
           fetch-depth: 0
 
-      - name: Install tools
-        run: |
-          sudo apt-get -y update
-          sudo apt-get -y install curl git
+      - name: Generate token
+        uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
 
-      - name: Set git config for private repositories
+      # To keep the base branch in "create-pull-request", checkout with "BASE_BRANCH" and reset to "SYNC_TARGET_BRANCH"
+      - name: Reset to sync target branch
         run: |
-          git config --local --unset-all http.https://github.com/.extraheader || true
-          git config --global url.https://${{ secrets.GITHUB_TOKEN }}@github.com.insteadOf 'https://github.com'
-
-      - name: Merge target branch
-        run: |
-          git config --local user.email "noreply@github.com"
-          git config --local user.name "Github"
-          git merge --no-ff origin/${{ env.SYNC_TARGET_BRANCH }}
+          git reset --hard origin/${{ env.SYNC_TARGET_BRANCH }}
 
       - name: Create PR
         id: create_pr
         uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.generate-token.outputs.token }}
           commit-message: sync main for develop
           committer: GitHub <noreply@github.com>
           author: GitHub <noreply@github.com>
@@ -60,3 +56,11 @@ jobs:
         run: |
           echo "Pull Request Number - ${{ steps.create_pr.outputs.pull-request-number }}"
           echo "Pull Request URL - ${{ steps.create_pr.outputs.pull-request-url }}"
+
+      - name: Enable Auto-merge
+        if: steps.create_pr.outputs.pull-request-operation == 'created'
+        uses: peter-evans/enable-pull-request-automerge@v1
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          pull-request-number: ${{ steps.create_pr.outputs.pull-request-number }}
+          merge-method: merge
