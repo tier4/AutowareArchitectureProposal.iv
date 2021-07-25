@@ -14,7 +14,7 @@ repositories:
   vendor/perception_pcl:
     type: git
     url: https://github.com/ros-perception/perception_pcl.git
-    version: galactic
+    version: foxy-devel
   vendor/topic_tools:
     type: git
     url: https://github.com/tier4/topic_tools.git
