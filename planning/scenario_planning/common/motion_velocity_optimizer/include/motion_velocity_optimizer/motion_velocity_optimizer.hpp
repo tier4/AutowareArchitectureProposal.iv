@@ -177,12 +177,13 @@ private:
 
   void publishTrajectory(const autoware_planning_msgs::msg::Trajectory & traj) const;
 
+  void publishStopDistance(
+    const autoware_planning_msgs::msg::Trajectory & trajectory, const int closest) const;
+
   void calcRoundWaypointFromCurrentPose(
-    const autoware_planning_msgs::msg::Trajectory & traj, bool before_stopline,
+    autoware_planning_msgs::msg::Trajectory::ConstSharedPtr traj, bool before_stopline,
     int current_pose_idx,
     int stop_idx, int & current_pose_round_idx, double & length_to_round_waypoint) const;
-
-  void publishStopDistance() const;
 
   void insertBehindVelocity(
     const autoware_planning_msgs::msg::Trajectory & prev_output,
