@@ -123,8 +123,11 @@ private:
   bool enable_path_smoothing_;      //!< @brief flag for path smoothing
   bool use_steer_prediction_;       //!< @brief flag to use predicted steer, not measured steer.
   int path_filter_moving_ave_num_;  //!< @brief param of moving average filter for path smoothing
-  int curvature_smoothing_num_;  //!< @brief point-to-point index distance for curvature calculation
-  double traj_resample_dist_;    //!< @brief path resampling interval [m]
+  int
+    curvature_smoothing_num_traj_;  //!< @brief point-to-point index distance for curvature calculation for trajectory  //NOLINT
+  int
+    curvature_smoothing_num_ref_steer_;  //!< @brief point-to-point index distance for curvature calculation for reference steer command  //NOLINT
+  double traj_resample_dist_;  //!< @brief path resampling interval [m]
 
   /* parameters for stop state */
   double stop_state_entry_ego_speed_;
