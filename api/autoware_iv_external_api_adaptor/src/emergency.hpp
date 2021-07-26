@@ -29,7 +29,7 @@ public:
 
 private:
   // ros interface
-  rclcpp::callback_group::CallbackGroup::SharedPtr group_;
+  rclcpp::CallbackGroup::SharedPtr group_;
   autoware_api_utils::Service<autoware_external_api_msgs::srv::SetEmergency>::SharedPtr srv_;
   autoware_api_utils::Client<autoware_external_api_msgs::srv::SetEmergency>::SharedPtr cli_;
 

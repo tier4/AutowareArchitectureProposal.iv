@@ -37,7 +37,7 @@ private:
   using AutowareState = autoware_system_msgs::msg::AutowareState;
 
   // ros interface
-  rclcpp::callback_group::CallbackGroup::SharedPtr group_;
+  rclcpp::CallbackGroup::SharedPtr group_;
   autoware_api_utils::Service<ExternalEngage>::SharedPtr srv_engage_;
   autoware_api_utils::Client<ExternalEngage>::SharedPtr cli_engage_;
   rclcpp::Publisher<ExternalEngageStatus>::SharedPtr pub_engage_status_;

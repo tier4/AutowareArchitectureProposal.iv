@@ -33,7 +33,7 @@ private:
   using SetVelocityLimit = autoware_external_api_msgs::srv::SetVelocityLimit;
 
   // ros interface
-  rclcpp::callback_group::CallbackGroup::SharedPtr group_;
+  rclcpp::CallbackGroup::SharedPtr group_;
   autoware_api_utils::Service<PauseDriving>::SharedPtr srv_pause_;
   autoware_api_utils::Client<PauseDriving>::SharedPtr cli_pause_;
   autoware_api_utils::Service<SetVelocityLimit>::SharedPtr srv_velocity_;

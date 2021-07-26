@@ -54,7 +54,7 @@ Route::Route(const rclcpp::NodeOptions & options)
   using namespace std::placeholders;
   autoware_api_utils::ServiceProxyNodeInterface proxy(this);
 
-  group_ = create_callback_group(rclcpp::callback_group::CallbackGroupType::MutuallyExclusive);
+  group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
   srv_clear_route_ = proxy.create_service<autoware_external_api_msgs::srv::ClearRoute>(
     "/api/autoware/set/clear_route",
     std::bind(&Route::clearRoute, this, _1, _2),

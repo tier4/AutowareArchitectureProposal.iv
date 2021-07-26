@@ -24,7 +24,7 @@ Engage::Engage(const rclcpp::NodeOptions & options)
   using namespace std::placeholders;
   autoware_api_utils::ServiceProxyNodeInterface proxy(this);
 
-  group_ = create_callback_group(rclcpp::callback_group::CallbackGroupType::MutuallyExclusive);
+  group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
   srv_engage_ = proxy.create_service<autoware_external_api_msgs::srv::Engage>(
     "/api/external/set/engage",
     std::bind(&Engage::setEngage, this, _1, _2),

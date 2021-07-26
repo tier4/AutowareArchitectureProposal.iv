@@ -34,7 +34,7 @@ private:
   using ClearRoute = autoware_external_api_msgs::srv::ClearRoute;
 
   // ros interface
-  rclcpp::callback_group::CallbackGroup::SharedPtr group_;
+  rclcpp::CallbackGroup::SharedPtr group_;
   autoware_api_utils::Service<SetRoute>::SharedPtr srv_set_route_;
   autoware_api_utils::Client<SetRoute>::SharedPtr cli_set_route_;
   autoware_api_utils::Service<ClearRoute>::SharedPtr srv_clear_route_;

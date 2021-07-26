@@ -24,7 +24,7 @@ Emergency::Emergency(const rclcpp::NodeOptions & options)
   using namespace std::placeholders;
   autoware_api_utils::ServiceProxyNodeInterface proxy(this);
 
-  group_ = create_callback_group(rclcpp::callback_group::CallbackGroupType::MutuallyExclusive);
+  group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
   srv_ = proxy.create_service<autoware_external_api_msgs::srv::SetEmergency>(
     "/api/external/set/emergency",
     std::bind(&Emergency::setEmergency, this, _1, _2),

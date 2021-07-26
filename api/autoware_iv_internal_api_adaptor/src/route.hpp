@@ -38,7 +38,7 @@ private:
   using SetPose = autoware_external_api_msgs::srv::SetPose;
 
   // ros interface
-  rclcpp::callback_group::CallbackGroup::SharedPtr group_;
+  rclcpp::CallbackGroup::SharedPtr group_;
   autoware_api_utils::Service<ClearRoute>::SharedPtr srv_clear_route_;
   autoware_api_utils::Service<SetRoute>::SharedPtr srv_set_route_;
   autoware_api_utils::Service<SetPose>::SharedPtr srv_set_goal_;
