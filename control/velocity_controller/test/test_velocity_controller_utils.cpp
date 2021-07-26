@@ -22,8 +22,8 @@
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include "tf2/LinearMath/Quaternion.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 namespace vcu = velocity_controller_utils;
 
@@ -55,7 +55,7 @@ TEST(test_velocity_controller_utils, calcStopDistance) {
   point.pose.position.y = 0.0;
   point.twist.linear.x = 0.0;
   traj.points.push_back(point);
-  // TODO this exception should probably not occur
+  // TODO(Maxime CLEMENT) this exception should probably not occur
   EXPECT_THROW(vcu::calcStopDistance(current_pos, traj), std::out_of_range);
   traj.points.clear();
   // non stopping trajectory: stop distance = trajectory length
@@ -94,7 +94,7 @@ TEST(test_velocity_controller_utils, getPitchByPose) {
   quaternion_tf.setRPY(0.0, 1.0, 0.0);
   EXPECT_EQ(vcu::getPitchByPose(tf2::toMsg(quaternion_tf)), 1.0);
 }
-/* TODO
+/* TODO (Maxime CLEMENT)
 double getPitchByTraj(
   const Trajectory & msg, const size_t closest_idx, const double wheel_base);
 */
@@ -111,14 +111,14 @@ TEST(test_velocity_controller_utils, calcElevationAngle) {
   EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), 0.0);
   p_to.x = 1.0;
   p_to.z = 1.0;
-  // TODO these results are strange (/ and \ are both -PI/4)
+  // TODO(Maxime CLEMENT) these results are strange (/ and \ are both -PI/4)
   EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), -M_PI_4);
   p_to.x = 0.0;
   p_to.z = 1.0;
   EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), -M_PI_2);
   p_to.x = -1.0;
   p_to.z = 1.0;
-  EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to),  -M_PI_4);
+  EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), -M_PI_4);
 }
 TEST(test_velocity_controller_utils, calcPoseAfterTimeDelay) {
   using geometry_msgs::msg::Pose;
@@ -220,7 +220,7 @@ TEST(test_velocity_controller_utils, lerpOrientation) {
   EXPECT_DOUBLE_EQ(roll, 1.0);
   EXPECT_DOUBLE_EQ(pitch, 1.0);
   EXPECT_DOUBLE_EQ(yaw, 1.0);
-  // TODO not sure how to test more interesting values
+  // TODO(Maxime CLEMENT) not sure how to test more interesting values
 }
 TEST(test_velocity_controller_utils, lerpTrajectoryPoint) {
   using autoware_planning_msgs::msg::TrajectoryPoint;

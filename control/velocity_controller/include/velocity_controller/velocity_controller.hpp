@@ -224,7 +224,7 @@ private:
     const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
     const double current_vel, const size_t closest_idx) const;
   /**
-    @brief calculate predicted velocity after time delay based on past control commands 
+    @brief calculate predicted velocity after time delay based on past control commands
   */
   double predictedVelocityInTargetPoint(
     const Motion current_motion, const double delay_compensation_time) const;

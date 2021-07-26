@@ -86,11 +86,17 @@ TEST(test_smooth_stop, calculate_stopping_acceleration) {
   current_vel = 1.0;
   vel_in_target = 1.0;
   ss.init(vel_in_target, stop_dist);
-  EXPECT_EQ(ss.calculate(stop_dist, current_vel, current_acc, velocity_history, delay_time), max_strong_acc);
+  EXPECT_EQ(
+    ss.calculate(
+      stop_dist, current_vel, current_acc, velocity_history,
+      delay_time), max_strong_acc);
   vel_in_target = std::sqrt(2.0);
   ss.init(vel_in_target, stop_dist);
-  EXPECT_EQ(ss.calculate(stop_dist, current_vel, current_acc, velocity_history, delay_time), min_strong_acc);
-  for(double vel_in_target = 1.1; vel_in_target < std::sqrt(2.0); vel_in_target += 0.1) {
+  EXPECT_EQ(
+    ss.calculate(
+      stop_dist, current_vel, current_acc, velocity_history,
+      delay_time), min_strong_acc);
+  for (double vel_in_target = 1.1; vel_in_target < std::sqrt(2.0); vel_in_target += 0.1) {
     ss.init(vel_in_target, stop_dist);
     accel = ss.calculate(stop_dist, current_vel, current_acc, velocity_history, delay_time);
     EXPECT_GT(accel, min_strong_acc);

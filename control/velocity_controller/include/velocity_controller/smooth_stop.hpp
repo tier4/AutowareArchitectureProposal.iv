@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <utility>
 #include <vector>
 
@@ -115,7 +116,9 @@ public:
 
     // return when gradient a (of v = at + b) cannot be calculated.
     // See the following calculation of a
-    if (std::abs(vel_hist_size * mean_t * mean_t - sum_tt) < std::numeric_limits<double>::epsilon()) {
+    if (std::abs(vel_hist_size * mean_t * mean_t - sum_tt) <
+      std::numeric_limits<double>::epsilon())
+    {
       return {};
     }
 

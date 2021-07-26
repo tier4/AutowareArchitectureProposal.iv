@@ -29,7 +29,7 @@ TEST(test_pid, calculate_pid_output) {
   std::vector<double> contributions;
   double error = target - current;
   double prev_error = error;
-  while(current != target) {
+  while (current != target) {
     current = pid.calculate(error, dt, enable_integration, contributions);
     EXPECT_EQ(contributions[0], error);
     EXPECT_EQ(contributions[1], 0.0);  // integration is deactivated
@@ -44,7 +44,7 @@ TEST(test_pid, calculate_pid_output) {
   enable_integration = true;
   // High errors to force each component to its upper limit
   EXPECT_EQ(pid.calculate(0.0, dt, enable_integration, contributions), 0.0);
-  for(double error = 100.0; error < 1000.0; error += 100.0) {
+  for (double error = 100.0; error < 1000.0; error += 100.0) {
     EXPECT_EQ(pid.calculate(error, dt, enable_integration, contributions), 10.0);
     EXPECT_EQ(contributions[0], 10.0);
     EXPECT_EQ(contributions[1], 10.0);  // integration is activated
@@ -52,7 +52,7 @@ TEST(test_pid, calculate_pid_output) {
   }
   // Low errors to force each component to its lower limit
   EXPECT_EQ(pid.calculate(0.0, dt, enable_integration, contributions), 0.0);
-  for(double error = -100.0; error > -1000.0; error -= 100.0) {
+  for (double error = -100.0; error > -1000.0; error -= 100.0) {
     EXPECT_EQ(pid.calculate(error, dt, enable_integration, contributions), -10.0);
     EXPECT_EQ(contributions[0], -10.0);
     EXPECT_EQ(contributions[1], -10.0);  // integration is activated
