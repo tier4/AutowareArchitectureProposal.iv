@@ -55,7 +55,6 @@ TEST(test_velocity_controller_utils, calcStopDistance) {
   point.pose.position.y = 0.0;
   point.twist.linear.x = 0.0;
   traj.points.push_back(point);
-  // TODO(Maxime CLEMENT) this exception should probably not occur
   EXPECT_THROW(vcu::calcStopDistance(current_pos, traj), std::out_of_range);
   traj.points.clear();
   // non stopping trajectory: stop distance = trajectory length
@@ -94,10 +93,49 @@ TEST(test_velocity_controller_utils, getPitchByPose) {
   quaternion_tf.setRPY(0.0, 1.0, 0.0);
   EXPECT_EQ(vcu::getPitchByPose(tf2::toMsg(quaternion_tf)), 1.0);
 }
-/* TODO (Maxime CLEMENT)
-double getPitchByTraj(
-  const Trajectory & msg, const size_t closest_idx, const double wheel_base);
-*/
+TEST(test_velocity_controller_utils, getPitchByTraj) {
+  using autoware_planning_msgs::msg::Trajectory;
+  using autoware_planning_msgs::msg::TrajectoryPoint;
+  const double wheel_base = 0.9;
+  /**
+   * Trajectory:
+   * 1    X
+   *            X
+   * 0 X     X
+   *   0  1  2  3
+   */
+  Trajectory traj;
+  TrajectoryPoint point;
+  point.pose.position.x = 0.0;
+  point.pose.position.y = 0.0;
+  point.pose.position.z = 0.0;
+  traj.points.push_back(point);
+  // non stopping trajectory: stop distance = trajectory length
+  point.pose.position.x = 1.0;
+  point.pose.position.y = 0.0;
+  point.pose.position.z = 1.0;
+  traj.points.push_back(point);
+  point.pose.position.x = 2.0;
+  point.pose.position.y = 0.0;
+  point.pose.position.z = 0.0;
+  traj.points.push_back(point);
+  point.pose.position.x = 3.0;
+  point.pose.position.y = 0.0;
+  point.pose.position.z = 0.5;
+  traj.points.push_back(point);
+  size_t closest_idx = 0;
+  EXPECT_DOUBLE_EQ(std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)), M_PI_4);
+  closest_idx = 1;
+  EXPECT_DOUBLE_EQ(std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)), M_PI_4);
+  closest_idx = 2;
+  EXPECT_DOUBLE_EQ(
+    std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)),
+    std::atan2(0.5, 1));
+  closest_idx = 3;
+  EXPECT_DOUBLE_EQ(
+    std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)),
+    std::atan2(0.5, 1));
+}
 TEST(test_velocity_controller_utils, calcElevationAngle) {
   using geometry_msgs::msg::Point;
   Point p_from;
@@ -111,14 +149,19 @@ TEST(test_velocity_controller_utils, calcElevationAngle) {
   EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), 0.0);
   p_to.x = 1.0;
   p_to.z = 1.0;
-  // TODO(Maxime CLEMENT) these results are strange (/ and \ are both -PI/4)
+  EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), -M_PI_4);
+  p_to.x = -1.0;
+  p_to.z = 1.0;
   EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), -M_PI_4);
   p_to.x = 0.0;
   p_to.z = 1.0;
   EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), -M_PI_2);
+  p_to.x = 1.0;
+  p_to.z = -1.0;
+  EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), M_PI_4);
   p_to.x = -1.0;
-  p_to.z = 1.0;
-  EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), -M_PI_4);
+  p_to.z = -1.0;
+  EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), M_PI_4);
 }
 TEST(test_velocity_controller_utils, calcPoseAfterTimeDelay) {
   using geometry_msgs::msg::Pose;
@@ -169,11 +212,17 @@ TEST(test_velocity_controller_utils, calcPoseAfterTimeDelay) {
   EXPECT_NEAR(delayed_pose.position.x, current_pose.position.x, abs_err);
   EXPECT_NEAR(delayed_pose.position.y, current_pose.position.y + current_vel * delay_time, abs_err);
   EXPECT_NEAR(delayed_pose.position.z, current_pose.position.z, abs_err);
-  // Vary the pitch : makes the x go in reverse but does not change the z TODO this seems strange
-  quaternion_tf.setRPY(0.0, M_PI_2, 0.0);
+  quaternion_tf.setRPY(0.0, 0.0, -M_PI_2);
   current_pose.orientation = tf2::toMsg(quaternion_tf);
   delayed_pose = vcu::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
-  EXPECT_NEAR(delayed_pose.position.x, current_pose.position.x - current_vel * delay_time, abs_err);
+  EXPECT_NEAR(delayed_pose.position.x, current_pose.position.x, abs_err);
+  EXPECT_NEAR(delayed_pose.position.y, current_pose.position.y - current_vel * delay_time, abs_err);
+  EXPECT_NEAR(delayed_pose.position.z, current_pose.position.z, abs_err);
+  // Vary the pitch : no effect /!\ NOTE: bug with roll of +-PI/2 which rotates the yaw by PI
+  quaternion_tf.setRPY(0.0, M_PI_4, 0.0);
+  current_pose.orientation = tf2::toMsg(quaternion_tf);
+  delayed_pose = vcu::calcPoseAfterTimeDelay(current_pose, delay_time, current_vel);
+  EXPECT_NEAR(delayed_pose.position.x, current_pose.position.x + current_vel * delay_time, abs_err);
   EXPECT_NEAR(delayed_pose.position.y, current_pose.position.y, abs_err);
   EXPECT_NEAR(delayed_pose.position.z, current_pose.position.z, abs_err);
   // Vary the roll : no effect
@@ -205,7 +254,7 @@ TEST(test_velocity_controller_utils, lerpOrientation) {
   double ratio;
 
   o_from.setRPY(0.0, 0.0, 0.0);
-  o_to.setRPY(1.0, 1.0, 1.0);
+  o_to.setRPY(M_PI_4, M_PI_4, M_PI_4);
   ratio = 0.0;
   result = vcu::lerpOrientation(tf2::toMsg(o_from), tf2::toMsg(o_to), ratio);
   tf2::convert(result, o_result);
@@ -217,10 +266,31 @@ TEST(test_velocity_controller_utils, lerpOrientation) {
   result = vcu::lerpOrientation(tf2::toMsg(o_from), tf2::toMsg(o_to), ratio);
   tf2::convert(result, o_result);
   tf2::Matrix3x3(o_result).getRPY(roll, pitch, yaw);
-  EXPECT_DOUBLE_EQ(roll, 1.0);
-  EXPECT_DOUBLE_EQ(pitch, 1.0);
-  EXPECT_DOUBLE_EQ(yaw, 1.0);
-  // TODO(Maxime CLEMENT) not sure how to test more interesting values
+  EXPECT_DOUBLE_EQ(roll, M_PI_4);
+  EXPECT_DOUBLE_EQ(pitch, M_PI_4);
+  EXPECT_DOUBLE_EQ(yaw, M_PI_4);
+  ratio = 0.5;
+  o_to.setRPY(M_PI_4, 0.0, 0.0);
+  result = vcu::lerpOrientation(tf2::toMsg(o_from), tf2::toMsg(o_to), ratio);
+  tf2::convert(result, o_result);
+  tf2::Matrix3x3(o_result).getRPY(roll, pitch, yaw);
+  EXPECT_DOUBLE_EQ(roll, M_PI_4 / 2);
+  EXPECT_DOUBLE_EQ(pitch, 0.0);
+  EXPECT_DOUBLE_EQ(yaw, 0.0);
+  o_to.setRPY(0.0, M_PI_4, 0.0);
+  result = vcu::lerpOrientation(tf2::toMsg(o_from), tf2::toMsg(o_to), ratio);
+  tf2::convert(result, o_result);
+  tf2::Matrix3x3(o_result).getRPY(roll, pitch, yaw);
+  EXPECT_DOUBLE_EQ(roll, 0.0);
+  EXPECT_DOUBLE_EQ(pitch, M_PI_4 / 2);
+  EXPECT_DOUBLE_EQ(yaw, 0.0);
+  o_to.setRPY(0.0, 0.0, M_PI_4);
+  result = vcu::lerpOrientation(tf2::toMsg(o_from), tf2::toMsg(o_to), ratio);
+  tf2::convert(result, o_result);
+  tf2::Matrix3x3(o_result).getRPY(roll, pitch, yaw);
+  EXPECT_DOUBLE_EQ(roll, 0.0);
+  EXPECT_DOUBLE_EQ(pitch, 0.0);
+  EXPECT_DOUBLE_EQ(yaw, M_PI_4 / 2);
 }
 TEST(test_velocity_controller_utils, lerpTrajectoryPoint) {
   using autoware_planning_msgs::msg::TrajectoryPoint;

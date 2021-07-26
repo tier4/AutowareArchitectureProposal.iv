@@ -12,8 +12,140 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+#include <memory>
+
+#include "autoware_control_msgs/msg/control_command_stamped.hpp"
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "autoware_planning_msgs/msg/trajectory_point.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/transform_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "gtest/gtest.h"
+#include "rclcpp/rclcpp.hpp"
+#include "rclcpp/time.hpp"
+#include "tf2_ros/static_transform_broadcaster.h"
 #include "velocity_controller/velocity_controller.hpp"
 
-TEST(test_velocity_controller, smoke_test) {
+class TestROS : public ::testing::Test
+{
+protected:
+  std::shared_ptr<VelocityController> m_node;
+
+  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr m_vel_pub;
+  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr m_traj_pub;
+  rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr m_cmd_sub;
+  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> m_br;
+
+
+  autoware_control_msgs::msg::ControlCommandStamped m_cmd_msg;
+  bool m_received_command = false;
+
+  void SetUp()
+  {
+    rclcpp::init(0, nullptr);
+
+    // Publish dummy transform for current pose
+    br = std::make_shared<tf2_ros::StaticTransformBroadcaster>(m_node);
+    geometry_msgs::msg::TransformStamped transform;
+    transform.transform.translation.x = 0.0;
+    transform.transform.translation.y = 0.0;
+    transform.transform.translation.z = 0.0;
+    tf2::Quaternion q;
+    q.setRPY(0.0, 0.0, 0.0);
+    transform.transform.rotation.x = q.x();
+    transform.transform.rotation.y = q.y();
+    transform.transform.rotation.z = q.z();
+    transform.transform.rotation.w = q.w();
+    transform.header.frame_id = "map";
+    transform.child_frame_id = "base_link";
+    transform.header.stamp = m_node->now();
+    br->sendTransform(transform);
+
+
+    rclcpp::NodeOptions node_options;
+    node_options.allow_undeclared_parameters(true);
+    node_options.append_parameter_override("wheel_radius", 1.0);
+    node_options.append_parameter_override("wheel_width", 1.0);
+    node_options.append_parameter_override("wheel_base", 1.0);
+    node_options.append_parameter_override("wheel_tread", 1.0);
+    node_options.append_parameter_override("front_overhang", 1.0);
+    node_options.append_parameter_override("rear_overhang", 1.0);
+    node_options.append_parameter_override("left_overhang", 1.0);
+    node_options.append_parameter_override("right_overhang", 1.0);
+    node_options.append_parameter_override("vehicle_height", 1.0);
+    m_node = std::make_shared<VelocityController>(node_options);
+
+    m_vel_pub = m_node->create_publisher<geometry_msgs::msg::TwistStamped>(
+      "~/current_velocity",
+      rclcpp::QoS(10));
+    m_traj_pub = m_node->create_publisher<autoware_planning_msgs::msg::Trajectory>(
+      "~/current_trajectory",
+      rclcpp::QoS(10));
+    m_cmd_sub = m_node->create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
+      "output/control_cmd",
+      rclcpp::QoS(10), std::bind(&TestROS::HandleOutputCommand, this, std::placeholders::_1));
+
+    // Enable all logging in the node
+    auto ret = rcutils_logging_set_logger_level(
+      m_node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+    if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
+  }
+
+  void TearDown()
+  {
+    rclcpp::shutdown();
+  }
+
+  void HandleOutputCommand(const autoware_control_msgs::msg::ControlCommandStamped::SharedPtr cmd)
+  {
+    m_cmd_msg = *cmd;
+    m_received_command = true;
+  }
+};
+
+TEST_F(TestROS, simple_test) {
+  geometry_msgs::msg::TwistStamped twist;
+  autoware_planning_msgs::msg::Trajectory traj;
+  autoware_planning_msgs::msg::TrajectoryPoint point;
+  /// Already running + Non stopping trajectory
+  // Publish velocity
+  twist.twist.linear.x = 1.0;
+  m_vel_pub->publish(twist);
+  // Publish non stopping trajectory
+  point.pose.position.x = 0.0;
+  point.pose.position.y = 0.0;
+  point.twist.linear.x = 1.0;
+  traj.points.push_back(point);
+  point.pose.position.x = 50.0;
+  point.pose.position.y = 0.0;
+  point.twist.linear.x = 1.0;
+  traj.points.push_back(point);
+  point.pose.position.x = 100.0;
+  point.pose.position.y = 0.0;
+  point.twist.linear.x = 1.0;
+  traj.points.push_back(point);
+  m_traj_pub->publish(traj);
+
+  while (!m_received_command) {}
+  EXPECT_DOUBLE_EQ(m_cmd_msg.control.steering_angle, 0.0);
+  EXPECT_DOUBLE_EQ(m_cmd_msg.control.steering_angle_velocity, 0.0);
+  EXPECT_DOUBLE_EQ(m_cmd_msg.control.velocity, 1.0);
+  EXPECT_DOUBLE_EQ(m_cmd_msg.control.acceleration, 0.0);
+  m_received_command = false;
 }
+
+/* TODO(Maxime CLEMENT) move this function to utils
+TEST(test_velocity_controller, applyLimitFilter) {
+    rclcpp::NodeOptions node_options;
+    VelocityController vc(node_options);
+    double max_val = 10.0;
+    double min_val = 0.0;
+    double input_val = 1.0;
+    EXPECT_DOUBLE_EQ(vc.applyLimitFilter(input_val, max_val, min_val), input_val);
+    input_val = -1.0;
+    EXPECT_DOUBLE_EQ(vc.applyLimitFilter(input_val, max_val, min_val), min_val);
+    input_val = 100.0;
+    EXPECT_DOUBLE_EQ(vc.applyLimitFilter(input_val, max_val, min_val), max_val);
+}
+*/
