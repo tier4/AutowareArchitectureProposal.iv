@@ -72,7 +72,7 @@ TEST(test_velocity_controller_utils, calcStopDistance) {
   point.twist.linear.x = 1.0;
   traj.points.push_back(point);
   EXPECT_EQ(vcu::calcStopDistance(current_pos, traj), 2.0);
-  // stopping trajectory: stop distance = length until stoping point
+  // stopping trajectory: stop distance = length until stopping point
   point.pose.position.x = 3.0;
   point.pose.position.y = 0.0;
   point.twist.linear.x = 0.0;

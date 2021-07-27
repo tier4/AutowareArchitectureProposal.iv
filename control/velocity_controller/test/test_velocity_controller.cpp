@@ -91,7 +91,7 @@ protected:
     // Enable all logging in the node
     auto ret = rcutils_logging_set_logger_level(
       m_node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-    if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
+    if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severity to DEBUG\n";}
   }
 
   void TearDown()
