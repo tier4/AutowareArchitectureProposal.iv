@@ -80,7 +80,7 @@ TEST(test_smooth_stop, calculate_stopping_acceleration) {
   EXPECT_EQ(
     ss.calculate(stop_dist, current_vel, current_acc, velocity_history, delay_time),
     strong_stop_acc);
-  // accel between min/max_strong_acc when the car is running, not predicted to exceede the stop line,
+  // accel between min/max_strong_acc when the car is running, not predicted to exceed the stop line,
   // and is predicted to stop after weak_stop_time + delay
   stop_dist = 1.0;
   current_vel = 1.0;
