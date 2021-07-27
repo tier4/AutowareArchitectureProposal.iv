@@ -35,18 +35,20 @@ protected:
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr m_vel_pub;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr m_traj_pub;
   rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr m_cmd_sub;
-  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> m_br;
 
 
   autoware_control_msgs::msg::ControlCommandStamped m_cmd_msg;
-  bool m_received_command = false;
+  bool m_received_command;
 
   void SetUp()
   {
     rclcpp::init(0, nullptr);
+    m_received_command = false;
 
-    // Publish dummy transform for current pose
-    br = std::make_shared<tf2_ros::StaticTransformBroadcaster>(m_node);
+    // Publish dummy transform for current pose at (0,0,0) in map frame
+    rclcpp::Node tmp_node("tmp", rclcpp::NodeOptions());
+    std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
+      std::make_shared<tf2_ros::StaticTransformBroadcaster>(tmp_node);
     geometry_msgs::msg::TransformStamped transform;
     transform.transform.translation.x = 0.0;
     transform.transform.translation.y = 0.0;
@@ -59,7 +61,7 @@ protected:
     transform.transform.rotation.w = q.w();
     transform.header.frame_id = "map";
     transform.child_frame_id = "base_link";
-    transform.header.stamp = m_node->now();
+    transform.header.stamp = tmp_node.now();
     br->sendTransform(transform);
 
 
@@ -83,7 +85,7 @@ protected:
       "~/current_trajectory",
       rclcpp::QoS(10));
     m_cmd_sub = m_node->create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
-      "output/control_cmd",
+      "~/control_cmd",
       rclcpp::QoS(10), std::bind(&TestROS::HandleOutputCommand, this, std::placeholders::_1));
 
     // Enable all logging in the node
@@ -110,7 +112,11 @@ TEST_F(TestROS, simple_test) {
   autoware_planning_msgs::msg::TrajectoryPoint point;
   /// Already running + Non stopping trajectory
   // Publish velocity
+  twist.header.stamp = m_node->now();
   twist.twist.linear.x = 1.0;
+  m_vel_pub->publish(twist);
+  rclcpp::spin_some(m_node);
+  twist.header.stamp = m_node->now();
   m_vel_pub->publish(twist);
   // Publish non stopping trajectory
   point.pose.position.x = 0.0;
@@ -126,8 +132,11 @@ TEST_F(TestROS, simple_test) {
   point.twist.linear.x = 1.0;
   traj.points.push_back(point);
   m_traj_pub->publish(traj);
-
-  while (!m_received_command) {}
+  const rclcpp::Duration one_sec(1, 0);
+  while (!m_received_command) {
+    rclcpp::spin_some(m_node);
+  }
+  ASSERT_TRUE(m_received_command);
   EXPECT_DOUBLE_EQ(m_cmd_msg.control.steering_angle, 0.0);
   EXPECT_DOUBLE_EQ(m_cmd_msg.control.steering_angle_velocity, 0.0);
   EXPECT_DOUBLE_EQ(m_cmd_msg.control.velocity, 1.0);
