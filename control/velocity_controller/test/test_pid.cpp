@@ -42,6 +42,7 @@ TEST(test_pid, calculate_pid_output) {
   pid.setGains(100.0, 100.0, 100.0);
   pid.setLimits(10.0, -10.0, 10.0, -10.0, 10.0, -10.0, 10.0, -10.0);
   enable_integration = true;
+
   // High errors to force each component to its upper limit
   EXPECT_EQ(pid.calculate(0.0, dt, enable_integration, contributions), 0.0);
   for (double error = 100.0; error < 1000.0; error += 100.0) {
@@ -50,6 +51,7 @@ TEST(test_pid, calculate_pid_output) {
     EXPECT_EQ(contributions[1], 10.0);  // integration is activated
     EXPECT_EQ(contributions[2], 10.0);
   }
+
   // Low errors to force each component to its lower limit
   EXPECT_EQ(pid.calculate(0.0, dt, enable_integration, contributions), 0.0);
   for (double error = -100.0; error > -1000.0; error -= 100.0) {
