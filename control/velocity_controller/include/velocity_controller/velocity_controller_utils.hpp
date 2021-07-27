@@ -97,6 +97,8 @@ TrajectoryPoint lerpTrajectoryPoint(const T & points, const Point & point)
 
   return interpolated_point;
 }
+
+double applyLimitFilter(const double input_val, const double max_val, const double min_val);
 }  // namespace velocity_controller_utils
 
 #endif  // VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_UTILS_HPP_

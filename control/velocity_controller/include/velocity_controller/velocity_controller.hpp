@@ -211,7 +211,6 @@ private:
   // filter acceleration
   double calcFilteredAcc(const double raw_acc, const ControlData & control_data);
   void storeAccelCmd(const double accel);
-  double applyLimitFilter(const double input_val, const double max_val, const double min_val) const;
   double applySlopeCompensation(const double acc, const double pitch, const Shift shift) const;
   double applyDiffLimitFilter(
     const double input_val, const double prev_val, const double dt, const double lim_val) const;

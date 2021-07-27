@@ -133,7 +133,8 @@ TEST_F(TestROS, simple_test) {
   traj.points.push_back(point);
   m_traj_pub->publish(traj);
   const rclcpp::Duration one_sec(1, 0);
-  while (!m_received_command) {
+  const rclcpp::Time start = m_node->now();
+  while (!m_received_command && m_node->now() - start < one_sec) {
     rclcpp::spin_some(m_node);
   }
   ASSERT_TRUE(m_received_command);
@@ -143,18 +144,3 @@ TEST_F(TestROS, simple_test) {
   EXPECT_DOUBLE_EQ(m_cmd_msg.control.acceleration, 0.0);
   m_received_command = false;
 }
-
-/* TODO(Maxime CLEMENT) move this function to utils
-TEST(test_velocity_controller, applyLimitFilter) {
-    rclcpp::NodeOptions node_options;
-    VelocityController vc(node_options);
-    double max_val = 10.0;
-    double min_val = 0.0;
-    double input_val = 1.0;
-    EXPECT_DOUBLE_EQ(vc.applyLimitFilter(input_val, max_val, min_val), input_val);
-    input_val = -1.0;
-    EXPECT_DOUBLE_EQ(vc.applyLimitFilter(input_val, max_val, min_val), min_val);
-    input_val = 100.0;
-    EXPECT_DOUBLE_EQ(vc.applyLimitFilter(input_val, max_val, min_val), max_val);
-}
-*/
