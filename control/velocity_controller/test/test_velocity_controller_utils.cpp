@@ -400,3 +400,36 @@ TEST(test_velocity_controller, applyLimitFilter) {
   input_val = 100.0;
   EXPECT_DOUBLE_EQ(vcu::applyLimitFilter(input_val, max_val, min_val), max_val);
 }
+
+TEST(test_velocity_controller, applyDiffLimitFilter) {
+  double dt = 1.0;
+  double max_val = 0.0;  // cannot increase
+  double min_val = 0.0;  // cannot decrease
+  double prev_val = 0.0;
+
+  double input_val = 10.0;
+  EXPECT_DOUBLE_EQ(vcu::applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val), 0.0);
+
+  max_val = 1.0;  // can only increase by up to 1.0 at a time
+  EXPECT_DOUBLE_EQ(vcu::applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val), 1.0);
+
+  input_val = -10.0;
+  EXPECT_DOUBLE_EQ(vcu::applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val), 0.0);
+
+  min_val = -1.0;  // can decrease by up to -1.0 at a time
+  EXPECT_DOUBLE_EQ(vcu::applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val), -1.0);
+
+  dt = 5.0;  // can now increase/decrease 5 times more
+  input_val = 10.0;
+  EXPECT_DOUBLE_EQ(vcu::applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val), 5.0);
+  input_val = -10.0;
+  EXPECT_DOUBLE_EQ(vcu::applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val), -5.0);
+
+  dt = 1.0;
+  input_val = 100.0;
+  for (double prev = 0.0; prev < 100.0; ++prev) {
+    const double new_val = vcu::applyDiffLimitFilter(input_val, prev, dt, max_val, min_val);
+    EXPECT_DOUBLE_EQ(new_val, prev + max_val);
+    prev = new_val;
+  }
+}

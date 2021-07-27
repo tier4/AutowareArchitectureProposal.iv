@@ -149,4 +149,22 @@ double applyLimitFilter(
   return std::min(std::max(input_val, min_val), max_val);
 }
 
+double applyDiffLimitFilter(
+  const double input_val, const double prev_val, const double dt, const double max_val,
+  const double min_val)
+{
+  const double diff_raw = (input_val - prev_val) / dt;
+  const double diff = std::min(std::max(diff_raw, min_val), max_val);
+  const double filtered_val = prev_val + diff * dt;
+  return filtered_val;
+}
+
+double applyDiffLimitFilter(
+  const double input_val, const double prev_val, const double dt, const double lim_val)
+{
+  const double max_val = std::fabs(lim_val);
+  const double min_val = -max_val;
+  return applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val);
+}
+
 }  // namespace velocity_controller_utils

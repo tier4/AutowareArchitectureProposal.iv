@@ -416,8 +416,12 @@ VelocityController::Motion VelocityController::calcEmergencyCtrlCmd(const double
 {
   // These accelerations are without slope compensation
   const auto & p = emergency_state_params_;
-  const double vel = applyDiffLimitFilter(p.vel, prev_raw_ctrl_cmd_.vel, dt, p.acc);
-  const double acc = applyDiffLimitFilter(p.acc, prev_raw_ctrl_cmd_.acc, dt, p.jerk);
+  const double vel = velocity_controller_utils::applyDiffLimitFilter(
+    p.vel, prev_raw_ctrl_cmd_.vel,
+    dt, p.acc);
+  const double acc = velocity_controller_utils::applyDiffLimitFilter(
+    p.acc, prev_raw_ctrl_cmd_.acc,
+    dt, p.jerk);
 
   auto clock = rclcpp::Clock{RCL_ROS_TIME};
   RCLCPP_ERROR_THROTTLE(
@@ -555,8 +559,14 @@ VelocityController::Motion VelocityController::calcCtrlCmd(
   } else if (current_control_state == ControlState::STOPPED) {
     // This acceleration is without slope compensation
     const auto & p = stopped_state_params_;
-    raw_ctrl_cmd.vel = applyDiffLimitFilter(p.vel, prev_raw_ctrl_cmd_.vel, control_data.dt, p.acc);
-    raw_ctrl_cmd.acc = applyDiffLimitFilter(p.acc, prev_raw_ctrl_cmd_.acc, control_data.dt, p.jerk);
+    raw_ctrl_cmd.vel = velocity_controller_utils::applyDiffLimitFilter(
+      p.vel,
+      prev_raw_ctrl_cmd_.vel,
+      control_data.dt, p.acc);
+    raw_ctrl_cmd.acc = velocity_controller_utils::applyDiffLimitFilter(
+      p.acc,
+      prev_raw_ctrl_cmd_.acc,
+      control_data.dt, p.jerk);
 
     RCLCPP_DEBUG(
       get_logger(), "[Stopped]. vel: %3.3f, acc: %3.3f",
@@ -685,7 +695,7 @@ double VelocityController::calcFilteredAcc(const double raw_acc, const ControlDa
   debug_values_.setValues(DebugValues::TYPE::ACC_CMD_SLOPE_APPLIED, acc_slope_filtered);
 
   // This jerk filter must be applied after slope compensation
-  const double acc_jerk_filtered = applyDiffLimitFilter(
+  const double acc_jerk_filtered = velocity_controller_utils::applyDiffLimitFilter(
     acc_slope_filtered, prev_ctrl_cmd_.acc, control_data.dt, max_jerk_, min_jerk_);
   debug_values_.setValues(DebugValues::TYPE::ACC_CMD_JERK_LIMITED, acc_jerk_filtered);
 
@@ -716,24 +726,6 @@ void VelocityController::storeAccelCmd(const double accel)
   {
     ctrl_cmd_vec_.erase(ctrl_cmd_vec_.begin());
   }
-}
-
-double VelocityController::applyDiffLimitFilter(
-  const double input_val, const double prev_val, const double dt, const double max_val,
-  const double min_val) const
-{
-  const double diff_raw = (input_val - prev_val) / dt;
-  const double diff = std::min(std::max(diff_raw, min_val), max_val);
-  const double filtered_val = prev_val + diff * dt;
-  return filtered_val;
-}
-
-double VelocityController::applyDiffLimitFilter(
-  const double input_val, const double prev_val, const double dt, const double lim_val) const
-{
-  const double max_val = std::fabs(lim_val);
-  const double min_val = -max_val;
-  return applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val);
 }
 
 double VelocityController::applySlopeCompensation(
