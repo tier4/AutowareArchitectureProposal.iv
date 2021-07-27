@@ -143,12 +143,6 @@ Quaternion lerpOrientation(
   return tf2::toMsg(q_interpolated);
 }
 
-double applyLimitFilter(
-  const double input_val, const double max_val, const double min_val)
-{
-  return std::min(std::max(input_val, min_val), max_val);
-}
-
 double applyDiffLimitFilter(
   const double input_val, const double prev_val, const double dt, const double max_val,
   const double min_val)

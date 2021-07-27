@@ -682,9 +682,7 @@ enum VelocityController::Shift VelocityController::getCurrentShift(const size_t 
 
 double VelocityController::calcFilteredAcc(const double raw_acc, const ControlData & control_data)
 {
-  const double acc_max_filtered = velocity_controller_utils::applyLimitFilter(
-    raw_acc, max_acc_,
-    min_acc_);
+  const double acc_max_filtered = std::clamp(raw_acc, max_acc_, min_acc_);
   debug_values_.setValues(DebugValues::TYPE::ACC_CMD_ACC_LIMITED, acc_max_filtered);
 
   // store ctrl cmd without slope filter

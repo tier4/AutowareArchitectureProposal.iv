@@ -98,7 +98,6 @@ TrajectoryPoint lerpTrajectoryPoint(const T & points, const Point & point)
   return interpolated_point;
 }
 
-double applyLimitFilter(const double input_val, const double max_val, const double min_val);
 double applyDiffLimitFilter(
   const double input_val, const double prev_val, const double dt, const double lim_val);
 double applyDiffLimitFilter(
