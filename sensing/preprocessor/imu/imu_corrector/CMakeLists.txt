@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(vehicle_info_util)
+project(imu_corrector)
 
 ### Compile options
 if(NOT CMAKE_CXX_STANDARD)
@@ -14,9 +14,14 @@ endif()
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
+ament_auto_add_library(imu_corrector_node SHARED
+  src/imu_corrector_core.cpp
+  include/imu_corrector/imu_corrector_core.hpp
+)
 
-ament_auto_add_library(vehicle_info_util SHARED
-  src/vehicle_info_util.cpp
+rclcpp_components_register_node(imu_corrector_node
+  PLUGIN "imu_corrector::ImuCorrector"
+  EXECUTABLE imu_corrector
 )
 
 if(BUILD_TESTING)
@@ -24,7 +29,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-ament_auto_package(
-  INSTALL_TO_SHARE
-    launch
+ament_auto_package(INSTALL_TO_SHARE
+  launch
+  config
 )
