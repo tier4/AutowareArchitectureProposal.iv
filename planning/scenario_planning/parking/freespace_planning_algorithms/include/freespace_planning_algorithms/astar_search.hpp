@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef ASTAR_SEARCH__ASTAR_SEARCH_HPP_
-#define ASTAR_SEARCH__ASTAR_SEARCH_HPP_
+#ifndef FREESPACE_PLANNING_ALGORITHMS__ASTAR_SEARCH_HPP_
+#define FREESPACE_PLANNING_ALGORITHMS__ASTAR_SEARCH_HPP_
 
 #include <cmath>
 #include <functional>
@@ -23,24 +23,24 @@
 #include <tuple>
 #include <vector>
 
-#include "geometry_msgs/msg/pose_array.hpp"
-#include "nav_msgs/msg/occupancy_grid.hpp"
 #include "nav_msgs/msg/path.hpp"
 #include "std_msgs/msg/header.hpp"
 
-enum class NodeStatus : uint8_t { None, Open, Closed, Obstacle };
+#include "freespace_planning_algorithms/abstract_algorithm.hpp"
+#include "freespace_planning_algorithms/reeds_shepp.hpp"
 
-struct IndexXYT
+namespace freespace_planning_algorithms
 {
-  int x;
-  int y;
-  int theta;
-};
+enum class NodeStatus : uint8_t { None, Open, Closed };
 
-struct IndexXY
+struct AstarParam
 {
-  int x;
-  int y;
+  // base configs
+  bool only_behind_solutions;  // solutions should be behind the goal
+  bool use_back;               // backward search
+
+  // search configs
+  double distance_heuristic_weight;  // obstacle threshold on grid [0,255]
 };
 
 struct AstarNode
@@ -65,24 +65,12 @@ struct NodeComparison
   }
 };
 
-struct AstarWaypoint
-{
-  geometry_msgs::msg::PoseStamped pose;
-  bool is_back = false;
-};
-
-struct AstarWaypoints
-{
-  std_msgs::msg::Header header;
-  std::vector<AstarWaypoint> waypoints;
-};
-
 struct NodeUpdate
 {
   double shift_x;
   double shift_y;
   double shift_theta;
-  double step;
+  double distance;
   bool is_curve;
   bool is_back;
 
@@ -112,53 +100,20 @@ struct NodeUpdate
   }
 };
 
-struct RobotShape
-{
-  double length;     // X [m]
-  double width;      // Y [m]
-  double base2back;  // base_link to rear [m]
-};
-
-struct AstarParam
-{
-  // base configs
-  bool use_back;               // backward search
-  bool only_behind_solutions;  // solutions should be behind the goal
-  double time_limit;           // planning time limit [msec]
-
-  // robot configs
-  RobotShape robot_shape;
-  double minimum_turning_radius;  // [m]
-  double maximum_turning_radius;  // [m]
-  int turning_radius_size;        // discretized turning radius table size [-]
-
-  // search configs
-  int theta_size;                  // discretized angle table size [-]
-  double curve_weight;             // curve moving cost [-]
-  double reverse_weight;           // backward moving cost [-]
-  double lateral_goal_range;       // reaching threshold, lateral error [m]
-  double longitudinal_goal_range;  // reaching threshold, longitudinal error [m]
-  double angle_goal_range;         // reaching threshold, angle error [deg]
-
-  // costmap configs
-  int obstacle_threshold;            // obstacle threshold on grid [-]
-  double distance_heuristic_weight;  // obstacle threshold on grid [0,255]
-};
-
-class AstarSearch
+class AstarSearch : public AbstractPlanningAlgorithm
 {
 public:
   using TransitionTable = std::vector<std::vector<NodeUpdate>>;
 
-  explicit AstarSearch(const AstarParam & astar_param);
+  AstarSearch(const PlannerCommonParam & planner_common_param, const AstarParam & astar_param);
 
-  void setRobotShape(const RobotShape & robot_shape) {astar_param_.robot_shape = robot_shape;}
-  void initializeNodes(const nav_msgs::msg::OccupancyGrid & costmap);
+  void setMap(const nav_msgs::msg::OccupancyGrid & costmap) override;
   bool makePlan(
-    const geometry_msgs::msg::Pose & start_pose, const geometry_msgs::msg::Pose & goal_pose);
-  bool hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & trajectory);
+    const geometry_msgs::msg::Pose & start_pose,
+    const geometry_msgs::msg::Pose & goal_pose) override;
+  bool hasFeasibleSolution() override;  // currently used only in testing
 
-  const AstarWaypoints & getWaypoints() const {return waypoints_;}
+  const PlannerWaypoints & getWaypoints() const {return waypoints_;}
 
 private:
   bool search();
@@ -166,14 +121,11 @@ private:
   bool setStartNode();
   bool setGoalNode();
   double estimateCost(const geometry_msgs::msg::Pose & pose);
-
-  bool detectCollision(const IndexXYT & index);
-  bool isOutOfRange(const IndexXYT & index);
-  bool isObs(const IndexXYT & index);
   bool isGoal(const AstarNode & node);
 
   AstarNode * getNodeRef(const IndexXYT & index) {return &nodes_[index.y][index.x][index.theta];}
 
+  // Algorithm specific param
   AstarParam astar_param_;
 
   // hybrid astar variables
@@ -181,15 +133,12 @@ private:
   std::vector<std::vector<std::vector<AstarNode>>> nodes_;
   std::priority_queue<AstarNode *, std::vector<AstarNode *>, NodeComparison> openlist_;
 
-  // costmap as occupancy grid
-  nav_msgs::msg::OccupancyGrid costmap_;
+  // goal node, which may helpful in testing and debugging
+  AstarNode * goal_node_;
 
-  // pose in costmap frame
-  geometry_msgs::msg::Pose start_pose_;
-  geometry_msgs::msg::Pose goal_pose_;
-
-  // result path
-  AstarWaypoints waypoints_;
+  // distance metric option (removed when the reeds_shepp gets stable)
+  bool use_reeds_shepp_;
 };
+}  // namespace freespace_planning_algorithms
 
-#endif  // ASTAR_SEARCH__ASTAR_SEARCH_HPP_
+#endif  // FREESPACE_PLANNING_ALGORITHMS__ASTAR_SEARCH_HPP_
