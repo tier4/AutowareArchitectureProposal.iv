@@ -697,7 +697,7 @@ bool setGoal(
     }
     size_t min_dist_index;
     double min_dist = std::numeric_limits<double>::max();
-    double goal_z;
+    double goal_z{0.0};
     {
       bool found = false;
       for (size_t i = 0; i < input.points.size(); ++i) {
@@ -718,7 +718,7 @@ bool setGoal(
       }
     }
 
-    size_t min_dist_out_of_range_index;
+    size_t min_dist_out_of_range_index{0};
     {
       for (int i = min_dist_index; 0 <= i; --i) {
         const double x = input.points.at(i).point.pose.position.x - goal.position.x;
