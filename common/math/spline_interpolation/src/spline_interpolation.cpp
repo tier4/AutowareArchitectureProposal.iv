@@ -129,6 +129,11 @@ bool SplineInterpolator::isValidInput(
       std::endl;
     return false;
   }
+  if (base_index.size() < 2 || base_value.size() < 2) {
+    std::cout << "bad index : size of base_index or base_value is less than 2. base_index:  "
+              << base_index.size() << ", base_value: " << base_value.size() << std::endl;
+    return false;
+  }
   if (!isIncrease(base_index)) {
     std::cout << "bad index : base_index is not monotonically increasing. base_index = [" <<
       base_index.front() << ", " << base_index.back() << "]" << std::endl;

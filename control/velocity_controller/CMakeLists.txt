@@ -16,11 +16,10 @@ endif()
 set(velocity_controller_SRC
   src/velocity_controller_core.cpp
   src/pid.cpp
-  src/velocity_controller_mathutils.cpp
+  src/velocity_controller_utils.cpp
 )
 
 ament_auto_add_library(velocity_controller_core SHARED
-  ${velocity_controller_HEADER}
   ${velocity_controller_SRC}
 )
 
