@@ -35,24 +35,55 @@ using geometry_msgs::msg::Point;
 using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::Quaternion;
 
+/**
+ * @brief check if trajectory is invalid or not
+ */
 bool isValidTrajectory(const Trajectory & traj);
 
-double calcStopDistance(
-  const Point & current_pos, const Trajectory & traj);
+/**
+ * @brief calculate distance to stopline from current vehicle position where velocity is 0
+ */
+double calcStopDistance(const Point & current_pos, const Trajectory & traj);
 
+/**
+ * @brief calculate pitch angle from estimated current pose
+ */
 double getPitchByPose(const Quaternion & quaternion);
 
-double getPitchByTraj(
-  const Trajectory & msg, const size_t closest_idx, const double wheel_base);
+/**
+ * @brief calculate pitch angle from trajectory on map
+ * @param [in] msg trajectory
+ * @param [in] closedt_idx closest index to current vehicle position
+ * @param [in] wheel_base length of wheel base
+ */
+double getPitchByTraj(const Trajectory & msg, const size_t closest_idx, const double wheel_base);
 
+/**
+ * @brief calculate elevation angle
+ */
 double calcElevationAngle(const Point & p_from, const Point & p_to);
 
+/**
+ * @brief calculate vehicle pose after time delay by moving the vehicle at current velocity for delayed time
+ */
 Pose calcPoseAfterTimeDelay(
   const Pose & current_pose, const double delay_time, const double current_vel);
 
+/**
+ * @brief apply linear interpolation
+ * @param [in] src_val first value
+ * @param [in] dst_val second value
+ * @param [in] ratio ratio betwen o_from and o_to for interpolation
+ */
 double lerp(const double src_val, const double dst_val, const double ratio);
 
-template<class T>
+/**
+ * @brief apply linear interpolation to position
+ * @param [in] p_from first position
+ * @param [in] p_to second position
+ * @param [in] ratio ratio betwen o_from and o_to for interpolation
+ */
+template <class T>
 T lerpXYZ(const T & p_from, const T & p_to, const double ratio)
 {
   T point;
@@ -62,10 +93,20 @@ T lerpXYZ(const T & p_from, const T & p_to, const double ratio)
   return point;
 }
 
-Quaternion lerpOrientation(
-  const Quaternion & o_from, const Quaternion & o_to, const double ratio);
+/**
+ * @brief apply linear interpolation to orientation
+ * @param [in] o_from first orientation
+ * @param [in] o_to second orientation
+ * @param [in] ratio ratio betwen o_from and o_to for interpolation
+ */
+Quaternion lerpOrientation(const Quaternion & o_from, const Quaternion & o_to, const double ratio);
 
-template<class T>
+/**
+ * @brief apply linear interpolation to trajectory point that is closest to a certain point
+ * @param [in] points trajectory points
+ * @param [in] point Interpolated point is closest to this point.
+ */
+template <class T>
 TrajectoryPoint lerpTrajectoryPoint(const T & points, const Point & point)
 {
   TrajectoryPoint interpolated_point;
@@ -98,8 +139,24 @@ TrajectoryPoint lerpTrajectoryPoint(const T & points, const Point & point)
   return interpolated_point;
 }
 
+/**
+ * @brief limit variable whose differential is within a certain value
+ * @param [in] input_val current value
+ * @param [in] prev_val previous value
+ * @param [in] dt time between current and previous one
+ * @param [in] lim_val limitation value for differential
+ */
 double applyDiffLimitFilter(
   const double input_val, const double prev_val, const double dt, const double lim_val);
+
+/**
+ * @brief limit variable whose differential is within a certain value
+ * @param [in] input_val current value
+ * @param [in] prev_val previous value
+ * @param [in] dt time between current and previous one
+ * @param [in] max_val maximum value for differential
+ * @param [in] min_val minimum value for differential
+ */
 double applyDiffLimitFilter(
   const double input_val, const double prev_val, const double dt, const double max_val,
   const double min_val);
