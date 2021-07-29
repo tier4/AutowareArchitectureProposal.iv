@@ -380,21 +380,21 @@ VelocityController::ControlData VelocityController::getControlData(
   // current velocity and acceleration
   control_data.current_motion = getCurrentMotion();
 
-  // closest idx
+  // nearest idx
   const double max_dist = state_transition_params_.emergency_state_traj_trans_dev;
   const double max_yaw = state_transition_params_.emergency_state_traj_rot_dev;
-  const auto closest_idx_opt =
+  const auto nearest_idx_opt =
     autoware_utils::findNearestIndex(trajectory_ptr_->points, current_pose, max_dist, max_yaw);
 
-  // return here if closest index is not found
-  if (!closest_idx_opt) {
+  // return here if nearest index is not found
+  if (!nearest_idx_opt) {
     control_data.is_far_from_trajectory = true;
     return control_data;
   }
-  control_data.closest_idx = *closest_idx_opt;
+  control_data.nearest_idx = *nearest_idx_opt;
 
   // shift
-  control_data.shift = getCurrentShift(control_data.closest_idx);
+  control_data.shift = getCurrentShift(control_data.nearest_idx);
   if (control_data.shift != prev_shift_) {pid_vel_.reset();}
   prev_shift_ = control_data.shift;
 
@@ -405,7 +405,7 @@ VelocityController::ControlData VelocityController::getControlData(
   // pitch
   const double raw_pitch = velocity_controller_utils::getPitchByPose(current_pose.orientation);
   const double traj_pitch = velocity_controller_utils::getPitchByTraj(
-    *trajectory_ptr_, control_data.closest_idx, wheel_base_);
+    *trajectory_ptr_, control_data.nearest_idx, wheel_base_);
   control_data.slope_angle = use_traj_for_pitch_ ? traj_pitch : lpf_pitch_->filter(raw_pitch);
   updatePitchDebugValues(control_data.slope_angle, traj_pitch, raw_pitch);
 
@@ -515,7 +515,7 @@ VelocityController::Motion VelocityController::calcCtrlCmd(
   const ControlState & current_control_state, const geometry_msgs::msg::Pose & current_pose,
   const ControlData & control_data)
 {
-  const size_t closest_idx = control_data.closest_idx;
+  const size_t nearest_idx = control_data.nearest_idx;
   const double current_vel = control_data.current_motion.vel;
   const double current_acc = control_data.current_motion.acc;
 
@@ -524,14 +524,14 @@ VelocityController::Motion VelocityController::calcCtrlCmd(
   Motion target_motion{};
   if (current_control_state == ControlState::DRIVE) {
     // calculate target velocity and acceleration from planning
-    const auto closest_interpolated_point = calcInterpolatedTargetValue(
-      *trajectory_ptr_, current_pose.position, current_vel, closest_idx);
-    const double closest_vel = closest_interpolated_point.twist.linear.x;
+    const auto nearest_interpolated_point = calcInterpolatedTargetValue(
+      *trajectory_ptr_, current_pose.position, current_vel, nearest_idx);
+    const double nearest_vel = nearest_interpolated_point.twist.linear.x;
 
     const auto target_pose = velocity_controller_utils::calcPoseAfterTimeDelay(
       current_pose, delay_compensation_time_, current_vel);
     const auto target_interpolated_point =
-      calcInterpolatedTargetValue(*trajectory_ptr_, target_pose.position, closest_vel, closest_idx);
+      calcInterpolatedTargetValue(*trajectory_ptr_, target_pose.position, nearest_vel, nearest_idx);
     target_motion =
       Motion{target_interpolated_point.twist.linear.x, target_interpolated_point.accel.linear.x};
 
@@ -588,7 +588,7 @@ VelocityController::Motion VelocityController::calcCtrlCmd(
   return filtered_ctrl_cmd;
 }
 
-// Do not use closest_idx here
+// Do not use nearest_idx here
 void VelocityController::publishCtrlCmd(const Motion & ctrl_cmd, double current_vel)
 {
   // publish control command
@@ -665,11 +665,11 @@ VelocityController::Motion VelocityController::getCurrentMotion() const
   return Motion{current_vel, current_acc};
 }
 
-enum VelocityController::Shift VelocityController::getCurrentShift(const size_t closest_idx) const
+enum VelocityController::Shift VelocityController::getCurrentShift(const size_t nearest_idx) const
 {
   constexpr double epsilon = 1e-5;
 
-  const double target_vel = trajectory_ptr_->points.at(closest_idx).twist.linear.x;
+  const double target_vel = trajectory_ptr_->points.at(nearest_idx).twist.linear.x;
 
   if (target_vel > epsilon) {
     return Shift::Forward;
@@ -742,7 +742,7 @@ double VelocityController::applySlopeCompensation(
 
 autoware_planning_msgs::msg::TrajectoryPoint VelocityController::calcInterpolatedTargetValue(
   const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
-  [[maybe_unused]] const double current_vel, const size_t closest_idx) const
+  [[maybe_unused]] const double current_vel, const size_t nearest_idx) const
 {
   if (traj.points.size() == 1) {
     return traj.points.at(0);
@@ -750,12 +750,12 @@ autoware_planning_msgs::msg::TrajectoryPoint VelocityController::calcInterpolate
 
   // If the current position is not within the reference trajectory, enable the edge value.
   // Else, apply linear interpolation
-  if (closest_idx == 0) {
+  if (nearest_idx == 0) {
     if (autoware_utils::calcSignedArcLength(traj.points, point, 0) > 0) {
       return traj.points.at(0);
     }
   }
-  if (closest_idx == traj.points.size() - 1) {
+  if (nearest_idx == traj.points.size() - 1) {
     if (autoware_utils::calcSignedArcLength(traj.points, point, traj.points.size() - 1) < 0) {
       return traj.points.at(traj.points.size() - 1);
     }
@@ -858,16 +858,16 @@ void VelocityController::updateDebugVelAcc(
   const ControlData & control_data)
 {
   const double current_vel = control_data.current_motion.vel;
-  const size_t closest_idx = control_data.closest_idx;
+  const size_t nearest_idx = control_data.nearest_idx;
 
   const auto interpolated_point =
-    calcInterpolatedTargetValue(*trajectory_ptr_, current_pose.position, current_vel, closest_idx);
+    calcInterpolatedTargetValue(*trajectory_ptr_, current_pose.position, current_vel, nearest_idx);
 
   debug_values_.setValues(DebugValues::TYPE::CURRENT_VEL, current_vel);
   debug_values_.setValues(DebugValues::TYPE::TARGET_VEL, target_motion.vel);
   debug_values_.setValues(DebugValues::TYPE::TARGET_ACC, target_motion.acc);
-  debug_values_.setValues(DebugValues::TYPE::CLOSEST_VEL, interpolated_point.twist.linear.x);
-  debug_values_.setValues(DebugValues::TYPE::CLOSEST_ACC, interpolated_point.accel.linear.x);
+  debug_values_.setValues(DebugValues::TYPE::NEAREST_VEL, interpolated_point.twist.linear.x);
+  debug_values_.setValues(DebugValues::TYPE::NEAREST_ACC, interpolated_point.accel.linear.x);
   debug_values_.setValues(DebugValues::TYPE::ERROR_VEL, target_motion.vel - current_vel);
 }
 

@@ -59,7 +59,7 @@ private:
   struct ControlData
   {
     bool is_far_from_trajectory{false};
-    size_t closest_idx{0};  // closest_idx = 0 when closest_idx is not found with findNearestIdx
+    size_t nearest_idx{0};  // nearest_idx = 0 when nearest_idx is not found with findNearestIdx
     Motion current_motion{};
     Shift shift{Shift::Forward};  // shift is used only to calculate the sign of pitch compensation
     double stop_dist{0.0};  // signed distance that is positive when car is before the stopline
@@ -250,9 +250,9 @@ private:
 
   /**
    * @brief calculate direction (foward or backward) that vehicle moves
-   * @param [in] closest_idx closest index on trajectory to vehicle
+   * @param [in] nearest_idx nearest index on trajectory to vehicle
    */
-  enum Shift getCurrentShift(const size_t closest_idx) const;
+  enum Shift getCurrentShift(const size_t nearest_idx) const;
 
   /**
    * @brief filter acceleration command with limitation of acceleration and jerk, and slope compensation
@@ -275,12 +275,12 @@ private:
   double applySlopeCompensation(const double acc, const double pitch, const Shift shift) const;
 
   /**
-   * @brief interpolate trajectory point that is closest to vehicle
+   * @brief interpolate trajectory point that is nearest to vehicle
    * @param [in] point vehicle position
    */
   autoware_planning_msgs::msg::TrajectoryPoint calcInterpolatedTargetValue(
     const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
-    const double current_vel, const size_t closest_idx) const;
+    const double current_vel, const size_t nearest_idx) const;
 
   /**
    * @brief calculate predicted velocity after time delay based on past control commands

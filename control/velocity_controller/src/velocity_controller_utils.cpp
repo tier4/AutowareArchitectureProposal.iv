@@ -66,20 +66,20 @@ double getPitchByPose(const Quaternion & quaternion)
 }
 
 double getPitchByTraj(
-  const Trajectory & msg, const size_t closest_idx, const double wheel_base)
+  const Trajectory & msg, const size_t nearest_idx, const double wheel_base)
 {
   // cannot calculate pitch
   if (msg.points.size() <= 1) {
     return 0.0;
   }
 
-  for (size_t i = closest_idx + 1; i < msg.points.size(); ++i) {
+  for (size_t i = nearest_idx + 1; i < msg.points.size(); ++i) {
     const double dist =
-      autoware_utils::calcDistance2d(msg.points.at(closest_idx).pose, msg.points.at(i).pose);
+      autoware_utils::calcDistance2d(msg.points.at(nearest_idx).pose, msg.points.at(i).pose);
     if (dist > wheel_base) {
-      // calculate pitch from trajectory between rear wheel (closest) and front center (i)
+      // calculate pitch from trajectory between rear wheel (nearest) and front center (i)
       return velocity_controller_utils::calcElevationAngle(
-        msg.points.at(closest_idx).pose.position, msg.points.at(i).pose.position);
+        msg.points.at(nearest_idx).pose.position, msg.points.at(i).pose.position);
     }
   }
 

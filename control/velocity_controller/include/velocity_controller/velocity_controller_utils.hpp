@@ -53,10 +53,10 @@ double getPitchByPose(const Quaternion & quaternion);
 /**
  * @brief calculate pitch angle from trajectory on map
  * @param [in] msg trajectory
- * @param [in] closedt_idx closest index to current vehicle position
+ * @param [in] closedt_idx nearest index to current vehicle position
  * @param [in] wheel_base length of wheel base
  */
-double getPitchByTraj(const Trajectory & msg, const size_t closest_idx, const double wheel_base);
+double getPitchByTraj(const Trajectory & msg, const size_t nearest_idx, const double wheel_base);
 
 /**
  * @brief calculate elevation angle
@@ -83,7 +83,7 @@ double lerp(const double src_val, const double dst_val, const double ratio);
  * @param [in] p_to second position
  * @param [in] ratio ratio betwen o_from and o_to for interpolation
  */
-template <class T>
+template<class T>
 T lerpXYZ(const T & p_from, const T & p_to, const double ratio)
 {
   T point;
@@ -102,25 +102,25 @@ T lerpXYZ(const T & p_from, const T & p_to, const double ratio)
 Quaternion lerpOrientation(const Quaternion & o_from, const Quaternion & o_to, const double ratio);
 
 /**
- * @brief apply linear interpolation to trajectory point that is closest to a certain point
+ * @brief apply linear interpolation to trajectory point that is nearest to a certain point
  * @param [in] points trajectory points
- * @param [in] point Interpolated point is closest to this point.
+ * @param [in] point Interpolated point is nearest to this point.
  */
-template <class T>
+template<class T>
 TrajectoryPoint lerpTrajectoryPoint(const T & points, const Point & point)
 {
   TrajectoryPoint interpolated_point;
 
-  const size_t closest_seg_idx = autoware_utils::findNearestSegmentIndex(points, point);
+  const size_t nearest_seg_idx = autoware_utils::findNearestSegmentIndex(points, point);
 
   const double len_to_interpolated =
-    autoware_utils::calcLongitudinalOffsetToSegment(points, closest_seg_idx, point);
+    autoware_utils::calcLongitudinalOffsetToSegment(points, nearest_seg_idx, point);
   const double len_segment =
-    autoware_utils::calcSignedArcLength(points, closest_seg_idx, closest_seg_idx + 1);
+    autoware_utils::calcSignedArcLength(points, nearest_seg_idx, nearest_seg_idx + 1);
   const double interpolate_ratio = len_to_interpolated / len_segment;
 
   {
-    const size_t i = closest_seg_idx;
+    const size_t i = nearest_seg_idx;
 
     interpolated_point.pose.position =
       lerpXYZ(points.at(i).pose.position, points.at(i + 1).pose.position, interpolate_ratio);
