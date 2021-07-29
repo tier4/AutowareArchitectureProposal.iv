@@ -43,6 +43,7 @@ if(BUILD_TESTING)
     test/src/lookup_table.cpp
     test/src/test_area.cpp
     test/src/test_common_2d.cpp
+    test/src/test_intersection.cpp
   )
   ament_add_gtest(${GEOMETRY_GTEST} ${GEOMETRY_SRC})
   autoware_set_compile_options(${GEOMETRY_GTEST})

@@ -18,7 +18,6 @@
 #define GEOMETRY__INTERSECTION_HPP_
 
 
-#include <motion_common/config.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_msgs/msg/bounding_box.hpp>
 #include <autoware_auto_msgs/msg/trajectory_point.hpp>
@@ -39,10 +38,8 @@ namespace common
 {
 namespace geometry
 {
-using motion::motion_common::VehicleConfig;
 using autoware_auto_msgs::msg::TrajectoryPoint;
 using autoware_auto_msgs::msg::BoundingBox;
-using motion::motion_common::to_angle;
 using autoware::common::geometry::convex_hull;
 using autoware::common::geometry::get_normal;
 using autoware::common::geometry::dot_2d;
@@ -84,6 +81,76 @@ std::vector<Line> get_sorted_face_list(const Iter start, const Iter end)
   face_list.emplace_back(Line{*itLast, corner_list.front()});
 
   return face_list;
+}
+
+/// \brief Append points of the polygon `internal` that are contained in the polygon `exernal`.
+template<template<typename ...> class IterableT, typename PointT>
+void append_contained_points(
+  const IterableT<PointT> & external,
+  const IterableT<PointT> & internal,
+  std::list<PointT> & result)
+{
+  std::copy_if(
+    internal.begin(), internal.end(), std::back_inserter(result),
+    [&external](const auto & pt) {
+      return common::geometry::is_point_inside_polygon_2d(external.begin(), external.end(), pt);
+    });
+}
+
+/// \brief Append the intersecting points between two polygons into the output list.
+template<template<typename ...> class IterableT, typename PointT>
+void append_intersection_points(
+  const IterableT<PointT> & polygon1,
+  const IterableT<PointT> & polygon2,
+  std::list<PointT> & result)
+{
+  auto get_edge = [](const auto & list, const auto & iterator) {
+      const auto next_it = std::next(iterator);
+      const auto & next_pt = (next_it != list.end()) ? *next_it : list.front();
+      return std::make_pair(*iterator, next_pt);
+    };
+  using Interval = common::geometry::Interval<float32_t>;
+  // Compare each edge from polygon1 to each edge from polygon2
+  for (auto corner1_it = polygon1.begin(); corner1_it != polygon1.end(); ++corner1_it) {
+    const auto & edge1 = get_edge(polygon1, corner1_it);
+
+    Interval edge1_x_interval{
+      std::min(point_adapter::x_(edge1.first), point_adapter::x_(edge1.second)),
+      std::max(point_adapter::x_(edge1.first), point_adapter::x_(edge1.second))};
+
+    Interval edge1_y_interval{
+      std::min(point_adapter::y_(edge1.first), point_adapter::y_(edge1.second)),
+      std::max(point_adapter::y_(edge1.first), point_adapter::y_(edge1.second))};
+
+    for (auto corner2_it = polygon2.begin(); corner2_it != polygon2.end(); ++corner2_it) {
+      try {
+        const auto & edge2 = get_edge(polygon2, corner2_it);
+        const auto & intersection =
+          common::geometry::intersection_2d(
+          edge1.first, minus_2d(edge1.second, edge1.first),
+          edge2.first, minus_2d(edge2.second, edge2.first));
+
+        Interval edge2_x_interval{
+          std::min(point_adapter::x_(edge2.first), point_adapter::x_(edge2.second)),
+          std::max(point_adapter::x_(edge2.first), point_adapter::x_(edge2.second))};
+
+        Interval edge2_y_interval{
+          std::min(point_adapter::y_(edge2.first), point_adapter::y_(edge2.second)),
+          std::max(point_adapter::y_(edge2.first), point_adapter::y_(edge2.second))};
+        // Only accept intersections that lie on both of the line segments (edges)
+        if (Interval::contains(edge1_x_interval, point_adapter::x_(intersection)) &&
+          Interval::contains(edge2_x_interval, point_adapter::x_(intersection)) &&
+          Interval::contains(edge1_y_interval, point_adapter::y_(intersection)) &&
+          Interval::contains(edge2_y_interval, point_adapter::y_(intersection)))
+        {
+          result.push_back(intersection);
+        }
+      } catch (const std::runtime_error &) {
+        // Parallel lines. TODO(yunus.caliskan): #1229
+        continue;
+      }
+    }
+  }
 }
 
 
@@ -151,6 +218,38 @@ bool intersect(const Iter begin1, const Iter end1, const Iter begin2, const Iter
   // No separating hyperplane found, boxes collide
   return true;
 }
+
+/// \brief Get the intersection between two polygons. The polygons should be provided in an
+/// identical format to the output of `convex_hull` function as in the corners should be ordered
+/// in a CCW fashion.
+/// The computation is done by:
+/// * Find the corners of each polygon that are contained by the other polygon.
+/// * Find the intersection points between two polygons
+/// * Combine these points and order CCW to get the final polygon.
+/// The criteria for intersection is better explained in:
+/// "Area of intersection of arbitrary polygons" (Livermore, Calif, 1977)
+/// See https://www.osti.gov/servlets/purl/7309916/, chapter II - B
+/// TODO(yunus.caliskan): This is a naive implementation. We should scan for a more efficient
+///  algorithm: #1230
+/// \tparam IterableT A container class that has stl style iterators defined.
+/// \tparam PointT Point type that have the adapters for the x and y fields.
+/// \param polygon1 A convex polygon
+/// \param polygon2 A convex polygon
+/// \return The resulting conv
+template<template<typename ...> class IterableT, typename PointT>
+std::list<PointT> convex_polygon_intersection2d(
+  const IterableT<PointT> & polygon1,
+  const IterableT<PointT> & polygon2)
+{
+  std::list<PointT> result;
+  details::append_contained_points(polygon1, polygon2, result);
+  details::append_contained_points(polygon2, polygon1, result);
+  details::append_intersection_points(polygon1, polygon2, result);
+  const auto end_it = common::geometry::convex_hull(result);
+  result.resize(static_cast<uint32_t>(std::distance(result.cbegin(), end_it)));
+  return result;
+}
+
 }  // namespace geometry
 }  // namespace common
 }  // namespace autoware
