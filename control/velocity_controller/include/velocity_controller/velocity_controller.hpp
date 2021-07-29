@@ -185,12 +185,12 @@ private:
   std::shared_ptr<rclcpp::Time> last_running_time_{std::make_shared<rclcpp::Time>(this->now())};
 
   /**
-   * @brief set current and previous velocity with recieved message
+   * @brief set current and previous velocity with received message
    */
   void callbackCurrentVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
 
   /**
-   * @brief set reference trajectory with recieved message
+   * @brief set reference trajectory with received message
    */
   void callbackTrajectory(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg);
 
@@ -249,7 +249,7 @@ private:
   Motion getCurrentMotion() const;
 
   /**
-   * @brief calculate direction (foward or backward) that vehicle moves
+   * @brief calculate direction (forward or backward) that vehicle moves
    * @param [in] nearest_idx nearest index on trajectory to vehicle
    */
   enum Shift getCurrentShift(const size_t nearest_idx) const;

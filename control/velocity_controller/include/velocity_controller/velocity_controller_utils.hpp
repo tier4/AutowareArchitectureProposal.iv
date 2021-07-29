@@ -52,11 +52,13 @@ double getPitchByPose(const Quaternion & quaternion);
 
 /**
  * @brief calculate pitch angle from trajectory on map
- * @param [in] msg trajectory
- * @param [in] closedt_idx nearest index to current vehicle position
+ * @param [in] trajectory input trajectory
+ * @param [in] closest_idx nearest index to current vehicle position
  * @param [in] wheel_base length of wheel base
  */
-double getPitchByTraj(const Trajectory & msg, const size_t nearest_idx, const double wheel_base);
+double getPitchByTraj(
+  const Trajectory & trajectory, const size_t closest_idx,
+  const double wheel_base);
 
 /**
  * @brief calculate elevation angle
@@ -71,17 +73,17 @@ Pose calcPoseAfterTimeDelay(
 
 /**
  * @brief apply linear interpolation
- * @param [in] src_val first value
- * @param [in] dst_val second value
- * @param [in] ratio ratio betwen o_from and o_to for interpolation
+ * @param [in] v_from first value
+ * @param [in] v_to second value
+ * @param [in] ratio ratio between o_from and o_to for interpolation
  */
-double lerp(const double src_val, const double dst_val, const double ratio);
+double lerp(const double v_from, const double v_to, const double ratio);
 
 /**
  * @brief apply linear interpolation to position
  * @param [in] p_from first position
  * @param [in] p_to second position
- * @param [in] ratio ratio betwen o_from and o_to for interpolation
+ * @param [in] ratio ratio between o_from and o_to for interpolation
  */
 template<class T>
 T lerpXYZ(const T & p_from, const T & p_to, const double ratio)
@@ -97,7 +99,7 @@ T lerpXYZ(const T & p_from, const T & p_to, const double ratio)
  * @brief apply linear interpolation to orientation
  * @param [in] o_from first orientation
  * @param [in] o_to second orientation
- * @param [in] ratio ratio betwen o_from and o_to for interpolation
+ * @param [in] ratio ratio between o_from and o_to for interpolation
  */
 Quaternion lerpOrientation(const Quaternion & o_from, const Quaternion & o_to, const double ratio);
 

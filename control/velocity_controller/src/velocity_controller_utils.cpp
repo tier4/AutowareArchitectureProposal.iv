@@ -66,38 +66,42 @@ double getPitchByPose(const Quaternion & quaternion)
 }
 
 double getPitchByTraj(
-  const Trajectory & msg, const size_t nearest_idx, const double wheel_base)
+  const Trajectory & trajectory, const size_t nearest_idx, const double wheel_base)
 {
   // cannot calculate pitch
-  if (msg.points.size() <= 1) {
+  if (trajectory.points.size() <= 1) {
     return 0.0;
   }
 
-  for (size_t i = nearest_idx + 1; i < msg.points.size(); ++i) {
+  for (size_t i = nearest_idx + 1; i < trajectory.points.size(); ++i) {
     const double dist =
-      autoware_utils::calcDistance2d(msg.points.at(nearest_idx).pose, msg.points.at(i).pose);
+      autoware_utils::calcDistance2d(
+      trajectory.points.at(nearest_idx).pose, trajectory.points.at(
+        i).pose);
     if (dist > wheel_base) {
       // calculate pitch from trajectory between rear wheel (nearest) and front center (i)
       return velocity_controller_utils::calcElevationAngle(
-        msg.points.at(nearest_idx).pose.position, msg.points.at(i).pose.position);
+        trajectory.points.at(nearest_idx).pose.position, trajectory.points.at(i).pose.position);
     }
   }
 
   // close to goal
-  for (int i = msg.points.size() - 1; i > 0; --i) {
+  for (int i = trajectory.points.size() - 1; i > 0; --i) {
     const double dist =
-      autoware_utils::calcDistance2d(msg.points.back().pose, msg.points.at(i).pose);
+      autoware_utils::calcDistance2d(trajectory.points.back().pose, trajectory.points.at(i).pose);
 
     if (dist > wheel_base) {
       // calculate pitch from trajectory
       // between wheelbase behind the end of trajectory (i) and the end of trajectory (back)
       return velocity_controller_utils::calcElevationAngle(
-        msg.points.at(i).pose.position, msg.points.back().pose.position);
+        trajectory.points.at(i).pose.position, trajectory.points.back().pose.position);
     }
   }
 
   // calculate pitch from trajectory between the beginning and end of trajectory
-  return calcElevationAngle(msg.points.at(0).pose.position, msg.points.back().pose.position);
+  return calcElevationAngle(
+    trajectory.points.at(0).pose.position,
+    trajectory.points.back().pose.position);
 }
 
 double calcElevationAngle(const Point & p_from, const Point & p_to)
@@ -127,9 +131,9 @@ Pose calcPoseAfterTimeDelay(
   return pred_pose;
 }
 
-double lerp(const double src_val, const double dst_val, const double ratio)
+double lerp(const double v_from, const double v_to, const double ratio)
 {
-  return src_val + (dst_val - src_val) * ratio;
+  return v_from + (v_to - v_from) * ratio;
 }
 
 Quaternion lerpOrientation(
