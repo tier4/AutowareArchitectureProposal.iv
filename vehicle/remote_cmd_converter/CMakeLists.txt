@@ -20,7 +20,7 @@ ament_auto_add_library(remote_cmd_converter SHARED
 )
 
 rclcpp_components_register_node(remote_cmd_converter
-  PLUGIN "RemoteCmdConverter"
+  PLUGIN "remote_cmd_converter::RemoteCmdConverterNode"
   EXECUTABLE remote_cmd_converter_node
 )
 

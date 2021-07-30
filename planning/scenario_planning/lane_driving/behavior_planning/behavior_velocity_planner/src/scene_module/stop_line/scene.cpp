@@ -44,14 +44,13 @@ geometry_msgs::msg::Pose calcInterpolatedPose(
   const auto p_eigen_front = Eigen::Vector2d(p_front.x, p_front.y);
   const auto p_eigen_back = Eigen::Vector2d(p_back.x, p_back.y);
 
-  // Calculate direction vector
-  const auto direction_vector = (p_eigen_back - p_eigen_front).normalized();
+  // Calculate interpolation ratio
+  const auto interpolate_ratio = offset_segment.offset / (p_eigen_back - p_eigen_front).norm();
 
   // Add offset to front point
-  const auto interpolated_point_2d = p_eigen_front + offset_segment.offset * direction_vector;
-
-  // Interpolate Z
-  const auto interpolated_z = (p_front.z + p_back.z) / 2;
+  const auto interpolated_point_2d =
+    p_eigen_front + interpolate_ratio * (p_eigen_back - p_eigen_front);
+  const double interpolated_z = p_front.z + interpolate_ratio * (p_back.z - p_front.z);
 
   // Calculate orientation so that X-axis would be along the trajectory
   tf2::Quaternion quat;
@@ -271,9 +270,8 @@ bool StopLineModule::modifyPathVelocity(
   *stop_reason =
     planning_utils::initializeStopReason(autoware_planning_msgs::msg::StopReason::STOP_LINE);
 
-  const LineString2d stop_line = {
-    {stop_line_[0].x(), stop_line_[0].y()}, {stop_line_[1].x(), stop_line_[1].y()}};
-
+  const LineString2d stop_line = planning_utils::extendLine(
+    stop_line_[0], stop_line_[1], planner_data_->stop_line_extend_length);
   // Find collision
   const auto collision = findCollision(*path, stop_line);
 

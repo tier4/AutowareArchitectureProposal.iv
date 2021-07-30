@@ -33,10 +33,15 @@
 #include "raw_vehicle_cmd_converter/accel_map.hpp"
 #include "raw_vehicle_cmd_converter/brake_map.hpp"
 
-class RemoteCmdConverter : public rclcpp::Node
+namespace remote_cmd_converter
+{
+using raw_vehicle_cmd_converter::AccelMap;
+using raw_vehicle_cmd_converter::BrakeMap;
+
+class RemoteCmdConverterNode : public rclcpp::Node
 {
 public:
-  explicit RemoteCmdConverter(const rclcpp::NodeOptions & node_options);
+  explicit RemoteCmdConverterNode(const rclcpp::NodeOptions & node_options);
 
 private:
   // Publisher
@@ -78,7 +83,7 @@ private:
   double emergency_stop_timeout_;
 
   // Diagnostics
-  diagnostic_updater::Updater updater_;
+  diagnostic_updater::Updater updater_{this};
 
   void checkTopicStatus(diagnostic_updater::DiagnosticStatusWrapper & stat);
   void checkEmergencyStop(diagnostic_updater::DiagnosticStatusWrapper & stat);
@@ -95,5 +100,6 @@ private:
     const double vel);
   double getShiftVelocitySign(const autoware_vehicle_msgs::msg::ShiftStamped & cmd);
 };
+}  // namespace remote_cmd_converter
 
 #endif  // REMOTE_CMD_CONVERTER__NODE_HPP_
