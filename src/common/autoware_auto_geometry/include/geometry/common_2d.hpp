@@ -372,6 +372,20 @@ inline T make_unit_vector2d(float th)
   return r;
 }
 
+/// \brief Compute squared euclidean distance between two points
+/// \tparam T point type. Must have point adapters defined or have float members x and y
+/// \param a point 1
+/// \param b point 2
+/// \return squared euclidean distance
+template<typename T>
+inline float32_t squared_distance_2d(const T & a, const T & b)
+{
+  const auto x = point_adapter::x_(a) - point_adapter::x_(b);
+  const auto y = point_adapter::y_(a) - point_adapter::y_(b);
+  return static_cast<float32_t>((x * x) + (y * y));
+}
+
+
 /// \brief Check the given point's position relative the infinite line passing
 /// from p1 to p2. Logic based on http://geomalgorithms.com/a01-_area.html#isLeft()
 /// \tparam T  T  point type. Must have point adapters defined or have float members x and y
