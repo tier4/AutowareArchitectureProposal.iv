@@ -1,0 +1,42 @@
+name: Clang-Tidy for PR
+
+on:
+  workflow_run:
+    workflows: ["Build and test for PR"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  clang-tidy-pr:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Install Clang-Tidy
+        run: apt-get install clang-tidy
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Retrieve .clang-tidy from autoware.proj
+        uses: actions/checkout@v2
+        with:
+          repository: tier4/autoware.proj
+          token: ${{ secrets.REPO_TOKEN }}
+
+      - name: Restore build/compile_commands.json from cache
+        uses: actions/cache@v2
+        with:
+          path: build/compile_commands.json
+          key: compile-commands-${{ github.event.pull_request.number }}
+
+      - name: Analyze
+        run: |
+          # Find modified files after merging origin/main
+          merge_base=$(git merge-base HEAD origin/main)
+          modified_files=$(git diff --name-only "${merge_base}")
+          target_files=$(echo "${modified_files}" | egrep "\.(cpp|hpp)$")
+          # Analyze modified files
+          clang-tidy --config=autoware.proj/.clang-tidy \
+                     -p build/compile_commands.json \
+                     ${target_files}
