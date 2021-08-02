@@ -196,7 +196,7 @@ void VelocityController::blockUntilVehiclePositionAvailable(const tf2::Duration 
   std::string error;
   while (!tf_buffer_->canTransform(input, output, tf2::TimePointZero, &error) && rclcpp::ok()) {
     RCLCPP_INFO(
-      get_logger(), "waiting %d ms for %s->%s transform to become available",
+      get_logger(), "waiting %ld ms for %s->%s transform to become available",
       std::chrono::duration_cast<std::chrono::milliseconds>(duration).count(), input, output);
     rclcpp::sleep_for(duration);
   }
