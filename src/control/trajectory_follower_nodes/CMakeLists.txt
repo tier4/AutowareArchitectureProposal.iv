@@ -33,6 +33,21 @@ rclcpp_components_register_node(${LATERAL_CONTROLLER_NODE}
   EXECUTABLE ${LATERAL_CONTROLLER_NODE}_exe
 )
 
+set(LONGITUDINAL_CONTROLLER_NODE longitudinal_controller_node)
+ament_auto_add_library(${LONGITUDINAL_CONTROLLER_NODE} SHARED
+  include/trajectory_follower_nodes/longitudinal_controller_node.hpp
+  src/longitudinal_controller_node.cpp
+)
+
+autoware_set_compile_options(${LONGITUDINAL_CONTROLLER_NODE})
+# TODO(longitudinal_controller) : RCLCPP_ERROR_THROTTLE() has built-in old-style casts.
+# TODO(longitudinal_controller) : Temporary workaround until this is fixed.
+target_compile_options(${LONGITUDINAL_CONTROLLER_NODE} PRIVATE -Wno-error=old-style-cast)
+rclcpp_components_register_node(${LONGITUDINAL_CONTROLLER_NODE}
+  PLUGIN "autoware::motion::control::latlon_muxer::LongitudinalController"
+  EXECUTABLE ${LONGITUDINAL_CONTROLLER_NODE}_exe
+)
+
 set(LATLON_MUXER_NODE latlon_muxer_node)
 ament_auto_add_library(${LATLON_MUXER_NODE} SHARED
   include/trajectory_follower_nodes/latlon_muxer_node.hpp
@@ -57,10 +72,11 @@ if(BUILD_TESTING)
     test/trajectory_follower_test_utils.hpp
     test/test_latlon_muxer_node.cpp
     test/test_lateral_controller_node.cpp
+    test/test_longitudinal_controller_node.cpp
   )
   ament_target_dependencies(${TRAJECTORY_FOLLOWER_NODES_TEST} fake_test_node)
   autoware_set_compile_options(${TRAJECTORY_FOLLOWER_NODES_TEST})
-  target_link_libraries(${TRAJECTORY_FOLLOWER_NODES_TEST} ${LATLON_MUXER_NODE} ${LATERAL_CONTROLLER_NODE})
+  target_link_libraries(${TRAJECTORY_FOLLOWER_NODES_TEST} ${LATLON_MUXER_NODE} ${LATERAL_CONTROLLER_NODE} ${LONGITUDINAL_CONTROLLER_NODE})
 
   add_ros_test(
     test/test_latlon_muxer_node_launch.py
@@ -68,6 +84,10 @@ if(BUILD_TESTING)
   )
   add_ros_test(
     test/test_lateral_controller_node_launch.py
+    TIMEOUT "30"
+  )
+  add_ros_test(
+    test/test_longitudinal_controller_node_launch.py
     TIMEOUT "30"
   )
 
