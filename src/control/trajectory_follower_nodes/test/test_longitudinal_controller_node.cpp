@@ -30,7 +30,7 @@
 class TestROS : public ::testing::Test
 {
 protected:
-  std::shared_ptr<VelocityController> m_node;
+  std::shared_ptr<LongitudinalController> m_node;
 
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr m_vel_pub;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr m_traj_pub;
@@ -76,7 +76,7 @@ protected:
     node_options.append_parameter_override("left_overhang", 1.0);
     node_options.append_parameter_override("right_overhang", 1.0);
     node_options.append_parameter_override("vehicle_height", 1.0);
-    m_node = std::make_shared<VelocityController>(node_options);
+    m_node = std::make_shared<LongitudinalController>(node_options);
 
     m_vel_pub = m_node->create_publisher<geometry_msgs::msg::TwistStamped>(
       "~/current_velocity",

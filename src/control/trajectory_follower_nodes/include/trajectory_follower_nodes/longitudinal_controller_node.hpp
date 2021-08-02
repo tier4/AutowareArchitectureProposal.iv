@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_HPP_
-#define VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_HPP_
+#ifndef TRAJECTORY_FOLLOWER_NODES__LONGITUDINAL_CONTROLLER_NODE_HPP_
+#define TRAJECTORY_FOLLOWER_NODES__LONGITUDINAL_CONTROLLER_NODE_HPP_
 
 #include <memory>
 #include <string>
@@ -37,15 +37,15 @@
 #include "tf2_ros/transform_listener.h"
 #include "vehicle_info_util/vehicle_info_util.hpp"
 
-#include "velocity_controller/debug_values.hpp"
-#include "velocity_controller/pid.hpp"
-#include "velocity_controller/smooth_stop.hpp"
-#include "velocity_controller/velocity_controller_utils.hpp"
+#include "trajectory_follower/debug_values.hpp"
+#include "trajectory_follower/pid.hpp"
+#include "trajectory_follower/smooth_stop.hpp"
+#include "trajectory_follower/longitudinal_controller_utils.hpp"
 
-class VelocityController : public rclcpp::Node
+class LongitudinalController : public rclcpp::Node
 {
 public:
-  explicit VelocityController(const rclcpp::NodeOptions & node_options);
+  explicit LongitudinalController(const rclcpp::NodeOptions & node_options);
 
 private:
   struct Motion
@@ -308,4 +308,4 @@ private:
     const ControlData & control_data);
 };
 
-#endif  // VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_HPP_
+#endif  // TRAJECTORY_FOLLOWER_NODES__LONGITUDINAL_CONTROLLER_NODE_HPP_
