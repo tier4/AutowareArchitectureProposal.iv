@@ -81,7 +81,7 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
 
     // set lowpass filter for vel error and pitch
     const double lpf_vel_error_gain{declare_parameter("lpf_vel_error_gain", 0.9)};
-    lpf_vel_error_ = std::make_shared<LowpassFilter1d>(0.0, lpf_vel_error_gain);
+    lpf_vel_error_ = std::make_shared<trajectory_follower::LowpassFilter1d>(0.0, lpf_vel_error_gain);
 
     current_vel_threshold_pid_integrate_ = declare_parameter(
       "current_vel_threshold_pid_integration", 0.5);  // [m/s]
@@ -146,7 +146,7 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   // parameters for slope compensation
   use_traj_for_pitch_ = declare_parameter("use_trajectory_for_pitch_calculation", false);
   const double lpf_pitch_gain{declare_parameter("lpf_pitch_gain", 0.95)};
-  lpf_pitch_ = std::make_shared<LowpassFilter1d>(0.0, lpf_pitch_gain);
+  lpf_pitch_ = std::make_shared<trajectory_follower::LowpassFilter1d>(0.0, lpf_pitch_gain);
   max_pitch_rad_ = declare_parameter("max_pitch_rad", 0.1);   // [rad]
   min_pitch_rad_ = declare_parameter("min_pitch_rad", -0.1);  // [rad]
 
@@ -178,7 +178,7 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
     this->add_on_set_parameters_callback(std::bind(&LongitudinalController::paramCallback, this, _1));
 
   // set lowpass filter for acc
-  lpf_acc_ = std::make_shared<LowpassFilter1d>(0.0, 0.2);
+  lpf_acc_ = std::make_shared<trajectory_follower::LowpassFilter1d>(0.0, 0.2);
 
   // Wait for first self pose
   self_pose_listener_.waitForFirstPose();
