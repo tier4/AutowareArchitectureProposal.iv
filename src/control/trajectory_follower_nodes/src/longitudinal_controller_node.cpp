@@ -19,8 +19,17 @@
 #include <utility>
 #include <vector>
 
+#include "rclcpp_components/register_node_macro.hpp"
 #include "trajectory_follower_nodes/longitudinal_controller_node.hpp"
 
+namespace autoware
+{
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower_nodes
+{
 LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_options)
 : Node("longitudinal_controller", node_options)
 {
@@ -153,14 +162,14 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   // subscriber, publisher
   sub_current_vel_ = create_subscription<geometry_msgs::msg::TwistStamped>(
     "~/current_velocity", 1, std::bind(&LongitudinalController::callbackCurrentVelocity, this, _1));
-  sub_trajectory_ = create_subscription<autoware_planning_msgs::msg::Trajectory>(
+  sub_trajectory_ = create_subscription<autoware_auto_msgs::msg::Trajectory>(
     "~/current_trajectory", 1, std::bind(&LongitudinalController::callbackTrajectory, this, _1));
-  pub_control_cmd_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
+  pub_control_cmd_ = create_publisher<autoware_auto_msgs::msg::LongitudinalCommand>(
     "~/control_cmd", rclcpp::QoS{1});
-  pub_slope_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
-    "~/slope_angle", rclcpp::QoS{1});
-  pub_debug_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>(
-    "~/debug_values", rclcpp::QoS{1});
+  // pub_slope_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
+  //   "~/slope_angle", rclcpp::QoS{1});
+  // pub_debug_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>(
+  //   "~/debug_values", rclcpp::QoS{1});
 
   // Timer
   {
@@ -194,7 +203,7 @@ void LongitudinalController::callbackCurrentVelocity(
 }
 
 void LongitudinalController::callbackTrajectory(
-  const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg)
+  const autoware_auto_msgs::msg::Trajectory::ConstSharedPtr msg)
 {
   if (!velocity_controller_utils::isValidTrajectory(*msg)) {
     RCLCPP_ERROR_THROTTLE(
@@ -210,7 +219,7 @@ void LongitudinalController::callbackTrajectory(
     return;
   }
 
-  trajectory_ptr_ = std::make_shared<autoware_planning_msgs::msg::Trajectory>(*msg);
+  trajectory_ptr_ = std::make_shared<autoware_auto_msgs::msg::Trajectory>(*msg);
 }
 
 rcl_interfaces::msg::SetParametersResult LongitudinalController::paramCallback(
@@ -592,10 +601,9 @@ void LongitudinalController::publishCtrlCmd(const Motion & ctrl_cmd, double curr
 {
   // publish control command
   autoware_control_msgs::msg::ControlCommandStamped cmd{};
-  cmd.header.stamp = this->now();
-  cmd.header.frame_id = "base_link";
-  cmd.control.velocity = ctrl_cmd.vel;
-  cmd.control.acceleration = ctrl_cmd.acc;
+  cmd.stamp = this->now();
+  cmd.speed = ctrl_cmd.vel;
+  cmd.acceleration = ctrl_cmd.acc;
   pub_control_cmd_->publish(cmd);
 
   // store current velocity history
@@ -625,13 +633,13 @@ void LongitudinalController::publishDebugData(
   for (const auto & v : debug_values_.getValues()) {
     debug_msg.data.push_back(v);
   }
-  pub_debug_->publish(debug_msg);
+  // pub_debug_->publish(debug_msg);
 
   // slope angle
   autoware_debug_msgs::msg::Float32Stamped slope_msg{};
   slope_msg.stamp = this->now();
   slope_msg.data = control_data.slope_angle;
-  pub_slope_->publish(slope_msg);
+  // pub_slope_->publish(slope_msg);
 }
 
 double LongitudinalController::getDt()
@@ -668,7 +676,7 @@ enum LongitudinalController::Shift LongitudinalController::getCurrentShift(const
 {
   constexpr double epsilon = 1e-5;
 
-  const double target_vel = trajectory_ptr_->points.at(nearest_idx).twist.linear.x;
+  const double target_vel = trajectory_ptr_->points.at(nearest_idx).longitudinal_velocity_mps;
 
   if (target_vel > epsilon) {
     return Shift::Forward;
@@ -739,8 +747,8 @@ double LongitudinalController::applySlopeCompensation(
   return compensated_acc;
 }
 
-autoware_planning_msgs::msg::TrajectoryPoint LongitudinalController::calcInterpolatedTargetValue(
-  const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
+autoware_auto_msgs::msg::TrajectoryPoint LongitudinalController::calcInterpolatedTargetValue(
+  const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
   const double current_vel, const size_t nearest_idx) const
 {
   if (traj.points.size() == 1) {
@@ -869,6 +877,9 @@ void LongitudinalController::updateDebugVelAcc(
   debug_values_.setValues(DebugValues::TYPE::NEAREST_ACC, interpolated_point.accel.linear.x);
   debug_values_.setValues(DebugValues::TYPE::ERROR_VEL, target_motion.vel - current_vel);
 }
+}  // namespace trajectory_follower_nodes
+}  // namespace control
+}  // namespace motion
+}  // namespace autoware
 
-#include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(LongitudinalController)
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::motion::control::trajectory_follower_nodes::LongitudinalController)

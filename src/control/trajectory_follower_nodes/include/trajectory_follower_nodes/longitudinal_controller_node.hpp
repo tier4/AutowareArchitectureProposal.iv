@@ -23,10 +23,10 @@
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Geometry"
 
-#include "autoware_control_msgs/msg/control_command_stamped.hpp"
-#include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
-#include "autoware_debug_msgs/msg/float32_stamped.hpp"
-#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "autoware_auto_msgs/msg/longitudinal_command.hpp"
+// #include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
+// #include "autoware_debug_msgs/msg/float32_stamped.hpp"
+#include "autoware_auto_msgs/msg/trajectory.hpp"
 #include "autoware_utils/autoware_utils.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
@@ -80,10 +80,10 @@ private:
 
   // ros variables
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_vel_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_trajectory_;
-  rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr pub_control_cmd_;
-  rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub_slope_;
-  rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr pub_debug_;
+  rclcpp::Subscription<autoware_auto_msgs::msg::Trajectory>::SharedPtr sub_trajectory_;
+  rclcpp::Publisher<autoware_auto_msgs::msg::LongitudinalCommand>::SharedPtr pub_control_cmd_;
+  // rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub_slope_;
+  // rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr pub_debug_;
   rclcpp::TimerBase::SharedPtr timer_control_;
 
   autoware_utils::SelfPoseListener self_pose_listener_{this};
@@ -95,7 +95,7 @@ private:
   // pointers for ros topic
   std::shared_ptr<geometry_msgs::msg::TwistStamped> current_vel_ptr_{nullptr};
   std::shared_ptr<geometry_msgs::msg::TwistStamped> prev_vel_ptr_{nullptr};
-  std::shared_ptr<autoware_planning_msgs::msg::Trajectory> trajectory_ptr_{nullptr};
+  std::shared_ptr<autoware_auto_msgs::msg::Trajectory> trajectory_ptr_{nullptr};
 
   // vehicle info
   double wheel_base_;
