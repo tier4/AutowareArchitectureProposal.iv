@@ -36,8 +36,12 @@ const char * getGateModeName(const autoware_control_msgs::msg::GateMode::_data_t
 {
   using autoware_control_msgs::msg::GateMode;
 
-  if (gate_mode == GateMode::AUTO) {return "AUTO";}
-  if (gate_mode == GateMode::REMOTE) {return "REMOTE";}
+  if (gate_mode == GateMode::AUTO) {
+    return "AUTO";
+  }
+  if (gate_mode == GateMode::REMOTE) {
+    return "REMOTE";
+  }
 
   return "NOT_SUPPORTED";
 }
@@ -45,8 +49,7 @@ const char * getGateModeName(const autoware_control_msgs::msg::GateMode::_data_t
 }  // namespace
 
 VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
-: Node("vehicle_cmd_gate", node_options),
-  is_engaged_(false), updater_(this)
+: Node("vehicle_cmd_gate", node_options), is_engaged_(false), updater_(this)
 {
   using namespace std::placeholders;
 
@@ -61,10 +64,10 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
     "output/shift_cmd", durable_qos);
   turn_signal_cmd_pub_ = this->create_publisher<autoware_vehicle_msgs::msg::TurnSignal>(
     "output/turn_signal_cmd", durable_qos);
-  gate_mode_pub_ = this->create_publisher<autoware_control_msgs::msg::GateMode>(
-    "output/gate_mode", durable_qos);
-  engage_pub_ = this->create_publisher<autoware_vehicle_msgs::msg::Engage>(
-    "output/engage", durable_qos);
+  gate_mode_pub_ =
+    this->create_publisher<autoware_control_msgs::msg::GateMode>("output/gate_mode", durable_qos);
+  engage_pub_ =
+    this->create_publisher<autoware_vehicle_msgs::msg::Engage>("output/engage", durable_qos);
 
   // Subscriber
   system_emergency_sub_ = this->create_subscription<autoware_control_msgs::msg::EmergencyMode>(
@@ -138,8 +141,7 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
 
   // Service
   srv_engage_ = create_service<autoware_external_api_msgs::srv::Engage>(
-    "~/service/engage",
-    std::bind(&VehicleCmdGate::onEngageService, this, _1, _2));
+    "~/service/engage", std::bind(&VehicleCmdGate::onEngageService, this, _1, _2));
   srv_external_emergency_ = create_service<autoware_external_api_msgs::srv::SetEmergency>(
     "~/service/external_emergency",
     std::bind(&VehicleCmdGate::onExternalEmergencyStopService, this, _1, _2, _3));
