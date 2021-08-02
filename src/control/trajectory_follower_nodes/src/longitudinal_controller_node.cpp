@@ -19,10 +19,10 @@
 #include <utility>
 #include <vector>
 
-#include "velocity_controller/velocity_controller.hpp"
+#include "trajectory_follower_nodes/longitudinal_controller_node.hpp"
 
-VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
-: Node("velocity_controller", node_options)
+LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_options)
+: Node("longitudinal_controller", node_options)
 {
   using std::placeholders::_1;
 
@@ -152,9 +152,9 @@ VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
 
   // subscriber, publisher
   sub_current_vel_ = create_subscription<geometry_msgs::msg::TwistStamped>(
-    "~/current_velocity", 1, std::bind(&VelocityController::callbackCurrentVelocity, this, _1));
+    "~/current_velocity", 1, std::bind(&LongitudinalController::callbackCurrentVelocity, this, _1));
   sub_trajectory_ = create_subscription<autoware_planning_msgs::msg::Trajectory>(
-    "~/current_trajectory", 1, std::bind(&VelocityController::callbackTrajectory, this, _1));
+    "~/current_trajectory", 1, std::bind(&LongitudinalController::callbackTrajectory, this, _1));
   pub_control_cmd_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
     "~/control_cmd", rclcpp::QoS{1});
   pub_slope_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
@@ -164,7 +164,7 @@ VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
 
   // Timer
   {
-    auto timer_callback = std::bind(&VelocityController::callbackTimerControl, this);
+    auto timer_callback = std::bind(&LongitudinalController::callbackTimerControl, this);
     auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
       std::chrono::duration<double>(1.0 / control_rate_));
     timer_control_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
@@ -175,7 +175,7 @@ VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
 
   // set parameter callback
   set_param_res_ =
-    this->add_on_set_parameters_callback(std::bind(&VelocityController::paramCallback, this, _1));
+    this->add_on_set_parameters_callback(std::bind(&LongitudinalController::paramCallback, this, _1));
 
   // set lowpass filter for acc
   lpf_acc_ = std::make_shared<LowpassFilter1d>(0.0, 0.2);
@@ -184,7 +184,7 @@ VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
   self_pose_listener_.waitForFirstPose();
 }
 
-void VelocityController::callbackCurrentVelocity(
+void LongitudinalController::callbackCurrentVelocity(
   const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
 {
   if (current_vel_ptr_) {
@@ -193,7 +193,7 @@ void VelocityController::callbackCurrentVelocity(
   current_vel_ptr_ = std::make_shared<geometry_msgs::msg::TwistStamped>(*msg);
 }
 
-void VelocityController::callbackTrajectory(
+void LongitudinalController::callbackTrajectory(
   const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg)
 {
   if (!velocity_controller_utils::isValidTrajectory(*msg)) {
@@ -213,7 +213,7 @@ void VelocityController::callbackTrajectory(
   trajectory_ptr_ = std::make_shared<autoware_planning_msgs::msg::Trajectory>(*msg);
 }
 
-rcl_interfaces::msg::SetParametersResult VelocityController::paramCallback(
+rcl_interfaces::msg::SetParametersResult LongitudinalController::paramCallback(
   const std::vector<rclcpp::Parameter> & parameters)
 {
   auto update_param = [&](const std::string & name, double & v) {
@@ -335,7 +335,7 @@ rcl_interfaces::msg::SetParametersResult VelocityController::paramCallback(
   return result;
 }
 
-void VelocityController::callbackTimerControl()
+void LongitudinalController::callbackTimerControl()
 {
   // wait for initial pointers
   if (!current_vel_ptr_ || !prev_vel_ptr_ || !trajectory_ptr_) {
@@ -369,7 +369,7 @@ void VelocityController::callbackTimerControl()
   publishDebugData(ctrl_cmd, control_data, current_pose);
 }
 
-VelocityController::ControlData VelocityController::getControlData(
+LongitudinalController::ControlData LongitudinalController::getControlData(
   const geometry_msgs::msg::Pose & current_pose)
 {
   ControlData control_data{};
@@ -412,7 +412,7 @@ VelocityController::ControlData VelocityController::getControlData(
   return control_data;
 }
 
-VelocityController::Motion VelocityController::calcEmergencyCtrlCmd(const double dt) const
+LongitudinalController::Motion LongitudinalController::calcEmergencyCtrlCmd(const double dt) const
 {
   // These accelerations are without slope compensation
   const auto & p = emergency_state_params_;
@@ -431,7 +431,7 @@ VelocityController::Motion VelocityController::calcEmergencyCtrlCmd(const double
   return Motion{vel, acc};
 }
 
-VelocityController::ControlState VelocityController::updateControlState(
+LongitudinalController::ControlState LongitudinalController::updateControlState(
   const ControlState current_control_state, const geometry_msgs::msg::Pose & current_pose,
   const ControlData & control_data)
 {
@@ -510,7 +510,7 @@ VelocityController::ControlState VelocityController::updateControlState(
   return current_control_state;
 }
 
-VelocityController::Motion VelocityController::calcCtrlCmd(
+LongitudinalController::Motion LongitudinalController::calcCtrlCmd(
   const ControlState & current_control_state, const geometry_msgs::msg::Pose & current_pose,
   const ControlData & control_data)
 {
@@ -588,7 +588,7 @@ VelocityController::Motion VelocityController::calcCtrlCmd(
 }
 
 // Do not use nearest_idx here
-void VelocityController::publishCtrlCmd(const Motion & ctrl_cmd, double current_vel)
+void LongitudinalController::publishCtrlCmd(const Motion & ctrl_cmd, double current_vel)
 {
   // publish control command
   autoware_control_msgs::msg::ControlCommandStamped cmd{};
@@ -607,7 +607,7 @@ void VelocityController::publishCtrlCmd(const Motion & ctrl_cmd, double current_
   prev_ctrl_cmd_ = ctrl_cmd;
 }
 
-void VelocityController::publishDebugData(
+void LongitudinalController::publishDebugData(
   const Motion & ctrl_cmd, const ControlData & control_data,
   const geometry_msgs::msg::Pose & current_pose)
 {
@@ -634,7 +634,7 @@ void VelocityController::publishDebugData(
   pub_slope_->publish(slope_msg);
 }
 
-double VelocityController::getDt()
+double LongitudinalController::getDt()
 {
   double dt;
   if (!prev_control_time_) {
@@ -649,7 +649,7 @@ double VelocityController::getDt()
   return std::max(std::min(dt, max_dt), min_dt);
 }
 
-VelocityController::Motion VelocityController::getCurrentMotion() const
+LongitudinalController::Motion LongitudinalController::getCurrentMotion() const
 {
   const double dv = current_vel_ptr_->twist.linear.x - prev_vel_ptr_->twist.linear.x;
   const double dt =
@@ -664,7 +664,7 @@ VelocityController::Motion VelocityController::getCurrentMotion() const
   return Motion{current_vel, current_acc};
 }
 
-enum VelocityController::Shift VelocityController::getCurrentShift(const size_t nearest_idx) const
+enum LongitudinalController::Shift LongitudinalController::getCurrentShift(const size_t nearest_idx) const
 {
   constexpr double epsilon = 1e-5;
 
@@ -679,7 +679,7 @@ enum VelocityController::Shift VelocityController::getCurrentShift(const size_t 
   return prev_shift_;
 }
 
-double VelocityController::calcFilteredAcc(const double raw_acc, const ControlData & control_data)
+double LongitudinalController::calcFilteredAcc(const double raw_acc, const ControlData & control_data)
 {
   const double acc_max_filtered = std::clamp(raw_acc, min_acc_, max_acc_);
   debug_values_.setValues(DebugValues::TYPE::ACC_CMD_ACC_LIMITED, acc_max_filtered);
@@ -699,7 +699,7 @@ double VelocityController::calcFilteredAcc(const double raw_acc, const ControlDa
   return acc_jerk_filtered;
 }
 
-void VelocityController::storeAccelCmd(const double accel)
+void LongitudinalController::storeAccelCmd(const double accel)
 {
   if (control_state_ == ControlState::DRIVE) {
     // convert format
@@ -725,7 +725,7 @@ void VelocityController::storeAccelCmd(const double accel)
   }
 }
 
-double VelocityController::applySlopeCompensation(
+double LongitudinalController::applySlopeCompensation(
   const double input_acc, const double pitch, const Shift shift) const
 {
   if (!enable_slope_compensation_) {
@@ -739,7 +739,7 @@ double VelocityController::applySlopeCompensation(
   return compensated_acc;
 }
 
-autoware_planning_msgs::msg::TrajectoryPoint VelocityController::calcInterpolatedTargetValue(
+autoware_planning_msgs::msg::TrajectoryPoint LongitudinalController::calcInterpolatedTargetValue(
   const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
   const double current_vel, const size_t nearest_idx) const
 {
@@ -764,7 +764,7 @@ autoware_planning_msgs::msg::TrajectoryPoint VelocityController::calcInterpolate
   return velocity_controller_utils::lerpTrajectoryPoint(traj.points, point);
 }
 
-double VelocityController::predictedVelocityInTargetPoint(
+double LongitudinalController::predictedVelocityInTargetPoint(
   const Motion current_motion, const double delay_compensation_time) const
 {
   const double current_vel = current_motion.vel;
@@ -815,7 +815,7 @@ double VelocityController::predictedVelocityInTargetPoint(
   return pred_vel > 0 ? std::copysign(pred_vel, current_vel) : 0.0;
 }
 
-double VelocityController::applyVelocityFeedback(
+double LongitudinalController::applyVelocityFeedback(
   const Motion target_motion, const double dt, const double current_vel)
 {
   const double current_vel_abs = std::fabs(current_vel);
@@ -840,7 +840,7 @@ double VelocityController::applyVelocityFeedback(
   return feedback_acc;
 }
 
-void VelocityController::updatePitchDebugValues(
+void LongitudinalController::updatePitchDebugValues(
   const double pitch, const double traj_pitch, const double raw_pitch)
 {
   debug_values_.setValues(DebugValues::TYPE::PITCH_LPF_RAD, pitch);
@@ -852,7 +852,7 @@ void VelocityController::updatePitchDebugValues(
     DebugValues::TYPE::PITCH_RAW_TRAJ_DEG, autoware_utils::rad2deg(traj_pitch));
 }
 
-void VelocityController::updateDebugVelAcc(
+void LongitudinalController::updateDebugVelAcc(
   const Motion & target_motion, const geometry_msgs::msg::Pose & current_pose,
   const ControlData & control_data)
 {
@@ -871,4 +871,4 @@ void VelocityController::updateDebugVelAcc(
 }
 
 #include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(VelocityController)
+RCLCPP_COMPONENTS_REGISTER_NODE(LongitudinalController)
