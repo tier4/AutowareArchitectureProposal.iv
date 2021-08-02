@@ -31,16 +31,27 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "signal_processing/lowpass_filter_1d.hpp"
 #include "tf2/utils.h"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
-#include "vehicle_info_util/vehicle_info_util.hpp"
 
 #include "trajectory_follower/debug_values.hpp"
+#include "trajectory_follower/longitudinal_controller_utils.hpp"
+#include "trajectory_follower/lowpass_filter.hpp"
 #include "trajectory_follower/pid.hpp"
 #include "trajectory_follower/smooth_stop.hpp"
-#include "trajectory_follower/longitudinal_controller_utils.hpp"
+
+namespace autoware
+{
+namespace motion
+{
+namespace control
+{
+namespace trajectory_follower_nodes
+{
+using autoware::common::types::float64_t;
+using autoware::common::types::bool8_t;
+namespace trajectory_follower = ::autoware::motion::control::trajectory_follower;
 
 class LongitudinalController : public rclcpp::Node
 {
@@ -124,7 +135,7 @@ private:
 
   // drive
   PIDController pid_vel_;
-  std::shared_ptr<LowpassFilter1d> lpf_vel_error_{nullptr};
+  std::shared_ptr<trajectory_follower::LowpassFilter1d> lpf_vel_error_{nullptr};
   double current_vel_threshold_pid_integrate_;
 
   // smooth stop
@@ -158,12 +169,12 @@ private:
 
   // slope compensation
   bool use_traj_for_pitch_;
-  std::shared_ptr<LowpassFilter1d> lpf_pitch_{nullptr};
+  std::shared_ptr<trajectory_follower::LowpassFilter1d> lpf_pitch_{nullptr};
   double max_pitch_rad_;
   double min_pitch_rad_;
 
   // 1st order lowpass filter for acceleration
-  std::shared_ptr<LowpassFilter1d> lpf_acc_{nullptr};
+  std::shared_ptr<trajectory_follower::LowpassFilter1d> lpf_acc_{nullptr};
 
   // buffer of send command
   std::vector<autoware_control_msgs::msg::ControlCommandStamped> ctrl_cmd_vec_;
@@ -307,5 +318,9 @@ private:
     const Motion & ctrl_cmd, const geometry_msgs::msg::Pose & current_pose,
     const ControlData & control_data);
 };
+}  // namespace trajectory_follower_nodes
+}  // namespace control
+}  // namespace motion
+}  // namespace autoware
 
 #endif  // TRAJECTORY_FOLLOWER_NODES__LONGITUDINAL_CONTROLLER_NODE_HPP_
