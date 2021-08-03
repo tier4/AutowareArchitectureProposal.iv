@@ -364,12 +364,12 @@ void LongitudinalController::callbackTimerControl()
     const Motion raw_ctrl_cmd = calcEmergencyCtrlCmd(control_data.dt);  // calculate control command
     prev_raw_ctrl_cmd_ = raw_ctrl_cmd;
     publishCtrlCmd(raw_ctrl_cmd, control_data.current_motion.vel);  // publish control command
-    publishDebugData(raw_ctrl_cmd, control_data, current_pose);     // publish debug data
+    publishDebugData(raw_ctrl_cmd, control_data);     // publish debug data
     return;
   }
 
   // update control state
-  control_state_ = updateControlState(control_state_, current_pose, control_data);
+  control_state_ = updateControlState(control_state_, control_data);
 
   // calculate control command
   const Motion ctrl_cmd = calcCtrlCmd(control_state_, current_pose, control_data);
@@ -378,7 +378,7 @@ void LongitudinalController::callbackTimerControl()
   publishCtrlCmd(ctrl_cmd, control_data.current_motion.vel);
 
   // publish debug data
-  publishDebugData(ctrl_cmd, control_data, current_pose);
+  publishDebugData(ctrl_cmd, control_data);
 }
 
 LongitudinalController::ControlData LongitudinalController::getControlData(
@@ -447,8 +447,7 @@ LongitudinalController::Motion LongitudinalController::calcEmergencyCtrlCmd(cons
 }
 
 LongitudinalController::ControlState LongitudinalController::updateControlState(
-  const ControlState current_control_state, const geometry_msgs::msg::Pose & current_pose,
-  const ControlData & control_data)
+  const ControlState current_control_state, const ControlData & control_data)
 {
   const double current_vel = control_data.current_motion.vel;
   const double current_acc = control_data.current_motion.acc;
@@ -537,15 +536,10 @@ LongitudinalController::Motion LongitudinalController::calcCtrlCmd(
   Motion raw_ctrl_cmd{};
   Motion target_motion{};
   if (current_control_state == ControlState::DRIVE) {
-    // calculate target velocity and acceleration from planning
-    const auto nearest_interpolated_point = calcInterpolatedTargetValue(
-      *trajectory_ptr_, current_pose.position, current_vel, nearest_idx);
-    const double nearest_vel = nearest_interpolated_point.longitudinal_velocity_mps;
-
     const auto target_pose = trajectory_follower::longitudinal_utils::calcPoseAfterTimeDelay(
       current_pose, delay_compensation_time_, current_vel);
     const auto target_interpolated_point =
-      calcInterpolatedTargetValue(*trajectory_ptr_, target_pose.position, nearest_vel, nearest_idx);
+      calcInterpolatedTargetValue(*trajectory_ptr_, target_pose.position, nearest_idx);
     target_motion =
       Motion{target_interpolated_point.longitudinal_velocity_mps,
       target_interpolated_point.acceleration_mps2};
@@ -625,8 +619,7 @@ void LongitudinalController::publishCtrlCmd(const Motion & ctrl_cmd, double curr
 }
 
 void LongitudinalController::publishDebugData(
-  const Motion & ctrl_cmd, const ControlData & control_data,
-  const geometry_msgs::msg::Pose & current_pose)
+  const Motion & ctrl_cmd, const ControlData & control_data)
 {
   using trajectory_follower::DebugValues;
   // set debug values
@@ -766,7 +759,7 @@ double LongitudinalController::applySlopeCompensation(
 
 autoware_auto_msgs::msg::TrajectoryPoint LongitudinalController::calcInterpolatedTargetValue(
   const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
-  const double current_vel, const size_t nearest_idx) const
+  const size_t nearest_idx) const
 {
   if (traj.points.size() == 1) {
     return traj.points.at(0);
@@ -890,7 +883,7 @@ void LongitudinalController::updateDebugVelAcc(
   const size_t nearest_idx = control_data.nearest_idx;
 
   const auto interpolated_point =
-    calcInterpolatedTargetValue(*trajectory_ptr_, current_pose.position, current_vel, nearest_idx);
+    calcInterpolatedTargetValue(*trajectory_ptr_, current_pose.position, nearest_idx);
 
   debug_values_.setValues(DebugValues::TYPE::CURRENT_VEL, current_vel);
   debug_values_.setValues(DebugValues::TYPE::TARGET_VEL, target_motion.vel);
