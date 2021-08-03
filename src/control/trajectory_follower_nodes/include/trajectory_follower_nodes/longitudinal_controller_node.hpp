@@ -230,8 +230,7 @@ private:
    * @brief update control state according to the current situation
    */
   ControlState updateControlState(
-    const ControlState current_control_state, const geometry_msgs::msg::Pose & current_pose,
-    const ControlData & control_data);
+    const ControlState current_control_state, const ControlData & control_data);
 
   /**
    * @brief calculate control command based on the current control state
@@ -250,9 +249,7 @@ private:
    * @brief publish debug data
    * @param [in] ctrl_cmd calculated control command to control velocity
    */
-  void publishDebugData(
-    const Motion & ctrl_cmd, const ControlData & control_data,
-    const geometry_msgs::msg::Pose & current_pose);
+  void publishDebugData(const Motion & ctrl_cmd, const ControlData & control_data);
 
   /**
    * @brief calculate time between current and previous one
@@ -296,7 +293,7 @@ private:
    */
   autoware_auto_msgs::msg::TrajectoryPoint calcInterpolatedTargetValue(
     const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
-    const double current_vel, const size_t nearest_idx) const;
+    const size_t nearest_idx) const;
 
   /**
    * @brief calculate predicted velocity after time delay based on past control commands
