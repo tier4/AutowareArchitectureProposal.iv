@@ -60,7 +60,7 @@
   <arg name="output_door_control" default="/pacmod/as_rx/rear_pass_door_cmd" />
   <!-- output_force_obstacle_avoid is not implemented -->
   <arg name="output_force_obstacle_avoid" default="tmp" />
-  <arg name="output_overwrite_traffic_light_state" default="/foa/traffic_light_recognition/traffic_light_states" />
+  <arg name="output_overwrite_traffic_light_state" default="/external/traffic_light_recognition/traffic_light_states" />
 
   <arg name="node_emergency_stop" default="/control/vehicle_cmd_gate" />
   <arg name="param_emergency_stop" default="use_external_emergency_stop" />
