@@ -33,7 +33,7 @@ bool ObjectFlowFusion::isInsidePolygon(
   double formed_angle_sum = 0;
   Eigen::Vector2d flow_point2d(flow_point.x, flow_point.y);
 
-  for (int i = 0; i < footprint.points.size(); i++) {
+  for (std::size_t i = 0; i < footprint.points.size(); i++) {
     Eigen::Vector2d a2d, b2d;
     if (i == 0) {
       a2d = Eigen::Vector2d(
@@ -124,7 +124,6 @@ bool ObjectFlowFusion::getPolygon(
   Eigen::Affine3d base2obj_transform;
   tf2::fromMsg(pose, base2obj_transform);
 
-  float offset = 0.1;
   if (shape.type == autoware_perception_msgs::msg::Shape::BOUNDING_BOX) {
     auto eigen_c1 = base2obj_transform * Eigen::Vector3d(
       shape.dimensions.x * (0.5 + fusion_box_offset_),
@@ -175,8 +174,8 @@ bool ObjectFlowFusion::getPolygon(
 }
 
 void ObjectFlowFusion::fusion(
-  const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstPtr & object_msg,
-  const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstPtr & flow_msg,
+  const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr & object_msg,
+  const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr & flow_msg,
   bool use_flow_pose, float flow_vel_thresh_,
   autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & fused_msg)
 {
@@ -214,7 +213,7 @@ void ObjectFlowFusion::fusion(
         std::pow(twist_average.linear.x, 2) + std::pow(twist_average.linear.y, 2) +
         std::pow(twist_average.linear.z, 2));
       if (use_flow_pose && vel > flow_vel_thresh_) {
-        // TODO(T.Highashide): fusion orientation_reliable
+        // TODO(T.Higashide): fusion orientation_reliable
         // the detection result and flow pose wisely.
         // (now just overwrite the flow pose to the detection result)
 

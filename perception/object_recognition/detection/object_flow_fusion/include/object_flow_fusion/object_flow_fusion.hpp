@@ -34,8 +34,8 @@ class ObjectFlowFusion
 public:
   explicit ObjectFlowFusion(float fusion_box_offset);
   void fusion(
-    const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstPtr & object_msg,
-    const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstPtr & flow_msg,
+    const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr & object_msg,
+    const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr & flow_msg,
     bool use_flow_pose, float flow_vel_thresh_,
     autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & fused_msg);
 
