@@ -18,20 +18,19 @@
 #include <stack>
 #include <vector>
 
+#include "boost/optional.hpp"
+
 #include "autoware_planning_msgs/msg/path_point.hpp"
 #include "autoware_planning_msgs/msg/trajectory_point.hpp"
-#include "boost/optional.hpp"
 #include "geometry_msgs/msg/point32.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "nav_msgs/msg/map_meta_data.hpp"
-
-// #include "ros/console.h";
+#include "spline_interpolation/spline_interpolation.hpp"
+#include "tf2/utils.h"
 
 #include "obstacle_avoidance_planner/eb_path_optimizer.hpp"
 #include "obstacle_avoidance_planner/mpt_optimizer.hpp"
 #include "obstacle_avoidance_planner/util.hpp"
-#include "spline_interpolation/spline_interpolation.hpp"
-#include "tf2/utils.h"
 
 namespace util
 {
@@ -629,13 +628,13 @@ std::vector<autoware_planning_msgs::msg::TrajectoryPoint> fillTrajectoryWithVelo
   const std::vector<autoware_planning_msgs::msg::TrajectoryPoint> & traj_points,
   const double velocity)
 {
-  std::vector<autoware_planning_msgs::msg::TrajectoryPoint> traj_with_velo;
+  std::vector<autoware_planning_msgs::msg::TrajectoryPoint> traj_with_velocity;
   for (const auto & traj_point : traj_points) {
     auto tmp_point = traj_point;
     tmp_point.twist.linear.x = velocity;
-    traj_with_velo.push_back(tmp_point);
+    traj_with_velocity.push_back(tmp_point);
   }
-  return traj_with_velo;
+  return traj_with_velocity;
 }
 
 template<typename T>
@@ -650,9 +649,26 @@ std::vector<autoware_planning_msgs::msg::TrajectoryPoint> alignVelocityWithPoint
     const auto last = points.end();
     const T truncated_points(first, last);
     const int default_idx = 0;
+
+    double target_z;
+    {
+      const size_t closest_seg_idx =
+        autoware_utils::findNearestSegmentIndex(truncated_points, traj_points[i].pose.position);
+      // TODO(murooka) implement calcSignedArcLength(points, idx, point)
+      const double closest_to_target_dist = autoware_utils::calcSignedArcLength(
+        truncated_points, truncated_points.at(closest_seg_idx).pose.position,
+        traj_points[i].pose.position);
+      const double seg_dist =
+        autoware_utils::calcSignedArcLength(truncated_points, closest_seg_idx, closest_seg_idx + 1);
+      const double closest_z = truncated_points.at(closest_seg_idx).pose.position.z;
+      const double next_z = truncated_points.at(closest_seg_idx + 1).pose.position.z;
+      target_z = std::abs(seg_dist) <
+        1e-6 ? next_z : closest_z + (next_z - closest_z) * closest_to_target_dist / seg_dist;
+    }
+    traj_points[i].pose.position.z = target_z;
+
     const int nearest_idx =
       util::getNearestIdx(truncated_points, traj_points[i].pose.position, default_idx);
-    traj_points[i].pose.position.z = truncated_points[nearest_idx].pose.position.z;
     if (static_cast<int>(i) <= max_skip_comparison_idx) {
       traj_points[i].twist.linear.x = truncated_points[nearest_idx].twist.linear.x;
     } else {
@@ -890,9 +906,6 @@ int getZeroVelocityIdx(
     rclcpp::get_logger("util"), is_showing_debug_info,
     "0 m/s idx from path: %d from opt: %d total size %zu", zero_velocity_idx_from_path,
     zero_velocity_idx_from_opt_points, fine_points.size());
-  // std::cout << "zero velo from path " << zero_velocity_idx_from_path << " from opt "
-  //           << zero_velocity_idx_from_opt_points << " total size  " << fine_points.size()
-  //           << std::endl;
   const int zero_velocity_idx =
     std::min(zero_velocity_idx_from_path, zero_velocity_idx_from_opt_points);
 

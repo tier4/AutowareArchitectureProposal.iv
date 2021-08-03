@@ -23,6 +23,9 @@
   <arg name="input_lane_change_available" default="/planning/scenario_planning/lane_driving/lane_change_available" />
   <arg name="input_lane_change_ready" default="/planning/scenario_planning/lane_driving/lane_change_ready" />
   <arg name="input_lane_change_candidate_path" default="/planning/scenario_planning/lane_driving/lane_change_candidate_path" />
+  <arg name="input_path_change_ready" default="/planning/scenario_planning/lane_driving/behavior_planning/behavior_path_planner/ready_module" />
+  <arg name="input_path_change_force_available" default="/planning/scenario_planning/lane_driving/behavior_planning/behavior_path_planner/force_available" />
+  <arg name="input_path_change_running" default="/planning/scenario_planning/lane_driving/behavior_planning/behavior_path_planner/running_modules" />
   <arg name="input_obstacle_avoid_ready" default="/planning/scenario_planning/lane_driving/obstacle_avoidance_ready" />
   <arg name="input_obstacle_avoid_candidate_path" default="/planning/scenario_planning/lane_driving/obstacle_avoidance_candidate_trajectory" />
   <arg name="input_route" default="/planning/mission_planning/route" />
@@ -32,7 +35,7 @@
   <arg name="input_trajectory" default="/planning/scenario_planning/trajectory" />
   <arg name="input_current_max_velocity" default="/planning/scenario_planning/current_max_velocity" />
   <arg name="input_door_status" default="/pacmod/parsed_tx/rear_pass_door_rpt" />
-  <arg name="input_stop_speed_exceeded" default="/planning/scenario_planning/motion_velocity_optimizer/stop_speed_exceeded" />
+  <arg name="input_stop_speed_exceeded" default="/planning/scenario_planning/motion_velocity_smoother/stop_speed_exceeded" />
   <arg name="input_external_crosswalk_status" default="/planning/scenario_planning/lane_driving/behavior_planning/behavior_velocity_planner/input/external_crosswalk_states" />
   <arg name="input_external_intersection_status" default="/planning/scenario_planning/lane_driving/behavior_planning/behavior_velocity_planner/input/external_intersection_states" />
   <arg name="input_expand_stop_range" default="/planning/scenario_planning/lane_driving/motion_planning/obstacle_stop_planner/input/expand_stop_range" />
@@ -51,15 +54,17 @@
   <arg name="output_route" default="/planning/mission_planning/route" />
   <arg name="output_lane_change_approval" default="/planning/scenario_planning/lane_driving/lane_change_approval" />
   <arg name="output_force_lane_change" default="/planning/scenario_planning/lane_driving/force_lane_change" />
+  <arg name="output_path_change_approval" default="/planning/scenario_planning/lane_driving/behavior_planning/behavior_path_planner/path_change_approval" />
+  <arg name="output_path_change_force" default="/planning/scenario_planning/lane_driving/behavior_planning/behavior_path_planner/path_change_force" />
   <arg name="output_obstacle_avoid_approval" default="/planning/scenario_planning/lane_driving/obstacle_avoidance_approval" />
   <arg name="output_door_control" default="/pacmod/as_rx/rear_pass_door_cmd" />
   <!-- output_force_obstacle_avoid is not implemented -->
   <arg name="output_force_obstacle_avoid" default="tmp" />
-  <arg name="output_overwrite_traffic_light_state" default="/foa/traffic_light_recognition/traffic_light_states" />
+  <arg name="output_overwrite_traffic_light_state" default="/external/traffic_light_recognition/traffic_light_states" />
 
   <arg name="node_emergency_stop" default="/control/vehicle_cmd_gate" />
   <arg name="param_emergency_stop" default="use_external_emergency_stop" />
-  <arg name="node_max_velocity" default="/planning/scenario_planning/motion_velocity_optimizer" />
+  <arg name="node_max_velocity" default="/planning/scenario_planning/motion_velocity_smoother" />
   <arg name="param_max_velocity" default="max_velocity" />
 
   <arg name="set_max_velocity" default="vehicle/put/velocity" />
@@ -71,6 +76,8 @@
   <arg name="set_goal" default="autoware/put/goal" />
   <arg name="set_lane_change_approval" default="lane_change/put/approval" />
   <arg name="set_force_lane_change" default="lane_change/put/force" />
+  <arg name="set_path_change_approval" default="path_change/put/approval" />
+  <arg name="set_path_change_force" default="path_change/put/force" />
   <arg name="set_obstacle_avoid_approval" default="object_avoidance/put/approval" />
   <arg name="set_force_obstacle_avoid" default="object_avoidance/put/force" />
   <arg name="set_overwrite_traffic_light_state" default="traffic_light/put/traffic_light_status" />
@@ -86,6 +93,10 @@
   <arg name="get_stop_speed_exceeded" default="autoware/get/stop_speed_exceeded" />
   <arg name="get_traffic_light_status" default="traffic_light/get/status" />
   <arg name="get_nearest_traffic_light_status" default="traffic_light/get/nearest_traffic_light_status" />
+  <arg name="get_path_change_ready" default="path_change/get/ready_module" />
+  <arg name="get_path_change_force_available" default="path_change/get/force_available" />
+  <arg name="get_path_change_running" default="path_change/get/running_modules" />
+
 
   <arg name="use_intra_process" default="false" />
   <arg name="use_multithread" default="false" />

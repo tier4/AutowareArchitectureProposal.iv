@@ -20,9 +20,8 @@
 
 #include "rclcpp/logging.hpp"
 
+#include "autoware_api_utils/autoware_api_utils.hpp"
 #include "vehicle_cmd_gate/vehicle_cmd_gate.hpp"
-
-using std::placeholders::_1;
 
 namespace
 {
@@ -37,8 +36,12 @@ const char * getGateModeName(const autoware_control_msgs::msg::GateMode::_data_t
 {
   using autoware_control_msgs::msg::GateMode;
 
-  if (gate_mode == GateMode::AUTO) {return "AUTO";}
-  if (gate_mode == GateMode::REMOTE) {return "REMOTE";}
+  if (gate_mode == GateMode::AUTO) {
+    return "AUTO";
+  }
+  if (gate_mode == GateMode::REMOTE) {
+    return "REMOTE";
+  }
 
   return "NOT_SUPPORTED";
 }
@@ -46,9 +49,10 @@ const char * getGateModeName(const autoware_control_msgs::msg::GateMode::_data_t
 }  // namespace
 
 VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
-: Node("vehicle_cmd_gate", node_options),
-  is_engaged_(false), updater_(this)
+: Node("vehicle_cmd_gate", node_options), is_engaged_(false), updater_(this)
 {
+  using namespace std::placeholders;
+
   rclcpp::QoS durable_qos{1};
   durable_qos.transient_local();
   // Publisher
@@ -62,6 +66,8 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
     "output/turn_signal_cmd", durable_qos);
   gate_mode_pub_ =
     this->create_publisher<autoware_control_msgs::msg::GateMode>("output/gate_mode", durable_qos);
+  engage_pub_ =
+    this->create_publisher<autoware_vehicle_msgs::msg::Engage>("output/engage", durable_qos);
 
   // Subscriber
   system_emergency_sub_ = this->create_subscription<autoware_control_msgs::msg::EmergencyMode>(
@@ -134,12 +140,14 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
   current_gate_mode_.data = autoware_control_msgs::msg::GateMode::AUTO;
 
   // Service
-  using std::placeholders::_1;
-  using std::placeholders::_2;
-  using std::placeholders::_3;
+  srv_engage_ = create_service<autoware_external_api_msgs::srv::Engage>(
+    "~/service/engage", std::bind(&VehicleCmdGate::onEngageService, this, _1, _2));
+  srv_external_emergency_ = create_service<autoware_external_api_msgs::srv::SetEmergency>(
+    "~/service/external_emergency",
+    std::bind(&VehicleCmdGate::onExternalEmergencyStopService, this, _1, _2, _3));
   srv_external_emergency_stop_ = this->create_service<std_srvs::srv::Trigger>(
     "~/service/external_emergency_stop",
-    std::bind(&VehicleCmdGate::onExternalEmergencyStopService, this, _1, _2, _3));
+    std::bind(&VehicleCmdGate::onSetExternalEmergencyStopService, this, _1, _2, _3));
   srv_clear_external_emergency_stop_ = this->create_service<std_srvs::srv::Trigger>(
     "~/service/clear_external_emergency_stop",
     std::bind(&VehicleCmdGate::onClearExternalEmergencyStopService, this, _1, _2, _3));
@@ -306,10 +314,16 @@ void VehicleCmdGate::onTimer()
   fillFrameId(&shift.header.frame_id, "base_link");
   fillFrameId(&turn_signal.header.frame_id, "base_link");
 
+  // Engage
+  autoware_vehicle_msgs::msg::Engage autoware_engage;
+  autoware_engage.stamp = this->now();
+  autoware_engage.engage = is_engaged_;
+
   // Publish topics
   gate_mode_pub_->publish(current_gate_mode_);
   turn_signal_cmd_pub_->publish(turn_signal);
   shift_cmd_pub_->publish(shift);
+  engage_pub_->publish(autoware_engage);
 }
 
 void VehicleCmdGate::publishControlCommands(const Commands & commands)
@@ -389,6 +403,7 @@ void VehicleCmdGate::publishEmergencyStopControlCommands()
   turn_signal.header.frame_id = "base_link";
   turn_signal.data = autoware_vehicle_msgs::msg::TurnSignal::HAZARD;
 
+  // VehicleCommand
   autoware_vehicle_msgs::msg::VehicleCommand vehicle_cmd;
   vehicle_cmd.header.stamp = stamp;
   vehicle_cmd.header.frame_id = "base_link";
@@ -396,11 +411,18 @@ void VehicleCmdGate::publishEmergencyStopControlCommands()
   vehicle_cmd.shift = shift.shift;
   vehicle_cmd.emergency = true;
 
+  // Engage
+  autoware_vehicle_msgs::msg::Engage autoware_engage;
+  autoware_engage.stamp = stamp;
+  autoware_engage.engage = is_engaged_;
+
+  // Publish topics
   vehicle_cmd_pub_->publish(vehicle_cmd);
   control_cmd_pub_->publish(control_cmd);
   gate_mode_pub_->publish(current_gate_mode_);
   turn_signal_cmd_pub_->publish(turn_signal);
   shift_cmd_pub_->publish(shift);
+  engage_pub_->publish(autoware_engage);
 }
 
 autoware_control_msgs::msg::ControlCommand VehicleCmdGate::filterControlCommand(
@@ -476,6 +498,14 @@ void VehicleCmdGate::onEngage(autoware_vehicle_msgs::msg::Engage::ConstSharedPtr
   is_engaged_ = msg->engage;
 }
 
+void VehicleCmdGate::onEngageService(
+  const autoware_external_api_msgs::srv::Engage::Request::SharedPtr request,
+  const autoware_external_api_msgs::srv::Engage::Response::SharedPtr response)
+{
+  is_engaged_ = request->engage;
+  response->status = autoware_api_utils::response_success();
+}
+
 void VehicleCmdGate::onSteering(autoware_vehicle_msgs::msg::Steering::ConstSharedPtr msg)
 {
   current_steer_ = msg->data;
@@ -495,7 +525,27 @@ double VehicleCmdGate::getDt()
   return dt;
 }
 
-bool VehicleCmdGate::onExternalEmergencyStopService(
+void VehicleCmdGate::onExternalEmergencyStopService(
+  const std::shared_ptr<rmw_request_id_t> request_header,
+  const std::shared_ptr<autoware_external_api_msgs::srv::SetEmergency::Request> request,
+  const std::shared_ptr<autoware_external_api_msgs::srv::SetEmergency::Response> response)
+{
+  auto req = std::make_shared<std_srvs::srv::Trigger::Request>();
+  auto res = std::make_shared<std_srvs::srv::Trigger::Response>();
+  if (request->emergency) {
+    onSetExternalEmergencyStopService(request_header, req, res);
+  } else {
+    onClearExternalEmergencyStopService(request_header, req, res);
+  }
+
+  if (res->success) {
+    response->status = autoware_api_utils::response_success(res->message);
+  } else {
+    response->status = autoware_api_utils::response_error(res->message);
+  }
+}
+
+bool VehicleCmdGate::onSetExternalEmergencyStopService(
   const std::shared_ptr<rmw_request_id_t> req_header,
   const std::shared_ptr<std_srvs::srv::Trigger::Request> req,
   const std::shared_ptr<std_srvs::srv::Trigger::Response> res)

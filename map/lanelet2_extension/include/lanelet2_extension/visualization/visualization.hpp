@@ -112,7 +112,7 @@ void pushTrafficLightTriangleMarker(
  * boundaries of lanelets]
  * @param  lanelets       [input lanelets]
  * @param  c              [color of the boundary]
- * @param  viz_centerline [flag to visuazlize centerline or not]
+ * @param  viz_centerline [flag to visualize centerline or not]
  * @return                [created marker array]
  */
 visualization_msgs::msg::MarkerArray laneletsBoundaryAsMarkerArray(
@@ -160,6 +160,19 @@ visualization_msgs::msg::MarkerArray lineStringsAsMarkerArray(
  * @return              [created marker array]
  */
 visualization_msgs::msg::MarkerArray autowareTrafficLightsAsMarkerArray(
+  const std::vector<lanelet::AutowareTrafficLightConstPtr> tl_reg_elems,
+  const std_msgs::msg::ColorRGBA c, const rclcpp::Duration duration = rclcpp::Duration(0, 0),
+  const double scale = 1.0);
+
+/**
+ * [generateTrafficLightIdMaker creates marker array to visualize traffic id
+ * lights]
+ * @param  tl_reg_elems [traffic light regulatory elements]
+ * @param  c            [color of the marker]
+ * @param  duration     [lifetime of the marker]
+ * @return              [created marker array]
+ */
+visualization_msgs::msg::MarkerArray generateTrafficLightIdMaker(
   const std::vector<lanelet::AutowareTrafficLightConstPtr> tl_reg_elems,
   const std_msgs::msg::ColorRGBA c, const rclcpp::Duration duration = rclcpp::Duration(0, 0),
   const double scale = 1.0);
