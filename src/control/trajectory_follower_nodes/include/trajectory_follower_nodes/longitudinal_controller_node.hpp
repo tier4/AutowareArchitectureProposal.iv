@@ -24,12 +24,12 @@
 #include "eigen3/Eigen/Geometry"
 
 #include "autoware_auto_msgs/msg/longitudinal_command.hpp"
-// #include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
-// #include "autoware_debug_msgs/msg/float32_stamped.hpp"
 #include "autoware_auto_msgs/msg/trajectory.hpp"
-#include "autoware_utils/autoware_utils.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
+#include "std_msgs/msg/float32.hpp"
+#include "std_msgs/msg/float32_multi_array.hpp"
+#include "motion_common/trajectory_common.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tf2/utils.h"
 #include "tf2_ros/buffer.h"
@@ -52,6 +52,7 @@ namespace trajectory_follower_nodes
 using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
 namespace trajectory_follower = ::autoware::motion::control::trajectory_follower;
+namespace motion_common = ::autoware::motion::motion_common;
 
 class LongitudinalController : public rclcpp::Node
 {
@@ -82,11 +83,13 @@ private:
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_vel_;
   rclcpp::Subscription<autoware_auto_msgs::msg::Trajectory>::SharedPtr sub_trajectory_;
   rclcpp::Publisher<autoware_auto_msgs::msg::LongitudinalCommand>::SharedPtr pub_control_cmd_;
-  // rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr pub_slope_;
-  // rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr pub_debug_;
+  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr pub_slope_;
+  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr pub_debug_;
   rclcpp::TimerBase::SharedPtr timer_control_;
 
-  autoware_utils::SelfPoseListener self_pose_listener_{this};
+  tf2_ros::Buffer m_tf_buffer;
+  //!< @brief tf listener
+  tf2_ros::TransformListener m_tf_listener;
 
   OnSetParametersCallbackHandle::SharedPtr set_param_res_;
   rcl_interfaces::msg::SetParametersResult paramCallback(
@@ -97,7 +100,7 @@ private:
   std::shared_ptr<geometry_msgs::msg::TwistStamped> prev_vel_ptr_{nullptr};
   std::shared_ptr<autoware_auto_msgs::msg::Trajectory> trajectory_ptr_{nullptr};
 
-  // vehicle info
+  // vehicle info TODO get as param
   double wheel_base_;
 
   // control state
@@ -134,12 +137,12 @@ private:
   StateTransitionParams state_transition_params_;
 
   // drive
-  PIDController pid_vel_;
+  trajectory_follower::PIDController pid_vel_;
   std::shared_ptr<trajectory_follower::LowpassFilter1d> lpf_vel_error_{nullptr};
   double current_vel_threshold_pid_integrate_;
 
   // smooth stop
-  SmoothStop smooth_stop_;
+  trajectory_follower::SmoothStop smooth_stop_;
 
   // stop
   struct StoppedStateParams
@@ -176,8 +179,10 @@ private:
   // 1st order lowpass filter for acceleration
   std::shared_ptr<trajectory_follower::LowpassFilter1d> lpf_acc_{nullptr};
 
+  // current pose
+  geometry_msgs::msg::PoseStamped::SharedPtr m_current_pose_ptr;
   // buffer of send command
-  std::vector<autoware_control_msgs::msg::ControlCommandStamped> ctrl_cmd_vec_;
+  std::vector<autoware_auto_msgs::msg::LongitudinalCommand> ctrl_cmd_vec_;
 
   // for calculating dt
   std::shared_ptr<rclcpp::Time> prev_control_time_{nullptr};
@@ -191,7 +196,7 @@ private:
   std::vector<std::pair<rclcpp::Time, double>> vel_hist_;
 
   // debug values
-  DebugValues debug_values_;
+  trajectory_follower::DebugValues debug_values_;
 
   std::shared_ptr<rclcpp::Time> last_running_time_{std::make_shared<rclcpp::Time>(this->now())};
 
@@ -203,7 +208,7 @@ private:
   /**
    * @brief set reference trajectory with received message
    */
-  void callbackTrajectory(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg);
+  void callbackTrajectory(const autoware_auto_msgs::msg::Trajectory::ConstSharedPtr msg);
 
   /**
    * @brief compute control command, and publish periodically
@@ -289,8 +294,8 @@ private:
    * @brief interpolate trajectory point that is nearest to vehicle
    * @param [in] point vehicle position
    */
-  autoware_planning_msgs::msg::TrajectoryPoint calcInterpolatedTargetValue(
-    const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
+  autoware_auto_msgs::msg::TrajectoryPoint calcInterpolatedTargetValue(
+    const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
     const double current_vel, const size_t nearest_idx) const;
 
   /**
@@ -317,6 +322,11 @@ private:
   void updateDebugVelAcc(
     const Motion & ctrl_cmd, const geometry_msgs::msg::Pose & current_pose,
     const ControlData & control_data);
+
+  /**
+   * @brief update current_pose from tf
+   */
+  void updateCurrentPose();
 };
 }  // namespace trajectory_follower_nodes
 }  // namespace control
