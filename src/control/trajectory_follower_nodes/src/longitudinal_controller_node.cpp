@@ -42,7 +42,7 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   wheel_base_ = 0.0;  // vehicle_info.wheel_base_m;
 
   // parameters for delay compensation
-  delay_compensation_time_ = declare_parameter("delay_compensation_time").get<float64_t>();  // [sec]
+  delay_compensation_time_ = declare_parameter("delay_compensation_time").get<float64_t>();  // [s]
 
   // parameters to enable functions
   enable_smooth_stop_ = declare_parameter("enable_smooth_stop").get<bool8_t>();
@@ -57,10 +57,13 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
     p.drive_state_offset_stop_dist = declare_parameter(
       "drive_state_offset_stop_dist").get<float64_t>();  // [m]
     // stopping
-    p.stopping_state_stop_dist = declare_parameter("stopping_state_stop_dist").get<float64_t>();  // [m]
+    p.stopping_state_stop_dist =
+      declare_parameter("stopping_state_stop_dist").get<float64_t>();  // [m]
     // stop
-    p.stopped_state_entry_vel = declare_parameter("stopped_state_entry_vel").get<float64_t>();  // [m/s]
-    p.stopped_state_entry_acc = declare_parameter("stopped_state_entry_acc").get<float64_t>();  // [m/ss]
+    p.stopped_state_entry_vel =
+      declare_parameter("stopped_state_entry_vel").get<float64_t>();  // [m/s]
+    p.stopped_state_entry_acc =
+      declare_parameter("stopped_state_entry_acc").get<float64_t>();  // [m/s²]
     // emergency
     p.emergency_state_overshoot_stop_dist = declare_parameter(
       "emergency_state_overshoot_stop_dist").get<float64_t>();  // [m]
