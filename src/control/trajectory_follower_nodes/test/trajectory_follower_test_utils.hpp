@@ -69,7 +69,6 @@ inline geometry_msgs::msg::TransformStamped getDummyTransform()
   transform_stamped.child_frame_id = "base_link";
   return transform_stamped;
 }
-
 }  // namespace test_utils
 
 #endif  // TRAJECTORY_FOLLOWER_TEST_UTILS_HPP_

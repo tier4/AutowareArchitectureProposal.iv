@@ -38,7 +38,7 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   // parameters timer
   control_rate_ = declare_parameter("control_rate", 30.0);
   // const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo();
-  // TODO get the proper value (parameter?)
+  // TODO(Maxime CLEMENT) get the proper value (parameter?)
   wheel_base_ = 0.0;  // vehicle_info.wheel_base_m;
 
   // parameters for delay compensation
@@ -163,15 +163,17 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
 
   // subscriber, publisher
   sub_current_vel_ = create_subscription<geometry_msgs::msg::TwistStamped>(
-    "~/current_velocity", 1, std::bind(&LongitudinalController::callbackCurrentVelocity, this, _1));
+    "input/current_velocity", 1,
+    std::bind(&LongitudinalController::callbackCurrentVelocity, this, _1));
   sub_trajectory_ = create_subscription<autoware_auto_msgs::msg::Trajectory>(
-    "~/current_trajectory", 1, std::bind(&LongitudinalController::callbackTrajectory, this, _1));
+    "input/current_trajectory", 1,
+    std::bind(&LongitudinalController::callbackTrajectory, this, _1));
   pub_control_cmd_ = create_publisher<autoware_auto_msgs::msg::LongitudinalCommand>(
-    "~/control_cmd", rclcpp::QoS{1});
+    "output/control_cmd", rclcpp::QoS{1});
   pub_slope_ = create_publisher<std_msgs::msg::Float32>(
-    "~/slope_angle", rclcpp::QoS{1});
+    "output/slope_angle", rclcpp::QoS{1});
   pub_debug_ = create_publisher<std_msgs::msg::Float32MultiArray>(
-    "~/debug_values", rclcpp::QoS{1});
+    "output/debug_values", rclcpp::QoS{1});
 
   // Timer
   {
@@ -632,7 +634,7 @@ void LongitudinalController::publishDebugData(
 
   // publish debug values
   std_msgs::msg::Float32MultiArray debug_msg{};
-  // TODO use custom message with stamp
+  // TODO(Maxime CLEMENT) use custom message with stamp
   // debug_msg.stamp = this->now();
   for (const auto & v : debug_values_.getValues()) {
     debug_msg.data.push_back(static_cast<decltype(debug_msg.data)::value_type>(v));
