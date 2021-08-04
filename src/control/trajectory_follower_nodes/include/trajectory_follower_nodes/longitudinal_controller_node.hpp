@@ -54,7 +54,7 @@ using autoware::common::types::bool8_t;
 namespace trajectory_follower = ::autoware::motion::control::trajectory_follower;
 namespace motion_common = ::autoware::motion::motion_common;
 
-class LongitudinalController : public rclcpp::Node
+class TRAJECTORY_FOLLOWER_PUBLIC LongitudinalController : public rclcpp::Node
 {
 public:
   explicit LongitudinalController(const rclcpp::NodeOptions & node_options);
