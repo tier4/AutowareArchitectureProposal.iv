@@ -47,57 +47,9 @@ TEST_F(FakeNodeFixture, simple_test) {
 
   // Node
   rclcpp::NodeOptions node_options;
-  node_options.append_parameter_override("control_rate", 30.0);
-  node_options.append_parameter_override("delay_compensation_time", 0.17);
-  node_options.append_parameter_override("enable_smooth_stop", true);
-  node_options.append_parameter_override("enable_overshoot_emergency", true);
-  node_options.append_parameter_override("enable_slope_compensation", false);
-  node_options.append_parameter_override("drive_state_stop_dist", 0.5);
-  node_options.append_parameter_override("drive_state_offset_stop_dist", 1.0);
-  node_options.append_parameter_override("stopping_state_stop_dist", 0.49);
-  node_options.append_parameter_override("stopped_state_entry_vel", 0.1);
-  node_options.append_parameter_override("stopped_state_entry_acc", 0.1);
-  node_options.append_parameter_override("emergency_state_overshoot_stop_dist", 1.5);
-  node_options.append_parameter_override("emergency_state_traj_trans_dev", 3.0);
-  node_options.append_parameter_override("emergency_state_traj_rot_dev", 0.7);
-  node_options.append_parameter_override("kp", 1.0);
-  node_options.append_parameter_override("ki", 0.1);
-  node_options.append_parameter_override("kd", 0.0);
-  node_options.append_parameter_override("max_out", 1.0);
-  node_options.append_parameter_override("min_out", -1.0);
-  node_options.append_parameter_override("max_p_effort", 1.0);
-  node_options.append_parameter_override("min_p_effort", -1.0);
-  node_options.append_parameter_override("max_i_effort", 0.3);
-  node_options.append_parameter_override("min_i_effort", -0.3);
-  node_options.append_parameter_override("max_d_effort", 0.0);
-  node_options.append_parameter_override("min_d_effort", 0.0);
-  node_options.append_parameter_override("lpf_vel_error_gain", 0.9);
-  node_options.append_parameter_override("current_vel_threshold_pid_integration", 0.5);
-  node_options.append_parameter_override("smooth_stop_max_strong_acc", -0.5);
-  node_options.append_parameter_override("smooth_stop_min_strong_acc", -1.0);
-  node_options.append_parameter_override("smooth_stop_weak_acc", -0.3);
-  node_options.append_parameter_override("smooth_stop_weak_stop_acc", -0.8);
-  node_options.append_parameter_override("smooth_stop_strong_stop_acc", -3.4);
-  node_options.append_parameter_override("smooth_stop_max_fast_vel", 0.5);
-  node_options.append_parameter_override("smooth_stop_min_running_vel", 0.01);
-  node_options.append_parameter_override("smooth_stop_min_running_acc", 0.01);
-  node_options.append_parameter_override("smooth_stop_weak_stop_time", 0.8);
-  node_options.append_parameter_override("smooth_stop_weak_stop_dist", -0.3);
-  node_options.append_parameter_override("smooth_stop_strong_stop_dist", -0.5);
-  node_options.append_parameter_override("stopped_vel", 0.0);
-  node_options.append_parameter_override("stopped_acc", -3.4);
-  node_options.append_parameter_override("stopped_jerk", -5.0);
-  node_options.append_parameter_override("emergency_vel", 0.0);
-  node_options.append_parameter_override("emergency_acc", -5.0);
-  node_options.append_parameter_override("emergency_jerk", -3.0);
-  node_options.append_parameter_override("max_acc", 3.0);
-  node_options.append_parameter_override("min_acc", -5.0);
-  node_options.append_parameter_override("max_jerk", 2.0);
-  node_options.append_parameter_override("min_jerk", -5.0);
-  node_options.append_parameter_override("use_trajectory_for_pitch_calculation", false);
-  node_options.append_parameter_override("lpf_pitch_gain", 0.95);
-  node_options.append_parameter_override("max_pitch_rad", 0.1);
-  node_options.append_parameter_override("min_pitch_rad", -0.1);
+  node_options.arguments(
+    {"--ros-args", "--params-file", ament_index_cpp::get_package_share_directory(
+        "trajectory_follower_nodes") + "/param/longitudinal_controller_defaults.yaml"});
   std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
     node_options);
 
