@@ -62,21 +62,21 @@ public:
 private:
   struct Motion
   {
-    double vel{0.0};
-    double acc{0.0};
+    float64_t vel{0.0};
+    float64_t acc{0.0};
   };
 
   enum class Shift { Forward = 0, Reverse };
 
   struct ControlData
   {
-    bool is_far_from_trajectory{false};
+    bool8_t is_far_from_trajectory{false};
     size_t nearest_idx{0};  // nearest_idx = 0 when nearest_idx is not found with findNearestIdx
     Motion current_motion{};
     Shift shift{Shift::Forward};  // shift is used only to calculate the sign of pitch compensation
-    double stop_dist{0.0};  // signed distance that is positive when car is before the stopline
-    double slope_angle{0.0};
-    double dt{0.0};
+    float64_t stop_dist{0.0};  // signed distance that is positive when car is before the stopline
+    float64_t slope_angle{0.0};
+    float64_t dt{0.0};
   };
 
   // ros variables
@@ -101,45 +101,45 @@ private:
   std::shared_ptr<autoware_auto_msgs::msg::Trajectory> trajectory_ptr_{nullptr};
 
   // vehicle info TODO get as param
-  double wheel_base_;
+  float64_t wheel_base_;
 
   // control state
   enum class ControlState { DRIVE = 0, STOPPING, STOPPED, EMERGENCY };
   ControlState control_state_{ControlState::STOPPED};
 
   // timer callback
-  double control_rate_;
+  float64_t control_rate_;
 
   // delay compensation
-  double delay_compensation_time_;
+  float64_t delay_compensation_time_;
 
   // enable flags
-  bool enable_smooth_stop_;
-  bool enable_overshoot_emergency_;
-  bool enable_slope_compensation_;
+  bool8_t enable_smooth_stop_;
+  bool8_t enable_overshoot_emergency_;
+  bool8_t enable_slope_compensation_;
 
   // smooth stop transition
   struct StateTransitionParams
   {
     // drive
-    double drive_state_stop_dist;
-    double drive_state_offset_stop_dist;
+    float64_t drive_state_stop_dist;
+    float64_t drive_state_offset_stop_dist;
     // stopping
-    double stopping_state_stop_dist;
+    float64_t stopping_state_stop_dist;
     // stop
-    double stopped_state_entry_vel;
-    double stopped_state_entry_acc;
+    float64_t stopped_state_entry_vel;
+    float64_t stopped_state_entry_acc;
     // emergency
-    double emergency_state_overshoot_stop_dist;
-    double emergency_state_traj_trans_dev;
-    double emergency_state_traj_rot_dev;
+    float64_t emergency_state_overshoot_stop_dist;
+    float64_t emergency_state_traj_trans_dev;
+    float64_t emergency_state_traj_rot_dev;
   };
   StateTransitionParams state_transition_params_;
 
   // drive
   trajectory_follower::PIDController pid_vel_;
   std::shared_ptr<trajectory_follower::LowpassFilter1d> lpf_vel_error_{nullptr};
-  double current_vel_threshold_pid_integrate_;
+  float64_t current_vel_threshold_pid_integrate_;
 
   // smooth stop
   trajectory_follower::SmoothStop smooth_stop_;
@@ -147,34 +147,34 @@ private:
   // stop
   struct StoppedStateParams
   {
-    double vel;
-    double acc;
-    double jerk;
+    float64_t vel;
+    float64_t acc;
+    float64_t jerk;
   };
   StoppedStateParams stopped_state_params_;
 
   // emergency
   struct EmergencyStateParams
   {
-    double vel;
-    double acc;
-    double jerk;
+    float64_t vel;
+    float64_t acc;
+    float64_t jerk;
   };
   EmergencyStateParams emergency_state_params_;
 
   // acceleration limit
-  double max_acc_;
-  double min_acc_;
+  float64_t max_acc_;
+  float64_t min_acc_;
 
   // jerk limit
-  double max_jerk_;
-  double min_jerk_;
+  float64_t max_jerk_;
+  float64_t min_jerk_;
 
   // slope compensation
-  bool use_traj_for_pitch_;
+  bool8_t use_traj_for_pitch_;
   std::shared_ptr<trajectory_follower::LowpassFilter1d> lpf_pitch_{nullptr};
-  double max_pitch_rad_;
-  double min_pitch_rad_;
+  float64_t max_pitch_rad_;
+  float64_t min_pitch_rad_;
 
   // 1st order lowpass filter for acceleration
   std::shared_ptr<trajectory_follower::LowpassFilter1d> lpf_acc_{nullptr};
@@ -193,7 +193,7 @@ private:
   // diff limit
   Motion prev_ctrl_cmd_{};      // with slope compensation
   Motion prev_raw_ctrl_cmd_{};  // without slope compensation
-  std::vector<std::pair<rclcpp::Time, double>> vel_hist_;
+  std::vector<std::pair<rclcpp::Time, float64_t>> vel_hist_;
 
   // debug values
   trajectory_follower::DebugValues debug_values_;
@@ -224,7 +224,7 @@ private:
    * @brief calculate control command in emergency state
    * @param [in] dt time between previous and current one
    */
-  Motion calcEmergencyCtrlCmd(const double dt) const;
+  Motion calcEmergencyCtrlCmd(const float64_t dt) const;
 
   /**
    * @brief update control state according to the current situation
@@ -243,7 +243,7 @@ private:
    * @brief publish control command
    * @param [in] ctrl_cmd calculated control command to control velocity
    */
-  void publishCtrlCmd(const Motion & ctrl_cmd, const double current_vel);
+  void publishCtrlCmd(const Motion & ctrl_cmd, const float64_t current_vel);
 
   /**
    * @brief publish debug data
@@ -254,7 +254,7 @@ private:
   /**
    * @brief calculate time between current and previous one
    */
-  double getDt();
+  float64_t getDt();
 
   /**
    * @brief calculate current velocity and acceleration
@@ -271,13 +271,13 @@ private:
    * @brief filter acceleration command with limitation of acceleration and jerk, and slope compensation
    * @param [in] raw_acc acceleration before filtered
    */
-  double calcFilteredAcc(const double raw_acc, const ControlData & control_data);
+  float64_t calcFilteredAcc(const float64_t raw_acc, const ControlData & control_data);
 
   /**
    * @brief store acceleration command before slope compensation
    * @param [in] acceleration command before slope compensation
    */
-  void storeAccelCmd(const double accel);
+  void storeAccelCmd(const float64_t accel);
 
   /**
    * @brief add acceleration to compensate for slope
@@ -285,7 +285,9 @@ private:
    * @param [in] pitch pitch angle (upward is negative)
    * @param [in] shift direction that vehicle move (forward or backward)
    */
-  double applySlopeCompensation(const double acc, const double pitch, const Shift shift) const;
+  float64_t applySlopeCompensation(
+    const float64_t acc, const float64_t pitch,
+    const Shift shift) const;
 
   /**
    * @brief interpolate trajectory point that is nearest to vehicle
@@ -298,20 +300,22 @@ private:
   /**
    * @brief calculate predicted velocity after time delay based on past control commands
    */
-  double predictedVelocityInTargetPoint(
-    const Motion current_motion, const double delay_compensation_time) const;
+  float64_t predictedVelocityInTargetPoint(
+    const Motion current_motion, const float64_t delay_compensation_time) const;
 
   /**
    * @brief calculate velocity feedback with feed forward and pid controller
    * @param [in] target_motion reference velocity and acceleration. This acceleration will be used as feed forward.
    */
-  double applyVelocityFeedback(
-    const Motion target_motion, const double dt, const double current_vel);
+  float64_t applyVelocityFeedback(
+    const Motion target_motion, const float64_t dt, const float64_t current_vel);
 
   /**
    * @brief update variables for debugging about pitch
    */
-  void updatePitchDebugValues(const double pitch, const double traj_pitch, const double raw_pitch);
+  void updatePitchDebugValues(
+    const float64_t pitch, const float64_t traj_pitch,
+    const float64_t raw_pitch);
 
   /**
    * @brief update variables for velocity and acceleration
