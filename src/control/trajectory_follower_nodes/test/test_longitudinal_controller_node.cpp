@@ -13,134 +13,115 @@
 // limitations under the License.
 
 
+#include <trajectory_follower_nodes/longitudinal_controller_node.hpp>
+
 #include <memory>
 
-#include "autoware_control_msgs/msg/control_command_stamped.hpp"
-#include "autoware_planning_msgs/msg/trajectory.hpp"
-#include "autoware_planning_msgs/msg/trajectory_point.hpp"
+#include "autoware_auto_msgs/msg/trajectory.hpp"
+#include "autoware_auto_msgs/msg/longitudinal_command.hpp"
+#include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
+#include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
+#include "fake_test_node/fake_test_node.hpp"
 #include "gtest/gtest.h"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/time.hpp"
-#include "tf2_ros/static_transform_broadcaster.h"
-#include "velocity_controller/velocity_controller.hpp"
+#include "trajectory_follower_test_utils.hpp"
 
-class TestROS : public ::testing::Test
+using LongitudinalController =
+  autoware::motion::control::trajectory_follower_nodes::LongitudinalController;
+using LongitudinalCommand = autoware_auto_msgs::msg::LongitudinalCommand;
+using Trajectory = autoware_auto_msgs::msg::Trajectory;
+using TrajectoryPoint = autoware_auto_msgs::msg::TrajectoryPoint;
+using TwistStamped = geometry_msgs::msg::TwistStamped;
+
+using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
+
+namespace
 {
-protected:
-  std::shared_ptr<LongitudinalController> m_node;
+rclcpp::NodeOptions generateNodeOptions()
+{
+  rclcpp::NodeOptions node_options;
+  // node_options.allow_undeclared_parameters(true);
+  node_options.append_parameter_override("wheel_radius", 1.0);
+  node_options.append_parameter_override("wheel_width", 1.0);
+  node_options.append_parameter_override("wheel_base", 1.0);
+  node_options.append_parameter_override("wheel_tread", 1.0);
+  node_options.append_parameter_override("front_overhang", 1.0);
+  node_options.append_parameter_override("rear_overhang", 1.0);
+  node_options.append_parameter_override("left_overhang", 1.0);
+  node_options.append_parameter_override("right_overhang", 1.0);
+  node_options.append_parameter_override("vehicle_height", 1.0);
+  return node_options;
+}
+}  // namespace
 
-  rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr m_vel_pub;
-  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr m_traj_pub;
-  rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr m_cmd_sub;
+TEST_F(FakeNodeFixture, simple_test) {
+  // Data to test
+  LongitudinalCommand::SharedPtr cmd_msg;
+  bool received_longitudinal_command = false;
 
+  // Node
+  std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
+    generateNodeOptions());
 
-  autoware_control_msgs::msg::ControlCommandStamped m_cmd_msg;
-  bool m_received_command;
+  // Publisher/Subscribers
+  rclcpp::Publisher<TwistStamped>::SharedPtr twist_pub = node->create_publisher<TwistStamped>(
+    "input/current_velocity",
+    rclcpp::QoS(10));
+  rclcpp::Publisher<Trajectory>::SharedPtr traj_pub = node->create_publisher<Trajectory>(
+    "input/current_trajectory",
+    rclcpp::QoS(10));
+  rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
+    this->create_subscription<LongitudinalCommand>(
+    "output/control_cmd", *node,
+    [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
+      cmd_msg = msg; received_longitudinal_command = true;
+    });
+  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
+    std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
 
-  void SetUp()
-  {
-    rclcpp::init(0, nullptr);
-    m_received_command = false;
+  // Enable all logging in the node
+  auto ret = rcutils_logging_set_logger_level(
+    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
 
-    // Publish dummy transform for current pose at (0,0,0) in map frame
-    rclcpp::Node tmp_node("tmp", rclcpp::NodeOptions());
-    std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
-      std::make_shared<tf2_ros::StaticTransformBroadcaster>(tmp_node);
-    geometry_msgs::msg::TransformStamped transform;
-    transform.transform.translation.x = 0.0;
-    transform.transform.translation.y = 0.0;
-    transform.transform.translation.z = 0.0;
-    tf2::Quaternion q;
-    q.setRPY(0.0, 0.0, 0.0);
-    transform.transform.rotation.x = q.x();
-    transform.transform.rotation.y = q.y();
-    transform.transform.rotation.z = q.z();
-    transform.transform.rotation.w = q.w();
-    transform.header.frame_id = "map";
-    transform.child_frame_id = "base_link";
-    transform.header.stamp = tmp_node.now();
-    br->sendTransform(transform);
-
-
-    rclcpp::NodeOptions node_options;
-    node_options.allow_undeclared_parameters(true);
-    node_options.append_parameter_override("wheel_radius", 1.0);
-    node_options.append_parameter_override("wheel_width", 1.0);
-    node_options.append_parameter_override("wheel_base", 1.0);
-    node_options.append_parameter_override("wheel_tread", 1.0);
-    node_options.append_parameter_override("front_overhang", 1.0);
-    node_options.append_parameter_override("rear_overhang", 1.0);
-    node_options.append_parameter_override("left_overhang", 1.0);
-    node_options.append_parameter_override("right_overhang", 1.0);
-    node_options.append_parameter_override("vehicle_height", 1.0);
-    m_node = std::make_shared<LongitudinalController>(node_options);
-
-    m_vel_pub = m_node->create_publisher<geometry_msgs::msg::TwistStamped>(
-      "~/current_velocity",
-      rclcpp::QoS(10));
-    m_traj_pub = m_node->create_publisher<autoware_planning_msgs::msg::Trajectory>(
-      "~/current_trajectory",
-      rclcpp::QoS(10));
-    m_cmd_sub = m_node->create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
-      "~/control_cmd",
-      rclcpp::QoS(10), std::bind(&TestROS::HandleOutputCommand, this, std::placeholders::_1));
-
-    // Enable all logging in the node
-    auto ret = rcutils_logging_set_logger_level(
-      m_node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-    if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severity to DEBUG\n";}
-  }
-
-  void TearDown()
-  {
-    rclcpp::shutdown();
-  }
-
-  void HandleOutputCommand(const autoware_control_msgs::msg::ControlCommandStamped::SharedPtr cmd)
-  {
-    m_cmd_msg = *cmd;
-    m_received_command = true;
-  }
-};
-
-TEST_F(TestROS, simple_test) {
-  geometry_msgs::msg::TwistStamped twist;
-  autoware_planning_msgs::msg::Trajectory traj;
-  autoware_planning_msgs::msg::TrajectoryPoint point;
-  /// Already running + Non stopping trajectory
+  // Dummy transform: ego is at (0.0, 0.0) in map frame
+  geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
+  transform.header.stamp = node->now();
+  br->sendTransform(transform);
+  /// Already running at target vel + Non stopping trajectory -> no change in velocity
   // Publish velocity
-  twist.header.stamp = m_node->now();
+  TwistStamped twist;
+  twist.header.stamp = node->now();
   twist.twist.linear.x = 1.0;
-  m_vel_pub->publish(twist);
-  rclcpp::spin_some(m_node);
-  twist.header.stamp = m_node->now();
-  m_vel_pub->publish(twist);
+  twist_pub->publish(twist);
+  // the node needs to receive two velocity msg
+  rclcpp::spin_some(node);
+  rclcpp::spin_some(this->get_fake_node());
+  twist.header.stamp = node->now();
+  twist_pub->publish(twist);
   // Publish non stopping trajectory
-  point.pose.position.x = 0.0;
-  point.pose.position.y = 0.0;
-  point.twist.linear.x = 1.0;
+  Trajectory traj;
+  TrajectoryPoint point;
+  point.x = 0.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 1.0;
   traj.points.push_back(point);
-  point.pose.position.x = 50.0;
-  point.pose.position.y = 0.0;
-  point.twist.linear.x = 1.0;
+  point.x = 50.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 1.0;
   traj.points.push_back(point);
-  point.pose.position.x = 100.0;
-  point.pose.position.y = 0.0;
-  point.twist.linear.x = 1.0;
+  point.x = 100.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 1.0;
   traj.points.push_back(point);
-  m_traj_pub->publish(traj);
-  const rclcpp::Duration one_sec(1, 0);
-  const rclcpp::Time start = m_node->now();
-  while (!m_received_command && m_node->now() - start < one_sec) {
-    rclcpp::spin_some(m_node);
-  }
-  ASSERT_TRUE(m_received_command);
-  EXPECT_DOUBLE_EQ(m_cmd_msg.control.steering_angle, 0.0);
-  EXPECT_DOUBLE_EQ(m_cmd_msg.control.steering_angle_velocity, 0.0);
-  EXPECT_DOUBLE_EQ(m_cmd_msg.control.velocity, 1.0);
-  EXPECT_DOUBLE_EQ(m_cmd_msg.control.acceleration, 0.0);
-  m_received_command = false;
+  traj_pub->publish(traj);
+  test_utils::waitForMessage(node, this, received_longitudinal_command);
+
+  ASSERT_TRUE(received_longitudinal_command);
+  EXPECT_DOUBLE_EQ(cmd_msg->speed, 1.0);
+  EXPECT_DOUBLE_EQ(cmd_msg->acceleration, 0.0);
 }
