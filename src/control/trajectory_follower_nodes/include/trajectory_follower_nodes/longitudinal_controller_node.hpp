@@ -54,6 +54,8 @@ using autoware::common::types::bool8_t;
 namespace trajectory_follower = ::autoware::motion::control::trajectory_follower;
 namespace motion_common = ::autoware::motion::motion_common;
 
+/// \class LongitudinalController
+/// \brief The node class used for generating longitudinal control commands (velocity/acceleration)
 class TRAJECTORY_FOLLOWER_PUBLIC LongitudinalController : public rclcpp::Node
 {
 public:
@@ -242,12 +244,14 @@ private:
   /**
    * @brief publish control command
    * @param [in] ctrl_cmd calculated control command to control velocity
+   * @param [in] current_vel current velocity of the vehicle
    */
   void publishCtrlCmd(const Motion & ctrl_cmd, const float64_t current_vel);
 
   /**
    * @brief publish debug data
    * @param [in] ctrl_cmd calculated control command to control velocity
+   * @param [in] control_data data for control calculation
    */
   void publishDebugData(const Motion & ctrl_cmd, const ControlData & control_data);
 
@@ -270,12 +274,13 @@ private:
   /**
    * @brief filter acceleration command with limitation of acceleration and jerk, and slope compensation
    * @param [in] raw_acc acceleration before filtered
+   * @param [in] control_data data for control calculation
    */
   float64_t calcFilteredAcc(const float64_t raw_acc, const ControlData & control_data);
 
   /**
    * @brief store acceleration command before slope compensation
-   * @param [in] acceleration command before slope compensation
+   * @param [in] accel command before slope compensation
    */
   void storeAccelCmd(const float64_t accel);
 
@@ -291,7 +296,9 @@ private:
 
   /**
    * @brief interpolate trajectory point that is nearest to vehicle
+   * @param [in] traj reference trajectory
    * @param [in] point vehicle position
+   * @param [in] nearest_idx index of the trajectory point nearest to the vehicle position
    */
   autoware_auto_msgs::msg::TrajectoryPoint calcInterpolatedTargetValue(
     const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
@@ -299,6 +306,8 @@ private:
 
   /**
    * @brief calculate predicted velocity after time delay based on past control commands
+   * @param [in] current_motion current velocity and acceleration of the vehicle
+   * @param [in] delay_compensation_time predicted time delay
    */
   float64_t predictedVelocityInTargetPoint(
     const Motion current_motion, const float64_t delay_compensation_time) const;
@@ -306,12 +315,17 @@ private:
   /**
    * @brief calculate velocity feedback with feed forward and pid controller
    * @param [in] target_motion reference velocity and acceleration. This acceleration will be used as feed forward.
+   * @param [in] dt time step to use
+   * @param [in] current_vel current velocity of the vehicle
    */
   float64_t applyVelocityFeedback(
     const Motion target_motion, const float64_t dt, const float64_t current_vel);
 
   /**
    * @brief update variables for debugging about pitch
+   * @param [in] pitch current pitch of the vehicle (filtered)
+   * @param [in] traj_pitch current trajectory pitch
+   * @param [in] raw_pitch current raw pitch of the vehicle (unfiltered)
    */
   void updatePitchDebugValues(
     const float64_t pitch, const float64_t traj_pitch,
@@ -319,6 +333,9 @@ private:
 
   /**
    * @brief update variables for velocity and acceleration
+   * @param [in] ctrl_cmd latest calculated control command
+   * @param [in] current_pose current pose of the vehicle
+   * @param [in] control_data data for control calculation
    */
   void updateDebugVelAcc(
     const Motion & ctrl_cmd, const geometry_msgs::msg::Pose & current_pose,
