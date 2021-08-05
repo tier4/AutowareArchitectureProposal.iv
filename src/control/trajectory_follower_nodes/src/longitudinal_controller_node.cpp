@@ -165,14 +165,14 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   min_pitch_rad_ = declare_parameter("min_pitch_rad").get<float64_t>();  // [rad]
 
   // subscriber, publisher
-  sub_current_vel_ = create_subscription<geometry_msgs::msg::TwistStamped>(
-    "input/current_velocity", 1,
-    std::bind(&LongitudinalController::callbackCurrentVelocity, this, _1));
+  sub_current_state_ = create_subscription<autoware_auto_msgs::msg::VehicleKinematicState>(
+    "input/current_state", 1,
+    std::bind(&LongitudinalController::callbackCurrentState, this, _1));
   sub_trajectory_ = create_subscription<autoware_auto_msgs::msg::Trajectory>(
     "input/current_trajectory", 1,
     std::bind(&LongitudinalController::callbackTrajectory, this, _1));
   pub_control_cmd_ = create_publisher<autoware_auto_msgs::msg::LongitudinalCommand>(
-    "output/control_cmd", rclcpp::QoS{1});
+    "output/longitudinal_control_cmd", rclcpp::QoS{1});
   pub_slope_ = create_publisher<std_msgs::msg::Float32>(
     "output/slope_angle", rclcpp::QoS{1});
   pub_debug_ = create_publisher<std_msgs::msg::Float32MultiArray>(
@@ -200,13 +200,13 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   lpf_acc_ = std::make_shared<trajectory_follower::LowpassFilter1d>(0.0, 0.2);
 }
 
-void LongitudinalController::callbackCurrentVelocity(
-  const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
+void LongitudinalController::callbackCurrentState(
+  const autoware_auto_msgs::msg::VehicleKinematicState::ConstSharedPtr msg)
 {
-  if (current_vel_ptr_) {
-    prev_vel_ptr_ = current_vel_ptr_;
+  if (current_state_ptr_) {
+    prev_state_ptr_ = current_state_ptr_;
   }
-  current_vel_ptr_ = std::make_shared<geometry_msgs::msg::TwistStamped>(*msg);
+  current_state_ptr_ = std::make_shared<autoware_auto_msgs::msg::VehicleKinematicState>(*msg);
 }
 
 void LongitudinalController::callbackTrajectory(
@@ -355,7 +355,7 @@ void LongitudinalController::callbackTimerControl()
 {
   updateCurrentPose();
   // wait for initial pointers
-  if (!current_vel_ptr_ || !prev_vel_ptr_ || !trajectory_ptr_ || !m_current_pose_ptr) {
+  if (!current_state_ptr_ || !prev_state_ptr_ || !trajectory_ptr_ || !m_current_pose_ptr) {
     return;
   }
 
@@ -671,14 +671,15 @@ float64_t LongitudinalController::getDt()
 
 LongitudinalController::Motion LongitudinalController::getCurrentMotion() const
 {
-  const float64_t dv = current_vel_ptr_->twist.linear.x - prev_vel_ptr_->twist.linear.x;
+  const float64_t dv = current_state_ptr_->state.longitudinal_velocity_mps -
+    prev_state_ptr_->state.longitudinal_velocity_mps;
   const float64_t dt =
     std::max(
-    (rclcpp::Time(current_vel_ptr_->header.stamp) -
-    rclcpp::Time(prev_vel_ptr_->header.stamp)).seconds(), 1e-03);
+    (rclcpp::Time(current_state_ptr_->header.stamp) -
+    rclcpp::Time(prev_state_ptr_->header.stamp)).seconds(), 1e-03);
   const float64_t accel = dv / dt;
 
-  const float64_t current_vel = current_vel_ptr_->twist.linear.x;
+  const float64_t current_vel = current_state_ptr_->state.longitudinal_velocity_mps;
   const float64_t current_acc = lpf_acc_->filter(accel);
 
   return Motion{current_vel, current_acc};
