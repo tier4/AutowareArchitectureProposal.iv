@@ -116,3 +116,63 @@ TEST(PolygonPointTest, basic) {
     autoware::common::geometry::is_point_inside_polygon_2d(
       polygon.begin(), polygon.end(), TestPoint{0.0F, 10.0F}));
 }
+
+// IoU of two intersecting shapes: a pentagon and a square. The test includes pen and paper
+// computations for the intermediate steps as assertions.
+TEST(IoUTest, pentagon_rectangle_intersection) {
+  std::list<TestPoint> polygon1{
+    {0.0F, 3.0F},
+    {3.0F, 4.0F},
+    {6.0F, 3.0F},
+    {4.0F, 1.0F},
+    {2.0F, 1.0F}
+  };
+  std::list<TestPoint> polygon2{
+    {3.0F, 0.0F},
+    {3.0F, 2.0F},
+    {5.0F, 2.0F},
+    {5.0F, 0.0F}
+  };
+
+  order_ccw(polygon1);
+  order_ccw(polygon2);
+
+  const auto intersection =
+    autoware::common::geometry::convex_polygon_intersection2d(polygon1, polygon2);
+  const auto expected_intersection_area =
+    autoware::common::geometry::area_2d(intersection.begin(), intersection.end());
+  ASSERT_FLOAT_EQ(expected_intersection_area, 1.5F);  // Pen & paper proof.
+
+  const auto expected_union_area =
+    autoware::common::geometry::area_2d(polygon1.begin(), polygon1.end()) +
+    autoware::common::geometry::area_2d(polygon2.begin(), polygon2.end()) -
+    expected_intersection_area;
+  ASSERT_FLOAT_EQ(expected_union_area, (11.0F + 4.0F - 1.5F));  // Pen & paper proof.
+
+  const auto computed_iou =
+    autoware::common::geometry::convex_intersection_over_union_2d(polygon1, polygon2);
+
+  EXPECT_FLOAT_EQ(computed_iou, expected_intersection_area / expected_union_area);
+}
+
+// IoU of two non-intersecting rectangles.
+TEST(IoUTest, no_intersection) {
+  std::list<TestPoint> polygon1{
+    {0.0F, 0.0F},
+    {0.0F, 1.0F},
+    {1.0F, 1.0F},
+    {1.0F, 0.0F}
+  };
+  std::list<TestPoint> polygon2{
+    {3.0F, 0.0F},
+    {3.0F, 2.0F},
+    {5.0F, 2.0F},
+    {5.0F, 0.0F}
+  };
+
+  order_ccw(polygon1);
+  order_ccw(polygon2);
+
+  EXPECT_FLOAT_EQ(
+    autoware::common::geometry::convex_intersection_over_union_2d(polygon1, polygon2), 0.0F);
+}

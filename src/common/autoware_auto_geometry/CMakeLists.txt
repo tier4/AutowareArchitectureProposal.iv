@@ -25,6 +25,7 @@ ament_auto_find_build_dependencies()
 # includes
 ament_auto_add_library(${PROJECT_NAME} SHARED
   include/geometry/spatial_hash.hpp
+  include/geometry/intersection.hpp
   include/geometry/spatial_hash_config.hpp
   src/spatial_hash.cpp
   src/bounding_box.cpp)
