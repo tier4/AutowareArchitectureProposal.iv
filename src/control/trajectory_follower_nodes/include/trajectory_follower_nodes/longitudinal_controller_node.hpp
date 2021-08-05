@@ -83,43 +83,43 @@ private:
 
   // ros variables
   rclcpp::Subscription<autoware_auto_msgs::msg::VehicleKinematicState>::SharedPtr
-    sub_current_state_;
-  rclcpp::Subscription<autoware_auto_msgs::msg::Trajectory>::SharedPtr sub_trajectory_;
-  rclcpp::Publisher<autoware_auto_msgs::msg::LongitudinalCommand>::SharedPtr pub_control_cmd_;
-  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr pub_slope_;
-  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr pub_debug_;
-  rclcpp::TimerBase::SharedPtr timer_control_;
+    m_sub_current_state;
+  rclcpp::Subscription<autoware_auto_msgs::msg::Trajectory>::SharedPtr m_sub_trajectory;
+  rclcpp::Publisher<autoware_auto_msgs::msg::LongitudinalCommand>::SharedPtr m_pub_control_cmd;
+  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr m_pub_slope;
+  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr m_pub_debug;
+  rclcpp::TimerBase::SharedPtr m_timer_control;
 
   tf2_ros::Buffer m_tf_buffer;
   //!< @brief tf listener
   tf2_ros::TransformListener m_tf_listener;
 
-  OnSetParametersCallbackHandle::SharedPtr set_param_res_;
+  OnSetParametersCallbackHandle::SharedPtr m_set_param_res;
   rcl_interfaces::msg::SetParametersResult paramCallback(
     const std::vector<rclcpp::Parameter> & parameters);
 
   // pointers for ros topic
-  std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState> current_state_ptr_{nullptr};
-  std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState> prev_state_ptr_{nullptr};
-  std::shared_ptr<autoware_auto_msgs::msg::Trajectory> trajectory_ptr_{nullptr};
+  std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState> m_current_state_ptr{nullptr};
+  std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState> m_prev_state_ptr{nullptr};
+  std::shared_ptr<autoware_auto_msgs::msg::Trajectory> m_trajectory_ptr{nullptr};
 
   // vehicle info TODO get as param
-  float64_t wheel_base_;
+  float64_t m_wheel_base;
 
   // control state
   enum class ControlState { DRIVE = 0, STOPPING, STOPPED, EMERGENCY };
-  ControlState control_state_{ControlState::STOPPED};
+  ControlState m_control_state{ControlState::STOPPED};
 
   // timer callback
-  float64_t control_rate_;
+  float64_t m_control_rate;
 
   // delay compensation
-  float64_t delay_compensation_time_;
+  float64_t m_delay_compensation_time;
 
   // enable flags
-  bool8_t enable_smooth_stop_;
-  bool8_t enable_overshoot_emergency_;
-  bool8_t enable_slope_compensation_;
+  bool8_t m_enable_smooth_stop;
+  bool8_t m_enable_overshoot_emergency;
+  bool8_t m_enable_slope_compensation;
 
   // smooth stop transition
   struct StateTransitionParams
@@ -137,15 +137,15 @@ private:
     float64_t emergency_state_traj_trans_dev;
     float64_t emergency_state_traj_rot_dev;
   };
-  StateTransitionParams state_transition_params_;
+  StateTransitionParams m_state_transition_params;
 
   // drive
-  trajectory_follower::PIDController pid_vel_;
-  std::shared_ptr<trajectory_follower::LowpassFilter1d> lpf_vel_error_{nullptr};
-  float64_t current_vel_threshold_pid_integrate_;
+  trajectory_follower::PIDController m_pid_vel;
+  std::shared_ptr<trajectory_follower::LowpassFilter1d> m_lpf_vel_error{nullptr};
+  float64_t m_current_vel_threshold_pid_integrate;
 
   // smooth stop
-  trajectory_follower::SmoothStop smooth_stop_;
+  trajectory_follower::SmoothStop m_smooth_stop;
 
   // stop
   struct StoppedStateParams
@@ -154,7 +154,7 @@ private:
     float64_t acc;
     float64_t jerk;
   };
-  StoppedStateParams stopped_state_params_;
+  StoppedStateParams m_stopped_state_params;
 
   // emergency
   struct EmergencyStateParams
@@ -163,45 +163,45 @@ private:
     float64_t acc;
     float64_t jerk;
   };
-  EmergencyStateParams emergency_state_params_;
+  EmergencyStateParams m_emergency_state_params;
 
   // acceleration limit
-  float64_t max_acc_;
-  float64_t min_acc_;
+  float64_t m_max_acc;
+  float64_t m_min_acc;
 
   // jerk limit
-  float64_t max_jerk_;
-  float64_t min_jerk_;
+  float64_t m_max_jerk;
+  float64_t m_min_jerk;
 
   // slope compensation
-  bool8_t use_traj_for_pitch_;
-  std::shared_ptr<trajectory_follower::LowpassFilter1d> lpf_pitch_{nullptr};
-  float64_t max_pitch_rad_;
-  float64_t min_pitch_rad_;
+  bool8_t m_use_traj_for_pitch;
+  std::shared_ptr<trajectory_follower::LowpassFilter1d> m_lpf_pitch{nullptr};
+  float64_t m_max_pitch_rad;
+  float64_t m_min_pitch_rad;
 
   // 1st order lowpass filter for acceleration
-  std::shared_ptr<trajectory_follower::LowpassFilter1d> lpf_acc_{nullptr};
+  std::shared_ptr<trajectory_follower::LowpassFilter1d> m_lpf_acc{nullptr};
 
   // current pose
   geometry_msgs::msg::PoseStamped::SharedPtr m_current_pose_ptr;
   // buffer of send command
-  std::vector<autoware_auto_msgs::msg::LongitudinalCommand> ctrl_cmd_vec_;
+  std::vector<autoware_auto_msgs::msg::LongitudinalCommand> m_ctrl_cmd_vec;
 
   // for calculating dt
-  std::shared_ptr<rclcpp::Time> prev_control_time_{nullptr};
+  std::shared_ptr<rclcpp::Time> m_prev_control_time{nullptr};
 
   // shift mode
-  Shift prev_shift_{Shift::Forward};
+  Shift m_prev_shift{Shift::Forward};
 
   // diff limit
-  Motion prev_ctrl_cmd_{};      // with slope compensation
-  Motion prev_raw_ctrl_cmd_{};  // without slope compensation
-  std::vector<std::pair<rclcpp::Time, float64_t>> vel_hist_;
+  Motion m_prev_ctrl_cmd{};      // with slope compensation
+  Motion m_prev_raw_ctrl_cmd{};  // without slope compensation
+  std::vector<std::pair<rclcpp::Time, float64_t>> m_vel_hist;
 
   // debug values
-  trajectory_follower::DebugValues debug_values_;
+  trajectory_follower::DebugValues m_debug_values;
 
-  std::shared_ptr<rclcpp::Time> last_running_time_{std::make_shared<rclcpp::Time>(this->now())};
+  std::shared_ptr<rclcpp::Time> m_last_running_time{std::make_shared<rclcpp::Time>(this->now())};
 
   /**
    * @brief set current and previous velocity with received message
