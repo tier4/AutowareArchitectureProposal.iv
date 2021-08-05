@@ -256,10 +256,10 @@ class TrajectoryVisualizer(Node):
     def plotTrajectoryVelocity(self, data):
         self.updatePose(PATH_ORIGIN_FRAME, SELF_POSE_FRAME)
         if self.self_pose_received is False:
-            self.get_logger().info('plot start but self pose is not received')
+            print('plot start but self pose is not received')
             return self.im1, self.im2, self.im3, self.im4, self.im5, \
                 self.im6, self.im7, self.im8, self.im9, self.im10, self.im11
-        self.get_logger().info('plot start')
+        print('plot start')
 
         # copy
         lane_change_path = self.lane_change_path
@@ -489,7 +489,7 @@ class TrajectoryVisualizer(Node):
         return self.im0, self.im1, self.im2, self.im3, self.im4
 
     def plotTrajectory(self, data):
-        self.get_logger().info('plot called')
+        print('plot called')
         self.updatePose(PATH_ORIGIN_FRAME, SELF_POSE_FRAME)
 
         # copy
@@ -595,7 +595,7 @@ class TrajectoryVisualizer(Node):
             self.self_pose.orientation.y = tf.transform.rotation.y
             self.self_pose.orientation.z = tf.transform.rotation.z
             self.self_pose.orientation.w = tf.transform.rotation.w
-            self.get_logger().info('updatePose succeeded')
+            print('updatePose succeeded')
             self.self_pose_received = True
             return
         except tf2_ros.TransformException:
