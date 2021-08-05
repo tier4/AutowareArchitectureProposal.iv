@@ -25,8 +25,8 @@
 
 #include "autoware_auto_msgs/msg/longitudinal_command.hpp"
 #include "autoware_auto_msgs/msg/trajectory.hpp"
+#include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "std_msgs/msg/float32.hpp"
 #include "std_msgs/msg/float32_multi_array.hpp"
 #include "motion_common/trajectory_common.hpp"
@@ -82,7 +82,8 @@ private:
   };
 
   // ros variables
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_vel_;
+  rclcpp::Subscription<autoware_auto_msgs::msg::VehicleKinematicState>::SharedPtr
+    sub_current_state_;
   rclcpp::Subscription<autoware_auto_msgs::msg::Trajectory>::SharedPtr sub_trajectory_;
   rclcpp::Publisher<autoware_auto_msgs::msg::LongitudinalCommand>::SharedPtr pub_control_cmd_;
   rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr pub_slope_;
@@ -98,8 +99,8 @@ private:
     const std::vector<rclcpp::Parameter> & parameters);
 
   // pointers for ros topic
-  std::shared_ptr<geometry_msgs::msg::TwistStamped> current_vel_ptr_{nullptr};
-  std::shared_ptr<geometry_msgs::msg::TwistStamped> prev_vel_ptr_{nullptr};
+  std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState> current_state_ptr_{nullptr};
+  std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState> prev_state_ptr_{nullptr};
   std::shared_ptr<autoware_auto_msgs::msg::Trajectory> trajectory_ptr_{nullptr};
 
   // vehicle info TODO get as param
@@ -205,7 +206,8 @@ private:
   /**
    * @brief set current and previous velocity with received message
    */
-  void callbackCurrentVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
+  void callbackCurrentState(
+    const autoware_auto_msgs::msg::VehicleKinematicState::ConstSharedPtr msg);
 
   /**
    * @brief set reference trajectory with received message
