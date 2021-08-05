@@ -24,7 +24,6 @@
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "fake_test_node/fake_test_node.hpp"
 #include "gtest/gtest.h"
 #include "rclcpp/rclcpp.hpp"
@@ -36,7 +35,7 @@ using LongitudinalController =
 using LongitudinalCommand = autoware_auto_msgs::msg::LongitudinalCommand;
 using Trajectory = autoware_auto_msgs::msg::Trajectory;
 using TrajectoryPoint = autoware_auto_msgs::msg::TrajectoryPoint;
-using TwistStamped = geometry_msgs::msg::TwistStamped;
+using VehicleState = autoware_auto_msgs::msg::VehicleKinematicState;
 
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
@@ -54,15 +53,15 @@ TEST_F(FakeNodeFixture, simple_test) {
     node_options);
 
   // Publisher/Subscribers
-  rclcpp::Publisher<TwistStamped>::SharedPtr twist_pub = node->create_publisher<TwistStamped>(
-    "input/current_velocity",
+  rclcpp::Publisher<VehicleState>::SharedPtr state_pub = node->create_publisher<VehicleState>(
+    "input/current_state",
     rclcpp::QoS(10));
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub = node->create_publisher<Trajectory>(
     "input/current_trajectory",
     rclcpp::QoS(10));
   rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
     this->create_subscription<LongitudinalCommand>(
-    "output/control_cmd", *node,
+    "output/longitudinal_control_cmd", *node,
     [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
       cmd_msg = msg; received_longitudinal_command = true;
     });
@@ -80,15 +79,15 @@ TEST_F(FakeNodeFixture, simple_test) {
   br->sendTransform(transform);
   /// Already running at target vel + Non stopping trajectory -> no change in velocity
   // Publish velocity
-  TwistStamped twist;
-  twist.header.stamp = node->now();
-  twist.twist.linear.x = 1.0;
-  twist_pub->publish(twist);
+  VehicleState state;
+  state.header.stamp = node->now();
+  state.state.longitudinal_velocity_mps = 1.0;
+  state_pub->publish(state);
   // the node needs to receive two velocity msg
   rclcpp::spin_some(node);
   rclcpp::spin_some(this->get_fake_node());
-  twist.header.stamp = node->now();
-  twist_pub->publish(twist);
+  state.header.stamp = node->now();
+  state_pub->publish(state);
   // Publish non stopping trajectory
   Trajectory traj;
   TrajectoryPoint point;
