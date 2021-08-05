@@ -79,17 +79,16 @@ builtin_interfaces::msg::Duration to_message(std::chrono::nanoseconds dt)
 ////////////////////////////////////////////////////////////////////////////////
 std::chrono::system_clock::time_point from_message(builtin_interfaces::msg::Time t) noexcept
 {
-  // Clang system clock is microsecond precision rather than nanosecond
   const auto dt_ns = std::chrono::seconds(t.sec) + std::chrono::nanoseconds(t.nanosec);
-  const auto dt = std::chrono::duration_cast<std::chrono::microseconds>(dt_ns);
+  const auto dt = std::chrono::duration_cast<std::chrono::nanoseconds>(dt_ns);
   return std::chrono::system_clock::time_point{} + dt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-std::chrono::microseconds from_message(builtin_interfaces::msg::Duration dt) noexcept
+std::chrono::nanoseconds from_message(builtin_interfaces::msg::Duration dt) noexcept
 {
   const auto ns = std::chrono::nanoseconds{dt.nanosec};
-  const auto us = std::chrono::duration_cast<std::chrono::microseconds>(ns);
+  const auto us = std::chrono::duration_cast<std::chrono::nanoseconds>(ns);
   return std::chrono::seconds{dt.sec} + us;
 }
 

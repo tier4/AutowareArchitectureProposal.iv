@@ -1,4 +1,4 @@
-// Copyright 2019 Christopher Ho
+// Copyright 2019-2021 Apex.AI, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 #ifndef TIME_UTILS__TIME_UTILS_HPP_
 #define TIME_UTILS__TIME_UTILS_HPP_
 
@@ -31,7 +33,7 @@ TIME_UTILS_PUBLIC
 std::chrono::system_clock::time_point from_message(builtin_interfaces::msg::Time t) noexcept;
 /// Convert from std::chrono::duration from duration message
 TIME_UTILS_PUBLIC
-std::chrono::microseconds from_message(builtin_interfaces::msg::Duration dt) noexcept;
+std::chrono::nanoseconds from_message(builtin_interfaces::msg::Duration dt) noexcept;
 /// Standard interpolation
 TIME_UTILS_PUBLIC std::chrono::nanoseconds interpolate(
   std::chrono::nanoseconds a,

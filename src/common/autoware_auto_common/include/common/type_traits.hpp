@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//    http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +14,7 @@
 //
 // Developed by Apex.AI, Inc.
 
+#include <common/types.hpp>
 #include <common/visibility_control.hpp>
 
 #include <cstdint>
@@ -29,6 +30,23 @@ namespace common
 {
 namespace type_traits
 {
+
+///
+/// @brief      A helper function to be used in static_assert to indicate an impossible branch.
+///
+/// @details    Typically used when a static_assert is used to guard a certain default
+///             implementation to never be executed and to show a helpful message to the user.
+///
+/// @tparam     T     Any type needed to delay the compilation of this function until it is used.
+///
+/// @return     A boolean that should be false for any type passed into this function.
+///
+template<typename T>
+constexpr inline autoware::common::types::bool8_t COMMON_PUBLIC impossible_branch() noexcept
+{
+  return sizeof(T) == 0;
+}
+
 /// Find an index of a type in a tuple
 template<class QueryT, class TupleT>
 struct COMMON_PUBLIC index
