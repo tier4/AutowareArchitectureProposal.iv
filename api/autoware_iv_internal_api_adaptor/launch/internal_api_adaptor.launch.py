@@ -13,15 +13,13 @@
 # limitations under the License.
 
 import launch
-import os
-from ament_index_python.packages import get_package_share_directory
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
 
 
 def _create_api_node(node_name, class_name, **kwargs):
     return ComposableNode(
-        namespace='internal_api',
+        namespace='internal',
         name=node_name,
         package='autoware_iv_internal_api_adaptor',
         plugin='internal_api::' + class_name,
@@ -36,17 +34,11 @@ def generate_launch_description():
         _create_api_node('velocity', 'Velocity'),
     ]
     container = ComposableNodeContainer(
-        namespace='internal_api',
+        namespace='internal',
         name='autoware_iv_adaptor',
         package='rclcpp_components',
         executable='component_container_mt',
         composable_node_descriptions=components,
         output='screen',
     )
-    relay = launch.actions.IncludeLaunchDescription(
-        launch.launch_description_sources.AnyLaunchDescriptionSource(
-            os.path.join(get_package_share_directory('autoware_iv_internal_api_adaptor'),
-                         'launch', 'internal_api_adaptor_relay.launch.xml')
-        )
-    )
-    return launch.LaunchDescription([container, relay])
+    return launch.LaunchDescription([container])
