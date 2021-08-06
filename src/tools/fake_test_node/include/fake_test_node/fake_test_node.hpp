@@ -90,7 +90,7 @@ public:
   ///
   /// @param[in]  topic         The topic
   /// @param[in]  timeout       The timeout for matching to a subscription
-  /// @param[in]  history_size  The history size
+  /// @param[in]  qos           The QoS profile for the publisher handler
   ///
   /// @tparam     MsgT          Type of messages to publish.
   ///
@@ -102,10 +102,11 @@ public:
   typename rclcpp::Publisher<MsgT>::SharedPtr create_publisher(
     const std::string & topic,
     const std::chrono::milliseconds & timeout = std::chrono::seconds{10LL},
-    const std::size_t history_size = 10)
+    const rclcpp::QoS & qos = rclcpp::QoS(rclcpp::KeepLast(10)))
   {
+    // Set the QoS profile history depth
     typename rclcpp::Publisher<MsgT>::SharedPtr publisher =
-      m_fake_node->create_publisher<MsgT>(topic, history_size);
+      m_fake_node->create_publisher<MsgT>(topic, qos);
 
     std::chrono::milliseconds spent_time{0LL};
     std::chrono::milliseconds dt{100LL};
@@ -130,6 +131,7 @@ public:
   ///                              subscription matches a publisher in this node.
   /// @param[in]  callback         The callback to be called by the subscription
   /// @param[in]  timeout          The timeout for matching to a publisher
+  /// @param[in]  qos              The QoS profile for the subscription handler
   ///
   /// @tparam     MsgT             Message type to which this must subscribe
   /// @tparam     NodeT            The type of the node under test
@@ -143,9 +145,10 @@ public:
     const std::string & topic,
     const NodeT & publishing_node,
     std::function<void(const typename MsgT::SharedPtr msg)> callback,
-    const std::chrono::milliseconds & timeout = std::chrono::seconds{10LL})
+    const std::chrono::milliseconds & timeout = std::chrono::seconds{10LL},
+    const rclcpp::QoS & qos = rclcpp::QoS(rclcpp::KeepLast(10)))
   {
-    auto subscription = m_fake_node->create_subscription<MsgT>(topic, 10, callback);
+    auto subscription = m_fake_node->create_subscription<MsgT>(topic, qos, callback);
     std::chrono::milliseconds spent_time{0LL};
     std::chrono::milliseconds dt{100LL};
     while (publishing_node.count_publishers(topic) < 1) {
