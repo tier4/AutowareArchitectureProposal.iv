@@ -42,6 +42,34 @@ inline auto dot_3d(const T1 & pt, const T2 & q)
   return (x_(pt) * x_(q)) + (y_(pt) * y_(q) + z_(pt) * z_(q));
 }
 
+/// \brief Compute 3D squared euclidean distance between two points
+/// \tparam OUT return type. Type of the returned distance.
+/// \tparam T1 point type. Must have point adapters defined or have float members x y and z
+/// \tparam T2 point type. Must have point adapters defined or have float members x y and z
+/// \param a point 1
+/// \param b point 2
+/// \return squared 3D euclidean distance
+template<typename OUT = float32_t, typename T1, typename T2>
+inline OUT squared_distance_3d(const T1 & a, const T2 & b)
+{
+  const auto x = static_cast<OUT>(point_adapter::x_(a)) - static_cast<OUT>(point_adapter::x_(b));
+  const auto y = static_cast<OUT>(point_adapter::y_(a)) - static_cast<OUT>(point_adapter::y_(b));
+  const auto z = static_cast<OUT>(point_adapter::z_(a)) - static_cast<OUT>(point_adapter::z_(b));
+  return (x * x) + (y * y) + (z * z);
+}
+
+/// \brief Compute 3D euclidean distance between two points
+/// \tparam T1 point type. Must have point adapters defined or have float members x y and z
+/// \tparam T2 point type. Must have point adapters defined or have float members x y and z
+/// \param a point 1
+/// \param b point 2
+/// \return 3D euclidean distance
+template<typename OUT = float32_t, typename T1, typename T2>
+inline OUT distance_3d(const T1 & a, const T2 & b)
+{
+  return std::sqrt(squared_distance_3d<OUT>(a, b));
+}
+
 }  // namespace geometry
 }  // namespace common
 }  // namespace autoware
