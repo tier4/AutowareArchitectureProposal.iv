@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics.hpp"
-#include <iostream>
+#include <cmath>
 
 namespace autoware
 {
@@ -40,10 +40,12 @@ void KinematicsBicycleModel::calculateDiscreteMatrix(
 
   /* Linearize delta around delta_r (reference delta) */
   float64_t delta_r = atan(m_wheelbase * m_curvature);
-  if (abs(delta_r) >= m_steer_lim) {delta_r = m_steer_lim * static_cast<float64_t>(sign(delta_r));}
+  if (std::abs(delta_r) >= m_steer_lim) {
+    delta_r = m_steer_lim * static_cast<float64_t>(sign(delta_r));
+  }
   float64_t cos_delta_r_squared_inv = 1 / (cos(delta_r) * cos(delta_r));
   float64_t velocity = m_velocity;
-  if (abs(m_velocity) < 1e-04) {velocity = 1e-04 * (m_velocity >= 0 ? 1 : -1);}
+  if (std::abs(m_velocity) < 1e-04) {velocity = 1e-04 * (m_velocity >= 0 ? 1 : -1);}
 
   a_d << 0.0, velocity, 0.0, 0.0, 0.0, velocity / m_wheelbase * cos_delta_r_squared_inv, 0.0, 0.0,
     -1.0 / m_steer_tau;
