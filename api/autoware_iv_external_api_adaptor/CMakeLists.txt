@@ -19,6 +19,7 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   src/door.cpp
   src/emergency.cpp
   src/engage.cpp
+  src/initial_pose.cpp
   src/map.cpp
   src/operator.cpp
   src/route.cpp
@@ -29,6 +30,7 @@ rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Diagnostics")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Door")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Emergency")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Engage")
+rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::InitialPose")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Map")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Operator")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Route")
