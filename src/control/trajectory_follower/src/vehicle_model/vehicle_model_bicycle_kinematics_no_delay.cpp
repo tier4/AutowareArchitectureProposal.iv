@@ -14,6 +14,8 @@
 
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp"
 
+#include <cmath>
+
 namespace autoware
 {
 namespace motion
@@ -38,7 +40,9 @@ void KinematicsBicycleModelNoDelay::calculateDiscreteMatrix(
 
   /* Linearize delta around delta_r (reference delta) */
   float64_t delta_r = atan(m_wheelbase * m_curvature);
-  if (abs(delta_r) >= m_steer_lim) {delta_r = m_steer_lim * static_cast<float64_t>(sign(delta_r));}
+  if (std::abs(delta_r) >= m_steer_lim) {
+    delta_r = m_steer_lim * static_cast<float64_t>(sign(delta_r));
+  }
   float64_t cos_delta_r_squared_inv = 1 / (cos(delta_r) * cos(delta_r));
 
   a_d << 0.0, m_velocity, 0.0, 0.0;
