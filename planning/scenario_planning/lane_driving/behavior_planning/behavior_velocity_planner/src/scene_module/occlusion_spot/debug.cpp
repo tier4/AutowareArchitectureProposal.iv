@@ -146,7 +146,7 @@ std::vector<visualization_msgs::msg::Marker> makePolygonMarker(
   debug_marker.color = autoware_utils::createMarkerColor(1.0, 0.0, 1.0, 0.3);
   debug_marker.lifetime = rclcpp::Duration::from_seconds(0.1);
   debug_marker.ns = "sidewalk";
-  for (const lanelet::BasicPoint2d & p : polygon) {
+  for (const auto & p : polygon) {
     geometry_msgs::msg::Point point = autoware_utils::createMarkerPosition(p.x(), p.y(), 0.0);
     debug_marker.points.push_back(point);
   }
