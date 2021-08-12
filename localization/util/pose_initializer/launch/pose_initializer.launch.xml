@@ -5,8 +5,8 @@
     <remap from="gnss_pose_cov" to="/sensing/gnss/pose_with_covariance" />
     <remap from="pointcloud_map" to="/map/pointcloud_map" />
     <remap from="ndt_align_srv" to="/localization/pose_estimator/ndt_align_srv" />
-    <remap from="service/initialize_pose" to="/api/autoware/set/initialize_pose" />
-    <remap from="service/initialize_pose_auto" to="/api/autoware/set/initialize_pose_auto" />
+    <remap from="service/initialize_pose" to="/localization/util/initialize_pose" />
+    <remap from="service/initialize_pose_auto" to="/localization/util/initialize_pose_auto" />
     <param name="enable_gnss_callback" value="true" />
   </node>
 </launch>

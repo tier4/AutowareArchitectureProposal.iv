@@ -19,8 +19,10 @@
 #include "autoware_api_utils/autoware_api_utils.hpp"
 #include "autoware_external_api_msgs/srv/initialize_pose.hpp"
 #include "autoware_external_api_msgs/srv/initialize_pose_auto.hpp"
+#include "autoware_localization_srvs/srv/pose_with_covariance_stamped.hpp"
+#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 
-namespace external_api
+namespace internal_api
 {
 
 class InitialPose : public rclcpp::Node
@@ -31,13 +33,19 @@ public:
 private:
   using InitializePose = autoware_external_api_msgs::srv::InitializePose;
   using InitializePoseAuto = autoware_external_api_msgs::srv::InitializePoseAuto;
+  using PoseWithCovarianceStamped = autoware_localization_srvs::srv::PoseWithCovarianceStamped;
+
+  // ros parameter
+  bool init_simulator_pose_;
+  bool init_localization_pose_;
 
   // ros interface
   rclcpp::CallbackGroup::SharedPtr group_;
   autoware_api_utils::Service<InitializePose>::SharedPtr srv_set_initialize_pose_;
   autoware_api_utils::Service<InitializePoseAuto>::SharedPtr srv_set_initialize_pose_auto_;
-  autoware_api_utils::Client<InitializePose>::SharedPtr cli_set_initialize_pose_;
+  autoware_api_utils::Client<PoseWithCovarianceStamped>::SharedPtr cli_set_initialize_pose_;
   autoware_api_utils::Client<InitializePoseAuto>::SharedPtr cli_set_initialize_pose_auto_;
+  autoware_api_utils::Client<InitializePose>::SharedPtr cli_set_simulator_pose_;
 
   // ros callback
   void setInitializePose(
@@ -48,6 +56,6 @@ private:
     const autoware_external_api_msgs::srv::InitializePoseAuto::Response::SharedPtr response);
 };
 
-}  // namespace external_api
+}  // namespace internal_api
 
 #endif  // INITIAL_POSE_HPP_

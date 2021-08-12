@@ -25,18 +25,18 @@ InitialPose::InitialPose(const rclcpp::NodeOptions & options)
   autoware_api_utils::ServiceProxyNodeInterface proxy(this);
 
   group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
-  srv_set_initialize_pose = proxy.create_service<InitializePose>(
+  srv_set_initialize_pose_ = proxy.create_service<InitializePose>(
     "/api/external/set/initialize_pose",
     std::bind(&InitialPose::setInitializePose, this, _1, _2),
     rmw_qos_profile_services_default, group_);
-  srv_set_initialize_pose_auto = proxy.create_service<InitializePoseAuto>(
+  srv_set_initialize_pose_auto_ = proxy.create_service<InitializePoseAuto>(
     "/api/external/set/initialize_pose_auto",
     std::bind(&InitialPose::setInitializePoseAuto, this, _1, _2),
     rmw_qos_profile_services_default, group_);
-  cli_set_initialize_pose = proxy.create_client<PoseWithCovarianceStamped>(
+  cli_set_initialize_pose_ = proxy.create_client<InitializePose>(
     "/api/autoware/set/initialize_pose",
     rmw_qos_profile_services_default);
-  cli_set_initialize_pose_auto = proxy.create_client<InitializePoseAuto>(
+  cli_set_initialize_pose_auto_ = proxy.create_client<InitializePoseAuto>(
     "/api/autoware/set/initialize_pose_auto",
     rmw_qos_profile_services_default);
 }
@@ -45,27 +45,19 @@ void InitialPose::setInitializePose(
   const autoware_external_api_msgs::srv::InitializePose::Request::SharedPtr request,
   const autoware_external_api_msgs::srv::InitializePose::Response::SharedPtr response)
 {
-  const auto req = std::make_shared<PoseWithCovarianceStamped::Request>();
-  req->pose_with_cov = request->pose;
-
-  const auto [status, resp] = cli_set_initialize_pose->call(req);
+  const auto [status, resp] = cli_set_initialize_pose_->call(request);
   if (!autoware_api_utils::is_success(status)) {
     response->status = status;
     return;
   }
-
-  if (resp->success) {
-    response->status = autoware_api_utils::response_success();
-  } else {
-    response->status = autoware_api_utils::response_error("Internal service failed.");
-  }
+  response->status = resp->status;
 }
 
 void InitialPose::setInitializePoseAuto(
   const autoware_external_api_msgs::srv::InitializePoseAuto::Request::SharedPtr request,
   const autoware_external_api_msgs::srv::InitializePoseAuto::Response::SharedPtr response)
 {
-  const auto [status, resp] = cli_set_initialize_pose_auto->call(request);
+  const auto [status, resp] = cli_set_initialize_pose_auto_->call(request);
   if (!autoware_api_utils::is_success(status)) {
     response->status = status;
     return;

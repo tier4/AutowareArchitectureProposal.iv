@@ -15,6 +15,7 @@
 import launch
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
+from launch.substitutions import LaunchConfiguration
 
 
 def _create_api_node(node_name, class_name, **kwargs):
@@ -28,7 +29,12 @@ def _create_api_node(node_name, class_name, **kwargs):
 
 
 def generate_launch_description():
+    param_initial_pose = {
+        'init_simulator_pose': LaunchConfiguration('init_simulator_pose'),
+        'init_localization_pose': LaunchConfiguration('init_localization_pose'),
+    }
     components = [
+        _create_api_node('initial_pose', 'InitialPose', parameters=[param_initial_pose]),
         _create_api_node('operator', 'Operator'),
         _create_api_node('route', 'Route'),
         _create_api_node('velocity', 'Velocity'),
