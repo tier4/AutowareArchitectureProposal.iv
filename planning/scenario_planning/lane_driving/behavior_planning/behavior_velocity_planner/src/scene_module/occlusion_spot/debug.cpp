@@ -155,7 +155,9 @@ std::vector<visualization_msgs::msg::Marker> makePolygonMarker(
 }
 
 template<class T>
-visualization_msgs::msg::MarkerArray createMarkers(T & debug_data, const int64_t module_id_)
+visualization_msgs::msg::MarkerArray createMarkers(
+  T & debug_data,
+  [[maybe_unused]] const int64_t module_id_)
 {
   // add slow down markers for occlusion spot
   visualization_msgs::msg::MarkerArray occlusion_spot_slowdown_markers;
