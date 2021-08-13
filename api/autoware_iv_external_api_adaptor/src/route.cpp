@@ -38,7 +38,13 @@ Route::Route(const rclcpp::NodeOptions & options)
     "/api/autoware/set/route");
   cli_clear_route_ = proxy.create_client<autoware_external_api_msgs::srv::ClearRoute>(
     "/api/autoware/set/clear_route");
-  sub_ = create_subscription<autoware_system_msgs::msg::AutowareState>(
+
+  pub_get_route_ = create_publisher<autoware_external_api_msgs::msg::Route>(
+    "/api/external/get/route", rclcpp::QoS(1).transient_local());
+  sub_get_route_ = create_subscription<autoware_external_api_msgs::msg::Route>(
+    "/api/autoware/get/route", rclcpp::QoS(1).transient_local(),
+    std::bind(&Route::onRoute, this, _1));
+  sub_autoware_state_ = create_subscription<autoware_system_msgs::msg::AutowareState>(
     "/autoware/state", rclcpp::QoS(1),
     std::bind(&Route::onAutowareState, this, _1));
 
@@ -73,6 +79,12 @@ void Route::clearRoute(
     return;
   }
   response->status = resp->status;
+}
+
+void Route::onRoute(
+  const autoware_external_api_msgs::msg::Route::ConstSharedPtr message)
+{
+  pub_get_route_->publish(*message);
 }
 
 void Route::onAutowareState(

@@ -20,6 +20,7 @@
 #include "autoware_external_api_msgs/srv/set_pose.hpp"
 #include "autoware_external_api_msgs/srv/set_route.hpp"
 #include "autoware_external_api_msgs/srv/clear_route.hpp"
+#include "autoware_external_api_msgs/msg/route.hpp"
 #include "autoware_planning_msgs/msg/route.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "std_srvs/srv/trigger.hpp"
@@ -44,9 +45,11 @@ private:
   autoware_api_utils::Service<SetPose>::SharedPtr srv_set_goal_;
   autoware_api_utils::Service<SetPose>::SharedPtr srv_set_checkpoint_;
   autoware_api_utils::Client<std_srvs::srv::Trigger>::SharedPtr cli_clear_route_;
-  rclcpp::Publisher<autoware_planning_msgs::msg::Route>::SharedPtr pub_set_route_;
-  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_set_goal_;
-  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_set_checkpoint_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr sub_planning_route_;
+  rclcpp::Publisher<autoware_planning_msgs::msg::Route>::SharedPtr pub_planning_route_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_planning_goal_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_planning_checkpoint_;
+  rclcpp::Publisher<autoware_external_api_msgs::msg::Route>::SharedPtr pub_get_route_;
 
   // ros callback
   void clearRoute(
@@ -61,6 +64,8 @@ private:
   void setCheckpoint(
     const autoware_external_api_msgs::srv::SetPose::Request::SharedPtr request,
     const autoware_external_api_msgs::srv::SetPose::Response::SharedPtr response);
+
+  void onRoute(const autoware_planning_msgs::msg::Route::ConstSharedPtr message);
 };
 
 }  // namespace internal_api
