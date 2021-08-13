@@ -23,6 +23,7 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   src/map.cpp
   src/operator.cpp
   src/route.cpp
+  src/service.cpp
   src/velocity.cpp
   src/version.cpp
 )
@@ -34,6 +35,7 @@ rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::InitialPose")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Map")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Operator")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Route")
+rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Service")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Velocity")
 rclcpp_components_register_nodes(${PROJECT_NAME} "external_api::Version")
 
