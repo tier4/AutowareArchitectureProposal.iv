@@ -8,11 +8,19 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        branch:
+          - main
+          - develop
     container: osrf/ros:galactic-desktop
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          ref: ${{ matrix.branch }}
 
       - name: Install pip
         run: |
