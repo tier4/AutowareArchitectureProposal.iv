@@ -260,6 +260,7 @@ void Simulator::serviceSetPose(
   using PoseWithCovarianceStamped = geometry_msgs::msg::PoseWithCovarianceStamped;
   initial_pose_with_cov_ptr_ = std::make_shared<PoseWithCovarianceStamped>(request->pose);
   setInitialStateWithPoseTransform(*initial_pose_with_cov_ptr_, initial_twist);
+  response->status = autoware_api_utils::response_success();
 }
 
 void Simulator::timerCallbackSimulation()
