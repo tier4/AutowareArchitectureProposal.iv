@@ -33,7 +33,7 @@ public:
 private:
   using InitializePose = autoware_external_api_msgs::srv::InitializePose;
   using InitializePoseAuto = autoware_external_api_msgs::srv::InitializePoseAuto;
-  using PoseWithCovarianceStamped = autoware_localization_srvs::srv::PoseWithCovarianceStamped;
+  using PoseWithCovarianceStampedSrv = autoware_localization_srvs::srv::PoseWithCovarianceStamped;
 
   // ros parameter
   bool init_simulator_pose_;
@@ -43,9 +43,12 @@ private:
   rclcpp::CallbackGroup::SharedPtr group_;
   autoware_api_utils::Service<InitializePose>::SharedPtr srv_set_initialize_pose_;
   autoware_api_utils::Service<InitializePoseAuto>::SharedPtr srv_set_initialize_pose_auto_;
-  autoware_api_utils::Client<PoseWithCovarianceStamped>::SharedPtr cli_set_initialize_pose_;
+  autoware_api_utils::Client<PoseWithCovarianceStampedSrv>::SharedPtr cli_set_initialize_pose_;
   autoware_api_utils::Client<InitializePoseAuto>::SharedPtr cli_set_initialize_pose_auto_;
   autoware_api_utils::Client<InitializePose>::SharedPtr cli_set_simulator_pose_;
+
+  // TODO(Takagi, Isamu): workaround for topic check
+  rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pub_initialpose2d_;
 
   // ros callback
   void setInitializePose(

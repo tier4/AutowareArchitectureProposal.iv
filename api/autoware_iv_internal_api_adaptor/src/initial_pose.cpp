@@ -38,7 +38,7 @@ InitialPose::InitialPose(const rclcpp::NodeOptions & options)
     rmw_qos_profile_services_default, group_);
 
   if (init_localization_pose_) {
-    cli_set_initialize_pose_ = proxy.create_client<PoseWithCovarianceStamped>(
+    cli_set_initialize_pose_ = proxy.create_client<PoseWithCovarianceStampedSrv>(
       "/localization/util/initialize_pose",
       rmw_qos_profile_services_default);
     cli_set_initialize_pose_auto_ = proxy.create_client<InitializePoseAuto>(
@@ -50,6 +50,8 @@ InitialPose::InitialPose(const rclcpp::NodeOptions & options)
     cli_set_simulator_pose_ = proxy.create_client<InitializePose>(
       "/api/simulator/set/pose",
       rmw_qos_profile_services_default);
+    pub_initialpose2d_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
+      "/initialpose2d", rclcpp::QoS(1));
   }
 }
 
@@ -65,11 +67,12 @@ void InitialPose::setInitializePose(
       response->status = status;
       return;
     }
+    pub_initialpose2d_->publish(request->pose);
     response->status = resp->status;
   }
 
   if (init_localization_pose_) {
-    const auto req = std::make_shared<PoseWithCovarianceStamped::Request>();
+    const auto req = std::make_shared<PoseWithCovarianceStampedSrv::Request>();
     req->pose_with_cov = request->pose;
     const auto [status, resp] = cli_set_initialize_pose_->call(req);
     if (!autoware_api_utils::is_success(status)) {
