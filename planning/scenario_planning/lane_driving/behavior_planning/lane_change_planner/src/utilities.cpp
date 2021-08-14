@@ -687,7 +687,8 @@ bool exists(std::vector<T> vec, T element)
 }
 
 bool setGoal(
-  const double search_radius_range, const double search_rad_range, const PathWithLaneId & input,
+  const double search_radius_range, [[maybe_unused]] const double search_rad_range,
+  const PathWithLaneId & input,
   const geometry_msgs::msg::Pose & goal, const int64_t goal_lane_id, PathWithLaneId * output_ptr,
   const rclcpp::Logger & logger)
 {
@@ -1375,7 +1376,8 @@ bool SplineInterpolate::isIncrease(const std::vector<double> & x) const
 
 bool SplineInterpolate::isValidInput(
   const std::vector<double> & base_index, const std::vector<double> & base_value,
-  const std::vector<double> & return_index, std::vector<double> & return_value) const
+  const std::vector<double> & return_index,
+  [[maybe_unused]] std::vector<double> & return_value) const
 {
   if (base_index.empty() || base_value.empty() || return_index.empty()) {
     std::cout << "bad index : some vector is empty. base_index: " << base_index.size() <<

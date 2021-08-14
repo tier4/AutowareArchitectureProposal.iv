@@ -626,7 +626,7 @@ bool VelocityController::isStoppedState(double current_vel, double target_vel, i
   }
 }
 
-bool VelocityController::isEmergencyState(int closest, double target_vel) const
+bool VelocityController::isEmergencyState(int closest, [[maybe_unused]] double target_vel) const
 {
   // already in emergency.
   if (is_emergency_stop_) {

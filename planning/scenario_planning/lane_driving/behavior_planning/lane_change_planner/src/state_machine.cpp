@@ -46,7 +46,8 @@ void StateMachine::init()
   state_obj_ptr_->entry();
 }
 
-void StateMachine::initCallback(const autoware_planning_msgs::msg::Route::ConstSharedPtr route)
+void StateMachine::initCallback(
+  [[maybe_unused]] const autoware_planning_msgs::msg::Route::ConstSharedPtr route)
 {
   init();
 }
