@@ -121,7 +121,8 @@ bool SplineInterpolator::isNonDecrease(const std::vector<double> & x) const
 
 bool SplineInterpolator::isValidInput(
   const std::vector<double> & base_index, const std::vector<double> & base_value,
-  const std::vector<double> & return_index, std::vector<double> & return_value) const
+  const std::vector<double> & return_index,
+  [[maybe_unused]] std::vector<double> & return_value) const
 {
   if (base_index.empty() || base_value.empty() || return_index.empty()) {
     std::cout << "bad index : some vector is empty. base_index: " << base_index.size() <<
@@ -130,8 +131,8 @@ bool SplineInterpolator::isValidInput(
     return false;
   }
   if (base_index.size() < 2 || base_value.size() < 2) {
-    std::cout << "bad index : size of base_index or base_value is less than 2. base_index:  "
-              << base_index.size() << ", base_value: " << base_value.size() << std::endl;
+    std::cout << "bad index : size of base_index or base_value is less than 2. base_index:  " <<
+      base_index.size() << ", base_value: " << base_value.size() << std::endl;
     return false;
   }
   if (!isIncrease(base_index)) {

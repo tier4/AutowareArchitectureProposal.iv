@@ -112,7 +112,6 @@ private:
 
   // Algorithm
   std::unique_ptr<planning_utils::PurePursuit> pure_pursuit_;
-  TargetValues target_values_;
 
   boost::optional<TargetValues> calcTargetValues();
   boost::optional<autoware_planning_msgs::msg::TrajectoryPoint> calcTargetPoint() const;

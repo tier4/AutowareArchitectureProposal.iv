@@ -27,7 +27,8 @@ ObjectFlowFusion::ObjectFlowFusion(float fusion_box_offset)
 }
 
 bool ObjectFlowFusion::isInsidePolygon(
-  const geometry_msgs::msg::Pose & pose, const geometry_msgs::msg::Polygon & footprint,
+  [[maybe_unused]] const geometry_msgs::msg::Pose & pose,
+  const geometry_msgs::msg::Polygon & footprint,
   const geometry_msgs::msg::Point & flow_point)
 {
   double formed_angle_sum = 0;

@@ -13,9 +13,9 @@
 # limitations under the License.
 
 import launch
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import ComposableNodeContainer
 from launch_ros.descriptions import ComposableNode
-from launch.substitutions import LaunchConfiguration
 
 
 def _create_api_node(node_name, class_name, **kwargs):
