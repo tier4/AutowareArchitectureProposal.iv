@@ -688,7 +688,8 @@ bool exists(std::vector<T> vec, T element)
 }
 
 bool setGoal(
-  const double search_radius_range, const double search_rad_range, const PathWithLaneId & input,
+  const double search_radius_range, [[maybe_unused]] const double search_rad_range,
+  const PathWithLaneId & input,
   const geometry_msgs::msg::Pose & goal, const int64_t goal_lane_id, PathWithLaneId * output_ptr,
   const rclcpp::Logger & logger)
 {
@@ -938,10 +939,8 @@ nav_msgs::msg::OccupancyGrid generateDrivableArea(
       cv::bitwise_and(cv_image, cv_image_single_lane, cv_image);
     }
 
-    const auto & cv_image_reshaped = cv_image.reshape(1, 1);
     imageToOccupancyGrid(cv_image, &occupancy_grid);
     occupancy_grid.data[0] = 0;
-    // cv_image_reshaped.copyTo(occupancy_grid.data);
   }
   return occupancy_grid;
 }
@@ -1376,7 +1375,8 @@ bool SplineInterpolate::isIncrease(const std::vector<double> & x) const
 
 bool SplineInterpolate::isValidInput(
   const std::vector<double> & base_index, const std::vector<double> & base_value,
-  const std::vector<double> & return_index, std::vector<double> & return_value) const
+  const std::vector<double> & return_index,
+  [[maybe_unused]] std::vector<double> & return_value) const
 {
   if (base_index.empty() || base_value.empty() || return_index.empty()) {
     std::cout << "bad index : some vector is empty. base_index: " << base_index.size() <<
