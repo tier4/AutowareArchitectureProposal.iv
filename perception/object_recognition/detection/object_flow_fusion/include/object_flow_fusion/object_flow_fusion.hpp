@@ -60,7 +60,6 @@ private:
   geometry_msgs::msg::Twist getLocalTwist(
     const geometry_msgs::msg::Pose & obj_pose, const geometry_msgs::msg::Twist & base_coords_twist);
 
-  float point_radius_;
   std::shared_ptr<Utils> utils_;
   float fusion_box_offset_;
 };

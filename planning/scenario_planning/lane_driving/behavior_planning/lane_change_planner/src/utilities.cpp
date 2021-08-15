@@ -938,10 +938,8 @@ nav_msgs::msg::OccupancyGrid generateDrivableArea(
       cv::bitwise_and(cv_image, cv_image_single_lane, cv_image);
     }
 
-    const auto & cv_image_reshaped = cv_image.reshape(1, 1);
     imageToOccupancyGrid(cv_image, &occupancy_grid);
     occupancy_grid.data[0] = 0;
-    // cv_image_reshaped.copyTo(occupancy_grid.data);
   }
   return occupancy_grid;
 }
