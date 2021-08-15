@@ -201,13 +201,13 @@ void ScanGroundFilterComponent::classifyPointCloud(
       }
       if (p->point_state == PointLabel::NON_GROUND) {
         out_no_ground_indices.indices.push_back(p->orig_index);
-      } else if (
+      } else if ( // NOLINT
         (prev_point_label == PointLabel::NON_GROUND) &&
         (p->point_state == PointLabel::POINT_FOLLOW))
       {
         p->point_state = PointLabel::NON_GROUND;
         out_no_ground_indices.indices.push_back(p->orig_index);
-      } else if (
+      } else if ( // NOLINT
         (prev_point_label == PointLabel::GROUND) && (p->point_state == PointLabel::POINT_FOLLOW))
       {
         p->point_state = PointLabel::GROUND;
