@@ -67,11 +67,11 @@ MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
   stop_state_keep_stopping_dist_ = declare_parameter("stop_state_keep_stopping_dist", 0.5);  // [m]
 
   /* mpc parameters */
-  double steer_lim_deg, steer_rate_lim_degs;
+  double steer_lim_deg, steer_rate_lim_dps;
   steer_lim_deg = declare_parameter("steer_lim_deg", 35.0);
-  steer_rate_lim_degs = declare_parameter("steer_rate_lim_degs", 150.0);
+  steer_rate_lim_dps = declare_parameter("steer_rate_lim_dps", 150.0);
   steer_lim_ = steer_lim_deg * DEG2RAD;
-  steer_rate_lim_ = steer_rate_lim_degs * DEG2RAD;
+  steer_rate_lim_ = steer_rate_lim_dps * DEG2RAD;
   const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo();
   wheelbase_ = vehicle_info.wheel_base_m;
 
