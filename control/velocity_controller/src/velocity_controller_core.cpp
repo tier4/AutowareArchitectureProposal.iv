@@ -228,7 +228,7 @@ void VelocityController::callbackTimerControl()
 {
   const bool is_pose_updated = updateCurrentPose();
 
-  /* gurad */
+  /* guard */
   if (!is_pose_updated || !current_pose_ptr_ || !current_vel_ptr_ || !trajectory_ptr_) {
     RCLCPP_DEBUG(
       get_logger(),
@@ -485,7 +485,7 @@ CtrlCmd VelocityController::calcCtrlCmd()
   control_mode_ = ControlMode::PID_CONTROL;
   RCLCPP_DEBUG(
     get_logger(),
-    "[feedback control]  vel: %3.3f, acc: %3.3f, dt: %3.3f, vcurr: %3.3f, vref: %3.3f "
+    "[feedback control]  vel: %3.3f, acc: %3.3f, dt: %3.3f, curr_vel: %3.3f, ref_vel: %3.3f "
     "feedback_acc_cmd: %3.3f, shift: %d",
     target_vel, acc_cmd, dt, current_vel, target_vel, feedback_acc_cmd, shift);
   return CtrlCmd{target_vel, acc_cmd};
@@ -963,15 +963,15 @@ double VelocityController::applyVelocityFeedback(
   std::vector<double> pid_contributions(3);
   const double pid_acc =
     pid_vel_.calculate(error_vel_filtered, dt, enable_integration, pid_contributions);
-  const double feedbacked_acc = target_acc + pid_acc;
+  const double feedback_acc = target_acc + pid_acc;
 
-  debug_values_.data.at(DBGVAL::ACCCMD_PID_APPLIED) = feedbacked_acc;
+  debug_values_.data.at(DBGVAL::ACCCMD_PID_APPLIED) = feedback_acc;
   debug_values_.data.at(DBGVAL::ERROR_V_FILTERED) = error_vel_filtered;
   debug_values_.data.at(DBGVAL::ACCCMD_FB_P_CONTRIBUTION) = pid_contributions.at(0);  // P
   debug_values_.data.at(DBGVAL::ACCCMD_FB_I_CONTRIBUTION) = pid_contributions.at(1);  // I
   debug_values_.data.at(DBGVAL::ACCCMD_FB_D_CONTRIBUTION) = pid_contributions.at(2);  // D
 
-  return feedbacked_acc;
+  return feedback_acc;
 }
 
 void VelocityController::resetSmoothStop()

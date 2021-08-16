@@ -178,8 +178,7 @@ private:
     Eigen::MatrixXd Qex;
     Eigen::MatrixXd R1ex;
     Eigen::MatrixXd R2ex;
-    Eigen::MatrixXd Urefex;
-    Eigen::MatrixXd Yrefex;
+    Eigen::MatrixXd Uref_ex;
   };
 
   geometry_msgs::msg::PoseStamped::SharedPtr current_pose_ptr_;        //!< @brief measured pose
