@@ -38,25 +38,22 @@ template<typename T>
 geometry_msgs::msg::Point transformToRelativeCoordinate2D(
   const T & point, const geometry_msgs::msg::Pose & origin)
 {
-  geometry_msgs::msg::Transform origin_coord2point;
-  origin_coord2point.translation.x = point.x;
-  origin_coord2point.translation.y = point.y;
-  tf2::Transform tf_origin_coord2point;
-  tf2::fromMsg(origin_coord2point, tf_origin_coord2point);
+  // NOTE: implement transformation without defining yaw variable
+  //       but directly sin/cos of yaw for fast calculation
+  const auto & q = origin.orientation;
+  const double cos_yaw = 1 - 2 * q.z * q.z;
+  const double sin_yaw = 2 * q.w * q.z;
 
-  geometry_msgs::msg::Transform origin_coord2origin;
-  origin_coord2origin.translation.x = origin.position.x;
-  origin_coord2origin.translation.y = origin.position.y;
-  origin_coord2origin.rotation = origin.orientation;
-  tf2::Transform tf_origin_coord2origin;
-  tf2::fromMsg(origin_coord2origin, tf_origin_coord2origin);
+  geometry_msgs::msg::Point relative_p;
+  const double tmp_x = point.x - origin.position.x;
+  const double tmp_y = point.y - origin.position.y;
+  relative_p.x = tmp_x * cos_yaw + tmp_y * sin_yaw;
+  relative_p.y = -tmp_x * sin_yaw + tmp_y * cos_yaw;
+  relative_p.z = point.z;
 
-  tf2::Transform tf_origin2origin_coord = tf_origin_coord2origin.inverse() * tf_origin_coord2point;
-  geometry_msgs::msg::Pose rel_pose;
-  tf2::toMsg(tf_origin2origin_coord, rel_pose);
-  geometry_msgs::msg::Point relative_p = rel_pose.position;
   return relative_p;
 }
+
 template geometry_msgs::msg::Point transformToRelativeCoordinate2D<geometry_msgs::msg::Point>(
   const geometry_msgs::msg::Point &, const geometry_msgs::msg::Pose & origin);
 template geometry_msgs::msg::Point transformToRelativeCoordinate2D<geometry_msgs::msg::Point32>(
@@ -65,24 +62,18 @@ template geometry_msgs::msg::Point transformToRelativeCoordinate2D<geometry_msgs
 geometry_msgs::msg::Point transformToAbsoluteCoordinate2D(
   const geometry_msgs::msg::Point & point, const geometry_msgs::msg::Pose & origin)
 {
-  geometry_msgs::msg::Transform origin2point;
-  origin2point.translation.x = point.x;
-  origin2point.translation.y = point.y;
-  tf2::Transform tf_origin2point;
-  tf2::fromMsg(origin2point, tf_origin2point);
+  // NOTE: implement transformation without defining yaw variable
+  //       but directly sin/cos of yaw for fast calculation
+  const auto & q = origin.orientation;
+  const double cos_yaw = 1 - 2 * q.z * q.z;
+  const double sin_yaw = 2 * q.w * q.z;
 
-  geometry_msgs::msg::Transform origin_coord2origin;
-  origin_coord2origin.translation.x = origin.position.x;
-  origin_coord2origin.translation.y = origin.position.y;
-  origin_coord2origin.rotation = origin.orientation;
-  tf2::Transform tf_origin_coord2origin;
-  tf2::fromMsg(origin_coord2origin, tf_origin_coord2origin);
-  tf2::Transform tf_origin_coord2point = tf_origin_coord2origin * tf_origin2point;
+  geometry_msgs::msg::Point absolute_p;
+  absolute_p.x = point.x * cos_yaw - point.y * sin_yaw + origin.position.x;
+  absolute_p.y = point.x * sin_yaw + point.y * cos_yaw + origin.position.y;
+  absolute_p.z = point.z;
 
-  geometry_msgs::msg::Pose abs_pose;
-  tf2::toMsg(tf_origin_coord2point, abs_pose);
-  geometry_msgs::msg::Point abs_p = abs_pose.position;
-  return abs_p;
+  return absolute_p;
 }
 
 double calculate2DDistance(const geometry_msgs::msg::Point & a, const geometry_msgs::msg::Point & b)
