@@ -87,7 +87,7 @@ private:
 
   std::vector<double> solveLinearSystemExplicit();
 
-  bool initialized_;
+  bool initialized_ = false;
   Method method_;
 
   std::vector<double> a_;
