@@ -647,45 +647,51 @@ std::vector<autoware_planning_msgs::msg::TrajectoryPoint> alignVelocityWithPoint
   int prev_begin_idx = 0;
   for (std::size_t i = 0; i < traj_points.size(); i++) {
     const auto first = points.begin() + prev_begin_idx;
+
+    // TODO(Horibe) could be replaced end() with some reasonable number to reduce computational time
     const auto last = points.end();
     const T truncated_points(first, last);
-    const int default_idx = 0;
 
-    double target_z;
+    const size_t closest_seg_idx =
+      autoware_utils::findNearestSegmentIndex(truncated_points, traj_points[i].pose.position);
+    // TODO(murooka) implement calcSignedArcLength(points, idx, point)
+    const double closest_to_target_dist = autoware_utils::calcSignedArcLength(
+      truncated_points, truncated_points.at(closest_seg_idx).pose.position,
+      traj_points[i].pose.position);
+    const double seg_dist =
+      autoware_utils::calcSignedArcLength(truncated_points, closest_seg_idx, closest_seg_idx + 1);
+
+    // interpolate 1st-nearest (v1) value and 2nd-nearest value (v2)
+    const auto lerp = [&](const double v1, const double v2, const double ratio) {
+        return std::abs(seg_dist) < 1e-6 ? v2 : v1 + (v2 - v1) * ratio;
+      };
+
+    // z
     {
-      const size_t closest_seg_idx =
-        autoware_utils::findNearestSegmentIndex(truncated_points, traj_points[i].pose.position);
-      // TODO(murooka) implement calcSignedArcLength(points, idx, point)
-      const double closest_to_target_dist = autoware_utils::calcSignedArcLength(
-        truncated_points, truncated_points.at(closest_seg_idx).pose.position,
-        traj_points[i].pose.position);
-      const double seg_dist =
-        autoware_utils::calcSignedArcLength(truncated_points, closest_seg_idx, closest_seg_idx + 1);
       const double closest_z = truncated_points.at(closest_seg_idx).pose.position.z;
       const double next_z = truncated_points.at(closest_seg_idx + 1).pose.position.z;
-      target_z = std::abs(seg_dist) <
-        1e-6 ? next_z : closest_z + (next_z - closest_z) * closest_to_target_dist / seg_dist;
+      traj_points[i].pose.position.z = lerp(closest_z, next_z, closest_to_target_dist / seg_dist);
     }
-    traj_points[i].pose.position.z = target_z;
 
-    const int nearest_idx =
-      util::getNearestIdx(truncated_points, traj_points[i].pose.position, default_idx);
-    if (static_cast<int>(i) <= max_skip_comparison_idx) {
-      traj_points[i].twist.linear.x = truncated_points[nearest_idx].twist.linear.x;
-    } else {
-      traj_points[i].twist.linear.x =
-        std::fmin(truncated_points[nearest_idx].twist.linear.x, traj_points[i].twist.linear.x);
-    }
-    if (static_cast<int>(i) >= zero_velocity_traj_idx) {
-      traj_points[i].twist.linear.x = 0;
-    } else if (truncated_points[nearest_idx].twist.linear.x < 1e-6) {
-      if (i > 0) {
-        traj_points[i].twist.linear.x = traj_points[i - 1].twist.linear.x;
+    // vx
+    {
+      const double closest_vel = truncated_points[closest_seg_idx].twist.linear.x;
+      const double next_vel = truncated_points[closest_seg_idx + 1].twist.linear.x;
+      const double target_vel = lerp(closest_vel, next_vel, closest_to_target_dist / seg_dist);
+
+      if (static_cast<int>(i) >= zero_velocity_traj_idx) {
+        traj_points[i].twist.linear.x = 0;
+      } else if (target_vel < 1e-6) {
+        const auto idx = std::max(static_cast<int>(i) - 1, 0);
+        traj_points[i].twist.linear.x = traj_points[idx].twist.linear.x;
+      } else if (static_cast<int>(i) <= max_skip_comparison_idx) {
+        traj_points[i].twist.linear.x = target_vel;
       } else {
-        traj_points[i].twist.linear.x = points.front().twist.linear.x;
+        traj_points[i].twist.linear.x = std::fmin(target_vel, traj_points[i].twist.linear.x);
       }
     }
-    prev_begin_idx += nearest_idx;
+    // NOTE: closest_seg_idx is for the clipped trajectory. This operation must be "+=".
+    prev_begin_idx += closest_seg_idx;
   }
   return traj_points;
 }
