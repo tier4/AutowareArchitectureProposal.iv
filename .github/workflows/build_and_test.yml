@@ -14,7 +14,7 @@ jobs:
         branch:
           - main
           - develop
-    container: osrf/ros:galactic-desktop
+    container: rostooling/setup-ros-docker:ubuntu-focal-ros-galactic-ros-base-latest
 
     steps:
       - name: Checkout repository
@@ -47,7 +47,7 @@ jobs:
           vcs import dependency_ws < build_depends.repos
           apt-get -y update
           rosdep update
-          rosdep install -y --from-paths . --ignore-src --rosdistro galactic
+          DEBIAN_FRONTEND=noninteractive rosdep install -y --from-paths . --ignore-src --rosdistro galactic
 
       - name: Build
         run: |
