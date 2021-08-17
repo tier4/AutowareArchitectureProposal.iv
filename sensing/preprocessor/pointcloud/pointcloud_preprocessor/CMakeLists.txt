@@ -53,9 +53,11 @@ ament_auto_add_library(pointcloud_preprocessor_filter SHARED
   src/downsample_filter/approximate_downsample_filter_nodelet.cpp
   src/ground_filter/ray_ground_filter_nodelet.cpp
   src/ground_filter/ransac_ground_filter_nodelet.cpp
+  src/ground_filter/scan_ground_filter_nodelet.cpp
   src/outlier_filter/ring_outlier_filter_nodelet.cpp
   src/outlier_filter/voxel_grid_outlier_filter_nodelet.cpp
   src/outlier_filter/radius_search_2d_outlier_filter_nodelet.cpp
+  src/outlier_filter/occupancy_grid_map_outlier_filter_nodelet.cpp
   src/passthrough_filter/passthrough_filter_nodelet.cpp
   src/passthrough_filter/passthrough_filter_uint16_nodelet.cpp
   src/passthrough_filter/passthrough_uint16.cpp
@@ -141,6 +143,10 @@ rclcpp_components_register_node(pointcloud_preprocessor_filter
   PLUGIN "pointcloud_preprocessor::RANSACGroundFilterComponent"
   EXECUTABLE ransac_ground_filter_node)
 
+# -- Scan Ground Filter --
+rclcpp_components_register_node(pointcloud_preprocessor_filter
+  PLUGIN "pointcloud_preprocessor::ScanGroundFilterComponent"
+  EXECUTABLE scan_ground_filter_node)
 
 # ========== Outlier Filter ==========
 # -- Ring Outlier Filter --
@@ -158,6 +164,10 @@ rclcpp_components_register_node(pointcloud_preprocessor_filter
   PLUGIN "pointcloud_preprocessor::RadiusSearch2DOutlierFilterComponent"
   EXECUTABLE radius_search_2d_outlier_filter_node)
 
+# -- Occupancy Grid Map Outlier Filter --
+rclcpp_components_register_node(pointcloud_preprocessor_filter
+  PLUGIN "pointcloud_preprocessor::OccupancyGridMapOutlierFilterComponent"
+  EXECUTABLE occupancy_grid_map_outlier_filter_node)
 
 # ========== Passthrough Filter ==========
 # -- Passthrough Filter --

@@ -19,29 +19,27 @@
 
 #include "remote_cmd_converter/node.hpp"
 
-using std::placeholders::_1;
-
-RemoteCmdConverter::RemoteCmdConverter(const rclcpp::NodeOptions & node_options)
-: Node("remote_cmd_converter", node_options),
-  updater_(this),
-  accel_map_(get_logger()),
-  brake_map_(get_logger())
+namespace remote_cmd_converter
 {
+RemoteCmdConverterNode::RemoteCmdConverterNode(const rclcpp::NodeOptions & node_options)
+: Node("remote_cmd_converter", node_options)
+{
+  using std::placeholders::_1;
   pub_cmd_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
     "out/control_cmd", rclcpp::QoS{1});
   pub_current_cmd_ = create_publisher<autoware_vehicle_msgs::msg::ExternalControlCommandStamped>(
     "out/latest_remote_control_cmd", rclcpp::QoS{1});
 
   sub_velocity_ = create_subscription<geometry_msgs::msg::TwistStamped>(
-    "in/twist", 1, std::bind(&RemoteCmdConverter::onVelocity, this, _1));
+    "in/twist", 1, std::bind(&RemoteCmdConverterNode::onVelocity, this, _1));
   sub_control_cmd_ = create_subscription<autoware_vehicle_msgs::msg::ExternalControlCommandStamped>(
-    "in/external_control_cmd", 1, std::bind(&RemoteCmdConverter::onRemoteCmd, this, _1));
+    "in/external_control_cmd", 1, std::bind(&RemoteCmdConverterNode::onRemoteCmd, this, _1));
   sub_shift_cmd_ = create_subscription<autoware_vehicle_msgs::msg::ShiftStamped>(
-    "in/shift_cmd", 1, std::bind(&RemoteCmdConverter::onShiftCmd, this, _1));
+    "in/shift_cmd", 1, std::bind(&RemoteCmdConverterNode::onShiftCmd, this, _1));
   sub_gate_mode_ = create_subscription<autoware_control_msgs::msg::GateMode>(
-    "in/current_gate_mode", 1, std::bind(&RemoteCmdConverter::onGateMode, this, _1));
+    "in/current_gate_mode", 1, std::bind(&RemoteCmdConverterNode::onGateMode, this, _1));
   sub_emergency_stop_ = create_subscription<autoware_control_msgs::msg::EmergencyMode>(
-    "in/emergency_stop", 1, std::bind(&RemoteCmdConverter::onEmergencyStop, this, _1));
+    "in/emergency_stop", 1, std::bind(&RemoteCmdConverterNode::onEmergencyStop, this, _1));
 
   // Parameter
   ref_vel_gain_ = declare_parameter("ref_vel_gain", 3.0);
@@ -53,7 +51,7 @@ RemoteCmdConverter::RemoteCmdConverter(const rclcpp::NodeOptions & node_options)
   emergency_stop_timeout_ = declare_parameter("emergency_stop_timeout", 3.0);
 
 
-  auto timer_callback = std::bind(&RemoteCmdConverter::onTimer, this);
+  auto timer_callback = std::bind(&RemoteCmdConverterNode::onTimer, this);
   auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<double>(1.0 / timer_rate));
   rate_check_timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
@@ -80,26 +78,26 @@ RemoteCmdConverter::RemoteCmdConverter(const rclcpp::NodeOptions & node_options)
 
   // Diagnostics
   updater_.setHardwareID("remote_cmd_converter");
-  updater_.add("remote_control_topic_status", this, &RemoteCmdConverter::checkTopicStatus);
+  updater_.add("remote_control_topic_status", this, &RemoteCmdConverterNode::checkTopicStatus);
 
   // Set default values
   current_shift_cmd_ = std::make_shared<autoware_vehicle_msgs::msg::ShiftStamped>();
 }
 
-void RemoteCmdConverter::onTimer() {updater_.force_update();}
+void RemoteCmdConverterNode::onTimer() {updater_.force_update();}
 
-void RemoteCmdConverter::onVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
+void RemoteCmdConverterNode::onVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
 {
   current_velocity_ptr_ = std::make_shared<double>(msg->twist.linear.x);
 }
 
-void RemoteCmdConverter::onShiftCmd(
+void RemoteCmdConverterNode::onShiftCmd(
   const autoware_vehicle_msgs::msg::ShiftStamped::ConstSharedPtr msg)
 {
   current_shift_cmd_ = msg;
 }
 
-void RemoteCmdConverter::onEmergencyStop(
+void RemoteCmdConverterNode::onEmergencyStop(
   const autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg)
 {
   current_emergency_cmd_ = msg->is_emergency;
@@ -107,7 +105,7 @@ void RemoteCmdConverter::onEmergencyStop(
   updater_.force_update();
 }
 
-void RemoteCmdConverter::onRemoteCmd(
+void RemoteCmdConverterNode::onRemoteCmd(
   const autoware_vehicle_msgs::msg::ExternalControlCommandStamped::ConstSharedPtr
   remote_control_cmd_ptr)
 {
@@ -161,7 +159,7 @@ void RemoteCmdConverter::onRemoteCmd(
   pub_cmd_->publish(output);
 }
 
-double RemoteCmdConverter::calculateAcc(
+double RemoteCmdConverterNode::calculateAcc(
   const autoware_vehicle_msgs::msg::ExternalControlCommand & cmd, const double vel)
 {
   const double desired_throttle = cmd.throttle;
@@ -178,7 +176,7 @@ double RemoteCmdConverter::calculateAcc(
   return ref_acceleration;
 }
 
-double RemoteCmdConverter::getShiftVelocitySign(
+double RemoteCmdConverterNode::getShiftVelocitySign(
   const autoware_vehicle_msgs::msg::ShiftStamped & cmd)
 {
   using autoware_vehicle_msgs::msg::Shift;
@@ -190,7 +188,7 @@ double RemoteCmdConverter::getShiftVelocitySign(
   return 0.0;
 }
 
-void RemoteCmdConverter::checkTopicStatus(diagnostic_updater::DiagnosticStatusWrapper & stat)
+void RemoteCmdConverterNode::checkTopicStatus(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   using diagnostic_msgs::msg::DiagnosticStatus;
 
@@ -210,12 +208,13 @@ void RemoteCmdConverter::checkTopicStatus(diagnostic_updater::DiagnosticStatusWr
 }
 
 
-void RemoteCmdConverter::onGateMode(const autoware_control_msgs::msg::GateMode::ConstSharedPtr msg)
+void RemoteCmdConverterNode::onGateMode(
+  const autoware_control_msgs::msg::GateMode::ConstSharedPtr msg)
 {
   current_gate_mode_ = msg;
 }
 
-bool RemoteCmdConverter::checkEmergencyStopTopicTimeout()
+bool RemoteCmdConverterNode::checkEmergencyStopTopicTimeout()
 {
   if (!latest_emergency_stop_received_time_) {
     if (wait_for_first_topic_) {
@@ -231,7 +230,7 @@ bool RemoteCmdConverter::checkEmergencyStopTopicTimeout()
   return true;
 }
 
-bool RemoteCmdConverter::checkRemoteTopicRate()
+bool RemoteCmdConverterNode::checkRemoteTopicRate()
 {
   if (!current_gate_mode_) {return true;}
 
@@ -252,6 +251,7 @@ bool RemoteCmdConverter::checkRemoteTopicRate()
 
   return true;
 }
+}  // namespace remote_cmd_converter
 
 #include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(RemoteCmdConverter)
+RCLCPP_COMPONENTS_REGISTER_NODE(remote_cmd_converter::RemoteCmdConverterNode)
