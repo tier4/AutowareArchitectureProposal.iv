@@ -44,7 +44,7 @@ autoware_set_compile_options(${LONGITUDINAL_CONTROLLER_NODE})
 # TODO(longitudinal_controller) : Temporary workaround until this is fixed.
 target_compile_options(${LONGITUDINAL_CONTROLLER_NODE} PRIVATE -Wno-error=old-style-cast)
 rclcpp_components_register_node(${LONGITUDINAL_CONTROLLER_NODE}
-  PLUGIN "autoware::motion::control::latlon_muxer::LongitudinalController"
+  PLUGIN "autoware::motion::control::trajectory_follower_nodes::LongitudinalController"
   EXECUTABLE ${LONGITUDINAL_CONTROLLER_NODE}_exe
 )
 
