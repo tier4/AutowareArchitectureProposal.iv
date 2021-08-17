@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include <functional>
-
 #include <memory>
 
 #include "behavior_velocity_planner/node.hpp"
@@ -34,6 +33,7 @@
 #include "scene_module/crosswalk/manager.hpp"
 #include "scene_module/detection_area/manager.hpp"
 #include "scene_module/intersection/manager.hpp"
+#include "scene_module/occlusion_spot/manager.hpp"
 #include "scene_module/stop_line/manager.hpp"
 #include "scene_module/traffic_light/manager.hpp"
 
@@ -106,6 +106,9 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode(const rclcpp::NodeOptio
     this->create_subscription<autoware_perception_msgs::msg::TrafficLightStateArray>(
     "~/input/external_traffic_light_states", 10,
     std::bind(&BehaviorVelocityPlannerNode::onExternalTrafficLightStates, this, _1));
+  sub_occupancy_grid_ = this->create_subscription<nav_msgs::msg::OccupancyGrid>(
+    "~/input/occupancy_grid", 1,
+    std::bind(&BehaviorVelocityPlannerNode::onOccupancyGrid, this, _1));
 
   // Publishers
   path_pub_ = this->create_publisher<autoware_planning_msgs::msg::Path>("~/output/path", 1);
@@ -118,6 +121,7 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode(const rclcpp::NodeOptio
   backward_path_length_ = this->declare_parameter("backward_path_length", 5.0);
   // TODO(yukkysaito): This will become unnecessary when acc output from localization is available.
   planner_data_.accel_lowpass_gain_ = this->declare_parameter("lowpass_gain", 0.5);
+  planner_data_.stop_line_extend_length = this->declare_parameter("stop_line_extend_length", 5.0);
 
   // Initialize PlannerManager
   if (this->declare_parameter("launch_stop_line", true)) {
@@ -137,6 +141,9 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode(const rclcpp::NodeOptio
   }
   if (this->declare_parameter("launch_detection_area", true)) {
     planner_manager_.launchSceneModule(std::make_shared<DetectionAreaModuleManager>(*this));
+  }
+  if (this->declare_parameter("launch_occlusion_spot", true)) {
+    planner_manager_.launchSceneModule(std::make_shared<OcclusionSpotModuleManager>(*this));
   }
 }
 
@@ -164,6 +171,12 @@ bool BehaviorVelocityPlannerNode::isDataReady()
   }
 
   return true;
+}
+
+void BehaviorVelocityPlannerNode::onOccupancyGrid(
+  const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg)
+{
+  planner_data_.occupancy_grid = msg;
 }
 
 void BehaviorVelocityPlannerNode::onDynamicObjects(
@@ -308,7 +321,7 @@ void BehaviorVelocityPlannerNode::onTrigger(
 
   // interpolation
   const auto interpolated_path_msg =
-    interpolatePath(filtered_path, forward_path_length_, this->get_logger());
+    interpolatePath(filtered_path, forward_path_length_);
 
   // check stop point
   auto output_path_msg = filterStopPathPoint(interpolated_path_msg);
