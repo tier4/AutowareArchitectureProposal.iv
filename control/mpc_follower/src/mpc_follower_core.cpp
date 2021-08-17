@@ -359,7 +359,7 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::msg::ControlCommand * ctrl
     const auto & W = wheelbase_;
     d.data.push_back(steer_cmd);                 // [0] final steering command (MPC + LPF)
     d.data.push_back(Uex(0));                    // [1] mpc calculation result
-    d.data.push_back(mpc_matrix.Urefex(0));      // [2] feedforward steering value
+    d.data.push_back(mpc_matrix.Uref_ex(0));      // [2] feedforward steering value
     d.data.push_back(std::atan(nearest_k * W));  // [3] feedforward steering value raw
     d.data.push_back(mpc_data.steer);            // [4] current steering angle
     d.data.push_back(mpc_data.lateral_err);      // [5] lateral error
@@ -429,7 +429,7 @@ bool MPCFollower::getData(const MPCTrajectory & traj, MPCData * data)
   /* check yaw error limit */
   if (std::fabs(data->yaw_err) > admissible_yaw_error_rad_) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      get_logger(), *get_clock(), duration, "yaw error is over limit. error = %fdeg, limit %fdeg",
+      get_logger(), *get_clock(), duration, "yaw error is over limit. error = %f deg, limit %f deg",
       RAD2DEG * data->yaw_err, RAD2DEG * admissible_yaw_error_rad_);
     return false;
   }
@@ -606,11 +606,11 @@ MPCTrajectory MPCFollower::applyVelocityDynamicsFilter(const MPCTrajectory & inp
   int nearest_idx = MPCUtils::calcNearestIndex(input, current_pose_ptr_->pose);
   if (nearest_idx < 0) {return input;}
 
-  const double alim = mpc_param_.acceleration_limit;
+  const double acc_lim = mpc_param_.acceleration_limit;
   const double tau = mpc_param_.velocity_time_constant;
 
   MPCTrajectory output = input;
-  MPCUtils::dynamicSmoothingVelocity(nearest_idx, v0, alim, tau, &output);
+  MPCUtils::dynamicSmoothingVelocity(nearest_idx, v0, acc_lim, tau, &output);
   const double t_ext = 100.0;  // extra time to prevent mpc calculation failure due to short time
   const double t_end = output.relative_time.back() + getPredictionTime() + t_ext;
   const double v_end = 0.0;
@@ -623,7 +623,7 @@ MPCTrajectory MPCFollower::applyVelocityDynamicsFilter(const MPCTrajectory & inp
 
 /*
  * predict equation: Xec = Aex * x0 + Bex * Uex + Wex
- * cost function: J = Xex' * Qex * Xex + (Uex - Uref)' * R1ex * (Uex - Urefex) + Uex' * R2ex * Uex
+ * cost function: J = Xex' * Qex * Xex + (Uex - Uref)' * R1ex * (Uex - Uref_ex) + Uex' * R2ex * Uex
  * Qex = diag([Q,Q,...]), R1ex = diag([R,R,...])
  */
 MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & reference_trajectory)
@@ -644,7 +644,7 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
   m.Qex = MatrixXd::Zero(DIM_Y * N, DIM_Y * N);
   m.R1ex = MatrixXd::Zero(DIM_U * N, DIM_U * N);
   m.R2ex = MatrixXd::Zero(DIM_U * N, DIM_U * N);
-  m.Urefex = MatrixXd::Zero(DIM_U * N, 1);
+  m.Uref_ex = MatrixXd::Zero(DIM_U * N, 1);
 
   /* weight matrix depends on the vehicle model */
   MatrixXd Q = MatrixXd::Zero(DIM_Y, DIM_Y);
@@ -718,7 +718,7 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
     if (std::fabs(Uref(0, 0)) < DEG2RAD * mpc_param_.zero_ff_steer_deg) {
       Uref(0, 0) = 0.0;  // ignore curvature noise
     }
-    m.Urefex.block(i * DIM_U, 0, DIM_U, 1) = Uref;
+    m.Uref_ex.block(i * DIM_U, 0, DIM_U, 1) = Uref;
   }
 
   /* add lateral jerk : weight for (v * {u(i) - u(i-1)} )^2 */
@@ -738,7 +738,7 @@ MPCFollower::MPCMatrix MPCFollower::generateMPCMatrix(const MPCTrajectory & refe
 
 /*
  * solve quadratic optimization.
- * cost function: J = Xex' * Qex * Xex + (Uex - Uref)' * R1ex * (Uex - Urefex) + Uex' * R2ex * Uex
+ * cost function: J = Xex' * Qex * Xex + (Uex - Uref)' * R1ex * (Uex - Uref_ex) + Uex' * R2ex * Uex
  *                , Qex = diag([Q,Q,...]), R1ex = diag([R,R,...])
  * constraint matrix : lb < U < ub, lbA < A*U < ubA
  * current considered constraint
@@ -780,7 +780,7 @@ bool MPCFollower::executeOptimization(
   H.triangularView<Eigen::Upper>() = CB.transpose() * QCB;
   H.triangularView<Eigen::Upper>() += m.R1ex + m.R2ex;
   H.triangularView<Eigen::Lower>() = H.transpose();
-  MatrixXd f = (m.Cex * (m.Aex * x0 + m.Wex)).transpose() * QCB - m.Urefex.transpose() * m.R1ex;
+  MatrixXd f = (m.Cex * (m.Aex * x0 + m.Wex)).transpose() * QCB - m.Uref_ex.transpose() * m.R1ex;
   addSteerWeightF(&f);
 
   MatrixXd A = MatrixXd::Identity(DIM_U_N, DIM_U_N);
@@ -899,7 +899,7 @@ bool MPCFollower::isValid(const MPCMatrix & m) const
   if (
     m.Aex.array().isNaN().any() || m.Bex.array().isNaN().any() || m.Cex.array().isNaN().any() ||
     m.Wex.array().isNaN().any() || m.Qex.array().isNaN().any() || m.R1ex.array().isNaN().any() ||
-    m.R2ex.array().isNaN().any() || m.Urefex.array().isNaN().any())
+    m.R2ex.array().isNaN().any() || m.Uref_ex.array().isNaN().any())
   {
     return false;
   }
@@ -907,7 +907,7 @@ bool MPCFollower::isValid(const MPCMatrix & m) const
   if (
     m.Aex.array().isInf().any() || m.Bex.array().isInf().any() || m.Cex.array().isInf().any() ||
     m.Wex.array().isInf().any() || m.Qex.array().isInf().any() || m.R1ex.array().isInf().any() ||
-    m.R2ex.array().isInf().any() || m.Urefex.array().isInf().any())
+    m.R2ex.array().isInf().any() || m.Uref_ex.array().isInf().any())
   {
     return false;
   }
