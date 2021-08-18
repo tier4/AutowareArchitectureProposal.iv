@@ -449,6 +449,7 @@ double AdaptiveCruiseController::calcUpperVelocity(
     RCLCPP_DEBUG_THROTTLE(
       node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(1000).count(),
       "The velocity of forward vehicle is too low. Insert stop line.");
+    prev_upper_velocity_ = self_vel;  // reset prev_upper_velocity
     return 0.0;
   }
 
@@ -458,6 +459,7 @@ double AdaptiveCruiseController::calcUpperVelocity(
     RCLCPP_DEBUG_THROTTLE(
       node_->get_logger(), *node_->get_clock(), std::chrono::milliseconds(1000).count(),
       "Forward vehicle is too close. Insert stop line.");
+    prev_upper_velocity_ = self_vel;  // reset prev_upper_velocity
     return 0.0;
   }
 
