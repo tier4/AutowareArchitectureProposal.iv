@@ -28,7 +28,7 @@ TEST(test_smooth_stop, calculate_stopping_acceleration) {
   const double weak_acc = -0.3;
   const double weak_stop_acc = -0.8;
   const double strong_stop_acc = -3.4;
-  const double max_fast_vel = 0.5;
+  const double min_fast_vel = 0.5;
   const double min_running_vel = 0.01;
   const double min_running_acc = 0.01;
   const double weak_stop_time = 0.8;
@@ -39,7 +39,7 @@ TEST(test_smooth_stop, calculate_stopping_acceleration) {
 
   SmoothStop ss;
   ss.setParams(
-    max_strong_acc, min_strong_acc, weak_acc, weak_stop_acc, strong_stop_acc, max_fast_vel,
+    max_strong_acc, min_strong_acc, weak_acc, weak_stop_acc, strong_stop_acc, min_fast_vel,
     min_running_vel, min_running_acc, weak_stop_time, weak_stop_dist, strong_stop_dist);
 
   double vel_in_target;

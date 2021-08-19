@@ -100,8 +100,8 @@ VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
     const double strong_stop_acc{declare_parameter(
         "smooth_stop_strong_stop_acc", -3.4)};        // [m/s^2]
 
-    const double max_fast_vel{declare_parameter(
-        "smooth_stop_max_fast_vel", 0.5)};            // [m/s]
+    const double min_fast_vel{declare_parameter(
+        "smooth_stop_min_fast_vel", 0.5)};            // [m/s]
     const double min_running_vel{declare_parameter(
         "smooth_stop_min_running_vel", 0.01)};        // [m/s]
     const double min_running_acc{declare_parameter(
@@ -115,7 +115,7 @@ VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
         "smooth_stop_strong_stop_dist", -0.5)};       // [m]
 
     smooth_stop_.setParams(
-      max_strong_acc, min_strong_acc, weak_acc, weak_stop_acc, strong_stop_acc, max_fast_vel,
+      max_strong_acc, min_strong_acc, weak_acc, weak_stop_acc, strong_stop_acc, min_fast_vel,
       min_running_vel, min_running_acc, weak_stop_time, weak_stop_dist, strong_stop_dist);
   }
 
@@ -280,7 +280,7 @@ rcl_interfaces::msg::SetParametersResult VelocityController::paramCallback(
     double weak_acc{get_parameter("smooth_stop_weak_acc").as_double()};
     double weak_stop_acc{get_parameter("smooth_stop_weak_stop_acc").as_double()};
     double strong_stop_acc{get_parameter("smooth_stop_strong_stop_acc").as_double()};
-    double max_fast_vel{get_parameter("smooth_stop_max_fast_vel").as_double()};
+    double min_fast_vel{get_parameter("smooth_stop_min_fast_vel").as_double()};
     double min_running_vel{get_parameter("smooth_stop_min_running_vel").as_double()};
     double min_running_acc{get_parameter("smooth_stop_min_running_acc").as_double()};
     double weak_stop_time{get_parameter("smooth_stop_weak_stop_time").as_double()};
@@ -291,14 +291,14 @@ rcl_interfaces::msg::SetParametersResult VelocityController::paramCallback(
     update_param("smooth_stop_weak_acc", weak_acc);
     update_param("smooth_stop_weak_stop_acc", weak_stop_acc);
     update_param("smooth_stop_strong_stop_acc", strong_stop_acc);
-    update_param("smooth_stop_max_fast_vel", max_fast_vel);
+    update_param("smooth_stop_min_fast_vel", min_fast_vel);
     update_param("smooth_stop_min_running_vel", min_running_vel);
     update_param("smooth_stop_min_running_acc", min_running_acc);
     update_param("smooth_stop_weak_stop_time", weak_stop_time);
     update_param("smooth_stop_weak_stop_dist", weak_stop_dist);
     update_param("smooth_stop_strong_stop_dist", strong_stop_dist);
     smooth_stop_.setParams(
-      max_strong_acc, min_strong_acc, weak_acc, weak_stop_acc, strong_stop_acc, max_fast_vel,
+      max_strong_acc, min_strong_acc, weak_acc, weak_stop_acc, strong_stop_acc, min_fast_vel,
       min_running_vel, min_running_acc, weak_stop_time, weak_stop_dist, strong_stop_dist);
   }
 
