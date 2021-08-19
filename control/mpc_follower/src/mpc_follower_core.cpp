@@ -339,30 +339,20 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::msg::ControlCommand * ctrl
   /* publish debug values */
   {
     double curr_v = current_velocity_ptr_->twist.linear.x;
-    double nearest_k = 0.0;
-    if (!LinearInterpolate::interpolate(
-        reference_trajectory.relative_time, reference_trajectory.k, mpc_data.nearest_time,
-        nearest_k))
-    {
-      RCLCPP_WARN(get_logger(), "interpolate error in debug. ignore.");
-      return true;
-    }
-
-    MPCTrajectory tmp_traj = reference_trajectory;
-    MPCUtils::calcTrajectoryCurvature(1, &tmp_traj);
-    double curvature_raw = tmp_traj.k[mpc_data.nearest_idx];
+    double nearest_k = reference_trajectory.k[mpc_data.nearest_idx];
+    double nearest_smooth_k = reference_trajectory.smooth_k[mpc_data.nearest_idx];
     double steer_cmd = ctrl_cmd->steering_angle;
 
     autoware_debug_msgs::msg::Float32MultiArrayStamped d;
     d.stamp = stamp;
     const auto & ps = mpc_data.predicted_steer;
     const auto & W = wheelbase_;
-    d.data.push_back(steer_cmd);                 // [0] final steering command (MPC + LPF)
-    d.data.push_back(Uex(0));                    // [1] mpc calculation result
-    d.data.push_back(mpc_matrix.Uref_ex(0));      // [2] feedforward steering value
-    d.data.push_back(std::atan(nearest_k * W));  // [3] feedforward steering value raw
-    d.data.push_back(mpc_data.steer);            // [4] current steering angle
-    d.data.push_back(mpc_data.lateral_err);      // [5] lateral error
+    d.data.push_back(steer_cmd);                        // [0] final steering command (MPC + LPF)
+    d.data.push_back(Uex(0));                           // [1] mpc calculation result
+    d.data.push_back(mpc_matrix.Uref_ex(0));            // [2] feedforward steering value
+    d.data.push_back(std::atan(nearest_smooth_k * W));  // [3] feedforward steering value raw
+    d.data.push_back(mpc_data.steer);                   // [4] current steering angle
+    d.data.push_back(mpc_data.lateral_err);             // [5] lateral error
     d.data.push_back(tf2::getYaw(current_pose_ptr_->pose.orientation));  // [6] current_pose yaw
     d.data.push_back(tf2::getYaw(mpc_data.nearest_pose.orientation));    // [7] nearest_pose yaw
     d.data.push_back(mpc_data.yaw_err);                                  // [8] yaw error
@@ -370,9 +360,9 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::msg::ControlCommand * ctrl
     d.data.push_back(current_velocity_ptr_->twist.linear.x);             // [10] measured velocity
     d.data.push_back(curr_v * tan(steer_cmd) / W);       // [11] angvel from steer command
     d.data.push_back(curr_v * tan(mpc_data.steer) / W);  // [12] angvel from measured steer
-    d.data.push_back(curr_v * nearest_k);    // [13] angvel from path curvature (Path angvel)
-    d.data.push_back(nearest_k);             // [14] nearest path curvature (used for control)
-    d.data.push_back(curvature_raw);         // [15] nearest path curvature (not smoothed)
+    d.data.push_back(curr_v * nearest_smooth_k);         // [13] angvel from path curvature
+    d.data.push_back(nearest_smooth_k);      // [14] nearest path curvature (used for feedforward)
+    d.data.push_back(nearest_k);             // [15] nearest path curvature (not smoothed)
     d.data.push_back(ps);                    // [16] predicted steer
     d.data.push_back(curr_v * tan(ps) / W);  // [17] angvel from predicted steer
     pub_debug_values_->publish(d);
