@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <vector>
+#include <array>
 
 #include "gtest/gtest.h"
 #include "velocity_controller/pid.hpp"
@@ -26,7 +26,7 @@ TEST(test_pid, calculate_pid_output) {
   PIDController pid;
   pid.setGains(1.0, 1.0, 1.0);
   pid.setLimits(10.0, 0.0, 10.0, 0.0, 10.0, 0.0, 10.0, 0.0);
-  std::vector<double> contributions;
+  std::array<double, 3> contributions;
   double error = target - current;
   double prev_error = error;
   while (current != target) {

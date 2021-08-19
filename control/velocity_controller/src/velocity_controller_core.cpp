@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <algorithm>
+#include <array>
 #include <limits>
 #include <memory>
 #include <string>
@@ -824,7 +825,7 @@ double VelocityController::applyVelocityFeedback(
   const bool enable_integration = (current_vel_abs > current_vel_threshold_pid_integrate_);
   const double error_vel_filtered = lpf_vel_error_->filter(target_vel_abs - current_vel_abs);
 
-  std::vector<double> pid_contributions(3);
+  std::array<double, 3> pid_contributions;
   const double pid_acc =
     pid_vel_.calculate(error_vel_filtered, dt, enable_integration, pid_contributions);
   const double feedback_acc = target_motion.acc + pid_acc;
@@ -832,11 +833,11 @@ double VelocityController::applyVelocityFeedback(
   debug_values_.setValues(DebugValues::TYPE::ACC_CMD_PID_APPLIED, feedback_acc);
   debug_values_.setValues(DebugValues::TYPE::ERROR_VEL_FILTERED, error_vel_filtered);
   debug_values_.setValues(
-    DebugValues::TYPE::ACC_CMD_FB_P_CONTRIBUTION, pid_contributions.at(0));  // P
+    DebugValues::TYPE::ACC_CMD_FB_P_CONTRIBUTION, pid_contributions[0]);  // P
   debug_values_.setValues(
-    DebugValues::TYPE::ACC_CMD_FB_I_CONTRIBUTION, pid_contributions.at(1));  // I
+    DebugValues::TYPE::ACC_CMD_FB_I_CONTRIBUTION, pid_contributions[1]);  // I
   debug_values_.setValues(
-    DebugValues::TYPE::ACC_CMD_FB_D_CONTRIBUTION, pid_contributions.at(2));  // D
+    DebugValues::TYPE::ACC_CMD_FB_D_CONTRIBUTION, pid_contributions[2]);  // D
 
   return feedback_acc;
 }

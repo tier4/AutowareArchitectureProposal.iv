@@ -15,7 +15,7 @@
 #ifndef VELOCITY_CONTROLLER__PID_HPP_
 #define VELOCITY_CONTROLLER__PID_HPP_
 
-#include <vector>
+#include <array>
 
 /// @brief implementation of a PID controller
 class PIDController
@@ -33,7 +33,7 @@ public:
    */
   double calculate(
     const double error, const double dt, const bool is_integrated,
-    std::vector<double> & pid_contributions);
+    std::array<double, 3> & pid_contributions);
   /**
    * @brief set the coefficients for the P (proportional) I (integral) D (derivative) terms
    * @param [in] kp proportional coefficient
