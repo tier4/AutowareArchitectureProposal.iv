@@ -92,7 +92,7 @@ Ideally, this message should be defined as a specific debug message with meaning
   - 特定の条件を満たした場合には緊急状態に入ります（停止線を一定以上超えた場合など）。
   - 解除条件（停止するまで解除しないかどうかなど）や、緊急制動時の減速度はパラメータによって管理されます。
 
-状態遷移図を以下に示します（TODO）
+状態遷移図を以下に示します
 
 ![VelocityControllerStateTransition](./media/VelocityControllerStateTransition.drawio.svg)
 
