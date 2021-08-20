@@ -833,11 +833,11 @@ double VelocityController::applyVelocityFeedback(
   debug_values_.setValues(DebugValues::TYPE::ACC_CMD_PID_APPLIED, feedback_acc);
   debug_values_.setValues(DebugValues::TYPE::ERROR_VEL_FILTERED, error_vel_filtered);
   debug_values_.setValues(
-    DebugValues::TYPE::ACC_CMD_FB_P_CONTRIBUTION, pid_contributions[0]);  // P
+    DebugValues::TYPE::ACC_CMD_FB_P_CONTRIBUTION, pid_contributions.at(0));  // P
   debug_values_.setValues(
-    DebugValues::TYPE::ACC_CMD_FB_I_CONTRIBUTION, pid_contributions[1]);  // I
+    DebugValues::TYPE::ACC_CMD_FB_I_CONTRIBUTION, pid_contributions.at(1));  // I
   debug_values_.setValues(
-    DebugValues::TYPE::ACC_CMD_FB_D_CONTRIBUTION, pid_contributions[2]);  // D
+    DebugValues::TYPE::ACC_CMD_FB_D_CONTRIBUTION, pid_contributions.at(2));  // D
 
   return feedback_acc;
 }
