@@ -161,10 +161,10 @@ protected:
 private:
   // All rviz plugins should have this. Should be initialized with pointer to this class
   MarkerCommon m_marker_common;
-  // Map to store class labels and its corresponding properties
-  PolygonPropertyMap m_polygon_properties;
   // List is used to store the properties for classification in case we need to access them:
   std::list<rviz_common::properties::Property> m_class_group_properties;
+  // Map to store class labels and its corresponding properties
+  PolygonPropertyMap m_polygon_properties;
   // Property to enable/disable height visualization of the polygon
   rviz_common::properties::BoolProperty m_display_3d_property;
   // Default topic name to be visualized
