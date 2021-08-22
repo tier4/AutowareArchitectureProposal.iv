@@ -11,7 +11,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 endif()
 
-# Ignore PCL erros in Clang
+# Ignore PCL errors in Clang
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wno-gnu-anonymous-struct -Wno-nested-anon-types)
 endif()
@@ -63,6 +63,7 @@ ament_auto_add_library(pointcloud_preprocessor_filter SHARED
   src/passthrough_filter/passthrough_uint16.cpp
   src/pointcloud_accumulator/pointcloud_accumulator_nodelet.cpp
   src/vector_map_filter/lanelet2_map_filter_nodelet.cpp
+  src/distortion_corrector/distortion_corrector.cpp
 )
 
 target_link_libraries(pointcloud_preprocessor_filter
@@ -191,6 +192,13 @@ rclcpp_components_register_node(pointcloud_preprocessor_filter
 rclcpp_components_register_node(pointcloud_preprocessor_filter
   PLUGIN "pointcloud_preprocessor::Lanelet2MapFilterComponent"
   EXECUTABLE vector_map_filter_node)
+
+
+# ========== Distortion Corrector ==========
+rclcpp_components_register_node(pointcloud_preprocessor_filter
+  PLUGIN "pointcloud_preprocessor::DistortionCorrectorComponent"
+  EXECUTABLE distortion_corrector_node)
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
