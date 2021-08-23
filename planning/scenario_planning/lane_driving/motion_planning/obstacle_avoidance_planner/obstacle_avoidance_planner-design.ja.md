@@ -128,32 +128,45 @@ Elastic band で平滑化された trajectory に対して、以下の条件を�
 #### 数式
 
 以下のように、経路に対して車両が追従するときの bicycle kinematics model を考える。
-経路上の車両の最近傍点の座標($x$座標は経路の接線に平行)から見た追従誤差に関して、横偏差$y_k$、向きの偏差$\theta_k$、ステア入力の微分$\delta_k$と定める。
+時刻$k$における、経路上の車両の最近傍点の座標($x$座標は経路の接線に平行)から見た追従誤差に関して、横偏差$y_k$、向きの偏差$\theta_k$、ステア角$\delta_k$と定める。
 
 ![vehicle_error_kinematics](./media/vehicle_error_kinematics.png)
 
 指令ステア角度を$\delta_{des, k}$とすると、ステア角の遅延を考慮した車両キネマティクスモデルは以下で表される。
+この時、ステア角$\delta_k$は一次遅れ系として指令ステア角に追従すると仮定する。
 
 $$
 \begin{align}
-y_{k+1} & = y_{k} + v sin \theta_k dt \\
-\theta_{k+1} & = \theta_k + \frac{v tan \delta_k}{L}dt - \kappa_k v cos \theta_k dt \\
+y_{k+1} & = y_{k} + v \sin \theta_k dt \\
+\theta_{k+1} & = \theta_k + \frac{v \tan \delta_k}{L}dt - \kappa_k v \cos \theta_k dt \\
 \delta_{k+1} & = \delta_k - \frac{\delta_k - \delta_{des,k}}{\tau}dt
 \end{align}
 $$
 
-ここで、以下のように参照経路の曲率$\kappa_k$から計算されるステア角$\delta_{\mathrm{ref}, k}$を用いることにより、$tan \delta$を近似する。
+次にこれらの式を線形化する。
+$y_k$, $\theta_k$は追従誤差であるため微小近似でき、$\sin \theta_k \approx \theta_k$となる。
+
+$\delta_k$に関してはステア角であるため微小とみなせない。
+そこで、以下のように参照経路の曲率$\kappa_k$から計算されるステア角$\delta_{\mathrm{ref}, k}$を用いることにより、$\delta_k$を微小な値$\Delta \delta_k$で表す。
 
 $$
 \begin{align}
-\delta_{\mathrm{ref}, k} & = arctan(L \kappa_k) \\
+\delta_{\mathrm{ref}, k} & = \arctan(L \kappa_k) \\
 \delta_k & = \delta_{\mathrm{ref}, k} + \Delta \delta_k, \ \Delta \delta_k << 1 \\
-tan \delta & = tan \delta_{\mathrm{ref}, k} + \frac{d tan \delta}{d \delta}|_{\delta = \delta_{\mathrm{ref}, k}} \Delta \delta_k \\
-& = tan \delta_{\mathrm{ref}, k} - \frac{\delta_{\mathrm{ref}}}{cos^2 \delta_{\mathrm{ref}, k}} + \frac{1}{cos^2 \delta_{\mathrm{ref}, k}} \delta
 \end{align}
 $$
 
-以上を踏まえ、誤差ダイナミクスは以下のように線形な行列演算で記述できる。
+この$\delta_k$を介して$\tan \delta_k$を線形な式で近似する。
+
+$$
+\begin{align}
+\tan \delta_k & \approx \tan \delta_{\mathrm{ref}, k} + \frac{d \tan \delta}{d \delta}|_{\delta = \delta_{\mathrm{ref}, k}} \Delta \delta_k \\
+& = \tan \delta_{\mathrm{ref}, k} + \frac{d \tan \delta}{d \delta}|_{\delta = \delta_{\mathrm{ref}, k}} (\delta_{\mathrm{ref}, k} - \delta_k) \\
+& = \tan \delta_{\mathrm{ref}, k} - \frac{\delta_{\mathrm{ref}}}{\cos^2 \delta_{\mathrm{ref}, k}} + \frac{1}{\cos^2 \delta_{\mathrm{ref}, k}} \delta_k
+\end{align}
+$$
+
+以上の線形化を踏まえ、誤差ダイナミクスは以下のように線形な行列演算で記述できる。
 
 $$
 \begin{align}
@@ -165,7 +178,7 @@ $$
     =
     \begin{pmatrix}
         1 & v dt & 0 \\
-        0 & 1 & \frac{v dt}{L cos^{2} \delta_{\mathrm{ref}, k}} \\
+        0 & 1 & \frac{v dt}{L \cos^{2} \delta_{\mathrm{ref}, k}} \\
         0 & 0 & 1 - \frac{dt}{\tau}
     \end{pmatrix}
     \begin{pmatrix}
@@ -183,7 +196,7 @@ $$
     +
     \begin{pmatrix}
         0 \\
-        - \frac{v \delta_{\mathrm{ref}, k} dt}{L cos^{2} \delta_{\mathrm{ref}, k}} \\
+        - \frac{v \delta_{\mathrm{ref}, k} dt}{L \cos^{2} \delta_{\mathrm{ref}, k}} \\
         0
     \end{pmatrix}
 \end{align}
