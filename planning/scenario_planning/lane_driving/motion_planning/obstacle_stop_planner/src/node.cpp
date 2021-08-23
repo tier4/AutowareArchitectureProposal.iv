@@ -566,7 +566,8 @@ SlowDownSection ObstacleStopPlannerNode::createSlowDownSection(
 
 void ObstacleStopPlannerNode::insertSlowDownSection(
   const SlowDownSection & slow_down_section,
-  const Trajectory & base_trajectory, Trajectory & output)
+  [[maybe_unused]] const Trajectory & base_trajectory,
+  Trajectory & output)
 {
   const auto & start_idx = slow_down_section.slow_down_start_idx;
   const auto & end_idx = slow_down_section.slow_down_end_idx;
@@ -701,7 +702,9 @@ bool ObstacleStopPlannerNode::trimTrajectoryWithIndexFromSelfPose(
 }
 
 bool ObstacleStopPlannerNode::trimTrajectoryFromSelfPose(
-  const Trajectory & input, const geometry_msgs::msg::Pose & self_pose, Trajectory & output)
+  [[maybe_unused]] const Trajectory & input,
+  const geometry_msgs::msg::Pose & self_pose,
+  Trajectory & output)
 {
   size_t index;
   return trimTrajectoryWithIndexFromSelfPose(output, self_pose, output, index);
