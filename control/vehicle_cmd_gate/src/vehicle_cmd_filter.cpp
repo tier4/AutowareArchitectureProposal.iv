@@ -38,7 +38,8 @@ void VehicleCmdFilter::VehicleCmdFilter::limitLongitudinalWithJerk(
 }
 
 void VehicleCmdFilter::limitLateralWithLatAcc(
-  const double dt, autoware_control_msgs::msg::ControlCommand & input) const
+  [[maybe_unused]] const double dt,
+  autoware_control_msgs::msg::ControlCommand & input) const
 {
   double latacc = calcLatAcc(input);
   if (std::fabs(latacc) > lat_acc_lim_) {
