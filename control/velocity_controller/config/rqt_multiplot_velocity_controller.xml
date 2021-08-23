@@ -973,11 +973,11 @@
                                         <relative_minimum>-1000</relative_minimum>
                                         <type>0</type>
                                     </scale>
-                                    <topic>/planning/scenario_planning/motion_velocity_optimizer/distance_to_stopline</topic>
-                                    <type>std_msgs/Float32</type>
+                                    <topic>/control/trajectory_follower/velocity_controller/debug_values</topic>
+                                    <type>std_msgs/Float32MultiArray</type>
                                 </x_axis>
                                 <y_axis>
-                                    <field>data</field>
+                                    <field>data/28</field>
                                     <field_type>0</field_type>
                                     <scale>
                                         <absolute_maximum>1000</absolute_maximum>
@@ -986,8 +986,8 @@
                                         <relative_minimum>-1000</relative_minimum>
                                         <type>0</type>
                                     </scale>
-                                    <topic>/planning/scenario_planning/motion_velocity_optimizer/distance_to_stopline</topic>
-                                    <type>std_msgs/Float32</type>
+                                    <topic>/control/trajectory_follower/velocity_controller/debug_values</topic>
+                                    <type>std_msgs/Float32MultiArray</type>
                                 </y_axis>
                             </axes>
                             <color>
@@ -1086,7 +1086,7 @@
                                 <type>0</type>
                             </style>
                             <subscriber_queue_size>100</subscriber_queue_size>
-                            <title>state 0:Init 1:Ctrl 2:Stopped 3:SmoothStop 4:Emergency 5:Error</title>
+                            <title>state 0:Drive 1: Stopping 2:Stopped 3:Emergency</title>
                         </curve_0>
                     </curves>
                     <legend>

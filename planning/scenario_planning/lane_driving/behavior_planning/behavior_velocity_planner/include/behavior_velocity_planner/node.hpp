@@ -27,6 +27,7 @@
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_planning_msgs/msg/path.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "nav_msgs/msg/occupancy_grid.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 
@@ -61,6 +62,8 @@ private:
     sub_external_intersection_states_;
   rclcpp::Subscription<autoware_perception_msgs::msg::TrafficLightStateArray>::SharedPtr
     sub_external_traffic_light_states_;
+  rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr
+    sub_occupancy_grid_;
 
   void onTrigger(const autoware_planning_msgs::msg::PathWithLaneId::ConstSharedPtr input_path_msg);
   void onDynamicObjects(
@@ -75,6 +78,7 @@ private:
   void onExternalCrosswalkStates(const autoware_api_msgs::msg::CrosswalkStatus::ConstSharedPtr msg);
   void onExternalIntersectionStates(
     const autoware_api_msgs::msg::IntersectionStatus::ConstSharedPtr msg);
+  void onOccupancyGrid(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg);
 
   // publisher
   rclcpp::Publisher<autoware_planning_msgs::msg::Path>::SharedPtr path_pub_;

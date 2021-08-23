@@ -54,10 +54,8 @@ int insertPoint(
   inserted_point = inout_path->points.at(closest_idx);
   inserted_point.point.pose = in_pose;
 
-  if (!hasDuplicatedPoint(*inout_path, inserted_point.point.pose.position)) {
-    auto it = inout_path->points.begin() + insert_idx;
-    inout_path->points.insert(it, inserted_point);
-  }
+  auto it = inout_path->points.begin() + insert_idx;
+  inout_path->points.insert(it, inserted_point);
 
   return insert_idx;
 }
@@ -211,13 +209,15 @@ bool hasLaneId(const autoware_planning_msgs::msg::PathPointWithLaneId & p, const
 }
 
 bool hasDuplicatedPoint(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const geometry_msgs::msg::Point & point)
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const geometry_msgs::msg::Point & point,
+  int * duplicated_point_idx)
 {
-  for (const auto & path_point : path.points) {
-    const auto & p = path_point.point.pose.position;
+  for (size_t i = 0; i < path.points.size(); i++) {
+    const auto & p = path.points.at(i).point.pose.position;
 
     constexpr double min_dist = 0.001;
     if (planning_utils::calcDist2d(p, point) < min_dist) {
+      *duplicated_point_idx = static_cast<int>(i);
       return true;
     }
   }
@@ -282,9 +282,7 @@ bool generateStopLine(
   // else, generates a local stop_line with considering the lane conflicts.
   int first_idx_ip_inside_lane;  // first stop point index for interpolated path.
   int stop_idx_ip;               // stop point index for interpolated path.
-  geometry_msgs::msg::Point stop_point_from_map;
-  if (getStopPoseFromMap(lane_id, &stop_point_from_map, planner_data)) {
-    planning_utils::calcClosestIndex(path_ip, stop_point_from_map, stop_idx_ip, 10.0);
+  if (getStopPoseIndexFromMap(path_ip, lane_id, planner_data, stop_idx_ip, 10.0, logger)) {
     stop_idx_ip = std::max(stop_idx_ip - base2front_idx_dist, 0);
   } else {
     // get idx of first_inside_lane point
@@ -311,7 +309,11 @@ bool generateStopLine(
 
   /* insert stop_point */
   const auto inserted_stop_point = path_ip.points.at(stop_idx_ip).point.pose;
-  *stop_line_idx = util::insertPoint(inserted_stop_point, original_path);
+  // if path has too close (= duplicated) point to the stop point, do not insert it
+  // and consider the index of the duplicated point as stop_line_idx
+  if (!util::hasDuplicatedPoint(*original_path, inserted_stop_point.position, stop_line_idx)) {
+    *stop_line_idx = util::insertPoint(inserted_stop_point, original_path);
+  }
 
   /* if another stop point exist before intersection stop_line, disable judge_line. */
   bool has_prior_stopline = false;
@@ -329,8 +331,15 @@ bool generateStopLine(
     *pass_judge_line_idx = *stop_line_idx;
   } else {
     const auto inserted_pass_judge_point = path_ip.points.at(pass_judge_idx_ip).point.pose;
-    *pass_judge_line_idx = util::insertPoint(inserted_pass_judge_point, original_path);
-    ++(*stop_line_idx);  // stop index is incremented by judge line insertion
+    // if path has too close (= duplicated) point to the pass judge point, do not insert it
+    // and consider the index of the duplicated point as pass_judge_line_idx
+    if (!util::hasDuplicatedPoint(
+        *original_path, inserted_pass_judge_point.position,
+        pass_judge_line_idx))
+    {
+      *pass_judge_line_idx = util::insertPoint(inserted_pass_judge_point, original_path);
+      ++(*stop_line_idx);  // stop index is incremented by judge line insertion
+    }
   }
 
   RCLCPP_DEBUG(
@@ -342,9 +351,10 @@ bool generateStopLine(
   return true;
 }
 
-bool getStopPoseFromMap(
-  const int lane_id, geometry_msgs::msg::Point * stop_point,
-  const std::shared_ptr<const PlannerData> & planner_data)
+bool getStopPoseIndexFromMap(
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const int lane_id,
+  const std::shared_ptr<const PlannerData> & planner_data, int & stop_idx_ip, int dist_thr,
+  const rclcpp::Logger logger)
 {
   lanelet::ConstLanelet lanelet = planner_data->lanelet_map->laneletLayer.get(lane_id);
   const auto road_markings = lanelet.regulatoryElementsAs<lanelet::autoware::RoadMarking>();
@@ -363,9 +373,39 @@ bool getStopPoseFromMap(
 
   const auto p_start = stop_line.front().front();
   const auto p_end = stop_line.front().back();
-  stop_point->x = 0.5 * (p_start.x() + p_end.x());
-  stop_point->y = 0.5 * (p_start.y() + p_end.y());
-  stop_point->z = 0.5 * (p_start.z() + p_end.z());
+  const LineString2d extended_stop_line =
+    planning_utils::extendLine(p_start, p_end, planner_data->stop_line_extend_length);
+
+  for (size_t i = 0; i < path.points.size() - 1; i++) {
+    const auto & p_front = path.points.at(i).point.pose.position;
+    const auto & p_back = path.points.at(i + 1).point.pose.position;
+
+    const LineString2d path_segment = {{p_front.x, p_front.y}, {p_back.x, p_back.y}};
+    std::vector<Point2d> collision_points;
+    bg::intersection(extended_stop_line, path_segment, collision_points);
+
+    if (collision_points.empty()) {
+      continue;
+    }
+
+    stop_idx_ip = i;
+
+    RCLCPP_DEBUG(logger, "found collision point");
+
+    return true;
+  }
+
+  geometry_msgs::msg::Point stop_point_from_map;
+  stop_point_from_map.x = 0.5 * (p_start.x() + p_end.x());
+  stop_point_from_map.y = 0.5 * (p_start.y() + p_end.y());
+  stop_point_from_map.z = 0.5 * (p_start.z() + p_end.z());
+
+  if (!planning_utils::calcClosestIndex(path, stop_point_from_map, stop_idx_ip, dist_thr)) {
+    RCLCPP_DEBUG(logger, "found stop line, but not found stop index");
+    return false;
+  }
+
+  RCLCPP_DEBUG(logger, "found stop line and stop index");
 
   return true;
 }
@@ -412,9 +452,9 @@ bool getObjectivePolygons(
   const auto & conflicting_lanelets =
     lanelet::utils::getConflictingLanelets(routing_graph_ptr, assigned_lanelet);
 
-  lanelet::ConstLanelets                // conflicting lanes with "lane_id"
-    conflicting_lanelets_ex_yield_ego;  // excluding ego lanes and yield lanes
-  lanelet::ConstLanelets objective_lanelets;  // final objective lanelets
+  std::vector<lanelet::ConstLanelets>   // conflicting lanes with "lane_id"
+  conflicting_lanelets_ex_yield_ego;    // excluding ego lanes and yield lanes
+  std::vector<lanelet::ConstLanelets> objective_lanelets;  // final objective lanelets
 
   // exclude yield lanelets and ego lanelets from objective_lanelets
   for (const auto & conflicting_lanelet : conflicting_lanelets) {
@@ -424,8 +464,8 @@ bool getObjectivePolygons(
     if (lanelet::utils::contains(ego_lanelets, conflicting_lanelet)) {
       continue;
     }
-    conflicting_lanelets_ex_yield_ego.push_back(conflicting_lanelet);
-    objective_lanelets.push_back(conflicting_lanelet);
+    conflicting_lanelets_ex_yield_ego.push_back({conflicting_lanelet});
+    objective_lanelets.push_back({conflicting_lanelet});
   }
 
   // get possible lanelet path that reaches conflicting_lane longer than given length
@@ -433,32 +473,19 @@ bool getObjectivePolygons(
   std::vector<lanelet::ConstLanelets> objective_lanelets_sequences;
   for (const auto & ll : objective_lanelets) {
     auto lanelet_sequences =
-      lanelet::utils::query::getPrecedingLaneletSequences(routing_graph_ptr, ll, length);
+      lanelet::utils::query::getPrecedingLaneletSequences(routing_graph_ptr, ll.front(), length);
     // Preceding lanes does not include objective_lane so add them at the end
-    objective_lanelets_sequences.push_back({ll});
+    objective_lanelets_sequences.push_back(ll);
     for (auto & l : lanelet_sequences) {
       objective_lanelets_sequences.push_back(l);
     }
   }
 
   // get exact polygon of conflicting lanes
-  conflicting_polygons->clear();
-  if (!conflicting_lanelets_ex_yield_ego.empty()) {
-    const double path_length =
-      lanelet::utils::getLaneletLength3d(conflicting_lanelets_ex_yield_ego);
-    const auto polygon3d = lanelet::utils::getPolygonFromArcLength(
-      conflicting_lanelets_ex_yield_ego, path_length - length, path_length);
-    conflicting_polygons->push_back(polygon3d);
-  }
+  *conflicting_polygons = getPolygon3dFromLaneletsVec(conflicting_lanelets_ex_yield_ego, length);
 
   // get exact polygon of interest with exact length
-  objective_polygons->clear();
-  for (const auto & ll : objective_lanelets_sequences) {
-    const double path_length = lanelet::utils::getLaneletLength3d(ll);
-    const auto polygon3d =
-      lanelet::utils::getPolygonFromArcLength(ll, path_length - length, path_length);
-    objective_polygons->push_back(polygon3d);
-  }
+  *objective_polygons = getPolygon3dFromLaneletsVec(objective_lanelets_sequences, length);
 
   std::stringstream ss_c, ss_y, ss_e, ss_o, ss_os;
   for (const auto & l : conflicting_lanelets) {
@@ -471,7 +498,7 @@ bool getObjectivePolygons(
     ss_e << l.id() << ", ";
   }
   for (const auto & l : objective_lanelets) {
-    ss_o << l.id() << ", ";
+    ss_o << l.front().id() << ", ";
   }
   for (const auto & l : objective_lanelets_sequences) {
     for (const auto & ll : l) {
@@ -485,6 +512,19 @@ bool getObjectivePolygons(
     logger, "getObjectivePolygons() object = %s object_sequences = %s", ss_o.str().c_str(),
     ss_os.str().c_str());
   return true;
+}
+
+std::vector<lanelet::CompoundPolygon3d> getPolygon3dFromLaneletsVec(
+  const std::vector<lanelet::ConstLanelets> & ll_vec, double clip_length)
+{
+  std::vector<lanelet::CompoundPolygon3d> p_vec;
+  for (const auto & ll : ll_vec) {
+    const double path_length = lanelet::utils::getLaneletLength3d(ll);
+    const auto polygon3d =
+      lanelet::utils::getPolygonFromArcLength(ll, path_length - clip_length, path_length);
+    p_vec.push_back(polygon3d);
+  }
+  return p_vec;
 }
 
 }  // namespace util

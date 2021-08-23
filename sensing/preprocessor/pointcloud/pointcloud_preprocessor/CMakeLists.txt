@@ -11,7 +11,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic -Werror)
 endif()
 
-# Ignore PCL erros in Clang
+# Ignore PCL errors in Clang
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wno-gnu-anonymous-struct -Wno-nested-anon-types)
 endif()
@@ -53,14 +53,17 @@ ament_auto_add_library(pointcloud_preprocessor_filter SHARED
   src/downsample_filter/approximate_downsample_filter_nodelet.cpp
   src/ground_filter/ray_ground_filter_nodelet.cpp
   src/ground_filter/ransac_ground_filter_nodelet.cpp
+  src/ground_filter/scan_ground_filter_nodelet.cpp
   src/outlier_filter/ring_outlier_filter_nodelet.cpp
   src/outlier_filter/voxel_grid_outlier_filter_nodelet.cpp
   src/outlier_filter/radius_search_2d_outlier_filter_nodelet.cpp
+  src/outlier_filter/occupancy_grid_map_outlier_filter_nodelet.cpp
   src/passthrough_filter/passthrough_filter_nodelet.cpp
   src/passthrough_filter/passthrough_filter_uint16_nodelet.cpp
   src/passthrough_filter/passthrough_uint16.cpp
   src/pointcloud_accumulator/pointcloud_accumulator_nodelet.cpp
   src/vector_map_filter/lanelet2_map_filter_nodelet.cpp
+  src/distortion_corrector/distortion_corrector.cpp
 )
 
 target_link_libraries(pointcloud_preprocessor_filter
@@ -141,6 +144,10 @@ rclcpp_components_register_node(pointcloud_preprocessor_filter
   PLUGIN "pointcloud_preprocessor::RANSACGroundFilterComponent"
   EXECUTABLE ransac_ground_filter_node)
 
+# -- Scan Ground Filter --
+rclcpp_components_register_node(pointcloud_preprocessor_filter
+  PLUGIN "pointcloud_preprocessor::ScanGroundFilterComponent"
+  EXECUTABLE scan_ground_filter_node)
 
 # ========== Outlier Filter ==========
 # -- Ring Outlier Filter --
@@ -158,6 +165,10 @@ rclcpp_components_register_node(pointcloud_preprocessor_filter
   PLUGIN "pointcloud_preprocessor::RadiusSearch2DOutlierFilterComponent"
   EXECUTABLE radius_search_2d_outlier_filter_node)
 
+# -- Occupancy Grid Map Outlier Filter --
+rclcpp_components_register_node(pointcloud_preprocessor_filter
+  PLUGIN "pointcloud_preprocessor::OccupancyGridMapOutlierFilterComponent"
+  EXECUTABLE occupancy_grid_map_outlier_filter_node)
 
 # ========== Passthrough Filter ==========
 # -- Passthrough Filter --
@@ -182,13 +193,16 @@ rclcpp_components_register_node(pointcloud_preprocessor_filter
   PLUGIN "pointcloud_preprocessor::Lanelet2MapFilterComponent"
   EXECUTABLE vector_map_filter_node)
 
+
+# ========== Distortion Corrector ==========
+rclcpp_components_register_node(pointcloud_preprocessor_filter
+  PLUGIN "pointcloud_preprocessor::DistortionCorrectorComponent"
+  EXECUTABLE distortion_corrector_node)
+
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
-  list(APPEND AMENT_LINT_AUTO_EXCLUDE
-    # To avoid conflicts between cpplint and uncrustify w.r.t. inclusion guards
-    ament_cmake_uncrustify
-  )
 endif()
 
 #############
