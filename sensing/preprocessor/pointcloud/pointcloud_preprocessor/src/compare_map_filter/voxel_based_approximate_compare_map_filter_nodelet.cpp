@@ -14,7 +14,7 @@
 
 #include <vector>
 
-#include "pointcloud_preprocessor/compare_map_filter/voxel_based_approximate_compare_map_filter_nodelet.hpp"
+#include "pointcloud_preprocessor/compare_map_filter/voxel_based_approximate_compare_map_filter_nodelet.hpp"  // NOLINT
 
 #include "pcl/kdtree/kdtree_flann.h"
 #include "pcl/search/kdtree.h"
