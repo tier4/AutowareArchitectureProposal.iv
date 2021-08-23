@@ -48,7 +48,7 @@ void Engage::setEngage(
   const autoware_external_api_msgs::srv::Engage::Request::SharedPtr request,
   const autoware_external_api_msgs::srv::Engage::Response::SharedPtr response)
 {
-  if (!waiting_for_engage_) {
+  if (request->engage && !waiting_for_engage_) {
     response->status = autoware_api_utils::response_error("It is not ready to engage.");
     return;
   }
