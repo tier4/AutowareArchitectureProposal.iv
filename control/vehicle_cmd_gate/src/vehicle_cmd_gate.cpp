@@ -55,6 +55,7 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
 
   rclcpp::QoS durable_qos{1};
   durable_qos.transient_local();
+
   // Publisher
   vehicle_cmd_pub_ = this->create_publisher<autoware_vehicle_msgs::msg::VehicleCommand>(
     "output/vehicle_cmd", durable_qos);
@@ -159,6 +160,10 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
       stat.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Alive");
     });
   updater_.add("emergency_stop_operation", this, &VehicleCmdGate::checkExternalEmergencyStop);
+
+  // Start Request
+  const auto use_start_request = declare_parameter("use_start_request", false);
+  start_request_ = std::make_unique<StartRequest>(this, use_start_request);
 
   // Timer
   auto timer_callback = std::bind(&VehicleCmdGate::onTimer, this);
@@ -324,6 +329,9 @@ void VehicleCmdGate::onTimer()
   turn_signal_cmd_pub_->publish(turn_signal);
   shift_cmd_pub_->publish(shift);
   engage_pub_->publish(autoware_engage);
+
+  // Publish start request
+  start_request_->publishStartAccepted();
 }
 
 void VehicleCmdGate::publishControlCommands(const Commands & commands)
@@ -354,10 +362,18 @@ void VehicleCmdGate::publishControlCommands(const Commands & commands)
     filtered_commands.shift = emergency_commands_.shift;  // tmp
   }
 
+  // Check start after applying all gates except engage
+  if (is_engaged_) {
+    start_request_->checkStartRequest(filtered_commands.control);
+  }
+
   // Check engage
-  if (!is_engaged_) {
+  if (!is_engaged_ || !start_request_->isAccepted()) {
     filtered_commands.control.control = createStopControlCmd();
   }
+
+  // Check stopped after applying all gates
+  start_request_->checkStopped(filtered_commands.control);
 
   // Apply limit filtering
   filtered_commands.control.control = filterControlCommand(filtered_commands.control.control);
@@ -391,6 +407,9 @@ void VehicleCmdGate::publishEmergencyStopControlCommands()
   control_cmd.header.frame_id = "base_link";
   control_cmd.control = createEmergencyStopControlCmd();
 
+  // Check stopped after applying all gates
+  start_request_->checkStopped(control_cmd);
+
   // Shift
   autoware_vehicle_msgs::msg::ShiftStamped shift;
   shift.header.stamp = stamp;
@@ -423,6 +442,9 @@ void VehicleCmdGate::publishEmergencyStopControlCommands()
   turn_signal_cmd_pub_->publish(turn_signal);
   shift_cmd_pub_->publish(shift);
   engage_pub_->publish(autoware_engage);
+
+  // Publish start request
+  start_request_->publishStartAccepted();
 }
 
 autoware_control_msgs::msg::ControlCommand VehicleCmdGate::filterControlCommand(
@@ -597,6 +619,99 @@ void VehicleCmdGate::checkExternalEmergencyStop(diagnostic_updater::DiagnosticSt
   }
 
   stat.summary(status.level, status.message);
+}
+
+
+VehicleCmdGate::StartRequest::StartRequest(rclcpp::Node * node, bool use_start_request)
+{
+  using namespace std::placeholders;
+
+  node_ = node;
+  use_start_request_ = use_start_request;
+  is_start_requesting_ = false;
+  is_start_accepted_ = false;
+  is_start_cancelled_ = false;
+
+  if (!use_start_request_) {
+    return;
+  }
+
+  request_start_cli_ = node_->create_client<std_srvs::srv::Trigger>(
+    "/api/autoware/set/start_request");
+  request_start_pub_ = node_->create_publisher<autoware_debug_msgs::msg::BoolStamped>(
+    "/api/autoware/get/start_accepted", rclcpp::QoS(1));
+  current_twist_sub_ = node_->create_subscription<geometry_msgs::msg::TwistStamped>(
+    "/localization/twist", rclcpp::QoS(1),
+    std::bind(&VehicleCmdGate::StartRequest::onCurrentTwist, this, _1));
+}
+
+void VehicleCmdGate::StartRequest::onCurrentTwist(
+  geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
+{
+  current_twist_ = *msg;
+}
+
+bool VehicleCmdGate::StartRequest::isAccepted()
+{
+  return !use_start_request_ || is_start_accepted_;
+}
+
+void VehicleCmdGate::StartRequest::publishStartAccepted()
+{
+  if (!use_start_request_) {
+    return;
+  }
+
+  autoware_debug_msgs::msg::BoolStamped start_accepted;
+  start_accepted.stamp = node_->now();
+  start_accepted.data = is_start_accepted_;
+  request_start_pub_->publish(start_accepted);
+}
+
+void VehicleCmdGate::StartRequest::checkStopped(const ControlCommandStamped & control)
+{
+  if (!use_start_request_) {
+    return;
+  }
+
+  if (is_start_accepted_) {
+    const auto control_velocity = std::abs(control.control.velocity);
+    const auto current_velocity = std::abs(current_twist_.twist.linear.x);
+    if (control_velocity < eps && current_velocity < eps) {
+      is_start_accepted_ = false;
+      is_start_cancelled_ = true;
+      RCLCPP_INFO(node_->get_logger(), "clear start request");
+    }
+  }
+}
+
+void VehicleCmdGate::StartRequest::checkStartRequest(const ControlCommandStamped & control)
+{
+  if (!use_start_request_) {
+    return;
+  }
+
+  if (!is_start_accepted_ && !is_start_requesting_) {
+    const auto control_velocity = std::abs(control.control.velocity);
+    if (eps < control_velocity) {
+      is_start_requesting_ = true;
+      is_start_cancelled_ = false;
+      request_start_cli_->async_send_request(
+        std::make_shared<std_srvs::srv::Trigger::Request>(),
+        [this](rclcpp::Client<std_srvs::srv::Trigger>::SharedFuture future)
+        {
+          const auto response = future.get();
+          is_start_requesting_ = false;
+          if (!is_start_cancelled_) {
+            is_start_accepted_ = response->success;
+            RCLCPP_INFO(node_->get_logger(), "start request is updated");
+          } else {
+            RCLCPP_INFO(node_->get_logger(), "start request is cancelled");
+          }
+        });
+      RCLCPP_INFO(node_->get_logger(), "call start request");
+    }
+  }
 }
 
 #include "rclcpp_components/register_node_macro.hpp"

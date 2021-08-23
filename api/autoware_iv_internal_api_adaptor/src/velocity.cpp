@@ -18,7 +18,7 @@ namespace internal_api
 {
 
 Velocity::Velocity(const rclcpp::NodeOptions & options)
-: Node("external_api_route", options)
+: Node("external_api_velocity", options)
 {
   using namespace std::placeholders;
   autoware_api_utils::ServiceProxyNodeInterface proxy(this);

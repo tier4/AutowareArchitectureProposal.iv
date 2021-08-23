@@ -18,11 +18,13 @@
 #include <memory>
 
 #include "diagnostic_updater/diagnostic_updater.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
 #include "autoware_control_msgs/msg/emergency_mode.hpp"
 #include "autoware_control_msgs/msg/gate_mode.hpp"
+#include "autoware_debug_msgs/msg/bool_stamped.hpp"
 #include "autoware_external_api_msgs/srv/engage.hpp"
 #include "autoware_external_api_msgs/srv/set_emergency.hpp"
 #include "autoware_vehicle_msgs/msg/engage.hpp"
@@ -170,6 +172,36 @@ private:
   VehicleCmdFilter filter_;
   autoware_control_msgs::msg::ControlCommand filterControlCommand(
     const autoware_control_msgs::msg::ControlCommand & msg);
+
+  // Start request service
+  struct StartRequest
+  {
+private:
+    static constexpr double eps = 1e-3;
+    using ControlCommandStamped = autoware_control_msgs::msg::ControlCommandStamped;
+
+public:
+    StartRequest(rclcpp::Node * node, bool use_start_request);
+    bool isAccepted();
+    void publishStartAccepted();
+    void checkStopped(const ControlCommandStamped & control);
+    void checkStartRequest(const ControlCommandStamped & control);
+
+private:
+    bool use_start_request_;
+    bool is_start_requesting_;
+    bool is_start_accepted_;
+    bool is_start_cancelled_;
+    geometry_msgs::msg::TwistStamped current_twist_;
+
+    rclcpp::Node * node_;
+    rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr request_start_cli_;
+    rclcpp::Publisher<autoware_debug_msgs::msg::BoolStamped>::SharedPtr request_start_pub_;
+    rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr current_twist_sub_;
+    void onCurrentTwist(geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
+  };
+
+  std::unique_ptr<StartRequest> start_request_;
 };
 
 #endif  // VEHICLE_CMD_GATE__VEHICLE_CMD_GATE_HPP_
