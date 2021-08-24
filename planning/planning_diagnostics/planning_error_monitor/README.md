@@ -26,17 +26,15 @@ This function checks if the curvature at each point on a trajectory has an appro
 
 ### Input
 
-| Name                 | Type                                     | Description                            |
-| -------------------- | ---------------------------------------- | -------------------------------------- |
-| `~/input/trajectory` | `/planning/scenario_planning/trajectory` | Planned Trajectory by planning modules |
+| Name                 | Type                                | Description                            |
+| -------------------- | ----------------------------------- | -------------------------------------- |
+| `~/input/trajectory` | `autoware_planning_msgs/Trajectory` | Planned Trajectory by planning modules |
 
 ### Output
 
-| Name                                | Type                              | Description                    |
-| ----------------------------------- | --------------------------------- | ------------------------------ |
-| `~/trajectory_point_validation`     | `trajectory_point_validation`     | Point Value Checker Results    |
-| `~/trajectory_interval_validation`  | `trajectory_interval_validation`  | Point Interval Checker Results |
-| `~/trajectory_curvature_validation` | `trajectory_curvature_validation` | Curvature Checker Results      |
+| Name          | Type                              | Description         |
+| ------------- | --------------------------------- | ------------------- |
+| `diagnostics` | `diagnostic_msgs/DiagnosticArray` | diagnostics outputs |
 
 ## Parameters
 
