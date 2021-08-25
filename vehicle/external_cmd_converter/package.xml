@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>remote_cmd_converter</name>
+  <name>external_cmd_converter</name>
   <version>0.1.0</version>
-  <description>The remote_cmd_converter package</description>
+  <description>The external_cmd_converter package</description>
   <maintainer email="horibe.takamasa@gmail.com">Horibe Takamasa</maintainer>
   <author email="horibe.takamasa@gmail.com">Horibe Takamasa</author>
   <license>Apache License 2.0</license>

@@ -94,7 +94,7 @@ private:
   void onAutoTurnSignalCmd(autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr msg);
   void onAutoShiftCmd(autoware_vehicle_msgs::msg::ShiftStamped::ConstSharedPtr msg);
 
-  // Subscription for remote
+  // Subscription for external
   Commands remote_commands_;
   rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
     remote_control_cmd_sub_;

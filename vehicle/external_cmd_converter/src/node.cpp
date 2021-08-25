@@ -17,12 +17,12 @@
 #include <string>
 #include <utility>
 
-#include "remote_cmd_converter/node.hpp"
+#include "external_cmd_converter/node.hpp"
 
-namespace remote_cmd_converter
+namespace external_cmd_converter
 {
-RemoteCmdConverterNode::RemoteCmdConverterNode(const rclcpp::NodeOptions & node_options)
-: Node("remote_cmd_converter", node_options)
+ExternalCmdConverterNode::ExternalCmdConverterNode(const rclcpp::NodeOptions & node_options)
+: Node("external_cmd_converter", node_options)
 {
   using std::placeholders::_1;
   pub_cmd_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
@@ -31,15 +31,15 @@ RemoteCmdConverterNode::RemoteCmdConverterNode(const rclcpp::NodeOptions & node_
     "out/latest_remote_control_cmd", rclcpp::QoS{1});
 
   sub_velocity_ = create_subscription<geometry_msgs::msg::TwistStamped>(
-    "in/twist", 1, std::bind(&RemoteCmdConverterNode::onVelocity, this, _1));
+    "in/twist", 1, std::bind(&ExternalCmdConverterNode::onVelocity, this, _1));
   sub_control_cmd_ = create_subscription<autoware_vehicle_msgs::msg::ExternalControlCommandStamped>(
-    "in/external_control_cmd", 1, std::bind(&RemoteCmdConverterNode::onRemoteCmd, this, _1));
+    "in/external_control_cmd", 1, std::bind(&ExternalCmdConverterNode::onRemoteCmd, this, _1));
   sub_shift_cmd_ = create_subscription<autoware_vehicle_msgs::msg::ShiftStamped>(
-    "in/shift_cmd", 1, std::bind(&RemoteCmdConverterNode::onShiftCmd, this, _1));
+    "in/shift_cmd", 1, std::bind(&ExternalCmdConverterNode::onShiftCmd, this, _1));
   sub_gate_mode_ = create_subscription<autoware_control_msgs::msg::GateMode>(
-    "in/current_gate_mode", 1, std::bind(&RemoteCmdConverterNode::onGateMode, this, _1));
+    "in/current_gate_mode", 1, std::bind(&ExternalCmdConverterNode::onGateMode, this, _1));
   sub_emergency_stop_ = create_subscription<autoware_control_msgs::msg::EmergencyMode>(
-    "in/emergency_stop", 1, std::bind(&RemoteCmdConverterNode::onEmergencyStop, this, _1));
+    "in/emergency_stop", 1, std::bind(&ExternalCmdConverterNode::onEmergencyStop, this, _1));
 
   // Parameter
   ref_vel_gain_ = declare_parameter("ref_vel_gain", 3.0);
@@ -51,7 +51,7 @@ RemoteCmdConverterNode::RemoteCmdConverterNode(const rclcpp::NodeOptions & node_
   emergency_stop_timeout_ = declare_parameter("emergency_stop_timeout", 3.0);
 
 
-  auto timer_callback = std::bind(&RemoteCmdConverterNode::onTimer, this);
+  auto timer_callback = std::bind(&ExternalCmdConverterNode::onTimer, this);
   auto period = std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<double>(1.0 / timer_rate));
   rate_check_timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
@@ -77,27 +77,28 @@ RemoteCmdConverterNode::RemoteCmdConverterNode(const rclcpp::NodeOptions & node_
   }
 
   // Diagnostics
-  updater_.setHardwareID("remote_cmd_converter");
-  updater_.add("remote_control_topic_status", this, &RemoteCmdConverterNode::checkTopicStatus);
+  updater_.setHardwareID("external_cmd_converter");
+  updater_.add("remote_control_topic_status", this, &ExternalCmdConverterNode::checkTopicStatus);
 
   // Set default values
   current_shift_cmd_ = std::make_shared<autoware_vehicle_msgs::msg::ShiftStamped>();
 }
 
-void RemoteCmdConverterNode::onTimer() {updater_.force_update();}
+void ExternalCmdConverterNode::onTimer() {updater_.force_update();}
 
-void RemoteCmdConverterNode::onVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
+void ExternalCmdConverterNode::onVelocity(
+  const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
 {
   current_velocity_ptr_ = std::make_shared<double>(msg->twist.linear.x);
 }
 
-void RemoteCmdConverterNode::onShiftCmd(
+void ExternalCmdConverterNode::onShiftCmd(
   const autoware_vehicle_msgs::msg::ShiftStamped::ConstSharedPtr msg)
 {
   current_shift_cmd_ = msg;
 }
 
-void RemoteCmdConverterNode::onEmergencyStop(
+void ExternalCmdConverterNode::onEmergencyStop(
   const autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg)
 {
   current_emergency_cmd_ = msg->is_emergency;
@@ -105,7 +106,7 @@ void RemoteCmdConverterNode::onEmergencyStop(
   updater_.force_update();
 }
 
-void RemoteCmdConverterNode::onRemoteCmd(
+void ExternalCmdConverterNode::onRemoteCmd(
   const autoware_vehicle_msgs::msg::ExternalControlCommandStamped::ConstSharedPtr
   remote_control_cmd_ptr)
 {
@@ -159,7 +160,7 @@ void RemoteCmdConverterNode::onRemoteCmd(
   pub_cmd_->publish(output);
 }
 
-double RemoteCmdConverterNode::calculateAcc(
+double ExternalCmdConverterNode::calculateAcc(
   const autoware_vehicle_msgs::msg::ExternalControlCommand & cmd, const double vel)
 {
   const double desired_throttle = cmd.throttle;
@@ -176,7 +177,7 @@ double RemoteCmdConverterNode::calculateAcc(
   return ref_acceleration;
 }
 
-double RemoteCmdConverterNode::getShiftVelocitySign(
+double ExternalCmdConverterNode::getShiftVelocitySign(
   const autoware_vehicle_msgs::msg::ShiftStamped & cmd)
 {
   using autoware_vehicle_msgs::msg::Shift;
@@ -188,7 +189,7 @@ double RemoteCmdConverterNode::getShiftVelocitySign(
   return 0.0;
 }
 
-void RemoteCmdConverterNode::checkTopicStatus(diagnostic_updater::DiagnosticStatusWrapper & stat)
+void ExternalCmdConverterNode::checkTopicStatus(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
   using diagnostic_msgs::msg::DiagnosticStatus;
 
@@ -208,13 +209,13 @@ void RemoteCmdConverterNode::checkTopicStatus(diagnostic_updater::DiagnosticStat
 }
 
 
-void RemoteCmdConverterNode::onGateMode(
+void ExternalCmdConverterNode::onGateMode(
   const autoware_control_msgs::msg::GateMode::ConstSharedPtr msg)
 {
   current_gate_mode_ = msg;
 }
 
-bool RemoteCmdConverterNode::checkEmergencyStopTopicTimeout()
+bool ExternalCmdConverterNode::checkEmergencyStopTopicTimeout()
 {
   if (!latest_emergency_stop_received_time_) {
     if (wait_for_first_topic_) {
@@ -230,7 +231,7 @@ bool RemoteCmdConverterNode::checkEmergencyStopTopicTimeout()
   return true;
 }
 
-bool RemoteCmdConverterNode::checkRemoteTopicRate()
+bool ExternalCmdConverterNode::checkRemoteTopicRate()
 {
   if (!current_gate_mode_) {return true;}
 
@@ -242,7 +243,7 @@ bool RemoteCmdConverterNode::checkRemoteTopicRate()
     }
   }
 
-  if (current_gate_mode_->data == autoware_control_msgs::msg::GateMode::REMOTE) {
+  if (current_gate_mode_->data == autoware_control_msgs::msg::GateMode::EXTERNAL) {
     const auto duration = (this->now() - *latest_cmd_received_time_);
     if (duration.seconds() > control_command_timeout_) {return false;}
   } else {
@@ -251,7 +252,7 @@ bool RemoteCmdConverterNode::checkRemoteTopicRate()
 
   return true;
 }
-}  // namespace remote_cmd_converter
+}  // namespace external_cmd_converter
 
 #include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(remote_cmd_converter::RemoteCmdConverterNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(external_cmd_converter::ExternalCmdConverterNode)

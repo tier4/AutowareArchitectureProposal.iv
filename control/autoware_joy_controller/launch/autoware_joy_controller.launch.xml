@@ -9,8 +9,8 @@
   <arg name="output_external_control_command" default="/external/$(var external_cmd_source)/control_cmd" />
   <arg name="output_shift" default="/external/$(var external_cmd_source)/shift_cmd" />
   <arg name="output_turn_signal" default="/external/$(var external_cmd_source)/turn_signal_cmd" />
-  <arg name="output_gate_mode" default="/remote/gate_mode_cmd" />
-  <arg name="output_emergency_stop" default="/remote/emergency_stop" />
+  <arg name="output_emergency_stop" default="/external/$(var external_cmd_source)/heartbeat" />
+  <arg name="output_gate_mode" default="/control/gate_mode_cmd" />
   <arg name="output_autoware_engage" default="/autoware/engage" />
   <arg name="output_vehicle_engage" default="/vehicle/engage" />
 

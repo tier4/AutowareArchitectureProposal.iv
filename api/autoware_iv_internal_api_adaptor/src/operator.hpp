@@ -21,8 +21,8 @@
 #include "autoware_external_api_msgs/srv/set_observer.hpp"
 #include "autoware_external_api_msgs/msg/operator.hpp"
 #include "autoware_external_api_msgs/msg/observer.hpp"
-#include "autoware_control_msgs/srv/remote_command_select.hpp"
-#include "autoware_control_msgs/msg/remote_command_selector_mode.hpp"
+#include "autoware_control_msgs/srv/external_command_select.hpp"
+#include "autoware_control_msgs/msg/external_command_selector_mode.hpp"
 #include "autoware_control_msgs/msg/gate_mode.hpp"
 #include "autoware_vehicle_msgs/msg/engage.hpp"
 #include "autoware_vehicle_msgs/msg/control_mode.hpp"
@@ -40,8 +40,8 @@ private:
   using SetObserver = autoware_external_api_msgs::srv::SetObserver;
   using GetOperator = autoware_external_api_msgs::msg::Operator;
   using GetObserver = autoware_external_api_msgs::msg::Observer;
-  using RemoteCommandSelect = autoware_control_msgs::srv::RemoteCommandSelect;
-  using RemoteCommandSelectorMode = autoware_control_msgs::msg::RemoteCommandSelectorMode;
+  using ExternalCommandSelect = autoware_control_msgs::srv::ExternalCommandSelect;
+  using ExternalCommandSelectorMode = autoware_control_msgs::msg::ExternalCommandSelectorMode;
   using GateMode = autoware_control_msgs::msg::GateMode;
   using VehicleEngage = autoware_vehicle_msgs::msg::Engage;
   using VehicleControlMode = autoware_vehicle_msgs::msg::ControlMode;
@@ -50,12 +50,12 @@ private:
   rclcpp::CallbackGroup::SharedPtr group_;
   autoware_api_utils::Service<SetOperator>::SharedPtr srv_set_operator_;
   autoware_api_utils::Service<SetObserver>::SharedPtr srv_set_observer_;
-  autoware_api_utils::Client<RemoteCommandSelect>::SharedPtr cli_external_select_;
+  autoware_api_utils::Client<ExternalCommandSelect>::SharedPtr cli_external_select_;
   rclcpp::Publisher<GateMode>::SharedPtr pub_gate_mode_;
   rclcpp::Publisher<VehicleEngage>::SharedPtr pub_vehicle_engage_;
   rclcpp::Publisher<GetOperator>::SharedPtr pub_operator_;
   rclcpp::Publisher<GetObserver>::SharedPtr pub_observer_;
-  rclcpp::Subscription<RemoteCommandSelectorMode>::SharedPtr sub_external_select_;
+  rclcpp::Subscription<ExternalCommandSelectorMode>::SharedPtr sub_external_select_;
   rclcpp::Subscription<GateMode>::SharedPtr sub_gate_mode_;
   rclcpp::Subscription<VehicleControlMode>::SharedPtr sub_vehicle_control_mode_;
   rclcpp::TimerBase::SharedPtr timer_;
@@ -68,7 +68,7 @@ private:
     const autoware_external_api_msgs::srv::SetObserver::Request::SharedPtr request,
     const autoware_external_api_msgs::srv::SetObserver::Response::SharedPtr response);
   void onExternalSelect(
-    const autoware_control_msgs::msg::RemoteCommandSelectorMode::ConstSharedPtr message);
+    const autoware_control_msgs::msg::ExternalCommandSelectorMode::ConstSharedPtr message);
   void onGateMode(
     const autoware_control_msgs::msg::GateMode::ConstSharedPtr message);
   void onVehicleControlMode(
@@ -76,7 +76,7 @@ private:
   void onTimer();
 
   // class field
-  autoware_control_msgs::msg::RemoteCommandSelectorMode::ConstSharedPtr external_select_;
+  autoware_control_msgs::msg::ExternalCommandSelectorMode::ConstSharedPtr external_select_;
   autoware_control_msgs::msg::GateMode::ConstSharedPtr gate_mode_;
   autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr vehicle_control_mode_;
 
@@ -86,7 +86,7 @@ private:
   void setVehicleEngage(bool engage);
   void setGateMode(autoware_control_msgs::msg::GateMode::_data_type data);
   autoware_external_api_msgs::msg::ResponseStatus setExternalSelect(
-    autoware_control_msgs::msg::RemoteCommandSelectorMode::_data_type data);
+    autoware_control_msgs::msg::ExternalCommandSelectorMode::_data_type data);
 };
 
 }  // namespace internal_api

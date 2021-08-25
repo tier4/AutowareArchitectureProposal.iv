@@ -35,10 +35,10 @@ Operator::Operator(const rclcpp::NodeOptions & options)
     std::bind(&Operator::setObserver, this, _1, _2),
     rmw_qos_profile_services_default, group_);
 
-  cli_external_select_ = proxy.create_client<autoware_control_msgs::srv::RemoteCommandSelect>(
+  cli_external_select_ = proxy.create_client<autoware_control_msgs::srv::ExternalCommandSelect>(
     "/control/external_cmd_selector/select_external_command");
   pub_gate_mode_ = create_publisher<autoware_control_msgs::msg::GateMode>(
-    "/remote/gate_mode_cmd", rclcpp::QoS(1));
+    "/control/gate_mode_cmd", rclcpp::QoS(1));
   pub_vehicle_engage_ = create_publisher<autoware_vehicle_msgs::msg::Engage>(
     "/vehicle/engage", rclcpp::QoS(1));
 
@@ -47,7 +47,8 @@ Operator::Operator(const rclcpp::NodeOptions & options)
   pub_observer_ = create_publisher<autoware_external_api_msgs::msg::Observer>(
     "/api/autoware/get/observer", rclcpp::QoS(1));
 
-  sub_external_select_ = create_subscription<autoware_control_msgs::msg::RemoteCommandSelectorMode>(
+  sub_external_select_ =
+    create_subscription<autoware_control_msgs::msg::ExternalCommandSelectorMode>(
     "/control/external_cmd_selector/current_selector_mode", rclcpp::QoS(1),
     std::bind(&Operator::onExternalSelect, this, _1));
   sub_gate_mode_ = create_subscription<autoware_control_msgs::msg::GateMode>(
@@ -79,7 +80,7 @@ void Operator::setOperator(
 
     case autoware_external_api_msgs::msg::Operator::OBSERVER:
       // TODO(Takagi, Isamu): prohibit transition when none observer type is added
-      setGateMode(autoware_control_msgs::msg::GateMode::REMOTE);
+      setGateMode(autoware_control_msgs::msg::GateMode::EXTERNAL);
       setVehicleEngage(true);
       response->status = autoware_api_utils::response_success();
       return;
@@ -94,15 +95,15 @@ void Operator::setObserver(
   const autoware_external_api_msgs::srv::SetObserver::Request::SharedPtr request,
   const autoware_external_api_msgs::srv::SetObserver::Response::SharedPtr response)
 {
-  using RemoteCommandSelectorMode = autoware_control_msgs::msg::RemoteCommandSelectorMode;
+  using ExternalCommandSelectorMode = autoware_control_msgs::msg::ExternalCommandSelectorMode;
 
   switch (request->mode.mode) {
     case autoware_external_api_msgs::msg::Observer::LOCAL:
-      response->status = setExternalSelect(RemoteCommandSelectorMode::LOCAL);
+      response->status = setExternalSelect(ExternalCommandSelectorMode::LOCAL);
       return;
 
     case autoware_external_api_msgs::msg::Observer::REMOTE:
-      response->status = setExternalSelect(RemoteCommandSelectorMode::REMOTE);
+      response->status = setExternalSelect(ExternalCommandSelectorMode::REMOTE);
       return;
 
     default:
@@ -112,7 +113,7 @@ void Operator::setObserver(
 }
 
 void Operator::onExternalSelect(
-  const autoware_control_msgs::msg::RemoteCommandSelectorMode::ConstSharedPtr message)
+  const autoware_control_msgs::msg::ExternalCommandSelectorMode::ConstSharedPtr message)
 {
   external_select_ = message;
 }
@@ -153,7 +154,7 @@ void Operator::publishOperator()
       pub_operator_->publish(build<OperatorMsg>().mode(OperatorMsg::AUTONOMOUS));
       return;
 
-    case autoware_control_msgs::msg::GateMode::REMOTE:
+    case autoware_control_msgs::msg::GateMode::EXTERNAL:
       pub_operator_->publish(build<OperatorMsg>().mode(OperatorMsg::OBSERVER));
       return;
   }
@@ -170,11 +171,11 @@ void Operator::publishObserver()
   }
 
   switch (external_select_->data) {
-    case autoware_control_msgs::msg::RemoteCommandSelectorMode::LOCAL:
+    case autoware_control_msgs::msg::ExternalCommandSelectorMode::LOCAL:
       pub_observer_->publish(build<ObserverMsg>().mode(ObserverMsg::LOCAL));
       return;
 
-    case autoware_control_msgs::msg::RemoteCommandSelectorMode::REMOTE:
+    case autoware_control_msgs::msg::ExternalCommandSelectorMode::REMOTE:
       pub_observer_->publish(build<ObserverMsg>().mode(ObserverMsg::REMOTE));
       return;
   }
@@ -196,9 +197,9 @@ void Operator::setGateMode(autoware_control_msgs::msg::GateMode::_data_type data
 }
 
 autoware_external_api_msgs::msg::ResponseStatus Operator::setExternalSelect(
-  autoware_control_msgs::msg::RemoteCommandSelectorMode::_data_type data)
+  autoware_control_msgs::msg::ExternalCommandSelectorMode::_data_type data)
 {
-  const auto req = std::make_shared<autoware_control_msgs::srv::RemoteCommandSelect::Request>();
+  const auto req = std::make_shared<autoware_control_msgs::srv::ExternalCommandSelect::Request>();
   req->mode.data = data;
 
   const auto [status, resp] = cli_external_select_->call(req);

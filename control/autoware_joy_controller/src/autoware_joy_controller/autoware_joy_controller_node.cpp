@@ -86,7 +86,7 @@ const char * getGateModeName(const GateModeType & gate_mode)
   using autoware_control_msgs::msg::GateMode;
 
   if (gate_mode == GateMode::AUTO) {return "AUTO";}
-  if (gate_mode == GateMode::REMOTE) {return "REMOTE";}
+  if (gate_mode == GateMode::EXTERNAL) {return "EXTERNAL";}
 
   return "NOT_SUPPORTED";
 }
@@ -306,10 +306,10 @@ void AutowareJoyControllerNode::publishGateMode()
   autoware_control_msgs::msg::GateMode gate_mode;
 
   if (prev_gate_mode_ == GateMode::AUTO) {
-    gate_mode.data = GateMode::REMOTE;
+    gate_mode.data = GateMode::EXTERNAL;
   }
 
-  if (prev_gate_mode_ == GateMode::REMOTE) {
+  if (prev_gate_mode_ == GateMode::EXTERNAL) {
     gate_mode.data = GateMode::AUTO;
   }
 

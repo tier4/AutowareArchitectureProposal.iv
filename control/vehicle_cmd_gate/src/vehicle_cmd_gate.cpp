@@ -39,10 +39,9 @@ const char * getGateModeName(const autoware_control_msgs::msg::GateMode::_data_t
   if (gate_mode == GateMode::AUTO) {
     return "AUTO";
   }
-  if (gate_mode == GateMode::REMOTE) {
-    return "REMOTE";
+  if (gate_mode == GateMode::EXTERNAL) {
+    return "EXTERNAL";
   }
-
   return "NOT_SUPPORTED";
 }
 
@@ -93,14 +92,17 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
   auto_shift_cmd_sub_ = this->create_subscription<autoware_vehicle_msgs::msg::ShiftStamped>(
     "input/auto/shift_cmd", 1, std::bind(&VehicleCmdGate::onAutoShiftCmd, this, _1));
 
-  // Subscriber for remote
+  // Subscriber for external
   remote_control_cmd_sub_ =
     this->create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
-    "input/remote/control_cmd", 1, std::bind(&VehicleCmdGate::onRemoteCtrlCmd, this, _1));
+    "input/external/control_cmd", 1,
+    std::bind(&VehicleCmdGate::onRemoteCtrlCmd, this, _1));
   remote_turn_signal_cmd_sub_ = this->create_subscription<autoware_vehicle_msgs::msg::TurnSignal>(
-    "input/remote/turn_signal_cmd", 1, std::bind(&VehicleCmdGate::onRemoteTurnSignalCmd, this, _1));
+    "input/external/turn_signal_cmd", 1,
+    std::bind(&VehicleCmdGate::onRemoteTurnSignalCmd, this, _1));
   remote_shift_cmd_sub_ = this->create_subscription<autoware_vehicle_msgs::msg::ShiftStamped>(
-    "input/remote/shift_cmd", 1, std::bind(&VehicleCmdGate::onRemoteShiftCmd, this, _1));
+    "input/external/shift_cmd", 1,
+    std::bind(&VehicleCmdGate::onRemoteShiftCmd, this, _1));
 
   // Subscriber for emergency
   emergency_control_cmd_sub_ =
@@ -216,7 +218,7 @@ void VehicleCmdGate::onRemoteCtrlCmd(
 {
   remote_commands_.control = *msg;
 
-  if (current_gate_mode_.data == autoware_control_msgs::msg::GateMode::REMOTE) {
+  if (current_gate_mode_.data == autoware_control_msgs::msg::GateMode::EXTERNAL) {
     publishControlCommands(remote_commands_);
   }
 }
@@ -307,7 +309,7 @@ void VehicleCmdGate::onTimer()
       if (!is_engaged_) {
         turn_signal.data = autoware_vehicle_msgs::msg::TurnSignal::NONE;
       }
-    } else if (current_gate_mode_.data == autoware_control_msgs::msg::GateMode::REMOTE) {
+    } else if (current_gate_mode_.data == autoware_control_msgs::msg::GateMode::EXTERNAL) {
       turn_signal = remote_commands_.turn_signal;
       shift = remote_commands_.shift;
     } else {

@@ -6,18 +6,18 @@
 
   <node pkg="vehicle_cmd_gate" exec="vehicle_cmd_gate" name="vehicle_cmd_gate" output="screen">
     <remap from="input/system_emergency" to="/system/emergency/is_emergency"/>
-    <remap from="input/external_emergency_stop" to="/remote/emergency_stop"/>
     <remap from="input/emergency" to="/system/emergency/is_emergency"/>
-    <remap from="input/gate_mode" to="/remote/gate_mode_cmd"/>
     <remap from="input/steering" to="/vehicle/status/steering"/>
 
     <remap from="input/auto/control_cmd" to="trajectory_follower/control_cmd"/>
     <remap from="input/auto/turn_signal_cmd" to="/planning/turn_signal_decider/turn_signal_cmd"/>
     <remap from="input/auto/shift_cmd" to="/control/shift_decider/shift_cmd"/>
 
-    <remap from="input/remote/control_cmd" to="/external/external_cmd_selector/control_cmd"/>
-    <remap from="input/remote/turn_signal_cmd" to="/external/external_cmd_selector/turn_signal_cmd"/>
-    <remap from="input/remote/shift_cmd" to="/external/external_cmd_selector/shift_cmd"/>
+    <remap from="input/external/control_cmd" to="/external/selected/control_cmd"/>
+    <remap from="input/external/turn_signal_cmd" to="/external/selected/turn_signal_cmd"/>
+    <remap from="input/external/shift_cmd" to="/external/selected/shift_cmd"/>
+    <remap from="input/external_emergency_stop" to="/external/selected/heartbeat"/>
+    <remap from="input/gate_mode" to="/control/gate_mode_cmd"/>
 
     <remap from="input/emergency/control_cmd" to="/system/emergency/control_cmd"/>
     <remap from="input/emergency/turn_signal_cmd" to="/system/emergency/turn_signal_cmd"/>

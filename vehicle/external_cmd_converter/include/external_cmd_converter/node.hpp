@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef REMOTE_CMD_CONVERTER__NODE_HPP_
-#define REMOTE_CMD_CONVERTER__NODE_HPP_
+#ifndef EXTERNAL_CMD_CONVERTER__NODE_HPP_
+#define EXTERNAL_CMD_CONVERTER__NODE_HPP_
 
 #include <memory>
 #include <string>
@@ -33,15 +33,15 @@
 #include "raw_vehicle_cmd_converter/accel_map.hpp"
 #include "raw_vehicle_cmd_converter/brake_map.hpp"
 
-namespace remote_cmd_converter
+namespace external_cmd_converter
 {
 using raw_vehicle_cmd_converter::AccelMap;
 using raw_vehicle_cmd_converter::BrakeMap;
 
-class RemoteCmdConverterNode : public rclcpp::Node
+class ExternalCmdConverterNode : public rclcpp::Node
 {
 public:
-  explicit RemoteCmdConverterNode(const rclcpp::NodeOptions & node_options);
+  explicit ExternalCmdConverterNode(const rclcpp::NodeOptions & node_options);
 
 private:
   // Publisher
@@ -100,6 +100,6 @@ private:
     const double vel);
   double getShiftVelocitySign(const autoware_vehicle_msgs::msg::ShiftStamped & cmd);
 };
-}  // namespace remote_cmd_converter
+}  // namespace external_cmd_converter
 
-#endif  // REMOTE_CMD_CONVERTER__NODE_HPP_
+#endif  // EXTERNAL_CMD_CONVERTER__NODE_HPP_
