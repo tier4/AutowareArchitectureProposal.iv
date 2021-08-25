@@ -342,7 +342,7 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
   /* for debug */
   publishFloat(output.points.at(traj_resampled_closest).twist.linear.x, debug_closest_velocity_);
   publishFloat(output.points.at(traj_resampled_closest).accel.linear.x, debug_closest_acc_);
-  publishStopDistance();
+  publishStopDistance(output, traj_resampled_closest);
   publishClosestJerk(output.points.at(traj_resampled_closest).accel.linear.x);
   if (publish_debug_trajs_) {
     pub_trajectory_raw_->publish(traj_extracted);
@@ -377,151 +377,101 @@ void MotionVelocityOptimizer::insertBehindVelocity(
 }
 
 void MotionVelocityOptimizer::calcRoundWaypointFromCurrentPose(
-  const autoware_planning_msgs::msg::Trajectory & traj, bool before_stopline, int current_pose_idx,
-  int stop_idx,
-  int & current_pose_round_idx, double & length_to_round_waypoint) const
+  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr traj, bool before_stopline,
+  int current_pose_idx,
+  int stop_idx, int & current_pose_round_idx, double & length_to_round_waypoint) const
 {
   // whether current pose is before/after trajectory
   bool before_traj = vpu::calcWhichSideOfLine(
-    traj.points.at(1).pose.position, traj.points.at(
-      0).pose.position, current_pose_ptr_->pose.position);
+    traj->points.at(1).pose.position, traj->points.at(0).pose.position,
+    current_pose_ptr_->pose.position);
   bool after_traj = !vpu::calcWhichSideOfLine(
-    traj.points.at(
-      traj.points.size() - 1).pose.position, traj.points.at(
-      traj.points.size() - 2).pose.position, current_pose_ptr_->pose.position);
+    traj->points.at(traj->points.size() - 1).pose.position,
+    traj->points.at(traj->points.size() - 2).pose.position, current_pose_ptr_->pose.position);
 
   if (before_traj) {
     current_pose_round_idx = 0;
     length_to_round_waypoint = -vpu::calcTriangleVerticalInterpolatedLength(
-      current_pose_ptr_->pose.position, traj.points.at(0).pose.position, traj.points.at(
-        1).pose.position);
+      current_pose_ptr_->pose.position, traj->points.at(0).pose.position,
+      traj->points.at(1).pose.position);
   } else if (after_traj) {
-    current_pose_round_idx = traj.points.size() - 1;
+    current_pose_round_idx = traj->points.size() - 1;
     length_to_round_waypoint = -vpu::calcTriangleVerticalInterpolatedLength(
-      current_pose_ptr_->pose.position, traj.points.at(
-        traj.points.size() - 1).pose.position,
-      traj.points.at(traj.points.size() - 2).pose.position);
+      current_pose_ptr_->pose.position, traj->points.at(traj->points.size() - 1).pose.position,
+      traj->points.at(traj->points.size() - 2).pose.position);
   } else if (current_pose_idx == 0) {
     if (stop_idx == 0) {
       current_pose_round_idx = 0;
       length_to_round_waypoint = vpu::calcTriangleVerticalInterpolatedLength(
-        current_pose_ptr_->pose.position, traj.points.at(0).pose.position, traj.points.at(
-          1).pose.position);
+        current_pose_ptr_->pose.position, traj->points.at(0).pose.position,
+        traj->points.at(1).pose.position);
     } else {
       current_pose_round_idx = 1;
       length_to_round_waypoint = vpu::calcTriangleVerticalInterpolatedLength(
-        current_pose_ptr_->pose.position, traj.points.at(1).pose.position, traj.points.at(
-          0).pose.position);
+        current_pose_ptr_->pose.position, traj->points.at(1).pose.position,
+        traj->points.at(0).pose.position);
     }
-  } else if (current_pose_idx == static_cast<int>(traj.points.size() - 1)) {
-    if (stop_idx == static_cast<int>(traj.points.size() - 1)) {
-      current_pose_round_idx = traj.points.size() - 2;
+  } else if (current_pose_idx == static_cast<int>(traj->points.size() - 1)) {
+    if (stop_idx == static_cast<int>(traj->points.size() - 1)) {
+      current_pose_round_idx = traj->points.size() - 2;
       length_to_round_waypoint = vpu::calcTriangleVerticalInterpolatedLength(
-        current_pose_ptr_->pose.position, traj.points.at(
-          traj.points.size() - 2).pose.position,
-        traj.points.at(traj.points.size() - 1).pose.position);
+        current_pose_ptr_->pose.position, traj->points.at(traj->points.size() - 2).pose.position,
+        traj->points.at(traj->points.size() - 1).pose.position);
     } else {
-      current_pose_round_idx = traj.points.size() - 1;
+      current_pose_round_idx = traj->points.size() - 1;
       length_to_round_waypoint = vpu::calcTriangleVerticalInterpolatedLength(
-        current_pose_ptr_->pose.position, traj.points.at(
-          traj.points.size() - 1).pose.position,
-        traj.points.at(traj.points.size() - 2).pose.position);
+        current_pose_ptr_->pose.position, traj->points.at(traj->points.size() - 1).pose.position,
+        traj->points.at(traj->points.size() - 2).pose.position);
     }
   } else {
-    double prev_dist = vpu::calcDist2d(
-      current_pose_ptr_->pose, traj.points.at(
-        current_pose_idx - 1).pose);
-    double next_dist = vpu::calcDist2d(
-      current_pose_ptr_->pose, traj.points.at(
-        current_pose_idx + 1).pose);
+    double prev_dist =
+      vpu::calcDist2d(current_pose_ptr_->pose, traj->points.at(current_pose_idx - 1).pose);
+    double next_dist =
+      vpu::calcDist2d(current_pose_ptr_->pose, traj->points.at(current_pose_idx + 1).pose);
 
     if (before_stopline) {
       if (prev_dist <= next_dist) {
         current_pose_round_idx = current_pose_idx;
         length_to_round_waypoint = vpu::calcTriangleVerticalInterpolatedLength(
-          current_pose_ptr_->pose.position, traj.points.at(
-            current_pose_idx).pose.position, traj.points.at(current_pose_idx - 1).pose.position);
+          current_pose_ptr_->pose.position, traj->points.at(current_pose_idx).pose.position,
+          traj->points.at(current_pose_idx - 1).pose.position);
       } else {
         current_pose_round_idx = current_pose_idx + 1;
         length_to_round_waypoint = vpu::calcTriangleVerticalInterpolatedLength(
-          current_pose_ptr_->pose.position, traj.points.at(
-            current_pose_idx + 1).pose.position, traj.points.at(current_pose_idx).pose.position);
+          current_pose_ptr_->pose.position, traj->points.at(current_pose_idx + 1).pose.position,
+          traj->points.at(current_pose_idx).pose.position);
       }
     } else {
       if (prev_dist <= next_dist) {
         current_pose_round_idx = current_pose_idx - 1;
         length_to_round_waypoint = vpu::calcTriangleVerticalInterpolatedLength(
-          current_pose_ptr_->pose.position, traj.points.at(
-            current_pose_idx - 1).pose.position, traj.points.at(current_pose_idx).pose.position);
+          current_pose_ptr_->pose.position, traj->points.at(current_pose_idx - 1).pose.position,
+          traj->points.at(current_pose_idx).pose.position);
       } else {
         current_pose_round_idx = current_pose_idx;
         length_to_round_waypoint = vpu::calcTriangleVerticalInterpolatedLength(
-          current_pose_ptr_->pose.position, traj.points.at(
-            current_pose_idx).pose.position, traj.points.at(current_pose_idx + 1).pose.position);
+          current_pose_ptr_->pose.position, traj->points.at(current_pose_idx).pose.position,
+          traj->points.at(current_pose_idx + 1).pose.position);
       }
     }
   }
 }
 
-void MotionVelocityOptimizer::publishStopDistance() const
+void MotionVelocityOptimizer::publishStopDistance(
+  const autoware_planning_msgs::msg::Trajectory & trajectory, const int closest) const
 {
-  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr traj = base_traj_raw_ptr_;
-  rclcpp::Clock clock{RCL_ROS_TIME};
-
-  int current_pose_idx = vpu::calcClosestWaypoint(
-    *traj, current_pose_ptr_->pose, planning_param_.delta_yaw_threshold);
-  if (current_pose_idx < 0) {
-    RCLCPP_WARN_THROTTLE(
-      get_logger(), clock, 5000 /*ms*/,
-      "[publish stop distance] cannot find closest waypoint for input trajectory");
-    return;
-  }
-
+  /* stop distance calculation */
   int stop_idx = 0;
-  if (!vpu::searchZeroVelocityIdx(*traj, stop_idx)) {
-    RCLCPP_WARN_THROTTLE(
-      get_logger(), clock, 5000 /*ms*/,
-      "[publish stop distance] cannot find stop index for input trajectory");
-    return;
+  const double stop_dist_lim = 50.0;
+  double stop_dist = stop_dist_lim;
+  if (vpu::searchZeroVelocityIdx(trajectory, stop_idx)) {
+    stop_dist = vpu::calcLengthOnWaypoints(trajectory, closest, stop_idx);
   }
-
-  if (traj->points.size() == 1) {
-    RCLCPP_WARN_THROTTLE(
-      get_logger(), clock, 5000 /*ms*/,
-      "[publish stop distance] trajectory size is 1");
-    return;
-  }
-
-  // whether current pose is before stopline
-  bool before_stopline;
-  if (stop_idx - 1 >= 0) {
-    before_stopline = vpu::calcWhichSideOfLine(
-      traj->points.at(
-        stop_idx).pose.position, traj->points.at(
-        stop_idx - 1).pose.position, current_pose_ptr_->pose.position);
-  } else {
-    before_stopline = !vpu::calcWhichSideOfLine(
-      traj->points.at(
-        stop_idx).pose.position, traj->points.at(
-        stop_idx + 1).pose.position, current_pose_ptr_->pose.position);
-  }
-
-  /* calculate distance to round waypoint from current pose */
-  int current_pose_round_idx;
-  double length_to_round_waypoint;
-  calcRoundWaypointFromCurrentPose(
-    *traj, before_stopline, current_pose_idx, stop_idx,
-    current_pose_round_idx, length_to_round_waypoint);
-
-  /* calculate distance to stopline */
-  double length_on_waypoints = vpu::calcLengthOnWaypoints(*traj, current_pose_round_idx, stop_idx);
-  double stop_dist = (length_on_waypoints + length_to_round_waypoint) * (before_stopline ? 1 : -1);
-
-  /* publish */
-  autoware_debug_msgs::msg::Float32Stamped distance_to_stopline;
-  distance_to_stopline.stamp = this->now();
-  distance_to_stopline.data = stop_dist;
-  pub_distance_to_stopline_->publish(distance_to_stopline);
+  stop_dist = closest > stop_idx ? -stop_dist : stop_dist;
+  autoware_debug_msgs::msg::Float32Stamped dist_to_stopline{};
+  dist_to_stopline.stamp = this->now();
+  dist_to_stopline.data = std::max(-stop_dist_lim, std::min(stop_dist_lim, stop_dist));
+  pub_distance_to_stopline_->publish(dist_to_stopline);
 }
 
 bool MotionVelocityOptimizer::resampleTrajectory(
