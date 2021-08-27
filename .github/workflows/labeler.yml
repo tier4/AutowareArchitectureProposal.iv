@@ -1,12 +1,29 @@
-name: Labeler ROS2
+name: Labeler
 on:
   pull_request:
+    branches:
+      - main
+      - develop
+      - rc/*
 
 jobs:
-  triage:
+  labeler:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/labeler@v3
+      - name: Run labeler
+        uses: actions/labeler@v3
         with:
+          configuration-path: .github/labeler.yml
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Set LABELER_SUFFIX
+        run: |
+          branch_name=${GITHUB_BASE_REF#refs/heads/}
+          echo "LABELER_SUFFIX=${branch_name%/*}" >> $GITHUB_ENV
+
+      - name: Run labeler for branch
+        uses: actions/labeler@v3
+        with:
+          configuration-path: .github/labeler-${{ env.LABELER_SUFFIX }}.yml
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
