@@ -27,13 +27,13 @@ ExternalCmdConverterNode::ExternalCmdConverterNode(const rclcpp::NodeOptions & n
   using std::placeholders::_1;
   pub_cmd_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
     "out/control_cmd", rclcpp::QoS{1});
-  pub_current_cmd_ = create_publisher<autoware_vehicle_msgs::msg::ExternalControlCommandStamped>(
-    "out/latest_remote_control_cmd", rclcpp::QoS{1});
+  pub_current_cmd_ = create_publisher<autoware_external_api_msgs::msg::ControlCommandStamped>(
+    "out/latest_external_control_cmd", rclcpp::QoS{1});
 
   sub_velocity_ = create_subscription<geometry_msgs::msg::TwistStamped>(
     "in/twist", 1, std::bind(&ExternalCmdConverterNode::onVelocity, this, _1));
-  sub_control_cmd_ = create_subscription<autoware_vehicle_msgs::msg::ExternalControlCommandStamped>(
-    "in/external_control_cmd", 1, std::bind(&ExternalCmdConverterNode::onRemoteCmd, this, _1));
+  sub_control_cmd_ = create_subscription<autoware_external_api_msgs::msg::ControlCommandStamped>(
+    "in/external_control_cmd", 1, std::bind(&ExternalCmdConverterNode::onExternalCmd, this, _1));
   sub_shift_cmd_ = create_subscription<autoware_vehicle_msgs::msg::ShiftStamped>(
     "in/shift_cmd", 1, std::bind(&ExternalCmdConverterNode::onShiftCmd, this, _1));
   sub_gate_mode_ = create_subscription<autoware_control_msgs::msg::GateMode>(
@@ -106,15 +106,14 @@ void ExternalCmdConverterNode::onEmergencyStop(
   updater_.force_update();
 }
 
-void ExternalCmdConverterNode::onRemoteCmd(
-  const autoware_vehicle_msgs::msg::ExternalControlCommandStamped::ConstSharedPtr
-  remote_control_cmd_ptr)
+void ExternalCmdConverterNode::onExternalCmd(
+  const autoware_external_api_msgs::msg::ControlCommandStamped::ConstSharedPtr cmd_ptr)
 {
   // Echo back received command
   {
-    auto current_remote_cmd = *remote_control_cmd_ptr;
-    current_remote_cmd.header.stamp = this->now();
-    pub_current_cmd_->publish(current_remote_cmd);
+    auto current_cmd = *cmd_ptr;
+    current_cmd.stamp = this->now();
+    pub_current_cmd_->publish(current_cmd);
   }
 
   // Save received time for rate check
@@ -128,7 +127,7 @@ void ExternalCmdConverterNode::onRemoteCmd(
   // Calculate reference velocity and acceleration
   const double sign = getShiftVelocitySign(*current_shift_cmd_);
   const double ref_acceleration =
-    calculateAcc(remote_control_cmd_ptr->control, std::fabs(*current_velocity_ptr_));
+    calculateAcc(cmd_ptr->control, std::fabs(*current_velocity_ptr_));
 
   if (ref_acceleration > 0.0 && sign == 0.0) {
     RCLCPP_WARN_THROTTLE(
@@ -151,9 +150,9 @@ void ExternalCmdConverterNode::onRemoteCmd(
 
   // Publish ControlCommand
   autoware_control_msgs::msg::ControlCommandStamped output;
-  output.header = remote_control_cmd_ptr->header;
-  output.control.steering_angle = remote_control_cmd_ptr->control.steering_angle;
-  output.control.steering_angle_velocity = remote_control_cmd_ptr->control.steering_angle_velocity;
+  output.header.stamp = cmd_ptr->stamp;
+  output.control.steering_angle = cmd_ptr->control.steering_angle;
+  output.control.steering_angle_velocity = cmd_ptr->control.steering_angle_velocity;
   output.control.velocity = ref_velocity;
   output.control.acceleration = ref_acceleration;
 
@@ -161,7 +160,7 @@ void ExternalCmdConverterNode::onRemoteCmd(
 }
 
 double ExternalCmdConverterNode::calculateAcc(
-  const autoware_vehicle_msgs::msg::ExternalControlCommand & cmd, const double vel)
+  const autoware_external_api_msgs::msg::ControlCommand & cmd, const double vel)
 {
   const double desired_throttle = cmd.throttle;
   const double desired_brake = cmd.brake;

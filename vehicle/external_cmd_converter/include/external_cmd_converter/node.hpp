@@ -21,11 +21,10 @@
 #include "diagnostic_updater/diagnostic_updater.hpp"
 #include "rclcpp/rclcpp.hpp"
 
+#include "autoware_external_api_msgs/msg/control_command_stamped.hpp"
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
 #include "autoware_control_msgs/msg/emergency_mode.hpp"
 #include "autoware_control_msgs/msg/gate_mode.hpp"
-#include "autoware_vehicle_msgs/msg/external_control_command.hpp"
-#include "autoware_vehicle_msgs/msg/external_control_command_stamped.hpp"
 #include "autoware_vehicle_msgs/msg/shift_stamped.hpp"
 #include "autoware_vehicle_msgs/msg/vehicle_command.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
@@ -46,20 +45,20 @@ public:
 private:
   // Publisher
   rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr pub_cmd_;
-  rclcpp::Publisher<autoware_vehicle_msgs::msg::ExternalControlCommandStamped>::SharedPtr
+  rclcpp::Publisher<autoware_external_api_msgs::msg::ControlCommandStamped>::SharedPtr
     pub_current_cmd_;
 
   // Subscriber
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_velocity_;
-  rclcpp::Subscription<autoware_vehicle_msgs::msg::ExternalControlCommandStamped>::SharedPtr
+  rclcpp::Subscription<autoware_external_api_msgs::msg::ControlCommandStamped>::SharedPtr
     sub_control_cmd_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::ShiftStamped>::SharedPtr sub_shift_cmd_;
   rclcpp::Subscription<autoware_control_msgs::msg::GateMode>::SharedPtr sub_gate_mode_;
   rclcpp::Subscription<autoware_control_msgs::msg::EmergencyMode>::SharedPtr sub_emergency_stop_;
 
   void onVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
-  void onRemoteCmd(
-    const autoware_vehicle_msgs::msg::ExternalControlCommandStamped::ConstSharedPtr remote_cmd_ptr);
+  void onExternalCmd(
+    const autoware_external_api_msgs::msg::ControlCommandStamped::ConstSharedPtr cmd_ptr);
   void onShiftCmd(const autoware_vehicle_msgs::msg::ShiftStamped::ConstSharedPtr msg);
   void onGateMode(const autoware_control_msgs::msg::GateMode::ConstSharedPtr msg);
   void onEmergencyStop(const autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg);
@@ -96,8 +95,7 @@ private:
   bool acc_map_initialized_;
 
   double calculateAcc(
-    const autoware_vehicle_msgs::msg::ExternalControlCommand & cmd,
-    const double vel);
+    const autoware_external_api_msgs::msg::ControlCommand & cmd, const double vel);
   double getShiftVelocitySign(const autoware_vehicle_msgs::msg::ShiftStamped & cmd);
 };
 }  // namespace external_cmd_converter

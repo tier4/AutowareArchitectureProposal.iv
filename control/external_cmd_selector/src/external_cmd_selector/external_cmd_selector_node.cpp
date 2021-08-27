@@ -31,15 +31,15 @@ ExternalCmdSelector::ExternalCmdSelector(const rclcpp::NodeOptions & node_option
 
   // Publisher
   pub_current_selector_mode_ =
-    create_publisher<ExternalCommandSelectorMode>("~/output/current_selector_mode", 1);
+    create_publisher<CommandSourceMode>("~/output/current_selector_mode", 1);
   pub_control_cmd_ =
     create_publisher<ExternalControlCommand>("~/output/control_cmd", 1);
   pub_shift_cmd_ =
-    create_publisher<ShiftCommand>("~/output/shift_cmd", 1);
+    create_publisher<InternalGearShift>("~/output/shift_cmd", 1);
   pub_turn_signal_cmd_ =
-    create_publisher<TurnSignalCommand>("~/output/turn_signal_cmd", 1);
+    create_publisher<InternalTurnSignal>("~/output/turn_signal_cmd", 1);
   pub_heartbeat_ =
-    create_publisher<EmergencyMode>("~/output/heartbeat", 1);
+    create_publisher<InternalHeartbeat>("~/output/heartbeat", 1);
 
   // Callback Groups
   callback_group_subscribers_ = this->create_callback_group(
@@ -54,31 +54,31 @@ ExternalCmdSelector::ExternalCmdSelector(const rclcpp::NodeOptions & node_option
   sub_local_control_cmd_ = create_subscription<ExternalControlCommand>(
     "~/input/local/control_cmd", 1,
     std::bind(&ExternalCmdSelector::onLocalControlCmd, this, _1), subscriber_option);
-  sub_local_shift_cmd_ = create_subscription<ShiftCommand>(
+  sub_local_shift_cmd_ = create_subscription<ExternalGearShift>(
     "~/input/local/shift_cmd", 1,
     std::bind(&ExternalCmdSelector::onLocalShiftCmd, this, _1), subscriber_option);
-  sub_local_turn_signal_cmd_ = create_subscription<TurnSignalCommand>(
+  sub_local_turn_signal_cmd_ = create_subscription<ExternalTurnSignal>(
     "~/input/local/turn_signal_cmd", 1,
     std::bind(&ExternalCmdSelector::onLocalTurnSignalCmd, this, _1), subscriber_option);
-  sub_local_heartbeat_ = create_subscription<EmergencyMode>(
+  sub_local_heartbeat_ = create_subscription<ExternalHeartbeat>(
     "~/input/local/heartbeat", 1,
     std::bind(&ExternalCmdSelector::onLocalHeartbeat, this, _1), subscriber_option);
 
   sub_remote_control_cmd_ = create_subscription<ExternalControlCommand>(
     "~/input/remote/control_cmd", 1,
     std::bind(&ExternalCmdSelector::onRemoteControlCmd, this, _1), subscriber_option);
-  sub_remote_shift_cmd_ = create_subscription<ShiftCommand>(
+  sub_remote_shift_cmd_ = create_subscription<ExternalGearShift>(
     "~/input/remote/shift_cmd", 1,
     std::bind(&ExternalCmdSelector::onRemoteShiftCmd, this, _1), subscriber_option);
-  sub_remote_turn_signal_cmd_ = create_subscription<TurnSignalCommand>(
+  sub_remote_turn_signal_cmd_ = create_subscription<ExternalTurnSignal>(
     "~/input/remote/turn_signal_cmd", 1,
     std::bind(&ExternalCmdSelector::onRemoteTurnSignalCmd, this, _1), subscriber_option);
-  sub_remote_heartbeat_ = create_subscription<EmergencyMode>(
+  sub_remote_heartbeat_ = create_subscription<ExternalHeartbeat>(
     "~/input/remote/heartbeat", 1,
     std::bind(&ExternalCmdSelector::onRemoteHeartbeat, this, _1), subscriber_option);
 
   // Service
-  srv_select_external_command_ = create_service<ExternalCommandSelect>(
+  srv_select_external_command_ = create_service<CommandSourceSelect>(
     "~/service/select_external_command",
     std::bind(&ExternalCmdSelector::onSelectExternalCommandService, this, _1, _2),
     rmw_qos_profile_services_default, callback_group_services_);
@@ -87,10 +87,10 @@ ExternalCmdSelector::ExternalCmdSelector(const rclcpp::NodeOptions & node_option
   auto convert_selector_mode = [](const std::string & mode_text)
     {
       if (mode_text == "local") {
-        return ExternalCommandSelectorMode::LOCAL;
+        return CommandSourceMode::LOCAL;
       }
       if (mode_text == "remote") {
-        return ExternalCommandSelectorMode::REMOTE;
+        return CommandSourceMode::REMOTE;
       }
       throw std::invalid_argument("unknown selector mode");
     };
@@ -108,71 +108,71 @@ ExternalCmdSelector::ExternalCmdSelector(const rclcpp::NodeOptions & node_option
 
 void ExternalCmdSelector::onLocalControlCmd(const ExternalControlCommand::ConstSharedPtr msg)
 {
-  if (current_selector_mode_.data != ExternalCommandSelectorMode::LOCAL) {
+  if (current_selector_mode_.data != CommandSourceMode::LOCAL) {
     return;
   }
   pub_control_cmd_->publish(*msg);
 }
 
-void ExternalCmdSelector::onLocalShiftCmd(const ShiftCommand::ConstSharedPtr msg)
+void ExternalCmdSelector::onLocalShiftCmd(const ExternalGearShift::ConstSharedPtr msg)
 {
-  if (current_selector_mode_.data != ExternalCommandSelectorMode::LOCAL) {
+  if (current_selector_mode_.data != CommandSourceMode::LOCAL) {
     return;
   }
-  pub_shift_cmd_->publish(*msg);
+  pub_shift_cmd_->publish(convert(*msg));
 }
 
-void ExternalCmdSelector::onLocalTurnSignalCmd(const TurnSignalCommand::ConstSharedPtr msg)
+void ExternalCmdSelector::onLocalTurnSignalCmd(const ExternalTurnSignal::ConstSharedPtr msg)
 {
-  if (current_selector_mode_.data != ExternalCommandSelectorMode::LOCAL) {
+  if (current_selector_mode_.data != CommandSourceMode::LOCAL) {
     return;
   }
-  pub_turn_signal_cmd_->publish(*msg);
+  pub_turn_signal_cmd_->publish(convert(*msg));
 }
 
-void ExternalCmdSelector::onLocalHeartbeat(const EmergencyMode::ConstSharedPtr msg)
+void ExternalCmdSelector::onLocalHeartbeat(const ExternalHeartbeat::ConstSharedPtr msg)
 {
-  if (current_selector_mode_.data != ExternalCommandSelectorMode::LOCAL) {
+  if (current_selector_mode_.data != CommandSourceMode::LOCAL) {
     return;
   }
-  pub_heartbeat_->publish(*msg);
+  pub_heartbeat_->publish(convert(*msg));
 }
 
 void ExternalCmdSelector::onRemoteControlCmd(const ExternalControlCommand::ConstSharedPtr msg)
 {
-  if (current_selector_mode_.data != ExternalCommandSelectorMode::REMOTE) {
+  if (current_selector_mode_.data != CommandSourceMode::REMOTE) {
     return;
   }
   pub_control_cmd_->publish(*msg);
 }
 
-void ExternalCmdSelector::onRemoteShiftCmd(const ShiftCommand::ConstSharedPtr msg)
+void ExternalCmdSelector::onRemoteShiftCmd(const ExternalGearShift::ConstSharedPtr msg)
 {
-  if (current_selector_mode_.data != ExternalCommandSelectorMode::REMOTE) {
+  if (current_selector_mode_.data != CommandSourceMode::REMOTE) {
     return;
   }
-  pub_shift_cmd_->publish(*msg);
+  pub_shift_cmd_->publish(convert(*msg));
 }
 
-void ExternalCmdSelector::onRemoteTurnSignalCmd(const TurnSignalCommand::ConstSharedPtr msg)
+void ExternalCmdSelector::onRemoteTurnSignalCmd(const ExternalTurnSignal::ConstSharedPtr msg)
 {
-  if (current_selector_mode_.data != ExternalCommandSelectorMode::REMOTE) {
+  if (current_selector_mode_.data != CommandSourceMode::REMOTE) {
     return;
   }
-  pub_turn_signal_cmd_->publish(*msg);
+  pub_turn_signal_cmd_->publish(convert(*msg));
 }
 
-void ExternalCmdSelector::onRemoteHeartbeat(const EmergencyMode::ConstSharedPtr msg)
+void ExternalCmdSelector::onRemoteHeartbeat(const ExternalHeartbeat::ConstSharedPtr msg)
 {
-  if (current_selector_mode_.data != ExternalCommandSelectorMode::REMOTE) {
+  if (current_selector_mode_.data != CommandSourceMode::REMOTE) {
     return;
   }
-  pub_heartbeat_->publish(*msg);
+  pub_heartbeat_->publish(convert(*msg));
 }
 
 bool ExternalCmdSelector::onSelectExternalCommandService(
-  const ExternalCommandSelect::Request::SharedPtr req,
-  const ExternalCommandSelect::Response::SharedPtr res)
+  const CommandSourceSelect::Request::SharedPtr req,
+  const CommandSourceSelect::Response::SharedPtr res)
 {
   current_selector_mode_.data = req->mode.data;
   res->success = true;
@@ -183,6 +183,34 @@ bool ExternalCmdSelector::onSelectExternalCommandService(
 void ExternalCmdSelector::onTimer()
 {
   pub_current_selector_mode_->publish(current_selector_mode_);
+}
+
+ExternalCmdSelector::InternalGearShift ExternalCmdSelector::convert(
+  const ExternalGearShift & command)
+{
+  InternalGearShift message;
+  message.header.stamp = command.stamp;
+  message.header.frame_id = "base_link";  // dummy
+  message.shift.data = command.gear_shift.data;
+  return message;
+}
+
+ExternalCmdSelector::InternalTurnSignal ExternalCmdSelector::convert(
+  const ExternalTurnSignal & command)
+{
+  InternalTurnSignal message;
+  message.header.stamp = command.stamp;
+  message.header.frame_id = "base_link";  // dummy
+  message.data = command.turn_signal.data;
+  return message;
+}
+
+ExternalCmdSelector::InternalHeartbeat ExternalCmdSelector::convert(
+  [[maybe_unused]] const ExternalHeartbeat & command)
+{
+  InternalHeartbeat message;
+  message.is_emergency = false;
+  return message;
 }
 
 #include "rclcpp_components/register_node_macro.hpp"
