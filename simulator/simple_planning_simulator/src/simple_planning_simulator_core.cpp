@@ -24,7 +24,7 @@
 Simulator::Simulator(const std::string & node_name, const rclcpp::NodeOptions & options)
 : Node(node_name, options)
 {
-  using std::placeholders::_1;
+  using namespace std::placeholders;
 
   /* simple_planning_simulator parameters */
   const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo();
@@ -36,6 +36,14 @@ Simulator::Simulator(const std::string & node_name, const rclcpp::NodeOptions & 
   add_measurement_noise_ = declare_parameter("add_measurement_noise", false);
   use_trajectory_for_z_position_source_ =
     declare_parameter("use_trajectory_for_z_position_source", true);
+
+  /* service */
+  autoware_api_utils::ServiceProxyNodeInterface proxy(this);
+  group_api_service_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+  srv_set_pose_ = proxy.create_service<autoware_external_api_msgs::srv::InitializePose>(
+    "/api/simulator/set/pose",
+    std::bind(&Simulator::serviceSetPose, this, _1, _2),
+    rmw_qos_profile_services_default, group_api_service_);
 
   /* set pub sub topic name */
   pub_pose_ =
@@ -129,6 +137,9 @@ Simulator::Simulator(const std::string & node_name, const rclcpp::NodeOptions & 
     if (vehicle_model_type_str == "IDEAL_STEER") {
       vehicle_model_type_ = VehicleModelType::IDEAL_STEER;
       vehicle_model_ptr_ = std::make_shared<SimModelIdealSteer>(wheelbase_);
+    } else if (vehicle_model_type_str == "IDEAL_ACCEL") {
+      vehicle_model_type_ = VehicleModelType::IDEAL_ACCEL;
+      vehicle_model_ptr_ = std::make_shared<SimModelIdealAccel>(wheelbase_);
     } else if (vehicle_model_type_str == "DELAY_STEER") {
       vehicle_model_type_ = VehicleModelType::DELAY_STEER;
       vehicle_model_ptr_ = std::make_shared<SimModelTimeDelaySteer>(
@@ -238,6 +249,21 @@ void Simulator::callbackInitialTwistStamped(
 void Simulator::callbackEngage(const autoware_vehicle_msgs::msg::Engage::ConstSharedPtr msg)
 {
   simulator_engage_ = msg->engage;
+}
+
+void Simulator::serviceSetPose(
+  const autoware_external_api_msgs::srv::InitializePose::Request::SharedPtr request,
+  const autoware_external_api_msgs::srv::InitializePose::Response::SharedPtr response)
+{
+  geometry_msgs::msg::Twist initial_twist;  // initialized with zero for all components
+  if (initial_twist_ptr_) {
+    initial_twist = initial_twist_ptr_->twist;
+  }
+  // save initial pose
+  using PoseWithCovarianceStamped = geometry_msgs::msg::PoseWithCovarianceStamped;
+  initial_pose_with_cov_ptr_ = std::make_shared<PoseWithCovarianceStamped>(request->pose);
+  setInitialStateWithPoseTransform(*initial_pose_with_cov_ptr_, initial_twist);
+  response->status = autoware_api_utils::response_success();
 }
 
 void Simulator::timerCallbackSimulation()
@@ -365,6 +391,10 @@ void Simulator::callbackVehicleCmd(
     Eigen::VectorXd input(2);
     input << msg->control.velocity, msg->control.steering_angle;
     vehicle_model_ptr_->setInput(input);
+  } else if (vehicle_model_type_ == VehicleModelType::IDEAL_ACCEL) {
+    Eigen::VectorXd input(2);
+    input << msg->control.acceleration, msg->control.steering_angle;
+    vehicle_model_ptr_->setInput(input);
   } else if (vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC) {
     Eigen::VectorXd input(3);
     double drive_shift =
@@ -417,6 +447,10 @@ void Simulator::setInitialState(
   if (vehicle_model_type_ == VehicleModelType::IDEAL_STEER) {
     Eigen::VectorXd state(3);
     state << x, y, yaw;
+    vehicle_model_ptr_->setState(state);
+  } else if (vehicle_model_type_ == VehicleModelType::IDEAL_ACCEL) {
+    Eigen::VectorXd state(4);
+    state << x, y, yaw, vx;
     vehicle_model_ptr_->setState(state);
   } else if (vehicle_model_type_ == VehicleModelType::DELAY_STEER) {
     Eigen::VectorXd state(5);

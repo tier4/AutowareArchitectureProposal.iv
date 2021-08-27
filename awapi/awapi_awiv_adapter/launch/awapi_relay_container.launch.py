@@ -72,12 +72,42 @@ def generate_launch_description():
     relay_components.append(ComposableNode(
         package='topic_tools',
         plugin='topic_tools::RelayNode',
-        name='gate_mode_relay',
+        name='ready_module_relay',
         namespace='awapi',
         parameters=[{
-            'input_topic': LaunchConfiguration('set_gate_mode'),
-            'output_topic': LaunchConfiguration('output_gate_mode'),
-            'type': 'autoware_control_msgs/msg/GateMode',
+            'input_topic': LaunchConfiguration('input_path_change_ready'),
+            'output_topic': LaunchConfiguration('get_path_change_ready'),
+            'type': 'autoware_planning_msgs/msg/PathChangeModule',
+        }],
+        extra_arguments=[{
+            'use_intra_process_comms': LaunchConfiguration('use_intra_process')
+        }],
+    ))
+
+    relay_components.append(ComposableNode(
+        package='topic_tools',
+        plugin='topic_tools::RelayNode',
+        name='force_available_relay',
+        namespace='awapi',
+        parameters=[{
+            'input_topic': LaunchConfiguration('input_path_change_force_available'),
+            'output_topic': LaunchConfiguration('get_path_change_force_available'),
+            'type': 'autoware_planning_msgs/msg/PathChangeModuleArray',
+        }],
+        extra_arguments=[{
+            'use_intra_process_comms': LaunchConfiguration('use_intra_process')
+        }],
+    ))
+
+    relay_components.append(ComposableNode(
+        package='topic_tools',
+        plugin='topic_tools::RelayNode',
+        name='running_modules_relay',
+        namespace='awapi',
+        parameters=[{
+            'input_topic': LaunchConfiguration('input_path_change_running'),
+            'output_topic': LaunchConfiguration('get_path_change_running'),
+            'type': 'autoware_planning_msgs/msg/PathChangeModuleArray',
         }],
         extra_arguments=[{
             'use_intra_process_comms': LaunchConfiguration('use_intra_process')
@@ -184,6 +214,36 @@ def generate_launch_description():
             'input_topic': LaunchConfiguration('set_force_lane_change'),
             'output_topic': LaunchConfiguration('output_force_lane_change'),
             'type': 'autoware_planning_msgs/msg/LaneChangeCommand',
+        }],
+        extra_arguments=[{
+            'use_intra_process_comms': LaunchConfiguration('use_intra_process')
+        }],
+    ))
+
+    relay_components.append(ComposableNode(
+        package='topic_tools',
+        plugin='topic_tools::RelayNode',
+        name='external_approval_relay',
+        namespace='awapi',
+        parameters=[{
+            'input_topic': LaunchConfiguration('set_path_change_approval'),
+            'output_topic': LaunchConfiguration('output_path_change_approval'),
+            'type': 'autoware_planning_msgs/msg/Approval',
+        }],
+        extra_arguments=[{
+            'use_intra_process_comms': LaunchConfiguration('use_intra_process')
+        }],
+    ))
+
+    relay_components.append(ComposableNode(
+        package='topic_tools',
+        plugin='topic_tools::RelayNode',
+        name='force_approval_relay',
+        namespace='awapi',
+        parameters=[{
+            'input_topic': LaunchConfiguration('set_path_change_force'),
+            'output_topic': LaunchConfiguration('output_path_change_force'),
+            'type': 'autoware_planning_msgs/msg/PathChangeModule',
         }],
         extra_arguments=[{
             'use_intra_process_comms': LaunchConfiguration('use_intra_process')

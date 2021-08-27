@@ -235,14 +235,13 @@ geometry_msgs::msg::Pose calcTargetPose(
   const auto p_eigen_front = Eigen::Vector2d(p_front.x, p_front.y);
   const auto p_eigen_back = Eigen::Vector2d(p_back.x, p_back.y);
 
-  // Calculate direction vector
-  const auto direction_vector = (p_eigen_back - p_eigen_front).normalized();
+  // Calculate interpolation ratio
+  const auto interpolate_ratio = remain_offset_length / (p_eigen_back - p_eigen_front).norm();
 
   // Add offset to front point
-  const auto target_point_2d = p_eigen_front + remain_offset_length * direction_vector;
-
-  // Interpolate Z
-  const auto interpolated_z = (p_front.z + p_back.z) / 2;
+  const auto target_point_2d =
+    p_eigen_front + interpolate_ratio * (p_eigen_back - p_eigen_front);
+  const double interpolated_z = p_front.z + interpolate_ratio * (p_back.z - p_front.z);
 
   // Calculate orientation so that X-axis would be along the trajectory
   tf2::Quaternion quat;
@@ -273,9 +272,8 @@ DetectionAreaModule::DetectionAreaModule(
 LineString2d DetectionAreaModule::getStopLineGeometry2d() const
 {
   const lanelet::ConstLineString3d stop_line = detection_area_reg_elem_.stopLine();
-  const auto & p_front = stop_line.front();
-  const auto & p_back = stop_line.back();
-  return {{p_front.x(), p_front.y()}, {p_back.x(), p_back.y()}};
+  return planning_utils::extendLine(
+    stop_line[0], stop_line[1], planner_data_->stop_line_extend_length);
 }
 
 bool DetectionAreaModule::modifyPathVelocity(
@@ -343,7 +341,7 @@ bool DetectionAreaModule::modifyPathVelocity(
 
   // Ignore objects if braking distance is not enough
   if (planner_param_.use_pass_judge_line) {
-    if (state_ != State::STOP && hasEnoughBrakingDistance(self_pose, stop_pose)) {
+    if (state_ != State::STOP && !hasEnoughBrakingDistance(self_pose, stop_pose)) {
       RCLCPP_WARN_THROTTLE(
         logger_, *clock_, std::chrono::milliseconds(1000).count(),
         "[detection_area] vehicle is over stop border");
@@ -438,7 +436,7 @@ bool DetectionAreaModule::hasEnoughBrakingDistance(
   const double pass_judge_line_distance =
     planning_utils::calcJudgeLineDistWithAccLimit(current_velocity, max_acc, delay_response_time);
 
-  return calcSignedDistance(self_pose, line_pose.position) < pass_judge_line_distance;
+  return calcSignedDistance(self_pose, line_pose.position) > pass_judge_line_distance;
 }
 
 autoware_planning_msgs::msg::PathWithLaneId DetectionAreaModule::insertStopPoint(
