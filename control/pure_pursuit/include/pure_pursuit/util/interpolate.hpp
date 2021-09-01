@@ -31,7 +31,7 @@ public:
 
 class SplineInterpolate
 {
-  bool initialized_;
+  bool initialized_ = false;
   std::vector<double> a_;  //!< @brief temporal vector for calculation
   std::vector<double> b_;  //!< @brief temporal vector for calculation
   std::vector<double> c_;  //!< @brief temporal vector for calculation
