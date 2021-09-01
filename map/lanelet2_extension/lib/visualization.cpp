@@ -494,7 +494,7 @@ visualization_msgs::msg::MarkerArray visualization::autowareTrafficLightsAsMarke
     return tl_marker_array;
   }
   visualization_msgs::msg::Marker marker_tri;
-   visualization_msgs::msg::Marker marker_sph;
+  visualization_msgs::msg::Marker marker_sph;
   initLightMarker(&marker_sph, "traffic_light");
   visualization::initTrafficLightTriangleMarker(&marker_tri, "traffic_light_triangle", duration);
 
@@ -541,8 +541,8 @@ visualization_msgs::msg::MarkerArray visualization::generateTrafficLightIdMaker(
 
     const auto lights = tl->trafficLights();
     for (const auto & lsp : lights) {
-      if (lsp.isLineString())  // traffic lights can either polygons or
-      {                        // linestrings
+      if (lsp.isLineString()) { // traffic lights can either polygons or
+                                // linestrings
         lanelet::ConstLineString3d ls = static_cast<lanelet::ConstLineString3d>(lsp);
 
         visualization_msgs::msg::Marker marker;
@@ -569,7 +569,7 @@ visualization_msgs::msg::MarkerArray visualization::generateTrafficLightIdMaker(
     }
   }
 
-  return (tl_id_marker_array);
+  return tl_id_marker_array;
 }
 
 visualization_msgs::msg::MarkerArray visualization::detectionAreasAsMarkerArray(
