@@ -98,6 +98,7 @@ private:
     const autoware_external_api_msgs::msg::ControlCommand & cmd, const double vel);
   double getShiftVelocitySign(const autoware_vehicle_msgs::msg::ShiftStamped & cmd);
 };
+
 }  // namespace external_cmd_converter
 
 #endif  // EXTERNAL_CMD_CONVERTER__NODE_HPP_

@@ -25,6 +25,7 @@ ExternalCmdConverterNode::ExternalCmdConverterNode(const rclcpp::NodeOptions & n
 : Node("external_cmd_converter", node_options)
 {
   using std::placeholders::_1;
+
   pub_cmd_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
     "out/control_cmd", rclcpp::QoS{1});
   pub_current_cmd_ = create_publisher<autoware_external_api_msgs::msg::ControlCommandStamped>(

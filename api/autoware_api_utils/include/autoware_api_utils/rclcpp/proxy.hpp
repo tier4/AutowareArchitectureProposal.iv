@@ -24,10 +24,12 @@
 namespace autoware_api_utils
 {
 
+template<class NodeT>
 class ServiceProxyNodeInterface
 {
 public:
-  explicit ServiceProxyNodeInterface(rclcpp::Node * node)
+  // Use a raw pointer because shared_from_this cannot be used in constructor.
+  explicit ServiceProxyNodeInterface(NodeT * node)
   {
     node_ = node;
   }
@@ -43,7 +45,7 @@ public:
     auto wrapped_callback = Service<ServiceT>::template wrap<CallbackT>(
       std::forward<CallbackT>(callback), node_->get_logger());
     return Service<ServiceT>::make_shared(
-      node_->create_service<ServiceT>(
+      node_->template create_service<ServiceT>(
         service_name, std::move(wrapped_callback), qos_profile, group));
   }
 
@@ -55,12 +57,12 @@ public:
     rclcpp::CallbackGroup::SharedPtr group = nullptr)
   {
     return Client<ServiceT>::make_shared(
-      node_->create_client<ServiceT>(
+      node_->template create_client<ServiceT>(
         service_name, qos_profile, group), node_->get_logger());
   }
 
 private:
-  rclcpp::Node * node_;
+  NodeT * node_;
 };
 
 }  // namespace autoware_api_utils
