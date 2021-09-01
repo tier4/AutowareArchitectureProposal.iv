@@ -532,7 +532,6 @@ visualization_msgs::msg::MarkerArray visualization::generateTrafficLightIdMaker(
   const std::vector<lanelet::AutowareTrafficLightConstPtr> tl_reg_elems,
   const std_msgs::msg::ColorRGBA c, const rclcpp::Duration duration, const double scale)
 {
-
   visualization_msgs::msg::MarkerArray tl_id_marker_array;
 
   for (auto tli = tl_reg_elems.begin(); tli != tl_reg_elems.end(); tli++) {
