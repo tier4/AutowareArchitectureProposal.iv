@@ -15,7 +15,7 @@
 #include <vector>
 
 // *INDENT-OFF*
-#include "pointcloud_preprocessor/compare_map_filter/voxel_based_approximate_compare_map_filter_nodelet.hpp"  // NOLINT
+#include "pointcloud_preprocessor/compare_map_filter/voxel_based_approximate_compare_map_filter_nodelet.hpp"
 // *INDENT-ON*
 
 #include "pcl/kdtree/kdtree_flann.h"
