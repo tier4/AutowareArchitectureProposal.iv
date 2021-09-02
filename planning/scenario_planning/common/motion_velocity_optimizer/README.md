@@ -31,7 +31,7 @@ The overall flowchart of the `motion_velocity_optimizer` is described below.
   - trigger for computation
 - **/localization/twist** `[geometry_msgs::TwistStamped]`
   - ego-vehicle velocity source
-- **/planing/scenario_planning/max_velocity** `[std_msgs::Float32]`
+- **/planning/scenario_planning/max_velocity** `[std_msgs::Float32]`
   - external command for max velocity
 
 #### Published Topic

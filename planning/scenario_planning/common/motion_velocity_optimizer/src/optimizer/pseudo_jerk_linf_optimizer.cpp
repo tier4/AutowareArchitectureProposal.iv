@@ -76,7 +76,7 @@ bool LinfPseudoJerkOptimizer::solve(
   * b: velocity^2
   * a: acceleration
   * delta: 0 < bi < vmax^2 + delta
-  * sigma: amin < ai - sigma < amax
+  * sigma: min_accel < ai - sigma < max_accel
   * psi: a'*curr_v -  psi < 0, - a'*curr_v - psi < 0 (<=> |a'|*curr_v < psi)
   */
   const uint32_t l_variables = 4 * N + 1;
@@ -91,8 +91,8 @@ bool LinfPseudoJerkOptimizer::solve(
   Eigen::MatrixXd P = Eigen::MatrixXd::Zero(l_variables, l_variables);
   std::vector<double> q(l_variables, 0.0);
 
-  const double amax = param_.max_accel;
-  const double amin = param_.min_decel;
+  const double max_accel = param_.max_accel;
+  const double min_accel = param_.min_decel;
   const double smooth_weight = param_.pseudo_jerk_weight;
   const double over_v_weight = param_.over_v_weight;
   const double over_a_weight = param_.over_a_weight;
@@ -128,7 +128,7 @@ bool LinfPseudoJerkOptimizer::solve(
     lower_bound[i] = 0.0;
   }
 
-  // amin < a - sigma < amax
+  // min_accel < a - sigma < max_accel
   for (unsigned int i = N; i < 2 * N; ++i) {
     const int j = 2 * N + i;
     A(i, i) = 1.0;   // a_i
@@ -137,17 +137,17 @@ bool LinfPseudoJerkOptimizer::solve(
       upper_bound[i] = 0.0;
       lower_bound[i] = 0.0;
     } else {
-      upper_bound[i] = amax;
-      lower_bound[i] = amin;
+      upper_bound[i] = max_accel;
+      lower_bound[i] = min_accel;
     }
   }
 
   // b' = 2a
   for (unsigned int i = 2 * N; i < 3 * N - 1; ++i) {
     const unsigned int j = i - 2 * N;
-    const double dsinv = 1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001);
-    A(i, j) = -dsinv;
-    A(i, j + 1) = dsinv;
+    const double ds_inv = 1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001);
+    A(i, j) = -ds_inv;
+    A(i, j + 1) = ds_inv;
     A(i, j + N) = -2.0;
     upper_bound[i] = 0.0;
     lower_bound[i] = 0.0;
@@ -171,16 +171,16 @@ bool LinfPseudoJerkOptimizer::solve(
     const unsigned int ia = i - (3 * N + 1) + N;
     const unsigned int ip = 4 * N;
     const unsigned int j = i - (3 * N + 1);
-    const double dsinv = 1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001);
+    const double ds_inv = 1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001);
 
-    A(i, ia) = -dsinv;
-    A(i, ia + 1) = dsinv;
+    A(i, ia) = -ds_inv;
+    A(i, ia + 1) = ds_inv;
     A(i, ip) = -1;
     lower_bound[i] = -OSQP_INFTY;
     upper_bound[i] = 0;
 
-    A(i + N - 1, ia) = dsinv;
-    A(i + N - 1, ia + 1) = -dsinv;
+    A(i + N - 1, ia) = ds_inv;
+    A(i + N - 1, ia + 1) = -ds_inv;
     A(i + N - 1, ip) = -1;
     lower_bound[i + N - 1] = -OSQP_INFTY;
     upper_bound[i + N - 1] = 0;
