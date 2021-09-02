@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef EMERGENCY_HANDLER__UTIL__HEARTBEAT_CHECKER_HPP_
-#define EMERGENCY_HANDLER__UTIL__HEARTBEAT_CHECKER_HPP_
+#ifndef AUTOWARE_UTILS__SYSTEM__HEARTBEAT_CHECKER_HPP_
+#define AUTOWARE_UTILS__SYSTEM__HEARTBEAT_CHECKER_HPP_
 
 #include <string>
 
@@ -51,10 +51,10 @@ private:
   typename rclcpp::Subscription<HeartbeatMsg>::SharedPtr sub_heartbeat_;
   rclcpp::Time last_heartbeat_time_ = rclcpp::Time(0);
 
-  void onHeartbeat(const typename HeartbeatMsg::ConstSharedPtr msg)
+  void onHeartbeat([[maybe_unused]] const typename HeartbeatMsg::ConstSharedPtr msg)
   {
     last_heartbeat_time_ = clock_->now();
   }
 };
 
-#endif  // EMERGENCY_HANDLER__UTIL__HEARTBEAT_CHECKER_HPP_
+#endif  // AUTOWARE_UTILS__SYSTEM__HEARTBEAT_CHECKER_HPP_

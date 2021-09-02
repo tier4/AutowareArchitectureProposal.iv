@@ -52,15 +52,14 @@ bool FlowCalculator::calcOpticalFlow(
     current_image, current_points, max_corners_, quality_level_, min_distance_, cv::Mat(),
     block_size_, true, harris_k_);
 
-  cv::TermCriteria termcrit(cv::TermCriteria::MAX_ITER + cv::TermCriteria::EPS, 30, 0.01);
-  // cv::cornerSubPix(current_image, current_points, cv::Size(10, 10), cv::Size(-1, -1), termcrit);
+  cv::TermCriteria term_criteria(cv::TermCriteria::MAX_ITER + cv::TermCriteria::EPS, 30, 0.01);
 
   if (!prev_points.empty()) {
     std::vector<unsigned char> status;
     std::vector<float> err;
     cv::calcOpticalFlowPyrLK(
       prev_image, current_image, current_points, prev_points, status, err, cv::Size(15, 15), 2,
-      termcrit, 0, 0.01);
+      term_criteria, 0, 0.01);
 
     for (size_t i = 0; i < current_points.size(); i++) {
       if (!status[i]) {

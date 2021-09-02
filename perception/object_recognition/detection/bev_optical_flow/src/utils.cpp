@@ -141,17 +141,17 @@ cv::Point2f Utils::getVehicleVel(
 {
   cv::Point2f image_translation;
   try {
-    geometry_msgs::msg::TransformStamped map2currentbase;
-    map2currentbase = tf_buffer_.lookupTransform(
+    geometry_msgs::msg::TransformStamped map2current_base;
+    map2current_base = tf_buffer_.lookupTransform(
       world_frame_, target_frame_, current_stamp, rclcpp::Duration::from_seconds(0.5));
-    geometry_msgs::msg::TransformStamped map2prevbase;
-    map2prevbase = tf_buffer_.lookupTransform(
+    geometry_msgs::msg::TransformStamped map2prev_base;
+    map2prev_base = tf_buffer_.lookupTransform(
       world_frame_, target_frame_, prev_stamp, rclcpp::Duration::from_seconds(0.5));
 
     cv::Point2f vehicle_translation;
     vehicle_translation = cv::Point2f(
-      (map2currentbase.transform.translation.x - map2prevbase.transform.translation.x),
-      (map2currentbase.transform.translation.y - map2prevbase.transform.translation.y));
+      (map2current_base.transform.translation.x - map2prev_base.transform.translation.x),
+      (map2current_base.transform.translation.y - map2prev_base.transform.translation.y));
     image_translation =
       cv::Point2f(-vehicle_translation.y / grid_size_, -vehicle_translation.x / grid_size_);
   } catch (tf2::TransformException & ex) {
