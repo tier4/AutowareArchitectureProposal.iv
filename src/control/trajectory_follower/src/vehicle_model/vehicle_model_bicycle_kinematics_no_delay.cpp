@@ -26,9 +26,8 @@ namespace trajectory_follower
 {
 KinematicsBicycleModelNoDelay::KinematicsBicycleModelNoDelay(
   const float64_t wheelbase, const float64_t steer_lim)
-: VehicleModelInterface(/* dim_x */ 2, /* dim_u */ 1, /* dim_y */ 2)
+: VehicleModelInterface(/* dim_x */ 2, /* dim_u */ 1, /* dim_y */ 2, wheelbase)
 {
-  m_wheelbase = wheelbase;
   m_steer_lim = steer_lim;
 }
 

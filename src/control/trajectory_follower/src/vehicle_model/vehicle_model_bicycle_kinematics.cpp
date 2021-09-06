@@ -25,9 +25,8 @@ namespace trajectory_follower
 {
 KinematicsBicycleModel::KinematicsBicycleModel(
   const float64_t wheelbase, const float64_t steer_lim, const float64_t steer_tau)
-: VehicleModelInterface(/* dim_x */ 3, /* dim_u */ 1, /* dim_y */ 2)
+: VehicleModelInterface(/* dim_x */ 3, /* dim_u */ 1, /* dim_y */ 2, wheelbase)
 {
-  m_wheelbase = wheelbase;
   m_steer_lim = steer_lim;
   m_steer_tau = steer_tau;
 }

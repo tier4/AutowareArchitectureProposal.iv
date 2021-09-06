@@ -40,6 +40,7 @@ protected:
   const int64_t m_dim_y;   //!< @brief dimension of output y
   float64_t m_velocity;   //!< @brief vehicle velocity [m/s]
   float64_t m_curvature;  //!< @brief curvature on the linearized point on path
+  float64_t m_wheelbase;  //!< @brief wheelbase of the vehicle [m]
 
 public:
   /**
@@ -47,8 +48,9 @@ public:
    * @param [in] dim_x dimension of state x
    * @param [in] dim_u dimension of input u
    * @param [in] dim_y dimension of output y
+   * @param [in] wheelbase wheelbase of the vehicle [m]
    */
-  VehicleModelInterface(int64_t dim_x, int64_t dim_u, int64_t dim_y);
+  VehicleModelInterface(int64_t dim_x, int64_t dim_u, int64_t dim_y, float64_t wheelbase);
 
   /**
    * @brief destructor
@@ -72,6 +74,12 @@ public:
    * @return output dimension
    */
   int64_t getDimY();
+
+  /**
+   * @brief get wheelbase of the vehicle
+   * @return wheelbase value [m]
+   */
+  float64_t getWheelbase();
 
   /**
    * @brief set velocity

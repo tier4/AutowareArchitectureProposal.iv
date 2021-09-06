@@ -107,7 +107,6 @@ public:
   void calculateReferenceInput(Eigen::MatrixXd & u_ref) override;
 
 private:
-  float64_t m_wheelbase;  //!< @brief wheelbase length [m]
   float64_t m_lf;         //!< @brief length from center of mass to front wheel [m]
   float64_t m_lr;         //!< @brief length from center of mass to rear wheel [m]
   float64_t m_mass;       //!< @brief total mass of vehicle [kg]
