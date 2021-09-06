@@ -27,6 +27,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/time.hpp"
 #include "gtest/gtest.h"
+#include "trajectory_follower_test_utils.hpp"
+
 
 using LatLonMuxer = autoware::motion::control::trajectory_follower_nodes::LatLonMuxer;
 using LateralCommand = autoware_auto_msgs::msg::AckermannLateralCommand;
@@ -36,31 +38,6 @@ using ControlCommand = autoware_auto_msgs::msg::AckermannControlCommand;
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
 const rclcpp::Duration one_second(1, 0);
-
-void waitForMessage(
-  const std::shared_ptr<rclcpp::Node> & node, FakeNodeFixture * fixture,
-  const bool & received_flag,
-  const std::chrono::duration<int64_t> max_wait_time = std::chrono::seconds{10LL},
-  const bool fail_on_timeout = true)
-{
-  const auto dt{std::chrono::milliseconds{100LL}};
-  auto time_passed{std::chrono::milliseconds{0LL}};
-  while (!received_flag) {
-    rclcpp::spin_some(node);
-    rclcpp::spin_some(fixture->get_fake_node());
-    std::this_thread::sleep_for(dt);
-    time_passed += dt;
-    if (time_passed > max_wait_time) {
-      if (fail_on_timeout) {
-        throw std::runtime_error(
-                std::string(
-                  "Did not receive a message soon enough"));
-      } else {
-        break;
-      }
-    }
-  }
-}
 
 TEST_F(FakeNodeFixture, test_correct_output)
 {
@@ -97,7 +74,7 @@ TEST_F(FakeNodeFixture, test_correct_output)
   lat_pub->publish(lat_msg);
   lon_pub->publish(lon_msg);
 
-  waitForMessage(node, this, received_combined_command);
+  test_utils::waitForMessage(node, this, received_combined_command);
   // Ensure the combined control command was published and contains correct data
   ASSERT_TRUE(received_combined_command);
   EXPECT_EQ(cmd_msg->lateral.steering_tire_angle, lat_msg.steering_tire_angle);
@@ -140,7 +117,9 @@ TEST_F(FakeNodeFixture, test_lateral_timeout)
   lat_pub->publish(lat_msg);
   lon_pub->publish(lon_msg);
 
-  waitForMessage(node, this, received_combined_command, std::chrono::seconds{1LL}, false);
+  test_utils::waitForMessage(
+    node, this, received_combined_command, std::chrono::seconds{1LL},
+    false);
   // Ensure combined command was not published
   ASSERT_FALSE(received_combined_command);
 }
@@ -176,7 +155,9 @@ TEST_F(FakeNodeFixture, test_longitudinal_timeout)
   lat_pub->publish(lat_msg);
   lon_pub->publish(lon_msg);
 
-  waitForMessage(node, this, received_combined_command, std::chrono::seconds{1LL}, false);
+  test_utils::waitForMessage(
+    node, this, received_combined_command, std::chrono::seconds{1LL},
+    false);
   // Ensure combined command was not published
   ASSERT_FALSE(received_combined_command);
 }
@@ -212,7 +193,9 @@ TEST_F(FakeNodeFixture, test_latlon_timeout)
   lat_pub->publish(lat_msg);
   lon_pub->publish(lon_msg);
 
-  waitForMessage(node, this, received_combined_command, std::chrono::seconds{1LL}, false);
+  test_utils::waitForMessage(
+    node, this, received_combined_command, std::chrono::seconds{1LL},
+    false);
   // Ensure combined command was not published
   ASSERT_FALSE(received_combined_command);
 }

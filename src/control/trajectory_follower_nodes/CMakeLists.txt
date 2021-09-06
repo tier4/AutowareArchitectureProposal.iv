@@ -18,6 +18,21 @@ project(trajectory_follower_nodes)
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
+set(LATERAL_CONTROLLER_NODE lateral_controller_node)
+ament_auto_add_library(${LATERAL_CONTROLLER_NODE} SHARED
+  include/trajectory_follower_nodes/lateral_controller_node.hpp
+  src/lateral_controller_node.cpp
+)
+
+autoware_set_compile_options(${LATERAL_CONTROLLER_NODE})
+# TODO(lateral_controller) : RCLCPP_ERROR_THROTTLE() has built-in old-style casts.
+# TODO(lateral_controller) : Temporary workaround until this is fixed.
+target_compile_options(${LATERAL_CONTROLLER_NODE} PRIVATE -Wno-error=old-style-cast)
+rclcpp_components_register_node(${LATERAL_CONTROLLER_NODE}
+  PLUGIN "autoware::motion::control::trajectory_follower_nodes::LateralController"
+  EXECUTABLE ${LATERAL_CONTROLLER_NODE}_exe
+)
+
 set(LATLON_MUXER_NODE latlon_muxer_node)
 ament_auto_add_library(${LATLON_MUXER_NODE} SHARED
   include/trajectory_follower_nodes/latlon_muxer_node.hpp
@@ -28,20 +43,31 @@ autoware_set_compile_options(${LATLON_MUXER_NODE})
 # TODO(latlon_muxer) : RCLCPP_ERROR_THROTTLE() has built-in old-style casts.
 # TODO(latlon_muxer) : Temporary workaround until this is fixed.
 target_compile_options(${LATLON_MUXER_NODE} PRIVATE -Wno-error=old-style-cast)
-rclcpp_components_register_node(${LATLON_MUXER_NODE} PLUGIN "autoware::motion::control::latlon_muxer::LatLonMuxer" EXECUTABLE ${LATLON_MUXER_NODE}_exe)
+rclcpp_components_register_node(${LATLON_MUXER_NODE}
+  PLUGIN "autoware::motion::control::trajectory_follower_nodes::LatLonMuxer"
+  EXECUTABLE ${LATLON_MUXER_NODE}_exe
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
   # Unit tests
-  set(LATLON_MUXER_TEST test_latlon_muxer_node)
-  ament_add_gtest(${LATLON_MUXER_TEST} test/test_latlon_muxer_node.cpp)
-  ament_target_dependencies(${LATLON_MUXER_TEST} fake_test_node)
-  autoware_set_compile_options(${LATLON_MUXER_TEST})
-  target_link_libraries(${LATLON_MUXER_TEST} ${LATLON_MUXER_NODE})
+  set(TRAJECTORY_FOLLOWER_NODES_TEST test_trajectory_follower_nodes)
+  ament_add_gtest(${TRAJECTORY_FOLLOWER_NODES_TEST}
+    test/trajectory_follower_test_utils.hpp
+    test/test_latlon_muxer_node.cpp
+    test/test_lateral_controller_node.cpp
+  )
+  ament_target_dependencies(${TRAJECTORY_FOLLOWER_NODES_TEST} fake_test_node)
+  autoware_set_compile_options(${TRAJECTORY_FOLLOWER_NODES_TEST})
+  target_link_libraries(${TRAJECTORY_FOLLOWER_NODES_TEST} ${LATLON_MUXER_NODE} ${LATERAL_CONTROLLER_NODE})
 
   add_ros_test(
     test/test_latlon_muxer_node_launch.py
+    TIMEOUT "30"
+  )
+  add_ros_test(
+    test/test_lateral_controller_node_launch.py
     TIMEOUT "30"
   )
 

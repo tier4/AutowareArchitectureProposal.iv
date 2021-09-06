@@ -11,6 +11,7 @@
   <buildtool_depend>autoware_auto_cmake</buildtool_depend>
 
   <depend>autoware_auto_msgs</depend>
+  <depend>trajectory_follower</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
 

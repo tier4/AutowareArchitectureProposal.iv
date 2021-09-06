@@ -98,7 +98,6 @@ public:
   void calculateReferenceInput(Eigen::MatrixXd & u_ref) override;
 
 private:
-  float64_t m_wheelbase;  //!< @brief wheelbase length [m]
   float64_t m_steer_lim;  //!< @brief steering angle limit [rad]
   float64_t m_steer_tau;  //!< @brief steering time constant for 1d-model [s]
 };

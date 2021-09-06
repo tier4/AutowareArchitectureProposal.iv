@@ -70,13 +70,21 @@ TRAJECTORY_FOLLOWER_PUBLIC void convertEulerAngleToMonotonic(std::vector<float64
 TRAJECTORY_FOLLOWER_PUBLIC float64_t calcLateralError(
   const geometry_msgs::msg::Pose & ego_pose, const geometry_msgs::msg::Pose & ref_pose);
 /**
- * @brief convert the given Trajectory to a MPCTrajectory object
+ * @brief convert the given Trajectory msg to a MPCTrajectory object
  * @param [in] input trajectory to convert
  * @param [out] output resulting MPCTrajectory
  * @return true if the conversion was successful
  */
 TRAJECTORY_FOLLOWER_PUBLIC bool8_t convertToMPCTrajectory(
-  const autoware_auto_msgs::msg::Trajectory & input, MPCTrajectory * output);
+  const autoware_auto_msgs::msg::Trajectory & input, MPCTrajectory & output);
+/**
+ * @brief convert the given MPCTrajectory to a Trajectory msg
+ * @param [in] input MPCTrajectory to convert
+ * @param [out] output resulting Trajectory msg
+ * @return true if the conversion was successful
+ */
+TRAJECTORY_FOLLOWER_PUBLIC bool8_t convertToAutowareTrajectory(
+  const MPCTrajectory & input, autoware_auto_msgs::msg::Trajectory & output);
 /**
  * @brief calculate the arc length at each point of the given trajectory
  * @param [in] trajectory trajectory for which to calculate the arc length
@@ -107,7 +115,7 @@ TRAJECTORY_FOLLOWER_PUBLIC bool8_t linearInterpMPCTrajectory(
  * @param [in] traj MPCTrajectory for which to fill in the relative_time
  * @return true if the calculation was successful
  */
-TRAJECTORY_FOLLOWER_PUBLIC bool8_t calcMPCTrajectoryTime(MPCTrajectory * traj);
+TRAJECTORY_FOLLOWER_PUBLIC bool8_t calcMPCTrajectoryTime(MPCTrajectory & traj);
 /**
  * @brief recalculate the velocity field (vx) of the MPCTrajectory with dynamic smoothing
  * @param [in] start_idx index of the trajectory point from which to start smoothing
@@ -118,7 +126,7 @@ TRAJECTORY_FOLLOWER_PUBLIC bool8_t calcMPCTrajectoryTime(MPCTrajectory * traj);
  */
 TRAJECTORY_FOLLOWER_PUBLIC void dynamicSmoothingVelocity(
   const size_t start_idx, const float64_t start_vel, const float64_t acc_lim, const float64_t tau,
-  MPCTrajectory * traj);
+  MPCTrajectory & traj);
 /**
  * @brief calculate yaw angle in MPCTrajectory from xy vector
  * @param [inout] traj object trajectory
