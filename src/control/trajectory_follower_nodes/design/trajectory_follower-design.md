@@ -8,7 +8,7 @@ Generate control commands to follow a given Trajectory.
 # Design
 
 This functionality is decomposed into three nodes.
-- `LateralController`: generates lateral control messages.
+- @subpage lateral-controller-design : generates lateral control messages.
 - `LongitudinalController`: generates longitudinal control messages.
 - @subpage latlon-muxer-design : combines the lateral and longitudinal control commands
 into a single control command.
