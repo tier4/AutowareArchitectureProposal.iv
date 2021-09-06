@@ -28,10 +28,8 @@ DynamicsBicycleModel::DynamicsBicycleModel(
   const float64_t wheelbase, const float64_t mass_fl,
   const float64_t mass_fr, const float64_t mass_rl,
   const float64_t mass_rr, const float64_t cf, const float64_t cr)
-: VehicleModelInterface(/* dim_x */ 4, /* dim_u */ 1, /* dim_y */ 2)
+: VehicleModelInterface(/* dim_x */ 4, /* dim_u */ 1, /* dim_y */ 2, wheelbase)
 {
-  m_wheelbase = wheelbase;
-
   const float64_t mass_front = mass_fl + mass_fr;
   const float64_t mass_rear = mass_rl + mass_rr;
 

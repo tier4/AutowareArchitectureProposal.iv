@@ -224,13 +224,9 @@ std::vector<float64_t> calcTrajectoryCurvature(
 }
 
 bool8_t convertToMPCTrajectory(
-  const autoware_auto_msgs::msg::Trajectory & input, MPCTrajectory * output)
+  const autoware_auto_msgs::msg::Trajectory & input, MPCTrajectory & output)
 {
-  if (!output) {
-    return false;
-  }
-
-  output->clear();
+  output.clear();
   for (const autoware_auto_msgs::msg::TrajectoryPoint & p : input.points) {
     const float64_t x = p.x;
     const float64_t y = p.y;
@@ -239,50 +235,63 @@ bool8_t convertToMPCTrajectory(
     const float64_t vx = p.longitudinal_velocity_mps;
     const float64_t k = 0.0;
     const float64_t t = 0.0;
-    output->push_back(x, y, z, yaw, vx, k, k, t);
+    output.push_back(x, y, z, yaw, vx, k, k, t);
   }
   calcMPCTrajectoryTime(output);
   return true;
 }
 
-bool8_t calcMPCTrajectoryTime(MPCTrajectory * traj)
+bool8_t convertToAutowareTrajectory(
+  const MPCTrajectory & input, autoware_auto_msgs::msg::Trajectory & output)
 {
-  if (!traj) {
-    return false;
+  output.points.clear();
+  autoware_auto_msgs::msg::TrajectoryPoint p;
+  for (size_t i = 0; i < input.size(); ++i) {
+    p.x = static_cast<decltype(p.x)>(input.x.at(i));
+    p.y = static_cast<decltype(p.y)>(input.y.at(i));
+    p.z = static_cast<decltype(p.z)>(input.z.at(i));
+    p.heading = ::motion::motion_common::from_angle(input.yaw.at(i));
+    p.longitudinal_velocity_mps =
+      static_cast<decltype(p.longitudinal_velocity_mps)>(input.vx.at(i));
+    output.points.push_back(p);
   }
+  return true;
+}
+
+bool8_t calcMPCTrajectoryTime(MPCTrajectory & traj)
+{
   float64_t t = 0.0;
-  traj->relative_time.clear();
-  traj->relative_time.push_back(t);
-  for (size_t i = 0; i < traj->x.size() - 1; ++i) {
-    const float64_t dx = traj->x.at(i + 1) - traj->x.at(i);
-    const float64_t dy = traj->y.at(i + 1) - traj->y.at(i);
-    const float64_t dz = traj->z.at(i + 1) - traj->z.at(i);
+  traj.relative_time.clear();
+  traj.relative_time.push_back(t);
+  for (size_t i = 0; i < traj.x.size() - 1; ++i) {
+    const float64_t dx = traj.x.at(i + 1) - traj.x.at(i);
+    const float64_t dy = traj.y.at(i + 1) - traj.y.at(i);
+    const float64_t dz = traj.z.at(i + 1) - traj.z.at(i);
     const float64_t dist = std::sqrt(dx * dx + dy * dy + dz * dz);
-    float64_t v = std::max(std::fabs(traj->vx.at(i)), 0.1);
+    const float64_t v = std::max(std::fabs(traj.vx.at(i)), 0.1);
     t += (dist / v);
-    traj->relative_time.push_back(t);
+    traj.relative_time.push_back(t);
   }
   return true;
 }
 
 void dynamicSmoothingVelocity(
   const size_t start_idx, const float64_t start_vel, const float64_t acc_lim, const float64_t tau,
-  MPCTrajectory * traj)
+  MPCTrajectory & traj)
 {
   float64_t curr_v = start_vel;
-  std::vector<float64_t> smoothed_vel;
-  traj->vx.at(start_idx) = start_vel;
+  traj.vx.at(start_idx) = start_vel;
 
-  for (size_t i = start_idx + 1; i < traj->size(); ++i) {
+  for (size_t i = start_idx + 1; i < traj.size(); ++i) {
     const float64_t ds =
-      std::hypot(traj->x.at(i) - traj->x.at(i - 1), traj->y.at(i) - traj->y.at(i - 1));
+      std::hypot(traj.x.at(i) - traj.x.at(i - 1), traj.y.at(i) - traj.y.at(i - 1));
     const float64_t dt = ds /
       std::max(std::fabs(curr_v), std::numeric_limits<float64_t>::epsilon());
     const float64_t a = tau / std::max(tau + dt, std::numeric_limits<float64_t>::epsilon());
-    const float64_t updated_v = a * curr_v + (1.0 - a) * traj->vx.at(i);
+    const float64_t updated_v = a * curr_v + (1.0 - a) * traj.vx.at(i);
     const float64_t dv = std::max(-acc_lim * dt, std::min(acc_lim * dt, updated_v - curr_v));
     curr_v = curr_v + dv;
-    traj->vx.at(i) = curr_v;
+    traj.vx.at(i) = curr_v;
   }
   calcMPCTrajectoryTime(traj);
 }
