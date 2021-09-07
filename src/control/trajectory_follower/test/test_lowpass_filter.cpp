@@ -19,7 +19,7 @@
 #include "trajectory_follower/lowpass_filter.hpp"
 
 using autoware::common::types::float64_t;
-TEST(test_lowpass_filter, MoveAverageFilter) {
+TEST(TestLowpassFilter, MoveAverageFilter) {
   namespace MoveAverageFilter = autoware::motion::control::trajectory_follower::MoveAverageFilter;
 
   {  // Fail case: window size higher than the vector size
@@ -62,7 +62,7 @@ TEST(test_lowpass_filter, MoveAverageFilter) {
     EXPECT_EQ(filtered_vec[5], original_vec[5]);
   }
 }
-TEST(test_lowpass_filter, Butterworth2dFilter) {
+TEST(TestLowpassFilter, Butterworth2dFilter) {
   using autoware::motion::control::trajectory_follower::Butterworth2dFilter;
   const float64_t dt = 1.0;
   const float64_t cutoff_hz = 1.0;

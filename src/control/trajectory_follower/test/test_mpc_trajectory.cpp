@@ -19,7 +19,7 @@
 #include "trajectory_follower/mpc_trajectory.hpp"
 
 using autoware::common::types::float64_t;
-TEST(test_mpc_trajectory, nominal) {
+TEST(TestMPCTrajectory, Nominal) {
   typedef autoware::motion::control::trajectory_follower::MPCTrajectory MPCTrajectory;
 
   MPCTrajectory traj;

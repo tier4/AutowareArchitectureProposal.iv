@@ -39,7 +39,7 @@ using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
 const rclcpp::Duration one_second(1, 0);
 
-TEST_F(FakeNodeFixture, test_correct_output)
+TEST_F(FakeNodeFixture, TestCorrectOutput)
 {
   // Data to test
   ControlCommand::SharedPtr cmd_msg;
@@ -86,7 +86,7 @@ TEST_F(FakeNodeFixture, test_correct_output)
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(lon_msg.stamp));
 }
 
-TEST_F(FakeNodeFixture, test_lateral_timeout)
+TEST_F(FakeNodeFixture, TestLateralTimeout)
 {
   // Data to test
   ControlCommand::SharedPtr cmd_msg;
@@ -124,7 +124,7 @@ TEST_F(FakeNodeFixture, test_lateral_timeout)
   ASSERT_FALSE(received_combined_command);
 }
 
-TEST_F(FakeNodeFixture, test_longitudinal_timeout)
+TEST_F(FakeNodeFixture, TestLongitudinalTimeout)
 {
   // Data to test
   ControlCommand::SharedPtr cmd_msg;
@@ -162,7 +162,7 @@ TEST_F(FakeNodeFixture, test_longitudinal_timeout)
   ASSERT_FALSE(received_combined_command);
 }
 
-TEST_F(FakeNodeFixture, test_latlon_timeout)
+TEST_F(FakeNodeFixture, TestLatlonTimeout)
 {
   // Data to test
   ControlCommand::SharedPtr cmd_msg;

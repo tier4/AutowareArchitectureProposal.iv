@@ -31,7 +31,7 @@ typedef autoware_auto_msgs::msg::Trajectory Trajectory;
 typedef autoware_auto_msgs::msg::TrajectoryPoint TrajectoryPoint;
 typedef geometry_msgs::msg::Pose Pose;
 
-TEST(test_mpc_utils, calcNearestIndex) {
+TEST(TestMPCUtils, CalcNearestIndex) {
   Pose pose;
   pose.position.x = 0.0;
   pose.position.y = 0.0;
@@ -53,7 +53,7 @@ TEST(test_mpc_utils, calcNearestIndex) {
 }
 
 /* cppcheck-suppress syntaxError */
-TEST(test_mpc, calcStopDistance) {
+TEST(TestMPC, CalcStopDistance) {
   using autoware_auto_msgs::msg::Trajectory;
   using autoware_auto_msgs::msg::TrajectoryPoint;
 

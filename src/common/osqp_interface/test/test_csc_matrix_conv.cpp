@@ -20,7 +20,7 @@
 #include "gtest/gtest.h"
 #include "osqp_interface/csc_matrix_conv.hpp"
 
-TEST(test_csc_matrix_conv, nominal) {
+TEST(TestCscMatrixConv, Nominal) {
   using autoware::common::osqp::CSC_Matrix;
   using autoware::common::osqp::calCSCMatrix;
 
@@ -118,7 +118,7 @@ TEST(test_csc_matrix_conv, nominal) {
   EXPECT_EQ(square_m2.m_col_idxs[5], c_int(16));
   EXPECT_EQ(square_m2.m_col_idxs[6], c_int(19));
 }
-TEST(test_csc_matrix_conv, trapezoidal) {
+TEST(TestCscMatrixConv, Trapezoidal) {
   using autoware::common::osqp::CSC_Matrix;
   using autoware::common::osqp::calCSCMatrixTrapezoidal;
 
@@ -169,7 +169,7 @@ TEST(test_csc_matrix_conv, trapezoidal) {
     EXPECT_EQ(e.what(), std::string("Matrix must be square (n, n)"));
   }
 }
-TEST(test_csc_matrix_conv, print) {
+TEST(TestCscMatrixConv, Print) {
   using autoware::common::osqp::CSC_Matrix;
   using autoware::common::osqp::printCSCMatrix;
   using autoware::common::osqp::calCSCMatrix;
