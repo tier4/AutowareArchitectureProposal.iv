@@ -43,7 +43,7 @@ class IntersectionTest : public ::testing::TestWithParam<IntersectionTestParams>
 };
 
 
-TEST_P(IntersectionTest, basic) {
+TEST_P(IntersectionTest, Basic) {
   const auto get_ordered_polygon = [](auto polygon) {
       order_ccw(polygon);
       return polygon;
@@ -66,7 +66,7 @@ TEST_P(IntersectionTest, basic) {
 }
 
 INSTANTIATE_TEST_CASE_P(
-  basic, IntersectionTest,
+  Basic, IntersectionTest,
   ::testing::Values(
     IntersectionTestParams{
   {},
@@ -108,7 +108,7 @@ INSTANTIATE_TEST_CASE_P(
     // cppcheck-suppress syntaxError
   ), );
 
-TEST(PolygonPointTest, basic) {
+TEST(PolygonPointTest, Basic) {
   GTEST_SKIP();  // TODO(yunus.caliskan): enable after #1231
   std::list<TestPoint> polygon{{5.0F, 5.0F}, {10.0F, 5.0F}, {5.0F, 10.0F}, {10.0F, 10.0F}};
   order_ccw(polygon);
@@ -119,7 +119,7 @@ TEST(PolygonPointTest, basic) {
 
 // IoU of two intersecting shapes: a pentagon and a square. The test includes pen and paper
 // computations for the intermediate steps as assertions.
-TEST(IoUTest, pentagon_rectangle_intersection) {
+TEST(IoUTest, PentagonRectangleIntersection) {
   std::list<TestPoint> polygon1{
     {0.0F, 3.0F},
     {3.0F, 4.0F},
@@ -156,7 +156,7 @@ TEST(IoUTest, pentagon_rectangle_intersection) {
 }
 
 // IoU of two non-intersecting rectangles.
-TEST(IoUTest, no_intersection) {
+TEST(IoUTest, NoIntersection) {
   std::list<TestPoint> polygon1{
     {0.0F, 0.0F},
     {0.0F, 1.0F},

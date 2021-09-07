@@ -71,7 +71,7 @@ compute_hull_and_pockets(
 
 
 // Test for a triangle - any triangle should really not result in any pockets.
-TYPED_TEST(TypedHullPocketsTest, triangle)
+TYPED_TEST(TypedHullPocketsTest, Triangle)
 {
   const auto polygon = std::vector<decltype(this->make(0, 0, 0))> {
     this->make(0, 0, 0),
@@ -93,7 +93,7 @@ TYPED_TEST(TypedHullPocketsTest, triangle)
 // |                    |
 // +--------------------+
 // This should not result in any pockets.
-TYPED_TEST(TypedHullPocketsTest, box)
+TYPED_TEST(TypedHullPocketsTest, Box)
 {
   const auto polygon = std::vector<decltype(this->make(0, 0, 0))> {
     this->make(0, 0, 0),
@@ -121,7 +121,7 @@ TYPED_TEST(TypedHullPocketsTest, box)
 // |                              |
 // +------------------------------+
 // This should come up with a single box on the top left.
-TYPED_TEST(TypedHullPocketsTest, ushape)
+TYPED_TEST(TypedHullPocketsTest, Ushape)
 {
   const auto polygon = std::vector<decltype(this->make(0, 0, 0))> {
     this->make(0, 0, 0),
@@ -157,7 +157,7 @@ TYPED_TEST(TypedHullPocketsTest, ushape)
 //
 // This should come up with two pockets, a triangle on the top left and one on the
 // top right.
-TYPED_TEST(TypedHullPocketsTest, typical_gap)
+TYPED_TEST(TypedHullPocketsTest, TypicalGap)
 {
   const auto polygon = std::vector<decltype(this->make(0, 0, 0))> {
     this->make(0, 0, 0),
@@ -190,7 +190,7 @@ TYPED_TEST(TypedHullPocketsTest, typical_gap)
 //
 // This should come up with one pocket, in particular a pocket that contains
 // the segment of the final to the first point.
-TYPED_TEST(TypedHullPocketsTest, ends_in_pocket)
+TYPED_TEST(TypedHullPocketsTest, EndsInPocket)
 {
   const auto polygon = std::vector<decltype(this->make(0, 0, 0))> {
     this->make(0, 0, 0),

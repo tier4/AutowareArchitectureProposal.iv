@@ -29,7 +29,7 @@ namespace comp = autoware::common::helper_functions::comparisons;
 
 //------------------------------------------------------------------------------
 
-TEST(HelperFunctions_Comparisons, exclusive_or) {
+TEST(HelperFunctionsComparisons, ExclusiveOr) {
   EXPECT_TRUE(comp::exclusive_or(0, 1));
   EXPECT_TRUE(comp::exclusive_or(1, 0));
   EXPECT_FALSE(comp::exclusive_or(0, 0));

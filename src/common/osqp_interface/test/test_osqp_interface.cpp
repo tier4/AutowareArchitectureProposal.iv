@@ -25,7 +25,7 @@ namespace
 using autoware::common::osqp::float64_t;
 /// Problem taken from https://github.com/osqp/osqp/blob/master/tests/basic_qp/generate_problem.py
 // cppcheck-suppress syntaxError
-TEST(test_osqp_interface, basic_qp) {
+TEST(TestOsqpInterface, BasicQp) {
   auto check_result =
     [](const std::tuple<std::vector<float64_t>, std::vector<float64_t>, int, int> & result) {
       EXPECT_EQ(std::get<2>(result), 1);

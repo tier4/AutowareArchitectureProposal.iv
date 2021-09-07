@@ -182,7 +182,7 @@ void isOnBackwardRight(const VehicleKinematicState & _state, const VehicleKinema
 
 // Send a control command and run the simulation.
 // Then check if the vehicle is moving in the desired direction.
-TEST(test_simple_planning_simulator_IDEAL_STEER_VEL, test_moving)
+TEST(TestSimplePlanningSimulatorIdealSteerVel, TestMoving)
 {
   rclcpp::init(0, nullptr);
 

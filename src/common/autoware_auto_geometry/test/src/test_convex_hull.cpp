@@ -87,7 +87,7 @@ TYPED_TEST_CASE(TypedConvexHullTest, PointTypes, );
     2
 1
 */
-TYPED_TEST(TypedConvexHullTest, triangle)
+TYPED_TEST(TypedConvexHullTest, Triangle)
 {
   std::vector<TypeParam> expect({this->make(1, 0, 0), this->make(3, 1, 0), this->make(2, 2, 0)});
   this->list.insert(this->list.begin(), expect.begin(), expect.end());
@@ -110,7 +110,7 @@ TYPED_TEST(TypedConvexHullTest, triangle)
         3
 */
 // test that things get reordered to ccw
-TYPED_TEST(TypedConvexHullTest, quadrilateral)
+TYPED_TEST(TypedConvexHullTest, Quadrilateral)
 {
   std::vector<TypeParam> expect({
     this->make(-1, -1, 1),
@@ -133,7 +133,7 @@ TYPED_TEST(TypedConvexHullTest, quadrilateral)
 }
 
 // test that things get reordered to ccw
-TYPED_TEST(TypedConvexHullTest, quadhull)
+TYPED_TEST(TypedConvexHullTest, Quadhull)
 {
   std::vector<TypeParam> data({
     this->make(1, 1, 1),
@@ -160,7 +160,7 @@ TYPED_TEST(TypedConvexHullTest, quadhull)
 
 
 // a ring plus a bunch of random stuff in the middle
-TYPED_TEST(TypedConvexHullTest, hull)
+TYPED_TEST(TypedConvexHullTest, Hull)
 {
   const uint32_t HULL_SIZE = 13U;
   const uint32_t FUZZ_SIZE = 50U;
@@ -221,7 +221,7 @@ TYPED_TEST(TypedConvexHullTest, hull)
   ASSERT_EQ(std::distance(this->list.cbegin(), last), HULL_SIZE);
 }
 
-TYPED_TEST(TypedConvexHullTest, collinear)
+TYPED_TEST(TypedConvexHullTest, Collinear)
 {
   std::vector<TypeParam> data({
     this->make(0, 0, 1),
@@ -252,7 +252,7 @@ TYPED_TEST(TypedConvexHullTest, collinear)
 }
 
 // degenerate cases
-TYPED_TEST(TypedConvexHullTest, overlapping_points)
+TYPED_TEST(TypedConvexHullTest, OverlappingPoints)
 {
   std::vector<TypeParam> data({
     this->make(3, -1, 1),
@@ -274,7 +274,7 @@ TYPED_TEST(TypedConvexHullTest, overlapping_points)
   this->check_hull(last, expect, false);
 }
 
-TYPED_TEST(TypedConvexHullTest, line)
+TYPED_TEST(TypedConvexHullTest, Line)
 {
   std::vector<TypeParam> data({
     this->make(-3, 3, 1),
@@ -309,7 +309,7 @@ TYPED_TEST(TypedConvexHullTest, line)
       3
   2
 */
-TYPED_TEST(TypedConvexHullTest, lower_hull)
+TYPED_TEST(TypedConvexHullTest, LowerHull)
 {
   const std::vector<TypeParam> data({
     this->make(1, 3, 1),
@@ -340,7 +340,7 @@ TYPED_TEST(TypedConvexHullTest, lower_hull)
   2        4
         3
 */
-TYPED_TEST(TypedConvexHullTest, root)
+TYPED_TEST(TypedConvexHullTest, Root)
 {
   const std::vector<TypeParam> data({
     this->make(0, 0, 1),

@@ -84,7 +84,7 @@ PointPositionToLine<T>::input_output{
     0},
 };
 
-TYPED_TEST_P(PointPositionToLine, point_position_to_line_test) {
+TYPED_TEST_P(PointPositionToLine, PointPositionToLineTest) {
   for (size_t i = 0; i < PointPositionToLine<TypeParam>::input_output.size(); ++i) {
     const auto & input = PointPositionToLine<TypeParam>::input_output[i].first;
     EXPECT_EQ(
@@ -93,7 +93,7 @@ TYPED_TEST_P(PointPositionToLine, point_position_to_line_test) {
   }
 }
 
-REGISTER_TYPED_TEST_CASE_P(PointPositionToLine, point_position_to_line_test);
+REGISTER_TYPED_TEST_CASE_P(PointPositionToLine, PointPositionToLineTest);
 // cppcheck-suppress syntaxError
 INSTANTIATE_TYPED_TEST_CASE_P(Test, PointPositionToLine, PointTypes, );
 
@@ -136,7 +136,7 @@ InsidePolygon<T>::input_output{
     true},
 };
 
-TYPED_TEST_P(InsidePolygon, inside_polygon_test) {
+TYPED_TEST_P(InsidePolygon, InsidePolygonTest) {
   for (size_t i = 0; i < InsidePolygon<TypeParam>::input_output.size(); ++i) {
     const auto & input = InsidePolygon<TypeParam>::input_output[i].first;
     EXPECT_EQ(
@@ -147,7 +147,7 @@ TYPED_TEST_P(InsidePolygon, inside_polygon_test) {
   }
 }
 
-REGISTER_TYPED_TEST_CASE_P(InsidePolygon, inside_polygon_test);
+REGISTER_TYPED_TEST_CASE_P(InsidePolygon, InsidePolygonTest);
 // cppcheck-suppress syntaxError
 INSTANTIATE_TYPED_TEST_CASE_P(Test, InsidePolygon, PointTypes, );
 

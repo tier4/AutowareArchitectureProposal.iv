@@ -41,7 +41,7 @@ const auto epsilon = 1e-5;
 
 //------------------------------------------------------------------------------
 
-TEST(Geometry_Interval, abs_eq) {
+TEST(GeometryInterval, AbsEq) {
   const auto i1 = Interval_d(-1.0, 1.0);
   const auto i2 = Interval_d(-1.0 + 0.5 * epsilon, 1.0 + 0.5 * epsilon);
   const auto shift = (2.0 * epsilon);
@@ -60,7 +60,7 @@ TEST(Geometry_Interval, abs_eq) {
 
 //------------------------------------------------------------------------------
 
-TEST(Geometry_Interval, is_subset_eq) {
+TEST(GeometryInterval, IsSubsetEq) {
   EXPECT_TRUE(
     Interval_d::is_subset_eq(
       Interval_d(-0.5, 0.5),
@@ -83,7 +83,7 @@ TEST(Geometry_Interval, is_subset_eq) {
 
 //------------------------------------------------------------------------------
 
-TEST(Geometry_Interval, clamp_to) {
+TEST(GeometryInterval, ClampTo) {
   const auto i = Interval_d(-1.0, 1.0);
   {
     const auto val = 0.0;
@@ -111,7 +111,7 @@ TEST(Geometry_Interval, clamp_to) {
 
 //------------------------------------------------------------------------------
 
-TEST(Geometry_Interval, comparisons) {
+TEST(GeometryInterval, Comparisons) {
   {
     const auto i1 = Interval_d(0.25, 1);
     const auto i2 = Interval_d(0, 1);
@@ -157,7 +157,7 @@ TEST(Geometry_Interval, comparisons) {
 
 //------------------------------------------------------------------------------
 
-TEST(Geometry_Interval, contains) {
+TEST(GeometryInterval, Contains) {
   {
     const auto i = Interval_d();
     EXPECT_FALSE(Interval_d::contains(i, 0.0));
@@ -172,7 +172,7 @@ TEST(Geometry_Interval, contains) {
 
 //------------------------------------------------------------------------------
 
-TEST(Geometry_Interval, empty) {
+TEST(GeometryInterval, Empty) {
   {
     const auto i1 = Interval_d();
     const auto i2 = Interval_d();
@@ -190,7 +190,7 @@ TEST(Geometry_Interval, empty) {
 
 //------------------------------------------------------------------------------
 
-TEST(Geometry_Interval, zero_measure) {
+TEST(GeometryInterval, ZeroMeasure) {
   {
     const auto i = Interval_d(0, 1);
     EXPECT_FALSE(Interval_d::zero_measure(i));
@@ -209,7 +209,7 @@ TEST(Geometry_Interval, zero_measure) {
 
 //------------------------------------------------------------------------------
 
-TEST(Geometry_Interval, intersection_measure) {
+TEST(GeometryInterval, IntersectionMeasure) {
   {
     const auto i1 = Interval_d(-1.0, 1.0);
     const auto i2 = Interval_d(-0.5, 1.5);
@@ -232,7 +232,7 @@ TEST(Geometry_Interval, intersection_measure) {
 
 //------------------------------------------------------------------------------
 
-TEST(Geometry_Interval, construction_measure) {
+TEST(GeometryInterval, ConstructionMeasure) {
   {
     const auto i = Interval_d();
     EXPECT_TRUE(std::isnan(Interval_d::min(i)));

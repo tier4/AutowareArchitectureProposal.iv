@@ -35,7 +35,7 @@ builtin_interfaces::msg::Time get_stamp_msg(int t)
 }
 }  // namespace
 
-TEST(MessageFieldAdapterTest, const_header_tests) {
+TEST(MessageFieldAdapterTest, ConstHeaderTests) {
   using Message = geometry_msgs::msg::TransformStamped;
 
   const auto stamp = get_stamp_msg(0);
@@ -50,7 +50,7 @@ TEST(MessageFieldAdapterTest, const_header_tests) {
   EXPECT_EQ(frame_id, get_frame_id(msg));
 }
 
-TEST(MessageFieldAdapterTest, nonconst_header_tests) {
+TEST(MessageFieldAdapterTest, NonconstHeaderTests) {
   using Message = geometry_msgs::msg::TransformStamped;
 
   const auto stamp = get_stamp_msg(0);

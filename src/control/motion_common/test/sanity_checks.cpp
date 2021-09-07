@@ -36,7 +36,7 @@ struct MyQuaternion
   float64_t w{1.0};
 };
 
-TEST(HeadingFuncs, to_quat) {
+TEST(HeadingFuncs, ToQuat) {
   Complex32 complex_heading{};
   complex_heading.real = 0.5f;
   complex_heading.imag = 0.5f;
@@ -53,7 +53,7 @@ TEST(HeadingFuncs, to_quat) {
   EXPECT_FLOAT_EQ(my_quat.w, complex_heading.real);
 }
 
-TEST(HeadingFuncs, from_quat) {
+TEST(HeadingFuncs, FromQuat) {
   Quaternion gm_quat{};
   gm_quat.z = 0.5f;
   gm_quat.w = 0.5f;

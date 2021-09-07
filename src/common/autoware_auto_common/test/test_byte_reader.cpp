@@ -23,14 +23,14 @@ using autoware::common::types::float64_t;
 
 namespace
 {
-class byte_reader : public ::testing::Test
+class ByteReader : public ::testing::Test
 {
 };
 }  // namespace
 
 
 // tests serial_driver_node's get_packet function which receives serial packages
-TEST_F(byte_reader, basic)
+TEST_F(ByteReader, Basic)
 {
   std::vector<uint8_t> data = {
     0x00, 0x00, 0x00, 0x17, 0x40, 0x28, 0xAE, 0x14, 0x7A, 0xE1, 0x47, 0xAE, 0x00, 0x00, 0x08

@@ -29,30 +29,30 @@ using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 
 template<typename T>
-class bad_case : public ::testing::Test
+class BadCase : public ::testing::Test
 {
 };
 
 using BadTypes = ::testing::Types<float32_t, float64_t, int32_t, uint32_t>;
 // cppcheck-suppress syntaxError
-TYPED_TEST_CASE(bad_case, BadTypes, );
+TYPED_TEST_CASE(BadCase, BadTypes, );
 
 // Empty domain/range
-TYPED_TEST(bad_case, empty)
+TYPED_TEST(BadCase, Empty)
 {
   using T = TypeParam;
   EXPECT_THROW(lookup_1d<T>({}, {}, T{}), std::domain_error);
 }
 
 // Unequal domain/range
-TYPED_TEST(bad_case, unequal_domain)
+TYPED_TEST(BadCase, UnequalDomain)
 {
   using T = TypeParam;
   EXPECT_THROW(lookup_1d<T>({T{1}, T{2}}, {T{1}}, T{}), std::domain_error);
 }
 
 // Not sorted domain
-TYPED_TEST(bad_case, domain_not_sorted)
+TYPED_TEST(BadCase, DomainNotSorted)
 {
   using T = TypeParam;
   EXPECT_THROW(lookup_1d<T>({T{2}, T{1}}, {T{1}, T{2}}, T{}), std::domain_error);
@@ -61,7 +61,7 @@ TYPED_TEST(bad_case, domain_not_sorted)
 ////////////////////////////////////////////////////////////////////////////////
 
 template<typename Type>
-class sanity_check : public ::testing::Test
+class SanityCheck : public ::testing::Test
 {
 public:
   using T = Type;
@@ -94,9 +94,9 @@ protected:
 };
 
 using NormalTypes = ::testing::Types<float32_t, float64_t, int32_t, uint32_t>;
-TYPED_TEST_CASE(sanity_check, NormalTypes, );
+TYPED_TEST_CASE(SanityCheck, NormalTypes, );
 
-TYPED_TEST(sanity_check, exact)
+TYPED_TEST(SanityCheck, Exact)
 {
   const auto x = this->domain_[1U];
   const auto result = this->table_->lookup(x);
@@ -104,7 +104,7 @@ TYPED_TEST(sanity_check, exact)
   this->check(result, this->range_[1U]);
 }
 
-TYPED_TEST(sanity_check, interpolation)
+TYPED_TEST(SanityCheck, Interpolation)
 {
   const auto x = TypeParam{2};
   // Asssert x is not identically in domain_
@@ -113,7 +113,7 @@ TYPED_TEST(sanity_check, interpolation)
   this->check(result, TypeParam{3});
 }
 
-TYPED_TEST(sanity_check, above_range)
+TYPED_TEST(SanityCheck, AboveRange)
 {
   const auto x = TypeParam{999999};
   ASSERT_GT(x, this->domain_.back());  // domain is known to be sorted
@@ -121,7 +121,7 @@ TYPED_TEST(sanity_check, above_range)
   this->check(result, this->range_.back());
 }
 
-TYPED_TEST(sanity_check, below_range)
+TYPED_TEST(SanityCheck, BelowRange)
 {
   const auto x = TypeParam{0};
   ASSERT_LT(x, this->domain_.front());  // domain is known to be sorted
@@ -129,7 +129,7 @@ TYPED_TEST(sanity_check, below_range)
   this->check(result, this->range_.front());
 }
 
-TEST(lookup_table_helpers, interpolate) {
+TEST(LookupTableHelpers, Interpolate) {
   {
     const auto scaling = 0.0f;
     EXPECT_EQ(interpolate(0.0f, 1.0f, scaling), 0.0f);

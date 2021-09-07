@@ -104,7 +104,7 @@ template<typename FooT>
 using false_expression7 = false_bar_expression2<FooT, CorrectType, CorrectType>;
 
 
-TEST(test_template_utils, expression_valid) {
+TEST(TestTemplateUtils, ExpressionValid) {
   EXPECT_TRUE((expression_valid<correct_expression1, Foo>::value));
   EXPECT_TRUE((expression_valid<correct_expression2, Foo>::value));
   EXPECT_FALSE((expression_valid<false_expression1, Foo>::value));
@@ -116,7 +116,7 @@ TEST(test_template_utils, expression_valid) {
   EXPECT_FALSE((expression_valid<false_expression7, Foo>::value));
 }
 
-TEST(test_template_utils, expression_return_valid) {
+TEST(TestTemplateUtils, ExpressionReturnValid) {
   EXPECT_TRUE((expression_valid_with_return<correct_expression1, Foo, CorrectType>::value));
   EXPECT_FALSE((expression_valid_with_return<correct_expression1, Foo, FalseType>::value));
 

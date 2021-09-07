@@ -18,7 +18,7 @@
 #include <common/types.hpp>
 #include <helper_functions/mahalanobis_distance.hpp>
 
-TEST(MahalanobisDistanceTest, basic_test)
+TEST(MahalanobisDistanceTest, BasicTest)
 {
   Eigen::Matrix<autoware::common::types::float32_t, 2, 1> mean;
   mean << 2.F, 2.F;

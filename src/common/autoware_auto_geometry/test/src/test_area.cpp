@@ -24,7 +24,7 @@
 #include <vector>
 
 template<typename DataStructure>
-class area_test : public ::testing::Test
+class AreaTest : public ::testing::Test
 {
 protected:
   DataStructure data_{};
@@ -55,23 +55,23 @@ using TestTypes_ = ::testing::Types<
 // ... and point types to test
 using TestTypes = TestTypes_<geometry_msgs::msg::Point32>;
 // cppcheck-suppress syntaxError
-TYPED_TEST_CASE(area_test, TestTypes, );
+TYPED_TEST_CASE(AreaTest, TestTypes, );
 
 // The empty set has zero area
-TYPED_TEST(area_test, degenerate_zero)
+TYPED_TEST(AreaTest, DegenerateZero)
 {
   EXPECT_FLOAT_EQ(0.0, this->area());
 }
 
 // An individual point has zero area
-TYPED_TEST(area_test, degenerate_one)
+TYPED_TEST(AreaTest, DegenerateOne)
 {
   this->add_point(0.0, 0.0);
   EXPECT_FLOAT_EQ(0.0, this->area());
 }
 
 // An line segment has zero area
-TYPED_TEST(area_test, degenerate_two)
+TYPED_TEST(AreaTest, DegenerateTwo)
 {
   this->add_point(1.0, -1.0);
   this->add_point(-3.0, 2.0);
@@ -79,7 +79,7 @@ TYPED_TEST(area_test, degenerate_two)
 }
 
 // Simple triangle
-TYPED_TEST(area_test, triangle)
+TYPED_TEST(AreaTest, Triangle)
 {
   this->add_point(1.0, 0.0);
   this->add_point(3.0, 0.0);  // 2.0 wide
@@ -88,7 +88,7 @@ TYPED_TEST(area_test, triangle)
 }
 
 // Rectangle is easy to do computationall
-TYPED_TEST(area_test, rectangle)
+TYPED_TEST(AreaTest, Rectangle)
 {
   this->add_point(-5.0, -5.0);
   this->add_point(-2.0, -5.0);  // L = 3
@@ -98,7 +98,7 @@ TYPED_TEST(area_test, rectangle)
 }
 
 // Parallelogram is slightly less trivial than a rectangle
-TYPED_TEST(area_test, parallelogram)
+TYPED_TEST(AreaTest, Parallelogram)
 {
   this->add_point(-5.0, 1.0);
   this->add_point(-2.0, 1.0);  // L = 3
@@ -108,7 +108,7 @@ TYPED_TEST(area_test, parallelogram)
 }
 
 // Octagon is analytical and reasonably easy to build
-TYPED_TEST(area_test, octagon)
+TYPED_TEST(AreaTest, Octagon)
 {
   const auto sq2 = std::sqrt(2.0);
   const auto a = 1.0;
@@ -127,7 +127,7 @@ TYPED_TEST(area_test, octagon)
 }
 
 // Bad case
-TYPED_TEST(area_test, not_ccw)
+TYPED_TEST(AreaTest, NotCcw)
 {
   this->add_point(0.0, 0.0);
   this->add_point(1.0, 1.0);

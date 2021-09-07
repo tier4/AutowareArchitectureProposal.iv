@@ -19,7 +19,7 @@ using motion::motion_testing::State;
 using motion::motion_testing::Trajectory;
 using time_utils::from_message;
 
-TEST(constant_trajectory, stationary)
+TEST(ConstantTrajectory, Stationary)
 {
   const auto x0 = 3.0F;
   const auto y0 = -5.0F;
@@ -44,7 +44,7 @@ TEST(constant_trajectory, stationary)
   }
 }
 
-TEST(constant_trajectory, constant_velocity)
+TEST(ConstantTrajectory, ConstantVelocity)
 {
   const auto x0 = 3.0F;
   const auto y0 = -5.0F;
@@ -81,7 +81,7 @@ TEST(constant_trajectory, constant_velocity)
   }
 }
 
-TEST(constant_trajectory, constant_acceleration)
+TEST(ConstantTrajectory, ConstantAcceleration)
 {
   const auto x0 = 3.0F;
   const auto y0 = -5.0F;

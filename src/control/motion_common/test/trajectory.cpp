@@ -27,7 +27,7 @@
 
 using autoware::common::types::float64_t;
 
-TEST(trajectory_common_tests, validateNonEmpty) {
+TEST(TrajectoryCommonTests, ValidateNonEmpty) {
   using autoware::motion::motion_common::validateNonEmpty;
   using autoware::motion::motion_common::Point;
   using autoware::motion::motion_common::Points;
@@ -39,7 +39,7 @@ TEST(trajectory_common_tests, validateNonEmpty) {
   EXPECT_NO_THROW(validateNonEmpty(points));
 }
 
-TEST(trajectory_common_tests, calcYawDeviation) {
+TEST(TrajectoryCommonTests, CalcYawDeviation) {
   using autoware::motion::motion_common::calcYawDeviation;
   EXPECT_EQ(calcYawDeviation(0.0, 0.0), 0.0);
   EXPECT_EQ(calcYawDeviation(M_PI, 0.0), -M_PI);
@@ -53,7 +53,7 @@ TEST(trajectory_common_tests, calcYawDeviation) {
   EXPECT_EQ(calcYawDeviation(M_PI_2, M_PI), M_PI_2);
 }
 
-TEST(trajectory_common_tests, searchZeroVelocityIndex) {
+TEST(TrajectoryCommonTests, SearchZeroVelocityIndex) {
   using autoware::motion::motion_common::searchZeroVelocityIndex;
   using autoware::motion::motion_common::Point;
   using autoware::motion::motion_common::Points;
@@ -89,7 +89,7 @@ TEST(trajectory_common_tests, searchZeroVelocityIndex) {
   EXPECT_EQ(searchZeroVelocityIndex(points, 3, 4, 2.5).value(), size_t(3));
 }
 
-TEST(trajectory_common_tests, findNearestIndex) {
+TEST(TrajectoryCommonTests, FindNearestIndex) {
   using autoware::motion::motion_common::findNearestIndex;
   using autoware::motion::motion_common::Point;
   using autoware::motion::motion_common::Points;
@@ -158,7 +158,7 @@ TEST(trajectory_common_tests, findNearestIndex) {
   EXPECT_EQ(findNearestIndex(points, pose, 100.0, M_PI_2).value(), size_t(0));
 }
 
-TEST(trajectory_common_tests, findNearestSegmentIndex) {
+TEST(TrajectoryCommonTests, FindNearestSegmentIndex) {
   using autoware::motion::motion_common::findNearestSegmentIndex;
   using autoware::motion::motion_common::Point;
   using autoware::motion::motion_common::Points;
@@ -208,7 +208,7 @@ TEST(trajectory_common_tests, findNearestSegmentIndex) {
   EXPECT_EQ(findNearestSegmentIndex(points, target), size_t(3));
 }
 
-TEST(trajectory_common_tests, calcLongitudinalOffsetToSegment) {
+TEST(TrajectoryCommonTests, CalcLongitudinalOffsetToSegment) {
   using autoware::motion::motion_common::calcLongitudinalOffsetToSegment;
   using autoware::motion::motion_common::Point;
   using autoware::motion::motion_common::Points;
@@ -250,7 +250,7 @@ TEST(trajectory_common_tests, calcLongitudinalOffsetToSegment) {
   EXPECT_EQ(calcLongitudinalOffsetToSegment(points, 3, target), -2.0);
 }
 
-TEST(trajectory_common_tests, calcSignedArcLength_index_to_index) {
+TEST(TrajectoryCommonTests, CalcSignedArcLengthIndexToIndex) {
   using autoware::motion::motion_common::calcSignedArcLength;
   using autoware::motion::motion_common::Point;
   using autoware::motion::motion_common::Points;
@@ -289,7 +289,7 @@ TEST(trajectory_common_tests, calcSignedArcLength_index_to_index) {
   EXPECT_EQ(calcSignedArcLength(points, 4, 2), -2.0);
 }
 
-TEST(trajectory, calcSignedArcLength_point_to_index)
+TEST(Trajectory, CalcSignedArcLengthPointToIndex)
 {
   using autoware::motion::motion_common::calcSignedArcLength;
   using autoware::motion::motion_common::Point;
@@ -344,7 +344,7 @@ TEST(trajectory, calcSignedArcLength_point_to_index)
   EXPECT_EQ(calcSignedArcLength(points, src, 0), -5.0);
 }
 
-TEST(trajectory, calcSignedArcLength_point_to_point)
+TEST(Trajectory, CalcSignedArcLengthPointToPoint)
 {
   using autoware::motion::motion_common::calcSignedArcLength;
   using autoware::motion::motion_common::Point;

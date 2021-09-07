@@ -86,7 +86,7 @@ TYPED_TEST_CASE(TypedSpatialHashTest, PointTypesSpatialHash, );
 ///////////////////////////////////////////////////////////////
 // TODO(christopher.ho) helper functions to simplify this stuff
 /// all points in one bin
-TYPED_TEST(TypedSpatialHashTest, one_bin)
+TYPED_TEST(TypedSpatialHashTest, OneBin)
 {
   using PointT = TypeParam;
   const float32_t dr = 1.0F;
@@ -136,7 +136,7 @@ TYPED_TEST(TypedSpatialHashTest, one_bin)
   EXPECT_EQ(count, 0U);
 }
 /// test out of bounds points
-TYPED_TEST(TypedSpatialHashTest, oob)
+TYPED_TEST(TypedSpatialHashTest, Oob)
 {
   using PointT = TypeParam;
   const float32_t dr = 20.0F;
@@ -231,7 +231,7 @@ TYPED_TEST(TypedSpatialHashTest, 3d)
 }
 
 /// edge cases
-TEST(SpatialHashConfig, bad_cases)
+TEST(SpatialHashConfig, BadCases)
 {
   // negative side length
   EXPECT_THROW(Config2d({-30.0F, 30.0F, -30.0F, 30.0F, -1.0F, 1024U}), std::domain_error);

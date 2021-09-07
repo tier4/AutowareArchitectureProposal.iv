@@ -139,7 +139,7 @@ TYPED_TEST_CASE(BoxTest, PointTypesBoundingBox, );
 // https://stackoverflow.com/questions/3258230/passing-a-typename-and-string-to-parameterized-test-using-google-test
 
 ///////////////////////////////////////////
-TYPED_TEST(BoxTest, point_segment_distance)
+TYPED_TEST(BoxTest, PointSegmentDistance)
 {
   using autoware::common::geometry::closest_segment_point_2d;
   using autoware::common::geometry::point_line_segment_distance_2d;
@@ -169,7 +169,7 @@ TYPED_TEST(BoxTest, point_segment_distance)
   ASSERT_FLOAT_EQ(point_line_segment_distance_2d(p, q, r), 4.0F);
 }
 
-TYPED_TEST(BoxTest, closest_point_on_line)
+TYPED_TEST(BoxTest, ClosestPointOnLine)
 {
   using autoware::common::geometry::closest_line_point_2d;
   // normal case
@@ -194,7 +194,7 @@ TYPED_TEST(BoxTest, closest_point_on_line)
 }
 
 
-TYPED_TEST(BoxTest, basic)
+TYPED_TEST(BoxTest, Basic)
 {
   const std::vector<TypeParam> data{
     {this->make(0, 0), this->make(1, 0), this->make(1, 1), this->make(0, 1)}};
@@ -214,7 +214,7 @@ TYPED_TEST(BoxTest, basic)
 }
 
 //
-TYPED_TEST(BoxTest, oriented_triangle)
+TYPED_TEST(BoxTest, OrientedTriangle)
 {
   this->points.insert(
     this->points.begin(),
@@ -233,7 +233,7 @@ TYPED_TEST(BoxTest, oriented_triangle)
   this->test_orientation(0.0F);
 }
 //
-TYPED_TEST(BoxTest, hull)
+TYPED_TEST(BoxTest, Hull)
 {
   const uint32_t FUZZ_SIZE = 1024U;
   const float dx = 9.0F;
@@ -273,7 +273,7 @@ TYPED_TEST(BoxTest, hull)
 }
 
 //
-TYPED_TEST(BoxTest, collinear)
+TYPED_TEST(BoxTest, Collinear)
 {
   this->points.insert(
     this->points.begin(),
@@ -299,7 +299,7 @@ TYPED_TEST(BoxTest, collinear)
 
 
 //
-TYPED_TEST(BoxTest, line1)
+TYPED_TEST(BoxTest, Line1)
 {
   this->points.insert(
     this->points.begin(), {
@@ -334,7 +334,7 @@ TYPED_TEST(BoxTest, line1)
 }
 
 //
-TYPED_TEST(BoxTest, line2)
+TYPED_TEST(BoxTest, Line2)
 {
   this->points.insert(
     this->points.begin(), {
@@ -357,7 +357,7 @@ TYPED_TEST(BoxTest, line2)
 }
 
 //
-TYPED_TEST(BoxTest, line3)
+TYPED_TEST(BoxTest, Line3)
 {
   this->points.insert(
     this->points.begin(), {
@@ -383,7 +383,7 @@ TYPED_TEST(BoxTest, line3)
     /_/ <-- first guess is suboptimal
 
 */
-TYPED_TEST(BoxTest, subopt_init)
+TYPED_TEST(BoxTest, SuboptInit)
 {
   this->points.insert(
     this->points.begin(), {
@@ -405,7 +405,7 @@ TYPED_TEST(BoxTest, subopt_init)
 }
 
 //
-TYPED_TEST(BoxTest, centered)
+TYPED_TEST(BoxTest, Centered)
 {
   this->points.insert(
     this->points.begin(), {
@@ -423,7 +423,7 @@ TYPED_TEST(BoxTest, centered)
 }
 
 // convex_hull is imperfect in this case, check if this can save the day
-TYPED_TEST(BoxTest, overlapping_points)
+TYPED_TEST(BoxTest, OverlappingPoints)
 {
   this->points.insert(
     this->points.begin(), {
@@ -445,7 +445,7 @@ TYPED_TEST(BoxTest, overlapping_points)
 }
 
 // check that minimum perimeter box is different from minimum area box
-TYPED_TEST(BoxTest, perimeter)
+TYPED_TEST(BoxTest, Perimeter)
 {
   this->points.insert(
     this->points.begin(), {
@@ -479,7 +479,7 @@ TYPED_TEST(BoxTest, perimeter)
 }
 
 // bounding box is diagonal on an L
-TYPED_TEST(BoxTest, eigenbox1)
+TYPED_TEST(BoxTest, Eigenbox1)
 {
   std::vector<TypeParam> v{
     this->make(0, 0),
@@ -526,7 +526,7 @@ TYPED_TEST(BoxTest, eigenbox1)
 }
 
 // same as above test, just rotated
-TYPED_TEST(BoxTest, eigenbox2)
+TYPED_TEST(BoxTest, Eigenbox2)
 {
   std::vector<TypeParam> v{
     this->make(0, 0),
@@ -565,7 +565,7 @@ TYPED_TEST(BoxTest, eigenbox2)
   this->test_orientation(45.0F, 2.0F);
 }
 // line case for eigenbox
-TYPED_TEST(BoxTest, eigenbox3)
+TYPED_TEST(BoxTest, Eigenbox3)
 {
   // horizontal line with some noise
   std::vector<TypeParam> v{
@@ -587,7 +587,7 @@ TYPED_TEST(BoxTest, eigenbox3)
 
 // bad case: causes intersection2d to fail
 // See https://gitlab.apex.ai/ApexAI/grand_central/issues/2862#note_156875 for more failure cases
-TYPED_TEST(BoxTest, intersect_fail)
+TYPED_TEST(BoxTest, IntersectFail)
 {
   std::vector<TypeParam> vals{
     this->make(-13.9, 0.100006),
@@ -633,7 +633,7 @@ TYPED_TEST(BoxTest, intersect_fail)
 /// Handle slight floating point underflow case
 // Note: raw discriminant checks are disabled because they don't work. I suspect this is due to
 // tiny differences in floating point math when using our compile flags
-TYPED_TEST(BoxTest, eig_underflow)
+TYPED_TEST(BoxTest, EigUnderflow)
 {
   using autoware::common::geometry::bounding_box::details::Covariance2d;
   // auto discriminant = [](const Covariance2d cov) -> float32_t {

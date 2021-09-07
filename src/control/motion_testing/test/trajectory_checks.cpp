@@ -21,7 +21,7 @@ using motion::motion_testing::Trajectory;
 using motion::motion_testing::make_state;
 using motion::motion_testing::constant_velocity_trajectory;
 
-TEST(trajectory_checks, basic)
+TEST(TrajectoryChecks, Basic)
 {
   Trajectory traj{};
   const auto target =

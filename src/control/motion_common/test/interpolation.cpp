@@ -32,7 +32,7 @@ using time_utils::from_message;
 
 using std::chrono::milliseconds;
 
-TEST(interpolation, clamp)
+TEST(Interpolation, Clamp)
 {
   const auto fn_floating = [](auto val, auto min, auto max, auto res, auto tol)
     {
@@ -71,7 +71,7 @@ TEST(interpolation, clamp)
   // TODO(c.ho) ints etc. or typed test
 }
 
-TEST(interpolation, interpolation)
+TEST(Interpolation, Interpolation)
 {
   const auto fn_floating = [](auto a, auto b, auto t, auto res, auto tol)
     {
@@ -100,7 +100,7 @@ TEST(interpolation, interpolation)
   apex_test_tools::memory_test::stop();
 }
 
-TEST(interpolation, slerp_2d)
+TEST(Interpolation, Slerp2d)
 {
   using motion::motion_common::Heading;
   using motion::motion_common::Real;
@@ -181,7 +181,7 @@ TEST(interpolation, slerp_2d)
 }
 // TODO(c.ho) point interpolation sanity check
 
-TEST(interpolation, angle_arithmetic)
+TEST(Interpolation, AngleArithmetic)
 {
   using motion::motion_common::from_angle;
   using motion::motion_common::to_angle;
@@ -215,7 +215,7 @@ void generic_checks(const Point & s, const Point & p, std::chrono::nanoseconds d
   EXPECT_TRUE((dt < milliseconds(1)) && (dt > milliseconds(-1))) <<
     std::chrono::duration_cast<milliseconds>(dt).count();
 }
-TEST(interpolation, trajectory_subsample)
+TEST(Interpolation, TrajectorySubsample)
 {
   using std::chrono::milliseconds;
   const auto dt0 = milliseconds(100LL);
@@ -246,7 +246,7 @@ TEST(interpolation, trajectory_subsample)
   apex_test_tools::memory_test::stop();
 }
 
-TEST(interpolation, trajectory_supersample)
+TEST(Interpolation, TrajectorySupersample)
 {
   using std::chrono::milliseconds;
   const auto dt0 = milliseconds(200LL);
