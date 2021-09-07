@@ -174,7 +174,7 @@ protected:
 };  // class MPCTest
 
 /* cppcheck-suppress syntaxError */
-TEST_F(MPCTest, initialize_and_calculate) {
+TEST_F(MPCTest, InitializeAndCalculate) {
   trajectory_follower::MPC mpc;
   EXPECT_FALSE(mpc.hasVehicleModel());
   EXPECT_FALSE(mpc.hasQPSolver());
@@ -206,7 +206,7 @@ TEST_F(MPCTest, initialize_and_calculate) {
   EXPECT_EQ(ctrl_cmd.steering_tire_rotation_rate, 0.0f);
 }
 
-TEST_F(MPCTest, initialize_and_calculate_right_turn) {
+TEST_F(MPCTest, InitializeAndCalculateRightTurn) {
   trajectory_follower::MPC mpc;
   EXPECT_FALSE(mpc.hasVehicleModel());
   EXPECT_FALSE(mpc.hasQPSolver());
@@ -242,7 +242,7 @@ TEST_F(MPCTest, initialize_and_calculate_right_turn) {
   EXPECT_LT(ctrl_cmd.steering_tire_rotation_rate, 0.0f);
 }
 
-TEST_F(MPCTest, osqp_calculate) {
+TEST_F(MPCTest, OsqpCalculate) {
   trajectory_follower::MPC mpc;
   initializeMPC(mpc);
   mpc.setReferenceTrajectory(
@@ -275,7 +275,7 @@ TEST_F(MPCTest, osqp_calculate) {
   EXPECT_EQ(ctrl_cmd.steering_tire_rotation_rate, 0.0f);
 }
 
-TEST_F(MPCTest, osqp_calculate_right_turn) {
+TEST_F(MPCTest, OsqpCalculateRightTurn) {
   trajectory_follower::MPC mpc;
   initializeMPC(mpc);
   mpc.setReferenceTrajectory(
@@ -307,7 +307,7 @@ TEST_F(MPCTest, osqp_calculate_right_turn) {
   EXPECT_LT(ctrl_cmd.steering_tire_rotation_rate, 0.0f);
 }
 
-TEST_F(MPCTest, kinematics_no_delay_calculate) {
+TEST_F(MPCTest, KinematicsNoDelayCalculate) {
   trajectory_follower::MPC mpc;
   initializeMPC(mpc);
 
@@ -341,7 +341,7 @@ TEST_F(MPCTest, kinematics_no_delay_calculate) {
   EXPECT_EQ(ctrl_cmd.steering_tire_rotation_rate, 0.0f);
 }
 
-TEST_F(MPCTest, kinematics_no_delay_calculate_right_turn) {
+TEST_F(MPCTest, KinematicsNoDelayCalculateRightTurn) {
   trajectory_follower::MPC mpc;
   initializeMPC(mpc);
   mpc.setReferenceTrajectory(
@@ -375,7 +375,7 @@ TEST_F(MPCTest, kinematics_no_delay_calculate_right_turn) {
   EXPECT_LT(ctrl_cmd.steering_tire_rotation_rate, 0.0f);
 }
 
-TEST_F(MPCTest, dynamic_calculate) {
+TEST_F(MPCTest, DynamicCalculate) {
   trajectory_follower::MPC mpc;
   initializeMPC(mpc);
 
@@ -404,7 +404,7 @@ TEST_F(MPCTest, dynamic_calculate) {
   EXPECT_EQ(ctrl_cmd.steering_tire_rotation_rate, 0.0f);
 }
 
-TEST_F(MPCTest, multi_solve_with_buffer) {
+TEST_F(MPCTest, MultiSolveWithBuffer) {
   trajectory_follower::MPC mpc;
   const std::string vehicle_model_type = "kinematics";
   std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr =
@@ -453,7 +453,7 @@ TEST_F(MPCTest, multi_solve_with_buffer) {
   EXPECT_EQ(mpc.m_input_buffer.size(), size_t(3));
 }
 
-TEST_F(MPCTest, failure_cases) {
+TEST_F(MPCTest, FailureCases) {
   trajectory_follower::MPC mpc;
   const std::string vehicle_model_type = "kinematics";
   std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr =
