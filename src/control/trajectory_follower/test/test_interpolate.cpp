@@ -19,7 +19,7 @@
 #include "trajectory_follower/interpolate.hpp"
 
 using autoware::common::types::float64_t;
-TEST(test_interpolate, nominal) {
+TEST(TestInterpolate, Nominal) {
   using autoware::motion::control::trajectory_follower::linearInterpolate;
 
   // Simple case
@@ -68,7 +68,7 @@ TEST(test_interpolate, nominal) {
     EXPECT_EQ(target_value, 1.5);
   }
 }
-TEST(test_interpolate, failure) {
+TEST(TestInterpolate, Failure) {
   using autoware::motion::control::trajectory_follower::linearInterpolate;
 
   std::vector<float64_t> target_values;
@@ -110,7 +110,7 @@ TEST(test_interpolate, failure) {
   ASSERT_FALSE(linearInterpolate({1.5}, {1.5}, {1.0, 3.5}, target_values));
 }
 
-TEST(test_interpolate, spline_smoke_test) {
+TEST(TestInterpolate, SplineSmokeTest) {
   using autoware::motion::control::trajectory_follower::SplineInterpolate;
 
   const std::vector<float64_t> v = {0.0, 10.0, 20.0, 30.0};
