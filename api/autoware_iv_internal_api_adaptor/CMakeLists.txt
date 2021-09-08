@@ -18,13 +18,11 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   src/initial_pose.cpp
   src/operator.cpp
   src/route.cpp
-  src/start.cpp
   src/velocity.cpp
 )
 rclcpp_components_register_nodes(${PROJECT_NAME} "internal_api::InitialPose")
 rclcpp_components_register_nodes(${PROJECT_NAME} "internal_api::Operator")
 rclcpp_components_register_nodes(${PROJECT_NAME} "internal_api::Route")
-rclcpp_components_register_nodes(${PROJECT_NAME} "internal_api::Start")
 rclcpp_components_register_nodes(${PROJECT_NAME} "internal_api::Velocity")
 
 if(BUILD_TESTING)
@@ -32,4 +30,4 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-ament_auto_package(INSTALL_TO_SHARE launch)
+ament_auto_package()

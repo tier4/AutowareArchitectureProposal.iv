@@ -176,6 +176,24 @@ ament_target_dependencies(scene_module_detection_area ${BEHAVIOR_VELOCITY_PLANNE
 target_link_libraries(scene_module_detection_area scene_module_lib)
 
 
+# Scene Module: Virtual Traffic Light
+ament_auto_add_library(scene_module_virtual_traffic_light SHARED
+  src/scene_module/virtual_traffic_light/manager.cpp
+  src/scene_module/virtual_traffic_light/scene.cpp
+  src/scene_module/virtual_traffic_light/debug.cpp
+)
+
+target_include_directories(scene_module_virtual_traffic_light
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
+
+ament_target_dependencies(scene_module_virtual_traffic_light ${BEHAVIOR_VELOCITY_PLANNER_DEPENDENCIES})
+
+target_link_libraries(scene_module_virtual_traffic_light scene_module_lib)
+
+
 # SceneModule OcclusionSpot
 ament_auto_add_library(scene_module_occlusion_spot SHARED
   src/scene_module/occlusion_spot/grid_utils.cpp
@@ -236,6 +254,7 @@ target_link_libraries(behavior_velocity_planner
   scene_module_blind_spot
   scene_module_occlusion_spot
   scene_module_detection_area
+  scene_module_virtual_traffic_light
   scene_module_manager
 )
 
