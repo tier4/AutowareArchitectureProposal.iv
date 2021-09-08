@@ -16,8 +16,6 @@
   <depend>autoware_planning_msgs</depend>
   <depend>autoware_v2x_msgs</depend>
   <depend>autoware_utils</depend>
-  <depend>libboost-dev</depend>
-  <depend>autoware_utils</depend>
   <depend>eigen</depend>
   <depend>diagnostic_msgs</depend>
   <depend>geometry_msgs</depend>
