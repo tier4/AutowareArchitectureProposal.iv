@@ -175,7 +175,7 @@ double getDistanceToNearestObstaclePolygon(
 
 class SplineInterpolate
 {
-  bool initialized_;
+  bool initialized_ = false;
   std::vector<double> a_;
   std::vector<double> b_;
   std::vector<double> c_;

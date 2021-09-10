@@ -31,23 +31,23 @@ There are 2 nodes related to MPC follower.
 
 The default parameters are adjusted to the AutonomouStuff Lexus RX 450h for under 40 km/h driving.
 
-### overall
+## overall
 
-| Name                       | Type   | Description                                                                                                           | Default value |
-| :------------------------- | :----- | :-------------------------------------------------------------------------------------------------------------------- | :------------ |
-| show_debug_info            | bool   | display debug info                                                                                                    | false         |
-| ctrl_period                | double | control period [s]                                                                                                    | 0.03          |
-| traj_resample_dist         | double | distance of waypoints in resampling [m]                                                                               | 0.1           |
-| enable_path_smoothing      | bool   | path smoothing flag. This should be true when uses path resampling to reduce resampling noise.                        | true          |
-| enable_yaw_recalculation   | bool   | recalculate yaw angle after resampling. Set true if yaw in received waypoints is noisy.                               | false         |
-| path_filter_moving_ave_num | int    | number of data points moving average filter for path smoothing                                                        | 35            |
-| path_smoothing_times       | int    | number of times of applying path smoothing filter                                                                     | 1             |
-| curvature_smoothing_num    | double | index distance of points used in curvature calculation: p(i-num), p(i), p(i+num). larger num makes less noisy values. | 35            |
-| steering_lpf_cutoff_hz     | double | cutoff frequency of lowpass filter for steering output command [hz]                                                   | 3.0           |
-| admissible_position_error  | double | stop vehicle when following position error is larger than this value [m].                                             | 5.0           |
-| admissible_yaw_error_rad   | double | stop vehicle when following yaw angle error is larger than this value [rad].                                          | 1.57          |
+| Name                              | Type   | Description                                                                                                                                       | Default value |
+| :-------------------------------- | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------ | :------------ |
+| show_debug_info                   | bool   | display debug info                                                                                                                                | false         |
+| ctrl_period                       | double | control period [s]                                                                                                                                | 0.03          |
+| traj_resample_dist                | double | distance of waypoints in resampling [m]                                                                                                           | 0.1           |
+| enable_path_smoothing             | bool   | path smoothing flag. This should be true when uses path resampling to reduce resampling noise.                                                    | true          |
+| path_filter_moving_ave_num        | int    | number of data points moving average filter for path smoothing                                                                                    | 35            |
+| path_smoothing_times              | int    | number of times of applying path smoothing filter                                                                                                 | 1             |
+| curvature_smoothing_num_ref_steer | double | index distance of points used in curvature calculation for reference steer command: p(i-num), p(i), p(i+num). larger num makes less noisy values. | 35            |
+| curvature_smoothing_num_traj      | double | index distance of points used in curvature calculation for trajectory: p(i-num), p(i), p(i+num). larger num makes less noisy values.              | 1             |
+| steering_lpf_cutoff_hz            | double | cutoff frequency of lowpass filter for steering output command [hz]                                                                               | 3.0           |
+| admissible_position_error         | double | stop vehicle when following position error is larger than this value [m].                                                                         | 5.0           |
+| admissible_yaw_error_rad          | double | stop vehicle when following yaw angle error is larger than this value [rad].                                                                      | 1.57          |
 
-### mpc algorithm
+## mpc algorithm
 
 | Name                                    | Type   | Description                                                                                     | Default value     |
 | :-------------------------------------- | :----- | :---------------------------------------------------------------------------------------------- | :---------------- |
@@ -66,7 +66,7 @@ The default parameters are adjusted to the AutonomouStuff Lexus RX 450h for unde
 | weight_terminal_heading_error           | double | terminal cost weight for heading error                                                          | 0.1               |
 | zero_ff_steer_deg                       | double | threshold of feedforward angle [deg]. feedforward angle smaller than this value is set to zero. | 2.0               |
 
-### vehicle
+## vehicle
 
 | Name          | Type   | Description                                                                        | Default value |
 | :------------ | :----- | :--------------------------------------------------------------------------------- | :------------ |
@@ -74,7 +74,7 @@ The default parameters are adjusted to the AutonomouStuff Lexus RX 450h for unde
 | steering_tau  | double | steering dynamics time constant (1d approximation) for vehicle model [s]           | 0.3           |
 | steer_lim_deg | double | steering angle limit for vehicle model [deg]. This is also used for QP constraint. | 35.0          |
 
-### QP solver type
+## QP solver type
 
 currently, the options are
 

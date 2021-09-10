@@ -1,23 +1,24 @@
-<?xml version="1.0"?>
-<package format="2">
+<?xml version="1.0" ?>
+<package format="3">
   <name>obstacle_stop_planner</name>
   <version>0.1.0</version>
   <description>The obstacle_stop_planner package</description>
 
-  <maintainer email="tier4@todo.todo">tier4</maintainer>
+  <maintainer email="yukihiro.saito@tier4.jp">Yukihiro Saito</maintainer>
 
   <license>Apache License 2.0</license>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>autoware_debug_msgs</depend>
   <depend>autoware_perception_msgs</depend>
   <depend>autoware_planning_msgs</depend>
   <depend>autoware_utils</depend>
   <depend>diagnostic_msgs</depend>
-  <depend>pcl_conversions</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
+  <depend>pcl_conversions</depend>
+  <depend>pcl_ros</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>tf2</depend>
