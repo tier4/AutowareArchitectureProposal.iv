@@ -18,16 +18,16 @@
     <build_type>ament_cmake</build_type>
   </export>
 
-  <depend>rclcpp</depend>
-  <depend>rclcpp_components</depend>
-  <depend>boost</depend>
-  <depend>tf2</depend>
-  <depend>tf2_ros</depend>
-  <depend>autoware_planning_msgs</depend>
   <depend>autoware_debug_msgs</depend>
+  <depend>autoware_planning_msgs</depend>
+  <depend>boost</depend>
+  <depend>eigen</depend>
   <depend>geometry_msgs</depend>
   <depend>osqp_interface</depend>
-  <depend>eigen</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
 
   <exec_depend>rclpy</exec_depend>
 
