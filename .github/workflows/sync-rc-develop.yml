@@ -1,4 +1,4 @@
-name: sync rc
+name: sync rc develop
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ on:
         required: true
 
 env:
-  BASE_BRANCH: main
+  BASE_BRANCH: develop
 
 jobs:
   sync-rc:
@@ -69,18 +69,18 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ steps.generate-token.outputs.token }}
-          commit-message: sync rc
+          commit-message: sync rc develop
           committer: GitHub <noreply@github.com>
           author: GitHub <noreply@github.com>
           signoff: false
           base: ${{ env.BASE_BRANCH }}
           branch: ${{ env.SYNC_BRANCH }}
           delete-branch: true
-          title: sync rc
+          title: sync rc develop
           body: |
-            sync rc
+            sync rc develop
           labels: |
-            sync-rc
+            sync-rc-develop
           draft: false
 
       - name: Check outputs
