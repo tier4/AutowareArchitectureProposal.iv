@@ -76,7 +76,7 @@
        <plot mode="TimeSeries" style="Lines">
         <range bottom="-2.402500" right="26.261692" top="-2.297500" left="0.414630"/>
         <limitY/>
-        <curve name="/planning/scenario_planning/motion_velocity_optimizer/distance_to_stopline/data" color="#1f77b4">
+        <curve name="/planning/scenario_planning/motion_velocity_smoother/distance_to_stopline/data" color="#1f77b4">
          <transform name="Scale/Offset" alias="stop dist">
           <options value_scale="1.0" time_offset="0" value_offset="0"/>
          </transform>
@@ -154,7 +154,7 @@
    <max_array_size value="true"/>
    <selected_topics>
     <topic name="/control/trajectory_follower/velocity_controller/debug_values"/>
-    <topic name="/planning/scenario_planning/motion_velocity_optimizer/distance_to_stopline"/>
+    <topic name="/planning/scenario_planning/motion_velocity_smoother/distance_to_stopline"/>
     <topic name="/vehicle/status/control_mode"/>
    </selected_topics>
   </plugin>
