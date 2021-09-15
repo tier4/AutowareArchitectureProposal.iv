@@ -26,6 +26,7 @@
 
 **PR Author should check the checkboxes below when creating the PR.**
 
+- [ ] Read [pull request guidelines][pull-request-guidelines]
 - [ ] Code follows [coding guidelines][coding-guidelines]
 - [ ] Assign PR to reviewer
 
@@ -53,5 +54,6 @@
 
 [clang-tidy-guidelines]: https://tier4.github.io/autoware.proj/tree/main/developer_guide/ClangTidyGuideline/
 [coding-guidelines]: https://tier4.atlassian.net/wiki/spaces/AIP/pages/1194394777/T4
+[pull-request-guidelines]: https://tier4.github.io/autoware.proj/tree/main/developer_guide/PullRequestGuideline/
 [release-notes]: https://tier4.atlassian.net/wiki/spaces/AIP/pages/563774416
 [spell-check-dict]: https://github.com/tier4/autoware-spell-check-dict#how-to-contribute
