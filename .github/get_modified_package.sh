@@ -67,7 +67,9 @@ for modified_file in $modified_files; do
 done
 
 # Get package names from paths
-modified_packages=$(colcon list --names-only --paths "${modified_package_dirs[@]}")
+if [ "${#modified_package_dirs[@]}" != "0" ] ; then
+  modified_packages=$(colcon list --names-only --paths "${modified_package_dirs[@]}")
+fi
 
 # Output
 # shellcheck disable=SC2086
