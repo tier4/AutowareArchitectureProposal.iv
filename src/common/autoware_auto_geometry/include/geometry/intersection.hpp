@@ -106,12 +106,23 @@ void append_intersection_points(
   const Iterable2T<PointT> & polygon2,
   std::list<PointT> & result)
 {
+  using FloatT = decltype(point_adapter::x_(std::declval<PointT>()));
+  using Interval = common::geometry::Interval<float32_t>;
+
   auto get_edge = [](const auto & list, const auto & iterator) {
       const auto next_it = std::next(iterator);
       const auto & next_pt = (next_it != list.end()) ? *next_it : list.front();
       return std::make_pair(*iterator, next_pt);
     };
-  using Interval = common::geometry::Interval<float32_t>;
+
+  // Get the max absolute value out of two intervals and a scalar.
+  auto compute_eps_scale = [](const auto & i1, const auto & i2, const auto val) {
+      auto get_abs_max = [](const auto & interval) {
+          return std::max(std::fabs(Interval::min(interval)), std::fabs(Interval::max(interval)));
+        };
+      return std::max(std::fabs(val), std::max(get_abs_max(i1), get_abs_max(i2)));
+    };
+
   // Compare each edge from polygon1 to each edge from polygon2
   for (auto corner1_it = polygon1.begin(); corner1_it != polygon1.end(); ++corner1_it) {
     const auto & edge1 = get_edge(polygon1, corner1_it);
@@ -139,11 +150,20 @@ void append_intersection_points(
         Interval edge2_y_interval{
           std::min(point_adapter::y_(edge2.first), point_adapter::y_(edge2.second)),
           std::max(point_adapter::y_(edge2.first), point_adapter::y_(edge2.second))};
+
+        // The accumulated floating point error depends on the magnitudes of each end of the
+        // intervals. Hence the upper bound of the absolute magnitude should be taken into account
+        // while computing the epsilon.
+        const auto max_feps_scale = std::max(
+          compute_eps_scale(edge1_x_interval, edge2_x_interval, point_adapter::x_(intersection)),
+          compute_eps_scale(edge1_y_interval, edge2_y_interval, point_adapter::y_(intersection))
+        );
+        const auto feps = max_feps_scale * std::numeric_limits<FloatT>::epsilon();
         // Only accept intersections that lie on both of the line segments (edges)
-        if (Interval::contains(edge1_x_interval, point_adapter::x_(intersection)) &&
-          Interval::contains(edge2_x_interval, point_adapter::x_(intersection)) &&
-          Interval::contains(edge1_y_interval, point_adapter::y_(intersection)) &&
-          Interval::contains(edge2_y_interval, point_adapter::y_(intersection)))
+        if (Interval::contains(edge1_x_interval, point_adapter::x_(intersection), feps) &&
+          Interval::contains(edge2_x_interval, point_adapter::x_(intersection), feps) &&
+          Interval::contains(edge1_y_interval, point_adapter::y_(intersection), feps) &&
+          Interval::contains(edge2_y_interval, point_adapter::y_(intersection), feps))
         {
           result.push_back(intersection);
         }

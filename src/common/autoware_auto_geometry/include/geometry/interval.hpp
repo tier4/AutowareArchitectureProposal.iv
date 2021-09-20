@@ -167,10 +167,12 @@ public:
   static bool empty(const Interval & i);
 
   /**
-   * @brief Test for whether a given interval contains a given value.
+   * @brief Test for whether a given interval contains a given value within the given epsilon
    * @return True iff 'interval' contains 'value'.
    */
-  static bool contains(const Interval & i, const T & value);
+  static bool contains(
+    const Interval & i, const T & value,
+    const T & eps = std::numeric_limits<T>::epsilon());
 
   /**
    * @brief Test for whether 'i1' subseteq 'i2'
@@ -308,9 +310,10 @@ bool Interval<T>::is_subset_eq(const Interval & i1, const Interval & i2)
 //------------------------------------------------------------------------------
 
 template<typename T>
-bool Interval<T>::contains(const Interval & i, const T & value)
+bool Interval<T>::contains(const Interval & i, const T & value, const T & eps)
 {
-  return (value >= Interval::min(i)) && (value <= Interval::max(i));
+  return common::helper_functions::comparisons::abs_gte(value, Interval::min(i), eps) &&
+         common::helper_functions::comparisons::abs_lte(value, Interval::max(i), eps);
 }
 
 //------------------------------------------------------------------------------
