@@ -19,6 +19,29 @@
 #include "trajectory_follower/lowpass_filter.hpp"
 
 using autoware::common::types::float64_t;
+
+TEST(TestLowpassFilter, LowpassFilter1d)
+{
+  using autoware::motion::control::trajectory_follower::LowpassFilter1d;
+
+  const float64_t epsilon = 1e-6;
+  LowpassFilter1d lowpass_filter_1d(0.0, 0.1);
+
+  // initial state
+  EXPECT_NEAR(lowpass_filter_1d.getValue(), 0.0, epsilon);
+
+  // random filter
+  EXPECT_NEAR(lowpass_filter_1d.filter(0.0), 0.0, epsilon);
+  EXPECT_NEAR(lowpass_filter_1d.filter(1.0), 0.9, epsilon);
+  EXPECT_NEAR(lowpass_filter_1d.filter(2.0), 1.89, epsilon);
+  EXPECT_NEAR(lowpass_filter_1d.getValue(), 1.89, epsilon);
+
+  // reset
+  lowpass_filter_1d.reset(-1.1);
+  EXPECT_NEAR(lowpass_filter_1d.getValue(), -1.1, epsilon);
+  EXPECT_NEAR(lowpass_filter_1d.filter(0.0), -0.11, epsilon);
+  EXPECT_NEAR(lowpass_filter_1d.getValue(), -0.11, epsilon);
+}
 TEST(TestLowpassFilter, MoveAverageFilter) {
   namespace MoveAverageFilter = autoware::motion::control::trajectory_follower::MoveAverageFilter;
 

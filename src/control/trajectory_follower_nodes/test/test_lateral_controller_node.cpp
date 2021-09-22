@@ -393,6 +393,8 @@ TEST_F(FakeNodeFixture, DISABLED_set_param_smoke_test)
 {
   // Node
   std::shared_ptr<LateralController> node = makeNode();
+  // give the node some time to initialize completely
+  std::this_thread::sleep_for(std::chrono::milliseconds{100LL});
 
   // Change some parameter value
   auto result = node->set_parameter(rclcpp::Parameter("mpc_prediction_horizon", 10));

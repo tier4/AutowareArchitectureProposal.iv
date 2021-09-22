@@ -33,11 +33,53 @@ namespace trajectory_follower
 {
 using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
+
+/**
+ * @brief Simple filter with gain on the first derivative of the value
+ */
+class LowpassFilter1d
+{
+private:
+  float64_t m_x;     //!< @brief current filtered value
+  float64_t m_gain;  //!< @brief gain value of first-order low-pass filter
+
+public:
+  /**
+   * @brief constructor with initial value and first-order gain
+   * @param [in] x initial value
+   * @param [in] gain first-order gain
+   */
+  LowpassFilter1d(const float64_t x, const float64_t gain)
+  : m_x(x), m_gain(gain) {}
+
+  /**
+   * @brief set the current value of the filter
+   * @param [in] x new value
+   */
+  void reset(const float64_t x) {m_x = x;}
+
+  /**
+   * @brief get the current value of the filter
+   */
+  float64_t getValue() const {return m_x;}
+
+  /**
+   * @brief filter a new value
+   * @param [in] u new value
+   */
+  float64_t filter(const float64_t u)
+  {
+    const float64_t ret = m_gain * m_x + (1.0 - m_gain) * u;
+    m_x = ret;
+    return ret;
+  }
+};
+
+
 /**
  * @brief 2nd-order Butterworth Filter
  * reference : S. Butterworth, "On the Theory of Filter Amplifier", Experimental wireless, 1930.
  */
-
 class TRAJECTORY_FOLLOWER_PUBLIC Butterworth2dFilter
 {
 private:
