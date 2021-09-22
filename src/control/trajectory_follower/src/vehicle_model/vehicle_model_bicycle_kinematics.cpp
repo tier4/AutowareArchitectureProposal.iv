@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics.hpp"
+
 #include <cmath>
 
 namespace autoware
