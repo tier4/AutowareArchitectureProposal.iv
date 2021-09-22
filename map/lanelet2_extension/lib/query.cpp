@@ -695,7 +695,7 @@ bool query::getClosestLanelet(
         min_angle = angle_diff;
         *closest_lanelet_ptr = llt;
       } else if ((segment_angle - pose_yaw) < 1e-04) {
-        min_angle = fabs(segment_angle - pose_yaw);
+        min_angle = std::abs(segment_angle - pose_yaw);
         *closest_lanelet_ptr = llt;
       }
     }
