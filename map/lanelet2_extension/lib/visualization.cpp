@@ -791,7 +791,7 @@ visualization_msgs::msg::MarkerArray visualization::lineStringsAsMarkerArray(
 
 visualization_msgs::msg::MarkerArray visualization::laneletsBoundaryAsMarkerArray(
   const lanelet::ConstLanelets & lanelets, const std_msgs::msg::ColorRGBA c,
-  const bool viz_centerline, const std::string additional_namespace)
+  const bool viz_centerline, const std::string & additional_namespace)
 {
   double lss = 0.1;  // line string size
   double lss_center = std::max(lss * 0.1, 0.02);
