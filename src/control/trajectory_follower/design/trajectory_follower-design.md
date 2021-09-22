@@ -13,6 +13,7 @@ Mainly, it implements two algorithms:
 - Model-Predictive Control (MPC) for the computation of lateral steering commands.
     - @subpage trajectory_follower-mpc-design
 - PID control for the computation of velocity and acceleration commands.
+    - @subpage trajectory_follower-pid-design
 
 # Related issues
 <!-- Required -->
