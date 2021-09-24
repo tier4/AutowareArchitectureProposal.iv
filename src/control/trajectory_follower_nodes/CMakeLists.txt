@@ -81,19 +81,10 @@ if(BUILD_TESTING)
   autoware_set_compile_options(${TRAJECTORY_FOLLOWER_NODES_TEST})
   target_link_libraries(${TRAJECTORY_FOLLOWER_NODES_TEST} ${LATLON_MUXER_NODE} ${LATERAL_CONTROLLER_NODE} ${LONGITUDINAL_CONTROLLER_NODE})
 
-  add_ros_test(
-    test/test_latlon_muxer_node_launch.py
-    TIMEOUT "30"
-  )
-  add_ros_test(
-    test/test_lateral_controller_node_launch.py
-    TIMEOUT "30"
-  )
-  add_ros_test(
-    test/test_longitudinal_controller_node_launch.py
-    TIMEOUT "30"
-  )
-
+  find_package(autoware_testing REQUIRED)
+  add_smoke_test(${PROJECT_NAME} ${LATLON_MUXER_NODE}_exe PARAM_FILENAME latlon_muxer_defaults.yaml)
+  add_smoke_test(${PROJECT_NAME} ${LATERAL_CONTROLLER_NODE}_exe PARAM_FILENAME lateral_controller_defaults.yaml)
+  add_smoke_test(${PROJECT_NAME} ${LONGITUDINAL_CONTROLLER_NODE}_exe PARAM_FILENAME longitudinal_controller_defaults.yaml)
 endif()
 
 ament_auto_package(
