@@ -74,12 +74,12 @@ TEST_F(FakeNodeFixture, no_input)
     "input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *node,
+    "output/lateral/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
-    std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
+    std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
 
   // No published data: expect a stopped command
   test_utils::waitForMessage(node, this, received_lateral_command);
@@ -104,12 +104,12 @@ TEST_F(FakeNodeFixture, empty_trajectory)
     "input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *node,
+    "output/lateral/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
-    std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
+    std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
 
   // Dummy transform: ego is at (0.0, 0.0) in map frame
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
@@ -148,12 +148,12 @@ TEST_F(FakeNodeFixture, straight_trajectory)
     "input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *node,
+    "output/lateral/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
-    std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
+    std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
 
   // Dummy transform: ego is at (0.0, 0.0) in map frame
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
@@ -210,12 +210,12 @@ TEST_F(FakeNodeFixture, right_turn)
     "input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *node,
+    "output/lateral/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
-    std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
+    std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
 
   // Dummy transform: ego is at (0.0, 0.0) in map frame
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
@@ -274,12 +274,12 @@ TEST_F(FakeNodeFixture, left_turn)
     "input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *node,
+    "output/lateral/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
-    std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
+    std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
 
   // Dummy transform: ego is at (0.0, 0.0) in map frame
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
@@ -338,12 +338,12 @@ TEST_F(FakeNodeFixture, stopped)
     "input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *node,
+    "output/lateral/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
-    std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
+    std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
 
   // Dummy transform: ego is at (0.0, 0.0) in map frame
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
@@ -389,7 +389,7 @@ TEST_F(FakeNodeFixture, stopped)
 }
 
 // TODO(Maxime CLEMENT): disabled as this test crashes in the CI but works locally
-TEST_F(FakeNodeFixture, DISABLED_set_param_smoke_test)
+TEST_F(FakeNodeFixture, DISABLED_set_lateral_param_smoke_test)
 {
   // Node
   std::shared_ptr<LateralController> node = makeNode();

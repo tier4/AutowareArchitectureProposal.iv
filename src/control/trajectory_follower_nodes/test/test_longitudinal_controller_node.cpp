@@ -39,7 +39,7 @@ using VehicleState = autoware_auto_msgs::msg::VehicleKinematicState;
 
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
-TEST_F(FakeNodeFixture, simple_test) {
+TEST_F(FakeNodeFixture, longitudinal_keep_velocity) {
   // Data to test
   LongitudinalCommand::SharedPtr cmd_msg;
   bool received_longitudinal_command = false;
@@ -53,20 +53,18 @@ TEST_F(FakeNodeFixture, simple_test) {
     node_options);
 
   // Publisher/Subscribers
-  rclcpp::Publisher<VehicleState>::SharedPtr state_pub = node->create_publisher<VehicleState>(
-    "input/current_state",
-    rclcpp::QoS(10));
-  rclcpp::Publisher<Trajectory>::SharedPtr traj_pub = node->create_publisher<Trajectory>(
-    "input/current_trajectory",
-    rclcpp::QoS(10));
+  rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
+    "input/current_state");
+  rclcpp::Publisher<Trajectory>::SharedPtr traj_pub = this->create_publisher<Trajectory>(
+    "input/current_trajectory");
   rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
     this->create_subscription<LongitudinalCommand>(
-    "output/longitudinal_control_cmd", *node,
+    "output/longitudinal_control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
-      cmd_msg = msg; received_longitudinal_command = true;
+      cmd_msg = msg;received_longitudinal_command = true;
     });
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
-    std::make_shared<tf2_ros::StaticTransformBroadcaster>(node);
+    std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
 
   // Enable all logging in the node
   auto ret = rcutils_logging_set_logger_level(
@@ -109,4 +107,326 @@ TEST_F(FakeNodeFixture, simple_test) {
   ASSERT_TRUE(received_longitudinal_command);
   EXPECT_DOUBLE_EQ(cmd_msg->speed, 1.0);
   EXPECT_DOUBLE_EQ(cmd_msg->acceleration, 0.0);
+
+  // Generate another control message
+  received_longitudinal_command = false;
+  traj_pub->publish(traj);
+  test_utils::waitForMessage(node, this, received_longitudinal_command);
+  ASSERT_TRUE(received_longitudinal_command);
+  EXPECT_DOUBLE_EQ(cmd_msg->speed, 1.0);
+  EXPECT_DOUBLE_EQ(cmd_msg->acceleration, 0.0);
+}
+
+TEST_F(FakeNodeFixture, longitudinal_slow_down) {
+  // Data to test
+  LongitudinalCommand::SharedPtr cmd_msg;
+  bool received_longitudinal_command = false;
+
+  // Node
+  rclcpp::NodeOptions node_options;
+  node_options.arguments(
+    {"--ros-args", "--params-file", ament_index_cpp::get_package_share_directory(
+        "trajectory_follower_nodes") + "/param/longitudinal_controller_defaults.yaml"});
+  std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
+    node_options);
+
+  // Publisher/Subscribers
+  rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
+    "input/current_state");
+  rclcpp::Publisher<Trajectory>::SharedPtr traj_pub = this->create_publisher<Trajectory>(
+    "input/current_trajectory");
+  rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
+    this->create_subscription<LongitudinalCommand>(
+    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
+      cmd_msg = msg;received_longitudinal_command = true;
+    });
+  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
+    std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
+
+  // Enable all logging in the node
+  auto ret = rcutils_logging_set_logger_level(
+    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
+
+  // Dummy transform: ego is at (0.0, 0.0) in map frame
+  geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
+  transform.header.stamp = node->now();
+  br->sendTransform(transform);
+  /// Already running at target vel + Non stopping trajectory -> no change in velocity
+  // Publish velocity
+  VehicleState state;
+  state.header.stamp = node->now();
+  state.state.longitudinal_velocity_mps = 1.0;
+  state_pub->publish(state);
+  // the node needs to receive two velocity msg
+  rclcpp::spin_some(node);
+  rclcpp::spin_some(this->get_fake_node());
+  state.header.stamp = node->now();
+  state_pub->publish(state);
+  // Publish non stopping trajectory
+  Trajectory traj;
+  TrajectoryPoint point;
+  point.x = 0.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 0.5;
+  traj.points.push_back(point);
+  point.x = 50.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 0.5;
+  traj.points.push_back(point);
+  point.x = 100.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 0.5;
+  traj.points.push_back(point);
+  traj_pub->publish(traj);
+  test_utils::waitForMessage(node, this, received_longitudinal_command);
+
+  ASSERT_TRUE(received_longitudinal_command);
+  EXPECT_LT(cmd_msg->speed, state.state.longitudinal_velocity_mps);
+  EXPECT_LT(cmd_msg->acceleration, 0.0f);
+
+  // Generate another control message
+  received_longitudinal_command = false;
+  traj_pub->publish(traj);
+  test_utils::waitForMessage(node, this, received_longitudinal_command);
+  ASSERT_TRUE(received_longitudinal_command);
+  EXPECT_LT(cmd_msg->speed, state.state.longitudinal_velocity_mps);
+  EXPECT_LT(cmd_msg->acceleration, 0.0f);
+}
+
+TEST_F(FakeNodeFixture, longitudinal_accelerate) {
+  // Data to test
+  LongitudinalCommand::SharedPtr cmd_msg;
+  bool received_longitudinal_command = false;
+
+  // Node
+  rclcpp::NodeOptions node_options;
+  node_options.arguments(
+    {"--ros-args", "--params-file", ament_index_cpp::get_package_share_directory(
+        "trajectory_follower_nodes") + "/param/longitudinal_controller_defaults.yaml"});
+  std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
+    node_options);
+
+  // Publisher/Subscribers
+  rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
+    "input/current_state");
+  rclcpp::Publisher<Trajectory>::SharedPtr traj_pub = this->create_publisher<Trajectory>(
+    "input/current_trajectory");
+  rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
+    this->create_subscription<LongitudinalCommand>(
+    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
+      cmd_msg = msg;received_longitudinal_command = true;
+    });
+  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
+    std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
+
+  // Enable all logging in the node
+  auto ret = rcutils_logging_set_logger_level(
+    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
+
+  // Dummy transform: ego is at (0.0, 0.0) in map frame
+  geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
+  transform.header.stamp = node->now();
+  br->sendTransform(transform);
+  /// Below target vel + Non stopping trajectory -> accelerate
+  // Publish velocity
+  VehicleState state;
+  state.header.stamp = node->now();
+  state.state.longitudinal_velocity_mps = 0.5;
+  state_pub->publish(state);
+  // the node needs to receive two velocity msg
+  rclcpp::spin_some(node);
+  rclcpp::spin_some(this->get_fake_node());
+  state.header.stamp = node->now();
+  state_pub->publish(state);
+  // Publish non stopping trajectory
+  Trajectory traj;
+  TrajectoryPoint point;
+  point.x = 0.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 1.0;
+  traj.points.push_back(point);
+  point.x = 50.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 1.0;
+  traj.points.push_back(point);
+  point.x = 100.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 1.0;
+  traj.points.push_back(point);
+  traj_pub->publish(traj);
+  test_utils::waitForMessage(node, this, received_longitudinal_command);
+
+  ASSERT_TRUE(received_longitudinal_command);
+  EXPECT_GT(cmd_msg->speed, state.state.longitudinal_velocity_mps);
+  EXPECT_GT(cmd_msg->acceleration, 0.0f);
+
+  // Generate another control message
+  received_longitudinal_command = false;
+  traj_pub->publish(traj);
+  test_utils::waitForMessage(node, this, received_longitudinal_command);
+  ASSERT_TRUE(received_longitudinal_command);
+  EXPECT_GT(cmd_msg->speed, state.state.longitudinal_velocity_mps);
+  EXPECT_GT(cmd_msg->acceleration, 0.0f);
+}
+
+TEST_F(FakeNodeFixture, longitudinal_stopped) {
+  // Data to test
+  LongitudinalCommand::SharedPtr cmd_msg;
+  bool received_longitudinal_command = false;
+
+  // Node
+  rclcpp::NodeOptions node_options;
+  node_options.arguments(
+    {"--ros-args", "--params-file", ament_index_cpp::get_package_share_directory(
+        "trajectory_follower_nodes") + "/param/longitudinal_controller_defaults.yaml"});
+  std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
+    node_options);
+
+  // Publisher/Subscribers
+  rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
+    "input/current_state");
+  rclcpp::Publisher<Trajectory>::SharedPtr traj_pub = this->create_publisher<Trajectory>(
+    "input/current_trajectory");
+  rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
+    this->create_subscription<LongitudinalCommand>(
+    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
+      cmd_msg = msg;received_longitudinal_command = true;
+    });
+  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
+    std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
+
+  // Enable all logging in the node
+  auto ret = rcutils_logging_set_logger_level(
+    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
+
+  // Dummy transform: ego is at (0.0, 0.0) in map frame
+  geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
+  transform.header.stamp = node->now();
+  br->sendTransform(transform);
+  /// Below target vel + Non stopping trajectory -> accelerate
+  // Publish velocity
+  VehicleState state;
+  state.header.stamp = node->now();
+  state.state.longitudinal_velocity_mps = 0.0;
+  state_pub->publish(state);
+  // the node needs to receive two velocity msg
+  rclcpp::spin_some(node);
+  rclcpp::spin_some(this->get_fake_node());
+  state.header.stamp = node->now();
+  state_pub->publish(state);
+  // Publish non stopping trajectory
+  Trajectory traj;
+  TrajectoryPoint point;
+  point.x = 0.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 0.0;
+  traj.points.push_back(point);
+  point.x = 50.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 0.0;
+  traj.points.push_back(point);
+  point.x = 100.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = 0.0;
+  traj.points.push_back(point);
+  traj_pub->publish(traj);
+  test_utils::waitForMessage(node, this, received_longitudinal_command);
+
+  ASSERT_TRUE(received_longitudinal_command);
+  EXPECT_DOUBLE_EQ(cmd_msg->speed, 0.0f);
+  EXPECT_LT(cmd_msg->acceleration, 0.0f);  // when stopped negative acceleration to brake
+}
+
+TEST_F(FakeNodeFixture, longitudinal_reverse) {
+  // Data to test
+  LongitudinalCommand::SharedPtr cmd_msg;
+  bool received_longitudinal_command = false;
+
+  // Node
+  rclcpp::NodeOptions node_options;
+  node_options.arguments(
+    {"--ros-args", "--params-file", ament_index_cpp::get_package_share_directory(
+        "trajectory_follower_nodes") + "/param/longitudinal_controller_defaults.yaml"});
+  std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
+    node_options);
+
+  // Publisher/Subscribers
+  rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
+    "input/current_state");
+  rclcpp::Publisher<Trajectory>::SharedPtr traj_pub = this->create_publisher<Trajectory>(
+    "input/current_trajectory");
+  rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
+    this->create_subscription<LongitudinalCommand>(
+    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
+      cmd_msg = msg;received_longitudinal_command = true;
+    });
+  std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
+    std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
+
+  // Enable all logging in the node
+  auto ret = rcutils_logging_set_logger_level(
+    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
+
+  // Dummy transform: ego is at (0.0, 0.0) in map frame
+  geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
+  transform.header.stamp = node->now();
+  br->sendTransform(transform);
+  /// Below target vel + Non stopping trajectory -> accelerate
+  // Publish velocity
+  VehicleState state;
+  state.header.stamp = node->now();
+  state.state.longitudinal_velocity_mps = 0.0;
+  state_pub->publish(state);
+  // the node needs to receive two velocity msg
+  rclcpp::spin_some(node);
+  rclcpp::spin_some(this->get_fake_node());
+  state.header.stamp = node->now();
+  state_pub->publish(state);
+  // Publish non stopping trajectory
+  Trajectory traj;
+  TrajectoryPoint point;
+  point.x = 0.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = -1.0;
+  traj.points.push_back(point);
+  point.x = 50.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = -1.0;
+  traj.points.push_back(point);
+  point.x = 100.0;
+  point.y = 0.0;
+  point.longitudinal_velocity_mps = -1.0;
+  traj.points.push_back(point);
+  traj_pub->publish(traj);
+  test_utils::waitForMessage(node, this, received_longitudinal_command);
+
+  ASSERT_TRUE(received_longitudinal_command);
+  EXPECT_LT(cmd_msg->speed, 0.0f);
+  EXPECT_GT(cmd_msg->acceleration, 0.0f);
+}
+
+// TODO(Maxime CLEMENT): disabled as this test crashes in the CI but works locally
+TEST_F(FakeNodeFixture, DISABLED_longitudinal_set_param_smoke_test)
+{
+  // Node
+  rclcpp::NodeOptions node_options;
+  node_options.arguments(
+    {"--ros-args", "--params-file", ament_index_cpp::get_package_share_directory(
+        "trajectory_follower_nodes") + "/param/longitudinal_controller_defaults.yaml"});
+  std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
+    node_options);
+  // give the node some time to initialize completely
+  std::this_thread::sleep_for(std::chrono::milliseconds{100LL});
+
+  // Change some parameter value
+  auto result = node->set_parameter(rclcpp::Parameter("kp", 1.0));
+  EXPECT_TRUE(result.successful);
 }
