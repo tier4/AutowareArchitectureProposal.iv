@@ -20,21 +20,19 @@
 #include <utility>
 #include <vector>
 
-#include "eigen3/Eigen/Core"
-#include "eigen3/Eigen/Geometry"
-
 #include "autoware_auto_msgs/msg/longitudinal_command.hpp"
 #include "autoware_auto_msgs/msg/trajectory.hpp"
 #include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
+#include "eigen3/Eigen/Core"
+#include "eigen3/Eigen/Geometry"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "std_msgs/msg/float32.hpp"
-#include "std_msgs/msg/float32_multi_array.hpp"
 #include "motion_common/trajectory_common.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/float32.hpp"
+#include "std_msgs/msg/float32_multi_array.hpp"
 #include "tf2/utils.h"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
-
 #include "trajectory_follower/debug_values.hpp"
 #include "trajectory_follower/longitudinal_controller_utils.hpp"
 #include "trajectory_follower/lowpass_filter.hpp"
