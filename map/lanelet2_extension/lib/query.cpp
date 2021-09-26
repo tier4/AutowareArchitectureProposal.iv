@@ -100,6 +100,11 @@ lanelet::ConstLanelets query::roadLanelets(const lanelet::ConstLanelets lls)
   return query::subtypeLanelets(lls, lanelet::AttributeValueString::Road);
 }
 
+lanelet::ConstLanelets query::shoulderLanelets(const lanelet::ConstLanelets lls)
+{
+  return (query::subtypeLanelets(lls, "road_shoulder"));
+}
+
 std::vector<lanelet::TrafficLightConstPtr> query::trafficLights(
   const lanelet::ConstLanelets lanelets)
 {
@@ -152,7 +157,9 @@ std::vector<lanelet::AutowareTrafficLightConstPtr> query::autowareTrafficLights(
         }
       }
 
-      if (unique_id) {tl_reg_elems.push_back(tl_ptr);}
+      if (unique_id) {
+        tl_reg_elems.push_back(tl_ptr);
+      }
     }
   }
   return tl_reg_elems;
@@ -180,7 +187,9 @@ std::vector<lanelet::DetectionAreaConstPtr> query::detectionAreas(
         }
       }
 
-      if (unique_id) {da_reg_elems.push_back(da_ptr);}
+      if (unique_id) {
+        da_reg_elems.push_back(da_ptr);
+      }
     }
   }
   return da_reg_elems;
@@ -468,7 +477,9 @@ std::vector<lanelet::ConstLineString3d> query::stopLinesLanelet(const lanelet::C
       if ((*j)->getManeuver(ll) == lanelet::ManeuverType::Yield) {
         // lanelet has a yield reg. elem.
         lanelet::Optional<lanelet::ConstLineString3d> row_stopline_opt = (*j)->stopLine();
-        if (!!row_stopline_opt) {stoplines.push_back(row_stopline_opt.get());}
+        if (!!row_stopline_opt) {
+          stoplines.push_back(row_stopline_opt.get());
+        }
       }
     }
   }
@@ -481,7 +492,9 @@ std::vector<lanelet::ConstLineString3d> query::stopLinesLanelet(const lanelet::C
     // lanelet has a traffic light elem element
     for (auto j = traffic_light_reg_elems.begin(); j < traffic_light_reg_elems.end(); j++) {
       lanelet::Optional<lanelet::ConstLineString3d> traffic_light_stopline_opt = (*j)->stopLine();
-      if (!!traffic_light_stopline_opt) {stoplines.push_back(traffic_light_stopline_opt.get());}
+      if (!!traffic_light_stopline_opt) {
+        stoplines.push_back(traffic_light_stopline_opt.get());
+      }
     }
   }
   // find stop lines referenced by traffic signs
@@ -493,7 +506,9 @@ std::vector<lanelet::ConstLineString3d> query::stopLinesLanelet(const lanelet::C
     // stop sign shod have 1
     for (auto j = traffic_sign_reg_elems.begin(); j < traffic_sign_reg_elems.end(); j++) {
       lanelet::ConstLineStrings3d traffic_sign_stoplines = (*j)->refLines();
-      if (traffic_sign_stoplines.size() > 0) {stoplines.push_back(traffic_sign_stoplines.front());}
+      if (traffic_sign_stoplines.size() > 0) {
+        stoplines.push_back(traffic_sign_stoplines.front());
+      }
     }
   }
   return stoplines;
@@ -556,9 +571,7 @@ ConstLanelets query::getLaneletsWithinRange(
   const double range)
 {
   return getLaneletsWithinRange(
-    lanelets, lanelet::BasicPoint2d(
-      search_point.x,
-      search_point.y), range);
+    lanelets, lanelet::BasicPoint2d(search_point.x, search_point.y), range);
 }
 
 ConstLanelets query::getLaneChangeableNeighbors(
@@ -605,8 +618,8 @@ ConstLanelets query::getAllNeighborsRight(
     (!!graph->right(lanelet)) ? graph->right(lanelet) : graph->adjacentRight(lanelet);
   while (!!right_lane) {
     lanelets.push_back(right_lane.get());
-    right_lane = (!!graph->right(right_lane.get())) ? graph->right(right_lane.get()) :
-      graph->adjacentRight(right_lane.get());
+    right_lane = (!!graph->right(right_lane.get())) ? graph->right(right_lane.get())
+                                                    : graph->adjacentRight(right_lane.get());
   }
   return lanelets;
 }
@@ -618,8 +631,8 @@ ConstLanelets query::getAllNeighborsLeft(
   auto left_lane = (!!graph->left(lanelet)) ? graph->left(lanelet) : graph->adjacentLeft(lanelet);
   while (!!left_lane) {
     lanelets.push_back(left_lane.get());
-    left_lane = (!!graph->left(left_lane.get())) ? graph->left(left_lane.get()) :
-      graph->adjacentLeft(left_lane.get());
+    left_lane = (!!graph->left(left_lane.get())) ? graph->left(left_lane.get())
+                                                 : graph->adjacentLeft(left_lane.get());
   }
   return lanelets;
 }
@@ -643,8 +656,8 @@ bool query::getClosestLanelet(
   ConstLanelet * closest_lanelet_ptr)
 {
   if (closest_lanelet_ptr == nullptr) {
-    std::cerr << "argument closest_lanelet_ptr is null! Failed to find closest lanelet" <<
-      std::endl;
+    std::cerr << "argument closest_lanelet_ptr is null! Failed to find closest lanelet"
+              << std::endl;
     return false;
   }
 
