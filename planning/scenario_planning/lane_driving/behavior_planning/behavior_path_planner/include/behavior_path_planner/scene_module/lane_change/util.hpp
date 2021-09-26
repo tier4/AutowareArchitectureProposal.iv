@@ -38,9 +38,7 @@ using autoware_planning_msgs::msg::PathWithLaneId;
 using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::Twist;
 
-PathWithLaneId combineReferencePath(
-  const PathWithLaneId path1, const PathWithLaneId path2, const double interval,
-  const size_t N_sample);
+PathWithLaneId combineReferencePath(const PathWithLaneId path1, const PathWithLaneId path2);
 bool isPathInLanelets(
   const PathWithLaneId & path,
   const lanelet::ConstLanelets & original_lanelets, const lanelet::ConstLanelets & target_lanelets);
