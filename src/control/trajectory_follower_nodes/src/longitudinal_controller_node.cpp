@@ -173,9 +173,9 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
     std::bind(&LongitudinalController::callbackTrajectory, this, _1));
   m_pub_control_cmd = create_publisher<autoware_auto_msgs::msg::LongitudinalCommand>(
     "output/longitudinal_control_cmd", rclcpp::QoS{1});
-  m_pub_slope = create_publisher<std_msgs::msg::Float32>(
+  m_pub_slope = create_publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>(
     "output/slope_angle", rclcpp::QoS{1});
-  m_pub_debug = create_publisher<std_msgs::msg::Float32MultiArray>(
+  m_pub_debug = create_publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>(
     "output/debug_values", rclcpp::QoS{1});
 
   // Timer
@@ -639,20 +639,20 @@ void LongitudinalController::publishDebugData(
   m_debug_values.setValues(DebugValues::TYPE::ACC_CMD_PUBLISHED, ctrl_cmd.acc);
 
   // publish debug values
-  std_msgs::msg::Float32MultiArray debug_msg{};
-  // TODO(Maxime CLEMENT) use custom message with stamp
-  // debug_msg.stamp = this->now();
+  autoware_auto_msgs::msg::Float32MultiArrayDiagnostic debug_msg{};
+  debug_msg.diag_header.data_stamp = this->now();
   for (const auto & v : m_debug_values.getValues()) {
-    debug_msg.data.push_back(static_cast<decltype(debug_msg.data)::value_type>(v));
+    debug_msg.diag_array.data.push_back(
+      static_cast<decltype(debug_msg.diag_array.data)::value_type>(v));
   }
   m_pub_debug->publish(debug_msg);
 
   // slope angle
-  std_msgs::msg::Float32 slope_msg{};
-  // TODO(Maxime CLEMENT): use custom messages with a stamp field
-  // autoware_debug_msgs::msg::Float32Stamped slope_msg{};
-  // slope_msg.stamp = this->now();
-  slope_msg.data = static_cast<decltype(slope_msg.data)>(control_data.slope_angle);
+  autoware_auto_msgs::msg::Float32MultiArrayDiagnostic slope_msg{};
+  slope_msg.diag_header.data_stamp = this->now();
+  slope_msg.diag_array.data.push_back(
+    static_cast<decltype(slope_msg.diag_array.data)::value_type>(
+      control_data.slope_angle));
   m_pub_slope->publish(slope_msg);
 }
 
