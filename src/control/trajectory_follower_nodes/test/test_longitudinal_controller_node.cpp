@@ -39,18 +39,32 @@ using VehicleState = autoware_auto_msgs::msg::VehicleKinematicState;
 
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
+std::shared_ptr<LongitudinalController> makeLongitudinalNode()
+{
+  // Pass default parameter file to the node
+  const auto share_dir = ament_index_cpp::get_package_share_directory("trajectory_follower_nodes");
+  rclcpp::NodeOptions node_options;
+  node_options.arguments(
+    {"--ros-args", "--params-file", share_dir + "/param/longitudinal_controller_defaults.yaml",
+      "--params-file", share_dir + "/param/vehicle_defaults.yaml"});
+  std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
+    node_options);
+
+  // Enable all logging in the node
+  auto ret = rcutils_logging_set_logger_level(
+    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
+  return node;
+}
+
+
 TEST_F(FakeNodeFixture, longitudinal_keep_velocity) {
   // Data to test
   LongitudinalCommand::SharedPtr cmd_msg;
   bool received_longitudinal_command = false;
 
   // Node
-  rclcpp::NodeOptions node_options;
-  node_options.arguments(
-    {"--ros-args", "--params-file", ament_index_cpp::get_package_share_directory(
-        "trajectory_follower_nodes") + "/param/longitudinal_controller_defaults.yaml"});
-  std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
-    node_options);
+  std::shared_ptr<LongitudinalController> node = makeLongitudinalNode();
 
   // Publisher/Subscribers
   rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
@@ -123,12 +137,7 @@ TEST_F(FakeNodeFixture, longitudinal_slow_down) {
   bool received_longitudinal_command = false;
 
   // Node
-  rclcpp::NodeOptions node_options;
-  node_options.arguments(
-    {"--ros-args", "--params-file", ament_index_cpp::get_package_share_directory(
-        "trajectory_follower_nodes") + "/param/longitudinal_controller_defaults.yaml"});
-  std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
-    node_options);
+  std::shared_ptr<LongitudinalController> node = makeLongitudinalNode();
 
   // Publisher/Subscribers
   rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
@@ -201,12 +210,7 @@ TEST_F(FakeNodeFixture, longitudinal_accelerate) {
   bool received_longitudinal_command = false;
 
   // Node
-  rclcpp::NodeOptions node_options;
-  node_options.arguments(
-    {"--ros-args", "--params-file", ament_index_cpp::get_package_share_directory(
-        "trajectory_follower_nodes") + "/param/longitudinal_controller_defaults.yaml"});
-  std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
-    node_options);
+  std::shared_ptr<LongitudinalController> node = makeLongitudinalNode();
 
   // Publisher/Subscribers
   rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
@@ -279,12 +283,7 @@ TEST_F(FakeNodeFixture, longitudinal_stopped) {
   bool received_longitudinal_command = false;
 
   // Node
-  rclcpp::NodeOptions node_options;
-  node_options.arguments(
-    {"--ros-args", "--params-file", ament_index_cpp::get_package_share_directory(
-        "trajectory_follower_nodes") + "/param/longitudinal_controller_defaults.yaml"});
-  std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
-    node_options);
+  std::shared_ptr<LongitudinalController> node = makeLongitudinalNode();
 
   // Publisher/Subscribers
   rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
@@ -349,12 +348,7 @@ TEST_F(FakeNodeFixture, longitudinal_reverse) {
   bool received_longitudinal_command = false;
 
   // Node
-  rclcpp::NodeOptions node_options;
-  node_options.arguments(
-    {"--ros-args", "--params-file", ament_index_cpp::get_package_share_directory(
-        "trajectory_follower_nodes") + "/param/longitudinal_controller_defaults.yaml"});
-  std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
-    node_options);
+  std::shared_ptr<LongitudinalController> node = makeLongitudinalNode();
 
   // Publisher/Subscribers
   rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
@@ -419,12 +413,7 @@ TEST_F(FakeNodeFixture, longitudinal_emergency) {
   bool received_longitudinal_command = false;
 
   // Node
-  rclcpp::NodeOptions node_options;
-  node_options.arguments(
-    {"--ros-args", "--params-file", ament_index_cpp::get_package_share_directory(
-        "trajectory_follower_nodes") + "/param/longitudinal_controller_defaults.yaml"});
-  std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
-    node_options);
+  std::shared_ptr<LongitudinalController> node = makeLongitudinalNode();
 
   // Publisher/Subscribers
   rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
@@ -488,12 +477,8 @@ TEST_F(FakeNodeFixture, longitudinal_emergency) {
 TEST_F(FakeNodeFixture, DISABLED_longitudinal_set_param_smoke_test)
 {
   // Node
-  rclcpp::NodeOptions node_options;
-  node_options.arguments(
-    {"--ros-args", "--params-file", ament_index_cpp::get_package_share_directory(
-        "trajectory_follower_nodes") + "/param/longitudinal_controller_defaults.yaml"});
-  std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
-    node_options);
+  std::shared_ptr<LongitudinalController> node = makeLongitudinalNode();
+
   // give the node some time to initialize completely
   std::this_thread::sleep_for(std::chrono::milliseconds{100LL});
 

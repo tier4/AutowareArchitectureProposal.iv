@@ -33,7 +33,7 @@ def generate_test_description():
             os.path.join(
                 get_package_share_directory('trajectory_follower_nodes'),
                 'param/latlon_muxer_defaults.yaml'
-            )
+            ),
         ]
     )
 
