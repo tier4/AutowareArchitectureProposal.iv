@@ -93,10 +93,13 @@ bool PathShifter::generate(ShiftedPath * shifted_path, const bool offset_back)
   }
 
   if (shift_points_.front().start_idx == 0) {
+    // if offset is applied on front side, shifting from first point is no problem 
+    if(offset_back){
     RCLCPP_WARN_STREAM(
       logger_,
       "shift start point is at the edge of path. It could cause undesired result."
       " Maybe path is too short for backward?");
+    }
   }
 
   // Calculate shifted path (linear shifter is only for debug, will be deprecated.)

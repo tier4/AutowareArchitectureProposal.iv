@@ -209,11 +209,11 @@ void RouteHandler::setPullOverGoalPose(
   pull_over_goal_pose_.position = shoulder_point.position;
 
   // distance between shoulder lane's left boundary and shoulder lane center
-  double distance_shoulder_to_left_bound =
-    util::getDistanceToShoulderBoundary({target_lane}, route_msg_.goal_pose);
+  double distance_shoulder_to_left_boundary =
+    util::getDistanceToShoulderBoundary({target_lane}, shoulder_point);
 
   // distance between shoulder lane center and target line
-  double distance_shoulder_to_target = distance_shoulder_to_left_bound + vehicle_width / 2 + margin;
+  double distance_shoulder_to_target = distance_shoulder_to_left_boundary + vehicle_width / 2 + margin;
 
   // Apply shifting shoulder lane to adjust to target line
   double offset = -distance_shoulder_to_target;
@@ -370,6 +370,107 @@ lanelet::ConstLanelets RouteHandler::getLaneletSequence(
     lanelet_sequence.end(), lanelet_sequence_forward.begin(), lanelet_sequence_forward.end());
 
   return lanelet_sequence;
+}
+
+bool RouteHandler::getFollowingShoulderLanelet(
+  const lanelet::ConstLanelet & lanelet, lanelet::ConstLanelet * following_lanelet) const
+{
+  Pose back_pose;
+  back_pose.position.x = lanelet.centerline2d().back().x();
+  back_pose.position.y = lanelet.centerline2d().back().y();
+  back_pose.position.z = 0;
+
+  lanelet::ArcCoordinates arc_coordinates;
+  const auto & centerline_2d = to2D(lanelet.centerline());
+
+  for (const auto & shoulder_lanelet : shoulder_lanelets_) {
+    Pose front_pose;
+    front_pose.position.x = shoulder_lanelet.centerline2d().front().x();
+    front_pose.position.y = shoulder_lanelet.centerline2d().front().y();
+    front_pose.position.z = 0;
+    if (
+      std::hypot(
+        front_pose.position.x - back_pose.position.x,
+        front_pose.position.y - back_pose.position.y) < 5) {
+      *following_lanelet = shoulder_lanelet;
+      return true;
+    }
+  }
+  return false;
+}
+
+lanelet::ConstLanelets RouteHandler::getShoulderLaneletSequenceAfter(
+  const lanelet::ConstLanelet & lanelet, const double min_length) const
+{
+  lanelet::ConstLanelets lanelet_sequence_forward;
+  if (!exists(shoulder_lanelets_, lanelet)) {
+    return lanelet_sequence_forward;
+  }
+
+  double length = 0;
+  lanelet::ConstLanelet current_lanelet = lanelet;
+  while (rclcpp::ok() && length < min_length) {
+    lanelet::ConstLanelet next_lanelet;
+    if (!getFollowingShoulderLanelet(current_lanelet, &next_lanelet)) {
+      break;
+    }
+    lanelet_sequence_forward.push_back(next_lanelet);
+    current_lanelet = next_lanelet;
+    length += boost::geometry::length(next_lanelet.centerline().basicLineString());
+  }
+
+  return lanelet_sequence_forward;
+}
+
+bool RouteHandler::getPreviousShoulderLanelet(
+  const lanelet::ConstLanelet & lanelet, lanelet::ConstLanelet * prev_lanelet) const
+{
+  Pose front_pose;
+  front_pose.position.x = lanelet.centerline2d().front().x();
+  front_pose.position.y = lanelet.centerline2d().front().y();
+  front_pose.position.z = 0;
+
+  lanelet::ArcCoordinates arc_coordinates;
+  const auto & centerline_2d = to2D(lanelet.centerline());
+
+  for (const auto & shoulder_lanelet : shoulder_lanelets_) {
+    Pose back_pose;
+    back_pose.position.x = shoulder_lanelet.centerline2d().back().x();
+    back_pose.position.y = shoulder_lanelet.centerline2d().back().y();
+    back_pose.position.z = 0;
+    if (
+      std::hypot(
+        front_pose.position.x - back_pose.position.x,
+        front_pose.position.y - back_pose.position.y) < 5) {
+      *prev_lanelet = shoulder_lanelet;
+      return true;
+    }
+  }
+  return false;
+}
+
+lanelet::ConstLanelets RouteHandler::getShoulderLaneletSequenceUpTo(
+  const lanelet::ConstLanelet & lanelet, const double min_length) const
+{
+  lanelet::ConstLanelets lanelet_sequence_backward;
+  if (!exists(shoulder_lanelets_, lanelet)) {
+    return lanelet_sequence_backward;
+  }
+
+  double length = 0;
+  lanelet::ConstLanelet current_lanelet = lanelet;
+  while (rclcpp::ok() && length < min_length) {
+    lanelet::ConstLanelet prev_lanelet;
+    if (!getPreviousShoulderLanelet(current_lanelet, &prev_lanelet)) {
+      break;
+    }
+
+    lanelet_sequence_backward.insert(lanelet_sequence_backward.begin(), prev_lanelet);
+    current_lanelet = prev_lanelet;
+    length += boost::geometry::length(prev_lanelet.centerline().basicLineString());
+  }
+
+  return lanelet_sequence_backward;
 }
 
 lanelet::ConstLanelets RouteHandler::getShoulderLaneletSequence(
@@ -731,7 +832,7 @@ PathWithLaneId RouteHandler::setDecelerationVelocity(
 PathWithLaneId RouteHandler::setDecelerationVelocity(
   const PathWithLaneId & input, const lanelet::ConstLanelets & lanelet_sequence,
   const double distance_after_pullover, const double pullover_distance_min,
-  const double distance_before_pull_over, Pose goal_pose) const
+  const double distance_before_pull_over, const double deceleration_interval,Pose goal_pose) const
 {
   auto reference_path = input;
   const auto pullover_buffer =
@@ -742,7 +843,6 @@ PathWithLaneId RouteHandler::setDecelerationVelocity(
   const auto arclength_path_front =
     lanelet::utils::getArcCoordinates(lanelet_sequence, reference_path.points.front().point.pose)
       .length;
-  const double pull_over_prepare_distance = 20;
 
   if (
     isDeadEndLanelet(lanelet_sequence.back()) &&
@@ -754,7 +854,7 @@ PathWithLaneId RouteHandler::setDecelerationVelocity(
         std::max(0.0, arclength_pull_over_start - arclength);
       point.point.twist.linear.x = std::min(
         point.point.twist.linear.x,
-        (distance_to_pull_over_start / pull_over_prepare_distance) * point.point.twist.linear.x);
+        (distance_to_pull_over_start / deceleration_interval) * point.point.twist.linear.x);
     }
   }
 

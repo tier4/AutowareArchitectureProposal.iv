@@ -106,7 +106,7 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
 
     bt_manager_->registerForceApproval("ForceLaneChange");
 
-    auto pull_over_module = std::make_shared<PullOverModule>("PullOver", getPullOverParam());
+    auto pull_over_module = std::make_shared<PullOverModule>("PullOver",*this, getPullOverParam());
     bt_manager_->registerSceneModule(pull_over_module);
 
     bt_manager_->createBehaviorTree();
@@ -296,12 +296,14 @@ PullOverParameters BehaviorPathPlannerNode::getPullOverParam()
   p.abort_pull_over_distance_thresh = dp("abort_pull_over_distance_thresh", 0.3);
   p.enable_blocked_by_obstacle = dp("enable_blocked_by_obstacle", false);
   p.pull_over_search_distance = dp("pull_over_search_distance", 30.0);
-  p.after_pull_over_straight_distance = dp("after_pullover_straight_distance", 0.5);
+  p.after_pull_over_straight_distance = dp("after_pull_over_straight_distance", 3.0);
   p.before_pull_over_straight_distance =
-    dp("before_pullover_straight_distance", autoware_utils::deg2rad(10.0));
+    dp("before_pull_over_straight_distance", 3.0);
   p.margin_from_boundary = dp("margin_from_boundary", 0.3);
-  p.maximum_lateral_jerk = dp("maximum_lateral_jerk", false);
-  p.minimum_lateral_jerk = dp("minimum_lateral_jerk", 30.0);
+  p.maximum_lateral_jerk = dp("maximum_lateral_jerk", 3.0);
+  p.minimum_lateral_jerk = dp("minimum_lateral_jerk", 1.0);
+  p.deceleration_interval = dp("deceleration_interval", 10.0);
+
 
   // validation of parameters
   if (p.pull_over_sampling_num < 1) {
@@ -320,7 +322,7 @@ PullOverParameters BehaviorPathPlannerNode::getPullOverParam()
   }
 
   return p;
-};
+}
 
 BehaviorTreeManagerParam BehaviorPathPlannerNode::getBehaviorTreeManagerParam()
 {
@@ -558,15 +560,16 @@ PathWithLaneId BehaviorPathPlannerNode::clipPathByGoal(const PathWithLaneId & pa
 {
   const auto goal = planner_data_->route_handler->getGoalPose();
   const auto goal_lane_id = planner_data_->route_handler->getGoalLaneId();
+  const auto is_approved = planner_data_->approval.is_approved.data;
 
   Pose refined_goal{};
   {
     lanelet::ConstLanelet goal_lanelet;
     lanelet::ConstLanelet pull_over_lane;
     geometry_msgs::msg::Pose pull_over_goal;
-    lanelet::ConstLanelet pull_over_lane;
-    if (planner_data_->route_handler->getPullOverTarget(
-          planner_data_->route_handler->getShoulderLanelets(), &pull_over_lane)) {
+    if (
+      is_approved && planner_data_->route_handler->getPullOverTarget(
+                      planner_data_->route_handler->getShoulderLanelets(), &pull_over_lane)) {
       refined_goal = planner_data_->route_handler->getPullOverGoalPose();
     } else if (planner_data_->route_handler->getGoalLanelet(&goal_lanelet)) {
       refined_goal = util::refineGoal(goal, goal_lanelet);

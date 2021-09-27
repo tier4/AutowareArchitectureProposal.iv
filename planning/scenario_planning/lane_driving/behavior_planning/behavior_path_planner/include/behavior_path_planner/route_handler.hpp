@@ -35,7 +35,6 @@
 
 #include "behavior_path_planner/parameters.hpp"
 #include "behavior_path_planner/path_shifter/path_shifter.hpp"
-#include "behavior_path_planner/utilities.hpp"
 
 namespace behavior_path_planner
 {
@@ -161,9 +160,9 @@ public:
     const double lane_change_buffer) const;
 
   PathWithLaneId setDecelerationVelocity(
-    const PathWithLaneId & input,
-    const lanelet::ConstLanelets & lanelet_sequence, const double distance_after_pullover,
-    const double pullover_distance_min, const double distance_before_pull_over,
+    const PathWithLaneId & input, const lanelet::ConstLanelets & lanelet_sequence,
+    const double distance_after_pullover, const double pullover_distance_min,
+    const double distance_before_pull_over, const double deceleration_interval,
     Pose goal_pose) const;
 
   bool getLaneChangeTarget(
@@ -235,11 +234,17 @@ private:
     const lanelet::ConstLanelet & lanelet,
     const double min_length = std::numeric_limits<double>::max()) const;
 
-  lanelet::ConstLanelets getShoulderLaneletSequenceUpTo(
+  bool getFollowingShoulderLanelet(
+    const lanelet::ConstLanelet & lanelet, lanelet::ConstLanelet * following_lanelet) const;
+
+  lanelet::ConstLanelets getShoulderLaneletSequenceAfter(
     const lanelet::ConstLanelet & lanelet,
     const double min_length = std::numeric_limits<double>::max()) const;
 
-  lanelet::ConstLanelets getShoulderLaneletSequenceAfter(
+  bool getPreviousShoulderLanelet(
+    const lanelet::ConstLanelet & lanelet, lanelet::ConstLanelet * prev_lanelet) const;
+
+  lanelet::ConstLanelets getShoulderLaneletSequenceUpTo(
     const lanelet::ConstLanelet & lanelet,
     const double min_length = std::numeric_limits<double>::max()) const;
 
@@ -254,8 +259,7 @@ private:
 
   // for path
 
-  PathWithLaneId updatePathTwist(
-    const PathWithLaneId & path) const;
+  PathWithLaneId updatePathTwist(const PathWithLaneId & path) const;
 };
 }  // namespace behavior_path_planner
 #endif  // BEHAVIOR_PATH_PLANNER__ROUTE_HANDLER_HPP_

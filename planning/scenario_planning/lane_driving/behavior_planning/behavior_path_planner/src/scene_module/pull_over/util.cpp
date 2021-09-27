@@ -82,7 +82,7 @@ const PathWithLaneId & path,
 
 std::vector<PullOverPath> getPullOverPaths(
   const RouteHandler & route_handler, const lanelet::ConstLanelets & original_lanelets,
-  const lanelet::ConstLanelets & target_lanelets, const Pose & pose, const Twist & twist,
+  const lanelet::ConstLanelets & target_lanelets, const Pose & pose, [[maybe_unused]]const Twist & twist,
   const BehaviorPathPlannerParameters & common_parameter, const PullOverParameters & parameter)
 {
   std::vector<PullOverPath> candidate_paths;
@@ -100,14 +100,14 @@ std::vector<PullOverPath> getPullOverPaths(
   const double margin = parameter.margin_from_boundary;
   const double minimum_lateral_jerk = parameter.minimum_lateral_jerk;
   const double maximum_lateral_jerk = parameter.maximum_lateral_jerk;
+  const double deceleration_interval = parameter.deceleration_interval;
   const int pull_over_sampling_num = parameter.pull_over_sampling_num;
   const double jerk_resolution =
     std::abs(maximum_lateral_jerk - minimum_lateral_jerk) / pull_over_sampling_num;
 
-  // get velocity
-  const double v0 = util::l2Norm(twist.linear);
-  double distance_to_shoulder_lane_boundary = util::getDistanceToShoulderBoundary(route_handler.getShoulderLanelets(), pose);
-  double offset_from_center_line =
+  double distance_to_shoulder_lane_boundary =
+    util::getDistanceToShoulderBoundary(route_handler.getShoulderLanelets(), pose);
+  double offset_from_current_pose =
     distance_to_shoulder_lane_boundary + common_parameter.vehicle_width / 2 + margin;
 
 
@@ -119,9 +119,9 @@ std::vector<PullOverPath> getPullOverPaths(
     PullOverPath candidate_path;
 
     double pull_over_distance = path_shifter.calcLongitudinalDistFromJerk(
-      abs(offset_from_center_line), lateral_jerk, minimum_pull_over_velocity);
+      abs(offset_from_current_pose), lateral_jerk, minimum_pull_over_velocity);
 
-    // calculate stragiht distance before pull over
+    // calculate straight distance before pull over
     double straight_distance;
     {
       const auto arc_position_goal =
@@ -155,21 +155,18 @@ std::vector<PullOverPath> getPullOverPaths(
       const double s_start = arc_position.length - backward_path_length;
       const double s_end = arc_position_ref2_front.length - pull_over_distance;
       reference_path1 = route_handler.getCenterLinePath(original_lanelets, s_start, s_end);
-      //To do zero guard for straight distance
-      const auto velocity_diff = minimum_pull_over_velocity - v0;
+      // decelerate velocity linearly to minimum pull over velocity(or accelerate if original velocity is lower than minimum velocity)
       for (auto & point : reference_path1.points) {
-        const auto s_point =
+        const auto arclength =
           lanelet::utils::getArcCoordinates(original_lanelets, point.point.pose).length;
-        if ((s_end - s_point < 15)) {
-          point.point.twist.linear.x = std::min(
-            point.point.twist.linear.x,
-            std::max(
-              minimum_pull_over_velocity,
-              velocity_diff / straight_distance * (s_point - arc_position.length) + v0));
-        }
+        const double distance_to_pull_over_start = std::max(0.0, s_end - arclength);
+        point.point.twist.linear.x = std::min(
+          point.point.twist.linear.x,
+          (distance_to_pull_over_start / deceleration_interval) *
+              (point.point.twist.linear.x - minimum_pull_over_velocity) +
+            minimum_pull_over_velocity);
       }
     }
-
 
     if (reference_path1.points.empty() || reference_path2.points.empty()) {
       RCLCPP_ERROR_STREAM(
@@ -178,9 +175,6 @@ std::vector<PullOverPath> getPullOverPaths(
       continue;
     }
 
-
-
-    
     PathWithLaneId target_lane_reference_path;
     {
       const lanelet::ArcCoordinates pull_over_start_arc_position =
@@ -219,11 +213,19 @@ std::vector<PullOverPath> getPullOverPaths(
     {
       shift_point.start = reference_path1.points.back().point.pose;
       shift_point.end = reference_path2.points.front().point.pose;
-      shift_point.length = offset_from_center_line;
+
+      // distance between shoulder lane's left boundary and current lane center
+      double distance_road_to_left_boundary =
+        util::getDistanceToShoulderBoundary(route_handler.getShoulderLanelets(), reference_path1.points.back().point.pose);
+      // distance between shoulder lane's left boundary and current lane center
+      double distance_road_to_target =
+        distance_road_to_left_boundary + common_parameter.vehicle_width / 2 + margin;
+
+      shift_point.length = distance_road_to_target;
       path_shifter.addShiftPoint(shift_point);
     }
 
-    // offset front side on reference path
+    // offset front side from reference path
     bool offset_back = false;
     if (!path_shifter.generate(&shifted_path, offset_back)) {
       RCLCPP_ERROR_STREAM(
@@ -318,7 +320,7 @@ std::vector<PullOverPath> selectValidPaths(
 bool selectSafePath(
   const std::vector<PullOverPath> & paths, const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
-  const DynamicObjectArray::ConstPtr & dynamic_objects,
+  const DynamicObjectArray::ConstSharedPtr & dynamic_objects,
   const Pose & current_pose, const Twist & current_twist,
   const double vehicle_width, const PullOverParameters & ros_parameters,
   PullOverPath * selected_path)
@@ -343,9 +345,9 @@ bool selectSafePath(
 
 bool hasEnoughDistance(
   const PullOverPath & path, const lanelet::ConstLanelets & current_lanes,
-  const lanelet::ConstLanelets & target_lanes, const Pose & current_pose,
+  [[maybe_unused]] const lanelet::ConstLanelets & target_lanes, const Pose & current_pose,
   const bool isInGoalRouteSection, const Pose & goal_pose,
-  const lanelet::routing::RoutingGraphContainer & overall_graphs)
+  [[maybe_unused]] const lanelet::routing::RoutingGraphContainer & overall_graphs)
 {
   const double pull_over_prepare_distance = path.preparation_length;
   const double pull_over_distance = path.pull_over_length;
@@ -377,7 +379,7 @@ bool hasEnoughDistance(
 bool isPullOverPathSafe(
 const PathWithLaneId & path, const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
-  const DynamicObjectArray::ConstPtr & dynamic_objects,
+  const DynamicObjectArray::ConstSharedPtr & dynamic_objects,
   const Pose & current_pose, const Twist & current_twist,
   const double vehicle_width, const PullOverParameters & ros_parameters, const bool use_buffer,
   const double acceleration)
