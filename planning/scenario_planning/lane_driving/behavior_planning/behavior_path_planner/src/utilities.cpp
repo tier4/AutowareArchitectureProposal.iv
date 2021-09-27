@@ -1150,6 +1150,27 @@ PathPointWithLaneId insertStopPoint(
   return stop_point;
 }
 
+double getDistanceToShoulderBoundary(
+  const lanelet::ConstLanelets & shoulder_lanelets, const Pose & pose)
+{
+  lanelet::ConstLanelet closest_shoulder_lanelet;
+  lanelet::ArcCoordinates arc_coordinates;
+  if (lanelet::utils::query::getClosestLanelet(
+        shoulder_lanelets, pose, &closest_shoulder_lanelet)) {
+    const auto lanelet_point = lanelet::utils::conversion::toLaneletPoint(pose.position);
+    const auto & left_line_2d = lanelet::utils::to2D(closest_shoulder_lanelet.leftBound3d());
+    arc_coordinates = lanelet::geometry::toArcCoordinates(
+      left_line_2d, lanelet::utils::to2D(lanelet_point).basicPoint());
+
+  } else {
+    RCLCPP_ERROR_STREAM(
+      rclcpp::get_logger("behavior_path_planner").get_child("utilities"),
+      "closest shoulder lanelet not found.");
+  }
+
+return arc_coordinates.distance;
+}
+
 double getArcLengthToTargetLanelet(
   const lanelet::ConstLanelets & current_lanes, const lanelet::ConstLanelet & target_lane,
   const Pose & pose)

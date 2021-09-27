@@ -272,6 +272,9 @@ std::shared_ptr<PathWithLaneId> generateCenterLinePath(
 
 PathPointWithLaneId insertStopPoint(double length, PathWithLaneId * path);
 
+double getDistanceToShoulderBoundary(
+  const lanelet::ConstLanelets & shoulder_lanelets, const Pose & pose);
+
 // misc
 
 lanelet::Polygon3d getVehiclePolygon(
