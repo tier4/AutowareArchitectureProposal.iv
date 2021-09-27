@@ -23,13 +23,12 @@
 #include "autoware_auto_msgs/msg/longitudinal_command.hpp"
 #include "autoware_auto_msgs/msg/trajectory.hpp"
 #include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
+#include "autoware_auto_msgs/msg/float32_multi_array_diagnostic.hpp"
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Geometry"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "motion_common/trajectory_common.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/float32.hpp"
-#include "std_msgs/msg/float32_multi_array.hpp"
 #include "tf2/utils.h"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
@@ -84,8 +83,8 @@ private:
     m_sub_current_state;
   rclcpp::Subscription<autoware_auto_msgs::msg::Trajectory>::SharedPtr m_sub_trajectory;
   rclcpp::Publisher<autoware_auto_msgs::msg::LongitudinalCommand>::SharedPtr m_pub_control_cmd;
-  rclcpp::Publisher<std_msgs::msg::Float32>::SharedPtr m_pub_slope;
-  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr m_pub_debug;
+  rclcpp::Publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr m_pub_slope;
+  rclcpp::Publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr m_pub_debug;
   rclcpp::TimerBase::SharedPtr m_timer_control;
 
   tf2_ros::Buffer m_tf_buffer;
