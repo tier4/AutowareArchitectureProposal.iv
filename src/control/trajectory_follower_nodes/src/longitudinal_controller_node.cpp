@@ -37,9 +37,10 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
 
   // parameters timer
   m_control_rate = declare_parameter("control_rate").get<float64_t>();
-  // const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo();
-  // TODO(Maxime CLEMENT) get the proper value (parameter?)
-  m_wheel_base = 0.0;  // vehicle_info.wheel_base_m;
+
+  const float64_t cog_to_rear_axle = declare_parameter("vehicle.cg_to_rear_m").get<float64_t>();
+  const float64_t cog_to_front_axle = declare_parameter("vehicle.cg_to_front_m").get<float64_t>();
+  m_wheel_base = cog_to_rear_axle + cog_to_front_axle;
 
   // parameters for delay compensation
   m_delay_compensation_time = declare_parameter("delay_compensation_time").get<float64_t>();  // [s]

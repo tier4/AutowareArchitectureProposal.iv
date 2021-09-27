@@ -33,7 +33,11 @@ def generate_test_description():
             os.path.join(
                 get_package_share_directory('trajectory_follower_nodes'),
                 'param/lateral_controller_defaults.yaml'
-            )
+            ),
+            os.path.join(
+                get_package_share_directory('trajectory_follower_nodes'),
+                'param/vehicle_defaults.yaml'
+            ),
         ]
     )
 

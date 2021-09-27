@@ -100,7 +100,7 @@ private:
   std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState> m_prev_state_ptr{nullptr};
   std::shared_ptr<autoware_auto_msgs::msg::Trajectory> m_trajectory_ptr{nullptr};
 
-  // vehicle info TODO get as param
+  // vehicle info
   float64_t m_wheel_base;
 
   // control state
