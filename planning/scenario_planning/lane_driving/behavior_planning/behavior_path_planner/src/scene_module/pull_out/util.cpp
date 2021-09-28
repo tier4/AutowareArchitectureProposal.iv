@@ -96,8 +96,7 @@ std::vector<PullOutPath> getPullOutPaths(
   const double backward_path_length = common_parameter.backward_path_length;
   const double forward_path_length = common_parameter.forward_path_length;
   const double minimum_pull_out_velocity = parameter.minimum_pull_out_velocity;
-  // TODO add parameter
-  const double before_pull_out_straight_distance = 3.0;
+  const double before_pull_out_straight_distance = parameter.before_pull_out_straight_distance;
   const double minimum_lateral_jerk = parameter.minimum_lateral_jerk;
   const double maximum_lateral_jerk = parameter.maximum_lateral_jerk;
   const int pull_out_sampling_num = parameter.pull_out_sampling_num;

@@ -218,29 +218,16 @@ PathWithLaneId PullOutModule::planCandidate() const
 BehaviorModuleOutput PullOutModule::planWaitingApproval()
 {
   BehaviorModuleOutput out;
-  // out.path = std::make_shared<PathWithLaneId>(getReferencePath());
-  //TODO stop trajectory output
 
-  const auto & route_handler = planner_data_->route_handler;
-  const auto common_parameters = planner_data_->parameters;
   const auto current_lanes = getCurrentLanes();
   const auto shoulder_lanes = getPullOutLanes(current_lanes);
 
-  PathWithLaneId candidatePath;
-  // Generate drivable area
-  {
-    candidatePath = planCandidate();
-    lanelet::ConstLanelets lanes;
-    lanes.insert(lanes.end(), current_lanes.begin(), current_lanes.end());
-    lanes.insert(lanes.end(), shoulder_lanes.begin(), shoulder_lanes.end());
-    const double width = common_parameters.drivable_area_width;
-    const double height = common_parameters.drivable_area_height;
-    const double resolution = common_parameters.drivable_area_resolution;
-    candidatePath.drivable_area = util::generateDrivableArea(
-      lanes, *(planner_data_->self_pose), width, height, resolution,
-      common_parameters.vehicle_length, *route_handler);
+  PathWithLaneId candidatePath = planCandidate();
+  for (auto & point : candidatePath.points) {
+    point.point.twist.linear.x = 0;
   }
   out.path = std::make_shared<PathWithLaneId>(candidatePath);
+
   out.path_candidate = std::make_shared<PathWithLaneId>(planCandidate());
 
   return out;
@@ -419,8 +406,6 @@ std::pair<bool, bool> PullOutModule::getSafePath(
 
   const auto vehicle_info = getVehicleInfo(planner_data_->parameters);
   const auto local_vehicle_footprint = createVehicleFootprint(vehicle_info);
-  // const auto vehicle_footprint = transformVector(
-  //   local_vehicle_footprint, autoware_utils::pose2transform(planner_data_->self_pose->pose));
 
   if (!pull_out_lanes.empty()) {
     // find candidate paths
@@ -768,6 +753,7 @@ bool PullOutModule::hasFinishedPullOut() const
     lanelet::utils::getArcCoordinates(status_.current_lanes, current_pose);
   const auto arclength_shift_end =
     lanelet::utils::getArcCoordinates(status_.current_lanes, status_.pull_out_path.shift_point.end);
+  // RCLCPP_ERROR(getLogger(),"%f %f %f",arclength_shift_end.length,arclength_current.length,parameters_.pull_out_finish_judge_buffer);
   const bool car_is_on_goal = (arclength_shift_end.length - arclength_current.length <
                                parameters_.pull_out_finish_judge_buffer)
                                 ? true
