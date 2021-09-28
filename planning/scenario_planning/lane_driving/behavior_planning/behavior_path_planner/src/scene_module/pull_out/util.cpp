@@ -362,14 +362,14 @@ bool selectSafePath(
   const std::vector<PullOutPath> & paths, const lanelet::ConstLanelets & road_lanes,
   const lanelet::ConstLanelets & shoulder_lanes,
   const DynamicObjectArray::ConstSharedPtr & dynamic_objects,
-  const Pose & current_pose, const Twist & current_twist,
-  const double vehicle_width, const PullOutParameters & ros_parameters,
+  [[maybe_unused]]const Pose & current_pose, [[maybe_unused]]const Twist & current_twist,
+  [[maybe_unused]]const double vehicle_width, const PullOutParameters & ros_parameters,
   const autoware_utils::LinearRing2d & local_vehicle_footprint, PullOutPath * selected_path)
 {
   for (const auto & path : paths) {
     if (isPullOutPathSafe(
-          path, road_lanes, shoulder_lanes, dynamic_objects, current_pose, current_twist,
-          vehicle_width, ros_parameters, local_vehicle_footprint, true, path.acceleration)) {
+          path, road_lanes, shoulder_lanes, dynamic_objects, ros_parameters,
+          local_vehicle_footprint, true)) {
       *selected_path = path;
       return true;
     }

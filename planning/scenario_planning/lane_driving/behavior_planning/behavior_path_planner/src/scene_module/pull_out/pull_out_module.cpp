@@ -423,7 +423,6 @@ std::pair<bool, bool> PullOutModule::getSafePath(
   //   local_vehicle_footprint, autoware_utils::pose2transform(planner_data_->self_pose->pose));
 
   if (!pull_out_lanes.empty()) {
-    RCLCPP_ERROR(getLogger(), "pull over lane is not empty");
     // find candidate paths
     const auto pull_out_paths = pull_out_utils::getPullOutPaths(
       *route_handler, road_lanes, pull_out_lanes, current_pose, common_parameters, parameters_);
@@ -446,7 +445,7 @@ std::pair<bool, bool> PullOutModule::getSafePath(
     ;
 
     if (valid_paths.empty()) {
-      RCLCPP_ERROR(getLogger(), "valid path is empty");
+      RCLCPP_DEBUG(getLogger(), "valid path is empty");
       return std::make_pair(false, false);
     }
     // select safe path
@@ -454,7 +453,6 @@ std::pair<bool, bool> PullOutModule::getSafePath(
       valid_paths, road_lanes, check_lanes, planner_data_->dynamic_object, current_pose,
       current_twist, common_parameters.vehicle_width, parameters_, local_vehicle_footprint,
       &safe_path);
-    RCLCPP_ERROR(getLogger(), "%d", found_safe_path);
 
     return std::make_pair(true, found_safe_path);
   }
@@ -705,9 +703,7 @@ bool PullOutModule::isAbortConditionSatisfied() const
       path.path, status_.pull_out_lanes, check_distance_with_path);
 
     is_path_safe = pull_out_utils::isPullOutPathSafe(
-      path, current_lanes, check_lanes, objects, current_pose, current_twist,
-      common_parameters.vehicle_width, parameters_, local_vehicle_footprint, false,
-      status_.pull_out_path.acceleration);
+      path, current_lanes, check_lanes, objects, parameters_, local_vehicle_footprint, false);
   }
 
   // check vehicle velocity thresh
