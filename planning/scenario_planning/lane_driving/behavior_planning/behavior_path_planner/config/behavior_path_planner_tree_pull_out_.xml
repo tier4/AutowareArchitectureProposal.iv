@@ -9,7 +9,7 @@
                 <Action ID="PullOver_Plan" output="{output}"/>
             </ReactiveSequence>
             <ReactiveSequence>
-                <Condition ID="PullOver_Request"/>
+                <Condition ID="PullOut_Request"/>
                 <Condition ID="PullOut_Ready"/>
                 <Action ID="PullOut_Plan" output="{output}"/>
             </ReactiveSequence>
@@ -79,7 +79,7 @@
         <Condition ID="PullOut_Ready"/>
         <Condition ID="PullOut_Request"/>
         <Action ID="PullOver_Plan">
-            <output_port default="{output}" name="output"/>
+            <output_port name="output" type="behavior_path_planner::BehaviorModuleOutput">desc</output_port>
         </Action>
         <Condition ID="PullOver_Ready"/>
         <Condition ID="PullOver_Request"/>

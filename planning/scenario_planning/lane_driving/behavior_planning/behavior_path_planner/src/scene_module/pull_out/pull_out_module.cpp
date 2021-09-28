@@ -333,14 +333,14 @@ PathWithLaneId PullOutModule::getReferencePath() const
   reference_path.header = route_handler->getRouteHeader();
 
   const auto current_lanes = getCurrentLanes();
-  const auto pullover_lanes = getPullOutLanes(current_lanes);
+  const auto pull_out_lanes = getPullOutLanes(current_lanes);
 
   if (current_lanes.empty()) {
     return reference_path;
   }
 
   reference_path = route_handler->getCenterLinePath(
-    pullover_lanes, current_pose, common_parameters.backward_path_length,
+    pull_out_lanes, current_pose, common_parameters.backward_path_length,
     common_parameters.forward_path_length, common_parameters);
 
   reference_path = route_handler->setDecelerationVelocity(
@@ -349,7 +349,7 @@ PathWithLaneId PullOutModule::getReferencePath() const
     parameters_.deceleration_interval, goal_pose);
 
   reference_path.drivable_area = util::generateDrivableArea(
-    pullover_lanes, *planner_data_->self_pose, common_parameters.drivable_area_width,
+    pull_out_lanes, *planner_data_->self_pose, common_parameters.drivable_area_width,
     common_parameters.drivable_area_height, common_parameters.drivable_area_resolution,
     common_parameters.vehicle_length, *planner_data_->route_handler);
 
@@ -392,11 +392,13 @@ lanelet::ConstLanelets PullOutModule::getPullOutLanes(
   lanelet::utils::query::getClosestLanelet(
     current_lanes, planner_data_->self_pose->pose, &current_lane);
 
-  if (route_handler->getPullOverTarget(route_handler->getShoulderLanelets(), &shoulder_lane)) {
+  if (route_handler->getPullOutStart(
+        route_handler->getShoulderLanelets(), &shoulder_lane,current_pose)) {
     shoulder_lanes = route_handler->getShoulderLaneletSequence(
       shoulder_lane, current_pose, pull_out_lane_length_, pull_out_lane_length_);
 
   } else {
+    RCLCPP_ERROR(getLogger(), "getPullOverTarget didn't work");
     shoulder_lanes.clear();
   }
 
@@ -404,7 +406,7 @@ lanelet::ConstLanelets PullOutModule::getPullOutLanes(
 }
 
 std::pair<bool, bool> PullOutModule::getSafePath(
-  const lanelet::ConstLanelets & pullover_lanes, const double check_distance,
+  const lanelet::ConstLanelets & pull_out_lanes, const double check_distance,
   PullOutPath & safe_path) const
 {
   std::vector<PullOutPath> valid_paths;
@@ -420,10 +422,11 @@ std::pair<bool, bool> PullOutModule::getSafePath(
   // const auto vehicle_footprint = transformVector(
   //   local_vehicle_footprint, autoware_utils::pose2transform(planner_data_->self_pose->pose));
 
-  if (!pullover_lanes.empty()) {
+  if (!pull_out_lanes.empty()) {
+    RCLCPP_ERROR(getLogger(), "pull over lane is not empty");
     // find candidate paths
     const auto pull_out_paths = pull_out_utils::getPullOutPaths(
-      *route_handler, road_lanes, pullover_lanes, current_pose, common_parameters, parameters_);
+      *route_handler, road_lanes, pull_out_lanes, current_pose, common_parameters, parameters_);
 
     // get lanes used for detection
     lanelet::ConstLanelets check_lanes;
@@ -433,7 +436,7 @@ std::pair<bool, bool> PullOutModule::getSafePath(
       const double check_distance_with_path =
         check_distance + longest_path.preparation_length + longest_path.pull_out_length;
       check_lanes = route_handler->getCheckTargetLanesFromPath(
-        longest_path.path, pullover_lanes, check_distance_with_path);
+        longest_path.path, pull_out_lanes, check_distance_with_path);
     }
 
     // select valid path
@@ -443,6 +446,7 @@ std::pair<bool, bool> PullOutModule::getSafePath(
     ;
 
     if (valid_paths.empty()) {
+      RCLCPP_ERROR(getLogger(), "valid path is empty");
       return std::make_pair(false, false);
     }
     // select safe path
@@ -450,6 +454,8 @@ std::pair<bool, bool> PullOutModule::getSafePath(
       valid_paths, road_lanes, check_lanes, planner_data_->dynamic_object, current_pose,
       current_twist, common_parameters.vehicle_width, parameters_, local_vehicle_footprint,
       &safe_path);
+    RCLCPP_ERROR(getLogger(), "%d", found_safe_path);
+
     return std::make_pair(true, found_safe_path);
   }
   return std::make_pair(false, false);
@@ -687,7 +693,7 @@ bool PullOutModule::isAbortConditionSatisfied() const
     return false;
   }
 
-  // check if pullover path is still safe
+  // check if pull_out path is still safe
   bool is_path_safe = false;
   {
     constexpr double check_distance = 100.0;
@@ -792,54 +798,54 @@ TurnSignalInfo PullOutModule::calcTurnSignalInfo(const ShiftPoint & shift_point)
   }
 
   const auto current_lanes = getCurrentLanes();
-  const auto pullover_lanes = getPullOutLanes(current_lanes);
+  const auto pull_out_lanes = getPullOutLanes(current_lanes);
   const double turn_signal_on_threshold = 30;
   const double turn_signal_off_threshold = -3;
   const double turn_hazard_on_threshold = 3;
 
-  //calculate distance to pullover start on current lanes
-  double distance_to_pullover_start;
+  //calculate distance to pull_out start on current lanes
+  double distance_to_pull_out_start;
   {
-    const auto pullover_start = shift_point.start;
-    const auto arc_position_pullover_start =
-      lanelet::utils::getArcCoordinates(current_lanes, pullover_start);
+    const auto pull_out_start = shift_point.start;
+    const auto arc_position_pull_out_start =
+      lanelet::utils::getArcCoordinates(current_lanes, pull_out_start);
     const auto arc_position_current_pose =
       lanelet::utils::getArcCoordinates(current_lanes, planner_data_->self_pose->pose);
-    distance_to_pullover_start =
-      arc_position_pullover_start.length - arc_position_current_pose.length;
+    distance_to_pull_out_start =
+      arc_position_pull_out_start.length - arc_position_current_pose.length;
   }
 
-  //calculate distance to pullover end on target lanes
-  double distance_to_pullover_end;
+  //calculate distance to pull_out end on target lanes
+  double distance_to_pull_out_end;
   {
-    const auto pullover_end = shift_point.end;
-    const auto arc_position_pullover_end =
-      lanelet::utils::getArcCoordinates(pullover_lanes, pullover_end);
+    const auto pull_out_end = shift_point.end;
+    const auto arc_position_pull_out_end =
+      lanelet::utils::getArcCoordinates(pull_out_lanes, pull_out_end);
     const auto arc_position_current_pose =
-      lanelet::utils::getArcCoordinates(pullover_lanes, planner_data_->self_pose->pose);
-    distance_to_pullover_end = arc_position_pullover_end.length - arc_position_current_pose.length;
+      lanelet::utils::getArcCoordinates(pull_out_lanes, planner_data_->self_pose->pose);
+    distance_to_pull_out_end = arc_position_pull_out_end.length - arc_position_current_pose.length;
   }
 
-  //calculate distance to pullover start on target lanes
+  //calculate distance to pull_out start on target lanes
   double distance_to_target_pose;
   {
     const auto arc_position_target_pose = lanelet::utils::getArcCoordinates(
-      pullover_lanes, planner_data_->route_handler->getGoalPose());
+      pull_out_lanes, planner_data_->route_handler->getGoalPose());
     const auto arc_position_current_pose =
-      lanelet::utils::getArcCoordinates(pullover_lanes, planner_data_->self_pose->pose);
+      lanelet::utils::getArcCoordinates(pull_out_lanes, planner_data_->self_pose->pose);
     distance_to_target_pose = arc_position_target_pose.length - arc_position_current_pose.length;
   }
 
-  if (distance_to_pullover_start < turn_signal_on_threshold) {
+  if (distance_to_pull_out_start < turn_signal_on_threshold) {
     turn_signal.turn_signal.data = TurnSignal::RIGHT;
-    if (distance_to_pullover_end < turn_signal_off_threshold) {
+    if (distance_to_pull_out_end < turn_signal_off_threshold) {
       turn_signal.turn_signal.data = TurnSignal::NONE;
       if (distance_to_target_pose < turn_hazard_on_threshold) {
         turn_signal.turn_signal.data = TurnSignal::HAZARD;
       }
     }
   }
-  turn_signal.signal_distance = distance_to_pullover_end;
+  turn_signal.signal_distance = distance_to_pull_out_end;
 
   return turn_signal;
 }
