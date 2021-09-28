@@ -20,14 +20,14 @@
 
 // #include "autoware_lanelet2_msgs/MapBin.hpp"
 // #include "autoware_perception_msgs/DynamicObjectArray.h"
-// #include "ath.h"
+// #include "Path.h"
 // #include "autoware_planning_msgs/PathWithLaneId.h"
 
+#include "autoware_planning_msgs/msg/path_point.hpp"
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_extension/utility/query.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "autoware_planning_msgs/msg/path_point.hpp"
 
 #include "spline_interpolation/spline_interpolation.hpp"
 #include "tf2/utils.h"
@@ -196,7 +196,7 @@ std::vector<PullOverPath> getPullOverPaths(
       for (size_t i = 0; i < target_lane_reference_path.points.size(); ++i) {
         {
           if (fabs(offset) < 1.0e-8) {
-            RCLCPP_ERROR_STREAM(
+            RCLCPP_WARN_STREAM(
               rclcpp::get_logger("behavior_path_planner").get_child("pull_over").get_child("util"),
               "no offset from current lane center.");
           };

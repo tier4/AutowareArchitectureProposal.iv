@@ -25,6 +25,7 @@
 #include "behavior_path_planner/scene_module/avoidance/avoidance_module.hpp"
 #include "behavior_path_planner/scene_module/lane_change/lane_change_module.hpp"
 #include "behavior_path_planner/scene_module/pull_over/pull_over_module.hpp"
+#include "behavior_path_planner/scene_module/pull_out/pull_out_module.hpp"
 #include "behavior_path_planner/scene_module/side_shift/side_shift_module.hpp"
 #include "behavior_path_planner/utilities.hpp"
 
@@ -109,6 +110,9 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
     auto pull_over_module = std::make_shared<PullOverModule>("PullOver",*this, getPullOverParam());
     bt_manager_->registerSceneModule(pull_over_module);
 
+    auto pull_out_module = std::make_shared<PullOutModule>("PullOut",*this, getPullOutParam());
+    bt_manager_->registerSceneModule(pull_out_module);
+
     bt_manager_->createBehaviorTree();
   }
 
@@ -141,6 +145,8 @@ BehaviorPathPlannerParameters BehaviorPathPlannerNode::getCommonParam()
     declare_parameter("backward_length_buffer_for_end_of_lane", 5.0);
   p.backward_length_buffer_for_end_of_pull_over =
     declare_parameter("backward_length_buffer_for_end_of_pull_over", 5.0);
+  p.backward_length_buffer_for_end_of_pull_out =
+    declare_parameter("backward_length_buffer_for_end_of_pull_out", 5.0);
   p.minimum_lane_change_length = declare_parameter("minimum_lane_change_length", 8.0);
   p.minimum_pull_over_length = declare_parameter("minimum_pull_over_length", 15.0);
   p.drivable_area_resolution = declare_parameter("drivable_area_resolution", 0.1);
@@ -324,6 +330,65 @@ PullOverParameters BehaviorPathPlannerNode::getPullOverParam()
   return p;
 }
 
+PullOutParameters BehaviorPathPlannerNode::getPullOutParam()
+{
+  const auto dp = [this](const std::string & str, auto def_val) {
+    std::string name = "pull_out." + str;
+    return this->declare_parameter(name, def_val);
+  };
+
+  PullOutParameters p;
+
+  p.min_stop_distance = dp("min_stop_distance", 5.0);
+  p.stop_time = dp("stop_time", 2.0);
+  p.hysteresis_buffer_distance = dp("hysteresis_buffer_distance", 2.0);
+  p.pull_out_prepare_duration = dp("pull_out_prepare_duration", 2.0);
+  p.pull_out_duration = dp("pull_out_duration", 4.0);
+  p.pull_out_finish_judge_buffer = dp("pull_out_finish_judge_buffer", 3.0);
+  p.minimum_pull_out_velocity = dp("minimum_pull_out_velocity", 8.3);
+  p.prediction_duration = dp("prediction_duration", 8.0);
+  p.prediction_time_resolution = dp("prediction_time_resolution", 0.5);
+  p.static_obstacle_velocity_thresh = dp("static_obstacle_velocity_thresh", 0.1);
+  p.maximum_deceleration = dp("maximum_deceleration", 1.0);
+  p.pull_out_sampling_num = dp("pull_out_sampling_num", 4);
+  p.enable_abort_pull_out = dp("enable_abort_pull_out", true);
+  p.enable_collision_check_at_prepare_phase = dp("enable_collision_check_at_prepare_phase", true);
+  p.use_predicted_path_outside_lanelet = dp("use_predicted_path_outside_lanelet", true);
+  p.use_all_predicted_path = dp("use_all_predicted_path", false);
+  p.abort_pull_out_velocity_thresh = dp("abort_pull_out_velocity_thresh", 0.5);
+  p.abort_pull_out_angle_thresh =
+    dp("abort_pull_out_angle_thresh", autoware_utils::deg2rad(10.0));
+  p.abort_pull_out_distance_thresh = dp("abort_pull_out_distance_thresh", 0.3);
+  p.enable_blocked_by_obstacle = dp("enable_blocked_by_obstacle", false);
+  p.pull_out_search_distance = dp("pull_out_search_distance", 30.0);
+  p.after_pull_out_straight_distance = dp("after_pull_out_straight_distance", 3.0);
+  p.before_pull_out_straight_distance =
+    dp("before_pull_out_straight_distance", 3.0);
+  p.margin_from_boundary = dp("margin_from_boundary", 0.3);
+  p.maximum_lateral_jerk = dp("maximum_lateral_jerk", 3.0);
+  p.minimum_lateral_jerk = dp("minimum_lateral_jerk", 1.0);
+  p.deceleration_interval = dp("deceleration_interval", 10.0);
+
+
+  // validation of parameters
+  if (p.pull_out_sampling_num < 1) {
+    RCLCPP_FATAL_STREAM(
+      get_logger(), "pull_out_sampling_num must be positive integer. Given parameter: "
+                      << p.pull_out_sampling_num << std::endl
+                      << "Terminating the program...");
+    exit(EXIT_FAILURE);
+  }
+  if (p.maximum_deceleration < 0.0) {
+    RCLCPP_FATAL_STREAM(
+      get_logger(), "maximum_deceleration cannot be negative value. Given parameter: "
+                      << p.maximum_deceleration << std::endl
+                      << "Terminating the program...");
+    exit(EXIT_FAILURE);
+  }
+
+  return p;
+}
+
 BehaviorTreeManagerParam BehaviorPathPlannerNode::getBehaviorTreeManagerParam()
 {
   BehaviorTreeManagerParam p{};
@@ -437,6 +502,8 @@ void BehaviorPathPlannerNode::publishModuleStatus(
       return PathChangeModuleId::FORCE_LANE_CHANGE;
     } else if (name == "PullOver") {
       return PathChangeModuleId::PULL_OVER;
+    } else if (name == "PullOut") {
+      return PathChangeModuleId::PULL_OUT;
     } else {
       return PathChangeModuleId::NONE;
     }

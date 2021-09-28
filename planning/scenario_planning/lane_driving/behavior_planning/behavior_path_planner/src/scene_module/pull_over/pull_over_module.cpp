@@ -329,7 +329,8 @@ lanelet::ConstLanelets PullOverModule::getPullOverLanes(
     current_lanes, planner_data_->self_pose->pose, &current_lane);
 
   if (route_handler->getPullOverTarget(route_handler->getShoulderLanelets(),&target_shoulder_lane)) {
-    pull_over_lanes = route_handler->getShoulderLaneletSequence(target_shoulder_lane, current_pose, pull_over_lane_length_, pull_over_lane_length_);
+    pull_over_lanes = route_handler->getShoulderLaneletSequence(
+      target_shoulder_lane, current_pose, pull_over_lane_length_, pull_over_lane_length_);
 
   } else {
     pull_over_lanes.clear();

@@ -15,11 +15,12 @@
  *
  */
 
-#ifndef BEHAVIOR_PATH_PLANNER_PULL_OVER_MODULE_HPP
-#define BEHAVIOR_PATH_PLANNER_PULL_OVER_MODULE_HPP
+#ifndef BEHAVIOR_PATH_PLANNER_PULL_OUT_MODULE_HPP
+#define BEHAVIOR_PATH_PLANNER_PULL_OUT_MODULE_HPP
 
 #include "tf2/utils.h"
 
+// #include "autoware_planning_msgs/Path.h"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 
 #include <memory>
@@ -30,62 +31,66 @@
 #include "lanelet2_extension/utility/message_conversion.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
 
-#include "vehicle_info_util/vehicle_info_util.hpp"
-
 #include "behavior_path_planner/path_shifter/path_shifter.hpp"
 #include "behavior_path_planner/scene_module/scene_module_interface.hpp"
 #include "behavior_path_planner/utilities.hpp"
+#include "vehicle_info_util/vehicle_info.hpp"
 
 namespace behavior_path_planner
 {
-struct PullOverParameters
+struct PullOutParameters
 {
   double min_stop_distance;
   double stop_time;
   double hysteresis_buffer_distance;
-  double pull_over_prepare_duration;
-  double pull_over_duration;
-  double pull_over_finish_judge_buffer;
-  double minimum_pull_over_velocity;
+  double pull_out_prepare_duration;
+  double pull_out_duration;
+  double pull_out_finish_judge_buffer;
+  double minimum_pull_out_velocity;
   double prediction_duration;
   double prediction_time_resolution;
   double static_obstacle_velocity_thresh;
   double maximum_deceleration;
-  int pull_over_sampling_num;
-  double abort_pull_over_velocity_thresh;
-  double abort_pull_over_angle_thresh;
-  double abort_pull_over_distance_thresh;
-  bool enable_abort_pull_over;
+  int pull_out_sampling_num;
+  double abort_pull_out_velocity_thresh;
+  double abort_pull_out_angle_thresh;
+  double abort_pull_out_distance_thresh;
+  bool enable_abort_pull_out;
   bool enable_collision_check_at_prepare_phase;
   bool use_predicted_path_outside_lanelet;
   bool use_all_predicted_path;
   bool enable_blocked_by_obstacle;
-  double pull_over_search_distance;
-  double after_pull_over_straight_distance;
-  double before_pull_over_straight_distance;
+  double pull_out_search_distance;
+  double before_pull_out_straight_distance;
+  double after_pull_out_straight_distance;
   double margin_from_boundary;
   double maximum_lateral_jerk;
   double minimum_lateral_jerk;
   double deceleration_interval;
 };
 
-struct PullOverStatus
+struct PullOutStatus
 {
   PathWithLaneId lane_follow_path;
-  PullOverPath pull_over_path;
+  PullOutPath pull_out_path;
+  PullOutPath retreat_path;
+  PullOutPath straight_back_path;
   lanelet::ConstLanelets current_lanes;
-  lanelet::ConstLanelets pull_over_lanes;
+  lanelet::ConstLanelets pull_out_lanes;
   std::vector<uint64_t> lane_follow_lane_ids;
-  std::vector<uint64_t> pull_over_lane_ids;
+  std::vector<uint64_t> pull_out_lane_ids;
   bool is_safe;
   double start_distance;
+  bool back_finished;
+  bool is_retreat_path_valid;
+  Pose backed_pose;
 };
 
-class PullOverModule : public SceneModuleInterface
+class PullOutModule : public SceneModuleInterface
 {
 public:
-  PullOverModule(
-    const std::string & name, rclcpp::Node & node, const PullOverParameters & parameters);
+  PullOutModule(
+    const std::string & name, rclcpp::Node & node, const PullOutParameters & parameters);
 
   BehaviorModuleOutput run() override;
 
@@ -98,38 +103,44 @@ public:
   void onEntry() override;
   void onExit() override;
 
-  void setParameters(const PullOverParameters & parameters);
+  void setParameters(const PullOutParameters & parameters);
 
 private:
-  PullOverParameters parameters_;
-  PullOverStatus status_;
+  PullOutParameters parameters_;
+  PullOutStatus status_;
 
-  double pull_over_lane_length_ = 200.0;
+  double pull_out_lane_length_ = 200.0;
   double check_distance_ = 100.0;
 
   PathWithLaneId getReferencePath() const;
   lanelet::ConstLanelets getCurrentLanes() const;
-  lanelet::ConstLanelets getPullOverLanes(const lanelet::ConstLanelets & current_lanes) const;
+  lanelet::ConstLanelets getPullOutLanes(const lanelet::ConstLanelets & current_lanes) const;
   std::pair<bool, bool> getSafePath(
-    const lanelet::ConstLanelets & pull_over_lanes, const double check_distance,
-    PullOverPath & safe_path) const;
-  TurnSignalInfo getTurnSignalAndDistance(
-    const PathWithLaneId & path) const;
+    const lanelet::ConstLanelets & pull_out_lanes, const double check_distance,
+    PullOutPath & safe_path) const;
+  std::pair<bool, bool> getSafeRetreatPath(
+    const lanelet::ConstLanelets & pull_out_lanes, const double check_distance,
+    RetreatPath & safe_backed_path, double & back_distance) const;
+
+  bool getBackDistance(
+    const lanelet::ConstLanelets & pullover_lanes, const double check_distance,
+    PullOutPath & safe_path, double & back_distance) const;
 
   // turn signal
   TurnSignalInfo calcTurnSignalInfo(const ShiftPoint & shift_point) const;
 
-  void updatePullOverStatus();
+  void updatePullOutStatus();
   bool isInLane(
     const lanelet::ConstLanelet & candidate_lanelet,
     const autoware_utils::LinearRing2d & vehicle_footprint) const;
   bool isLongEnough(const lanelet::ConstLanelets & lanelets) const;
   bool isSafe() const;
-  bool isLaneBlocked(const lanelet::ConstLanelets & lanes) const;
   bool isNearEndOfLane() const;
   bool isCurrentSpeedLow() const;
   bool isAbortConditionSatisfied() const;
-  bool hasFinishedPullOver() const;
+  bool hasFinishedPullOut() const;
+  bool hasFinishedBack() const;
+  vehicle_info_util::VehicleInfo getVehicleInfo(const BehaviorPathPlannerParameters & parameters) const;
 };
 }  // namespace behavior_path_planner
 

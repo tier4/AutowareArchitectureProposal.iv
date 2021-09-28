@@ -21,8 +21,10 @@ struct BehaviorPathPlannerParameters
   double forward_path_length;
   double backward_length_buffer_for_end_of_lane;
   double backward_length_buffer_for_end_of_pull_over;
+  double backward_length_buffer_for_end_of_pull_out;
   double minimum_lane_change_length;
   double minimum_pull_over_length;
+  double minimum_pull_out_length;
   double drivable_area_resolution;
   double drivable_area_width;
   double drivable_area_height;

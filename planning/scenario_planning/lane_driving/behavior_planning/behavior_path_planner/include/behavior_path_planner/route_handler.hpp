@@ -49,6 +49,7 @@ using std_msgs::msg::Header;
 
 enum class LaneChangeDirection { NONE, LEFT, RIGHT };
 enum class PullOverDirection { NONE, LEFT, RIGHT };
+enum class PullOutDirection { NONE, LEFT, RIGHT };
 
 struct LaneChangePath
 {
@@ -66,6 +67,22 @@ struct PullOverPath
   double acceleration{0.0};
   double preparation_length{0.0};
   double pull_over_length = {0.0};
+};
+
+struct PullOutPath
+{
+  PathWithLaneId path;
+  ShiftedPath shifted_path;
+  ShiftPoint shift_point;
+  double acceleration = 0.0;
+  double preparation_length = 0.0;
+  double pull_out_length = 0.0;
+};
+
+struct RetreatPath
+{
+  behavior_path_planner::PullOutPath pull_out_path;
+  Pose backed_pose;
 };
 
 class RouteHandler
