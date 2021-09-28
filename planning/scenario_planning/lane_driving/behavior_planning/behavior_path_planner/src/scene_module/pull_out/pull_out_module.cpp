@@ -633,15 +633,19 @@ bool PullOutModule::isLongEnough(const lanelet::ConstLanelets & lanelets) const
   const auto current_pose = planner_data_->self_pose->pose;
   const auto goal_pose = planner_data_->route_handler->getGoalPose();
   const double distance_before_pull_out = parameters_.before_pull_out_straight_distance;
+  const double distance_after_pull_out = parameters_.after_pull_out_straight_distance;
   const double distance_to_road_center =
     lanelet::utils::getArcCoordinates(lanelets, planner_data_->self_pose->pose).distance;
 
   // calculate minimum pull_out distance at pull_out velocity, maximum jerk and side offset
   const double pull_out_distance_min = path_shifter.calcLongitudinalDistFromJerk(
     abs(distance_to_road_center), maximum_jerk, pull_out_velocity);
-  const double pull_out_total_distance_min = distance_before_pull_out + pull_out_distance_min;
+  const double pull_out_total_distance_min = distance_before_pull_out + pull_out_distance_min + distance_after_pull_out;
   const double distance_to_goal_on_road_lane =
     util::getSignedDistance(current_pose, goal_pose, lanelets);
+  // RCLCPP_ERROR(getLogger(), "%f %f %f", distance_before_pull_out, pull_out_distance_min,distance_after_pull_out);
+  // RCLCPP_ERROR(getLogger(),"%f %f",distance_to_goal_on_road_lane,pull_out_total_distance_min);
+  
 
   return distance_to_goal_on_road_lane > pull_out_total_distance_min;
 }
