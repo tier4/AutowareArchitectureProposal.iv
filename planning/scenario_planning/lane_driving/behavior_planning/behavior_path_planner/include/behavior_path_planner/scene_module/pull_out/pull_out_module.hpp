@@ -52,10 +52,6 @@ struct PullOutParameters
   double static_obstacle_velocity_thresh;
   double maximum_deceleration;
   int pull_out_sampling_num;
-  double abort_pull_out_velocity_thresh;
-  double abort_pull_out_angle_thresh;
-  double abort_pull_out_distance_thresh;
-  bool enable_abort_pull_out;
   bool enable_collision_check_at_prepare_phase;
   bool use_predicted_path_outside_lanelet;
   bool use_all_predicted_path;
@@ -138,7 +134,6 @@ private:
   bool isSafe() const;
   bool isNearEndOfLane() const;
   bool isCurrentSpeedLow() const;
-  bool isAbortConditionSatisfied() const;
   bool hasFinishedPullOut() const;
   bool hasFinishedBack() const;
   vehicle_info_util::VehicleInfo getVehicleInfo(const BehaviorPathPlannerParameters & parameters) const;

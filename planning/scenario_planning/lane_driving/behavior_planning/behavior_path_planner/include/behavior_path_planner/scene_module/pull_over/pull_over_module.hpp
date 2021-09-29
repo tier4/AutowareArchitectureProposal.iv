@@ -52,10 +52,6 @@ struct PullOverParameters
   double static_obstacle_velocity_thresh;
   double maximum_deceleration;
   int pull_over_sampling_num;
-  double abort_pull_over_velocity_thresh;
-  double abort_pull_over_angle_thresh;
-  double abort_pull_over_distance_thresh;
-  bool enable_abort_pull_over;
   bool enable_collision_check_at_prepare_phase;
   bool use_predicted_path_outside_lanelet;
   bool use_all_predicted_path;
@@ -128,7 +124,6 @@ private:
   bool isLaneBlocked(const lanelet::ConstLanelets & lanes) const;
   bool isNearEndOfLane() const;
   bool isCurrentSpeedLow() const;
-  bool isAbortConditionSatisfied() const;
   bool hasFinishedPullOver() const;
 };
 }  // namespace behavior_path_planner

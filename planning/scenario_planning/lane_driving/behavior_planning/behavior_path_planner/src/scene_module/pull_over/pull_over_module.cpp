@@ -74,11 +74,8 @@ bool PullOverModule::isExecutionRequested() const
   if (current_state_ == BT::NodeStatus::RUNNING) return true;
 
   PathShifter path_shifter;
-  const double maximum_jerk = parameters_.maximum_lateral_jerk;
-  const double pull_over_velocity = parameters_.minimum_pull_over_velocity;
   lanelet::Lanelet closest_shoulder_lanelet;
   bool goal_is_in_shoulder_lane = false;
-  bool distance_is_long_enough = false;
   const auto goal_pose = planner_data_->route_handler->getGoalPose();
   const auto current_lanes = getCurrentLanes();
 
@@ -118,14 +115,6 @@ bool PullOverModule::isExecutionReady() const
 BT::NodeStatus PullOverModule::updateState()
 {
   RCLCPP_DEBUG(getLogger(), "PULL_OVER updateState");
-  if (isAbortConditionSatisfied()) {
-    if (isNearEndOfLane() && isCurrentSpeedLow()) {
-      current_state_ = BT::NodeStatus::RUNNING;
-      return current_state_;
-    }
-    current_state_ = BT::NodeStatus::FAILURE;
-    return current_state_;
-  }
 
   if (hasFinishedPullOver()) {
     current_state_ = BT::NodeStatus::SUCCESS;
@@ -139,12 +128,6 @@ BehaviorModuleOutput PullOverModule::plan()
 {
   constexpr double RESAMPLE_INTERVAL = 1.0;
   auto path = util::resamplePathWithSpline(status_.pull_over_path.path, RESAMPLE_INTERVAL);
-
-  if (isAbortConditionSatisfied()) {
-    if (isNearEndOfLane() && isCurrentSpeedLow()) {
-      const auto stop_point = util::insertStopPoint(0.1, &path);
-    }
-  }
 
   BehaviorModuleOutput output;
   output.path = std::make_shared<PathWithLaneId>(path);
@@ -412,99 +395,6 @@ bool PullOverModule::isCurrentSpeedLow() const
   const auto current_twist = planner_data_->self_velocity->twist;
   const double threshold_kmph = 10;
   return util::l2Norm(current_twist.linear) < threshold_kmph * 1000 / 3600;
-}
-
-bool PullOverModule::isAbortConditionSatisfied() const
-{
-  const auto & route_handler = planner_data_->route_handler;
-  const auto current_pose = planner_data_->self_pose->pose;
-  const auto current_twist = planner_data_->self_velocity->twist;
-  const auto objects = planner_data_->dynamic_object;
-  const auto common_parameters = planner_data_->parameters;
-
-  const auto current_lanes = status_.current_lanes;
-
-  // check abort enable flag
-  if (!parameters_.enable_abort_pull_over) {
-    return false;
-  }
-
-  // find closest lanelet in original lane
-  lanelet::ConstLanelet closest_lanelet{};
-  auto clock{rclcpp::Clock{RCL_ROS_TIME}};
-  if (!lanelet::utils::query::getClosestLanelet(current_lanes, current_pose, &closest_lanelet)) {
-    RCLCPP_ERROR_THROTTLE(
-      getLogger(), clock, 1000,
-      "Failed to find closest lane! Lane change aborting function is not working!");
-    return false;
-  }
-
-  // check if pull_over path is still safe
-  bool is_path_safe = false;
-  {
-    constexpr double check_distance = 100.0;
-    // get lanes used for detection
-    const auto & path = status_.pull_over_path;
-    const double check_distance_with_path =
-      check_distance + path.preparation_length + path.pull_over_length;
-    const auto check_lanes = route_handler->getCheckTargetLanesFromPath(
-      path.path, status_.pull_over_lanes, check_distance_with_path);
-
-    is_path_safe = pull_over_utils::isPullOverPathSafe(
-      path.path, current_lanes, check_lanes, objects, current_pose, current_twist,
-      common_parameters.vehicle_width, parameters_, false, status_.pull_over_path.acceleration);
-  }
-
-  // check vehicle velocity thresh
-  const bool is_velocity_low =
-    util::l2Norm(current_twist.linear) < parameters_.abort_pull_over_velocity_thresh;
-
-  // check if vehicle is within lane
-  bool is_within_original_lane = false;
-  {
-    const auto lane_length = lanelet::utils::getLaneletLength2d(current_lanes);
-    const auto lane_poly = lanelet::utils::getPolygonFromArcLength(current_lanes, 0, lane_length);
-    const auto vehicle_poly = util::getVehiclePolygon(
-      current_pose, common_parameters.vehicle_width, common_parameters.base_link2front);
-    is_within_original_lane = boost::geometry::within(
-      lanelet::utils::to2D(vehicle_poly).basicPolygon(),
-      lanelet::utils::to2D(lane_poly).basicPolygon());
-  }
-
-  // check distance from original lane's centerline
-  bool is_distance_small = false;
-  {
-    const auto centerline2d = lanelet::utils::to2D(closest_lanelet.centerline()).basicLineString();
-    lanelet::BasicPoint2d vehicle_pose2d(current_pose.position.x, current_pose.position.y);
-    const double distance = lanelet::geometry::distance2d(centerline2d, vehicle_pose2d);
-    is_distance_small = distance < parameters_.abort_pull_over_distance_thresh;
-  }
-
-  // check angle thresh from original lane
-  bool is_angle_diff_small = false;
-  {
-    const double lane_angle =
-      lanelet::utils::getLaneletAngle(closest_lanelet, current_pose.position);
-    const double vehicle_yaw = tf2::getYaw(current_pose.orientation);
-    const double yaw_diff = autoware_utils::normalizeRadian(lane_angle - vehicle_yaw);
-    is_angle_diff_small = std::abs(yaw_diff) < parameters_.abort_pull_over_angle_thresh;
-  }
-
-  // abort only if velocity is low or vehicle pose is close enough
-  if (!is_path_safe) {
-    if (is_velocity_low && is_within_original_lane) {
-      return true;
-    }
-    if (is_distance_small && is_angle_diff_small) {
-      return true;
-    }
-    auto clock{rclcpp::Clock{RCL_ROS_TIME}};
-    RCLCPP_WARN_STREAM_THROTTLE(
-      getLogger(), clock, 1000,
-      "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be cautious");
-  }
-
-  return false;
 }
 
 bool PullOverModule::hasFinishedPullOver() const

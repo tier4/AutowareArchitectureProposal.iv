@@ -292,14 +292,9 @@ PullOverParameters BehaviorPathPlannerNode::getPullOverParam()
   p.static_obstacle_velocity_thresh = dp("static_obstacle_velocity_thresh", 0.1);
   p.maximum_deceleration = dp("maximum_deceleration", 1.0);
   p.pull_over_sampling_num = dp("pull_over_sampling_num", 4);
-  p.enable_abort_pull_over = dp("enable_abort_pull_over", true);
   p.enable_collision_check_at_prepare_phase = dp("enable_collision_check_at_prepare_phase", true);
   p.use_predicted_path_outside_lanelet = dp("use_predicted_path_outside_lanelet", true);
   p.use_all_predicted_path = dp("use_all_predicted_path", false);
-  p.abort_pull_over_velocity_thresh = dp("abort_pull_over_velocity_thresh", 0.5);
-  p.abort_pull_over_angle_thresh =
-    dp("abort_pull_over_angle_thresh", autoware_utils::deg2rad(10.0));
-  p.abort_pull_over_distance_thresh = dp("abort_pull_over_distance_thresh", 0.3);
   p.enable_blocked_by_obstacle = dp("enable_blocked_by_obstacle", false);
   p.pull_over_search_distance = dp("pull_over_search_distance", 30.0);
   p.after_pull_over_straight_distance = dp("after_pull_over_straight_distance", 3.0);
@@ -351,15 +346,10 @@ PullOutParameters BehaviorPathPlannerNode::getPullOutParam()
   p.static_obstacle_velocity_thresh = dp("static_obstacle_velocity_thresh", 0.1);
   p.maximum_deceleration = dp("maximum_deceleration", 1.0);
   p.pull_out_sampling_num = dp("pull_out_sampling_num", 4);
-  p.enable_abort_pull_out = dp("enable_abort_pull_out", true);
   p.enable_collision_check_at_prepare_phase = dp("enable_collision_check_at_prepare_phase", true);
   p.use_predicted_path_outside_lanelet = dp("use_predicted_path_outside_lanelet", true);
   p.use_all_predicted_path = dp("use_all_predicted_path", false);
   p.use_dynamic_object = dp("use_dynamic_object", false);
-  p.abort_pull_out_velocity_thresh = dp("abort_pull_out_velocity_thresh", 0.5);
-  p.abort_pull_out_angle_thresh =
-    dp("abort_pull_out_angle_thresh", autoware_utils::deg2rad(10.0));
-  p.abort_pull_out_distance_thresh = dp("abort_pull_out_distance_thresh", 0.3);
   p.enable_blocked_by_obstacle = dp("enable_blocked_by_obstacle", false);
   p.pull_out_search_distance = dp("pull_out_search_distance", 30.0);
   p.after_pull_out_straight_distance = dp("after_pull_out_straight_distance", 3.0);

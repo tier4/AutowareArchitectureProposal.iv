@@ -334,7 +334,7 @@ bool selectSafePath(
     }
   }
 
-  // set first path for force pull_over if no valid path found
+  // set first path for force pull over if no valid path found
   if (!paths.empty()) {
     *selected_path = paths.front();
     return false;

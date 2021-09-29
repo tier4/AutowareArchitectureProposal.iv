@@ -130,14 +130,6 @@ BT::NodeStatus PullOutModule::updateState()
 {
   RCLCPP_DEBUG(getLogger(), "PULL_OUT updateState");
 
-  if (isAbortConditionSatisfied()) {
-    if (isNearEndOfLane() && isCurrentSpeedLow()) {
-      current_state_ = BT::NodeStatus::RUNNING;
-      return current_state_;
-    }
-    current_state_ = BT::NodeStatus::FAILURE;
-    return current_state_;
-  }
   //finish after lane change
   if (status_.back_finished && hasFinishedPullOut()) {
     current_state_ = BT::NodeStatus::SUCCESS;
@@ -169,11 +161,6 @@ BehaviorModuleOutput PullOutModule::plan()
   }
 
   path.drivable_area = status_.pull_out_path.path.drivable_area;
-  if (isAbortConditionSatisfied()) {
-    if (isNearEndOfLane() && isCurrentSpeedLow()) {
-      const auto stop_point = util::insertStopPoint(0.1, &path);
-    }
-  }
 
   BehaviorModuleOutput output;
   output.path = std::make_shared<PathWithLaneId>(path);
@@ -636,14 +623,12 @@ bool PullOutModule::isLongEnough(const lanelet::ConstLanelets & lanelets) const
   const double distance_to_road_center =
     lanelet::utils::getArcCoordinates(lanelets, planner_data_->self_pose->pose).distance;
 
-  // calculate minimum pull_out distance at pull_out velocity, maximum jerk and side offset
+  // calculate minimum pull_out distance at pull_out velocity, maximum jerk and calculated side offset
   const double pull_out_distance_min = path_shifter.calcLongitudinalDistFromJerk(
     abs(distance_to_road_center), maximum_jerk, pull_out_velocity);
   const double pull_out_total_distance_min = distance_before_pull_out + pull_out_distance_min + distance_after_pull_out;
   const double distance_to_goal_on_road_lane =
     util::getSignedDistance(current_pose, goal_pose, lanelets);
-  // RCLCPP_ERROR(getLogger(), "%f %f %f", distance_before_pull_out, pull_out_distance_min,distance_after_pull_out);
-  // RCLCPP_ERROR(getLogger(),"%f %f",distance_to_goal_on_road_lane,pull_out_total_distance_min);
   
 
   return distance_to_goal_on_road_lane > pull_out_total_distance_min;
@@ -666,97 +651,6 @@ bool PullOutModule::isCurrentSpeedLow() const
   const auto current_twist = planner_data_->self_velocity->twist;
   const double threshold_kmph = 10;
   return util::l2Norm(current_twist.linear) < threshold_kmph * 1000 / 3600;
-}
-
-bool PullOutModule::isAbortConditionSatisfied() const
-{
-  const auto & route_handler = planner_data_->route_handler;
-  const auto current_pose = planner_data_->self_pose->pose;
-  const auto current_twist = planner_data_->self_velocity->twist;
-  const auto objects = planner_data_->dynamic_object;
-  const auto common_parameters = planner_data_->parameters;
-
-  const auto current_lanes = status_.current_lanes;
-
-  const auto vehicle_info = getVehicleInfo(planner_data_->parameters);
-  const auto local_vehicle_footprint = createVehicleFootprint(vehicle_info);
-
-  // check abort enable flag
-  if (!parameters_.enable_abort_pull_out) {
-    return false;
-  }
-
-  // find closest lanelet in original lane
-  lanelet::ConstLanelet closest_lanelet;
-  if (!lanelet::utils::query::getClosestLanelet(current_lanes, current_pose, &closest_lanelet)) {
-    // ROS_ERROR_THROTTLE(
-    //   1, "Failed to find closest lane! Lane change aborting function is not working!");
-    return false;
-  }
-
-  // check if pull_out path is still safe
-  bool is_path_safe = false;
-  {
-    constexpr double check_distance = 100.0;
-    // get lanes used for detection
-    const auto & path = status_.pull_out_path;
-    const double check_distance_with_path =
-      check_distance + path.preparation_length + path.pull_out_length;
-    const auto check_lanes = route_handler->getCheckTargetLanesFromPath(
-      path.path, status_.pull_out_lanes, check_distance_with_path);
-
-    is_path_safe = pull_out_utils::isPullOutPathSafe(
-      path, current_lanes, check_lanes, objects, parameters_, local_vehicle_footprint, false);
-  }
-
-  // check vehicle velocity thresh
-  const bool is_velocity_low =
-    util::l2Norm(current_twist.linear) < parameters_.abort_pull_out_velocity_thresh;
-
-  // check if vehicle is within lane
-  bool is_within_original_lane = false;
-  {
-    const auto lane_length = lanelet::utils::getLaneletLength2d(current_lanes);
-    const auto lane_poly = lanelet::utils::getPolygonFromArcLength(current_lanes, 0, lane_length);
-    const auto vehicle_poly = util::getVehiclePolygon(
-      current_pose, common_parameters.vehicle_width, common_parameters.base_link2front);
-    is_within_original_lane = boost::geometry::within(
-      lanelet::utils::to2D(vehicle_poly).basicPolygon(),
-      lanelet::utils::to2D(lane_poly).basicPolygon());
-  }
-
-  // check distance from original lane's centerline
-  bool is_distance_small = false;
-  {
-    const auto centerline2d = lanelet::utils::to2D(closest_lanelet.centerline()).basicLineString();
-    lanelet::BasicPoint2d vehicle_pose2d(current_pose.position.x, current_pose.position.y);
-    const double distance = lanelet::geometry::distance2d(centerline2d, vehicle_pose2d);
-    is_distance_small = distance < parameters_.abort_pull_out_distance_thresh;
-  }
-
-  // check angle thresh from original lane
-  bool is_angle_diff_small = false;
-  {
-    const double lane_angle =
-      lanelet::utils::getLaneletAngle(closest_lanelet, current_pose.position);
-    const double vehicle_yaw = tf2::getYaw(current_pose.orientation);
-    const double yaw_diff = autoware_utils::normalizeRadian(lane_angle - vehicle_yaw);
-    is_angle_diff_small = std::abs(yaw_diff) < parameters_.abort_pull_out_angle_thresh;
-  }
-
-  // abort only if velocity is low or vehicle pose is close enough
-  if (!is_path_safe) {
-    if (is_velocity_low && is_within_original_lane) {
-      return true;
-    }
-    if (is_distance_small && is_angle_diff_small) {
-      return true;
-    }
-    // ROS_WARN_STREAM_THROTTLE(
-    //   1, "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be cautious");
-  }
-
-  return false;
 }
 
 bool PullOutModule::hasFinishedPullOut() const
