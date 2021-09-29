@@ -360,10 +360,11 @@ bool selectSafePath(
   [[maybe_unused]] const double vehicle_width, const PullOutParameters & ros_parameters,
   const autoware_utils::LinearRing2d & local_vehicle_footprint, PullOutPath * selected_path)
 {
+  const bool use_dynamic_object = ros_parameters.use_dynamic_object;
   for (const auto & path : paths) {
     if (isPullOutPathSafe(
           path, road_lanes, shoulder_lanes, dynamic_objects, ros_parameters,
-          local_vehicle_footprint, true)) {
+          local_vehicle_footprint, true, use_dynamic_object)) {
       *selected_path = path;
       return true;
     }

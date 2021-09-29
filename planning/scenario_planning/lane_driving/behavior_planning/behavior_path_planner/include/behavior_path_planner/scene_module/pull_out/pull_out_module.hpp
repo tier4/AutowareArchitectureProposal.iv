@@ -59,6 +59,7 @@ struct PullOutParameters
   bool enable_collision_check_at_prepare_phase;
   bool use_predicted_path_outside_lanelet;
   bool use_all_predicted_path;
+  bool use_dynamic_object;
   bool enable_blocked_by_obstacle;
   double pull_out_search_distance;
   double before_pull_out_straight_distance;

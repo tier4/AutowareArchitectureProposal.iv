@@ -355,6 +355,7 @@ PullOutParameters BehaviorPathPlannerNode::getPullOutParam()
   p.enable_collision_check_at_prepare_phase = dp("enable_collision_check_at_prepare_phase", true);
   p.use_predicted_path_outside_lanelet = dp("use_predicted_path_outside_lanelet", true);
   p.use_all_predicted_path = dp("use_all_predicted_path", false);
+  p.use_dynamic_object = dp("use_dynamic_object", false);
   p.abort_pull_out_velocity_thresh = dp("abort_pull_out_velocity_thresh", 0.5);
   p.abort_pull_out_angle_thresh =
     dp("abort_pull_out_angle_thresh", autoware_utils::deg2rad(10.0));
