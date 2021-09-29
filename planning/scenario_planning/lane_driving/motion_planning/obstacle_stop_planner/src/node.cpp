@@ -458,6 +458,15 @@ void ObstacleStopPlannerNode::pathCallback(const Trajectory::ConstSharedPtr inpu
       }
     }
   }
+
+  if (output_trajectory.points.front().twist.linear.x < 0) {
+    for (auto & p : output_trajectory.points) {
+      if (p.twist.linear.x == 0.0) {
+        p.twist.linear.x = -0.25;
+      }
+    }
+    std::reverse(output_trajectory.points.begin(), output_trajectory.points.end());
+  }
   path_pub_->publish(output_trajectory);
   stop_reason_diag_pub_->publish(stop_reason_diag);
   debug_ptr_->publish();

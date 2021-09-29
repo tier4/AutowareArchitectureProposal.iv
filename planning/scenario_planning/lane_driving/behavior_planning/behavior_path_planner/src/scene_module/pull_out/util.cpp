@@ -271,11 +271,6 @@ PullOutPath getBackPaths(
   const double distance_to_shoulder_center =
     lanelet::utils::getArcCoordinates(shoulder_lanelets, pose).distance;
 
-  // ROS_ERROR("pullover distance:%f", pullover_distance);
-  // ROS_ERROR("straight distance:%f", straight_distance);
-  // ROS_ERROR("target distance:%f", target_distance);
-  // ROS_ERROR("pullover duration:%f", pullover_duration);
-  // ROS_ERROR("pullover distance:%f", pullover_distance);
 
   PathWithLaneId reference_path1;
   {
@@ -361,8 +356,8 @@ bool selectSafePath(
   const std::vector<PullOutPath> & paths, const lanelet::ConstLanelets & road_lanes,
   const lanelet::ConstLanelets & shoulder_lanes,
   const DynamicObjectArray::ConstSharedPtr & dynamic_objects,
-  [[maybe_unused]]const Pose & current_pose, [[maybe_unused]]const Twist & current_twist,
-  [[maybe_unused]]const double vehicle_width, const PullOutParameters & ros_parameters,
+  [[maybe_unused]] const Pose & current_pose, [[maybe_unused]] const Twist & current_twist,
+  [[maybe_unused]] const double vehicle_width, const PullOutParameters & ros_parameters,
   const autoware_utils::LinearRing2d & local_vehicle_footprint, PullOutPath * selected_path)
 {
   for (const auto & path : paths) {
@@ -421,7 +416,8 @@ bool isPullOutPathSafe(
   const lanelet::ConstLanelets & shoulder_lanes,
   const DynamicObjectArray::ConstSharedPtr & dynamic_objects,
   const PullOutParameters & ros_parameters,
-  const autoware_utils::LinearRing2d & local_vehicle_footprint, const bool use_buffer)
+  const autoware_utils::LinearRing2d & local_vehicle_footprint, const bool use_buffer,
+  const bool use_dynamic_object)
 {
   //TODO check road lanes safety and output road lanes safety and shoulder lanes safety respectively
   if (path.path.points.empty()) {
@@ -451,47 +447,49 @@ bool isPullOutPathSafe(
     util::filterObjectsByLanelets(*dynamic_objects, shoulder_lanes);
 
   // Collision check for objects in shoulder lane
-  for (const auto & i : shoulder_lane_object_indices) {
-    const auto & obj = dynamic_objects->objects.at(i);
-    std::vector<PredictedPath> predicted_paths;
+  if (use_dynamic_object) {
+    for (const auto & i : shoulder_lane_object_indices) {
+      const auto & obj = dynamic_objects->objects.at(i);
+      std::vector<PredictedPath> predicted_paths;
 
-    bool is_object_in_shoulder = false;
-    if (ros_parameters.use_predicted_path_outside_lanelet) {
-      is_object_in_shoulder = true;
-    } else {
-      for (const auto & llt : shoulder_lanes) {
-        if (lanelet::utils::isInLanelet(obj.state.pose_covariance.pose, llt, 0.1))
-          is_object_in_shoulder = true;
+      bool is_object_in_shoulder = false;
+      if (ros_parameters.use_predicted_path_outside_lanelet) {
+        is_object_in_shoulder = true;
+      } else {
+        for (const auto & llt : shoulder_lanes) {
+          if (lanelet::utils::isInLanelet(obj.state.pose_covariance.pose, llt, 0.1))
+            is_object_in_shoulder = true;
+        }
       }
-    }
-    // TODO static object judge
-    if (is_object_in_shoulder) {
-      const double distance = util::getDistanceBetweenPredictedPathAndObjectPolygon(
-        obj, path, local_vehicle_footprint, 1, road_lanes);
+      // TODO static object judge
+      if (is_object_in_shoulder) {
+        const double distance = util::getDistanceBetweenPredictedPathAndObjectPolygon(
+          obj, path, local_vehicle_footprint, 1, road_lanes);
 
-      double thresh = min_thresh + buffer;
-      // ROS_ERROR("between predected path and object polygon %f thresh %f", distance, thresh);
-      if (distance < thresh) {
-        return false;
-      }
-    } else {
-      const double distance = util::getDistanceBetweenPredictedPathAndObjectPolygon(
-        obj, path, local_vehicle_footprint, 1, road_lanes);
-      // const double distance = util::getDistanceBetweenPredictedPathAndObject(
-      //   obj, vehicle_predicted_path, shoulder_lane_check_start_time, shoulder_lane_check_end_time,
-      //   time_resolution);
-      double thresh = min_thresh + buffer;
-      if (distance < thresh) {
-        RCLCPP_WARN_STREAM(
-          rclcpp::get_logger("behavior_path_planner").get_child("pull_out").get_child("util"),
-          "object is not in shoulder but close to the path.");
-        // return false;
+        double thresh = min_thresh + buffer;
+        // ROS_ERROR("between predected path and object polygon %f thresh %f", distance, thresh);
+        if (distance < thresh) {
+          return false;
+        }
+      } else {
+        const double distance = util::getDistanceBetweenPredictedPathAndObjectPolygon(
+          obj, path, local_vehicle_footprint, 1, road_lanes);
+        // const double distance = util::getDistanceBetweenPredictedPathAndObject(
+        //   obj, vehicle_predicted_path, shoulder_lane_check_start_time, shoulder_lane_check_end_time,
+        //   time_resolution);
+        double thresh = min_thresh + buffer;
+        if (distance < thresh) {
+          RCLCPP_WARN_STREAM(
+            rclcpp::get_logger("behavior_path_planner").get_child("pull_out").get_child("util"),
+            "object is not in shoulder but close to the path.");
+          // return false;
+        }
       }
     }
   }
 
-  return true;
-}
+    return true;
+  }
 
 bool isObjectFront(const Pose & ego_pose, const Pose & obj_pose)
 {
