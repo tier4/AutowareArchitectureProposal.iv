@@ -218,11 +218,25 @@ PathWithLaneId PullOutModule::planCandidate() const
 BehaviorModuleOutput PullOutModule::planWaitingApproval()
 {
   BehaviorModuleOutput out;
-
+  const auto & route_handler = planner_data_->route_handler;
+  const auto common_parameters = planner_data_->parameters;
   const auto current_lanes = getCurrentLanes();
   const auto shoulder_lanes = getPullOutLanes(current_lanes);
 
-  PathWithLaneId candidatePath = planCandidate();
+  PathWithLaneId candidatePath;
+  // Generate drivable area
+  {
+    candidatePath = planCandidate();
+    lanelet::ConstLanelets lanes;
+    lanes.insert(lanes.end(), current_lanes.begin(), current_lanes.end());
+    lanes.insert(lanes.end(), shoulder_lanes.begin(), shoulder_lanes.end());
+    const double width = common_parameters.drivable_area_width;
+    const double height = common_parameters.drivable_area_height;
+    const double resolution = common_parameters.drivable_area_resolution;
+    candidatePath.drivable_area = util::generateDrivableArea(
+      lanes, *(planner_data_->self_pose), width, height, resolution,
+      common_parameters.vehicle_length, *route_handler);
+  }
   for (auto & point : candidatePath.points) {
     point.point.twist.linear.x = 0;
   }
