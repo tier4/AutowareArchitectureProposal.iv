@@ -339,7 +339,7 @@ PullOutParameters BehaviorPathPlannerNode::getPullOutParam()
   p.hysteresis_buffer_distance = dp("hysteresis_buffer_distance", 2.0);
   p.pull_out_prepare_duration = dp("pull_out_prepare_duration", 2.0);
   p.pull_out_duration = dp("pull_out_duration", 4.0);
-  p.pull_out_finish_judge_buffer = dp("pull_out_finish_judge_buffer", 3.0);
+  p.pull_out_finish_judge_buffer = dp("pull_out_finish_judge_buffer", 1.0);
   p.minimum_pull_out_velocity = dp("minimum_pull_out_velocity", 8.3);
   p.prediction_duration = dp("prediction_duration", 8.0);
   p.prediction_time_resolution = dp("prediction_time_resolution", 0.5);
@@ -355,7 +355,6 @@ PullOutParameters BehaviorPathPlannerNode::getPullOutParam()
   p.after_pull_out_straight_distance = dp("after_pull_out_straight_distance", 3.0);
   p.before_pull_out_straight_distance =
     dp("before_pull_out_straight_distance", 3.0);
-  p.margin_from_boundary = dp("margin_from_boundary", 0.3);
   p.maximum_lateral_jerk = dp("maximum_lateral_jerk", 3.0);
   p.minimum_lateral_jerk = dp("minimum_lateral_jerk", 1.0);
   p.deceleration_interval = dp("deceleration_interval", 10.0);

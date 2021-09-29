@@ -21,7 +21,6 @@
       pull_out_search_distance: 30.0
       before_pull_out_straight_distance: 5.0
       after_pull_out_straight_distance: 5.0
-      margin_from_boundary: 0.5
       maximum_lateral_jerk: 2.0
       minimum_lateral_jerk: 0.5
       deceleration_interval: 15.0

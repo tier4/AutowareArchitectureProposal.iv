@@ -468,7 +468,7 @@ const PathWithLaneId & path, const lanelet::ConstLanelets & current_lanes,
     }
   }
 
-  // Collision check for objects in pullover target lane
+  // Collision check for objects in pull over target lane
   for (const auto & i : target_lane_object_indices) {
     const auto & obj = dynamic_objects->objects.at(i);
     std::vector<PredictedPath> predicted_paths;

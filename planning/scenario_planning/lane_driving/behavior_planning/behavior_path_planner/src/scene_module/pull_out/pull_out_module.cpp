@@ -117,7 +117,7 @@ bool PullOutModule::isExecutionReady() const
   std::tie(found_valid_path, found_safe_path) =
     getSafePath(shoulder_lanes, check_distance_, selected_path);
 
-  if (found_valid_path == true && found_safe_path == false) {
+  if (found_valid_path && !found_safe_path ) {
     double back_distance;
     if (getBackDistance(shoulder_lanes, check_distance_, selected_path, back_distance)) {
       return true;
@@ -181,7 +181,7 @@ PathWithLaneId PullOutModule::planCandidate() const
   std::tie(found_valid_path, found_safe_path) =
     getSafePath(shoulder_lanes, check_distance_, selected_path);
 
-  if (found_valid_path == true && found_safe_path == false) {
+  if (found_valid_path && !found_safe_path ) {
     double back_distance;
     if (getBackDistance(shoulder_lanes, check_distance_, selected_path, back_distance)) {
       bool found_valid_retreat_path, found_safe_retreat_path;
@@ -589,7 +589,7 @@ bool PullOutModule::getBackDistance(
         valid_paths, road_lanes, check_lanes, planner_data_->dynamic_object, current_pose,
         current_twist, common_parameters.vehicle_width, parameters_, local_vehicle_footprint,
         &safe_path);
-      if (found_safe_path == true) {
+      if (found_safe_path) {
         back_distance = current_back_distance;
         return found_safe_path;
       }

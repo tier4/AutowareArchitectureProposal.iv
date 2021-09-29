@@ -60,7 +60,6 @@ struct PullOutParameters
   double pull_out_search_distance;
   double before_pull_out_straight_distance;
   double after_pull_out_straight_distance;
-  double margin_from_boundary;
   double maximum_lateral_jerk;
   double minimum_lateral_jerk;
   double deceleration_interval;

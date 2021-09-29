@@ -468,16 +468,12 @@ bool isPullOutPathSafe(
           obj, path, local_vehicle_footprint, 1, road_lanes);
 
         double thresh = min_thresh + buffer;
-        // ROS_ERROR("between predected path and object polygon %f thresh %f", distance, thresh);
         if (distance < thresh) {
           return false;
         }
       } else {
         const double distance = util::getDistanceBetweenPredictedPathAndObjectPolygon(
           obj, path, local_vehicle_footprint, 1, road_lanes);
-        // const double distance = util::getDistanceBetweenPredictedPathAndObject(
-        //   obj, vehicle_predicted_path, shoulder_lane_check_start_time, shoulder_lane_check_end_time,
-        //   time_resolution);
         double thresh = min_thresh + buffer;
         if (distance < thresh) {
           RCLCPP_WARN_STREAM(
