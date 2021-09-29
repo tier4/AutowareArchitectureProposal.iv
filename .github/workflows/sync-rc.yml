@@ -12,9 +12,6 @@ on:
         description: "Target RC branch(e.g. rc/v1.0.0)"
         required: true
 
-env:
-  BASE_BRANCH: main
-
 jobs:
   sync-rc:
     runs-on: ubuntu-20.04
@@ -23,7 +20,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          ref: ${{ env.BASE_BRANCH }}
           fetch-depth: 0
 
       - name: Generate token
@@ -48,6 +44,31 @@ jobs:
           echo ${SYNC_TARGET_BRANCH} | grep -e "^rc/v.*"
           echo "SYNC_BRANCH=sync-rc/${SYNC_TARGET_BRANCH#refs/heads/}" >> $GITHUB_ENV
 
+      - name: Judge BASE_BRANCH
+        run: |
+          function is_main_base() {
+            target_branch="$1"
+
+            main_base=$(git merge-base "${target_branch}" origin/main)
+            develop_base=$(git merge-base "${target_branch}" origin/develop)
+
+            return $(test "${main_base}" = "${develop_base}")
+          }
+
+          if is_main_base "origin/${{ env.SYNC_TARGET_BRANCH }}"; then
+            base_branch=main
+          else
+            base_branch=develop
+          fi
+
+          echo "BASE_BRANCH=${base_branch}" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ env.BASE_BRANCH }}
+          fetch-depth: 0
+
       # To keep the base branch in "create-pull-request", checkout with "BASE_BRANCH" and reset to "SYNC_TARGET_BRANCH"
       - name: Reset to sync target branch
         run: |
@@ -60,8 +81,9 @@ jobs:
 
       - name: Rebase on the base branch
         run: |
-          for commit in $(git rev-list --left-only origin/${{ env.BASE_BRANCH }}...HEAD | tac); do
-            git rebase $commit || git rebase --abort
+          for commit in $(git rev-list --left-only "origin/${{ env.BASE_BRANCH }}"...HEAD | tac); do
+            merge_base=$(git merge-base HEAD "origin/${{ env.BASE_BRANCH }}")
+            git rebase --onto "$commit" "$merge_base" "${{ env.BASE_BRANCH }}" || git rebase --abort
           done
 
       - name: Create PR
@@ -76,9 +98,9 @@ jobs:
           base: ${{ env.BASE_BRANCH }}
           branch: ${{ env.SYNC_BRANCH }}
           delete-branch: true
-          title: sync rc
+          title: sync rc ${{ env.SYNC_TARGET_BRANCH }}
           body: |
-            sync rc
+            sync rc ${{ env.SYNC_TARGET_BRANCH }}
           labels: |
             sync-rc
           draft: false
