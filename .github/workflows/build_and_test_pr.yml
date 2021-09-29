@@ -2,7 +2,6 @@ name: Build and test for PR
 
 on:
   pull_request:
-  workflow_dispatch:
 
 jobs:
   build-and-test-pr:
@@ -34,7 +33,7 @@ jobs:
       - name: Search modified packages
         id: list_packages
         run: |
-          ${GITHUB_WORKSPACE}/.github/workflows/get_modified_package.sh
+          ${GITHUB_WORKSPACE}/.github/get_modified_package.sh origin/${{ github.base_ref }}
 
       - name: Show target packages
         run: |

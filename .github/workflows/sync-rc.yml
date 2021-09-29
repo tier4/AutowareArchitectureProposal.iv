@@ -7,9 +7,10 @@ on:
     types:
       - closed
   workflow_dispatch:
-
-env:
-  BASE_BRANCH: main
+    inputs:
+      rc_branch:
+        description: "Target RC branch(e.g. rc/v1.0.0)"
+        required: true
 
 jobs:
   sync-rc:
@@ -19,7 +20,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          ref: ${{ env.BASE_BRANCH }}
           fetch-depth: 0
 
       - name: Generate token
@@ -29,10 +29,45 @@ jobs:
           app_id: ${{ secrets.APP_ID }}
           private_key: ${{ secrets.APP_PRIVATE_KEY }}
 
-      - name: Set SYNC_TARGET_BRANCH and SYNC_BRANCH
+      - name: Set SYNC_TARGET_BRANCH for pull_request event
+        if: github.event_name == 'pull_request'
         run: |
           echo "SYNC_TARGET_BRANCH=${{ github.base_ref }}" >> $GITHUB_ENV
-          echo "SYNC_BRANCH=sync-rc/${GITHUB_BASE_REF#refs/heads/}" >> $GITHUB_ENV
+
+      - name: Set SYNC_TARGET_BRANCH for workflow_dispatch event
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "SYNC_TARGET_BRANCH=${{ github.event.inputs.rc_branch }}" >> $GITHUB_ENV
+
+      - name: Set SYNC_BRANCH
+        run: |
+          echo ${SYNC_TARGET_BRANCH} | grep -e "^rc/v.*"
+          echo "SYNC_BRANCH=sync-rc/${SYNC_TARGET_BRANCH#refs/heads/}" >> $GITHUB_ENV
+
+      - name: Judge BASE_BRANCH
+        run: |
+          function is_main_base() {
+            target_branch="$1"
+
+            main_base=$(git merge-base "${target_branch}" origin/main)
+            develop_base=$(git merge-base "${target_branch}" origin/develop)
+
+            return $(test "${main_base}" = "${develop_base}")
+          }
+
+          if is_main_base "origin/${{ env.SYNC_TARGET_BRANCH }}"; then
+            base_branch=main
+          else
+            base_branch=develop
+          fi
+
+          echo "BASE_BRANCH=${base_branch}" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ env.BASE_BRANCH }}
+          fetch-depth: 0
 
       # To keep the base branch in "create-pull-request", checkout with "BASE_BRANCH" and reset to "SYNC_TARGET_BRANCH"
       - name: Reset to sync target branch
@@ -46,7 +81,10 @@ jobs:
 
       - name: Rebase on the base branch
         run: |
-          git rebase origin/${{ env.BASE_BRANCH }}
+          for commit in $(git rev-list --left-only "origin/${{ env.BASE_BRANCH }}"...HEAD | tac); do
+            merge_base=$(git merge-base HEAD "origin/${{ env.BASE_BRANCH }}")
+            git rebase --onto "$commit" "$merge_base" "${{ env.BASE_BRANCH }}" || git rebase --abort
+          done
 
       - name: Create PR
         id: create_pr
@@ -60,9 +98,9 @@ jobs:
           base: ${{ env.BASE_BRANCH }}
           branch: ${{ env.SYNC_BRANCH }}
           delete-branch: true
-          title: sync rc
+          title: sync rc ${{ env.SYNC_TARGET_BRANCH }}
           body: |
-            sync rc
+            sync rc ${{ env.SYNC_TARGET_BRANCH }}
           labels: |
             sync-rc
           draft: false

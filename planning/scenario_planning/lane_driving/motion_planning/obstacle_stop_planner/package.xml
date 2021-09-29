@@ -1,4 +1,4 @@
-<?xml version="1.0" ?>
+<?xml version="1.0"?>
 <package format="3">
   <name>obstacle_stop_planner</name>
   <version>0.1.0</version>
@@ -15,10 +15,10 @@
   <depend>autoware_planning_msgs</depend>
   <depend>autoware_utils</depend>
   <depend>diagnostic_msgs</depend>
-  <depend>rclcpp</depend>
-  <depend>rclcpp_components</depend>
   <depend>pcl_conversions</depend>
   <depend>pcl_ros</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
   <depend>tf2</depend>

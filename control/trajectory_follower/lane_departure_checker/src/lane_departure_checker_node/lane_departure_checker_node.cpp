@@ -115,6 +115,7 @@ LaneDepartureCheckerNode::LaneDepartureCheckerNode(const rclcpp::NodeOptions & o
 
   // Node Parameter
   node_param_.update_rate = declare_parameter("update_rate", 10.0);
+  node_param_.visualize_lanelet = declare_parameter("visualize_lanelet", false);
 
   // Core Parameter
 
@@ -326,6 +327,12 @@ void LaneDepartureCheckerNode::onTimer()
 
   debug_publisher_.publish<visualization_msgs::msg::MarkerArray>(
     std::string("marker_array"), createMarkerArray());
+  processing_time_map["Node: publishDebugMarker"] = stop_watch.toc(true);
+
+  // Merge processing_time_map
+  for (const auto & m : output_.processing_time_map) {
+    processing_time_map["Core: " + m.first] = m.second;
+  }
 
   processing_time_map["Total"] = stop_watch.toc("Total");
   processing_time_publisher_.publish(processing_time_map);
@@ -450,7 +457,7 @@ visualization_msgs::msg::MarkerArray LaneDepartureCheckerNode::createMarkerArray
     {
       auto marker = createDefaultMarker(
         "map", this->now(), "candidate_lanelets", 0, visualization_msgs::msg::Marker::TRIANGLE_LIST,
-        createMarkerScale(1.0, 1.0, 1.0), createMarkerColor(1.0, 1.0, 0.0, 0.1));
+        createMarkerScale(1.0, 1.0, 1.0), createMarkerColor(1.0, 1.0, 0.0, 0.5));
 
       for (const auto & lanelet : output_.candidate_lanelets) {
         std::vector<geometry_msgs::msg::Polygon> triangles;

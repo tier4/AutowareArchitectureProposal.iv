@@ -78,7 +78,7 @@ bool L2PseudoJerkOptimizer::solve(
    * b: velocity^2
    * a: acceleration
    * delta: 0 < bi < vmax^2 + delta
-   * sigma: amin < ai - sigma < amax
+   * sigma: min_accel < a_i - sigma < max_accel
    */
 
   const uint32_t l_variables = 4 * N;
@@ -93,8 +93,8 @@ bool L2PseudoJerkOptimizer::solve(
   Eigen::MatrixXd P = Eigen::MatrixXd::Zero(l_variables, l_variables);
   std::vector<double> q(l_variables, 0.0);
 
-  const double amax = param_.max_accel;
-  const double amin = param_.min_decel;
+  const double max_accel = param_.max_accel;
+  const double min_accel = param_.min_decel;
   const double smooth_weight = param_.pseudo_jerk_weight;
   const double over_v_weight = param_.over_v_weight;
   const double over_a_weight = param_.over_a_weight;
@@ -107,12 +107,12 @@ bool L2PseudoJerkOptimizer::solve(
   // pseudo jerk: d(ai)/ds -> minimize weight * (a1 - a0)^2
   for (unsigned int i = N; i < 2 * N - 1; ++i) {
     unsigned int j = i - N;
-    const double w_x_dsinv =
+    const double coeff =
       smooth_weight * (1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001));
-    P(i, i) += w_x_dsinv;
-    P(i, i + 1) -= w_x_dsinv;
-    P(i + 1, i) -= w_x_dsinv;
-    P(i + 1, i + 1) += w_x_dsinv;
+    P(i, i) += coeff;
+    P(i, i + 1) -= coeff;
+    P(i + 1, i) -= coeff;
+    P(i + 1, i + 1) += coeff;
   }
 
   for (unsigned int i = 2 * N; i < 3 * N; ++i) {  // over velocity cost
@@ -138,7 +138,7 @@ bool L2PseudoJerkOptimizer::solve(
     lower_bound[i] = 0.0;
   }
 
-  // amin < a - sigma < amax
+  // min_accel < a - sigma < max_accel
   for (unsigned int i = N; i < 2 * N; ++i) {
     const int j = 2 * N + i;
     A(i, i) = 1.0;   // a_i
@@ -147,17 +147,17 @@ bool L2PseudoJerkOptimizer::solve(
       upper_bound[i] = 0.0;
       lower_bound[i] = 0.0;
     } else {
-      upper_bound[i] = amax;
-      lower_bound[i] = amin;
+      upper_bound[i] = max_accel;
+      lower_bound[i] = min_accel;
     }
   }
 
   // b' = 2a ... (b(i+1) - b(i)) / ds = 2a(i)
   for (unsigned int i = 2 * N; i < 3 * N - 1; ++i) {
     const unsigned int j = i - 2 * N;
-    const double dsinv = 1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001);
-    A(i, j) = -dsinv;     // b(i)
-    A(i, j + 1) = dsinv;  // b(i+1)
+    const double ds_inv = 1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001);
+    A(i, j) = -ds_inv;     // b(i)
+    A(i, j + 1) = ds_inv;  // b(i+1)
     A(i, j + N) = -2.0;   // a(i)
     upper_bound[i] = 0.0;
     lower_bound[i] = 0.0;

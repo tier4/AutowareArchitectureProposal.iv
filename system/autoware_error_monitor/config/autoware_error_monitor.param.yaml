@@ -27,6 +27,7 @@
             "/autoware/map/map_version",
             "/autoware/perception/alive_monitoring",
             "/autoware/planning/alive_monitoring",
+            "/autoware/planning/trajectory_monitoring",
             "/autoware/sensing/alive_monitoring",
             "/autoware/sensing/camera",
             "/autoware/sensing/gnss",
@@ -48,8 +49,9 @@
             "/autoware/system/resource_monitoring/gpu_memory_usage",
             "/autoware/system/resource_monitoring/gpu_thermal_throttling",
             "/autoware/vehicle/alive_monitoring",
+            "/autoware/vehicle/vehicle_interface_connection",
             "/autoware/vehicle/vehicle_errors",
-            "/autoware/vehicle/obstacle_crush",
+            "/autoware/vehicle/obstacle_crash",
           ]
         diag_level:
           /autoware/localization/matching_score: { sf_at: "warn", lf_at: "error", spf_at: "none" }
@@ -67,6 +69,10 @@
           /autoware/system/resource_monitoring/gpu_usage: { sf_at: "warn", lf_at: "error", spf_at: "none" }
           /autoware/system/resource_monitoring/gpu_memory_usage: { sf_at: "warn", lf_at: "error", spf_at: "none" }
           /autoware/system/resource_monitoring/gpu_thermal_throttling: { sf_at: "warn", lf_at: "error", spf_at: "none" }
+        auto_recovery:
+          /autoware/vehicle/vehicle_interface_connection: false
+          /autoware/vehicle/vehicle_errors: false
+          /autoware/vehicle/obstacle_crash: false
 
       remote_control:
         names:
@@ -77,5 +83,5 @@
             "/autoware/system/emergency_stop_operation",
             "/autoware/vehicle/alive_monitoring",
             "/autoware/vehicle/vehicle_errors",
-            "/autoware/vehicle/obstacle_crush",
+            "/autoware/vehicle/obstacle_crash",
           ]

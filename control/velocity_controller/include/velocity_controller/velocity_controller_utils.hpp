@@ -119,7 +119,7 @@ TrajectoryPoint lerpTrajectoryPoint(const T & points, const Point & point)
     autoware_utils::calcLongitudinalOffsetToSegment(points, nearest_seg_idx, point);
   const double len_segment =
     autoware_utils::calcSignedArcLength(points, nearest_seg_idx, nearest_seg_idx + 1);
-  const double interpolate_ratio = len_to_interpolated / len_segment;
+  const double interpolate_ratio = std::clamp(len_to_interpolated / len_segment, 0.0, 1.0);
 
   {
     const size_t i = nearest_seg_idx;

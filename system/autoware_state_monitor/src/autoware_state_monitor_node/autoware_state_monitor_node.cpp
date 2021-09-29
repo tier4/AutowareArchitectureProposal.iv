@@ -125,10 +125,10 @@ void AutowareStateMonitorNode::onVehicleControlMode(
   state_input_.vehicle_control_mode = msg;
 }
 
-void AutowareStateMonitorNode::onIsEmergency(
-  const autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg)
+void AutowareStateMonitorNode::onHazardStatus(
+  const autoware_system_msgs::msg::HazardStatusStamped::ConstSharedPtr msg)
 {
-  state_input_.emergency_mode = msg;
+  state_input_.hazard_status = msg;
 }
 
 void AutowareStateMonitorNode::onRoute(const autoware_planning_msgs::msg::Route::ConstSharedPtr msg)
@@ -169,7 +169,7 @@ void AutowareStateMonitorNode::onTwist(const geometry_msgs::msg::TwistStamped::C
 
 bool AutowareStateMonitorNode::onShutdownService(
   const std::shared_ptr<rmw_request_id_t> request_header,
-  const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
+  [[maybe_unused]] const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
   const std::shared_ptr<std_srvs::srv::Trigger::Response> response)
 {
   (void)request_header;
@@ -201,8 +201,8 @@ bool AutowareStateMonitorNode::onShutdownService(
 }
 
 bool AutowareStateMonitorNode::onResetRouteService(
-  const std::shared_ptr<rmw_request_id_t> request_header,
-  const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
+  [[maybe_unused]] const std::shared_ptr<rmw_request_id_t> request_header,
+  [[maybe_unused]] const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
   const std::shared_ptr<std_srvs::srv::Trigger::Response> response)
 {
   if (state_machine_->getCurrentState() != AutowareState::WaitingForEngage) {
@@ -241,6 +241,11 @@ void AutowareStateMonitorNode::onTimer()
 {
   // Prepare state input
   state_input_.current_pose = getCurrentPose(tf_buffer_);
+  if (state_input_.current_pose == nullptr) {
+    RCLCPP_WARN_THROTTLE(
+      this->get_logger(), *this->get_clock(), 5000 /* ms */,
+      "Fail lookupTransform base_link to map");
+  }
 
   state_input_.topic_stats = getTopicStats();
   state_input_.param_stats = getParamStats();
@@ -287,7 +292,8 @@ void AutowareStateMonitorNode::onTimer()
 
 // TODO(jilaada): Use generic subscription base
 void AutowareStateMonitorNode::onTopic(
-  const std::shared_ptr<rclcpp::SerializedMessage> msg, const std::string & topic_name)
+  [[maybe_unused]] const std::shared_ptr<rclcpp::SerializedMessage> msg,
+  const std::string & topic_name)
 {
   const auto now = this->now();
 
@@ -479,9 +485,9 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
   sub_vehicle_control_mode_ = this->create_subscription<autoware_vehicle_msgs::msg::ControlMode>(
     "input/vehicle_control_mode", 1,
     std::bind(&AutowareStateMonitorNode::onVehicleControlMode, this, _1), subscriber_option);
-  sub_is_emergency_ = this->create_subscription<autoware_control_msgs::msg::EmergencyMode>(
-    "input/is_emergency", 1, std::bind(
-      &AutowareStateMonitorNode::onIsEmergency, this,
+  sub_hazard_status = this->create_subscription<autoware_system_msgs::msg::HazardStatusStamped>(
+    "input/hazard_status", 1, std::bind(
+      &AutowareStateMonitorNode::onHazardStatus, this,
       _1), subscriber_option);
   sub_route_ = this->create_subscription<autoware_planning_msgs::msg::Route>(
     "input/route", rclcpp::QoS{1}.transient_local(),

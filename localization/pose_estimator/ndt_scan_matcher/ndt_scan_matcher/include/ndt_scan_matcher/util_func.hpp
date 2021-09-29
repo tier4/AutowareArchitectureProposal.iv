@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef NDT_SCAN_MATCHER__UTIL_FUNC_HPP_
+#define NDT_SCAN_MATCHER__UTIL_FUNC_HPP_
+
 #include <algorithm>
 #include <cmath>
 #include <deque>
@@ -284,3 +287,5 @@ static geometry_msgs::msg::PoseArray createRandomPoseArray(
 
   return pose_array;
 }
+
+#endif  // NDT_SCAN_MATCHER__UTIL_FUNC_HPP_

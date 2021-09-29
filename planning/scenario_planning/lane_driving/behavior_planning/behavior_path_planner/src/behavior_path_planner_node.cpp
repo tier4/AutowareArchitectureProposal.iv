@@ -178,12 +178,12 @@ SideShiftParameters BehaviorPathPlannerNode::getSideShiftParam()
   };
 
   SideShiftParameters p{};
-  p.min_fix_distance = dp("min_fix_distance", 20.0);
-  p.start_avoid_sec = dp("start_avoid_sec", 4.0);
-  p.drivable_area_resolution = dp("drivable_area_resolution", 0.1);
-  p.drivable_area_width = dp("drivable_area_width", 100.0);
-  p.drivable_area_height = dp("drivable_area_height", 50.0);
-  p.inside_outside_judge_margin = dp("inside_outside_judge_margin", 0.3);
+  p.min_distance_to_start_shifting = dp("min_distance_to_start_shifting", 5.0);
+  p.time_to_start_shifting = dp("time_to_start_shifting", 1.0);
+  p.shifting_lateral_jerk = dp("shifting_lateral_jerk", 0.2);
+  p.min_shifting_distance = dp("min_shifting_distance", 5.0);
+  p.min_shifting_speed = dp("min_shifting_speed", 5.56);
+
   return p;
 }
 
@@ -217,7 +217,11 @@ AvoidanceParameters BehaviorPathPlannerNode::getAvoidanceParam()
 LaneFollowingParameters BehaviorPathPlannerNode::getLaneFollowingParam()
 {
   LaneFollowingParameters p{};
-  p.lane_change_prepare_duration = declare_parameter("lane_change_prepare_duration", 2.0);
+  p.expand_drivable_area = declare_parameter("lane_following.expand_drivable_area", false);
+  p.right_bound_offset = declare_parameter("lane_following.right_bound_offset", 0.5);
+  p.left_bound_offset = declare_parameter("lane_following.left_bound_offset", 0.5);
+  p.lane_change_prepare_duration = declare_parameter(
+    "lane_following.lane_change_prepare_duration", 2.0);
   return p;
 }
 
@@ -427,7 +431,8 @@ void BehaviorPathPlannerNode::run()
   const auto path_candidate = getPathCandidate(output);
   planner_data_->prev_output_path = path;
 
-  const auto clipped_path = clipPathByGoal(*path);
+  auto clipped_path = clipPathByGoal(*path);
+  clipPathLength(clipped_path);
 
   // TODO(Horibe) the path must have points. Needs to be fix.
   if (!clipped_path.points.empty()) {
@@ -611,6 +616,23 @@ void BehaviorPathPlannerNode::onRoute(const Route::ConstSharedPtr msg)
     RCLCPP_DEBUG(get_logger(), "new route is received. reset behavior tree.");
     bt_manager_->resetBehaviorTree();
   }
+}
+
+void BehaviorPathPlannerNode::clipPathLength(PathWithLaneId & path) const
+{
+  if (path.points.size() < 3) {return;}
+
+  const auto ego_pos = planner_data_->self_pose->pose.position;
+  const double forward = planner_data_->parameters.forward_path_length;
+  const double backward = planner_data_->parameters.backward_path_length;
+
+  const auto start_idx = util::getIdxByArclength(path, ego_pos, -backward);
+  const auto end_idx = util::getIdxByArclength(path, ego_pos, forward);
+
+  const std::vector<PathPointWithLaneId> clipped_points{path.points.begin() + start_idx,
+    path.points.begin() + end_idx + 1};
+
+  path.points = clipped_points;
 }
 
 PathWithLaneId BehaviorPathPlannerNode::clipPathByGoal(const PathWithLaneId & path) const

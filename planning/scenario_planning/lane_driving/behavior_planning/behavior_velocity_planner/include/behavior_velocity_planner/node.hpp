@@ -62,6 +62,8 @@ private:
     sub_external_intersection_states_;
   rclcpp::Subscription<autoware_perception_msgs::msg::TrafficLightStateArray>::SharedPtr
     sub_external_traffic_light_states_;
+  rclcpp::Subscription<autoware_v2x_msgs::msg::VirtualTrafficLightStateArray>::SharedPtr
+    sub_virtual_traffic_light_states_;
   rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr
     sub_occupancy_grid_;
 
@@ -78,6 +80,8 @@ private:
   void onExternalCrosswalkStates(const autoware_api_msgs::msg::CrosswalkStatus::ConstSharedPtr msg);
   void onExternalIntersectionStates(
     const autoware_api_msgs::msg::IntersectionStatus::ConstSharedPtr msg);
+  void onVirtualTrafficLightStates(
+    const autoware_v2x_msgs::msg::VirtualTrafficLightStateArray::ConstSharedPtr msg);
   void onOccupancyGrid(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg);
 
   // publisher

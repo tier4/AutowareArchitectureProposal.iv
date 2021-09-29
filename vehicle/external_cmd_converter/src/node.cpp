@@ -25,6 +25,7 @@ ExternalCmdConverterNode::ExternalCmdConverterNode(const rclcpp::NodeOptions & n
 : Node("external_cmd_converter", node_options)
 {
   using std::placeholders::_1;
+
   pub_cmd_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
     "out/control_cmd", rclcpp::QoS{1});
   pub_current_cmd_ = create_publisher<autoware_external_api_msgs::msg::ControlCommandStamped>(
@@ -38,8 +39,9 @@ ExternalCmdConverterNode::ExternalCmdConverterNode(const rclcpp::NodeOptions & n
     "in/shift_cmd", 1, std::bind(&ExternalCmdConverterNode::onShiftCmd, this, _1));
   sub_gate_mode_ = create_subscription<autoware_control_msgs::msg::GateMode>(
     "in/current_gate_mode", 1, std::bind(&ExternalCmdConverterNode::onGateMode, this, _1));
-  sub_emergency_stop_ = create_subscription<autoware_control_msgs::msg::EmergencyMode>(
-    "in/emergency_stop", 1, std::bind(&ExternalCmdConverterNode::onEmergencyStop, this, _1));
+  sub_emergency_stop_heartbeat_ = create_subscription<autoware_external_api_msgs::msg::Heartbeat>(
+    "in/emergency_stop", 1,
+    std::bind(&ExternalCmdConverterNode::onEmergencyStopHeartbeat, this, _1));
 
   // Parameter
   ref_vel_gain_ = declare_parameter("ref_vel_gain", 3.0);
@@ -98,11 +100,10 @@ void ExternalCmdConverterNode::onShiftCmd(
   current_shift_cmd_ = msg;
 }
 
-void ExternalCmdConverterNode::onEmergencyStop(
-  const autoware_control_msgs::msg::EmergencyMode::ConstSharedPtr msg)
+void ExternalCmdConverterNode::onEmergencyStopHeartbeat(
+  [[maybe_unused]] const autoware_external_api_msgs::msg::Heartbeat::ConstSharedPtr msg)
 {
-  current_emergency_cmd_ = msg->is_emergency;
-  latest_emergency_stop_received_time_ = std::make_shared<rclcpp::Time>(this->now());
+  latest_emergency_stop_heartbeat_received_time_ = std::make_shared<rclcpp::Time>(this->now());
   updater_.force_update();
 }
 
@@ -216,7 +217,7 @@ void ExternalCmdConverterNode::onGateMode(
 
 bool ExternalCmdConverterNode::checkEmergencyStopTopicTimeout()
 {
-  if (!latest_emergency_stop_received_time_) {
+  if (!latest_emergency_stop_heartbeat_received_time_) {
     if (wait_for_first_topic_) {
       return true;
     } else {
@@ -224,7 +225,7 @@ bool ExternalCmdConverterNode::checkEmergencyStopTopicTimeout()
     }
   }
 
-  const auto duration = (this->now() - *latest_emergency_stop_received_time_);
+  const auto duration = (this->now() - *latest_emergency_stop_heartbeat_received_time_);
   if (duration.seconds() > emergency_stop_timeout_) {return false;}
 
   return true;
