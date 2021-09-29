@@ -80,6 +80,7 @@ bool PullOverModule::isExecutionRequested() const
   bool goal_is_in_shoulder_lane = false;
   bool distance_is_long_enough = false;
   const auto goal_pose = planner_data_->route_handler->getGoalPose();
+  const auto current_lanes = getCurrentLanes();
 
   if (lanelet::utils::query::getClosestLanelet(
         planner_data_->route_handler->getShoulderLanelets(), goal_pose,
@@ -95,28 +96,8 @@ bool PullOverModule::isExecutionRequested() const
         goal_is_in_shoulder_lane = true;
       }
     }
-
-    // check if distance is long enough for pull_over
-    const auto current_lanes = getCurrentLanes();
-    const double distance_after_pull_over = parameters_.after_pull_over_straight_distance;
-    const double distance_before_pull_over = parameters_.before_pull_over_straight_distance;
-    //calculate minimum pull_over distance at pull_over velocity, maximum jerk and side offset
-    const double distance_to_left_bound = util::getDistanceToShoulderBoundary(
-      planner_data_->route_handler->getShoulderLanelets(), planner_data_->self_pose->pose);
-    const double offset_from_center_line = distance_to_left_bound +
-                                           planner_data_->parameters.vehicle_width / 2 +
-                                           parameters_.margin_from_boundary;
-    // calculate minimum pull_over distance at pull_over velocity, maximum jerk and side offset
-    const double pull_over_distance_min = path_shifter.calcLongitudinalDistFromJerk(
-      abs(offset_from_center_line), maximum_jerk, pull_over_velocity);
-    const double pull_over_total_distance_min =
-      distance_after_pull_over + pull_over_distance_min + distance_before_pull_over;
-    const Pose current_pose = planner_data_->self_pose->pose;
-    const double distance_to_goal_on_self_lane =
-      util::getSignedDistance(current_pose, goal_pose, current_lanes);
-    distance_is_long_enough = distance_to_goal_on_self_lane > pull_over_total_distance_min;
   }
-  return goal_is_in_shoulder_lane && distance_is_long_enough;
+  return goal_is_in_shoulder_lane && isLongEnough(current_lanes);
 }
 
 bool PullOverModule::isExecutionReady() const
@@ -553,9 +534,9 @@ bool PullOverModule::hasFinishedPullOver() const
     const auto road_lanes = getCurrentLanes();
 
     // check if goal pose is in shoulder lane and distance is long enough for pull out
-    if (isLongEnough(road_lanes)) {
-      return true;
-    }
+    // if (isLongEnough(road_lanes)) {
+    //   return true;
+    // }
   }
 
   return false;
