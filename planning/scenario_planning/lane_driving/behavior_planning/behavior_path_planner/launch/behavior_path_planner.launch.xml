@@ -10,6 +10,6 @@
     <remap from="~/output/path" to="path_with_lane_id" />
 
     <param from="$(find-pkg-share behavior_path_planner)/config/side_shift/side_shift.param.yaml" />
-    <param name="bt_tree_config_path" value="$(find-pkg-share behavior_path_planner)/config/behavior_path_planner_tree.xml" />
+    <param name="bt_tree_config_path" value="$(find-pkg-share behavior_path_planner)/config/behavior_path_planner_tree_pullover.xml" />
   </node>
 </launch>

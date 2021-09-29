@@ -37,115 +37,14 @@ namespace lane_change_utils
 using autoware_perception_msgs::msg::PredictedPath;
 using autoware_planning_msgs::msg::PathPoint;
 
-PathWithLaneId combineReferencePath(
-  const PathWithLaneId path1,
-  const PathWithLaneId path2, const double interval, const size_t N_sample)
+PathWithLaneId combineReferencePath(const PathWithLaneId path1, const PathWithLaneId path2)
 {
-  PathWithLaneId path{};
+  PathWithLaneId path;
   path.points.insert(path.points.end(), path1.points.begin(), path1.points.end());
 
-  const double dx =
-    path2.points.front().point.pose.position.x - path1.points.back().point.pose.position.x;
-  const double dy =
-    path2.points.front().point.pose.position.y - path1.points.back().point.pose.position.y;
-  const double ds = std::hypot(dx, dy);
-  if (interval < ds) {
-    //  calculate samples
-    std::vector<double> base_x, base_y, base_z;
+  // skip overlapping point
+  path.points.insert(path.points.end(), next(path2.points.begin()), path2.points.end());
 
-    int n_sample_path1 = 0;
-    for (size_t i = 0; i < N_sample; ++i) {
-      const int idx = static_cast<int>(path1.points.size()) - N_sample + i;
-      if (idx < 0) {
-        continue;
-      }
-      base_x.push_back(path1.points.at(idx).point.pose.position.x);
-      base_y.push_back(path1.points.at(idx).point.pose.position.y);
-      base_z.push_back(path1.points.at(idx).point.pose.position.z);
-      n_sample_path1++;
-    }
-
-    int n_sample_path2 = 0;
-    for (size_t i = 0; i < N_sample; ++i) {
-      if (i >= path2.points.size()) {
-        continue;
-      }
-      base_x.push_back(path2.points.at(i).point.pose.position.x);
-      base_y.push_back(path2.points.at(i).point.pose.position.y);
-      base_z.push_back(path2.points.at(i).point.pose.position.z);
-      n_sample_path2++;
-    }
-
-    std::vector<double> base_s = {0.0};
-    for (size_t i = 1; i < base_x.size(); ++i) {
-      const double base_dx = base_x.at(i) - base_x.at(i - 1);
-      const double base_dy = base_y.at(i) - base_y.at(i - 1);
-      base_s.push_back(base_s.at(i - 1) + std::hypot(base_dx, base_dy));
-    }
-
-    // calculate query
-    std::vector<double> inner_s;
-    for (double d = (base_s.at(n_sample_path1 - 1) + interval); d < base_s.at(n_sample_path1);
-      d += interval)
-    {
-      inner_s.push_back(d);
-    }
-
-    spline_interpolation::SplineInterpolator spline{};
-    std::vector<PathPointWithLaneId> inner_points;
-    std::vector<double> inner_x;
-    std::vector<double> inner_y;
-    std::vector<double> inner_z;
-    if (
-      spline.interpolate(base_s, base_x, inner_s, inner_x) &&
-      spline.interpolate(base_s, base_y, inner_s, inner_y) &&
-      spline.interpolate(base_s, base_z, inner_s, inner_z))
-    {
-      // set position and other data
-      for (size_t i = 0; i < inner_s.size(); ++i) {
-        PathPointWithLaneId inner_point{};
-        const auto & ids1 = path1.points.back().lane_ids;
-        const auto & ids2 = path2.points.front().lane_ids;
-        inner_point.lane_ids.insert(inner_point.lane_ids.end(), ids1.begin(), ids1.end());
-        inner_point.lane_ids.insert(inner_point.lane_ids.end(), ids2.begin(), ids2.end());
-        inner_point.point.type = path2.points.front().point.type;
-        inner_point.point.twist = path2.points.front().point.twist;
-        inner_point.point.pose.position.x = inner_x.at(i);
-        inner_point.point.pose.position.y = inner_y.at(i);
-        inner_point.point.pose.position.z = inner_z.at(i);
-        inner_points.push_back(inner_point);
-      }
-
-      // set yaw
-      for (size_t i = 0; i < inner_points.size(); ++i) {
-        Point prev;
-        Point next;
-        if (i == 0) {
-          prev = path1.points.back().point.pose.position;
-        } else {
-          prev = inner_points.at(i - 1).point.pose.position;
-        }
-        if (i == (inner_s.size() - 1)) {
-          next = path2.points.front().point.pose.position;
-        } else {
-          next = inner_points.at(i + 1).point.pose.position;
-        }
-
-        double yaw = std::atan2(next.y - prev.y, next.x - prev.x);
-        tf2::Quaternion q;
-        q.setRPY(0, 0, yaw);
-        inner_points.at(i).point.pose.orientation = tf2::toMsg(q);
-      }
-
-      path.points.insert(path.points.end(), inner_points.begin(), inner_points.end());
-
-    } else {
-      RCLCPP_WARN(
-        rclcpp::get_logger("behavior_path_planner").get_child("lane_change").get_child("util"),
-        "[LaneChangeModule::splineInterpolate] spline interpolation failed.");
-    }
-  }
-  path.points.insert(path.points.end(), path2.points.begin(), path2.points.end());
   return path;
 }
 
@@ -261,7 +160,71 @@ std::vector<LaneChangePath> getLaneChangePaths(
     candidate_path.acceleration = acceleration;
     candidate_path.preparation_length = straight_distance;
     candidate_path.lane_change_length = lane_change_distance;
-    candidate_path.path = combineReferencePath(reference_path1, reference_path2, 5.0, 2);
+
+    PathWithLaneId target_lane_reference_path;
+    {
+      const lanelet::ArcCoordinates lane_change_start_arc_position =
+        lanelet::utils::getArcCoordinates(
+          target_lanelets, reference_path1.points.back().point.pose);
+      double s_start = lane_change_start_arc_position.length;
+      double s_end = s_start + straight_distance + lane_change_distance + forward_path_length;
+      target_lane_reference_path = route_handler.getCenterLinePath(target_lanelets, s_start, s_end);
+    }
+
+    ShiftPoint shift_point;
+    {
+      const Pose lane_change_start_on_self_lane =
+        reference_path1.points.back().point.pose;
+      const Pose lane_change_end_on_target_lane =
+        reference_path2.points.front().point.pose;
+      const lanelet::ArcCoordinates lane_change_start_on_self_lane_arc =
+        lanelet::utils::getArcCoordinates(target_lanelets, lane_change_start_on_self_lane);
+      shift_point.length = lane_change_start_on_self_lane_arc.distance;
+      shift_point.start = lane_change_start_on_self_lane;
+      shift_point.end = lane_change_end_on_target_lane;
+    }
+
+    PathShifter path_shifter;
+    path_shifter.setPath(target_lane_reference_path);
+    path_shifter.addShiftPoint(shift_point);
+    ShiftedPath shifted_path;
+
+    // offset front side
+    bool offset_back = false;
+    if (!path_shifter.generate(&shifted_path, offset_back)) {
+      RCLCPP_ERROR_STREAM(
+        rclcpp::get_logger("behavior_path_planner").get_child("lane_change").get_child("util"),
+        "failed to generate shifted path.");
+    }
+    const auto lanechange_end_idx = autoware_utils::findNearestIndex(
+      shifted_path.path.points, reference_path2.points.front().point.pose);
+    if (lanechange_end_idx) {
+      for (size_t i = 0; i < shifted_path.path.points.size(); ++i) {
+        auto & point = shifted_path.path.points.at(i);
+        if (i < *lanechange_end_idx) {
+          point.lane_ids.insert(
+            point.lane_ids.end(), reference_path1.points.back().lane_ids.begin(),
+            reference_path1.points.back().lane_ids.end());
+          point.lane_ids.insert(
+            point.lane_ids.end(), reference_path2.points.front().lane_ids.begin(),
+            reference_path2.points.front().lane_ids.end());
+          point.point.twist.linear.x = std::min(
+            point.point.twist.linear.x, reference_path1.points.back().point.twist.linear.x);
+          continue;
+        }
+        point.point.twist.linear.x = std::min(
+          point.point.twist.linear.x,
+          std::max(lane_change_distance / lane_changing_duration, minimum_lane_change_velocity));
+        point.lane_ids = reference_path2.points.front().lane_ids;
+      }
+
+      candidate_path.path = combineReferencePath(reference_path1, shifted_path.path);
+    } else {
+      RCLCPP_ERROR_STREAM(
+        rclcpp::get_logger("behavior_path_planner").get_child("lane_change").get_child("util"),
+        "lane change end idx not found on target path.");
+      continue;
+    }
 
     // check candidate path is in lanelet
     if (!isPathInLanelets(candidate_path.path, original_lanelets, target_lanelets)) {continue;}
