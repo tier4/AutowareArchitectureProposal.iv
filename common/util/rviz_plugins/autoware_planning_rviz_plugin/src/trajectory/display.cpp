@@ -84,8 +84,10 @@ AutowareTrajectoryDisplay::AutowareTrajectoryDisplay()
     "Constant Color", false, "", property_velocity_view_, SLOT(updateVisualization()), this);
   property_velocity_color_ = new rviz_common::properties::ColorProperty(
     "Color", Qt::black, "", property_velocity_view_, SLOT(updateVisualization()), this);
-  property_velocity_text_view_ = new rviz_common::properties::BoolProperty(
-    "View Text Velocity", false, "", this, SLOT(updateVisualization()), this);
+  property_velocity_text_view_ =
+    new rviz_common::properties::BoolProperty(
+    "View Text Velocity", false, "", this,
+    SLOT(updateVisualization()), this);
   property_velocity_text_scale_ = new rviz_common::properties::FloatProperty(
     "Scale", 0.3, "", property_velocity_text_view_, SLOT(updateVisualization()), this);
   property_vel_max_ = new rviz_common::properties::FloatProperty(
@@ -140,7 +142,8 @@ bool AutowareTrajectoryDisplay::validateFloats(
   for (auto && trajectory_point : msg_ptr->points) {
     if (
       !rviz_common::validateFloats(trajectory_point.pose) &&
-      !rviz_common::validateFloats(trajectory_point.twist)) {
+      !rviz_common::validateFloats(trajectory_point.twist))
+    {
       return false;
     }
   }
@@ -183,14 +186,18 @@ void AutowareTrajectoryDisplay::processMessage(
     path_manual_object_->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_TRIANGLE_STRIP);
     velocity_manual_object_->begin("BaseWhiteNoLighting", Ogre::RenderOperation::OT_LINE_STRIP);
 
+
     if (msg_ptr->points.size() > velocity_texts_.size()) {
       for (size_t i = velocity_texts_.size(); i < msg_ptr->points.size(); i++) {
         Ogre::SceneNode * node = scene_node_->createChildSceneNode();
-        rviz_rendering::MovableText * text =
-          new rviz_rendering::MovableText("not initialized", "Liberation Sans", 0.1);
+        rviz_rendering::MovableText * text = new rviz_rendering::MovableText(
+          "not initialized",
+          "Liberation Sans",
+          0.1);
         text->setVisible(false);
         text->setTextAlignment(
-          rviz_rendering::MovableText::H_CENTER, rviz_rendering::MovableText::V_ABOVE);
+          rviz_rendering::MovableText::H_CENTER,
+          rviz_rendering::MovableText::V_ABOVE);
         node->attachObject(text);
         velocity_texts_.push_back(text);
         velocity_text_nodes_.push_back(node);
@@ -273,7 +280,7 @@ void AutowareTrajectoryDisplay::processMessage(
         velocity_manual_object_->position(
           path_point.pose.position.x, path_point.pose.position.y,
           path_point.pose.position.z +
-            path_point.twist.linear.x * property_velocity_scale_->getFloat());
+          path_point.twist.linear.x * property_velocity_scale_->getFloat());
         velocity_manual_object_->colour(color);
       }
       /*
@@ -308,9 +315,7 @@ void AutowareTrajectoryDisplay::processMessage(
 
 void AutowareTrajectoryDisplay::updateVisualization()
 {
-  if (last_msg_ptr_ != nullptr) {
-    processMessage(last_msg_ptr_);
-  }
+  if (last_msg_ptr_ != nullptr) {processMessage(last_msg_ptr_);}
 }
 
 }  // namespace rviz_plugins
