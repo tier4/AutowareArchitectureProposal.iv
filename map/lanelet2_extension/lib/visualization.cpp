@@ -466,11 +466,7 @@ void visualization::lanelet2Polygon(
 }
 
 visualization_msgs::msg::MarkerArray visualization::laneletDirectionAsMarkerArray(
-<<<<<<< HEAD
-  const lanelet::ConstLanelets lanelets, const std::string additional_namespace)
-=======
   const lanelet::ConstLanelets lanelets, const std::string & additional_namespace)
->>>>>>> develop
 {
   visualization_msgs::msg::MarkerArray marker_array;
   visualization_msgs::msg::Marker marker;

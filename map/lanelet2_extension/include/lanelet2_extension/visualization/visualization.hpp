@@ -115,11 +115,7 @@ void pushTrafficLightTriangleMarker(
  */
 visualization_msgs::msg::MarkerArray laneletsBoundaryAsMarkerArray(
   const lanelet::ConstLanelets & lanelets, const std_msgs::msg::ColorRGBA c,
-<<<<<<< HEAD
-  const bool viz_centerline, const std::string additional_namespace = "");
-=======
   const bool viz_centerline, const std::string & additional_namespace = "");
->>>>>>> develop
 /**
  * [laneletsAsTriangleMarkerArray create marker array to visualize shape of the
  * lanelet]
@@ -138,11 +134,7 @@ visualization_msgs::msg::MarkerArray laneletsAsTriangleMarkerArray(
  * @return          [created marker array]
  */
 visualization_msgs::msg::MarkerArray laneletDirectionAsMarkerArray(
-<<<<<<< HEAD
-  const lanelet::ConstLanelets lanelets, const std::string additional_namespace = "");
-=======
   const lanelet::ConstLanelets lanelets, const std::string & additional_namespace = "");
->>>>>>> develop
 
 /**
  * [lineStringsAsMarkerArray creates marker array to visualize shape of
