@@ -187,7 +187,7 @@ The Pull Over module is activated when goal is in the shoulder lane. Ego-vehicle
 
 #### \***\*finish pull over condition\*\*** (need to meet any of the conditions below)
 
-- The distance to the goal of your vehicle is lower than threshold (default: < `1m`)
+- The distance to the goal from your vehicle is lower than threshold (default: < `1m`)
 - The speed of the vehicle is 0.
 
 #### **Collision prediction with obstacles**
@@ -197,7 +197,7 @@ The Pull Over module is activated when goal is in the shoulder lane. Ego-vehicle
 
 #### **Path Generation**
 
-The path is generated with a certain margin 　(default: `0.5 m`) from left boundary of shoulder lane.
+The path is generated with a certain margin (default: `0.5 m`) from left boundary of shoulder lane.
 Pull over distance is calculated by the speed, lateral deviation, and the lateral jerk.
 The lateral jerk is searched for among the predetermined minimum and maximum values, and the one satisfies ready conditions described above is output.
 
@@ -206,6 +206,16 @@ The lateral jerk is searched for among the predetermined minimum and maximum val
 3. Combine this path with center line of road lane
 
 ![pull_over](./image/pull_over_fig1.drawio.svg)
+
+#### Parameters for path generation
+
+| Name                 | Unit   | Type   | Description                                                                                                 | Default value |
+| :------------------- | :----- | :----- | :---------------------------------------------------------------------------------------------------------- | :------------ |
+| straight_distance    | [m]    | double | straight distance after pull over.                                                                          | 5.0           |
+| minimum_lateral_jerk | [m/s3] | double | minimum lateral jerk to calculate shifting distance.                                                        | 0.5           |
+| maximum_lateral_jerk | [m/s3] | double | maximum lateral jerk to calculate shifting distance.                                                        | 2.0           |
+| pull_over_velocity   | [m/s]  | double | Accelerate/decelerate to this speed before the start of the pullover.                                       | 3.0           |
+| margin               | [m]    | double | distance from ego-vehicle's footprint to the edge of the shoulder lane. This value determines shift length. | 0.5           |
 
 #### Unimplemented parts / limitations for pull over
 
@@ -238,10 +248,11 @@ The Pull Out module is activated when ego-vehicle is stationary and footprint of
 - The distance to the goal of your vehicle is lower than threshold (default: < `1m`)
 - The speed of the vehicle is 0.
 
-#### **Collision check with obstacles in shoulder lane**
+#### **Safe check with obstacles in shoulder lane**
 
-1. Calculate ego-vehicle's footprint on pull out path between from current position to merge end point and object's polygon in shoulder lane
-2. If a distance between the footprint and the polygon is lower than the threshold (default: `1.5 m`), that is judged as a unsafe path
+1. Calculate ego-vehicle's footprint on pull out path between from current position to merge end point. (Illustrated by blue frame)
+2. Calculate object's polygon which is located in shoulder lane
+3. If a distance between the footprint and the polygon is lower than the threshold (default: `1.5 m`), that is judged as a unsafe path
 
 ![pull_out](./image/pull_out_fig1.drawio.svg)
 
