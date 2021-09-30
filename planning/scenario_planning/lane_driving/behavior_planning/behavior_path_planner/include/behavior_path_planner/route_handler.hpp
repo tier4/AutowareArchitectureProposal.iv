@@ -194,8 +194,8 @@ public:
     const lanelet::ConstLanelets & lanelets, lanelet::ConstLanelet * target_lanelet,
     const Pose & pose) const;
 
-    double getLaneChangeableDistance(
-      const Pose & current_pose, const LaneChangeDirection & direction) const;
+  double getLaneChangeableDistance(
+    const Pose & current_pose, const LaneChangeDirection & direction) const;
 
   lanelet::ConstPolygon3d getIntersectionAreaById(const lanelet::Id id) const;
 

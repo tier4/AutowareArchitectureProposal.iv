@@ -229,7 +229,8 @@ bool MissionPlannerLanelet2::isGoalValid() const
   // check if goal is in shoulder lanelet
   lanelet::Lanelet closest_shoulder_lanelet;
   if (!lanelet::utils::query::getClosestLanelet(
-        shoulder_lanelets_, goal_pose_.pose, &closest_shoulder_lanelet)) {
+      shoulder_lanelets_, goal_pose_.pose, &closest_shoulder_lanelet))
+  {
     return false;
   }
   // check if goal pose is in shoulder lane

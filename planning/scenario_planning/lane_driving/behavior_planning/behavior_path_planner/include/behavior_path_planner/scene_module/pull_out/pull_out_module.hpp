@@ -135,7 +135,8 @@ private:
   bool isCurrentSpeedLow() const;
   bool hasFinishedPullOut() const;
   bool hasFinishedBack() const;
-  vehicle_info_util::VehicleInfo getVehicleInfo(const BehaviorPathPlannerParameters & parameters) const;
+  vehicle_info_util::VehicleInfo getVehicleInfo(const BehaviorPathPlannerParameters & parameters)
+  const;
 };
 }  // namespace behavior_path_planner
 

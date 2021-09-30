@@ -165,7 +165,7 @@ std::vector<LaneChangePath> getLaneChangePaths(
     {
       const lanelet::ArcCoordinates lane_change_start_arc_position =
         lanelet::utils::getArcCoordinates(
-          target_lanelets, reference_path1.points.back().point.pose);
+        target_lanelets, reference_path1.points.back().point.pose);
       double s_start = lane_change_start_arc_position.length;
       double s_end = s_start + straight_distance + lane_change_distance + forward_path_length;
       target_lane_reference_path = route_handler.getCenterLinePath(target_lanelets, s_start, s_end);

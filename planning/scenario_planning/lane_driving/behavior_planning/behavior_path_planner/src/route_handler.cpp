@@ -219,7 +219,8 @@ void RouteHandler::setPullOverGoalPose(
     util::getDistanceToShoulderBoundary({target_lane}, shoulder_point);
 
   // distance between shoulder lane center and target line
-  double distance_shoulder_to_target = distance_shoulder_to_left_boundary + vehicle_width / 2 + margin;
+  double distance_shoulder_to_target = distance_shoulder_to_left_boundary + vehicle_width / 2 +
+    margin;
 
   // Apply shifting shoulder lane to adjust to target line
   double offset = -distance_shoulder_to_target;
@@ -227,7 +228,6 @@ void RouteHandler::setPullOverGoalPose(
   double yaw = tf2::getYaw(shoulder_point.orientation);
   pull_over_goal_pose_.position.x = shoulder_point.position.x - std::sin(yaw) * offset;
   pull_over_goal_pose_.position.y = shoulder_point.position.y + std::cos(yaw) * offset;
-  return;
 }
 
 Pose RouteHandler::getPullOverGoalPose() const {return pull_over_goal_pose_;}
@@ -397,7 +397,8 @@ bool RouteHandler::getFollowingShoulderLanelet(
     if (
       std::hypot(
         front_pose.position.x - back_pose.position.x,
-        front_pose.position.y - back_pose.position.y) < 5) {
+        front_pose.position.y - back_pose.position.y) < 5)
+    {
       *following_lanelet = shoulder_lanelet;
       return true;
     }
@@ -447,7 +448,8 @@ bool RouteHandler::getPreviousShoulderLanelet(
     if (
       std::hypot(
         front_pose.position.x - back_pose.position.x,
-        front_pose.position.y - back_pose.position.y) < 5) {
+        front_pose.position.y - back_pose.position.y) < 5)
+    {
       *prev_lanelet = shoulder_lanelet;
       return true;
     }
@@ -623,7 +625,8 @@ bool RouteHandler::getPullOverTarget(
 }
 
 bool RouteHandler::getPullOutStart(
-  const lanelet::ConstLanelets & lanelets, lanelet::ConstLanelet * target_lanelet, const Pose & pose) const
+  const lanelet::ConstLanelets & lanelets, lanelet::ConstLanelet * target_lanelet,
+  const Pose & pose) const
 {
   for (const auto & shoulder_lanelet : lanelets) {
     if (lanelet::utils::isInLanelet(pose, shoulder_lanelet, 0.1)) {
@@ -850,7 +853,7 @@ PathWithLaneId RouteHandler::setDecelerationVelocity(
 PathWithLaneId RouteHandler::setDecelerationVelocity(
   const PathWithLaneId & input, const lanelet::ConstLanelets & lanelet_sequence,
   const double distance_after_pullover, const double pullover_distance_min,
-  const double distance_before_pull_over, const double deceleration_interval,Pose goal_pose) const
+  const double distance_before_pull_over, const double deceleration_interval, Pose goal_pose) const
 {
   auto reference_path = input;
   const auto pullover_buffer =
@@ -860,11 +863,12 @@ PathWithLaneId RouteHandler::setDecelerationVelocity(
   const auto arclength_pull_over_start = arclength_goal_pose - pullover_buffer;
   const auto arclength_path_front =
     lanelet::utils::getArcCoordinates(lanelet_sequence, reference_path.points.front().point.pose)
-      .length;
+    .length;
 
   if (
     isDeadEndLanelet(lanelet_sequence.back()) &&
-    pullover_distance_min > std::numeric_limits<double>::epsilon()) {
+    pullover_distance_min > std::numeric_limits<double>::epsilon())
+  {
     for (auto & point : reference_path.points) {
       const auto arclength =
         lanelet::utils::getArcCoordinates(lanelet_sequence, point.point.pose).length;
@@ -1056,6 +1060,6 @@ lanelet::routing::RelationType RouteHandler::getRelation(
 
   return lanelet::routing::RelationType::None;
 }
-lanelet::ConstLanelets RouteHandler::getShoulderLanelets() const { return shoulder_lanelets_; }
+lanelet::ConstLanelets RouteHandler::getShoulderLanelets() const {return shoulder_lanelets_;}
 
 }  // namespace behavior_path_planner

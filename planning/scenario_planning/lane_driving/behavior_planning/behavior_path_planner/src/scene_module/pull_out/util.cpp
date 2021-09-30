@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2021 Tier IV, Inc. All rights reserved.
  *
@@ -76,7 +75,7 @@ bool isPathInLanelets4pullover(
         is_in_lanelet = true;
       }
     }
-    if (!is_in_lanelet) return false;
+    if (!is_in_lanelet) {return false;}
   }
   return true;
 }
@@ -106,7 +105,8 @@ std::vector<PullOutPath> getPullOutPaths(
   double initial_lateral_jerk = is_retreat_path ? maximum_lateral_jerk : minimum_lateral_jerk;
 
   for (double lateral_jerk = initial_lateral_jerk; lateral_jerk <= maximum_lateral_jerk;
-       lateral_jerk += jerk_resolution) {
+    lateral_jerk += jerk_resolution)
+  {
     PathWithLaneId reference_path;
     PathShifter path_shifter;
     ShiftedPath shifted_path;
@@ -137,10 +137,10 @@ std::vector<PullOutPath> getPullOutPaths(
     for (size_t i = 0; i < reference_path1.points.size(); ++i) {
       {
         if (fabs(distance_to_shoulder_center) < 1.0e-8) {
-            RCLCPP_WARN_STREAM(
-              rclcpp::get_logger("behavior_path_planner").get_child("pull_out").get_child("util"),
-              "no offset from current lane center.");
-        };
+          RCLCPP_WARN_STREAM(
+            rclcpp::get_logger("behavior_path_planner").get_child("pull_out").get_child("util"),
+            "no offset from current lane center.");
+        }
 
         auto & p = reference_path1.points.at(i).point.pose;
         double yaw = tf2::getYaw(p.orientation);
@@ -260,7 +260,7 @@ std::vector<PullOutPath> getPullOutPaths(
 PullOutPath getBackPaths(
   const RouteHandler & route_handler, const lanelet::ConstLanelets & shoulder_lanelets,
   const Pose & pose, const BehaviorPathPlannerParameters & common_parameter,
-  [[maybe_unused]]const PullOutParameters & parameter, [[maybe_unused]]const double back_distance)
+  [[maybe_unused]] const PullOutParameters & parameter, [[maybe_unused]] const double back_distance)
 {
   PathShifter path_shifter;
   ShiftedPath shifted_path;
@@ -300,7 +300,7 @@ PullOutPath getBackPaths(
           rclcpp::get_logger("behavior_path_planner").get_child("pull_out").get_child("util"),
           "no offset from current lane center.");
         continue;
-      };
+      }
 
       auto & p = reference_path1.points.at(i).point.pose;
       double yaw = tf2::getYaw(p.orientation);
@@ -318,7 +318,7 @@ PullOutPath getBackPaths(
   candidate_path.path = reference_path1;
 
   return candidate_path;
-}  
+}
 
 Pose getBackedPose(
   const Pose & current_pose, const double & yaw_shoulder_lane,
@@ -343,8 +343,9 @@ std::vector<PullOutPath> selectValidPaths(
 
   for (const auto & path : paths) {
     if (hasEnoughDistance(
-          path, road_lanes, shoulder_lanes, current_pose, isInGoalRouteSection, goal_pose,
-          overall_graphs)) {
+        path, road_lanes, shoulder_lanes, current_pose, isInGoalRouteSection, goal_pose,
+        overall_graphs))
+    {
       available_paths.push_back(path);
     }
   }
@@ -363,8 +364,9 @@ bool selectSafePath(
   const bool use_dynamic_object = ros_parameters.use_dynamic_object;
   for (const auto & path : paths) {
     if (isPullOutPathSafe(
-          path, road_lanes, shoulder_lanes, dynamic_objects, ros_parameters,
-          local_vehicle_footprint, true, use_dynamic_object)) {
+        path, road_lanes, shoulder_lanes, dynamic_objects, ros_parameters,
+        local_vehicle_footprint, true, use_dynamic_object))
+    {
       *selected_path = path;
       return true;
     }
@@ -381,9 +383,9 @@ bool selectSafePath(
 
 bool hasEnoughDistance(
   const PullOutPath & path, const lanelet::ConstLanelets & road_lanes,
-  [[maybe_unused]]const lanelet::ConstLanelets & target_lanes, const Pose & current_pose,
+  [[maybe_unused]] const lanelet::ConstLanelets & target_lanes, const Pose & current_pose,
   const bool isInGoalRouteSection, const Pose & goal_pose,
-  [[maybe_unused]]const lanelet::routing::RoutingGraphContainer & overall_graphs)
+  [[maybe_unused]] const lanelet::routing::RoutingGraphContainer & overall_graphs)
 {
   const double pull_out_prepare_distance = path.preparation_length;
   const double pull_out_distance = path.pull_out_length;
@@ -399,7 +401,8 @@ bool hasEnoughDistance(
 
   if (
     isInGoalRouteSection &&
-    pull_out_total_distance > util::getSignedDistance(current_pose, goal_pose, road_lanes)) {
+    pull_out_total_distance > util::getSignedDistance(current_pose, goal_pose, road_lanes))
+  {
 
     return false;
   }
@@ -458,8 +461,9 @@ bool isPullOutPathSafe(
         is_object_in_shoulder = true;
       } else {
         for (const auto & llt : shoulder_lanes) {
-          if (lanelet::utils::isInLanelet(obj.state.pose_covariance.pose, llt, 0.1))
+          if (lanelet::utils::isInLanelet(obj.state.pose_covariance.pose, llt, 0.1)) {
             is_object_in_shoulder = true;
+          }
         }
       }
       // TODO static object judge
@@ -485,8 +489,8 @@ bool isPullOutPathSafe(
     }
   }
 
-    return true;
-  }
+  return true;
+}
 
 bool isObjectFront(const Pose & ego_pose, const Pose & obj_pose)
 {

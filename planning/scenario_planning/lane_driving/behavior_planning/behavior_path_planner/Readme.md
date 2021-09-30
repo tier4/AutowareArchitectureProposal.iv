@@ -168,7 +168,7 @@ The path generation is computed in Frenet coordinates. The shift length profile 
 
 The Pull Over module is activated when goal is in the shoulder lane. Ego-vehicle will stop at the goal.
 
-#### **__start pull over condition__** (need to meet all of the conditions below)
+#### \***\*start pull over condition\*\*** (need to meet all of the conditions below)
 
 - Pull over request condition
 
@@ -183,9 +183,9 @@ The Pull Over module is activated when goal is in the shoulder lane. Ego-vehicle
   - Generated Path of the pull over doesn’t collide with other objects
   - Pull over is allowed by an operator
     - If pull over path is not allowed by an operator, leave distance required for pull over and stop.  
-    This case is defined as UC ID: UC-F-11-00004 at [ODD Use Case Slide Pullover draft](https://docs.google.com/presentation/d/19-G1vj0rG-1P1RKWLg-Iq3_7YgcIYgXZ1wq2_J9NXGo/edit#slide=id.gf4f59f078d_0_1)
+      This case is defined as UC ID: UC-F-11-00004 at [ODD Use Case Slide Pullover draft](https://docs.google.com/presentation/d/19-G1vj0rG-1P1RKWLg-Iq3_7YgcIYgXZ1wq2_J9NXGo/edit#slide=id.gf4f59f078d_0_1)
 
-#### **__finish pull over condition__** (need to meet any of the conditions below)
+#### \***\*finish pull over condition\*\*** (need to meet any of the conditions below)
 
 - The distance to the goal of your vehicle is lower than threshold (default: < `1m`)
 - The speed of the vehicle is 0.
@@ -197,7 +197,7 @@ The Pull Over module is activated when goal is in the shoulder lane. Ego-vehicle
 
 #### **Path Generation**
 
-The path is generated with a certain margin　(default: `0.5 m`) from left boundary of shoulder lane.
+The path is generated with a certain margin 　(default: `0.5 m`) from left boundary of shoulder lane.
 Pull over distance is calculated by the speed, lateral deviation, and the lateral jerk.
 The lateral jerk is searched for among the predetermined minimum and maximum values, and the one satisfies ready conditions described above is output.
 
@@ -215,7 +215,7 @@ The lateral jerk is searched for among the predetermined minimum and maximum val
 
 The Pull Out module is activated when ego-vehicle is stationary and footprint of ego-vehicle is included in shoulder lane. This module ends when ego-vehicle merges into the road.
 
-#### **__start pull out condition__** (need to meet all of the conditions below)
+#### \***\*start pull out condition\*\*** (need to meet all of the conditions below)
 
 - Pull out request condition
 
@@ -233,7 +233,7 @@ The Pull Out module is activated when ego-vehicle is stationary and footprint of
     - If safe path cannot be generated from the current position, safe path from a receding position is searched.
   - Pull out is allowed by an operator
 
-#### **__finish pull out condition__** (need to meet any of the conditions below)
+#### \***\*finish pull out condition\*\*** (need to meet any of the conditions below)
 
 - The distance to the goal of your vehicle is lower than threshold (default: < `1m`)
 - The speed of the vehicle is 0.

@@ -107,10 +107,10 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
 
     bt_manager_->registerForceApproval("ForceLaneChange");
 
-    auto pull_over_module = std::make_shared<PullOverModule>("PullOver",*this, getPullOverParam());
+    auto pull_over_module = std::make_shared<PullOverModule>("PullOver", *this, getPullOverParam());
     bt_manager_->registerSceneModule(pull_over_module);
 
-    auto pull_out_module = std::make_shared<PullOutModule>("PullOut",*this, getPullOutParam());
+    auto pull_out_module = std::make_shared<PullOutModule>("PullOut", *this, getPullOutParam());
     bt_manager_->registerSceneModule(pull_out_module);
 
     bt_manager_->createBehaviorTree();
@@ -173,9 +173,9 @@ BehaviorPathPlannerParameters BehaviorPathPlannerNode::getCommonParam()
 SideShiftParameters BehaviorPathPlannerNode::getSideShiftParam()
 {
   const auto dp = [this](const std::string & str, auto def_val) {
-    std::string name = "side_shift." + str;
-    return this->declare_parameter(name, def_val);
-  };
+      std::string name = "side_shift." + str;
+      return this->declare_parameter(name, def_val);
+    };
 
   SideShiftParameters p{};
   p.min_distance_to_start_shifting = dp("min_distance_to_start_shifting", 5.0);
@@ -190,9 +190,9 @@ SideShiftParameters BehaviorPathPlannerNode::getSideShiftParam()
 AvoidanceParameters BehaviorPathPlannerNode::getAvoidanceParam()
 {
   const auto dp = [this](const std::string & str, auto def_val) {
-    std::string name = "avoidance." + str;
-    return this->declare_parameter(name, def_val);
-  };
+      std::string name = "avoidance." + str;
+      return this->declare_parameter(name, def_val);
+    };
 
   AvoidanceParameters p{};
   p.threshold_distance_object_is_on_center = dp("threshold_distance_object_is_on_center", 1.0);
@@ -228,9 +228,9 @@ LaneFollowingParameters BehaviorPathPlannerNode::getLaneFollowingParam()
 LaneChangeParameters BehaviorPathPlannerNode::getLaneChangeParam()
 {
   const auto dp = [this](const std::string & str, auto def_val) {
-    std::string name = "lane_change." + str;
-    return this->declare_parameter(name, def_val);
-  };
+      std::string name = "lane_change." + str;
+      return this->declare_parameter(name, def_val);
+    };
 
   LaneChangeParameters p{};
   p.min_stop_distance = dp("min_stop_distance", 5.0);
@@ -259,16 +259,16 @@ LaneChangeParameters BehaviorPathPlannerNode::getLaneChangeParam()
   // validation of parameters
   if (p.lane_change_sampling_num < 1) {
     RCLCPP_FATAL_STREAM(
-      get_logger(), "lane_change_sampling_num must be positive integer. Given parameter: "
-                      << p.lane_change_sampling_num << std::endl
-                      << "Terminating the program...");
+      get_logger(), "lane_change_sampling_num must be positive integer. Given parameter: " <<
+        p.lane_change_sampling_num << std::endl <<
+        "Terminating the program...");
     exit(EXIT_FAILURE);
   }
   if (p.maximum_deceleration < 0.0) {
     RCLCPP_FATAL_STREAM(
-      get_logger(), "maximum_deceleration cannot be negative value. Given parameter: "
-                      << p.maximum_deceleration << std::endl
-                      << "Terminating the program...");
+      get_logger(), "maximum_deceleration cannot be negative value. Given parameter: " <<
+        p.maximum_deceleration << std::endl <<
+        "Terminating the program...");
     exit(EXIT_FAILURE);
   }
 
@@ -278,9 +278,9 @@ LaneChangeParameters BehaviorPathPlannerNode::getLaneChangeParam()
 PullOverParameters BehaviorPathPlannerNode::getPullOverParam()
 {
   const auto dp = [this](const std::string & str, auto def_val) {
-    std::string name = "pull_over." + str;
-    return this->declare_parameter(name, def_val);
-  };
+      std::string name = "pull_over." + str;
+      return this->declare_parameter(name, def_val);
+    };
 
   PullOverParameters p;
 
@@ -313,16 +313,16 @@ PullOverParameters BehaviorPathPlannerNode::getPullOverParam()
   // validation of parameters
   if (p.pull_over_sampling_num < 1) {
     RCLCPP_FATAL_STREAM(
-      get_logger(), "pull_over_sampling_num must be positive integer. Given parameter: "
-                      << p.pull_over_sampling_num << std::endl
-                      << "Terminating the program...");
+      get_logger(), "pull_over_sampling_num must be positive integer. Given parameter: " <<
+        p.pull_over_sampling_num << std::endl <<
+        "Terminating the program...");
     exit(EXIT_FAILURE);
   }
   if (p.maximum_deceleration < 0.0) {
     RCLCPP_FATAL_STREAM(
-      get_logger(), "maximum_deceleration cannot be negative value. Given parameter: "
-                      << p.maximum_deceleration << std::endl
-                      << "Terminating the program...");
+      get_logger(), "maximum_deceleration cannot be negative value. Given parameter: " <<
+        p.maximum_deceleration << std::endl <<
+        "Terminating the program...");
     exit(EXIT_FAILURE);
   }
 
@@ -332,9 +332,9 @@ PullOverParameters BehaviorPathPlannerNode::getPullOverParam()
 PullOutParameters BehaviorPathPlannerNode::getPullOutParam()
 {
   const auto dp = [this](const std::string & str, auto def_val) {
-    std::string name = "pull_out." + str;
-    return this->declare_parameter(name, def_val);
-  };
+      std::string name = "pull_out." + str;
+      return this->declare_parameter(name, def_val);
+    };
 
   PullOutParameters p;
 
@@ -367,16 +367,16 @@ PullOutParameters BehaviorPathPlannerNode::getPullOutParam()
   // validation of parameters
   if (p.pull_out_sampling_num < 1) {
     RCLCPP_FATAL_STREAM(
-      get_logger(), "pull_out_sampling_num must be positive integer. Given parameter: "
-                      << p.pull_out_sampling_num << std::endl
-                      << "Terminating the program...");
+      get_logger(), "pull_out_sampling_num must be positive integer. Given parameter: " <<
+        p.pull_out_sampling_num << std::endl <<
+        "Terminating the program...");
     exit(EXIT_FAILURE);
   }
   if (p.maximum_deceleration < 0.0) {
     RCLCPP_FATAL_STREAM(
-      get_logger(), "maximum_deceleration cannot be negative value. Given parameter: "
-                      << p.maximum_deceleration << std::endl
-                      << "Terminating the program...");
+      get_logger(), "maximum_deceleration cannot be negative value. Given parameter: " <<
+        p.maximum_deceleration << std::endl <<
+        "Terminating the program...");
     exit(EXIT_FAILURE);
   }
 
@@ -489,20 +489,20 @@ void BehaviorPathPlannerNode::publishModuleStatus(
   const std::vector<std::shared_ptr<SceneModuleStatus>> & statuses)
 {
   auto getModuleType = [](std::string name) {
-    if (name == "LaneChange") {
-      return PathChangeModuleId::LANE_CHANGE;
-    } else if (name == "Avoidance") {
-      return PathChangeModuleId::AVOIDANCE;
-    } else if (name == "ForceLaneChange") {
-      return PathChangeModuleId::FORCE_LANE_CHANGE;
-    } else if (name == "PullOver") {
-      return PathChangeModuleId::PULL_OVER;
-    } else if (name == "PullOut") {
-      return PathChangeModuleId::PULL_OUT;
-    } else {
-      return PathChangeModuleId::NONE;
-    }
-  };
+      if (name == "LaneChange") {
+        return PathChangeModuleId::LANE_CHANGE;
+      } else if (name == "Avoidance") {
+        return PathChangeModuleId::AVOIDANCE;
+      } else if (name == "ForceLaneChange") {
+        return PathChangeModuleId::FORCE_LANE_CHANGE;
+      } else if (name == "PullOver") {
+        return PathChangeModuleId::PULL_OVER;
+      } else if (name == "PullOut") {
+        return PathChangeModuleId::PULL_OUT;
+      } else {
+        return PathChangeModuleId::NONE;
+      }
+    };
 
   const auto now = this->now();
 
@@ -521,7 +521,8 @@ void BehaviorPathPlannerNode::publishModuleStatus(
       const auto force_approval = planner_data_->approval.is_force_approved;
       if (
         force_approval.module_name == "ForceLaneChange" &&
-        (now - force_approval.stamp).seconds() < 0.5) {
+        (now - force_approval.stamp).seconds() < 0.5)
+      {
         is_ready = true;
         ready_module.module.type = getModuleType("ForceLaneChange");
       }
@@ -591,12 +592,12 @@ void BehaviorPathPlannerNode::onExternalApproval(const ApprovalMsg::ConstSharedP
 void BehaviorPathPlannerNode::onForceApproval(const PathChangeModule::ConstSharedPtr msg)
 {
   auto getModuleName = [](PathChangeModuleId module) {
-    if (module.type == PathChangeModuleId::FORCE_LANE_CHANGE) {
-      return "ForceLaneChange";
-    } else {
-      return "NONE";
-    }
-  };
+      if (module.type == PathChangeModuleId::FORCE_LANE_CHANGE) {
+        return "ForceLaneChange";
+      } else {
+        return "NONE";
+      }
+    };
   planner_data_->approval.is_force_approved.module_name = getModuleName(msg->module);
   planner_data_->approval.is_force_approved.stamp = msg->header.stamp;
 }
@@ -648,7 +649,8 @@ PathWithLaneId BehaviorPathPlannerNode::clipPathByGoal(const PathWithLaneId & pa
     geometry_msgs::msg::Pose pull_over_goal;
     if (
       is_approved && planner_data_->route_handler->getPullOverTarget(
-                      planner_data_->route_handler->getShoulderLanelets(), &pull_over_lane)) {
+        planner_data_->route_handler->getShoulderLanelets(), &pull_over_lane))
+    {
       refined_goal = planner_data_->route_handler->getPullOverGoalPose();
     } else if (planner_data_->route_handler->getGoalLanelet(&goal_lanelet)) {
       refined_goal = util::refineGoal(goal, goal_lanelet);

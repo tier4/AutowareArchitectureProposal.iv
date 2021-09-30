@@ -375,9 +375,10 @@ bool lerpByDistance(
     const auto & prev_pt = path.path.points.at(i - 1).point.pose;
     if (
       (s >= lanelet::utils::getArcCoordinates(road_lanes, prev_pt).length) &&
-      (s < lanelet::utils::getArcCoordinates(road_lanes, pt).length)) {
+      (s < lanelet::utils::getArcCoordinates(road_lanes, pt).length))
+    {
       const double distance = lanelet::utils::getArcCoordinates(road_lanes, pt).length -
-                              lanelet::utils::getArcCoordinates(road_lanes, prev_pt).length;
+        lanelet::utils::getArcCoordinates(road_lanes, prev_pt).length;
       const auto offset = s - lanelet::utils::getArcCoordinates(road_lanes, prev_pt).length;
       const auto ratio = offset / distance;
       *lerped_pt = lerpByPose(prev_pt, pt, ratio);
@@ -1231,7 +1232,8 @@ double getDistanceToShoulderBoundary(
   lanelet::ConstLanelet closest_shoulder_lanelet;
   lanelet::ArcCoordinates arc_coordinates;
   if (lanelet::utils::query::getClosestLanelet(
-        shoulder_lanelets, pose, &closest_shoulder_lanelet)) {
+      shoulder_lanelets, pose, &closest_shoulder_lanelet))
+  {
     const auto lanelet_point = lanelet::utils::conversion::toLaneletPoint(pose.position);
     const auto & left_line_2d = lanelet::utils::to2D(closest_shoulder_lanelet.leftBound3d());
     arc_coordinates = lanelet::geometry::toArcCoordinates(
@@ -1243,7 +1245,7 @@ double getDistanceToShoulderBoundary(
       "closest shoulder lanelet not found.");
   }
 
-return arc_coordinates.distance;
+  return arc_coordinates.distance;
 }
 
 double getArcLengthToTargetLanelet(

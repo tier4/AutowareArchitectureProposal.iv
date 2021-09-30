@@ -100,19 +100,19 @@ bool PathShifter::generate(ShiftedPath * shifted_path, const bool offset_back)
   }
 
   if (shift_points_.front().start_idx == 0) {
-    // if offset is applied on front side, shifting from first point is no problem 
-    if(offset_back){
-    RCLCPP_WARN_STREAM(
-      logger_,
-      "shift start point is at the edge of path. It could cause undesired result."
-      " Maybe path is too short for backward?");
+    // if offset is applied on front side, shifting from first point is no problem
+    if (offset_back) {
+      RCLCPP_WARN_STREAM(
+        logger_,
+        "shift start point is at the edge of path. It could cause undesired result."
+        " Maybe path is too short for backward?");
     }
   }
 
   // Calculate shifted path (linear shifter is only for debug, will be deprecated.)
   constexpr bool USE_SPLINE_SHIFTER = true;
-  USE_SPLINE_SHIFTER ? applySplineShifter(shifted_path, offset_back)
-                     : applyLinearShifter(shifted_path);
+  USE_SPLINE_SHIFTER ? applySplineShifter(shifted_path, offset_back) :
+  applyLinearShifter(shifted_path);
 
   // DEBUG
   RCLCPP_DEBUG_STREAM(
@@ -179,9 +179,9 @@ void PathShifter::applySplineShifter(ShiftedPath * shifted_path, const bool offs
     const std::vector<double> base_distance = {0.0, shifting_arclength / 4.0,
       shifting_arclength * 3.0 / 4.0, shifting_arclength};
     const auto base_length =
-      offset_back
-        ? std::vector<double>{0.0, delta_shift / 12.0, delta_shift * 11.0 / 12.0, delta_shift}
-        : std::vector<double>{delta_shift, delta_shift * 11.0 / 12.0, delta_shift / 12.0, 0.0};
+      offset_back ?
+      std::vector<double>{0.0, delta_shift / 12.0, delta_shift * 11.0 / 12.0, delta_shift} :
+    std::vector<double>{delta_shift, delta_shift * 11.0 / 12.0, delta_shift / 12.0, 0.0};
 
     std::vector<double> query_distance, query_length;
 
