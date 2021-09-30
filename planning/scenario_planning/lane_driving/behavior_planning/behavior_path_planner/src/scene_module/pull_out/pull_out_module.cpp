@@ -226,8 +226,8 @@ BehaviorModuleOutput PullOutModule::planWaitingApproval()
       lanes, *(planner_data_->self_pose), width, height, resolution,
       common_parameters.vehicle_length, *route_handler);
   }
-  for (auto & point : candidatePath.points) {
-    point.point.twist.linear.x = 0;
+  for (size_t i = 1; i < candidatePath.points.size(); i++) {
+    candidatePath.points.at(i).point.twist.linear.x = 0.0;
   }
   out.path = std::make_shared<PathWithLaneId>(candidatePath);
 
