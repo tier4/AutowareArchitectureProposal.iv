@@ -14,7 +14,6 @@
 //
 // Authors: Simon Thompson, Ryohsuke Mitsudome
 
-
 #include "lanelet2_extension/utility/query.hpp"
 
 #include <deque>
@@ -33,7 +32,6 @@
 #include "lanelet2_extension/utility/utilities.hpp"
 
 #include "tf2/utils.h"
-
 
 using lanelet::utils::to2D;
 namespace
