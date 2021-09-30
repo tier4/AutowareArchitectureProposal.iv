@@ -253,7 +253,6 @@ The path is generated with a certain margin from the left edge of the shoulder l
 
 - Note that the current module's start judgment condition may incorrectly judge that the vehicle is parked on the shoulder, such as when stopping in front of an intersection.
 
-
 ### Side Shift
 
 The role of the Side Shift module is to shift the reference path laterally in response to external instructions (such as remote operation).
