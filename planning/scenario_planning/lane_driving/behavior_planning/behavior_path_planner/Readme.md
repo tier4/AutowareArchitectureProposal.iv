@@ -197,13 +197,13 @@ The Pull Over module is activated when goal is in the shoulder lane. Ego-vehicle
 
 #### **Path Generation**
 
-1. Apply uniform offset to centerline of shoulder lane for ensuring margin
-2. In the section between A and B, path is shifted by a method that is used to generate avoidance paths
-3. Combine this path with center line of road lane
-
 The path is generated with a certain margin　(default: `0.5 m`) from left boundary of shoulder lane.
 Pull over distance is calculated by the speed, lateral deviation, and the lateral jerk.
 The lateral jerk is searched for among the predetermined minimum and maximum values, and the one satisfies ready conditions described above is output.
+
+1. Apply uniform offset to centerline of shoulder lane for ensuring margin
+2. In the section between merge start and end, path is shifted by a method that is used to generate avoidance path (four segmental constant jerk polynomials)
+3. Combine this path with center line of road lane
 
 ![pull_over](./image/pull_over_fig1.drawio.svg)
 
