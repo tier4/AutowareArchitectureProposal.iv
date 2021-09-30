@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
 #include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "autoware_utils/autoware_utils.hpp"
 
@@ -447,7 +451,7 @@ TurnSignalInfo PullOverModule::calcTurnSignalInfo(const ShiftPoint & shift_point
   const double turn_signal_off_threshold = -2;
   const double turn_hazard_on_threshold = 3;
 
-  //calculate distance to pull_over start on current lanes
+  // calculate distance to pull_over start on current lanes
   double distance_to_pull_over_start;
   {
     const auto pull_over_start = shift_point.start;
@@ -459,7 +463,7 @@ TurnSignalInfo PullOverModule::calcTurnSignalInfo(const ShiftPoint & shift_point
       arc_position_pull_over_start.length - arc_position_current_pose.length;
   }
 
-  //calculate distance to shift end on target lanes
+  // calculate distance to shift end on target lanes
   double distance_to_pull_over_end;
   {
     const auto pull_over_end = shift_point.end;
@@ -471,7 +475,7 @@ TurnSignalInfo PullOverModule::calcTurnSignalInfo(const ShiftPoint & shift_point
       arc_position_current_pose.length;
   }
 
-  //calculate distance to shift start on target lanes
+  // calculate distance to shift start on target lanes
   double distance_to_target_pose;
   {
     const auto arc_position_target_pose = lanelet::utils::getArcCoordinates(

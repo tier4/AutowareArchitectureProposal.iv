@@ -16,6 +16,7 @@
 #define BEHAVIOR_PATH_PLANNER__SCENE_MODULE__PULL_OVER__UTIL_HPP_
 
 #include <memory>
+#include <vector>
 
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
@@ -24,7 +25,6 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 
-// #include "geometry_msgs/PoseArray.hpp"
 #include "lanelet2_core/primitives/Primitive.h"
 
 
@@ -41,7 +41,7 @@ using autoware_planning_msgs::msg::PathWithLaneId;
 using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::Twist;
 
-//TODO move to util
+// TODO(sugahara) move to util
 PathWithLaneId combineReferencePath(const PathWithLaneId path1, const PathWithLaneId path2);
 bool isPathInLanelets(
   const PathWithLaneId & path, const lanelet::ConstLanelets & original_lanelets,

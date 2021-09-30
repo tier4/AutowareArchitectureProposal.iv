@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
 #include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "autoware_utils/autoware_utils.hpp"
@@ -105,7 +109,7 @@ bool PullOutModule::isExecutionReady() const
 {
   if (current_state_ == BT::NodeStatus::RUNNING) {return true;}
 
-  //TODO move to utility function
+  // TODO(sugahara) move to utility function
   const auto road_lanes = getCurrentLanes();
   const auto shoulder_lanes = getPullOutLanes(road_lanes);
 
@@ -128,7 +132,7 @@ BT::NodeStatus PullOutModule::updateState()
 {
   RCLCPP_DEBUG(getLogger(), "PULL_OUT updateState");
 
-  //finish after lane change
+  // finish after lane change
   if (status_.back_finished && hasFinishedPullOut()) {
     current_state_ = BT::NodeStatus::SUCCESS;
     return current_state_;
@@ -360,7 +364,7 @@ lanelet::ConstLanelets PullOutModule::getCurrentLanes() const
     common_parameters.forward_path_length);
 }
 
-//getShoulderLanesOnCurrentPose?
+// getShoulderLanesOnCurrentPose?
 lanelet::ConstLanelets PullOutModule::getPullOutLanes(
   const lanelet::ConstLanelets & current_lanes) const
 {
@@ -624,7 +628,8 @@ bool PullOutModule::isLongEnough(const lanelet::ConstLanelets & lanelets) const
   const double distance_to_road_center =
     lanelet::utils::getArcCoordinates(lanelets, planner_data_->self_pose->pose).distance;
 
-  // calculate minimum pull_out distance at pull_out velocity, maximum jerk and calculated side offset
+  // calculate minimum pull_out distance at pull_out velocity,
+  // maximum jerk and calculated side offset
   const double pull_out_distance_min = path_shifter.calcLongitudinalDistFromJerk(
     abs(distance_to_road_center), maximum_jerk, pull_out_velocity);
   const double pull_out_total_distance_min =
@@ -662,7 +667,6 @@ bool PullOutModule::hasFinishedPullOut() const
     lanelet::utils::getArcCoordinates(status_.current_lanes, current_pose);
   const auto arclength_shift_end =
     lanelet::utils::getArcCoordinates(status_.current_lanes, status_.pull_out_path.shift_point.end);
-  // RCLCPP_ERROR(getLogger(),"%f %f %f",arclength_shift_end.length,arclength_current.length,parameters_.pull_out_finish_judge_buffer);
   const bool car_is_on_goal = (arclength_shift_end.length - arclength_current.length <
     parameters_.pull_out_finish_judge_buffer) ?
     true :
@@ -698,7 +702,7 @@ TurnSignalInfo PullOutModule::calcTurnSignalInfo(const ShiftPoint & shift_point)
   const double turn_signal_off_threshold = -3;
   const double turn_hazard_on_threshold = 3;
 
-  //calculate distance to pull_out start on current lanes
+  // calculate distance to pull_out start on current lanes
   double distance_to_pull_out_start;
   {
     const auto pull_out_start = shift_point.start;
@@ -710,7 +714,7 @@ TurnSignalInfo PullOutModule::calcTurnSignalInfo(const ShiftPoint & shift_point)
       arc_position_pull_out_start.length - arc_position_current_pose.length;
   }
 
-  //calculate distance to pull_out end on target lanes
+  // calculate distance to pull_out end on target lanes
   double distance_to_pull_out_end;
   {
     const auto pull_out_end = shift_point.end;
@@ -721,7 +725,7 @@ TurnSignalInfo PullOutModule::calcTurnSignalInfo(const ShiftPoint & shift_point)
     distance_to_pull_out_end = arc_position_pull_out_end.length - arc_position_current_pose.length;
   }
 
-  //calculate distance to pull_out start on target lanes
+  // calculate distance to pull_out start on target lanes
   double distance_to_target_pose;
   {
     const auto arc_position_target_pose = lanelet::utils::getArcCoordinates(

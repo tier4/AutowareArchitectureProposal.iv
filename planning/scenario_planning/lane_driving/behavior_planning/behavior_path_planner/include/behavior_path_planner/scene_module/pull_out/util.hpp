@@ -15,13 +15,16 @@
 #ifndef BEHAVIOR_PATH_PLANNER__SCENE_MODULE__PULL_OUT__UTIL_HPP_
 #define BEHAVIOR_PATH_PLANNER__SCENE_MODULE__PULL_OUT__UTIL_HPP_
 
+#include <memory>
+#include <vector>
+
+#include "lanelet2_core/primitives/Primitive.h"
+
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
-// #include <geometry_msgs/PoseArray.h>
+
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
-#include <lanelet2_core/primitives/Primitive.h>
-#include <memory>
 
 #include "behavior_path_planner/scene_module/pull_out/pull_out_module.hpp"
 #include "behavior_path_planner/utilities.hpp"

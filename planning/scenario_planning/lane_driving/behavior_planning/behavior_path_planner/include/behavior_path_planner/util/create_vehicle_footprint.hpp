@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PULL_OUT__UTIL__CREATE_VEHICLE_FOOTPRINT_HPP_
-#define PULL_OUT__UTIL__CREATE_VEHICLE_FOOTPRINT_HPP_
+#ifndef BEHAVIOR_PATH_PLANNER__UTIL__CREATE_VEHICLE_FOOTPRINT_HPP_
+#define BEHAVIOR_PATH_PLANNER__UTIL__CREATE_VEHICLE_FOOTPRINT_HPP_
 
 #include "autoware_utils/geometry/geometry.hpp"
 #include "vehicle_info_util/vehicle_info_util.hpp"
@@ -44,4 +44,4 @@ inline autoware_utils::LinearRing2d createVehicleFootprint(
   return footprint;
 }
 
-#endif  // PULL_OUT__UTIL__CREATE_VEHICLE_FOOTPRINT_HPP_
+#endif  // BEHAVIOR_PATH_PLANNER__UTIL__CREATE_VEHICLE_FOOTPRINT_HPP_

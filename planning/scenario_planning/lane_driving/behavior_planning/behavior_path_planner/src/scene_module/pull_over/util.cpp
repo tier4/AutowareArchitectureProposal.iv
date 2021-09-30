@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
+#include <limits>
 #include <memory>
 #include <string>
-
-// #include "autoware_lanelet2_msgs/MapBin.hpp"
-// #include "autoware_perception_msgs/DynamicObjectArray.h"
-// #include "Path.h"
-// #include "autoware_planning_msgs/PathWithLaneId.h"
+#include <vector>
 
 #include "autoware_planning_msgs/msg/path_point.hpp"
 #include "lanelet2_core/LaneletMap.h"
@@ -108,11 +106,9 @@ std::vector<PullOverPath> getPullOverPaths(
   double offset_from_current_pose =
     distance_to_shoulder_lane_boundary + common_parameter.vehicle_width / 2 + margin;
 
-
   for (double lateral_jerk = 0.5; lateral_jerk <= maximum_lateral_jerk;
     lateral_jerk += jerk_resolution)
   {
-
     PathShifter path_shifter;
     ShiftedPath shifted_path;
     PullOverPath candidate_path;
@@ -154,7 +150,8 @@ std::vector<PullOverPath> getPullOverPaths(
       const double s_start = arc_position.length - backward_path_length;
       const double s_end = arc_position_ref2_front.length - pull_over_distance;
       reference_path1 = route_handler.getCenterLinePath(original_lanelets, s_start, s_end);
-      // decelerate velocity linearly to minimum pull over velocity(or accelerate if original velocity is lower than minimum velocity)
+      // decelerate velocity linearly to minimum pull over velocity
+      // ( or accelerate if original velocity is lower than minimum velocity )
       for (auto & point : reference_path1.points) {
         const auto arclength =
           lanelet::utils::getArcCoordinates(original_lanelets, point.point.pose).length;
@@ -359,7 +356,8 @@ bool hasEnoughDistance(
     return false;
   }
 
-  // if (pull_over_total_distance > util::getDistanceToNextIntersection(current_pose, current_lanes)) {
+  // if (pull_over_total_distance >
+  // util::getDistanceToNextIntersection(current_pose, current_lanes)) {
   //   return false;
   // }
 
@@ -367,7 +365,6 @@ bool hasEnoughDistance(
     isInGoalRouteSection &&
     pull_over_total_distance > util::getSignedDistance(current_pose, goal_pose, current_lanes))
   {
-
     return false;
   }
 
@@ -543,5 +540,5 @@ bool isObjectFront(const Pose & ego_pose, const Pose & obj_pose)
   return obj_from_ego.position.x > 0;
 }
 
-}  // namespace pullover_utils
+}  // namespace pull_over_utils
 }  // namespace behavior_path_planner

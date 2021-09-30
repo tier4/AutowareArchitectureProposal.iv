@@ -12,14 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <algorithm>
+#include <limits>
 #include <memory>
 #include <string>
-
-
-// #include "autoware_lanelet2_msgs/MapBin.h"
-// #include "autoware_perception_msgs/DynamicObjectArray.h"
-// #include "autoware_planning_msgs/Path.h"
-// #include "autoware_planning_msgs/PathWithLaneId.h"
+#include <vector>
 
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_extension/utility/query.hpp"
@@ -393,7 +390,8 @@ bool hasEnoughDistance(
     return false;
   }
 
-  // if (pull_out_total_distance > util::getDistanceToNextIntersection(current_pose, current_lanes)) {
+  // if (pull_out_total_distance >
+  // util::getDistanceToNextIntersection(current_pose, current_lanes)) {
   //   return false;
   // }
 
@@ -401,7 +399,6 @@ bool hasEnoughDistance(
     isInGoalRouteSection &&
     pull_out_total_distance > util::getSignedDistance(current_pose, goal_pose, road_lanes))
   {
-
     return false;
   }
 
@@ -421,7 +418,8 @@ bool isPullOutPathSafe(
   const autoware_utils::LinearRing2d & local_vehicle_footprint, const bool use_buffer,
   const bool use_dynamic_object)
 {
-  //TODO check road lanes safety and output road lanes safety and shoulder lanes safety respectively
+  // TODO(sugahara) check road lanes safety and output road lanes safety
+  // and shoulder lanes safety respectively
   if (path.path.points.empty()) {
     return false;
   }
@@ -464,7 +462,7 @@ bool isPullOutPathSafe(
           }
         }
       }
-      // TODO static object judge
+      // TODO(sugahara) static object judge
       if (is_object_in_shoulder) {
         const double distance = util::getDistanceBetweenPredictedPathAndObjectPolygon(
           obj, path, local_vehicle_footprint, 1, road_lanes);
