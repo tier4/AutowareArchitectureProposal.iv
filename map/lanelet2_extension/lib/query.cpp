@@ -102,6 +102,11 @@ lanelet::ConstLanelets query::roadLanelets(const lanelet::ConstLanelets lls)
   return query::subtypeLanelets(lls, lanelet::AttributeValueString::Road);
 }
 
+lanelet::ConstLanelets query::shoulderLanelets(const lanelet::ConstLanelets lls)
+{
+  return query::subtypeLanelets(lls, "road_shoulder");
+}
+
 std::vector<lanelet::TrafficLightConstPtr> query::trafficLights(
   const lanelet::ConstLanelets lanelets)
 {
@@ -186,6 +191,34 @@ std::vector<lanelet::DetectionAreaConstPtr> query::detectionAreas(
     }
   }
   return da_reg_elems;
+}
+
+std::vector<lanelet::NoStoppingAreaConstPtr> query::noStoppingAreas(
+  const lanelet::ConstLanelets & lanelets)
+{
+  std::vector<lanelet::NoStoppingAreaConstPtr> no_reg_elems;
+
+  for (auto i = lanelets.begin(); i != lanelets.end(); i++) {
+    lanelet::ConstLanelet ll = *i;
+    std::vector<lanelet::NoStoppingAreaConstPtr> ll_no_re =
+      ll.regulatoryElementsAs<lanelet::autoware::NoStoppingArea>();
+
+    // insert unique tl into array
+    for (const auto & no_ptr : ll_no_re) {
+      lanelet::Id id = no_ptr->id();
+      bool unique_id = true;
+
+      for (auto ii = no_reg_elems.begin(); ii != no_reg_elems.end(); ii++) {
+        if (id == (*ii)->id()) {
+          unique_id = false;
+          break;
+        }
+      }
+
+      if (unique_id) {no_reg_elems.push_back(no_ptr);}
+    }
+  }
+  return no_reg_elems;
 }
 
 lanelet::ConstPolygons3d query::getAllObstaclePolygons(
@@ -689,6 +722,9 @@ bool query::getClosestLanelet(
       if (angle_diff < min_angle) {
         min_angle = angle_diff;
         *closest_lanelet_ptr = llt;
+      } else if ((segment_angle - pose_yaw) < 1e-04) {
+        min_angle = std::abs(segment_angle - pose_yaw);
+        *closest_lanelet_ptr = llt;
       }
     }
   }
@@ -725,7 +761,7 @@ std::vector<std::deque<lanelet::ConstLanelet>> getSucceedingLaneletSequencesRecu
 
 std::vector<std::deque<lanelet::ConstLanelet>> getPrecedingLaneletSequencesRecursive(
   const routing::RoutingGraphPtr & graph, const lanelet::ConstLanelet & lanelet,
-  const double length)
+  const double length, const lanelet::ConstLanelets & exclude_lanelets)
 {
   std::vector<std::deque<lanelet::ConstLanelet>> preceding_lanelet_sequences;
 
@@ -739,13 +775,23 @@ std::vector<std::deque<lanelet::ConstLanelet>> getPrecedingLaneletSequencesRecur
   }
 
   for (const auto & prev_lanelet : prev_lanelets) {
+    if (lanelet::utils::contains(exclude_lanelets, prev_lanelet)) {
+      // if prev_lanelet is included in exclude_lanelets,
+      // remove prev_lanelet from preceding_lanelet_sequences
+      continue;
+    }
+
     // get lanelet sequence after prev_lanelet
-    auto tmp_lanelet_sequences =
-      getPrecedingLaneletSequencesRecursive(graph, prev_lanelet, length - lanelet_length);
+    auto tmp_lanelet_sequences = getPrecedingLaneletSequencesRecursive(
+      graph, prev_lanelet, length - lanelet_length, exclude_lanelets);
     for (auto & tmp_lanelet_sequence : tmp_lanelet_sequences) {
       tmp_lanelet_sequence.push_back(lanelet);
       preceding_lanelet_sequences.push_back(tmp_lanelet_sequence);
     }
+  }
+
+  if (preceding_lanelet_sequences.empty()) {
+    preceding_lanelet_sequences.push_back({lanelet});
   }
   return preceding_lanelet_sequences;
 }
@@ -768,14 +814,19 @@ std::vector<lanelet::ConstLanelets> query::getSucceedingLaneletSequences(
 
 std::vector<lanelet::ConstLanelets> query::getPrecedingLaneletSequences(
   const routing::RoutingGraphPtr & graph, const lanelet::ConstLanelet & lanelet,
-  const double length)
+  const double length, const lanelet::ConstLanelets & exclude_lanelets)
 {
   std::vector<ConstLanelets> lanelet_sequences_vec;
   const auto prev_lanelets = graph->previous(lanelet);
   for (const auto & prev_lanelet : prev_lanelets) {
+    if (lanelet::utils::contains(exclude_lanelets, prev_lanelet)) {
+      // if prev_lanelet is included in exclude_lanelets,
+      // remove prev_lanelet from preceding_lanelet_sequences
+      continue;
+    }
     // convert deque into vector
     const auto lanelet_sequences_deq =
-      getPrecedingLaneletSequencesRecursive(graph, prev_lanelet, length);
+      getPrecedingLaneletSequencesRecursive(graph, prev_lanelet, length, exclude_lanelets);
     for (const auto & lanelet_sequence : lanelet_sequences_deq) {
       lanelet_sequences_vec.emplace_back(lanelet_sequence.begin(), lanelet_sequence.end());
     }

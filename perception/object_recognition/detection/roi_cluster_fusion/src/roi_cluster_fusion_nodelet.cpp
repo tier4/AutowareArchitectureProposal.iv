@@ -224,8 +224,10 @@ RoiClusterFusionNodelet::RoiClusterFusionNodelet(const rclcpp::NodeOptions & opt
       std::placeholders::_7, std::placeholders::_8, std::placeholders::_9));
   labeled_cluster_pub_ =
     this->create_publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(
-    "output/labeled_clusters", 10);
-  if (use_iou_) {
+    "output/labeled_clusters", rclcpp::QoS{1});
+
+  const bool debug_mode = declare_parameter("debug_mode", false);
+  if (debug_mode) {
     debugger_ = std::make_shared<Debugger>(this, rois_number);
   }
 }
@@ -421,9 +423,11 @@ void RoiClusterFusionNodelet::fusionCallback(
       }
       debug_image_rois.push_back(input_roi_msg->feature_objects.at(i).feature.roi);
     }
-
-    debugger_->showImage(
-      id, input_roi_msg->header.stamp, debug_image_rois, debug_pointcloud_rois, debug_image_points);
+    if (debugger_) {
+      debugger_->showImage(
+        id, input_roi_msg->header.stamp, debug_image_rois, debug_pointcloud_rois,
+        debug_image_points);
+    }
   }
   // publish output msg
   labeled_cluster_pub_->publish(output_msg);

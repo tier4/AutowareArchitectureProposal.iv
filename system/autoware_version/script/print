@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+# TODO(Takagi, Isamu): this is a temporary script and may change in the future
+import argparse
+import pathlib
+import yaml
+from ament_index_python.packages import get_package_share_directory
+
+parser = argparse.ArgumentParser()
+parser.add_argument('target', choices=['arch', 'impl'])
+parser.add_argument('format', choices=['full', 'type', 'version'], default='full', nargs='?')
+args = parser.parse_args()
+
+path = pathlib.Path(get_package_share_directory('autoware_version')) / 'config' / 'version.yaml'
+data = yaml.safe_load(path.read_text())
+
+abbreviations = {'arch': 'architecture', 'impl': 'implementation'}
+target = data[abbreviations[args.target]]
+
+if args.format == 'full':
+    print('{type} {version}'.format(**target))
+else:
+    print(target[args.format])
