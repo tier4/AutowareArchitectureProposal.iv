@@ -61,6 +61,18 @@ struct COMMON_PUBLIC PointXYZIF
   float32_t intensity{0};
   uint16_t id{0};
   static constexpr uint16_t END_OF_SCAN_ID = 65535u;
+  friend bool operator==(
+    const PointXYZIF & p1,
+    const PointXYZIF & p2) noexcept
+  {
+    using autoware::common::helper_functions::comparisons::rel_eq;
+    const auto epsilon = std::numeric_limits<float32_t>::epsilon();
+    return rel_eq(p1.x, p2.x, epsilon) &&
+           rel_eq(p1.y, p2.y, epsilon) &&
+           rel_eq(p1.z, p2.z, epsilon) &&
+           rel_eq(p1.intensity, p2.intensity, epsilon) &&
+           (p1.id == p2.id);
+  }
 };
 
 struct COMMON_PUBLIC PointXYZF
@@ -70,6 +82,17 @@ struct COMMON_PUBLIC PointXYZF
   float32_t z{0};
   uint16_t id{0};
   static constexpr uint16_t END_OF_SCAN_ID = 65535u;
+  friend bool operator==(
+    const PointXYZF & p1,
+    const PointXYZF & p2) noexcept
+  {
+    using autoware::common::helper_functions::comparisons::rel_eq;
+    const auto epsilon = std::numeric_limits<float32_t>::epsilon();
+    return rel_eq(p1.x, p2.x, epsilon) &&
+           rel_eq(p1.y, p2.y, epsilon) &&
+           rel_eq(p1.z, p2.z, epsilon) &&
+           (p1.id == p2.id);
+  }
 };
 
 struct COMMON_PUBLIC PointXYZI
