@@ -102,8 +102,8 @@ jobs:
       - name: Find modified files after merging origin/main
         id: list_files
         run: |
-          merge_base=$(git merge-base HEAD origin/${GITHUB_BASE_REF})
-          modified_files=$(git --no-pager diff --name-only "$merge_base")
+          # List added/modified/renamed files excluding deleted ones
+          modified_files=$(git --no-pager diff --name-only --diff-filter=d origin/"${{ github.base_ref }}"...HEAD)
           target_files=$(echo "$modified_files" | egrep "\.(cpp|hpp)$") || true
           echo ::set-output name=file_list::${target_files}
 
