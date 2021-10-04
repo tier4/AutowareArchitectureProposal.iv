@@ -25,7 +25,6 @@
 #include "geometry_msgs/msg/point32.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "nav_msgs/msg/map_meta_data.hpp"
-#include "spline_interpolation/spline_interpolation.hpp"
 #include "tf2/utils.h"
 
 #include "obstacle_avoidance_planner/eb_path_optimizer.hpp"
