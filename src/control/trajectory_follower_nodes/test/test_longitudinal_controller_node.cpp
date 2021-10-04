@@ -80,11 +80,6 @@ TEST_F(FakeNodeFixture, longitudinal_keep_velocity) {
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
     std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
 
-  // Enable all logging in the node
-  auto ret = rcutils_logging_set_logger_level(
-    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
-
   // Dummy transform: ego is at (0.0, 0.0) in map frame
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
@@ -152,11 +147,6 @@ TEST_F(FakeNodeFixture, longitudinal_slow_down) {
     });
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
     std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
-
-  // Enable all logging in the node
-  auto ret = rcutils_logging_set_logger_level(
-    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
 
   // Dummy transform: ego is at (0.0, 0.0) in map frame
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
@@ -226,11 +216,6 @@ TEST_F(FakeNodeFixture, longitudinal_accelerate) {
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
     std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
 
-  // Enable all logging in the node
-  auto ret = rcutils_logging_set_logger_level(
-    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
-
   // Dummy transform: ego is at (0.0, 0.0) in map frame
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
@@ -299,11 +284,6 @@ TEST_F(FakeNodeFixture, longitudinal_stopped) {
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
     std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
 
-  // Enable all logging in the node
-  auto ret = rcutils_logging_set_logger_level(
-    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
-
   // Dummy transform: ego is at (0.0, 0.0) in map frame
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
@@ -364,11 +344,6 @@ TEST_F(FakeNodeFixture, longitudinal_reverse) {
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
     std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
 
-  // Enable all logging in the node
-  auto ret = rcutils_logging_set_logger_level(
-    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
-
   // Dummy transform: ego is at (0.0, 0.0) in map frame
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
@@ -428,11 +403,6 @@ TEST_F(FakeNodeFixture, longitudinal_emergency) {
     });
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
     std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
-
-  // Enable all logging in the node
-  auto ret = rcutils_logging_set_logger_level(
-    node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severerity to DEBUG\n";}
 
   // Dummy transform: ego is at (0.0, 0.0) in map frame
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
