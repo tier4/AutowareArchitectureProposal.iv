@@ -14,8 +14,8 @@ Uses `ros_testing` (which is an extension of `launch_testing`) and provides some
 
 ## Assumptions / Known limits
 
-Parametrization is limited to package and executable names. Test namespace is set as 'test'.
-Parameters file for the package is expected to be in `param/test.param.yaml`.
+Parametrization is limited to package, executable names, parameters filename and executable arguments. Test namespace is set as 'test'.
+Parameters file for the package is expected to be in `param` directory inside package.
 
 ## Inputs / Outputs / API
 
@@ -29,15 +29,26 @@ and add the following two lines to `CMakeLists.txt` in the `IF (BUILD_TESTING)` 
 
 ```{cmake}
 find_package(autoware_testing REQUIRED)
-add_smoke_test(${PROJECT_NAME} <EXECUTABLE_NAME>)
+add_smoke_test(<package_name> <executable_name> [PARAM_FILENAME <param_filename>] [EXECUTABLE_ARGUMENTS <arguments>])
 ```
 
-Where `<EXECUTABLE_NAME>` is to be replaced by a desired string or expression.
+Where 
 
-Example test output:
+`<package_name>` - [required] tested node package name.
+
+`<executable_name>` - [required] tested node executable name.
+
+`<param_filename>` - [optional] param filename. Default value is `test.param.yaml`. Required mostly in situation where there are multiple smoke tests in a package and each requires different paramteres set
+
+`<arguments>` - [optional] arguments passed to executable. By default no arguments are passed.
+
+which adds `<executable_name>_smoke_test` test to suite.
+
+Example test result:
 
 ```
- 1/10 Test  #1: smoke_test .......................   Passed    5.61 sec
+build/<package_name>/test_results/<package_name>/<executable_name>_smoke_test.xunit.xml: 1 test, 0 errors, 0 failures, 0 skipped
+
 ```
 
 # References / External links
@@ -47,8 +58,8 @@ Example test output:
 
 # Future extensions / Unimplemented parts
 
-- extending parametrization to also include custom parameter file location (if needed)
 - Adding more types of standard tests.
 
 # Related issues
 - Issue #700: add smoke test
+- Issue #1224: Port other packages with smoke tests to use `autoware_testing`

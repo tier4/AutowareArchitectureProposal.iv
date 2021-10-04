@@ -18,13 +18,29 @@
 # :param package_name: name of the package to smoke test
 # :type package_name: string
 # :param package_exec: package executable to run during smoke test
-# :type package_exec: string
+# :type executable_name: string
+# :param PARAM_FILENAME: yaml filename containing test parameters
+# :type PARAM_FILENAME: string
+# :param EXECUTABLE_ARGUMENTS: arguments passed to tested executable
+# :type EXECUTABLE_ARGUMENTS: string
 
-function(add_smoke_test package_name package_exec)
+function(add_smoke_test package_name executable_name)
+  cmake_parse_arguments(PARSE_ARGV 2 smoke_test "" "PARAM_FILENAME;EXECUTABLE_ARGUMENTS" "")
+
+  set(ARGUMENTS "arg_package:=${package_name}" "arg_package_exe:=${executable_name}")
+
+  if(smoke_test_PARAM_FILENAME)
+    list(APPEND ARGUMENTS "arg_param_filename:=${smoke_test_PARAM_FILENAME}")
+  endif()
+
+  if(smoke_test_EXECUTABLE_ARGUMENTS)
+    list(APPEND ARGUMENTS "arg_executable_arguments:=${smoke_test_EXECUTABLE_ARGUMENTS}")
+  endif()
+
   add_ros_test(
     ${autoware_testing_DIR}/../autoware_testing/smoke_test.py
-    TARGET "smoke_test"
-    ARGS "arg_package:=${package_name}" "arg_package_exe:=${package_exec}"
+    TARGET "${executable_name}_smoke_test"
+    ARGS "${ARGUMENTS}"
     TIMEOUT "30"
   )
 endfunction()

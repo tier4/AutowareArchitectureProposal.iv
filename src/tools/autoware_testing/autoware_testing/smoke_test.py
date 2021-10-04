@@ -26,6 +26,7 @@ import launch_testing
 import os
 import pytest
 import unittest
+import shlex
 
 
 def resolve_node(context, *args, **kwargs):
@@ -37,9 +38,11 @@ def resolve_node(context, *args, **kwargs):
         parameters=[
             os.path.join(
                 get_package_share_directory(LaunchConfiguration('arg_package').perform(context)),
-                'param/test.param.yaml'
+                "param",
+                LaunchConfiguration('arg_param_filename').perform(context)
             )
-        ]
+        ],
+        arguments=shlex.split(LaunchConfiguration('arg_executable_arguments').perform(context))
     )
     return [smoke_test_node]
 
@@ -50,17 +53,29 @@ def generate_test_description():
     arg_package = DeclareLaunchArgument(
         'arg_package',
         default_value=['default'],
-        description='Package smoke test'
+        description='Package containing tested executable'
     )
     arg_package_exe = DeclareLaunchArgument(
         'arg_package_exe',
         default_value=['default'],
-        description='Package smoke test'
+        description='Tested executable'
+    )
+    arg_param_filename = DeclareLaunchArgument(
+        'arg_param_filename',
+        default_value=['test.param.yaml'],
+        description='Test param file'
+    )
+    arg_executable_arguments = DeclareLaunchArgument(
+        'arg_executable_arguments',
+        default_value=[''],
+        description='Tested executable arguments'
     )
 
     return LaunchDescription([
         arg_package,
         arg_package_exe,
+        arg_param_filename,
+        arg_executable_arguments,
         OpaqueFunction(function=resolve_node),
         launch_testing.actions.ReadyToTest()]
     )
