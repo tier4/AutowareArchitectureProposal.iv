@@ -18,7 +18,8 @@
 #include <vector>
 
 #include "mpc_follower/mpc_utils.hpp"
-#include "spline_interpolation/spline_interpolation.hpp"
+#include "interpolation/spline_interpolation.hpp"
+#include "interpolation/linear_interpolation.hpp"
 
 geometry_msgs::msg::Quaternion MPCUtils::getQuaternionFromYaw(const double & yaw)
 {
@@ -130,23 +131,17 @@ bool MPCUtils::resampleMPCTrajectoryByDistance(
   MPCUtils::convertEulerAngleToMonotonic(&input_yaw);
 
   LinearInterpolate linear_interp;
-  spline_interpolation::SplineInterpolator spline_interp;
 
-  if (
-    !spline_interp.interpolate(input_arclength, input.x, output_arclength, output->x) ||
-    !spline_interp.interpolate(input_arclength, input.y, output_arclength, output->y) ||
-    !spline_interp.interpolate(input_arclength, input.z, output_arclength, output->z) ||
-    !spline_interp.interpolate(input_arclength, input_yaw, output_arclength, output->yaw) ||
-    !linear_interp.interpolate(input_arclength, input.vx, output_arclength, output->vx) ||
-    !spline_interp.interpolate(input_arclength, input.k, output_arclength, output->k) ||
-    !spline_interp.interpolate(
-      input_arclength, input.smooth_k, output_arclength, output->smooth_k) ||
-    !linear_interp.interpolate(
-      input_arclength, input.relative_time, output_arclength, output->relative_time))
-  {
-    std::cerr << "linearInterpMPCTrajectory error!" << std::endl;
-    return false;
-  }
+  output->x = interpolation::slerp(input_arclength, input.x, output_arclength);
+  output->y = interpolation::slerp(input_arclength, input.y, output_arclength);
+  output->z = interpolation::slerp(input_arclength, input.z, output_arclength);
+  output->yaw = interpolation::slerp(input_arclength, input.yaw, output_arclength);
+  output->vx = interpolation::lerp(input_arclength, input.vx, output_arclength);
+  output->k = interpolation::slerp(input_arclength, input.k, output_arclength);
+  output->smooth_k = interpolation::slerp(input_arclength, input.smooth_k, output_arclength);
+  output->relative_time = interpolation::lerp(
+    input_arclength, input.relative_time,
+    output_arclength);
 
   return true;
 }
