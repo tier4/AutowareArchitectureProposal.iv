@@ -302,10 +302,10 @@ boost::optional<Trajectory> applyLinearInterpolation(
 
   boost::optional<std::vector<double>> px_p, py_p, pz_p, pyaw_p;
   if (use_spline_for_pose) {
-    const auto px_p = interpolation::slerp(base_index, px, out_index);
-    const auto py_p = interpolation::slerp(base_index, py, out_index);
-    const auto pz_p = interpolation::slerp(base_index, pz, out_index);
-    const auto pyaw_p = interpolation::slerp(base_index, pyaw, out_index);
+    px_p = interpolation::slerp(base_index, px, out_index);
+    py_p = interpolation::slerp(base_index, py, out_index);
+    pz_p = interpolation::slerp(base_index, pz, out_index);
+    pyaw_p = interpolation::slerp(base_index, pyaw, out_index);
   } else {
     px_p = linear_interpolation::interpolate(base_index, px, out_index);
     py_p = linear_interpolation::interpolate(base_index, py, out_index);
