@@ -36,7 +36,7 @@ set(BEHAVIOR_VELOCITY_PLANNER_DEPENDENCIES
   pcl_conversions
   rclcpp
   sensor_msgs
-  spline_interpolation
+  interpolation
   tf2
   tf2_eigen
   tf2_geometry_msgs
