@@ -27,11 +27,10 @@
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Geometry"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "motion_common/motion_common.hpp"
 #include "motion_common/trajectory_common.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tf2/utils.h"
-#include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_listener.h"
 #include "trajectory_follower/debug_values.hpp"
 #include "trajectory_follower/longitudinal_controller_utils.hpp"
 #include "trajectory_follower/lowpass_filter.hpp"
@@ -86,10 +85,6 @@ private:
   rclcpp::Publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr m_pub_slope;
   rclcpp::Publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr m_pub_debug;
   rclcpp::TimerBase::SharedPtr m_timer_control;
-
-  tf2_ros::Buffer m_tf_buffer;
-  //!< @brief tf listener
-  tf2_ros::TransformListener m_tf_listener;
 
   OnSetParametersCallbackHandle::SharedPtr m_set_param_res;
   rcl_interfaces::msg::SetParametersResult paramCallback(
@@ -179,8 +174,6 @@ private:
   // 1st order lowpass filter for acceleration
   std::shared_ptr<trajectory_follower::LowpassFilter1d> m_lpf_acc{nullptr};
 
-  // current pose
-  geometry_msgs::msg::PoseStamped::SharedPtr m_current_pose_ptr;
   // buffer of send command
   std::vector<autoware_auto_msgs::msg::LongitudinalCommand> m_ctrl_cmd_vec;
 

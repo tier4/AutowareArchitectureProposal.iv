@@ -30,8 +30,7 @@ namespace control
 namespace trajectory_follower_nodes
 {
 LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_options)
-: Node("longitudinal_controller", node_options), m_tf_buffer(this->get_clock()), m_tf_listener(
-    m_tf_buffer)
+: Node("longitudinal_controller", node_options)
 {
   using std::placeholders::_1;
 
@@ -354,14 +353,19 @@ rcl_interfaces::msg::SetParametersResult LongitudinalController::paramCallback(
 
 void LongitudinalController::callbackTimerControl()
 {
-  updateCurrentPose();
   // wait for initial pointers
-  if (!m_current_state_ptr || !m_prev_state_ptr || !m_trajectory_ptr || !m_current_pose_ptr) {
+  if (!m_current_state_ptr || !m_prev_state_ptr || !m_trajectory_ptr) {
     return;
   }
 
   // calculate current pose and contorl data
-  const auto current_pose = m_current_pose_ptr->pose;
+  geometry_msgs::msg::Pose current_pose;
+  current_pose.position.x = m_current_state_ptr->state.x;
+  current_pose.position.y = m_current_state_ptr->state.y;
+  current_pose.position.z = m_current_state_ptr->state.z;
+  current_pose.orientation = ::motion::motion_common::to_quat<decltype(current_pose.orientation)>(
+    m_current_state_ptr->state.heading);
+
   const auto control_data = getControlData(current_pose);
 
   // self pose is far from trajectory
@@ -905,26 +909,6 @@ void LongitudinalController::updateDebugVelAcc(
   m_debug_values.setValues(DebugValues::TYPE::ERROR_VEL, target_motion.vel - current_vel);
 }
 
-void LongitudinalController::updateCurrentPose()
-{
-  geometry_msgs::msg::TransformStamped transform;
-  try {
-    transform = m_tf_buffer.lookupTransform("map", "base_link", tf2::TimePointZero);
-  } catch (tf2::TransformException & ex) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      get_logger(), *get_clock(), 5000 /*ms*/,
-      "cannot get map to base_link transform. %s", ex.what());
-    return;
-  }
-
-  geometry_msgs::msg::PoseStamped ps;
-  ps.header = transform.header;
-  ps.pose.position.x = transform.transform.translation.x;
-  ps.pose.position.y = transform.transform.translation.y;
-  ps.pose.position.z = transform.transform.translation.z;
-  ps.pose.orientation = transform.transform.rotation;
-  m_current_pose_ptr = std::make_shared<geometry_msgs::msg::PoseStamped>(ps);
-}
 }  // namespace trajectory_follower_nodes
 }  // namespace control
 }  // namespace motion
