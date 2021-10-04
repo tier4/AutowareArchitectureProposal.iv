@@ -68,11 +68,14 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
   # Unit tests
   set(TRAJECTORY_FOLLOWER_NODES_TEST test_trajectory_follower_nodes)
+  # TODO(Maxime CLEMENT) : setting domain id is a workaround to avoid tests from other packages interfering with these tests
   ament_add_gtest(${TRAJECTORY_FOLLOWER_NODES_TEST}
     test/trajectory_follower_test_utils.hpp
     test/test_latlon_muxer_node.cpp
     test/test_lateral_controller_node.cpp
     test/test_longitudinal_controller_node.cpp
+    ENV
+    ROS_DOMAIN_ID=40
   )
   ament_target_dependencies(${TRAJECTORY_FOLLOWER_NODES_TEST} fake_test_node)
   autoware_set_compile_options(${TRAJECTORY_FOLLOWER_NODES_TEST})
