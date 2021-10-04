@@ -139,7 +139,7 @@ bool MPCUtils::resampleMPCTrajectoryByDistance(
   output->vx = interpolation::lerp(input_arclength, input.vx, output_arclength);
   output->k = interpolation::slerp(input_arclength, input.k, output_arclength);
   output->smooth_k = interpolation::slerp(input_arclength, input.smooth_k, output_arclength);
-  output->relative_time = interpolation::slerp(
+  output->relative_time = interpolation::lerp(
     input_arclength, input.relative_time,
     output_arclength);
 
