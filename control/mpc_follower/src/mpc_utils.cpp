@@ -19,6 +19,7 @@
 
 #include "mpc_follower/mpc_utils.hpp"
 #include "interpolation/spline_interpolation.hpp"
+#include "interpolation/linear_interpolation.hpp"
 
 geometry_msgs::msg::Quaternion MPCUtils::getQuaternionFromYaw(const double & yaw)
 {
