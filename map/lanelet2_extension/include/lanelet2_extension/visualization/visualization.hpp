@@ -29,6 +29,7 @@
 #include "lanelet2_core/primitives/Lanelet.h"
 
 #include "lanelet2_extension/regulatory_elements/autoware_traffic_light.hpp"
+#include "lanelet2_extension/regulatory_elements/no_stopping_area.hpp"
 #include "lanelet2_extension/utility/query.hpp"
 
 namespace lanelet
@@ -115,7 +116,7 @@ void pushTrafficLightTriangleMarker(
  */
 visualization_msgs::msg::MarkerArray laneletsBoundaryAsMarkerArray(
   const lanelet::ConstLanelets & lanelets, const std_msgs::msg::ColorRGBA c,
-  const bool viz_centerline);
+  const bool viz_centerline, const std::string & additional_namespace = "");
 /**
  * [laneletsAsTriangleMarkerArray create marker array to visualize shape of the
  * lanelet]
@@ -134,7 +135,7 @@ visualization_msgs::msg::MarkerArray laneletsAsTriangleMarkerArray(
  * @return          [created marker array]
  */
 visualization_msgs::msg::MarkerArray laneletDirectionAsMarkerArray(
-  const lanelet::ConstLanelets lanelets);
+  const lanelet::ConstLanelets lanelets, const std::string & additional_namespace = "");
 
 /**
  * [lineStringsAsMarkerArray creates marker array to visualize shape of
@@ -163,6 +164,19 @@ visualization_msgs::msg::MarkerArray autowareTrafficLightsAsMarkerArray(
   const double scale = 1.0);
 
 /**
+ * [generateTrafficLightIdMaker creates marker array to visualize traffic id
+ * lights]
+ * @param  tl_reg_elems [traffic light regulatory elements]
+ * @param  c            [color of the marker]
+ * @param  duration     [lifetime of the marker]
+ * @return              [created marker array]
+ */
+visualization_msgs::msg::MarkerArray generateTrafficLightIdMaker(
+  const std::vector<lanelet::AutowareTrafficLightConstPtr> tl_reg_elems,
+  const std_msgs::msg::ColorRGBA c, const rclcpp::Duration duration = rclcpp::Duration(0, 0),
+  const double scale = 1.0);
+
+/**
  * [trafficLightsAsTriangleMarkerArray creates marker array to visualize shape
  * of traffic lights]
  * @param  tl_reg_elems [traffic light regulatory elements]
@@ -182,6 +196,17 @@ visualization_msgs::msg::MarkerArray trafficLightsAsTriangleMarkerArray(
  */
 visualization_msgs::msg::MarkerArray detectionAreasAsMarkerArray(
   const std::vector<lanelet::DetectionAreaConstPtr> & da_reg_elems,
+  const std_msgs::msg::ColorRGBA c,
+  const rclcpp::Duration duration = rclcpp::Duration(0, 0));
+
+/**
+ * [noStoppingAreasAsMarkerArray creates marker array to visualize detection areas]
+ * @param  no_reg_elems [mp stopping area regulatory elements]
+ * @param  c            [color of the marker]
+ * @param  duration     [lifetime of the marker]
+ */
+visualization_msgs::msg::MarkerArray noStoppingAreasAsMarkerArray(
+  const std::vector<lanelet::NoStoppingAreaConstPtr> & no_reg_elems,
   const std_msgs::msg::ColorRGBA c,
   const rclcpp::Duration duration = rclcpp::Duration(0, 0));
 

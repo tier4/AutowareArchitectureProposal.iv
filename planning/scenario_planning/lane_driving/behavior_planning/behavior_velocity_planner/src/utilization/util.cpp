@@ -23,6 +23,46 @@ namespace behavior_velocity_planner
 {
 namespace planning_utils
 {
+Polygon2d toFootprintPolygon(
+  const autoware_perception_msgs::msg::DynamicObject & object)
+{
+  Polygon2d obj_footprint;
+  if (object.shape.type == autoware_perception_msgs::msg::Shape::POLYGON) {
+    obj_footprint = toBoostPoly(object.shape.footprint);
+  } else {
+    // cylinder type is treated as square-polygon
+    obj_footprint = obj2polygon(object.state.pose_covariance.pose, object.shape.dimensions);
+  }
+  return obj_footprint;
+}
+
+bool isAheadOf(const geometry_msgs::msg::Pose & target, const geometry_msgs::msg::Pose & origin)
+{
+  geometry_msgs::msg::Pose p = planning_utils::transformRelCoordinate2D(target, origin);
+  const bool is_target_ahead = (p.position.x > 0.0);
+  return is_target_ahead;
+}
+
+Polygon2d generatePathPolygon(
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const size_t start_idx,
+  const size_t end_idx, const double width)
+{
+  Polygon2d ego_area;  // open polygon
+  for (size_t i = start_idx; i <= end_idx; ++i) {
+    const double yaw = tf2::getYaw(path.points.at(i).point.pose.orientation);
+    const double x = path.points.at(i).point.pose.position.x + width * std::sin(yaw);
+    const double y = path.points.at(i).point.pose.position.y - width * std::cos(yaw);
+    ego_area.outer().push_back(Point2d(x, y));
+  }
+  for (size_t i = end_idx; i >= start_idx; --i) {
+    const double yaw = tf2::getYaw(path.points.at(i).point.pose.orientation);
+    const double x = path.points.at(i).point.pose.position.x - width * std::sin(yaw);
+    const double y = path.points.at(i).point.pose.position.y + width * std::cos(yaw);
+    ego_area.outer().push_back(Point2d(x, y));
+  }
+  return ego_area;
+}
+
 double normalizeEulerAngle(double euler)
 {
   double res = euler;
@@ -154,8 +194,7 @@ geometry_msgs::msg::Pose transformAbsCoordinate2D(
 }
 
 double calcJudgeLineDistWithAccLimit(
-  const double velocity, const double max_stop_acceleration,
-  const double delay_response_time)
+  const double velocity, const double max_stop_acceleration, const double delay_response_time)
 {
   double judge_line_dist =
     (velocity * velocity) / (2.0 * (-max_stop_acceleration)) + delay_response_time * velocity;
@@ -164,7 +203,7 @@ double calcJudgeLineDistWithAccLimit(
 
 double calcJudgeLineDistWithJerkLimit(
   const double velocity, const double acceleration,
-  const double max_stop_jerk, const double max_stop_acceleration,
+  const double max_stop_acceleration, const double max_stop_jerk,
   const double delay_response_time)
 {
   if (velocity <= 0.0) {
@@ -243,5 +282,15 @@ geometry_msgs::msg::Point toRosPoint(const Point2d & boost_point, const double z
   return point;
 }
 
+LineString2d extendLine(
+  const lanelet::ConstPoint3d & lanelet_point1, const lanelet::ConstPoint3d & lanelet_point2,
+  const double & length)
+{
+  const Eigen::Vector2d p1(lanelet_point1.x(), lanelet_point1.y());
+  const Eigen::Vector2d p2(lanelet_point2.x(), lanelet_point2.y());
+  const Eigen::Vector2d t = (p2 - p1).normalized();
+  return {
+    {(p1 - length * t).x(), (p1 - length * t).y()}, {(p2 + length * t).x(), (p2 + length * t).y()}};
+}
 }  // namespace planning_utils
 }  // namespace behavior_velocity_planner

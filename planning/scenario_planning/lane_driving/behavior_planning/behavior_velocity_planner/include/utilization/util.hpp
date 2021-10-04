@@ -18,20 +18,27 @@
 #include <string>
 #include <vector>
 
+#include "boost/geometry.hpp"
+#include "boost/geometry/geometries/linestring.hpp"
+#include "boost/geometry/geometries/point_xy.hpp"
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_routing/RoutingGraph.h"
 #include "pcl/point_types.h"
-#include "tf2/utils.h"
+
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object.hpp"
 #include "autoware_planning_msgs/msg/path.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "autoware_planning_msgs/msg/stop_reason.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
 #include "autoware_planning_msgs/msg/trajectory_point.hpp"
-#include "boost/geometry.hpp"
-#include "boost/geometry/geometries/linestring.hpp"
-#include "boost/geometry/geometries/point_xy.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
+#include "lanelet2_extension/utility/query.hpp"
+#include "tf2/utils.h"
 #include "visualization_msgs/msg/marker.hpp"
+
+#include "utilization/boost_geometry_helper.hpp"
 
 namespace behavior_velocity_planner
 {
@@ -103,6 +110,11 @@ geometry_msgs::msg::Pose transformRelCoordinate2D(
   const geometry_msgs::msg::Pose & target, const geometry_msgs::msg::Pose & origin);
 geometry_msgs::msg::Pose transformAbsCoordinate2D(
   const geometry_msgs::msg::Pose & relative, const geometry_msgs::msg::Pose & origin);
+Polygon2d toFootprintPolygon(const autoware_perception_msgs::msg::DynamicObject & object);
+bool isAheadOf(const geometry_msgs::msg::Pose & target, const geometry_msgs::msg::Pose & origin);
+Polygon2d generatePathPolygon(
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const size_t start_idx,
+  const size_t end_idx, const double width);
 
 double calcJudgeLineDistWithAccLimit(
   const double velocity, const double max_stop_acceleration, const double delay_response_time);
@@ -123,6 +135,10 @@ std::vector<geometry_msgs::msg::Point> toRosPoints(
 
 geometry_msgs::msg::Point toRosPoint(const pcl::PointXYZ & pcl_point);
 geometry_msgs::msg::Point toRosPoint(const Point2d & boost_point, const double z);
+
+LineString2d extendLine(
+  const lanelet::ConstPoint3d & lanelet_point1, const lanelet::ConstPoint3d & lanelet_point2,
+  const double & length);
 
 template<class T>
 std::vector<T> concatVector(const std::vector<T> & vec1, const std::vector<T> & vec2)

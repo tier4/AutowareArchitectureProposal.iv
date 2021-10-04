@@ -52,9 +52,9 @@ MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
 
   ctrl_period_ = declare_parameter("ctrl_period", 0.03);
   enable_path_smoothing_ = declare_parameter("enable_path_smoothing", true);
-  enable_yaw_recalculation_ = declare_parameter("enable_yaw_recalculation", false);
   path_filter_moving_ave_num_ = declare_parameter("path_filter_moving_ave_num", 35);
-  curvature_smoothing_num_ = declare_parameter("curvature_smoothing_num", 35);
+  curvature_smoothing_num_traj_ = declare_parameter("curvature_smoothing_num_traj", 1);
+  curvature_smoothing_num_ref_steer_ = declare_parameter("curvature_smoothing_num_ref_steer", 35);
   traj_resample_dist_ = declare_parameter("traj_resample_dist", 0.1);  // [m]
   admissible_position_error_ = declare_parameter("admissible_position_error", 5.0);
   admissible_yaw_error_rad_ = declare_parameter("admissible_yaw_error_rad", M_PI_2);
@@ -946,14 +946,17 @@ void MPCFollower::onTrajectory(const autoware_planning_msgs::msg::Trajectory::Sh
     }
   }
 
+
   /* calculate yaw angle */
-  if (enable_yaw_recalculation_) {
-    MPCUtils::calcTrajectoryYawFromXY(&mpc_traj_smoothed);
-    MPCUtils::convertEulerAngleToMonotonic(&mpc_traj_smoothed.yaw);
-  }
+  const int nearest_idx = MPCUtils::calcNearestIndex(mpc_traj_smoothed, current_pose_ptr_->pose);
+  const double ego_yaw = tf2::getYaw(current_pose_ptr_->pose.orientation);
+  MPCUtils::calcTrajectoryYawFromXY(&mpc_traj_smoothed, nearest_idx, ego_yaw);
+  MPCUtils::convertEulerAngleToMonotonic(&mpc_traj_smoothed.yaw);
+
 
   /* calculate curvature */
-  MPCUtils::calcTrajectoryCurvature(curvature_smoothing_num_, &mpc_traj_smoothed);
+  MPCUtils::calcTrajectoryCurvature(
+    curvature_smoothing_num_traj_, curvature_smoothing_num_ref_steer_, &mpc_traj_smoothed);
 
   /* add end point with vel=0 on traj for mpc prediction */
   {
