@@ -31,7 +31,6 @@
 #include "obstacle_avoidance_planner/mpt_optimizer.hpp"
 #include "obstacle_avoidance_planner/util.hpp"
 #include "interpolation/spline_interpolation.hpp"
-#include "tf2/utils.h"
 
 namespace util
 {
