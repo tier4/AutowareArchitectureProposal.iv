@@ -176,7 +176,7 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   m_pub_slope = create_publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>(
     "output/slope_angle", rclcpp::QoS{1});
   m_pub_debug = create_publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>(
-    "output/debug_values", rclcpp::QoS{1});
+    "output/longitudinal/diagnostic", rclcpp::QoS{1});
 
   // Timer
   {
