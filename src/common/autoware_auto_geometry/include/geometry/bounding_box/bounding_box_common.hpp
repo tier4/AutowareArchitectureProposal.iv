@@ -26,8 +26,10 @@
 #include <geometry/visibility_control.hpp>
 #include <geometry/common_2d.hpp>
 #include <geometry_msgs/msg/pose.hpp>
+
 #include <array>
 #include <limits>
+#include <vector>
 
 namespace autoware
 {
@@ -168,6 +170,16 @@ geometry_msgs::msg::Pose GEOMETRY_PUBLIC make_pose(const BoundingBox & box);
 /// \return Filled DetectedObject type
 autoware_auto_msgs::msg::DetectedObject GEOMETRY_PUBLIC make_detected_object(
   const BoundingBox & box);
+
+/// \brief Transform corners from object-local coordinates using the given centroid and orientation
+/// \param shape_msg Msg containing corners in object-local coordinates
+/// \param centroid Centroid of the polygon whose corners are defined in shape_msg
+/// \param orientation Orientation of the polygon
+/// \return corners transformed such that their centroid and orientation correspond to the
+///         given inputs
+std::vector<geometry_msgs::msg::Point32> GEOMETRY_PUBLIC get_transformed_corners(
+  const autoware_auto_msgs::msg::Shape & shape_msg, const geometry_msgs::msg::Point & centroid,
+  const geometry_msgs::msg::Quaternion & orientation);
 
 }  // namespace details
 }  // namespace bounding_box

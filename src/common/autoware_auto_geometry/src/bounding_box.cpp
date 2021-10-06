@@ -14,6 +14,7 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+#include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
 #include <geometry/bounding_box/bounding_box_common.hpp>
 #include <geometry/bounding_box/rotating_calipers.hpp>
 #include <geometry/bounding_box/eigenbox_2d.hpp>
@@ -68,13 +69,32 @@ void finalize_box(const decltype(BoundingBox::corners) & corners, BoundingBox & 
 
 autoware_auto_msgs::msg::Shape make_shape(const BoundingBox & box)
 {
-  autoware_auto_msgs::msg::Shape ret;
-  for (auto corner_pt : box.corners) {
-    corner_pt.z -= box.size.z;
-    ret.polygon.points.push_back(corner_pt);
-  }
-  ret.height = 2.0F * box.size.z;
-  return ret;
+  autoware_auto_msgs::msg::Shape retval;
+  // Polygon is 2D rectangle
+  geometry_msgs::msg::Polygon polygon;
+  auto & points = polygon.points;
+  points.resize(4);
+
+  // Note that the x and y of size field in BoundingBox should be swapped when being used to
+  // compute corners.
+  // origin of reference system: centroid of bbox
+  points[0].x = -0.5F * box.size.y;
+  points[0].y = -0.5F * box.size.x;
+  points[0].z = -box.size.z;
+
+  points[1] = points[0];
+  points[1].y += box.size.x;
+
+  points[2] = points[1];
+  points[2].x += box.size.y;
+
+  points[3] = points[2];
+  points[3].y -= box.size.x;
+
+  retval.polygon = polygon;
+  retval.height = 2 * box.size.z;
+
+  return retval;
 }
 
 autoware_auto_msgs::msg::DetectedObject make_detected_object(const BoundingBox & box)
@@ -84,6 +104,12 @@ autoware_auto_msgs::msg::DetectedObject make_detected_object(const BoundingBox &
   ret.kinematics.centroid_position.x = static_cast<double>(box.centroid.x);
   ret.kinematics.centroid_position.y = static_cast<double>(box.centroid.y);
   ret.kinematics.centroid_position.z = static_cast<double>(box.centroid.z);
+  ret.kinematics.orientation.x = static_cast<double>(box.orientation.x);
+  ret.kinematics.orientation.y = static_cast<double>(box.orientation.y);
+  ret.kinematics.orientation.z = static_cast<double>(box.orientation.z);
+  ret.kinematics.orientation.w = static_cast<double>(box.orientation.w);
+  ret.kinematics.orientation_availability =
+    autoware_auto_msgs::msg::DetectedObjectKinematics::SIGN_UNKNOWN;
 
   ret.shape = make_shape(box);
 
@@ -95,6 +121,23 @@ autoware_auto_msgs::msg::DetectedObject make_detected_object(const BoundingBox &
   ret.classification.emplace_back(std::move(label));
 
   return ret;
+}
+
+std::vector<geometry_msgs::msg::Point32> GEOMETRY_PUBLIC get_transformed_corners(
+  const autoware_auto_msgs::msg::Shape & shape_msg, const geometry_msgs::msg::Point & centroid,
+  const geometry_msgs::msg::Quaternion & orientation)
+{
+  std::vector<geometry_msgs::msg::Point32> retval(shape_msg.polygon.points.size());
+  geometry_msgs::msg::TransformStamped tf;
+  tf.transform.rotation = orientation;
+  tf.transform.translation.x = centroid.x;
+  tf.transform.translation.y = centroid.y;
+  tf.transform.translation.z = centroid.z;
+
+  for (size_t i = 0U; i < shape_msg.polygon.points.size(); ++i) {
+    tf2::doTransform(shape_msg.polygon.points[i], retval[i], tf);
+  }
+  return retval;
 }
 
 }  // namespace details
