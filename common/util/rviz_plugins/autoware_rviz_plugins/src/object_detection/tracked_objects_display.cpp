@@ -33,7 +33,9 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
   int id = 0;
   for (const auto & object : msg->objects) {
     // Get marker for shape
-    auto shape_marker_ptr = get_marker_ptr(object.shape[0], object.classification);
+    auto shape_marker_ptr = get_marker_ptr(
+      object.shape[0], object.kinematics.centroid_position, object.kinematics.orientation,
+      object.classification);
     shape_marker_ptr->header = msg->header;
     shape_marker_ptr->id = id++;
     add_marker(shape_marker_ptr);
