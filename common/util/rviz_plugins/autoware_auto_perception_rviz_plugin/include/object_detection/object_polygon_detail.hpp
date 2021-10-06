@@ -61,19 +61,27 @@ kDefaultObjectPropertyValues = {
 };
 
 /// \brief Convert the given polygon into a marker representing the shape in 2d
-/// \param shape_msg Shape msg to be converted
+/// \param shape_msg Shape msg to be converted. Corners should be in object-local frame
+/// \param centroid Centroid position of the shape in Object.header.frame_id frame
+/// \param orientation Orientation of the shape in Object.header.frame_id frame
 /// \param color_rgba Color and alpha values to use for the marker
 /// \return Marker ptr. Id and header will have to be set by the caller
 AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_2d_polygon_marker_ptr(
   const autoware_auto_msgs::msg::Shape & shape_msg,
+  const geometry_msgs::msg::Point & centroid,
+  const geometry_msgs::msg::Quaternion & orientation,
   const std_msgs::msg::ColorRGBA & color_rgba);
 
 /// \brief Convert the given polygon into a marker representing the shape in 3d
-/// \param shape_msg Shape msg to be converted
+/// \param shape_msg Shape msg to be converted. Corners should be in object-local frame
+/// \param centroid Centroid position of the shape in Object.header.frame_id frame
+/// \param orientation Orientation of the shape in Object.header.frame_id frame
 /// \param color_rgba Color and alpha values to use for the marker
 /// \return Marker ptr. Id and header will have to be set by the caller
 AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_3d_polygon_marker_ptr(
   const autoware_auto_msgs::msg::Shape & shape_msg,
+  const geometry_msgs::msg::Point & centroid,
+  const geometry_msgs::msg::Quaternion & orientation,
   const std_msgs::msg::ColorRGBA & color_rgba);
 
 /// \brief Convert Point32 to Point

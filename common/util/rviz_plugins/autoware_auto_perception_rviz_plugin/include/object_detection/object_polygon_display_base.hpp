@@ -121,19 +121,24 @@ protected:
   /// \brief Convert given shape msg into a Marker
   /// \tparam ClassificationContainerT List type with ObjectClassificationMsg
   /// \param shape_msg Shape msg to be converted
+  /// \param centroid Centroid position of the shape in Object.header.frame_id frame
+  /// \param orientation Orientation of the shape in Object.header.frame_id frame
   /// \param labels List of ObjectClassificationMsg objects
   /// \return Marker ptr. Id and header will have to be set by the caller
   template<typename ClassificationContainerT>
   visualization_msgs::msg::Marker::SharedPtr get_marker_ptr(
-    const autoware_auto_msgs::msg::Shape & shape_msg, const ClassificationContainerT & labels)
+    const autoware_auto_msgs::msg::Shape & shape_msg,
+    const geometry_msgs::msg::Point & centroid,
+    const geometry_msgs::msg::Quaternion & orientation,
+    const ClassificationContainerT & labels)
   const
   {
     const std_msgs::msg::ColorRGBA color_rgba = get_color_rgba(labels);
 
     if (m_display_3d_property.getBool()) {
-      return detail::get_3d_polygon_marker_ptr(shape_msg, color_rgba);
+      return detail::get_3d_polygon_marker_ptr(shape_msg, centroid, orientation, color_rgba);
     } else {
-      return detail::get_2d_polygon_marker_ptr(shape_msg, color_rgba);
+      return detail::get_2d_polygon_marker_ptr(shape_msg, centroid, orientation, color_rgba);
     }
   }
 

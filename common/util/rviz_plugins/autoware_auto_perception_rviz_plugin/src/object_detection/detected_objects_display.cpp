@@ -33,7 +33,9 @@ void DetectedObjectsDisplay::processMessage(DetectedObjects::ConstSharedPtr msg)
   int id = 0;
   for (const auto & object : msg->objects) {
     // Get marker for shape
-    auto shape_marker_ptr = get_marker_ptr(object.shape, object.classification);
+    auto shape_marker_ptr = get_marker_ptr(
+      object.shape, object.kinematics.centroid_position, object.kinematics.orientation,
+      object.classification);
     shape_marker_ptr->header = msg->header;
     shape_marker_ptr->id = id++;
     add_marker(shape_marker_ptr);
