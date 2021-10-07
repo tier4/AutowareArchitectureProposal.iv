@@ -198,7 +198,7 @@
         <range bottom="-0.050000" top="2.050000" right="109.929097" left="76.129089"/>
         <limitY/>
         <curve name="/control/output/longitudinal/diagnostic/diag_array/data.13" color="#d62728">
-         <transform alias="state 0:Init 1:Ctrl 2:Stopped 3:SmoothStop 4:Emergency 5:Error" name="Scale/Offset">
+         <transform alias="0:Drive 1:Stopping 2:Stopped 3:Emergency" name="Scale/Offset">
           <options value_scale="1.0" time_offset="0" value_offset="0"/>
          </transform>
         </curve>
