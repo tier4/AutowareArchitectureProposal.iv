@@ -54,6 +54,11 @@ bool QPSolverOSQP::solve(
   std::vector<double> U_osqp = std::get<0>(result);
   U = Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1>>(&U_osqp[0], U_osqp.size(), 1);
 
+  const int status_val = std::get<3>(result);
+  if (status_val != 1) {
+    RCLCPP_WARN(logger_, "optimization failed : %s", osqpsolver_.getStatusMessage().c_str());
+  }
+
   // polish status: successful (1), unperformed (0), (-1) unsuccessful
   int status_polish = std::get<2>(result);
   if (status_polish == -1) {
