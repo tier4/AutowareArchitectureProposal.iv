@@ -1,26 +1,25 @@
-# Velocity Controller
-
+Longitudinal Controller {#longitudinal-controller-design}
 ===========
 
-## Purpose / Use cases
+# Purpose / Use cases
 
-The velocity_controller computes the target acceleration from the ego-velocity to realize the target velocity set at each point on the target trajectory using a feed-forward/back control.
+The longitudinal_controller computes the target acceleration to achieve the target velocity set at each point of the target trajectory using a feed-forward/back control.
 
 It also contains a slope force correction that takes into account road slope information, and a delay compensation function.
 It is assumed that the target acceleration calculated here will be properly realized by the vehicle interface.
 
 Note that the use of this module is not mandatory for Autoware if the vehicle supports the "target speed" interface.
 
-### why separate lateral (steering) and longitudinal (velocity) control?
+## Separated lateral (steering) and longitudinal (velocity) controls
 
-This velocity controller assumes that the roles of lateral and longitudinal control are separated as follows.
+This longitudinal controller assumes that the roles of lateral and longitudinal control are separated as follows.
 
 - Lateral control computes a target steering to keep the vehicle on the trajectory, assuming perfect velocity tracking.
 - Longitudinal control computes a target velocity/acceleration to keep the vehicle velocity on the trajectory speed, assuming perfect trajectory tracking.
 
 Ideally, dealing with the lateral and longitudinal control as a single mixed problem can achieve high performance. In contrast, there are two reasons to provide velocity controller as a stand-alone function, described below.
 
-#### Complex requirements for longitudinal motion
+### Complex requirements for longitudinal motion
 
 The longitudinal vehicle behavior that humans expect is difficult to express in a single logic. For example, the expected behavior just before stopping differs depending on whether the ego-position is ahead/behind of the stop line, or whether the current speed is higher/lower than the target speed to achieve a human-like movement.
 
@@ -28,25 +27,15 @@ In addition, some vehicles have difficulty measuring the ego-speed at extremely 
 
 There are many characteristics and needs that are unique to longitudinal control. Designing them separately from the lateral control keeps the modules less coupled and improves maintainability.
 
-#### Nonlinear coupling of lateral and longitudinal motion
+### Nonlinear coupling of lateral and longitudinal motion
 
 The lat-lon mixed control problem is very complex and uses nonlinear optimization to achieve high performance. Since it is difficult to guarantee the convergence of the nonlinear optimization, a simple control logic is also necessary for development.
 
 Also, the benefits of simultaneous longitudinal and lateral control are small if the vehicle doesn't move at high speed.
 
-#### So, how should we consider lateral and longitudinal motion simultaneously?
+# Design
 
-On the other hand, in the following cases, lateral and longitudinal movements should be considered and designed at the same time.
-
-- the vehicle should decelerate when it is approaching a curve
-- the vehicle should drive at low speed when it deviates from the path.
-
-However, since these can be done without using the internal information of the controller modules, it is assumed that these functions are properly designed in the previous path/velocity planning modules.
-The control module is only meant to follow the planned trajectory as accurately as possible, and this module itself will not override the desired motion.
-
-## Design
-
-### Assumptions / Known limits
+## Assumptions / Known limits
 
 1. Smoothed target velocity and its acceleration shall be set in the trajectory
    1. The velocity command is not smoothed inside the controller (only noise may be removed).
@@ -58,26 +47,21 @@ The control module is only meant to follow the planned trajectory as accurately 
 3. The output of this controller must be achieved by later modules (e.g. vehicle interface).
    1. If the vehicle interface does not have the target velocity or acceleration interface (e.g., the vehicle only has a gas pedal and brake interface), an appropriate conversion must be done after this controller.
 
-### Inputs / Outputs / API
+## Inputs / Outputs / API
 
-#### output
+### Output
 
-- control_cmd [`autoware_control_msgs/ControlCommandStamped`] : command to control the vehicle for the longitudinal motion. It contains the target velocity and target acceleration.
-- debug_values [`std_msgs/Float32MultiArray`] : debug values used for the control command generation (e.g. the contributions of each P-I-D terms).
+- control_cmd [`autoware_auto_msgs/LongitudinalCommand`] : command to control the longitudinal motion of the vehicle. It contains the target velocity and target acceleration.
+- debug_values [`autoware_auto_msgs/Float32MultiArrayDiagnostic`] : debug values used for the control command generation (e.g. the contributions of each P-I-D terms).
 
-#### input
+### Input
 
-- current_velocity [`geometry_msgs/TwistStamped`] : Current ego-velocity. `/localization/twist` is currently used in the Autoware.iv.
-- current_trajectory [`autoware_planning_msgs/Trajectory`] : Current target trajectory for the desired velocity on the each trajectory points.
-- /tf [`tf2_msgs/TFMessage`] : For ego-pose.
+- current_state [`autoware_auto_msgs/VehicleKinematicState`] : Current ego state including the current pose and velocity.
+- current_trajectory [`autoware_auto_msgs/Trajectory`] : Current target trajectory for the desired velocity on the each trajectory points.
 
-#### Note: why the debug message uses the multi-array?
+# Inner-workings / Algorithms
 
-Ideally, this message should be defined as a specific debug message with meaningful field names, like `VelocityControllerDebugValues.msg`. However, these debug values are fluid and new items are frequently added on the development phase, and unfortunately, adding a new field to a ros message definition is not backward compatible. Whereas, new elements can be added in the array-type message without any burden. This is why the `Float32MultiArray` type is currently used for now. The content of each element is defined in the header file.
-
-## Inner-workings / Algorithms
-
-### States
+## States
 
 This module has four state transitions as shown below in order to handle special processing in a specific situation.
 
@@ -95,21 +79,21 @@ This module has four state transitions as shown below in order to handle special
 
 The state transition diagram is shown below.
 
-![VelocityControllerStateTransition](./media/VelocityControllerStateTransition.drawio.svg)
+![LongitudinalControllerStateTransition](./media/LongitudinalControllerStateTransition.drawio.svg)
 
-### Logics
+## Logics
 
-#### Control Block Diagram
+### Control Block Diagram
 
-![VelocityControllerDiagram](./media/VelocityControllerDiagram.drawio.svg)
+![LongitudinalControllerDiagram](./media/LongitudinalControllerDiagram.drawio.svg)
 
-#### FeedForward (FF)
+### FeedForward (FF)
 
 The reference acceleration set in the trajectory and slope compensation terms are output as a feedforward. Under ideal conditions with no modeling error, this FF term alone should be sufficient for velocity tracking.
 
 Tracking errors causing modeling or discretization errors are removed by the feedback control (now using PID).
 
-#### Slope compensation
+### Slope compensation
 
 Based on the slope information, a compensation term is added to the target acceleration.
 
@@ -126,7 +110,7 @@ There are two sources of the slope information, which can be switched by a param
   - Cons: z-coordinates of high-precision map is needed.
   - Cons: Does not support free space planning (for now)
 
-#### PID control
+### PID control
 
 For deviations that cannot be handled by FeedForward control, such as model errors, PID control is used to construct a feedback system.
 
@@ -143,21 +127,17 @@ On the other hand, if the vehicle gets stuck in a depression in the road surface
 At present, PID control is implemented from the viewpoint of trade-off between development/maintenance cost and performance.
 This may be replaced by a higher performance controller (adaptive control or robust control) in future development.
 
-#### Time delay compensation
+### Time delay compensation
 
 At high speeds, the delay of actuator systems such as gas pedals and brakes has a significant impact on driving accuracy.
 Depending on the actuating principle of the vehicle, the mechanism that physically controls the gas pedal and brake typically has a delay of about a hundred millisecond.
 
 In this controller, the predicted ego-velocity and the target velocity after the delay time are calculated and used for the feedback to address the time delay problem.
 
-## References / External links
+# References / External links
 
--
+# Future extensions / Unimplemented parts
 
-## Future extensions / Unimplemented parts
+# Related issues
 
--
-
-## Related issues
-
--
+- https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/1058
