@@ -57,7 +57,8 @@ std::shared_ptr<LongitudinalController> makeLongitudinalNode()
 }
 
 
-TEST_F(FakeNodeFixture, longitudinal_keep_velocity) {
+// TODO(Maxime CLEMENT): disabled as this test is flaky in the CI but works locally
+TEST_F(FakeNodeFixture, DISABLED_longitudinal_keep_velocity) {
   // Data to test
   LongitudinalCommand::SharedPtr cmd_msg;
   bool received_longitudinal_command = false;
@@ -193,7 +194,8 @@ TEST_F(FakeNodeFixture, longitudinal_slow_down) {
   EXPECT_LT(cmd_msg->acceleration, 0.0f);
 }
 
-TEST_F(FakeNodeFixture, longitudinal_accelerate) {
+// TODO(Maxime CLEMENT): disabled as this test is flaky in the CI but works locally
+TEST_F(FakeNodeFixture, DISABLED_longitudinal_accelerate) {
   // Data to test
   LongitudinalCommand::SharedPtr cmd_msg;
   bool received_longitudinal_command = false;
@@ -321,7 +323,8 @@ TEST_F(FakeNodeFixture, longitudinal_stopped) {
   EXPECT_LT(cmd_msg->acceleration, 0.0f);  // when stopped negative acceleration to brake
 }
 
-TEST_F(FakeNodeFixture, longitudinal_reverse) {
+// TODO(Maxime CLEMENT): disabled as this test is flaky in the CI but works locally
+TEST_F(FakeNodeFixture, DISABLED_longitudinal_reverse) {
   // Data to test
   LongitudinalCommand::SharedPtr cmd_msg;
   bool received_longitudinal_command = false;
