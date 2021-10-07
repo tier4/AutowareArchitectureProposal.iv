@@ -264,6 +264,12 @@ private:
    * @brief set initial condition for mpc
    * @param [in] mpc data
    */
+
+  /**
+   * @brief reset previous result of MPC
+   */
+  void resetPrevResult();
+
   Eigen::VectorXd getInitialState(const MPCData & data);
 
   /**

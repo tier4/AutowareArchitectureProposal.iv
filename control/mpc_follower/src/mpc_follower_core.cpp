@@ -381,6 +381,12 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::msg::ControlCommand * ctrl
   return true;
 }
 
+void MPCFollower::resetPrevResult()
+{
+  raw_steer_cmd_prev_ = current_steer_ptr_->data;
+  raw_steer_cmd_pprev_ = current_steer_ptr_->data;
+}
+
 bool MPCFollower::getData(const MPCTrajectory & traj, MPCData * data)
 {
   static constexpr auto duration = (5000ms).count();
@@ -388,6 +394,12 @@ bool MPCFollower::getData(const MPCTrajectory & traj, MPCData * data)
       traj, current_pose_ptr_->pose, &(data->nearest_pose), &(data->nearest_idx),
       &(data->nearest_time), get_logger(), *get_clock()))
   {
+    // reset previous MPC result
+    // Note: When a large deviation from the trajectory occurs, the optimization stops and
+    // the vehicle will return to the path by re-planning the trajectory or external operation.
+    // After the recovery, the previous value of the optimization may deviate greatly from
+    // the actual steer angle, and it may make the optimization result unstable.
+    resetPrevResult();
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       get_logger(), *get_clock(), duration,
       "calculateMPC: error in calculating nearest pose. stop mpc.");
