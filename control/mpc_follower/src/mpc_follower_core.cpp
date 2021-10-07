@@ -918,6 +918,10 @@ bool MPCFollower::isValid(const MPCMatrix & m) const
 }
 void MPCFollower::onTrajectory(const autoware_planning_msgs::msg::Trajectory::SharedPtr msg)
 {
+  if (!current_pose_ptr_) {
+    return;
+  }
+
   current_trajectory_ptr_ = msg;
 
   if (msg->points.size() < 3) {
