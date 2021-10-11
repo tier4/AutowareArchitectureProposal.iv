@@ -43,8 +43,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
 #include "tf2/utils.h"
+#include "tf2_msgs/msg/tf_message.hpp"
 #include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_listener.h"
 
 
 namespace autoware
@@ -86,6 +86,9 @@ private:
   rclcpp::Subscription<autoware_auto_msgs::msg::VehicleKinematicState>::SharedPtr m_sub_steering;
   //!< @brief timer to update after a given interval
   rclcpp::TimerBase::SharedPtr m_timer;
+  //!< @brief subscription for transform messages
+  rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_sub;
+  rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_static_sub;
 
   /* parameters for path smoothing */
   //!< @brief flag for path smoothing
@@ -123,9 +126,8 @@ private:
   //!< @brief previous control command
   autoware_auto_msgs::msg::AckermannLateralCommand m_ctrl_cmd_prev;
 
-  tf2_ros::Buffer m_tf_buffer;
-  //!< @brief tf listener
-  tf2_ros::TransformListener m_tf_listener;
+  //!< @brief buffer for transforms
+  tf2::BufferCore m_tf_buffer{tf2::BUFFER_CORE_DEFAULT_CACHE_TIME};
 
   //!< initialize timer to work in real, simulation, and replay
   void initTimer(float64_t period_s);
@@ -140,9 +142,22 @@ private:
   void onTrajectory(const autoware_auto_msgs::msg::Trajectory::SharedPtr);
 
   /**
-   * @brief update current_pose from tf
+   * @brief callback for TF message
+   * @param [in] msg transform message
    */
-  void updateCurrentPose();
+  void callbackTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg);
+
+  /**
+   * @brief callback for static TF message
+   * @param [in] msg static transform message
+   */
+  void callbackStaticTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg);
+
+  /**
+   * @brief update current_pose from tf
+   * @return true if the current pose was updated, false otherwise
+   */
+  bool8_t updateCurrentPose();
 
   /**
    * @brief check if the received data is valid.
