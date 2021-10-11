@@ -21,6 +21,11 @@
 
 #include "trajectory_follower_nodes/longitudinal_controller_node.hpp"
 
+#include "motion_common/motion_common.hpp"
+#include "time_utils/time_utils.hpp"
+
+
+
 namespace autoware
 {
 namespace motion
@@ -171,12 +176,17 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   m_sub_trajectory = create_subscription<autoware_auto_msgs::msg::Trajectory>(
     "input/current_trajectory", 1,
     std::bind(&LongitudinalController::callbackTrajectory, this, _1));
+  m_tf_sub = create_subscription<tf2_msgs::msg::TFMessage>(
+    "input/tf", 1, std::bind(&LongitudinalController::callbackTF, this, _1));
+  m_tf_static_sub = create_subscription<tf2_msgs::msg::TFMessage>(
+    "input/tf_static", 1, std::bind(&LongitudinalController::callbackStaticTF, this, _1));
   m_pub_control_cmd = create_publisher<autoware_auto_msgs::msg::LongitudinalCommand>(
     "output/longitudinal_control_cmd", rclcpp::QoS{1});
   m_pub_slope = create_publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>(
     "output/slope_angle", rclcpp::QoS{1});
   m_pub_debug = create_publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>(
     "output/longitudinal/diagnostic", rclcpp::QoS{1});
+
 
   // Timer
   {
@@ -227,6 +237,24 @@ void LongitudinalController::callbackTrajectory(
   }
 
   m_trajectory_ptr = std::make_shared<autoware_auto_msgs::msg::Trajectory>(*msg);
+}
+
+void LongitudinalController::callbackTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg)
+{
+  for (const auto & tf : msg->transforms) {
+    if (!m_tf_buffer.setTransform(tf, "external", false)) {
+      RCLCPP_WARN(get_logger(), "Warning: tf2::BufferCore::setTransform failed");
+    }
+  }
+}
+
+void LongitudinalController::callbackStaticTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg)
+{
+  for (const auto & tf : msg->transforms) {
+    if (!m_tf_buffer.setTransform(tf, "external", true)) {
+      RCLCPP_WARN(get_logger(), "Warning: tf2::BufferCore::setTransform failed");
+    }
+  }
 }
 
 rcl_interfaces::msg::SetParametersResult LongitudinalController::paramCallback(
@@ -354,17 +382,30 @@ rcl_interfaces::msg::SetParametersResult LongitudinalController::paramCallback(
 void LongitudinalController::callbackTimerControl()
 {
   // wait for initial pointers
-  if (!m_current_state_ptr || !m_prev_state_ptr || !m_trajectory_ptr) {
+  if (
+    !m_current_state_ptr || !m_prev_state_ptr || !m_trajectory_ptr ||
+    !m_tf_buffer.canTransform(
+      m_trajectory_ptr->header.frame_id,
+      m_current_state_ptr->header.frame_id,
+      tf2::TimePointZero)) {
     return;
   }
 
-  // calculate current pose and contorl data
+  // transform state to the same frame as the trajectory
+  geometry_msgs::msg::TransformStamped tf = m_tf_buffer.lookupTransform(
+    m_trajectory_ptr->header.frame_id,
+    m_current_state_ptr->header.frame_id,
+    tf2::TimePointZero);
+  autoware_auto_msgs::msg::TrajectoryPoint current_state_tf;
+  ::motion::motion_common::doTransform(m_current_state_ptr->state, current_state_tf, tf);
+  // calculate current pose and control data
   geometry_msgs::msg::Pose current_pose;
-  current_pose.position.x = m_current_state_ptr->state.x;
-  current_pose.position.y = m_current_state_ptr->state.y;
-  current_pose.position.z = m_current_state_ptr->state.z;
+  current_pose.position.x = current_state_tf.x;
+  current_pose.position.y = current_state_tf.y;
+  current_pose.position.z = current_state_tf.z;
   current_pose.orientation = ::motion::motion_common::to_quat<decltype(current_pose.orientation)>(
-    m_current_state_ptr->state.heading);
+    current_state_tf.heading);
+
 
   const auto control_data = getControlData(current_pose);
 

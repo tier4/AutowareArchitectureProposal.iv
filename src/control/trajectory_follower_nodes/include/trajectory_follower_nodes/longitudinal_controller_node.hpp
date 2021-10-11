@@ -31,6 +31,8 @@
 #include "motion_common/trajectory_common.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tf2/utils.h"
+#include "tf2_msgs/msg/tf_message.hpp"
+#include "tf2_ros/buffer.h"
 #include "trajectory_follower/debug_values.hpp"
 #include "trajectory_follower/longitudinal_controller_utils.hpp"
 #include "trajectory_follower/lowpass_filter.hpp"
@@ -85,6 +87,10 @@ private:
   rclcpp::Publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr m_pub_slope;
   rclcpp::Publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr m_pub_debug;
   rclcpp::TimerBase::SharedPtr m_timer_control;
+  
+  rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_sub;
+  rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_static_sub;
+  tf2::BufferCore m_tf_buffer{tf2::BUFFER_CORE_DEFAULT_CACHE_TIME};
 
   OnSetParametersCallbackHandle::SharedPtr m_set_param_res;
   rcl_interfaces::msg::SetParametersResult paramCallback(
@@ -195,12 +201,14 @@ private:
 
   /**
    * @brief set current and previous velocity with received message
+   * @param [in] msg current state message
    */
   void callbackCurrentState(
     const autoware_auto_msgs::msg::VehicleKinematicState::ConstSharedPtr msg);
 
   /**
    * @brief set reference trajectory with received message
+   * @param [in] msg trajectory message
    */
   void callbackTrajectory(const autoware_auto_msgs::msg::Trajectory::ConstSharedPtr msg);
 
@@ -210,7 +218,20 @@ private:
   void callbackTimerControl();
 
   /**
+   * @brief callback for TF message
+   * @param [in] msg transform message
+   */
+  void callbackTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg);
+
+  /**
+   * @brief callback for static TF message
+   * @param [in] msg static transform message
+   */
+  void callbackStaticTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg);
+
+  /**
    * @brief calculate data for controllers whose type is ControlData
+   * @param [in] current_pose current ego pose
    */
   ControlData getControlData(const geometry_msgs::msg::Pose & current_pose);
 
@@ -222,12 +243,17 @@ private:
 
   /**
    * @brief update control state according to the current situation
+   * @param [in] current_control_state current control state
+   * @param [in] control_data control data
    */
   ControlState updateControlState(
     const ControlState current_control_state, const ControlData & control_data);
 
   /**
    * @brief calculate control command based on the current control state
+   * @param [in] current_control_state current control state
+   * @param [in] current_pose current ego pose
+   * @param [in] control_data control data
    */
   Motion calcCtrlCmd(
     const ControlState & current_control_state, const geometry_msgs::msg::Pose & current_pose,
@@ -332,11 +358,6 @@ private:
   void updateDebugVelAcc(
     const Motion & ctrl_cmd, const geometry_msgs::msg::Pose & current_pose,
     const ControlData & control_data);
-
-  /**
-   * @brief update current_pose from tf
-   */
-  void updateCurrentPose();
 };
 }  // namespace trajectory_follower_nodes
 }  // namespace control
