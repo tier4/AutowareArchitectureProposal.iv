@@ -290,9 +290,7 @@ bool DetectionAreaModule::modifyPathVelocity(
 
   // Reset data
   debug_data_ = DebugData();
-  debug_data_.base_link2front = planner_data_->vehicle_info_.max_longitudinal_offset_m;
-  *stop_reason =
-    planning_utils::initializeStopReason(autoware_auto_msgs::msg::StopReason::DETECTION_AREA);
+  debug_data_.base_link2front = planner_data_->vehicle_constants_.offset_longitudinal_max;
 
   // Find obstacles in detection area
   const auto obstacle_points = getObstaclePoints();
@@ -360,14 +358,6 @@ bool DetectionAreaModule::modifyPathVelocity(
 
   // For virtual wall
   debug_data_.stop_poses.push_back(stop_pose);
-
-  // Create StopReason
-  {
-    autoware_auto_msgs::msg::StopFactor stop_factor;
-    stop_factor.stop_pose = stop_point->second;
-    stop_factor.stop_factor_points = obstacle_points;
-    planning_utils::appendStopReason(stop_factor, stop_reason);
-  }
 
   // Create legacy StopReason
   {

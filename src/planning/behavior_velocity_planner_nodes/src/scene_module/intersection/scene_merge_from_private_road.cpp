@@ -51,8 +51,6 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   autoware_auto_msgs::msg::PathWithLaneId * path)
 {
   debug_data_ = DebugData();
-  *stop_reason = planning_utils::initializeStopReason(
-    autoware_auto_msgs::msg::StopReason::MERGE_FROM_PRIVATE_ROAD);
 
   const auto input_path = *path;
   debug_data_.path_raw = input_path;
@@ -72,7 +70,8 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   std::vector<lanelet::CompoundPolygon3d> conflicting_areas;
 
   util::getObjectivePolygons(
-    lanelet_map_ptr, routing_graph_ptr, lane_id_, planner_param_, &conflicting_areas,
+    lanelet_map_ptr, routing_graph_ptr, static_cast<int32_t>(lane_id_), planner_param_,
+    &conflicting_areas,
     &detection_areas, logger_);
   if (detection_areas.empty()) {
     RCLCPP_DEBUG(logger_, "no detection area. skip computation.");
@@ -85,7 +84,8 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   int judge_line_idx = -1;
   int first_idx_inside_lane = -1;
   if (!util::generateStopLine(
-      lane_id_, conflicting_areas, planner_data_, planner_param_, path, *path, &stop_line_idx,
+      static_cast<int32_t>(lane_id_), conflicting_areas, planner_data_, planner_param_, path, *path,
+      &stop_line_idx,
       &judge_line_idx, &first_idx_inside_lane, logger_.get_child("util")))
   {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000 /* ms */, "setStopLineIdx fail");
@@ -98,7 +98,7 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   }
 
   debug_data_.virtual_wall_pose = util::getAheadPose(
-    stop_line_idx, planner_data_->vehicle_info_.max_longitudinal_offset_m, *path);
+    stop_line_idx, planner_data_->vehicle_constants_.offset_longitudinal_max, *path);
   debug_data_.stop_point_pose = path->points.at(stop_line_idx).point.pose;
   if (first_idx_inside_lane != -1) {
     debug_data_.first_collision_point = path->points.at(first_idx_inside_lane).point.pose.position;
@@ -110,14 +110,6 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
     const double decel_vel = planner_param_.decel_velocity;
     double v = (has_traffic_light_ && turn_direction_ == "straight") ? decel_vel : stop_vel;
     util::setVelocityFrom(stop_line_idx, v, path);
-
-    /* get stop point and stop factor */
-    if (v == stop_vel) {
-      autoware_auto_msgs::msg::StopFactor stop_factor;
-      stop_factor.stop_pose = debug_data_.stop_point_pose;
-      stop_factor.stop_factor_points.emplace_back(debug_data_.first_collision_point);
-      planning_utils::appendStopReason(stop_factor, stop_reason);
-    }
 
     const double distance =
       planning_utils::calcDist2d(current_pose.pose, path->points.at(stop_line_idx).point.pose);

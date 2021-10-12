@@ -35,7 +35,7 @@ std::vector<lanelet::TrafficSignConstPtr> getTrafficSignRegElemsOnPath(
 
   for (const auto & p : path.points) {
     const auto lane_id = p.lane_ids.at(0);
-    const auto ll = lanelet_map->laneletLayer.get(lane_id);
+    const auto ll = lanelet_map->laneletLayer.get(static_cast<int64_t>(lane_id));
 
     const auto tss = ll.regulatoryElementsAs<const lanelet::TrafficSign>();
     for (const auto & ts : tss) {

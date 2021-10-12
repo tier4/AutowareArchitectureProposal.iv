@@ -50,12 +50,12 @@ int insertPoint(
     return -1;
   }
   int insert_idx = closest_idx;
-  if (isAheadOf(in_pose, inout_path->points.at(closest_idx).point.pose)) {
+  if (isAheadOf(in_pose, inout_path->points.at(static_cast<uint64_t>(closest_idx)).point.pose)) {
     ++insert_idx;
   }
 
   autoware_auto_msgs::msg::PathPointWithLaneId inserted_point;
-  inserted_point = inout_path->points.at(closest_idx);
+  inserted_point = inout_path->points.at(static_cast<uint64_t>(closest_idx));
   inserted_point.point.pose = in_pose;
 
   if (!hasDuplicatedPoint(*inout_path, inserted_point.point.pose.position)) {

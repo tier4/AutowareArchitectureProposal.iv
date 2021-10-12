@@ -68,14 +68,16 @@ IntersectionModuleManager::IntersectionModuleManager(rclcpp::Node & node)
 {
   const std::string ns(getModuleName());
   auto & p = planner_param_;
-  const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(node).getVehicleInfo();
+
+//  const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(node).getVehicleInfo();
+  const auto vehicle_info = common::vehicle_constants_manager::declare_and_get_vehicle_constants(node);
   p.state_transit_margin_time = node.declare_parameter(ns + ".state_transit_margin_time", 2.0);
   p.decel_velocity = node.declare_parameter(ns + ".decel_velocity", 30.0 / 3.6);
   p.path_expand_width = node.declare_parameter(ns + ".path_expand_width", 2.0);
   p.stop_line_margin = node.declare_parameter(ns + ".stop_line_margin", 1.0);
   p.stuck_vehicle_detect_dist = node.declare_parameter(ns + ".stuck_vehicle_detect_dist", 3.0);
   p.stuck_vehicle_ignore_dist = node.declare_parameter(ns + ".stuck_vehicle_ignore_dist", 5.0) +
-    vehicle_info.max_longitudinal_offset_m;
+    vehicle_info.offset_longitudinal_max;
   p.stuck_vehicle_vel_thr = node.declare_parameter(ns + ".stuck_vehicle_vel_thr", 3.0 / 3.6);
   p.intersection_velocity = node.declare_parameter(ns + ".intersection_velocity", 10.0 / 3.6);
   p.intersection_max_acc = node.declare_parameter(ns + ".intersection_max_accel", 0.5);

@@ -55,9 +55,9 @@ bool IntersectionModule::modifyPathVelocity(
   autoware_auto_msgs::msg::PathWithLaneId * path)
 {
   const bool external_go =
-    isTargetExternalInputStatus(autoware_api_msgs::msg::IntersectionStatus::GO);
+    isTargetExternalInputStatus(autoware_auto_msgs::msg::OrderMovement::GO);
   const bool external_stop =
-    isTargetExternalInputStatus(autoware_api_msgs::msg::IntersectionStatus::STOP);
+    isTargetExternalInputStatus(autoware_auto_msgs::msg::OrderMovement::STOP);
   RCLCPP_DEBUG(logger_, "===== plan start =====");
   debug_data_ = DebugData();
 
@@ -79,7 +79,8 @@ bool IntersectionModule::modifyPathVelocity(
   std::vector<lanelet::CompoundPolygon3d> conflicting_areas;
 
   util::getObjectivePolygons(
-    lanelet_map_ptr, routing_graph_ptr, static_cast<int32_t>(lane_id_), planner_param_, &conflicting_areas,
+    lanelet_map_ptr, routing_graph_ptr, static_cast<int32_t>(lane_id_), planner_param_,
+    &conflicting_areas,
     &detection_areas, logger_);
   if (detection_areas.empty()) {
     RCLCPP_DEBUG(logger_, "no detection area. skip computation.");
@@ -93,10 +94,13 @@ bool IntersectionModule::modifyPathVelocity(
   int first_idx_inside_lane = -1;
   const auto target_path = trimPathWithLaneId(*path);
   if (!util::generateStopLine(
-      static_cast<int32_t>(lane_id_), conflicting_areas, planner_data_, planner_param_, path, target_path, &stop_line_idx,
+      static_cast<int32_t>(lane_id_), conflicting_areas, planner_data_, planner_param_, path,
+      target_path, &stop_line_idx,
       &pass_judge_line_idx, &first_idx_inside_lane, logger_.get_child("util")))
   {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000 /* ms */, "setStopLineIdx fail");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      logger_, *clock_, static_cast<int64_t>(1000) /* ms */,
+      "setStopLineIdx fail");
     RCLCPP_DEBUG(logger_, "===== plan end =====");
     return false;
   }
@@ -110,7 +114,9 @@ bool IntersectionModule::modifyPathVelocity(
   /* calc closest index */
   int closest_idx = -1;
   if (!planning_utils::calcClosestIndex(input_path, current_pose.pose, closest_idx)) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000 /* ms */, "calcClosestIndex fail");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+      logger_, *clock_, static_cast<int64_t>(1000) /* ms */,
+      "calcClosestIndex fail");
     RCLCPP_DEBUG(logger_, "===== plan end =====");
     return false;
   }
@@ -118,7 +124,8 @@ bool IntersectionModule::modifyPathVelocity(
   /* if current_state = GO, and current_pose is in front of stop_line, ignore planning. */
   bool is_over_pass_judge_line = static_cast<bool>(closest_idx > pass_judge_line_idx);
   if (closest_idx == pass_judge_line_idx) {
-    geometry_msgs::msg::Pose pass_judge_line = path->points.at(pass_judge_line_idx).point.pose;
+    geometry_msgs::msg::Pose pass_judge_line =
+      path->points.at(static_cast<uint64_t>(pass_judge_line_idx)).point.pose;
     is_over_pass_judge_line = util::isAheadOf(current_pose.pose, pass_judge_line);
   }
   if (current_state == State::GO && is_over_pass_judge_line && !external_stop) {

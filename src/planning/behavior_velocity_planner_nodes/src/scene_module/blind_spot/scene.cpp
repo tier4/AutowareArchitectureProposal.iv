@@ -81,10 +81,10 @@ bool BlindSpotModule::modifyPathVelocity(
   /* set stop-line and stop-judgement-line for base_link */
   int stop_line_idx = -1;
   int pass_judge_line_idx = -1;
-  const auto straight_lanelets = getStraightLanelets(lanelet_map_ptr, routing_graph_ptr, lane_id_);
+  const auto straight_lanelets = getStraightLanelets(lanelet_map_ptr, routing_graph_ptr, static_cast<int32_t>(lane_id_));
   if (!generateStopLine(straight_lanelets, path, &stop_line_idx, &pass_judge_line_idx)) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      logger_, *clock_, 1000 /* ms */, "[BlindSpotModule::run] setStopLineIdx fail");
+      logger_, *clock_, static_cast<int64_t>(1000) /* ms */, "[BlindSpotModule::run] setStopLineIdx fail");
     *path = input_path;  // reset path
     return false;
   }
@@ -100,7 +100,7 @@ bool BlindSpotModule::modifyPathVelocity(
   int closest_idx = -1;
   if (!planning_utils::calcClosestIndex(input_path, current_pose.pose, closest_idx)) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      logger_, *clock_, 1000 /* ms */, "[Blind Spot] calcClosestIndex fail");
+      logger_, *clock_, static_cast<int64_t>(1000) /* ms */, "[Blind Spot] calcClosestIndex fail");
     *path = input_path;  // reset path
     return false;
   }
@@ -108,7 +108,7 @@ bool BlindSpotModule::modifyPathVelocity(
   /* get debug info */
   const auto stop_line_pose =
     util::getAheadPose(
-    stop_line_idx, planner_data_->vehicle_info_.max_longitudinal_offset_m,
+    stop_line_idx, planner_data_->vehicle_constants_.offset_longitudinal_max,
     *path);
   debug_data_.virtual_wall_pose = stop_line_pose;
   debug_data_.stop_point_pose = path->points.at(stop_line_idx).point.pose;

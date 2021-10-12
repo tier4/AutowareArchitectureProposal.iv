@@ -47,10 +47,8 @@ bool CrosswalkModule::modifyPathVelocity(
   autoware_auto_msgs::msg::PathWithLaneId * path)
 {
   debug_data_ = DebugData();
-  debug_data_.base_link2front = planner_data_->vehicle_constants_.max_longitudinal_offset_m;
+  debug_data_.base_link2front = planner_data_->vehicle_constants_.offset_longitudinal_max;
   first_stop_path_point_index_ = static_cast<int>(path->points.size()) - 1;
-  *stop_reason =
-    planning_utils::initializeStopReason(autoware_auto_msgs::msg::StopReason::CROSSWALK);
 
   const auto input = *path;
 
@@ -90,13 +88,6 @@ bool CrosswalkModule::modifyPathVelocity(
     // stop_path = slow_path;
     *path = stop_path;
 
-    if (insert_stop) {
-      /* get stop point and stop factor */
-      autoware_auto_msgs::msg::StopFactor stop_factor;
-      stop_factor.stop_pose = debug_data_.first_stop_pose;
-      stop_factor.stop_factor_points = debug_data_.stop_factor_points;
-      planning_utils::appendStopReason(stop_factor, stop_reason);
-    }
   }
   return true;
 }
@@ -112,10 +103,10 @@ bool CrosswalkModule::checkStopArea(
   bool pedestrian_found = false;
   bool object_found = false;
   const bool external_slowdown =
-    isTargetExternalInputStatus(autoware_api_msgs::msg::CrosswalkStatus::SLOWDOWN);
+    isTargetExternalInputStatus(autoware_auto_msgs::msg::OrderMovement::SLOWDOWN);
   const bool external_stop =
-    isTargetExternalInputStatus(autoware_api_msgs::msg::CrosswalkStatus::STOP);
-  const bool external_go = isTargetExternalInputStatus(autoware_api_msgs::msg::CrosswalkStatus::GO);
+    isTargetExternalInputStatus(autoware_auto_msgs::msg::OrderMovement::STOP);
+  const bool external_go = isTargetExternalInputStatus(autoware_auto_msgs::msg::OrderMovement::GO);
   rclcpp::Time current_time = clock_->now();
 
   // create stop area
@@ -153,23 +144,27 @@ bool CrosswalkModule::checkStopArea(
 
     if (isTargetType(object)) {
       Point point(
-        object.state.pose_covariance.pose.position.x, object.state.pose_covariance.pose.position.y);
+        object.kinematics.initial_pose.pose.position.x,
+        object.kinematics.initial_pose.pose.position.y);
       if (!bg::within(point, crosswalk_polygon)) {
         continue;
       }
       if (bg::within(point, stop_polygon)) {
         pedestrian_found = true;
-        debug_data_.stop_factor_points.emplace_back(object.state.pose_covariance.pose.position);
+        debug_data_.stop_factor_points.emplace_back(object.kinematics.initial_pose.pose.position);
         break;
       }
-      for (const auto & object_path : object.state.predicted_paths) {
+      for (const auto & object_path : object.kinematics.predicted_paths) {
         for (size_t k = 0; k < object_path.path.size() - 1; ++k) {
+          rclcpp::Time pose_time_calculated = rclcpp::Time(objects_ptr->header.stamp) + rclcpp::Duration(
+            static_cast<int32_t>(k) * object_path.time_step.sec,
+            static_cast<uint32_t>(k) * object_path.time_step.nanosec);
           if (
-            (rclcpp::Time(object_path.path.at(k).header.stamp) - current_time).seconds() <
+            (pose_time_calculated - current_time).seconds() <
             planner_param_.stop_dynamic_object_prediction_time_margin)
           {
-            const auto op0 = object_path.path.at(k).pose.pose.position;
-            const auto op1 = object_path.path.at(k + 1).pose.pose.position;
+            const auto op0 = object_path.path.at(k).position;
+            const auto op1 = object_path.path.at(k + 1).position;
             const Line line{{op0.x, op0.y}, {op1.x, op1.y}};
             std::vector<Point> line_collision_points;
             bg::intersection(stop_polygon, line, line_collision_points);
@@ -178,7 +173,7 @@ bool CrosswalkModule::checkStopArea(
             }
             if (pedestrian_found) {
               debug_data_.stop_factor_points.emplace_back(
-                object.state.pose_covariance.pose.position);
+                object.kinematics.initial_pose.pose.position);
               break;
             }
           }
@@ -199,7 +194,7 @@ bool CrosswalkModule::checkStopArea(
   // insert stop point
   if (stop) {
     lanelet::Optional<lanelet::ConstLineString3d> stop_line_opt =
-      getStopLineFromMap(module_id_, planner_data_, "crosswalk_id");
+      getStopLineFromMap(static_cast<int32_t>(module_id_), planner_data_, "crosswalk_id");
     if (!!stop_line_opt) {
       if (!insertTargetVelocityPoint(
           input, stop_line_opt.get(), planner_param_.stop_margin, 0.0, *planner_data_, output,
@@ -230,13 +225,13 @@ bool CrosswalkModule::checkSlowArea(
   output = input;
   bool pedestrian_found = false;
   const bool external_slowdown =
-    isTargetExternalInputStatus(autoware_api_msgs::msg::CrosswalkStatus::SLOWDOWN);
+    isTargetExternalInputStatus(autoware_auto_msgs::msg::OrderMovement::SLOWDOWN);
   const bool external_stop =
-    isTargetExternalInputStatus(autoware_api_msgs::msg::CrosswalkStatus::STOP);
-  const bool external_go = isTargetExternalInputStatus(autoware_api_msgs::msg::CrosswalkStatus::GO);
+    isTargetExternalInputStatus(autoware_auto_msgs::msg::OrderMovement::STOP);
+  const bool external_go = isTargetExternalInputStatus(autoware_auto_msgs::msg::OrderMovement::GO);
 
   Polygon slowdown_polygon;
-  if (!createVehiclePathPolygonInCrosswalk(output, crosswalk_polygon, 4.0, slowdown_polygon)) {
+  if (!createVehiclePathPolygonInCrosswalk(output, crosswalk_polygon, 4.0f, slowdown_polygon)) {
     return false;
   }
 
@@ -255,7 +250,8 @@ bool CrosswalkModule::checkSlowArea(
   for (const auto & object : objects_ptr->objects) {
     if (isTargetType(object)) {
       Point point(
-        object.state.pose_covariance.pose.position.x, object.state.pose_covariance.pose.position.y);
+        object.kinematics.initial_pose.pose.position.x,
+        object.kinematics.initial_pose.pose.position.y);
       if (!bg::within(point, crosswalk_polygon)) {
         continue;
       }
@@ -277,7 +273,7 @@ bool CrosswalkModule::checkSlowArea(
   // insert slow point
   if (slowdown) {
     lanelet::Optional<lanelet::ConstLineString3d> stop_line_opt =
-      getStopLineFromMap(module_id_, planner_data_, "crosswalk_id");
+      getStopLineFromMap(static_cast<int32_t>(module_id_), planner_data_, "crosswalk_id");
     if (!!stop_line_opt) {
       if (!insertTargetVelocityPoint(
           input, stop_line_opt.get(), planner_param_.slow_margin, planner_param_.slow_velocity,
@@ -317,16 +313,16 @@ bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
   }
   if (path_collision_points.size() != 2) {
     RCLCPP_ERROR_THROTTLE(
-      logger_, *clock_, 5000,
+      logger_, *clock_, static_cast<int64_t>(5000),
       "There must be two points of conflict between the crosswalk polygon and the path. points is "
       "%d",
-      (int)path_collision_points.size());
+      static_cast<int32_t>(path_collision_points.size()));
     return false;
   }
 
   Polygon candidate_path_polygon;
   {
-    const double width = planner_data_->vehicle_info_.vehicle_width_m;
+    const double width = planner_data_->vehicle_constants_.vehicle_width;
     const double d = (width / 2.0) + extended_width;
     const auto cp0 = path_collision_points.at(0);
     const auto cp1 = path_collision_points.at(1);
@@ -349,7 +345,7 @@ bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
   if (path_polygons.size() != 1) {
     RCLCPP_ERROR_THROTTLE(
       logger_, *clock_, 5000, "Number of polygon is %d. Must be 1",
-      (int)path_polygons.size());
+      static_cast<int32_t>(path_polygons.size()));
     return false;
   }
   path_polygon = path_polygons.at(0);
@@ -359,8 +355,10 @@ bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
 bool CrosswalkModule::isTargetType(const autoware_auto_msgs::msg::PredictedObject & obj)
 {
   if (
-    obj.semantic.type == autoware_perception_msgs::msg::Semantic::PEDESTRIAN ||
-    obj.semantic.type == autoware_perception_msgs::msg::Semantic::BICYCLE)
+    obj.classification.front().classification ==
+    autoware_auto_msgs::msg::ObjectClassification::PEDESTRIAN ||
+    obj.classification.front().classification ==
+    autoware_auto_msgs::msg::ObjectClassification::BICYCLE)
   {
     return true;
   }
@@ -370,7 +368,7 @@ bool CrosswalkModule::isTargetType(const autoware_auto_msgs::msg::PredictedObjec
 bool CrosswalkModule::isTargetExternalInputStatus(const int target_status)
 {
   return planner_data_->external_crosswalk_status_input &&
-         planner_data_->external_crosswalk_status_input.get().status == target_status &&
+         planner_data_->external_crosswalk_status_input.get().order_movement == target_status &&
          (clock_->now() - planner_data_->external_crosswalk_status_input.get().header.stamp)
          .seconds() < planner_param_.external_input_timeout;
 }

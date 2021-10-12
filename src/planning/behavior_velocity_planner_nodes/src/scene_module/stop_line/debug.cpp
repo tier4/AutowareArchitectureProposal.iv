@@ -28,7 +28,7 @@ namespace
 using DebugData = StopLineModule::DebugData;
 
 visualization_msgs::msg::MarkerArray createMarkers(
-  const DebugData & debug_data, const int64_t module_id)
+  const DebugData & debug_data, const int32_t module_id)
 {
   visualization_msgs::msg::MarkerArray msg;
   tf2::Transform tf_base_link2front(
@@ -75,10 +75,10 @@ visualization_msgs::msg::MarkerArray createMarkers(
     marker.scale.x = 0.0;
     marker.scale.y = 0.0;
     marker.scale.z = 1.0;
-    marker.color.a = 0.999;  // Don't forget to set the alpha!
-    marker.color.r = 1.0;
-    marker.color.g = 1.0;
-    marker.color.b = 1.0;
+    marker.color.a = 0.999f;  // Don't forget to set the alpha!
+    marker.color.r = 1.0f;
+    marker.color.g = 1.0f;
+    marker.color.b = 1.0f;
     marker.text = "stop line";
     msg.markers.push_back(marker);
   }
@@ -93,7 +93,7 @@ visualization_msgs::msg::MarkerArray StopLineModule::createDebugMarkerArray()
   visualization_msgs::msg::MarkerArray debug_marker_array;
 
   appendMarkerArray(
-    createMarkers(debug_data_, module_id_), this->clock_->now(), &debug_marker_array);
+    createMarkers(debug_data_, static_cast<int32_t>(module_id_)), this->clock_->now(), &debug_marker_array);
 
   return debug_marker_array;
 }

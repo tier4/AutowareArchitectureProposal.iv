@@ -194,8 +194,12 @@ visualization_msgs::msg::MarkerArray createCorrespondenceMarkerArray(
   // Polygon to StopLine
   {
     auto marker = createDefaultMarker(
-      "map", now, "detection_area_correspondence", detection_area_reg_elem.id(),
-      visualization_msgs::msg::Marker::LINE_LIST, createMarkerColor(0.1, 0.1, 1.0, 0.500));
+      "map",
+      now,
+      "detection_area_correspondence",
+      static_cast<int32_t>(detection_area_reg_elem.id()),
+      visualization_msgs::msg::Marker::LINE_LIST,
+      createMarkerColor(0.1f, 0.1f, 1.0f, 0.5f));
     marker.scale = createMarkerScale(0.1, 0.0, 0.0);
     marker.lifetime = rclcpp::Duration::from_seconds(0.5);
 
@@ -222,12 +226,12 @@ visualization_msgs::msg::MarkerArray createObstacleMarkerArray(
   {
     auto marker = createDefaultMarker(
       "map", now, "obstacles", 0, visualization_msgs::msg::Marker::SPHERE,
-      createMarkerColor(1.0, 0.0, 0.0, 0.999));
+      createMarkerColor(1.0f, 0.0f, 0.0f, 0.999f));
     marker.scale = createMarkerScale(0.3, 0.3, 0.3);
     marker.lifetime = rclcpp::Duration::from_seconds(0.5);
 
     for (size_t i = 0; i < obstacle_points.size(); ++i) {
-      marker.id = i;
+      marker.id = static_cast<int32_t>(i);
       marker.pose.position = obstacle_points.at(i);
 
       msg.markers.push_back(marker);

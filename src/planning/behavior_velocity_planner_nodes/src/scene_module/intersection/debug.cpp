@@ -202,7 +202,7 @@ visualization_msgs::msg::MarkerArray createVirtualStopWallMarkerArray(
 }
 
 visualization_msgs::msg::MarkerArray createVirtualSlowWallMarkerArray(
-  const geometry_msgs::msg::Pose & pose, const int64_t lane_id, const std::string & slow_factor)
+  const geometry_msgs::msg::Pose & pose, const int32_t lane_id, const std::string & slow_factor)
 {
   visualization_msgs::msg::MarkerArray msg;
 
@@ -297,7 +297,7 @@ visualization_msgs::msg::MarkerArray IntersectionModule::createDebugMarkerArray(
     &debug_marker_array);
 
   appendMarkerArray(
-    createPolygonMarkerArray(debug_data_.ego_lane_polygon, "ego_lane", lane_id_, 0.0, 0.3, 0.7),
+    createPolygonMarkerArray(debug_data_.ego_lane_polygon, "ego_lane", lane_id_, 0.0f, 0.3f, 0.7f),
     current_time,
     &debug_marker_array);
 
@@ -309,7 +309,7 @@ visualization_msgs::msg::MarkerArray IntersectionModule::createDebugMarkerArray(
 
   appendMarkerArray(
     createObjectsMarkerArray(
-      debug_data_.conflicting_targets, "conflicting_targets", lane_id_, 0.99f, 0.4f, 0.0f),
+      debug_data_.conflicting_targets, "conflicting_targets", lane_id_, 0.99, 0.4, 0.0),
     current_time,
     &debug_marker_array);
 
@@ -333,12 +333,12 @@ visualization_msgs::msg::MarkerArray IntersectionModule::createDebugMarkerArray(
 
     if (debug_data_.stop_required) {
       appendMarkerArray(
-        createVirtualStopWallMarkerArray(debug_data_.stop_wall_pose, lane_id_, "intersection"),
+        createVirtualStopWallMarkerArray(debug_data_.stop_wall_pose, static_cast<int32_t>(lane_id_), "intersection"),
         current_time,
         &debug_marker_array);
     } else {
       appendMarkerArray(
-        createVirtualSlowWallMarkerArray(debug_data_.slow_wall_pose, lane_id_, "intersection"),
+        createVirtualSlowWallMarkerArray(debug_data_.slow_wall_pose, static_cast<int32_t>(lane_id_), "intersection"),
         current_time,
         &debug_marker_array);
     }
@@ -363,7 +363,7 @@ visualization_msgs::msg::MarkerArray MergeFromPrivateRoadModule::createDebugMark
 
     appendMarkerArray(
       createVirtualStopWallMarkerArray(
-        debug_data_.virtual_wall_pose, lane_id_, "merge_from_private_road"),
+        debug_data_.virtual_wall_pose, static_cast<int32_t>(lane_id_), "merge_from_private_road"),
       current_time,
       &debug_marker_array);
   }
