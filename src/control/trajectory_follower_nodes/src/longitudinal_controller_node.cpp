@@ -25,7 +25,6 @@
 #include "time_utils/time_utils.hpp"
 
 
-
 namespace autoware
 {
 namespace motion
@@ -387,7 +386,8 @@ void LongitudinalController::callbackTimerControl()
     !m_tf_buffer.canTransform(
       m_trajectory_ptr->header.frame_id,
       m_current_state_ptr->header.frame_id,
-      tf2::TimePointZero)) {
+      tf2::TimePointZero))
+  {
     return;
   }
 
