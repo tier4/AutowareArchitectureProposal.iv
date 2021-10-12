@@ -87,7 +87,7 @@ private:
   rclcpp::Publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr m_pub_slope;
   rclcpp::Publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr m_pub_debug;
   rclcpp::TimerBase::SharedPtr m_timer_control;
-  
+
   rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_sub;
   rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_static_sub;
   tf2::BufferCore m_tf_buffer{tf2::BUFFER_CORE_DEFAULT_CACHE_TIME};
