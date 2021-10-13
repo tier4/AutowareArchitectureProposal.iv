@@ -159,9 +159,10 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
     "input/current_kinematic_state", rclcpp::QoS{1}, std::bind(
       &LateralController::onState, this, _1));
   m_tf_sub = create_subscription<tf2_msgs::msg::TFMessage>(
-    "input/tf", 1, std::bind(&LateralController::callbackTF, this, _1));
+    "input/tf", rclcpp::QoS{1}, std::bind(&LateralController::callbackTF, this, _1));
   m_tf_static_sub = create_subscription<tf2_msgs::msg::TFMessage>(
-    "input/tf_static", 1, std::bind(&LateralController::callbackStaticTF, this, _1));
+    "input/tf_static", rclcpp::QoS{1}.transient_local(),
+    std::bind(&LateralController::callbackStaticTF, this, _1));
 
   // TODO(Frederik.Beaujean) ctor is too long, should factor out parameter declarations
   declareMPCparameters();
