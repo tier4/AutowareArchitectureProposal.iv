@@ -423,7 +423,7 @@ bool IntersectionModule::checkStuckVehicleInIntersection(
 
 Polygon2d IntersectionModule::toFootprintPolygon(
   const autoware_auto_msgs::msg::PredictedObject & object) const
-{
+{   // TODO(Mehmet Dogru): Add shape check once shape info in the msg is merged into Autoware.Auto
 //  Polygon2d obj_footprint;
 //  if (object.shape.type == autoware_perception_msgs::msg::Shape::POLYGON) {
 //    obj_footprint = toBoostPoly(object.shape.footprint);
