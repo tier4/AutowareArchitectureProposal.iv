@@ -12,21 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "scene_module/crosswalk/util.hpp"
+
 #include <algorithm>
 #include <cmath>
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
-
-#include "autoware_auto_msgs/msg/predicted_objects.hpp"
-#include "scene_module/crosswalk/util.hpp"
-#include "utilization/util.hpp"
 
 #include "boost/assert.hpp"
 #include "boost/assign/list_of.hpp"
 #include "boost/geometry.hpp"
 #include "boost/geometry/geometries/linestring.hpp"
 #include "boost/geometry/geometries/point_xy.hpp"
+#include "utilization/util.hpp"
+#include <utilization/boost_geometry_helper.hpp>
+
+#include "autoware_auto_msgs/msg/predicted_objects.hpp"
 
 #define EIGEN_MPL2_ONLY
 #include "Eigen/Core"
@@ -127,7 +129,7 @@ bool insertTargetVelocityPoint(
     getBackwardPointFromBasePoint(point2, point1, point2, length_sum - target_length, target_point);
     const int target_velocity_point_idx =
       std::max(static_cast<int>(insert_target_point_idx) - 1, 0);
-    target_point_with_lane_id = output.points.at (static_cast<size_t>(target_velocity_point_idx));
+    target_point_with_lane_id = output.points.at(static_cast<size_t>(target_velocity_point_idx));
     target_point_with_lane_id.point.pose.position.x = target_point.x();
     target_point_with_lane_id.point.pose.position.y = target_point.y();
     if (insert_target_point_idx > 0) {
@@ -162,7 +164,8 @@ bool insertTargetVelocityPoint(
 
     // insert target point
     output.points.insert(
-      output.points.begin() + static_cast<long>(insert_target_point_idx), target_point_with_lane_id);
+      output.points.begin() + static_cast<long>(insert_target_point_idx),
+      target_point_with_lane_id);
 
     // insert 0 velocity after target point
     for (size_t j = insert_target_point_idx; j < output.points.size(); ++j) {
@@ -210,7 +213,20 @@ bool insertTargetVelocityPoint(
     const auto p1 = output.points.at(i + 1).point.pose.position;
     const Line line{{p0.x, p0.y}, {p1.x, p1.y}};
     std::vector<Point> collision_points;
-    bg::intersection(toHybrid(to2D(stop_line)), line, collision_points);
+
+    // Transform stop line from lanelet format to boost format
+    lanelet::ConstHybridLineString2d stop_line_lanelet = toHybrid(to2D(stop_line));
+    Line stop_line_boost;
+    stop_line_boost.resize(stop_line_lanelet.size());
+    std::transform(
+      stop_line_lanelet.begin(),
+      stop_line_lanelet.end(),
+      stop_line_boost.begin(),
+      [](const lanelet::ConstHybridLineString2d::BasicPointType & p_in) {
+        return Point{p_in.x(), p_in.y()};
+      });
+
+    bg::intersection(stop_line_boost, line, collision_points);
 
     if (collision_points.empty()) {continue;}
     // -- debug code --
@@ -300,7 +316,8 @@ bool insertTargetVelocityPoint(
 
     // insert target point
     output.points.insert(
-      output.points.begin() + static_cast<long>(insert_target_point_idx), target_point_with_lane_id);
+      output.points.begin() + static_cast<long>(insert_target_point_idx),
+      target_point_with_lane_id);
 
     // insert 0 velocity after target point
     for (size_t j = insert_target_point_idx; j < output.points.size(); ++j) {

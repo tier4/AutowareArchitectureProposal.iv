@@ -96,10 +96,10 @@ bool splineInterpolate(
     size_t i = 1;
     while (i < Ns) {
       if (std::fabs(base_s[i - 1] - base_s[i]) < ep) {
-        base_s.erase(base_s.begin() + i);
-        base_x.erase(base_x.begin() + i);
-        base_y.erase(base_y.begin() + i);
-        base_z.erase(base_z.begin() + i);
+        base_s.erase(base_s.begin() + static_cast<int64_t>(i));
+        base_x.erase(base_x.begin() + static_cast<int64_t>(i));
+        base_y.erase(base_y.begin() + static_cast<int64_t>(i));
+        base_z.erase(base_z.begin() + static_cast<int64_t>(i));
         Ns -= 1;
         i -= 1;
       }
@@ -140,7 +140,7 @@ bool splineInterpolate(
   }
 
   // set yaw
-  for (int i = 1; i < static_cast<int>(resampled_s.size()) - 1; i++) {
+  for (size_t i = 1; static_cast<int32_t>(i) < static_cast<int>(resampled_s.size()) - 1; i++) {
     auto p = output->points.at(i - 1).point.pose.position;
     auto n = output->points.at(i + 1).point.pose.position;
     double yaw = std::atan2(n.y - p.y, n.x - p.x);
@@ -204,7 +204,7 @@ bool isAheadOf(const geometry_msgs::msg::Pose & target, const geometry_msgs::msg
   return is_target_ahead;
 }
 
-bool hasLaneId(const autoware_auto_msgs::msg::PathPointWithLaneId & p, const int id)
+bool hasLaneId(const autoware_auto_msgs::msg::PathPointWithLaneId & p, const uint64_t id)
 {
   for (const auto & pid : p.lane_ids) {
     if (pid == id) {
@@ -270,10 +270,13 @@ bool generateStopLine(
   /* set parameters */
   constexpr double interval = 0.2;
 
-  const int margin_idx_dist = std::ceil(planner_param.stop_line_margin / interval);
+  const int margin_idx_dist =
+    static_cast<int32_t>(std::ceil(planner_param.stop_line_margin / interval));
   const int base2front_idx_dist =
-    std::ceil(planner_data->vehicle_info_.max_longitudinal_offset_m / interval);
-  const int pass_judge_idx_dist = std::ceil(pass_judge_line_dist / interval);
+    static_cast<int32_t>(std::ceil(
+      planner_data->vehicle_constants_.offset_longitudinal_max /
+      interval));
+  const int pass_judge_idx_dist = static_cast<int32_t>(std::ceil(pass_judge_line_dist / interval));
 
   /* spline interpolation */
   autoware_auto_msgs::msg::PathWithLaneId path_ip;
@@ -298,7 +301,8 @@ bool generateStopLine(
       return false;
     }
     // only for visualization
-    const auto first_inside_point = path_ip.points.at(first_idx_ip_inside_lane).point.pose;
+    const auto first_inside_point = path_ip.points.at(
+      static_cast<uint64_t>(first_idx_ip_inside_lane)).point.pose;
     planning_utils::calcClosestIndex(
       *original_path, first_inside_point, *first_idx_inside_lane, 10.0);
     if (*first_idx_inside_lane == 0) {
@@ -314,12 +318,12 @@ bool generateStopLine(
   }
 
   /* insert stop_point */
-  const auto inserted_stop_point = path_ip.points.at(stop_idx_ip).point.pose;
+  const auto inserted_stop_point = path_ip.points.at(static_cast<size_t>(stop_idx_ip)).point.pose;
   *stop_line_idx = util::insertPoint(inserted_stop_point, original_path);
 
   /* if another stop point exist before intersection stop_line, disable judge_line. */
   bool has_prior_stopline = false;
-  for (int i = 0; i < *stop_line_idx; ++i) {
+  for (size_t i = 0; static_cast<int32_t>(i) < *stop_line_idx; ++i) {
     if (std::fabs(original_path->points.at(i).point.twist.linear.x) < 0.1) {
       has_prior_stopline = true;
       break;
@@ -332,7 +336,7 @@ bool generateStopLine(
   if (has_prior_stopline || stop_idx_ip == pass_judge_idx_ip) {
     *pass_judge_line_idx = *stop_line_idx;
   } else {
-    const auto inserted_pass_judge_point = path_ip.points.at(pass_judge_idx_ip).point.pose;
+    const auto inserted_pass_judge_point = path_ip.points.at(static_cast<size_t>(pass_judge_idx_ip)).point.pose;
     *pass_judge_line_idx = util::insertPoint(inserted_pass_judge_point, original_path);
     ++(*stop_line_idx);  // stop index is incremented by judge line insertion
   }

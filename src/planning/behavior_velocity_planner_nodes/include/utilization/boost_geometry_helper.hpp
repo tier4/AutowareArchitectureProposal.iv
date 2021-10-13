@@ -30,15 +30,14 @@
 #include "boost/geometry/geometries/polygon.hpp"
 #include "boost/geometry/geometries/register/point.hpp"
 #include "boost/geometry/geometries/segment.hpp"
-
-#include "geometry_msgs/msg/point.hpp"
-#include "geometry_msgs/msg/polygon.hpp"
-#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "tf2/utils.h"
 
 #include "autoware_auto_msgs/msg/path_point.hpp"
 #include "autoware_auto_msgs/msg/path_point_with_lane_id.hpp"
 #include "autoware_auto_msgs/msg/trajectory_point.hpp"
+#include "geometry_msgs/msg/point.hpp"
+#include "geometry_msgs/msg/polygon.hpp"
+#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 
 // cppcheck-suppress unknownMacro
 BOOST_GEOMETRY_REGISTER_POINT_3D(geometry_msgs::msg::Point, double, cs::cartesian, x, y, z)
@@ -49,6 +48,13 @@ BOOST_GEOMETRY_REGISTER_POINT_3D(
   pose.pose.position.x,
   pose.pose.position.y,
   pose.pose.position.z)
+BOOST_GEOMETRY_REGISTER_POINT_3D(
+  geometry_msgs::msg::Pose,
+  double,
+  cs::cartesian,
+  position.x,
+  position.y,
+  position.z)
 BOOST_GEOMETRY_REGISTER_POINT_3D(
   autoware_auto_msgs::msg::PathPoint,
   double,
@@ -91,6 +97,16 @@ Point2d to_bg2d(const T & p)
 
 template<class T>
 LineString2d to_bg2d(const std::vector<T> & vec)
+{
+  LineString2d ps;
+  for (const auto & p : vec) {
+    ps.push_back(to_bg2d(p));
+  }
+  return ps;
+}
+
+template<class T>
+LineString2d to_bg2d(const rosidl_runtime_cpp::BoundedVector<T, 100> & vec)
 {
   LineString2d ps;
   for (const auto & p : vec) {

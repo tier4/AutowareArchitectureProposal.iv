@@ -88,7 +88,7 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
       &stop_line_idx,
       &judge_line_idx, &first_idx_inside_lane, logger_.get_child("util")))
   {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000 /* ms */, "setStopLineIdx fail");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000ul /* ms */, "setStopLineIdx fail");
     return false;
   }
 
@@ -98,10 +98,10 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   }
 
   debug_data_.virtual_wall_pose = util::getAheadPose(
-    stop_line_idx, planner_data_->vehicle_constants_.offset_longitudinal_max, *path);
-  debug_data_.stop_point_pose = path->points.at(stop_line_idx).point.pose;
+    static_cast<size_t>(stop_line_idx), planner_data_->vehicle_constants_.offset_longitudinal_max, *path);
+  debug_data_.stop_point_pose = path->points.at(static_cast<size_t>(stop_line_idx)).point.pose;
   if (first_idx_inside_lane != -1) {
-    debug_data_.first_collision_point = path->points.at(first_idx_inside_lane).point.pose.position;
+    debug_data_.first_collision_point = path->points.at(static_cast<size_t>(first_idx_inside_lane)).point.pose.position;
   }
 
   /* set stop speed */
@@ -109,10 +109,10 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
     constexpr double stop_vel = 0.0;
     const double decel_vel = planner_param_.decel_velocity;
     double v = (has_traffic_light_ && turn_direction_ == "straight") ? decel_vel : stop_vel;
-    util::setVelocityFrom(stop_line_idx, v, path);
+    util::setVelocityFrom(static_cast<size_t>(stop_line_idx), v, path);
 
     const double distance =
-      planning_utils::calcDist2d(current_pose.pose, path->points.at(stop_line_idx).point.pose);
+      planning_utils::calcDist2d(current_pose.pose, path->points.at(static_cast<size_t>(stop_line_idx)).point.pose);
     constexpr double distance_threshold = 2.0;
     if (distance < distance_threshold && planner_data_->isVehicleStopped()) {
       state_machine_.setState(State::GO);

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <algorithm>
 #include <memory>
 #include <utility>
@@ -346,7 +347,7 @@ bool DetectionAreaModule::modifyPathVelocity(
   if (planner_param_.use_pass_judge_line) {
     if (state_ != State::STOP && hasEnoughBrakingDistance(self_pose, stop_pose)) {
       RCLCPP_WARN_THROTTLE(
-        logger_, *clock_, std::chrono::milliseconds(1000).count(),
+        logger_, *clock_, 1000,
         "[detection_area] vehicle is over stop border");
       return true;
     }
@@ -382,9 +383,12 @@ std::vector<geometry_msgs::msg::Point> DetectionAreaModule::getObstaclePoints() 
   const auto detection_areas = detection_area_reg_elem_.detectionAreas();
   const auto & points = *(planner_data_->no_ground_pointcloud);
 
+  using CloudView = point_cloud_msg_wrapper::PointCloud2View<common::types::PointXYZI>;
+  CloudView cloud_view_in(points);
+
   for (const auto & detection_area : detection_areas) {
-    for (const auto p : points) {
-      if (bg::within(Point2d{p.x, p.y}, lanelet::utils::to2D(detection_area).basicPolygon())) {
+    for (const auto p :cloud_view_in) {
+      if (bg::within(Point2d{p.x, p.y}, toBoostPoly(lanelet::utils::to2D(detection_area).basicPolygon()))) {
         obstacle_points.push_back(planning_utils::toRosPoint(p));
       }
     }
@@ -450,7 +454,7 @@ autoware_auto_msgs::msg::PathWithLaneId DetectionAreaModule::insertStopPoint(
   stop_point_with_lane_id.point.twist.linear.x = 0.0;
 
   // Insert stop point
-  output_path.points.insert(output_path.points.begin() + insert_idx, stop_point_with_lane_id);
+  output_path.points.insert(output_path.points.begin() + static_cast<int64_t>(insert_idx), stop_point_with_lane_id);
 
   // Insert 0 velocity after stop point
   for (size_t j = insert_idx; j < output_path.points.size(); ++j) {
@@ -473,7 +477,7 @@ boost::optional<PathIndexWithPose> DetectionAreaModule::createTargetPoint(
 
   // Calculate offset length from stop line
   // Use '-' to make the positive direction is forward
-  const double offset_length = -(margin + planner_data_->vehicle_info_.max_longitudinal_offset_m);
+  const double offset_length = -(margin + planner_data_->vehicle_constants_.offset_longitudinal_max);
 
   // Find offset segment
   const auto offset_segment = findOffsetSegment(path, *collision_segment, offset_length);

@@ -149,7 +149,8 @@ private:
     lanelet::routing::RoutingGraphPtr routing_graph_ptr,
     const autoware_auto_msgs::msg::PathWithLaneId & path,
     const autoware_auto_msgs::msg::PredictedObjects::ConstSharedPtr objects_ptr,
-    const int closest_idx, const geometry_msgs::msg::Pose & stop_line_pose) const;
+    const size_t closest_idx,
+    const geometry_msgs::msg::Pose & stop_line_pose) const;
 
   /**
    * @brief Create half lanelet
@@ -168,7 +169,8 @@ private:
   boost::optional<BlindSpotPolygons> generateBlindSpotPolygons(
     lanelet::LaneletMapConstPtr lanelet_map_ptr,
     lanelet::routing::RoutingGraphPtr routing_graph_ptr,
-    const autoware_auto_msgs::msg::PathWithLaneId & path, const int closest_idx,
+    const autoware_auto_msgs::msg::PathWithLaneId & path,
+    const size_t closest_idx,
     const geometry_msgs::msg::Pose & pose) const;
 
   /**

@@ -313,7 +313,7 @@ bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
   }
   if (path_collision_points.size() != 2) {
     RCLCPP_ERROR_THROTTLE(
-      logger_, *clock_, static_cast<int64_t>(5000),
+      logger_, *clock_, 5000,
       "There must be two points of conflict between the crosswalk polygon and the path. points is "
       "%d",
       static_cast<int32_t>(path_collision_points.size()));
@@ -323,7 +323,7 @@ bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
   Polygon candidate_path_polygon;
   {
     const double width = planner_data_->vehicle_constants_.vehicle_width;
-    const double d = (width / 2.0) + extended_width;
+    const double d = (width / 2.0) + static_cast<double>(extended_width);
     const auto cp0 = path_collision_points.at(0);
     const auto cp1 = path_collision_points.at(1);
     const double yaw = std::atan2(cp1.y() - cp0.y(), cp1.x() - cp0.x()) + M_PI_2;
