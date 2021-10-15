@@ -33,7 +33,7 @@ Velocity::Velocity(const rclcpp::NodeOptions & options)
   pub_api_velocity_ = create_publisher<autoware_planning_msgs::msg::VelocityLimit>(
     "/api/autoware/get/velocity_limit", rclcpp::QoS(1).transient_local());
   pub_planning_velocity_ = create_publisher<autoware_planning_msgs::msg::VelocityLimit>(
-    "/planning/scenario_planning/max_velocity", rclcpp::QoS(1).transient_local());
+    "/planning/scenario_planning/max_velocity_default", rclcpp::QoS(1).transient_local());
   sub_planning_velocity_ = create_subscription<autoware_planning_msgs::msg::VelocityLimit>(
     "/planning/scenario_planning/current_max_velocity", rclcpp::QoS(1).transient_local(),
     std::bind(&Velocity::onVelocityLimit, this, _1));
