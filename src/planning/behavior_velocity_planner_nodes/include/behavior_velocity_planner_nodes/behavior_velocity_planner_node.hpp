@@ -73,6 +73,9 @@ private:
   PlannerData planner_data_;
   BehaviorVelocityPlannerManager planner_manager_;
 
+  double forward_path_length_;
+  double backward_path_length_;
+
   void callback_predicted_objects(
     const autoware_auto_msgs::msg::PredictedObjects::ConstSharedPtr msg_in);
   void callback_cloud_no_ground(const sensor_msgs::msg::PointCloud2::ConstSharedPtr msg_in);
@@ -85,6 +88,10 @@ private:
     const autoware_auto_msgs::msg::OrderMovement::ConstSharedPtr msg_in);
   void callback_order_movement_intersection(
     const autoware_auto_msgs::msg::OrderMovement::ConstSharedPtr msg_in);
+
+  bool is_data_ready();
+  void publish_debug_marker(const autoware_auto_msgs::msg::Path & path);
+
 };
 }  // namespace behavior_velocity_planner_nodes
 }  // namespace planning

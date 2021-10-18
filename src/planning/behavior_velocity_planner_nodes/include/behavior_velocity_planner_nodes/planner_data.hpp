@@ -91,28 +91,7 @@ struct PlannerData
   double max_stop_jerk_threshold;
   double delay_response_time;
 
-  bool isVehicleStopped(const double stop_duration = 0.0) const
-  {
-    if (velocity_buffer.empty()) {return false;}
-
-    // Get velocities within stop_duration
-    const auto now = rclcpp::Clock{RCL_ROS_TIME}.now();
-    std::vector<double> vs;
-    for (const auto & velocity : velocity_buffer) {
-      vs.push_back(velocity.twist.linear.x);
-
-      const auto time_diff = now - velocity.header.stamp;
-      if (time_diff.seconds() >= stop_duration) {break;}
-    }
-
-    // Check all velocities
-    constexpr double stop_velocity = 0.1;
-    for (const auto & v : vs) {
-      if (v >= stop_velocity) {return false;}
-    }
-
-    return true;
-  }
+  bool isVehicleStopped(const double stop_duration = 0.0) const;
 
   //  std::shared_ptr<autoware_perception_msgs::msg::TrafficLightStateStamped> getTrafficLightState(
   //    const int id) const
@@ -135,24 +114,8 @@ private:
   geometry_msgs::msg::TwistStamped::ConstSharedPtr prev_velocity_;
   double accel_lowpass_gain_;
 
-  void updateCurrentAcc()
-  {
-    if (prev_velocity_) {
-      const double dv = current_velocity->twist.linear.x - prev_velocity_->twist.linear.x;
-      const double dt = std::max(
-        (rclcpp::Time(current_velocity->header.stamp) - rclcpp::Time(prev_velocity_->header.stamp))
-        .seconds(),
-        1e-03);
-      const double accel = dv / dt;
-      // apply lowpass filter
-      current_accel = accel_lowpass_gain_ * accel + (1.0 - accel_lowpass_gain_) * prev_accel_;
-    } else {
-      current_accel = 0.0;
-    }
+  void updateCurrentAcc();
 
-    prev_velocity_ = current_velocity;
-    prev_accel_ = current_accel;
-  }
   friend BehaviorVelocityPlannerNode;
 };
 

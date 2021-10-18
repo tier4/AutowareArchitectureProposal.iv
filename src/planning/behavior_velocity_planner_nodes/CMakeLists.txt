@@ -50,6 +50,7 @@ set(BEHAVIOR_VELOCITY_PLANNER_NODE_SRC
 
   src/behavior_velocity_planner_node.cpp
   src/planner_data.cpp
+  src/planner_manager.cpp
 )
 
 set(BEHAVIOR_VELOCITY_PLANNER_NODE_HEADERS
