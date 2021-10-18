@@ -40,7 +40,7 @@ RegulatoryElementDataPtr constructRoadMarkingData(
 }
 }  // namespace
 
-RoadMarking::RoadMarking(const RegulatoryElementDataPtr & data)
+RoadMarking::RoadMarking(const lanelet::RegulatoryElementDataPtr & data)
 : RegulatoryElement(data)
 {
   if (getParameters<ConstLineString3d>(RoleName::Refers).size() != 1) {

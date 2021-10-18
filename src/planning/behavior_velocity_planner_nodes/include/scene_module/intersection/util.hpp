@@ -64,16 +64,16 @@ bool getObjectivePolygons(
   std::vector<lanelet::CompoundPolygon3d> * conflicting_polygons,
   std::vector<lanelet::CompoundPolygon3d> * objective_polygons, const rclcpp::Logger logger);
 
-/**
-   * @brief Generate a stop line and insert it into the path. If the stop line is defined in the map,
-   * read it from the map; otherwise, generate a stop line at a position where it will not collide.
-   * @param detection_areas used to generate stop line
-   * @param original_path   ego-car lane
-   * @param target_path     target lane to insert stop point (part of ego-car lane or same to ego-car lane)
-   * @param stop_line_idx   generated stop line index
-   * @param pass_judge_line_idx  generated stop line index
-   * @return false when generation failed
-   */
+///**
+//   * @brief Generate a stop line and insert it into the path. If the stop line is defined in the map,
+//   * read it from the map; otherwise, generate a stop line at a position where it will not collide.
+//   * @param detection_areas used to generate stop line
+//   * @param original_path   ego-car lane
+//   * @param target_path     target lane to insert stop point (part of ego-car lane or same to ego-car lane)
+//   * @param stop_line_idx   generated stop line index
+//   * @param pass_judge_line_idx  generated stop line index
+//   * @return false when generation failed
+//   */
 bool generateStopLine(
   const int lane_id, const std::vector<lanelet::CompoundPolygon3d> detection_areas,
   const std::shared_ptr<const PlannerData> & planner_data,
@@ -92,11 +92,11 @@ int getFirstPointInsidePolygons(
   const autoware_auto_msgs::msg::PathWithLaneId & path,
   const std::vector<lanelet::CompoundPolygon3d> & polygons);
 
-/**
-   * @brief Get stop point from map if exists
-   * @param stop_pose stop point defined on map
-   * @return true when the stop point is defined on map.
-   */
+///**
+//   * @brief Get stop point from map if exists
+//   * @param stop_pose stop point defined on map
+//   * @return true when the stop point is defined on map.
+//   */
 bool getStopPoseFromMap(
   const int lane_id, geometry_msgs::msg::Point * stop_pose,
   const std::shared_ptr<const PlannerData> & planner_data);

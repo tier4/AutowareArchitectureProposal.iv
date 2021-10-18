@@ -54,7 +54,7 @@ public:
   /**
    * [MGRSProjector::reverse projects point within MGRS 100km grid into gps
    * lat/lon (WGS84)]
-   * @param  mgrs_point [3d point in MGRS 100km grid]
+   * @param  mgrs [3d point in MGRS 100km grid]
    * @return            [projected point in WGS84]
    */
   GPSPoint reverse(const BasicPoint3d & mgrs) const override;

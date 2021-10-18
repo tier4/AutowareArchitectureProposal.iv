@@ -98,7 +98,7 @@ RegulatoryElementDataPtr constructDetectionAreaData(
 }
 }  // namespace
 
-DetectionArea::DetectionArea(const RegulatoryElementDataPtr & data)
+DetectionArea::DetectionArea(const lanelet::RegulatoryElementDataPtr & data)
 : RegulatoryElement(data)
 {
   if (getConstPoly(data->parameters, RoleName::Refers).empty()) {

@@ -151,14 +151,14 @@ visualization_msgs::msg::MarkerArray lineStringsAsMarkerArray(
   const std::vector<lanelet::ConstLineString3d> line_strings, const std::string name_space,
   const std_msgs::msg::ColorRGBA c, const double lss);
 
-/**
- * [autowareTrafficLightsAsMarkerArray creates marker array to visualize traffic
- * lights]
- * @param  tl_reg_elems [traffic light regulatory elements]
- * @param  c            [color of the marker]
- * @param  duration     [lifetime of the marker]
- * @return              [created marker array]
- */
+///**
+// * [autowareTrafficLightsAsMarkerArray creates marker array to visualize traffic
+// * lights]
+// * @param  tl_reg_elems [traffic light regulatory elements]
+// * @param  c            [color of the marker]
+// * @param  duration     [lifetime of the marker]
+// * @return              [created marker array]
+// */
 visualization_msgs::msg::MarkerArray autowareTrafficLightsAsMarkerArray(
   const std::vector<lanelet::AutowareTrafficLightConstPtr> tl_reg_elems,
   const std_msgs::msg::ColorRGBA c, const rclcpp::Duration duration = rclcpp::Duration(0, 0),
@@ -170,6 +170,7 @@ visualization_msgs::msg::MarkerArray autowareTrafficLightsAsMarkerArray(
  * @param  tl_reg_elems [traffic light regulatory elements]
  * @param  c            [color of the marker]
  * @param  duration     [lifetime of the marker]
+ * @param  scale        [scale]
  * @return              [created marker array]
  */
 visualization_msgs::msg::MarkerArray trafficLightsAsTriangleMarkerArray(
@@ -214,7 +215,6 @@ visualization_msgs::msg::MarkerArray parkingSpacesAsMarkerArray(
  * [detectionAreasAsMarkerArray creates marker array to visualize lanelet_id]
  * @param road_lanelets [road lanelets]
  * @param c [color of the marker]
- * @param duration [lifetime of the marker]
  * @param scale [scale of the marker]
  * @return visualization_msgs::msg::MarkerArray
  */

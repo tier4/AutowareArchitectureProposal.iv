@@ -112,7 +112,7 @@ RegulatoryElementDataPtr constructAutowareTrafficLightData(
 
 constexpr const char AutowareRoleNameString::LightBulbs[];
 
-AutowareTrafficLight::AutowareTrafficLight(const RegulatoryElementDataPtr & data)
+AutowareTrafficLight::AutowareTrafficLight(const lanelet::RegulatoryElementDataPtr & data)
 : TrafficLight(data)
 {
 }

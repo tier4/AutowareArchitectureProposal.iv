@@ -152,27 +152,27 @@ private:
     const autoware_auto_msgs::msg::PredictedObjects::ConstSharedPtr objects_ptr,
     const int closest_idx);
 
-  /**
-   * @brief Check if there is a stopped vehicle on the ego-lane.
-   * @param path            ego-car lane
-   * @param closest_idx     ego-car position on the lane
-   * @param objects_ptr     target objects
-   * @return true if exists
-   */
+//  /**
+//   * @brief Check if there is a stopped vehicle on the ego-lane.
+//   * @param path            ego-car lane
+//   * @param closest_idx     ego-car position on the lane
+//   * @param objects_ptr     target objects
+//   * @return true if exists
+//   */
   bool checkStuckVehicleInIntersection(
     const autoware_auto_msgs::msg::PathWithLaneId & path, const int closest_idx,
     const int stop_idx,
     const autoware_auto_msgs::msg::PredictedObjects::ConstSharedPtr objects_ptr) const;
 
-  /**
-   * @brief Calculate the polygon of the path from the ego-car position to the end of the
-   * intersection lanelet (+ extra distance).
-   * @param path           ego-car lane
-   * @param closest_idx    ego-car position index on the lane
-   * @param extra_dist     extra distance from the end point of the intersection lanelet
-   * @param ignore_dist    ignore distance from the start point of the ego-intersection lane
-   * @return generated polygon
-   */
+//  /**
+//   * @brief Calculate the polygon of the path from the ego-car position to the end of the
+//   * intersection lanelet (+ extra distance).
+//   * @param path           ego-car lane
+//   * @param closest_idx    ego-car position index on the lane
+//   * @param extra_dist     extra distance from the end point of the intersection lanelet
+//   * @param ignore_dist    ignore distance from the start point of the ego-intersection lane
+//   * @return generated polygon
+//   */
   Polygon2d generateEgoIntersectionLanePolygon(
     const autoware_auto_msgs::msg::PathWithLaneId & path, const int closest_idx,
     const int start_idx, const double extra_dist, const double ignore_dist) const;

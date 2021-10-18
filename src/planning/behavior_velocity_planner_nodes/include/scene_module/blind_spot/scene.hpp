@@ -134,16 +134,16 @@ private:
   // Parameter
   PlannerParam planner_param_;
 
-  /**
-   * @brief Check obstacle is in blind spot areas.
-   * Condition1: Object's position is in broad blind spot area.
-   * Condition2: Object's predicted position is in narrow blind spot area.
-   * If both conditions are met, return true
-   * @param path path information associated with lane id
-   * @param objects_ptr dynamic objects
-   * @param closest_idx closest path point index from ego car in path points
-   * @return true when an object is detected in blind spot
-   */
+//  /**
+//   * @brief Check obstacle is in blind spot areas.
+//   * Condition1: Object's position is in broad blind spot area.
+//   * Condition2: Object's predicted position is in narrow blind spot area.
+//   * If both conditions are met, return true
+//   * @param path path information associated with lane id
+//   * @param objects_ptr dynamic objects
+//   * @param closest_idx closest path point index from ego car in path points
+//   * @return true when an object is detected in blind spot
+//   */
   bool checkObstacleInBlindSpot(
     lanelet::LaneletMapConstPtr lanelet_map_ptr,
     lanelet::routing::RoutingGraphPtr routing_graph_ptr,
@@ -159,13 +159,13 @@ private:
    */
   lanelet::ConstLanelet generateHalfLanelet(const lanelet::ConstLanelet lanelet) const;
 
-  /**
-   * @brief Make blind spot areas. Narrow area is made from closest path point to stop line index.
-   * Broad area is made from backward expanded point to stop line point
-   * @param path path information associated with lane id
-   * @param closest_idx closest path point index from ego car in path points
-   * @return Blind spot polygons
-   */
+//  /**
+//   * @brief Make blind spot areas. Narrow area is made from closest path point to stop line index.
+//   * Broad area is made from backward expanded point to stop line point
+//   * @param path path information associated with lane id
+//   * @param closest_idx closest path point index from ego car in path points
+//   * @return Blind spot polygons
+//   */
   boost::optional<BlindSpotPolygons> generateBlindSpotPolygons(
     lanelet::LaneletMapConstPtr lanelet_map_ptr,
     lanelet::routing::RoutingGraphPtr routing_graph_ptr,
@@ -201,15 +201,15 @@ private:
     const autoware_auto_msgs::msg::PredictedObject & object,
     const lanelet::CompoundPolygon3d & area) const;
 
-  /**
-   * @brief Generate a stop line and insert it into the path.
-   * A stop line is at an intersection point of straight path with vehicle path
-   * @param detection_areas used to generate stop line
-   * @param path            ego-car lane
-   * @param stop_line_idx   generated stop line index
-   * @param pass_judge_line_idx  generated pass judge line index
-   * @return false when generation failed
-   */
+//  /**
+//   * @brief Generate a stop line and insert it into the path.
+//   * A stop line is at an intersection point of straight path with vehicle path
+//   * @param detection_areas used to generate stop line
+//   * @param path            ego-car lane
+//   * @param stop_line_idx   generated stop line index
+//   * @param pass_judge_line_idx  generated pass judge line index
+//   * @return false when generation failed
+//   */
   bool generateStopLine(
     const lanelet::ConstLanelets straight_lanelets,
     autoware_auto_msgs::msg::PathWithLaneId * path, int * stop_line_idx,
