@@ -93,7 +93,7 @@ PurePursuitNode::PurePursuitNode(const rclcpp::NodeOptions & node_options)
 
   // Debug Publishers
   pub_debug_marker_ =
-    this->create_publisher<visualization_msgs::msg::MarkerArray>("debug/marker", 0);
+    this->create_publisher<visualization_msgs::msg::MarkerArray>("~/debug/markers", 0);
 
   // Timer
   {
