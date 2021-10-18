@@ -698,7 +698,7 @@ bool8_t MPC::executeOptimization(
   {
     auto t = std::chrono::duration_cast<std::chrono::milliseconds>(t_end - t_start).count();
     RCLCPP_DEBUG(
-      m_logger, "qp solver calculation time = %f [ms]", t);
+      m_logger, "qp solver calculation time = %ld [ms]", t);
   }
 
   if (Uex->array().isNaN().any()) {

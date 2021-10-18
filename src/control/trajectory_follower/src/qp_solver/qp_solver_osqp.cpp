@@ -68,11 +68,11 @@ bool8_t QPSolverOSQP::solve(
   // polish status: successful (1), unperformed (0), (-1) unsuccessful
   int64_t status_polish = std::get<2>(result);
   if (status_polish == -1) {
-    RCLCPP_WARN(logger_, "osqp status_polish = %d (unsuccessful)", status_polish);
+    RCLCPP_WARN(logger_, "osqp status_polish = %ld (unsuccessful)", status_polish);
     return false;
   }
   if (status_polish == 0) {
-    RCLCPP_WARN(logger_, "osqp status_polish = %d (unperformed)", status_polish);
+    RCLCPP_WARN(logger_, "osqp status_polish = %ld (unperformed)", status_polish);
     return true;
   }
   return true;
