@@ -128,4 +128,4 @@ rosrun motion_velocity_optimizer trajectory_visualizer.py
 
 [1] Zhang Yu, et al. (2018). Toward a More Complete, Flexible, and Safer Speed Planning for Autonomous Driving via Convex Optimization. Sensors. 18. 2185. 10.3390/s18072185.
 
-[2] Stellato, et al. (2020). OSQP: an operator splitting solver for quadratic programs. Mathematical Programming Computation. 10.1007/s12532-020-00179-2. <https://doi.org/10.1007/s12532-020-00179-2>
+[2] Stellato, et al. (2020). OSQP: an operator splitting solver for quadratic programs. Mathematical Programming Computation. 10.1007/s12532-020-00179-2. <https://link.springer.com/article/10.1007%2Fs12532-020-00179-2>
