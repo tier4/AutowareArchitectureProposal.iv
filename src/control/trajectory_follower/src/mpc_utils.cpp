@@ -157,14 +157,35 @@ bool8_t linearInterpMPCTrajectory(
   return true;
 }
 
-void calcTrajectoryYawFromXY(MPCTrajectory * traj)
+void calcTrajectoryYawFromXY(
+  MPCTrajectory * traj, const int64_t nearest_idx,
+  const float64_t ego_yaw)
 {
-  if (traj->yaw.empty()) {return;}
+  if (traj->yaw.size() < 3) {  // at least 3 points are required to calculate yaw
+    return;
+  }
+  if (traj->yaw.size() != traj->vx.size()) {
+    RCLCPP_ERROR(rclcpp::get_logger("mpc_utils"), "trajectory size has no consistency.");
+    return;
+  }
 
-  for (uint64_t i = 1; i < traj->yaw.size() - 1; ++i) {
-    const float64_t dx = traj->x[i + 1] - traj->x[i - 1];
-    const float64_t dy = traj->y[i + 1] - traj->y[i - 1];
-    traj->yaw[i] = std::atan2(dy, dx);
+  // calculate shift direction (forward or backward)
+  const int64_t upper_nearest_idx =
+    (static_cast<int64_t>(traj->x.size()) - 1 == nearest_idx) ? nearest_idx : nearest_idx + 1;
+  const float64_t dx = traj->x[static_cast<size_t>(upper_nearest_idx)] -
+    traj->x[static_cast<size_t>(upper_nearest_idx - 1)];
+  const float64_t dy = traj->y[static_cast<size_t>(upper_nearest_idx)] -
+    traj->y[static_cast<size_t>(upper_nearest_idx - 1)];
+  const bool forward_shift =
+    std::abs(autoware::common::helper_functions::wrap_angle(std::atan2(dy, dx) - ego_yaw)) <
+    M_PI / 2.0;
+
+  // interpolate yaw
+  for (int64_t i = 1; i < static_cast<int64_t>(traj->yaw.size()) - 1; ++i) {
+    const float64_t dx = traj->x[static_cast<size_t>(i + 1)] - traj->x[static_cast<size_t>(i - 1)];
+    const float64_t dy = traj->y[static_cast<size_t>(i + 1)] - traj->y[static_cast<size_t>(i - 1)];
+    traj->yaw[static_cast<size_t>(i)] =
+      forward_shift ? std::atan2(dy, dx) : std::atan2(dy, dx) + M_PI;
   }
   if (traj->yaw.size() > 1) {
     traj->yaw[0] = traj->yaw[1];
@@ -362,7 +383,7 @@ bool8_t calcNearestPoseInterp(
   const int64_t nearest_idx = calcNearestIndex(traj, self_pose);
   if (nearest_idx == -1) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      logger, clock, 3.0, "[calcNearestPoseInterp] fail to get nearest. traj.size = %ul",
+      logger, clock, 5000, "[calcNearestPoseInterp] fail to get nearest. traj.size = %ul",
       traj.size());
     return false;
   }
