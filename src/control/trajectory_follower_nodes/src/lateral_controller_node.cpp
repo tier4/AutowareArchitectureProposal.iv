@@ -213,6 +213,7 @@ void LateralController::onTimer()
     m_mpc.m_raw_steer_cmd_prev = m_ctrl_cmd_prev.steering_tire_angle;
 
     publishCtrlCmd(m_ctrl_cmd_prev);
+    publishPredictedTraj(predicted_traj);
     publishDiagnostic(diagnostic);
     return;
   }
@@ -274,7 +275,7 @@ void LateralController::onTrajectory(const autoware_auto_msgs::msg::Trajectory::
 
   m_mpc.setReferenceTrajectory(
     *msg, m_traj_resample_dist, m_enable_path_smoothing, m_path_filter_moving_ave_num,
-    m_enable_yaw_recalculation, m_curvature_smoothing_num);
+    m_enable_yaw_recalculation, m_curvature_smoothing_num, m_current_pose_ptr);
 }
 
 void LateralController::callbackTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg)

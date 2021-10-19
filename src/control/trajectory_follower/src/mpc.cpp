@@ -181,7 +181,8 @@ void MPC::setReferenceTrajectory(
   const bool8_t enable_path_smoothing,
   const int64_t path_filter_moving_ave_num,
   const bool8_t enable_yaw_recalculation,
-  const int64_t curvature_smoothing_num)
+  const int64_t curvature_smoothing_num,
+  const geometry_msgs::msg::PoseStamped::SharedPtr current_pose_ptr)
 {
   trajectory_follower::MPCTrajectory mpc_traj_raw;        // received raw trajectory
   trajectory_follower::MPCTrajectory mpc_traj_resampled;  // resampled trajectory
@@ -220,8 +221,13 @@ void MPC::setReferenceTrajectory(
   }
 
   /* calculate yaw angle */
-  if (enable_yaw_recalculation) {
-    trajectory_follower::MPCUtils::calcTrajectoryYawFromXY(&mpc_traj_smoothed);
+  if (enable_yaw_recalculation && current_pose_ptr) {
+    const int64_t nearest_idx =
+      MPCUtils::calcNearestIndex(mpc_traj_smoothed, current_pose_ptr->pose);
+    const float64_t ego_yaw = tf2::getYaw(current_pose_ptr->pose.orientation);
+    trajectory_follower::MPCUtils::calcTrajectoryYawFromXY(
+      &mpc_traj_smoothed, nearest_idx,
+      ego_yaw);
     trajectory_follower::MPCUtils::convertEulerAngleToMonotonic(&mpc_traj_smoothed.yaw);
   }
 
