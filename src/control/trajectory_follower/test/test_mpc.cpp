@@ -41,6 +41,7 @@ typedef autoware_auto_msgs::msg::Trajectory Trajectory;
 typedef autoware_auto_msgs::msg::TrajectoryPoint TrajectoryPoint;
 typedef autoware_auto_msgs::msg::VehicleKinematicState VehicleKinematicState;
 typedef geometry_msgs::msg::Pose Pose;
+typedef geometry_msgs::msg::PoseStamped PoseStamped;
 typedef autoware_auto_msgs::msg::AckermannLateralCommand AckermannLateralCommand;
 typedef autoware_auto_msgs::msg::Float32MultiArrayDiagnostic Float32MultiArrayDiagnostic;
 
@@ -53,6 +54,7 @@ protected:
   Trajectory dummy_right_turn_trajectory;
   VehicleKinematicState neutral_steer;
   Pose pose_zero;
+  PoseStamped::SharedPtr pose_zero_ptr;
   float64_t default_velocity = 1.0;
   rclcpp::Logger logger = rclcpp::get_logger("mpc_test_logger");
   // Vehicle model parameters
@@ -152,6 +154,8 @@ protected:
     neutral_steer.state.front_wheel_angle_rad = 0.0;
     pose_zero.position.x = 0.0;
     pose_zero.position.y = 0.0;
+    pose_zero_ptr = std::make_shared<PoseStamped>();
+    pose_zero_ptr->pose = pose_zero;
   }
 
   void initializeMPC(trajectory_follower::MPC & mpc)
@@ -169,7 +173,7 @@ protected:
     mpc.setReferenceTrajectory(
       dummy_straight_trajectory, traj_resample_dist, enable_path_smoothing,
       path_filter_moving_ave_num, enable_yaw_recalculation,
-      curvature_smoothing_num);
+      curvature_smoothing_num, pose_zero_ptr);
   }
 };  // class MPCTest
 
@@ -228,7 +232,7 @@ TEST_F(MPCTest, InitializeAndCalculateRightTurn) {
   mpc.setReferenceTrajectory(
     dummy_right_turn_trajectory, traj_resample_dist, enable_path_smoothing,
     path_filter_moving_ave_num, enable_yaw_recalculation,
-    curvature_smoothing_num);
+    curvature_smoothing_num, pose_zero_ptr);
 
   // Calculate MPC
   AckermannLateralCommand ctrl_cmd;
@@ -248,7 +252,7 @@ TEST_F(MPCTest, OsqpCalculate) {
   mpc.setReferenceTrajectory(
     dummy_straight_trajectory, traj_resample_dist, enable_path_smoothing,
     path_filter_moving_ave_num, enable_yaw_recalculation,
-    curvature_smoothing_num);
+    curvature_smoothing_num, pose_zero_ptr);
 
   const std::string vehicle_model_type = "kinematics";
   std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr =
@@ -281,7 +285,7 @@ TEST_F(MPCTest, OsqpCalculateRightTurn) {
   mpc.setReferenceTrajectory(
     dummy_right_turn_trajectory, traj_resample_dist, enable_path_smoothing,
     path_filter_moving_ave_num, enable_yaw_recalculation,
-    curvature_smoothing_num);
+    curvature_smoothing_num, pose_zero_ptr);
 
   const std::string vehicle_model_type = "kinematics";
   std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr =
@@ -328,7 +332,7 @@ TEST_F(MPCTest, KinematicsNoDelayCalculate) {
   mpc.setReferenceTrajectory(
     dummy_straight_trajectory, traj_resample_dist, enable_path_smoothing,
     path_filter_moving_ave_num, enable_yaw_recalculation,
-    curvature_smoothing_num);
+    curvature_smoothing_num, pose_zero_ptr);
   // Calculate MPC
   AckermannLateralCommand ctrl_cmd;
   Trajectory pred_traj;
@@ -347,7 +351,7 @@ TEST_F(MPCTest, KinematicsNoDelayCalculateRightTurn) {
   mpc.setReferenceTrajectory(
     dummy_right_turn_trajectory, traj_resample_dist, enable_path_smoothing,
     path_filter_moving_ave_num, enable_yaw_recalculation,
-    curvature_smoothing_num);
+    curvature_smoothing_num, pose_zero_ptr);
 
   const std::string vehicle_model_type = "kinematics_no_delay";
   std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr =

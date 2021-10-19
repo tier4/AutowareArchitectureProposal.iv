@@ -385,7 +385,8 @@ public:
     const bool8_t enable_path_smoothing,
     const int64_t path_filter_moving_ave_num,
     const bool8_t enable_yaw_recalculation,
-    const int64_t curvature_smoothing_num);
+    const int64_t curvature_smoothing_num,
+    const geometry_msgs::msg::PoseStamped::SharedPtr current_pose_ptr);
   /**
    * @brief set the vehicle model of this MPC
    */
