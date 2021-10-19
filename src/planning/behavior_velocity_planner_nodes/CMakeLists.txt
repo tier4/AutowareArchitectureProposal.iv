@@ -48,6 +48,8 @@ set(BEHAVIOR_VELOCITY_PLANNER_NODE_SRC
   src/utilization/path_utilization.cpp
   src/utilization/util.cpp
 
+  src/utilization/interpolation/spline_interpolation.cpp
+
   src/behavior_velocity_planner_node.cpp
   src/planner_data.cpp
   src/planner_manager.cpp

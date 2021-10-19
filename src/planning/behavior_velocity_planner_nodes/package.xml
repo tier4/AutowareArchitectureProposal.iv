@@ -18,6 +18,7 @@
   <depend>lanelet2_extension</depend>
   <depend>point_cloud_msg_wrapper</depend>
   <depend>vehicle_constants_manager</depend>
+  <depend>tf2_ros</depend>
 
   <depend>autoware_auto_msgs</depend>
   <depend>diagnostic_msgs</depend>
