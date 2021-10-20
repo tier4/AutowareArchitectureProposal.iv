@@ -10,7 +10,6 @@ It consists of several modules.
 - Detection Area
 - Intersection
 - Stop Line
-- Traffic Light
 
 When each module plans velocity, it considers based on `base_link`(center of rear-wheel axis) pose.
 So for example, in order to stop at a stop line with the vehicles' front on the stop line, it calculates `base_link` position from the distance between `base_link` to front and modifies path velocity from the `base_link` position.
@@ -19,21 +18,23 @@ So for example, in order to stop at a stop line with the vehicles' front on the 
 
 ## Input topics
 
-| Name                          | Type                                             | Description          |
-| ----------------------------- | ------------------------------------------------ | -------------------- |
-| `~input/path_with_lane_id`    | autoware_planning_msgs::PathWithLaneId           | path with lane_id    |
-| `~input/vector_map`           | autoware_lanelet2_msgs::MapBin                   | vector map           |
-| `~input/vehicle_velocity`     | geometry_msgs::TwistStamped                      | vehicle velocity     |
-| `~input/dynamic_objects`      | autoware_perception_msgs::DynamicObjectArray     | dynamic objects      |
-| `~input/no_ground_pointcloud` | sensor_msgs::PointCloud2                         | obstacle pointcloud  |
-| `~input/traffic_light_states` | autoware_perception_msgs::TrafficLightStateArray | traffic light states |
+| Name                                      | Type                                              | Description                               |
+| ----------------------------------------  | ------------------------------------------------  | ----------------------------------------- |
+| `~/input/path_with_lane_id`               | autoware_auto_msgs::msg::PathWithLaneId           | path with lane_id                         |
+| `~/input/vector_map`                      | autoware_auto_msgs::msg::HADMapBin                | vector map                                |
+| `~/input/vehicle_velocity`                | geometry_msgs::msg::TwistStamped                  | vehicle velocity                          |
+| `~/input/dynamic_objects`                 | autoware_auto_msgs::msg::PredictedObjects         | dynamic objects                           |
+| `~/input/no_ground_pointcloud`            | sensor_msgs::msg::PointCloud2                     | obstacle pointcloud                       |
+| `~/input/external_crosswalk_states`       | autoware_auto_msgs::msg::OrderMovement            | movement order to follow in crosswalks    |
+| `~/input/external_intersection_states`    | autoware_auto_msgs::msg::OrderMovement            | movement order to follow in intersections |
 
 ## Output topics
 
-| Name                   | Type                                    | Description                            |
-| ---------------------- | --------------------------------------- | -------------------------------------- |
-| `~output/path`         | autoware_planning_msgs::Path            | path to be followed                    |
-| `~output/stop_reasons` | autoware_planning_msgs::StopReasonArray | reasons that cause the vehicle to stop |
+| Name                      | Type                                      | Description                               |
+| ------------------------- | ----------------------------------------- | ----------------------------------------- |
+| `~/output/path`           | autoware_auto_msgs::msg::Path             | path to be followed                       |
+| `~/output/stop_reasons`   | diagnostic_msgs::msg::DiagnosticStatus    | reasons that cause the vehicle to stop    |
+| `~/debug/path`            | visualization_msgs::msg::MarkerArray      | path markers for rviz2 to debug           |
 
 ## Node parameters
 
