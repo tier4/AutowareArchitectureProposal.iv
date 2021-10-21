@@ -428,7 +428,8 @@ VelocityController::Motion VelocityController::calcEmergencyCtrlCmd(const double
 }
 
 VelocityController::ControlState VelocityController::updateControlState(
-  const ControlState current_control_state, const geometry_msgs::msg::Pose & current_pose,
+  const ControlState current_control_state,
+  [[maybe_unused]] const geometry_msgs::msg::Pose & current_pose,
   const ControlData & control_data)
 {
   const double current_vel = control_data.current_motion.vel;
@@ -598,7 +599,7 @@ void VelocityController::publishCtrlCmd(const Motion & ctrl_cmd, double current_
 
 void VelocityController::publishDebugData(
   const Motion & ctrl_cmd, const ControlData & control_data,
-  const geometry_msgs::msg::Pose & current_pose)
+  [[maybe_unused]] const geometry_msgs::msg::Pose & current_pose)
 {
   // set debug values
   debug_values_.setValues(DebugValues::TYPE::DT, control_data.dt);
@@ -755,7 +756,7 @@ double VelocityController::applySlopeCompensation(
 
 autoware_planning_msgs::msg::TrajectoryPoint VelocityController::calcInterpolatedTargetValue(
   const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
-  const double current_vel, const size_t closest_idx) const
+  [[maybe_unused]] const double current_vel, const size_t closest_idx) const
 {
   if (traj.points.size() == 1) {
     return traj.points.at(0);
