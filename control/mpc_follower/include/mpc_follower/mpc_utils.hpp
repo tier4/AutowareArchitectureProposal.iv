@@ -83,7 +83,7 @@ void dynamicSmoothingVelocity(
  * @brief calculate yaw angle in MPCTrajectory from xy vector
  * @param [inout] traj object trajectory
  */
-void calcTrajectoryYawFromXY(MPCTrajectory * traj);
+void calcTrajectoryYawFromXY(MPCTrajectory * traj, const int nearest_idx, const double ego_yaw);
 
 /**
  * @brief Calculate path curvature by 3-points circle fitting with smoothing num (use nearest 3 points when num = 1)

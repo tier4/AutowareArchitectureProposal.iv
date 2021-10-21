@@ -946,9 +946,13 @@ void MPCFollower::onTrajectory(const autoware_planning_msgs::msg::Trajectory::Sh
     }
   }
 
+
   /* calculate yaw angle */
-  MPCUtils::calcTrajectoryYawFromXY(&mpc_traj_smoothed);
+  const int nearest_idx = MPCUtils::calcNearestIndex(mpc_traj_smoothed, current_pose_ptr_->pose);
+  const double ego_yaw = tf2::getYaw(current_pose_ptr_->pose.orientation);
+  MPCUtils::calcTrajectoryYawFromXY(&mpc_traj_smoothed, nearest_idx, ego_yaw);
   MPCUtils::convertEulerAngleToMonotonic(&mpc_traj_smoothed.yaw);
+
 
   /* calculate curvature */
   MPCUtils::calcTrajectoryCurvature(

@@ -131,6 +131,7 @@ bool MPCUtils::resampleMPCTrajectoryByDistance(
 
   LinearInterpolate linear_interp;
   spline_interpolation::SplineInterpolator spline_interp;
+
   if (
     !spline_interp.interpolate(input_arclength, input.x, output_arclength, output->x) ||
     !spline_interp.interpolate(input_arclength, input.y, output_arclength, output->y) ||
@@ -190,18 +191,30 @@ bool MPCUtils::linearInterpMPCTrajectory(
   return true;
 }
 
-void MPCUtils::calcTrajectoryYawFromXY(MPCTrajectory * traj)
+void MPCUtils::calcTrajectoryYawFromXY(
+  MPCTrajectory * traj, const int nearest_idx,
+  const double ego_yaw)
 {
-  if (traj->yaw.size() == 0) {return;}
+  if (traj->yaw.size() < 3) {  // at least 3 points are required to calculate yaw
+    return;
+  }
   if (traj->yaw.size() != traj->vx.size()) {
     RCLCPP_ERROR(rclcpp::get_logger("mpc_utils"), "trajectory size has no consistency.");
     return;
   }
 
+  // calculate shift direction (forward or backward)
+  const int upper_nearest_idx =
+    (static_cast<int>(traj->x.size()) - 1 == nearest_idx) ? nearest_idx : nearest_idx + 1;
+  const double dx = traj->x[upper_nearest_idx] - traj->x[upper_nearest_idx - 1];
+  const double dy = traj->y[upper_nearest_idx] - traj->y[upper_nearest_idx - 1];
+  const bool forward_shift = std::abs(normalizeRadian(std::atan2(dy, dx) - ego_yaw)) < M_PI / 2.0;
+
+  // interpolate yaw
   for (unsigned int i = 1; i < traj->yaw.size() - 1; ++i) {
     const double dx = traj->x[i + 1] - traj->x[i - 1];
     const double dy = traj->y[i + 1] - traj->y[i - 1];
-    traj->yaw[i] = traj->vx[i] > 0.0 ? std::atan2(dy, dx) : std::atan2(dy, dx) + M_PI;
+    traj->yaw[i] = forward_shift ? std::atan2(dy, dx) : std::atan2(dy, dx) + M_PI;
   }
   if (traj->yaw.size() > 1) {
     traj->yaw[0] = traj->yaw[1];
