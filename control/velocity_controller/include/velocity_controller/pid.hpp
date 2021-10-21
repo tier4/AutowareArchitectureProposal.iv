@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Autoware Foundation
+// Copyright 2018-2019 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,36 +15,40 @@
 #ifndef VELOCITY_CONTROLLER__PID_HPP_
 #define VELOCITY_CONTROLLER__PID_HPP_
 
-#include <algorithm>
 #include <vector>
 
 class PIDController
 {
 public:
   PIDController();
-  ~PIDController() = default;
 
   double calculate(
-    double error, double dt, bool is_integrated, std::vector<double> & pid_contributions);
-  void setGains(double kp, double ki, double kd);
+    const double error, const double dt, const bool is_integrated,
+    std::vector<double> & pid_contributions);
+  void setGains(const double kp, const double ki, const double kd);
   void setLimits(
-    double max_ret, double min_ret, double max_ret_p, double min_ret_p, double max_ret_i,
-    double min_ret_i, double max_ret_d, double min_ret_d);
+    const double max_ret, const double min_ret, const double max_ret_p, const double min_ret_p,
+    const double max_ret_i, const double min_ret_i, const double max_ret_d, const double min_ret_d);
   void reset();
 
 private:
   // parameters
-  double kp_;
-  double ki_;
-  double kd_;
-  double max_ret_p_;
-  double min_ret_p_;
-  double max_ret_i_;
-  double min_ret_i_;
-  double max_ret_d_;
-  double min_ret_d_;
-  double max_ret_;
-  double min_ret_;
+  struct Params
+  {
+    double kp;
+    double ki;
+    double kd;
+    double max_ret_p;
+    double min_ret_p;
+    double max_ret_i;
+    double min_ret_i;
+    double max_ret_d;
+    double min_ret_d;
+    double max_ret;
+    double min_ret;
+  };
+  Params params_;
+
   // states
   double error_integral_;
   double prev_error_;
