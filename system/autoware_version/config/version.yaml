@@ -1,6 +1,0 @@
-architecture:
-  type: tier4/proposal
-  version: 1.0
-implementation:
-  type: autoware.iv/advanced
-  version: 0.21.0
