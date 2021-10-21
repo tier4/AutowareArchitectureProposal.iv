@@ -24,8 +24,8 @@
 #include "eigen3/Eigen/Geometry"
 
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
-#include "autoware_debug_msgs/msg/float32_stamped.hpp"
 #include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
+#include "autoware_debug_msgs/msg/float32_stamped.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
 #include "autoware_utils/autoware_utils.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
@@ -59,7 +59,7 @@ private:
   struct ControlData
   {
     bool is_far_from_trajectory{false};
-    size_t closest_idx{0};  // closest_idx = 0 when closest_idx is not found with findNearestIdx
+    size_t nearest_idx{0};  // nearest_idx = 0 when nearest_idx is not found with findNearestIdx
     Motion current_motion{};
     Shift shift{Shift::Forward};  // shift is used only to calculate the sign of pitch compensation
     double stop_dist{0.0};  // signed distance that is positive when car is before the stopline
@@ -184,52 +184,125 @@ private:
 
   std::shared_ptr<rclcpp::Time> last_running_time_{std::make_shared<rclcpp::Time>(this->now())};
 
-  // callback
+  /**
+   * @brief set current and previous velocity with received message
+   */
   void callbackCurrentVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
+
+  /**
+   * @brief set reference trajectory with received message
+   */
   void callbackTrajectory(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg);
+
+  /**
+   * @brief compute control command, and publish periodically
+   */
   void callbackTimerControl();
 
-  // main
+  /**
+   * @brief calculate data for controllers whose type is ControlData
+   */
   ControlData getControlData(const geometry_msgs::msg::Pose & current_pose);
+
+  /**
+   * @brief calculate control command in emergency state
+   * @param [in] dt time between previous and current one
+   */
   Motion calcEmergencyCtrlCmd(const double dt) const;
+
+  /**
+   * @brief update control state according to the current situation
+   */
   ControlState updateControlState(
     const ControlState current_control_state, const geometry_msgs::msg::Pose & current_pose,
     const ControlData & control_data);
+
+  /**
+   * @brief calculate control command based on the current control state
+   */
   Motion calcCtrlCmd(
     const ControlState & current_control_state, const geometry_msgs::msg::Pose & current_pose,
     const ControlData & control_data);
+
+  /**
+   * @brief publish control command
+   * @param [in] ctrl_cmd calculated control command to control velocity
+   */
   void publishCtrlCmd(const Motion & ctrl_cmd, const double current_vel);
+
+  /**
+   * @brief publish debug data
+   * @param [in] ctrl_cmd calculated control command to control velocity
+   */
   void publishDebugData(
     const Motion & ctrl_cmd, const ControlData & control_data,
     const geometry_msgs::msg::Pose & current_pose);
 
-  // control data
+  /**
+   * @brief calculate time between current and previous one
+   */
   double getDt();
+
+  /**
+   * @brief calculate current velocity and acceleration
+   */
   Motion getCurrentMotion() const;
-  enum Shift getCurrentShift(const size_t closest_idx) const;
 
-  // filter acceleration
+  /**
+   * @brief calculate direction (forward or backward) that vehicle moves
+   * @param [in] nearest_idx nearest index on trajectory to vehicle
+   */
+  enum Shift getCurrentShift(const size_t nearest_idx) const;
+
+  /**
+   * @brief filter acceleration command with limitation of acceleration and jerk, and slope compensation
+   * @param [in] raw_acc acceleration before filtered
+   */
   double calcFilteredAcc(const double raw_acc, const ControlData & control_data);
-  void storeAccelCmd(const double accel);
-  double applyLimitFilter(const double input_val, const double max_val, const double min_val) const;
-  double applySlopeCompensation(const double acc, const double pitch, const Shift shift) const;
-  double applyDiffLimitFilter(
-    const double input_val, const double prev_val, const double dt, const double lim_val) const;
-  double applyDiffLimitFilter(
-    const double input_val, const double prev_val, const double dt, const double max_val,
-    const double min_val) const;
 
-  // drive
+  /**
+   * @brief store acceleration command before slope compensation
+   * @param [in] acceleration command before slope compensation
+   */
+  void storeAccelCmd(const double accel);
+
+  /**
+   * @brief add acceleration to compensate for slope
+   * @param [in] acc acceleration before slope compensation
+   * @param [in] pitch pitch angle (upward is negative)
+   * @param [in] shift direction that vehicle move (forward or backward)
+   */
+  double applySlopeCompensation(const double acc, const double pitch, const Shift shift) const;
+
+  /**
+   * @brief interpolate trajectory point that is nearest to vehicle
+   * @param [in] point vehicle position
+   */
   autoware_planning_msgs::msg::TrajectoryPoint calcInterpolatedTargetValue(
     const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
-    const double current_vel, const size_t closest_idx) const;
+    const double current_vel, const size_t nearest_idx) const;
+
+  /**
+   * @brief calculate predicted velocity after time delay based on past control commands
+   */
   double predictedVelocityInTargetPoint(
     const Motion current_motion, const double delay_compensation_time) const;
+
+  /**
+   * @brief calculate velocity feedback with feed forward and pid controller
+   * @param [in] target_motion reference velocity and acceleration. This acceleration will be used as feed forward.
+   */
   double applyVelocityFeedback(
     const Motion target_motion, const double dt, const double current_vel);
 
-  // debug
+  /**
+   * @brief update variables for debugging about pitch
+   */
   void updatePitchDebugValues(const double pitch, const double traj_pitch, const double raw_pitch);
+
+  /**
+   * @brief update variables for velocity and acceleration
+   */
   void updateDebugVelAcc(
     const Motion & ctrl_cmd, const geometry_msgs::msg::Pose & current_pose,
     const ControlData & control_data);

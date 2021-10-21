@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #include <algorithm>
+#include <array>
 #include <memory>
 #include <utility>
-#include <vector>
 
 #include "velocity_controller/pid.hpp"
 
@@ -24,7 +24,7 @@ PIDController::PIDController()
 
 double PIDController::calculate(
   const double error, const double dt, const bool enable_integration,
-  std::vector<double> & pid_contributions)
+  std::array<double, 3> & pid_contributions)
 {
   const auto & p = params_;
 

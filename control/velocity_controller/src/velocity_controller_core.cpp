@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <algorithm>
+#include <array>
 #include <limits>
 #include <memory>
 #include <string>
@@ -100,8 +101,8 @@ VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
     const double strong_stop_acc{declare_parameter(
         "smooth_stop_strong_stop_acc", -3.4)};        // [m/s^2]
 
-    const double max_fast_vel{declare_parameter(
-        "smooth_stop_max_fast_vel", 0.5)};            // [m/s]
+    const double min_fast_vel{declare_parameter(
+        "smooth_stop_min_fast_vel", 0.5)};            // [m/s]
     const double min_running_vel{declare_parameter(
         "smooth_stop_min_running_vel", 0.01)};        // [m/s]
     const double min_running_acc{declare_parameter(
@@ -115,7 +116,7 @@ VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
         "smooth_stop_strong_stop_dist", -0.5)};       // [m]
 
     smooth_stop_.setParams(
-      max_strong_acc, min_strong_acc, weak_acc, weak_stop_acc, strong_stop_acc, max_fast_vel,
+      max_strong_acc, min_strong_acc, weak_acc, weak_stop_acc, strong_stop_acc, min_fast_vel,
       min_running_vel, min_running_acc, weak_stop_time, weak_stop_dist, strong_stop_dist);
   }
 
@@ -280,7 +281,7 @@ rcl_interfaces::msg::SetParametersResult VelocityController::paramCallback(
     double weak_acc{get_parameter("smooth_stop_weak_acc").as_double()};
     double weak_stop_acc{get_parameter("smooth_stop_weak_stop_acc").as_double()};
     double strong_stop_acc{get_parameter("smooth_stop_strong_stop_acc").as_double()};
-    double max_fast_vel{get_parameter("smooth_stop_max_fast_vel").as_double()};
+    double min_fast_vel{get_parameter("smooth_stop_min_fast_vel").as_double()};
     double min_running_vel{get_parameter("smooth_stop_min_running_vel").as_double()};
     double min_running_acc{get_parameter("smooth_stop_min_running_acc").as_double()};
     double weak_stop_time{get_parameter("smooth_stop_weak_stop_time").as_double()};
@@ -291,14 +292,14 @@ rcl_interfaces::msg::SetParametersResult VelocityController::paramCallback(
     update_param("smooth_stop_weak_acc", weak_acc);
     update_param("smooth_stop_weak_stop_acc", weak_stop_acc);
     update_param("smooth_stop_strong_stop_acc", strong_stop_acc);
-    update_param("smooth_stop_max_fast_vel", max_fast_vel);
+    update_param("smooth_stop_min_fast_vel", min_fast_vel);
     update_param("smooth_stop_min_running_vel", min_running_vel);
     update_param("smooth_stop_min_running_acc", min_running_acc);
     update_param("smooth_stop_weak_stop_time", weak_stop_time);
     update_param("smooth_stop_weak_stop_dist", weak_stop_dist);
     update_param("smooth_stop_strong_stop_dist", strong_stop_dist);
     smooth_stop_.setParams(
-      max_strong_acc, min_strong_acc, weak_acc, weak_stop_acc, strong_stop_acc, max_fast_vel,
+      max_strong_acc, min_strong_acc, weak_acc, weak_stop_acc, strong_stop_acc, min_fast_vel,
       min_running_vel, min_running_acc, weak_stop_time, weak_stop_dist, strong_stop_dist);
   }
 
@@ -380,21 +381,21 @@ VelocityController::ControlData VelocityController::getControlData(
   // current velocity and acceleration
   control_data.current_motion = getCurrentMotion();
 
-  // closest idx
+  // nearest idx
   const double max_dist = state_transition_params_.emergency_state_traj_trans_dev;
   const double max_yaw = state_transition_params_.emergency_state_traj_rot_dev;
-  const auto closest_idx_opt =
+  const auto nearest_idx_opt =
     autoware_utils::findNearestIndex(trajectory_ptr_->points, current_pose, max_dist, max_yaw);
 
-  // return here if closest index is not found
-  if (!closest_idx_opt) {
+  // return here if nearest index is not found
+  if (!nearest_idx_opt) {
     control_data.is_far_from_trajectory = true;
     return control_data;
   }
-  control_data.closest_idx = *closest_idx_opt;
+  control_data.nearest_idx = *nearest_idx_opt;
 
   // shift
-  control_data.shift = getCurrentShift(control_data.closest_idx);
+  control_data.shift = getCurrentShift(control_data.nearest_idx);
   if (control_data.shift != prev_shift_) {pid_vel_.reset();}
   prev_shift_ = control_data.shift;
 
@@ -405,7 +406,7 @@ VelocityController::ControlData VelocityController::getControlData(
   // pitch
   const double raw_pitch = velocity_controller_utils::getPitchByPose(current_pose.orientation);
   const double traj_pitch = velocity_controller_utils::getPitchByTraj(
-    *trajectory_ptr_, control_data.closest_idx, wheel_base_);
+    *trajectory_ptr_, control_data.nearest_idx, wheel_base_);
   control_data.slope_angle = use_traj_for_pitch_ ? traj_pitch : lpf_pitch_->filter(raw_pitch);
   updatePitchDebugValues(control_data.slope_angle, traj_pitch, raw_pitch);
 
@@ -416,8 +417,12 @@ VelocityController::Motion VelocityController::calcEmergencyCtrlCmd(const double
 {
   // These accelerations are without slope compensation
   const auto & p = emergency_state_params_;
-  const double vel = applyDiffLimitFilter(p.vel, prev_raw_ctrl_cmd_.vel, dt, p.acc);
-  const double acc = applyDiffLimitFilter(p.acc, prev_raw_ctrl_cmd_.acc, dt, p.jerk);
+  const double vel = velocity_controller_utils::applyDiffLimitFilter(
+    p.vel, prev_raw_ctrl_cmd_.vel,
+    dt, p.acc);
+  const double acc = velocity_controller_utils::applyDiffLimitFilter(
+    p.acc, prev_raw_ctrl_cmd_.acc,
+    dt, p.jerk);
 
   auto clock = rclcpp::Clock{RCL_ROS_TIME};
   RCLCPP_ERROR_THROTTLE(
@@ -464,6 +469,7 @@ VelocityController::ControlState VelocityController::updateControlState(
 
     if (enable_smooth_stop_) {
       if (stopping_condition) {
+        // predictions after input time delay
         const double pred_vel_in_target =
           predictedVelocityInTargetPoint(control_data.current_motion, delay_compensation_time_);
         const double pred_stop_dist =
@@ -510,7 +516,7 @@ VelocityController::Motion VelocityController::calcCtrlCmd(
   const ControlState & current_control_state, const geometry_msgs::msg::Pose & current_pose,
   const ControlData & control_data)
 {
-  const size_t closest_idx = control_data.closest_idx;
+  const size_t nearest_idx = control_data.nearest_idx;
   const double current_vel = control_data.current_motion.vel;
   const double current_acc = control_data.current_motion.acc;
 
@@ -519,14 +525,14 @@ VelocityController::Motion VelocityController::calcCtrlCmd(
   Motion target_motion{};
   if (current_control_state == ControlState::DRIVE) {
     // calculate target velocity and acceleration from planning
-    const auto closest_interpolated_point = calcInterpolatedTargetValue(
-      *trajectory_ptr_, current_pose.position, current_vel, closest_idx);
-    const double closest_vel = closest_interpolated_point.twist.linear.x;
+    const auto nearest_interpolated_point = calcInterpolatedTargetValue(
+      *trajectory_ptr_, current_pose.position, current_vel, nearest_idx);
+    const double nearest_vel = nearest_interpolated_point.twist.linear.x;
 
     const auto target_pose = velocity_controller_utils::calcPoseAfterTimeDelay(
       current_pose, delay_compensation_time_, current_vel);
     const auto target_interpolated_point =
-      calcInterpolatedTargetValue(*trajectory_ptr_, target_pose.position, closest_vel, closest_idx);
+      calcInterpolatedTargetValue(*trajectory_ptr_, target_pose.position, nearest_vel, nearest_idx);
     target_motion =
       Motion{target_interpolated_point.twist.linear.x, target_interpolated_point.accel.linear.x};
 
@@ -554,8 +560,14 @@ VelocityController::Motion VelocityController::calcCtrlCmd(
   } else if (current_control_state == ControlState::STOPPED) {
     // This acceleration is without slope compensation
     const auto & p = stopped_state_params_;
-    raw_ctrl_cmd.vel = applyDiffLimitFilter(p.vel, prev_raw_ctrl_cmd_.vel, control_data.dt, p.acc);
-    raw_ctrl_cmd.acc = applyDiffLimitFilter(p.acc, prev_raw_ctrl_cmd_.acc, control_data.dt, p.jerk);
+    raw_ctrl_cmd.vel = velocity_controller_utils::applyDiffLimitFilter(
+      p.vel,
+      prev_raw_ctrl_cmd_.vel,
+      control_data.dt, p.acc);
+    raw_ctrl_cmd.acc = velocity_controller_utils::applyDiffLimitFilter(
+      p.acc,
+      prev_raw_ctrl_cmd_.acc,
+      control_data.dt, p.jerk);
 
     RCLCPP_DEBUG(
       get_logger(), "[Stopped]. vel: %3.3f, acc: %3.3f",
@@ -577,7 +589,7 @@ VelocityController::Motion VelocityController::calcCtrlCmd(
   return filtered_ctrl_cmd;
 }
 
-// Do not use closest_idx here
+// Do not use nearest_idx here
 void VelocityController::publishCtrlCmd(const Motion & ctrl_cmd, double current_vel)
 {
   // publish control command
@@ -654,11 +666,11 @@ VelocityController::Motion VelocityController::getCurrentMotion() const
   return Motion{current_vel, current_acc};
 }
 
-enum VelocityController::Shift VelocityController::getCurrentShift(const size_t closest_idx) const
+enum VelocityController::Shift VelocityController::getCurrentShift(const size_t nearest_idx) const
 {
   constexpr double epsilon = 1e-5;
 
-  const double target_vel = trajectory_ptr_->points.at(closest_idx).twist.linear.x;
+  const double target_vel = trajectory_ptr_->points.at(nearest_idx).twist.linear.x;
 
   if (target_vel > epsilon) {
     return Shift::Forward;
@@ -671,7 +683,7 @@ enum VelocityController::Shift VelocityController::getCurrentShift(const size_t 
 
 double VelocityController::calcFilteredAcc(const double raw_acc, const ControlData & control_data)
 {
-  const double acc_max_filtered = applyLimitFilter(raw_acc, max_acc_, min_acc_);
+  const double acc_max_filtered = std::clamp(raw_acc, min_acc_, max_acc_);
   debug_values_.setValues(DebugValues::TYPE::ACC_CMD_ACC_LIMITED, acc_max_filtered);
 
   // store ctrl cmd without slope filter
@@ -682,7 +694,7 @@ double VelocityController::calcFilteredAcc(const double raw_acc, const ControlDa
   debug_values_.setValues(DebugValues::TYPE::ACC_CMD_SLOPE_APPLIED, acc_slope_filtered);
 
   // This jerk filter must be applied after slope compensation
-  const double acc_jerk_filtered = applyDiffLimitFilter(
+  const double acc_jerk_filtered = velocity_controller_utils::applyDiffLimitFilter(
     acc_slope_filtered, prev_ctrl_cmd_.acc, control_data.dt, max_jerk_, min_jerk_);
   debug_values_.setValues(DebugValues::TYPE::ACC_CMD_JERK_LIMITED, acc_jerk_filtered);
 
@@ -715,31 +727,6 @@ void VelocityController::storeAccelCmd(const double accel)
   }
 }
 
-double VelocityController::applyLimitFilter(
-  const double input_val, const double max_val, const double min_val) const
-{
-  const double limited_val = std::min(std::max(input_val, min_val), max_val);
-  return limited_val;
-}
-
-double VelocityController::applyDiffLimitFilter(
-  const double input_val, const double prev_val, const double dt, const double max_val,
-  const double min_val) const
-{
-  const double diff_raw = (input_val - prev_val) / dt;
-  const double diff = std::min(std::max(diff_raw, min_val), max_val);
-  const double filtered_val = prev_val + diff * dt;
-  return filtered_val;
-}
-
-double VelocityController::applyDiffLimitFilter(
-  const double input_val, const double prev_val, const double dt, const double lim_val) const
-{
-  const double max_val = std::fabs(lim_val);
-  const double min_val = -max_val;
-  return applyDiffLimitFilter(input_val, prev_val, dt, max_val, min_val);
-}
-
 double VelocityController::applySlopeCompensation(
   const double input_acc, const double pitch, const Shift shift) const
 {
@@ -756,7 +743,7 @@ double VelocityController::applySlopeCompensation(
 
 autoware_planning_msgs::msg::TrajectoryPoint VelocityController::calcInterpolatedTargetValue(
   const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
-  [[maybe_unused]] const double current_vel, const size_t closest_idx) const
+  [[maybe_unused]] const double current_vel, const size_t nearest_idx) const
 {
   if (traj.points.size() == 1) {
     return traj.points.at(0);
@@ -764,12 +751,12 @@ autoware_planning_msgs::msg::TrajectoryPoint VelocityController::calcInterpolate
 
   // If the current position is not within the reference trajectory, enable the edge value.
   // Else, apply linear interpolation
-  if (closest_idx == 0) {
+  if (nearest_idx == 0) {
     if (autoware_utils::calcSignedArcLength(traj.points, point, 0) > 0) {
       return traj.points.at(0);
     }
   }
-  if (closest_idx == traj.points.size() - 1) {
+  if (nearest_idx == traj.points.size() - 1) {
     if (autoware_utils::calcSignedArcLength(traj.points, point, traj.points.size() - 1) < 0) {
       return traj.points.at(traj.points.size() - 1);
     }
@@ -838,7 +825,7 @@ double VelocityController::applyVelocityFeedback(
   const bool enable_integration = (current_vel_abs > current_vel_threshold_pid_integrate_);
   const double error_vel_filtered = lpf_vel_error_->filter(target_vel_abs - current_vel_abs);
 
-  std::vector<double> pid_contributions(3);
+  std::array<double, 3> pid_contributions;
   const double pid_acc =
     pid_vel_.calculate(error_vel_filtered, dt, enable_integration, pid_contributions);
   const double feedback_acc = target_motion.acc + pid_acc;
@@ -872,16 +859,16 @@ void VelocityController::updateDebugVelAcc(
   const ControlData & control_data)
 {
   const double current_vel = control_data.current_motion.vel;
-  const size_t closest_idx = control_data.closest_idx;
+  const size_t nearest_idx = control_data.nearest_idx;
 
   const auto interpolated_point =
-    calcInterpolatedTargetValue(*trajectory_ptr_, current_pose.position, current_vel, closest_idx);
+    calcInterpolatedTargetValue(*trajectory_ptr_, current_pose.position, current_vel, nearest_idx);
 
   debug_values_.setValues(DebugValues::TYPE::CURRENT_VEL, current_vel);
   debug_values_.setValues(DebugValues::TYPE::TARGET_VEL, target_motion.vel);
   debug_values_.setValues(DebugValues::TYPE::TARGET_ACC, target_motion.acc);
-  debug_values_.setValues(DebugValues::TYPE::CLOSEST_VEL, interpolated_point.twist.linear.x);
-  debug_values_.setValues(DebugValues::TYPE::CLOSEST_ACC, interpolated_point.accel.linear.x);
+  debug_values_.setValues(DebugValues::TYPE::NEAREST_VEL, interpolated_point.twist.linear.x);
+  debug_values_.setValues(DebugValues::TYPE::NEAREST_ACC, interpolated_point.accel.linear.x);
   debug_values_.setValues(DebugValues::TYPE::ERROR_VEL, target_motion.vel - current_vel);
 }
 
