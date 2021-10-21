@@ -214,13 +214,14 @@ bool createTargetPoint(
 bool calcStopPointAndInsertIndex(
   const autoware_planning_msgs::msg::PathWithLaneId & input_path,
   const lanelet::ConstLineString3d & lanelet_stop_lines, const double & offset,
-  Eigen::Vector2d & stop_line_point, size_t & stop_line_point_idx)
+  const double & stop_line_extend_length, Eigen::Vector2d & stop_line_point,
+  size_t & stop_line_point_idx)
 {
   LineString2d stop_line;
 
   for (size_t i = 0; i < lanelet_stop_lines.size() - 1; ++i) {
-    stop_line = {{lanelet_stop_lines[i].x(), lanelet_stop_lines[i].y()},
-      {lanelet_stop_lines[i + 1].x(), lanelet_stop_lines[i + 1].y()}};
+    stop_line = planning_utils::extendLine(
+      lanelet_stop_lines[i], lanelet_stop_lines[i + 1], stop_line_extend_length);
 
     // Calculate stop pose and insert index,
     // if there is a collision point between path and stop line
@@ -281,6 +282,7 @@ bool TrafficLightModule::modifyPathVelocity(
   debug_data_ = DebugData();
   debug_data_.base_link2front = planner_data_->vehicle_info_.max_longitudinal_offset_m;
   first_stop_path_point_index_ = static_cast<int>(path->points.size()) - 1;
+  first_ref_stop_path_point_index_ = static_cast<int>(path->points.size()) - 1;
   *stop_reason =
     planning_utils::initializeStopReason(autoware_planning_msgs::msg::StopReason::TRAFFIC_LIGHT);
 
@@ -295,13 +297,14 @@ bool TrafficLightModule::modifyPathVelocity(
   // Calculate stop pose and insert index
   Eigen::Vector2d stop_line_point{};
   size_t stop_line_point_idx{};
-  const auto & base_link2front = planner_data_->vehicle_info_.max_longitudinal_offset_m;
   if (!calcStopPointAndInsertIndex(
-      input_path, lanelet_stop_lines, planner_param_.stop_margin + base_link2front,
-      stop_line_point, stop_line_point_idx))
+      input_path, lanelet_stop_lines,
+      planner_param_.stop_margin + planner_data_->vehicle_info_.max_longitudinal_offset_m,
+      planner_data_->stop_line_extend_length, stop_line_point, stop_line_point_idx))
   {
     RCLCPP_WARN_THROTTLE(
-      logger_, *clock_, 1000, "Can't calculate stop point");
+      logger_, *clock_, 5000,
+      "Failed to calculate stop point and insert index");
     return false;
   }
 
@@ -318,6 +321,8 @@ bool TrafficLightModule::modifyPathVelocity(
       state_ = State::GO_OUT;
       return true;
     }
+
+    first_ref_stop_path_point_index_ = stop_line_point_idx;
 
     // Check if stop is coming.
     if (!isStopSignal(traffic_lights)) {
@@ -395,10 +400,17 @@ bool TrafficLightModule::isPassthrough(const double & signed_arc_length) const
 
   const double reachable_distance =
     planner_data_->current_velocity->twist.linear.x * planner_param_.yellow_lamp_period;
+
+  if (!planner_data_->current_accel) {
+    RCLCPP_WARN_THROTTLE(
+      logger_, *clock_, 1000,
+      "[traffic_light] empty current acc! check current vel has been received.");
+    return false;
+  }
   // Calculate distance until ego vehicle decide not to stop,
   // taking into account the jerk and acceleration.
   const double pass_judge_line_distance = planning_utils::calcJudgeLineDistWithJerkLimit(
-    planner_data_->current_velocity->twist.linear.x, planner_data_->current_accel, max_acc,
+    planner_data_->current_velocity->twist.linear.x, planner_data_->current_accel.get(), max_acc,
     max_jerk, delay_response_time);
 
   const bool distance_stoppable = pass_judge_line_distance < signed_arc_length;

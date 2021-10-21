@@ -22,7 +22,6 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "scene_module/intersection/scene_intersection.hpp"
-#include "interpolation/spline_interpolation.hpp"
 
 #include "geometry_msgs/msg/point.hpp"
 
@@ -48,17 +47,18 @@ geometry_msgs::msg::Pose getAheadPose(
 bool isAheadOf(const geometry_msgs::msg::Pose & target, const geometry_msgs::msg::Pose & origin);
 bool hasLaneId(const autoware_planning_msgs::msg::PathPointWithLaneId & p, const int id);
 bool hasDuplicatedPoint(
-  const autoware_planning_msgs::msg::PathWithLaneId & path,
-  const geometry_msgs::msg::Point & point);
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const geometry_msgs::msg::Point & point,
+  int * duplicated_point_idx);
 
 /**
    * @brief get objective polygons for detection area
    */
-bool getObjectivePolygons(
+bool getObjectiveLanelets(
   lanelet::LaneletMapConstPtr lanelet_map_ptr, lanelet::routing::RoutingGraphPtr routing_graph_ptr,
   const int lane_id, const IntersectionModule::PlannerParam & planner_param,
-  std::vector<lanelet::CompoundPolygon3d> * conflicting_polygons,
-  std::vector<lanelet::CompoundPolygon3d> * objective_polygons, const rclcpp::Logger logger);
+  std::vector<lanelet::ConstLanelets> * conflicting_lanelets_result,
+  std::vector<lanelet::ConstLanelets> * objective_lanelets_result,
+  const rclcpp::Logger logger);
 
 /**
    * @brief Generate a stop line and insert it into the path. If the stop line is defined in the map,
@@ -93,9 +93,16 @@ int getFirstPointInsidePolygons(
    * @param stop_pose stop point defined on map
    * @return true when the stop point is defined on map.
    */
-bool getStopPoseFromMap(
-  const int lane_id, geometry_msgs::msg::Point * stop_pose,
-  const std::shared_ptr<const PlannerData> & planner_data);
+bool getStopPoseIndexFromMap(
+  const autoware_planning_msgs::msg::PathWithLaneId & path, const int lane_id,
+  const std::shared_ptr<const PlannerData> & planner_data, int & stop_idx_ip, int dist_thr,
+  const rclcpp::Logger logger);
+
+std::vector<lanelet::CompoundPolygon3d> getPolygon3dFromLaneletsVec(
+  const std::vector<lanelet::ConstLanelets> & ll_vec, double clip_length);
+
+std::vector<int> getLaneletIdsFromLaneletsVec(
+  const std::vector<lanelet::ConstLanelets> & ll_vec);
 
 }  // namespace util
 }  // namespace behavior_velocity_planner

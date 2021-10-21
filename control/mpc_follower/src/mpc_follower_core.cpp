@@ -52,9 +52,9 @@ MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
 
   ctrl_period_ = declare_parameter("ctrl_period", 0.03);
   enable_path_smoothing_ = declare_parameter("enable_path_smoothing", true);
-  enable_yaw_recalculation_ = declare_parameter("enable_yaw_recalculation", false);
   path_filter_moving_ave_num_ = declare_parameter("path_filter_moving_ave_num", 35);
-  curvature_smoothing_num_ = declare_parameter("curvature_smoothing_num", 35);
+  curvature_smoothing_num_traj_ = declare_parameter("curvature_smoothing_num_traj", 1);
+  curvature_smoothing_num_ref_steer_ = declare_parameter("curvature_smoothing_num_ref_steer", 35);
   traj_resample_dist_ = declare_parameter("traj_resample_dist", 0.1);  // [m]
   admissible_position_error_ = declare_parameter("admissible_position_error", 5.0);
   admissible_yaw_error_rad_ = declare_parameter("admissible_yaw_error_rad", M_PI_2);
@@ -381,6 +381,12 @@ bool MPCFollower::calculateMPC(autoware_control_msgs::msg::ControlCommand * ctrl
   return true;
 }
 
+void MPCFollower::resetPrevResult()
+{
+  raw_steer_cmd_prev_ = current_steer_ptr_->data;
+  raw_steer_cmd_pprev_ = current_steer_ptr_->data;
+}
+
 bool MPCFollower::getData(const MPCTrajectory & traj, MPCData * data)
 {
   static constexpr auto duration = (5000ms).count();
@@ -388,6 +394,12 @@ bool MPCFollower::getData(const MPCTrajectory & traj, MPCData * data)
       traj, current_pose_ptr_->pose, &(data->nearest_pose), &(data->nearest_idx),
       &(data->nearest_time), get_logger(), *get_clock()))
   {
+    // reset previous MPC result
+    // Note: When a large deviation from the trajectory occurs, the optimization stops and
+    // the vehicle will return to the path by re-planning the trajectory or external operation.
+    // After the recovery, the previous value of the optimization may deviate greatly from
+    // the actual steer angle, and it may make the optimization result unstable.
+    resetPrevResult();
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       get_logger(), *get_clock(), duration,
       "calculateMPC: error in calculating nearest pose. stop mpc.");
@@ -906,6 +918,10 @@ bool MPCFollower::isValid(const MPCMatrix & m) const
 }
 void MPCFollower::onTrajectory(const autoware_planning_msgs::msg::Trajectory::SharedPtr msg)
 {
+  if (!current_pose_ptr_) {
+    return;
+  }
+
   current_trajectory_ptr_ = msg;
 
   if (msg->points.size() < 3) {
@@ -946,14 +962,17 @@ void MPCFollower::onTrajectory(const autoware_planning_msgs::msg::Trajectory::Sh
     }
   }
 
+
   /* calculate yaw angle */
-  if (enable_yaw_recalculation_) {
-    MPCUtils::calcTrajectoryYawFromXY(&mpc_traj_smoothed);
-    MPCUtils::convertEulerAngleToMonotonic(&mpc_traj_smoothed.yaw);
-  }
+  const int nearest_idx = MPCUtils::calcNearestIndex(mpc_traj_smoothed, current_pose_ptr_->pose);
+  const double ego_yaw = tf2::getYaw(current_pose_ptr_->pose.orientation);
+  MPCUtils::calcTrajectoryYawFromXY(&mpc_traj_smoothed, nearest_idx, ego_yaw);
+  MPCUtils::convertEulerAngleToMonotonic(&mpc_traj_smoothed.yaw);
+
 
   /* calculate curvature */
-  MPCUtils::calcTrajectoryCurvature(curvature_smoothing_num_, &mpc_traj_smoothed);
+  MPCUtils::calcTrajectoryCurvature(
+    curvature_smoothing_num_traj_, curvature_smoothing_num_ref_steer_, &mpc_traj_smoothed);
 
   /* add end point with vel=0 on traj for mpc prediction */
   {

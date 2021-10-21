@@ -28,6 +28,8 @@
 #include "autoware_utils/geometry/geometry.hpp"
 
 #include "ndt_scan_matcher/util_func.hpp"
+#include "ndt_scan_matcher/matrix_type.hpp"
+
 
 double norm(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2)
 {
@@ -54,18 +56,20 @@ NDTScanMatcher::NDTScanMatcher()
 
   int ndt_implement_type_tmp = this->declare_parameter("ndt_implement_type", 0);
   ndt_implement_type_ = static_cast<NDTImplementType>(ndt_implement_type_tmp);
-  if (ndt_implement_type_ == NDTImplementType::PCL_GENERIC) {
-    RCLCPP_INFO(get_logger(), "NDT Implement Type is PCL GENERIC");
-    ndt_ptr_.reset(new NormalDistributionsTransformPCLGeneric<PointSource, PointTarget>);
-  } else if (ndt_implement_type_ == NDTImplementType::PCL_MODIFIED) {
-    RCLCPP_INFO(get_logger(), "NDT Implement Type is PCL MODIFIED");
-    ndt_ptr_.reset(new NormalDistributionsTransformPCLModified<PointSource, PointTarget>);
-  } else if (ndt_implement_type_ == NDTImplementType::OMP) {
-    RCLCPP_INFO(get_logger(), "NDT Implement Type is OMP");
 
-    std::shared_ptr<NormalDistributionsTransformOMP<PointSource, PointTarget>> ndt_omp_ptr(
-      new NormalDistributionsTransformOMP<PointSource, PointTarget>);
+  RCLCPP_INFO(get_logger(), "NDT Implement Type is %d", ndt_implement_type_tmp);
+  try {
+    ndt_ptr_ = getNDT<PointSource, PointTarget>(ndt_implement_type_);
+  } catch (std::exception & e) {
+    RCLCPP_ERROR(get_logger(), "%s", e.what());
+    return;
+  }
 
+  if (ndt_implement_type_ == NDTImplementType::OMP) {
+    using T = NormalDistributionsTransformOMP<PointSource, PointTarget>;
+
+    // FIXME(IshitaTakeshi) Not sure if this is safe
+    std::shared_ptr<T> ndt_omp_ptr = std::dynamic_pointer_cast<T>(ndt_ptr_);
     int search_method = static_cast<int>(omp_params_.search_method);
     search_method = this->declare_parameter("omp_neighborhood_search_method", search_method);
     omp_params_.search_method = static_cast<pclomp::NeighborSearchMethod>(search_method);
@@ -75,12 +79,7 @@ NDTScanMatcher::NDTScanMatcher()
     omp_params_.num_threads = this->declare_parameter("omp_num_threads", omp_params_.num_threads);
     omp_params_.num_threads = std::max(omp_params_.num_threads, 1);
     ndt_omp_ptr->setNumThreads(omp_params_.num_threads);
-
     ndt_ptr_ = ndt_omp_ptr;
-  } else {
-    ndt_implement_type_ = NDTImplementType::PCL_GENERIC;
-    RCLCPP_INFO(get_logger(), "NDT Implement Type is PCL GENERIC");
-    ndt_ptr_.reset(new NormalDistributionsTransformPCLGeneric<PointSource, PointTarget>);
   }
 
   int points_queue_size = this->declare_parameter("input_sensor_points_queue_size", 0);
@@ -162,8 +161,6 @@ NDTScanMatcher::NDTScanMatcher()
   diagnostic_thread_.detach();
 }
 
-NDTScanMatcher::~NDTScanMatcher() {}
-
 void NDTScanMatcher::timerDiagnostic()
 {
   rclcpp::Rate rate(100);
@@ -229,7 +226,7 @@ void NDTScanMatcher::serviceNDTAlign(
   // transform pose_frame to map_frame
   auto mapTF_initial_pose_msg_ptr =
     std::make_shared<geometry_msgs::msg::PoseWithCovarianceStamped>();
-  tf2::doTransform(req->pose_with_cov, *mapTF_initial_pose_msg_ptr, *TF_pose_to_map_ptr);
+  *mapTF_initial_pose_msg_ptr = transform(req->pose_with_cov, *TF_pose_to_map_ptr);
 
   if (ndt_ptr_->getInputTarget() == nullptr) {
     res->success = false;
@@ -279,8 +276,8 @@ void NDTScanMatcher::callbackInitialPose(
     // transform pose_frame to map_frame
     auto mapTF_initial_pose_msg_ptr =
       std::make_shared<geometry_msgs::msg::PoseWithCovarianceStamped>();
-    tf2::doTransform(*initial_pose_msg_ptr, *mapTF_initial_pose_msg_ptr, *TF_pose_to_map_ptr);
     // mapTF_initial_pose_msg_ptr->header.stamp = initial_pose_msg_ptr->header.stamp;
+    *mapTF_initial_pose_msg_ptr = transform(*initial_pose_msg_ptr, *TF_pose_to_map_ptr);
     initial_pose_msg_ptr_array_.push_back(mapTF_initial_pose_msg_ptr);
   }
 }
@@ -293,22 +290,17 @@ void NDTScanMatcher::callbackMapPoints(
   const auto resolution = ndt_ptr_->getResolution();
   const auto max_iterations = ndt_ptr_->getMaximumIterations();
 
-  std::shared_ptr<NormalDistributionsTransformBase<PointSource, PointTarget>> new_ndt_ptr_;
+  using NDTBase = NormalDistributionsTransformBase<PointSource, PointTarget>;
+  std::shared_ptr<NDTBase> new_ndt_ptr_ = getNDT<PointSource, PointTarget>(ndt_implement_type_);
 
-  if (ndt_implement_type_ == NDTImplementType::PCL_GENERIC) {
-    new_ndt_ptr_.reset(new NormalDistributionsTransformPCLGeneric<PointSource, PointTarget>);
-  } else if (ndt_implement_type_ == NDTImplementType::PCL_MODIFIED) {
-    new_ndt_ptr_.reset(new NormalDistributionsTransformPCLModified<PointSource, PointTarget>);
-  } else if (ndt_implement_type_ == NDTImplementType::OMP) {
-    std::shared_ptr<NormalDistributionsTransformOMP<PointSource, PointTarget>> ndt_omp_ptr(
-      new NormalDistributionsTransformOMP<PointSource, PointTarget>);
+  if (ndt_implement_type_ == NDTImplementType::OMP) {
+    using T = NormalDistributionsTransformOMP<PointSource, PointTarget>;
 
+    // FIXME(IshitaTakeshi) Not sure if this is safe
+    std::shared_ptr<T> ndt_omp_ptr = std::dynamic_pointer_cast<T>(ndt_ptr_);
     ndt_omp_ptr->setNeighborhoodSearchMethod(omp_params_.search_method);
     ndt_omp_ptr->setNumThreads(omp_params_.num_threads);
-
     new_ndt_ptr_ = ndt_omp_ptr;
-  } else {
-    new_ndt_ptr_.reset(new NormalDistributionsTransformPCLGeneric<PointSource, PointTarget>);
   }
 
   new_ndt_ptr_->setTransformationEpsilon(trans_epsilon);
@@ -379,8 +371,7 @@ void NDTScanMatcher::callbackSensorPoints(
     return;
   }
   // align
-  Eigen::Affine3d initial_pose_affine;
-  tf2::fromMsg(initial_pose_cov_msg.pose.pose, initial_pose_affine);
+  const Eigen::Affine3d initial_pose_affine = fromRosPoseToEigen(initial_pose_cov_msg.pose.pose);
   const Eigen::Matrix4f initial_pose_matrix = initial_pose_affine.matrix().cast<float>();
 
   auto output_cloud = std::make_shared<pcl::PointCloud<PointSource>>();
@@ -452,13 +443,15 @@ void NDTScanMatcher::callbackSensorPoints(
   result_pose_with_cov_msg.header.stamp = sensor_ros_time;
   result_pose_with_cov_msg.header.frame_id = map_frame_;
   result_pose_with_cov_msg.pose.pose = result_pose_msg;
+
   //TODO temporary value
-  result_pose_with_cov_msg.pose.covariance[0] = 0.025;
-  result_pose_with_cov_msg.pose.covariance[1 * 6 + 1] = 0.025;
-  result_pose_with_cov_msg.pose.covariance[2 * 6 + 2] = 0.025;
-  result_pose_with_cov_msg.pose.covariance[3 * 6 + 3] = 0.000625;
-  result_pose_with_cov_msg.pose.covariance[4 * 6 + 4] = 0.000625;
-  result_pose_with_cov_msg.pose.covariance[5 * 6 + 5] = 0.000625;
+  Eigen::Map<RowMatrixXd> covariance(&result_pose_with_cov_msg.pose.covariance[0], 6, 6);
+  covariance(0, 0) = 0.025;
+  covariance(1, 1) = 0.025;
+  covariance(2, 2) = 0.025;
+  covariance(3, 3) = 0.000625;
+  covariance(4, 4) = 0.000625;
+  covariance(5, 5) = 0.000625;
 
   if (is_converged) {
     ndt_pose_pub_->publish(result_pose_stamped_msg);
@@ -568,8 +561,7 @@ geometry_msgs::msg::PoseWithCovarianceStamped NDTScanMatcher::alignUsingMonteCar
 
   int i = 0;
   for (const auto & initial_pose : initial_pose_array.poses) {
-    Eigen::Affine3d initial_pose_affine;
-    tf2::fromMsg(initial_pose, initial_pose_affine);
+    const Eigen::Affine3d initial_pose_affine = fromRosPoseToEigen(initial_pose);
     const Eigen::Matrix4f initial_pose_matrix = initial_pose_affine.matrix().cast<float>();
 
     ndt_ptr->align(*output_cloud, initial_pose_matrix);
@@ -667,16 +659,7 @@ void NDTScanMatcher::publishTF(
   transform_stamped.child_frame_id = child_frame_id;
   transform_stamped.header.stamp = pose_msg.header.stamp;
 
-  transform_stamped.transform.translation.x = pose_msg.pose.position.x;
-  transform_stamped.transform.translation.y = pose_msg.pose.position.y;
-  transform_stamped.transform.translation.z = pose_msg.pose.position.z;
-
-  tf2::Quaternion tf_quaternion;
-  tf2::fromMsg(pose_msg.pose.orientation, tf_quaternion);
-  transform_stamped.transform.rotation.x = tf_quaternion.x();
-  transform_stamped.transform.rotation.y = tf_quaternion.y();
-  transform_stamped.transform.rotation.z = tf_quaternion.z();
-  transform_stamped.transform.rotation.w = tf_quaternion.w();
+  transform_stamped.transform = autoware_utils::pose2transform(pose_msg.pose);
 
   tf2_broadcaster_.sendTransform(transform_stamped);
 }
@@ -759,7 +742,7 @@ bool NDTScanMatcher::getTransform(
 }
 
 bool NDTScanMatcher::isLocalOptimalSolutionOscillation(
-  const std::vector<Eigen::Matrix4f> & result_pose_matrix_array)
+  const std::vector<Eigen::Matrix4f> & result_pose_matrix_array) const
 {
   bool prev_oscillation = false;
   int oscillation_cnt = 0;

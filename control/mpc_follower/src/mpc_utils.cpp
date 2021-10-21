@@ -18,6 +18,8 @@
 #include <vector>
 
 #include "mpc_follower/mpc_utils.hpp"
+#include "interpolation/spline_interpolation.hpp"
+#include "interpolation/linear_interpolation.hpp"
 
 geometry_msgs::msg::Quaternion MPCUtils::getQuaternionFromYaw(const double & yaw)
 {
@@ -125,28 +127,21 @@ bool MPCUtils::resampleMPCTrajectoryByDistance(
     output_arclength.push_back(s);
   }
 
-  // splineInterpMPCTrajectory(input_arclength, input, output_arclength, output);
-
   std::vector<double> input_yaw = input.yaw;
   MPCUtils::convertEulerAngleToMonotonic(&input_yaw);
 
   LinearInterpolate linear_interp;
-  SplineInterpolate spline_interp;
-  if (
-    !spline_interp.interpolate(input_arclength, input.x, output_arclength, output->x) ||
-    !spline_interp.interpolate(input_arclength, input.y, output_arclength, output->y) ||
-    !spline_interp.interpolate(input_arclength, input.z, output_arclength, output->z) ||
-    !spline_interp.interpolate(input_arclength, input_yaw, output_arclength, output->yaw) ||
-    !linear_interp.interpolate(input_arclength, input.vx, output_arclength, output->vx) ||
-    !spline_interp.interpolate(input_arclength, input.k, output_arclength, output->k) ||
-    !spline_interp.interpolate(
-      input_arclength, input.smooth_k, output_arclength, output->smooth_k) ||
-    !linear_interp.interpolate(
-      input_arclength, input.relative_time, output_arclength, output->relative_time))
-  {
-    std::cerr << "linearInterpMPCTrajectory error!" << std::endl;
-    return false;
-  }
+
+  output->x = interpolation::slerp(input_arclength, input.x, output_arclength);
+  output->y = interpolation::slerp(input_arclength, input.y, output_arclength);
+  output->z = interpolation::slerp(input_arclength, input.z, output_arclength);
+  output->yaw = interpolation::slerp(input_arclength, input.yaw, output_arclength);
+  output->vx = interpolation::lerp(input_arclength, input.vx, output_arclength);
+  output->k = interpolation::slerp(input_arclength, input.k, output_arclength);
+  output->smooth_k = interpolation::slerp(input_arclength, input.smooth_k, output_arclength);
+  output->relative_time = interpolation::lerp(
+    input_arclength, input.relative_time,
+    output_arclength);
 
   return true;
 }
@@ -191,55 +186,30 @@ bool MPCUtils::linearInterpMPCTrajectory(
   return true;
 }
 
-bool MPCUtils::splineInterpMPCTrajectory(
-  const std::vector<double> & in_index, const MPCTrajectory & in_traj,
-  const std::vector<double> & out_index, MPCTrajectory * out_traj)
+void MPCUtils::calcTrajectoryYawFromXY(
+  MPCTrajectory * traj, const int nearest_idx,
+  const double ego_yaw)
 {
-  if (!out_traj) {
-    return false;
+  if (traj->yaw.size() < 3) {  // at least 3 points are required to calculate yaw
+    return;
   }
-  if (in_traj.size() == 0) {
-    *out_traj = in_traj;
-    return true;
-  }
-
-  std::vector<double> in_traj_yaw = in_traj.yaw;
-  MPCUtils::convertEulerAngleToMonotonic(&in_traj_yaw);
-
-  out_traj->clear();
-  SplineInterpolate spline_interp;
-  if (
-    !spline_interp.interpolate(in_index, in_traj.x, out_index, out_traj->x) ||
-    !spline_interp.interpolate(in_index, in_traj.y, out_index, out_traj->y) ||
-    !spline_interp.interpolate(in_index, in_traj.z, out_index, out_traj->z) ||
-    !spline_interp.interpolate(in_index, in_traj_yaw, out_index, out_traj->yaw) ||
-    !spline_interp.interpolate(in_index, in_traj.vx, out_index, out_traj->vx) ||
-    !spline_interp.interpolate(in_index, in_traj.k, out_index, out_traj->k) ||
-    !spline_interp.interpolate(in_index, in_traj.smooth_k, out_index, out_traj->smooth_k))
-  {
-    std::cerr << "splineInterpMPCTrajectory error!" << std::endl;
-    return false;
+  if (traj->yaw.size() != traj->vx.size()) {
+    RCLCPP_ERROR(rclcpp::get_logger("mpc_utils"), "trajectory size has no consistency.");
+    return;
   }
 
-  // use linear interpolation for time.
-  calcMPCTrajectoryTime(out_traj);
+  // calculate shift direction (forward or backward)
+  const int upper_nearest_idx =
+    (static_cast<int>(traj->x.size()) - 1 == nearest_idx) ? nearest_idx : nearest_idx + 1;
+  const double dx = traj->x[upper_nearest_idx] - traj->x[upper_nearest_idx - 1];
+  const double dy = traj->y[upper_nearest_idx] - traj->y[upper_nearest_idx - 1];
+  const bool forward_shift = std::abs(normalizeRadian(std::atan2(dy, dx) - ego_yaw)) < M_PI / 2.0;
 
-  if (out_traj->size() == 0) {
-    std::cerr << "[mpc util] spline interpolation error" << std::endl;
-    return false;
-  }
-
-  return true;
-}
-
-void MPCUtils::calcTrajectoryYawFromXY(MPCTrajectory * traj)
-{
-  if (traj->yaw.size() == 0) {return;}
-
+  // interpolate yaw
   for (unsigned int i = 1; i < traj->yaw.size() - 1; ++i) {
     const double dx = traj->x[i + 1] - traj->x[i - 1];
     const double dy = traj->y[i + 1] - traj->y[i - 1];
-    traj->yaw[i] = std::atan2(dy, dx);
+    traj->yaw[i] = forward_shift ? std::atan2(dy, dx) : std::atan2(dy, dx) + M_PI;
   }
   if (traj->yaw.size() > 1) {
     traj->yaw[0] = traj->yaw[1];
@@ -247,14 +217,15 @@ void MPCUtils::calcTrajectoryYawFromXY(MPCTrajectory * traj)
   }
 }
 
-bool MPCUtils::calcTrajectoryCurvature(int curvature_smoothing_num, MPCTrajectory * traj)
+bool MPCUtils::calcTrajectoryCurvature(
+  int curvature_smoothing_num_traj, int curvature_smoothing_num_ref_steer, MPCTrajectory * traj)
 {
   if (!traj) {
     return false;
   }
 
-  traj->k = calcTrajectoryCurvature(1, *traj);
-  traj->smooth_k = calcTrajectoryCurvature(curvature_smoothing_num, *traj);
+  traj->k = calcTrajectoryCurvature(curvature_smoothing_num_traj, *traj);
+  traj->smooth_k = calcTrajectoryCurvature(curvature_smoothing_num_ref_steer, *traj);
   return true;
 }
 
