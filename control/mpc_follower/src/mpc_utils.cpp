@@ -193,11 +193,15 @@ bool MPCUtils::linearInterpMPCTrajectory(
 void MPCUtils::calcTrajectoryYawFromXY(MPCTrajectory * traj)
 {
   if (traj->yaw.size() == 0) {return;}
+  if (traj->yaw.size() != traj->vx.size()) {
+    RCLCPP_ERROR(rclcpp::get_logger("mpc_utils"), "trajectory size has no consistency.");
+    return;
+  }
 
   for (unsigned int i = 1; i < traj->yaw.size() - 1; ++i) {
     const double dx = traj->x[i + 1] - traj->x[i - 1];
     const double dy = traj->y[i + 1] - traj->y[i - 1];
-    traj->yaw[i] = std::atan2(dy, dx);
+    traj->yaw[i] = traj->vx[i] > 0.0 ? std::atan2(dy, dx) : std::atan2(dy, dx) + M_PI;
   }
   if (traj->yaw.size() > 1) {
     traj->yaw[0] = traj->yaw[1];
@@ -205,14 +209,15 @@ void MPCUtils::calcTrajectoryYawFromXY(MPCTrajectory * traj)
   }
 }
 
-bool MPCUtils::calcTrajectoryCurvature(int curvature_smoothing_num, MPCTrajectory * traj)
+bool MPCUtils::calcTrajectoryCurvature(
+  int curvature_smoothing_num_traj, int curvature_smoothing_num_ref_steer, MPCTrajectory * traj)
 {
   if (!traj) {
     return false;
   }
 
-  traj->k = calcTrajectoryCurvature(1, *traj);
-  traj->smooth_k = calcTrajectoryCurvature(curvature_smoothing_num, *traj);
+  traj->k = calcTrajectoryCurvature(curvature_smoothing_num_traj, *traj);
+  traj->smooth_k = calcTrajectoryCurvature(curvature_smoothing_num_ref_steer, *traj);
   return true;
 }
 
