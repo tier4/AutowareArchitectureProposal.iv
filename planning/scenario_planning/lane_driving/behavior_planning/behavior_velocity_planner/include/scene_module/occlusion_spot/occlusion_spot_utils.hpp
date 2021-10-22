@@ -116,6 +116,9 @@ struct PossibleCollisionInfo
   }
 };
 
+bool splineInterpolate(
+  const autoware_planning_msgs::msg::PathWithLaneId & input, const double interval,
+  autoware_planning_msgs::msg::PathWithLaneId * output, const rclcpp::Logger logger);
 ROAD_TYPE getCurrentRoadType(
   const lanelet::ConstLanelet & current_lanelet, const lanelet::LaneletMapPtr & lanelet_map_ptr);
 //!< @brief build a Lanelet from a interpolated path
@@ -132,7 +135,7 @@ void createPossibleCollisionBehindParkedVehicle(
   const double offset_from_ego_to_target,
   const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & dyn_obj_arr);
 //!< @brief set velocity and orientation to collision point based on previous Path with laneId
-void calcVelocityAndHeightToPossibleCollision(
+void calcSlowDownPointsForPossibleCollision(
   const int closest_idx, const autoware_planning_msgs::msg::PathWithLaneId & path,
   const double offset_from_ego_to_target, std::vector<PossibleCollisionInfo> & possible_collisions);
 //!< @brief extract lanelet that includes target_road_type only
