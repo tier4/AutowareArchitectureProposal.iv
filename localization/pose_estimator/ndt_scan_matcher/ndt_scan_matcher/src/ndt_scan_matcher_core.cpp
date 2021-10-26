@@ -26,6 +26,7 @@
 #include "pcl_conversions/pcl_conversions.h"
 
 #include "autoware_utils/geometry/geometry.hpp"
+#include "autoware_utils/ros/marker_helper.hpp"
 
 #include "ndt_scan_matcher/util_func.hpp"
 #include "ndt_scan_matcher/matrix_type.hpp"
@@ -490,9 +491,7 @@ void NDTScanMatcher::callbackSensorPoints(
   marker.header.frame_id = map_frame_;
   marker.type = visualization_msgs::msg::Marker::ARROW;
   marker.action = visualization_msgs::msg::Marker::ADD;
-  marker.scale.x = 0.3;
-  marker.scale.y = 0.1;
-  marker.scale.z = 0.1;
+  marker.scale = autoware_utils::createMarkerScale(0.3, 0.1, 0.1);
   int i = 0;
   marker.ns = "result_pose_matrix_array";
   marker.action = visualization_msgs::msg::Marker::ADD;
@@ -625,9 +624,7 @@ void NDTScanMatcher::publishMarkerForDebug(const Particle & particle, const size
   marker.header.frame_id = map_frame_;
   marker.type = visualization_msgs::msg::Marker::ARROW;
   marker.action = visualization_msgs::msg::Marker::ADD;
-  marker.scale.x = 0.3;
-  marker.scale.y = 0.1;
-  marker.scale.z = 0.1;
+  marker.scale = autoware_utils::createMarkerScale(0.3, 0.1, 0.1);
   marker.id = i;
 
   marker.ns = "initial_pose_transform_probability_color_marker";
