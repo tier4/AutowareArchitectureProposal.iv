@@ -276,10 +276,11 @@ void FreespacePlannerNode::getPlanningCommonParam()
   p.time_limit = declare_parameter("time_limit", 5000.0);
 
   // robot configs
+  const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo();
+  p.vehicle_shape.length = vehicle_info.vehicle_length_m;
+  p.vehicle_shape.width = vehicle_info.vehicle_width_m;
+  p.vehicle_shape.base2back = vehicle_info.rear_overhang_m;
   // TODO(Kenji Miyake): obtain from vehicle_info
-  p.vehicle_shape.length = declare_parameter("robot_length", 4.5);
-  p.vehicle_shape.width = declare_parameter("robot_width", 1.75);
-  p.vehicle_shape.base2back = declare_parameter("robot_base2back", 1.0);
   p.minimum_turning_radius = declare_parameter("minimum_turning_radius", 0.5);
   p.maximum_turning_radius = declare_parameter("maximum_turning_radius", 6.0);
   p.turning_radius_size = declare_parameter("turning_radius_size", 11);
