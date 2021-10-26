@@ -30,6 +30,19 @@
 #include <iomanip>
 #include <thread>
 
+geometry_msgs::msg::TransformStamped identityTransformStamped(
+  const builtin_interfaces::msg::Time & timestamp, const std::string & header_frame_id,
+  const std::string & child_frame_id)
+{
+  geometry_msgs::msg::TransformStamped transform;
+  transform.header.stamp = timestamp;
+  transform.header.frame_id = header_frame_id;
+  transform.child_frame_id = child_frame_id;
+  transform.transform.rotation = autoware_utils::createQuaternion(0.0, 0.0, 0.0, 1.0);
+  transform.transform.translation = autoware_utils::createTranslation(0.0, 0.0, 0.0);
+  return transform;
+}
+
 double norm(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2)
 {
   return std::sqrt(
@@ -452,7 +465,7 @@ void NDTScanMatcher::callbackSensorPoints(
     ndt_pose_with_covariance_pub_->publish(result_pose_with_cov_msg);
   }
 
-  publishTF(map_frame_, ndt_base_frame_, result_pose_stamped_msg);
+  publishTF(ndt_base_frame_, result_pose_stamped_msg);
 
   auto sensor_points_mapTF_ptr = std::make_shared<pcl::PointCloud<PointSource>>();
   pcl::transformPointCloud(
@@ -642,17 +655,9 @@ void NDTScanMatcher::publishMarkerForDebug(const Particle & particle, const size
 }
 
 void NDTScanMatcher::publishTF(
-  const std::string & frame_id, const std::string & child_frame_id,
-  const geometry_msgs::msg::PoseStamped & pose_msg)
+  const std::string & child_frame_id, const geometry_msgs::msg::PoseStamped & pose_msg)
 {
-  geometry_msgs::msg::TransformStamped transform_stamped;
-  transform_stamped.header.frame_id = frame_id;
-  transform_stamped.child_frame_id = child_frame_id;
-  transform_stamped.header.stamp = pose_msg.header.stamp;
-
-  transform_stamped.transform = autoware_utils::pose2transform(pose_msg.pose);
-
-  tf2_broadcaster_.sendTransform(transform_stamped);
+  tf2_broadcaster_.sendTransform(autoware_utils::pose2transform(pose_msg, child_frame_id));
 }
 
 bool NDTScanMatcher::getTransform(
@@ -660,15 +665,10 @@ bool NDTScanMatcher::getTransform(
   const geometry_msgs::msg::TransformStamped::SharedPtr & transform_stamped_ptr,
   const rclcpp::Time & time_stamp)
 {
+  const geometry_msgs::msg::TransformStamped identity =
+    identityTransformStamped(time_stamp, target_frame, source_frame);
   if (target_frame == source_frame) {
-    transform_stamped_ptr->header.stamp = time_stamp;
-    transform_stamped_ptr->header.frame_id = target_frame;
-    transform_stamped_ptr->child_frame_id = source_frame;
-    transform_stamped_ptr->transform.translation.x = 0.0;
-    transform_stamped_ptr->transform.translation.y = 0.0;
-    transform_stamped_ptr->transform.translation.z = 0.0;
-    transform_stamped_ptr->transform.rotation =
-      autoware_utils::createQuaternion(0.0, 0.0, 0.0, 1.0);
+    *transform_stamped_ptr = identity;
     return true;
   }
 
@@ -680,14 +680,7 @@ bool NDTScanMatcher::getTransform(
     RCLCPP_ERROR(
       get_logger(), "Please publish TF %s to %s", target_frame.c_str(), source_frame.c_str());
 
-    transform_stamped_ptr->header.stamp = time_stamp;
-    transform_stamped_ptr->header.frame_id = target_frame;
-    transform_stamped_ptr->child_frame_id = source_frame;
-    transform_stamped_ptr->transform.translation.x = 0.0;
-    transform_stamped_ptr->transform.translation.y = 0.0;
-    transform_stamped_ptr->transform.translation.z = 0.0;
-    transform_stamped_ptr->transform.rotation =
-      autoware_utils::createQuaternion(0.0, 0.0, 0.0, 1.0);
+    *transform_stamped_ptr = identity;
     return false;
   }
   return true;
@@ -697,15 +690,11 @@ bool NDTScanMatcher::getTransform(
   const std::string & target_frame, const std::string & source_frame,
   const geometry_msgs::msg::TransformStamped::SharedPtr & transform_stamped_ptr)
 {
+  const geometry_msgs::msg::TransformStamped identity =
+    identityTransformStamped(this->now(), target_frame, source_frame);
+
   if (target_frame == source_frame) {
-    transform_stamped_ptr->header.stamp = this->now();
-    transform_stamped_ptr->header.frame_id = target_frame;
-    transform_stamped_ptr->child_frame_id = source_frame;
-    transform_stamped_ptr->transform.translation.x = 0.0;
-    transform_stamped_ptr->transform.translation.y = 0.0;
-    transform_stamped_ptr->transform.translation.z = 0.0;
-    transform_stamped_ptr->transform.rotation =
-      autoware_utils::createQuaternion(0.0, 0.0, 0.0, 1.0);
+    *transform_stamped_ptr = identity;
     return true;
   }
 
@@ -717,14 +706,7 @@ bool NDTScanMatcher::getTransform(
     RCLCPP_ERROR(
       get_logger(), "Please publish TF %s to %s", target_frame.c_str(), source_frame.c_str());
 
-    transform_stamped_ptr->header.stamp = this->now();
-    transform_stamped_ptr->header.frame_id = target_frame;
-    transform_stamped_ptr->child_frame_id = source_frame;
-    transform_stamped_ptr->transform.translation.x = 0.0;
-    transform_stamped_ptr->transform.translation.y = 0.0;
-    transform_stamped_ptr->transform.translation.z = 0.0;
-    transform_stamped_ptr->transform.rotation =
-      autoware_utils::createQuaternion(0.0, 0.0, 0.0, 1.0);
+    *transform_stamped_ptr = identity;
     return false;
   }
   return true;
