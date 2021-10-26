@@ -124,8 +124,7 @@ private:
   void updateTransforms();
 
   void publishTF(
-    const std::string & frame_id, const std::string & child_frame_id,
-    const geometry_msgs::msg::PoseStamped & pose_msg);
+    const std::string & child_frame_id, const geometry_msgs::msg::PoseStamped & pose_msg);
   bool getTransform(
     const std::string & target_frame, const std::string & source_frame,
     const geometry_msgs::msg::TransformStamped::SharedPtr & transform_stamped_ptr,
