@@ -38,6 +38,7 @@
 #include <vector>
 
 #include "freespace_planning_algorithms/astar_search.hpp"
+#include "vehicle_info_util/vehicle_info_util.hpp"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 #include "rclcpp/rclcpp.hpp"
