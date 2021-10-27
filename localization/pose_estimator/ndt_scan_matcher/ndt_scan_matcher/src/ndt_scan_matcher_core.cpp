@@ -642,32 +642,6 @@ void NDTScanMatcher::publishTF(
 
 bool NDTScanMatcher::getTransform(
   const std::string & target_frame, const std::string & source_frame,
-  const geometry_msgs::msg::TransformStamped::SharedPtr & transform_stamped_ptr,
-  const rclcpp::Time & time_stamp)
-{
-  const geometry_msgs::msg::TransformStamped identity =
-    identityTransformStamped(time_stamp, target_frame, source_frame);
-  if (target_frame == source_frame) {
-    *transform_stamped_ptr = identity;
-    return true;
-  }
-
-  try {
-    *transform_stamped_ptr = tf2_buffer_.lookupTransform(
-      target_frame, source_frame, time_stamp, rclcpp::Duration::from_seconds(1.0));
-  } catch (tf2::TransformException & ex) {
-    RCLCPP_WARN(get_logger(), "%s", ex.what());
-    RCLCPP_ERROR(
-      get_logger(), "Please publish TF %s to %s", target_frame.c_str(), source_frame.c_str());
-
-    *transform_stamped_ptr = identity;
-    return false;
-  }
-  return true;
-}
-
-bool NDTScanMatcher::getTransform(
-  const std::string & target_frame, const std::string & source_frame,
   const geometry_msgs::msg::TransformStamped::SharedPtr & transform_stamped_ptr)
 {
   const geometry_msgs::msg::TransformStamped identity =
