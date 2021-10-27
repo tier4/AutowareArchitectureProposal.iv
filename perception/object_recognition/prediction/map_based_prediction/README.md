@@ -4,6 +4,29 @@
 
 `map_besed_prediction` is a module to predict the future paths of other vehicles and humans according to the shape of the map and the surrounding environment..
 
+## Inner-workings / Algorithms
+
+1. Get lanelet path
+   The first step is to get the lanelet of the current position of the car. After that, we obtain several trajectories based on the map.
+
+2. Confidence calculation
+   We use the following metric to compute the distance to a certain lane.
+
+   ```txt
+   d = x^T P x
+   ```
+
+   where `x=[lateral_dist, yaw_diff]` and `P` are covariance matrices. Therefore confidence values can be computed as
+
+   ```txt
+   confidence = 1/d
+   ```
+
+   Finally, we normalize the confidence value to make it as probability value. Note that the standard deviation of the lateral distance and yaw difference is given by the user.
+
+3. Drawing predicted trajectories
+   From the current position and reference trajectories that we get in the step1, we create predicted trajectories by using Quintic polynomial. Note that, since this algorithm consider lateral and longitudinal motions separately, it sometimes generates dynamically-infeasible trajectories when the vehicle travels at a low speed. To deal with this problem, we only make straight line predictions when the vehicle speed is lower than a certain value (which is given as a parameter).
+
 ## Inputs / Outputs
 
 ### Input
@@ -30,7 +53,7 @@
 
 ## Assumptions / Known limits
 
-TBD.
+`map_based_prediction` can only predict future trajectories for cars, tracks and buses.
 
 ## Reference
 
