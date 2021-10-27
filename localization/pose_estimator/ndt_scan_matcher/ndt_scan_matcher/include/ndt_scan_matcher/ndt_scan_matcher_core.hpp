@@ -118,9 +118,6 @@ private:
     const std::string & target_frame, const std::string & source_frame,
     const geometry_msgs::msg::TransformStamped::SharedPtr & transform_stamped_ptr);
 
-  bool isLocalOptimalSolutionOscillation(
-    const std::vector<Eigen::Matrix4f> & result_pose_matrix_array) const;
-
   void timerDiagnostic();
 
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr initial_pose_sub_;

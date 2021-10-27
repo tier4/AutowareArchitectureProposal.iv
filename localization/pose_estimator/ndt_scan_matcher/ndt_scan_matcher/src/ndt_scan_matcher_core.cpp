@@ -52,6 +52,32 @@ double norm(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Poin
     std::pow(p1.x - p2.x, 2.0) + std::pow(p1.y - p2.y, 2.0) + std::pow(p1.z - p2.z, 2.0));
 }
 
+bool isLocalOptimalSolutionOscillation(
+  const std::vector<Eigen::Matrix4f> & result_pose_matrix_array, const float oscillation_threshold,
+  const float inversion_vector_threshold)
+{
+  bool prev_oscillation = false;
+  int oscillation_cnt = 0;
+  for (size_t i = 2; i < result_pose_matrix_array.size(); ++i) {
+    const Eigen::Vector3f current_pose = result_pose_matrix_array.at(i).block(0, 3, 3, 1);
+    const Eigen::Vector3f prev_pose = result_pose_matrix_array.at(i - 1).block(0, 3, 3, 1);
+    const Eigen::Vector3f prev_prev_pose = result_pose_matrix_array.at(i - 2).block(0, 3, 3, 1);
+    const auto current_vec = (current_pose - prev_pose).normalized();
+    const auto prev_vec = (prev_pose - prev_prev_pose).normalized();
+    const bool oscillation = prev_vec.dot(current_vec) < inversion_vector_threshold;
+    if (prev_oscillation && oscillation) {
+      if (oscillation_cnt > oscillation_threshold) {
+        return true;
+      }
+      ++oscillation_cnt;
+    } else {
+      oscillation_cnt = 0;
+    }
+    prev_oscillation = oscillation;
+  }
+  return false;
+}
+
 NDTScanMatcher::NDTScanMatcher()
 : Node("ndt_scan_matcher"),
   tf2_buffer_(this->get_clock()),
@@ -427,8 +453,8 @@ void NDTScanMatcher::callbackSensorPoints(
   *****************************************************************************/
   bool is_local_optimal_solution_oscillation = false;
   if (iteration_num >= ndt_ptr_->getMaximumIterations() + 2) {
-    is_local_optimal_solution_oscillation =
-      isLocalOptimalSolutionOscillation(result_pose_matrix_array);
+    is_local_optimal_solution_oscillation = isLocalOptimalSolutionOscillation(
+      result_pose_matrix_array, oscillation_threshold_, inversion_vector_threshold_);
   }
 
   bool is_converged = true;
@@ -664,29 +690,4 @@ bool NDTScanMatcher::getTransform(
     return false;
   }
   return true;
-}
-
-bool NDTScanMatcher::isLocalOptimalSolutionOscillation(
-  const std::vector<Eigen::Matrix4f> & result_pose_matrix_array) const
-{
-  bool prev_oscillation = false;
-  int oscillation_cnt = 0;
-  for (size_t i = 2; i < result_pose_matrix_array.size(); ++i) {
-    const Eigen::Vector3f current_pose = result_pose_matrix_array.at(i).block(0, 3, 3, 1);
-    const Eigen::Vector3f prev_pose = result_pose_matrix_array.at(i - 1).block(0, 3, 3, 1);
-    const Eigen::Vector3f prev_prev_pose = result_pose_matrix_array.at(i - 2).block(0, 3, 3, 1);
-    const auto current_vec = (current_pose - prev_pose).normalized();
-    const auto prev_vec = (prev_pose - prev_prev_pose).normalized();
-    const bool oscillation = prev_vec.dot(current_vec) < inversion_vector_threshold_;
-    if (prev_oscillation && oscillation) {
-      if (oscillation_cnt > oscillation_threshold_) {
-        return true;
-      }
-      ++oscillation_cnt;
-    } else {
-      oscillation_cnt = 0;
-    }
-    prev_oscillation = oscillation;
-  }
-  return false;
 }
