@@ -46,6 +46,8 @@
 #include <tf2_sensor_msgs/tf2_sensor_msgs.h>
 // #include <pcl/registration/ndt.h>
 // #include <pcl_registration/ndt.h>
+#include "ndt_scan_matcher/particle.hpp"
+
 #include <ndt/omp.hpp>
 #include <ndt/pcl_generic.hpp>
 #include <ndt/pcl_modified.hpp>
@@ -87,23 +89,6 @@ class NDTScanMatcher : public rclcpp::Node
     int num_threads;
   };
 
-  struct Particle
-  {
-    Particle(
-      const geometry_msgs::msg::Pose & a_initial_pose,
-      const geometry_msgs::msg::Pose & a_result_pose, const double a_score, const int a_iteration)
-    : initial_pose(a_initial_pose),
-      result_pose(a_result_pose),
-      score(a_score),
-      iteration(a_iteration)
-    {
-    }
-    geometry_msgs::msg::Pose initial_pose;
-    geometry_msgs::msg::Pose result_pose;
-    double score;
-    int iteration;
-  };
-
 public:
   NDTScanMatcher();
 
@@ -135,8 +120,6 @@ private:
 
   bool isLocalOptimalSolutionOscillation(
     const std::vector<Eigen::Matrix4f> & result_pose_matrix_array) const;
-
-  void publishMarkerForDebug(const Particle & particle_array, const size_t i);
 
   void timerDiagnostic();
 
