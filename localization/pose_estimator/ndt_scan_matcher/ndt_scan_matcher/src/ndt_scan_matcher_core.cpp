@@ -14,7 +14,9 @@
 
 #include "ndt_scan_matcher/ndt_scan_matcher_core.hpp"
 
+#include "ndt_scan_matcher/debug.hpp"
 #include "ndt_scan_matcher/matrix_type.hpp"
+#include "ndt_scan_matcher/particle.hpp"
 #include "ndt_scan_matcher/util_func.hpp"
 
 #include <autoware_utils/geometry/geometry.hpp>
@@ -579,7 +581,9 @@ geometry_msgs::msg::PoseWithCovarianceStamped NDTScanMatcher::alignUsingMonteCar
 
     Particle particle(initial_pose, result_pose, transform_probability, num_iteration);
     particle_array.push_back(particle);
-    publishMarkerForDebug(particle, i++);
+    const auto marker_array = makeDebugMarkers(
+      this->now(), map_frame_, autoware_utils::createMarkerScale(0.3, 0.1, 0.1), particle, i++);
+    ndt_monte_carlo_initial_pose_marker_pub_->publish(marker_array);
 
     auto sensor_points_mapTF_ptr = std::make_shared<pcl::PointCloud<PointSource>>();
     const auto sensor_points_baselinkTF_ptr = ndt_ptr->getInputSource();
@@ -602,53 +606,6 @@ geometry_msgs::msg::PoseWithCovarianceStamped NDTScanMatcher::alignUsingMonteCar
   // ndt_pose_with_covariance_pub_->publish(result_pose_with_cov_msg);
 
   return result_pose_with_cov_msg;
-}
-
-void NDTScanMatcher::publishMarkerForDebug(const Particle & particle, const size_t i)
-{
-  // TODO(Tier IV): getNumSubscribers
-  // TODO(Tier IV): clear old object
-  visualization_msgs::msg::MarkerArray marker_array;
-
-  visualization_msgs::msg::Marker marker;
-  marker.header.stamp = this->now();
-  marker.header.frame_id = map_frame_;
-  marker.type = visualization_msgs::msg::Marker::ARROW;
-  marker.action = visualization_msgs::msg::Marker::ADD;
-  marker.scale = autoware_utils::createMarkerScale(0.3, 0.1, 0.1);
-  marker.id = i;
-
-  marker.ns = "initial_pose_transform_probability_color_marker";
-  marker.pose = particle.initial_pose;
-  marker.color = ExchangeColorCrc(particle.score / 4.5);
-  marker_array.markers.push_back(marker);
-
-  marker.ns = "initial_pose_iteration_color_marker";
-  marker.pose = particle.initial_pose;
-  marker.color = ExchangeColorCrc((1.0 * particle.iteration) / 30.0);
-  marker_array.markers.push_back(marker);
-
-  marker.ns = "initial_pose_index_color_marker";
-  marker.pose = particle.initial_pose;
-  marker.color = ExchangeColorCrc((1.0 * i) / 100);
-  marker_array.markers.push_back(marker);
-
-  marker.ns = "result_pose_transform_probability_color_marker";
-  marker.pose = particle.result_pose;
-  marker.color = ExchangeColorCrc(particle.score / 4.5);
-  marker_array.markers.push_back(marker);
-
-  marker.ns = "result_pose_iteration_color_marker";
-  marker.pose = particle.result_pose;
-  marker.color = ExchangeColorCrc((1.0 * particle.iteration) / 30.0);
-  marker_array.markers.push_back(marker);
-
-  marker.ns = "result_pose_index_color_marker";
-  marker.pose = particle.result_pose;
-  marker.color = ExchangeColorCrc((1.0 * i) / 100);
-  marker_array.markers.push_back(marker);
-
-  ndt_monte_carlo_initial_pose_marker_pub_->publish(marker_array);
 }
 
 void NDTScanMatcher::publishTF(
