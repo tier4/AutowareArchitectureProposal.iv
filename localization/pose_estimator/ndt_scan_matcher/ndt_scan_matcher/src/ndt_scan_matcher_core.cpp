@@ -583,13 +583,13 @@ geometry_msgs::msg::PoseWithCovarianceStamped NDTScanMatcher::alignUsingMonteCar
   }
 
   // generateParticle
-  const auto initial_pose_array = createRandomPoseArray(initial_pose_with_cov, 100);
+  const auto initial_poses = createRandomPoseArray(initial_pose_with_cov, 100);
 
   std::vector<Particle> particle_array;
   auto output_cloud = std::make_shared<pcl::PointCloud<PointSource>>();
 
-  for (unsigned int i = 0; i < initial_pose_array.poses.size(); i++) {
-    const auto & initial_pose = initial_pose_array.poses[i];
+  for (unsigned int i = 0; i < initial_poses.size(); i++) {
+    const auto & initial_pose = initial_poses[i];
 
     const Eigen::Affine3d initial_pose_affine = fromRosPoseToEigen(initial_pose);
     const Eigen::Matrix4f initial_pose_matrix = initial_pose_affine.matrix().cast<float>();
