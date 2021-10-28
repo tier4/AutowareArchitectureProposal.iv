@@ -260,9 +260,7 @@ void NDTScanMatcher::serviceNDTAlign(
   getTransform(map_frame_, req->pose_with_cov.header.frame_id, TF_pose_to_map_ptr);
 
   // transform pose_frame to map_frame
-  auto mapTF_initial_pose_msg_ptr =
-    std::make_shared<geometry_msgs::msg::PoseWithCovarianceStamped>();
-  *mapTF_initial_pose_msg_ptr = transform(req->pose_with_cov, *TF_pose_to_map_ptr);
+  const auto mapTF_initial_pose_msg = transform(req->pose_with_cov, *TF_pose_to_map_ptr);
 
   if (ndt_ptr_->getInputTarget() == nullptr) {
     res->success = false;
@@ -282,7 +280,7 @@ void NDTScanMatcher::serviceNDTAlign(
   std::lock_guard<std::mutex> lock(ndt_map_mtx_);
 
   key_value_stdmap_["state"] = "Aligning";
-  res->pose_with_cov = alignUsingMonteCarlo(ndt_ptr_, *mapTF_initial_pose_msg_ptr);
+  res->pose_with_cov = alignUsingMonteCarlo(ndt_ptr_, mapTF_initial_pose_msg);
   key_value_stdmap_["state"] = "Sleeping";
   res->success = true;
   res->seq = req->seq;
