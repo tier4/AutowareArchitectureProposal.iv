@@ -23,7 +23,9 @@
 #include <memory>
 #include <string>
 #include <vector>
+
 #include "rclcpp/rclcpp.hpp"
+#include "diagnostic_updater/diagnostic_updater.hpp"
 #include "tf2/utils.h"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "raw_vehicle_cmd_converter/accel_map.hpp"
@@ -97,6 +99,9 @@ private:
   DataStampedPtr brake_pedal_ptr_;
   DataStampedPtr delayed_accel_pedal_ptr_;
   DataStampedPtr delayed_brake_pedal_ptr_;
+
+  // Diagnostic Updater
+  std::shared_ptr<diagnostic_updater::Updater> updater_ptr_;
 
   int get_pitch_method_;
   int update_method_;
@@ -257,6 +262,9 @@ private:
   nav_msgs::msg::OccupancyGrid getOccMsg(
     const std::string frame_id, const double height, const double width, const double resolution,
     const std::vector<int8_t> & map_value);
+
+  /* Diag*/
+  void checkUpdateSuggest(diagnostic_updater::DiagnosticStatusWrapper & stat);
 
   /* Debug */
   void publishMap(
