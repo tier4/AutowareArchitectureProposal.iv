@@ -32,6 +32,7 @@ DynamicObjectVisualizer::DynamicObjectVisualizer(const rclcpp::NodeOptions & nod
 : rclcpp::Node("dynamic_object_visualizer", node_options)
 {
   with_feature_ = declare_parameter("with_feature", true);
+  confidence_text_size_ = declare_parameter("confidence_text_size", 0.5);
   only_known_objects_ = declare_parameter("only_known_objects", true);
   if (with_feature_) {
     sub_with_feature_ =
@@ -372,9 +373,9 @@ void DynamicObjectVisualizer::dynamicObjectCallback(
       marker.ns = std::string("path confidence");
       marker.action = visualization_msgs::msg::Marker::MODIFY;
       marker.lifetime = rclcpp::Duration::from_seconds(0.2);
-      marker.scale.x = 0.5;
-      marker.scale.y = 0.5;
-      marker.scale.z = 0.5;
+      marker.scale.x = confidence_text_size_;
+      marker.scale.y = confidence_text_size_;
+      marker.scale.z = confidence_text_size_;
       initPose(marker.pose);
       getColor(input_msg->objects.at(i), marker.color);
       for (size_t j = 0; j < input_msg->objects.at(i).state.predicted_paths.size(); ++j) {

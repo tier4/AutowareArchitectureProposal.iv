@@ -33,6 +33,7 @@ class DynamicObjectVisualizer : public rclcpp::Node
 private:
   // ros
   bool with_feature_;
+  double confidence_text_size_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_;
   rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr sub_;
   rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr
