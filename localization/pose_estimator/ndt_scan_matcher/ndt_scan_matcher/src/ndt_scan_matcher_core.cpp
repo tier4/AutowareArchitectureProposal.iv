@@ -590,8 +590,9 @@ geometry_msgs::msg::PoseWithCovarianceStamped NDTScanMatcher::alignUsingMonteCar
   std::vector<Particle> particle_array;
   auto output_cloud = std::make_shared<pcl::PointCloud<PointSource>>();
 
-  int i = 0;
-  for (const auto & initial_pose : initial_pose_array.poses) {
+  for (unsigned int i = 0; i < initial_pose_array.poses.size(); i++) {
+    const auto & initial_pose = initial_pose_array.poses[i];
+
     const Eigen::Affine3d initial_pose_affine = fromRosPoseToEigen(initial_pose);
     const Eigen::Matrix4f initial_pose_matrix = initial_pose_affine.matrix().cast<float>();
 
@@ -608,7 +609,7 @@ geometry_msgs::msg::PoseWithCovarianceStamped NDTScanMatcher::alignUsingMonteCar
     Particle particle(initial_pose, result_pose, transform_probability, num_iteration);
     particle_array.push_back(particle);
     const auto marker_array = makeDebugMarkers(
-      this->now(), map_frame_, autoware_utils::createMarkerScale(0.3, 0.1, 0.1), particle, i++);
+      this->now(), map_frame_, autoware_utils::createMarkerScale(0.3, 0.1, 0.1), particle, i);
     ndt_monte_carlo_initial_pose_marker_pub_->publish(marker_array);
 
     auto sensor_points_mapTF_ptr = std::make_shared<pcl::PointCloud<PointSource>>();
