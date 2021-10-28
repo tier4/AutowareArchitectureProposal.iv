@@ -80,6 +80,13 @@ AccelBrakeMapCalibrator::AccelBrakeMapCalibrator(const rclcpp::NodeOptions & nod
   }
 
   // initializer
+
+  /* Diagnostic Updater */
+  updater_ptr_ = std::make_shared<diagnostic_updater::Updater>(this, 1.0 / update_hz_);
+  updater_ptr_->setHardwareID("accel_brake_map_calibrator");
+  updater_ptr_->add(
+    "accel_brake_map_calibrator", this, &AccelBrakeMapCalibrator::checkUpdateSuggest);
+
   {
     csv_default_map_dir_ =
       this->declare_parameter<std::string>("csv_default_map_dir", std::string(""));
@@ -1064,6 +1071,31 @@ nav_msgs::msg::OccupancyGrid AccelBrakeMapCalibrator::getOccMsg(
   occ.info.resolution = resolution;
   occ.data = map_value;
   return occ;
+}
+
+// function for diagnostics
+void AccelBrakeMapCalibrator::checkUpdateSuggest(diagnostic_updater::DiagnosticStatusWrapper & stat)
+{
+  using DiagStatus = diagnostic_msgs::msg::DiagnosticStatus;
+  int8_t level = DiagStatus::OK;
+  std::string msg = "OK";
+
+  if (new_accel_mse_que_.size() < part_mse_que_size_ / 2) {
+    // lack of data
+    stat.summary(level, msg);
+
+    return;
+  }
+
+  const double rmse_rate = new_accel_rmse_ / part_original_accel_rmse_;
+  if (rmse_rate < update_suggest_thresh_) {
+    // The accuracy of original accel/brake map is low.
+    // Suggest to update accel brake map
+    level = DiagStatus::WARN;
+    msg = "Accel/brake map Calibration is required.";
+  }
+
+  stat.summary(level, msg);
 }
 
 // function for debug
