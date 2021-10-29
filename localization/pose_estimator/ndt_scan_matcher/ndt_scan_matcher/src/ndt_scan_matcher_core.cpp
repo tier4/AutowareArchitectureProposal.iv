@@ -33,6 +33,20 @@
 #include <iomanip>
 #include <thread>
 
+autoware_debug_msgs::msg::Float32Stamped makeFloat32Stamped(
+  const builtin_interfaces::msg::Time & stamp, const float data)
+{
+  using T = autoware_debug_msgs::msg::Float32Stamped;
+  return autoware_debug_msgs::build<T>().stamp(stamp).data(data);
+}
+
+autoware_debug_msgs::msg::Int32Stamped makeInt32Stamped(
+  const builtin_interfaces::msg::Time & stamp, const int32_t data)
+{
+  using T = autoware_debug_msgs::msg::Int32Stamped;
+  return autoware_debug_msgs::build<T>().stamp(stamp).data(data);
+}
+
 geometry_msgs::msg::TransformStamped identityTransformStamped(
   const builtin_interfaces::msg::Time & timestamp, const std::string & header_frame_id,
   const std::string & child_frame_id)
@@ -530,38 +544,26 @@ void NDTScanMatcher::callbackSensorPoints(
   }
   ndt_marker_pub_->publish(marker_array);
 
-  autoware_debug_msgs::msg::Float32Stamped exe_time_msg;
-  exe_time_msg.stamp = sensor_ros_time;
-  exe_time_msg.data = exe_time;
-  exe_time_pub_->publish(exe_time_msg);
+  exe_time_pub_->publish(makeFloat32Stamped(sensor_ros_time, exe_time));
 
-  autoware_debug_msgs::msg::Float32Stamped transform_probability_msg;
-  transform_probability_msg.stamp = sensor_ros_time;
-  transform_probability_msg.data = transform_probability;
-  transform_probability_pub_->publish(transform_probability_msg);
+  transform_probability_pub_->publish(makeFloat32Stamped(sensor_ros_time, transform_probability));
 
-  autoware_debug_msgs::msg::Int32Stamped iteration_num_msg;
-  iteration_num_msg.stamp = sensor_ros_time;
-  iteration_num_msg.data = iteration_num;
-  iteration_num_pub_->publish(iteration_num_msg);
+  iteration_num_pub_->publish(makeInt32Stamped(sensor_ros_time, iteration_num));
 
-  autoware_debug_msgs::msg::Float32Stamped initial_to_result_distance_msg;
-  initial_to_result_distance_msg.stamp = sensor_ros_time;
-  initial_to_result_distance_msg.data =
+  const float initial_to_result_distance =
     norm(initial_pose_cov_msg.pose.pose.position, result_pose_with_cov_msg.pose.pose.position);
-  initial_to_result_distance_pub_->publish(initial_to_result_distance_msg);
+  initial_to_result_distance_pub_->publish(
+    makeFloat32Stamped(sensor_ros_time, initial_to_result_distance));
 
-  autoware_debug_msgs::msg::Float32Stamped initial_to_result_distance_old_msg;
-  initial_to_result_distance_old_msg.stamp = sensor_ros_time;
-  initial_to_result_distance_old_msg.data =
+  const float initial_to_result_distance_old =
     norm(initial_pose_old_msg_ptr->pose.pose.position, result_pose_with_cov_msg.pose.pose.position);
-  initial_to_result_distance_old_pub_->publish(initial_to_result_distance_old_msg);
+  initial_to_result_distance_old_pub_->publish(
+    makeFloat32Stamped(sensor_ros_time, initial_to_result_distance_old));
 
-  autoware_debug_msgs::msg::Float32Stamped initial_to_result_distance_new_msg;
-  initial_to_result_distance_new_msg.stamp = sensor_ros_time;
-  initial_to_result_distance_new_msg.data =
+  const float initial_to_result_distance_new =
     norm(initial_pose_new_msg_ptr->pose.pose.position, result_pose_with_cov_msg.pose.pose.position);
-  initial_to_result_distance_new_pub_->publish(initial_to_result_distance_new_msg);
+  initial_to_result_distance_new_pub_->publish(
+    makeFloat32Stamped(sensor_ros_time, initial_to_result_distance_new));
 
   key_value_stdmap_["transform_probability"] = std::to_string(transform_probability);
   key_value_stdmap_["iteration_num"] = std::to_string(iteration_num);
