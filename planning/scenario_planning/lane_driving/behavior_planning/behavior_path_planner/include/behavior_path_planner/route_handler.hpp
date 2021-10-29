@@ -55,6 +55,8 @@ enum class PullOutDirection { NONE, LEFT, RIGHT };
 struct LaneChangePath
 {
   PathWithLaneId path;
+  ShiftedPath shifted_path;
+  ShiftPoint shift_point;
   double acceleration{0.0};
   double preparation_length{0.0};
   double lane_change_length{0.0};

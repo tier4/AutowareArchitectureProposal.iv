@@ -16,11 +16,14 @@
 
 #include "behavior_path_planner/path_utilities.hpp"
 #include "behavior_path_planner/utilities.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
 
 #include <autoware_utils/autoware_utils.hpp>
 #include <interpolation/spline_interpolation.hpp>
 
+#include <limits>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace
@@ -82,7 +85,7 @@ bool PathShifter::generate(
 
   if (!is_index_aligned_) {
     updateShiftPointIndices();
-    for (const auto shift_point : shift_points_) {
+    for (const auto & shift_point : shift_points_) {
       int idx_gap = shift_point.end_idx - shift_point.start_idx;
       if (idx_gap <= 1) {
         RCLCPP_WARN_STREAM(
@@ -306,6 +309,66 @@ bool PathShifter::calcShiftPointFromArcLength(
     rclcpp::get_logger("behavior_path_planner").get_child("path_shifter"),
     "Shift Point is generated from arclength: shift_length = %f", shift_length);
   return true;
+}
+
+std::pair<TurnSignal, double> PathShifter::calcTurnSignalAndDistance(
+  const lanelet::ConstLanelets & current_lanes, const ShiftedPath & path,
+  const ShiftPoint & shift_point, const Pose & pose, const double & velocity,
+  const BehaviorPathPlannerParameters & common_parameter, const double & search_distance)
+{
+  TurnSignal turn_signal;
+  const auto base_link2front = common_parameter.base_link2front;
+  const auto tl_on_threshold_lat = common_parameter.turn_light_on_threshold_dis_lat;
+  const auto tl_on_threshold_long = common_parameter.turn_light_on_threshold_dis_long;
+  const auto prev_sec = common_parameter.turn_light_on_threshold_time;
+  const double epsilon = 1e-6;
+  const double max_time = std::numeric_limits<double>::max();
+  const double max_distance = std::numeric_limits<double>::max();
+
+  const auto arc_position_current_pose = lanelet::utils::getArcCoordinates(current_lanes, pose);
+
+  // calc distance from base link to shift start point.
+  double distance_to_shift_start;
+  {
+    const auto shift_start = shift_point.start;
+    const auto arc_position_shift_start =
+      lanelet::utils::getArcCoordinates(current_lanes, shift_start);
+    distance_to_shift_start = arc_position_shift_start.length - arc_position_current_pose.length;
+  }
+
+  // calc distance from ego vehicle front to shift end point.
+  double distance_from_vehicle_front;
+  {
+    const auto shift_end = shift_point.end;
+    const auto arc_position_shift_end = lanelet::utils::getArcCoordinates(current_lanes, shift_end);
+    distance_from_vehicle_front =
+      arc_position_shift_end.length - arc_position_current_pose.length - base_link2front;
+  }
+
+  const auto time_to_shift_start =
+    (std::abs(velocity) < epsilon) ? max_time : distance_to_shift_start / velocity;
+  const double diff =
+    path.shift_length.at(shift_point.end_idx) - path.shift_length.at(shift_point.start_idx);
+
+  // Start turn signal when (1 || 2) && 3 is satisfied
+  //  1. time to shift start point is less than prev_sec
+  //  2. distance to shift point is shorter than tl_on_threshold_long
+  //  3. shift length in lateral is larger than tl_on_threshold_lat
+  if (!path.shift_length.empty()) {
+    if (time_to_shift_start < prev_sec || distance_to_shift_start < tl_on_threshold_long) {
+      if (diff > tl_on_threshold_lat) {
+        turn_signal.data = TurnSignal::LEFT;
+      } else if (diff < -tl_on_threshold_lat) {
+        turn_signal.data = TurnSignal::RIGHT;
+      }
+    }
+  }
+
+  if (distance_from_vehicle_front >= 0.0 && distance_from_vehicle_front <= search_distance) {
+    return std::make_pair(turn_signal, distance_from_vehicle_front);
+  }
+
+  return std::make_pair(turn_signal, max_distance);
 }
 
 void PathShifter::updateShiftPointIndices()
