@@ -94,7 +94,7 @@ endif
 | ------------------------------ | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/diagnostics_agg`             | `diagnostic_msgs::msg::DiagnosticArray`    | Diagnostic information aggregated based [diagnostic_aggregator setting](https://github.com/tier4/autoware.iv/tree/main/system/autoware_error_monitor/config/diagnostic_aggregator) is used to |
 | `/autoware/state`              | `autoware_system_msgs::msg::AutowareState` | Required to ignore error during Route, Planning and Finalizing.                                                                                                                               |
-| `/control/current_gate_mode`   | `autoware_control_msgs::msg::GateMode`     | Required to select the appropriate module from `autonomous_driving` or `remote_control`                                                                                                       |
+| `/control/current_gate_mode`   | `autoware_control_msgs::msg::GateMode`     | Required to select the appropriate module from `autonomous_driving` or `external_control`                                                                                                     |
 | `/vehicle/status/control_mode` | `autoware_vehicle_msgs::msg::ControlMode`  | Required to not hold emergency during manual driving                                                                                                                                          |
 
 ### Output
@@ -123,6 +123,21 @@ endif
 | `use_emergency_hold`                   | bool   | `false`       | If it is false, the vehicle will return to normal as soon as emergencies disappear.                   |
 | `use_emergency_hold_in_manual_driving` | bool   | `false`       | If this parameter is turned off, emergencies will be ignored during manual driving.                   |
 | `emergency_hazard_level`               | int    | `2`           | If hazard_level is more than emergency_hazard_level, autoware state will translate to emergency state |
+
+### YAML format for autoware_error_monitor
+
+The parameter key should be filled with the hierarchical diagnostics output by diagnostic_aggregator. Parameters prefixed with `required_modules.autonomous_driving` are for autonomous driving. Parameters with the `required_modules.remote_control` prefix are for remote control. If the value is `default`, the default value will be set.
+
+| Key                                                                 | Type   | Default Value | Explanation                                                                                                |
+| ------------------------------------------------------------------- | ------ | ------------- | ---------------------------------------------------------------------------------------------------------- |
+| `required_modules.autonomous_driving.DIAGNOSTIC_NAME.sf_at`         | string | `"none"`      | Diagnostic level where it becomes Safe Fault. Available options are `"none"`, `"warn"`, `"error"`.         |
+| `required_modules.autonomous_driving.DIAGNOSTIC_NAME.lf_at`         | string | `"warn"`      | Diagnostic level where it becomes Latent Fault. Available options are `"none"`, `"warn"`, `"error"`.       |
+| `required_modules.autonomous_driving.DIAGNOSTIC_NAME.spf_at`        | string | `"error"`     | Diagnostic level where it becomes Single Point Fault. Available options are `"none"`, `"warn"`, `"error"`. |
+| `required_modules.autonomous_driving.DIAGNOSTIC_NAME.auto_recovery` | string | `"true"`      | Determines whether the system will automatically recover when it recovers from an error.                   |
+| `required_modules.remote_control.DIAGNOSTIC_NAME.sf_at`             | string | `"none"`      | Diagnostic level where it becomes Safe Fault. Available options are `"none"`, `"warn"`, `"error"`.         |
+| `required_modules.remote_control.DIAGNOSTIC_NAME.lf_at`             | string | `"warn"`      | Diagnostic level where it becomes Latent Fault. Available options are `"none"`, `"warn"`, `"error"`.       |
+| `required_modules.remote_control.DIAGNOSTIC_NAME.spf_at`            | string | `"error"`     | Diagnostic level where it becomes Single Point Fault. Available options are `"none"`, `"warn"`, `"error"`. |
+| `required_modules.remote_control.DIAGNOSTIC_NAME.auto_recovery`     | string | `"true"`      | Determines whether the system will automatically recover when it recovers from an error.                   |
 
 ## Assumptions / Known limits
 
