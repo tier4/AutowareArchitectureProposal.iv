@@ -91,5 +91,6 @@ repos:
     hooks:
       - id: cpplint
         args: ["--quiet"]
+        exclude: "(.cu)"
 
 exclude: ".svg"
