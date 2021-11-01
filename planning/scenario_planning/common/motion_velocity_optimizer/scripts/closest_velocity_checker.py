@@ -34,8 +34,8 @@ from tf2_ros import LookupException
 from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
 
-REF_LINK = 'map'
-SELF_LINK = 'base_link'
+REF_LINK = "map"
+SELF_LINK = "base_link"
 
 LANE_CHANGE = 0
 BEHAVIOR_VELOCITY = 1
@@ -51,9 +51,8 @@ DATA_NUM = 10
 
 
 class VelocityChecker(Node):
-
     def __init__(self):
-        super().__init__('velocity_checker')
+        super().__init__("velocity_checker")
 
         self.autoware_engage = None
         self.external_v_lim = np.nan
@@ -70,72 +69,70 @@ class VelocityChecker(Node):
 
         # planning path and trajectories
         profile = rclpy.qos.QoSProfile(
-            depth=1,
-            durability=rclpy.qos.QoSDurabilityPolicy.TRANSIENT_LOCAL)
-        lane_drv = '/planning/scenario_planning/lane_driving'
-        scenario = '/planning/scenario_planning'
+            depth=1, durability=rclpy.qos.QoSDurabilityPolicy.TRANSIENT_LOCAL
+        )
+        lane_drv = "/planning/scenario_planning/lane_driving"
+        scenario = "/planning/scenario_planning"
         self.sub0 = self.create_subscription(
             PathWithLaneId,
-            lane_drv +
-            '/behavior_planning/path_with_lane_id',
+            lane_drv + "/behavior_planning/path_with_lane_id",
             self.CallBackBehaviorPathWLid,
-            1)
+            1,
+        )
         self.sub1 = self.create_subscription(
-            Path,
-            lane_drv +
-            '/behavior_planning/path',
-            self.CallBackBehaviorPath,
-            1)
+            Path, lane_drv + "/behavior_planning/path", self.CallBackBehaviorPath, 1
+        )
         self.sub2 = self.create_subscription(
             Trajectory,
-            lane_drv +
-            '/motion_planning/obstacle_avoidance_planner/trajectory',
+            lane_drv + "/motion_planning/obstacle_avoidance_planner/trajectory",
             self.CallBackAvoidTrajectory,
-            1)
+            1,
+        )
         self.sub3 = self.create_subscription(
-            Trajectory,
-            lane_drv + '/trajectory',
-            self.CallBackLaneDriveTrajectory,
-            1)
+            Trajectory, lane_drv + "/trajectory", self.CallBackLaneDriveTrajectory, 1
+        )
         self.sub4 = self.create_subscription(
             Trajectory,
-            scenario +
-            '/motion_velocity_optimizer/debug/trajectory_lateral_acc_filtered',
+            scenario + "/motion_velocity_optimizer/debug/trajectory_lateral_acc_filtered",
             self.CallBackLataccTrajectory,
-            1)
+            1,
+        )
         self.sub5 = self.create_subscription(
-            Trajectory,
-            scenario + '/trajectory',
-            self.CallBackScenarioTrajectory,
-            1)
+            Trajectory, scenario + "/trajectory", self.CallBackScenarioTrajectory, 1
+        )
 
         # control commands
         self.sub6 = self.create_subscription(
             ControlCommandStamped,
-            '/control/trajectory_follower/control_cmd',
+            "/control/trajectory_follower/control_cmd",
             self.CallBackControlCmd,
-            1)
+            1,
+        )
         self.sub7 = self.create_subscription(
-            VehicleCommand, '/control/vehicle_cmd', self.CallBackVehicleCmd, 1)
+            VehicleCommand, "/control/vehicle_cmd", self.CallBackVehicleCmd, 1
+        )
 
         # others related to velocity
         self.sub8 = self.create_subscription(
-            Engage, '/autoware/engage', self.CallBackAwEngage, profile)
+            Engage, "/autoware/engage", self.CallBackAwEngage, profile
+        )
         self.sub9 = self.create_subscription(
             VelocityLimit,
-            '/planning/scenario_planning/current_max_velocity',
+            "/planning/scenario_planning/current_max_velocity",
             self.CallBackExternalVelLim,
-            profile)
+            profile,
+        )
 
         # self twist
         self.sub10 = self.create_subscription(
-            TwistStamped, '/localization/twist', self.CallBackLocalizationTwist, 1)
+            TwistStamped, "/localization/twist", self.CallBackLocalizationTwist, 1
+        )
         self.sub11 = self.create_subscription(
-            TwistStamped, '/vehicle/status/twist', self.CallBackVehicleTwist, 1)
+            TwistStamped, "/vehicle/status/twist", self.CallBackVehicleTwist, 1
+        )
 
         # publish data
-        self.pub_v_arr = self.create_publisher(
-            Float32MultiArrayStamped, 'closest_speeds', 1)
+        self.pub_v_arr = self.create_publisher(Float32MultiArrayStamped, "closest_speeds", 1)
 
         time.sleep(1.0)  # wait for ready to publish/subscribe
 
@@ -145,9 +142,10 @@ class VelocityChecker(Node):
     def printInfo(self):
         self.count = self.count % 30
         if self.count == 0:
-            self.get_logger().info('')
+            self.get_logger().info("")
             self.get_logger().info(
-                '| Map Limit | Behavior | Obs Avoid | Obs Stop | External Lim | LatAcc Filtered | Optimized | Control VelCmd | Control AccCmd | Vehicle VelCmd | Vehicle AccCmd | Engage | Localization Vel | Vehicle Vel | [km/h]')  # noqa: E501
+                "| Map Limit | Behavior | Obs Avoid | Obs Stop | External Lim | LatAcc Filtered | Optimized | Control VelCmd | Control AccCmd | Vehicle VelCmd | Vehicle AccCmd | Engage | Localization Vel | Vehicle Vel | [km/h]"
+            )  # noqa: E501
         mps2kmph = 3.6
         vel_map_lim = self.data_arr[LANE_CHANGE] * mps2kmph
         vel_behavior = self.data_arr[BEHAVIOR_VELOCITY] * mps2kmph
@@ -162,12 +160,29 @@ class VelocityChecker(Node):
         acc_vehicle_cmd = self.data_arr[VEHICLE_CMD_ACC]
         vel_localization = self.localization_twist.linear.x * mps2kmph
         vel_vehicle = self.vehicle_twist.linear.x * mps2kmph
-        engage = 'None' if self.autoware_engage is None else (
-            'True' if self.autoware_engage is True else 'False')
-        self.get_logger().info('| {0: 9.2f} | {1: 8.2f} | {2: 9.2f} | {3: 8.2f} | {4: 12.2f} | {5: 15.2f} | {6: 9.2f} | {7: 14.2f} | {8: 14.2f} | {9: 14.2f} | {10: 14.2f} | {11:>6s} | {12: 16.2f} | {13: 11.2f} |'.format(  # noqa: E501
-            vel_map_lim, vel_behavior, vel_obs_avoid, vel_obs_stop, vel_external_lim,
-            vel_latacc_filtered, vel_optimized, vel_ctrl_cmd, acc_ctrl_cmd,
-            vel_vehicle_cmd, acc_vehicle_cmd, engage, vel_localization, vel_vehicle))
+        engage = (
+            "None"
+            if self.autoware_engage is None
+            else ("True" if self.autoware_engage is True else "False")
+        )
+        self.get_logger().info(
+            "| {0: 9.2f} | {1: 8.2f} | {2: 9.2f} | {3: 8.2f} | {4: 12.2f} | {5: 15.2f} | {6: 9.2f} | {7: 14.2f} | {8: 14.2f} | {9: 14.2f} | {10: 14.2f} | {11:>6s} | {12: 16.2f} | {13: 11.2f} |".format(  # noqa: E501
+                vel_map_lim,
+                vel_behavior,
+                vel_obs_avoid,
+                vel_obs_stop,
+                vel_external_lim,
+                vel_latacc_filtered,
+                vel_optimized,
+                vel_ctrl_cmd,
+                acc_ctrl_cmd,
+                vel_vehicle_cmd,
+                acc_vehicle_cmd,
+                engage,
+                vel_localization,
+                vel_vehicle,
+            )
+        )
         self.count += 1
 
     def timerCallback(self):
@@ -240,8 +255,7 @@ class VelocityChecker(Node):
         closest = -1
         min_dist_squared = 1.0e10
         for i in range(0, len(path.points)):
-            dist_sq = self.calcSquaredDist2d(
-                self.self_pose, path.points[i].pose)
+            dist_sq = self.calcSquaredDist2d(self.self_pose, path.points[i].pose)
             if dist_sq < min_dist_squared:
                 min_dist_squared = dist_sq
                 closest = i
@@ -251,8 +265,7 @@ class VelocityChecker(Node):
         closest = -1
         min_dist_squared = 1.0e10
         for i in range(0, len(path.points)):
-            dist_sq = self.calcSquaredDist2d(
-                self.self_pose, path.points[i].point.pose)
+            dist_sq = self.calcSquaredDist2d(self.self_pose, path.points[i].point.pose)
             if dist_sq < min_dist_squared:
                 min_dist_squared = dist_sq
                 closest = i
@@ -262,8 +275,7 @@ class VelocityChecker(Node):
         closest = -1
         min_dist_squared = 1.0e10
         for i in range(0, len(path.points)):
-            dist_sq = self.calcSquaredDist2d(
-                self.self_pose, path.points[i].pose)
+            dist_sq = self.calcSquaredDist2d(self.self_pose, path.points[i].pose)
             if dist_sq < min_dist_squared:
                 min_dist_squared = dist_sq
                 closest = i
@@ -276,8 +288,7 @@ class VelocityChecker(Node):
 
     def updatePose(self, from_link, to_link):
         try:
-            tf = self.tf_buffer.lookup_transform(
-                from_link, to_link, rclpy.time.Time())
+            tf = self.tf_buffer.lookup_transform(from_link, to_link, rclpy.time.Time())
             self.self_pose.position.x = tf.transform.translation.x
             self.self_pose.position.y = tf.transform.translation.y
             self.self_pose.position.z = tf.transform.translation.z
@@ -287,7 +298,7 @@ class VelocityChecker(Node):
             self.self_pose.orientation.w = tf.transform.rotation.w
             return
         except LookupException as e:
-            self.get_logger().warn('No required transformation found: `{}`'.format(str(e)))
+            self.get_logger().warn("No required transformation found: `{}`".format(str(e)))
             return
 
 
@@ -303,5 +314,5 @@ def main(args=None):
         rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -29,31 +29,32 @@ def get_map_list(y_num, x_num):
         child_data_list = []
         for xn in range(x_num):
             child_data_list.append([])
-            if(xn == x_num - 1):
+            if xn == x_num - 1:
                 data_list.append(child_data_list)
     return data_list
 
 
-class CalcUtils():
-
+class CalcUtils:
     @staticmethod
     def average_filter(data, average_num):
         if type(average_num) != int:
             print(
-                'Error in average_filter(data, average_num):\
-                Type of average_num must be int')
+                "Error in average_filter(data, average_num):\
+                Type of average_num must be int"
+            )
             sys.exit(1)
 
         if average_num % 2 == 0:
             print(
-                'Error in average_filter(data, average_num):\
-                average_num must be odd number')
+                "Error in average_filter(data, average_num):\
+                average_num must be odd number"
+            )
             sys.exit(1)
 
-        average_filter = np.ones(average_num)/float(average_num)
+        average_filter = np.ones(average_num) / float(average_num)
         average_data = np.convolve(data, average_filter)
-        cut_num = (average_num-1)/2
-        return average_data[cut_num:len(average_data)-cut_num]
+        cut_num = (average_num - 1) / 2
+        return average_data[cut_num : len(average_data) - cut_num]
 
     @staticmethod
     # fp:pass Hz, #fs: block Hz, g_pass: pass dB, g_stop: stop DB
@@ -62,18 +63,15 @@ class CalcUtils():
         wp = fp / fn
         ws = fs / fn
         N, Wn = signal.buttord(wp, ws, g_pass, g_stop)
-        b, a = signal.butter(N, Wn, 'low')
+        b, a = signal.butter(N, Wn, "low")
         y = signal.filtfilt(b, a, x)
         return y
 
     @staticmethod
-    def create_2d_map(
-            x, y, data, color_factor,
-            x_index_list, x_thresh,
-            y_index_list, y_thresh):
+    def create_2d_map(x, y, data, color_factor, x_index_list, x_thresh, y_index_list, y_thresh):
 
-        if(x.shape != y.shape or y.shape != data.shape):
-            print('Error: the shape of x, y, data must be same')
+        if x.shape != y.shape or y.shape != data.shape:
+            print("Error: the shape of x, y, data must be same")
             sys.exit()
         data_size = len(x)
 
@@ -86,11 +84,11 @@ class CalcUtils():
             x_index = None
             y_index = None
             for xi in range(0, x_num):
-                if (np.abs(x_index_list[xi] - x[i]) < x_thresh):
+                if np.abs(x_index_list[xi] - x[i]) < x_thresh:
                     x_index = xi
                     break
             for yi in range(0, y_num):
-                if (np.abs(y_index_list[yi] - y[i]) < y_thresh):
+                if np.abs(y_index_list[yi] - y[i]) < y_thresh:
                     y_index = yi
                     break
 
@@ -117,7 +115,7 @@ class CalcUtils():
         return extracted_data
 
     @staticmethod
-    def create_stat_map(data_map, statistics_type='average'):
+    def create_stat_map(data_map, statistics_type="average"):
         y_num = len(data_map)
         x_num = len(data_map[0])
         count_map = np.zeros((y_num, x_num))
@@ -127,14 +125,14 @@ class CalcUtils():
             for x in range(x_num):
                 data = np.array(data_map[y][x])
                 count_map[y][x] = data.shape[0]
-                if(count_map[y][x] == 0):
+                if count_map[y][x] == 0:
                     # print('Warn: data_map', y, x, 'is vacant list')
                     average_map[y][x] = 0.0
                     stddev_map[y][x] = 0.0
                 else:
-                    if statistics_type == 'average':
+                    if statistics_type == "average":
                         average_map[y][x] = np.average(data)
-                    elif statistics_type == 'median':
+                    elif statistics_type == "median":
                         average_map[y][x] = np.median(data)
                     stddev_map[y][x] = np.std(data)
         return count_map, average_map, stddev_map
