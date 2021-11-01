@@ -136,8 +136,8 @@ void ScanGroundFilterComponent::classifyPointCloud(
     pcl::PointXYZ prev_gnd_point(0, 0, 0);
     // loop through each point in the radial div
     for (size_t j = 0; j < in_radial_ordered_clouds[i].size(); j++) {
-      const double global_slope_max_angle = global_slope_max_angle_rad_;
-      const double local_slope_max_angle = local_slope_max_angle_rad_;
+      const float global_slope_max_angle = global_slope_max_angle_rad_;
+      const float local_slope_max_angle = local_slope_max_angle_rad_;
       auto * p = &in_radial_ordered_clouds[i][j];
       auto * p_prev = &in_radial_ordered_clouds[i][j - 1];
 
