@@ -15,6 +15,8 @@
 #ifndef NORMAL_DISTRIBUTIONS_TRANSFORM_OMP_HPP
 #define NORMAL_DISTRIBUTIONS_TRANSFORM_OMP_HPP
 
+#include <vector>
+
 #include "ndt/omp.hpp"
 
 template <class PointSource, class PointTarget>

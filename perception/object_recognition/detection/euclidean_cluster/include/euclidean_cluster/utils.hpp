@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #pragma once
+
+#include <vector>
+
 #include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "pcl/point_cloud.h"

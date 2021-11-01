@@ -21,6 +21,7 @@
 #include <cmath>
 #include <deque>
 #include <random>
+#include <vector>
 
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"

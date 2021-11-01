@@ -22,7 +22,7 @@
 using autoware_planning_msgs::msg::PathWithLaneId;
 using autoware_vehicle_msgs::msg::TurnSignal;
 
-using namespace std::placeholders;
+using std::placeholders::_1;
 
 namespace
 {

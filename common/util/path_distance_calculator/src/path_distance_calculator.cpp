@@ -55,7 +55,7 @@ PathDistanceCalculator::PathDistanceCalculator(const rclcpp::NodeOptions & optio
     pub_dist_->publish(msg);
   };
 
-  using namespace std::chrono_literals;
+  using namespace std::literals::chrono_literals;
   timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
     this->get_clock(), 1s, std::move(timer_callback),
     this->get_node_base_interface()->get_context());

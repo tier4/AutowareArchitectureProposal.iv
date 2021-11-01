@@ -15,6 +15,8 @@
 #ifndef NORMAL_DISTRIBUTIONS_TRANSFORM_PCL_MODIFIED_H
 #define NORMAL_DISTRIBUTIONS_TRANSFORM_PCL_MODIFIED_H
 
+#include <vector>
+
 #include "ndt/base.hpp"
 #include "ndt_pcl_modified/ndt.hpp"
 #include "pcl/io/io.h"

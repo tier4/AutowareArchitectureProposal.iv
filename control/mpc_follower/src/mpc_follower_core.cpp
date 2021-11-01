@@ -27,7 +27,7 @@
 #define DEG2RAD 3.1415926535 / 180.0
 #define RAD2DEG 180.0 / 3.1415926535
 
-using namespace std::chrono_literals;
+using namespace std::literals::chrono_literals;
 
 namespace
 {

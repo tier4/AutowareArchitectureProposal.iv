@@ -15,6 +15,8 @@
 #ifndef NORMAL_DISTRIBUTIONS_TRANSFORM_OMP_H
 #define NORMAL_DISTRIBUTIONS_TRANSFORM_OMP_H
 
+#include <vector>
+
 #include "ndt/base.hpp"
 #include "pcl/io/io.h"
 #include "pcl/io/pcd_io.h"

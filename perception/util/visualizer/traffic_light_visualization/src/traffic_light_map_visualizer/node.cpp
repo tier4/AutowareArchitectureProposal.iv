@@ -23,7 +23,7 @@
 #include "lanelet2_projection/UTM.h"
 #include "visualization_msgs/msg/marker_array.hpp"
 
-using namespace std::placeholders;
+using std::placeholders::_1;
 
 namespace
 {

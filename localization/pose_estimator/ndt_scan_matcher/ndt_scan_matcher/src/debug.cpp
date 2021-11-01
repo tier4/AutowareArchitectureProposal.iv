@@ -20,8 +20,8 @@ visualization_msgs::msg::MarkerArray makeDebugMarkers(
   const builtin_interfaces::msg::Time & stamp, const std::string & map_frame_,
   const geometry_msgs::msg::Vector3 & scale, const Particle & particle, const size_t i)
 {
-  // TODO getNumSubscribers
-  // TODO clear old object
+  // TODO(Tier IV): getNumSubscribers
+  // TODO(Tier IV): clear old object
   visualization_msgs::msg::MarkerArray marker_array;
 
   visualization_msgs::msg::Marker marker;

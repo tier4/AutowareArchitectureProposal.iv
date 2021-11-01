@@ -21,10 +21,10 @@
 #include "boost/optional.hpp"
 
 using namespace std::literals;
-using namespace std::placeholders;
 using std::chrono::duration;
 using std::chrono::duration_cast;
 using std::chrono::nanoseconds;
+using std::placeholders::_1;
 
 namespace dummy_infrastructure
 {

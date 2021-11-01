@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #pragma once
+
+#include <vector>
+
 #include "euclidean_cluster/euclidean_cluster_interface.hpp"
 #include "euclidean_cluster/utils.hpp"
 #include "pcl/point_types.h"

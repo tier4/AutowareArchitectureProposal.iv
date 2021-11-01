@@ -24,7 +24,7 @@
 #include "visualization_msgs/msg/marker.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 
-using namespace std::placeholders;
+using std::placeholders::_1;
 
 DynamicObjectVisualizer::DynamicObjectVisualizer(const rclcpp::NodeOptions & node_options)
 : rclcpp::Node("dynamic_object_visualizer", node_options)

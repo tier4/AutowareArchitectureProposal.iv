@@ -111,4 +111,4 @@ private:
 };
 }  // namespace Tn
 
-#endif  //__TRT_NET_H_
+#endif  // __TRT_NET_H_

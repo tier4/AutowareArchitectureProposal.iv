@@ -43,7 +43,7 @@ FaultInjectionNode::FaultInjectionNode(rclcpp::NodeOptions node_options)
 {
   updater_.setHardwareID("fault_injection");
 
-  using namespace std::placeholders;
+  using std::placeholders::_1;
 
   // Parameter Server
   set_param_res_ =

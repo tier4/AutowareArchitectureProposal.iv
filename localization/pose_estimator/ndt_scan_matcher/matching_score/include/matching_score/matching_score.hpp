@@ -15,6 +15,8 @@
 #ifndef MATCHING_SCORE_H
 #define MATCHING_SCORE_H
 
+#include <vector>
+
 #include "pcl/search/kdtree.h"
 
 template <class PointType>

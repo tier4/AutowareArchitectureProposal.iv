@@ -26,9 +26,11 @@
 
 #include <algorithm>
 #include <iostream>
+#include <string>
+#include <utility>
 #include <vector>
 
-#include "cudnn.h"
+#include "cudnn.h"  // NOLINT
 
 #ifndef CUDA_CHECK
 
@@ -62,7 +64,7 @@ private:
   typedef std::pair<std::string, float> Record;
   std::vector<Record> mProfile;
 
-  virtual void reportLayerTime(const char * layerName, float ms) noexcept override
+  void reportLayerTime(const char * layerName, float ms) noexcept override
   {
     auto record = std::find_if(
       mProfile.begin(), mProfile.end(), [&](const Record & r) { return r.first == layerName; });
@@ -80,7 +82,7 @@ class Logger : public nvinfer1::ILogger
 public:
   Logger() : Logger(Severity::kWARNING) {}
 
-  Logger(Severity severity) : reportableSeverity(severity) {}
+  explicit Logger(Severity severity) : reportableSeverity(severity) {}
 
   void log(Severity severity, const char * msg) noexcept override
   {

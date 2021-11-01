@@ -49,4 +49,6 @@ public:
 };
 }  // namespace pointcloud_preprocessor
 
-#endif  // POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__DISTANCE_BASED_COMPARE_MAP_FILTER_NODELET_HPP_
+// clang-format off
+#endif  // POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__DISTANCE_BASED_COMPARE_MAP_FILTER_NODELET_HPP_ // NOLINT
+// clang-format on

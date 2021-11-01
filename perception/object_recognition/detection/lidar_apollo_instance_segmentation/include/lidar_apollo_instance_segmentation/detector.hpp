@@ -13,7 +13,9 @@
 // limitations under the License.
 
 #pragma once
+
 #include <memory>
+#include <string>
 
 #include "TrtNet.hpp"
 #include "cluster2d.hpp"
@@ -27,7 +29,7 @@
 class LidarApolloInstanceSegmentation : public LidarInstanceSegmentationInterface
 {
 public:
-  LidarApolloInstanceSegmentation(rclcpp::Node * node);
+  explicit LidarApolloInstanceSegmentation(rclcpp::Node * node);
   ~LidarApolloInstanceSegmentation() {}
   bool detectDynamicObjects(
     const sensor_msgs::msg::PointCloud2 & input,

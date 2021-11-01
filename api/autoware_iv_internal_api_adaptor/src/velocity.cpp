@@ -18,7 +18,8 @@ namespace internal_api
 {
 Velocity::Velocity(const rclcpp::NodeOptions & options) : Node("external_api_velocity", options)
 {
-  using namespace std::placeholders;
+  using std::placeholders::_1;
+  using std::placeholders::_2;
   autoware_api_utils::ServiceProxyNodeInterface proxy(this);
 
   srv_pause_ = proxy.create_service<autoware_external_api_msgs::srv::PauseDriving>(

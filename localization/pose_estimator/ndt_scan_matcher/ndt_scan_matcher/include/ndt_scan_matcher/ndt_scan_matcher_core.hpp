@@ -17,6 +17,7 @@
 
 #include <array>
 #include <deque>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -76,7 +77,7 @@ class NDTScanMatcher : public rclcpp::Node
   using PointSource = pcl::PointXYZ;
   using PointTarget = pcl::PointXYZ;
 
-  // TODO move file
+  // TODO(Tier IV): move file
   struct OMPParams
   {
     OMPParams() : search_method(pclomp::NeighborSearchMethod::KDTREE), num_threads(1) {}

@@ -26,7 +26,7 @@ namespace euclidean_cluster
 class VoxelGridBasedEuclideanClusterNode : public rclcpp::Node
 {
 public:
-  VoxelGridBasedEuclideanClusterNode(const rclcpp::NodeOptions & options);
+  explicit VoxelGridBasedEuclideanClusterNode(const rclcpp::NodeOptions & options);
 
 private:
   void onPointCloud(const sensor_msgs::msg::PointCloud2::ConstSharedPtr input_msg);

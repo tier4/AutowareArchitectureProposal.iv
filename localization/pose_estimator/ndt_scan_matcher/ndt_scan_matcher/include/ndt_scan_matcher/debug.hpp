@@ -15,6 +15,8 @@
 #ifndef NDT_SCAN_MATCHER__DEBUG_HPP_
 #define NDT_SCAN_MATCHER__DEBUG_HPP_
 
+#include <string>
+
 #include "ndt_scan_matcher/particle.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 

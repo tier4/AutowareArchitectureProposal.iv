@@ -15,6 +15,8 @@
 #ifndef NORMAL_DISTRIBUTIONS_TRANSFORM_PCL_GENERIC_HPP
 #define NORMAL_DISTRIBUTIONS_TRANSFORM_PCL_GENERIC_HPP
 
+#include <vector>
+
 #include "ndt/pcl_generic.hpp"
 
 template <class PointSource, class PointTarget>

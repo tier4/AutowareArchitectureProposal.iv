@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #pragma once
+
+#include <memory>
+
 #include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
 #include "euclidean_cluster/euclidean_cluster.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
@@ -24,7 +27,7 @@ namespace euclidean_cluster
 class EuclideanClusterNode : public rclcpp::Node
 {
 public:
-  EuclideanClusterNode(const rclcpp::NodeOptions & options);
+  explicit EuclideanClusterNode(const rclcpp::NodeOptions & options);
 
 private:
   void onPointCloud(sensor_msgs::msg::PointCloud2::ConstSharedPtr input_msg);

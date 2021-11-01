@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #pragma once
+
+#include <vector>
+
 #include "pcl/point_cloud.h"
 #include "pcl/point_types.h"
 #include "rclcpp/rclcpp.hpp"
