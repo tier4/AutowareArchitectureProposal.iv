@@ -24,6 +24,7 @@
 #include "scene_module/intersection/scene_intersection.hpp"
 
 #include "geometry_msgs/msg/point.hpp"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 namespace behavior_velocity_planner
 {
@@ -103,6 +104,10 @@ std::vector<lanelet::CompoundPolygon3d> getPolygon3dFromLaneletsVec(
 
 std::vector<int> getLaneletIdsFromLaneletsVec(
   const std::vector<lanelet::ConstLanelets> & ll_vec);
+
+double calcArcLengthFromPath(
+  const autoware_planning_msgs::msg::PathWithLaneId & input_path, const size_t src_idx,
+  const size_t dst_idx);
 
 }  // namespace util
 }  // namespace behavior_velocity_planner

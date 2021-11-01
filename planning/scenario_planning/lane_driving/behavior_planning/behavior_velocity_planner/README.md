@@ -257,7 +257,6 @@ Launches when there is an intersection area on a target lane
 | --------------------------------------------- | ------ | ----------------------------------------------------------------------------- |
 | `intersection/state_transit_margin_time`      | double | [m] time margin to change state                                               |
 | `intersection/decel_velocity`                 | double | [m] deceleration velocity in intersection                                     |
-| `intersection/path_expand_width`              | bool   | [m] path area to see with expansion                                           |
 | `intersection/stop_line_margin`               | double | [m] margin before stop line                                                   |
 | `intersection/stuck_vehicle_detect_dist`      | double | [m] this should be the length between cars when they are stopped.             |
 | `intersection/stuck_vehicle_ignore_dist`      | double | [m] obstacle stop max distance(5.0m) + stuck vehicle size / 2 (0.0m-)         |
@@ -268,6 +267,8 @@ Launches when there is an intersection area on a target lane
 | `intersection/detection_area_length`          | double | [m] range for lidar detection 200m is by default                              |
 | `intersection/detection_area_angle_threshold` | double | [rad] threshold of angle difference between the detection object and lane     |
 | `intersection/min_predicted_path_confidence`  | double | [-] minimum confidence value of predicted path to use for collision detection |
+| `collision_start_margin_time`                 | double | [s] margin time before objects enter intersection lane                        |
+| `collision_end_margin_time`                   | double | [s] margin time after objects exit intersection lane                          |
 | `merge_from_private_road/stop_duration_sec`   | double | [s] duration to stop                                                          |
 
 #### Flowchart
