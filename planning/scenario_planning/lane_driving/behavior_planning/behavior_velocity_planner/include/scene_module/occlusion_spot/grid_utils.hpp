@@ -18,16 +18,13 @@
 #include <vector>
 
 #include "boost/geometry.hpp"
-#include "opencv2/opencv.hpp"
-
-#include "lanelet2_core/geometry/Lanelet.h"
-#include "lanelet2_core/primitives/Lanelet.h"
-
 #include "grid_map_core/GridMap.hpp"
 #include "grid_map_core/iterators/LineIterator.hpp"
 #include "grid_map_core/iterators/PolygonIterator.hpp"
+#include "lanelet2_core/geometry/Lanelet.h"
+#include "lanelet2_core/primitives/Lanelet.h"
 #include "nav_msgs/msg/occupancy_grid.hpp"
-
+#include "opencv2/opencv.hpp"
 #include "scene_module/occlusion_spot/geometry.hpp"
 
 namespace behavior_velocity_planner

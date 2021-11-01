@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "bev_optical_flow/utils.hpp"
+
 #include <string>
 
 #include "tf2/LinearMath/Matrix3x3.h"
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-
-#include "bev_optical_flow/utils.hpp"
 
 namespace bev_optical_flow
 {
@@ -86,7 +86,7 @@ geometry_msgs::msg::Twist Utils::getObjCoordsTwist(
   Eigen::Vector3d obj_coords_vector =
     base2obj_rot.inverse() *
     Eigen::Vector3d(
-    base_coords_twist.linear.x, base_coords_twist.linear.y, base_coords_twist.linear.z);
+      base_coords_twist.linear.x, base_coords_twist.linear.y, base_coords_twist.linear.z);
   geometry_msgs::msg::Twist obj_coords_twist;
   obj_coords_twist.linear.x = obj_coords_vector.x();
   obj_coords_twist.linear.y = obj_coords_vector.y();
@@ -100,7 +100,7 @@ geometry_msgs::msg::Point Utils::pixel2point(
   // affine transform image coords to rotated coords
   Eigen::Affine2f image2rotated =
     Eigen::Translation<float, 2>(
-    static_cast<int>(image_size.width * 0.5), static_cast<int>(image_size.height * 0.5)) *
+      static_cast<int>(image_size.width * 0.5), static_cast<int>(image_size.height * 0.5)) *
     Eigen::Rotation2Df(180 * M_PI / 180).toRotationMatrix();
 
   // affine transform rotated coords to baselink coords

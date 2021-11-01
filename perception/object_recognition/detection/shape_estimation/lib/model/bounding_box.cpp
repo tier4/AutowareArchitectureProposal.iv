@@ -14,7 +14,6 @@
 
 #include "shape_estimation/model/bounding_box.hpp"
 
-
 #include <algorithm>
 #include <cmath>
 #include <utility>
@@ -36,8 +35,7 @@
 
 constexpr float epsilon = 0.001;
 
-BoundingBoxShapeModel::BoundingBoxShapeModel()
-: reference_yaw_(boost::none) {}
+BoundingBoxShapeModel::BoundingBoxShapeModel() : reference_yaw_(boost::none) {}
 
 BoundingBoxShapeModel::BoundingBoxShapeModel(const boost::optional<float> & reference_yaw)
 : reference_yaw_(reference_yaw)
@@ -193,7 +191,9 @@ float BoundingBoxShapeModel::calcClosenessCriterion(
   constexpr float d_max = 0.4 * 0.4;
   float beta = 0;  // col.6, Algo.4
   for (size_t i = 0; i < D_1.size(); ++i) {
-    if (d_max < std::min(D_1.at(i), D_2.at(i))) {continue;}
+    if (d_max < std::min(D_1.at(i), D_2.at(i))) {
+      continue;
+    }
     const float d = std::max(std::min(D_1.at(i), D_2.at(i)), d_min);
     beta += 1.0 / d;
   }

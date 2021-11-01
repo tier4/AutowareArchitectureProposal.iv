@@ -19,12 +19,10 @@
 #include "boost/archive/text_oarchive.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/process.hpp"
-
 #include "fmt/format.h"
 #include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
-
 #include "hdd_reader/hdd_reader.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "system_monitor/hdd_monitor/hdd_monitor.hpp"
 
 namespace fs = boost::filesystem;
@@ -38,7 +36,9 @@ class TestHDDMonitor : public HDDMonitor
 
 public:
   TestHDDMonitor(const std::string & node_name, const rclcpp::NodeOptions & options)
-  : HDDMonitor(node_name, options) {}
+  : HDDMonitor(node_name, options)
+  {
+  }
 
   void diagCallback(const diagnostic_msgs::msg::DiagnosticArray::ConstSharedPtr diag_msg)
   {
@@ -77,9 +77,9 @@ public:
     }
   }
 
-  void clearHDDParams() {hdd_params_.clear();}
+  void clearHDDParams() { hdd_params_.clear(); }
 
-  void update() {updater_.force_update();}
+  void update() { updater_.force_update(); }
 
   const std::string removePrefix(const std::string & name)
   {
@@ -116,8 +116,7 @@ public:
 
 protected:
   std::unique_ptr<TestHDDMonitor> monitor_;
-  rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr
-    sub_;
+  rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr sub_;
   std::string exe_dir_;
   std::string df_;
 
@@ -130,13 +129,17 @@ protected:
     sub_ = monitor_->create_subscription<diagnostic_msgs::msg::DiagnosticArray>(
       "/diagnostics", 1000, std::bind(&TestHDDMonitor::diagCallback, monitor_.get(), _1));
     // Remove dummy executable if exists
-    if (fs::exists(df_)) {fs::remove(df_);}
+    if (fs::exists(df_)) {
+      fs::remove(df_);
+    }
   }
 
   void TearDown()
   {
     // Remove dummy executable if exists
-    if (fs::exists(df_)) {fs::remove(df_);}
+    if (fs::exists(df_)) {
+      fs::remove(df_);
+    }
     rclcpp::shutdown();
   }
 
@@ -161,8 +164,7 @@ protected:
   }
 };
 
-enum ThreadTestMode
-{
+enum ThreadTestMode {
   Normal = 0,
   Hot,
   CriticalHot,
@@ -181,7 +183,9 @@ void * hdd_reader(void * args)
 
   // Create a new socket
   int sock = socket(AF_INET, SOCK_STREAM, 0);
-  if (sock < 0) {return nullptr;}
+  if (sock < 0) {
+    return nullptr;
+  }
 
   // Allow address reuse
   int ret = 0;
@@ -277,7 +281,9 @@ void * hdd_reader(void * args)
       // Wait for recv timeout
       while (true) {
         pthread_mutex_lock(&mutex);
-        if (stop_thread) {break;}
+        if (stop_thread) {
+          break;
+        }
         pthread_mutex_unlock(&mutex);
         sleep(1);
       }

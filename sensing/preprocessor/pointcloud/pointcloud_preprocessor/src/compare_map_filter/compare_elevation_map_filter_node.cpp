@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "pointcloud_preprocessor/compare_map_filter/compare_elevation_map_filter_node.hpp"
+
 #include <glob.h>
+
 #include <memory>
 #include <string>
 #include <utility>
@@ -28,8 +31,6 @@
 #include "pcl_conversions/pcl_conversions.h"
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/filesystem.h"  // To be replaced by std::filesystem in C++17
-
-#include "pointcloud_preprocessor/compare_map_filter/compare_elevation_map_filter_node.hpp"
 
 namespace pointcloud_preprocessor
 {

@@ -34,8 +34,8 @@
 #include <utility>
 #include <vector>
 
-#include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/pose.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #define EIGEN_MPL2_ONLY
 #include "Eigen/Core"
@@ -46,16 +46,14 @@ namespace planning_utils
 class PurePursuit
 {
 public:
-  PurePursuit()
-  : lookahead_distance_(0.0), clst_thr_dist_(3.0), clst_thr_ang_(M_PI / 4) {}
+  PurePursuit() : lookahead_distance_(0.0), clst_thr_dist_(3.0), clst_thr_ang_(M_PI / 4) {}
   ~PurePursuit() = default;
-
 
   rclcpp::Logger logger = rclcpp::get_logger("pure_pursuit");
   // setter
   void setCurrentPose(const geometry_msgs::msg::Pose & msg);
   void setWaypoints(const std::vector<geometry_msgs::msg::Pose> & msg);
-  void setLookaheadDistance(double ld) {lookahead_distance_ = ld;}
+  void setLookaheadDistance(double ld) { lookahead_distance_ = ld; }
   void setClosestThreshold(double clst_thr_dist, double clst_thr_ang)
   {
     clst_thr_dist_ = clst_thr_dist;
@@ -63,8 +61,8 @@ public:
   }
 
   // getter
-  geometry_msgs::msg::Point getLocationOfNextWaypoint() const {return loc_next_wp_;}
-  geometry_msgs::msg::Point getLocationOfNextTarget() const {return loc_next_tgt_;}
+  geometry_msgs::msg::Point getLocationOfNextWaypoint() const { return loc_next_wp_; }
+  geometry_msgs::msg::Point getLocationOfNextTarget() const { return loc_next_tgt_; }
 
   bool isDataReady();
   std::pair<bool, double> run();  // calculate curvature

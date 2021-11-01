@@ -17,12 +17,11 @@
 
 #include "pcl/point_cloud.h"
 #include "pcl/point_types.h"
-#include "tf2/LinearMath/Quaternion.h"
-#include "tf2_ros/static_transform_broadcaster.h"
+#include "pcl_conversions/pcl_conversions.h"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
-
-#include "pcl_conversions/pcl_conversions.h"
+#include "tf2/LinearMath/Quaternion.h"
+#include "tf2_ros/static_transform_broadcaster.h"
 
 class MapTFGeneratorNode : public rclcpp::Node
 {
@@ -81,9 +80,9 @@ private:
     static_broadcaster_->sendTransform(static_transformStamped);
 
     RCLCPP_INFO_STREAM(
-      get_logger(), "broadcast static tf. map_frame:" <<
-        map_frame_ << ", viewer_frame:" << viewer_frame_ << ", x:" << coordinate[0] <<
-        ", y:" << coordinate[1] << ", z:" << coordinate[2]);
+      get_logger(), "broadcast static tf. map_frame:"
+                      << map_frame_ << ", viewer_frame:" << viewer_frame_ << ", x:" << coordinate[0]
+                      << ", y:" << coordinate[1] << ", z:" << coordinate[2]);
   }
 };
 

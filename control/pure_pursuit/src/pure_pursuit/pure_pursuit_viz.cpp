@@ -28,9 +28,9 @@
  * limitations under the License.
  */
 
-#include <vector>
-
 #include "pure_pursuit/pure_pursuit_viz.hpp"
+
+#include <vector>
 
 #include "pure_pursuit/util/marker_helper.hpp"
 #include "pure_pursuit/util/planning_utils.hpp"
@@ -65,8 +65,7 @@ visualization_msgs::msg::Marker createNextTargetMarker(
 {
   auto marker = createDefaultMarker(
     "map", "next_target", 0, visualization_msgs::msg::Marker::SPHERE,
-    createMarkerScale(0.3, 0.3, 0.3),
-    createMarkerColor(0.0, 1.0, 0.0, 1.0));
+    createMarkerScale(0.3, 0.3, 0.3), createMarkerColor(0.0, 1.0, 0.0, 1.0));
 
   marker.pose.position = next_target;
 

@@ -14,27 +14,29 @@
 // limitations under the License.
 
 #include "lane_change_planner/state/following_lane.hpp"
+
+#include <algorithm>
 #include <limits>
 #include <memory>
-#include <algorithm>
-#include "lanelet2_extension/utility/message_conversion.hpp"
-#include "lanelet2_extension/utility/utilities.hpp"
+
 #include "lane_change_planner/data_manager.hpp"
 #include "lane_change_planner/route_handler.hpp"
 #include "lane_change_planner/state/common_functions.hpp"
 #include "lane_change_planner/utilities.hpp"
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
 
 namespace lane_change_planner
 {
 FollowingLaneState::FollowingLaneState(
   const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr,
-  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr, const rclcpp::Logger & logger,
+  const rclcpp::Clock::SharedPtr & clock)
 : StateBase(status, data_manager_ptr, route_handler_ptr, logger, clock)
 {
 }
 
-State FollowingLaneState::getCurrentState() const {return State::FOLLOWING_LANE;}
+State FollowingLaneState::getCurrentState() const { return State::FOLLOWING_LANE; }
 
 void FollowingLaneState::entry()
 {
@@ -121,9 +123,8 @@ void FollowingLaneState::update()
       // select safe path
       LaneChangePath selected_path;
       if (state_machine::common_functions::selectSafePath(
-          valid_paths, current_lanes_, check_lanes, dynamic_objects_, current_pose_.pose,
-          current_twist_->twist, ros_parameters_, &selected_path, logger_, clock_))
-      {
+            valid_paths, current_lanes_, check_lanes, dynamic_objects_, current_pose_.pose,
+            current_twist_->twist, ros_parameters_, &selected_path, logger_, clock_)) {
         found_safe_path = true;
       }
       debug_data_.selected_path = selected_path.path;
@@ -194,9 +195,8 @@ bool FollowingLaneState::isLaneBlocked(const lanelet::ConstLanelets & lanes) con
 
   if (polygon.size() < 3) {
     RCLCPP_WARN_STREAM(
-      logger_,
-      "could not get polygon from lanelet with arc lengths: " << arc.length << " to " <<
-        arc.length + check_distance);
+      logger_, "could not get polygon from lanelet with arc lengths: "
+                 << arc.length << " to " << arc.length + check_distance);
     return false;
   }
 
@@ -205,8 +205,7 @@ bool FollowingLaneState::isLaneBlocked(const lanelet::ConstLanelets & lanes) con
       obj.semantic.type == autoware_perception_msgs::msg::Semantic::CAR ||
       obj.semantic.type == autoware_perception_msgs::msg::Semantic::TRUCK ||
       obj.semantic.type == autoware_perception_msgs::msg::Semantic::BUS ||
-      obj.semantic.type == autoware_perception_msgs::msg::Semantic::MOTORBIKE)
-    {
+      obj.semantic.type == autoware_perception_msgs::msg::Semantic::MOTORBIKE) {
       const auto velocity = util::l2Norm(obj.state.twist_covariance.twist.linear);
       if (velocity < static_obj_velocity_thresh) {
         const auto position =
@@ -228,14 +227,14 @@ bool FollowingLaneState::isVehicleInPreferredLane() const
   return route_handler_ptr_->isInPreferredLane(current_pose_);
 }
 
-bool FollowingLaneState::isTooCloseToDeadEnd() const {return false;}
+bool FollowingLaneState::isTooCloseToDeadEnd() const { return false; }
 
-bool FollowingLaneState::isLaneChangeApproved() const {return lane_change_approved_;}
+bool FollowingLaneState::isLaneChangeApproved() const { return lane_change_approved_; }
 
-bool FollowingLaneState::laneChangeForcedByOperator() const {return force_lane_change_;}
+bool FollowingLaneState::laneChangeForcedByOperator() const { return force_lane_change_; }
 
-bool FollowingLaneState::isLaneChangeReady() const {return status_.lane_change_ready;}
+bool FollowingLaneState::isLaneChangeReady() const { return status_.lane_change_ready; }
 
-bool FollowingLaneState::isLaneChangeAvailable() const {return status_.lane_change_available;}
+bool FollowingLaneState::isLaneChangeAvailable() const { return status_.lane_change_available; }
 
 }  // namespace lane_change_planner

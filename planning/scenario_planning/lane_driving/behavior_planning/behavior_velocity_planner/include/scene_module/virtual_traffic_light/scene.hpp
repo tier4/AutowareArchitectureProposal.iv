@@ -27,17 +27,15 @@
 #include "nlohmann/json.hpp"
 #include "rclcpp/clock.hpp"
 #include "rclcpp/logger.hpp"
-#include "vehicle_info_util/vehicle_info.hpp"
-
 #include "scene_module/scene_module_interface.hpp"
+#include "vehicle_info_util/vehicle_info.hpp"
 
 namespace behavior_velocity_planner
 {
 class VirtualTrafficLightModule : public SceneModuleInterface
 {
 public:
-  enum class State : uint8_t
-  {
+  enum class State : uint8_t {
     NONE = 0,
     REQUESTING = 1,
     PASSING = 2,

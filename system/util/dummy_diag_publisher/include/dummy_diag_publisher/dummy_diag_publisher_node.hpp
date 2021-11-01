@@ -18,9 +18,8 @@
 #include <string>
 #include <vector>
 
-#include "rclcpp/rclcpp.hpp"
-
 #include "diagnostic_updater/diagnostic_updater.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 struct DiagConfig
 {
@@ -38,8 +37,7 @@ public:
   DummyDiagPublisherNode();
 
 private:
-  enum Status
-  {
+  enum Status {
     OK,
     WARN,
     ERROR,

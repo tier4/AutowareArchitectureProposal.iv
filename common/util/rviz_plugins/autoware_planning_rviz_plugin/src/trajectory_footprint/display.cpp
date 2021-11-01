@@ -17,9 +17,8 @@
 #define EIGEN_MPL2_ONLY
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Geometry"
-
-#include "trajectory_footprint/display.hpp"
 #include "tf2/utils.h"
+#include "trajectory_footprint/display.hpp"
 
 namespace rviz_plugins
 {
@@ -56,8 +55,8 @@ AutowareTrajectoryFootprintDisplay::AutowareTrajectoryFootprintDisplay()
   property_trajectory_point_alpha_->setMin(0.0);
   property_trajectory_point_alpha_->setMax(1.0);
   property_trajectory_point_color_ = new rviz_common::properties::ColorProperty(
-    "Color", QColor(0, 60, 255), "", property_trajectory_point_view_,
-    SLOT(updateVisualization()), this);
+    "Color", QColor(0, 60, 255), "", property_trajectory_point_view_, SLOT(updateVisualization()),
+    this);
   property_trajectory_point_radius_ = new rviz_common::properties::FloatProperty(
     "Radius", 0.1, "", property_trajectory_point_view_, SLOT(updateVisualization()), this);
   property_trajectory_point_offset_ = new rviz_common::properties::FloatProperty(
@@ -98,9 +97,9 @@ bool AutowareTrajectoryFootprintDisplay::validateFloats(
   const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr & msg_ptr)
 {
   for (auto && trajectory_point : msg_ptr->points) {
-    if (!rviz_common::validateFloats(trajectory_point.pose) &&
-      !rviz_common::validateFloats(trajectory_point.twist))
-    {
+    if (
+      !rviz_common::validateFloats(trajectory_point.pose) &&
+      !rviz_common::validateFloats(trajectory_point.twist)) {
       return false;
     }
   }
@@ -144,8 +143,7 @@ void AutowareTrajectoryFootprintDisplay::processMessage(
 
     trajectory_point_manual_object_->estimateVertexCount(msg_ptr->points.size() * 3 * 8);
     trajectory_point_manual_object_->begin(
-      "BaseWhiteNoLighting",
-      Ogre::RenderOperation::OT_TRIANGLE_LIST);
+      "BaseWhiteNoLighting", Ogre::RenderOperation::OT_TRIANGLE_LIST);
 
     for (size_t point_idx = 0; point_idx < msg_ptr->points.size(); point_idx++) {
       const auto & path_point = msg_ptr->points.at(point_idx);
@@ -211,19 +209,15 @@ void AutowareTrajectoryFootprintDisplay::processMessage(
           const double current_angle = static_cast<double>(s_idx) / 8.0 * 2.0 * M_PI;
           const double next_angle = static_cast<double>(s_idx + 1) / 8.0 * 2.0 * M_PI;
           trajectory_point_manual_object_->position(
-            base_x + radius * std::cos(current_angle),
-            base_y + radius * std::sin(current_angle),
+            base_x + radius * std::cos(current_angle), base_y + radius * std::sin(current_angle),
             base_z);
           trajectory_point_manual_object_->colour(color);
 
           trajectory_point_manual_object_->position(
-            base_x + radius * std::cos(next_angle),
-            base_y + radius * std::sin(next_angle),
-            base_z);
+            base_x + radius * std::cos(next_angle), base_y + radius * std::sin(next_angle), base_z);
           trajectory_point_manual_object_->colour(color);
 
-          trajectory_point_manual_object_->position(
-            base_x, base_y, base_z);
+          trajectory_point_manual_object_->position(base_x, base_y, base_z);
           trajectory_point_manual_object_->colour(color);
         }
       }
@@ -237,7 +231,9 @@ void AutowareTrajectoryFootprintDisplay::processMessage(
 
 void AutowareTrajectoryFootprintDisplay::updateVisualization()
 {
-  if (last_msg_ptr_ != nullptr) {processMessage(last_msg_ptr_);}
+  if (last_msg_ptr_ != nullptr) {
+    processMessage(last_msg_ptr_);
+  }
 }
 
 void AutowareTrajectoryFootprintDisplay::updateVehicleInfo()

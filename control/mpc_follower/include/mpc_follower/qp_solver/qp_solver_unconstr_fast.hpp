@@ -23,6 +23,7 @@
 #define MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_UNCONSTR_FAST_HPP_
 
 #include <cmath>
+
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Dense"
 #include "eigen3/Eigen/LU"

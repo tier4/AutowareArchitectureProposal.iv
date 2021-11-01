@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #include <memory>
 
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
@@ -35,7 +34,6 @@ protected:
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr m_vel_pub;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr m_traj_pub;
   rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr m_cmd_sub;
-
 
   autoware_control_msgs::msg::ControlCommandStamped m_cmd_msg;
   bool m_received_command;
@@ -64,7 +62,6 @@ protected:
     transform.header.stamp = tmp_node.now();
     br->sendTransform(transform);
 
-
     rclcpp::NodeOptions node_options;
     node_options.allow_undeclared_parameters(true);
     node_options.append_parameter_override("wheel_radius", 1.0);
@@ -79,25 +76,22 @@ protected:
     m_node = std::make_shared<VelocityController>(node_options);
 
     m_vel_pub = m_node->create_publisher<geometry_msgs::msg::TwistStamped>(
-      "~/current_velocity",
-      rclcpp::QoS(10));
+      "~/current_velocity", rclcpp::QoS(10));
     m_traj_pub = m_node->create_publisher<autoware_planning_msgs::msg::Trajectory>(
-      "~/current_trajectory",
-      rclcpp::QoS(10));
+      "~/current_trajectory", rclcpp::QoS(10));
     m_cmd_sub = m_node->create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
-      "~/control_cmd",
-      rclcpp::QoS(10), std::bind(&TestROS::HandleOutputCommand, this, std::placeholders::_1));
+      "~/control_cmd", rclcpp::QoS(10),
+      std::bind(&TestROS::HandleOutputCommand, this, std::placeholders::_1));
 
     // Enable all logging in the node
-    auto ret = rcutils_logging_set_logger_level(
-      m_node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-    if (ret != RCUTILS_RET_OK) {std::cout << "Failed to set logging severity to DEBUG\n";}
+    auto ret =
+      rcutils_logging_set_logger_level(m_node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+    if (ret != RCUTILS_RET_OK) {
+      std::cout << "Failed to set logging severity to DEBUG\n";
+    }
   }
 
-  void TearDown()
-  {
-    rclcpp::shutdown();
-  }
+  void TearDown() { rclcpp::shutdown(); }
 
   void HandleOutputCommand(const autoware_control_msgs::msg::ControlCommandStamped::SharedPtr cmd)
   {
@@ -106,7 +100,8 @@ protected:
   }
 };
 
-TEST_F(TestROS, simple_test) {
+TEST_F(TestROS, simple_test)
+{
   geometry_msgs::msg::TwistStamped twist;
   autoware_planning_msgs::msg::Trajectory traj;
   autoware_planning_msgs::msg::TrajectoryPoint point;

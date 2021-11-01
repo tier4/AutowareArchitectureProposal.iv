@@ -75,7 +75,6 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(
     float, azimuth, azimuth)(float, distance, distance)(double, time_stamp, time_stamp))
 
 POINT_CLOUD_REGISTER_POINT_STRUCT(
-  custom_pcl::PointXYZI,
-  (float, x, x)(float, y, y)(float, z, z)(float, intensity, intensity))
+  custom_pcl::PointXYZI, (float, x, x)(float, y, y)(float, z, z)(float, intensity, intensity))
 
 #endif  // POINTCLOUD_PREPROCESSOR__OUTLIER_FILTER__RING_OUTLIER_FILTER_NODELET_HPP_

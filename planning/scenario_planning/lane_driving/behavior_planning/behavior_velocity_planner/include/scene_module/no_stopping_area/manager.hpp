@@ -20,7 +20,6 @@
 
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "rclcpp/rclcpp.hpp"
-
 #include "scene_module/no_stopping_area/scene_no_stopping_area.hpp"
 #include "scene_module/scene_module_interface.hpp"
 
@@ -31,7 +30,7 @@ class NoStoppingAreaModuleManager : public SceneModuleManagerInterface
 public:
   explicit NoStoppingAreaModuleManager(rclcpp::Node & node);
 
-  const char * getModuleName() override {return "no_stopping_area";}
+  const char * getModuleName() override { return "no_stopping_area"; }
 
 private:
   NoStoppingAreaModule::PlannerParam planner_param_;

@@ -22,13 +22,10 @@
 #define EIGEN_MPL2_ONLY
 #include "Eigen/Core"
 #include "Eigen/Geometry"
-
-#include "rclcpp/rclcpp.hpp"
-
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_extension/utility/query.hpp"
 #include "lanelet2_routing/RoutingGraph.h"
-
+#include "rclcpp/rclcpp.hpp"
 #include "scene_module/scene_module_interface.hpp"
 #include "utilization/boost_geometry_helper.hpp"
 

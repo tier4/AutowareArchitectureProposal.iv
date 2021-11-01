@@ -14,9 +14,8 @@
 
 #include <memory>
 
-#include "rclcpp/rclcpp.hpp"
-
 #include "dummy_diag_publisher/dummy_diag_publisher_node.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 int main(int argc, char * argv[])
 {

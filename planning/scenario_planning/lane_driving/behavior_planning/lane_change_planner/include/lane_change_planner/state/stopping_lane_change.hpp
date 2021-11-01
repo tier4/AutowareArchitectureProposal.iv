@@ -17,6 +17,7 @@
 #define LANE_CHANGE_PLANNER__STATE__STOPPING_LANE_CHANGE_HPP_
 
 #include <memory>
+
 #include "lane_change_planner/state/state_base_class.hpp"
 
 namespace lane_change_planner
@@ -43,8 +44,8 @@ private:
 public:
   StoppingLaneChangeState(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-    const std::shared_ptr<RouteHandler> & route_handler_ptr,
-    const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
+    const std::shared_ptr<RouteHandler> & route_handler_ptr, const rclcpp::Logger & logger,
+    const rclcpp::Clock::SharedPtr & clock);
 
   // override virtual functions
   void entry() override;

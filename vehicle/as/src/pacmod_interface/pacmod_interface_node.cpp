@@ -14,9 +14,8 @@
 
 #include <memory>
 
-#include "rclcpp/rclcpp.hpp"
-
 #include "pacmod_interface/pacmod_interface.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 int main(int argc, char ** argv)
 {

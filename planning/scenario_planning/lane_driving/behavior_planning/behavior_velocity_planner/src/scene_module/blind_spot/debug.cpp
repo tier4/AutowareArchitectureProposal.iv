@@ -15,7 +15,6 @@
 #include <string>
 
 #include "scene_module/blind_spot/scene.hpp"
-
 #include "utilization/marker_helper.hpp"
 #include "utilization/util.hpp"
 

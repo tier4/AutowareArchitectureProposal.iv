@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <memory>
+
 #include "stop_filter/stop_filter.hpp"
 
 int main(int argc, char ** argv)

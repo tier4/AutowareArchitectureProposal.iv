@@ -17,6 +17,8 @@
  * @brief HDD monitor class
  */
 
+#include "system_monitor/hdd_monitor/hdd_monitor.hpp"
+
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -26,11 +28,8 @@
 #include "boost/archive/text_oarchive.hpp"
 #include "boost/process.hpp"
 #include "boost/serialization/vector.hpp"
-
 #include "fmt/format.h"
-
 #include "hdd_reader/hdd_reader.hpp"
-#include "system_monitor/hdd_monitor/hdd_monitor.hpp"
 #include "system_monitor/system_monitor_utility.hpp"
 
 namespace bp = boost::process;
@@ -49,10 +48,7 @@ HDDMonitor::HDDMonitor(const rclcpp::NodeOptions & options)
   updater_.add("HDD Usage", this, &HDDMonitor::checkUsage);
 }
 
-void HDDMonitor::update()
-{
-  updater_.force_update();
-}
+void HDDMonitor::update() { updater_.force_update(); }
 
 void HDDMonitor::checkTemp(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {

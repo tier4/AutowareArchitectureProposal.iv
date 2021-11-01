@@ -20,10 +20,9 @@
 
 // Autoware
 #include "lanelet2_extension/utility/query.hpp"
-#include "mission_planner/lanelet2_impl/utility_functions.hpp"
-
 #include "lanelet2_routing/Route.h"
 #include "lanelet2_routing/RoutingCost.h"
+#include "mission_planner/lanelet2_impl/utility_functions.hpp"
 
 namespace mission_planner
 {

@@ -16,6 +16,7 @@
 #define OBJECT_ASSOCIATION_MERGER__UTILS__UTILS_HPP_
 
 #include <cmath>
+
 #include "autoware_perception_msgs/msg/shape.hpp"
 #include "geometry_msgs/msg/polygon.hpp"
 #include "geometry_msgs/msg/vector3.hpp"

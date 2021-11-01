@@ -17,23 +17,21 @@
  * @brief Net monitor class
  */
 
+#include "system_monitor/net_monitor/net_monitor.hpp"
+
 #include <ifaddrs.h>
 
 #include <algorithm>
 #include <string>
 #include <vector>
 
+#include "boost/range/algorithm.hpp"
+#include "fmt/format.h"
 #include "linux/ethtool.h"
 #include "linux/if_link.h"
 #include "linux/sockios.h"
 #include "net/if.h"
 #include "sys/ioctl.h"
-
-#include "boost/range/algorithm.hpp"
-
-#include "fmt/format.h"
-
-#include "system_monitor/net_monitor/net_monitor.hpp"
 #include "system_monitor/system_monitor_utility.hpp"
 
 NetMonitor::NetMonitor(const rclcpp::NodeOptions & options)
@@ -51,20 +49,11 @@ NetMonitor::NetMonitor(const rclcpp::NodeOptions & options)
   nl80211_.init();
 }
 
-NetMonitor::~NetMonitor()
-{
-  shutdown_nl80211();
-}
+NetMonitor::~NetMonitor() { shutdown_nl80211(); }
 
-void NetMonitor::update()
-{
-  updater_.force_update();
-}
+void NetMonitor::update() { updater_.force_update(); }
 
-void NetMonitor::shutdown_nl80211()
-{
-  nl80211_.shutdown();
-}
+void NetMonitor::shutdown_nl80211() { nl80211_.shutdown(); }
 
 void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
@@ -100,16 +89,21 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
   for (ifa = ifas; ifa; ifa = ifa->ifa_next) {
     // Skip no addr
-    if (!ifa->ifa_addr) {continue;}
+    if (!ifa->ifa_addr) {
+      continue;
+    }
     // Skip loopback
-    if (ifa->ifa_flags & IFF_LOOPBACK) {continue;}
+    if (ifa->ifa_flags & IFF_LOOPBACK) {
+      continue;
+    }
     // Skip non AF_PACKET
-    if (ifa->ifa_addr->sa_family != AF_PACKET) {continue;}
+    if (ifa->ifa_addr->sa_family != AF_PACKET) {
+      continue;
+    }
     // Skip device not specified
     if (
       boost::find(device_params_, ifa->ifa_name) == device_params_.end() &&
-      boost::find(device_params_, "*") == device_params_.end())
-    {
+      boost::find(device_params_, "*") == device_params_.end()) {
       continue;
     }
 
@@ -208,9 +202,13 @@ void NetMonitor::checkUsage(diagnostic_updater::DiagnosticStatusWrapper & stat)
   // Check if specified device exists
   for (const auto & device : device_params_) {
     // Skip if all devices specified
-    if (device == "*") {continue;}
+    if (device == "*") {
+      continue;
+    }
     // Skip if device already appended
-    if (boost::find(interface_names, device) != interface_names.end()) {continue;}
+    if (boost::find(interface_names, device) != interface_names.end()) {
+      continue;
+    }
 
     stat.add(fmt::format("Network {}: status", index), "No Such Device");
     stat.add(fmt::format("Network {}: interface name", index), device);

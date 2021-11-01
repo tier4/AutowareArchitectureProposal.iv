@@ -49,8 +49,14 @@
 #include <string>
 #include <vector>
 
+#include "autoware_lanelet2_msgs/msg/map_bin.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_planning_msgs/msg/scenario.hpp"
 #include "costmap_generator/objects_to_costmap.hpp"
 #include "costmap_generator/points_to_costmap.hpp"
+#include "grid_map_msgs/msg/grid_map.h"
+#include "grid_map_ros/GridMapRosConverter.hpp"
+#include "grid_map_ros/grid_map_ros.hpp"
 #include "lanelet2_extension/utility/message_conversion.hpp"
 #include "message_filters/subscriber.h"
 #include "message_filters/time_synchronizer.h"
@@ -58,13 +64,6 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
-#include "grid_map_ros/GridMapRosConverter.hpp"
-#include "grid_map_ros/grid_map_ros.hpp"
-
-#include "autoware_lanelet2_msgs/msg/map_bin.hpp"
-#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
-#include "autoware_planning_msgs/msg/scenario.hpp"
-#include "grid_map_msgs/msg/grid_map.h"
 
 class CostmapGenerator : public rclcpp::Node
 {

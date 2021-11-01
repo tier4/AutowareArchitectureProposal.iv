@@ -236,14 +236,12 @@ visualization_msgs::msg::MarkerArray DetectionAreaModule::createDebugMarkerArray
 
   if (!debug_data_.stop_poses.empty()) {
     appendMarkerArray(
-      createCorrespondenceMarkerArray(
-        detection_area_reg_elem_,
-        current_time), current_time, &debug_marker_array);
+      createCorrespondenceMarkerArray(detection_area_reg_elem_, current_time), current_time,
+      &debug_marker_array);
 
     appendMarkerArray(
-      createObstacleMarkerArray(
-        debug_data_.obstacle_points,
-        current_time), current_time, &debug_marker_array);
+      createObstacleMarkerArray(debug_data_.obstacle_points, current_time), current_time,
+      &debug_marker_array);
   }
 
   return debug_marker_array;

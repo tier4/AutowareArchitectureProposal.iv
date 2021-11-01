@@ -61,7 +61,6 @@
 
 #include "QColor"
 #include "QImage"
-
 #include "rclcpp/rclcpp.hpp"
 #include "rviz_rendering/render_system.hpp"
 

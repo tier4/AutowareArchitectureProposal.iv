@@ -14,9 +14,8 @@
 
 #include <memory>
 
-#include "rclcpp/rclcpp.hpp"
-
 #include "emergency_handler/emergency_handler_core.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 int main(int argc, char ** argv)
 {

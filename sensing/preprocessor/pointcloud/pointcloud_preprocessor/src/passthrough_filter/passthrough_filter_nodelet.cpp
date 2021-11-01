@@ -48,9 +48,9 @@
  *
  */
 
-#include <vector>
-
 #include "pointcloud_preprocessor/passthrough_filter/passthrough_filter_nodelet.hpp"
+
+#include <vector>
 
 #include "pcl/kdtree/kdtree_flann.h"
 #include "pcl/search/kdtree.h"
@@ -74,8 +74,8 @@ void PassThroughFilterComponent::filter(
   output = *input;
 }
 
-rcl_interfaces::msg::SetParametersResult PassThroughFilterComponent::paramCallback(
-  [[maybe_unused]] const std::vector<rclcpp::Parameter> & p)
+rcl_interfaces::msg::SetParametersResult PassThroughFilterComponent::paramCallback([
+  [maybe_unused]] const std::vector<rclcpp::Parameter> & p)
 {
   boost::mutex::scoped_lock lock(mutex_);
 

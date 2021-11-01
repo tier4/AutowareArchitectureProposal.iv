@@ -20,15 +20,14 @@
 #include <string>
 #include <vector>
 
-#include "NvInfer.h"
-
 #include "./cuda_runtime.h"
+#include "NvInfer.h"
 
 namespace ssd
 {
 struct Deleter
 {
-  template<typename T>
+  template <typename T>
   void operator()(T * obj) const
   {
     if (obj) {
@@ -37,14 +36,13 @@ struct Deleter
   }
 };
 
-template<typename T>
+template <typename T>
 using unique_ptr = std::unique_ptr<T, Deleter>;
 
 class Logger : public nvinfer1::ILogger
 {
 public:
-  explicit Logger(bool verbose)
-  : verbose_(verbose) {}
+  explicit Logger(bool verbose) : verbose_(verbose) {}
 
   void log(Severity severity, const char * msg) noexcept override
   {

@@ -16,6 +16,7 @@
 #define PERCEPTION__TRAFFIC_LIGHT_RECOGNITION__TRAFFIC_LIGHT_CLASSIFIER__UTILS__TRT_COMMON_HPP_
 
 #include <stdio.h>
+
 #include <algorithm>
 #include <chrono>
 #include <fstream>
@@ -25,10 +26,9 @@
 #include <sstream>
 #include <string>
 
+#include "./cudnn.h"
 #include "NvInfer.h"
 #include "NvOnnxParser.h"
-#include "./cudnn.h"
-
 #include "boost/filesystem.hpp"
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -40,16 +40,16 @@ namespace Tn
 class Logger : public nvinfer1::ILogger
 {
 public:
-  Logger()
-  : Logger(Severity::kINFO) {}
+  Logger() : Logger(Severity::kINFO) {}
 
-  explicit Logger(Severity severity)
-  : reportableSeverity(severity) {}
+  explicit Logger(Severity severity) : reportableSeverity(severity) {}
 
   void log(Severity severity, const char * msg) noexcept override
   {
     // suppress messages with severity enum value greater than the reportable
-    if (severity > reportableSeverity) {return;}
+    if (severity > reportableSeverity) {
+      return;
+    }
 
     switch (severity) {
       case Severity::kINTERNAL_ERROR:
@@ -78,15 +78,15 @@ void check_error(const ::cudaError_t e, decltype(__FILE__) f, decltype(__LINE__)
 
 struct InferDeleter
 {
-  void operator()(void * p) const {::cudaFree(p);}
+  void operator()(void * p) const { ::cudaFree(p); }
 };
 
-template<typename T>
+template <typename T>
 using UniquePtr = std::unique_ptr<T, InferDeleter>;
 
 // auto array = Tn::make_unique<float[]>(n);
 // ::cudaMemcpy(array.get(), src_array, sizeof(float)*n, ::cudaMemcpyHostToDevice);
-template<typename T>
+template <typename T>
 typename std::enable_if<std::is_array<T>::value, Tn::UniquePtr<T>>::type make_unique(
   const std::size_t n)
 {
@@ -98,7 +98,7 @@ typename std::enable_if<std::is_array<T>::value, Tn::UniquePtr<T>>::type make_un
 
 // auto value = Tn::make_unique<my_class>();
 // ::cudaMemcpy(value.get(), src_value, sizeof(my_class), ::cudaMemcpyHostToDevice);
-template<typename T>
+template <typename T>
 Tn::UniquePtr<T> make_unique()
 {
   T * p;

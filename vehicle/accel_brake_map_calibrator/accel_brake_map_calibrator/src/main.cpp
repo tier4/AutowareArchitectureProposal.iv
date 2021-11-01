@@ -15,6 +15,7 @@
 //
 
 #include <memory>
+
 #include "accel_brake_map_calibrator/accel_brake_map_calibrator_node.hpp"
 
 int main(int argc, char ** argv)

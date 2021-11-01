@@ -18,9 +18,8 @@
 #include <string>
 #include <vector>
 
-#include "rclcpp/rclcpp.hpp"
-
 #include "autoware_lanelet2_msgs/msg/map_bin.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 class Lanelet2MapVisualizationNode : public rclcpp::Node
 {

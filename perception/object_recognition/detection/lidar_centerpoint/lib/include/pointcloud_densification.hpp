@@ -28,8 +28,7 @@ class PointCloudDensification
 {
 public:
   PointCloudDensification(
-    std::string base_frame_id, unsigned int pointcloud_cache_size,
-    rclcpp::Clock::SharedPtr clock);
+    std::string base_frame_id, unsigned int pointcloud_cache_size, rclcpp::Clock::SharedPtr clock);
 
   sensor_msgs::msg::PointCloud2 stackPointCloud(
     const sensor_msgs::msg::PointCloud2 & input_pointcloud_msg);

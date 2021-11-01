@@ -21,16 +21,15 @@
 
 #include "autoware_planning_msgs/msg/route.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "autoware_utils/geometry/boost_geometry.hpp"
+#include "boost/optional.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
-#include "sensor_msgs/msg/point_cloud2.hpp"
-
-#include "autoware_utils/geometry/boost_geometry.hpp"
-#include "vehicle_info_util/vehicle_info_util.hpp"
-#include "boost/optional.hpp"
 #include "pcl/point_cloud.h"
 #include "pcl/point_types.h"
+#include "sensor_msgs/msg/point_cloud2.hpp"
+#include "vehicle_info_util/vehicle_info_util.hpp"
 
 namespace obstacle_collision_checker
 {
@@ -70,7 +69,7 @@ public:
   explicit ObstacleCollisionChecker(rclcpp::Node & node);
   Output update(const Input & input);
 
-  void setParam(const Param & param) {param_ = param;}
+  void setParam(const Param & param) { param_ = param; }
 
 private:
   Param param_;

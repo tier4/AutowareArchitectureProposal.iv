@@ -23,19 +23,17 @@
 #include "OgreColourValue.h"
 #include "OgreManualObject.h"
 #include "OgreVector3.h"
-#include "rviz_common/ros_topic_display.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "rviz_common/properties/bool_property.hpp"
 #include "rviz_common/properties/color_property.hpp"
 #include "rviz_common/properties/float_property.hpp"
 #include "rviz_common/properties/parse_color.hpp"
+#include "rviz_common/ros_topic_display.hpp"
 #include "rviz_common/validate_floats.hpp"
-
-#include "geometry_msgs/msg/twist_stamped.hpp"
 
 namespace rviz_plugins
 {
-class VelocityHistoryDisplay
-  : public rviz_common::RosTopicDisplay<geometry_msgs::msg::TwistStamped>
+class VelocityHistoryDisplay : public rviz_common::RosTopicDisplay<geometry_msgs::msg::TwistStamped>
 {
   Q_OBJECT
 
@@ -66,7 +64,7 @@ protected:
 
 private:
   std::deque<std::tuple<geometry_msgs::msg::TwistStamped::ConstSharedPtr, Ogre::Vector3>>
-  histories_;
+    histories_;
   bool validateFloats(const geometry_msgs::msg::TwistStamped::ConstSharedPtr & msg_ptr);
   std::mutex mutex_;
 };

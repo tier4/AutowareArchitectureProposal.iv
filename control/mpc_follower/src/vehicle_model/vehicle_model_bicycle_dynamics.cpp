@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <algorithm>
-
 #include "mpc_follower/vehicle_model/vehicle_model_bicycle_dynamics.hpp"
+
+#include <algorithm>
 
 DynamicsBicycleModel::DynamicsBicycleModel(
   double & wheelbase, double & mass_fl, double & mass_fr, double & mass_rl, double & mass_rr,

@@ -19,14 +19,13 @@
 #include <limits>
 #include <stdexcept>
 
-#include "boost/optional.hpp"
-
 #include "autoware_utils/geometry/geometry.hpp"
 #include "autoware_utils/geometry/pose_deviation.hpp"
+#include "boost/optional.hpp"
 
 namespace autoware_utils
 {
-template<class T>
+template <class T>
 void validateNonEmpty(const T & points)
 {
   if (points.empty()) {
@@ -34,7 +33,7 @@ void validateNonEmpty(const T & points)
   }
 }
 
-template<class T>
+template <class T>
 boost::optional<size_t> searchZeroVelocityIndex(
   const T & points_with_twist, const size_t src_idx, const size_t dst_idx)
 {
@@ -50,13 +49,13 @@ boost::optional<size_t> searchZeroVelocityIndex(
   return {};
 }
 
-template<class T>
+template <class T>
 boost::optional<size_t> searchZeroVelocityIndex(const T & points_with_twist)
 {
   return searchZeroVelocityIndex(points_with_twist, 0, points_with_twist.size());
 }
 
-template<class T>
+template <class T>
 size_t findNearestIndex(const T & points, const geometry_msgs::msg::Point & point)
 {
   validateNonEmpty(points);
@@ -74,7 +73,7 @@ size_t findNearestIndex(const T & points, const geometry_msgs::msg::Point & poin
   return min_idx;
 }
 
-template<class T>
+template <class T>
 boost::optional<size_t> findNearestIndex(
   const T & points, const geometry_msgs::msg::Pose & pose,
   const double max_dist = std::numeric_limits<double>::max(),
@@ -111,14 +110,14 @@ boost::optional<size_t> findNearestIndex(
 }
 
 /**
-  * @brief calculate longitudinal offset (length along trajectory from seg_idx point to nearest point to p_target on trajectory)
-  *        If seg_idx point is after that nearest point, length is negative
-  * @param points points of trajectory, path, ...
-  * @param seg_idx segment index of point at beginning of length
-  * @param p_target target point at end of length
-  * @return signed length
-  */
-template<class T>
+ * @brief calculate longitudinal offset (length along trajectory from seg_idx point to nearest point
+ * to p_target on trajectory) If seg_idx point is after that nearest point, length is negative
+ * @param points points of trajectory, path, ...
+ * @param seg_idx segment index of point at beginning of length
+ * @param p_target target point at end of length
+ * @return signed length
+ */
+template <class T>
 double calcLongitudinalOffsetToSegment(
   const T & points, const size_t seg_idx, const geometry_msgs::msg::Point & p_target)
 {
@@ -138,14 +137,14 @@ double calcLongitudinalOffsetToSegment(
 }
 
 /**
-  * @brief find nearest segment index to point
-  *        segment is straight path between two continuous points of trajectory
-  *        When point is on a trajectory point whose index is nearest_idx, return nearest_idx - 1
-  * @param points points of trajectory
-  * @param point point to which to find nearest segment index
-  * @return nearest index
-  */
-template<class T>
+ * @brief find nearest segment index to point
+ *        segment is straight path between two continuous points of trajectory
+ *        When point is on a trajectory point whose index is nearest_idx, return nearest_idx - 1
+ * @param points points of trajectory
+ * @param point point to which to find nearest segment index
+ * @return nearest index
+ */
+template <class T>
 size_t findNearestSegmentIndex(const T & points, const geometry_msgs::msg::Point & point)
 {
   const size_t nearest_idx = findNearestIndex(points, point);
@@ -167,15 +166,14 @@ size_t findNearestSegmentIndex(const T & points, const geometry_msgs::msg::Point
 }
 
 /**
-  * @brief calculate lateral offset from p_target (length from p_target to trajectory)
-  *        If seg_idx point is after that nearest point, length is negative
-  * @param points points of trajectory, path, ...
-  * @param p_target target point
-  * @return length (unsigned)
-  */
-template<class T>
-double calcLateralOffset(
-  const T & points, const geometry_msgs::msg::Point & p_target)
+ * @brief calculate lateral offset from p_target (length from p_target to trajectory)
+ *        If seg_idx point is after that nearest point, length is negative
+ * @param points points of trajectory, path, ...
+ * @param p_target target point
+ * @return length (unsigned)
+ */
+template <class T>
+double calcLateralOffset(const T & points, const geometry_msgs::msg::Point & p_target)
 {
   validateNonEmpty(points);
 
@@ -196,9 +194,9 @@ double calcLateralOffset(
 }
 
 /**
-  * @brief calcSignedArcLength from index to index
-  */
-template<class T>
+ * @brief calcSignedArcLength from index to index
+ */
+template <class T>
 double calcSignedArcLength(const T & points, const size_t src_idx, const size_t dst_idx)
 {
   validateNonEmpty(points);
@@ -215,9 +213,9 @@ double calcSignedArcLength(const T & points, const size_t src_idx, const size_t 
 }
 
 /**
-  * @brief calcSignedArcLength from point to index
-  */
-template<class T>
+ * @brief calcSignedArcLength from point to index
+ */
+template <class T>
 double calcSignedArcLength(
   const T & points, const geometry_msgs::msg::Point & src_point, const size_t & dst_idx)
 {
@@ -233,9 +231,9 @@ double calcSignedArcLength(
 }
 
 /**
-  * @brief calcSignedArcLength from index to point
-  */
-template<class T>
+ * @brief calcSignedArcLength from index to point
+ */
+template <class T>
 double calcSignedArcLength(
   const T & points, const size_t src_idx, const geometry_msgs::msg::Point & dst_point)
 {
@@ -245,9 +243,9 @@ double calcSignedArcLength(
 }
 
 /**
-  * @brief calcSignedArcLength from point to point
-  */
-template<class T>
+ * @brief calcSignedArcLength from point to point
+ */
+template <class T>
 double calcSignedArcLength(
   const T & points, const geometry_msgs::msg::Point & src_point,
   const geometry_msgs::msg::Point & dst_point)
@@ -267,9 +265,9 @@ double calcSignedArcLength(
 }
 
 /**
-  * @brief calcArcLength for the whole length
-  */
-template<class T>
+ * @brief calcArcLength for the whole length
+ */
+template <class T>
 double calcArcLength(const T & points)
 {
   validateNonEmpty(points);

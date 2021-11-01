@@ -67,7 +67,6 @@
 #include <vector>
 
 #include "NvInferPlugin.h"
-
 #include "yolo_layer.hpp"
 
 namespace yolo

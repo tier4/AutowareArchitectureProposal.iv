@@ -14,18 +14,19 @@
 // limitations under the License.
 
 #include "lane_change_planner/state/aborting_lane_change.hpp"
+
 #include <memory>
 
 namespace lane_change_planner
 {
 AbortingLaneChangeState::AbortingLaneChangeState(
   const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr,
-  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr, const rclcpp::Logger & logger,
+  const rclcpp::Clock::SharedPtr & clock)
 : StateBase(status, data_manager_ptr, route_handler_ptr, logger, clock)
 {
 }
-State AbortingLaneChangeState::getCurrentState() const {return State::ABORTING_LANE_CHANGE;}
+State AbortingLaneChangeState::getCurrentState() const { return State::ABORTING_LANE_CHANGE; }
 
 void AbortingLaneChangeState::entry() {}
 
@@ -44,5 +45,5 @@ State AbortingLaneChangeState::getNextState() const
   return State::ABORTING_LANE_CHANGE;
 }
 
-bool AbortingLaneChangeState::hasReturnedToOriginalLane() const {return true;}
+bool AbortingLaneChangeState::hasReturnedToOriginalLane() const { return true; }
 }  // namespace lane_change_planner

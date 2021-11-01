@@ -19,12 +19,11 @@
 #ifndef MULTI_OBJECT_TRACKER__TRACKER__MODEL__MULTIPLE_VEHICLE_TRACKER_HPP_
 #define MULTI_OBJECT_TRACKER__TRACKER__MODEL__MULTIPLE_VEHICLE_TRACKER_HPP_
 
+#include "autoware_perception_msgs/msg/dynamic_object.hpp"
 #include "kalman_filter/kalman_filter.hpp"
 #include "multi_object_tracker/tracker/model/big_vehicle_tracker.hpp"
 #include "multi_object_tracker/tracker/model/normal_vehicle_tracker.hpp"
 #include "multi_object_tracker/tracker/model/tracker_base.hpp"
-#include "autoware_perception_msgs/msg/dynamic_object.hpp"
-
 #include "rclcpp/time.hpp"
 
 class MultipleVehicleTracker : public Tracker

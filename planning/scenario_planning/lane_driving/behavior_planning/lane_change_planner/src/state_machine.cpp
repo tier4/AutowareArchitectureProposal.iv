@@ -14,24 +14,28 @@
 // limitations under the License.
 
 #include "lane_change_planner/state_machine.hpp"
-#include <memory>
-#include <limits>
+
 #include <algorithm>
-#include "rclcpp/rclcpp.hpp"
+#include <limits>
+#include <memory>
+
 #include "lane_change_planner/state/aborting_lane_change.hpp"
 #include "lane_change_planner/state/blocked_by_obstacle.hpp"
 #include "lane_change_planner/state/executing_lane_change.hpp"
 #include "lane_change_planner/state/following_lane.hpp"
 #include "lane_change_planner/state/forcing_lane_change.hpp"
 #include "lane_change_planner/state/stopping_lane_change.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace lane_change_planner
 {
 StateMachine::StateMachine(
   const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr,
-  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
-: data_manager_ptr_(data_manager_ptr), route_handler_ptr_(route_handler_ptr), logger_(logger),
+  const std::shared_ptr<RouteHandler> & route_handler_ptr, const rclcpp::Logger & logger,
+  const rclcpp::Clock::SharedPtr & clock)
+: data_manager_ptr_(data_manager_ptr),
+  route_handler_ptr_(route_handler_ptr),
+  logger_(logger),
   clock_(clock)
 {
 }
@@ -39,15 +43,13 @@ StateMachine::StateMachine(
 void StateMachine::init()
 {
   Status empty_status{};
-  state_obj_ptr_ =
-    std::make_unique<FollowingLaneState>(
-    empty_status, data_manager_ptr_, route_handler_ptr_,
-    logger_, clock_);
+  state_obj_ptr_ = std::make_unique<FollowingLaneState>(
+    empty_status, data_manager_ptr_, route_handler_ptr_, logger_, clock_);
   state_obj_ptr_->entry();
 }
 
-void StateMachine::initCallback(
-  [[maybe_unused]] const autoware_planning_msgs::msg::Route::ConstSharedPtr route)
+void StateMachine::initCallback([
+  [maybe_unused]] const autoware_planning_msgs::msg::Route::ConstSharedPtr route)
 {
   init();
 }
@@ -101,8 +103,8 @@ autoware_planning_msgs::msg::PathWithLaneId StateMachine::getPath() const
   return state_obj_ptr_->getPath();
 }
 
-Status StateMachine::getStatus() const {return state_obj_ptr_->getStatus();}
-DebugData StateMachine::getDebugData() const {return state_obj_ptr_->getDebugData();}
-State StateMachine::getState() const {return state_obj_ptr_->getCurrentState();}
+Status StateMachine::getStatus() const { return state_obj_ptr_->getStatus(); }
+DebugData StateMachine::getDebugData() const { return state_obj_ptr_->getDebugData(); }
+State StateMachine::getState() const { return state_obj_ptr_->getCurrentState(); }
 
 }  // namespace lane_change_planner

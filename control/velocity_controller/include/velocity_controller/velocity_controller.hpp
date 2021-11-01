@@ -20,14 +20,13 @@
 #include <utility>
 #include <vector>
 
-#include "eigen3/Eigen/Core"
-#include "eigen3/Eigen/Geometry"
-
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
 #include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
 #include "autoware_debug_msgs/msg/float32_stamped.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
 #include "autoware_utils/autoware_utils.hpp"
+#include "eigen3/Eigen/Core"
+#include "eigen3/Eigen/Geometry"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -36,7 +35,6 @@
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 #include "vehicle_info_util/vehicle_info_util.hpp"
-
 #include "velocity_controller/debug_values.hpp"
 #include "velocity_controller/pid.hpp"
 #include "velocity_controller/smooth_stop.hpp"
@@ -255,7 +253,8 @@ private:
   enum Shift getCurrentShift(const size_t nearest_idx) const;
 
   /**
-   * @brief filter acceleration command with limitation of acceleration and jerk, and slope compensation
+   * @brief filter acceleration command with limitation of acceleration and jerk, and slope
+   * compensation
    * @param [in] raw_acc acceleration before filtered
    */
   double calcFilteredAcc(const double raw_acc, const ControlData & control_data);
@@ -290,7 +289,8 @@ private:
 
   /**
    * @brief calculate velocity feedback with feed forward and pid controller
-   * @param [in] target_motion reference velocity and acceleration. This acceleration will be used as feed forward.
+   * @param [in] target_motion reference velocity and acceleration. This acceleration will be used
+   * as feed forward.
    */
   double applyVelocityFeedback(
     const Motion target_motion, const double dt, const double current_vel);

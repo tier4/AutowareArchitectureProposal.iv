@@ -20,20 +20,18 @@
 #include <string>
 #include <vector>
 
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_routing/RoutingGraph.h"
-
 #include "autoware_perception_msgs/msg/dynamic_object.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "geometry_msgs/msg/point.hpp"
-#include "rclcpp/rclcpp.hpp"
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_routing/RoutingGraph.h"
 #include "nav_msgs/msg/occupancy_grid.hpp"
-
-#include "scene_module/scene_module_interface.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "scene_module/occlusion_spot/occlusion_spot_utils.hpp"
 #include "scene_module/occlusion_spot/scene_occlusion_spot_in_private_road.hpp"
 #include "scene_module/occlusion_spot/scene_occlusion_spot_in_public_road.hpp"
+#include "scene_module/scene_module_interface.hpp"
 
 namespace behavior_velocity_planner
 {
@@ -42,7 +40,7 @@ class OcclusionSpotModuleManager : public SceneModuleManagerInterface
 public:
   explicit OcclusionSpotModuleManager(rclcpp::Node & node);
 
-  const char * getModuleName() override {return "occlusion_spot";}
+  const char * getModuleName() override { return "occlusion_spot"; }
 
 private:
   enum class ModuleID { PRIVATE, PUBLIC };

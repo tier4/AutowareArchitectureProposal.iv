@@ -19,9 +19,7 @@
 
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
 #include "autoware_vehicle_msgs/msg/shift_stamped.hpp"
-
 #include "rclcpp/rclcpp.hpp"
-
 
 class ShiftDecider : public rclcpp::Node
 {

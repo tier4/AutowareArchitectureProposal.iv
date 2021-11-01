@@ -17,14 +17,14 @@
  * @brief Process monitor class
  */
 
+#include "system_monitor/process_monitor/process_monitor.hpp"
+
 #include <memory>
 #include <regex>
 #include <string>
 #include <vector>
 
 #include "fmt/format.h"
-
-#include "system_monitor/process_monitor/process_monitor.hpp"
 #include "system_monitor/system_monitor_utility.hpp"
 
 ProcessMonitor::ProcessMonitor(const rclcpp::NodeOptions & options)
@@ -51,10 +51,7 @@ ProcessMonitor::ProcessMonitor(const rclcpp::NodeOptions & options)
   }
 }
 
-void ProcessMonitor::update()
-{
-  updater_.force_update();
-}
+void ProcessMonitor::update() { updater_.force_update(); }
 
 void ProcessMonitor::monitorProcesses(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
@@ -253,7 +250,9 @@ void ProcessMonitor::getHighMemoryProcesses(const std::string & output)
 void ProcessMonitor::getTopratedProcesses(
   std::vector<std::shared_ptr<DiagTask>> * tasks, bp::pipe * p)
 {
-  if (tasks == nullptr || p == nullptr) {return;}
+  if (tasks == nullptr || p == nullptr) {
+    return;
+  }
 
   bp::ipstream is_out;
   bp::ipstream is_err;
@@ -300,7 +299,9 @@ void ProcessMonitor::setErrorContent(
   std::vector<std::shared_ptr<DiagTask>> * tasks, const std::string & message,
   const std::string & error_command, const std::string & content)
 {
-  if (tasks == nullptr) {return;}
+  if (tasks == nullptr) {
+    return;
+  }
 
   for (auto itr = tasks->begin(); itr != tasks->end(); ++itr) {
     (*itr)->setDiagnosticsStatus(DiagStatus::ERROR, message);

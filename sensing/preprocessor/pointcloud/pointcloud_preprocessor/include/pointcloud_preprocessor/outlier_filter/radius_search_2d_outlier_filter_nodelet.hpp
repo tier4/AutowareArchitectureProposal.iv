@@ -17,14 +17,12 @@
 
 #include <vector>
 
+#include "pcl/common/impl/common.hpp"
+#include "pcl/filters/extract_indices.h"
+#include "pcl/filters/radius_outlier_removal.h"
 #include "pcl/filters/voxel_grid.h"
 #include "pcl/search/pcl_search.h"
 #include "pointcloud_preprocessor/filter.hpp"
-
-#include "pcl/common/impl/common.hpp"
-#include "pcl/filters/radius_outlier_removal.h"
-#include "pcl/filters/extract_indices.h"
-
 
 namespace pointcloud_preprocessor
 {

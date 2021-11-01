@@ -57,10 +57,7 @@ public:
     return getParameters<ConstLineString3d>("start_line").front();
   }
 
-  ConstLineStrings3d getEndLines() const
-  {
-    return getParameters<ConstLineString3d>("end_line");
-  }
+  ConstLineStrings3d getEndLines() const { return getParameters<ConstLineString3d>("end_line"); }
 
 private:
   // the following lines are required so that lanelet2 can create this object

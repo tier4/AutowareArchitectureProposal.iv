@@ -32,7 +32,7 @@ struct TurnSignalParameters
 };
 
 class TurnSignalDecider : public std::enable_shared_from_this<TurnSignalDecider>,
-  public rclcpp::Node
+                          public rclcpp::Node
 {
 private:
   // ROS variables

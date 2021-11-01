@@ -30,8 +30,8 @@
 #include "rviz_common/properties/ros_topic_property.hpp"
 #endif
 
-#include "std_msgs/msg/bool.hpp"
 #include "autoware_vehicle_msgs/srv/update_accel_brake_map.hpp"
+#include "std_msgs/msg/bool.hpp"
 
 namespace autoware_calibration_rviz_plugin
 {

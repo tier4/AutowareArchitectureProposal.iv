@@ -45,9 +45,9 @@ private:
     pub_stop_flag_;  //!< @brief stop flag publisher
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr
     sub_twist_;  //!< @brief measurement twist subscriber
-  rclcpp::Subscription<geometry_msgs::msg::TwistWithCovarianceStamped>::
-  SharedPtr sub_twist_with_covariance_;  //!< @brief measurement twist with
-                                         //!< covariance subscriber
+  rclcpp::Subscription<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr
+    sub_twist_with_covariance_;  //!< @brief measurement twist with
+                                 //!< covariance subscriber
 
   double vx_threshold_;  //!< @brief vx threshold
   double wz_threshold_;  //!< @brief wz threshold
@@ -55,8 +55,7 @@ private:
   /**
    * @brief set twist measurement
    */
-  void callbackTwistStamped(
-    const geometry_msgs::msg::TwistStamped::SharedPtr msg);
+  void callbackTwistStamped(const geometry_msgs::msg::TwistStamped::SharedPtr msg);
 
   /**
    * @brief set twistWithCovariance measurement

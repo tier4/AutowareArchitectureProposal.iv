@@ -20,11 +20,10 @@
 #include "utilization/state_machine.hpp"
 #include "utils.hpp"
 
-
 using StateMachine = behavior_velocity_planner::StateMachine;
 using State = behavior_velocity_planner::StateMachine::State;
 
-int enumToInt(State s) {return static_cast<int>(s);}
+int enumToInt(State s) { return static_cast<int>(s); }
 
 TEST(state_machine, on_initialized)
 {

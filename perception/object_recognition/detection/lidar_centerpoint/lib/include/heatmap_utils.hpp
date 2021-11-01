@@ -25,7 +25,7 @@ at::Tensor sigmoid_hm(const at::Tensor & heatmap)
 {
   // heatmap (float): (batch_size, num_class, H, W)
 
-  return torch::clamp(torch::sigmoid(heatmap), /*min=*/ 1e-6, /*max=*/ 1 - 1e-6);
+  return torch::clamp(torch::sigmoid(heatmap), /*min=*/1e-6, /*max=*/1 - 1e-6);
 }
 
 at::Tensor nms_hm(const at::Tensor & heatmap, const int kernel_size = 3)

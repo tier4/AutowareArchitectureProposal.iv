@@ -24,6 +24,7 @@
 #include "OgreMaterialManager.h"
 #include "OgreSceneManager.h"
 #include "OgreSceneNode.h"
+#include "autoware_planning_msgs/msg/trajectory.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rviz_common/display_context.hpp"
 #include "rviz_common/frame_manager_iface.hpp"
@@ -35,12 +36,10 @@
 #include "rviz_common/validate_floats.hpp"
 #include "rviz_rendering/objects/movable_text.hpp"
 
-#include "autoware_planning_msgs/msg/trajectory.hpp"
-
 namespace rviz_plugins
 {
 class AutowareTrajectoryDisplay
-  : public rviz_common::MessageFilterDisplay<autoware_planning_msgs::msg::Trajectory>
+: public rviz_common::MessageFilterDisplay<autoware_planning_msgs::msg::Trajectory>
 {
   Q_OBJECT
 
@@ -55,8 +54,8 @@ private Q_SLOTS:
   void updateVisualization();
 
 protected:
-  void processMessage(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr)
-  override;
+  void processMessage(
+    const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr) override;
   std::unique_ptr<Ogre::ColourValue> setColorDependsOnVelocity(
     const double vel_max, const double cmd_vel);
   std::unique_ptr<Ogre::ColourValue> gradation(

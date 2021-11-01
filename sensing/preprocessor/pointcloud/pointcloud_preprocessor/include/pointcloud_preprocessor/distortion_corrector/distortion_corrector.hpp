@@ -20,8 +20,8 @@
 
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "sensor_msgs/point_cloud2_iterator.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
+#include "sensor_msgs/point_cloud2_iterator.hpp"
 #include "tf2/convert.h"
 #include "tf2/transform_datatypes.h"
 #include "tf2_ros/buffer.h"
@@ -46,8 +46,7 @@ private:
     tf2::Transform * tf2_transform_ptr);
 
   bool undistortPointCloud(
-    const std::deque<TwistStamped> & twist_queue,
-    const tf2::Transform & tf2_base_link_to_sensor,
+    const std::deque<TwistStamped> & twist_queue, const tf2::Transform & tf2_base_link_to_sensor,
     PointCloud2 & points);
 
   rclcpp::Subscription<PointCloud2>::SharedPtr input_points_sub_;

@@ -18,18 +18,14 @@
 #include <memory>
 #include <string>
 
-#include "boost/optional.hpp"
-
-#include "rclcpp/rclcpp.hpp"
-
 #include "autoware_perception_msgs/msg/dynamic_object.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "boost/optional.hpp"
 #include "geometry_msgs/msg/point.hpp"
-
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_routing/RoutingGraph.h"
-
+#include "rclcpp/rclcpp.hpp"
 #include "scene_module/scene_module_interface.hpp"
 #include "utilization/boost_geometry_helper.hpp"
 
@@ -44,8 +40,7 @@ struct BlindSpotPolygons
 class BlindSpotModule : public SceneModuleInterface
 {
 public:
-  enum class State
-  {
+  enum class State {
     STOP = 0,
     GO,
   };
@@ -67,7 +62,7 @@ public:
    */
   class StateMachine
   {
-public:
+  public:
     StateMachine()
     {
       state_ = State::GO;
@@ -78,7 +73,7 @@ public:
     void setMarginTime(const double t);
     State getState();
 
-private:
+  private:
     State state_;                               //! current state
     double margin_time_;                        //! margin time when transit to Go from Stop
     std::shared_ptr<rclcpp::Time> start_time_;  //! first time received GO when STOP state
@@ -101,8 +96,7 @@ public:
   struct PlannerParam
   {
     double stop_line_margin;  //! distance from auto-generated stopline to detection_area boundary
-    double
-      backward_length;  //! distance[m] from closest path point to the edge of beginning point
+    double backward_length;   //! distance[m] from closest path point to the edge of beginning point
     double ignore_width_from_center_line;  //! ignore width from center line from detection_area
     double
       max_future_movement_time;  //! maximum time[second] for considering future movement of object

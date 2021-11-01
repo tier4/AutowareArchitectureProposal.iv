@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "shift_decider/shift_decider.hpp"
+
 #include <cstddef>
 #include <functional>
 #include <memory>
 #include <utility>
-
-#include "shift_decider/shift_decider.hpp"
 
 #include "rclcpp/timer.hpp"
 
@@ -45,7 +45,9 @@ void ShiftDecider::onControlCmd(autoware_control_msgs::msg::ControlCommandStampe
 
 void ShiftDecider::onTimer()
 {
-  if (!control_cmd_) {return;}
+  if (!control_cmd_) {
+    return;
+  }
 
   updateCurrentShiftCmd();
   pub_shift_cmd_->publish(shift_cmd_);

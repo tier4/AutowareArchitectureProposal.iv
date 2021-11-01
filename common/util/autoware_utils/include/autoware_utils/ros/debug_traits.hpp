@@ -30,48 +30,60 @@
 
 namespace autoware_utils::debug_traits
 {
-template<typename T>
-struct is_debug_message : std::false_type {};
+template <typename T>
+struct is_debug_message : std::false_type
+{
+};
 
-template<>
-struct is_debug_message<autoware_debug_msgs::msg::BoolStamped>
-  : std::true_type {};
+template <>
+struct is_debug_message<autoware_debug_msgs::msg::BoolStamped> : std::true_type
+{
+};
 
-template<>
-struct is_debug_message<autoware_debug_msgs::msg::Float32MultiArrayStamped>
-  : std::true_type {};
+template <>
+struct is_debug_message<autoware_debug_msgs::msg::Float32MultiArrayStamped> : std::true_type
+{
+};
 
-template<>
-struct is_debug_message<autoware_debug_msgs::msg::Float32Stamped>
-  : std::true_type {};
+template <>
+struct is_debug_message<autoware_debug_msgs::msg::Float32Stamped> : std::true_type
+{
+};
 
-template<>
-struct is_debug_message<autoware_debug_msgs::msg::Float64MultiArrayStamped>
-  : std::true_type {};
+template <>
+struct is_debug_message<autoware_debug_msgs::msg::Float64MultiArrayStamped> : std::true_type
+{
+};
 
-template<>
-struct is_debug_message<autoware_debug_msgs::msg::Float64Stamped>
-  : std::true_type {};
+template <>
+struct is_debug_message<autoware_debug_msgs::msg::Float64Stamped> : std::true_type
+{
+};
 
-template<>
-struct is_debug_message<autoware_debug_msgs::msg::Int32MultiArrayStamped>
-  : std::true_type {};
+template <>
+struct is_debug_message<autoware_debug_msgs::msg::Int32MultiArrayStamped> : std::true_type
+{
+};
 
-template<>
-struct is_debug_message<autoware_debug_msgs::msg::Int32Stamped>
-  : std::true_type {};
+template <>
+struct is_debug_message<autoware_debug_msgs::msg::Int32Stamped> : std::true_type
+{
+};
 
-template<>
-struct is_debug_message<autoware_debug_msgs::msg::Int64MultiArrayStamped>
-  : std::true_type {};
+template <>
+struct is_debug_message<autoware_debug_msgs::msg::Int64MultiArrayStamped> : std::true_type
+{
+};
 
-template<>
-struct is_debug_message<autoware_debug_msgs::msg::Int64Stamped>
-  : std::true_type {};
+template <>
+struct is_debug_message<autoware_debug_msgs::msg::Int64Stamped> : std::true_type
+{
+};
 
-template<>
-struct is_debug_message<autoware_debug_msgs::msg::StringStamped>
-  : std::true_type {};
+template <>
+struct is_debug_message<autoware_debug_msgs::msg::StringStamped> : std::true_type
+{
+};
 }  // namespace autoware_utils::debug_traits
 
 #endif  // AUTOWARE_UTILS__ROS__DEBUG_TRAITS_HPP_

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <memory>
+
 #include "simple_planning_simulator/simple_planning_simulator_core.hpp"
 
 int main(int argc, char ** argv)

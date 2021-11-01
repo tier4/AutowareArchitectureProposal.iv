@@ -16,11 +16,11 @@
 #include <string>
 #include <vector>
 
+#include "boost/algorithm/string.hpp"
+#include "boost/filesystem.hpp"
 #include "gtest/gtest.h"
 #include "rclcpp/rclcpp.hpp"
 #include "system_monitor/net_monitor/net_monitor.hpp"
-#include "boost/algorithm/string.hpp"
-#include "boost/filesystem.hpp"
 
 static constexpr const char * DOCKER_ENV = "/.dockerenv";
 
@@ -33,19 +33,21 @@ class TestNetMonitor : public NetMonitor
 
 public:
   TestNetMonitor(const std::string & node_name, const rclcpp::NodeOptions & options)
-  : NetMonitor(node_name, options) {}
+  : NetMonitor(node_name, options)
+  {
+  }
 
   void diagCallback(const diagnostic_msgs::msg::DiagnosticArray::ConstSharedPtr diag_msg)
   {
     array_ = *diag_msg;
   }
 
-  void changeUsageWarn(float usage_warn) {usage_warn_ = usage_warn;}
+  void changeUsageWarn(float usage_warn) { usage_warn_ = usage_warn; }
 
-  const std::vector<std::string> getDeviceParams() {return device_params_;}
-  void clearDeviceParams() {device_params_.clear();}
+  const std::vector<std::string> getDeviceParams() { return device_params_; }
+  void clearDeviceParams() { device_params_.clear(); }
 
-  void update() {updater_.force_update();}
+  void update() { updater_.force_update(); }
 
   const std::string removePrefix(const std::string & name)
   {
@@ -75,8 +77,7 @@ public:
 
 protected:
   std::unique_ptr<TestNetMonitor> monitor_;
-  rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr
-    sub_;
+  rclcpp::Subscription<diagnostic_msgs::msg::DiagnosticArray>::SharedPtr sub_;
 
   void SetUp()
   {
@@ -88,10 +89,7 @@ protected:
       "/diagnostics", 1000, std::bind(&TestNetMonitor::diagCallback, monitor_.get(), _1));
   }
 
-  void TearDown()
-  {
-    rclcpp::shutdown();
-  }
+  void TearDown() { rclcpp::shutdown(); }
 
   bool findValue(const DiagStatus status, const std::string & key, std::string & value)  // NOLINT
   {
@@ -140,7 +138,9 @@ TEST_F(NetMonitorTestSuite, usageWarnTest)
     ASSERT_TRUE(monitor_->findDiagStatus("Network Usage", status));
     // Skip test if process runs inside docker
     // Don't know what interface should be monitored.
-    if (!fs::exists(DOCKER_ENV)) {ASSERT_EQ(status.level, DiagStatus::WARN);}
+    if (!fs::exists(DOCKER_ENV)) {
+      ASSERT_EQ(status.level, DiagStatus::WARN);
+    }
   }
 
   // Verify normal behavior

@@ -17,9 +17,10 @@
 #define LANE_CHANGE_PLANNER__STATE__STATE_BASE_CLASS_HPP_
 
 #include <iostream>
-#include <vector>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
+
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "geometry_msgs/msg/point.hpp"
 #include "lane_change_planner/data_manager.hpp"
@@ -28,8 +29,7 @@
 
 namespace lane_change_planner
 {
-enum State
-{
+enum State {
   NO_STATE,
   FOLLOWING_LANE,
   EXECUTING_LANE_CHANGE,
@@ -63,8 +63,8 @@ class StateBase
 protected:
   StateBase(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-    const std::shared_ptr<RouteHandler> & route_handler_ptr,
-    const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
+    const std::shared_ptr<RouteHandler> & route_handler_ptr, const rclcpp::Logger & logger,
+    const rclcpp::Clock::SharedPtr & clock);
   Status status_;
   LaneChangerParameters ros_parameters_;
   std::shared_ptr<DataManager> data_manager_ptr_;

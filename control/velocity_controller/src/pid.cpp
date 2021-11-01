@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "velocity_controller/pid.hpp"
+
 #include <algorithm>
 #include <array>
 #include <memory>
 #include <utility>
 
-#include "velocity_controller/pid.hpp"
-
-PIDController::PIDController()
-: error_integral_(0.0), prev_error_(0.0), is_first_time_(true) {}
+PIDController::PIDController() : error_integral_(0.0), prev_error_(0.0), is_first_time_(true) {}
 
 double PIDController::calculate(
   const double error, const double dt, const bool enable_integration,

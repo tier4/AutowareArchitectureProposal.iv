@@ -19,28 +19,24 @@
 #include <fstream>
 #include <memory>
 #include <mutex>
-#include <vector>
 #include <string>
+#include <vector>
 
-#include "opencv2/core/core.hpp"
-#include "opencv2/highgui/highgui.hpp"
-
-#include "trt_ssd.hpp"
-
+#include "autoware_debug_msgs/msg/float32_stamped.hpp"
+#include "autoware_perception_msgs/msg/traffic_light_roi_array.hpp"
+#include "cv_bridge/cv_bridge.h"
 #include "image_transport/image_transport.hpp"
 #include "image_transport/subscriber_filter.hpp"
 #include "message_filters/subscriber.h"
 #include "message_filters/sync_policies/approximate_time.h"
 #include "message_filters/synchronizer.h"
 #include "message_filters/time_synchronizer.h"
+#include "opencv2/core/core.hpp"
+#include "opencv2/highgui/highgui.hpp"
 #include "rclcpp/rclcpp.hpp"
-
-#include "cv_bridge/cv_bridge.h"
-#include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/image_encodings.hpp"
-#include "autoware_debug_msgs/msg/float32_stamped.hpp"
-
-#include "autoware_perception_msgs/msg/traffic_light_roi_array.hpp"
+#include "sensor_msgs/msg/image.hpp"
+#include "trt_ssd.hpp"
 
 typedef struct Detection
 {
@@ -57,7 +53,7 @@ public:
   void callback(
     const sensor_msgs::msg::Image::ConstSharedPtr image_msg,
     const autoware_perception_msgs::msg::TrafficLightRoiArray::ConstSharedPtr
-    traffic_light_roi_msg);
+      traffic_light_roi_msg);
 
 private:
   bool cvMat2CnnInput(
@@ -83,13 +79,13 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
 
   typedef message_filters::sync_policies::ExactTime<
-      sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
+    sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
     SyncPolicy;
   typedef message_filters::Synchronizer<SyncPolicy> Sync;
   std::shared_ptr<Sync> sync_;
 
   typedef message_filters::sync_policies::ApproximateTime<
-      sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
+    sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
     ApproximateSyncPolicy;
   typedef message_filters::Synchronizer<ApproximateSyncPolicy> ApproximateSync;
   std::shared_ptr<ApproximateSync> approximate_sync_;

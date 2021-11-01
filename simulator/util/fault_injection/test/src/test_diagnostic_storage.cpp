@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
-#include "gtest/gtest.h"
 #include "fault_injection/diagnostic_storage.hpp"
-
+#include "gtest/gtest.h"
 
 class TestDiagnosticStorage : public ::testing::Test
 {
@@ -48,6 +47,7 @@ TEST_F(TestDiagnosticStorage, call_update_with_correct_key)
   EXPECT_EQ(diag.level, 1);
 }
 
-TEST_F(TestDiagnosticStorage, raise_exception_with_wrong_key) {
+TEST_F(TestDiagnosticStorage, raise_exception_with_wrong_key)
+{
   EXPECT_ANY_THROW(storage_.getDiag("invalid_name"));
 }

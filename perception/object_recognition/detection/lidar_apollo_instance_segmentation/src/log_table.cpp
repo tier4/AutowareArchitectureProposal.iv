@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "lidar_apollo_instance_segmentation/log_table.hpp"
+
 #include <cmath>
 #include <string>
 #include <vector>

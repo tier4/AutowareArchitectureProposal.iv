@@ -22,10 +22,10 @@
 #include <numeric>
 #include <vector>
 
-#include "rclcpp/rclcpp.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
 #include "autoware_utils/trajectory/trajectory.hpp"
 #include "motion_velocity_smoother/linear_interpolation.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace motion_velocity_smoother
 {
@@ -42,8 +42,7 @@ bool validCheckCalcStopDist(
 bool calcStopVelocityWithConstantJerkAccLimit(
   const double v0, const double a0, const double jerk_acc, const double jerk_dec,
   const double min_acc, const double decel_target_vel, const int type,
-  const std::vector<double> & times, const size_t start_index,
-  Trajectory & output_trajectory);
+  const std::vector<double> & times, const size_t start_index, Trajectory & output_trajectory);
 void updateStopVelocityStatus(
   double v0, double a0, double jerk_acc, double jerk_dec, int type, std::vector<double> times,
   double t, double & x, double & v, double & a, double & j);

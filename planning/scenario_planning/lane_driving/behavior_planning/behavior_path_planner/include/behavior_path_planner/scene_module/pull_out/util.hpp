@@ -18,16 +18,13 @@
 #include <memory>
 #include <vector>
 
-#include "lanelet2_core/primitives/Primitive.h"
-
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
-
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
-
 #include "behavior_path_planner/scene_module/pull_out/pull_out_module.hpp"
 #include "behavior_path_planner/utilities.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "lanelet2_core/primitives/Primitive.h"
 
 namespace behavior_path_planner
 {
@@ -51,19 +48,17 @@ PullOutPath getBackPaths(
   const behavior_path_planner::PullOutParameters & parameter, const double back_distance);
 
 bool isPathInLanelets4pullover(
-  const PathWithLaneId & path,
-  const lanelet::ConstLanelets & original_lanelets, const lanelet::ConstLanelets & target_lanelets);
+  const PathWithLaneId & path, const lanelet::ConstLanelets & original_lanelets,
+  const lanelet::ConstLanelets & target_lanelets);
 
 Pose getBackedPose(
-  const Pose & current_pose, const double & yaw_shoulder_lane,
-  const double & back_distance);
+  const Pose & current_pose, const double & yaw_shoulder_lane, const double & back_distance);
 
 std::vector<PullOutPath> selectValidPaths(
   const std::vector<PullOutPath> & paths, const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
-  const lanelet::routing::RoutingGraphContainer & overall_graphs,
-  const Pose & current_pose, const bool isInGoalRouteSection,
-  const Pose & goal_pose);
+  const lanelet::routing::RoutingGraphContainer & overall_graphs, const Pose & current_pose,
+  const bool isInGoalRouteSection, const Pose & goal_pose);
 bool selectSafePath(
   const std::vector<PullOutPath> & paths, const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,

@@ -23,7 +23,6 @@
 
 #include "diagnostic_updater/diagnostic_updater.hpp"
 #include "rclcpp/rclcpp.hpp"
-
 #include "topic_state_monitor/topic_state_monitor.hpp"
 
 namespace topic_state_monitor

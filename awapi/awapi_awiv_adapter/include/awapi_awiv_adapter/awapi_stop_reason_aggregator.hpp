@@ -17,9 +17,8 @@
 
 #include <vector>
 
-#include "rclcpp/rclcpp.hpp"
-
 #include "awapi_awiv_adapter/awapi_autoware_util.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace autoware_api
 {

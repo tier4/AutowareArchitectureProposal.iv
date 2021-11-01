@@ -14,6 +14,7 @@
 
 // headers in local files
 #include "map_based_prediction_ros.hpp"
+
 #include "map_based_prediction.hpp"
 
 // headers in STL
@@ -27,14 +28,13 @@
 #include <vector>
 
 // headers in ROS
+#include "autoware_utils/autoware_utils.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tf2/utils.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 #include "unique_identifier_msgs/msg/uuid.hpp"
-
-#include "autoware_utils/autoware_utils.hpp"
 
 std::string toHexString(const unique_identifier_msgs::msg::UUID & id)
 {
@@ -137,8 +137,7 @@ bool MapBasedPredictionROS::checkCloseLaneletCondition(
   // of the lanelets that are below max_dist and max_delta_yaw
   if (
     lanelet.first < dist_threshold_for_searching_lanelet_ &&
-    abs_norm_delta < delta_yaw_threshold_for_searching_lanelet_)
-  {
+    abs_norm_delta < delta_yaw_threshold_for_searching_lanelet_) {
     return true;
   }
 
@@ -225,7 +224,8 @@ bool MapBasedPredictionROS::getClosestLanelets(
 }
 
 MapBasedPredictionROS::MapBasedPredictionROS(const rclcpp::NodeOptions & node_options)
-: Node("map_based_prediction", node_options), interpolating_resolution_(0.5),
+: Node("map_based_prediction", node_options),
+  interpolating_resolution_(0.5),
   debug_accumulated_time_(0.0)
 {
   auto ret =
@@ -329,8 +329,7 @@ void MapBasedPredictionROS::objectsCallback(
     if (
       object.semantic.type != autoware_perception_msgs::msg::Semantic::CAR &&
       object.semantic.type != autoware_perception_msgs::msg::Semantic::BUS &&
-      object.semantic.type != autoware_perception_msgs::msg::Semantic::TRUCK)
-    {
+      object.semantic.type != autoware_perception_msgs::msg::Semantic::TRUCK) {
       tmp_objects_without_map.objects.push_back(tmp_object.object);
       continue;
     }
@@ -339,8 +338,7 @@ void MapBasedPredictionROS::objectsCallback(
     const double min_lon_velocity_ms_for_map_based_prediction = 1.0;
     if (
       std::fabs(object.state.twist_covariance.twist.linear.x) <
-      min_lon_velocity_ms_for_map_based_prediction)
-    {
+      min_lon_velocity_ms_for_map_based_prediction) {
       tmp_objects_without_map.objects.push_back(tmp_object.object);
       continue;
     }

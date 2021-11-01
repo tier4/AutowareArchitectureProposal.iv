@@ -40,13 +40,15 @@
  * u = steer
  *
  *    Linearized model around reference point (v=vr)
- *          [0,                   1,                0,                        0]       [       0]       [ 0] dx/dt = [0,
- * -(cf+cr)/m/vr,        (cf+cr)/m,       (lr*cr-lf*cf)/m/vr] * x + [    cf/m] * u + [(lr*cr-lf*cf)/m/vr*k - vr*k] [0,
- * 0,                0,                        1]       [       0]       [                          0] [0,
- * (lr*cr-lf*cf)/Iz/vr, (lf*cf-lr*cr)/Iz, -(lf^2*cf+lr^2*cr)/Iz/vr]       [lf*cf/Iz]       [   -(lf^2*cf+lr^2*cr)/Iz/vr]
+ *          [0,                   1,                0,                        0]       [       0] [
+ * 0] dx/dt = [0,
+ * -(cf+cr)/m/vr,        (cf+cr)/m,       (lr*cr-lf*cf)/m/vr] * x + [    cf/m] * u +
+ * [(lr*cr-lf*cf)/m/vr*k - vr*k] [0, 0,                0,                        1]       [       0]
+ * [                          0] [0, (lr*cr-lf*cf)/Iz/vr, (lf*cf-lr*cr)/Iz,
+ * -(lf^2*cf+lr^2*cr)/Iz/vr]       [lf*cf/Iz]       [   -(lf^2*cf+lr^2*cr)/Iz/vr]
  *
- * Reference : Jarrod M. Snider, "Automatic Steering Methods for Autonomous Automobile Path Tracking", Robotics
- * Institute, Carnegie Mellon University, February 2009.
+ * Reference : Jarrod M. Snider, "Automatic Steering Methods for Autonomous Automobile Path
+ * Tracking", Robotics Institute, Carnegie Mellon University, February 2009.
  */
 
 #ifndef MPC_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_DYNAMICS_HPP_

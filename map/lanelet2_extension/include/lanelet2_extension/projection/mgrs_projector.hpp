@@ -20,10 +20,10 @@
 #include <string>
 #include <utility>
 
-#include "lanelet2_io/Exceptions.h"
-#include "lanelet2_io/Projection.h"
 #include "GeographicLib/MGRS.hpp"
 #include "GeographicLib/UTMUPS.hpp"
+#include "lanelet2_io/Exceptions.h"
+#include "lanelet2_io/Projection.h"
 
 namespace lanelet
 {
@@ -87,13 +87,13 @@ public:
    * [getProjectedMGRSGrid returns mgrs]
    * @return [description]
    */
-  std::string getProjectedMGRSGrid() const {return projected_grid_;}
+  std::string getProjectedMGRSGrid() const { return projected_grid_; }
 
   /**
    * [isMGRSCodeSet checks if mgrs code is set for reverse projection]
    * @return [true if mgrs_code member is set]
    */
-  bool isMGRSCodeSet() const {return !mgrs_code_.empty();}
+  bool isMGRSCodeSet() const { return !mgrs_code_.empty(); }
 
 private:
   /**

@@ -14,13 +14,12 @@
 
 #include "autoware_datetime_panel.hpp"
 
-#include <QLineEdit>
-#include <QLabel>
 #include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
 #include <QTimer>
-
-#include <rclcpp/rclcpp.hpp>
 #include <ctime>
+#include <rclcpp/rclcpp.hpp>
 
 void setFormatTime(QLineEdit * line, double time)
 {
@@ -30,8 +29,7 @@ void setFormatTime(QLineEdit * line, double time)
   line->setText(QString(buffer) + QString::number((time - seconds), 'f', 3).rightRef(4));
 }
 
-AutowareDateTimePanel::AutowareDateTimePanel(QWidget * parent)
-: rviz_common::Panel(parent)
+AutowareDateTimePanel::AutowareDateTimePanel(QWidget * parent) : rviz_common::Panel(parent)
 {
   ros_time_label_ = new QLineEdit;
   ros_time_label_->setReadOnly(true);
@@ -59,8 +57,7 @@ void AutowareDateTimePanel::onInitialize()
 void AutowareDateTimePanel::update()
 {
   setFormatTime(
-    ros_time_label_,
-    rviz_ros_node_.lock()->get_raw_node()->get_clock()->now().seconds());
+    ros_time_label_, rviz_ros_node_.lock()->get_raw_node()->get_clock()->now().seconds());
   setFormatTime(wall_time_label_, rclcpp::Clock().now().seconds());
 }
 

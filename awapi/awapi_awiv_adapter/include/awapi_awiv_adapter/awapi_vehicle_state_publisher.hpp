@@ -17,10 +17,9 @@
 
 #include <memory>
 
-#include "rclcpp/rclcpp.hpp"
-
-#include "awapi_awiv_adapter/awapi_autoware_util.hpp"
 #include "autoware_api_msgs/msg/awapi_vehicle_status.hpp"
+#include "awapi_awiv_adapter/awapi_autoware_util.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace autoware_api
 {

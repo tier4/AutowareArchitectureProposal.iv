@@ -33,16 +33,16 @@
 #include <memory>
 #include <vector>
 
-#include "rclcpp/rclcpp.hpp"
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "boost/optional.hpp"  // To be replaced by std::optional in C++17
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
-#include "boost/optional.hpp"  // To be replaced by std::optional in C++17
+#include "pure_pursuit/pure_pursuit.hpp"
+#include "pure_pursuit/pure_pursuit_viz.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
-#include "pure_pursuit/pure_pursuit_viz.hpp"
-#include "pure_pursuit/pure_pursuit.hpp"
 
 struct Param
 {

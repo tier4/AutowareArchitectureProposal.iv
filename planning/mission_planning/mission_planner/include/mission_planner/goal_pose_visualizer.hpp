@@ -15,10 +15,9 @@
 #ifndef MISSION_PLANNER__GOAL_POSE_VISUALIZER_HPP_
 #define MISSION_PLANNER__GOAL_POSE_VISUALIZER_HPP_
 
-#include <rclcpp/rclcpp.hpp>
-
 #include <autoware_planning_msgs/msg/route.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 namespace mission_planner
 {
@@ -30,7 +29,6 @@ public:
 private:
   rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr sub_route_;
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pub_goal_pose_;
-
 
   void echoBackRouteCallback(const autoware_planning_msgs::msg::Route::ConstSharedPtr msg);
 };

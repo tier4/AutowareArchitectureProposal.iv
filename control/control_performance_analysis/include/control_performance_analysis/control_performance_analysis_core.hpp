@@ -19,15 +19,13 @@
 #include <utility>
 #include <vector>
 
-#include "eigen3/Eigen/Core"
-
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "control_performance_analysis/control_performance_analysis_utils.hpp"
+#include "eigen3/Eigen/Core"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "geometry_msgs/msg/twist.hpp"
-
-#include "control_performance_analysis/control_performance_analysis_utils.hpp"
 
 namespace control_performance_analysis
 {

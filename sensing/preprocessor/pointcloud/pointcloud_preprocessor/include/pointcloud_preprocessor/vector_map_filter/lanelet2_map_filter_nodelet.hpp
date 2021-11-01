@@ -20,13 +20,12 @@
 #include <string>
 #include <vector>
 
-#include "pcl/filters/voxel_grid.h"
-#include "pcl_conversions/pcl_conversions.h"
-
 #include "autoware_lanelet2_msgs/msg/map_bin.hpp"
 #include "autoware_utils/geometry/boost_geometry.hpp"
 #include "lanelet2_extension/utility/message_conversion.hpp"
 #include "lanelet2_extension/utility/query.hpp"
+#include "pcl/filters/voxel_grid.h"
+#include "pcl_conversions/pcl_conversions.h"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include "tf2_eigen/tf2_eigen.h"

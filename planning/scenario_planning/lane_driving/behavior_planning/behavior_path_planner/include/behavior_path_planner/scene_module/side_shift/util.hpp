@@ -33,14 +33,14 @@ using geometry_msgs::msg::TransformStamped;
 void setOrientation(PathWithLaneId * path);
 
 bool getStartAvoidPose(
-  const PathWithLaneId & path, const double start_distance,
-  const size_t nearest_idx, Pose * start_avoid_pose);
+  const PathWithLaneId & path, const double start_distance, const size_t nearest_idx,
+  Pose * start_avoid_pose);
 
 bool isAlmostZero(double v);
 
 Point transformToGrid(
-  const Point & pt, const double longitudinal_offset, const double lateral_offset,
-  const double yaw, const TransformStamped & geom_tf);
+  const Point & pt, const double longitudinal_offset, const double lateral_offset, const double yaw,
+  const TransformStamped & geom_tf);
 
 }  // namespace behavior_path_planner
 

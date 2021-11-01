@@ -16,10 +16,8 @@
 #include <vector>
 
 #include "gtest/gtest.h"
-
-#include "rclcpp/rclcpp.hpp"
-
 #include "planning_error_monitor/planning_error_monitor_node.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "test_planning_error_monitor_helper.hpp"
 
 constexpr double NOMINAL_INTERVAL = 1.0;
@@ -34,15 +32,12 @@ using planning_diagnostics::PlanningErrorMonitorNode;
 class PubSubManager : public rclcpp::Node
 {
 public:
-  PubSubManager()
-  : Node("test_pub_sub")
+  PubSubManager() : Node("test_pub_sub")
   {
-    traj_pub_ = create_publisher<Trajectory>(
-      "/planning_error_monitor/input/trajectory", 1);
+    traj_pub_ = create_publisher<Trajectory>("/planning_error_monitor/input/trajectory", 1);
     diag_sub_ = create_subscription<DiagnosticArray>(
-      "/diagnostics", 1, [this](const DiagnosticArray::ConstSharedPtr msg) {
-        received_diags_.push_back(msg);
-      });
+      "/diagnostics", 1,
+      [this](const DiagnosticArray::ConstSharedPtr msg) { received_diags_.push_back(msg); });
   }
 
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub_;
@@ -63,7 +58,9 @@ bool isAllOK(const std::vector<DiagnosticArray::ConstSharedPtr> & diags)
 {
   for (const auto & diag : diags) {
     for (const auto & status : diag->status) {
-      if (status.level != DiagnosticStatus::OK) {return false;}
+      if (status.level != DiagnosticStatus::OK) {
+        return false;
+      }
     }
   }
   return true;
@@ -73,7 +70,9 @@ bool hasError(const std::vector<DiagnosticArray::ConstSharedPtr> & diags)
 {
   for (const auto & diag : diags) {
     for (const auto & status : diag->status) {
-      if (status.level == DiagnosticStatus::ERROR) {return true;}
+      if (status.level == DiagnosticStatus::ERROR) {
+        return true;
+      }
     }
   }
   return false;
@@ -107,13 +106,11 @@ void runWithBadTrajectory(const Trajectory & trajectory)
   EXPECT_TRUE(hasError(manager->received_diags_));
 }
 
-
 // OK cases
 TEST(PlanningErrorMonitor, DiagCheckForNominalTrajectory)
 {
   runWithOKTrajectory(generateTrajectory(NOMINAL_INTERVAL));
 }
-
 
 // Bad cases
 TEST(PlanningErrorMonitor, DiagCheckForNaNTrajectory)

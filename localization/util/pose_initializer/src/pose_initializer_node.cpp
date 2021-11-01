@@ -14,9 +14,8 @@
 
 #include <memory>
 
-#include "rclcpp/rclcpp.hpp"
-
 #include "pose_initializer/pose_initializer_core.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 int main(int argc, char ** argv)
 {

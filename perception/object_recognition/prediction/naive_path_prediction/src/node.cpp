@@ -18,10 +18,12 @@
  */
 
 #include "naive_path_prediction/node.hpp"
+
 #include <tf2/LinearMath/Transform.h>
 #include <tf2/convert.h>
 #include <tf2/transform_datatypes.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 
 NaivePathPredictionNode::NaivePathPredictionNode(const rclcpp::NodeOptions & node_options)
@@ -29,12 +31,9 @@ NaivePathPredictionNode::NaivePathPredictionNode(const rclcpp::NodeOptions & nod
 {
   using std::placeholders::_1;
   sub_ = this->create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
-    "input", rclcpp::QoS{1}, std::bind(
-      &NaivePathPredictionNode::callback, this,
-      _1));
+    "input", rclcpp::QoS{1}, std::bind(&NaivePathPredictionNode::callback, this, _1));
   pub_ = this->create_publisher<autoware_perception_msgs::msg::DynamicObjectArray>(
-    "objects",
-    rclcpp::QoS{1});
+    "objects", rclcpp::QoS{1});
 }
 
 void NaivePathPredictionNode::callback(
@@ -51,8 +50,8 @@ void NaivePathPredictionNode::callback(
       pose_cov_stamped.header = output_msg.header;
       rclcpp::Duration delta_t_ = rclcpp::Duration::from_seconds(dt);
       pose_cov_stamped.header.stamp.sec = output_msg.header.stamp.sec + delta_t_.seconds();
-      pose_cov_stamped.header.stamp.nanosec = output_msg.header.stamp.nanosec +
-        delta_t_.nanoseconds();
+      pose_cov_stamped.header.stamp.nanosec =
+        output_msg.header.stamp.nanosec + delta_t_.nanoseconds();
       geometry_msgs::msg::Pose object_frame_pose;
       geometry_msgs::msg::Pose world_frame_pose;
       object_frame_pose.position.x =

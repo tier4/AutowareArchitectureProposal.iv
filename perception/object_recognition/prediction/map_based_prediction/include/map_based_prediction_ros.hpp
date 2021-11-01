@@ -18,13 +18,12 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <vector>
 #include <utility>
-
-#include "autoware_perception_msgs/msg/dynamic_object.hpp"
-#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include <vector>
 
 #include "autoware_lanelet2_msgs/msg/map_bin.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "unique_identifier_msgs/msg/uuid.hpp"

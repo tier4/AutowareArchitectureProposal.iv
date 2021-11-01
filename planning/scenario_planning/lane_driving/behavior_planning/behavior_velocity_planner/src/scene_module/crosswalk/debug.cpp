@@ -16,7 +16,6 @@
 
 #include "scene_module/crosswalk/scene_crosswalk.hpp"
 #include "scene_module/crosswalk/scene_walkway.hpp"
-
 #include "utilization/marker_helper.hpp"
 #include "utilization/util.hpp"
 

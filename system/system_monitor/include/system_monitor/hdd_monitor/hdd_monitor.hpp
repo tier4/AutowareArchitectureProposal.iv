@@ -37,8 +37,7 @@ struct HDDParam
   float usage_warn_;   //!< @brief HDD usage(%) to generate warning
   float usage_error_;  //!< @brief HDD usage(%) to generate error
 
-  HDDParam()
-  : temp_warn_(55.0), temp_error_(70.0), usage_warn_(0.95), usage_error_(0.99) {}
+  HDDParam() : temp_warn_(55.0), temp_error_(70.0), usage_warn_(0.95), usage_error_(0.99) {}
 };
 
 class HDDMonitor : public rclcpp::Node
@@ -97,7 +96,8 @@ protected:
   /**
    * @brief HDD usage status messages
    */
-  const std::map<int, const char *> usage_dict_ = {{DiagStatus::OK, "OK"},
+  const std::map<int, const char *> usage_dict_ = {
+    {DiagStatus::OK, "OK"},
     {DiagStatus::WARN, "low disk space"},
     {DiagStatus::ERROR, "very low disk space"}};
 };

@@ -46,8 +46,7 @@ public:
     const Trajectory & traj, const double relative_angle_threshold, const double min_dist_threshold,
     std::string & error_msg, PlanningErrorMonitorDebugNode & debug_marker);
 
-  static bool checkTrajectoryPointValue(
-    const Trajectory & traj, std::string & error_msg);
+  static bool checkTrajectoryPointValue(const Trajectory & traj, std::string & error_msg);
   static bool checkTrajectoryInterval(
     const Trajectory & traj, const double & interval_threshold, std::string & error_msg,
     PlanningErrorMonitorDebugNode & debug_marker);

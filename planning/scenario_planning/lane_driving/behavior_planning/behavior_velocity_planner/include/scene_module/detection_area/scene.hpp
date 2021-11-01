@@ -23,14 +23,11 @@
 
 #define EIGEN_MPL2_ONLY
 #include "Eigen/Core"
-
-#include "rclcpp/rclcpp.hpp"
-#include "tf2/LinearMath/Transform.h"
-
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_extension/regulatory_elements/detection_area.hpp"
-
+#include "rclcpp/rclcpp.hpp"
 #include "scene_module/scene_module_interface.hpp"
+#include "tf2/LinearMath/Transform.h"
 #include "utilization/boost_geometry_helper.hpp"
 
 namespace behavior_velocity_planner

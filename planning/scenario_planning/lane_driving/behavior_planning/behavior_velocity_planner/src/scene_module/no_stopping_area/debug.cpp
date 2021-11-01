@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "autoware_utils/planning/planning_marker_helper.hpp"
 #include "scene_module/no_stopping_area/scene_no_stopping_area.hpp"
@@ -210,15 +210,13 @@ visualization_msgs::msg::MarkerArray NoStoppingAreaModule::createDebugMarkerArra
   if (!debug_data_.stuck_vehicle_detect_area.points.empty()) {
     appendMarkerArray(
       createNoStoppingAreaMarkerArray(
-        debug_data_.stuck_vehicle_detect_area,
-        "stuck_vehicle_detect_area", current_time),
+        debug_data_.stuck_vehicle_detect_area, "stuck_vehicle_detect_area", current_time),
       current_time, &debug_marker_array);
   }
   if (!debug_data_.stop_line_detect_area.points.empty()) {
     appendMarkerArray(
       createNoStoppingAreaMarkerArray(
-        debug_data_.stop_line_detect_area,
-        "stop_line_detect_area", current_time),
+        debug_data_.stop_line_detect_area, "stop_line_detect_area", current_time),
       current_time, &debug_marker_array);
   }
   return debug_marker_array;

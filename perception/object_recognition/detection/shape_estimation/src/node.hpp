@@ -17,9 +17,9 @@
 
 #include <memory>
 
-#include "shape_estimation/shape_estimator.hpp"
-#include "rclcpp/rclcpp.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "shape_estimation/shape_estimator.hpp"
 
 class ShapeEstimationNode : public rclcpp::Node
 {

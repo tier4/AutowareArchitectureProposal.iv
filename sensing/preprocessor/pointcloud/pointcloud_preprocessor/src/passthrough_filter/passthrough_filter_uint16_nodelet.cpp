@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "pointcloud_preprocessor/passthrough_filter/passthrough_filter_uint16_nodelet.hpp"
+
 #include <string>
 #include <vector>
-
-#include "pointcloud_preprocessor/passthrough_filter/passthrough_filter_uint16_nodelet.hpp"
 
 #include "pcl/kdtree/kdtree_flann.h"
 #include "pcl/search/kdtree.h"

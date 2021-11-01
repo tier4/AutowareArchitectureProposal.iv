@@ -16,8 +16,9 @@
 #ifndef LANE_CHANGE_PLANNER__STATE__BLOCKED_BY_OBSTACLE_HPP_
 #define LANE_CHANGE_PLANNER__STATE__BLOCKED_BY_OBSTACLE_HPP_
 
-#include <vector>
 #include <memory>
+#include <vector>
+
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
@@ -58,8 +59,8 @@ private:
 public:
   BlockedByObstacleState(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-    const std::shared_ptr<RouteHandler> & route_handler_ptr,
-    const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
+    const std::shared_ptr<RouteHandler> & route_handler_ptr, const rclcpp::Logger & logger,
+    const rclcpp::Clock::SharedPtr & clock);
 
   // override virtual functions
   void entry() override;

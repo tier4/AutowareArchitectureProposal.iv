@@ -21,11 +21,11 @@
 #include <utility>
 #include <vector>
 
-#include "rclcpp/rclcpp.hpp"
-#include "tf2/utils.h"
-#include "geometry_msgs/msg/pose.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
 #include "autoware_utils/trajectory/trajectory.hpp"
+#include "geometry_msgs/msg/pose.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "tf2/utils.h"
 
 // *INDENT-OFF*
 #include "motion_velocity_smoother/smoother/analytical_jerk_constrained_smoother/velocity_planning_utils.hpp"

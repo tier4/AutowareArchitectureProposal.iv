@@ -60,7 +60,6 @@
 
 #include "QColor"
 #include "QImage"
-
 #include "rclcpp/rclcpp.hpp"
 
 namespace jsk_rviz_plugins

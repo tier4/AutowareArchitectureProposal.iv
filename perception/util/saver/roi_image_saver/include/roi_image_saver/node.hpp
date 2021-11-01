@@ -17,13 +17,13 @@
 #include <memory>
 #include <string>
 
-#include "rclcpp/rclcpp.hpp"
 #include "autoware_perception_msgs/msg/traffic_light_roi_array.hpp"
 #include "image_transport/image_transport.hpp"
 #include "image_transport/subscriber_filter.hpp"
 #include "message_filters/subscriber.h"
 #include "message_filters/sync_policies/approximate_time.h"
 #include "message_filters/synchronizer.h"
+#include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/image.hpp"
 
 namespace traffic_light
@@ -44,7 +44,7 @@ private:
   std::string save_dir_;
   std::shared_ptr<rclcpp::Rate> save_rate_ptr_;
   typedef message_filters::sync_policies::ApproximateTime<
-      sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
+    sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
     SyncPolicy;
   typedef message_filters::Synchronizer<SyncPolicy> Sync;
   Sync sync_;

@@ -30,21 +30,18 @@
 #include "message_filters/synchronizer.h"
 #include "message_filters/time_synchronizer.h"
 #include "rclcpp/rclcpp.hpp"
-#include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/image_encodings.hpp"
+#include "sensor_msgs/msg/image.hpp"
 #include "std_msgs/msg/header.hpp"
-
 #include "traffic_light_classifier/classifier_interface.hpp"
 
 #if ENABLE_GPU
 #include "traffic_light_classifier/cnn_classifier.hpp"
 #endif
 
-#include "traffic_light_classifier/color_classifier.hpp"
-
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
-
+#include "traffic_light_classifier/color_classifier.hpp"
 
 namespace traffic_light
 {
@@ -57,8 +54,7 @@ public:
     const autoware_perception_msgs::msg::TrafficLightRoiArray::ConstSharedPtr & input_rois_msg);
 
 private:
-  enum ClassifierType
-  {
+  enum ClassifierType {
     HSVFilter = 0,
     CNN = 1,
   };
@@ -68,12 +64,12 @@ private:
   image_transport::SubscriberFilter image_sub_;
   message_filters::Subscriber<autoware_perception_msgs::msg::TrafficLightRoiArray> roi_sub_;
   typedef message_filters::sync_policies::ExactTime<
-      sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
+    sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
     SyncPolicy;
   typedef message_filters::Synchronizer<SyncPolicy> Sync;
   std::shared_ptr<Sync> sync_;
   typedef message_filters::sync_policies::ApproximateTime<
-      sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
+    sensor_msgs::msg::Image, autoware_perception_msgs::msg::TrafficLightRoiArray>
     ApproximateSyncPolicy;
   typedef message_filters::Synchronizer<ApproximateSyncPolicy> ApproximateSync;
   std::shared_ptr<ApproximateSync> approximate_sync_;

@@ -22,7 +22,6 @@
 #include "geometry_msgs/msg/point32.hpp"
 #include "geometry_msgs/msg/polygon.hpp"
 #include "lanelet2_core/LaneletMap.h"
-
 #include "lanelet2_routing/RoutingGraph.h"
 #include "lanelet2_traffic_rules/TrafficRulesFactory.h"
 
@@ -83,8 +82,7 @@ void toLaneletPoint(const geometry_msgs::msg::Point & src, lanelet::ConstPoint3d
  * @param geom_poly [converted geometry_msgs point]
  */
 void toGeomMsgPoly(
-  const lanelet::ConstPolygon3d & ll_poly,
-  geometry_msgs::msg::Polygon * geom_poly);
+  const lanelet::ConstPolygon3d & ll_poly, geometry_msgs::msg::Polygon * geom_poly);
 
 /**
  * [toGeomMsgPt32 converts Eigen::Vector3d(lanelet:BasicPoint3d to

@@ -21,7 +21,6 @@
 #include "autoware_api_msgs/msg/crosswalk_status.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "rclcpp/rclcpp.hpp"
-
 #include "scene_module/crosswalk/scene_crosswalk.hpp"
 #include "scene_module/crosswalk/scene_walkway.hpp"
 #include "scene_module/scene_module_interface.hpp"
@@ -33,7 +32,7 @@ class CrosswalkModuleManager : public SceneModuleManagerInterface
 public:
   explicit CrosswalkModuleManager(rclcpp::Node & node);
 
-  const char * getModuleName() override {return "crosswalk";}
+  const char * getModuleName() override { return "crosswalk"; }
 
 private:
   CrosswalkModule::PlannerParam crosswalk_planner_param_;

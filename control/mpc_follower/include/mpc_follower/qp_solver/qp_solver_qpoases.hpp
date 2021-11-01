@@ -24,12 +24,12 @@
 
 #include <cmath>
 #include <iostream>
+
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Dense"
 #include "eigen3/Eigen/LU"
-#include "qpoases_vendor/qpOASES.hpp"
-
 #include "mpc_follower/qp_solver/qp_solver_interface.hpp"
+#include "qpoases_vendor/qpOASES.hpp"
 
 class QPSolverQpoasesHotstart : public QPSolverInterface
 {

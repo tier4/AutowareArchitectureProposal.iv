@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "turn_signal_decider/frenet_coordinate.hpp"
+
 #include <limits>
 #include <vector>
-
-#include "turn_signal_decider/frenet_coordinate.hpp"
 
 #include "Eigen/Dense"
 

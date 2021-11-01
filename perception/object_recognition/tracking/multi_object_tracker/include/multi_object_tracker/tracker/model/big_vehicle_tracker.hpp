@@ -19,8 +19,8 @@
 #ifndef MULTI_OBJECT_TRACKER__TRACKER__MODEL__BIG_VEHICLE_TRACKER_HPP_
 #define MULTI_OBJECT_TRACKER__TRACKER__MODEL__BIG_VEHICLE_TRACKER_HPP_
 
-#include "kalman_filter/kalman_filter.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object.hpp"
+#include "kalman_filter/kalman_filter.hpp"
 #include "multi_object_tracker/tracker/model/tracker_base.hpp"
 
 class BigVehicleTracker : public Tracker
@@ -32,8 +32,7 @@ private:
 private:
   KalmanFilter ekf_;
   rclcpp::Time last_update_time_;
-  enum IDX
-  {
+  enum IDX {
     X = 0,
     Y = 1,
     YAW = 2,
@@ -74,8 +73,7 @@ private:
 
 public:
   BigVehicleTracker(
-    const rclcpp::Time & time,
-    const autoware_perception_msgs::msg::DynamicObject & object);
+    const rclcpp::Time & time, const autoware_perception_msgs::msg::DynamicObject & object);
 
   bool predict(const rclcpp::Time & time) override;
   bool predict(const double dt, KalmanFilter & ekf) const;

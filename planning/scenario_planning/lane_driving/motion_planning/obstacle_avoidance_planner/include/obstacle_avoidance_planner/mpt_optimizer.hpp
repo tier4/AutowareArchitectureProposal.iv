@@ -209,10 +209,10 @@ private:
   void setOptimizedState(ReferencePoint * ref_point, const Eigen::Vector3d & optimized_state) const;
 
   /*
- * predict equation: Xec = Aex * x0 + Bex * Uex + Wex
- * cost function: J = Xex' * Qex * Xex + (Uex - Uref)' * R1ex * (Uex - Uref_ex) + Uex' * R2ex * Uex
- * Qex = diag([Q,Q,...]), R1ex = diag([R,R,...])
- */
+   * predict equation: Xec = Aex * x0 + Bex * Uex + Wex
+   * cost function: J = Xex' * Qex * Xex + (Uex - Uref)' * R1ex * (Uex - Uref_ex) + Uex' * R2ex *
+   * Uex Qex = diag([Q,Q,...]), R1ex = diag([R,R,...])
+   */
   boost::optional<MPTMatrix> generateMPTMatrix(
     const std::vector<ReferencePoint> & reference_points,
     const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points,

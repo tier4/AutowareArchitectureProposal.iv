@@ -20,7 +20,6 @@
 #include "autoware_perception_msgs/msg/dynamic_object.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_perception_msgs/msg/predicted_path.hpp"
-
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 

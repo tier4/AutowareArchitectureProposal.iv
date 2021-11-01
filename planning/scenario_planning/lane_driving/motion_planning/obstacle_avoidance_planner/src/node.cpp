@@ -219,8 +219,8 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner(const rclcpp::NodeOptions & n
   mpt_param_->zero_ff_steer_angle = declare_parameter("zero_ff_steer_angle", 0.5);
 
   mpt_param_->clearance_from_road = vehicle_param_->width * 0.5 +
-    constrain_param_->clearance_from_road +
-    constrain_param_->extra_desired_clearance_from_road;
+                                    constrain_param_->clearance_from_road +
+                                    constrain_param_->extra_desired_clearance_from_road;
   mpt_param_->clearance_from_object =
     vehicle_param_->width * 0.5 + constrain_param_->clearance_from_object;
   mpt_param_->base_point_dist_from_base_link = 0;
@@ -244,15 +244,15 @@ rcl_interfaces::msg::SetParametersResult ObstacleAvoidancePlanner::paramCallback
   const std::vector<rclcpp::Parameter> & parameters)
 {
   auto update_param = [&](const std::string & name, double & v) {
-      auto it = std::find_if(
-        parameters.cbegin(), parameters.cend(),
-        [&name](const rclcpp::Parameter & parameter) {return parameter.get_name() == name;});
-      if (it != parameters.cend()) {
-        v = it->as_double();
-        return true;
-      }
-      return false;
-    };
+    auto it = std::find_if(
+      parameters.cbegin(), parameters.cend(),
+      [&name](const rclcpp::Parameter & parameter) { return parameter.get_name() == name; });
+    if (it != parameters.cend()) {
+      v = it->as_double();
+      return true;
+    }
+    return false;
+  };
 
   // trajectory total/fixing length
   update_param("trajectory_length", traj_param_->trajectory_length);
@@ -304,8 +304,7 @@ void ObstacleAvoidancePlanner::pathCallback(const autoware_planning_msgs::msg::P
   current_ego_pose_ptr_ = getCurrentEgoPose();
   if (
     msg->points.empty() || msg->drivable_area.data.empty() || !current_ego_pose_ptr_ ||
-    !current_twist_ptr_)
-  {
+    !current_twist_ptr_) {
     return;
   }
   autoware_planning_msgs::msg::Trajectory output_trajectory_msg = generateTrajectory(*msg);
@@ -360,9 +359,8 @@ ObstacleAvoidancePlanner::generateOptimizedTrajectory(
   const geometry_msgs::msg::Pose & ego_pose, const autoware_planning_msgs::msg::Path & path)
 {
   if (!needReplan(
-      ego_pose, prev_ego_pose_ptr_, path.points, prev_replanned_time_ptr_, prev_path_points_ptr_,
-      prev_trajectories_ptr_))
-  {
+        ego_pose, prev_ego_pose_ptr_, path.points, prev_replanned_time_ptr_, prev_path_points_ptr_,
+        prev_trajectories_ptr_)) {
     return getPrevTrajectory(path.points);
   }
   prev_ego_pose_ptr_ = std::make_unique<geometry_msgs::msg::Pose>(ego_pose);
@@ -479,8 +477,7 @@ bool ObstacleAvoidancePlanner::needReplan(
   }
 
   if (!util::hasValidNearestPointFromEgo(
-      *current_ego_pose_ptr_, *prev_trajectories_ptr_, *traj_param_))
-  {
+        *current_ego_pose_ptr_, *prev_trajectories_ptr_, *traj_param_)) {
     RCLCPP_INFO(
       get_logger(), "[Avoidance] Could not find valid nearest point from ego, reset prev trajs");
     prev_trajs = nullptr;
@@ -706,8 +703,8 @@ boost::optional<Trajectories> ObstacleAvoidancePlanner::calcTrajectoryInsideArea
     if (optional_stop_idx.get() < static_cast<int>(trajs.model_predictive_trajectory.size())) {
       tmp_trajs.model_predictive_trajectory =
         std::vector<autoware_planning_msgs::msg::TrajectoryPoint>{
-        trajs.model_predictive_trajectory.begin(),
-        trajs.model_predictive_trajectory.begin() + optional_stop_idx.get()};
+          trajs.model_predictive_trajectory.begin(),
+          trajs.model_predictive_trajectory.begin() + optional_stop_idx.get()};
       tmp_trajs.extended_trajectory = std::vector<autoware_planning_msgs::msg::TrajectoryPoint>{};
       debug_data->is_expected_to_over_drivable_area = true;
     }

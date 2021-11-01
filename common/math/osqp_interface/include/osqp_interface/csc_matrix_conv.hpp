@@ -16,9 +16,8 @@
 
 #include <vector>
 
-#include "osqp/types.h"  // for 'c_int' type ('long' or 'long long')
-
 #include "eigen3/Eigen/Core"
+#include "osqp/types.h"  // for 'c_int' type ('long' or 'long long')
 
 namespace osqp
 {

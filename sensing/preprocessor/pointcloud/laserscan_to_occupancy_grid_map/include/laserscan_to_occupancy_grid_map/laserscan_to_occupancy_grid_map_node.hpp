@@ -21,8 +21,7 @@
 #include "builtin_interfaces/msg/time.hpp"
 #include "laser_geometry/laser_geometry.hpp"
 #include "laserscan_to_occupancy_grid_map/occupancy_grid_map.hpp"
-#include \
-  "laserscan_to_occupancy_grid_map/updater/occupancy_grid_map_binary_bayes_filter_updater.hpp"
+#include "laserscan_to_occupancy_grid_map/updater/occupancy_grid_map_binary_bayes_filter_updater.hpp"
 #include "laserscan_to_occupancy_grid_map/updater/occupancy_grid_map_updater_interface.hpp"
 #include "message_filters/pass_through.h"
 #include "message_filters/subscriber.h"
@@ -39,10 +38,10 @@ namespace occupancy_grid_map
 using builtin_interfaces::msg::Time;
 using costmap_2d::OccupancyGridMapUpdaterInterface;
 using laser_geometry::LaserProjection;
-using nav_msgs::msg::OccupancyGrid;
 using nav2_costmap_2d::Costmap2D;
-using sensor_msgs::msg::PointCloud2;
+using nav_msgs::msg::OccupancyGrid;
 using sensor_msgs::msg::LaserScan;
+using sensor_msgs::msg::PointCloud2;
 using tf2_ros::Buffer;
 using tf2_ros::TransformListener;
 
@@ -52,8 +51,7 @@ public:
   explicit OccupancyGridMapNode(const rclcpp::NodeOptions & node_options);
 
 private:
-  PointCloud2::SharedPtr convertLaserscanToPointCLoud2(
-    const LaserScan::ConstSharedPtr & input);
+  PointCloud2::SharedPtr convertLaserscanToPointCLoud2(const LaserScan::ConstSharedPtr & input);
   void onLaserscanPointCloud2WithObstacleAndRaw(
     const LaserScan::ConstSharedPtr & input_laserscan_msg,
     const PointCloud2::ConstSharedPtr & input_obstacle_msg,
@@ -78,11 +76,9 @@ private:
   message_filters::PassThrough<PointCloud2> passthrough_;
 
   std::shared_ptr<Buffer> tf2_{std::make_shared<Buffer>(get_clock())};
-  std::shared_ptr<TransformListener>
-  tf2_listener_{std::make_shared<TransformListener>(*tf2_)};
+  std::shared_ptr<TransformListener> tf2_listener_{std::make_shared<TransformListener>(*tf2_)};
 
-  using SyncPolicy = message_filters::sync_policies::ExactTime<
-    LaserScan, PointCloud2, PointCloud2>;
+  using SyncPolicy = message_filters::sync_policies::ExactTime<LaserScan, PointCloud2, PointCloud2>;
   using Sync = message_filters::Synchronizer<SyncPolicy>;
   std::shared_ptr<Sync> sync_ptr_;
 

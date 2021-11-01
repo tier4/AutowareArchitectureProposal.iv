@@ -32,8 +32,7 @@ inline geometry_msgs::msg::Point createMarkerPosition(double x, double y, double
 }
 
 inline geometry_msgs::msg::Quaternion createMarkerOrientation(
-  double x, double y, double z,
-  double w)
+  double x, double y, double z, double w)
 {
   geometry_msgs::msg::Quaternion quaternion;
 
@@ -75,8 +74,8 @@ inline visualization_msgs::msg::Marker createDefaultMarker(
   visualization_msgs::msg::Marker marker;
 
   marker.header.frame_id = frame_id;
-//  ToDo
-//  marker.header.stamp = rclcpp::Node::now();
+  //  ToDo
+  //  marker.header.stamp = rclcpp::Node::now();
   marker.ns = ns;
   marker.id = id;
   marker.type = type;

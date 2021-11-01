@@ -18,9 +18,8 @@
 #include <string>
 #include <unordered_map>
 
-#include "diagnostic_msgs/msg/diagnostic_status.hpp"
 #include "diagnostic_aggregator/status_item.hpp"
-
+#include "diagnostic_msgs/msg/diagnostic_status.hpp"
 
 namespace fault_injection
 {
@@ -28,7 +27,7 @@ using diagnostic_msgs::msg::DiagnosticStatus;
 
 struct DiagConfig
 {
-  std::string sim_name;  // Event name used in the simulation
+  std::string sim_name;   // Event name used in the simulation
   std::string diag_name;  // Name of the diagnostic
 };
 

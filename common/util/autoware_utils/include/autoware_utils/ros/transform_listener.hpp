@@ -18,13 +18,11 @@
 #include <memory>
 #include <string>
 
+#include "geometry_msgs/msg/transform_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
-
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/create_timer_ros.h"
 #include "tf2_ros/transform_listener.h"
-
-#include "geometry_msgs/msg/transform_stamped.hpp"
 
 namespace autoware_utils
 {
@@ -72,7 +70,7 @@ public:
     return std::make_shared<const geometry_msgs::msg::TransformStamped>(tf);
   }
 
-  rclcpp::Logger getLogger() {return logger_;}
+  rclcpp::Logger getLogger() { return logger_; }
 
 private:
   rclcpp::Clock::SharedPtr clock_;

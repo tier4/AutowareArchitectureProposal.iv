@@ -13,14 +13,13 @@
 // limitations under the License.
 
 #include <algorithm>
+#include <chrono>
 #include <limits>
 #include <vector>
-#include <chrono>
-
-#include "motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp"
-#include "motion_velocity_optimizer/optimizer/l2_pseudo_jerk_optimizer.hpp"
 
 #include "eigen3/Eigen/Core"
+#include "motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp"
+#include "motion_velocity_optimizer/optimizer/l2_pseudo_jerk_optimizer.hpp"
 
 L2PseudoJerkOptimizer::L2PseudoJerkOptimizer(const OptimizerParam & p)
 {
@@ -32,7 +31,7 @@ L2PseudoJerkOptimizer::L2PseudoJerkOptimizer(const OptimizerParam & p)
   qp_solver_.updateVerbose(false);
 }
 
-void L2PseudoJerkOptimizer::setParam(const OptimizerParam & param) {param_ = param;}
+void L2PseudoJerkOptimizer::setParam(const OptimizerParam & param) { param_ = param; }
 
 bool L2PseudoJerkOptimizer::solve(
   const double initial_vel, const double initial_acc, const int closest,
@@ -74,11 +73,9 @@ bool L2PseudoJerkOptimizer::solve(
   }
 
   /*
-   * x = [b0, b1, ..., bN, |  a0, a1, ..., aN, | delta0, delta1, ..., deltaN, | sigma0, sigma1, ..., sigmaN] in R^{4N}
-   * b: velocity^2
-   * a: acceleration
-   * delta: 0 < bi < vmax^2 + delta
-   * sigma: min_accel < a_i - sigma < max_accel
+   * x = [b0, b1, ..., bN, |  a0, a1, ..., aN, | delta0, delta1, ..., deltaN, | sigma0, sigma1, ...,
+   * sigmaN] in R^{4N} b: velocity^2 a: acceleration delta: 0 < bi < vmax^2 + delta sigma: min_accel
+   * < a_i - sigma < max_accel
    */
 
   const uint32_t l_variables = 4 * N;
@@ -158,7 +155,7 @@ bool L2PseudoJerkOptimizer::solve(
     const double ds_inv = 1.0 / std::max(interval_dist_arr.at(j + closest), 0.0001);
     A(i, j) = -ds_inv;     // b(i)
     A(i, j + 1) = ds_inv;  // b(i+1)
-    A(i, j + N) = -2.0;   // a(i)
+    A(i, j + N) = -2.0;    // a(i)
     upper_bound[i] = 0.0;
     lower_bound[i] = 0.0;
   }

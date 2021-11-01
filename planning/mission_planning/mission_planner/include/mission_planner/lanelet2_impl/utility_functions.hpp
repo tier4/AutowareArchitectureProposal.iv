@@ -26,7 +26,7 @@
 #include "visualization_msgs/msg/marker_array.hpp"
 bool exists(const std::unordered_set<lanelet::Id> & set, const lanelet::Id & id);
 
-template<typename T>
+template <typename T>
 bool exists(const std::vector<T> & vectors, const T & item)
 {
   for (const auto & i : vectors) {

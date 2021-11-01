@@ -17,11 +17,12 @@
 #define LANE_CHANGE_PLANNER__STATE__EXECUTING_LANE_CHANGE_HPP_
 
 #include <memory>
-#include "lane_change_planner/state/state_base_class.hpp"
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
+#include "lane_change_planner/state/state_base_class.hpp"
 #include "lanelet2_core/primitives/Lanelet.h"
 
 namespace lane_change_planner
@@ -46,8 +47,8 @@ private:
 public:
   ExecutingLaneChangeState(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-    const std::shared_ptr<RouteHandler> & route_handler_ptr,
-    const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
+    const std::shared_ptr<RouteHandler> & route_handler_ptr, const rclcpp::Logger & logger,
+    const rclcpp::Clock::SharedPtr & clock);
 
   // override virtual functions
   void entry() override;

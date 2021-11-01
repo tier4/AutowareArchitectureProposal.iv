@@ -63,7 +63,7 @@ private:
   void setVelocityLimitFromInternal(const VelocityLimit & velocity_limit);
   void clearVelocityLimit(const std::string & sender);
   void updateVelocityLimit();
-  VelocityLimit getCurrentVelocityLimit() {return hardest_limit_;}
+  VelocityLimit getCurrentVelocityLimit() { return hardest_limit_; }
 
   // Parameters
   NodeParam node_param_{};

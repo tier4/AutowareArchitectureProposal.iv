@@ -16,10 +16,10 @@
 #define SHAPE_ESTIMATION__SHAPE_ESTIMATOR_HPP_
 
 #include <string>
-#include "boost/optional.hpp"
 
-#include "autoware_perception_msgs/msg/shape.hpp"
 #include "autoware_perception_msgs/msg/semantic.hpp"
+#include "autoware_perception_msgs/msg/shape.hpp"
+#include "boost/optional.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "pcl/point_cloud.h"
 #include "pcl/point_types.h"

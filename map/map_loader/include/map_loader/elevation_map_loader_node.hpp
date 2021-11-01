@@ -26,11 +26,11 @@
 #include "grid_map_ros/GridMapRosConverter.hpp"
 #include "lanelet2_extension/utility/message_conversion.hpp"
 #include "lanelet2_extension/utility/query.hpp"
+#include "nlohmann/json.hpp"
 #include "pcl/pcl_base.h"
 #include "pcl/point_types.h"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
-#include "nlohmann/json.hpp"
 
 class ElevationMapLoaderNode : public rclcpp::Node
 {

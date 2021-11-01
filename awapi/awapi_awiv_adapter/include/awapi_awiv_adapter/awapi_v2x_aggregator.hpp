@@ -19,9 +19,9 @@
 #include <string>
 #include <vector>
 
-#include "rclcpp/rclcpp.hpp"
 #include "autoware_v2x_msgs/msg/infrastructure_command_array.hpp"
 #include "autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace autoware_api
 {

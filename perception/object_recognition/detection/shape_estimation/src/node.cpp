@@ -17,11 +17,10 @@
 #include <memory>
 
 #include "shape_estimation/shape_estimator.hpp"
-
 #include "tf2/LinearMath/Matrix3x3.h"
 #include "tf2/LinearMath/Quaternion.h"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "tf2/utils.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 using SemanticType = autoware_perception_msgs::msg::Semantic;
 
@@ -45,7 +44,9 @@ void ShapeEstimationNode::callback(
   const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray::ConstSharedPtr input_msg)
 {
   // Guard
-  if (pub_->get_subscription_count() < 1) {return;}
+  if (pub_->get_subscription_count() < 1) {
+    return;
+  }
 
   // Create output msg
   autoware_perception_msgs::msg::DynamicObjectWithFeatureArray output_msg;
@@ -64,7 +65,9 @@ void ShapeEstimationNode::callback(
     pcl::fromROSMsg(feature.cluster, *cluster);
 
     // check cluster data
-    if (cluster->empty()) {continue;}
+    if (cluster->empty()) {
+      continue;
+    }
 
     // estimate shape and pose
     autoware_perception_msgs::msg::Shape shape;
@@ -77,7 +80,9 @@ void ShapeEstimationNode::callback(
       estimator_->estimateShapeAndPose(object.semantic.type, *cluster, yaw, shape, pose);
 
     // If the shape estimation fails, ignore it.
-    if (!estimated_success) {continue;}
+    if (!estimated_success) {
+      continue;
+    }
 
     output_msg.feature_objects.push_back(feature_object);
     output_msg.feature_objects.back().object.shape = shape;

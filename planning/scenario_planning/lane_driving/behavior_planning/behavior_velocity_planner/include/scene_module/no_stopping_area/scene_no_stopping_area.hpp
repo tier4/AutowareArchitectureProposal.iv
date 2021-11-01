@@ -19,21 +19,16 @@
 #include <utility>
 #include <vector>
 
-
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
-
 #include "boost/optional.hpp"
 
 #define EIGEN_MPL2_ONLY
 #include "Eigen/Core"
-
-#include "rclcpp/rclcpp.hpp"
-#include "tf2/LinearMath/Transform.h"
-
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_extension/regulatory_elements/no_stopping_area.hpp"
-
+#include "rclcpp/rclcpp.hpp"
 #include "scene_module/scene_module_interface.hpp"
+#include "tf2/LinearMath/Transform.h"
 #include "utilization/boost_geometry_helper.hpp"
 #include "utilization/state_machine.hpp"
 
@@ -129,8 +124,7 @@ private:
    */
   Polygon2d generateEgoNoStoppingAreaLanePolygon(
     const autoware_planning_msgs::msg::PathWithLaneId & path,
-    const geometry_msgs::msg::Pose & ego_pose,
-    const double margin, const double extra_dist) const;
+    const geometry_msgs::msg::Pose & ego_pose, const double margin, const double extra_dist) const;
 
   /**
    * @brief Calculate the polygon of the path from the ego-car position to the end of the
@@ -168,8 +162,7 @@ private:
    * @param stop_point    stop line point on the lane
    */
   void insertStopPoint(
-    autoware_planning_msgs::msg::PathWithLaneId & path,
-    const PathIndexWithPose & stop_point);
+    autoware_planning_msgs::msg::PathWithLaneId & path, const PathIndexWithPose & stop_point);
 
   boost::optional<PathIndexWithPose> createTargetPoint(
     const autoware_planning_msgs::msg::PathWithLaneId & path, const LineString2d & stop_line,
@@ -182,10 +175,9 @@ private:
   // Parameter
   PlannerParam planner_param_;
 
-
   // Debug
   DebugData debug_data_;
 };
 }  // namespace behavior_velocity_planner
 
-#endif   // SCENE_MODULE__NO_STOPPING_AREA__SCENE_NO_STOPPING_AREA_HPP_
+#endif  // SCENE_MODULE__NO_STOPPING_AREA__SCENE_NO_STOPPING_AREA_HPP_

@@ -24,10 +24,8 @@
 #include "autoware_perception_msgs/msg/dynamic_object.hpp"
 #include "autoware_perception_msgs/msg/shape.hpp"
 #include "autoware_utils/autoware_utils.hpp"
-
 #include "geometry_msgs/msg/polygon.hpp"
 #include "geometry_msgs/msg/vector3.hpp"
-
 
 namespace utils
 {
@@ -38,8 +36,7 @@ double getArea(const autoware_perception_msgs::msg::Shape & shape);
 double get2dIoU(
   const autoware_perception_msgs::msg::DynamicObject & object1,
   const autoware_perception_msgs::msg::DynamicObject & object2);
-enum MSG_COV_IDX
-{
+enum MSG_COV_IDX {
   X_X = 0,
   X_Y = 1,
   X_Z = 2,

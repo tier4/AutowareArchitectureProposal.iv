@@ -17,12 +17,10 @@
 #include <string>
 #include <vector>
 
+#include "freespace_planning_algorithms/astar_search.hpp"
 #include "gtest/gtest.h"
-
 #include "rclcpp/rclcpp.hpp"
 #include "tf2/utils.h"
-
-#include "freespace_planning_algorithms/astar_search.hpp"
 
 namespace fpa = freespace_planning_algorithms;
 

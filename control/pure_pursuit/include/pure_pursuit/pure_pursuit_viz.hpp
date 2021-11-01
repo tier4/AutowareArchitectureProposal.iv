@@ -31,6 +31,7 @@
 #define PURE_PURSUIT__PURE_PURSUIT_VIZ_HPP_
 
 #include <vector>
+
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "visualization_msgs/msg/marker.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"

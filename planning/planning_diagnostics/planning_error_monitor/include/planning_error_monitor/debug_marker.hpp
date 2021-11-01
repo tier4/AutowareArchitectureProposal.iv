@@ -21,7 +21,6 @@
 #include <vector>
 
 #include "rclcpp/rclcpp.hpp"
-
 #include "visualization_msgs/msg/marker.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 
@@ -50,10 +49,7 @@ private:
     return marker_id_[ns]++;
   }
 
-  void clearMarkerId(const std::string & ns)
-  {
-    marker_id_[ns] = 0;
-  }
+  void clearMarkerId(const std::string & ns) { marker_id_[ns] = 0; }
 };
 
 #endif  // PLANNING_ERROR_MONITOR__DEBUG_MARKER_HPP_

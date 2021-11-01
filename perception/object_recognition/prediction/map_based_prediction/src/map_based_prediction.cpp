@@ -20,7 +20,6 @@
 
 #include "autoware_utils/autoware_utils.hpp"
 #include "cubic_spline.hpp"
-
 #include "tf2/utils.h"
 
 MapBasedPrediction::MapBasedPrediction(
@@ -113,8 +112,7 @@ bool MapBasedPrediction::doPrediction(
       const double CLOSE_PATH_THRESHOLD = 0.1;
       bool duplicate_flag = false;
       for (const auto & prev_path : tmp_object.state.predicted_paths) {
-        const auto prev_path_end =
-          prev_path.path.back().pose.pose.position;
+        const auto prev_path_end = prev_path.path.back().pose.pose.position;
         const auto current_path_end = predicted_path.path.back().pose.pose.position;
         const double dist = autoware_utils::calcDistance2d(prev_path_end, current_path_end);
         if (dist < CLOSE_PATH_THRESHOLD) {
@@ -218,9 +216,10 @@ bool MapBasedPrediction::getPredictedPath(
   std::vector<double> d_vec;
   for (double i = 0; i < t; i += dt) {
     const double calculated_d = current_d_position + current_d_velocity * i + 0 * 2 * i * i +
-      x_3(0) * i * i * i + x_3(1) * i * i * i * i + x_3(2) * i * i * i * i * i;
+                                x_3(0) * i * i * i + x_3(1) * i * i * i * i +
+                                x_3(2) * i * i * i * i * i;
     const double calculated_s = current_s_position + current_s_velocity * i + 2 * 0 * i * i +
-      x_2(0) * i * i * i + x_2(1) * i * i * i * i;
+                                x_2(0) * i * i * i + x_2(1) * i * i * i * i;
 
     geometry_msgs::msg::PoseWithCovarianceStamped tmp_point;
     if (calculated_s > spline2d.s.back()) {

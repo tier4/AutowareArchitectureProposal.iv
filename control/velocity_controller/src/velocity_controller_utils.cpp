@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "velocity_controller/velocity_controller_utils.hpp"
+
 #include <algorithm>
 #include <limits>
-
-#include "velocity_controller/velocity_controller_utils.hpp"
 
 namespace velocity_controller_utils
 {
@@ -29,8 +29,7 @@ bool isValidTrajectory(const Trajectory & traj)
     if (
       !isfinite(p.x) || !isfinite(p.y) || !isfinite(p.z) || !isfinite(o.x) || !isfinite(o.y) ||
       !isfinite(o.z) || !isfinite(o.w) || !isfinite(t.x) || !isfinite(t.y) || !isfinite(t.z) ||
-      !isfinite(a.x) || !isfinite(a.y) || !isfinite(a.z))
-    {
+      !isfinite(a.x) || !isfinite(a.y) || !isfinite(a.z)) {
       return false;
     }
   }
@@ -43,8 +42,7 @@ bool isValidTrajectory(const Trajectory & traj)
   return true;
 }
 
-double calcStopDistance(
-  const Point & current_pos, const Trajectory & traj)
+double calcStopDistance(const Point & current_pos, const Trajectory & traj)
 {
   const boost::optional<size_t> stop_idx_opt = autoware_utils::searchZeroVelocityIndex(traj.points);
 
@@ -74,10 +72,8 @@ double getPitchByTraj(
   }
 
   for (size_t i = nearest_idx + 1; i < trajectory.points.size(); ++i) {
-    const double dist =
-      autoware_utils::calcDistance2d(
-      trajectory.points.at(nearest_idx).pose, trajectory.points.at(
-        i).pose);
+    const double dist = autoware_utils::calcDistance2d(
+      trajectory.points.at(nearest_idx).pose, trajectory.points.at(i).pose);
     if (dist > wheel_base) {
       // calculate pitch from trajectory between rear wheel (nearest) and front center (i)
       return velocity_controller_utils::calcElevationAngle(
@@ -100,8 +96,7 @@ double getPitchByTraj(
 
   // calculate pitch from trajectory between the beginning and end of trajectory
   return calcElevationAngle(
-    trajectory.points.at(0).pose.position,
-    trajectory.points.back().pose.position);
+    trajectory.points.at(0).pose.position, trajectory.points.back().pose.position);
 }
 
 double calcElevationAngle(const Point & p_from, const Point & p_to)
@@ -136,8 +131,7 @@ double lerp(const double v_from, const double v_to, const double ratio)
   return v_from + (v_to - v_from) * ratio;
 }
 
-Quaternion lerpOrientation(
-  const Quaternion & o_from, const Quaternion & o_to, const double ratio)
+Quaternion lerpOrientation(const Quaternion & o_from, const Quaternion & o_to, const double ratio)
 {
   tf2::Quaternion q_from, q_to;
   tf2::fromMsg(o_from, q_from);

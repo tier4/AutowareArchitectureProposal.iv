@@ -17,10 +17,8 @@
 #include <vector>
 
 #include "gtest/gtest.h"
-
 #include "lanelet2_core/Attribute.h"
 #include "lanelet2_core/LaneletMap.h"
-
 #include "lanelet2_extension/regulatory_elements/autoware_traffic_light.hpp"
 
 using lanelet::LineString3d;
@@ -31,7 +29,7 @@ using lanelet::utils::getId;
 
 namespace
 {
-template<typename T>
+template <typename T>
 std::vector<T> convertToVector(T item)
 {
   std::vector<T> vector = {item};

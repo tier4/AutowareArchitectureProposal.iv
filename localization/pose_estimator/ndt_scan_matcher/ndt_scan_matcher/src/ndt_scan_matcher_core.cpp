@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "ndt_scan_matcher/ndt_scan_matcher_core.hpp"
-#include "ndt_scan_matcher/debug.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -21,17 +20,15 @@
 #include <iomanip>
 #include <thread>
 
-#include "tf2_eigen/tf2_eigen.h"
-#include "boost/shared_ptr.hpp"
-
-#include "pcl_conversions/pcl_conversions.h"
-
 #include "autoware_utils/geometry/geometry.hpp"
 #include "autoware_utils/ros/marker_helper.hpp"
-
+#include "boost/shared_ptr.hpp"
+#include "ndt_scan_matcher/debug.hpp"
 #include "ndt_scan_matcher/matrix_type.hpp"
 #include "ndt_scan_matcher/particle.hpp"
 #include "ndt_scan_matcher/util_func.hpp"
+#include "pcl_conversions/pcl_conversions.h"
+#include "tf2_eigen/tf2_eigen.h"
 
 autoware_debug_msgs::msg::Float32Stamped makeFloat32Stamped(
   const builtin_interfaces::msg::Time & stamp, const float data)
@@ -48,8 +45,7 @@ autoware_debug_msgs::msg::Int32Stamped makeInt32Stamped(
 }
 
 geometry_msgs::msg::TransformStamped identityTransformStamped(
-  const builtin_interfaces::msg::Time & timestamp,
-  const std::string & header_frame_id,
+  const builtin_interfaces::msg::Time & timestamp, const std::string & header_frame_id,
   const std::string & child_frame_id)
 {
   geometry_msgs::msg::TransformStamped transform;
@@ -64,14 +60,12 @@ geometry_msgs::msg::TransformStamped identityTransformStamped(
 double norm(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2)
 {
   return std::sqrt(
-    std::pow(p1.x - p2.x, 2.0) +
-    std::pow(p1.y - p2.y, 2.0) +
-    std::pow(p1.z - p2.z, 2.0));
+    std::pow(p1.x - p2.x, 2.0) + std::pow(p1.y - p2.y, 2.0) + std::pow(p1.z - p2.z, 2.0));
 }
 
 bool isLocalOptimalSolutionOscillation(
-  const std::vector<Eigen::Matrix4f> & result_pose_matrix_array,
-  const float oscillation_threshold, const float inversion_vector_threshold)
+  const std::vector<Eigen::Matrix4f> & result_pose_matrix_array, const float oscillation_threshold,
+  const float inversion_vector_threshold)
 {
   bool prev_oscillation = false;
   int oscillation_cnt = 0;
@@ -182,10 +176,10 @@ NDTScanMatcher::NDTScanMatcher()
   ndt_pose_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>("ndt_pose", 10);
   ndt_pose_with_covariance_pub_ =
     this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
-    "ndt_pose_with_covariance", 10);
+      "ndt_pose_with_covariance", 10);
   initial_pose_with_covariance_pub_ =
     this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
-    "initial_pose_with_covariance", 10);
+      "initial_pose_with_covariance", 10);
   exe_time_pub_ =
     this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>("exe_time_ms", 10);
   transform_probability_pub_ =
@@ -194,17 +188,17 @@ NDTScanMatcher::NDTScanMatcher()
     this->create_publisher<autoware_debug_msgs::msg::Int32Stamped>("iteration_num", 10);
   initial_to_result_distance_pub_ =
     this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
-    "initial_to_result_distance", 10);
+      "initial_to_result_distance", 10);
   initial_to_result_distance_old_pub_ =
     this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
-    "initial_to_result_distance_old", 10);
+      "initial_to_result_distance_old", 10);
   initial_to_result_distance_new_pub_ =
     this->create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
-    "initial_to_result_distance_new", 10);
+      "initial_to_result_distance_new", 10);
   ndt_marker_pub_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("ndt_marker", 10);
   ndt_monte_carlo_initial_pose_marker_pub_ =
     this->create_publisher<visualization_msgs::msg::MarkerArray>(
-    "monte_carlo_initial_pose_marker", 10);
+      "monte_carlo_initial_pose_marker", 10);
   diagnostics_pub_ =
     this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>("/diagnostics", 10);
 
@@ -240,23 +234,20 @@ void NDTScanMatcher::timerDiagnostic()
     }
     if (
       key_value_stdmap_.count("skipping_publish_num") &&
-      std::stoi(key_value_stdmap_["skipping_publish_num"]) > 1)
-    {
+      std::stoi(key_value_stdmap_["skipping_publish_num"]) > 1) {
       diag_status_msg.level = diagnostic_msgs::msg::DiagnosticStatus::WARN;
       diag_status_msg.message += "skipping_publish_num > 1. ";
     }
     if (
       key_value_stdmap_.count("skipping_publish_num") &&
-      std::stoi(key_value_stdmap_["skipping_publish_num"]) >= 5)
-    {
+      std::stoi(key_value_stdmap_["skipping_publish_num"]) >= 5) {
       diag_status_msg.level = diagnostic_msgs::msg::DiagnosticStatus::ERROR;
       diag_status_msg.message += "skipping_publish_num exceed limit. ";
     }
     // Ignore local optimal solution
     if (
       key_value_stdmap_.count("is_local_optimal_solution_oscillation") &&
-      std::stoi(key_value_stdmap_["is_local_optimal_solution_oscillation"]))
-    {
+      std::stoi(key_value_stdmap_["is_local_optimal_solution_oscillation"])) {
       diag_status_msg.level = diagnostic_msgs::msg::DiagnosticStatus::OK;
       diag_status_msg.message = "local optimal solution oscillation occurred";
     }
@@ -458,9 +449,10 @@ void NDTScanMatcher::callbackSensorPoints(
   const int iteration_num = ndt_ptr_->getFinalNumIteration();
 
   /*****************************************************************************
-  The reason the add 2 to the ndt_ptr_->getMaximumIterations() is that there are bugs in implementation of ndt.
-  1. gradient descent method ends when the iteration is greater than max_iteration if it does not converge
-     (be careful it's 'greater than' instead of 'greater equal than'.)
+  The reason the add 2 to the ndt_ptr_->getMaximumIterations() is that there are bugs in
+  implementation of ndt.
+  1. gradient descent method ends when the iteration is greater than max_iteration if it does not
+  converge (be careful it's 'greater than' instead of 'greater equal than'.)
      https://github.com/tier4/autoware.iv/blob/2323e5baa0b680d43a9219f5fb3b7a11dd9edc82/localization/pose_estimator/ndt_scan_matcher/ndt_omp/include/ndt_omp/ndt_omp_impl.hpp#L212
   2. iterate iteration count when end of gradient descent function.
      https://github.com/tier4/autoware.iv/blob/2323e5baa0b680d43a9219f5fb3b7a11dd9edc82/localization/pose_estimator/ndt_scan_matcher/ndt_omp/include/ndt_omp/ndt_omp_impl.hpp#L217
@@ -470,19 +462,15 @@ void NDTScanMatcher::callbackSensorPoints(
   *****************************************************************************/
   bool is_local_optimal_solution_oscillation = false;
   if (iteration_num >= ndt_ptr_->getMaximumIterations() + 2) {
-    is_local_optimal_solution_oscillation =
-      isLocalOptimalSolutionOscillation(
-      result_pose_matrix_array,
-      oscillation_threshold_,
-      inversion_vector_threshold_);
+    is_local_optimal_solution_oscillation = isLocalOptimalSolutionOscillation(
+      result_pose_matrix_array, oscillation_threshold_, inversion_vector_threshold_);
   }
 
   bool is_converged = true;
   static size_t skipping_publish_num = 0;
   if (
     iteration_num >= ndt_ptr_->getMaximumIterations() + 2 ||
-    transform_probability < converged_param_transform_probability_)
-  {
+    transform_probability < converged_param_transform_probability_) {
     is_converged = false;
     ++skipping_publish_num;
     RCLCPP_WARN(get_logger(), "Not Converged");
@@ -501,7 +489,7 @@ void NDTScanMatcher::callbackSensorPoints(
   result_pose_with_cov_msg.header.frame_id = map_frame_;
   result_pose_with_cov_msg.pose.pose = result_pose_msg;
 
-  //TODO temporary value
+  // TODO temporary value
   Eigen::Map<RowMatrixXd> covariance(&result_pose_with_cov_msg.pose.covariance[0], 6, 6);
   covariance(0, 0) = 0.025;
   covariance(1, 1) = 0.025;
@@ -545,7 +533,7 @@ void NDTScanMatcher::callbackSensorPoints(
     marker_array.markers.push_back(marker);
   }
   // TODO delete old marker
-  for (; i < ndt_ptr_->getMaximumIterations() + 2; ) {
+  for (; i < ndt_ptr_->getMaximumIterations() + 2;) {
     marker.id = i++;
     marker.pose = geometry_msgs::msg::Pose();
     marker.color = ExchangeColorCrc(0);
@@ -559,24 +547,20 @@ void NDTScanMatcher::callbackSensorPoints(
 
   iteration_num_pub_->publish(makeInt32Stamped(sensor_ros_time, iteration_num));
 
-  const float initial_to_result_distance = norm(
-    initial_pose_cov_msg.pose.pose.position,
-    result_pose_with_cov_msg.pose.pose.position);
+  const float initial_to_result_distance =
+    norm(initial_pose_cov_msg.pose.pose.position, result_pose_with_cov_msg.pose.pose.position);
   initial_to_result_distance_pub_->publish(
     makeFloat32Stamped(sensor_ros_time, initial_to_result_distance));
 
-  const float initial_to_result_distance_old = norm(
-    initial_pose_old_msg_ptr->pose.pose.position,
-    result_pose_with_cov_msg.pose.pose.position);
+  const float initial_to_result_distance_old =
+    norm(initial_pose_old_msg_ptr->pose.pose.position, result_pose_with_cov_msg.pose.pose.position);
   initial_to_result_distance_old_pub_->publish(
     makeFloat32Stamped(sensor_ros_time, initial_to_result_distance_old));
 
-  const float initial_to_result_distance_new = norm(
-    initial_pose_new_msg_ptr->pose.pose.position,
-    result_pose_with_cov_msg.pose.pose.position);
+  const float initial_to_result_distance_new =
+    norm(initial_pose_new_msg_ptr->pose.pose.position, result_pose_with_cov_msg.pose.pose.position);
   initial_to_result_distance_new_pub_->publish(
     makeFloat32Stamped(sensor_ros_time, initial_to_result_distance_new));
-
 
   key_value_stdmap_["transform_probability"] = std::to_string(transform_probability);
   key_value_stdmap_["iteration_num"] = std::to_string(iteration_num);
@@ -622,8 +606,7 @@ geometry_msgs::msg::PoseWithCovarianceStamped NDTScanMatcher::alignUsingMonteCar
     Particle particle(initial_pose, result_pose, transform_probability, num_iteration);
     particle_array.push_back(particle);
     const auto marker_array = makeDebugMarkers(
-      this->now(), map_frame_,
-      autoware_utils::createMarkerScale(0.3, 0.1, 0.1), particle, i);
+      this->now(), map_frame_, autoware_utils::createMarkerScale(0.3, 0.1, 0.1), particle, i);
     ndt_monte_carlo_initial_pose_marker_pub_->publish(marker_array);
 
     auto sensor_points_mapTF_ptr = std::make_shared<pcl::PointCloud<PointSource>>();
@@ -639,7 +622,7 @@ geometry_msgs::msg::PoseWithCovarianceStamped NDTScanMatcher::alignUsingMonteCar
 
   auto best_particle_ptr = std::max_element(
     std::begin(particle_array), std::end(particle_array),
-    [](const Particle & lhs, const Particle & rhs) {return lhs.score < rhs.score;});
+    [](const Particle & lhs, const Particle & rhs) { return lhs.score < rhs.score; });
 
   geometry_msgs::msg::PoseWithCovarianceStamped result_pose_with_cov_msg;
   result_pose_with_cov_msg.header.frame_id = map_frame_;
@@ -650,8 +633,7 @@ geometry_msgs::msg::PoseWithCovarianceStamped NDTScanMatcher::alignUsingMonteCar
 }
 
 void NDTScanMatcher::publishTF(
-  const std::string & child_frame_id,
-  const geometry_msgs::msg::PoseStamped & pose_msg)
+  const std::string & child_frame_id, const geometry_msgs::msg::PoseStamped & pose_msg)
 {
   tf2_broadcaster_.sendTransform(autoware_utils::pose2transform(pose_msg, child_frame_id));
 }
@@ -660,9 +642,8 @@ bool NDTScanMatcher::getTransform(
   const std::string & target_frame, const std::string & source_frame,
   const geometry_msgs::msg::TransformStamped::SharedPtr & transform_stamped_ptr)
 {
-  const geometry_msgs::msg::TransformStamped identity = identityTransformStamped(
-    this->now(), target_frame, source_frame
-  );
+  const geometry_msgs::msg::TransformStamped identity =
+    identityTransformStamped(this->now(), target_frame, source_frame);
 
   if (target_frame == source_frame) {
     *transform_stamped_ptr = identity;

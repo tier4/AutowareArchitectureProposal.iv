@@ -15,10 +15,8 @@
 #include <limits>
 
 #include "gtest/gtest.h"
-
 #include "scene_module/occlusion_spot/occlusion_spot_utils.hpp"
 #include "scene_module/occlusion_spot/risk_predictive_braking.hpp"
-
 #include "utils.hpp"
 
 TEST(calculatePredictiveBrakingVelocity, min_max)

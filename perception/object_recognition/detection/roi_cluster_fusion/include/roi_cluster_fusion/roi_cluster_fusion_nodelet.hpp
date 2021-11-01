@@ -19,9 +19,9 @@
 #include <memory>
 #include <vector>
 
-#include "boost/circular_buffer.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_with_feature.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
+#include "boost/circular_buffer.hpp"
 #include "cv_bridge/cv_bridge.h"
 #include "image_transport/image_transport.hpp"
 #include "message_filters/pass_through.h"
@@ -89,22 +89,22 @@ private:
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_ptr_;
   message_filters::Subscriber<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>
-  cluster_sub_;
+    cluster_sub_;
   std::vector<std::shared_ptr<
-      message_filters::Subscriber<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>>>
-  v_roi_sub_;
+    message_filters::Subscriber<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>>>
+    v_roi_sub_;
   message_filters::PassThrough<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>
-  passthrough_;
+    passthrough_;
   typedef message_filters::sync_policies::ApproximateTime<
-      autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>
     SyncPolicy;
   typedef message_filters::Synchronizer<SyncPolicy> Sync;
   std::shared_ptr<Sync> sync_ptr_;

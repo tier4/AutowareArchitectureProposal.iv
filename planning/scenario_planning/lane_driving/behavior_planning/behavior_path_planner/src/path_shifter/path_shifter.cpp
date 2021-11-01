@@ -12,18 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
-#include <vector>
-#include <utility>
+#include "behavior_path_planner/path_shifter/path_shifter.hpp"
+
 #include <limits>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "autoware_utils/autoware_utils.hpp"
-#include "behavior_path_planner/utilities.hpp"
 #include "behavior_path_planner/path_utilities.hpp"
+#include "behavior_path_planner/utilities.hpp"
 #include "interpolation/spline_interpolation.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
-
-#include "behavior_path_planner/path_shifter/path_shifter.hpp"
 
 namespace
 {
@@ -55,7 +55,6 @@ void PathShifter::addShiftPoint(const ShiftPoint & point)
   shift_points_.push_back(point);
   is_index_aligned_ = false;  // shift_point index has to be updated for new shift points.
 }
-
 
 void PathShifter::setShiftPoints(const std::vector<ShiftPoint> & points)
 {
@@ -114,13 +113,12 @@ bool PathShifter::generate(
   }
 
   // Calculate shifted path
-  type == SHIFT_TYPE::SPLINE ? applySplineShifter(shifted_path, offset_back) :
-  applyLinearShifter(shifted_path);
+  type == SHIFT_TYPE::SPLINE ? applySplineShifter(shifted_path, offset_back)
+                             : applyLinearShifter(shifted_path);
 
   // DEBUG
   RCLCPP_DEBUG_STREAM(
-    logger_,
-    "PathShifter::generate end. shift_points_.size = " << shift_points_.size());
+    logger_, "PathShifter::generate end. shift_points_.size = " << shift_points_.size());
 
   return true;
 }
@@ -185,12 +183,12 @@ void PathShifter::applySplineShifter(ShiftedPath * shifted_path, const bool offs
 
     // TODO(Watanabe) write docs.
     // These points are defined to achieve the constant-jerk shifting (see the header description).
-    const std::vector<double> base_distance = {0.0, shifting_arclength / 4.0,
-      shifting_arclength * 3.0 / 4.0, shifting_arclength};
+    const std::vector<double> base_distance = {
+      0.0, shifting_arclength / 4.0, shifting_arclength * 3.0 / 4.0, shifting_arclength};
     const auto base_length =
-      offset_back ?
-      std::vector<double>{0.0, delta_shift / 12.0, delta_shift * 11.0 / 12.0, delta_shift} :
-    std::vector<double>{delta_shift, delta_shift * 11.0 / 12.0, delta_shift / 12.0, 0.0};
+      offset_back
+        ? std::vector<double>{0.0, delta_shift / 12.0, delta_shift * 11.0 / 12.0, delta_shift}
+        : std::vector<double>{delta_shift, delta_shift * 11.0 / 12.0, delta_shift / 12.0, 0.0};
 
     std::vector<double> query_distance, query_length;
 
@@ -250,8 +248,8 @@ std::vector<double> PathShifter::calcLateralJerk()
 }
 
 bool PathShifter::calcShiftPointFromArcLength(
-  const PathWithLaneId & path, const Point & origin, double dist_to_start,
-  double dist_to_end, double shift_length, ShiftPoint * shift_point)
+  const PathWithLaneId & path, const Point & origin, double dist_to_start, double dist_to_end,
+  double shift_length, ShiftPoint * shift_point)
 {
   if (dist_to_end < dist_to_start) {
     RCLCPP_ERROR_STREAM(
@@ -260,7 +258,9 @@ bool PathShifter::calcShiftPointFromArcLength(
     return false;
   }
 
-  if (path.points.empty()) {return false;}
+  if (path.points.empty()) {
+    return false;
+  }
 
   const auto origin_idx = autoware_utils::findNearestIndex(path.points, origin);
   const auto arclength_from_origin = util::calcPathArcLengthArray(path, origin_idx);
@@ -268,15 +268,15 @@ bool PathShifter::calcShiftPointFromArcLength(
   if (dist_to_end > arclength_from_origin.back()) {
     RCLCPP_ERROR_STREAM(
       rclcpp::get_logger("behavior_path_planner").get_child("path_shifter"),
-      "path is too short to calculate shift point: path length from origin = " <<
-        arclength_from_origin.back() << ", desired dist_to_end = " << dist_to_end);
+      "path is too short to calculate shift point: path length from origin = "
+        << arclength_from_origin.back() << ", desired dist_to_end = " << dist_to_end);
   }
 
   bool is_start_found = false;
   bool is_end_found = false;
   const auto getPathPointFromOrigin = [&](size_t idx_from_origin) {
-      return path.points.at(idx_from_origin + origin_idx).point.pose;
-    };
+    return path.points.at(idx_from_origin + origin_idx).point.pose;
+  };
   for (size_t i = 0; i < arclength_from_origin.size() - 1; ++i) {
     if (!is_start_found && arclength_from_origin.at(i + 1) > dist_to_start) {
       shift_point->start = getPathPointFromOrigin(i);
@@ -313,8 +313,7 @@ bool PathShifter::calcShiftPointFromArcLength(
 std::pair<TurnSignal, double> PathShifter::calcTurnSignalAndDistance(
   const lanelet::ConstLanelets & current_lanes, const ShiftedPath & path,
   const ShiftPoint & shift_point, const Pose & pose, const double & velocity,
-  const BehaviorPathPlannerParameters & common_parameter,
-  const double & search_distance)
+  const BehaviorPathPlannerParameters & common_parameter, const double & search_distance)
 {
   TurnSignal turn_signal;
   const auto base_link2front = common_parameter.base_link2front;
@@ -325,8 +324,7 @@ std::pair<TurnSignal, double> PathShifter::calcTurnSignalAndDistance(
   const double max_time = std::numeric_limits<double>::max();
   const double max_distance = std::numeric_limits<double>::max();
 
-  const auto arc_position_current_pose =
-    lanelet::utils::getArcCoordinates(current_lanes, pose);
+  const auto arc_position_current_pose = lanelet::utils::getArcCoordinates(current_lanes, pose);
 
   // calc distance from base link to shift start point.
   double distance_to_shift_start;
@@ -334,25 +332,22 @@ std::pair<TurnSignal, double> PathShifter::calcTurnSignalAndDistance(
     const auto shift_start = shift_point.start;
     const auto arc_position_shift_start =
       lanelet::utils::getArcCoordinates(current_lanes, shift_start);
-    distance_to_shift_start =
-      arc_position_shift_start.length - arc_position_current_pose.length;
+    distance_to_shift_start = arc_position_shift_start.length - arc_position_current_pose.length;
   }
 
   // calc distance from ego vehicle front to shift end point.
   double distance_from_vehicle_front;
   {
     const auto shift_end = shift_point.end;
-    const auto arc_position_shift_end =
-      lanelet::utils::getArcCoordinates(current_lanes, shift_end);
+    const auto arc_position_shift_end = lanelet::utils::getArcCoordinates(current_lanes, shift_end);
     distance_from_vehicle_front =
-      arc_position_shift_end.length - arc_position_current_pose.length -
-      base_link2front;
+      arc_position_shift_end.length - arc_position_current_pose.length - base_link2front;
   }
 
   const auto time_to_shift_start =
     (std::abs(velocity) < epsilon) ? max_time : distance_to_shift_start / velocity;
-  const double diff = path.shift_length.at(shift_point.end_idx) - path.shift_length.at(
-    shift_point.start_idx);
+  const double diff =
+    path.shift_length.at(shift_point.end_idx) - path.shift_length.at(shift_point.start_idx);
 
   // Start turn signal when (1 || 2) && 3 is satisfied
   //  1. time to shift start point is less than prev_sec
@@ -374,7 +369,6 @@ std::pair<TurnSignal, double> PathShifter::calcTurnSignalAndDistance(
 
   return std::make_pair(turn_signal, max_distance);
 }
-
 
 void PathShifter::updateShiftPointIndices()
 {
@@ -413,10 +407,9 @@ bool PathShifter::sortShiftPointsAlongPath([[maybe_unused]] const PathWithLaneId
   // Calc indices sorted by "shift start point index" order
   std::vector<size_t> sorted_indices(unsorted_shift_points.size());
   std::iota(sorted_indices.begin(), sorted_indices.end(), 0);
-  std::sort(
-    sorted_indices.begin(), sorted_indices.end(), [&](size_t i1, size_t i2) {
-      return unsorted_shift_points[i1].start_idx < unsorted_shift_points[i2].start_idx;
-    });
+  std::sort(sorted_indices.begin(), sorted_indices.end(), [&](size_t i1, size_t i2) {
+    return unsorted_shift_points[i1].start_idx < unsorted_shift_points[i2].start_idx;
+  });
 
   // Set shift points and index by sorted_indices
   ShiftPointArray sorted_shift_points;
@@ -464,16 +457,17 @@ void PathShifter::removeBehindShiftPointAndSetBaseOffset(const Point & base_poin
   if (!removed_shift_points.empty()) {
     const auto last_removed_sp = std::max_element(
       removed_shift_points.begin(), removed_shift_points.end(),
-      [](auto & a, auto & b) {return a.end_idx > b.end_idx;});
+      [](auto & a, auto & b) { return a.end_idx > b.end_idx; });
     new_base_offset = last_removed_sp->length;
   }
 
   // remove accumulated floating noise
-  if (std::abs(new_base_offset) < 1.0e-4) {new_base_offset = 0.0;}
+  if (std::abs(new_base_offset) < 1.0e-4) {
+    new_base_offset = 0.0;
+  }
 
   RCLCPP_DEBUG(
-    logger_, "shift_points_ size: %lu -> %lu",
-    shift_points_.size(), new_shift_points.size());
+    logger_, "shift_points_ size: %lu -> %lu", shift_points_.size(), new_shift_points.size());
 
   setShiftPoints(new_shift_points);
 
@@ -483,7 +477,9 @@ void PathShifter::removeBehindShiftPointAndSetBaseOffset(const Point & base_poin
 void PathShifter::addLateralOffsetOnIndexPoint(
   ShiftedPath * path, double offset, size_t index) const
 {
-  if (fabs(offset) < 1.0e-8) {return;}
+  if (fabs(offset) < 1.0e-8) {
+    return;
+  }
 
   auto & p = path->path.points.at(index).point.pose;
   double yaw = tf2::getYaw(p.orientation);

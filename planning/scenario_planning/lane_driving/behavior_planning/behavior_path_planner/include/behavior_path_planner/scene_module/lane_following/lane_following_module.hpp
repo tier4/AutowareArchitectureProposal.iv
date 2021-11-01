@@ -19,10 +19,9 @@
 #include <string>
 
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "behavior_path_planner/scene_module/scene_module_interface.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
 #include "rclcpp/rclcpp.hpp"
-
-#include "behavior_path_planner/scene_module/scene_module_interface.hpp"
 
 namespace behavior_path_planner
 {

@@ -16,7 +16,6 @@
 #include <vector>
 
 #include "gtest/gtest.h"
-
 #include "interpolation/spline_interpolation.hpp"
 
 constexpr double epsilon = 1e-6;

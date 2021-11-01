@@ -13,10 +13,9 @@
 // limitations under the License.
 
 #include "gtest/gtest.h"
-#include "utilization/util.hpp"
 #include "utilization/boost_geometry_helper.hpp"
+#include "utilization/util.hpp"
 #include "utils.hpp"
-
 
 TEST(to_footprint_polygon, nominal)
 {

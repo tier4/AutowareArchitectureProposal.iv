@@ -16,10 +16,9 @@
 #include <limits>
 #include <vector>
 
+#include "eigen3/Eigen/Core"
 #include "motion_velocity_optimizer/motion_velocity_optimizer_utils.hpp"
 #include "motion_velocity_optimizer/optimizer/linf_pseudo_jerk_optimizer.hpp"
-
-#include "eigen3/Eigen/Core"
 
 LinfPseudoJerkOptimizer::LinfPseudoJerkOptimizer(const OptimizerParam & p)
 {
@@ -31,7 +30,7 @@ LinfPseudoJerkOptimizer::LinfPseudoJerkOptimizer(const OptimizerParam & p)
   qp_solver_.updateVerbose(false);
 }
 
-void LinfPseudoJerkOptimizer::setParam(const OptimizerParam & param) {param_ = param;}
+void LinfPseudoJerkOptimizer::setParam(const OptimizerParam & param) { param_ = param; }
 
 bool LinfPseudoJerkOptimizer::solve(
   const double initial_vel, const double initial_acc, const int closest,
@@ -72,13 +71,11 @@ bool LinfPseudoJerkOptimizer::solve(
   }
 
   /*
-  * x = [b0, b1, ..., bN, |  a0, a1, ..., aN, | delta0, delta1, ..., deltaN, | sigma0, sigma1, ..., sigmaN, | psi] in R^{4N+1}
-  * b: velocity^2
-  * a: acceleration
-  * delta: 0 < bi < vmax^2 + delta
-  * sigma: min_accel < ai - sigma < max_accel
-  * psi: a'*curr_v -  psi < 0, - a'*curr_v - psi < 0 (<=> |a'|*curr_v < psi)
-  */
+   * x = [b0, b1, ..., bN, |  a0, a1, ..., aN, | delta0, delta1, ..., deltaN, | sigma0, sigma1, ...,
+   * sigmaN, | psi] in R^{4N+1} b: velocity^2 a: acceleration delta: 0 < bi < vmax^2 + delta sigma:
+   * min_accel < ai - sigma < max_accel psi: a'*curr_v -  psi < 0, - a'*curr_v - psi < 0 (<=>
+   * |a'|*curr_v < psi)
+   */
   const uint32_t l_variables = 4 * N + 1;
   const uint32_t l_constraints = 3 * N + 1 + 2 * (N - 1);
 

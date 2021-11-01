@@ -17,6 +17,7 @@
 #define LANE_CHANGE_PLANNER__STATE_MACHINE_HPP_
 
 #include <memory>
+
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "autoware_planning_msgs/msg/route.hpp"
 #include "lane_change_planner/state/state_base_class.hpp"
@@ -37,8 +38,8 @@ class StateMachine
 public:
   StateMachine(
     const std::shared_ptr<DataManager> & data_manager_ptr,
-    const std::shared_ptr<RouteHandler> & route_handler_ptr,
-    const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
+    const std::shared_ptr<RouteHandler> & route_handler_ptr, const rclcpp::Logger & logger,
+    const rclcpp::Clock::SharedPtr & clock);
   void init();
   void initCallback(const autoware_planning_msgs::msg::Route::ConstSharedPtr route);
   void updateState();

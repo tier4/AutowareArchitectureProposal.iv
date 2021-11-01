@@ -47,8 +47,8 @@ struct Slice
 //!< @brief build slices all along the trajectory
 // using the given range and desired slice length and width
 void buildSlices(
-  std::vector<Slice> & slices, const lanelet::ConstLanelet & path_lanelet,
-  const SliceRange & range, const double slice_length, const double slice_width);
+  std::vector<Slice> & slices, const lanelet::ConstLanelet & path_lanelet, const SliceRange & range,
+  const double slice_length, const double slice_width);
 //!< @brief build an interpolated polygon between the given bounds
 void buildInterpolatedPolygon(
   lanelet::BasicPolygon2d & polygons, const lanelet::BasicLineString2d & from_bound,
@@ -59,7 +59,7 @@ std::vector<geometry::Slice> buildSidewalkSlices(
   const lanelet::ConstLanelet & path_lanelet, const double longitudinal_offset,
   const double lateral_offset, const double min_size, const double lateral_max_dist);
 //!< @brief calculate interpolation between a and b at distance ratio t
-template<typename T>
+template <typename T>
 T lerp(T a, T b, double t)
 {
   return a + t * (b - a);

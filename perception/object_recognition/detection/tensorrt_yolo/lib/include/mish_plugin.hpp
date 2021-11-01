@@ -111,9 +111,12 @@ public:
   nvinfer1::IPluginV2DynamicExt * deserializePlugin(
     const char * name, const void * serialData, size_t serialLength) noexcept override;
 
-  void setPluginNamespace(const char * libNamespace) noexcept override {mNamespace = libNamespace;}
+  void setPluginNamespace(const char * libNamespace) noexcept override
+  {
+    mNamespace = libNamespace;
+  }
 
-  const char * getPluginNamespace() const noexcept override {return mNamespace.c_str();}
+  const char * getPluginNamespace() const noexcept override { return mNamespace.c_str(); }
 
 private:
   std::string mNamespace;

@@ -17,6 +17,7 @@
 #define LANE_CHANGE_PLANNER__STATE__FOLLOWING_LANE_HPP_
 
 #include <memory>
+
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
@@ -49,8 +50,8 @@ private:
 public:
   FollowingLaneState(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-    const std::shared_ptr<RouteHandler> & route_handler_ptr,
-    const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
+    const std::shared_ptr<RouteHandler> & route_handler_ptr, const rclcpp::Logger & logger,
+    const rclcpp::Clock::SharedPtr & clock);
 
   // override virtual functions
   void entry() override;

@@ -17,29 +17,28 @@
 
 #include <algorithm>
 #include <string>
-#include <vector>
 #include <utility>
-
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_routing/RoutingGraph.h"
+#include <vector>
 
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "autoware_utils/ros/marker_helper.hpp"
-#include "geometry_msgs/msg/point.hpp"
-#include "geometry_msgs/msg/polygon.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "visualization_msgs/msg/marker_array.hpp"
 #include "autoware_vehicle_msgs/msg/turn_signal.hpp"
 #include "behavior_path_planner/parameters.hpp"
+#include "geometry_msgs/msg/point.hpp"
+#include "geometry_msgs/msg/polygon.hpp"
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_routing/RoutingGraph.h"
+#include "rclcpp/rclcpp.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 
 namespace behavior_path_planner
 {
 using autoware_planning_msgs::msg::PathPointWithLaneId;
 using autoware_planning_msgs::msg::PathWithLaneId;
+using autoware_vehicle_msgs::msg::TurnSignal;
 using geometry_msgs::msg::Point;
 using geometry_msgs::msg::Pose;
-using autoware_vehicle_msgs::msg::TurnSignal;
 
 struct ShiftPoint
 {
@@ -58,8 +57,7 @@ struct ShiftedPath
   std::vector<double> shift_length{};
 };
 
-enum class SHIFT_TYPE
-{
+enum class SHIFT_TYPE {
   LINEAR = 0,
   SPLINE = 1,
 };
@@ -84,11 +82,11 @@ public:
    */
   void setShiftPoints(const std::vector<ShiftPoint> & points);
 
-  std::vector<ShiftPoint> getShiftPoints() const {return shift_points_;}
-  PathWithLaneId getReferencePath() const {return reference_path_;}
-  size_t getShiftPointsSize() const {return shift_points_.size();}
+  std::vector<ShiftPoint> getShiftPoints() const { return shift_points_; }
+  PathWithLaneId getReferencePath() const { return reference_path_; }
+  size_t getShiftPointsSize() const { return shift_points_.size(); }
 
-  double getBaseOffset() const {return base_offset_;}
+  double getBaseOffset() const { return base_offset_; }
 
   /**
    * @brief  Generate a shifted path according to the given reference path and shift points.
@@ -152,7 +150,7 @@ public:
     // }
     const auto furthest = std::max_element(
       shift_points_.begin(), shift_points_.end(),
-      [](auto & a, auto & b) {return a.end_idx < b.end_idx;});
+      [](auto & a, auto & b) { return a.end_idx < b.end_idx; });
 
     return furthest->length;
   }
@@ -165,7 +163,7 @@ public:
 
     const auto furthest = std::max_element(
       shift_points_.begin(), shift_points_.end(),
-      [](auto & a, auto & b) {return a.end_idx > b.end_idx;});
+      [](auto & a, auto & b) { return a.end_idx > b.end_idx; });
 
     return *furthest;
   }
@@ -184,14 +182,13 @@ public:
     double shift_length, ShiftPoint * shift_point);
 
   /**
-  * @brief  Calculate turn signal from shifted path.
-  */
+   * @brief  Calculate turn signal from shifted path.
+   */
 
   std::pair<TurnSignal, double> calcTurnSignalAndDistance(
     const lanelet::ConstLanelets & current_lanes, const ShiftedPath & path,
     const ShiftPoint & shift_point, const Pose & pose, const double & velocity,
-    const BehaviorPathPlannerParameters & common_parameter,
-    const double & search_distance);
+    const BehaviorPathPlannerParameters & common_parameter, const double & search_distance);
 
 private:
   // The reference path along which the shift will be performed.

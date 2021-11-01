@@ -48,8 +48,8 @@ public:
 
   void updateCurrentScenario();
   std::string selectScenarioByPosition();
-  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr
-  getScenarioTrajectory(const std::string & scenario);
+  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr getScenarioTrajectory(
+    const std::string & scenario);
 
 private:
   rclcpp::TimerBase::SharedPtr timer_;
@@ -62,8 +62,7 @@ private:
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
   rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr
     sub_lane_driving_trajectory_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr
-    sub_parking_trajectory_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_parking_trajectory_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr pub_trajectory_;
   rclcpp::Publisher<autoware_planning_msgs::msg::Scenario>::SharedPtr pub_scenario_;
 

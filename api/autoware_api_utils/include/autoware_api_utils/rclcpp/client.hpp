@@ -17,13 +17,13 @@
 
 #include <chrono>
 #include <utility>
-#include "rclcpp/client.hpp"
+
 #include "autoware_api_utils/types/response.hpp"
+#include "rclcpp/client.hpp"
 
 namespace autoware_api_utils
 {
-
-template<typename ServiceT>
+template <typename ServiceT>
 class Client
 {
 public:

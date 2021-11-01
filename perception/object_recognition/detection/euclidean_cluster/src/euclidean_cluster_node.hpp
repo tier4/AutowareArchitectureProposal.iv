@@ -13,12 +13,11 @@
 // limitations under the License.
 
 #pragma once
-#include "rclcpp/rclcpp.hpp"
-
-#include "euclidean_cluster/euclidean_cluster.hpp"
-#include "sensor_msgs/msg/point_cloud2.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
+#include "euclidean_cluster/euclidean_cluster.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
 
 namespace euclidean_cluster
 {
@@ -36,7 +35,6 @@ private:
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr debug_pub_;
 
   std::shared_ptr<EuclideanCluster> cluster_;
-
 };
 
 }  // namespace euclidean_cluster

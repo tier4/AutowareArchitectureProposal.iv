@@ -22,19 +22,16 @@
 #include <string>
 #include <vector>
 
+#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
+#include "cv_bridge/cv_bridge.h"
+#include "image_transport/image_transport.hpp"
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/opencv.hpp"
-
-#include "cv_bridge/cv_bridge.h"
-#include "image_transport/image_transport.hpp"
 #include "rclcpp/rclcpp.hpp"
-
-#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
-#include "sensor_msgs/msg/image.hpp"
 #include "sensor_msgs/image_encodings.hpp"
+#include "sensor_msgs/msg/image.hpp"
 #include "std_msgs/msg/header.hpp"
-
 #include "trt_yolo.hpp"
 
 namespace object_recognition

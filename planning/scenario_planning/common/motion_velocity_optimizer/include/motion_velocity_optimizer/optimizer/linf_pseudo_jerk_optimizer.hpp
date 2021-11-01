@@ -17,13 +17,10 @@
 
 #include <vector>
 
-#include "motion_velocity_optimizer/optimizer/optimizer_base.hpp"
-
 #include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "motion_velocity_optimizer/optimizer/optimizer_base.hpp"
 #include "osqp_interface/osqp_interface.hpp"
-
 #include "rclcpp/rclcpp.hpp"
-
 
 class LinfPseudoJerkOptimizer : public OptimizerBase
 {

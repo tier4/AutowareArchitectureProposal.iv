@@ -17,7 +17,6 @@
 #include <vector>
 
 #include "gtest/gtest.h"
-
 #include "vehicle_cmd_gate/vehicle_cmd_filter.hpp"
 
 #define THRESHOLD 1.0e-5

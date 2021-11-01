@@ -23,37 +23,33 @@
 #include <thread>
 
 #define FMT_HEADER_ONLY
+#include "autoware_debug_msgs/msg/float32_stamped.hpp"
+#include "autoware_debug_msgs/msg/int32_stamped.hpp"
+#include "autoware_localization_srvs/srv/pose_with_covariance_stamped.hpp"
+#include "diagnostic_msgs/msg/diagnostic_array.hpp"
 #include "fmt/format.h"
+#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "nav_msgs/msg/odometry.hpp"
 #include "rclcpp/rclcpp.hpp"
-
+#include "sensor_msgs/msg/point_cloud2.hpp"
 #include "tf2/transform_datatypes.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_broadcaster.h"
 #include "tf2_ros/transform_listener.h"
 #include "tf2_sensor_msgs/tf2_sensor_msgs.h"
-
-#include "diagnostic_msgs/msg/diagnostic_array.hpp"
-#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
-#include "nav_msgs/msg/odometry.hpp"
-#include "sensor_msgs/msg/point_cloud2.hpp"
-#include "autoware_debug_msgs/msg/int32_stamped.hpp"
-#include "autoware_debug_msgs/msg/float32_stamped.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
-
-#include "autoware_localization_srvs/srv/pose_with_covariance_stamped.hpp"
 // #include "pcl/registration/ndt.h"
 // #include "pcl_registration/ndt.h"
 #include "ndt/omp.hpp"
 #include "ndt/pcl_generic.hpp"
 #include "ndt/pcl_modified.hpp"
-
 #include "ndt_scan_matcher/particle.hpp"
 
 enum class NDTImplementType { PCL_GENERIC = 0, PCL_MODIFIED = 1, OMP = 2 };
 
-template<typename PointSource, typename PointTarget>
+template <typename PointSource, typename PointTarget>
 std::shared_ptr<NormalDistributionsTransformBase<PointSource, PointTarget>> getNDT(
   const NDTImplementType & ndt_mode)
 {
@@ -83,8 +79,7 @@ class NDTScanMatcher : public rclcpp::Node
   // TODO move file
   struct OMPParams
   {
-    OMPParams()
-    : search_method(pclomp::NeighborSearchMethod::KDTREE), num_threads(1) {}
+    OMPParams() : search_method(pclomp::NeighborSearchMethod::KDTREE), num_threads(1) {}
     pclomp::NeighborSearchMethod search_method;
     int num_threads;
   };
@@ -109,8 +104,7 @@ private:
   void updateTransforms();
 
   void publishTF(
-    const std::string & child_frame_id,
-    const geometry_msgs::msg::PoseStamped & pose_msg);
+    const std::string & child_frame_id, const geometry_msgs::msg::PoseStamped & pose_msg);
   bool getTransform(
     const std::string & target_frame, const std::string & source_frame,
     const geometry_msgs::msg::TransformStamped::SharedPtr & transform_stamped_ptr);
@@ -159,7 +153,7 @@ private:
   float oscillation_threshold_;
 
   std::deque<geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr>
-  initial_pose_msg_ptr_array_;
+    initial_pose_msg_ptr_array_;
   std::mutex ndt_map_mtx_;
 
   OMPParams omp_params_;

@@ -13,7 +13,9 @@
 // limitations under the License.
 
 #include "lidar_apollo_instance_segmentation/feature_map.hpp"
+
 #include <cmath>
+
 #include "lidar_apollo_instance_segmentation/util.hpp"
 
 FeatureMapInterface::FeatureMapInterface(

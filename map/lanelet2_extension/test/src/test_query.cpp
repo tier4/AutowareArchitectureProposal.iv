@@ -15,7 +15,6 @@
 #include <math.h>
 
 #include "gtest/gtest.h"
-
 #include "lanelet2_extension/utility/query.hpp"
 
 using lanelet::Lanelet;
@@ -28,8 +27,7 @@ using lanelet::utils::getId;
 class TestSuite : public ::testing::Test
 {
 public:
-  TestSuite()
-  : sample_map_ptr(new lanelet::LaneletMap())
+  TestSuite() : sample_map_ptr(new lanelet::LaneletMap())
   {  // NOLINT
     // create sample lanelets
     Point3d p1, p2, p3, p4;

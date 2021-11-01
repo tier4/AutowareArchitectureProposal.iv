@@ -15,12 +15,11 @@
 #ifndef AWAPI_AWIV_ADAPTER__AWAPI_PACMOD_UTIL_HPP_
 #define AWAPI_AWIV_ADAPTER__AWAPI_PACMOD_UTIL_HPP_
 
-#include "rclcpp/rclcpp.hpp"
-
+#include "autoware_api_msgs/msg/door_control_command.hpp"
 #include "autoware_api_msgs/msg/door_status.hpp"
 #include "pacmod_msgs/msg/system_cmd_int.hpp"
 #include "pacmod_msgs/msg/system_rpt_int.hpp"
-#include "autoware_api_msgs/msg/door_control_command.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace autoware_api
 {

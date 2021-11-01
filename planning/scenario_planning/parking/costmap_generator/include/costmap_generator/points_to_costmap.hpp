@@ -48,9 +48,9 @@
 #include <string>
 #include <vector>
 
+#include "grid_map_ros/grid_map_ros.hpp"
 #include "pcl_conversions/pcl_conversions.h"
 #include "rclcpp/rclcpp.hpp"
-#include "grid_map_ros/grid_map_ros.hpp"
 
 class PointsToCostmap
 {

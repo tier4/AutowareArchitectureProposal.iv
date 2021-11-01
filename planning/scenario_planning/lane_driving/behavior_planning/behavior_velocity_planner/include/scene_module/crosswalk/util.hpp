@@ -28,7 +28,6 @@
 #define EIGEN_MPL2_ONLY
 #include "Eigen/Core"
 #include "Eigen/Geometry"
-
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "behavior_velocity_planner/planner_data.hpp"
 

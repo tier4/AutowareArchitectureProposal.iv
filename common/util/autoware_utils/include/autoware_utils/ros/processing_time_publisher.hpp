@@ -19,9 +19,8 @@
 #include <sstream>
 #include <string>
 
-#include "rclcpp/rclcpp.hpp"
-
 #include "diagnostic_msgs/msg/diagnostic_status.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace autoware_utils
 {
@@ -29,8 +28,7 @@ class ProcessingTimePublisher
 {
 public:
   explicit ProcessingTimePublisher(
-    rclcpp::Node * node,
-    const std::string & name = "~/debug/processing_time_ms",
+    rclcpp::Node * node, const std::string & name = "~/debug/processing_time_ms",
     const rclcpp::QoS & qos = rclcpp::QoS(1))
   {
     pub_processing_time_ =
@@ -54,7 +52,7 @@ public:
 private:
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticStatus>::SharedPtr pub_processing_time_;
 
-  template<class T>
+  template <class T>
   std::string to_string_with_precision(const T & value, const int precision)
   {
     std::ostringstream oss;

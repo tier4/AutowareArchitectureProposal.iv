@@ -19,7 +19,6 @@
 #include <vector>
 
 #include "rclcpp/rclcpp.hpp"
-
 #include "sensor_msgs/msg/point_cloud2.hpp"
 
 namespace livox_tag_filter

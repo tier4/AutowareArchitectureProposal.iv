@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "laserscan_to_occupancy_grid_map/updater/occupancy_grid_map_binary_bayes_filter_updater.hpp"
+
 #include <algorithm>
 
 #include "laserscan_to_occupancy_grid_map/cost_value.hpp"
-#include \
-  "laserscan_to_occupancy_grid_map/updater/occupancy_grid_map_binary_bayes_filter_updater.hpp"
 
 namespace costmap_2d
 {

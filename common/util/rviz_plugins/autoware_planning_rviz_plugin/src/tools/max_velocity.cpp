@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "max_velocity.hpp"
+
 #include <algorithm>
 #include <iomanip>
 #include <string>
 
 #include "OgreHardwarePixelBuffer.h"
 #include "QPainter"
-#include "max_velocity.hpp"
 #include "rviz_common/display_context.hpp"
 #include "rviz_common/uniform_string_stream.hpp"
 
@@ -110,7 +111,7 @@ void MaxVelocityDisplay::subscribe()
   }
 }
 
-void MaxVelocityDisplay::unsubscribe() {max_vel_sub_.reset();}
+void MaxVelocityDisplay::unsubscribe() { max_vel_sub_.reset(); }
 
 void MaxVelocityDisplay::processMessage(
   const autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr msg_ptr)
@@ -161,8 +162,8 @@ void MaxVelocityDisplay::processMessage(
   font.setBold(true);
   painter.setFont(font);
   std::ostringstream velocity_ss;
-  velocity_ss << std::fixed << std::setprecision(0) << "limited" << std::endl <<
-    msg_ptr->max_velocity * 3.6 << "km/h";
+  velocity_ss << std::fixed << std::setprecision(0) << "limited" << std::endl
+              << msg_ptr->max_velocity * 3.6 << "km/h";
   painter.drawText(
     static_cast<int>(line_width * 0.5), std::min(static_cast<int>(line_width * 0.5), h - 1), w,
     std::max(h, 1), Qt::AlignCenter | Qt::AlignVCenter, velocity_ss.str().c_str());

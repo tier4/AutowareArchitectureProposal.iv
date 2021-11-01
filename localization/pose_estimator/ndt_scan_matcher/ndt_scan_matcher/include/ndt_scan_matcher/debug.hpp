@@ -15,14 +15,11 @@
 #ifndef NDT_SCAN_MATCHER__DEBUG_HPP_
 #define NDT_SCAN_MATCHER__DEBUG_HPP_
 
+#include "ndt_scan_matcher/particle.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 
-#include "ndt_scan_matcher/particle.hpp"
-
 visualization_msgs::msg::MarkerArray makeDebugMarkers(
-  const builtin_interfaces::msg::Time & stamp,
-  const std::string & map_frame_,
-  const geometry_msgs::msg::Vector3 & scale,
-  const Particle & particle, const size_t i);
+  const builtin_interfaces::msg::Time & stamp, const std::string & map_frame_,
+  const geometry_msgs::msg::Vector3 & scale, const Particle & particle, const size_t i);
 
 #endif  // NDT_SCAN_MATCHER__DEBUG_HPP_

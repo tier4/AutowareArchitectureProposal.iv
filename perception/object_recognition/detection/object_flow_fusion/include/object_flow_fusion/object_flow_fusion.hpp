@@ -16,6 +16,7 @@
 #define OBJECT_FLOW_FUSION__OBJECT_FLOW_FUSION_HPP_
 
 #include <math.h>
+
 #include <iostream>
 #include <memory>
 

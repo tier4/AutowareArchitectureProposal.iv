@@ -24,10 +24,9 @@
 
 #include <iostream>
 
-#include "simple_planning_simulator/vehicle_model/sim_model_interface.hpp"
-
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/LU"
+#include "simple_planning_simulator/vehicle_model/sim_model_interface.hpp"
 
 /**
  * @class simple_planning_simulator constant acceleration twist model
@@ -51,16 +50,14 @@ public:
   ~SimModelConstantAccelTwist() = default;
 
 private:
-  enum IDX
-  {
+  enum IDX {
     X = 0,
     Y,
     YAW,
     VX,
     WZ,
   };
-  enum IDX_U
-  {
+  enum IDX_U {
     VX_DES = 0,
     WZ_DES,
   };

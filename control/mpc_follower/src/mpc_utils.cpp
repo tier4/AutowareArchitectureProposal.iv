@@ -12,14 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "mpc_follower/mpc_utils.hpp"
+
 #include <algorithm>
 #include <limits>
 #include <string>
 #include <vector>
 
-#include "mpc_follower/mpc_utils.hpp"
-#include "interpolation/spline_interpolation.hpp"
 #include "interpolation/linear_interpolation.hpp"
+#include "interpolation/spline_interpolation.hpp"
 
 geometry_msgs::msg::Quaternion MPCUtils::getQuaternionFromYaw(const double & yaw)
 {
@@ -139,9 +140,8 @@ bool MPCUtils::resampleMPCTrajectoryByDistance(
   output->vx = interpolation::lerp(input_arclength, input.vx, output_arclength);
   output->k = interpolation::slerp(input_arclength, input.k, output_arclength);
   output->smooth_k = interpolation::slerp(input_arclength, input.smooth_k, output_arclength);
-  output->relative_time = interpolation::lerp(
-    input_arclength, input.relative_time,
-    output_arclength);
+  output->relative_time =
+    interpolation::lerp(input_arclength, input.relative_time, output_arclength);
 
   return true;
 }
@@ -172,8 +172,7 @@ bool MPCUtils::linearInterpMPCTrajectory(
     !linear_interp.interpolate(in_index, in_traj.k, out_index, out_traj->k) ||
     !linear_interp.interpolate(in_index, in_traj.smooth_k, out_index, out_traj->smooth_k) ||
     !linear_interp.interpolate(
-      in_index, in_traj.relative_time, out_index, out_traj->relative_time))
-  {
+      in_index, in_traj.relative_time, out_index, out_traj->relative_time)) {
     std::cerr << "linearInterpMPCTrajectory error!" << std::endl;
     return false;
   }
@@ -187,8 +186,7 @@ bool MPCUtils::linearInterpMPCTrajectory(
 }
 
 void MPCUtils::calcTrajectoryYawFromXY(
-  MPCTrajectory * traj, const int nearest_idx,
-  const double ego_yaw)
+  MPCTrajectory * traj, const int nearest_idx, const double ego_yaw)
 {
   if (traj->yaw.size() < 3) {  // at least 3 points are required to calculate yaw
     return;
@@ -433,10 +431,10 @@ bool MPCUtils::calcNearestPoseInterp(
   }
 
   auto calcSquaredDist = [](const geometry_msgs::msg::Pose & p, const MPCTrajectory & t, int idx) {
-      const double dx = p.position.x - t.x[idx];
-      const double dy = p.position.y - t.y[idx];
-      return dx * dx + dy * dy;
-    };
+    const double dx = p.position.x - t.x[idx];
+    const double dy = p.position.y - t.y[idx];
+    return dx * dx + dy * dy;
+  };
 
   /* get second nearest index = next to nearest_index */
   int next = std::min(nearest_idx + 1, traj_size - 1);
@@ -470,7 +468,7 @@ bool MPCUtils::calcNearestPoseInterp(
   const double nearest_yaw = normalizeRadian(traj.yaw[second_nearest_index] + alpha * tmp_yaw_err);
   nearest_pose->orientation = getQuaternionFromYaw(nearest_yaw);
   *nearest_time = alpha * traj.relative_time[nearest_idx] +
-    (1 - alpha) * traj.relative_time[second_nearest_index];
+                  (1 - alpha) * traj.relative_time[second_nearest_index];
   return true;
 }
 

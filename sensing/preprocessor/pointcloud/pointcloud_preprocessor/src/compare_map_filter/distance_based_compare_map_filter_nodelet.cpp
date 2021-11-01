@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <vector>
-
 #include "pointcloud_preprocessor/compare_map_filter/distance_based_compare_map_filter_nodelet.hpp"
+
+#include <vector>
 
 #include "pcl/kdtree/kdtree_flann.h"
 #include "pcl/search/kdtree.h"

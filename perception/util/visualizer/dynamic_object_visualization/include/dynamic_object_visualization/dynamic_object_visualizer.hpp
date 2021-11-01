@@ -18,12 +18,12 @@
 #include <string>
 #include <vector>
 
-#include "rclcpp/rclcpp.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
 #include "autoware_perception_msgs/msg/predicted_path.hpp"
 #include "autoware_perception_msgs/msg/shape.hpp"
 #include "geometry_msgs/msg/pose.hpp"
+#include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/color_rgba.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 
@@ -65,7 +65,6 @@ private:
 
   bool only_known_objects_;
   std::vector<std_msgs::msg::ColorRGBA> colors_;
-
 
   inline std::string uuid_to_string(unique_identifier_msgs::msg::UUID const & u)
   {

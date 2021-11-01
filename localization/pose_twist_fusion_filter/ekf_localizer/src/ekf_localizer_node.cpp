@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <memory>
+
 #include "ekf_localizer/ekf_localizer.hpp"
 
 int main(int argc, char ** argv)

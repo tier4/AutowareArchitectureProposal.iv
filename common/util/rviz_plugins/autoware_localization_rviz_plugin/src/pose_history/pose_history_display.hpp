@@ -34,13 +34,12 @@ class ColorProperty;
 class FloatProperty;
 class IntProperty;
 class BoolProperty;
-}
+}  // namespace properties
 }  // namespace rviz_common
 
 namespace rviz_plugins
 {
-class PoseHistory
-  : public rviz_common::MessageFilterDisplay<geometry_msgs::msg::PoseStamped>
+class PoseHistory : public rviz_common::MessageFilterDisplay<geometry_msgs::msg::PoseStamped>
 {
   Q_OBJECT
 
