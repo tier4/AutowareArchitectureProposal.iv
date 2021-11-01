@@ -32,6 +32,27 @@ namespace behavior_velocity_planner
 {
 namespace bg = boost::geometry;
 
+static geometry_msgs::msg::Pose getObjectPoseWithVelocityDirection(
+  const autoware_perception_msgs::msg::State & obj_state)
+{
+  if (obj_state.orientation_reliable) {
+    return obj_state.pose_covariance.pose;
+  }
+
+  if (obj_state.twist_covariance.twist.linear.x >= 0) {
+    return obj_state.pose_covariance.pose;
+  }
+
+  // When the object velocity is negative, invert orientation (yaw)
+  auto obj_pose = obj_state.pose_covariance.pose;
+  double yaw, pitch, roll;
+  tf2::getEulerYPR(obj_pose.orientation, yaw, pitch, roll);
+  tf2::Quaternion inv_q;
+  inv_q.setRPY(roll, pitch, -yaw);
+  obj_pose.orientation = tf2::toMsg(inv_q);
+  return obj_pose;
+}
+
 IntersectionModule::IntersectionModule(
   const int64_t module_id, const int64_t lane_id, std::shared_ptr<const PlannerData> planner_data,
   const PlannerParam & planner_param, const rclcpp::Logger logger,
@@ -246,7 +267,8 @@ bool IntersectionModule::checkCollision(
         continue;
       }
       // check direction of objects
-      if (checkAngleForTargetLanelets(object_pose, detection_area_lanelet_ids)) {
+      const auto object_direction = getObjectPoseWithVelocityDirection(object.state);
+      if (checkAngleForTargetLanelets(object_direction, detection_area_lanelet_ids)) {
         target_objects.objects.push_back(object);
         break;
       }
