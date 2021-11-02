@@ -18,6 +18,7 @@
 #include "simple_planning_simulator/simple_planning_simulator_core.hpp"
 #include "motion_common/motion_common.hpp"
 
+using autoware_auto_msgs::msg::AckermannControlCommand;
 using autoware_auto_msgs::msg::VehicleControlCommand;
 using autoware_auto_msgs::msg::VehicleStateCommand;
 using autoware_auto_msgs::msg::VehicleKinematicState;
@@ -35,6 +36,14 @@ std::string toStrInfo(const VehicleKinematicState & state)
   return ss.str();
 }
 
+const std::vector<std::string> vehicle_model_type_vec = { // NOLINT
+  "IDEAL_STEER_VEL",
+  "IDEAL_STEER_ACC",
+  "IDEAL_STEER_ACC_GEARED",
+  "DELAY_STEER_ACC",
+  "DELAY_STEER_ACC_GEARED",
+};
+
 static constexpr float32_t COM_TO_BASELINK = 1.5f;
 class PubSubNode : public rclcpp::Node
 {
@@ -50,6 +59,9 @@ public:
     pub_control_command_ = create_publisher<VehicleControlCommand>(
       "input/vehicle_control_command",
       rclcpp::QoS{1});
+    pub_ackermann_command_ = create_publisher<AckermannControlCommand>(
+      "input/ackermann_control_command",
+      rclcpp::QoS{1});
     pub_initialpose_ = create_publisher<PoseWithCovarianceStamped>(
       "/initialpose",
       rclcpp::QoS{1});
@@ -59,6 +71,7 @@ public:
   }
 
   rclcpp::Publisher<VehicleControlCommand>::SharedPtr pub_control_command_;
+  rclcpp::Publisher<AckermannControlCommand>::SharedPtr pub_ackermann_command_;
   rclcpp::Publisher<VehicleStateCommand>::SharedPtr pub_state_cmd_;
   rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr pub_initialpose_;
   rclcpp::Subscription<VehicleKinematicState>::SharedPtr kinematic_state_sub_;
@@ -66,6 +79,13 @@ public:
   VehicleKinematicState::SharedPtr current_state_;
 };
 
+/**
+ * @brief Generate a VehicleControlCommand message
+ * @param [in] t timestamp
+ * @param [in] steer [rad] steering
+ * @param [in] vel [m/s] velocity
+ * @param [in] acc [m/s²] acceleration
+ */
 VehicleControlCommand cmdGen(
   const builtin_interfaces::msg::Time & t, float32_t steer, float32_t vel, float32_t acc)
 {
@@ -74,6 +94,26 @@ VehicleControlCommand cmdGen(
   cmd.front_wheel_angle_rad = steer;
   cmd.velocity_mps = vel;
   cmd.long_accel_mps2 = acc;
+  return cmd;
+}
+
+/**
+ * @brief Generate an AckermannControlCommand message
+ * @param [in] t timestamp
+ * @param [in] steer [rad] steering
+ * @param [in] vel [m/s] velocity
+ * @param [in] acc [m/s²] acceleration
+ */
+AckermannControlCommand ackermannCmdGen(
+  const builtin_interfaces::msg::Time & t, float32_t steer, float32_t vel, float32_t acc)
+{
+  AckermannControlCommand cmd;
+  cmd.stamp = t;
+  cmd.lateral.stamp = t;
+  cmd.lateral.steering_tire_angle = steer;
+  cmd.longitudinal.stamp = t;
+  cmd.longitudinal.speed = vel;
+  cmd.longitudinal.acceleration = acc;
   return cmd;
 }
 
@@ -106,12 +146,36 @@ void sendGear(
   }
 }
 
+/**
+ * @brief publish the given command message
+ * @param [in] cmd command to publish
+ * @param [in] sim_node pointer to the simulation node
+ * @param [in] pub_sub_node pointer to the node used for communication
+ */
 void sendCommand(
   const VehicleControlCommand & cmd, rclcpp::Node::SharedPtr sim_node,
   std::shared_ptr<PubSubNode> pub_sub_node)
 {
   for (int i = 0; i < 150; ++i) {
     pub_sub_node->pub_control_command_->publish(cmd);
+    rclcpp::spin_some(sim_node);
+    rclcpp::spin_some(pub_sub_node);
+    std::this_thread::sleep_for(std::chrono::milliseconds{10LL});
+  }
+}
+
+/**
+ * @brief publish the given command message
+ * @param [in] cmd command to publish
+ * @param [in] sim_node pointer to the simulation node
+ * @param [in] pub_sub_node pointer to the node used for communication
+ */
+void sendCommand(
+  const AckermannControlCommand & cmd, rclcpp::Node::SharedPtr sim_node,
+  std::shared_ptr<PubSubNode> pub_sub_node)
+{
+  for (int i = 0; i < 150; ++i) {
+    pub_sub_node->pub_ackermann_command_->publish(cmd);
     rclcpp::spin_some(sim_node);
     rclcpp::spin_some(pub_sub_node);
     std::this_thread::sleep_for(std::chrono::milliseconds{10LL});
@@ -186,13 +250,75 @@ TEST(TestSimplePlanningSimulatorIdealSteerVel, TestMoving)
 {
   rclcpp::init(0, nullptr);
 
-  std::vector<std::string> vehicle_model_type_vec = { // NOLINT
-    "IDEAL_STEER_VEL",
-    "IDEAL_STEER_ACC",
-    "IDEAL_STEER_ACC_GEARED",
-    "DELAY_STEER_ACC",
-    "DELAY_STEER_ACC_GEARED",
-  };
+  for (const auto & vehicle_model_type : vehicle_model_type_vec) {
+    std::cout << "\n\n vehicle model = " << vehicle_model_type << std::endl << std::endl;
+    rclcpp::NodeOptions node_options;
+    node_options.append_parameter_override("initialize_source", "INITIAL_POSE_TOPIC");
+    node_options.append_parameter_override("cg_to_rear_m", COM_TO_BASELINK);
+    node_options.append_parameter_override("vehicle_model_type", vehicle_model_type);
+    const auto sim_node = std::make_shared<SimplePlanningSimulator>(node_options);
+
+    const auto pub_sub_node = std::make_shared<PubSubNode>();
+
+    const float32_t target_vel = 5.0f;
+    const float32_t target_acc = 5.0f;
+    const float32_t target_steer = 0.2f;
+
+    auto _resetInitialpose = [&]() {resetInitialpose(sim_node, pub_sub_node);};
+    auto _sendFwdGear = [&]() {sendGear(VehicleStateCommand::GEAR_DRIVE, sim_node, pub_sub_node);};
+    auto _sendBwdGear =
+      [&]() {sendGear(VehicleStateCommand::GEAR_REVERSE, sim_node, pub_sub_node);};
+    auto _sendCommand = [&](const auto & _cmd) {
+        sendCommand(_cmd, sim_node, pub_sub_node);
+      };
+
+    // check pub-sub connections
+    {
+      size_t expected = 1;
+      EXPECT_EQ(pub_sub_node->pub_control_command_->get_subscription_count(), expected);
+      EXPECT_EQ(pub_sub_node->pub_ackermann_command_->get_subscription_count(), expected);
+      EXPECT_EQ(pub_sub_node->pub_state_cmd_->get_subscription_count(), expected);
+      EXPECT_EQ(pub_sub_node->pub_initialpose_->get_subscription_count(), expected);
+      EXPECT_EQ(pub_sub_node->kinematic_state_sub_->get_publisher_count(), expected);
+    }
+
+    // check initial pose
+    _resetInitialpose();
+    const auto init_state = *(pub_sub_node->current_state_);
+
+    // go forward
+    _resetInitialpose();
+    _sendFwdGear();
+    _sendCommand(cmdGen(sim_node->now(), 0.0f, target_vel, target_acc));
+    isOnForward(*(pub_sub_node->current_state_), init_state);
+
+    // go backward
+    _resetInitialpose();
+    _sendBwdGear();
+    _sendCommand(cmdGen(sim_node->now(), 0.0f, -target_vel, -target_acc));
+    isOnBackward(*(pub_sub_node->current_state_), init_state);
+
+    // go forward left
+    _resetInitialpose();
+    _sendFwdGear();
+    _sendCommand(cmdGen(sim_node->now(), target_steer, target_vel, target_acc));
+    isOnForwardLeft(*(pub_sub_node->current_state_), init_state);
+
+    // go backward right
+    _resetInitialpose();
+    _sendBwdGear();
+    _sendCommand(cmdGen(sim_node->now(), -target_steer, -target_vel, -target_acc));
+    isOnBackwardRight(*(pub_sub_node->current_state_), init_state);
+  }
+
+  rclcpp::shutdown();
+}
+
+// Send a control command and run the simulation.
+// Then check if the vehicle is moving in the desired direction.
+TEST(test_simple_planning_simulator, test_moving_ackermann)
+{
+  rclcpp::init(0, nullptr);
 
   for (const auto & vehicle_model_type : vehicle_model_type_vec) {
     std::cout << "\n\n vehicle model = " << vehicle_model_type << std::endl << std::endl;
@@ -212,7 +338,7 @@ TEST(TestSimplePlanningSimulatorIdealSteerVel, TestMoving)
     auto _sendFwdGear = [&]() {sendGear(VehicleStateCommand::GEAR_DRIVE, sim_node, pub_sub_node);};
     auto _sendBwdGear =
       [&]() {sendGear(VehicleStateCommand::GEAR_REVERSE, sim_node, pub_sub_node);};
-    auto _sendCommand = [&](const VehicleControlCommand & _cmd) {
+    auto _sendCommand = [&](const auto & _cmd) {
         sendCommand(_cmd, sim_node, pub_sub_node);
       };
 
@@ -220,6 +346,7 @@ TEST(TestSimplePlanningSimulatorIdealSteerVel, TestMoving)
     {
       size_t expected = 1;
       EXPECT_EQ(pub_sub_node->pub_control_command_->get_subscription_count(), expected);
+      EXPECT_EQ(pub_sub_node->pub_ackermann_command_->get_subscription_count(), expected);
       EXPECT_EQ(pub_sub_node->pub_state_cmd_->get_subscription_count(), expected);
       EXPECT_EQ(pub_sub_node->pub_initialpose_->get_subscription_count(), expected);
       EXPECT_EQ(pub_sub_node->kinematic_state_sub_->get_publisher_count(), expected);
@@ -229,29 +356,28 @@ TEST(TestSimplePlanningSimulatorIdealSteerVel, TestMoving)
     _resetInitialpose();
     const auto init_state = *(pub_sub_node->current_state_);
 
-
     // go forward
     _resetInitialpose();
     _sendFwdGear();
-    _sendCommand(cmdGen(pub_sub_node->now(), 0.0f, target_vel, target_acc));
+    _sendCommand(ackermannCmdGen(sim_node->now(), 0.0f, target_vel, target_acc));
     isOnForward(*(pub_sub_node->current_state_), init_state);
 
     // go backward
     _resetInitialpose();
     _sendBwdGear();
-    _sendCommand(cmdGen(pub_sub_node->now(), 0.0f, -target_vel, -target_acc));
+    _sendCommand(ackermannCmdGen(sim_node->now(), 0.0f, -target_vel, -target_acc));
     isOnBackward(*(pub_sub_node->current_state_), init_state);
 
     // go forward left
     _resetInitialpose();
     _sendFwdGear();
-    _sendCommand(cmdGen(pub_sub_node->now(), target_steer, target_vel, target_acc));
+    _sendCommand(ackermannCmdGen(sim_node->now(), target_steer, target_vel, target_acc));
     isOnForwardLeft(*(pub_sub_node->current_state_), init_state);
 
     // go backward right
     _resetInitialpose();
     _sendBwdGear();
-    _sendCommand(cmdGen(pub_sub_node->now(), -target_steer, -target_vel, -target_acc));
+    _sendCommand(ackermannCmdGen(sim_node->now(), -target_steer, -target_vel, -target_acc));
     isOnBackwardRight(*(pub_sub_node->current_state_), init_state);
   }
 
