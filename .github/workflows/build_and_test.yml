@@ -12,8 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         branch:
-          - main
-          - develop
+          - use-autoware-auto-msgs
     container: rostooling/setup-ros-docker:ubuntu-focal-ros-galactic-ros-base-latest
 
     steps:
