@@ -1,15 +1,3 @@
-## PR Type
-
-<!-- Select one and remove others. If an appropriate one is not listed, please write by yourself. -->
-
-- New Feature
-- Improvement
-- Bug Fix
-
-## Related Links
-
-<!-- Please write related links to GitHub/Jira/Slack/etc. -->
-
 ## Description
 
 <!-- Describe what this PR changes. -->
