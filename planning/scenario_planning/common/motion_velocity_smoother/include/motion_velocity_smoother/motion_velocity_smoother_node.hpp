@@ -28,6 +28,7 @@
 #include "autoware_utils/geometry/geometry.hpp"
 #include "autoware_utils/math/unit_conversion.hpp"
 #include "autoware_utils/ros/self_pose_listener.hpp"
+#include "autoware_utils/system/stop_watch.hpp"
 #include "autoware_utils/trajectory/trajectory.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "osqp_interface/osqp_interface.hpp"
@@ -210,6 +211,7 @@ private:
   void initAnalyticalJerkConstrainedSmootherParam();
 
   // debug
+  autoware_utils::StopWatch<std::chrono::milliseconds> stop_watch_;
   std::shared_ptr<rclcpp::Time> prev_time_;
   double prev_acc_;
   rclcpp::Publisher<Float32Stamped>::SharedPtr pub_dist_to_stopline_;

@@ -49,6 +49,8 @@
 #include "ndt/pcl_generic.hpp"
 #include "ndt/pcl_modified.hpp"
 
+#include "ndt_scan_matcher/particle.hpp"
+
 enum class NDTImplementType { PCL_GENERIC = 0, PCL_MODIFIED = 1, OMP = 2 };
 
 template<typename PointSource, typename PointTarget>
@@ -87,21 +89,6 @@ class NDTScanMatcher : public rclcpp::Node
     int num_threads;
   };
 
-  struct Particle
-  {
-    Particle(
-      const geometry_msgs::msg::Pose & a_initial_pose,
-      const geometry_msgs::msg::Pose & a_result_pose, const double a_score, const int a_iteration)
-    : initial_pose(a_initial_pose),
-      result_pose(a_result_pose),
-      score(a_score),
-      iteration(a_iteration) {}
-    geometry_msgs::msg::Pose initial_pose;
-    geometry_msgs::msg::Pose result_pose;
-    double score;
-    int iteration;
-  };
-
 public:
   NDTScanMatcher();
 
@@ -122,20 +109,11 @@ private:
   void updateTransforms();
 
   void publishTF(
-    const std::string & frame_id, const std::string & child_frame_id,
+    const std::string & child_frame_id,
     const geometry_msgs::msg::PoseStamped & pose_msg);
   bool getTransform(
     const std::string & target_frame, const std::string & source_frame,
-    const geometry_msgs::msg::TransformStamped::SharedPtr & transform_stamped_ptr,
-    const rclcpp::Time & time_stamp);
-  bool getTransform(
-    const std::string & target_frame, const std::string & source_frame,
     const geometry_msgs::msg::TransformStamped::SharedPtr & transform_stamped_ptr);
-
-  bool isLocalOptimalSolutionOscillation(
-    const std::vector<Eigen::Matrix4f> & result_pose_matrix_array) const;
-
-  void publishMarkerForDebug(const Particle & particle_array, const size_t i);
 
   void timerDiagnostic();
 

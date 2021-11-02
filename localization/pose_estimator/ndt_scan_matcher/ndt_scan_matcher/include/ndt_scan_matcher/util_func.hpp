@@ -23,7 +23,6 @@
 #include "tf2_eigen/tf2_eigen.h"
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
-#include "geometry_msgs/msg/pose_array.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "std_msgs/msg/color_rgba.hpp"
@@ -65,7 +64,7 @@ void popOldPose(
 
 Eigen::Affine3d fromRosPoseToEigen(const geometry_msgs::msg::Pose & ros_pose);
 
-geometry_msgs::msg::PoseArray createRandomPoseArray(
+std::vector<geometry_msgs::msg::Pose> createRandomPoseArray(
   const geometry_msgs::msg::PoseWithCovarianceStamped & base_pose_with_cov,
   const size_t particle_num);
 

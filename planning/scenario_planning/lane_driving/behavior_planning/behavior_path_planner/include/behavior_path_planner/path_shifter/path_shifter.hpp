@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <utility>
 
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_routing/RoutingGraph.h"
@@ -29,6 +30,8 @@
 #include "geometry_msgs/msg/polygon.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
+#include "autoware_vehicle_msgs/msg/turn_signal.hpp"
+#include "behavior_path_planner/parameters.hpp"
 
 namespace behavior_path_planner
 {
@@ -36,6 +39,7 @@ using autoware_planning_msgs::msg::PathPointWithLaneId;
 using autoware_planning_msgs::msg::PathWithLaneId;
 using geometry_msgs::msg::Point;
 using geometry_msgs::msg::Pose;
+using autoware_vehicle_msgs::msg::TurnSignal;
 
 struct ShiftPoint
 {
@@ -178,6 +182,16 @@ public:
   static bool calcShiftPointFromArcLength(
     const PathWithLaneId & path, const Point & origin, double dist_to_start, double dist_to_end,
     double shift_length, ShiftPoint * shift_point);
+
+  /**
+  * @brief  Calculate turn signal from shifted path.
+  */
+
+  std::pair<TurnSignal, double> calcTurnSignalAndDistance(
+    const lanelet::ConstLanelets & current_lanes, const ShiftedPath & path,
+    const ShiftPoint & shift_point, const Pose & pose, const double & velocity,
+    const BehaviorPathPlannerParameters & common_parameter,
+    const double & search_distance);
 
 private:
   // The reference path along which the shift will be performed.
