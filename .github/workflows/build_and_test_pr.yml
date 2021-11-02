@@ -135,12 +135,12 @@ jobs:
             ./install
           key: compile-commands-${{ needs.build-and-test-pr.outputs.compile-commands-hash }}
 
-      - name: Retrieve .clang-tidy from autoware.proj
+      - name: Retrieve .clang-tidy from AutowareArchitectureProposal.proj
         if: ${{ steps.list_files.outputs.file_list != '' }}
         run: |
           curl --silent --show-error --remote-name \
             --header "Authorization: token ${{ secrets.REPO_TOKEN }}" \
-            https://raw.githubusercontent.com/tier4/autoware.proj/main/.clang-tidy
+            https://raw.githubusercontent.com/tier4/AutowareArchitectureProposal.proj/main/.clang-tidy
 
       - name: Show information of files
         continue-on-error: true
