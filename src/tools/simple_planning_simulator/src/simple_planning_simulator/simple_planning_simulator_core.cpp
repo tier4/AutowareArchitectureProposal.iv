@@ -92,6 +92,9 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
   sub_vehicle_cmd_ = create_subscription<VehicleControlCommand>(
     "input/vehicle_control_command", QoS{1},
     std::bind(&SimplePlanningSimulator::on_vehicle_cmd, this, _1));
+  sub_ackermann_cmd_ = create_subscription<AckermannControlCommand>(
+    "input/ackermann_control_command", QoS{1},
+    std::bind(&SimplePlanningSimulator::on_ackermann_cmd, this, _1));
   sub_state_cmd_ = create_subscription<VehicleStateCommand>(
     "input/vehicle_state_command", QoS{1},
     std::bind(&SimplePlanningSimulator::on_state_cmd, this, _1));
@@ -224,20 +227,34 @@ void SimplePlanningSimulator::on_vehicle_cmd(
   const autoware_auto_msgs::msg::VehicleControlCommand::ConstSharedPtr msg)
 {
   current_vehicle_cmd_ptr_ = msg;
+  set_input(msg->front_wheel_angle_rad, msg->velocity_mps, msg->long_accel_mps2);
+}
+
+void SimplePlanningSimulator::on_ackermann_cmd(
+  const autoware_auto_msgs::msg::AckermannControlCommand::ConstSharedPtr msg)
+{
+  current_ackermann_cmd_ptr_ = msg;
+  set_input(
+    msg->lateral.steering_tire_angle, msg->longitudinal.speed,
+    msg->longitudinal.acceleration);
+}
+
+void SimplePlanningSimulator::set_input(const float steer, const float vel, const float accel)
+{
   Eigen::VectorXd input(vehicle_model_ptr_->getDimU());
 
   if (vehicle_model_type_ == VehicleModelType::IDEAL_STEER_VEL) {
-    input << msg->velocity_mps, msg->front_wheel_angle_rad;
+    input << vel, steer;
   } else if (  // NOLINT
     vehicle_model_type_ == VehicleModelType::IDEAL_STEER_ACC ||
     vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC)
   {
-    input << msg->long_accel_mps2, msg->front_wheel_angle_rad;
+    input << accel, steer;
   } else if (  // NOLINT
     vehicle_model_type_ == VehicleModelType::IDEAL_STEER_ACC_GEARED ||
     vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC_GEARED)
   {
-    input << msg->long_accel_mps2, msg->front_wheel_angle_rad;
+    input << accel, steer;
   }
   vehicle_model_ptr_->setInput(input);
 }
