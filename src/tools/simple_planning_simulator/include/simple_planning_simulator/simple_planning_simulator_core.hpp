@@ -34,6 +34,7 @@
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 
+#include "autoware_auto_msgs/msg/ackermann_control_command.hpp"
 #include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
 #include "autoware_auto_msgs/msg/vehicle_control_command.hpp"
 #include "autoware_auto_msgs/msg/vehicle_state_command.hpp"
@@ -52,6 +53,7 @@ using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
 
+using autoware_auto_msgs::msg::AckermannControlCommand;
 using autoware_auto_msgs::msg::VehicleKinematicState;
 using autoware_auto_msgs::msg::VehicleControlCommand;
 using autoware_auto_msgs::msg::VehicleStateReport;
@@ -109,6 +111,7 @@ private:
 
   rclcpp::Subscription<VehicleStateCommand>::SharedPtr sub_state_cmd_;
   rclcpp::Subscription<VehicleControlCommand>::SharedPtr sub_vehicle_cmd_;
+  rclcpp::Subscription<AckermannControlCommand>::SharedPtr sub_ackermann_cmd_;
   rclcpp::Subscription<PoseWithCovarianceStamped>::SharedPtr sub_init_pose_;
 
   uint32_t timer_sampling_time_ms_;  //!< @brief timer sampling time
@@ -121,6 +124,7 @@ private:
   /* received & published topics */
   VehicleKinematicState current_kinematic_state_;
   VehicleControlCommand::ConstSharedPtr current_vehicle_cmd_ptr_;
+  AckermannControlCommand::ConstSharedPtr current_ackermann_cmd_ptr_;
   VehicleStateCommand::ConstSharedPtr current_vehicle_state_cmd_ptr_;
 
   /* frame_id */
@@ -153,6 +157,16 @@ private:
    * @brief set current_vehicle_cmd_ptr_ with received message
    */
   void on_vehicle_cmd(const VehicleControlCommand::ConstSharedPtr msg);
+
+  /**
+   * @brief set current_ackermann_cmd_ptr_ with received message
+   */
+  void on_ackermann_cmd(const AckermannControlCommand::ConstSharedPtr msg);
+
+  /**
+   * @brief set input steering, velocity, and acceleration of the vehicle model
+   */
+  void set_input(const float steer, const float vel, const float accel);
 
   /**
    * @brief set current_vehicle_state_ with received message
