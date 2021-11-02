@@ -12,17 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <vector>
-#include <utility>
-#include <limits>
-
 #include "pure_pursuit/util/planning_utils.hpp"
+
+#include <limits>
+#include <utility>
+#include <vector>
 
 namespace planning_utils
 {
 double calcCurvature(
-  const geometry_msgs::msg::Point & target,
-  const geometry_msgs::msg::Pose & current_pose)
+  const geometry_msgs::msg::Point & target, const geometry_msgs::msg::Pose & current_pose)
 {
   constexpr double KAPPA_MAX = 1e9;
   const double radius = calcRadius(target, current_pose);
@@ -66,8 +65,7 @@ double calcLateralError2D(
 }
 
 double calcRadius(
-  const geometry_msgs::msg::Point & target,
-  const geometry_msgs::msg::Pose & current_pose)
+  const geometry_msgs::msg::Point & target, const geometry_msgs::msg::Pose & current_pose)
 {
   constexpr double RADIUS_MAX = 1e9;
   const double denominator = 2 * transformToRelativeCoordinate2D(target, current_pose).y;
@@ -100,8 +98,7 @@ std::vector<geometry_msgs::msg::Pose> extractPoses(
 // get closest point index from current pose
 std::pair<bool, int32_t> findClosestIdxWithDistAngThr(
   const std::vector<geometry_msgs::msg::Pose> & poses,
-  const geometry_msgs::msg::Pose & current_pose,
-  double th_dist, double th_yaw)
+  const geometry_msgs::msg::Pose & current_pose, double th_dist, double th_yaw)
 {
   double dist_squared_min = std::numeric_limits<double>::max();
   int32_t idx_min = -1;
@@ -158,20 +155,18 @@ int8_t getLaneDirection(const std::vector<geometry_msgs::msg::Pose> & poses, dou
 }
 
 bool isDirectionForward(
-  const geometry_msgs::msg::Pose & prev,
-  const geometry_msgs::msg::Pose & next)
+  const geometry_msgs::msg::Pose & prev, const geometry_msgs::msg::Pose & next)
 {
   return (transformToRelativeCoordinate2D(next.position, prev).x > 0.0) ? true : false;
 }
 
 bool isDirectionForward(
-  const geometry_msgs::msg::Pose & prev,
-  const geometry_msgs::msg::Point & next)
+  const geometry_msgs::msg::Pose & prev, const geometry_msgs::msg::Point & next)
 {
   return transformToRelativeCoordinate2D(next, prev).x > 0.0;
 }
 
-template<>
+template <>
 bool isInPolygon(
   const std::vector<geometry_msgs::msg::Point> & polygon, const geometry_msgs::msg::Point & point)
 {
@@ -185,7 +180,7 @@ bool isInPolygon(
   return isInPolygon<tf2::Vector3>(polygon_conv, point_conv);
 }
 
-double kmph2mps(const double velocity_kmph) {return (velocity_kmph * 1000) / (60 * 60);}
+double kmph2mps(const double velocity_kmph) { return (velocity_kmph * 1000) / (60 * 60); }
 
 double normalizeEulerAngle(const double euler)
 {

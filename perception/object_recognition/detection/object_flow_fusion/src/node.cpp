@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-
 #include "object_flow_fusion/node.hpp"
+
+#include <memory>
 
 namespace object_flow_fusion
 {
@@ -57,5 +57,5 @@ void ObjectFlowFusionNode::callback(
 
 }  // namespace object_flow_fusion
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(object_flow_fusion::ObjectFlowFusionNode)

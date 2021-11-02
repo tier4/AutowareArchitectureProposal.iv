@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gtest/gtest.h"
 #include "velocity_controller/debug_values.hpp"
 
-TEST(test_debug_values, assign_and_get) {
+#include <gtest/gtest.h>
+
+TEST(test_debug_values, assign_and_get)
+{
   DebugValues debug;
 
   EXPECT_EQ(debug.getValues().size(), static_cast<size_t>(DebugValues::TYPE::SIZE));

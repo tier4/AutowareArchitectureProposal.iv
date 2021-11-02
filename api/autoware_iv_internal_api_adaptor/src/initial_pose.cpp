@@ -13,15 +13,16 @@
 // limitations under the License.
 
 #include "initial_pose.hpp"
+
 #include <memory>
 
 namespace internal_api
 {
-
 InitialPose::InitialPose(const rclcpp::NodeOptions & options)
 : Node("internal_api_initial_pose", options)
 {
-  using namespace std::placeholders;
+  using std::placeholders::_1;
+  using std::placeholders::_2;
   autoware_api_utils::ServiceProxyNodeInterface proxy(this);
 
   init_simulator_pose_ = declare_parameter("init_simulator_pose", false);
@@ -29,27 +30,23 @@ InitialPose::InitialPose(const rclcpp::NodeOptions & options)
 
   group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
   srv_set_initialize_pose_ = proxy.create_service<InitializePose>(
-    "/api/autoware/set/initialize_pose",
-    std::bind(&InitialPose::setInitializePose, this, _1, _2),
+    "/api/autoware/set/initialize_pose", std::bind(&InitialPose::setInitializePose, this, _1, _2),
     rmw_qos_profile_services_default, group_);
   srv_set_initialize_pose_auto_ = proxy.create_service<InitializePoseAuto>(
     "/api/autoware/set/initialize_pose_auto",
-    std::bind(&InitialPose::setInitializePoseAuto, this, _1, _2),
-    rmw_qos_profile_services_default, group_);
+    std::bind(&InitialPose::setInitializePoseAuto, this, _1, _2), rmw_qos_profile_services_default,
+    group_);
 
   if (init_localization_pose_) {
     cli_set_initialize_pose_ = proxy.create_client<PoseWithCovarianceStampedSrv>(
-      "/localization/util/initialize_pose",
-      rmw_qos_profile_services_default);
+      "/localization/util/initialize_pose", rmw_qos_profile_services_default);
     cli_set_initialize_pose_auto_ = proxy.create_client<InitializePoseAuto>(
-      "/localization/util/initialize_pose_auto",
-      rmw_qos_profile_services_default);
+      "/localization/util/initialize_pose_auto", rmw_qos_profile_services_default);
   }
 
   if (init_simulator_pose_) {
     cli_set_simulator_pose_ = proxy.create_client<InitializePose>(
-      "/api/simulator/set/pose",
-      rmw_qos_profile_services_default);
+      "/api/simulator/set/pose", rmw_qos_profile_services_default);
     pub_initialpose2d_ = create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
       "/initialpose2d", rclcpp::QoS(1));
   }
@@ -105,5 +102,5 @@ void InitialPose::setInitializePoseAuto(
 
 }  // namespace internal_api
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(internal_api::InitialPose)

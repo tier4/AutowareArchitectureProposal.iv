@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "bev_optical_flow/lidar_to_image.hpp"
+
 #include <memory>
 #include <string>
-
-#include "bev_optical_flow/lidar_to_image.hpp"
 
 namespace bev_optical_flow
 {
@@ -48,7 +48,7 @@ float LidarToBEVImage::pointToPixel(
 {
   // affine transform base_link coords to image coords
   Eigen::Affine2f base2image = Eigen::Translation<float, 2>(point_radius_, point_radius_) *
-    Eigen::Rotation2Df(M_PI + map2base_angle).toRotationMatrix();
+                               Eigen::Rotation2Df(M_PI + map2base_angle).toRotationMatrix();
   Eigen::Vector2f transformed_p = (base2image * Eigen::Vector2f(point.x, point.y)) / grid_size_;
   px.x = transformed_p[1];
   px.y = transformed_p[0];
@@ -70,8 +70,7 @@ void LidarToBEVImage::getBEVImage(
     auto p = cloud->points.at(i);
     if (
       p.x < -point_radius_ || point_radius_ < p.x || p.y < -point_radius_ || point_radius_ < p.y ||
-      p.z < z_min_ || z_max_ < p.z)
-    {
+      p.z < z_min_ || z_max_ < p.z) {
       continue;
     }
     cv::Point2d px;

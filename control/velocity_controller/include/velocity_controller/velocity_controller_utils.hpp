@@ -15,17 +15,19 @@
 #ifndef VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_UTILS_HPP_
 #define VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_UTILS_HPP_
 
+#include <autoware_utils/autoware_utils.hpp>
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Geometry>
+
+#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include <geometry_msgs/msg/pose.hpp>
+
+#include <boost/optional.hpp>
+
+#include <tf2/utils.h>
+
 #include <cmath>
 #include <limits>
-
-#include "boost/optional.hpp"
-#include "eigen3/Eigen/Core"
-#include "eigen3/Eigen/Geometry"
-
-#include "autoware_planning_msgs/msg/trajectory.hpp"
-#include "autoware_utils/autoware_utils.hpp"
-#include "geometry_msgs/msg/pose.hpp"
-#include "tf2/utils.h"
 
 namespace velocity_controller_utils
 {
@@ -57,8 +59,7 @@ double getPitchByPose(const Quaternion & quaternion);
  * @param [in] wheel_base length of wheel base
  */
 double getPitchByTraj(
-  const Trajectory & trajectory, const size_t closest_idx,
-  const double wheel_base);
+  const Trajectory & trajectory, const size_t closest_idx, const double wheel_base);
 
 /**
  * @brief calculate elevation angle
@@ -66,7 +67,8 @@ double getPitchByTraj(
 double calcElevationAngle(const Point & p_from, const Point & p_to);
 
 /**
- * @brief calculate vehicle pose after time delay by moving the vehicle at current velocity for delayed time
+ * @brief calculate vehicle pose after time delay by moving the vehicle at current velocity for
+ * delayed time
  */
 Pose calcPoseAfterTimeDelay(
   const Pose & current_pose, const double delay_time, const double current_vel);
@@ -85,7 +87,7 @@ double lerp(const double v_from, const double v_to, const double ratio);
  * @param [in] p_to second position
  * @param [in] ratio ratio between o_from and o_to for interpolation
  */
-template<class T>
+template <class T>
 T lerpXYZ(const T & p_from, const T & p_to, const double ratio)
 {
   T point;
@@ -108,7 +110,7 @@ Quaternion lerpOrientation(const Quaternion & o_from, const Quaternion & o_to, c
  * @param [in] points trajectory points
  * @param [in] point Interpolated point is nearest to this point.
  */
-template<class T>
+template <class T>
 TrajectoryPoint lerpTrajectoryPoint(const T & points, const Point & point)
 {
   TrajectoryPoint interpolated_point;

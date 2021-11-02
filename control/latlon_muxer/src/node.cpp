@@ -14,25 +14,21 @@
 
 #include "latlon_muxer/node.hpp"
 
-#include <string>
-#include <memory>
+#include <rclcpp/time.hpp>
+#include <rclcpp_components/register_node_macro.hpp>
 
-#include "rclcpp_components/register_node_macro.hpp"
-#include "rclcpp/time.hpp"
+#include <memory>
+#include <string>
 
 LatLonMuxer::LatLonMuxer(const rclcpp::NodeOptions & node_options)
 : rclcpp::Node("latlon_muxer", node_options)
 {
-  control_cmd_pub_ =
-    create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
-    "output/control_cmd",
-    rclcpp::QoS{1}.transient_local());
-  lat_control_cmd_sub_ =
-    create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
+  control_cmd_pub_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
+    "output/control_cmd", rclcpp::QoS{1}.transient_local());
+  lat_control_cmd_sub_ = create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
     "input/lateral/control_cmd", rclcpp::QoS{1},
     std::bind(&LatLonMuxer::latCtrlCmdCallback, this, std::placeholders::_1));
-  lon_control_cmd_sub_ =
-    create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
+  lon_control_cmd_sub_ = create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
     "input/longitudinal/control_cmd", rclcpp::QoS{1},
     std::bind(&LatLonMuxer::lonCtrlCmdCallback, this, std::placeholders::_1));
   timeout_thr_sec_ = declare_parameter("timeout_thr_sec", 0.5);
@@ -59,8 +55,7 @@ void LatLonMuxer::publishCmd()
   }
   if (!checkTimeout()) {
     RCLCPP_ERROR_THROTTLE(
-      get_logger(), *get_clock(), 1000 /*ms*/,
-      "timeout failed. stop publish command.");
+      get_logger(), *get_clock(), 1000 /*ms*/, "timeout failed. stop publish command.");
     return;
   }
 

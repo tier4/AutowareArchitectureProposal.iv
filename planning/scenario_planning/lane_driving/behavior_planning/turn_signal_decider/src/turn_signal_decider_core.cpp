@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "turn_signal_decider/turn_signal_decider.hpp"
+
 #include <limits>
 #include <memory>
 #include <string>
 #include <utility>
 
-#include "turn_signal_decider/turn_signal_decider.hpp"
-
 using autoware_planning_msgs::msg::PathWithLaneId;
 using autoware_vehicle_msgs::msg::TurnSignal;
 
-using namespace std::placeholders;
+using std::placeholders::_1;
 
 namespace
 {
@@ -45,8 +45,8 @@ TurnSignalDecider::TurnSignalDecider(const rclcpp::NodeOptions & node_options)
 
   vehicle_pose_timer_ =
     std::make_shared<rclcpp::GenericTimer<decltype(vehicle_pose_timer_callback)>>(
-    this->get_clock(), vehicle_pose_timer_period, std::move(vehicle_pose_timer_callback),
-    this->get_node_base_interface()->get_context());
+      this->get_clock(), vehicle_pose_timer_period, std::move(vehicle_pose_timer_callback),
+      this->get_node_base_interface()->get_context());
   this->get_node_timers_interface()->add_timer(vehicle_pose_timer_, nullptr);
 
   path_subscription_ = this->create_subscription<autoware_planning_msgs::msg::PathWithLaneId>(
@@ -91,8 +91,7 @@ void TurnSignalDecider::onTurnSignalTimer()
   const auto path = data_.getPath();
   FrenetCoordinate3d vehicle_pose_frenet;
   if (!convertToFrenetCoordinate3d(
-      path, data_.getVehiclePoseStamped().pose.position, &vehicle_pose_frenet))
-  {
+        path, data_.getVehiclePoseStamped().pose.position, &vehicle_pose_frenet)) {
     RCLCPP_ERROR_THROTTLE(
       get_logger(), *get_clock(), std::chrono::milliseconds(5000).count(),
       "failed to convert vehicle pose into frenet coordinate");
@@ -146,8 +145,7 @@ lanelet::routing::RelationType TurnSignalDecider::getRelation(
       }
       if (
         relation.get() == lanelet::routing::RelationType::Left ||
-        relation.get() == lanelet::routing::RelationType::Right)
-      {
+        relation.get() == lanelet::routing::RelationType::Right) {
         return relation.get();
       }
       prev_llt = llt;
@@ -248,9 +246,10 @@ bool TurnSignalDecider::isTurning(
       const auto & lane = data_.getLaneFromId(lane_id);
       if (
         lane.attributeOr("turn_signal_distance", std::numeric_limits<double>::max()) <
-        distance_from_vehicle_front)
-      {
-        if (1 < path_point.lane_ids.size() && lane_id == path_point.lane_ids.back()) {continue;}
+        distance_from_vehicle_front) {
+        if (1 < path_point.lane_ids.size() && lane_id == path_point.lane_ids.back()) {
+          continue;
+        }
       }
       if (lane.attributeOr("turn_direction", std::string("none")) == "left") {
         signal_state_ptr->data = TurnSignal::LEFT;
@@ -272,5 +271,5 @@ bool TurnSignalDecider::isTurning(
 
 }  // namespace turn_signal_decider
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(turn_signal_decider::TurnSignalDecider)

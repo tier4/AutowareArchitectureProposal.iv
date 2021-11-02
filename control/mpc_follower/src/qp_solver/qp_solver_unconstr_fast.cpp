@@ -20,7 +20,9 @@ bool QPSolverEigenLeastSquareLLT::solve(
   const Eigen::VectorXd & /*lb*/, const Eigen::VectorXd & /*ub*/, const Eigen::VectorXd & /*lbA*/,
   const Eigen::VectorXd & /*ubA*/, Eigen::VectorXd & U)
 {
-  if (std::fabs(Hmat.determinant()) < 1.0E-9) {return false;}
+  if (std::fabs(Hmat.determinant()) < 1.0E-9) {
+    return false;
+  }
 
   U = -Hmat.llt().solve(fvec);
 

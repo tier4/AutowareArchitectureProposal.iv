@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "mpc_follower/qp_solver/qp_solver_osqp.hpp"
+
 #include <string>
 #include <vector>
 
-#include "mpc_follower/qp_solver/qp_solver_osqp.hpp"
-
-QPSolverOSQP::QPSolverOSQP(const rclcpp::Logger & logger)
-: logger_{logger} {}
+QPSolverOSQP::QPSolverOSQP(const rclcpp::Logger & logger) : logger_{logger} {}
 bool QPSolverOSQP::solve(
   const Eigen::MatrixXd & Hmat, const Eigen::MatrixXd & fvec, const Eigen::MatrixXd & A,
   const Eigen::VectorXd & lb, const Eigen::VectorXd & ub, const Eigen::VectorXd & lbA,

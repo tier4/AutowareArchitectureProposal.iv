@@ -14,13 +14,15 @@
 #ifndef TURN_SIGNAL_DECIDER__TURN_SIGNAL_DECIDER_HPP_
 #define TURN_SIGNAL_DECIDER__TURN_SIGNAL_DECIDER_HPP_
 
-#include <string>
-
-#include "autoware_vehicle_msgs/msg/turn_signal.hpp"
-#include "rclcpp/rclcpp.hpp"
 #include "turn_signal_decider/data_manager.hpp"
 #include "turn_signal_decider/frenet_coordinate.hpp"
-#include "vehicle_info_util/vehicle_info_util.hpp"
+
+#include <rclcpp/rclcpp.hpp>
+#include <vehicle_info_util/vehicle_info_util.hpp>
+
+#include <autoware_vehicle_msgs/msg/turn_signal.hpp>
+
+#include <string>
 
 namespace turn_signal_decider
 {
@@ -32,7 +34,7 @@ struct TurnSignalParameters
 };
 
 class TurnSignalDecider : public std::enable_shared_from_this<TurnSignalDecider>,
-  public rclcpp::Node
+                          public rclcpp::Node
 {
 private:
   // ROS variables

@@ -13,34 +13,32 @@
 // limitations under the License.
 
 #include "operator.hpp"
+
 #include <memory>
 
 namespace internal_api
 {
-
-Operator::Operator(const rclcpp::NodeOptions & options)
-: Node("external_api_operator", options)
+Operator::Operator(const rclcpp::NodeOptions & options) : Node("external_api_operator", options)
 {
   using namespace std::literals::chrono_literals;
-  using namespace std::placeholders;
+  using std::placeholders::_1;
+  using std::placeholders::_2;
   autoware_api_utils::ServiceProxyNodeInterface proxy(this);
 
   group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
   srv_set_operator_ = proxy.create_service<autoware_external_api_msgs::srv::SetOperator>(
-    "/api/autoware/set/operator",
-    std::bind(&Operator::setOperator, this, _1, _2),
+    "/api/autoware/set/operator", std::bind(&Operator::setOperator, this, _1, _2),
     rmw_qos_profile_services_default, group_);
   srv_set_observer_ = proxy.create_service<autoware_external_api_msgs::srv::SetObserver>(
-    "/api/autoware/set/observer",
-    std::bind(&Operator::setObserver, this, _1, _2),
+    "/api/autoware/set/observer", std::bind(&Operator::setObserver, this, _1, _2),
     rmw_qos_profile_services_default, group_);
 
   cli_external_select_ = proxy.create_client<autoware_control_msgs::srv::ExternalCommandSelect>(
     "/control/external_cmd_selector/select_external_command");
   pub_gate_mode_ = create_publisher<autoware_control_msgs::msg::GateMode>(
     "/control/gate_mode_cmd", rclcpp::QoS(1));
-  pub_vehicle_engage_ = create_publisher<autoware_vehicle_msgs::msg::Engage>(
-    "/vehicle/engage", rclcpp::QoS(1));
+  pub_vehicle_engage_ =
+    create_publisher<autoware_vehicle_msgs::msg::Engage>("/vehicle/engage", rclcpp::QoS(1));
 
   pub_operator_ = create_publisher<autoware_external_api_msgs::msg::Operator>(
     "/api/autoware/get/operator", rclcpp::QoS(1));
@@ -49,17 +47,15 @@ Operator::Operator(const rclcpp::NodeOptions & options)
 
   sub_external_select_ =
     create_subscription<autoware_control_msgs::msg::ExternalCommandSelectorMode>(
-    "/control/external_cmd_selector/current_selector_mode", rclcpp::QoS(1),
-    std::bind(&Operator::onExternalSelect, this, _1));
+      "/control/external_cmd_selector/current_selector_mode", rclcpp::QoS(1),
+      std::bind(&Operator::onExternalSelect, this, _1));
   sub_gate_mode_ = create_subscription<autoware_control_msgs::msg::GateMode>(
-    "/control/current_gate_mode", rclcpp::QoS(1),
-    std::bind(&Operator::onGateMode, this, _1));
+    "/control/current_gate_mode", rclcpp::QoS(1), std::bind(&Operator::onGateMode, this, _1));
   sub_vehicle_control_mode_ = create_subscription<autoware_vehicle_msgs::msg::ControlMode>(
     "/vehicle/status/control_mode", rclcpp::QoS(1),
     std::bind(&Operator::onVehicleControlMode, this, _1));
 
-  timer_ = rclcpp::create_timer(
-    this, get_clock(), 200ms, std::bind(&Operator::onTimer, this));
+  timer_ = rclcpp::create_timer(this, get_clock(), 200ms, std::bind(&Operator::onTimer, this));
 }
 
 void Operator::setOperator(
@@ -118,8 +114,7 @@ void Operator::onExternalSelect(
   external_select_ = message;
 }
 
-void Operator::onGateMode(
-  const autoware_control_msgs::msg::GateMode::ConstSharedPtr message)
+void Operator::onGateMode(const autoware_control_msgs::msg::GateMode::ConstSharedPtr message)
 {
   gate_mode_ = message;
 }
@@ -184,15 +179,14 @@ void Operator::publishObserver()
 
 void Operator::setVehicleEngage(bool engage)
 {
-  const auto msg = autoware_vehicle_msgs::build<autoware_vehicle_msgs::msg::Engage>()
-    .stamp(now()).engage(engage);
+  const auto msg =
+    autoware_vehicle_msgs::build<autoware_vehicle_msgs::msg::Engage>().stamp(now()).engage(engage);
   pub_vehicle_engage_->publish(msg);
 }
 
 void Operator::setGateMode(autoware_control_msgs::msg::GateMode::_data_type data)
 {
-  const auto msg = autoware_control_msgs::build<autoware_control_msgs::msg::GateMode>()
-    .data(data);
+  const auto msg = autoware_control_msgs::build<autoware_control_msgs::msg::GateMode>().data(data);
   pub_gate_mode_->publish(msg);
 }
 
@@ -216,5 +210,5 @@ autoware_external_api_msgs::msg::ResponseStatus Operator::setExternalSelect(
 
 }  // namespace internal_api
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(internal_api::Operator)

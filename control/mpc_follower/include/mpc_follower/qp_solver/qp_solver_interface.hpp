@@ -22,9 +22,9 @@
 #ifndef MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_INTERFACE_HPP_
 #define MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_INTERFACE_HPP_
 
-#include "eigen3/Eigen/Core"
-#include "eigen3/Eigen/Dense"
-#include "eigen3/Eigen/LU"
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/LU>
 
 class QPSolverInterface
 {

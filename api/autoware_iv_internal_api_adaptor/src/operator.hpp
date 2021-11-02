@@ -15,21 +15,21 @@
 #ifndef OPERATOR_HPP_
 #define OPERATOR_HPP_
 
-#include "rclcpp/rclcpp.hpp"
-#include "autoware_api_utils/autoware_api_utils.hpp"
-#include "autoware_external_api_msgs/srv/set_operator.hpp"
-#include "autoware_external_api_msgs/srv/set_observer.hpp"
-#include "autoware_external_api_msgs/msg/operator.hpp"
-#include "autoware_external_api_msgs/msg/observer.hpp"
-#include "autoware_control_msgs/srv/external_command_select.hpp"
-#include "autoware_control_msgs/msg/external_command_selector_mode.hpp"
-#include "autoware_control_msgs/msg/gate_mode.hpp"
-#include "autoware_vehicle_msgs/msg/engage.hpp"
-#include "autoware_vehicle_msgs/msg/control_mode.hpp"
+#include <autoware_api_utils/autoware_api_utils.hpp>
+#include <rclcpp/rclcpp.hpp>
+
+#include <autoware_control_msgs/msg/external_command_selector_mode.hpp>
+#include <autoware_control_msgs/msg/gate_mode.hpp>
+#include <autoware_control_msgs/srv/external_command_select.hpp>
+#include <autoware_external_api_msgs/msg/observer.hpp>
+#include <autoware_external_api_msgs/msg/operator.hpp>
+#include <autoware_external_api_msgs/srv/set_observer.hpp>
+#include <autoware_external_api_msgs/srv/set_operator.hpp>
+#include <autoware_vehicle_msgs/msg/control_mode.hpp>
+#include <autoware_vehicle_msgs/msg/engage.hpp>
 
 namespace internal_api
 {
-
 class Operator : public rclcpp::Node
 {
 public:
@@ -69,10 +69,8 @@ private:
     const autoware_external_api_msgs::srv::SetObserver::Response::SharedPtr response);
   void onExternalSelect(
     const autoware_control_msgs::msg::ExternalCommandSelectorMode::ConstSharedPtr message);
-  void onGateMode(
-    const autoware_control_msgs::msg::GateMode::ConstSharedPtr message);
-  void onVehicleControlMode(
-    const autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr message);
+  void onGateMode(const autoware_control_msgs::msg::GateMode::ConstSharedPtr message);
+  void onVehicleControlMode(const autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr message);
   void onTimer();
 
   // class field

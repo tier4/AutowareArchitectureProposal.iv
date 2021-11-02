@@ -15,23 +15,23 @@
 #ifndef MPC_FOLLOWER__MPC_UTILS_HPP_
 #define MPC_FOLLOWER__MPC_UTILS_HPP_
 
-#include <cmath>
-#include <string>
-#include <vector>
-
 #include "mpc_follower/interpolate.hpp"
 #include "mpc_follower/mpc_trajectory.hpp"
 
-#include "tf2/utils.h"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "visualization_msgs/msg/marker_array.hpp"
-#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include <eigen3/Eigen/Core>
+#include <rclcpp/rclcpp.hpp>
 
-#include "eigen3/Eigen/Core"
+#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 
+#include <tf2/utils.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+
+#include <cmath>
+#include <string>
+#include <vector>
 
 namespace MPCUtils
 {
@@ -86,7 +86,8 @@ void dynamicSmoothingVelocity(
 void calcTrajectoryYawFromXY(MPCTrajectory * traj, const int nearest_idx, const double ego_yaw);
 
 /**
- * @brief Calculate path curvature by 3-points circle fitting with smoothing num (use nearest 3 points when num = 1)
+ * @brief Calculate path curvature by 3-points circle fitting with smoothing num (use nearest 3
+ * points when num = 1)
  * @param [in] curvature_smoothing_num index distance for 3 points for curvature calculation
  * @param [inout] traj object trajectory
  */
@@ -94,9 +95,11 @@ bool calcTrajectoryCurvature(
   int curvature_smoothing_num_traj, int curvature_smoothing_num_ref_steer, MPCTrajectory * traj);
 
 /**
- * @brief Calculate path curvature by 3-points circle fitting with smoothing num (use nearest 3 points when num = 1)
+ * @brief Calculate path curvature by 3-points circle fitting with smoothing num (use nearest 3
+ * points when num = 1)
  * @param [in] curvature_smoothing_num index distance for 3 points for curvature calculation
- * @param [in] curvature_smoothing_num index distance for 3 points for smoothed curvature calculation
+ * @param [in] curvature_smoothing_num index distance for 3 points for smoothed curvature
+ * calculation
  * @param [inout] curvature vector
  */
 std::vector<double> calcTrajectoryCurvature(
