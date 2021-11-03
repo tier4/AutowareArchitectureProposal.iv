@@ -33,7 +33,8 @@
 #include "pure_pursuit/pure_pursuit_viz.hpp"
 #include "pure_pursuit/util/planning_utils.hpp"
 #include "pure_pursuit/util/tf_utils.hpp"
-#include "vehicle_info_util/vehicle_info_util.hpp"
+
+#include <vehicle_info_util/vehicle_info_util.hpp>
 
 #include <algorithm>
 #include <memory>
@@ -236,5 +237,5 @@ boost::optional<autoware_planning_msgs::msg::TrajectoryPoint> PurePursuitNode::c
   return trajectory_->points.at(closest_idx_result.second);
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(PurePursuitNode)

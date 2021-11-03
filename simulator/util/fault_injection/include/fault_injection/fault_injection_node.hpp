@@ -15,11 +15,12 @@
 #ifndef FAULT_INJECTION__FAULT_INJECTION_NODE_HPP__
 #define FAULT_INJECTION__FAULT_INJECTION_NODE_HPP__
 
-#include "diagnostic_updater/diagnostic_updater.hpp"
 #include "fault_injection/diagnostic_storage.hpp"
-#include "rclcpp/rclcpp.hpp"
 
-#include "autoware_simulation_msgs/msg/simulation_events.hpp"
+#include <diagnostic_updater/diagnostic_updater.hpp>
+#include <rclcpp/rclcpp.hpp>
+
+#include <autoware_simulation_msgs/msg/simulation_events.hpp>
 
 #include <string>
 #include <vector>

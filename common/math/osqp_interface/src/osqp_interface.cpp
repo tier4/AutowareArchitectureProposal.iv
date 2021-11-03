@@ -17,8 +17,9 @@
 
 #include "osqp_interface/osqp_interface.hpp"
 
-#include "osqp/osqp.h"
 #include "osqp_interface/csc_matrix_conv.hpp"
+
+#include <osqp/osqp.h>
 
 #include <chrono>
 #include <iostream>

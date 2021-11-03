@@ -13,8 +13,8 @@
 // limitations under the License.
 #include "osqp_interface/csc_matrix_conv.hpp"
 
-#include "eigen3/Eigen/Core"
-#include "eigen3/Eigen/SparseCore"
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/SparseCore>
 
 #include <exception>
 #include <iostream>

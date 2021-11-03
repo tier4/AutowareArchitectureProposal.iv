@@ -15,16 +15,16 @@
 #ifndef AUTOWARE_UTILS__ROS__DEBUG_TRAITS_HPP_
 #define AUTOWARE_UTILS__ROS__DEBUG_TRAITS_HPP_
 
-#include "autoware_debug_msgs/msg/bool_stamped.hpp"
-#include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
-#include "autoware_debug_msgs/msg/float32_stamped.hpp"
-#include "autoware_debug_msgs/msg/float64_multi_array_stamped.hpp"
-#include "autoware_debug_msgs/msg/float64_stamped.hpp"
-#include "autoware_debug_msgs/msg/int32_multi_array_stamped.hpp"
-#include "autoware_debug_msgs/msg/int32_stamped.hpp"
-#include "autoware_debug_msgs/msg/int64_multi_array_stamped.hpp"
-#include "autoware_debug_msgs/msg/int64_stamped.hpp"
-#include "autoware_debug_msgs/msg/string_stamped.hpp"
+#include <autoware_debug_msgs/msg/bool_stamped.hpp>
+#include <autoware_debug_msgs/msg/float32_multi_array_stamped.hpp>
+#include <autoware_debug_msgs/msg/float32_stamped.hpp>
+#include <autoware_debug_msgs/msg/float64_multi_array_stamped.hpp>
+#include <autoware_debug_msgs/msg/float64_stamped.hpp>
+#include <autoware_debug_msgs/msg/int32_multi_array_stamped.hpp>
+#include <autoware_debug_msgs/msg/int32_stamped.hpp>
+#include <autoware_debug_msgs/msg/int64_multi_array_stamped.hpp>
+#include <autoware_debug_msgs/msg/int64_stamped.hpp>
+#include <autoware_debug_msgs/msg/string_stamped.hpp>
 
 #include <type_traits>
 

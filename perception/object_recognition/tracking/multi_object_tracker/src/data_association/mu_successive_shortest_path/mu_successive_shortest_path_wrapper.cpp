@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #include "multi_object_tracker/data_association/solver/mu_successive_shortest_path.hpp"
-#include "mussp/mussp.h"
+
+#include <mussp/mussp.h>
 
 #include <array>
 #include <cassert>

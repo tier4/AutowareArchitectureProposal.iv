@@ -14,7 +14,6 @@
 
 #include "behavior_path_planner/behavior_path_planner_node.hpp"
 
-#include "autoware_utils/autoware_utils.hpp"
 #include "behavior_path_planner/path_utilities.hpp"
 #include "behavior_path_planner/scene_module/avoidance/avoidance_module.hpp"
 #include "behavior_path_planner/scene_module/lane_change/lane_change_module.hpp"
@@ -22,7 +21,9 @@
 #include "behavior_path_planner/scene_module/pull_over/pull_over_module.hpp"
 #include "behavior_path_planner/scene_module/side_shift/side_shift_module.hpp"
 #include "behavior_path_planner/utilities.hpp"
-#include "vehicle_info_util/vehicle_info_util.hpp"
+
+#include <autoware_utils/autoware_utils.hpp>
+#include <vehicle_info_util/vehicle_info_util.hpp>
 
 #include <memory>
 #include <string>
@@ -680,5 +681,5 @@ PathWithLaneId BehaviorPathPlannerNode::modifyPathForSmoothGoalConnection(
 
 }  // namespace behavior_path_planner
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(behavior_path_planner::BehaviorPathPlannerNode)

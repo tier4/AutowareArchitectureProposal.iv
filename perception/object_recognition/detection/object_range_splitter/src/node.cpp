@@ -63,5 +63,5 @@ void ObjectRangeSplitterNode::objectCallback(
 }
 }  // namespace object_range_splitter
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(object_range_splitter::ObjectRangeSplitterNode)

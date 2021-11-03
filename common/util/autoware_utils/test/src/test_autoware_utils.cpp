@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #include "autoware_utils/autoware_utils.hpp"
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 int main(int argc, char * argv[])
 {

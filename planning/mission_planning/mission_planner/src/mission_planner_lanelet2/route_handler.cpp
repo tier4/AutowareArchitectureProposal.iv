@@ -14,7 +14,7 @@
 
 #include "mission_planner/lanelet2_impl/route_handler.hpp"
 
-#include "rclcpp/rclcpp.hpp"
+#include <rclcpp/rclcpp.hpp>
 
 #include <unordered_set>
 #include <vector>

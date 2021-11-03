@@ -34,9 +34,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include "nms_plugin.hpp"
-
-#include "nms.hpp"
+#include <nms.hpp>
+#include <nms_plugin.hpp>
 
 #include <cuda_runtime_api.h>
 #include <stdio.h>

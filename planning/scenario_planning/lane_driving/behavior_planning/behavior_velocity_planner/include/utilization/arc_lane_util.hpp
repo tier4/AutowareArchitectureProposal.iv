@@ -15,11 +15,11 @@
 #ifndef UTILIZATION__ARC_LANE_UTIL_HPP_
 #define UTILIZATION__ARC_LANE_UTIL_HPP_
 
-#include "autoware_utils/geometry/geometry.hpp"
+#include <autoware_utils/geometry/geometry.hpp>
 
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 
-#include "boost/optional.hpp"
+#include <boost/optional.hpp>
 
 #include <algorithm>
 #include <memory>
@@ -27,9 +27,9 @@
 #include <vector>
 
 #define EIGEN_MPL2_ONLY
-#include "Eigen/Core"
-#include "rclcpp/rclcpp.hpp"
-#include "utilization/boost_geometry_helper.hpp"
+#include <Eigen/Core>
+#include <rclcpp/rclcpp.hpp>
+#include <utilization/boost_geometry_helper.hpp>
 
 namespace behavior_velocity_planner
 {

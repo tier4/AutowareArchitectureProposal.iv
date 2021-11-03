@@ -42,5 +42,5 @@ void OpticalFlowNode::callback(const sensor_msgs::msg::PointCloud2::SharedPtr cl
 }
 }  // namespace bev_optical_flow
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(bev_optical_flow::OpticalFlowNode)

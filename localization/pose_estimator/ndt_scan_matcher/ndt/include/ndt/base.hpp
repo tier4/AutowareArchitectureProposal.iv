@@ -15,10 +15,10 @@
 #ifndef NORMAL_DISTRIBUTIONS_TRANSFORM_BASE_H
 #define NORMAL_DISTRIBUTIONS_TRANSFORM_BASE_H
 
-#include "pcl/io/io.h"
-#include "pcl/io/pcd_io.h"
-#include "pcl/point_types.h"
-#include "pcl/search/kdtree.h"
+#include <pcl/io/io.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+#include <pcl/search/kdtree.h>
 
 #include <vector>
 

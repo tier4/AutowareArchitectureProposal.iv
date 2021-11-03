@@ -15,12 +15,13 @@
 #ifndef MOTION_VELOCITY_SMOOTHER__RESAMPLE_HPP_
 #define MOTION_VELOCITY_SMOOTHER__RESAMPLE_HPP_
 
-#include "autoware_utils/trajectory/trajectory.hpp"
 #include "motion_velocity_smoother/trajectory_utils.hpp"
 
-#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include <autoware_utils/trajectory/trajectory.hpp>
 
-#include "boost/optional.hpp"
+#include <autoware_planning_msgs/msg/trajectory.hpp>
+
+#include <boost/optional.hpp>
 
 namespace motion_velocity_smoother
 {

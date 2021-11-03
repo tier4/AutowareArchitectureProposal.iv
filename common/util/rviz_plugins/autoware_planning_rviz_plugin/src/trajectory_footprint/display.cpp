@@ -15,10 +15,11 @@
 #include <memory>
 
 #define EIGEN_MPL2_ONLY
-#include "eigen3/Eigen/Core"
-#include "eigen3/Eigen/Geometry"
-#include "tf2/utils.h"
-#include "trajectory_footprint/display.hpp"
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Geometry>
+#include <trajectory_footprint/display.hpp>
+
+#include <tf2/utils.h>
 
 namespace rviz_plugins
 {
@@ -247,5 +248,5 @@ void AutowareTrajectoryFootprintDisplay::updateVehicleInfo()
 
 }  // namespace rviz_plugins
 
-#include "pluginlib/class_list_macros.hpp"
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::AutowareTrajectoryFootprintDisplay, rviz_common::Display)

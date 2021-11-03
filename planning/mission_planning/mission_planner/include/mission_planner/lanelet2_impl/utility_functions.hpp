@@ -14,13 +14,14 @@
 
 #ifndef MISSION_PLANNER__LANELET2_IMPL__UTILITY_FUNCTIONS_HPP_
 #define MISSION_PLANNER__LANELET2_IMPL__UTILITY_FUNCTIONS_HPP_
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_core/primitives/LaneletSequence.h"
-#include "rclcpp/rclcpp.hpp"
+#include <rclcpp/rclcpp.hpp>
 
-#include "geometry_msgs/msg/pose.hpp"
-#include "std_msgs/msg/color_rgba.hpp"
-#include "visualization_msgs/msg/marker_array.hpp"
+#include <geometry_msgs/msg/pose.hpp>
+#include <std_msgs/msg/color_rgba.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
+
+#include <lanelet2_core/LaneletMap.h>
+#include <lanelet2_core/primitives/LaneletSequence.h>
 
 #include <string>
 #include <unordered_set>

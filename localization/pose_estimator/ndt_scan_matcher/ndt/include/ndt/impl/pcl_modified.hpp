@@ -17,6 +17,8 @@
 
 #include "ndt/pcl_modified.hpp"
 
+#include <vector>
+
 template <class PointSource, class PointTarget>
 NormalDistributionsTransformPCLModified<
   PointSource, PointTarget>::NormalDistributionsTransformPCLModified()

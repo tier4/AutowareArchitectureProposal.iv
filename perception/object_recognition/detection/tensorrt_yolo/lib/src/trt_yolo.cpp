@@ -34,14 +34,14 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include "trt_yolo.hpp"
+#include <calibrator.hpp>
+#include <cuda_utils.hpp>
+#include <mish_plugin.hpp>
+#include <nms_plugin.hpp>
+#include <trt_yolo.hpp>
+#include <yolo_layer_plugin.hpp>
 
-#include "NvOnnxParser.h"
-#include "calibrator.hpp"
-#include "cuda_utils.hpp"
-#include "mish_plugin.hpp"
-#include "nms_plugin.hpp"
-#include "yolo_layer_plugin.hpp"
+#include <NvOnnxParser.h>
 
 #include <algorithm>
 #include <fstream>

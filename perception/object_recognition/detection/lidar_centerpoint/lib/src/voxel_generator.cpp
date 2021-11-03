@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "voxel_generator.hpp"
+#include <voxel_generator.hpp>
 
-#include "torch/torch.h"
+#include <sensor_msgs/point_cloud2_iterator.hpp>
 
-#include "sensor_msgs/point_cloud2_iterator.hpp"
+#include <torch/torch.h>
 
 namespace centerpoint
 {

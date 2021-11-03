@@ -18,7 +18,8 @@
 #include "lane_change_planner/data_manager.hpp"
 #include "lane_change_planner/route_handler.hpp"
 #include "lane_change_planner/utilities.hpp"
-#include "lanelet2_extension/utility/utilities.hpp"
+
+#include <lanelet2_extension/utility/utilities.hpp>
 
 #include <memory>
 

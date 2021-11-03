@@ -114,8 +114,8 @@ def generate_launch_description():
             _create_mapping_tuple("out/latest_external_control_cmd"),
         ],
         parameters=[
-            dict(
-                [  # noqa: C406 for using helper function
+            dict(  # noqa: C406 for using helper function
+                [
                     _create_mapping_tuple("csv_path_accel_map"),
                     _create_mapping_tuple("csv_path_brake_map"),
                     _create_mapping_tuple("ref_vel_gain"),

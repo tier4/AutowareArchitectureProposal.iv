@@ -15,10 +15,10 @@
 #ifndef UTILIZATION__PATH_UTILIZATION_HPP_
 #define UTILIZATION__PATH_UTILIZATION_HPP_
 
-#include "autoware_utils/geometry/geometry.hpp"
-#include "rclcpp/rclcpp.hpp"
+#include <autoware_utils/geometry/geometry.hpp>
+#include <rclcpp/rclcpp.hpp>
 
-#include "autoware_planning_msgs/msg/path.hpp"
+#include <autoware_planning_msgs/msg/path.hpp>
 
 namespace behavior_velocity_planner
 {

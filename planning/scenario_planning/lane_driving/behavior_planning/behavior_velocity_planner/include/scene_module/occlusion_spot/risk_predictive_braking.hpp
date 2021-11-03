@@ -15,9 +15,9 @@
 #ifndef SCENE_MODULE__OCCLUSION_SPOT__RISK_PREDICTIVE_BRAKING_HPP_
 #define SCENE_MODULE__OCCLUSION_SPOT__RISK_PREDICTIVE_BRAKING_HPP_
 
-#include "scene_module/occlusion_spot/occlusion_spot_utils.hpp"
+#include <scene_module/occlusion_spot/occlusion_spot_utils.hpp>
 
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 
 #include <algorithm>
 #include <vector>

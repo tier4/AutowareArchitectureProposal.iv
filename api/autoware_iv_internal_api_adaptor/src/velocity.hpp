@@ -15,12 +15,12 @@
 #ifndef VELOCITY_HPP_
 #define VELOCITY_HPP_
 
-#include "autoware_api_utils/autoware_api_utils.hpp"
-#include "rclcpp/rclcpp.hpp"
+#include <autoware_api_utils/autoware_api_utils.hpp>
+#include <rclcpp/rclcpp.hpp>
 
-#include "autoware_external_api_msgs/srv/pause_driving.hpp"
-#include "autoware_external_api_msgs/srv/set_velocity_limit.hpp"
-#include "autoware_planning_msgs/msg/velocity_limit.hpp"
+#include <autoware_external_api_msgs/srv/pause_driving.hpp>
+#include <autoware_external_api_msgs/srv/set_velocity_limit.hpp>
+#include <autoware_planning_msgs/msg/velocity_limit.hpp>
 
 namespace internal_api
 {

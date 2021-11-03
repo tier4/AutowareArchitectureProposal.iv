@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "network_trt.hpp"
-
-#include "config.hpp"
+#include <config.hpp>
+#include <network_trt.hpp>
 
 namespace centerpoint
 {

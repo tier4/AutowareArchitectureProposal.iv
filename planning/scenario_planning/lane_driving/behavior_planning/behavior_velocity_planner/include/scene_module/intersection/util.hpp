@@ -15,11 +15,12 @@
 #ifndef SCENE_MODULE__INTERSECTION__UTIL_HPP_
 #define SCENE_MODULE__INTERSECTION__UTIL_HPP_
 
-#include "rclcpp/rclcpp.hpp"
-#include "scene_module/intersection/scene_intersection.hpp"
+#include <rclcpp/rclcpp.hpp>
+#include <scene_module/intersection/scene_intersection.hpp>
 
-#include "geometry_msgs/msg/point.hpp"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include <geometry_msgs/msg/point.hpp>
+
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <memory>
 #include <string>
@@ -106,7 +107,6 @@ std::vector<int> getLaneletIdsFromLaneletsVec(const std::vector<lanelet::ConstLa
 double calcArcLengthFromPath(
   const autoware_planning_msgs::msg::PathWithLaneId & input_path, const size_t src_idx,
   const size_t dst_idx);
-
 }  // namespace util
 }  // namespace behavior_velocity_planner
 

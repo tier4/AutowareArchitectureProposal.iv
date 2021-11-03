@@ -21,13 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 #ifndef __TRT_UTILS_H_
 #define __TRT_UTILS_H_
 
-#include "cudnn.h"
+#include <NvInferPlugin.h>
+#include <cudnn.h>
 
 #include <algorithm>
 #include <iostream>
+#include <string>
+#include <utility>
 #include <vector>
 
 #ifndef CUDA_CHECK
@@ -62,7 +66,7 @@ private:
   typedef std::pair<std::string, float> Record;
   std::vector<Record> mProfile;
 
-  virtual void reportLayerTime(const char * layerName, float ms) noexcept override
+  void reportLayerTime(const char * layerName, float ms) noexcept override
   {
     auto record = std::find_if(
       mProfile.begin(), mProfile.end(), [&](const Record & r) { return r.first == layerName; });
@@ -80,7 +84,7 @@ class Logger : public nvinfer1::ILogger
 public:
   Logger() : Logger(Severity::kWARNING) {}
 
-  Logger(Severity severity) : reportableSeverity(severity) {}
+  explicit Logger(Severity severity) : reportableSeverity(severity) {}
 
   void log(Severity severity, const char * msg) noexcept override
   {

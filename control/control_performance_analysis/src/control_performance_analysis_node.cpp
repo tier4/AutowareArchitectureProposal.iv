@@ -15,7 +15,8 @@
 #include "control_performance_analysis/control_performance_analysis_node.hpp"
 
 #include "control_performance_analysis/msg/error_stamped.hpp"
-#include "vehicle_info_util/vehicle_info_util.hpp"
+
+#include <vehicle_info_util/vehicle_info_util.hpp>
 
 #include <memory>
 #include <utility>
@@ -256,5 +257,5 @@ bool ControlPerformanceAnalysisNode::isValidTrajectory(const Trajectory & traj)
 }
 }  // namespace control_performance_analysis
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(control_performance_analysis::ControlPerformanceAnalysisNode)

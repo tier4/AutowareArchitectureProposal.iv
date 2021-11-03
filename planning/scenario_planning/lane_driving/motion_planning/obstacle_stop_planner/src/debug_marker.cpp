@@ -14,9 +14,9 @@
 
 #include "obstacle_stop_planner/debug_marker.hpp"
 
-#include "autoware_utils/autoware_utils.hpp"
+#include <autoware_utils/autoware_utils.hpp>
 
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <memory>
 #include <vector>

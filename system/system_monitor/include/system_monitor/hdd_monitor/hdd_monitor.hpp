@@ -20,7 +20,7 @@
 #ifndef SYSTEM_MONITOR__HDD_MONITOR__HDD_MONITOR_HPP_
 #define SYSTEM_MONITOR__HDD_MONITOR__HDD_MONITOR_HPP_
 
-#include "diagnostic_updater/diagnostic_updater.hpp"
+#include <diagnostic_updater/diagnostic_updater.hpp>
 
 #include <climits>
 #include <map>

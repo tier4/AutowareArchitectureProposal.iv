@@ -12,17 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "scene_module/intersection/scene_intersection.hpp"
+#include <lanelet2_extension/regulatory_elements/road_marking.hpp>
+#include <lanelet2_extension/utility/query.hpp>
+#include <lanelet2_extension/utility/utilities.hpp>
+#include <scene_module/intersection/scene_intersection.hpp>
+#include <scene_module/intersection/util.hpp>
+#include <utilization/boost_geometry_helper.hpp>
+#include <utilization/interpolate.hpp>
+#include <utilization/util.hpp>
 
-#include "lanelet2_core/geometry/Polygon.h"
-#include "lanelet2_core/primitives/BasicRegulatoryElements.h"
-#include "lanelet2_extension/regulatory_elements/road_marking.hpp"
-#include "lanelet2_extension/utility/query.hpp"
-#include "lanelet2_extension/utility/utilities.hpp"
-#include "scene_module/intersection/util.hpp"
-#include "utilization/boost_geometry_helper.hpp"
-#include "utilization/interpolate.hpp"
-#include "utilization/util.hpp"
+#include <lanelet2_core/geometry/Polygon.h>
+#include <lanelet2_core/primitives/BasicRegulatoryElements.h>
 
 #include <algorithm>
 #include <memory>

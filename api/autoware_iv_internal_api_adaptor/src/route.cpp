@@ -14,8 +14,8 @@
 
 #include "route.hpp"
 
-#include "autoware_external_api_msgs/msg/route_section.hpp"
-#include "autoware_planning_msgs/msg/route_section.hpp"
+#include <autoware_external_api_msgs/msg/route_section.hpp>
+#include <autoware_planning_msgs/msg/route_section.hpp>
 
 #include <memory>
 
@@ -75,7 +75,8 @@ namespace internal_api
 {
 Route::Route(const rclcpp::NodeOptions & options) : Node("external_api_route", options)
 {
-  using namespace std::placeholders;
+  using std::placeholders::_1;
+  using std::placeholders::_2;
   autoware_api_utils::ServiceProxyNodeInterface proxy(this);
 
   group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
@@ -155,5 +156,5 @@ void Route::onRoute(const autoware_planning_msgs::msg::Route::ConstSharedPtr mes
 
 }  // namespace internal_api
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(internal_api::Route)

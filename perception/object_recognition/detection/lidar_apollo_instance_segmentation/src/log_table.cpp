@@ -37,7 +37,7 @@ static ::LogTable log_table;
 
 float calcApproximateLog(float num)
 {
-  int integer_num = (int)(num * 10.0);
+  int integer_num = static_cast<int>(num * 10.0);
   if (integer_num < static_cast<int>(log_table.data.size())) {
     return log_table.data[integer_num];
   }

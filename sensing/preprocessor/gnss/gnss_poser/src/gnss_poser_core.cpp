@@ -350,5 +350,5 @@ void GNSSPoser::publishTF(
 }
 }  // namespace gnss_poser
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(gnss_poser::GNSSPoser)

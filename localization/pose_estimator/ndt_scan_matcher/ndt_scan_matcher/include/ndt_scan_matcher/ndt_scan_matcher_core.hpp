@@ -15,38 +15,41 @@
 #ifndef NDT_SCAN_MATCHER__NDT_SCAN_MATCHER_CORE_HPP_
 #define NDT_SCAN_MATCHER__NDT_SCAN_MATCHER_CORE_HPP_
 
+#define FMT_HEADER_ONLY
+
+#include "ndt_scan_matcher/particle.hpp"
+
+#include <autoware_localization_srvs/srv/pose_with_covariance_stamped.hpp>
+#include <ndt/omp.hpp>
+#include <ndt/pcl_generic.hpp>
+#include <ndt/pcl_modified.hpp>
+#include <rclcpp/rclcpp.hpp>
+
+#include <autoware_debug_msgs/msg/float32_stamped.hpp>
+#include <autoware_debug_msgs/msg/int32_stamped.hpp>
+#include <diagnostic_msgs/msg/diagnostic_array.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
+
+#include <fmt/format.h>
+#include <tf2/transform_datatypes.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_sensor_msgs/tf2_sensor_msgs.h>
+
 #include <array>
 #include <deque>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
-
-#define FMT_HEADER_ONLY
-#include "autoware_localization_srvs/srv/pose_with_covariance_stamped.hpp"
-#include "fmt/format.h"
-#include "rclcpp/rclcpp.hpp"
-#include "tf2/transform_datatypes.h"
-#include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_broadcaster.h"
-#include "tf2_ros/transform_listener.h"
-
-#include "autoware_debug_msgs/msg/float32_stamped.hpp"
-#include "autoware_debug_msgs/msg/int32_stamped.hpp"
-#include "diagnostic_msgs/msg/diagnostic_array.hpp"
-#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
-#include "nav_msgs/msg/odometry.hpp"
-#include "sensor_msgs/msg/point_cloud2.hpp"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-#include "tf2_sensor_msgs/tf2_sensor_msgs.h"
-#include "visualization_msgs/msg/marker_array.hpp"
-// #include "pcl/registration/ndt.h"
-// #include "pcl_registration/ndt.h"
-#include "ndt/omp.hpp"
-#include "ndt/pcl_generic.hpp"
-#include "ndt/pcl_modified.hpp"
-#include "ndt_scan_matcher/particle.hpp"
+#include <vector>
 
 enum class NDTImplementType { PCL_GENERIC = 0, PCL_MODIFIED = 1, OMP = 2 };
 
@@ -77,7 +80,7 @@ class NDTScanMatcher : public rclcpp::Node
   using PointSource = pcl::PointXYZ;
   using PointTarget = pcl::PointXYZ;
 
-  // TODO move file
+  // TODO(Tier IV): move file
   struct OMPParams
   {
     OMPParams() : search_method(pclomp::NeighborSearchMethod::KDTREE), num_threads(1) {}

@@ -13,9 +13,10 @@
 // limitations under the License.
 
 #include "autoware_utils/geometry/boost_geometry.hpp"
-#include "gtest/gtest.h"
 
-#include "boost/geometry/geometry.hpp"
+#include <boost/geometry/geometry.hpp>
+
+#include <gtest/gtest.h>
 
 namespace bg = boost::geometry;
 

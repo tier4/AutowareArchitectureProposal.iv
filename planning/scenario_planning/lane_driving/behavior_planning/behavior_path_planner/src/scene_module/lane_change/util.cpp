@@ -15,12 +15,14 @@
 #include "behavior_path_planner/scene_module/lane_change/util.hpp"
 
 #include "behavior_path_planner/path_shifter/path_shifter.hpp"
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_extension/utility/query.hpp"
-#include "lanelet2_extension/utility/utilities.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "tf2/utils.h"
-#include "tf2_ros/transform_listener.h"
+
+#include <lanelet2_extension/utility/query.hpp>
+#include <lanelet2_extension/utility/utilities.hpp>
+#include <rclcpp/rclcpp.hpp>
+
+#include <lanelet2_core/LaneletMap.h>
+#include <tf2/utils.h>
+#include <tf2_ros/transform_listener.h>
 
 #include <algorithm>
 #include <limits>

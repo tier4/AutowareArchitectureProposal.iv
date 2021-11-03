@@ -14,7 +14,7 @@
 
 #include "planning_error_monitor/planning_error_monitor_node.hpp"
 
-#include "autoware_utils/autoware_utils.hpp"
+#include <autoware_utils/autoware_utils.hpp>
 
 #include <memory>
 #include <string>
@@ -301,5 +301,5 @@ size_t PlanningErrorMonitorNode::getIndexAfterDistance(
 }
 }  // namespace planning_diagnostics
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(planning_diagnostics::PlanningErrorMonitorNode)

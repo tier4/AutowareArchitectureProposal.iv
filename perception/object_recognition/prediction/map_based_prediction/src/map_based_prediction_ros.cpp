@@ -12,12 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// headers in local files
 #include "map_based_prediction_ros.hpp"
 
 #include "map_based_prediction.hpp"
 
-// headers in STL
+#include <autoware_utils/autoware_utils.hpp>
+#include <rclcpp/rclcpp.hpp>
+
+#include <unique_identifier_msgs/msg/uuid.hpp>
+
+#include <tf2/utils.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
+
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -26,16 +34,6 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
-// headers in ROS
-#include "autoware_utils/autoware_utils.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "tf2/utils.h"
-#include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_listener.h"
-
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-#include "unique_identifier_msgs/msg/uuid.hpp"
 
 std::string toHexString(const unique_identifier_msgs::msg::UUID & id)
 {
@@ -207,7 +205,6 @@ bool MapBasedPredictionROS::getClosestLanelets(
         if (inside_closest_lanelets) {
           continue;
         }
-
         // Check if the close lanelets meet the necessary condition for start lanelets
         if (checkCloseLaneletCondition(lanelet, object, search_point)) {
           target_closest_lanelet = lanelet.second;
@@ -395,7 +392,6 @@ void MapBasedPredictionROS::objectsCallback(
       paths.insert(paths.end(), right_paths.begin(), right_paths.end());
       paths.insert(paths.end(), left_paths.begin(), left_paths.end());
     }
-
     // If there is no valid path, we'll mark this object as map-less object
     if (paths.empty()) {
       tmp_objects_without_map.objects.push_back(object);
@@ -529,5 +525,5 @@ void MapBasedPredictionROS::mapCallback(
   RCLCPP_INFO(get_logger(), "Map is loaded");
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(MapBasedPredictionROS)

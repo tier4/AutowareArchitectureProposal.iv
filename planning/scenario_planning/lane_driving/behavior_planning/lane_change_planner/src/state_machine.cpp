@@ -21,7 +21,8 @@
 #include "lane_change_planner/state/following_lane.hpp"
 #include "lane_change_planner/state/forcing_lane_change.hpp"
 #include "lane_change_planner/state/stopping_lane_change.hpp"
-#include "rclcpp/rclcpp.hpp"
+
+#include <rclcpp/rclcpp.hpp>
 
 #include <algorithm>
 #include <limits>

@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "scene_module/stop_line/scene.hpp"
-
-#include "utilization/util.hpp"
+#include <scene_module/stop_line/scene.hpp>
+#include <utilization/util.hpp>
 
 #include <algorithm>
 #include <vector>

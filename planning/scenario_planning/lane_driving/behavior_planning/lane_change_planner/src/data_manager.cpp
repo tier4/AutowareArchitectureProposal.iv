@@ -15,7 +15,7 @@
 
 #include "lane_change_planner/data_manager.hpp"
 
-#include "lanelet2_extension/utility/message_conversion.hpp"
+#include <lanelet2_extension/utility/message_conversion.hpp>
 
 #include <memory>
 #include <string>

@@ -14,8 +14,8 @@
 
 #include "vehicle_cmd_gate/vehicle_cmd_gate.hpp"
 
-#include "autoware_api_utils/autoware_api_utils.hpp"
-#include "rclcpp/logging.hpp"
+#include <autoware_api_utils/autoware_api_utils.hpp>
+#include <rclcpp/logging.hpp>
 
 #include <chrono>
 #include <functional>
@@ -50,7 +50,9 @@ const char * getGateModeName(const autoware_control_msgs::msg::GateMode::_data_t
 VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
 : Node("vehicle_cmd_gate", node_options), is_engaged_(false), updater_(this)
 {
-  using namespace std::placeholders;
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+  using std::placeholders::_3;
 
   rclcpp::QoS durable_qos{1};
   durable_qos.transient_local();
@@ -639,7 +641,7 @@ void VehicleCmdGate::checkExternalEmergencyStop(diagnostic_updater::DiagnosticSt
 
 VehicleCmdGate::StartRequest::StartRequest(rclcpp::Node * node, bool use_start_request)
 {
-  using namespace std::placeholders;
+  using std::placeholders::_1;
 
   node_ = node;
   use_start_request_ = use_start_request;
@@ -728,5 +730,5 @@ void VehicleCmdGate::StartRequest::checkStartRequest(const ControlCommandStamped
   }
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(VehicleCmdGate)

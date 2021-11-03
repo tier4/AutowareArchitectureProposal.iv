@@ -13,8 +13,9 @@
 // limitations under the License.
 #include "roi_image_saver/node.hpp"
 
-#include "cv_bridge/cv_bridge.h"
-#include "opencv2/highgui/highgui.hpp"
+#include <opencv2/highgui/highgui.hpp>
+
+#include <cv_bridge/cv_bridge.h>
 
 #include <memory>
 #include <string>
@@ -66,5 +67,5 @@ void TrafficLightRoiImageSaver::imageRoiCallback(
 }
 }  // namespace traffic_light
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(traffic_light::TrafficLightRoiImageSaver)

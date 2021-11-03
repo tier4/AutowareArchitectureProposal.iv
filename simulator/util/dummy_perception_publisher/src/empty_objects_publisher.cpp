@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "rclcpp/rclcpp.hpp"
+#include <rclcpp/rclcpp.hpp>
 
-#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
 
 #include <memory>
 #include <utility>

@@ -21,11 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "TrtNet.hpp"
+#include <TrtNet.hpp>
 
-#include "cublas_v2.h"
-#include "cudnn.h"
-
+#include <cublas_v2.h>
+#include <cudnn.h>
 #include <string.h>
 #include <time.h>
 
@@ -35,9 +34,9 @@
 #include <sstream>
 #include <unordered_map>
 
-using namespace nvinfer1;
-using namespace nvcaffeparser1;
-using namespace plugin;
+using namespace nvinfer1;        // NOLINT
+using namespace nvcaffeparser1;  // NOLINT
+using namespace plugin;          // NOLINT
 
 static Tn::Logger gLogger;
 
@@ -83,7 +82,7 @@ trtNet::trtNet(const std::string & engineFile)
   mTrtRunMode(RUN_MODE::FLOAT32),
   mTrtInputCount(0)
 {
-  using namespace std;
+  using namespace std;  // NOLINT
   fstream file;
 
   file.open(engineFile, ios::binary | ios::in);

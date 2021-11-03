@@ -24,9 +24,10 @@
 #ifndef __TRT_NET_H_
 #define __TRT_NET_H_
 
-#include "NvCaffeParser.h"
-#include "NvInferPlugin.h"
 #include "Utils.hpp"
+
+#include <NvCaffeParser.h>
+#include <NvInferPlugin.h>
 
 #include <algorithm>
 #include <fstream>
@@ -111,4 +112,4 @@ private:
 };
 }  // namespace Tn
 
-#endif  //__TRT_NET_H_
+#endif  // __TRT_NET_H_

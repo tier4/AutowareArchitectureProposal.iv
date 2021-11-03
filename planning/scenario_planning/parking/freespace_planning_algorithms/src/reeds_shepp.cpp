@@ -243,9 +243,8 @@ void CCC(double x, double y, double phi, ReedsSheppStateSpace::ReedsSheppPath & 
       ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[0], t, u, v);
     L_min = L;
   }
-  if (LpRmL(-x, y, -phi, t, u, v) && L_min > (L = std::abs(t) + std::abs(u) + std::abs(v)))  // time
-                                                                                             // flip
-  {
+  if (LpRmL(-x, y, -phi, t, u, v) && L_min > (L = std::abs(t) + std::abs(u) + std::abs(v))) {
+    // time flip
     path =
       ReedsSheppStateSpace::ReedsSheppPath(ReedsSheppStateSpace::reedsSheppPathType[0], -t, -u, -v);
     L_min = L;

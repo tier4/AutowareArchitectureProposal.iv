@@ -18,10 +18,11 @@
 #include "behavior_path_planner/path_shifter/path_shifter.hpp"
 #include "behavior_path_planner/route_handler.hpp"
 #include "behavior_path_planner/scene_module/scene_module_interface.hpp"
-#include "rclcpp/rclcpp.hpp"
 
-#include "autoware_planning_msgs/msg/lateral_offset.hpp"
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include <rclcpp/rclcpp.hpp>
+
+#include <autoware_planning_msgs/msg/lateral_offset.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 
 #include <memory>
 #include <string>

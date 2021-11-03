@@ -15,17 +15,18 @@
 #ifndef TOOLS__VELOCITY_HISTORY_HPP_
 #define TOOLS__VELOCITY_HISTORY_HPP_
 
-#include "OgreColourValue.h"
-#include "OgreManualObject.h"
-#include "OgreVector3.h"
-#include "rviz_common/properties/bool_property.hpp"
-#include "rviz_common/properties/color_property.hpp"
-#include "rviz_common/properties/float_property.hpp"
-#include "rviz_common/properties/parse_color.hpp"
-#include "rviz_common/ros_topic_display.hpp"
-#include "rviz_common/validate_floats.hpp"
+#include <rviz_common/properties/bool_property.hpp>
+#include <rviz_common/properties/color_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/parse_color.hpp>
+#include <rviz_common/ros_topic_display.hpp>
+#include <rviz_common/validate_floats.hpp>
 
-#include "geometry_msgs/msg/twist_stamped.hpp"
+#include <geometry_msgs/msg/twist_stamped.hpp>
+
+#include <OgreColourValue.h>
+#include <OgreManualObject.h>
+#include <OgreVector3.h>
 
 #include <deque>
 #include <memory>

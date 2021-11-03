@@ -15,7 +15,7 @@
 #ifndef AUTOWARE_ERROR_MONITOR__DIAGNOSTICS_FILTER_HPP_
 #define AUTOWARE_ERROR_MONITOR__DIAGNOSTICS_FILTER_HPP_
 
-#include "diagnostic_msgs/msg/diagnostic_status.hpp"
+#include <diagnostic_msgs/msg/diagnostic_status.hpp>
 
 #include <string>
 #include <unordered_set>

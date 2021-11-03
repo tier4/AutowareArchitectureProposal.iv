@@ -17,6 +17,8 @@
 
 #include "ndt/pcl_generic.hpp"
 
+#include <vector>
+
 template <class PointSource, class PointTarget>
 NormalDistributionsTransformPCLGeneric<
   PointSource, PointTarget>::NormalDistributionsTransformPCLGeneric()

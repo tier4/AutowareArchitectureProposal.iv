@@ -19,7 +19,7 @@
 
 #include "velodyne_monitor/velodyne_monitor.hpp"
 
-#include "boost/algorithm/string/join.hpp"
+#include <boost/algorithm/string/join.hpp>
 
 #include <algorithm>
 #include <memory>
@@ -28,7 +28,7 @@
 #include <vector>
 
 #define FMT_HEADER_ONLY
-#include "fmt/format.h"
+#include <fmt/format.h>
 
 VelodyneMonitor::VelodyneMonitor() : Node("velodyne_monitor"), updater_(this)
 {

@@ -20,10 +20,11 @@
 
 #ifndef Q_MOC_RUN
 #include "jsk_overlay_utils.hpp"
-#include "rviz_common/properties/int_property.hpp"
-#include "rviz_common/ros_topic_display.hpp"
 
-#include "autoware_vehicle_msgs/msg/turn_signal.hpp"
+#include <rviz_common/properties/int_property.hpp>
+#include <rviz_common/ros_topic_display.hpp>
+
+#include <autoware_vehicle_msgs/msg/turn_signal.hpp>
 #endif
 
 namespace rviz_plugins

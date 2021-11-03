@@ -14,13 +14,13 @@
 
 #include "autoware_state_monitor/autoware_state_monitor_node.hpp"
 
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <string>
 #include <vector>
 
 #define FMT_HEADER_ONLY
-#include "fmt/format.h"
+#include <fmt/format.h>
 
 void AutowareStateMonitorNode::setupDiagnosticUpdater()
 {

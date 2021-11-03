@@ -15,15 +15,15 @@
 #ifndef AUTOWARE_UTILS__GEOMETRY__BOOST_GEOMETRY_HPP_
 #define AUTOWARE_UTILS__GEOMETRY__BOOST_GEOMETRY_HPP_
 
-#include "boost/geometry/core/cs.hpp"
-#include "boost/geometry/geometries/geometries.hpp"
-#include "boost/geometry/geometries/register/point.hpp"
+#include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/geometries/register/point.hpp>
 
 #define EIGEN_MPL2_ONLY
-#include "Eigen/Core"
-#include "Eigen/Geometry"
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 
-#include "geometry_msgs/msg/point.hpp"
+#include <geometry_msgs/msg/point.hpp>
 
 namespace autoware_utils
 {
@@ -88,9 +88,9 @@ inline Point3d fromMsg(const geometry_msgs::msg::Point & msg)
 }
 }  // namespace autoware_utils
 
-BOOST_GEOMETRY_REGISTER_POINT_2D(
-  autoware_utils::Point2d, double, cs::cartesian, x(), y())  // NOLINT
-BOOST_GEOMETRY_REGISTER_POINT_3D(
+BOOST_GEOMETRY_REGISTER_POINT_2D(                                 // NOLINT
+  autoware_utils::Point2d, double, cs::cartesian, x(), y())       // NOLINT
+BOOST_GEOMETRY_REGISTER_POINT_3D(                                 // NOLINT
   autoware_utils::Point3d, double, cs::cartesian, x(), y(), z())  // NOLINT
 
 #endif  // AUTOWARE_UTILS__GEOMETRY__BOOST_GEOMETRY_HPP_

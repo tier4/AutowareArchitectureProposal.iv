@@ -13,10 +13,12 @@
 // limitations under the License.
 
 #pragma once
+
 #include "lidar_apollo_instance_segmentation/feature_map.hpp"
-#include "pcl/point_cloud.h"
-#include "pcl/point_types.h"
 #include "util.hpp"
+
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 
 #include <memory>
 

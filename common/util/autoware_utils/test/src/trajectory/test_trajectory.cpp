@@ -14,8 +14,9 @@
 
 #include "autoware_utils/geometry/boost_geometry.hpp"
 #include "autoware_utils/trajectory/trajectory.hpp"
-#include "gtest/gtest.h"
-#include "tf2/LinearMath/Quaternion.h"
+
+#include <gtest/gtest.h>
+#include <tf2/LinearMath/Quaternion.h>
 
 #include <limits>
 #include <vector>

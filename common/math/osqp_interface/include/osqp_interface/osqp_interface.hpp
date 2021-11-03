@@ -17,8 +17,9 @@
 #ifndef OSQP_INTERFACE__OSQP_INTERFACE_HPP_
 #define OSQP_INTERFACE__OSQP_INTERFACE_HPP_
 
-#include "eigen3/Eigen/Core"
-#include "osqp/osqp.h"
+#include <eigen3/Eigen/Core>
+
+#include <osqp/osqp.h>
 
 #include <memory>
 #include <string>

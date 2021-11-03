@@ -15,10 +15,11 @@
 #ifndef VOXEL_GENERATOR_HPP_
 #define VOXEL_GENERATOR_HPP_
 
-#include "config.hpp"
-#include "torch/torch.h"
+#include <config.hpp>
 
-#include "sensor_msgs/msg/point_cloud2.hpp"
+#include <sensor_msgs/msg/point_cloud2.hpp>
+
+#include <torch/torch.h>
 
 namespace centerpoint
 {

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pacmod_interface/pacmod_diag_publisher.hpp"
-#include "rclcpp/rclcpp.hpp"
+#include <pacmod_interface/pacmod_diag_publisher.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 

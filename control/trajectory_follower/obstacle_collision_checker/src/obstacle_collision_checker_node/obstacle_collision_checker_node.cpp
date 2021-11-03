@@ -14,11 +14,12 @@
 
 #include "obstacle_collision_checker/obstacle_collision_checker_node.hpp"
 
-#include "autoware_utils/geometry/geometry.hpp"
-#include "autoware_utils/math/unit_conversion.hpp"
-#include "autoware_utils/ros/marker_helper.hpp"
 #include "obstacle_collision_checker/util/create_vehicle_footprint.hpp"
-#include "vehicle_info_util/vehicle_info_util.hpp"
+
+#include <autoware_utils/geometry/geometry.hpp>
+#include <autoware_utils/math/unit_conversion.hpp>
+#include <autoware_utils/ros/marker_helper.hpp>
+#include <vehicle_info_util/vehicle_info_util.hpp>
 
 #include <memory>
 #include <string>
@@ -336,5 +337,5 @@ visualization_msgs::msg::MarkerArray ObstacleCollisionCheckerNode::createMarkerA
 }
 }  // namespace obstacle_collision_checker
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(obstacle_collision_checker::ObstacleCollisionCheckerNode)

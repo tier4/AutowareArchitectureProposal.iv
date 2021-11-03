@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gtest/gtest.h"
-#include "utilization/arc_lane_util.hpp"
-#include "utilization/util.hpp"
 #include "utils.hpp"
+
+#include <utilization/arc_lane_util.hpp>
+#include <utilization/util.hpp>
+
+#include <gtest/gtest.h>
 
 #include <utility>
 

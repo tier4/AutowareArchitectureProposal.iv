@@ -14,16 +14,18 @@
 
 #include "ndt_scan_matcher/ndt_scan_matcher_core.hpp"
 
-#include "autoware_utils/geometry/geometry.hpp"
-#include "autoware_utils/ros/marker_helper.hpp"
 #include "ndt_scan_matcher/debug.hpp"
 #include "ndt_scan_matcher/matrix_type.hpp"
 #include "ndt_scan_matcher/particle.hpp"
 #include "ndt_scan_matcher/util_func.hpp"
-#include "pcl_conversions/pcl_conversions.h"
-#include "tf2_eigen/tf2_eigen.h"
 
-#include "boost/shared_ptr.hpp"
+#include <autoware_utils/geometry/geometry.hpp>
+#include <autoware_utils/ros/marker_helper.hpp>
+
+#include <boost/shared_ptr.hpp>
+
+#include <pcl_conversions/pcl_conversions.h>
+#include <tf2_eigen/tf2_eigen.h>
 
 #include <algorithm>
 #include <cmath>
@@ -124,7 +126,7 @@ NDTScanMatcher::NDTScanMatcher()
     int search_method = static_cast<int>(omp_params_.search_method);
     search_method = this->declare_parameter("omp_neighborhood_search_method", search_method);
     omp_params_.search_method = static_cast<pclomp::NeighborSearchMethod>(search_method);
-    // TODO check search_method is valid value.
+    // TODO(Tier IV): check search_method is valid value.
     ndt_omp_ptr->setNeighborhoodSearchMethod(omp_params_.search_method);
 
     omp_params_.num_threads = this->declare_parameter("omp_num_threads", omp_params_.num_threads);
@@ -404,7 +406,7 @@ void NDTScanMatcher::callbackSensorPoints(
     initial_pose_msg_ptr_array_, sensor_ros_time, initial_pose_old_msg_ptr,
     initial_pose_new_msg_ptr);
   popOldPose(initial_pose_msg_ptr_array_, sensor_ros_time);
-  // TODO check pose_timestamp - sensor_ros_time
+  // TODO(Tier IV): check pose_timestamp - sensor_ros_time
   const auto initial_pose_msg =
     interpolatePose(*initial_pose_old_msg_ptr, *initial_pose_new_msg_ptr, sensor_ros_time);
 
@@ -490,7 +492,7 @@ void NDTScanMatcher::callbackSensorPoints(
   result_pose_with_cov_msg.header.frame_id = map_frame_;
   result_pose_with_cov_msg.pose.pose = result_pose_msg;
 
-  // TODO temporary value
+  // TODO(Tier IV): temporary value
   Eigen::Map<RowMatrixXd> covariance(&result_pose_with_cov_msg.pose.covariance[0], 6, 6);
   covariance(0, 0) = 0.025;
   covariance(1, 1) = 0.025;
@@ -533,7 +535,7 @@ void NDTScanMatcher::callbackSensorPoints(
     marker.color = ExchangeColorCrc((1.0 * i) / 15.0);
     marker_array.markers.push_back(marker);
   }
-  // TODO delete old marker
+  // TODO(Tier IV): delete old marker
   for (; i < ndt_ptr_->getMaximumIterations() + 2;) {
     marker.id = i++;
     marker.pose = geometry_msgs::msg::Pose();

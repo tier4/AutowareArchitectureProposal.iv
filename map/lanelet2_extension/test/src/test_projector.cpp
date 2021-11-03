@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gtest/gtest.h"
 #include "lanelet2_extension/projection/mgrs_projector.hpp"
 
+#include <gtest/gtest.h>
 #include <math.h>
 
 class TestSuite : public ::testing::Test

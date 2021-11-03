@@ -14,7 +14,7 @@
 
 #include "signal_processing/lowpass_filter_1d.hpp"
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 constexpr double epsilon = 1e-6;
 

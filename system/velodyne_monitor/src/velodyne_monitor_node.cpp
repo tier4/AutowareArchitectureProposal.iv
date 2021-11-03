@@ -17,8 +17,9 @@
  * @brief Velodyne monitor node class
  */
 
-#include "rclcpp/rclcpp.hpp"
 #include "velodyne_monitor/velodyne_monitor.hpp"
+
+#include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 

@@ -30,7 +30,7 @@
 
 #include "freespace_planner/freespace_planner_node.hpp"
 
-#include "autoware_utils/autoware_utils.hpp"
+#include <autoware_utils/autoware_utils.hpp>
 
 #include <algorithm>
 #include <deque>
@@ -534,5 +534,5 @@ void FreespacePlannerNode::initializePlanningAlgorithm()
 }
 }  // namespace freespace_planner
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(freespace_planner::FreespacePlannerNode)

@@ -203,5 +203,5 @@ void ExternalVelocityLimitSelectorNode::updateVelocityLimit()
   hardest_limit_ = getHardestLimit(velocity_limit_table_, node_param_);
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(ExternalVelocityLimitSelectorNode)

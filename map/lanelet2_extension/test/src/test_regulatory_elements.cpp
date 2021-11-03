@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gtest/gtest.h"
-#include "lanelet2_core/Attribute.h"
-#include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_extension/regulatory_elements/autoware_traffic_light.hpp"
 
+#include <gtest/gtest.h>
+#include <lanelet2_core/Attribute.h>
+#include <lanelet2_core/LaneletMap.h>
 #include <math.h>
 
 #include <vector>
