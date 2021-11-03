@@ -15,25 +15,24 @@
 #ifndef LANE_DEPARTURE_CHECKER__LANE_DEPARTURE_CHECKER_HPP_
 #define LANE_DEPARTURE_CHECKER__LANE_DEPARTURE_CHECKER_HPP_
 
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-
-#include "boost/optional.hpp"
-
+#include "autoware_utils/geometry/boost_geometry.hpp"
+#include "autoware_utils/geometry/pose_deviation.hpp"
 #include "lanelet2_core/LaneletMap.h"
+#include "rosidl_runtime_cpp/message_initialization.hpp"
+#include "vehicle_info_util/vehicle_info_util.hpp"
 
 #include "autoware_planning_msgs/msg/route.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
-#include "rosidl_runtime_cpp/message_initialization.hpp"
 
-#include "autoware_utils/geometry/boost_geometry.hpp"
-#include "autoware_utils/geometry/pose_deviation.hpp"
-#include "vehicle_info_util/vehicle_info_util.hpp"
+#include "boost/optional.hpp"
+
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace lane_departure_checker
 {
@@ -86,7 +85,7 @@ public:
     vehicle_info_ptr_ = std::make_shared<vehicle_info_util::VehicleInfo>(vehicle_info);
   }
 
-  void setParam(const Param & param) {param_ = param;}
+  void setParam(const Param & param) { param_ = param; }
 
 private:
   Param param_;

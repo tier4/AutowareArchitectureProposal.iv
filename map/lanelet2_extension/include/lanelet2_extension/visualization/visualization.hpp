@@ -17,20 +17,18 @@
 #ifndef LANELET2_EXTENSION__VISUALIZATION__VISUALIZATION_HPP_
 #define LANELET2_EXTENSION__VISUALIZATION__VISUALIZATION_HPP_
 
-#include <string>
-#include <vector>
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_core/primitives/Lanelet.h"
+#include "lanelet2_extension/regulatory_elements/autoware_traffic_light.hpp"
+#include "lanelet2_extension/regulatory_elements/no_stopping_area.hpp"
+#include "lanelet2_extension/utility/query.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "geometry_msgs/msg/polygon.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 
-#include "rclcpp/rclcpp.hpp"
-
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_core/primitives/Lanelet.h"
-
-#include "lanelet2_extension/regulatory_elements/autoware_traffic_light.hpp"
-#include "lanelet2_extension/regulatory_elements/no_stopping_area.hpp"
-#include "lanelet2_extension/utility/query.hpp"
+#include <string>
+#include <vector>
 
 namespace lanelet
 {
@@ -91,8 +89,8 @@ void pushLineStringMarker(
  * @param duration [lifetime of the marker]
  */
 void initTrafficLightTriangleMarker(
-  visualization_msgs::msg::Marker * marker,
-  const std::string ns, const rclcpp::Duration duration = rclcpp::Duration(0, 0));
+  visualization_msgs::msg::Marker * marker, const std::string ns,
+  const rclcpp::Duration duration = rclcpp::Duration(0, 0));
 
 /**
  * [pushTrafficLightTriangleMarker pushes marker vertices to visualize shape of traffic
@@ -196,8 +194,7 @@ visualization_msgs::msg::MarkerArray trafficLightsAsTriangleMarkerArray(
  */
 visualization_msgs::msg::MarkerArray detectionAreasAsMarkerArray(
   const std::vector<lanelet::DetectionAreaConstPtr> & da_reg_elems,
-  const std_msgs::msg::ColorRGBA c,
-  const rclcpp::Duration duration = rclcpp::Duration(0, 0));
+  const std_msgs::msg::ColorRGBA c, const rclcpp::Duration duration = rclcpp::Duration(0, 0));
 
 /**
  * [noStoppingAreasAsMarkerArray creates marker array to visualize detection areas]
@@ -207,8 +204,7 @@ visualization_msgs::msg::MarkerArray detectionAreasAsMarkerArray(
  */
 visualization_msgs::msg::MarkerArray noStoppingAreasAsMarkerArray(
   const std::vector<lanelet::NoStoppingAreaConstPtr> & no_reg_elems,
-  const std_msgs::msg::ColorRGBA c,
-  const rclcpp::Duration duration = rclcpp::Duration(0, 0));
+  const std_msgs::msg::ColorRGBA c, const rclcpp::Duration duration = rclcpp::Duration(0, 0));
 
 /**
  * [pedestrianMarkingsAsMarkerArray creates marker array to visualize pedestrian markings]

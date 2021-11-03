@@ -15,10 +15,7 @@
 #ifndef CONTROL_PERFORMANCE_ANALYSIS__CONTROL_PERFORMANCE_ANALYSIS_CORE_HPP_
 #define CONTROL_PERFORMANCE_ANALYSIS__CONTROL_PERFORMANCE_ANALYSIS_CORE_HPP_
 
-#include <memory>
-#include <utility>
-#include <vector>
-
+#include "control_performance_analysis/control_performance_analysis_utils.hpp"
 #include "eigen3/Eigen/Core"
 
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
@@ -27,7 +24,9 @@
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 
-#include "control_performance_analysis/control_performance_analysis_utils.hpp"
+#include <memory>
+#include <utility>
+#include <vector>
 
 namespace control_performance_analysis
 {

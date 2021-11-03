@@ -14,24 +14,25 @@
 // limitations under the License.
 
 #include "lane_change_planner/state/forcing_lane_change.hpp"
-#include <memory>
-#include "lanelet2_extension/utility/utilities.hpp"
+
 #include "lane_change_planner/data_manager.hpp"
 #include "lane_change_planner/route_handler.hpp"
 #include "lane_change_planner/utilities.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
 
+#include <memory>
 
 namespace lane_change_planner
 {
 ForcingLaneChangeState::ForcingLaneChangeState(
   const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr,
-  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr, const rclcpp::Logger & logger,
+  const rclcpp::Clock::SharedPtr & clock)
 : StateBase(status, data_manager_ptr, route_handler_ptr, logger, clock)
 {
 }
 
-State ForcingLaneChangeState::getCurrentState() const {return State::FORCING_LANE_CHANGE;}
+State ForcingLaneChangeState::getCurrentState() const { return State::FORCING_LANE_CHANGE; }
 
 void ForcingLaneChangeState::entry()
 {
@@ -43,8 +44,7 @@ void ForcingLaneChangeState::entry()
 
   // get start arclength
   const auto start = data_manager_ptr_->getCurrentSelfPose();
-  const auto arclength_start =
-    lanelet::utils::getArcCoordinates(target_lanes_, start.pose);
+  const auto arclength_start = lanelet::utils::getArcCoordinates(target_lanes_, start.pose);
   start_distance_ = arclength_start.length;
 }
 
@@ -86,8 +86,8 @@ bool ForcingLaneChangeState::hasFinishedLaneChange() const
     lanelet::utils::getArcCoordinates(target_lanes_, current_pose_.pose);
   const double travel_distance = arclength_current.length - start_distance_;
   const double finish_distance = status_.lane_change_path.preparation_length +
-    status_.lane_change_path.lane_change_length +
-    ros_parameters_.lane_change_finish_judge_buffer;
+                                 status_.lane_change_path.lane_change_length +
+                                 ros_parameters_.lane_change_finish_judge_buffer;
   return travel_distance > finish_distance;
 }
 

@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <vector>
-#include <utility>
-#include <memory>
-
 #include "bev_optical_flow/flow_calculator.hpp"
+
+#include <memory>
+#include <utility>
+#include <vector>
 
 namespace bev_optical_flow
 {
@@ -37,7 +37,7 @@ FlowCalculator::FlowCalculator(rclcpp::Node & node)
   lidar_to_image_ = std::make_shared<LidarToBEVImage>(node);
 }
 
-bool FlowCalculator::isInitialized() {return setup_;}
+bool FlowCalculator::isInitialized() { return setup_; }
 
 bool FlowCalculator::calcOpticalFlow(
   cv::Mat & current_image, cv::Mat & prev_image, std::vector<cv::Point2f> & prev_points,

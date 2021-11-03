@@ -17,17 +17,17 @@
  * @brief NTP monitor class
  */
 
-#include <regex>
-#include <string>
-#include <map>
+#include "system_monitor/ntp_monitor/ntp_monitor.hpp"
+
+#include "fmt/format.h"
+#include "system_monitor/system_monitor_utility.hpp"
 
 #include "boost/filesystem.hpp"
 #include "boost/process.hpp"
 
-#include "fmt/format.h"
-
-#include "system_monitor/ntp_monitor/ntp_monitor.hpp"
-#include "system_monitor/system_monitor_utility.hpp"
+#include <map>
+#include <regex>
+#include <string>
 
 namespace bp = boost::process;
 namespace fs = boost::filesystem;
@@ -48,10 +48,7 @@ NTPMonitor::NTPMonitor(const rclcpp::NodeOptions & options)
   updater_.add("NTP Offset", this, &NTPMonitor::checkOffset);
 }
 
-void NTPMonitor::update()
-{
-  updater_.force_update();
-}
+void NTPMonitor::update() { updater_.force_update(); }
 
 void NTPMonitor::checkOffset(diagnostic_updater::DiagnosticStatusWrapper & stat)
 {
@@ -61,8 +58,7 @@ void NTPMonitor::checkOffset(diagnostic_updater::DiagnosticStatusWrapper & stat)
   if (!chronyc_exists_) {
     stat.summary(DiagStatus::ERROR, "chronyc error");
     stat.add(
-      "chronyc",
-      "Command 'chronyc' not found, but can be installed with: sudo apt install chrony");
+      "chronyc", "Command 'chronyc' not found, but can be installed with: sudo apt install chrony");
     return;
   }
 
@@ -95,8 +91,7 @@ void NTPMonitor::checkOffset(diagnostic_updater::DiagnosticStatusWrapper & stat)
 }
 
 std::string NTPMonitor::executeChronyc(
-  float & out_offset,
-  std::map<std::string, std::string> & out_tracking_map)
+  float & out_offset, std::map<std::string, std::string> & out_tracking_map)
 {
   std::string result;
 

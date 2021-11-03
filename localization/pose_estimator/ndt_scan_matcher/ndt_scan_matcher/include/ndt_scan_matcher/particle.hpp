@@ -20,12 +20,11 @@
 struct Particle
 {
   Particle(
-    const geometry_msgs::msg::Pose & a_initial_pose,
-    const geometry_msgs::msg::Pose & a_result_pose, const double a_score, const int a_iteration)
-  : initial_pose(a_initial_pose),
-    result_pose(a_result_pose),
-    score(a_score),
-    iteration(a_iteration) {}
+    const geometry_msgs::msg::Pose & a_initial_pose, const geometry_msgs::msg::Pose & a_result_pose,
+    const double a_score, const int a_iteration)
+  : initial_pose(a_initial_pose), result_pose(a_result_pose), score(a_score), iteration(a_iteration)
+  {
+  }
   geometry_msgs::msg::Pose initial_pose;
   geometry_msgs::msg::Pose result_pose;
   double score;

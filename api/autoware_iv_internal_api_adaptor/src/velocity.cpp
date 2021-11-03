@@ -16,19 +16,15 @@
 
 namespace internal_api
 {
-
-Velocity::Velocity(const rclcpp::NodeOptions & options)
-: Node("external_api_velocity", options)
+Velocity::Velocity(const rclcpp::NodeOptions & options) : Node("external_api_velocity", options)
 {
   using namespace std::placeholders;
   autoware_api_utils::ServiceProxyNodeInterface proxy(this);
 
   srv_pause_ = proxy.create_service<autoware_external_api_msgs::srv::PauseDriving>(
-    "/api/autoware/set/pause_driving",
-    std::bind(&Velocity::setPauseDriving, this, _1, _2));
+    "/api/autoware/set/pause_driving", std::bind(&Velocity::setPauseDriving, this, _1, _2));
   srv_velocity_ = proxy.create_service<autoware_external_api_msgs::srv::SetVelocityLimit>(
-    "/api/autoware/set/velocity_limit",
-    std::bind(&Velocity::setVelocityLimit, this, _1, _2));
+    "/api/autoware/set/velocity_limit", std::bind(&Velocity::setVelocityLimit, this, _1, _2));
 
   pub_api_velocity_ = create_publisher<autoware_planning_msgs::msg::VelocityLimit>(
     "/api/autoware/get/velocity_limit", rclcpp::QoS(1).transient_local());

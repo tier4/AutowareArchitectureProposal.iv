@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <vector>
-
+#include "autoware_utils/math/range.hpp"
 #include "gtest/gtest.h"
 
-#include "autoware_utils/math/range.hpp"
+#include <vector>
 
-template<class T>
+template <class T>
 void expect_near_vector(
   const std::vector<T> & input, const std::vector<T> & expect, const T abs_error = 1e-6)
 {

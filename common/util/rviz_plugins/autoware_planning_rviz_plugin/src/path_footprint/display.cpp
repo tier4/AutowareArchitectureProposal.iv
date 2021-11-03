@@ -17,7 +17,6 @@
 #define EIGEN_MPL2_ONLY
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Geometry"
-
 #include "path_footprint/display.hpp"
 
 namespace rviz_plugins
@@ -72,9 +71,9 @@ bool AutowarePathFootprintDisplay::validateFloats(
   const autoware_planning_msgs::msg::Path::ConstSharedPtr & msg_ptr)
 {
   for (auto && path_point : msg_ptr->points) {
-    if (!rviz_common::validateFloats(path_point.pose) &&
-      !rviz_common::validateFloats(path_point.twist))
-    {
+    if (
+      !rviz_common::validateFloats(path_point.pose) &&
+      !rviz_common::validateFloats(path_point.twist)) {
       return false;
     }
   }
@@ -168,7 +167,9 @@ void AutowarePathFootprintDisplay::processMessage(
 
 void AutowarePathFootprintDisplay::updateVisualization()
 {
-  if (last_msg_ptr_ != nullptr) {processMessage(last_msg_ptr_);}
+  if (last_msg_ptr_ != nullptr) {
+    processMessage(last_msg_ptr_);
+  }
 }
 
 void AutowarePathFootprintDisplay::updateVehicleInfo()

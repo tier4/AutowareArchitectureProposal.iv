@@ -15,14 +15,14 @@
 #ifndef BEHAVIOR_PATH_PLANNER__SCENE_MODULE__LANE_FOLLOWING__LANE_FOLLOWING_MODULE_HPP_
 #define BEHAVIOR_PATH_PLANNER__SCENE_MODULE__LANE_FOLLOWING__LANE_FOLLOWING_MODULE_HPP_
 
-#include <memory>
-#include <string>
-
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "behavior_path_planner/scene_module/scene_module_interface.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-#include "behavior_path_planner/scene_module/scene_module_interface.hpp"
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+
+#include <memory>
+#include <string>
 
 namespace behavior_path_planner
 {

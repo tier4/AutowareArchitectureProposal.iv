@@ -15,10 +15,11 @@
 #ifndef PURE_PURSUIT__UTIL__MARKER_HELPER_HPP_
 #define PURE_PURSUIT__UTIL__MARKER_HELPER_HPP_
 
-#include <string>
-
 #include "rclcpp/rclcpp.hpp"
+
 #include "visualization_msgs/msg/marker_array.hpp"
+
+#include <string>
 
 inline geometry_msgs::msg::Point createMarkerPosition(double x, double y, double z)
 {
@@ -32,8 +33,7 @@ inline geometry_msgs::msg::Point createMarkerPosition(double x, double y, double
 }
 
 inline geometry_msgs::msg::Quaternion createMarkerOrientation(
-  double x, double y, double z,
-  double w)
+  double x, double y, double z, double w)
 {
   geometry_msgs::msg::Quaternion quaternion;
 
@@ -75,8 +75,8 @@ inline visualization_msgs::msg::Marker createDefaultMarker(
   visualization_msgs::msg::Marker marker;
 
   marker.header.frame_id = frame_id;
-//  ToDo
-//  marker.header.stamp = rclcpp::Node::now();
+  //  ToDo
+  //  marker.header.stamp = rclcpp::Node::now();
   marker.ns = ns;
   marker.id = id;
   marker.type = type;

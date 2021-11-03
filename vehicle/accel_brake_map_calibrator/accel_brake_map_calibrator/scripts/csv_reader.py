@@ -26,26 +26,30 @@ NUMERIC_LIMITS = 1e-02
 
 
 class CSVReader(object):
-
-    def __init__(self, csv, csv_type='dir'):
-        if csv_type == 'dir':
-            csv_files = glob.glob(csv + '/*.csv')
+    def __init__(self, csv, csv_type="dir"):
+        if csv_type == "dir":
+            csv_files = glob.glob(csv + "/*.csv")
             csv_list = []
             for cf in csv_files:
-                csv_list.append(pd.read_csv(cf, engine='python'))
+                csv_list.append(pd.read_csv(cf, engine="python"))
             self.csv_data = pd.concat(csv_list, ignore_index=True)
         else:
-            self.csv_data = pd.read_csv(csv, engine='python')
+            self.csv_data = pd.read_csv(csv, engine="python")
 
-    def removeUnusedData(self,
-                         min_vel_thr, max_steer_thr, max_pitch_thr,
-                         max_pedal_vel_thr, max_jerk_thr,
-                         remove_by_invalid_pedal=True,
-                         remove_by_vel=True,
-                         remove_by_steer=True,
-                         remove_by_pitch=True,
-                         remove_by_pedal_speed=True,
-                         remove_by_jerk=True):
+    def removeUnusedData(
+        self,
+        min_vel_thr,
+        max_steer_thr,
+        max_pitch_thr,
+        max_pedal_vel_thr,
+        max_jerk_thr,
+        remove_by_invalid_pedal=True,
+        remove_by_vel=True,
+        remove_by_steer=True,
+        remove_by_pitch=True,
+        remove_by_pedal_speed=True,
+        remove_by_jerk=True,
+    ):
         # remove unused data
         raw_size = len(self.csv_data)
 
@@ -60,9 +64,11 @@ class CSVReader(object):
             pitch = self.csv_data[CF.PITCH][i]
 
             # invalid pedal
-            if remove_by_invalid_pedal and \
-                    accel_pedal > NUMERIC_LIMITS and \
-                    brake_pedal > NUMERIC_LIMITS:
+            if (
+                remove_by_invalid_pedal
+                and accel_pedal > NUMERIC_LIMITS
+                and brake_pedal > NUMERIC_LIMITS
+            ):
                 self.csv_data = self.csv_data.drop(i)
                 continue
 
@@ -82,9 +88,11 @@ class CSVReader(object):
                 continue
 
             # high pedal speed
-            if remove_by_pedal_speed and \
-                np.abs(accel_pedal_speed) > max_pedal_vel_thr or\
-                    np.abs(brake_pedal_speed) > max_pedal_vel_thr:
+            if (
+                remove_by_pedal_speed
+                and np.abs(accel_pedal_speed) > max_pedal_vel_thr
+                or np.abs(brake_pedal_speed) > max_pedal_vel_thr
+            ):
                 self.csv_data = self.csv_data.drop(i)
                 continue
 
@@ -100,8 +108,7 @@ class CSVReader(object):
         return vel_data
 
     def getPedalData(self):
-        pedal_data = np.array(self.csv_data[CF.A_PED]) - \
-            np.array(self.csv_data[CF.B_PED])
+        pedal_data = np.array(self.csv_data[CF.A_PED]) - np.array(self.csv_data[CF.B_PED])
         return pedal_data
 
     def getAccData(self):
@@ -112,17 +119,13 @@ class CSVReader(object):
         pitch_data = np.array(self.csv_data[CF.PITCH])
         return pitch_data
 
-    def extractPedalRangeWithDelay(self,
-                                   delay_step, pedal_value,
-                                   pedal_diff_thr):
+    def extractPedalRangeWithDelay(self, delay_step, pedal_value, pedal_diff_thr):
         csv_data = self.csv_data.reset_index(drop=True)
 
         for i in range(delay_step, len(self.csv_data))[::-1]:
-            pedal = csv_data[CF.A_PED][i-delay_step] - \
-                csv_data[CF.B_PED][i-delay_step]
+            pedal = csv_data[CF.A_PED][i - delay_step] - csv_data[CF.B_PED][i - delay_step]
             # extract data of pedal = pedal_value
-            if pedal > pedal_value + pedal_diff_thr or \
-                    pedal < pedal_value - pedal_diff_thr:
+            if pedal > pedal_value + pedal_diff_thr or pedal < pedal_value - pedal_diff_thr:
                 csv_data = csv_data.drop(i)
                 continue
 

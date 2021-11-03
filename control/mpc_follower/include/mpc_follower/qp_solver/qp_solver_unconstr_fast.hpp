@@ -22,11 +22,12 @@
 #ifndef MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_UNCONSTR_FAST_HPP_
 #define MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_UNCONSTR_FAST_HPP_
 
-#include <cmath>
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Dense"
 #include "eigen3/Eigen/LU"
 #include "mpc_follower/qp_solver/qp_solver_interface.hpp"
+
+#include <cmath>
 
 class QPSolverEigenLeastSquareLLT : public QPSolverInterface
 {

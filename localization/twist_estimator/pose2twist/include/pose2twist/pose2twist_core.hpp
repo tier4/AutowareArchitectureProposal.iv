@@ -18,7 +18,6 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "autoware_debug_msgs/msg/float32_stamped.hpp"
-
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 

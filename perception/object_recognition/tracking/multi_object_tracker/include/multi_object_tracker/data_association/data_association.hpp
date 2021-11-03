@@ -27,9 +27,9 @@
 #define EIGEN_MPL2_ONLY
 #include "Eigen/Core"
 #include "Eigen/Geometry"
-
 #include "multi_object_tracker/data_association/solver/gnn_solver.hpp"
 #include "multi_object_tracker/tracker/tracker.hpp"
+
 #include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
 
 class DataAssociation

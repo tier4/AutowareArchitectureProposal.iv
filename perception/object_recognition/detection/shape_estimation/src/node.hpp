@@ -15,11 +15,12 @@
 #ifndef NODE_HPP_
 #define NODE_HPP_
 
-#include <memory>
-
-#include "shape_estimation/shape_estimator.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "shape_estimation/shape_estimator.hpp"
+
 #include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
+
+#include <memory>
 
 class ShapeEstimationNode : public rclcpp::Node
 {

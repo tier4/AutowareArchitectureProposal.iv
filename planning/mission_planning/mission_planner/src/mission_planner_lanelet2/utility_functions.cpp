@@ -14,13 +14,13 @@
 
 #include "mission_planner/lanelet2_impl/utility_functions.hpp"
 
-#include <unordered_set>
-#include <utility>
-#include <string>
-#include <vector>
-
 #include "lanelet2_core/geometry/Lanelet.h"
 #include "rclcpp/rclcpp.hpp"
+
+#include <string>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 
 bool exists(const std::unordered_set<lanelet::Id> & set, const lanelet::Id & id)
 {

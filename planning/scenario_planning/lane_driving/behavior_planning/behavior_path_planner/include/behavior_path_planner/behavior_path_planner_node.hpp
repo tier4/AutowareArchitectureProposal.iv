@@ -15,10 +15,17 @@
 #ifndef BEHAVIOR_PATH_PLANNER__BEHAVIOR_PATH_PLANNER_NODE_HPP_
 #define BEHAVIOR_PATH_PLANNER__BEHAVIOR_PATH_PLANNER_NODE_HPP_
 
-#include <memory>
-#include <string>
-#include <vector>
-
+#include "autoware_utils/ros/self_pose_listener.hpp"
+#include "behavior_path_planner/behavior_tree_manager.hpp"
+#include "behavior_path_planner/data_manager.hpp"
+#include "behavior_path_planner/route_handler.hpp"
+#include "behavior_path_planner/scene_module/avoidance/avoidance_module.hpp"
+#include "behavior_path_planner/scene_module/lane_change/lane_change_module.hpp"
+#include "behavior_path_planner/scene_module/lane_following/lane_following_module.hpp"
+#include "behavior_path_planner/scene_module/pull_out/pull_out_module.hpp"
+#include "behavior_path_planner/scene_module/pull_over/pull_over_module.hpp"
+#include "behavior_path_planner/scene_module/side_shift/side_shift_module.hpp"
+#include "behavior_path_planner/turn_signal_decider.hpp"
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_routing/RoutingGraph.h"
 #include "lanelet2_traffic_rules/TrafficRulesFactory.h"
@@ -33,19 +40,11 @@
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "autoware_planning_msgs/msg/route.hpp"
 #include "autoware_planning_msgs/msg/stop_reason_array.hpp"
-#include "autoware_utils/ros/self_pose_listener.hpp"
 #include "autoware_vehicle_msgs/msg/turn_signal.hpp"
 
-#include "behavior_path_planner/behavior_tree_manager.hpp"
-#include "behavior_path_planner/data_manager.hpp"
-#include "behavior_path_planner/route_handler.hpp"
-#include "behavior_path_planner/scene_module/avoidance/avoidance_module.hpp"
-#include "behavior_path_planner/scene_module/lane_change/lane_change_module.hpp"
-#include "behavior_path_planner/scene_module/lane_following/lane_following_module.hpp"
-#include "behavior_path_planner/scene_module/pull_over/pull_over_module.hpp"
-#include "behavior_path_planner/scene_module/pull_out/pull_out_module.hpp"
-#include "behavior_path_planner/scene_module/side_shift/side_shift_module.hpp"
-#include "behavior_path_planner/turn_signal_decider.hpp"
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace behavior_path_planner
 {

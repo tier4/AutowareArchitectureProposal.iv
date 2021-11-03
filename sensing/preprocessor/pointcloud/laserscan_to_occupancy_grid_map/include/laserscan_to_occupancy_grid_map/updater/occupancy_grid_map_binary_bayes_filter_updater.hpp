@@ -19,9 +19,7 @@
 
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Geometry"
-
 #include "laserscan_to_occupancy_grid_map/updater/occupancy_grid_map_updater_interface.hpp"
-
 
 namespace costmap_2d
 {

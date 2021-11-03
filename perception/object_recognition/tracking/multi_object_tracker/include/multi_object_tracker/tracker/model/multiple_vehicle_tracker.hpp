@@ -23,9 +23,9 @@
 #include "multi_object_tracker/tracker/model/big_vehicle_tracker.hpp"
 #include "multi_object_tracker/tracker/model/normal_vehicle_tracker.hpp"
 #include "multi_object_tracker/tracker/model/tracker_base.hpp"
-#include "autoware_perception_msgs/msg/dynamic_object.hpp"
-
 #include "rclcpp/time.hpp"
+
+#include "autoware_perception_msgs/msg/dynamic_object.hpp"
 
 class MultipleVehicleTracker : public Tracker
 {

@@ -15,16 +15,17 @@
 #ifndef BEHAVIOR_PATH_PLANNER__SCENE_MODULE__AVOIDANCE__AVOIDANCE_MODULE_DATA_HPP_
 #define BEHAVIOR_PATH_PLANNER__SCENE_MODULE__AVOIDANCE__AVOIDANCE_MODULE_DATA_HPP_
 
-#include <memory>
-#include <string>
-#include <vector>
+#include "behavior_path_planner/path_shifter/path_shifter.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_planning_msgs/msg/path.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
-#include "rclcpp/rclcpp.hpp"
+#include <geometry_msgs/msg/pose_stamped.hpp>
 
-#include "behavior_path_planner/path_shifter/path_shifter.hpp"
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace behavior_path_planner
 {
@@ -172,11 +173,11 @@ struct AvoidPoint : public ShiftPoint
   // corresponding object
   ObjectData object{};
 
-  double getRelativeLength() const {return length - start_length;}
+  double getRelativeLength() const { return length - start_length; }
 
-  double getRelativeLongitudinal() const {return end_longitudinal - start_longitudinal;}
+  double getRelativeLongitudinal() const { return end_longitudinal - start_longitudinal; }
 
-  double getGradient() const {return getRelativeLength() / getRelativeLongitudinal();}
+  double getGradient() const { return getRelativeLength() / getRelativeLongitudinal(); }
 };
 using AvoidPointArray = std::vector<AvoidPoint>;
 
@@ -228,7 +229,6 @@ struct ShiftLineData
 
   std::vector<std::vector<double>> shift_line_history;
 };
-
 
 /*
  * Debug information for marker array

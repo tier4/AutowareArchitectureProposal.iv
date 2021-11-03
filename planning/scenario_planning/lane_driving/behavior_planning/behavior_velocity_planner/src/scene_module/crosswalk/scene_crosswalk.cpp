@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <cmath>
-#include <vector>
+#include "scene_module/crosswalk/scene_crosswalk.hpp"
 
 #include "rclcpp/rclcpp.hpp"
-#include "scene_module/crosswalk/scene_crosswalk.hpp"
 #include "utilization/util.hpp"
 
+#include <cmath>
+#include <vector>
 
 namespace behavior_velocity_planner
 {
@@ -80,8 +80,7 @@ bool CrosswalkModule::modifyPathVelocity(
 
     bool insert_stop;
     if (!checkStopArea(
-        slow_path, polygon, objects_ptr, no_ground_pointcloud_ptr, stop_path, &insert_stop))
-    {
+          slow_path, polygon, objects_ptr, no_ground_pointcloud_ptr, stop_path, &insert_stop)) {
       return false;
     }
     // stop_path = slow_path;
@@ -163,8 +162,7 @@ bool CrosswalkModule::checkStopArea(
         for (size_t k = 0; k < object_path.path.size() - 1; ++k) {
           if (
             (rclcpp::Time(object_path.path.at(k).header.stamp) - current_time).seconds() <
-            planner_param_.stop_dynamic_object_prediction_time_margin)
-          {
+            planner_param_.stop_dynamic_object_prediction_time_margin) {
             const auto op0 = object_path.path.at(k).pose.pose.position;
             const auto op1 = object_path.path.at(k + 1).pose.pose.position;
             const Line line{{op0.x, op0.y}, {op1.x, op1.y}};
@@ -186,7 +184,9 @@ bool CrosswalkModule::checkStopArea(
 
   bool stop = false;
 
-  if (pedestrian_found || object_found) {stop = true;}
+  if (pedestrian_found || object_found) {
+    stop = true;
+  }
   if (external_go || external_slowdown) {
     stop = false;
   } else if (external_stop) {
@@ -199,17 +199,15 @@ bool CrosswalkModule::checkStopArea(
       getStopLineFromMap(module_id_, planner_data_, "crosswalk_id");
     if (!!stop_line_opt) {
       if (!insertTargetVelocityPoint(
-          input, stop_line_opt.get(), planner_param_.stop_margin, 0.0, *planner_data_, output,
-          debug_data_, first_stop_path_point_index_))
-      {
+            input, stop_line_opt.get(), planner_param_.stop_margin, 0.0, *planner_data_, output,
+            debug_data_, first_stop_path_point_index_)) {
         return false;
       }
     } else {
       if (!insertTargetVelocityPoint(
-          input, crosswalk_polygon,
-          planner_param_.stop_line_distance + planner_param_.stop_margin, 0.0, *planner_data_,
-          output, debug_data_, first_stop_path_point_index_))
-      {
+            input, crosswalk_polygon,
+            planner_param_.stop_line_distance + planner_param_.stop_margin, 0.0, *planner_data_,
+            output, debug_data_, first_stop_path_point_index_)) {
         return false;
       }
       *insert_stop = stop;
@@ -264,7 +262,9 @@ bool CrosswalkModule::checkSlowArea(
 
   bool slowdown = false;
 
-  if (pedestrian_found) {slowdown = true;}
+  if (pedestrian_found) {
+    slowdown = true;
+  }
   if (external_go || external_stop) {
     slowdown = false;
   } else if (external_slowdown) {
@@ -277,17 +277,15 @@ bool CrosswalkModule::checkSlowArea(
       getStopLineFromMap(module_id_, planner_data_, "crosswalk_id");
     if (!!stop_line_opt) {
       if (!insertTargetVelocityPoint(
-          input, stop_line_opt.get(), planner_param_.slow_margin, planner_param_.slow_velocity,
-          *planner_data_, output, debug_data_, first_stop_path_point_index_))
-      {
+            input, stop_line_opt.get(), planner_param_.slow_margin, planner_param_.slow_velocity,
+            *planner_data_, output, debug_data_, first_stop_path_point_index_)) {
         return false;
       }
     } else {
       if (!insertTargetVelocityPoint(
-          input, slowdown_polygon, planner_param_.stop_line_distance + planner_param_.slow_margin,
-          planner_param_.slow_velocity, *planner_data_, output, debug_data_,
-          first_stop_path_point_index_))
-      {
+            input, slowdown_polygon, planner_param_.stop_line_distance + planner_param_.slow_margin,
+            planner_param_.slow_velocity, *planner_data_, output, debug_data_,
+            first_stop_path_point_index_)) {
         return false;
       }
     }
@@ -295,8 +293,7 @@ bool CrosswalkModule::checkSlowArea(
   return true;
 }
 bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
-  const autoware_planning_msgs::msg::PathWithLaneId & input,
-  const Polygon & crosswalk_polygon,
+  const autoware_planning_msgs::msg::PathWithLaneId & input, const Polygon & crosswalk_polygon,
   const float extended_width, Polygon & path_polygon)
 {
   std::vector<Point> path_collision_points;
@@ -306,7 +303,9 @@ bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
     const Line line{{p0.x, p0.y}, {p1.x, p1.y}};
     std::vector<Point> line_collision_points;
     bg::intersection(crosswalk_polygon, line, line_collision_points);
-    if (line_collision_points.empty()) {continue;}
+    if (line_collision_points.empty()) {
+      continue;
+    }
     for (size_t j = 0; j < line_collision_points.size(); ++j) {
       path_collision_points.push_back(line_collision_points.at(j));
     }
@@ -350,16 +349,16 @@ bool CrosswalkModule::createVehiclePathPolygonInCrosswalk(
       bg::make<Point>(cp1.x() + w_sin + l_cos, cp1.y() - w_cos + l_sin));
     candidate_path_polygon.outer().push_back(candidate_path_polygon.outer().front());
   }
-  candidate_path_polygon = isClockWise(candidate_path_polygon) ?
-    candidate_path_polygon : inverseClockWise(candidate_path_polygon);
+  candidate_path_polygon = isClockWise(candidate_path_polygon)
+                             ? candidate_path_polygon
+                             : inverseClockWise(candidate_path_polygon);
 
   std::vector<Polygon> path_polygons;
   bg::intersection(crosswalk_polygon, candidate_path_polygon, path_polygons);
 
   if (path_polygons.size() != 1) {
     RCLCPP_ERROR_THROTTLE(
-      logger_, *clock_, 5000, "Number of polygon is %d. Must be 1",
-      (int)path_polygons.size());
+      logger_, *clock_, 5000, "Number of polygon is %d. Must be 1", (int)path_polygons.size());
     return false;
   }
   path_polygon = path_polygons.at(0);
@@ -370,8 +369,7 @@ bool CrosswalkModule::isTargetType(const autoware_perception_msgs::msg::DynamicO
 {
   if (
     obj.semantic.type == autoware_perception_msgs::msg::Semantic::PEDESTRIAN ||
-    obj.semantic.type == autoware_perception_msgs::msg::Semantic::BICYCLE)
-  {
+    obj.semantic.type == autoware_perception_msgs::msg::Semantic::BICYCLE) {
     return true;
   }
   return false;
@@ -382,6 +380,6 @@ bool CrosswalkModule::isTargetExternalInputStatus(const int target_status)
   return planner_data_->external_crosswalk_status_input &&
          planner_data_->external_crosswalk_status_input.get().status == target_status &&
          (clock_->now() - planner_data_->external_crosswalk_status_input.get().header.stamp)
-         .seconds() < planner_param_.external_input_timeout;
+             .seconds() < planner_param_.external_input_timeout;
 }
 }  // namespace behavior_velocity_planner

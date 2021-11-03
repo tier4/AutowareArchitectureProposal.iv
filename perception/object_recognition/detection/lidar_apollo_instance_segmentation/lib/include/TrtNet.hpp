@@ -20,9 +20,13 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
-*/
+ */
 #ifndef __TRT_NET_H_
 #define __TRT_NET_H_
+
+#include "NvCaffeParser.h"
+#include "NvInferPlugin.h"
+#include "Utils.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -30,9 +34,6 @@
 #include <numeric>
 #include <string>
 #include <vector>
-#include "NvCaffeParser.h"
-#include "NvInferPlugin.h"
-#include "Utils.hpp"
 
 namespace Tn
 {
@@ -49,11 +50,19 @@ public:
     // Release the stream and the buffers
     cudaStreamSynchronize(mTrtCudaStream);
     cudaStreamDestroy(mTrtCudaStream);
-    for (auto & item : mTrtCudaBuffer) {cudaFree(item);}
+    for (auto & item : mTrtCudaBuffer) {
+      cudaFree(item);
+    }
 
-    if (!mTrtRunTime) {mTrtRunTime->destroy();}
-    if (!mTrtContext) {mTrtContext->destroy();}
-    if (!mTrtEngine) {mTrtEngine->destroy();}
+    if (!mTrtRunTime) {
+      mTrtRunTime->destroy();
+    }
+    if (!mTrtContext) {
+      mTrtContext->destroy();
+    }
+    if (!mTrtEngine) {
+      mTrtEngine->destroy();
+    }
   }
 
   void saveEngine(std::string fileName)

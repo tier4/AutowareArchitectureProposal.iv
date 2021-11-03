@@ -20,13 +20,13 @@
  * @brief Velodyne monitor class
  */
 
+#include "diagnostic_updater/diagnostic_updater.hpp"
+#include "rclcpp/rclcpp.hpp"
+
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
-
-#include "diagnostic_updater/diagnostic_updater.hpp"
-#include "rclcpp/rclcpp.hpp"
 
 // Include after diagnostic_updater because it causes errors
 #include "cpprest/http_client.h"

@@ -48,13 +48,13 @@
  *
  */
 
-#include <vector>
-
 #include "pointcloud_preprocessor/downsample_filter/voxel_grid_downsample_filter_nodelet.hpp"
 
 #include "pcl/kdtree/kdtree_flann.h"
 #include "pcl/search/kdtree.h"
 #include "pcl/segmentation/segment_differences.h"
+
+#include <vector>
 
 namespace pointcloud_preprocessor
 {

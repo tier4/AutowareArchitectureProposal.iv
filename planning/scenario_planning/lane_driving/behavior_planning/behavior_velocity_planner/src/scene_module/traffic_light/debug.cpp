@@ -13,11 +13,10 @@
 // limitations under the License.
 
 #include "scene_module/traffic_light/scene.hpp"
-
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-
 #include "utilization/marker_helper.hpp"
 #include "utilization/util.hpp"
+
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 namespace behavior_velocity_planner
 {

@@ -28,8 +28,7 @@ class DataAssociation
 {
 private:
   double getDistance(
-    const geometry_msgs::msg::Point & point0,
-    const geometry_msgs::msg::Point & point1);
+    const geometry_msgs::msg::Point & point0, const geometry_msgs::msg::Point & point1);
   geometry_msgs::msg::Point getCentroid(const sensor_msgs::msg::PointCloud2 & pointcloud);
   Eigen::MatrixXi can_assign_matrix_;
   Eigen::MatrixXd max_dist_matrix_;

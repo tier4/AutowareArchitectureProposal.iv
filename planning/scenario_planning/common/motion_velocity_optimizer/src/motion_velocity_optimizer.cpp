@@ -14,30 +14,29 @@
 
 #include "motion_velocity_optimizer/motion_velocity_optimizer.hpp"
 
+#include "motion_velocity_optimizer/optimizer/l2_pseudo_jerk_optimizer.hpp"
+#include "motion_velocity_optimizer/optimizer/linf_pseudo_jerk_optimizer.hpp"
+#include "tf2_ros/create_timer_ros.h"
+
 #include <algorithm>
 #include <chrono>
 #include <memory>
-#include <utility>
 #include <string>
+#include <utility>
 #include <vector>
-
-#include "motion_velocity_optimizer/optimizer/l2_pseudo_jerk_optimizer.hpp"
-#include "motion_velocity_optimizer/optimizer/linf_pseudo_jerk_optimizer.hpp"
-
-#include "tf2_ros/create_timer_ros.h"
 
 using std::placeholders::_1;
 
 #define UPDATE_PARAM(PARAM_STRUCT, NAME) update_param(parameters, #NAME, PARAM_STRUCT.NAME);
 namespace
 {
-template<typename T>
+template <typename T>
 void update_param(
   const std::vector<rclcpp::Parameter> & parameters, const std::string & name, T & value)
 {
   auto it = std::find_if(
     parameters.cbegin(), parameters.cend(),
-    [&name](const rclcpp::Parameter & parameter) {return parameter.get_name() == name;});
+    [&name](const rclcpp::Parameter & parameter) { return parameter.get_name() == name; });
   if (it != parameters.cend()) {
     value = it->template get_value<T>();
   }
@@ -132,8 +131,8 @@ MotionVelocityOptimizer::MotionVelocityOptimizer(const rclcpp::NodeOptions & nod
     "~/closest_velocity", rclcpp::QoS{1});
   debug_closest_acc_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
     "~/closest_acceleration", rclcpp::QoS{1});
-  debug_closest_jerk_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
-    "~/closest_jerk", rclcpp::QoS{1});
+  debug_closest_jerk_ =
+    create_publisher<autoware_debug_msgs::msg::Float32Stamped>("~/closest_jerk", rclcpp::QoS{1});
   pub_trajectory_raw_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
     "~/debug/trajectory_raw", rclcpp::QoS{1});
   pub_trajectory_vel_lim_ = create_publisher<autoware_planning_msgs::msg::Trajectory>(
@@ -155,12 +154,8 @@ MotionVelocityOptimizer::MotionVelocityOptimizer(const rclcpp::NodeOptions & nod
   }
 
   /* parameter update */
-  set_param_res_ =
-    this->add_on_set_parameters_callback(
-    std::bind(
-      &MotionVelocityOptimizer::paramCallback, this,
-      _1));
-
+  set_param_res_ = this->add_on_set_parameters_callback(
+    std::bind(&MotionVelocityOptimizer::paramCallback, this, _1));
 
   /* wait to get vehicle position */
   blockUntilVehiclePositionAvailable(tf2::durationFromSec(1.0));
@@ -267,8 +262,7 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
 
   autoware_planning_msgs::msg::Trajectory traj_extracted;    // extracted around current_position
   autoware_planning_msgs::msg::Trajectory traj_vel_limited;  // external velocity limited
-  autoware_planning_msgs::msg::Trajectory
-    traj_latacc_filtered;  // max lateral acceleration limited
+  autoware_planning_msgs::msg::Trajectory traj_latacc_filtered;  // max lateral acceleration limited
   autoware_planning_msgs::msg::Trajectory
     traj_resampled;                                // resampled depending on the current_velocity
   autoware_planning_msgs::msg::Trajectory output;  // velocity is optimized by qp solver
@@ -355,13 +349,13 @@ autoware_planning_msgs::msg::Trajectory MotionVelocityOptimizer::calcTrajectoryV
 }
 
 void MotionVelocityOptimizer::insertBehindVelocity(
-  const autoware_planning_msgs::msg::Trajectory & prev_output,
-  const int output_closest, autoware_planning_msgs::msg::Trajectory & output) const
+  const autoware_planning_msgs::msg::Trajectory & prev_output, const int output_closest,
+  autoware_planning_msgs::msg::Trajectory & output) const
 {
   const bool keep_closest_vel_for_behind =
     (initialize_type_ == InitializeType::INIT ||
-    initialize_type_ == InitializeType::LARGE_DEVIATION_REPLAN ||
-    initialize_type_ == InitializeType::ENGAGING);
+     initialize_type_ == InitializeType::LARGE_DEVIATION_REPLAN ||
+     initialize_type_ == InitializeType::ENGAGING);
 
   for (int i = output_closest - 1; i >= 0; --i) {
     if (keep_closest_vel_for_behind) {
@@ -378,8 +372,8 @@ void MotionVelocityOptimizer::insertBehindVelocity(
 
 void MotionVelocityOptimizer::calcRoundWaypointFromCurrentPose(
   autoware_planning_msgs::msg::Trajectory::ConstSharedPtr traj, bool before_stopline,
-  int current_pose_idx,
-  int stop_idx, int & current_pose_round_idx, double & length_to_round_waypoint) const
+  int current_pose_idx, int stop_idx, int & current_pose_round_idx,
+  double & length_to_round_waypoint) const
 {
   // whether current pose is before/after trajectory
   bool before_traj = vpu::calcWhichSideOfLine(
@@ -566,8 +560,7 @@ void MotionVelocityOptimizer::calcInitialMotion(
    * if current vehicle velocity is low && base_desired speed is high,
    * use engage_velocity for engage vehicle
    */
-  const double engage_vel_thr =
-    planning_param_.engage_velocity * planning_param_.engage_exit_ratio;
+  const double engage_vel_thr = planning_param_.engage_velocity * planning_param_.engage_exit_ratio;
   if (vehicle_speed < engage_vel_thr) {
     if (target_vel >= planning_param_.engage_velocity) {
       int idx = 0;
@@ -669,8 +662,8 @@ void MotionVelocityOptimizer::overwriteStopPoint(
     double output_stop_vel = stop_point_exists ? output->points.at(stop_idx).twist.linear.x : -1.0;
     RCLCPP_DEBUG(
       get_logger(),
-      "[replan]: input_stop_idx = %d, stop velocity : input = %f, output = %f, thr = %f",
-      stop_idx, input_stop_vel, output_stop_vel, over_stop_velocity_warn_thr_);
+      "[replan]: input_stop_idx = %d, stop velocity : input = %f, output = %f, thr = %f", stop_idx,
+      input_stop_vel, output_stop_vel, over_stop_velocity_warn_thr_);
   }
 
   // keep stop point at the same position
@@ -743,7 +736,9 @@ bool MotionVelocityOptimizer::externalVelocityLimitFilter(
   autoware_planning_msgs::msg::Trajectory & output) const
 {
   output = input;
-  if (!external_velocity_limit_filtered_) {return false;}
+  if (!external_velocity_limit_filtered_) {
+    return false;
+  }
 
   vpu::maximumVelocityFilter(*external_velocity_limit_filtered_, output);
   RCLCPP_DEBUG(
@@ -831,8 +826,8 @@ bool MotionVelocityOptimizer::extractPathAroundIndex(
   return true;
 }
 
-void MotionVelocityOptimizer::applyStoppingVelocity(autoware_planning_msgs::msg::Trajectory * traj)
-const
+void MotionVelocityOptimizer::applyStoppingVelocity(
+  autoware_planning_msgs::msg::Trajectory * traj) const
 {
   int stop_idx;
   if (!vpu::searchZeroVelocityIdx(*traj, stop_idx)) {
@@ -841,7 +836,9 @@ const
   double distance_sum = 0.0;
   for (int i = stop_idx - 1; i >= 0; --i) {  // search backward
     distance_sum += vpu::calcDist2d(traj->points.at(i), traj->points.at(i + 1));
-    if (distance_sum > planning_param_.stopping_distance) {break;}
+    if (distance_sum > planning_param_.stopping_distance) {
+      break;
+    }
     if (traj->points.at(i).twist.linear.x > planning_param_.stopping_velocity) {
       traj->points.at(i).twist.linear.x = planning_param_.stopping_velocity;
     }
@@ -860,16 +857,17 @@ void MotionVelocityOptimizer::publishFloat(
 
 void MotionVelocityOptimizer::updateExternalVelocityLimit(const double dt)
 {
-  if (!external_velocity_limit_ptr_) {return;}
+  if (!external_velocity_limit_ptr_) {
+    return;
+  }
 
   if (external_velocity_limit_ptr_->max_velocity < -1.0e-5) {
     RCLCPP_WARN(get_logger(), "external velocity limit is negative. The command is ignored");
     return;
   }
 
-  double v_lim = std::min<double>(
-    external_velocity_limit_ptr_->max_velocity,
-    planning_param_.max_velocity);
+  double v_lim =
+    std::min<double>(external_velocity_limit_ptr_->max_velocity, planning_param_.max_velocity);
 
   if (!external_velocity_limit_filtered_) {
     external_velocity_limit_filtered_ = std::make_shared<double>(v_lim);
@@ -896,9 +894,7 @@ void MotionVelocityOptimizer::timerCallback()
 void MotionVelocityOptimizer::blockUntilVehiclePositionAvailable(const tf2::Duration & duration)
 {
   std::string error;
-  while (!tf_buffer_.canTransform("map", "base_link", tf2::TimePointZero, &error) &&
-    rclcpp::ok())
-  {
+  while (!tf_buffer_.canTransform("map", "base_link", tf2::TimePointZero, &error) && rclcpp::ok()) {
     RCLCPP_INFO(
       get_logger(), "waiting %ld ms for map->base_link transform to become available",
       std::chrono::duration_cast<std::chrono::milliseconds>(duration).count());

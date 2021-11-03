@@ -51,12 +51,12 @@
 #ifndef POINTCLOUD_PREPROCESSOR__DOWNSAMPLE_FILTER__APPROXIMATE_DOWNSAMPLE_FILTER_NODELET_HPP_
 #define POINTCLOUD_PREPROCESSOR__DOWNSAMPLE_FILTER__APPROXIMATE_DOWNSAMPLE_FILTER_NODELET_HPP_
 
-#include <vector>
-
 #include "pcl/filters/voxel_grid.h"
 #include "pcl/search/pcl_search.h"
-#include "tier4_pcl_extensions/voxel_grid_nearest_centroid.hpp"
 #include "pointcloud_preprocessor/filter.hpp"
+#include "tier4_pcl_extensions/voxel_grid_nearest_centroid.hpp"
+
+#include <vector>
 
 namespace pointcloud_preprocessor
 {

@@ -17,12 +17,11 @@
  * @brief Unknown CPU monitor class
  */
 
-#include <string>
-
 #include "system_monitor/cpu_monitor/unknown_cpu_monitor.hpp"
 
-CPUMonitor::CPUMonitor(const rclcpp::NodeOptions & options)
-: CPUMonitorBase("cpu_monitor", options)
+#include <string>
+
+CPUMonitor::CPUMonitor(const rclcpp::NodeOptions & options) : CPUMonitorBase("cpu_monitor", options)
 {
 }
 

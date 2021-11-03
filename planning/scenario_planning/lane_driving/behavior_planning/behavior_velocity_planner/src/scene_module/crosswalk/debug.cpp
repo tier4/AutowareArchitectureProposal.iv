@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <vector>
-
 #include "scene_module/crosswalk/scene_crosswalk.hpp"
 #include "scene_module/crosswalk/scene_walkway.hpp"
-
 #include "utilization/marker_helper.hpp"
 #include "utilization/util.hpp"
+
+#include <vector>
 
 namespace behavior_velocity_planner
 {

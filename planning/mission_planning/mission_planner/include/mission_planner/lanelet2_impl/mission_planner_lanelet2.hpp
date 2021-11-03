@@ -24,9 +24,10 @@
 #include "tf2_ros/transform_listener.h"
 
 // Autoware
-#include "autoware_lanelet2_msgs/msg/map_bin.hpp"
 #include "mission_planner/lanelet2_impl/route_handler.hpp"
 #include "mission_planner/mission_planner_base.hpp"
+
+#include "autoware_lanelet2_msgs/msg/map_bin.hpp"
 
 // lanelet
 #include "lanelet2_core/LaneletMap.h"

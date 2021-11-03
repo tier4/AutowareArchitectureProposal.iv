@@ -45,12 +45,12 @@
 #ifndef COSTMAP_GENERATOR__POINTS_TO_COSTMAP_HPP_
 #define COSTMAP_GENERATOR__POINTS_TO_COSTMAP_HPP_
 
-#include <string>
-#include <vector>
-
+#include "grid_map_ros/grid_map_ros.hpp"
 #include "pcl_conversions/pcl_conversions.h"
 #include "rclcpp/rclcpp.hpp"
-#include "grid_map_ros/grid_map_ros.hpp"
+
+#include <string>
+#include <vector>
 
 class PointsToCostmap
 {

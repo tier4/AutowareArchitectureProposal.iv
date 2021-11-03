@@ -17,6 +17,7 @@
 //
 
 #include "multi_object_tracker/tracker/model/multiple_vehicle_tracker.hpp"
+
 #include "autoware_utils/autoware_utils.hpp"
 
 MultipleVehicleTracker::MultipleVehicleTracker(

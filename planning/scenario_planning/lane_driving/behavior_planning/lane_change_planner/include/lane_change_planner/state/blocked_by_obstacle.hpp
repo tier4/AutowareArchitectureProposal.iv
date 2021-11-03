@@ -16,13 +16,15 @@
 #ifndef LANE_CHANGE_PLANNER__STATE__BLOCKED_BY_OBSTACLE_HPP_
 #define LANE_CHANGE_PLANNER__STATE__BLOCKED_BY_OBSTACLE_HPP_
 
-#include <vector>
-#include <memory>
+#include "lane_change_planner/state/state_base_class.hpp"
+#include "lanelet2_core/primitives/Primitive.h"
+
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
-#include "lane_change_planner/state/state_base_class.hpp"
-#include "lanelet2_core/primitives/Primitive.h"
+
+#include <memory>
+#include <vector>
 
 namespace lane_change_planner
 {
@@ -58,8 +60,8 @@ private:
 public:
   BlockedByObstacleState(
     const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-    const std::shared_ptr<RouteHandler> & route_handler_ptr,
-    const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock);
+    const std::shared_ptr<RouteHandler> & route_handler_ptr, const rclcpp::Logger & logger,
+    const rclcpp::Clock::SharedPtr & clock);
 
   // override virtual functions
   void entry() override;

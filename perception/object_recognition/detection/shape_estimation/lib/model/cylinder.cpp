@@ -14,15 +14,16 @@
 
 #include "shape_estimation/model/cylinder.hpp"
 
-#include <algorithm>
-
-#include "pcl/point_cloud.h"
-#include "pcl/point_types.h"
-#include "pcl_conversions/pcl_conversions.h"
 #include "opencv2/core/core.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+#include "pcl/point_cloud.h"
+#include "pcl/point_types.h"
+#include "pcl_conversions/pcl_conversions.h"
+
 #include "autoware_perception_msgs/msg/shape.hpp"
+
+#include <algorithm>
 
 bool CylinderShapeModel::estimate(
   const pcl::PointCloud<pcl::PointXYZ> & cluster,

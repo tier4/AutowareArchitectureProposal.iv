@@ -15,19 +15,19 @@
 #ifndef ROUTE_HPP_
 #define ROUTE_HPP_
 
-#include "rclcpp/rclcpp.hpp"
 #include "autoware_api_utils/autoware_api_utils.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "std_srvs/srv/trigger.hpp"
+
+#include "autoware_external_api_msgs/msg/route.hpp"
+#include "autoware_external_api_msgs/srv/clear_route.hpp"
 #include "autoware_external_api_msgs/srv/set_pose.hpp"
 #include "autoware_external_api_msgs/srv/set_route.hpp"
-#include "autoware_external_api_msgs/srv/clear_route.hpp"
-#include "autoware_external_api_msgs/msg/route.hpp"
 #include "autoware_planning_msgs/msg/route.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "std_srvs/srv/trigger.hpp"
 
 namespace internal_api
 {
-
 class Route : public rclcpp::Node
 {
 public:

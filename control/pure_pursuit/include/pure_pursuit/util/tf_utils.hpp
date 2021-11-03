@@ -15,17 +15,19 @@
 #ifndef PURE_PURSUIT__UTIL__TF_UTILS_HPP_
 #define PURE_PURSUIT__UTIL__TF_UTILS_HPP_
 
-#include <string>
 #include "rclcpp/rclcpp.hpp"
-#include "boost/optional.hpp"  // To be replaced by std::optional in C++17
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "tf2_ros/transform_listener.h"
+
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+
+#include "boost/optional.hpp"  // To be replaced by std::optional in C++17
+
+#include <string>
 
 #define TF_UTILS_LOGGER "tf_utils"
 
 namespace tf_utils
 {
-
 rclcpp::Logger logger = rclcpp::get_logger(TF_UTILS_LOGGER);
 inline boost::optional<geometry_msgs::msg::TransformStamped> getTransform(
   const tf2_ros::Buffer & tf_buffer, const std::string & from, const std::string & to,
@@ -43,8 +45,7 @@ inline geometry_msgs::msg::TransformStamped waitForTransform(
 {
   while (rclcpp::ok()) {
     try {
-      const auto transform =
-        tf_buffer.lookupTransform(from, to, tf2::TimePointZero);
+      const auto transform = tf_buffer.lookupTransform(from, to, tf2::TimePointZero);
       return transform;
     } catch (tf2::TransformException & ex) {
       RCLCPP_INFO(logger, "waiting for transform from `%s` to `%s` ...", from.c_str(), to.c_str());
@@ -69,10 +70,8 @@ inline geometry_msgs::msg::PoseStamped transform2pose(
 inline boost::optional<geometry_msgs::msg::PoseStamped> getCurrentPose(
   const tf2_ros::Buffer & tf_buffer, const double timeout = 1.0)
 {
-  const auto tf_current_pose =
-    getTransform(
-    tf_buffer, "map", "base_link", rclcpp::Time(0),
-    rclcpp::Duration::from_seconds(0.0));
+  const auto tf_current_pose = getTransform(
+    tf_buffer, "map", "base_link", rclcpp::Time(0), rclcpp::Duration::from_seconds(0.0));
   if (!tf_current_pose) {
     return {};
   }

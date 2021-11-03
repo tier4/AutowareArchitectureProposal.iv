@@ -22,14 +22,14 @@
 #ifndef MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_QPOASES_HPP_
 #define MPC_FOLLOWER__QP_SOLVER__QP_SOLVER_QPOASES_HPP_
 
-#include <cmath>
-#include <iostream>
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Dense"
 #include "eigen3/Eigen/LU"
+#include "mpc_follower/qp_solver/qp_solver_interface.hpp"
 #include "qpoases_vendor/qpOASES.hpp"
 
-#include "mpc_follower/qp_solver/qp_solver_interface.hpp"
+#include <cmath>
+#include <iostream>
 
 class QPSolverQpoasesHotstart : public QPSolverInterface
 {

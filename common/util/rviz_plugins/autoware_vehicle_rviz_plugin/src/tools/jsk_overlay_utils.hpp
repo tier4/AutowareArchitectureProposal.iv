@@ -34,14 +34,14 @@
 #ifndef TOOLS__JSK_OVERLAY_UTILS_HPP_
 #define TOOLS__JSK_OVERLAY_UTILS_HPP_
 
-#include <memory>
-#include <string>
-
 #include "OgreHardwarePixelBuffer.h"
 #include "OgreMaterialManager.h"
 #include "OgreTechnique.h"
 #include "OgreTexture.h"
 #include "OgreTextureManager.h"
+
+#include <memory>
+#include <string>
 // see OGRE/OgrePrerequisites.h
 // #define OGRE_VERSION
 // ((OGRE_VERSION_MAJOR << 16) | (OGRE_VERSION_MINOR << 8) | OGRE_VERSION_PATCH)
@@ -60,7 +60,6 @@
 
 #include "QColor"
 #include "QImage"
-
 #include "rclcpp/rclcpp.hpp"
 
 namespace jsk_rviz_plugins

@@ -15,11 +15,11 @@
 #ifndef POINTCLOUD_PREPROCESSOR__OUTLIER_FILTER__VOXEL_GRID_OUTLIER_FILTER_NODELET_HPP_
 #define POINTCLOUD_PREPROCESSOR__OUTLIER_FILTER__VOXEL_GRID_OUTLIER_FILTER_NODELET_HPP_
 
-#include <vector>
-
 #include "pcl/filters/voxel_grid.h"
 #include "pcl/search/pcl_search.h"
 #include "pointcloud_preprocessor/filter.hpp"
+
+#include <vector>
 
 namespace pointcloud_preprocessor
 {

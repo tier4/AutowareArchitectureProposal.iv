@@ -13,10 +13,9 @@
 // limitations under the License.
 
 #include "pose2twist/pose2twist_core.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include <memory>
-
-#include "rclcpp/rclcpp.hpp"
 
 int main(int argc, char ** argv)
 {

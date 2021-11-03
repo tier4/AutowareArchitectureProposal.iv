@@ -15,6 +15,14 @@
 #ifndef STOP_FILTER__STOP_FILTER_HPP_
 #define STOP_FILTER__STOP_FILTER_HPP_
 
+#include "rclcpp/rclcpp.hpp"
+#include "tf2/LinearMath/Quaternion.h"
+#include "tf2/utils.h"
+
+#include "autoware_debug_msgs/msg/bool_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "geometry_msgs/msg/twist_with_covariance_stamped.hpp"
+
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -23,13 +31,6 @@
 #include <queue>
 #include <string>
 #include <vector>
-
-#include "autoware_debug_msgs/msg/bool_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
-#include "geometry_msgs/msg/twist_with_covariance_stamped.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "tf2/LinearMath/Quaternion.h"
-#include "tf2/utils.h"
 
 class StopFilter : public rclcpp::Node
 {
@@ -45,9 +46,9 @@ private:
     pub_stop_flag_;  //!< @brief stop flag publisher
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr
     sub_twist_;  //!< @brief measurement twist subscriber
-  rclcpp::Subscription<geometry_msgs::msg::TwistWithCovarianceStamped>::
-  SharedPtr sub_twist_with_covariance_;  //!< @brief measurement twist with
-                                         //!< covariance subscriber
+  rclcpp::Subscription<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr
+    sub_twist_with_covariance_;  //!< @brief measurement twist with
+                                 //!< covariance subscriber
 
   double vx_threshold_;  //!< @brief vx threshold
   double wz_threshold_;  //!< @brief wz threshold
@@ -55,8 +56,7 @@ private:
   /**
    * @brief set twist measurement
    */
-  void callbackTwistStamped(
-    const geometry_msgs::msg::TwistStamped::SharedPtr msg);
+  void callbackTwistStamped(const geometry_msgs::msg::TwistStamped::SharedPtr msg);
 
   /**
    * @brief set twistWithCovariance measurement

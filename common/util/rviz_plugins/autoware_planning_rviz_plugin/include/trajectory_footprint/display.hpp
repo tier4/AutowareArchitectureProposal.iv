@@ -15,8 +15,6 @@
 #ifndef TRAJECTORY_FOOTPRINT__DISPLAY_HPP_
 #define TRAJECTORY_FOOTPRINT__DISPLAY_HPP_
 
-#include <memory>
-
 #include "OgreBillboardSet.h"
 #include "OgreManualObject.h"
 #include "OgreMaterialManager.h"
@@ -32,13 +30,14 @@
 #include "rviz_common/properties/parse_color.hpp"
 #include "rviz_common/validate_floats.hpp"
 
-
 #include "autoware_planning_msgs/msg/trajectory.hpp"
+
+#include <memory>
 
 namespace rviz_plugins
 {
 class AutowareTrajectoryFootprintDisplay
-  : public rviz_common::MessageFilterDisplay<autoware_planning_msgs::msg::Trajectory>
+: public rviz_common::MessageFilterDisplay<autoware_planning_msgs::msg::Trajectory>
 {
   Q_OBJECT
 

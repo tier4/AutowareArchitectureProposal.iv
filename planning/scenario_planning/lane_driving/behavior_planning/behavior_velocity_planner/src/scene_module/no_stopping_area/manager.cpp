@@ -12,16 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "scene_module/no_stopping_area/manager.hpp"
+
+#include "lanelet2_extension/utility/query.hpp"
+#include "tf2/utils.h"
+
 #include <memory>
 #include <set>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
-#include "scene_module/no_stopping_area/manager.hpp"
-#include "lanelet2_extension/utility/query.hpp"
-#include "tf2/utils.h"
 
 namespace behavior_velocity_planner
 {
@@ -51,9 +52,7 @@ std::set<int64_t> getNoStoppingAreaIdSetOnPath(
   const lanelet::LaneletMapPtr lanelet_map)
 {
   std::set<int64_t> no_stopping_area_id_set;
-  for (const auto & no_stopping_area :
-    getNoStoppingAreaRegElemsOnPath(path, lanelet_map))
-  {
+  for (const auto & no_stopping_area : getNoStoppingAreaRegElemsOnPath(path, lanelet_map)) {
     no_stopping_area_id_set.insert(no_stopping_area->id());
   }
   return no_stopping_area_id_set;
@@ -80,17 +79,14 @@ void NoStoppingAreaModuleManager::launchNewModules(
   const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   for (const auto & no_stopping_area :
-    getNoStoppingAreaRegElemsOnPath(path, planner_data_->lanelet_map))
-  {
+       getNoStoppingAreaRegElemsOnPath(path, planner_data_->lanelet_map)) {
     // Use lanelet_id to unregister module when the route is changed
     const auto module_id = no_stopping_area->id();
     if (!isModuleRegistered(module_id)) {
       // assign 1 no stopping area for each module
-      registerModule(
-        std::make_shared<NoStoppingAreaModule>(
-          module_id, *no_stopping_area, planner_param_,
-          logger_.get_child("no_stopping_area_module"),
-          clock_));
+      registerModule(std::make_shared<NoStoppingAreaModule>(
+        module_id, *no_stopping_area, planner_param_, logger_.get_child("no_stopping_area_module"),
+        clock_));
     }
   }
 }
@@ -103,7 +99,7 @@ NoStoppingAreaModuleManager::getModuleExpiredFunction(
     getNoStoppingAreaIdSetOnPath(path, planner_data_->lanelet_map);
 
   return [no_stopping_area_id_set](const std::shared_ptr<SceneModuleInterface> & scene_module) {
-           return no_stopping_area_id_set.count(scene_module->getModuleId()) == 0;
-         };
+    return no_stopping_area_id_set.count(scene_module->getModuleId()) == 0;
+  };
 }
 }  // namespace behavior_velocity_planner

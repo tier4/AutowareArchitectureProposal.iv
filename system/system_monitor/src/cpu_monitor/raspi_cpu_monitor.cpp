@@ -17,14 +17,15 @@
  * @brief Raspberry Pi CPU monitor class
  */
 
-#include <string>
-#include <vector>
-
 #include "system_monitor/cpu_monitor/raspi_cpu_monitor.hpp"
+
 #include "system_monitor/system_monitor_utility.hpp"
+
 #include "boost/algorithm/string.hpp"
 #include "boost/filesystem.hpp"
 
+#include <string>
+#include <vector>
 
 namespace fs = boost::filesystem;
 
@@ -60,7 +61,9 @@ void CPUMonitor::checkThrottling(diagnostic_updater::DiagnosticStatusWrapper & s
     throttled ^= flag;
     status.push_back(throttledToString(flag));
   }
-  if (status.empty()) {status.emplace_back("All clear");}
+  if (status.empty()) {
+    status.emplace_back("All clear");
+  }
 
   stat.add("status", boost::algorithm::join(status, ", "));
 
