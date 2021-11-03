@@ -21,6 +21,7 @@
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 #include "autoware_planning_msgs/msg/path.hpp"
 #include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include <geometry_msgs/msg/pose_stamped.hpp>
 
 #include <memory>
 #include <string>

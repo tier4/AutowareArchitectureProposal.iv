@@ -28,6 +28,8 @@
 
 struct VehicleParam;
 struct ReferencePoint;
+struct Trajectories;
+struct TrajectoryParam;
 
 namespace util
 {

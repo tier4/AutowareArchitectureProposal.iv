@@ -15,6 +15,9 @@
 #ifndef ROI_CLUSTER_FUSION__ROI_CLUSTER_FUSION_NODELET_HPP_
 #define ROI_CLUSTER_FUSION__ROI_CLUSTER_FUSION_NODELET_HPP_
 
+#define EIGEN_MPL2_ONLY
+#include <Eigen/Core>
+
 #include "cv_bridge/cv_bridge.h"
 #include "image_transport/image_transport.hpp"
 #include "message_filters/pass_through.h"

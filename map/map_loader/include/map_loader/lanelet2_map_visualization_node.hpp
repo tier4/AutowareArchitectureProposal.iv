@@ -18,6 +18,7 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "autoware_lanelet2_msgs/msg/map_bin.hpp"
+#include <visualization_msgs/msg/marker_array.hpp>
 
 #include <string>
 #include <vector>
