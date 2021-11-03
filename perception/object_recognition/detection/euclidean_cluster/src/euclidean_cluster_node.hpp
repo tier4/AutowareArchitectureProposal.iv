@@ -14,11 +14,12 @@
 
 #pragma once
 #include "euclidean_cluster/euclidean_cluster.hpp"
-#include "rclcpp/rclcpp.hpp"
 
-#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "sensor_msgs/msg/point_cloud2.hpp"
+#include <rclcpp/rclcpp.hpp>
+
+#include <autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 namespace euclidean_cluster
 {

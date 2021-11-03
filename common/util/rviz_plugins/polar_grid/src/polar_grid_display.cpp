@@ -40,16 +40,16 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "polar_grid_display.hpp"
+#include <polar_grid_display.hpp>
+#include <rviz_common/display_context.hpp>
+#include <rviz_common/frame_manager_iface.hpp>
+#include <rviz_common/interaction/selection_manager.hpp>
+#include <rviz_common/properties/parse_color.hpp>
+#include <rviz_common/properties/property.hpp>
+#include <rviz_rendering/objects/grid.hpp>
 
-#include "OgreSceneManager.h"
-#include "OgreSceneNode.h"
-#include "rviz_common/display_context.hpp"
-#include "rviz_common/frame_manager_iface.hpp"
-#include "rviz_common/interaction/selection_manager.hpp"
-#include "rviz_common/properties/parse_color.hpp"
-#include "rviz_common/properties/property.hpp"
-#include "rviz_rendering/objects/grid.hpp"
+#include <OgreSceneManager.h>
+#include <OgreSceneNode.h>
 
 #include <algorithm>
 #include <string>
@@ -235,5 +235,5 @@ void PolarGridDisplay::updatePlane()
 
 }  // namespace rviz_plugins
 
-#include "pluginlib/class_list_macros.hpp"
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::PolarGridDisplay, rviz_common::Display)

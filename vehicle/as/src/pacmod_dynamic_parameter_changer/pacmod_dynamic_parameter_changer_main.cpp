@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pacmod_dynamic_parameter_changer/pacmod_dynamic_parameter_changer_node.hpp"
+#include <pacmod_dynamic_parameter_changer/pacmod_dynamic_parameter_changer_node.hpp>
 
 #include <memory>
 

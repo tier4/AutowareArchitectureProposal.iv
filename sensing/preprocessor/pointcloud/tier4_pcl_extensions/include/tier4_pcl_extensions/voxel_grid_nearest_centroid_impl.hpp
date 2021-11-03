@@ -51,11 +51,13 @@
 #ifndef TIER4_PCL_EXTENSIONS__VOXEL_GRID_NEAREST_CENTROID_IMPL_HPP_
 #define TIER4_PCL_EXTENSIONS__VOXEL_GRID_NEAREST_CENTROID_IMPL_HPP_
 
-#include "Eigen/Cholesky"
-#include "Eigen/Dense"
-#include "pcl/common/common.h"
-#include "pcl/filters/boost.h"
 #include "tier4_pcl_extensions/voxel_grid_nearest_centroid.hpp"
+
+#include <Eigen/Cholesky>
+#include <Eigen/Dense>
+
+#include <pcl/common/common.h>
+#include <pcl/filters/boost.h>
 
 #include <limits>
 #include <map>

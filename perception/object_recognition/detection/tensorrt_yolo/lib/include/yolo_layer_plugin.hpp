@@ -61,8 +61,9 @@
 #ifndef YOLO_LAYER_PLUGIN_HPP_
 #define YOLO_LAYER_PLUGIN_HPP_
 
-#include "NvInferPlugin.h"
-#include "yolo_layer.hpp"
+#include <yolo_layer.hpp>
+
+#include <NvInferPlugin.h>
 
 #include <array>
 #include <iostream>

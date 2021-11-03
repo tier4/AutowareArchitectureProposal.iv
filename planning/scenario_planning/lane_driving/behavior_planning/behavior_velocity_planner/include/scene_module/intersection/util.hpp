@@ -15,11 +15,12 @@
 #ifndef SCENE_MODULE__INTERSECTION__UTIL_HPP_
 #define SCENE_MODULE__INTERSECTION__UTIL_HPP_
 
-#include "rclcpp/rclcpp.hpp"
-#include "scene_module/intersection/scene_intersection.hpp"
+#include <rclcpp/rclcpp.hpp>
+#include <scene_module/intersection/scene_intersection.hpp>
 
-#include "geometry_msgs/msg/point.hpp"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include <geometry_msgs/msg/point.hpp>
+
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <memory>
 #include <string>

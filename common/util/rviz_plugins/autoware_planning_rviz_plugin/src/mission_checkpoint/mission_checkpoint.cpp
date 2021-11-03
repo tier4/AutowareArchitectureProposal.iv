@@ -45,11 +45,10 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "mission_checkpoint/mission_checkpoint.hpp"
+#include <mission_checkpoint/mission_checkpoint.hpp>
 
-#include "tf2_ros/transform_listener.h"
-
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_ros/transform_listener.h>
 
 #include <string>
 
@@ -114,5 +113,5 @@ void MissionCheckpointTool::onPoseSet(double x, double y, double theta)
 
 }  // end namespace rviz_plugins
 
-#include "pluginlib/class_list_macros.hpp"
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::MissionCheckpointTool, rviz_common::Tool)

@@ -17,11 +17,12 @@
 #define MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__VELOCITY_PLANNING_UTILS_HPP_
 // *INDENT-ON*
 
-#include "autoware_utils/trajectory/trajectory.hpp"
 #include "motion_velocity_smoother/linear_interpolation.hpp"
-#include "rclcpp/rclcpp.hpp"
 
-#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include <autoware_utils/trajectory/trajectory.hpp>
+#include <rclcpp/rclcpp.hpp>
+
+#include <autoware_planning_msgs/msg/trajectory.hpp>
 
 #include <cmath>
 #include <iostream>

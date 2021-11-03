@@ -54,8 +54,9 @@
 #ifndef PCL_REGISTRATION_NDT_MODIFIED_H_
 #define PCL_REGISTRATION_NDT_MODIFIED_H_
 
-#include "pcl/registration/ndt.h"
-#include "unsupported/Eigen/NonLinearOptimization"
+#include <unsupported/Eigen/NonLinearOptimization>
+
+#include <pcl/registration/ndt.h>
 
 namespace pcl
 {

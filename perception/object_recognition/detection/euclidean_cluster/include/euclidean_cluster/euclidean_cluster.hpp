@@ -15,7 +15,8 @@
 #pragma once
 #include "euclidean_cluster/euclidean_cluster_interface.hpp"
 #include "euclidean_cluster/utils.hpp"
-#include "pcl/point_types.h"
+
+#include <pcl/point_types.h>
 
 namespace euclidean_cluster
 {

@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "scene_module/occlusion_spot/grid_utils.hpp"
-
-#include "grid_map_ros/GridMapRosConverter.hpp"
+#include <grid_map_ros/GridMapRosConverter.hpp>
+#include <scene_module/occlusion_spot/grid_utils.hpp>
 
 #include <algorithm>
 #include <vector>

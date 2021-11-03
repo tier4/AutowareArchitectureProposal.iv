@@ -844,5 +844,5 @@ void VelocityController::updateDebugVelAcc(
   debug_values_.setValues(DebugValues::TYPE::ERROR_VEL, target_motion.vel - current_vel);
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(VelocityController)

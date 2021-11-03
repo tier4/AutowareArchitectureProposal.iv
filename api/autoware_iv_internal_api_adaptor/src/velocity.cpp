@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "velocity.hpp"
+#include <velocity.hpp>
 
 namespace internal_api
 {
@@ -90,5 +90,5 @@ void Velocity::publishPlanningVelocity(double velocity)
 
 }  // namespace internal_api
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(internal_api::Velocity)

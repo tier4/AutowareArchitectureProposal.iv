@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "initial_pose.hpp"
+#include <initial_pose.hpp>
 
 #include <memory>
 
@@ -101,5 +101,5 @@ void InitialPose::setInitializePoseAuto(
 
 }  // namespace internal_api
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(internal_api::InitialPose)

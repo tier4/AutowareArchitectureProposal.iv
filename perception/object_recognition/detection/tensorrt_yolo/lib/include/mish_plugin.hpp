@@ -39,7 +39,7 @@
 #ifndef MISH_PLUGIN_HPP_
 #define MISH_PLUGIN_HPP_
 
-#include "NvInferPlugin.h"
+#include <NvInferPlugin.h>
 
 #include <iostream>
 #include <string>

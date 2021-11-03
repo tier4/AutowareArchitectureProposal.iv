@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "node.hpp"
-
 #include "shape_estimation/shape_estimator.hpp"
-#include "tf2/LinearMath/Matrix3x3.h"
-#include "tf2/LinearMath/Quaternion.h"
-#include "tf2/utils.h"
 
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+#include <node.hpp>
+
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/utils.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <memory>
 
@@ -94,5 +94,5 @@ void ShapeEstimationNode::callback(
   pub_->publish(output_msg);
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(ShapeEstimationNode)

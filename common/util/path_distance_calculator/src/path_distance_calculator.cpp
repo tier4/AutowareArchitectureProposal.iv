@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "path_distance_calculator.hpp"
-
-#include "autoware_utils/autoware_utils.hpp"
+#include <autoware_utils/autoware_utils.hpp>
+#include <path_distance_calculator.hpp>
 
 #include <algorithm>
 #include <chrono>
@@ -62,5 +61,5 @@ PathDistanceCalculator::PathDistanceCalculator(const rclcpp::NodeOptions & optio
   this->get_node_timers_interface()->add_timer(timer_, nullptr);
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(PathDistanceCalculator)

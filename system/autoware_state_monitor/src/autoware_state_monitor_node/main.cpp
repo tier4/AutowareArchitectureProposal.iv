@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #include "autoware_state_monitor/autoware_state_monitor_node.hpp"
-#include "rclcpp/rclcpp.hpp"
+
+#include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 

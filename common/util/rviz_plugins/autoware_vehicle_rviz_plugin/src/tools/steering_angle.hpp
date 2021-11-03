@@ -19,13 +19,13 @@
 #include <mutex>
 
 #ifndef Q_MOC_RUN
-#include "jsk_overlay_utils.hpp"
-#include "rviz_common/properties/color_property.hpp"
-#include "rviz_common/properties/float_property.hpp"
-#include "rviz_common/properties/int_property.hpp"
-#include "rviz_common/ros_topic_display.hpp"
+#include <jsk_overlay_utils.hpp>
+#include <rviz_common/properties/color_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/int_property.hpp>
+#include <rviz_common/ros_topic_display.hpp>
 
-#include "autoware_vehicle_msgs/msg/steering.hpp"
+#include <autoware_vehicle_msgs/msg/steering.hpp>
 #endif
 
 namespace rviz_plugins

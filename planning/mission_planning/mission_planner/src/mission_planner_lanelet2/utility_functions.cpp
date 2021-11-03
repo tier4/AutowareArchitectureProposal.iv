@@ -14,8 +14,9 @@
 
 #include "mission_planner/lanelet2_impl/utility_functions.hpp"
 
-#include "lanelet2_core/geometry/Lanelet.h"
-#include "rclcpp/rclcpp.hpp"
+#include <rclcpp/rclcpp.hpp>
+
+#include <lanelet2_core/geometry/Lanelet.h>
 
 #include <string>
 #include <unordered_set>

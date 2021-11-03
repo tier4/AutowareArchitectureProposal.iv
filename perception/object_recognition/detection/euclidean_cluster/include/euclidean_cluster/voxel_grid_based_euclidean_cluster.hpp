@@ -15,8 +15,9 @@
 #pragma once
 #include "euclidean_cluster/euclidean_cluster_interface.hpp"
 #include "euclidean_cluster/utils.hpp"
-#include "pcl/filters/voxel_grid.h"
-#include "pcl/point_types.h"
+
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/point_types.h>
 
 namespace euclidean_cluster
 {

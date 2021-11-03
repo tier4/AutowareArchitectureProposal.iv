@@ -16,10 +16,11 @@
 #define NORMAL_DISTRIBUTIONS_TRANSFORM_PCL_GENERIC_H
 
 #include "ndt/base.hpp"
-#include "pcl/io/io.h"
-#include "pcl/io/pcd_io.h"
-#include "pcl/point_types.h"
-#include "pcl/registration/ndt.h"
+
+#include <pcl/io/io.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+#include <pcl/registration/ndt.h>
 
 template <class PointSource, class PointTarget>
 class NormalDistributionsTransformPCLGeneric

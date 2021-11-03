@@ -14,11 +14,11 @@
 
 #include "goal_distance_calculator/goal_distance_calculator_node.hpp"
 
-#include "autoware_utils/math/unit_conversion.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp/timer.hpp"
+#include <autoware_utils/math/unit_conversion.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/timer.hpp>
 
-#include "autoware_debug_msgs/msg/float64_stamped.hpp"
+#include <autoware_debug_msgs/msg/float64_stamped.hpp>
 
 #include <chrono>
 #include <functional>
@@ -135,5 +135,5 @@ void GoalDistanceCalculatorNode::onTimer()
 }
 }  // namespace goal_distance_calculator
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(goal_distance_calculator::GoalDistanceCalculatorNode)

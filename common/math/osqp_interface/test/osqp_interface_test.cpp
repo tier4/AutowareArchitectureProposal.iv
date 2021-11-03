@@ -14,7 +14,7 @@
 
 #include "osqp_interface/osqp_interface.hpp"
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include <vector>
 

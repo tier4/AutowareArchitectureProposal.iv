@@ -15,9 +15,9 @@
 #ifndef AUTOWARE_UTILS__ROS__PROCESSING_TIME_PUBLISHER_HPP_
 #define AUTOWARE_UTILS__ROS__PROCESSING_TIME_PUBLISHER_HPP_
 
-#include "rclcpp/rclcpp.hpp"
+#include <rclcpp/rclcpp.hpp>
 
-#include "diagnostic_msgs/msg/diagnostic_status.hpp"
+#include <diagnostic_msgs/msg/diagnostic_status.hpp>
 
 #include <map>
 #include <sstream>

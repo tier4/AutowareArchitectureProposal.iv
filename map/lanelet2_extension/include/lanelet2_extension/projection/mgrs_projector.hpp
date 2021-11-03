@@ -17,10 +17,11 @@
 #ifndef LANELET2_EXTENSION__PROJECTION__MGRS_PROJECTOR_HPP_
 #define LANELET2_EXTENSION__PROJECTION__MGRS_PROJECTOR_HPP_
 
-#include "GeographicLib/MGRS.hpp"
-#include "GeographicLib/UTMUPS.hpp"
-#include "lanelet2_io/Exceptions.h"
-#include "lanelet2_io/Projection.h"
+#include <GeographicLib/MGRS.hpp>
+#include <GeographicLib/UTMUPS.hpp>
+
+#include <lanelet2_io/Exceptions.h>
+#include <lanelet2_io/Projection.h>
 
 #include <string>
 #include <utility>

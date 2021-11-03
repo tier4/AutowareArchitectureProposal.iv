@@ -13,9 +13,10 @@
 // limitations under the License.
 
 #pragma once
-#include "pcl/point_cloud.h"
-#include "pcl/point_types.h"
-#include "rclcpp/rclcpp.hpp"
+#include <rclcpp/rclcpp.hpp>
+
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 
 namespace euclidean_cluster
 {

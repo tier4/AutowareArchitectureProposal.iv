@@ -40,5 +40,5 @@ void LidarInstanceSegmentationNode::pointCloudCallback(
   debugger_ptr_->publishColoredPointCloud(output_msg);
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(LidarInstanceSegmentationNode)

@@ -31,7 +31,7 @@
 // POSSIBILITY OF SUCH DAMAGE.S SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-#include "jsk_overlay_utils.hpp"
+#include <jsk_overlay_utils.hpp>
 
 #include <string>
 

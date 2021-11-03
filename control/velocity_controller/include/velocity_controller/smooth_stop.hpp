@@ -15,9 +15,9 @@
 #ifndef VELOCITY_CONTROLLER__SMOOTH_STOP_HPP_
 #define VELOCITY_CONTROLLER__SMOOTH_STOP_HPP_
 
-#include "rclcpp/rclcpp.hpp"
+#include <rclcpp/rclcpp.hpp>
 
-#include "boost/optional.hpp"
+#include <boost/optional.hpp>
 
 #include <algorithm>
 #include <cmath>

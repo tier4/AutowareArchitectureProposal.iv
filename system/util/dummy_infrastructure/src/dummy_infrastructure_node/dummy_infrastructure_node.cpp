@@ -14,7 +14,7 @@
 
 #include "dummy_infrastructure/dummy_infrastructure_node.hpp"
 
-#include "boost/optional.hpp"
+#include <boost/optional.hpp>
 
 #include <memory>
 #include <string>
@@ -161,5 +161,5 @@ void DummyInfrastructureNode::onTimer()
 
 }  // namespace dummy_infrastructure
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(dummy_infrastructure::DummyInfrastructureNode)

@@ -48,11 +48,12 @@
 
 #include "image_transport_decompressor/image_transport_decompressor.hpp"
 
-#include "cv_bridge/cv_bridge.h"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
-#include "sensor_msgs/image_encodings.hpp"
+#include <sensor_msgs/image_encodings.hpp>
+
+#include <cv_bridge/cv_bridge.h>
 
 #include <limits>
 #include <memory>
@@ -176,5 +177,5 @@ void ImageTransportDecompressor::onCompressedImage(
 }
 }  // namespace image_preprocessor
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(image_preprocessor::ImageTransportDecompressor)

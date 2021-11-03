@@ -16,10 +16,11 @@
 #define NORMAL_DISTRIBUTIONS_TRANSFORM_OMP_H
 
 #include "ndt/base.hpp"
-#include "pcl/io/io.h"
-#include "pcl/io/pcd_io.h"
-#include "pcl/point_types.h"
-#include "pclomp/ndt_omp.h"
+
+#include <pcl/io/io.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+#include <pclomp/ndt_omp.h>
 
 template <class PointSource, class PointTarget>
 class NormalDistributionsTransformOMP

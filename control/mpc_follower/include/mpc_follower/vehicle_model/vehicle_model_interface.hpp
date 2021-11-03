@@ -21,7 +21,7 @@
 
 #ifndef MPC_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_INTERFACE_HPP_
 #define MPC_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_INTERFACE_HPP_
-#include "eigen3/Eigen/Core"
+#include <eigen3/Eigen/Core>
 
 /**
  * @class vehicle model class

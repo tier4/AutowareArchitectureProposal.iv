@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "operator.hpp"
+#include <operator.hpp>
 
 #include <memory>
 
@@ -209,5 +209,5 @@ autoware_external_api_msgs::msg::ResponseStatus Operator::setExternalSelect(
 
 }  // namespace internal_api
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(internal_api::Operator)

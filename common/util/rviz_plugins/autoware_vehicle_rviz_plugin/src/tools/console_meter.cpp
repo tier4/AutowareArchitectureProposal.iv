@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "console_meter.hpp"
-
-#include "QPainter"
-#include "rviz_common/uniform_string_stream.hpp"
+#include <QPainter>
+#include <console_meter.hpp>
+#include <rviz_common/uniform_string_stream.hpp>
 
 #include <algorithm>
 
@@ -212,5 +211,5 @@ void ConsoleMeterDisplay::updateVisualization()
 
 }  // namespace rviz_plugins
 
-#include "pluginlib/class_list_macros.hpp"
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::ConsoleMeterDisplay, rviz_common::Display)

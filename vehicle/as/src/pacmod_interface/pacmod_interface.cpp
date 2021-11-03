@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pacmod_interface/pacmod_interface.hpp"
+#include <pacmod_interface/pacmod_interface.hpp>
 
 #include <algorithm>
 #include <limits>

@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "scene_module/occlusion_spot/manager.hpp"
+#include <scene_module/occlusion_spot/manager.hpp>
+#include <scene_module/occlusion_spot/scene_occlusion_spot_in_private_road.hpp>
+#include <scene_module/occlusion_spot/scene_occlusion_spot_in_public_road.hpp>
+#include <utilization/util.hpp>
 
-#include "lanelet2_core/primitives/BasicRegulatoryElements.h"
-#include "scene_module/occlusion_spot/scene_occlusion_spot_in_private_road.hpp"
-#include "scene_module/occlusion_spot/scene_occlusion_spot_in_public_road.hpp"
-#include "utilization/util.hpp"
+#include <lanelet2_core/primitives/BasicRegulatoryElements.h>
 
 #include <memory>
 #include <string>

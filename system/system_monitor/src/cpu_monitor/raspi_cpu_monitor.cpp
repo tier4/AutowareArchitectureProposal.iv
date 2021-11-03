@@ -21,8 +21,8 @@
 
 #include "system_monitor/system_monitor_utility.hpp"
 
-#include "boost/algorithm/string.hpp"
-#include "boost/filesystem.hpp"
+#include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 #include <string>
 #include <vector>
@@ -81,5 +81,5 @@ void CPUMonitor::getTempNames()
   }
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(CPUMonitor)

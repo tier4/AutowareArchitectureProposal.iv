@@ -14,8 +14,9 @@
 
 #include "behavior_path_planner/turn_signal_decider.hpp"
 
-#include "autoware_utils/autoware_utils.hpp"
 #include "behavior_path_planner/utilities.hpp"
+
+#include <autoware_utils/autoware_utils.hpp>
 
 #include <limits>
 #include <string>

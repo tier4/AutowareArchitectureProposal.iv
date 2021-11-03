@@ -14,8 +14,8 @@
 
 #include "vehicle_cmd_gate/vehicle_cmd_gate.hpp"
 
-#include "autoware_api_utils/autoware_api_utils.hpp"
-#include "rclcpp/logging.hpp"
+#include <autoware_api_utils/autoware_api_utils.hpp>
+#include <rclcpp/logging.hpp>
 
 #include <chrono>
 #include <functional>
@@ -728,5 +728,5 @@ void VehicleCmdGate::StartRequest::checkStartRequest(const ControlCommandStamped
   }
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(VehicleCmdGate)

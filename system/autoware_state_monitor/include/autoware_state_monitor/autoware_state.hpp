@@ -15,7 +15,7 @@
 #ifndef AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_HPP_
 #define AUTOWARE_STATE_MONITOR__AUTOWARE_STATE_HPP_
 
-#include "autoware_system_msgs/msg/autoware_state.hpp"
+#include <autoware_system_msgs/msg/autoware_state.hpp>
 
 #include <string>
 

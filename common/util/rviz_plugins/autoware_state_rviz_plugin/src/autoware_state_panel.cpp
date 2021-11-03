@@ -14,10 +14,9 @@
 //  limitations under the License.
 //
 
-#include "autoware_state_panel.hpp"
-
 #include <QString>
 #include <QVBoxLayout>
+#include <autoware_state_panel.hpp>
 #include <rviz_common/display_context.hpp>
 
 #include <memory>
@@ -193,5 +192,5 @@ void AutowareStatePanel::onClickAutowareEngage()
 
 }  // namespace rviz_plugins
 
-#include "pluginlib/class_list_macros.hpp"
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::AutowareStatePanel, rviz_common::Panel)

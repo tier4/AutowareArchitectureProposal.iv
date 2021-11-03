@@ -56,13 +56,14 @@
 #ifndef POINTCLOUD_PREPROCESSOR__GROUND_FILTER__GENCOLORS_HPP_
 #define POINTCLOUD_PREPROCESSOR__GROUND_FILTER__GENCOLORS_HPP_
 
-#include "opencv2/core/core.hpp"
-#include "opencv2/core/core_c.h"
+#include <opencv2/core/core.hpp>
+
+#include <opencv2/core/core_c.h>
 
 #include <iostream>
 #include <vector>
-//  #include "precomp.hpp"
-#include "opencv2/opencv.hpp"
+//  #include <precomp.hpp>
+#include <opencv2/opencv.hpp>
 
 namespace ray_ground_filter
 {

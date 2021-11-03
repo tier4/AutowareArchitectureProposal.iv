@@ -15,7 +15,7 @@
 #ifndef MOTION_VELOCITY_SMOOTHER__LINEAR_INTERPOLATION_HPP_
 #define MOTION_VELOCITY_SMOOTHER__LINEAR_INTERPOLATION_HPP_
 
-#include "boost/optional.hpp"
+#include <boost/optional.hpp>
 
 #include <cmath>
 #include <iostream>

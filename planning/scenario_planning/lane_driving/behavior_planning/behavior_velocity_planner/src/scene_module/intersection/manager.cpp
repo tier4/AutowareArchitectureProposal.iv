@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "scene_module/intersection/manager.hpp"
+#include <scene_module/intersection/manager.hpp>
+#include <utilization/boost_geometry_helper.hpp>
+#include <utilization/util.hpp>
 
-#include "lanelet2_core/primitives/BasicRegulatoryElements.h"
-#include "utilization/boost_geometry_helper.hpp"
-#include "utilization/util.hpp"
+#include <lanelet2_core/primitives/BasicRegulatoryElements.h>
 
 #include <memory>
 #include <set>

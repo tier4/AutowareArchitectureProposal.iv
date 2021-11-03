@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #include "autoware_utils/math/constants.hpp"
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 TEST(constants, pi)
 {

@@ -15,13 +15,14 @@
 #ifndef POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__COMPARE_ELEVATION_MAP_FILTER_NODE_HPP_
 #define POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__COMPARE_ELEVATION_MAP_FILTER_NODE_HPP_
 
-#include "grid_map_core/GridMap.hpp"
-#include "grid_map_cv/grid_map_cv.hpp"
-#include "grid_map_pcl/GridMapPclLoader.hpp"
 #include "pointcloud_preprocessor/filter.hpp"
-#include "rclcpp/rclcpp.hpp"
 
-#include "grid_map_msgs/msg/grid_map.hpp"
+#include <grid_map_core/GridMap.hpp>
+#include <grid_map_cv/grid_map_cv.hpp>
+#include <grid_map_pcl/GridMapPclLoader.hpp>
+#include <rclcpp/rclcpp.hpp>
+
+#include <grid_map_msgs/msg/grid_map.hpp>
 
 #include <iostream>
 #include <memory>

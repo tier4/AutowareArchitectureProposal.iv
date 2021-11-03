@@ -15,10 +15,10 @@
 #ifndef SCENE_MODULE__OCCLUSION_SPOT__GEOMETRY_HPP_
 #define SCENE_MODULE__OCCLUSION_SPOT__GEOMETRY_HPP_
 
-#include "lanelet2_core/geometry/Lanelet.h"
-#include "lanelet2_core/geometry/Point.h"
+#include <boost/geometry.hpp>
 
-#include "boost/geometry.hpp"
+#include <lanelet2_core/geometry/Lanelet.h>
+#include <lanelet2_core/geometry/Point.h>
 
 #include <vector>
 

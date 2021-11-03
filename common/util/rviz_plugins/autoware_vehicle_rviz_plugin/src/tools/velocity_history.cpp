@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "velocity_history.hpp"
+#include <velocity_history.hpp>
 
-#include "OgreMaterialManager.h"
+#include <OgreMaterialManager.h>
 
 #include <algorithm>
 #include <memory>
 #define EIGEN_MPL2_ONLY
-#include "Eigen/Core"
+#include <Eigen/Core>
 
 namespace rviz_plugins
 {
@@ -207,5 +207,5 @@ void VelocityHistoryDisplay::updateVisualization()
 
 }  // namespace rviz_plugins
 
-#include "pluginlib/class_list_macros.hpp"
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::VelocityHistoryDisplay, rviz_common::Display)

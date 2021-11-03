@@ -275,8 +275,9 @@ void pcl::PassThroughUInt16<pcl::PCLPointCloud2>::applyFilter(PCLPointCloud2 & o
 }
 
 #ifndef PCL_NO_PRECOMPILE
-#include "pcl/impl/instantiate.hpp"
-#include "pcl/point_types.h"
+#include <pcl/impl/instantiate.hpp>
+
+#include <pcl/point_types.h>
 
 // Instantiations of specific point types
 PCL_INSTANTIATE(PassThroughUInt16, PCL_XYZ_POINT_TYPES)

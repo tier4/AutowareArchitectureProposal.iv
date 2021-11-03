@@ -13,14 +13,16 @@
 // limitations under the License.
 
 #pragma once
-#include "TrtNet.hpp"
-#include "cluster2d.hpp"
-#include "feature_generator.hpp"
 #include "lidar_apollo_instance_segmentation/node.hpp"
-#include "pcl/common/transforms.h"
-#include "tf2_eigen/tf2_eigen.h"
-#include "tf2_ros/buffer_interface.h"
-#include "tf2_ros/transform_listener.h"
+
+#include <TrtNet.hpp>
+#include <cluster2d.hpp>
+#include <feature_generator.hpp>
+
+#include <pcl/common/transforms.h>
+#include <tf2_eigen/tf2_eigen.h>
+#include <tf2_ros/buffer_interface.h>
+#include <tf2_ros/transform_listener.h>
 
 #include <memory>
 

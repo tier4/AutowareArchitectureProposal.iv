@@ -20,10 +20,11 @@
 #ifndef SYSTEM_MONITOR__PROCESS_MONITOR__PROCESS_MONITOR_HPP_
 #define SYSTEM_MONITOR__PROCESS_MONITOR__PROCESS_MONITOR_HPP_
 
-#include "diagnostic_updater/diagnostic_updater.hpp"
 #include "system_monitor/process_monitor/diag_task.hpp"
 
-#include "boost/process.hpp"
+#include <diagnostic_updater/diagnostic_updater.hpp>
+
+#include <boost/process.hpp>
 
 #include <memory>
 #include <string>

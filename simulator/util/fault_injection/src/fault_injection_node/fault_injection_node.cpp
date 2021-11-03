@@ -14,7 +14,7 @@
 
 #include "fault_injection/fault_injection_node.hpp"
 
-#include "autoware_utils/ros/update_param.hpp"
+#include <autoware_utils/ros/update_param.hpp>
 
 #include <memory>
 #include <string>
@@ -127,5 +127,5 @@ std::vector<DiagConfig> FaultInjectionNode::readEventDiagList()
 }
 }  // namespace fault_injection
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(fault_injection::FaultInjectionNode)

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "route.hpp"
+#include <route.hpp>
 
-#include "autoware_external_api_msgs/msg/route_section.hpp"
-#include "autoware_planning_msgs/msg/route_section.hpp"
+#include <autoware_external_api_msgs/msg/route_section.hpp>
+#include <autoware_planning_msgs/msg/route_section.hpp>
 
 #include <memory>
 
@@ -155,5 +155,5 @@ void Route::onRoute(const autoware_planning_msgs::msg::Route::ConstSharedPtr mes
 
 }  // namespace internal_api
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(internal_api::Route)

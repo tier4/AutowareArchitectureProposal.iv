@@ -14,7 +14,7 @@
 
 #include "simple_planning_simulator/simple_planning_simulator_core.hpp"
 
-#include "autoware_utils/ros/update_param.hpp"
+#include <autoware_utils/ros/update_param.hpp>
 
 #include <memory>
 #include <string>

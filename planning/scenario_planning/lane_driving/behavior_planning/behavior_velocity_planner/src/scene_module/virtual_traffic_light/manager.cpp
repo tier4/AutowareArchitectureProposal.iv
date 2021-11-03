@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "scene_module/virtual_traffic_light/manager.hpp"
+#include <scene_module/virtual_traffic_light/manager.hpp>
 
 #include <memory>
 #include <set>

@@ -23,7 +23,8 @@
 #define FMT_HEADER_ONLY
 #include "autoware_error_monitor/autoware_error_monitor_core.hpp"
 #include "autoware_error_monitor/diagnostics_filter.hpp"
-#include "fmt/format.h"
+
+#include <fmt/format.h>
 
 namespace
 {

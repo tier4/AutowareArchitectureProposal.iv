@@ -16,7 +16,8 @@
 #define AWAPI_AWIV_ADAPTER__AWAPI_STOP_REASON_AGGREGATOR_HPP_
 
 #include "awapi_awiv_adapter/awapi_autoware_util.hpp"
-#include "rclcpp/rclcpp.hpp"
+
+#include <rclcpp/rclcpp.hpp>
 
 #include <vector>
 

@@ -14,8 +14,8 @@
 
 #include "mpc_follower/mpc_utils.hpp"
 
-#include "interpolation/linear_interpolation.hpp"
-#include "interpolation/spline_interpolation.hpp"
+#include <interpolation/linear_interpolation.hpp>
+#include <interpolation/spline_interpolation.hpp>
 
 #include <algorithm>
 #include <limits>

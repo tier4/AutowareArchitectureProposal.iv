@@ -263,5 +263,5 @@ bool ExternalCmdConverterNode::checkRemoteTopicRate()
 }
 }  // namespace external_cmd_converter
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(external_cmd_converter::ExternalCmdConverterNode)
