@@ -37,12 +37,12 @@
 #ifndef CALIBRATOR_HPP_
 #define CALIBRATOR_HPP_
 
-#include "NvInfer.h"
-#include "cuda_utils.hpp"
-#include "opencv2/core/core.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/opencv.hpp"
+#include <cuda_utils.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/opencv.hpp>
 
+#include <NvInfer.h>
 #include <assert.h>
 
 #include <algorithm>

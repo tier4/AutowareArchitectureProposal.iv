@@ -22,7 +22,7 @@
 using autoware_planning_msgs::msg::PathWithLaneId;
 using autoware_vehicle_msgs::msg::TurnSignal;
 
-using namespace std::placeholders;
+using std::placeholders::_1;
 
 namespace
 {
@@ -271,5 +271,5 @@ bool TurnSignalDecider::isTurning(
 
 }  // namespace turn_signal_decider
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(turn_signal_decider::TurnSignalDecider)

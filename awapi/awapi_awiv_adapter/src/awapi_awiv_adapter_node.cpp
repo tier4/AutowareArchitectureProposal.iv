@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #include "awapi_awiv_adapter/awapi_awiv_adapter_core.hpp"
-#include "rclcpp/rclcpp.hpp"
+
+#include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 

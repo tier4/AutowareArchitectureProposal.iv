@@ -18,13 +18,13 @@
 
 #include <chrono>
 #include <memory>
-#include <optional>  // NOLINT : https://github.com/ament/ament_lint/pull/324
+#include <optional>
 #include <string>
 #include <vector>
 
 #define EIGEN_MPL2_ONLY
-#include "Eigen/Core"
-#include "Eigen/Geometry"
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 
 using SemanticType = autoware_perception_msgs::msg::Semantic;
 
@@ -406,5 +406,5 @@ void DetectionByTracker::mergeOverSegmentedObjects(
   }
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(DetectionByTracker)

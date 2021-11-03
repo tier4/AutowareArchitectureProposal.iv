@@ -15,8 +15,8 @@
 #ifndef TRT_SSD_HPP_
 #define TRT_SSD_HPP_
 
-#include "./cuda_runtime.h"
-#include "NvInfer.h"
+#include <./cuda_runtime.h>
+#include <NvInfer.h>
 
 #include <iostream>
 #include <memory>

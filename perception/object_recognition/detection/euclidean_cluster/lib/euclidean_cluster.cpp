@@ -14,8 +14,8 @@
 
 #include "euclidean_cluster/euclidean_cluster.hpp"
 
-#include "pcl/kdtree/kdtree.h"
-#include "pcl/segmentation/extract_clusters.h"
+#include <pcl/kdtree/kdtree.h>
+#include <pcl/segmentation/extract_clusters.h>
 
 namespace euclidean_cluster
 {

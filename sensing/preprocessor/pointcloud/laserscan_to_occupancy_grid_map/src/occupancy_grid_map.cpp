@@ -53,7 +53,7 @@
 
 #include "laserscan_to_occupancy_grid_map/cost_value.hpp"
 
-#include "sensor_msgs/point_cloud2_iterator.hpp"
+#include <sensor_msgs/point_cloud2_iterator.hpp>
 
 #include <algorithm>
 

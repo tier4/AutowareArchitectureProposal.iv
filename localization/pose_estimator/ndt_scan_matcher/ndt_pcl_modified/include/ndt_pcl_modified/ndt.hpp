@@ -54,8 +54,11 @@
 #ifndef PCL_REGISTRATION_NDT_MODIFIED_H_
 #define PCL_REGISTRATION_NDT_MODIFIED_H_
 
-#include "pcl/registration/ndt.h"
-#include "unsupported/Eigen/NonLinearOptimization"
+#include <unsupported/Eigen/NonLinearOptimization>
+
+#include <pcl/registration/ndt.h>
+
+#include <vector>
 
 namespace pcl
 {
@@ -67,8 +70,7 @@ protected:
   typedef typename Registration<PointSource, PointTarget>::PointCloudSource PointCloudSource;
 
 public:
-  virtual void computeTransformation(
-    PointCloudSource & output, const Eigen::Matrix4f & guess) override;
+  void computeTransformation(PointCloudSource & output, const Eigen::Matrix4f & guess) override;
 
   inline const Eigen::Matrix<double, 6, 6> getHessian() const { return hessian_; }
 

@@ -22,11 +22,11 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rviz_common/panel.hpp>
 
-#include "autoware_control_msgs/msg/gate_mode.hpp"
-#include "autoware_external_api_msgs/msg/engage_status.hpp"
-#include "autoware_external_api_msgs/srv/engage.hpp"
-#include "autoware_system_msgs/msg/autoware_state.hpp"
-#include "autoware_vehicle_msgs/msg/shift_stamped.hpp"
+#include <autoware_control_msgs/msg/gate_mode.hpp>
+#include <autoware_external_api_msgs/msg/engage_status.hpp>
+#include <autoware_external_api_msgs/srv/engage.hpp>
+#include <autoware_system_msgs/msg/autoware_state.hpp>
+#include <autoware_vehicle_msgs/msg/shift_stamped.hpp>
 
 namespace rviz_plugins
 {

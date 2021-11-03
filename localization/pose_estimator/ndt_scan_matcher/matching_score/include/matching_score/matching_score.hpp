@@ -15,7 +15,9 @@
 #ifndef MATCHING_SCORE_H
 #define MATCHING_SCORE_H
 
-#include "pcl/search/kdtree.h"
+#include <pcl/search/kdtree.h>
+
+#include <vector>
 
 template <class PointType>
 struct PointWithDistance

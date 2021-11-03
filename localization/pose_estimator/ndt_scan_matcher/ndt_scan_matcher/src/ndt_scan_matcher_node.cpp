@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #include "ndt_scan_matcher/ndt_scan_matcher_core.hpp"
-#include "rclcpp/rclcpp.hpp"
+
+#include <rclcpp/rclcpp.hpp>
 
 int main(int argc, char ** argv)
 {

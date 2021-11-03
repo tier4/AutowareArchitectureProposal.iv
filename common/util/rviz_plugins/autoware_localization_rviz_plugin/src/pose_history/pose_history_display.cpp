@@ -14,13 +14,13 @@
 
 #include "pose_history_display.hpp"
 
-#include "rviz_common/properties/bool_property.hpp"
-#include "rviz_common/properties/color_property.hpp"
-#include "rviz_common/properties/float_property.hpp"
-#include "rviz_common/properties/int_property.hpp"
-#include "rviz_common/properties/parse_color.hpp"
-#include "rviz_common/validate_floats.hpp"
-#include "rviz_rendering/objects/billboard_line.hpp"
+#include <rviz_common/properties/bool_property.hpp>
+#include <rviz_common/properties/color_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/int_property.hpp>
+#include <rviz_common/properties/parse_color.hpp>
+#include <rviz_common/validate_floats.hpp>
+#include <rviz_rendering/objects/billboard_line.hpp>
 
 namespace rviz_plugins
 {
@@ -137,5 +137,5 @@ void PoseHistory::updateLines()
 
 }  // namespace rviz_plugins
 
-#include "pluginlib/class_list_macros.hpp"
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::PoseHistory, rviz_common::Display)

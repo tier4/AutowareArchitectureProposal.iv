@@ -14,14 +14,13 @@
 
 #include "initial_pose_button_panel.hpp"
 
-#include "QFileDialog"
-#include "QHBoxLayout"
-#include "QLineEdit"
-#include "QPainter"
-#include "QPushButton"
-#include "rviz_common/display_context.hpp"
-
+#include <QFileDialog>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QPainter>
+#include <QPushButton>
 #include <pluginlib/class_list_macros.hpp>
+#include <rviz_common/display_context.hpp>
 
 #include <memory>
 #include <string>

@@ -14,7 +14,7 @@
 
 #include "freespace_planning_algorithms/abstract_algorithm.hpp"
 
-#include "autoware_utils/autoware_utils.hpp"
+#include <autoware_utils/autoware_utils.hpp>
 
 #include <vector>
 

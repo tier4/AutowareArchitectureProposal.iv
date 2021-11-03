@@ -19,8 +19,9 @@
 
 #include "system_monitor/process_monitor/process_monitor.hpp"
 
-#include "fmt/format.h"
 #include "system_monitor/system_monitor_utility.hpp"
+
+#include <fmt/format.h>
 
 #include <memory>
 #include <regex>
@@ -309,5 +310,5 @@ void ProcessMonitor::setErrorContent(
   }
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(ProcessMonitor)

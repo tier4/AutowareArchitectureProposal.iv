@@ -14,7 +14,8 @@
 
 #include "autoware_utils/geometry/geometry.hpp"
 #include "autoware_utils/math/unit_conversion.hpp"
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 #include <string>
 

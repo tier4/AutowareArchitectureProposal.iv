@@ -16,7 +16,7 @@
 
 #include "accel_brake_map_calibrator/accel_brake_map_calibrator_node.hpp"
 
-#include "rclcpp/logging.hpp"
+#include <rclcpp/logging.hpp>
 
 #include <algorithm>
 #include <limits>
@@ -176,7 +176,9 @@ AccelBrakeMapCalibrator::AccelBrakeMapCalibrator(const rclcpp::NodeOptions & nod
     "/accel_brake_map_calibrator/output/map_error_ratio", durable_qos);
 
   // subscriber
-  using namespace std::placeholders;
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+  using std::placeholders::_3;
 
   twist_sub_ = create_subscription<geometry_msgs::msg::TwistStamped>(
     "~/input/twist", queue_size, std::bind(&AccelBrakeMapCalibrator::callbackTwist, this, _1));

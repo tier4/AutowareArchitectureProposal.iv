@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "traffic_light_map_visualizer/node.hpp"
+#include <lanelet2_extension/utility/message_conversion.hpp>
+#include <lanelet2_extension/visualization/visualization.hpp>
+#include <traffic_light_map_visualizer/node.hpp>
 
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_extension/utility/message_conversion.hpp"
-#include "lanelet2_extension/visualization/visualization.hpp"
-#include "lanelet2_projection/UTM.h"
+#include <visualization_msgs/msg/marker_array.hpp>
 
-#include "visualization_msgs/msg/marker_array.hpp"
+#include <lanelet2_core/LaneletMap.h>
+#include <lanelet2_projection/UTM.h>
 
 #include <string>
 #include <vector>
 
-using namespace std::placeholders;
+using std::placeholders::_1;
 
 namespace
 {

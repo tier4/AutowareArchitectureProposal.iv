@@ -12,16 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// *INDENT-OFF*
-#ifndef MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__VELOCITY_PLANNING_UTILS_HPP_
-#define MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__VELOCITY_PLANNING_UTILS_HPP_
-// *INDENT-ON*
+#ifndef MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__VELOCITY_PLANNING_UTILS_HPP_  // NOLINT
+#define MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__VELOCITY_PLANNING_UTILS_HPP_  // NOLINT
 
-#include "autoware_utils/trajectory/trajectory.hpp"
 #include "motion_velocity_smoother/linear_interpolation.hpp"
-#include "rclcpp/rclcpp.hpp"
 
-#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include <autoware_utils/trajectory/trajectory.hpp>
+#include <rclcpp/rclcpp.hpp>
+
+#include <autoware_planning_msgs/msg/trajectory.hpp>
 
 #include <cmath>
 #include <iostream>
@@ -53,4 +52,6 @@ double integ_a(double a0, double j0, double t);
 }  // namespace analytical_velocity_planning_utils
 }  // namespace motion_velocity_smoother
 
-#endif  // MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__VELOCITY_PLANNING_UTILS_HPP_
+// clang-format off
+#endif  // MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__VELOCITY_PLANNING_UTILS_HPP_ // NOLINT
+// clang-format on

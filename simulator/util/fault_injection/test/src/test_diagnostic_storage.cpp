@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #include "fault_injection/diagnostic_storage.hpp"
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 #include <memory>
 #include <string>

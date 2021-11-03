@@ -14,7 +14,7 @@
 
 #include "shift_decider/shift_decider.hpp"
 
-#include "rclcpp/timer.hpp"
+#include <rclcpp/timer.hpp>
 
 #include <cstddef>
 #include <functional>
@@ -75,5 +75,5 @@ void ShiftDecider::initTimer(double period_s)
   this->get_node_timers_interface()->add_timer(timer_, nullptr);
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(ShiftDecider)

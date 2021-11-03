@@ -15,7 +15,7 @@
 #ifndef UTILIZATION__STATE_MACHINE_HPP_
 #define UTILIZATION__STATE_MACHINE_HPP_
 
-#include "rclcpp/rclcpp.hpp"
+#include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 #include <string>

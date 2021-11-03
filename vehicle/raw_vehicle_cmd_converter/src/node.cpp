@@ -229,5 +229,5 @@ void RawVehicleCommandConverterNode::onControlCmd(const ControlCommandStamped::C
 }
 }  // namespace raw_vehicle_cmd_converter
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(raw_vehicle_cmd_converter::RawVehicleCommandConverterNode)

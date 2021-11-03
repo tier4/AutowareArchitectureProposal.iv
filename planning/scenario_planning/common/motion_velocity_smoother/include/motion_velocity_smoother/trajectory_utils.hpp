@@ -15,13 +15,13 @@
 #ifndef MOTION_VELOCITY_SMOOTHER__TRAJECTORY_UTILS_HPP_
 #define MOTION_VELOCITY_SMOOTHER__TRAJECTORY_UTILS_HPP_
 
-#include "autoware_utils/geometry/geometry.hpp"
-#include "autoware_utils/trajectory/trajectory.hpp"
+#include <autoware_utils/geometry/geometry.hpp>
+#include <autoware_utils/trajectory/trajectory.hpp>
 
-#include "autoware_planning_msgs/msg/trajectory.hpp"
-#include "geometry_msgs/msg/pose.hpp"
+#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include <geometry_msgs/msg/pose.hpp>
 
-#include "boost/optional.hpp"
+#include <boost/optional.hpp>
 
 #include <iostream>
 #include <map>

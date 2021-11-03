@@ -15,19 +15,20 @@
 #ifndef SCENE_MODULE__OCCLUSION_SPOT__MANAGER_HPP_
 #define SCENE_MODULE__OCCLUSION_SPOT__MANAGER_HPP_
 
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_routing/RoutingGraph.h"
-#include "rclcpp/rclcpp.hpp"
-#include "scene_module/occlusion_spot/occlusion_spot_utils.hpp"
-#include "scene_module/occlusion_spot/scene_occlusion_spot_in_private_road.hpp"
-#include "scene_module/occlusion_spot/scene_occlusion_spot_in_public_road.hpp"
-#include "scene_module/scene_module_interface.hpp"
+#include <rclcpp/rclcpp.hpp>
+#include <scene_module/occlusion_spot/occlusion_spot_utils.hpp>
+#include <scene_module/occlusion_spot/scene_occlusion_spot_in_private_road.hpp>
+#include <scene_module/occlusion_spot/scene_occlusion_spot_in_public_road.hpp>
+#include <scene_module/scene_module_interface.hpp>
 
-#include "autoware_perception_msgs/msg/dynamic_object.hpp"
-#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
-#include "geometry_msgs/msg/point.hpp"
-#include "nav_msgs/msg/occupancy_grid.hpp"
+#include <autoware_perception_msgs/msg/dynamic_object.hpp>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <geometry_msgs/msg/point.hpp>
+#include <nav_msgs/msg/occupancy_grid.hpp>
+
+#include <lanelet2_core/LaneletMap.h>
+#include <lanelet2_routing/RoutingGraph.h>
 
 #include <memory>
 #include <set>

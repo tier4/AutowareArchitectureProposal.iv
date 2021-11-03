@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "trt_ssd.hpp"
+#include <trt_ssd.hpp>
 
-#include "NvOnnxConfig.h"
-#include "NvOnnxParser.h"
+#include <NvOnnxConfig.h>
+#include <NvOnnxParser.h>
 
 #include <fstream>
 #include <memory>

@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// *INDENT-OFF*
-#ifndef POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__VOXEL_BASED_APPROXIMATE_COMPARE_MAP_FILTER_NODELET_HPP_
-#define POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__VOXEL_BASED_APPROXIMATE_COMPARE_MAP_FILTER_NODELET_HPP_
-// *INDENT-ON*
+#ifndef POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__VOXEL_BASED_APPROXIMATE_COMPARE_MAP_FILTER_NODELET_HPP_  // NOLINT
+#define POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__VOXEL_BASED_APPROXIMATE_COMPARE_MAP_FILTER_NODELET_HPP_  // NOLINT
 
-#include "pcl/filters/voxel_grid.h"
-#include "pcl/search/pcl_search.h"
 #include "pointcloud_preprocessor/filter.hpp"
+
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/search/pcl_search.h>
 
 #include <vector>
 
@@ -53,4 +52,6 @@ public:
 };
 }  // namespace pointcloud_preprocessor
 
-#endif  // POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__VOXEL_BASED_APPROXIMATE_COMPARE_MAP_FILTER_NODELET_HPP_
+// clang-format off
+#endif  // POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__VOXEL_BASED_APPROXIMATE_COMPARE_MAP_FILTER_NODELET_HPP_ // NOLINT
+// clang-format on

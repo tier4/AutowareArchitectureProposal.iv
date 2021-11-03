@@ -15,9 +15,9 @@
 #ifndef POSE_HISTORY__POSE_HISTORY_DISPLAY_HPP_
 #define POSE_HISTORY__POSE_HISTORY_DISPLAY_HPP_
 
-#include "rviz_common/message_filter_display.hpp"
+#include <rviz_common/message_filter_display.hpp>
 
-#include "geometry_msgs/msg/pose_stamped.hpp"
+#include <geometry_msgs/msg/pose_stamped.hpp>
 
 #include <deque>
 #include <memory>

@@ -13,8 +13,10 @@
 // limitations under the License.
 
 #include "autoware_api_utils/autoware_api_utils.hpp"
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
+
+#include <rclcpp/rclcpp.hpp>
+
+#include <gtest/gtest.h>
 
 TEST(autoware_api_utils, instantiate)
 {

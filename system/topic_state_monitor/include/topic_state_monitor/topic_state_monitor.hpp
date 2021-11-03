@@ -15,7 +15,7 @@
 #ifndef TOPIC_STATE_MONITOR__TOPIC_STATE_MONITOR_HPP_
 #define TOPIC_STATE_MONITOR__TOPIC_STATE_MONITOR_HPP_
 
-#include "rclcpp/rclcpp.hpp"
+#include <rclcpp/rclcpp.hpp>
 
 #include <deque>
 #include <string>

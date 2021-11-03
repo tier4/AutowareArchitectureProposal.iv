@@ -21,7 +21,8 @@ namespace internal_api
 InitialPose::InitialPose(const rclcpp::NodeOptions & options)
 : Node("internal_api_initial_pose", options)
 {
-  using namespace std::placeholders;
+  using std::placeholders::_1;
+  using std::placeholders::_2;
   autoware_api_utils::ServiceProxyNodeInterface proxy(this);
 
   init_simulator_pose_ = declare_parameter("init_simulator_pose", false);
@@ -101,5 +102,5 @@ void InitialPose::setInitializePoseAuto(
 
 }  // namespace internal_api
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(internal_api::InitialPose)

@@ -15,10 +15,10 @@
 #ifndef DUMMY_INFRASTRUCTURE__DUMMY_INFRASTRUCTURE_NODE_HPP__
 #define DUMMY_INFRASTRUCTURE__DUMMY_INFRASTRUCTURE_NODE_HPP__
 
-#include "rclcpp/rclcpp.hpp"
+#include <rclcpp/rclcpp.hpp>
 
-#include "autoware_v2x_msgs/msg/infrastructure_command_array.hpp"
-#include "autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp"
+#include <autoware_v2x_msgs/msg/infrastructure_command_array.hpp>
+#include <autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp>
 
 #include <chrono>
 #include <memory>

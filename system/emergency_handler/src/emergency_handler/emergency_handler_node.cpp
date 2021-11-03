@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #include "emergency_handler/emergency_handler_core.hpp"
-#include "rclcpp/rclcpp.hpp"
+
+#include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 

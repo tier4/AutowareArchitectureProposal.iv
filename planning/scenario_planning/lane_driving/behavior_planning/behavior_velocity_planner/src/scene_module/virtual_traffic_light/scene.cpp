@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "scene_module/virtual_traffic_light/scene.hpp"
+#include <autoware_utils/trajectory/trajectory.hpp>
+#include <scene_module/virtual_traffic_light/scene.hpp>
+#include <utilization/util.hpp>
 
-#include "autoware_utils/trajectory/trajectory.hpp"
-#include "utilization/util.hpp"
-
-#include "autoware_v2x_msgs/msg/key_value.hpp"
+#include <autoware_v2x_msgs/msg/key_value.hpp>
 
 #include <algorithm>
 #include <string>

@@ -20,8 +20,8 @@
  * @brief Velodyne monitor class
  */
 
-#include "diagnostic_updater/diagnostic_updater.hpp"
-#include "rclcpp/rclcpp.hpp"
+#include <diagnostic_updater/diagnostic_updater.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 #include <map>
 #include <memory>
@@ -29,7 +29,7 @@
 #include <vector>
 
 // Include after diagnostic_updater because it causes errors
-#include "cpprest/http_client.h"
+#include <cpprest/http_client.h>
 
 namespace http = web::http;
 namespace client = web::http::client;

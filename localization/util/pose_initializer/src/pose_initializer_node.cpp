@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #include "pose_initializer/pose_initializer_core.hpp"
-#include "rclcpp/rclcpp.hpp"
+
+#include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 

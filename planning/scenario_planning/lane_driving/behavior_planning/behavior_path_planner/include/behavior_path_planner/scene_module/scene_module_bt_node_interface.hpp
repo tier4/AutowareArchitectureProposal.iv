@@ -16,7 +16,8 @@
 #define BEHAVIOR_PATH_PLANNER__SCENE_MODULE__SCENE_MODULE_BT_NODE_INTERFACE_HPP_
 
 #include "behavior_path_planner/scene_module/scene_module_interface.hpp"
-#include "behaviortree_cpp_v3/bt_factory.h"
+
+#include <behaviortree_cpp_v3/bt_factory.h>
 
 #include <memory>
 #include <string>

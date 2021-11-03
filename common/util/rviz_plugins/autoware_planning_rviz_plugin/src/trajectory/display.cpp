@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "trajectory/display.hpp"
+#include <trajectory/display.hpp>
 
 #include <memory>
 #define EIGEN_MPL2_ONLY
-#include "eigen3/Eigen/Core"
-#include "eigen3/Eigen/Geometry"
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Geometry>
 
 namespace rviz_plugins
 {
@@ -315,5 +315,5 @@ void AutowareTrajectoryDisplay::updateVisualization()
 
 }  // namespace rviz_plugins
 
-#include "pluginlib/class_list_macros.hpp"
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::AutowareTrajectoryDisplay, rviz_common::Display)

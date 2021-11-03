@@ -53,8 +53,8 @@
 #ifndef POINTCLOUD_PREPROCESSOR__PASSTHROUGH_FILTER__PASSTHROUGH_UINT16_HPP_
 #define POINTCLOUD_PREPROCESSOR__PASSTHROUGH_FILTER__PASSTHROUGH_UINT16_HPP_
 
-#include "pcl/common/io.h"
-#include "pcl/filters/filter_indices.h"
+#include <pcl/common/io.h>
+#include <pcl/filters/filter_indices.h>
 
 #include <limits>
 #include <string>
@@ -467,7 +467,7 @@ void pcl::PassThroughUInt16<PointT>::applyFilterIndices(std::vector<int> & indic
 #define PCL_INSTANTIATE_PassThroughUInt16(T) template class PCL_EXPORTS pcl::PassThroughUInt16<T>;
 
 #ifdef PCL_NO_PRECOMPILE
-#include "pcl/filters/impl/passthrough.hpp"
+#include <pcl/filters/impl/passthrough.hpp>
 #endif
 
 #endif  // POINTCLOUD_PREPROCESSOR__PASSTHROUGH_FILTER__PASSTHROUGH_UINT16_HPP_

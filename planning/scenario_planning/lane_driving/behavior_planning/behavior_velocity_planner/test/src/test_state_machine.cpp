@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
-#include "utilization/state_machine.hpp"
 #include "utils.hpp"
+
+#include <rclcpp/rclcpp.hpp>
+#include <utilization/state_machine.hpp>
+
+#include <gtest/gtest.h>
 
 #include <chrono>
 #include <limits>

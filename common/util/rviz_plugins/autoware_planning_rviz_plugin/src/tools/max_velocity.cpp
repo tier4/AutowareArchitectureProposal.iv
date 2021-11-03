@@ -14,10 +14,11 @@
 
 #include "max_velocity.hpp"
 
-#include "OgreHardwarePixelBuffer.h"
-#include "QPainter"
-#include "rviz_common/display_context.hpp"
-#include "rviz_common/uniform_string_stream.hpp"
+#include <QPainter>
+#include <rviz_common/display_context.hpp>
+#include <rviz_common/uniform_string_stream.hpp>
+
+#include <OgreHardwarePixelBuffer.h>
 
 #include <algorithm>
 #include <iomanip>
@@ -184,5 +185,5 @@ void MaxVelocityDisplay::updateVisualization()
 
 }  // namespace rviz_plugins
 
-#include "pluginlib/class_list_macros.hpp"
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::MaxVelocityDisplay, rviz_common::Display)

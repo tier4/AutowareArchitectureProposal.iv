@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-using namespace std::chrono_literals;
+using namespace std::literals::chrono_literals;
 
 namespace raw_vehicle_cmd_converter
 {

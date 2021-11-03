@@ -31,7 +31,7 @@
 
 #include "pointcloud_preprocessor/ground_filter/ray_ground_filter_nodelet.hpp"
 
-#include "pcl_ros/transforms.hpp"
+#include <pcl_ros/transforms.hpp>
 
 #include <string>
 #include <vector>
@@ -121,7 +121,7 @@ void RayGroundFilterComponent::ConvertXYZIToRTZColor(
     if (theta >= 360) {
       theta -= 360;
     }
-    auto radial_div = (size_t)floor(theta / radial_divider_angle_);
+    auto radial_div = static_cast<size_t>(floor(theta / radial_divider_angle_));
 
     new_point.point.x = in_cloud->points[i].x;
     new_point.point.y = in_cloud->points[i].y;
@@ -130,9 +130,9 @@ void RayGroundFilterComponent::ConvertXYZIToRTZColor(
     new_point.radius = radius;
     new_point.theta = theta;
     new_point.radial_div = radial_div;
-    new_point.red = (size_t)colors_[new_point.radial_div % color_num_].val[0];
-    new_point.green = (size_t)colors_[new_point.radial_div % color_num_].val[1];
-    new_point.blue = (size_t)colors_[new_point.radial_div % color_num_].val[2];
+    new_point.red = static_cast<size_t>(colors_[new_point.radial_div % color_num_].val[0]);
+    new_point.green = static_cast<size_t>(colors_[new_point.radial_div % color_num_].val[1]);
+    new_point.blue = static_cast<size_t>(colors_[new_point.radial_div % color_num_].val[2]);
     new_point.original_index = i;
 
     out_organized_points[i] = new_point;
@@ -420,5 +420,5 @@ rcl_interfaces::msg::SetParametersResult RayGroundFilterComponent::paramCallback
 
 }  // namespace pointcloud_preprocessor
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(pointcloud_preprocessor::RayGroundFilterComponent)

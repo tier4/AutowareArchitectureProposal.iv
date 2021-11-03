@@ -15,13 +15,13 @@
 #ifndef SCENE_MODULE__INTERSECTION__MANAGER_HPP_
 #define SCENE_MODULE__INTERSECTION__MANAGER_HPP_
 
-#include "rclcpp/rclcpp.hpp"
-#include "scene_module/intersection/scene_intersection.hpp"
-#include "scene_module/intersection/scene_merge_from_private_road.hpp"
-#include "scene_module/scene_module_interface.hpp"
+#include <rclcpp/rclcpp.hpp>
+#include <scene_module/intersection/scene_intersection.hpp>
+#include <scene_module/intersection/scene_merge_from_private_road.hpp>
+#include <scene_module/scene_module_interface.hpp>
 
-#include "autoware_api_msgs/msg/intersection_status.hpp"
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include <autoware_api_msgs/msg/intersection_status.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 
 #include <functional>
 #include <memory>

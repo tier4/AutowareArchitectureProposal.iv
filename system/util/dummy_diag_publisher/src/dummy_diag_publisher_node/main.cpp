@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #include "dummy_diag_publisher/dummy_diag_publisher_node.hpp"
-#include "rclcpp/rclcpp.hpp"
+
+#include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 

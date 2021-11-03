@@ -14,9 +14,9 @@
 
 #include "lanelet2_extension/regulatory_elements/no_stopping_area.hpp"
 
-#include "lanelet2_core/primitives/RegulatoryElement.h"
+#include <boost/variant.hpp>
 
-#include "boost/variant.hpp"
+#include <lanelet2_core/primitives/RegulatoryElement.h>
 
 #include <algorithm>
 #include <memory>

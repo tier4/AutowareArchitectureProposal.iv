@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
 #include "system_monitor/cpu_monitor/unknown_cpu_monitor.hpp"
+
+#include <rclcpp/rclcpp.hpp>
+
+#include <gtest/gtest.h>
 
 #include <memory>
 #include <string>

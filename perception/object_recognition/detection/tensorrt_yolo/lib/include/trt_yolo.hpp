@@ -37,13 +37,13 @@
 #ifndef TRT_YOLO_HPP_
 #define TRT_YOLO_HPP_
 
-#include "NvInfer.h"
-#include "cuda_utils.hpp"
-#include "opencv2/core/core.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/opencv.hpp"
-#include "yolo_layer.hpp"
+#include <cuda_utils.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/opencv.hpp>
+#include <yolo_layer.hpp>
 
+#include <NvInfer.h>
 #include <cuda_runtime.h>
 
 #include <iostream>

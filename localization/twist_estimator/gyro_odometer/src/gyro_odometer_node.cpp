@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #include "gyro_odometer/gyro_odometer_core.hpp"
-#include "rclcpp/rclcpp.hpp"
+
+#include <rclcpp/rclcpp.hpp>
 
 #include <memory>
 

@@ -208,5 +208,5 @@ ExternalCmdSelector::InternalHeartbeat ExternalCmdSelector::convert(
   return command;
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(ExternalCmdSelector)

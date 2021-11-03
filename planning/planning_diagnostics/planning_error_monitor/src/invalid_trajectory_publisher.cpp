@@ -76,5 +76,5 @@ void InvalidTrajectoryPublisherNode::onCurrentTrajectory(const Trajectory::Const
 
 }  // namespace planning_diagnostics
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(planning_diagnostics::InvalidTrajectoryPublisherNode)

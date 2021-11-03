@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "utilization/interpolate.hpp"
-
-#include "utilization/util.hpp"
+#include <utilization/interpolate.hpp>
+#include <utilization/util.hpp>
 
 #include <vector>
 

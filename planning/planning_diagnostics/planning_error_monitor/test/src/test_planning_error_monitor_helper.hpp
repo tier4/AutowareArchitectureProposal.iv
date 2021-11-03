@@ -15,8 +15,8 @@
 #ifndef TEST_PLANNING_ERROR_MONITOR_HELPER_HPP_
 #define TEST_PLANNING_ERROR_MONITOR_HELPER_HPP_
 
-#include "autoware_planning_msgs/msg/trajectory.hpp"
-#include "autoware_planning_msgs/msg/trajectory_point.hpp"
+#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include <autoware_planning_msgs/msg/trajectory_point.hpp>
 
 using autoware_planning_msgs::msg::Trajectory;
 using autoware_planning_msgs::msg::TrajectoryPoint;

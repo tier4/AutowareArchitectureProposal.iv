@@ -18,7 +18,7 @@
 #include "autoware_utils/geometry/geometry.hpp"
 #include "autoware_utils/geometry/pose_deviation.hpp"
 
-#include "boost/optional.hpp"
+#include <boost/optional.hpp>
 
 #include <algorithm>
 #include <limits>

@@ -15,9 +15,9 @@
 #ifndef FAULT_INJECTION__DIAGNOSTIC_STORAGE_HPP__
 #define FAULT_INJECTION__DIAGNOSTIC_STORAGE_HPP__
 
-#include "diagnostic_aggregator/status_item.hpp"
+#include <diagnostic_aggregator/status_item.hpp>
 
-#include "diagnostic_msgs/msg/diagnostic_status.hpp"
+#include <diagnostic_msgs/msg/diagnostic_status.hpp>
 
 #include <string>
 #include <unordered_map>

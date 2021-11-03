@@ -15,11 +15,11 @@
 #ifndef SCENE_MODULE__TRAFFIC_LIGHT__MANAGER_HPP_
 #define SCENE_MODULE__TRAFFIC_LIGHT__MANAGER_HPP_
 
-#include "rclcpp/rclcpp.hpp"
-#include "scene_module/scene_module_interface.hpp"
-#include "scene_module/traffic_light/scene.hpp"
+#include <rclcpp/rclcpp.hpp>
+#include <scene_module/scene_module_interface.hpp>
+#include <scene_module/traffic_light/scene.hpp>
 
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 
 #include <functional>
 #include <memory>

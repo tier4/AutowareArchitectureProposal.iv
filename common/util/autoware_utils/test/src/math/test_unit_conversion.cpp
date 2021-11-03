@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #include "autoware_utils/math/unit_conversion.hpp"
-#include "gtest/gtest.h"
+
+#include <gtest/gtest.h>
 
 using autoware_utils::pi;
 

@@ -54,6 +54,9 @@
 #ifndef PCL_REGISTRATION_NDT_MODIFIED_IMPL_H_
 #define PCL_REGISTRATION_NDT_MODIFIED_IMPL_H_
 
+#include <algorithm>
+#include <vector>
+
 template <typename PointSource, typename PointTarget>
 void pcl::NormalDistributionsTransformModified<PointSource, PointTarget>::computeTransformation(
   PointCloudSource & output, const Eigen::Matrix4f & guess)

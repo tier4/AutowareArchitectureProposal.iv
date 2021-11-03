@@ -14,7 +14,7 @@
 
 #include "simple_planning_simulator/simple_planning_simulator_core.hpp"
 
-#include "autoware_utils/ros/update_param.hpp"
+#include <autoware_utils/ros/update_param.hpp>
 
 #include <memory>
 #include <string>
@@ -24,7 +24,8 @@
 Simulator::Simulator(const std::string & node_name, const rclcpp::NodeOptions & options)
 : Node(node_name, options)
 {
-  using namespace std::placeholders;
+  using std::placeholders::_1;
+  using std::placeholders::_2;
 
   /* simple_planning_simulator parameters */
   const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo();

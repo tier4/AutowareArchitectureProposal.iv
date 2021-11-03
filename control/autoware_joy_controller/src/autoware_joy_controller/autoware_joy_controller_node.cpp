@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "autoware_api_utils/autoware_api_utils.hpp"
 #include "autoware_joy_controller/autoware_joy_controller.hpp"
 #include "autoware_joy_controller/joy_converter/ds4_joy_converter.hpp"
 #include "autoware_joy_controller/joy_converter/g29_joy_converter.hpp"
+
+#include <autoware_api_utils/autoware_api_utils.hpp>
 
 #include <algorithm>
 #include <memory>
@@ -511,5 +512,5 @@ AutowareJoyControllerNode::AutowareJoyControllerNode(const rclcpp::NodeOptions &
 }
 }  // namespace autoware_joy_controller
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(autoware_joy_controller::AutowareJoyControllerNode)

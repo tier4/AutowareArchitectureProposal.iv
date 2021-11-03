@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "scene_module/detection_area/manager.hpp"
+#include <lanelet2_extension/utility/query.hpp>
+#include <scene_module/detection_area/manager.hpp>
 
-#include "lanelet2_extension/utility/query.hpp"
-#include "tf2/utils.h"
+#include <tf2/utils.h>
 
 #include <memory>
 #include <set>

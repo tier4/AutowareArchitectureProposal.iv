@@ -12,18 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
-#include "rclcpp/time.hpp"
-#include "tf2_ros/static_transform_broadcaster.h"
 #include "velocity_controller/velocity_controller.hpp"
 
-#include "autoware_control_msgs/msg/control_command_stamped.hpp"
-#include "autoware_planning_msgs/msg/trajectory.hpp"
-#include "autoware_planning_msgs/msg/trajectory_point.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/transform_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
+#include <rclcpp/rclcpp.hpp>
+#include <rclcpp/time.hpp>
+
+#include <autoware_control_msgs/msg/control_command_stamped.hpp>
+#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include <autoware_planning_msgs/msg/trajectory_point.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <geometry_msgs/msg/twist_stamped.hpp>
+
+#include <gtest/gtest.h>
+#include <tf2_ros/static_transform_broadcaster.h>
 
 #include <memory>
 

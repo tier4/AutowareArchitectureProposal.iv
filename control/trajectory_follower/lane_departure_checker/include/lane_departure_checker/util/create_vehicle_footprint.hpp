@@ -28,11 +28,11 @@
 #ifndef LANE_DEPARTURE_CHECKER__UTIL__CREATE_VEHICLE_FOOTPRINT_HPP_
 #define LANE_DEPARTURE_CHECKER__UTIL__CREATE_VEHICLE_FOOTPRINT_HPP_
 
-#include "autoware_utils/geometry/geometry.hpp"
-#include "tf2/utils.h"
-#include "vehicle_info_util/vehicle_info_util.hpp"
-
 #include <Eigen/Dense>
+#include <autoware_utils/geometry/geometry.hpp>
+#include <vehicle_info_util/vehicle_info_util.hpp>
+
+#include <tf2/utils.h>
 
 struct FootprintMargin
 {

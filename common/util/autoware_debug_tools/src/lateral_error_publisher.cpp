@@ -147,5 +147,5 @@ void LateralErrorPublisher::onGroundTruthPose(
   pub_lateral_error_->publish(sum_msg);
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(LateralErrorPublisher)

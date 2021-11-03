@@ -19,14 +19,15 @@
 #include <mutex>
 
 #ifndef Q_MOC_RUN
-#include "autoware_utils/autoware_utils.hpp"
 #include "jsk_overlay_utils.hpp"
-#include "rviz_common/properties/color_property.hpp"
-#include "rviz_common/properties/float_property.hpp"
-#include "rviz_common/properties/int_property.hpp"
-#include "rviz_common/ros_topic_display.hpp"
 
-#include "geometry_msgs/msg/twist_stamped.hpp"
+#include <autoware_utils/autoware_utils.hpp>
+#include <rviz_common/properties/color_property.hpp>
+#include <rviz_common/properties/float_property.hpp>
+#include <rviz_common/properties/int_property.hpp>
+#include <rviz_common/ros_topic_display.hpp>
+
+#include <geometry_msgs/msg/twist_stamped.hpp>
 #endif
 
 namespace rviz_plugins

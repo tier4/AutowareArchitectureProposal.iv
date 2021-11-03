@@ -75,5 +75,5 @@ rcl_interfaces::msg::SetParametersResult PointcloudAccumulatorComponent::paramCa
 }
 }  // namespace pointcloud_preprocessor
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(pointcloud_preprocessor::PointcloudAccumulatorComponent)

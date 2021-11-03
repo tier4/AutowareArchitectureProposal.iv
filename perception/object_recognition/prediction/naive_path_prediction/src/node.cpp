@@ -19,7 +19,7 @@
 
 #include "naive_path_prediction/node.hpp"
 
-#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 
 #include <tf2/LinearMath/Transform.h>
 #include <tf2/convert.h>
@@ -80,5 +80,5 @@ void NaivePathPredictionNode::callback(
   pub_->publish(output_msg);
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(NaivePathPredictionNode)

@@ -44,9 +44,10 @@
 
 #ifndef MPC_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_NO_DELAY_HPP_  // NOLINT
 #define MPC_FOLLOWER__VEHICLE_MODEL__VEHICLE_MODEL_BICYCLE_KINEMATICS_NO_DELAY_HPP_  // NOLINT
-#include "eigen3/Eigen/Core"
-#include "eigen3/Eigen/LU"
 #include "mpc_follower/vehicle_model/vehicle_model_interface.hpp"
+
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/LU>
 
 /**
  * @class vehicle model class of bicycle kinematics without steering delay

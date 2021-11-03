@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gtest/gtest.h"
 #include "velocity_controller/pid.hpp"
+
+#include <gtest/gtest.h>
 
 #include <array>
 

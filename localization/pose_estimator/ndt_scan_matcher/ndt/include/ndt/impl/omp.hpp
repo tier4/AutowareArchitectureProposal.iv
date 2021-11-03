@@ -17,6 +17,8 @@
 
 #include "ndt/omp.hpp"
 
+#include <vector>
+
 template <class PointSource, class PointTarget>
 NormalDistributionsTransformOMP<PointSource, PointTarget>::NormalDistributionsTransformOMP()
 : ndt_ptr_(new pclomp::NormalDistributionsTransform<PointSource, PointTarget>)

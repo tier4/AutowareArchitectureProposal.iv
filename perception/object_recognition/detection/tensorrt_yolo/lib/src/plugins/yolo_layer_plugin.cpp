@@ -58,9 +58,8 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include "yolo_layer_plugin.hpp"
-
-#include "yolo_layer.hpp"
+#include <yolo_layer.hpp>
+#include <yolo_layer_plugin.hpp>
 
 #include <cuda_runtime_api.h>
 #include <stdio.h>

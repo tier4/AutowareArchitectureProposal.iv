@@ -14,13 +14,14 @@
 
 #include "scenario_selector/scenario_selector_node.hpp"
 
-#include "lanelet2_core/geometry/BoundingBox.h"
-#include "lanelet2_core/geometry/Lanelet.h"
-#include "lanelet2_core/geometry/LineString.h"
-#include "lanelet2_core/geometry/Point.h"
-#include "lanelet2_core/geometry/Polygon.h"
-#include "lanelet2_extension/utility/message_conversion.hpp"
-#include "lanelet2_extension/utility/query.hpp"
+#include <lanelet2_extension/utility/message_conversion.hpp>
+#include <lanelet2_extension/utility/query.hpp>
+
+#include <lanelet2_core/geometry/BoundingBox.h>
+#include <lanelet2_core/geometry/Lanelet.h>
+#include <lanelet2_core/geometry/LineString.h>
+#include <lanelet2_core/geometry/Point.h>
+#include <lanelet2_core/geometry/Polygon.h>
 
 #include <deque>
 #include <memory>
@@ -373,5 +374,5 @@ ScenarioSelectorNode::ScenarioSelectorNode(const rclcpp::NodeOptions & node_opti
   }
 }
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(ScenarioSelectorNode)

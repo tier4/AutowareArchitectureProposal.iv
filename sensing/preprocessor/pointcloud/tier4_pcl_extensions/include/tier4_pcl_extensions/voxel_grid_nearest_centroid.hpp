@@ -51,10 +51,10 @@
 #ifndef TIER4_PCL_EXTENSIONS__VOXEL_GRID_NEAREST_CENTROID_HPP_
 #define TIER4_PCL_EXTENSIONS__VOXEL_GRID_NEAREST_CENTROID_HPP_
 
-#include "pcl/filters/boost.h"
-#include "pcl/filters/voxel_grid.h"
-#include "pcl/kdtree/kdtree_flann.h"
-#include "pcl/point_types.h"
+#include <pcl/filters/boost.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/point_types.h>
 
 #include <map>
 #include <vector>
@@ -532,7 +532,7 @@ protected:
 
 #ifdef PCL_NO_PRECOMPILE
 //  #include <pcl/filters/impl/voxel_grid_covariance.hpp>
-#include "voxel_grid_approxi.hpp"
+#include <voxel_grid_approxi.hpp>
 #endif
 
 #endif  // TIER4_PCL_EXTENSIONS__VOXEL_GRID_NEAREST_CENTROID_HPP_

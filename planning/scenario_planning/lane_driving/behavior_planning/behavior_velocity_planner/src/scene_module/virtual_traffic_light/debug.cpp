@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "autoware_utils/autoware_utils.hpp"
-#include "scene_module/virtual_traffic_light/scene.hpp"
+#include <autoware_utils/autoware_utils.hpp>
+#include <scene_module/virtual_traffic_light/scene.hpp>
 
 using autoware_utils::appendMarkerArray;
 using autoware_utils::createDefaultMarker;

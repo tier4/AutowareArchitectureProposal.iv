@@ -15,9 +15,9 @@
 #include <memory>
 
 #define EIGEN_MPL2_ONLY
-#include "eigen3/Eigen/Core"
-#include "eigen3/Eigen/Geometry"
-#include "path_footprint/display.hpp"
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Geometry>
+#include <path_footprint/display.hpp>
 
 namespace rviz_plugins
 {
@@ -183,5 +183,5 @@ void AutowarePathFootprintDisplay::updateVehicleInfo()
 
 }  // namespace rviz_plugins
 
-#include "pluginlib/class_list_macros.hpp"
+#include <pluginlib/class_list_macros.hpp>
 PLUGINLIB_EXPORT_CLASS(rviz_plugins::AutowarePathFootprintDisplay, rviz_common::Display)

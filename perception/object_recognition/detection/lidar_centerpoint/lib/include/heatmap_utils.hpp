@@ -15,7 +15,7 @@
 #ifndef HEATMAP_UTILS_HPP_
 #define HEATMAP_UTILS_HPP_
 
-#include "torch/script.h"
+#include <torch/script.h>
 
 #include <tuple>
 

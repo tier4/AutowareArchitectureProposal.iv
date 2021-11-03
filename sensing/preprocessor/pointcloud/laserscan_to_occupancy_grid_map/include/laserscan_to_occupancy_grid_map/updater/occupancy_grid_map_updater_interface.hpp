@@ -16,7 +16,8 @@
 #define LASERSCAN_TO_OCCUPANCY_GRID_MAP__UPDATER__OCCUPANCY_GRID_MAP_UPDATER_INTERFACE_HPP_
 
 #include "laserscan_to_occupancy_grid_map/cost_value.hpp"
-#include "nav2_costmap_2d/costmap_2d.hpp"
+
+#include <nav2_costmap_2d/costmap_2d.hpp>
 
 namespace costmap_2d
 {

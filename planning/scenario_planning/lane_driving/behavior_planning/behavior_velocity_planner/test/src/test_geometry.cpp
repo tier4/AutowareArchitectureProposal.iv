@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gtest/gtest.h"
-#include "scene_module/occlusion_spot/geometry.hpp"
 #include "utils.hpp"
+
+#include <scene_module/occlusion_spot/geometry.hpp>
+
+#include <gtest/gtest.h>
 
 #include <vector>
 

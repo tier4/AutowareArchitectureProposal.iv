@@ -13,9 +13,11 @@
 // limitations under the License.
 
 #include "freespace_planning_algorithms/astar_search.hpp"
-#include "gtest/gtest.h"
-#include "rclcpp/rclcpp.hpp"
-#include "tf2/utils.h"
+
+#include <rclcpp/rclcpp.hpp>
+
+#include <gtest/gtest.h>
+#include <tf2/utils.h>
 
 #include <array>
 #include <fstream>

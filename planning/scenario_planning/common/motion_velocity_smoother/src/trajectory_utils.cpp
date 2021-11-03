@@ -14,8 +14,9 @@
 
 #include "motion_velocity_smoother/trajectory_utils.hpp"
 
-#include "interpolation/spline_interpolation.hpp"
 #include "motion_velocity_smoother/linear_interpolation.hpp"
+
+#include <interpolation/spline_interpolation.hpp>
 
 #include <algorithm>
 #include <limits>

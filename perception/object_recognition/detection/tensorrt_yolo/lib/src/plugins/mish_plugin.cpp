@@ -36,9 +36,8 @@
  * SOFTWARE.
  */
 
-#include "mish_plugin.hpp"
-
-#include "mish.hpp"
+#include <mish.hpp>
+#include <mish_plugin.hpp>
 
 #include <stdio.h>
 

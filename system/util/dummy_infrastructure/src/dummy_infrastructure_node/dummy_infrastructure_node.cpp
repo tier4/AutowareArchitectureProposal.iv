@@ -14,17 +14,17 @@
 
 #include "dummy_infrastructure/dummy_infrastructure_node.hpp"
 
-#include "boost/optional.hpp"
+#include <boost/optional.hpp>
 
 #include <memory>
 #include <string>
 #include <vector>
 
 using namespace std::literals;
-using namespace std::placeholders;
 using std::chrono::duration;
 using std::chrono::duration_cast;
 using std::chrono::nanoseconds;
+using std::placeholders::_1;
 
 namespace dummy_infrastructure
 {
@@ -161,5 +161,5 @@ void DummyInfrastructureNode::onTimer()
 
 }  // namespace dummy_infrastructure
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(dummy_infrastructure::DummyInfrastructureNode)

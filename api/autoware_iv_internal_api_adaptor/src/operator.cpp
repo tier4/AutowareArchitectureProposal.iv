@@ -21,7 +21,8 @@ namespace internal_api
 Operator::Operator(const rclcpp::NodeOptions & options) : Node("external_api_operator", options)
 {
   using namespace std::literals::chrono_literals;
-  using namespace std::placeholders;
+  using std::placeholders::_1;
+  using std::placeholders::_2;
   autoware_api_utils::ServiceProxyNodeInterface proxy(this);
 
   group_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
@@ -209,5 +210,5 @@ autoware_external_api_msgs::msg::ResponseStatus Operator::setExternalSelect(
 
 }  // namespace internal_api
 
-#include "rclcpp_components/register_node_macro.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(internal_api::Operator)

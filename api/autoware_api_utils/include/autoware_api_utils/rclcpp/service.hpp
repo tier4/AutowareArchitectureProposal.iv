@@ -15,7 +15,7 @@
 #ifndef AUTOWARE_API_UTILS__RCLCPP__SERVICE_HPP_
 #define AUTOWARE_API_UTILS__RCLCPP__SERVICE_HPP_
 
-#include "rclcpp/service.hpp"
+#include <rclcpp/service.hpp>
 
 namespace autoware_api_utils
 {
