@@ -16,8 +16,7 @@
 #define SHAPE_ESTIMATION__FILTER__BUS_FILTER_HPP_
 
 #include "shape_estimation/filter/filter_interface.hpp"
-
-#include <utils.hpp>
+#include "utils.hpp"
 
 class BusFilter : public ShapeEstimationFilterInterface
 {
