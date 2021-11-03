@@ -63,7 +63,6 @@ MPCFollower::MPCFollower(const rclcpp::NodeOptions & node_options)
   /* stop state parameters */
   stop_state_entry_ego_speed_ = declare_parameter("stop_state_entry_ego_speed", 0.2);        // [m]
   stop_state_entry_target_speed_ = declare_parameter("stop_state_entry_target_speed", 0.1);  // [m]
-  stop_state_keep_stopping_dist_ = declare_parameter("stop_state_keep_stopping_dist", 0.5);  // [m]
 
   /* mpc parameters */
   double steer_lim_deg, steer_rate_lim_dps;
@@ -1061,19 +1060,17 @@ autoware_control_msgs::msg::ControlCommand MPCFollower::getInitialControlCommand
 
 bool MPCFollower::isStoppedState() const
 {
+  // Note: This function used to take into account the distance to the stop line
+  // for the stop state judgement. However, it has been removed since the steering
+  // control was turned off when approaching/exceeding the stop line on a curve or
+  // emergency stop situation and it caused large tracking error.
+
   const int nearest = MPCUtils::calcNearestIndex(*current_trajectory_ptr_, current_pose_ptr_->pose);
+
   // If the nearest index is not found, return false
   if (nearest < 0) {
     return false;
   }
-  const double dist = calcStopDistance(nearest);
-  if (dist < stop_state_keep_stopping_dist_) {
-    RCLCPP_DEBUG(
-      get_logger(), "stop_dist = %f < %f : stop_state_keep_stopping_dist_. keep stopping.", dist,
-      stop_state_keep_stopping_dist_);
-    return true;
-  }
-  RCLCPP_DEBUG(get_logger(), "stop_dist = %f release stopping.", dist);
 
   const double current_vel = current_velocity_ptr_->twist.linear.x;
   const double target_vel = current_trajectory_ptr_->points.at(nearest).twist.linear.x;

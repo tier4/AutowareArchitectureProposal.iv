@@ -16,7 +16,8 @@
 #define SHAPE_ESTIMATION__CORRECTOR__CAR_CORRECTOR_HPP_
 
 #include "shape_estimation/corrector/corrector_interface.hpp"
-#include "utils.hpp"
+
+#include <utils.hpp>
 
 class CarCorrector : public ShapeEstimationCorrectorInterface
 {

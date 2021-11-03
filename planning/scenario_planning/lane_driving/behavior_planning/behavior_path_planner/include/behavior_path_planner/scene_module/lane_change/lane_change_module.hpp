@@ -95,6 +95,7 @@ public:
 private:
   LaneChangeParameters parameters_;
   LaneChangeStatus status_;
+  PathShifter path_shifter_;
 
   double lane_change_lane_length_{200.0};
   double check_distance_{100.0};
@@ -106,7 +107,6 @@ private:
   std::pair<bool, bool> getSafePath(
     const lanelet::ConstLanelets & lane_change_lanes, const double check_distance,
     LaneChangePath & safe_path) const;
-  TurnSignalInfo getTurnSignalAndDistance(const PathWithLaneId & path) const;
 
   void updateLaneChangeStatus();
 

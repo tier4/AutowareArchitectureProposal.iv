@@ -33,6 +33,7 @@
 
 #include <freespace_planning_algorithms/astar_search.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <vehicle_info_util/vehicle_info_util.hpp>
 
 #include <autoware_planning_msgs/msg/route.hpp>
 #include <autoware_planning_msgs/msg/scenario.hpp>
