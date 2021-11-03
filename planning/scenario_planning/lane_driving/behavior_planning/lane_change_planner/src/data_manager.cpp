@@ -14,15 +14,20 @@
 // limitations under the License.
 
 #include "lane_change_planner/data_manager.hpp"
-#include <string>
-#include <memory>
+
 #include "lanelet2_extension/utility/message_conversion.hpp"
+
+#include <memory>
+#include <string>
 
 namespace lane_change_planner
 {
 DataManager::DataManager(const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
-: lane_change_approval_(false), force_lane_change_(false), is_parameter_set_(false),
-  logger_(logger), clock_(clock)
+: lane_change_approval_(false),
+  force_lane_change_(false),
+  is_parameter_set_(false),
+  logger_(logger),
+  clock_(clock)
 {
   self_pose_listener_ptr_ = std::make_shared<SelfPoseListener>(logger, clock);
 }
@@ -75,7 +80,7 @@ geometry_msgs::msg::PoseStamped DataManager::getCurrentSelfPose()
   return self_pose_;
 }
 
-LaneChangerParameters DataManager::getLaneChangerParameters() {return parameters_;}
+LaneChangerParameters DataManager::getLaneChangerParameters() { return parameters_; }
 
 bool DataManager::getLaneChangeApproval()
 {
@@ -112,8 +117,7 @@ bool DataManager::isDataReady()
 }
 
 SelfPoseListener::SelfPoseListener(
-  const rclcpp::Logger & logger,
-  const rclcpp::Clock::SharedPtr & clock)
+  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
 : tf_buffer_(clock), tf_listener_(tf_buffer_), logger_(logger), clock_(clock)
 {
 }

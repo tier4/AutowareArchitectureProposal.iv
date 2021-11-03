@@ -16,6 +16,7 @@
 #define SHAPE_ESTIMATION__CORRECTOR__UTILS_HPP_
 
 #include "autoware_utils/autoware_utils.hpp"
+
 #include "autoware_perception_msgs/msg/shape.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 

@@ -13,13 +13,12 @@
 // limitations under the License.
 
 #include "ndt_scan_matcher/debug.hpp"
+
 #include "ndt_scan_matcher/util_func.hpp"
 
 visualization_msgs::msg::MarkerArray makeDebugMarkers(
-  const builtin_interfaces::msg::Time & stamp,
-  const std::string & map_frame_,
-  const geometry_msgs::msg::Vector3 & scale,
-  const Particle & particle, const size_t i)
+  const builtin_interfaces::msg::Time & stamp, const std::string & map_frame_,
+  const geometry_msgs::msg::Vector3 & scale, const Particle & particle, const size_t i)
 {
   // TODO getNumSubscribers
   // TODO clear old object

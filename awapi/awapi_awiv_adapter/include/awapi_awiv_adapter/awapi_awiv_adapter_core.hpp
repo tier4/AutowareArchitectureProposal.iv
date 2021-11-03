@@ -15,18 +15,25 @@
 #ifndef AWAPI_AWIV_ADAPTER__AWAPI_AWIV_ADAPTER_CORE_HPP_
 #define AWAPI_AWIV_ADAPTER__AWAPI_AWIV_ADAPTER_CORE_HPP_
 
-#include <memory>
-
+#include "awapi_awiv_adapter/awapi_autoware_state_publisher.hpp"
+#include "awapi_awiv_adapter/awapi_autoware_util.hpp"
+#include "awapi_awiv_adapter/awapi_lane_change_state_publisher.hpp"
+#include "awapi_awiv_adapter/awapi_max_velocity_publisher.hpp"
+#include "awapi_awiv_adapter/awapi_obstacle_avoidance_state_publisher.hpp"
+#include "awapi_awiv_adapter/awapi_pacmod_util.hpp"
+#include "awapi_awiv_adapter/awapi_stop_reason_aggregator.hpp"
+#include "awapi_awiv_adapter/awapi_v2x_aggregator.hpp"
+#include "awapi_awiv_adapter/awapi_vehicle_state_publisher.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 
-#include "autoware_system_msgs/msg/emergency_state_stamped.hpp"
 #include "autoware_control_msgs/msg/gate_mode.hpp"
 #include "autoware_planning_msgs/msg/path.hpp"
 #include "autoware_planning_msgs/msg/stop_reason_array.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
 #include "autoware_system_msgs/msg/autoware_state.hpp"
+#include "autoware_system_msgs/msg/emergency_state_stamped.hpp"
 #include "autoware_v2x_msgs/msg/infrastructure_command_array.hpp"
 #include "autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp"
 #include "autoware_vehicle_msgs/msg/control_mode.hpp"
@@ -39,15 +46,7 @@
 #include "pacmod_msgs/msg/global_rpt.hpp"
 #include "sensor_msgs/msg/nav_sat_fix.hpp"
 
-#include "awapi_awiv_adapter/awapi_autoware_state_publisher.hpp"
-#include "awapi_awiv_adapter/awapi_autoware_util.hpp"
-#include "awapi_awiv_adapter/awapi_lane_change_state_publisher.hpp"
-#include "awapi_awiv_adapter/awapi_max_velocity_publisher.hpp"
-#include "awapi_awiv_adapter/awapi_obstacle_avoidance_state_publisher.hpp"
-#include "awapi_awiv_adapter/awapi_pacmod_util.hpp"
-#include "awapi_awiv_adapter/awapi_stop_reason_aggregator.hpp"
-#include "awapi_awiv_adapter/awapi_v2x_aggregator.hpp"
-#include "awapi_awiv_adapter/awapi_vehicle_state_publisher.hpp"
+#include <memory>
 
 namespace autoware_api
 {
@@ -91,8 +90,7 @@ private:
   rclcpp::Subscription<autoware_planning_msgs::msg::VelocityLimit>::SharedPtr
     sub_current_max_velocity_;
   rclcpp::Subscription<autoware_api_msgs::msg::StopCommand>::SharedPtr sub_temporary_stop_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr
-    sub_autoware_traj_;
+  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_autoware_traj_;
   rclcpp::Subscription<autoware_api_msgs::msg::DoorControlCommand>::SharedPtr sub_door_control_;
   rclcpp::Subscription<pacmod_msgs::msg::SystemRptInt>::SharedPtr sub_door_status_;
 
@@ -167,8 +165,7 @@ private:
   std::unique_ptr<AutowareIvStopReasonAggregator> stop_reason_aggregator_;
   std::unique_ptr<AutowareIvV2XAggregator> v2x_aggregator_;
   std::unique_ptr<AutowareIvLaneChangeStatePublisher> lane_change_state_publisher_;
-  std::unique_ptr<AutowareIvObstacleAvoidanceStatePublisher>
-  obstacle_avoidance_state_publisher_;
+  std::unique_ptr<AutowareIvObstacleAvoidanceStatePublisher> obstacle_avoidance_state_publisher_;
   std::unique_ptr<AutowareIvMaxVelocityPublisher> max_velocity_publisher_;
   double status_pub_hz_;
   double stop_reason_timeout_;

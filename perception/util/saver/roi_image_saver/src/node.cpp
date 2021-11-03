@@ -11,12 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include <memory>
-#include <string>
+#include "roi_image_saver/node.hpp"
 
 #include "cv_bridge/cv_bridge.h"
 #include "opencv2/highgui/highgui.hpp"
-#include "roi_image_saver/node.hpp"
+
+#include <memory>
+#include <string>
 
 namespace traffic_light
 {
@@ -49,8 +50,8 @@ void TrafficLightRoiImageSaver::imageRoiCallback(
       cv::Mat clipped_image(
         cv_ptr->image, cv::Rect(roi.x_offset, roi.y_offset, roi.width, roi.height));
       std::stringstream save_fine_name_stream;
-      save_fine_name_stream << std::fixed << save_dir_ << "/" << input_tl_roi_msg->rois.at(i).id <<
-        "_" << current_time.seconds() << ".png";
+      save_fine_name_stream << std::fixed << save_dir_ << "/" << input_tl_roi_msg->rois.at(i).id
+                            << "_" << current_time.seconds() << ".png";
       std::string save_fine_name;
       save_fine_name_stream >> save_fine_name;
       cv::imwrite(save_fine_name, clipped_image);

@@ -15,9 +15,6 @@
 #ifndef PATH__DISPLAY_HPP_
 #define PATH__DISPLAY_HPP_
 
-#include <deque>
-#include <memory>
-
 #include "OgreBillboardSet.h"
 #include "OgreManualObject.h"
 #include "OgreMaterialManager.h"
@@ -35,10 +32,13 @@
 
 #include "autoware_planning_msgs/msg/path.hpp"
 
+#include <deque>
+#include <memory>
+
 namespace rviz_plugins
 {
 class AutowarePathDisplay
-  : public rviz_common::MessageFilterDisplay<autoware_planning_msgs::msg::Path>
+: public rviz_common::MessageFilterDisplay<autoware_planning_msgs::msg::Path>
 {
   Q_OBJECT
 

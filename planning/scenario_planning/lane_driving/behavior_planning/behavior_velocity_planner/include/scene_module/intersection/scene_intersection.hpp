@@ -15,25 +15,23 @@
 #ifndef SCENE_MODULE__INTERSECTION__SCENE_INTERSECTION_HPP_
 #define SCENE_MODULE__INTERSECTION__SCENE_INTERSECTION_HPP_
 
+#include "autoware_utils/autoware_utils.hpp"
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_routing/RoutingGraph.h"
+#include "rclcpp/rclcpp.hpp"
+#include "scene_module/scene_module_interface.hpp"
+#include "utilization/boost_geometry_helper.hpp"
+
+#include "autoware_perception_msgs/msg/dynamic_object.hpp"
+#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+#include "geometry_msgs/msg/point.hpp"
+
 #include <algorithm>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "rclcpp/rclcpp.hpp"
-
-#include "autoware_perception_msgs/msg/dynamic_object.hpp"
-#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
-#include "autoware_utils/autoware_utils.hpp"
-#include "geometry_msgs/msg/point.hpp"
-
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_routing/RoutingGraph.h"
-
-#include "scene_module/scene_module_interface.hpp"
-#include "utilization/boost_geometry_helper.hpp"
 
 namespace behavior_velocity_planner
 {
@@ -43,8 +41,7 @@ using TimeDistanceArray = std::vector<std::pair<double, double>>;
 class IntersectionModule : public SceneModuleInterface
 {
 public:
-  enum class State
-  {
+  enum class State {
     STOP = 0,
     GO,
   };
@@ -64,7 +61,7 @@ public:
    */
   class StateMachine
   {
-public:
+  public:
     StateMachine()
     {
       state_ = State::GO;
@@ -75,7 +72,7 @@ public:
     void setMarginTime(const double t);
     State getState();
 
-private:
+  private:
     State state_;                               //! current state
     double margin_time_;                        //! margin time when transit to Go from Stop
     std::shared_ptr<rclcpp::Time> start_time_;  //! first time received GO when STOP state
@@ -104,12 +101,11 @@ public:
   struct PlannerParam
   {
     double state_transit_margin_time;
-    double decel_velocity;     //! used when in straight and traffic_light lane
-    double stop_line_margin;   //! distance from auto-generated stopline to detection_area boundary
+    double decel_velocity;    //! used when in straight and traffic_light lane
+    double stop_line_margin;  //! distance from auto-generated stopline to detection_area boundary
+    double stuck_vehicle_detect_dist;  //! distance from end point to finish stuck vehicle check
     double
-      stuck_vehicle_detect_dist;  //! distance from end point to finish stuck vehicle check
-    double
-      stuck_vehicle_ignore_dist;  //! distance from intersection start to start stuck vehicle check
+      stuck_vehicle_ignore_dist;   //! distance from intersection start to start stuck vehicle check
     double stuck_vehicle_vel_thr;  //! Threshold of the speed to be recognized as stopped
     double intersection_velocity;  //! used for intersection passing time
     double intersection_max_acc;   //! used for calculating intersection velocity
@@ -118,7 +114,7 @@ public:
     double detection_area_angle_thr;  //! threshold in checking the angle of detecting objects
     double min_predicted_path_confidence;
     //! minimum confidence value of predicted path to use for collision detection
-    double external_input_timeout;  //! used to disable external input
+    double external_input_timeout;       //! used to disable external input
     double collision_start_margin_time;  //! start margin time to check collision
     double collision_end_margin_time;    //! end margin time to check collision
   };
@@ -152,7 +148,8 @@ private:
    * @param lanelet_map_ptr  lanelet map
    * @param path             ego-car lane
    * @param detection_areas  collision check is performed for vehicles that exist in this area
-   * @param detection_area_lanelet_ids  angle check is performed for obstacles using this lanelet ids
+   * @param detection_area_lanelet_ids  angle check is performed for obstacles using this lanelet
+   * ids
    * @param objects_ptr      target objects
    * @param closest_idx      ego-car position index on the lane
    * @return true if collision is detected

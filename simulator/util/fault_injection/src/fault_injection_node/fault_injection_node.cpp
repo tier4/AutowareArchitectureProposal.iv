@@ -14,13 +14,12 @@
 
 #include "fault_injection/fault_injection_node.hpp"
 
-#include <memory>
-#include <string>
-#include <vector>
-#include <unordered_map>
-
 #include "autoware_utils/ros/update_param.hpp"
 
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace
 {
@@ -39,9 +38,7 @@ std::vector<std::string> split(const std::string & str, const char delim)
 namespace fault_injection
 {
 FaultInjectionNode::FaultInjectionNode(rclcpp::NodeOptions node_options)
-: Node(
-    "fault_injection",
-    node_options.automatically_declare_parameters_from_overrides(true)),
+: Node("fault_injection", node_options.automatically_declare_parameters_from_overrides(true)),
   updater_(this)
 {
   updater_.setHardwareID("fault_injection");
@@ -61,17 +58,14 @@ FaultInjectionNode::FaultInjectionNode(rclcpp::NodeOptions node_options)
   for (const auto & diag : readEventDiagList()) {
     diagnostic_storage_.registerEvent(diag);
     updater_.add(
-      diag.sim_name,
-      std::bind(&FaultInjectionNode::updateEventDiag, this, _1, diag.sim_name));
+      diag.sim_name, std::bind(&FaultInjectionNode::updateEventDiag, this, _1, diag.sim_name));
   }
 }
 
 void FaultInjectionNode::onSimulationEvents(const SimulationEvents::ConstSharedPtr msg)
 {
   RCLCPP_DEBUG(
-    this->get_logger(),
-    "Received data: %s",
-    rosidl_generator_traits::to_yaml(*msg).c_str());
+    this->get_logger(), "Received data: %s", rosidl_generator_traits::to_yaml(*msg).c_str());
   for (const auto & event : msg->fault_injection_events) {
     if (diagnostic_storage_.isEventRegistered(event.name)) {
       diagnostic_storage_.updateLevel(event.name, event.level);
@@ -80,8 +74,7 @@ void FaultInjectionNode::onSimulationEvents(const SimulationEvents::ConstSharedP
 }
 
 void FaultInjectionNode::updateEventDiag(
-  diagnostic_updater::DiagnosticStatusWrapper & wrap,
-  const std::string & event_name)
+  diagnostic_updater::DiagnosticStatusWrapper & wrap, const std::string & event_name)
 {
   const auto diag = diagnostic_storage_.getDiag(event_name);
   wrap.name = diag.name;
@@ -127,9 +120,7 @@ std::vector<DiagConfig> FaultInjectionNode::readEventDiagList()
     const auto sim_name = split(param_name, '.').back();
     const auto diag_name = get_parameter(param_name).as_string();
     diag_configs.emplace_back(DiagConfig{sim_name, diag_name});
-    RCLCPP_DEBUG(
-      get_logger(),
-      "Parameter: %s, value: %s", sim_name.c_str(), diag_name.c_str());
+    RCLCPP_DEBUG(get_logger(), "Parameter: %s, value: %s", sim_name.c_str(), diag_name.c_str());
   }
 
   return diag_configs;

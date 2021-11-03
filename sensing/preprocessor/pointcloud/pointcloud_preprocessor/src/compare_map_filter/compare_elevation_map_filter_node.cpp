@@ -12,14 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <glob.h>
-#include <memory>
-#include <string>
-#include <utility>
+#include "pointcloud_preprocessor/compare_map_filter/compare_elevation_map_filter_node.hpp"
 
 #include "grid_map_core/GridMap.hpp"
 #include "grid_map_cv/GridMapCvConverter.hpp"
-#include "grid_map_msgs/msg/grid_map.hpp"
 #include "grid_map_pcl/GridMapPclLoader.hpp"
 #include "grid_map_pcl/helpers.hpp"
 #include "grid_map_ros/GridMapRosConverter.hpp"
@@ -29,7 +25,13 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/filesystem.h"  // To be replaced by std::filesystem in C++17
 
-#include "pointcloud_preprocessor/compare_map_filter/compare_elevation_map_filter_node.hpp"
+#include "grid_map_msgs/msg/grid_map.hpp"
+
+#include <glob.h>
+
+#include <memory>
+#include <string>
+#include <utility>
 
 namespace pointcloud_preprocessor
 {

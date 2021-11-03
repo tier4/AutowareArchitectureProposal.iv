@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "config.hpp"
 #include "network_trt.hpp"
+
+#include "config.hpp"
 
 namespace centerpoint
 {
@@ -44,15 +45,14 @@ bool HeadTRT::setProfile(
 {
   auto profile = builder.createOptimizationProfile();
   auto input_name = network.getInput(0)->getName();
-  auto in_dims =
-    nvinfer1::Dims4(
-    1, Config::num_encoder_output_features, Config::grid_size_y,
-    Config::grid_size_x);
+  auto in_dims = nvinfer1::Dims4(
+    1, Config::num_encoder_output_features, Config::grid_size_y, Config::grid_size_x);
   profile->setDimensions(input_name, nvinfer1::OptProfileSelector::kMIN, in_dims);
   profile->setDimensions(input_name, nvinfer1::OptProfileSelector::kOPT, in_dims);
   profile->setDimensions(input_name, nvinfer1::OptProfileSelector::kMAX, in_dims);
 
-  const int output_channels[Config::num_output_features] = {Config::num_class,
+  const int output_channels[Config::num_output_features] = {
+    Config::num_class,
     Config::num_output_offset_features,
     Config::num_output_z_features,
     Config::num_output_dim_features,

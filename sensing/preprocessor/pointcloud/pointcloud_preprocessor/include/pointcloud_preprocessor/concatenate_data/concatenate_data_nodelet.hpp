@@ -56,11 +56,12 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <set>
 #include <string>
 #include <vector>
-#include <set>
 
 // ROS includes
+#include "diagnostic_updater/diagnostic_updater.hpp"
 #include "message_filters/pass_through.h"
 #include "message_filters/subscriber.h"
 #include "message_filters/sync_policies/approximate_time.h"
@@ -69,13 +70,12 @@
 #include "pcl_conversions/pcl_conversions.h"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
-#include "diagnostic_updater/diagnostic_updater.hpp"
-#include "diagnostic_msgs/msg/diagnostic_status.hpp"
 
-#include "geometry_msgs/msg/twist_stamped.hpp"
-#include "sensor_msgs/msg/point_cloud2.hpp"
 #include "autoware_debug_msgs/msg/int32_stamped.hpp"
 #include "autoware_debug_msgs/msg/string_stamped.hpp"
+#include "diagnostic_msgs/msg/diagnostic_status.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
 
 namespace pointcloud_preprocessor
 {
@@ -154,8 +154,7 @@ private:
   void twist_callback(const geometry_msgs::msg::TwistStamped::ConstSharedPtr input);
   void timer_callback();
 
-  void checkConcatStatus(
-    diagnostic_updater::DiagnosticStatusWrapper & stat);
+  void checkConcatStatus(diagnostic_updater::DiagnosticStatusWrapper & stat);
 };
 
 struct PointXYZI

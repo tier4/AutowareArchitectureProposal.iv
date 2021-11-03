@@ -14,11 +14,7 @@
 // limitations under the License.
 //
 
-#include <memory>
-#include <string>
-#include <thread>
-#include <vector>
-
+#include "accel_brake_map_calibrator_button_panel.hpp"
 
 #include "QFileDialog"
 #include "QHBoxLayout"
@@ -28,7 +24,10 @@
 #include "pluginlib/class_list_macros.hpp"
 #include "rviz_common/display_context.hpp"
 
-#include "accel_brake_map_calibrator_button_panel.hpp"
+#include <memory>
+#include <string>
+#include <thread>
+#include <vector>
 
 namespace autoware_calibration_rviz_plugin
 {
@@ -73,8 +72,7 @@ void AccelBrakeMapCalibratorButtonPanel::onInitialize()
   update_suggest_sub_ = raw_node->create_subscription<std_msgs::msg::Bool>(
     topic_edit_->text().toStdString(), 10,
     std::bind(
-      &AccelBrakeMapCalibratorButtonPanel::callbackUpdateSuggest, this,
-      std::placeholders::_1));
+      &AccelBrakeMapCalibratorButtonPanel::callbackUpdateSuggest, this, std::placeholders::_1));
 
   client_ = raw_node->create_client<autoware_vehicle_msgs::srv::UpdateAccelBrakeMap>(
     "/vehicle/calibration/accel_brake_map_calibrator/update_map_dir");
@@ -83,7 +81,9 @@ void AccelBrakeMapCalibratorButtonPanel::onInitialize()
 void AccelBrakeMapCalibratorButtonPanel::callbackUpdateSuggest(
   const std_msgs::msg::Bool::ConstSharedPtr msg)
 {
-  if (after_calib_) {return;}
+  if (after_calib_) {
+    return;
+  }
 
   if (msg->data) {
     status_label_->setText("Ready");
@@ -104,8 +104,7 @@ void AccelBrakeMapCalibratorButtonPanel::editTopic()
   update_suggest_sub_ = raw_node->create_subscription<std_msgs::msg::Bool>(
     topic_edit_->text().toStdString(), 10,
     std::bind(
-      &AccelBrakeMapCalibratorButtonPanel::callbackUpdateSuggest, this,
-      std::placeholders::_1));
+      &AccelBrakeMapCalibratorButtonPanel::callbackUpdateSuggest, this, std::placeholders::_1));
   calibration_button_->setText("Wait for subscribe topic");
   calibration_button_->setEnabled(false);
 }
@@ -119,25 +118,24 @@ void AccelBrakeMapCalibratorButtonPanel::pushCalibrationButton()
   status_label_->setText("executing calibration...");
 
   std::thread thread([this] {
-      auto req =
-      std::make_shared<autoware_vehicle_msgs::srv::UpdateAccelBrakeMap::Request>();
-      req->path = "";
+    auto req = std::make_shared<autoware_vehicle_msgs::srv::UpdateAccelBrakeMap::Request>();
+    req->path = "";
 
-      client_->async_send_request(
-        req, [this]([[maybe_unused]] rclcpp::Client<
-          autoware_vehicle_msgs::srv::UpdateAccelBrakeMap>::SharedFuture result) {
-          status_label_->setStyleSheet("QLabel { background-color : lightgreen;}");
-          status_label_->setText("OK!!!");
+    client_->async_send_request(
+      req, [this]([[maybe_unused]] rclcpp::Client<
+                  autoware_vehicle_msgs::srv::UpdateAccelBrakeMap>::SharedFuture result) {
+        status_label_->setStyleSheet("QLabel { background-color : lightgreen;}");
+        status_label_->setText("OK!!!");
 
-          // wait 3 second
-          after_calib_ = true;
-          rclcpp::Rate(3.0).sleep();
-          after_calib_ = false;
+        // wait 3 second
+        after_calib_ = true;
+        rclcpp::Rate(3.0).sleep();
+        after_calib_ = false;
 
-          // unlock button
-          calibration_button_->setEnabled(true);
-        });
-    });
+        // unlock button
+        calibration_button_->setEnabled(true);
+      });
+  });
 
   thread.detach();
 }

@@ -15,12 +15,12 @@
 #ifndef MAP_LOADER__LANELET2_MAP_VISUALIZATION_NODE_HPP_
 #define MAP_LOADER__LANELET2_MAP_VISUALIZATION_NODE_HPP_
 
-#include <string>
-#include <vector>
-
 #include "rclcpp/rclcpp.hpp"
 
 #include "autoware_lanelet2_msgs/msg/map_bin.hpp"
+
+#include <string>
+#include <vector>
 
 class Lanelet2MapVisualizationNode : public rclcpp::Node
 {

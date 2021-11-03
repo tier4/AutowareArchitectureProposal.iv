@@ -17,22 +17,21 @@
  * @brief Tegra GPU monitor class
  */
 
+#include "system_monitor/gpu_monitor/tegra_gpu_monitor.hpp"
+
+#include "fmt/format.h"
+#include "system_monitor/system_monitor_utility.hpp"
+
+#include "boost/filesystem.hpp"
+
 #include <algorithm>
 #include <regex>
 #include <string>
 #include <vector>
 
-#include "boost/filesystem.hpp"
-
-#include "fmt/format.h"
-
-#include "system_monitor/gpu_monitor/tegra_gpu_monitor.hpp"
-#include "system_monitor/system_monitor_utility.hpp"
-
 namespace fs = boost::filesystem;
 
-GPUMonitor::GPUMonitor(const rclcpp::NodeOptions & options)
-: GPUMonitorBase("gpu_monitor", options)
+GPUMonitor::GPUMonitor(const rclcpp::NodeOptions & options) : GPUMonitorBase("gpu_monitor", options)
 {
   getTempNames();
   getLoadNames();
@@ -146,9 +145,7 @@ void GPUMonitor::checkFrequency(diagnostic_updater::DiagnosticStatusWrapper & st
     if (ifs) {
       std::string line;
       if (std::getline(ifs, line)) {
-        stat.addf(
-          fmt::format("GPU {}: clock", freq.label_), "%d MHz",
-          std::stoi(line) / 1000000);
+        stat.addf(fmt::format("GPU {}: clock", freq.label_), "%d MHz", std::stoi(line) / 1000000);
       }
     }
     ifs.close();
@@ -173,15 +170,18 @@ void GPUMonitor::getLoadNames()
   const fs::path root("/sys/devices");
 
   for (const fs::path & path :
-    boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator()))
-  {
-    if (!fs::is_directory(path)) {continue;}
+       boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator())) {
+    if (!fs::is_directory(path)) {
+      continue;
+    }
 
     std::cmatch match;
     const char * str_path = path.generic_string().c_str();
 
     // /sys/devices/gpu.[0-9] ?
-    if (!std::regex_match(str_path, match, std::regex(".*gpu\\.(\\d+)"))) {continue;}
+    if (!std::regex_match(str_path, match, std::regex(".*gpu\\.(\\d+)"))) {
+      continue;
+    }
 
     // /sys/devices/gpu.[0-9]/load
     const fs::path load_path = path / "load";
@@ -194,10 +194,11 @@ void GPUMonitor::getFreqNames()
   const fs::path root("/sys/class/devfreq");
 
   for (const fs::path & path :
-    boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator()))
-  {
+       boost::make_iterator_range(fs::directory_iterator(root), fs::directory_iterator())) {
     // /sys/class/devfreq/?????/cur_freq ?
-    if (!fs::is_directory(path)) {continue;}
+    if (!fs::is_directory(path)) {
+      continue;
+    }
 
     const fs::path freq_path = path / "cur_freq";
     freqs_.emplace_back(path.filename().generic_string(), freq_path.generic_string());

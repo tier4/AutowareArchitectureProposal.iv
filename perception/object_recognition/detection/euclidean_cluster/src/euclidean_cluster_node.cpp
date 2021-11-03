@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "euclidean_cluster_node.hpp"
+
 #include "euclidean_cluster/utils.hpp"
 
 namespace euclidean_cluster
@@ -33,7 +34,7 @@ EuclideanClusterNode::EuclideanClusterNode(const rclcpp::NodeOptions & options)
 
   cluster_pub_ =
     this->create_publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(
-    "output", rclcpp::QoS{1});
+      "output", rclcpp::QoS{1});
   debug_pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("debug/clusters", 1);
 }
 
@@ -54,7 +55,9 @@ void EuclideanClusterNode::onPointCloud(
   cluster_pub_->publish(output);
 
   // build debug msg
-  if (debug_pub_->get_subscription_count() < 1) {return;}
+  if (debug_pub_->get_subscription_count() < 1) {
+    return;
+  }
   {
     sensor_msgs::msg::PointCloud2 debug;
     convertObjectMsg2SensorMsg(output, debug);

@@ -15,14 +15,14 @@
 #ifndef SCENE_MODULE__NO_STOPPING_AREA__MANAGER_HPP_
 #define SCENE_MODULE__NO_STOPPING_AREA__MANAGER_HPP_
 
-#include <functional>
-#include <memory>
-
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
 #include "rclcpp/rclcpp.hpp"
-
 #include "scene_module/no_stopping_area/scene_no_stopping_area.hpp"
 #include "scene_module/scene_module_interface.hpp"
+
+#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
+
+#include <functional>
+#include <memory>
 
 namespace behavior_velocity_planner
 {
@@ -31,7 +31,7 @@ class NoStoppingAreaModuleManager : public SceneModuleManagerInterface
 public:
   explicit NoStoppingAreaModuleManager(rclcpp::Node & node);
 
-  const char * getModuleName() override {return "no_stopping_area";}
+  const char * getModuleName() override { return "no_stopping_area"; }
 
 private:
   NoStoppingAreaModule::PlannerParam planner_param_;

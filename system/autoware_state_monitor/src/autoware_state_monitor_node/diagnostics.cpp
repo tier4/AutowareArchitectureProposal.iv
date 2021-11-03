@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
-#include <vector>
-
 #include "autoware_state_monitor/autoware_state_monitor_node.hpp"
 
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+
+#include <string>
+#include <vector>
 
 #define FMT_HEADER_ONLY
 #include "fmt/format.h"
@@ -35,16 +35,14 @@ void AutowareStateMonitorNode::setupDiagnosticUpdater()
     updater_.add(
       diag_name,
       std::bind(
-        &AutowareStateMonitorNode::checkTopicStatus, this, std::placeholders::_1,
-        module_name));
+        &AutowareStateMonitorNode::checkTopicStatus, this, std::placeholders::_1, module_name));
   }
 
   // TF
   updater_.add(
     "localization_tf_status",
     std::bind(
-      &AutowareStateMonitorNode::checkTFStatus, this, std::placeholders::_1,
-      "localization"));
+      &AutowareStateMonitorNode::checkTFStatus, this, std::placeholders::_1, "localization"));
 }
 
 void AutowareStateMonitorNode::checkTopicStatus(

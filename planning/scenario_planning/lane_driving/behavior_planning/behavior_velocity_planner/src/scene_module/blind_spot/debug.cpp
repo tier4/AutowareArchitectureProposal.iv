@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
-
 #include "scene_module/blind_spot/scene.hpp"
-
 #include "utilization/marker_helper.hpp"
 #include "utilization/util.hpp"
+
+#include <string>
 
 namespace behavior_velocity_planner
 {

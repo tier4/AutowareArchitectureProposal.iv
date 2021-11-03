@@ -17,11 +17,10 @@
  * @brief Velodyne monitor node class
  */
 
-#include <memory>
-
 #include "rclcpp/rclcpp.hpp"
-
 #include "velodyne_monitor/velodyne_monitor.hpp"
+
+#include <memory>
 
 int main(int argc, char ** argv)
 {

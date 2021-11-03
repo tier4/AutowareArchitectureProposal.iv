@@ -47,7 +47,6 @@ inline Trajectory generateInfTrajectory()
   return traj;
 }
 
-
 inline Trajectory generateBadCurvatureTrajectory()
 {
   Trajectory traj;

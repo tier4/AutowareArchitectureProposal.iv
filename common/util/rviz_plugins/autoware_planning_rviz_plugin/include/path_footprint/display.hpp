@@ -15,8 +15,6 @@
 #ifndef PATH_FOOTPRINT__DISPLAY_HPP_
 #define PATH_FOOTPRINT__DISPLAY_HPP_
 
-#include <memory>
-
 #include "OgreBillboardSet.h"
 #include "OgreManualObject.h"
 #include "OgreMaterialManager.h"
@@ -34,10 +32,12 @@
 
 #include "autoware_planning_msgs/msg/path.hpp"
 
+#include <memory>
+
 namespace rviz_plugins
 {
 class AutowarePathFootprintDisplay
-  : public rviz_common::MessageFilterDisplay<autoware_planning_msgs::msg::Path>
+: public rviz_common::MessageFilterDisplay<autoware_planning_msgs::msg::Path>
 {
   Q_OBJECT
 

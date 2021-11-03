@@ -15,11 +15,12 @@
 #ifndef LATLON_MUXER__NODE_HPP_
 #define LATLON_MUXER__NODE_HPP_
 
-#include <memory>
-#include <string>
+#include "rclcpp/rclcpp.hpp"
 
 #include "autoware_control_msgs/msg/control_command_stamped.hpp"
-#include "rclcpp/rclcpp.hpp"
+
+#include <memory>
+#include <string>
 
 class LatLonMuxer : public rclcpp::Node
 {

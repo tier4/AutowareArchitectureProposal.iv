@@ -15,32 +15,31 @@
 #ifndef VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_HPP_
 #define VELOCITY_CONTROLLER__VELOCITY_CONTROLLER_HPP_
 
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-
+#include "autoware_utils/autoware_utils.hpp"
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Geometry"
-
-#include "autoware_control_msgs/msg/control_command_stamped.hpp"
-#include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
-#include "autoware_debug_msgs/msg/float32_stamped.hpp"
-#include "autoware_planning_msgs/msg/trajectory.hpp"
-#include "autoware_utils/autoware_utils.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "signal_processing/lowpass_filter_1d.hpp"
 #include "tf2/utils.h"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 #include "vehicle_info_util/vehicle_info_util.hpp"
-
 #include "velocity_controller/debug_values.hpp"
 #include "velocity_controller/pid.hpp"
 #include "velocity_controller/smooth_stop.hpp"
 #include "velocity_controller/velocity_controller_utils.hpp"
+
+#include "autoware_control_msgs/msg/control_command_stamped.hpp"
+#include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
+#include "autoware_debug_msgs/msg/float32_stamped.hpp"
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 class VelocityController : public rclcpp::Node
 {
@@ -255,7 +254,8 @@ private:
   enum Shift getCurrentShift(const size_t nearest_idx) const;
 
   /**
-   * @brief filter acceleration command with limitation of acceleration and jerk, and slope compensation
+   * @brief filter acceleration command with limitation of acceleration and jerk, and slope
+   * compensation
    * @param [in] raw_acc acceleration before filtered
    */
   double calcFilteredAcc(const double raw_acc, const ControlData & control_data);
@@ -290,7 +290,8 @@ private:
 
   /**
    * @brief calculate velocity feedback with feed forward and pid controller
-   * @param [in] target_motion reference velocity and acceleration. This acceleration will be used as feed forward.
+   * @param [in] target_motion reference velocity and acceleration. This acceleration will be used
+   * as feed forward.
    */
   double applyVelocityFeedback(
     const Motion target_motion, const double dt, const double current_vel);

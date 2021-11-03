@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <vector>
-#include <algorithm>
-
 #include "mpc_follower/interpolate.hpp"
+
+#include <algorithm>
+#include <vector>
 
 /*
  * linear interpolation
@@ -26,7 +26,9 @@ namespace
 bool isIncrease(const std::vector<double> & x)
 {
   for (size_t i = 0; i < x.size() - 1; ++i) {
-    if (x.at(i) > x.at(i + 1)) {return false;}
+    if (x.at(i) > x.at(i + 1)) {
+      return false;
+    }
   }
   return true;
 }
@@ -36,19 +38,19 @@ bool isValidInput(
   const std::vector<double> & return_index)
 {
   if (base_index.empty() || base_value.empty() || return_index.empty()) {
-    std::cerr << "mpc bad index : some vector is empty. base_index: " << base_index.size() <<
-      ", base_value: " << base_value.size() << ", return_index: " << return_index.size() <<
-      std::endl;
+    std::cerr << "mpc bad index : some vector is empty. base_index: " << base_index.size()
+              << ", base_value: " << base_value.size() << ", return_index: " << return_index.size()
+              << std::endl;
     return false;
   }
   if (!isIncrease(base_index)) {
-    std::cerr << "mpc bad index : base_index is not monotonically increasing. base_index = [" <<
-      base_index.front() << ", " << base_index.back() << "]" << std::endl;
+    std::cerr << "mpc bad index : base_index is not monotonically increasing. base_index = ["
+              << base_index.front() << ", " << base_index.back() << "]" << std::endl;
     return false;
   }
   if (!isIncrease(return_index)) {
-    std::cerr << "mpc bad index : base_index is not monotonically increasing. return_index = [" <<
-      return_index.front() << ", " << return_index.back() << "]" << std::endl;
+    std::cerr << "mpc bad index : base_index is not monotonically increasing. return_index = ["
+              << return_index.front() << ", " << return_index.back() << "]" << std::endl;
     return false;
   }
   if (return_index.front() < base_index.front()) {
@@ -88,13 +90,15 @@ bool LinearInterpolate::interpolate(
     }
     while (base_index.at(i) < idx) {
       ++i;
-      if (i <= 0 || base_size - 1 < i) {break;}
+      if (i <= 0 || base_size - 1 < i) {
+        break;
+      }
     }
 
     if (i <= 0 || base_size - 1 < i) {
-      std::cerr << "mpc LinearInterpolate : undesired condition. skip index. (i = " << i <<
-        ", base_size = " << base_size << "), idx = " << idx <<
-        ", base_index.at(i)  = " << base_index.at(i) << std::endl;
+      std::cerr << "mpc LinearInterpolate : undesired condition. skip index. (i = " << i
+                << ", base_size = " << base_size << "), idx = " << idx
+                << ", base_index.at(i)  = " << base_index.at(i) << std::endl;
       continue;
     }
 

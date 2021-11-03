@@ -28,15 +28,16 @@
  * limitations under the License.
  */
 
+#include "pure_pursuit/pure_pursuit_node.hpp"
+
+#include "pure_pursuit/pure_pursuit_viz.hpp"
+#include "pure_pursuit/util/planning_utils.hpp"
+#include "pure_pursuit/util/tf_utils.hpp"
+#include "vehicle_info_util/vehicle_info_util.hpp"
+
 #include <algorithm>
 #include <memory>
 #include <utility>
-
-#include "vehicle_info_util/vehicle_info_util.hpp"
-#include "pure_pursuit/pure_pursuit_node.hpp"
-#include "pure_pursuit/util/planning_utils.hpp"
-#include "pure_pursuit/util/tf_utils.hpp"
-#include "pure_pursuit/pure_pursuit_viz.hpp"
 
 namespace
 {
@@ -60,9 +61,7 @@ double calcLookaheadDistance(
 }  // namespace
 
 PurePursuitNode::PurePursuitNode(const rclcpp::NodeOptions & node_options)
-: Node("pure_pursuit", node_options),
-  tf_buffer_(this->get_clock()),
-  tf_listener_(tf_buffer_)
+: Node("pure_pursuit", node_options), tf_buffer_(this->get_clock()), tf_listener_(tf_buffer_)
 {
   pure_pursuit_ = std::make_unique<planning_utils::PurePursuit>();
 
@@ -77,8 +76,8 @@ PurePursuitNode::PurePursuitNode(const rclcpp::NodeOptions & node_options)
   param_.lookahead_distance_ratio =
     this->declare_parameter<double>("lookahead_distance_ratio", 2.2);
   param_.min_lookahead_distance = this->declare_parameter<double>("min_lookahead_distance", 2.5);
-  param_.reverse_min_lookahead_distance = this->declare_parameter<double>(
-    "reverse_min_lookahead_distance", 7.0);
+  param_.reverse_min_lookahead_distance =
+    this->declare_parameter<double>("reverse_min_lookahead_distance", 7.0);
 
   // Subscribers
   using std::placeholders::_1;
@@ -105,7 +104,6 @@ PurePursuitNode::PurePursuitNode(const rclcpp::NodeOptions & node_options)
       this->get_node_base_interface()->get_context());
     this->get_node_timers_interface()->add_timer(timer_, nullptr);
   }
-
 
   //  Wait for first current pose
   tf_utils::waitForTransform(tf_buffer_, "map", "base_link");
@@ -225,7 +223,7 @@ boost::optional<TargetValues> PurePursuitNode::calcTargetValues()
 }
 
 boost::optional<autoware_planning_msgs::msg::TrajectoryPoint> PurePursuitNode::calcTargetPoint()
-const
+  const
 {
   const auto closest_idx_result = planning_utils::findClosestIdxWithDistAngThr(
     planning_utils::extractPoses(*trajectory_), current_pose_->pose, 3.0, M_PI_4);

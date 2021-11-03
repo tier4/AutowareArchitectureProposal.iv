@@ -29,12 +29,12 @@
 #include "autoware_vehicle_msgs/msg/vehicle_command.hpp"
 
 // ROS2 core
-#include "diagnostic_msgs/msg/diagnostic_array.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "autoware_utils/system/heartbeat_checker.hpp"
 #include "rclcpp/create_timer.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-#include "autoware_utils/system/heartbeat_checker.hpp"
+#include "diagnostic_msgs/msg/diagnostic_array.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
 
 struct HazardLampPolicy
 {
@@ -99,11 +99,11 @@ private:
 
   // Heartbeat
   std::shared_ptr<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::HazardStatusStamped>>
-  heartbeat_hazard_status_;
+    heartbeat_hazard_status_;
 
   // Algorithm
-  autoware_system_msgs::msg::EmergencyState::_state_type
-    emergency_state_{autoware_system_msgs::msg::EmergencyState::NORMAL};
+  autoware_system_msgs::msg::EmergencyState::_state_type emergency_state_{
+    autoware_system_msgs::msg::EmergencyState::NORMAL};
   rclcpp::Time takeover_requested_time_;
 
   void transitionTo(const int new_state);

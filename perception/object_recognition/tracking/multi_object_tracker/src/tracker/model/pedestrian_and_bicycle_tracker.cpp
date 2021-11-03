@@ -17,6 +17,7 @@
 //
 
 #include "multi_object_tracker/tracker/model/pedestrian_and_bicycle_tracker.hpp"
+
 #include "autoware_utils/autoware_utils.hpp"
 
 PedestrianAndBicycleTracker::PedestrianAndBicycleTracker(

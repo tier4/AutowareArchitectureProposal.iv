@@ -15,9 +15,10 @@
 #ifndef SHAPE_ESTIMATION__FILTER__FILTER_INTERFACE_HPP_
 #define SHAPE_ESTIMATION__FILTER__FILTER_INTERFACE_HPP_
 
-#include <string>
 #include "autoware_perception_msgs/msg/shape.hpp"
 #include "geometry_msgs/msg/pose.hpp"
+
+#include <string>
 
 class ShapeEstimationFilterInterface
 {

@@ -15,10 +15,10 @@
 #ifndef MOTION_VELOCITY_OPTIMIZER__OPTIMIZER__OPTIMIZER_BASE_HPP_
 #define MOTION_VELOCITY_OPTIMIZER__OPTIMIZER__OPTIMIZER_BASE_HPP_
 
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+
 #include <limits>
 #include <vector>
-
-#include "autoware_planning_msgs/msg/trajectory.hpp"
 struct OptimizerParam
 {
   double max_accel;

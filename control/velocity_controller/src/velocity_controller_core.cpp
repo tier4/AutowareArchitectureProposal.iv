@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "velocity_controller/velocity_controller.hpp"
+
 #include <algorithm>
 #include <array>
 #include <limits>
@@ -19,8 +21,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "velocity_controller/velocity_controller.hpp"
 
 VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
 : Node("velocity_controller", node_options)
@@ -44,21 +44,19 @@ VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
   {
     auto & p = state_transition_params_;
     // drive
-    p.drive_state_stop_dist = declare_parameter("drive_state_stop_dist", 0.5);  // [m]
-    p.drive_state_offset_stop_dist = declare_parameter(
-      "drive_state_offset_stop_dist", 1.0);  // [m]
+    p.drive_state_stop_dist = declare_parameter("drive_state_stop_dist", 0.5);                // [m]
+    p.drive_state_offset_stop_dist = declare_parameter("drive_state_offset_stop_dist", 1.0);  // [m]
     // stopping
     p.stopping_state_stop_dist = declare_parameter("stopping_state_stop_dist", 3.0);  // [m]
     // stop
     p.stopped_state_entry_vel = declare_parameter("stopped_state_entry_vel", 0.2);  // [m/s]
     p.stopped_state_entry_acc = declare_parameter("stopped_state_entry_acc", 0.2);  // [m/ss]
     // emergency
-    p.emergency_state_overshoot_stop_dist = declare_parameter(
-      "emergency_state_overshoot_stop_dist", 1.5);  // [m]
-    p.emergency_state_traj_trans_dev = declare_parameter(
-      "emergency_state_traj_trans_dev", 3.0);  // [m]
-    p.emergency_state_traj_rot_dev = declare_parameter(
-      "emergency_state_traj_rot_dev", 0.7);  // [m]
+    p.emergency_state_overshoot_stop_dist =
+      declare_parameter("emergency_state_overshoot_stop_dist", 1.5);  // [m]
+    p.emergency_state_traj_trans_dev =
+      declare_parameter("emergency_state_traj_trans_dev", 3.0);                               // [m]
+    p.emergency_state_traj_rot_dev = declare_parameter("emergency_state_traj_rot_dev", 0.7);  // [m]
   }
 
   // parameters for drive state
@@ -84,36 +82,27 @@ VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
     const double lpf_vel_error_gain{declare_parameter("lpf_vel_error_gain", 0.9)};
     lpf_vel_error_ = std::make_shared<LowpassFilter1d>(0.0, lpf_vel_error_gain);
 
-    current_vel_threshold_pid_integrate_ = declare_parameter(
-      "current_vel_threshold_pid_integration", 0.5);  // [m/s]
+    current_vel_threshold_pid_integrate_ =
+      declare_parameter("current_vel_threshold_pid_integration", 0.5);  // [m/s]
   }
 
   // parameters for smooth stop state
   {
-    const double max_strong_acc{declare_parameter(
-        "smooth_stop_max_strong_acc", -0.5)};         // [m/s^2]
-    const double min_strong_acc{declare_parameter(
-        "smooth_stop_min_strong_acc", -1.0)};         // [m/s^2]
-    const double weak_acc{declare_parameter(
-        "smooth_stop_weak_acc", -0.3)};               // [m/s^2]
-    const double weak_stop_acc{declare_parameter(
-        "smooth_stop_weak_stop_acc", -0.8)};          // [m/s^2]
-    const double strong_stop_acc{declare_parameter(
-        "smooth_stop_strong_stop_acc", -3.4)};        // [m/s^2]
+    const double max_strong_acc{declare_parameter("smooth_stop_max_strong_acc", -0.5)};  // [m/s^2]
+    const double min_strong_acc{declare_parameter("smooth_stop_min_strong_acc", -1.0)};  // [m/s^2]
+    const double weak_acc{declare_parameter("smooth_stop_weak_acc", -0.3)};              // [m/s^2]
+    const double weak_stop_acc{declare_parameter("smooth_stop_weak_stop_acc", -0.8)};    // [m/s^2]
+    const double strong_stop_acc{
+      declare_parameter("smooth_stop_strong_stop_acc", -3.4)};  // [m/s^2]
 
-    const double min_fast_vel{declare_parameter(
-        "smooth_stop_min_fast_vel", 0.5)};            // [m/s]
-    const double min_running_vel{declare_parameter(
-        "smooth_stop_min_running_vel", 0.01)};        // [m/s]
-    const double min_running_acc{declare_parameter(
-        "smooth_stop_min_running_acc", 0.01)};        // [m/s^2]
-    const double weak_stop_time{declare_parameter(
-        "smooth_stop_weak_stop_time", 0.8)};          // [s]
+    const double min_fast_vel{declare_parameter("smooth_stop_min_fast_vel", 0.5)};         // [m/s]
+    const double min_running_vel{declare_parameter("smooth_stop_min_running_vel", 0.01)};  // [m/s]
+    const double min_running_acc{
+      declare_parameter("smooth_stop_min_running_acc", 0.01)};                          // [m/s^2]
+    const double weak_stop_time{declare_parameter("smooth_stop_weak_stop_time", 0.8)};  // [s]
 
-    const double weak_stop_dist{declare_parameter(
-        "smooth_stop_weak_stop_dist", -0.3)};         // [m]
-    const double strong_stop_dist{declare_parameter(
-        "smooth_stop_strong_stop_dist", -0.5)};       // [m]
+    const double weak_stop_dist{declare_parameter("smooth_stop_weak_stop_dist", -0.3)};      // [m]
+    const double strong_stop_dist{declare_parameter("smooth_stop_strong_stop_dist", -0.5)};  // [m]
 
     smooth_stop_.setParams(
       max_strong_acc, min_strong_acc, weak_acc, weak_stop_acc, strong_stop_acc, min_fast_vel,
@@ -123,8 +112,8 @@ VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
   // parameters for stop state
   {
     auto & p = stopped_state_params_;
-    p.vel = declare_parameter("stopped_vel", 0.0);   // [m/s]
-    p.acc = declare_parameter("stopped_acc", -2.0);  // [m/s^2]
+    p.vel = declare_parameter("stopped_vel", 0.0);     // [m/s]
+    p.acc = declare_parameter("stopped_acc", -2.0);    // [m/s^2]
     p.jerk = declare_parameter("stopped_jerk", -5.0);  // [m/s^3]
   }
 
@@ -158,8 +147,8 @@ VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
     "~/current_trajectory", 1, std::bind(&VelocityController::callbackTrajectory, this, _1));
   pub_control_cmd_ = create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
     "~/control_cmd", rclcpp::QoS{1});
-  pub_slope_ = create_publisher<autoware_debug_msgs::msg::Float32Stamped>(
-    "~/slope_angle", rclcpp::QoS{1});
+  pub_slope_ =
+    create_publisher<autoware_debug_msgs::msg::Float32Stamped>("~/slope_angle", rclcpp::QoS{1});
   pub_debug_ = create_publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>(
     "~/debug_values", rclcpp::QoS{1});
 
@@ -198,16 +187,13 @@ void VelocityController::callbackTrajectory(
   const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg)
 {
   if (!velocity_controller_utils::isValidTrajectory(*msg)) {
-    RCLCPP_ERROR_THROTTLE(
-      get_logger(), *get_clock(), 3000,
-      "received invalid trajectory. ignore.");
+    RCLCPP_ERROR_THROTTLE(get_logger(), *get_clock(), 3000, "received invalid trajectory. ignore.");
     return;
   }
 
   if (msg->points.size() < 2) {
     RCLCPP_WARN_THROTTLE(
-      get_logger(), *get_clock(), 3000,
-      "Unexpected trajectory size < 2. Ignored.");
+      get_logger(), *get_clock(), 3000, "Unexpected trajectory size < 2. Ignored.");
     return;
   }
 
@@ -218,15 +204,15 @@ rcl_interfaces::msg::SetParametersResult VelocityController::paramCallback(
   const std::vector<rclcpp::Parameter> & parameters)
 {
   auto update_param = [&](const std::string & name, double & v) {
-      auto it = std::find_if(
-        parameters.cbegin(), parameters.cend(),
-        [&name](const rclcpp::Parameter & parameter) {return parameter.get_name() == name;});
-      if (it != parameters.cend()) {
-        v = it->as_double();
-        return true;
-      }
-      return false;
-    };
+    auto it = std::find_if(
+      parameters.cbegin(), parameters.cend(),
+      [&name](const rclcpp::Parameter & parameter) { return parameter.get_name() == name; });
+    if (it != parameters.cend()) {
+      v = it->as_double();
+      return true;
+    }
+    return false;
+  };
 
   // delay compensation
   update_param("delay_compensation_time", delay_compensation_time_);
@@ -396,7 +382,9 @@ VelocityController::ControlData VelocityController::getControlData(
 
   // shift
   control_data.shift = getCurrentShift(control_data.nearest_idx);
-  if (control_data.shift != prev_shift_) {pid_vel_.reset();}
+  if (control_data.shift != prev_shift_) {
+    pid_vel_.reset();
+  }
   prev_shift_ = control_data.shift;
 
   // distance to stopline
@@ -417,25 +405,21 @@ VelocityController::Motion VelocityController::calcEmergencyCtrlCmd(const double
 {
   // These accelerations are without slope compensation
   const auto & p = emergency_state_params_;
-  const double vel = velocity_controller_utils::applyDiffLimitFilter(
-    p.vel, prev_raw_ctrl_cmd_.vel,
-    dt, p.acc);
-  const double acc = velocity_controller_utils::applyDiffLimitFilter(
-    p.acc, prev_raw_ctrl_cmd_.acc,
-    dt, p.jerk);
+  const double vel =
+    velocity_controller_utils::applyDiffLimitFilter(p.vel, prev_raw_ctrl_cmd_.vel, dt, p.acc);
+  const double acc =
+    velocity_controller_utils::applyDiffLimitFilter(p.acc, prev_raw_ctrl_cmd_.acc, dt, p.jerk);
 
   auto clock = rclcpp::Clock{RCL_ROS_TIME};
   RCLCPP_ERROR_THROTTLE(
-    get_logger(), clock, 3000,
-    "[Emergency stop] vel: %3.3f, acc: %3.3f", vel, acc);
+    get_logger(), clock, 3000, "[Emergency stop] vel: %3.3f, acc: %3.3f", vel, acc);
 
   return Motion{vel, acc};
 }
 
 VelocityController::ControlState VelocityController::updateControlState(
   const ControlState current_control_state,
-  [[maybe_unused]] const geometry_msgs::msg::Pose & current_pose,
-  const ControlData & control_data)
+  [[maybe_unused]] const geometry_msgs::msg::Pose & current_pose, const ControlData & control_data)
 {
   const double current_vel = control_data.current_motion.vel;
   const double current_acc = control_data.current_motion.acc;
@@ -451,8 +435,7 @@ VelocityController::ControlState VelocityController::updateControlState(
   const bool stopping_condition = stop_dist < p.stopping_state_stop_dist;
   if (
     std::fabs(current_vel) > p.stopped_state_entry_vel ||
-    std::fabs(current_acc) > p.stopped_state_entry_acc)
-  {
+    std::fabs(current_acc) > p.stopped_state_entry_acc) {
     last_running_time_ = std::make_shared<rclcpp::Time>(this->now());
   }
   const bool stopped_condition =
@@ -554,24 +537,18 @@ VelocityController::Motion VelocityController::calcCtrlCmd(
     raw_ctrl_cmd.vel = stopped_state_params_.vel;
 
     RCLCPP_DEBUG(
-      get_logger(),
-      "[smooth stop]: Smooth stopping. vel: %3.3f, acc: %3.3f",
-      raw_ctrl_cmd.vel, raw_ctrl_cmd.acc);
+      get_logger(), "[smooth stop]: Smooth stopping. vel: %3.3f, acc: %3.3f", raw_ctrl_cmd.vel,
+      raw_ctrl_cmd.acc);
   } else if (current_control_state == ControlState::STOPPED) {
     // This acceleration is without slope compensation
     const auto & p = stopped_state_params_;
     raw_ctrl_cmd.vel = velocity_controller_utils::applyDiffLimitFilter(
-      p.vel,
-      prev_raw_ctrl_cmd_.vel,
-      control_data.dt, p.acc);
+      p.vel, prev_raw_ctrl_cmd_.vel, control_data.dt, p.acc);
     raw_ctrl_cmd.acc = velocity_controller_utils::applyDiffLimitFilter(
-      p.acc,
-      prev_raw_ctrl_cmd_.acc,
-      control_data.dt, p.jerk);
+      p.acc, prev_raw_ctrl_cmd_.acc, control_data.dt, p.jerk);
 
     RCLCPP_DEBUG(
-      get_logger(), "[Stopped]. vel: %3.3f, acc: %3.3f",
-      raw_ctrl_cmd.vel, raw_ctrl_cmd.acc);
+      get_logger(), "[Stopped]. vel: %3.3f, acc: %3.3f", raw_ctrl_cmd.vel, raw_ctrl_cmd.acc);
   } else if (current_control_state == ControlState::EMERGENCY) {
     raw_ctrl_cmd = calcEmergencyCtrlCmd(control_data.dt);
   }
@@ -654,10 +631,10 @@ double VelocityController::getDt()
 VelocityController::Motion VelocityController::getCurrentMotion() const
 {
   const double dv = current_vel_ptr_->twist.linear.x - prev_vel_ptr_->twist.linear.x;
-  const double dt =
-    std::max(
-    (rclcpp::Time(current_vel_ptr_->header.stamp) -
-    rclcpp::Time(prev_vel_ptr_->header.stamp)).seconds(), 1e-03);
+  const double dt = std::max(
+    (rclcpp::Time(current_vel_ptr_->header.stamp) - rclcpp::Time(prev_vel_ptr_->header.stamp))
+      .seconds(),
+    1e-03);
   const double accel = dv / dt;
 
   const double current_vel = current_vel_ptr_->twist.linear.x;
@@ -720,9 +697,7 @@ void VelocityController::storeAccelCmd(const double accel)
   if (ctrl_cmd_vec_.size() <= 2) {
     return;
   }
-  if (
-    (this->now() - ctrl_cmd_vec_.at(1).header.stamp).seconds() > delay_compensation_time_)
-  {
+  if ((this->now() - ctrl_cmd_vec_.at(1).header.stamp).seconds() > delay_compensation_time_) {
     ctrl_cmd_vec_.erase(ctrl_cmd_vec_.begin());
   }
 }
@@ -788,10 +763,7 @@ double VelocityController::predictedVelocityInTargetPoint(
   const auto past_delay_time =
     this->now() - rclcpp::Duration::from_seconds(delay_compensation_time);
   for (std::size_t i = 0; i < ctrl_cmd_vec_.size(); ++i) {
-    if (
-      (this->now() - ctrl_cmd_vec_.at(i).header.stamp).seconds() <
-      delay_compensation_time_)
-    {
+    if ((this->now() - ctrl_cmd_vec_.at(i).header.stamp).seconds() < delay_compensation_time_) {
       if (i == 0) {
         // size of ctrl_cmd_vec_ is less than delay_compensation_time_
         pred_vel =

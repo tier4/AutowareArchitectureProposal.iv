@@ -14,12 +14,6 @@
 
 #include "scenario_selector/scenario_selector_node.hpp"
 
-#include <deque>
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-
 #include "lanelet2_core/geometry/BoundingBox.h"
 #include "lanelet2_core/geometry/Lanelet.h"
 #include "lanelet2_core/geometry/LineString.h"
@@ -28,9 +22,15 @@
 #include "lanelet2_extension/utility/message_conversion.hpp"
 #include "lanelet2_extension/utility/query.hpp"
 
+#include <deque>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 namespace
 {
-template<class T>
+template <class T>
 void onData(const T & data, T * buffer)
 {
   *buffer = data;
@@ -149,13 +149,15 @@ bool isStopped(
 
 }  // namespace
 
-autoware_planning_msgs::msg::Trajectory::ConstSharedPtr
-ScenarioSelectorNode::getScenarioTrajectory(const std::string & scenario)
+autoware_planning_msgs::msg::Trajectory::ConstSharedPtr ScenarioSelectorNode::getScenarioTrajectory(
+  const std::string & scenario)
 {
   if (scenario == autoware_planning_msgs::msg::Scenario::LANEDRIVING) {
     return lane_driving_trajectory_;
   }
-  if (scenario == autoware_planning_msgs::msg::Scenario::PARKING) {return parking_trajectory_;}
+  if (scenario == autoware_planning_msgs::msg::Scenario::PARKING) {
+    return parking_trajectory_;
+  }
   RCLCPP_ERROR_STREAM(this->get_logger(), "invalid scenario argument: " << scenario);
   return lane_driving_trajectory_;
 }
@@ -271,7 +273,6 @@ void ScenarioSelectorNode::onTimer()
   pub_scenario_->publish(scenario);
 }
 
-
 void ScenarioSelectorNode::onLaneDrivingTrajectory(
   const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg)
 {
@@ -326,13 +327,11 @@ ScenarioSelectorNode::ScenarioSelectorNode(const rclcpp::NodeOptions & node_opti
   this->declare_parameter<bool>("is_parking_completed", false);
 
   // Input
-  sub_lane_driving_trajectory_ =
-    this->create_subscription<autoware_planning_msgs::msg::Trajectory>(
+  sub_lane_driving_trajectory_ = this->create_subscription<autoware_planning_msgs::msg::Trajectory>(
     "input/lane_driving/trajectory", rclcpp::QoS{1},
     std::bind(&ScenarioSelectorNode::onLaneDrivingTrajectory, this, std::placeholders::_1));
 
-  sub_parking_trajectory_ =
-    this->create_subscription<autoware_planning_msgs::msg::Trajectory>(
+  sub_parking_trajectory_ = this->create_subscription<autoware_planning_msgs::msg::Trajectory>(
     "input/parking/trajectory", rclcpp::QoS{1},
     std::bind(&ScenarioSelectorNode::onParkingTrajectory, this, std::placeholders::_1));
 

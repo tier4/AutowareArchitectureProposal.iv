@@ -61,14 +61,13 @@
 #ifndef YOLO_LAYER_PLUGIN_HPP_
 #define YOLO_LAYER_PLUGIN_HPP_
 
+#include "NvInferPlugin.h"
+#include "yolo_layer.hpp"
+
 #include <array>
 #include <iostream>
 #include <string>
 #include <vector>
-
-#include "NvInferPlugin.h"
-
-#include "yolo_layer.hpp"
 
 namespace yolo
 {

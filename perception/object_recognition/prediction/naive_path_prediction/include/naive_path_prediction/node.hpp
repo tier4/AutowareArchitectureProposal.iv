@@ -19,6 +19,7 @@
 #pragma once
 
 #include <rclcpp/rclcpp.hpp>
+
 #include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
 
 class NaivePathPredictionNode : public rclcpp::Node

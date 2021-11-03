@@ -17,20 +17,7 @@
  * @brief HDD information read class
  */
 
-#include <fcntl.h>
-#include <getopt.h>
-#include <syslog.h>
-#include <unistd.h>
-#include <cerrno>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-
-#include <algorithm>
-#include <regex>
-#include <string>
-#include <utility>
-#include <vector>
+#include "hdd_reader/hdd_reader.hpp"
 
 #include "linux/nvme_ioctl.h"
 #include "netinet/in.h"
@@ -45,7 +32,20 @@
 #include "boost/lexical_cast.hpp"
 #include "boost/serialization/vector.hpp"
 
-#include "hdd_reader/hdd_reader.hpp"
+#include <fcntl.h>
+#include <getopt.h>
+#include <syslog.h>
+#include <unistd.h>
+
+#include <algorithm>
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <regex>
+#include <string>
+#include <utility>
+#include <vector>
 
 // 7634-7647 Unassigned
 constexpr int PORT = 7635;

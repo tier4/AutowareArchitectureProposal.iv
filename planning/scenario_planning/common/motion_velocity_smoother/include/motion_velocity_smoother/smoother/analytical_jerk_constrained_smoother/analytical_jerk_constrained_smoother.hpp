@@ -17,15 +17,16 @@
 #define MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER_HPP_
 // *INDENT-ON*
 
+#include "autoware_utils/trajectory/trajectory.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "tf2/utils.h"
+
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "geometry_msgs/msg/pose.hpp"
+
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "rclcpp/rclcpp.hpp"
-#include "tf2/utils.h"
-#include "geometry_msgs/msg/pose.hpp"
-#include "autoware_planning_msgs/msg/trajectory.hpp"
-#include "autoware_utils/trajectory/trajectory.hpp"
 
 // *INDENT-OFF*
 #include "motion_velocity_smoother/smoother/analytical_jerk_constrained_smoother/velocity_planning_utils.hpp"

@@ -15,22 +15,22 @@
 #ifndef PURE_PURSUIT__UTIL__PLANNING_UTILS_HPP_
 #define PURE_PURSUIT__UTIL__PLANNING_UTILS_HPP_
 
-#include <memory>
-#include <utility>
-#include <vector>
-
 #include "rclcpp/rclcpp.hpp"
-#include "autoware_planning_msgs/msg/trajectory.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "tf2/transform_datatypes.h"
 #include "tf2/utils.h"
 #include "tf2_eigen/tf2_eigen.h"
 
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+
+#include <memory>
+#include <utility>
+#include <vector>
+
 #define EIGEN_MPL2_ONLY
 #include "Eigen/Core"
 #include "Eigen/Geometry"
-
 #include "interpolate.hpp"
 
 #define PLANNING_UTILS_LOGGER "planning_utils"
@@ -40,8 +40,7 @@ namespace planning_utils
 constexpr double ERROR = 1e-6;
 
 double calcCurvature(
-  const geometry_msgs::msg::Point & target,
-  const geometry_msgs::msg::Pose & curr_pose);
+  const geometry_msgs::msg::Point & target, const geometry_msgs::msg::Pose & curr_pose);
 double calcDistance2D(const geometry_msgs::msg::Point & p, const geometry_msgs::msg::Point & q);
 double calcDistSquared2D(const geometry_msgs::msg::Point & p, const geometry_msgs::msg::Point & q);
 double calcStopDistanceWithConstantJerk(const double & v_init, const double & j);
@@ -49,8 +48,7 @@ double calcLateralError2D(
   const geometry_msgs::msg::Point & a_start, const geometry_msgs::msg::Point & a_end,
   const geometry_msgs::msg::Point & b);
 double calcRadius(
-  const geometry_msgs::msg::Point & target,
-  const geometry_msgs::msg::Pose & current_pose);
+  const geometry_msgs::msg::Point & target, const geometry_msgs::msg::Pose & current_pose);
 double convertCurvatureToSteeringAngle(double wheel_base, double kappa);
 
 std::vector<geometry_msgs::msg::Pose> extractPoses(
@@ -58,23 +56,23 @@ std::vector<geometry_msgs::msg::Pose> extractPoses(
 
 std::pair<bool, int32_t> findClosestIdxWithDistAngThr(
   const std::vector<geometry_msgs::msg::Pose> & poses,
-  const geometry_msgs::msg::Pose & current_pose,
-  const double th_dist = 3.0, const double th_yaw = M_PI_2);
+  const geometry_msgs::msg::Pose & current_pose, const double th_dist = 3.0,
+  const double th_yaw = M_PI_2);
 
 int8_t getLaneDirection(const std::vector<geometry_msgs::msg::Pose> & poses, double th_dist = 0.5);
 bool isDirectionForward(
-  const geometry_msgs::msg::Pose & prev,
-  const geometry_msgs::msg::Pose & next);
+  const geometry_msgs::msg::Pose & prev, const geometry_msgs::msg::Pose & next);
 bool isDirectionForward(
-  const geometry_msgs::msg::Pose & prev,
-  const geometry_msgs::msg::Point & next);
+  const geometry_msgs::msg::Pose & prev, const geometry_msgs::msg::Point & next);
 
 // refer from apache's pointinpoly in http://www.visibone.com/inpoly/
-template<typename T>
+template <typename T>
 bool isInPolygon(const std::vector<T> & polygon, const T & point)
 {
   // polygons with fewer than 3 sides are excluded
-  if (polygon.size() < 3) {return false;}
+  if (polygon.size() < 3) {
+    return false;
+  }
 
   bool in_poly = false;
   double x1, x2, y1, y2;
@@ -100,8 +98,7 @@ bool isInPolygon(const std::vector<T> & polygon, const T & point)
 
     if (
       (xnew < point.x()) == (point.x() <= xold) &&
-      (point.y() - y1) * (x2 - x1) < (y2 - y1) * (point.x() - x1))
-    {
+      (point.y() - y1) * (x2 - x1) < (y2 - y1) * (point.x() - x1)) {
       in_poly = !in_poly;
     }
     xold = xnew;
@@ -111,7 +108,7 @@ bool isInPolygon(const std::vector<T> & polygon, const T & point)
   return in_poly;
 }
 
-template<>
+template <>
 bool isInPolygon(
   const std::vector<geometry_msgs::msg::Point> & polygon, const geometry_msgs::msg::Point & point);
 

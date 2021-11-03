@@ -15,16 +15,17 @@
 #ifndef OBJECT_FLOW_FUSION__NODE_HPP_
 #define OBJECT_FLOW_FUSION__NODE_HPP_
 
-#include <iostream>
-#include <memory>
-
-#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
 #include "message_filters/subscriber.h"
 #include "message_filters/sync_policies/approximate_time.h"
 #include "message_filters/synchronizer.h"
 #include "message_filters/time_synchronizer.h"
 #include "object_flow_fusion.hpp"
 #include "rclcpp/rclcpp.hpp"
+
+#include "autoware_perception_msgs/msg/dynamic_object_with_feature_array.hpp"
+
+#include <iostream>
+#include <memory>
 
 namespace object_flow_fusion
 {
@@ -38,21 +39,21 @@ public:
 
 private:
   typedef message_filters::sync_policies::ApproximateTime<
-      autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>
     ApproximateSync;
 
   typedef message_filters::sync_policies::ExactTime<
-      autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
-      autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray,
+    autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>
     Sync;
 
   std::shared_ptr<message_filters::Synchronizer<ApproximateSync>> approximate_sync_;
   std::shared_ptr<message_filters::Synchronizer<Sync>> sync_;
   message_filters::Subscriber<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>
-  object_sub_;
+    object_sub_;
   message_filters::Subscriber<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>
-  flow_sub_;
+    flow_sub_;
 
   rclcpp::Publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>::SharedPtr pub_;
   bool is_approximate_sync_;

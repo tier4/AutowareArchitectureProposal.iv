@@ -14,11 +14,11 @@
 
 #include "dummy_infrastructure/dummy_infrastructure_node.hpp"
 
+#include "boost/optional.hpp"
+
 #include <memory>
 #include <string>
 #include <vector>
-
-#include "boost/optional.hpp"
 
 using namespace std::literals;
 using namespace std::placeholders;
@@ -30,13 +30,13 @@ namespace dummy_infrastructure
 {
 namespace
 {
-template<class T>
+template <class T>
 bool update_param(
   const std::vector<rclcpp::Parameter> & params, const std::string & name, T & value)
 {
   const auto itr = std::find_if(
     params.cbegin(), params.cend(),
-    [&name](const rclcpp::Parameter & p) {return p.get_name() == name;});
+    [&name](const rclcpp::Parameter & p) { return p.get_name() == name; });
 
   // Not found
   if (itr == params.cend()) {

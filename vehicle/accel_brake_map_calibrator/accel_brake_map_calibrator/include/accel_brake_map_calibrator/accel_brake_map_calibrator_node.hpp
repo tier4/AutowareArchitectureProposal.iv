@@ -17,38 +17,41 @@
 #ifndef ACCEL_BRAKE_MAP_CALIBRATOR__ACCEL_BRAKE_MAP_CALIBRATOR_NODE_HPP_
 #define ACCEL_BRAKE_MAP_CALIBRATOR__ACCEL_BRAKE_MAP_CALIBRATOR_NODE_HPP_
 
-#include <fstream>
-#include <queue>
-#include <iomanip>
-#include <memory>
-#include <string>
-#include <vector>
-
-#include "rclcpp/rclcpp.hpp"
-#include "diagnostic_updater/diagnostic_updater.hpp"
-#include "tf2/utils.h"
-#include "nav_msgs/msg/occupancy_grid.hpp"
-#include "raw_vehicle_cmd_converter/accel_map.hpp"
-#include "raw_vehicle_cmd_converter/brake_map.hpp"
-#include "std_msgs/msg/bool.hpp"
-#include "std_msgs/msg/string.hpp"
-#include "std_msgs/msg/float32_multi_array.hpp"
-#include "std_msgs/msg/multi_array_dimension.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
-#include "autoware_vehicle_msgs/msg/steering.hpp"
-#include "autoware_debug_msgs/msg/float32_stamped.hpp"
-#include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
-#include "autoware_vehicle_msgs/srv/update_accel_brake_map.hpp"
 #include "autoware_utils/planning/planning_marker_helper.hpp"
 #include "autoware_utils/ros/transform_listener.hpp"
+#include "diagnostic_updater/diagnostic_updater.hpp"
+#include "raw_vehicle_cmd_converter/accel_map.hpp"
+#include "raw_vehicle_cmd_converter/brake_map.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "tf2/utils.h"
+
+#include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
+#include "autoware_debug_msgs/msg/float32_stamped.hpp"
 #include "autoware_vehicle_msgs/msg/actuation_status_stamped.hpp"
+#include "autoware_vehicle_msgs/msg/steering.hpp"
+#include "autoware_vehicle_msgs/srv/update_accel_brake_map.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "nav_msgs/msg/occupancy_grid.hpp"
+#include "std_msgs/msg/bool.hpp"
+#include "std_msgs/msg/float32_multi_array.hpp"
+#include "std_msgs/msg/multi_array_dimension.hpp"
+#include "std_msgs/msg/string.hpp"
+
+#include <fstream>
+#include <iomanip>
+#include <memory>
+#include <queue>
+#include <string>
+#include <vector>
 
 using raw_vehicle_cmd_converter::AccelMap;
 using raw_vehicle_cmd_converter::BrakeMap;
 struct DataStamped
 {
   DataStamped(const double _data, const rclcpp::Time & _data_time)
-  : data{_data}, data_time{_data_time} {}
+  : data{_data}, data_time{_data_time}
+  {
+  }
   double data;
   rclcpp::Time data_time;
 };
@@ -61,10 +64,8 @@ private:
   std::string csv_default_map_dir_;
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr original_map_occ_pub_;
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr update_map_occ_pub_;
-  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr
-    original_map_raw_pub_;
-  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr
-    update_map_raw_pub_;
+  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr original_map_raw_pub_;
+  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr update_map_raw_pub_;
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32MultiArrayStamped>::SharedPtr debug_pub_;
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr data_count_pub_;
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr data_count_with_self_pose_pub_;
@@ -247,9 +248,9 @@ private:
   void pushDataToQue(
     const geometry_msgs::msg::TwistStamped::ConstSharedPtr & data, const std::size_t max_size,
     std::queue<geometry_msgs::msg::TwistStamped::ConstSharedPtr> * que);
-  template<class T>
+  template <class T>
   void pushDataToVec(const T data, const std::size_t max_size, std::vector<T> * vec);
-  template<class T>
+  template <class T>
   T getNearestTimeDataFromVec(
     const T base_data, const double back_time, const std::vector<T> & vec);
   DataStampedPtr getNearestTimeDataFromVec(
@@ -284,8 +285,7 @@ private:
     const double part_original_accel_mse, const double new_accel_mse);
 
   mutable autoware_debug_msgs::msg::Float32MultiArrayStamped debug_values_;
-  enum DBGVAL
-  {
+  enum DBGVAL {
     CURRENT_SPEED = 0,
     CURRENT_ACCEL_PEDAL = 1,
     CURRENT_BRAKE_PEDAL = 2,
@@ -305,8 +305,7 @@ private:
 
   enum GET_PITCH_METHOD { TF = 0, FILE = 1, NONE = 2 };
 
-  enum UPDATE_METHOD
-  {
+  enum UPDATE_METHOD {
     UPDATE_OFFSET_EACH_CELL = 0,
     UPDATE_OFFSET_TOTAL = 1,
   };
