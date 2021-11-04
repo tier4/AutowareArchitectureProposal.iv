@@ -22,7 +22,6 @@
 
 #include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
 #include <diagnostic_msgs/msg/key_value.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
@@ -59,7 +58,7 @@ private:
   void pathCallback(const autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr input_msg);
   void pointCloudCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr input_msg);
   void dynamicObjectCallback(
-    const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_msg);
+    const autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr input_msg);
   void currentVelocityCallback(const geometry_msgs::msg::TwistStamped::ConstSharedPtr input_msg);
   void insertStopVelocity(
     const size_t closest_idx, autoware_auto_planning_msgs::msg::Trajectory * traj);
@@ -94,7 +93,7 @@ private:
   // publisher and subscriber
   rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr path_sub_;
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_sub_;
-  rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr
+  rclcpp::Subscription<autoware_auto_perception_msgs::msg::PredictedObjects>::SharedPtr
     dynamic_object_sub_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr current_velocity_sub_;
   rclcpp::Publisher<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr path_pub_;
@@ -106,7 +105,7 @@ private:
   // parameter
   geometry_msgs::msg::TwistStamped::ConstSharedPtr current_velocity_ptr_;
   sensor_msgs::msg::PointCloud2::ConstSharedPtr pointcloud_ptr_;
-  autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr object_ptr_;
+  autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr object_ptr_;
   vehicle_info_util::VehicleInfo vehicle_info_;
   Polygon2d self_poly_;
   bool use_pointcloud_;

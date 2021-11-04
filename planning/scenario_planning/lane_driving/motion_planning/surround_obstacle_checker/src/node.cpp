@@ -62,7 +62,7 @@ SurroundObstacleCheckerNode::SurroundObstacleCheckerNode(const rclcpp::NodeOptio
     "~/input/pointcloud", rclcpp::SensorDataQoS(),
     std::bind(&SurroundObstacleCheckerNode::pointCloudCallback, this, std::placeholders::_1));
   dynamic_object_sub_ =
-    this->create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
+    this->create_subscription<autoware_auto_perception_msgs::msg::PredictedObjects>(
       "~/input/objects", 1,
       std::bind(&SurroundObstacleCheckerNode::dynamicObjectCallback, this, std::placeholders::_1));
   current_velocity_sub_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
@@ -150,7 +150,7 @@ void SurroundObstacleCheckerNode::pointCloudCallback(
 }
 
 void SurroundObstacleCheckerNode::dynamicObjectCallback(
-  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_msg)
+  const autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr input_msg)
 {
   object_ptr_ = input_msg;
 }
@@ -290,17 +290,14 @@ void SurroundObstacleCheckerNode::getNearestObstacleByDynamicObject(
     // change frame of obj_pose to base_link
     geometry_msgs::msg::Pose pose_baselink;
     if (!convertPose(
-          obj.state.pose_covariance.pose, obj_frame, "base_link", obj_time, pose_baselink)) {
+          obj.kinematics.initial_pose.pose, obj_frame, "base_link", obj_time, pose_baselink)) {
       return;
     }
 
     // create obj polygon
     Polygon2d obj_poly;
-    if (obj.shape.type == autoware_perception_msgs::msg::Shape::POLYGON) {
-      obj_poly = createObjPolygon(pose_baselink, obj.shape.footprint);
-    } else {
-      obj_poly = createObjPolygon(pose_baselink, obj.shape.dimensions);
-    }
+    // if not polygon (e.g. BB or cylinder) shape type is implemented, shape checker is necessary
+    obj_poly = createObjPolygon(pose_baselink, obj.shape.front().polygon);
 
     // calc distance
     const double dist_to_obj = boost::geometry::distance(self_poly_, obj_poly);
@@ -308,7 +305,7 @@ void SurroundObstacleCheckerNode::getNearestObstacleByDynamicObject(
     // get minimum distance to obj
     if (dist_to_obj < *min_dist_to_obj) {
       *min_dist_to_obj = dist_to_obj;
-      *nearest_obj_point = obj.state.pose_covariance.pose.position;
+      *nearest_obj_point = obj.kinematics.initial_pose.pose.position;
     }
   }
 }
