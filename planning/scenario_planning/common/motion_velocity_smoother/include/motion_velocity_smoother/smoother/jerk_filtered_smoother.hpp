@@ -15,16 +15,16 @@
 #ifndef MOTION_VELOCITY_SMOOTHER__SMOOTHER__JERK_FILTERED_SMOOTHER_HPP_
 #define MOTION_VELOCITY_SMOOTHER__SMOOTHER__JERK_FILTERED_SMOOTHER_HPP_
 
-#include <vector>
+#include "autoware_utils/geometry/geometry.hpp"
+#include "autoware_utils/trajectory/trajectory.hpp"
+#include "motion_velocity_smoother/smoother/smoother_base.hpp"
+#include "osqp_interface/osqp_interface.hpp"
+
+#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
 
 #include "boost/optional.hpp"
 
-#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
-#include "autoware_utils/geometry/geometry.hpp"
-#include "autoware_utils/trajectory/trajectory.hpp"
-#include "osqp_interface/osqp_interface.hpp"
-
-#include "motion_velocity_smoother/smoother/smoother_base.hpp"
+#include <vector>
 
 namespace motion_velocity_smoother
 {
@@ -45,9 +45,8 @@ public:
   explicit JerkFilteredSmoother(const Param & p);
 
   bool apply(
-    const double initial_vel, const double initial_acc,
-    const TrajectoryPointArray & input, TrajectoryPointArray & output,
-    std::vector<TrajectoryPointArray> & debug_trajectories) override;
+    const double initial_vel, const double initial_acc, const TrajectoryPointArray & input,
+    TrajectoryPointArray & output, std::vector<TrajectoryPointArray> & debug_trajectories) override;
 
   boost::optional<TrajectoryPointArray> resampleTrajectory(
     const TrajectoryPointArray & input, const double v_current,
@@ -58,8 +57,7 @@ public:
 private:
   Param smoother_param_;
   osqp::OSQPInterface qp_solver_;
-  rclcpp::Logger
-    logger_{rclcpp::get_logger("smoother").get_child("jerk_filtered_smoother")};
+  rclcpp::Logger logger_{rclcpp::get_logger("smoother").get_child("jerk_filtered_smoother")};
 
   TrajectoryPointArray forwardJerkFilter(
     const double v0, const double a0, const double a_max, const double a_stop, const double j_max,

@@ -15,33 +15,31 @@
 #ifndef MOTION_VELOCITY_SMOOTHER__MOTION_VELOCITY_SMOOTHER_NODE_HPP_
 #define MOTION_VELOCITY_SMOOTHER__MOTION_VELOCITY_SMOOTHER_NODE_HPP_
 
-#include <iostream>
-#include <memory>
-#include <string>
-#include <tuple>
-#include <vector>
-
-#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
-#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
 #include "autoware_utils/geometry/geometry.hpp"
 #include "autoware_utils/math/unit_conversion.hpp"
 #include "autoware_utils/ros/self_pose_listener.hpp"
 #include "autoware_utils/trajectory/trajectory.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "motion_velocity_smoother/resample.hpp"
+#include "motion_velocity_smoother/smoother/jerk_filtered_smoother.hpp"
+#include "motion_velocity_smoother/smoother/l2_pseudo_jerk_smoother.hpp"
+#include "motion_velocity_smoother/smoother/linf_pseudo_jerk_smoother.hpp"
 #include "osqp_interface/osqp_interface.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tf2/utils.h"
 #include "tf2_ros/transform_listener.h"
 
-// temporary
-#include "autoware_debug_msgs/msg/float32_stamped.hpp"
-#include "autoware_planning_msgs/msg/stop_speed_exceeded.hpp"
-#include "autoware_planning_msgs/msg/velocity_limit.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
+#include "autoware_debug_msgs/msg/float32_stamped.hpp"         // temporary
+#include "autoware_planning_msgs/msg/stop_speed_exceeded.hpp"  // temporary
+#include "autoware_planning_msgs/msg/velocity_limit.hpp"       // temporary
+#include "geometry_msgs/msg/twist_stamped.hpp"
 
-#include "motion_velocity_smoother/resample.hpp"
-#include "motion_velocity_smoother/smoother/jerk_filtered_smoother.hpp"
-#include "motion_velocity_smoother/smoother/l2_pseudo_jerk_smoother.hpp"
-#include "motion_velocity_smoother/smoother/linf_pseudo_jerk_smoother.hpp"
+#include <iostream>
+#include <memory>
+#include <string>
+#include <tuple>
+#include <vector>
 // *INDENT-OFF*
 #include "motion_velocity_smoother/smoother/analytical_jerk_constrained_smoother/analytical_jerk_constrained_smoother.hpp"
 // *INDENT-ON*
@@ -53,9 +51,9 @@ namespace motion_velocity_smoother
 using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
-using autoware_debug_msgs::msg::Float32Stamped;  // temporary
+using autoware_debug_msgs::msg::Float32Stamped;        // temporary
 using autoware_planning_msgs::msg::StopSpeedExceeded;  // temporary
-using autoware_planning_msgs::msg::VelocityLimit;  // temporary
+using autoware_planning_msgs::msg::VelocityLimit;      // temporary
 using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::PoseStamped;
 using geometry_msgs::msg::TwistStamped;
@@ -67,32 +65,31 @@ public:
 
 private:
   rclcpp::Publisher<Trajectory>::SharedPtr
-    pub_trajectory_;                           //!< @brief publisher for output trajectory
+    pub_trajectory_;  //!< @brief publisher for output trajectory
   rclcpp::Publisher<StopSpeedExceeded>::SharedPtr
-    pub_over_stop_velocity_;                   //!< @brief publisher for over stop velocity warning
+    pub_over_stop_velocity_;  //!< @brief publisher for over stop velocity warning
   rclcpp::Subscription<TwistStamped>::SharedPtr
-    sub_current_velocity_;                     //!< @brief subscriber for current velocity
+    sub_current_velocity_;  //!< @brief subscriber for current velocity
   rclcpp::Subscription<Trajectory>::SharedPtr
-    sub_current_trajectory_;                   //!< @brief subscriber for reference trajectory
+    sub_current_trajectory_;  //!< @brief subscriber for reference trajectory
   rclcpp::Subscription<VelocityLimit>::SharedPtr
-    sub_external_velocity_limit_;              //!< @brief subscriber for external velocity limit
+    sub_external_velocity_limit_;  //!< @brief subscriber for external velocity limit
 
-  PoseStamped::ConstSharedPtr current_pose_ptr_;        // current vehicle pose
-  TwistStamped::ConstSharedPtr current_velocity_ptr_;   // current vehicle twist
-  Trajectory::ConstSharedPtr base_traj_raw_ptr_;        // current base_waypoints
-  double external_velocity_limit_;  // current external_velocity_limit
-  double max_velocity_with_deceleration_;  // maximum velocity with deceleration
-                                           // for external velocity limit
-  double external_velocity_limit_dist_{0.0};  // distance to set external velocity limit
+  PoseStamped::ConstSharedPtr current_pose_ptr_;       // current vehicle pose
+  TwistStamped::ConstSharedPtr current_velocity_ptr_;  // current vehicle twist
+  Trajectory::ConstSharedPtr base_traj_raw_ptr_;       // current base_waypoints
+  double external_velocity_limit_;                     // current external_velocity_limit
+  double max_velocity_with_deceleration_;              // maximum velocity with deceleration
+                                                       // for external velocity limit
+  double external_velocity_limit_dist_{0.0};           // distance to set external velocity limit
 
-  TrajectoryPointArray prev_output_;  // previously published trajectory
+  TrajectoryPointArray prev_output_;                       // previously published trajectory
   boost::optional<TrajectoryPoint> prev_closest_point_{};  // previous trajectory point
                                                            // closest to ego vehicle
 
   autoware_utils::SelfPoseListener self_pose_listener_{this};
 
-  enum class AlgorithmType
-  {
+  enum class AlgorithmType {
     INVALID = 0,
     JERK_FILTERED = 1,
     L2 = 2,
@@ -100,8 +97,7 @@ private:
     ANALYTICAL = 4,
   };
 
-  enum class InitializeType
-  {
+  enum class InitializeType {
     INIT = 0,
     LARGE_DEVIATION_REPLAN = 1,
     ENGAGING = 2,
@@ -112,16 +108,16 @@ private:
   {
     double max_velocity;                              // max velocity [m/s]
     double margin_to_insert_external_velocity_limit;  // for external velocity limit [m]
-    double replan_vel_deviation;  // if speed error exceeds this [m/s],
-                                  // replan from current velocity
-    double engage_velocity;       // use this speed when start moving [m/s]
-    double engage_acceleration;   // use this acceleration when start moving [m/ss]
-    double engage_exit_ratio;     // exit engage sequence
-                                  // when the speed exceeds ratio x engage_vel.
-    double stopping_velocity;     // change target velocity to this value before v=0 point.
-    double stopping_distance;     // distance for the stopping_velocity
-    double extract_ahead_dist;    // forward waypoints distance from current position [m]
-    double extract_behind_dist;   // backward waypoints distance from current position [m]
+    double replan_vel_deviation;                      // if speed error exceeds this [m/s],
+                                                      // replan from current velocity
+    double engage_velocity;                           // use this speed when start moving [m/s]
+    double engage_acceleration;           // use this acceleration when start moving [m/ss]
+    double engage_exit_ratio;             // exit engage sequence
+                                          // when the speed exceeds ratio x engage_vel.
+    double stopping_velocity;             // change target velocity to this value before v=0 point.
+    double stopping_distance;             // distance for the stopping_velocity
+    double extract_ahead_dist;            // forward waypoints distance from current position [m]
+    double extract_behind_dist;           // backward waypoints distance from current position [m]
     double stop_dist_to_prohibit_engage;  // prevent to move toward close stop point
     double delta_yaw_threshold;           // for closest index calculation
     resampling::ResampleParam post_resample_param;
@@ -155,8 +151,7 @@ private:
   // publish methods
   void publishTrajectory(const TrajectoryPointArray & traj) const;
 
-  void publishStopDistance(
-    const TrajectoryPointArray & trajectory, const size_t closest) const;
+  void publishStopDistance(const TrajectoryPointArray & trajectory, const size_t closest) const;
 
   // non-const methods
   void publishClosestState(const TrajectoryPoint & closest_point);
@@ -166,12 +161,10 @@ private:
 
   AlgorithmType getAlgorithmType(const std::string & algorithm_name) const;
 
-  TrajectoryPointArray calcTrajectoryVelocity(
-    const TrajectoryPointArray & input) const;
+  TrajectoryPointArray calcTrajectoryVelocity(const TrajectoryPointArray & input) const;
 
   bool smoothVelocity(
-    const TrajectoryPointArray & input,
-    TrajectoryPointArray & traj_smoothed) const;
+    const TrajectoryPointArray & input, TrajectoryPointArray & traj_smoothed) const;
 
   std::tuple<double, double, InitializeType> calcInitialMotion(
     const TrajectoryPointArray & input_traj, const size_t input_closest,
@@ -180,21 +173,17 @@ private:
   void applyExternalVelocityLimit(TrajectoryPointArray & traj) const;
 
   void insertBehindVelocity(
-    const size_t output_closest, const InitializeType type,
-    TrajectoryPointArray & output) const;
+    const size_t output_closest, const InitializeType type, TrajectoryPointArray & output) const;
 
   void applyStopApproachingVelocity(TrajectoryPointArray & traj) const;
 
-  void overwriteStopPoint(
-    const TrajectoryPointArray & input,
-    TrajectoryPointArray & output) const;
+  void overwriteStopPoint(const TrajectoryPointArray & input, TrajectoryPointArray & output) const;
 
   double calcTravelDistance() const;
 
   bool isEngageStatus(const double target_vel) const;
 
-  void publishDebugTrajectories(
-    const std::vector<TrajectoryPointArray> & debug_trajectories) const;
+  void publishDebugTrajectories(const std::vector<TrajectoryPointArray> & debug_trajectories) const;
 
   void publishClosestVelocity(
     const TrajectoryPointArray & trajectory, const Pose & current_pose,

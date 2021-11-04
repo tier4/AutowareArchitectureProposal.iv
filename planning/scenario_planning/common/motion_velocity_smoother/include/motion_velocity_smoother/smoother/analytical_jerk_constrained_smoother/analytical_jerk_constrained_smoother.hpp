@@ -13,19 +13,20 @@
 // limitations under the License.
 
 // *INDENT-OFF*
-#ifndef MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER_HPP_
-#define MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER_HPP_
+#ifndef MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER_HPP_  // NOLINT
+#define MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER_HPP_  // NOLINT
 // *INDENT-ON*
+
+#include "autoware_utils/trajectory/trajectory.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "tf2/utils.h"
+
+#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
+#include "geometry_msgs/msg/pose.hpp"
 
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "rclcpp/rclcpp.hpp"
-#include "tf2/utils.h"
-#include "geometry_msgs/msg/pose.hpp"
-#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
-#include "autoware_utils/trajectory/trajectory.hpp"
 
 // *INDENT-OFF*
 #include "motion_velocity_smoother/smoother/analytical_jerk_constrained_smoother/velocity_planning_utils.hpp"
@@ -34,7 +35,7 @@
 
 namespace motion_velocity_smoother
 {
-using autoware_planning_msgs::msg::TrajectoryPoint;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
 
 class AnalyticalJerkConstrainedSmoother : public SmootherBase
@@ -79,7 +80,8 @@ public:
     TrajectoryPointArray & output, std::vector<TrajectoryPointArray> & debug_trajectories) override;
 
   boost::optional<TrajectoryPointArray> resampleTrajectory(
-    const TrajectoryPointArray & input, const double v_current, const int closest_id) const override;
+    const TrajectoryPointArray & input, const double v_current,
+    const int closest_id) const override;
 
   boost::optional<TrajectoryPointArray> applyLateralAccelerationFilter(
     const TrajectoryPointArray & input) const override;
@@ -95,15 +97,18 @@ private:
     const TrajectoryPointArray & trajectory, const size_t closest_index,
     std::vector<std::pair<size_t, double>> & decel_target_indices) const;
   bool applyForwardJerkFilter(
-    const TrajectoryPointArray & base_trajectory, const size_t start_index, const double initial_vel,
-    const double initial_acc, const Param & params, TrajectoryPointArray & output_trajectory) const;
+    const TrajectoryPointArray & base_trajectory, const size_t start_index,
+    const double initial_vel, const double initial_acc, const Param & params,
+    TrajectoryPointArray & output_trajectory) const;
   bool applyBackwardDecelFilter(
     const std::vector<size_t> & start_indices, const size_t decel_target_index,
-    const double decel_target_vel, const Param & params, TrajectoryPointArray & output_trajectory) const;
+    const double decel_target_vel, const Param & params,
+    TrajectoryPointArray & output_trajectory) const;
   bool calcEnoughDistForDecel(
-    const TrajectoryPointArray & trajectory, const size_t start_index, const double decel_target_vel,
-    const double planning_jerk, const Param & params, const std::vector<double> & dist_to_target,
-    bool & is_enough_dist, int & type, std::vector<double> & times, double & stop_dist) const;
+    const TrajectoryPointArray & trajectory, const size_t start_index,
+    const double decel_target_vel, const double planning_jerk, const Param & params,
+    const std::vector<double> & dist_to_target, bool & is_enough_dist, int & type,
+    std::vector<double> & times, double & stop_dist) const;
   bool applyDecelVelocityFilter(
     const size_t decel_start_index, const double decel_target_vel, const double planning_jerk,
     const Param & params, const int type, const std::vector<double> & times,
@@ -115,4 +120,4 @@ private:
 };
 }  // namespace motion_velocity_smoother
 
-#endif  // MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER_HPP_
+#endif

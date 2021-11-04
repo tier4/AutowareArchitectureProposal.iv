@@ -13,19 +13,20 @@
 // limitations under the License.
 
 // *INDENT-OFF*
-#ifndef MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__VELOCITY_PLANNING_UTILS_HPP_
-#define MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__VELOCITY_PLANNING_UTILS_HPP_
+#ifndef MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__VELOCITY_PLANNING_UTILS_HPP_  // NOLINT
+#define MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__VELOCITY_PLANNING_UTILS_HPP_  // NOLINT
 // *INDENT-ON*
+
+#include "autoware_utils/trajectory/trajectory.hpp"
+#include "motion_velocity_smoother/linear_interpolation.hpp"
+#include "rclcpp/rclcpp.hpp"
+
+#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
 
 #include <cmath>
 #include <iostream>
 #include <numeric>
 #include <vector>
-
-#include "rclcpp/rclcpp.hpp"
-#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
-#include "autoware_utils/trajectory/trajectory.hpp"
-#include "motion_velocity_smoother/linear_interpolation.hpp"
 
 namespace motion_velocity_smoother
 {
@@ -53,4 +54,4 @@ double integ_a(double a0, double j0, double t);
 }  // namespace analytical_velocity_planning_utils
 }  // namespace motion_velocity_smoother
 
-#endif  // MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__VELOCITY_PLANNING_UTILS_HPP_
+#endif
