@@ -12,24 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-
-#include "tf2_eigen/tf2_eigen.h"
-
 #include "object_flow_fusion/object_flow_fusion.hpp"
+
+#include <tf2_eigen/tf2_eigen.h>
+
+#include <memory>
 
 namespace object_flow_fusion
 {
-ObjectFlowFusion::ObjectFlowFusion(float fusion_box_offset)
-: fusion_box_offset_(fusion_box_offset)
+ObjectFlowFusion::ObjectFlowFusion(float fusion_box_offset) : fusion_box_offset_(fusion_box_offset)
 {
   utils_ = std::make_shared<Utils>();
 }
 
 bool ObjectFlowFusion::isInsidePolygon(
   [[maybe_unused]] const geometry_msgs::msg::Pose & pose,
-  const geometry_msgs::msg::Polygon & footprint,
-  const geometry_msgs::msg::Point & flow_point)
+  const geometry_msgs::msg::Polygon & footprint, const geometry_msgs::msg::Point & flow_point)
 {
   double formed_angle_sum = 0;
   Eigen::Vector2d flow_point2d(flow_point.x, flow_point.y);
@@ -38,9 +36,9 @@ bool ObjectFlowFusion::isInsidePolygon(
     Eigen::Vector2d a2d, b2d;
     if (i == 0) {
       a2d = Eigen::Vector2d(
-        footprint.points.at(footprint.points.size() - 1).x,
-        footprint.points.at(footprint.points.size() - 1).y) -
-        flow_point2d;
+              footprint.points.at(footprint.points.size() - 1).x,
+              footprint.points.at(footprint.points.size() - 1).y) -
+            flow_point2d;
       b2d = Eigen::Vector2d(footprint.points.at(i).x, footprint.points.at(i).y) - flow_point2d;
     } else {
       a2d =
@@ -86,8 +84,7 @@ bool ObjectFlowFusion::isInsideShape(
 
   if (
     shape.type == autoware_perception_msgs::msg::Shape::POLYGON ||
-    shape.type == autoware_perception_msgs::msg::Shape::BOUNDING_BOX)
-  {
+    shape.type == autoware_perception_msgs::msg::Shape::BOUNDING_BOX) {
     return isInsidePolygon(pose, footprint, flow_point);
   } else if (shape.type == autoware_perception_msgs::msg::Shape::CYLINDER) {
     return isInsideCylinder(pose, shape, flow_point);
@@ -106,7 +103,7 @@ geometry_msgs::msg::Twist ObjectFlowFusion::getLocalTwist(
   Eigen::Vector3d obj_coords_vector =
     base2obj_rot.inverse() *
     Eigen::Vector3d(
-    base_coords_twist.linear.x, base_coords_twist.linear.y, base_coords_twist.linear.z);
+      base_coords_twist.linear.x, base_coords_twist.linear.y, base_coords_twist.linear.z);
   geometry_msgs::msg::Twist obj_coords_twist;
   obj_coords_twist.linear.x = obj_coords_vector.x();
   obj_coords_twist.linear.y = obj_coords_vector.y();
@@ -127,32 +124,32 @@ bool ObjectFlowFusion::getPolygon(
 
   if (shape.type == autoware_perception_msgs::msg::Shape::BOUNDING_BOX) {
     auto eigen_c1 = base2obj_transform * Eigen::Vector3d(
-      shape.dimensions.x * (0.5 + fusion_box_offset_),
-      shape.dimensions.y * (0.5 + fusion_box_offset_), 0);
+                                           shape.dimensions.x * (0.5 + fusion_box_offset_),
+                                           shape.dimensions.y * (0.5 + fusion_box_offset_), 0);
     geometry_msgs::msg::Point32 c1;
     c1.x = eigen_c1.x();
     c1.y = eigen_c1.y();
     output_footprint.points.push_back(c1);
 
     auto eigen_c2 = base2obj_transform * Eigen::Vector3d(
-      shape.dimensions.x * (0.5 + fusion_box_offset_),
-      -shape.dimensions.y * (0.5 + fusion_box_offset_), 0);
+                                           shape.dimensions.x * (0.5 + fusion_box_offset_),
+                                           -shape.dimensions.y * (0.5 + fusion_box_offset_), 0);
     geometry_msgs::msg::Point32 c2;
     c2.x = eigen_c2.x();
     c2.y = eigen_c2.y();
     output_footprint.points.push_back(c2);
 
     auto eigen_c3 = base2obj_transform * Eigen::Vector3d(
-      -shape.dimensions.x * (0.5 + fusion_box_offset_),
-      -shape.dimensions.y * (0.5 + fusion_box_offset_), 0);
+                                           -shape.dimensions.x * (0.5 + fusion_box_offset_),
+                                           -shape.dimensions.y * (0.5 + fusion_box_offset_), 0);
     geometry_msgs::msg::Point32 c3;
     c3.x = eigen_c3.x();
     c3.y = eigen_c3.y();
     output_footprint.points.push_back(c3);
 
     auto eigen_c4 = base2obj_transform * Eigen::Vector3d(
-      -shape.dimensions.x * (0.5 + fusion_box_offset_),
-      shape.dimensions.y * (0.5 + fusion_box_offset_), 0);
+                                           -shape.dimensions.x * (0.5 + fusion_box_offset_),
+                                           shape.dimensions.y * (0.5 + fusion_box_offset_), 0);
     geometry_msgs::msg::Point32 c4;
     c4.x = eigen_c4.x();
     c4.y = eigen_c4.y();
@@ -191,8 +188,7 @@ void ObjectFlowFusion::fusion(
     size_t flow_count = 0;
     for (auto flow : flow_msg->feature_objects) {
       if (isInsideShape(
-          detected_object.object, flow.object.state.pose_covariance.pose.position, footprint))
-      {
+            detected_object.object, flow.object.state.pose_covariance.pose.position, footprint)) {
         twist_sum.linear.x += flow.object.state.twist_covariance.twist.linear.x;
         twist_sum.linear.y += flow.object.state.twist_covariance.twist.linear.y;
         twist_sum.linear.z += flow.object.state.twist_covariance.twist.linear.z;

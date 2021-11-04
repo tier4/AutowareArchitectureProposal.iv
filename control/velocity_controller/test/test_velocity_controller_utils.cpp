@@ -12,22 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "velocity_controller/velocity_controller_utils.hpp"
+
+#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include <autoware_planning_msgs/msg/trajectory_point.hpp>
+#include <geometry_msgs/msg/point.hpp>
+#include <geometry_msgs/msg/pose.hpp>
+#include <geometry_msgs/msg/quaternion.hpp>
+
+#include <gtest/gtest.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+
 #include <limits>
 #include <vector>
 
-#include "gtest/gtest.h"
-#include "velocity_controller/velocity_controller_utils.hpp"
-#include "autoware_planning_msgs/msg/trajectory.hpp"
-#include "autoware_planning_msgs/msg/trajectory_point.hpp"
-#include "geometry_msgs/msg/point.hpp"
-#include "geometry_msgs/msg/pose.hpp"
-#include "geometry_msgs/msg/quaternion.hpp"
-#include "tf2/LinearMath/Quaternion.h"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-
 namespace vcu = velocity_controller_utils;
 
-TEST(test_velocity_controller_utils, isValidTrajectory) {
+TEST(test_velocity_controller_utils, isValidTrajectory)
+{
   using autoware_planning_msgs::msg::Trajectory;
   using autoware_planning_msgs::msg::TrajectoryPoint;
   Trajectory traj;
@@ -40,7 +43,8 @@ TEST(test_velocity_controller_utils, isValidTrajectory) {
   EXPECT_FALSE(vcu::isValidTrajectory(traj));
 }
 
-TEST(test_velocity_controller_utils, calcStopDistance) {
+TEST(test_velocity_controller_utils, calcStopDistance)
+{
   using autoware_planning_msgs::msg::Trajectory;
   using autoware_planning_msgs::msg::TrajectoryPoint;
   using geometry_msgs::msg::Point;
@@ -88,7 +92,8 @@ TEST(test_velocity_controller_utils, calcStopDistance) {
   EXPECT_EQ(vcu::calcStopDistance(current_pos, traj), 3.0);
 }
 
-TEST(test_velocity_controller_utils, getPitchByPose) {
+TEST(test_velocity_controller_utils, getPitchByPose)
+{
   tf2::Quaternion quaternion_tf;
   quaternion_tf.setRPY(0.0, 0.0, 0.0);
   EXPECT_EQ(vcu::getPitchByPose(tf2::toMsg(quaternion_tf)), 0.0);
@@ -96,7 +101,8 @@ TEST(test_velocity_controller_utils, getPitchByPose) {
   EXPECT_EQ(vcu::getPitchByPose(tf2::toMsg(quaternion_tf)), 1.0);
 }
 
-TEST(test_velocity_controller_utils, getPitchByTraj) {
+TEST(test_velocity_controller_utils, getPitchByTraj)
+{
   using autoware_planning_msgs::msg::Trajectory;
   using autoware_planning_msgs::msg::TrajectoryPoint;
   const double wheel_base = 0.9;
@@ -132,15 +138,14 @@ TEST(test_velocity_controller_utils, getPitchByTraj) {
   EXPECT_DOUBLE_EQ(std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)), M_PI_4);
   closest_idx = 2;
   EXPECT_DOUBLE_EQ(
-    std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)),
-    std::atan2(0.5, 1));
+    std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)), std::atan2(0.5, 1));
   closest_idx = 3;
   EXPECT_DOUBLE_EQ(
-    std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)),
-    std::atan2(0.5, 1));
+    std::abs(vcu::getPitchByTraj(traj, closest_idx, wheel_base)), std::atan2(0.5, 1));
 }
 
-TEST(test_velocity_controller_utils, calcElevationAngle) {
+TEST(test_velocity_controller_utils, calcElevationAngle)
+{
   using geometry_msgs::msg::Point;
   Point p_from;
   p_from.x = 0.0;
@@ -168,7 +173,8 @@ TEST(test_velocity_controller_utils, calcElevationAngle) {
   EXPECT_DOUBLE_EQ(vcu::calcElevationAngle(p_from, p_to), M_PI_4);
 }
 
-TEST(test_velocity_controller_utils, calcPoseAfterTimeDelay) {
+TEST(test_velocity_controller_utils, calcPoseAfterTimeDelay)
+{
   using geometry_msgs::msg::Pose;
   const double abs_err = 1e-15;
   Pose current_pose;
@@ -248,7 +254,8 @@ TEST(test_velocity_controller_utils, calcPoseAfterTimeDelay) {
   EXPECT_NEAR(delayed_pose.position.z, current_pose.position.z, abs_err);
 }
 
-TEST(test_velocity_controller_utils, lerp) {
+TEST(test_velocity_controller_utils, lerp)
+{
   EXPECT_EQ(vcu::lerp(0.0, 1.0, 0.5), 0.5);
   EXPECT_EQ(vcu::lerp(0.0, 1.0, 0.0), 0.0);
   EXPECT_EQ(vcu::lerp(0.0, 1.0, 1.0), 1.0);
@@ -259,7 +266,8 @@ TEST(test_velocity_controller_utils, lerp) {
   EXPECT_EQ(vcu::lerp(-10.0, -5.0, 0.5), -7.5);
 }
 
-TEST(test_velocity_controller_utils, lerpOrientation) {
+TEST(test_velocity_controller_utils, lerpOrientation)
+{
   geometry_msgs::msg::Quaternion result;
   tf2::Quaternion o_from;
   tf2::Quaternion o_to;
@@ -314,7 +322,8 @@ TEST(test_velocity_controller_utils, lerpOrientation) {
   EXPECT_DOUBLE_EQ(yaw, M_PI_4 / 2);
 }
 
-TEST(test_velocity_controller_utils, lerpTrajectoryPoint) {
+TEST(test_velocity_controller_utils, lerpTrajectoryPoint)
+{
   using autoware_planning_msgs::msg::TrajectoryPoint;
   using geometry_msgs::msg::Point;
   const double abs_err = 1e-15;
@@ -412,7 +421,8 @@ TEST(test_velocity_controller_utils, lerpTrajectoryPoint) {
   EXPECT_NEAR(result.accel.linear.x, 15.0, abs_err);
 }
 
-TEST(test_velocity_controller, applyDiffLimitFilter) {
+TEST(test_velocity_controller, applyDiffLimitFilter)
+{
   double dt = 1.0;
   double max_val = 0.0;  // cannot increase
   double min_val = 0.0;  // cannot decrease

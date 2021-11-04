@@ -14,24 +14,27 @@
 // limitations under the License.
 
 #include "lane_change_planner/state/stopping_lane_change.hpp"
-#include <vector>
-#include <memory>
-#include "lanelet2_extension/utility/utilities.hpp"
+
 #include "lane_change_planner/data_manager.hpp"
 #include "lane_change_planner/route_handler.hpp"
 #include "lane_change_planner/state/common_functions.hpp"
 #include "lane_change_planner/utilities.hpp"
 
+#include <lanelet2_extension/utility/utilities.hpp>
+
+#include <memory>
+#include <vector>
+
 namespace lane_change_planner
 {
 StoppingLaneChangeState::StoppingLaneChangeState(
   const Status & status, const std::shared_ptr<DataManager> & data_manager_ptr,
-  const std::shared_ptr<RouteHandler> & route_handler_ptr,
-  const rclcpp::Logger & logger, const rclcpp::Clock::SharedPtr & clock)
+  const std::shared_ptr<RouteHandler> & route_handler_ptr, const rclcpp::Logger & logger,
+  const rclcpp::Clock::SharedPtr & clock)
 : StateBase(status, data_manager_ptr, route_handler_ptr, logger, clock)
 {
 }
-State StoppingLaneChangeState::getCurrentState() const {return State::STOPPING_LANE_CHANGE;}
+State StoppingLaneChangeState::getCurrentState() const { return State::STOPPING_LANE_CHANGE; }
 
 void StoppingLaneChangeState::entry()
 {

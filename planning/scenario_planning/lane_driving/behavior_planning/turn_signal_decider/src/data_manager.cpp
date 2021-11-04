@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "turn_signal_decider/turn_signal_decider.hpp"
+
+#include <lanelet2_extension/utility/message_conversion.hpp>
+#include <lanelet2_extension/utility/utilities.hpp>
+
 #include <memory>
 #include <string>
-
-#include "lanelet2_extension/utility/message_conversion.hpp"
-#include "lanelet2_extension/utility/utilities.hpp"
-#include "turn_signal_decider/turn_signal_decider.hpp"
 
 using autoware_planning_msgs::msg::PathWithLaneId;
 
@@ -86,7 +87,7 @@ void DataManager::onVehiclePoseUpdate()
   if (!is_pose_ready_) {
     // avoid terminal contamination.
     static rclcpp::Time failed_tf_time = rclcpp::Time(0, 0, RCL_ROS_TIME);
-    if ( (node_->now() - failed_tf_time).seconds() < 3.0) {
+    if ((node_->now() - failed_tf_time).seconds() < 3.0) {
       return;
     }
 
@@ -227,9 +228,9 @@ bool DataManager::isDataReady() const
   }
 }
 
-autoware_planning_msgs::msg::PathWithLaneId DataManager::getPath() const {return path_;}
+autoware_planning_msgs::msg::PathWithLaneId DataManager::getPath() const { return path_; }
 
-lanelet::LaneletMapPtr DataManager::getMapPtr() const {return lanelet_map_ptr_;}
+lanelet::LaneletMapPtr DataManager::getMapPtr() const { return lanelet_map_ptr_; }
 
 lanelet::ConstLanelet DataManager::getLaneFromId(const lanelet::Id & id) const
 {
@@ -245,6 +246,6 @@ lanelet::routing::RoutingGraphPtr DataManager::getRoutingGraphPtr() const
 {
   return routing_graph_ptr_;
 }
-geometry_msgs::msg::PoseStamped DataManager::getVehiclePoseStamped() const {return vehicle_pose_;}
+geometry_msgs::msg::PoseStamped DataManager::getVehiclePoseStamped() const { return vehicle_pose_; }
 
 }  // namespace turn_signal_decider

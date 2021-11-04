@@ -14,10 +14,10 @@
 #ifndef TURN_SIGNAL_DECIDER__FRENET_COORDINATE_HPP_
 #define TURN_SIGNAL_DECIDER__FRENET_COORDINATE_HPP_
 
-#include <vector>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <geometry_msgs/msg/point.hpp>
 
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
-#include "geometry_msgs/msg/point.hpp"
+#include <vector>
 
 namespace turn_signal_decider
 {
@@ -25,8 +25,7 @@ struct FrenetCoordinate3d
 {
   double length;
   double distance;
-  FrenetCoordinate3d()
-  : length(0), distance(0) {}
+  FrenetCoordinate3d() : length(0), distance(0) {}
 };
 
 bool convertToFrenetCoordinate3d(

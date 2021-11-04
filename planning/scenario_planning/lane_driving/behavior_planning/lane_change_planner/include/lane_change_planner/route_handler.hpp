@@ -16,21 +16,25 @@
 #ifndef LANE_CHANGE_PLANNER__ROUTE_HANDLER_HPP_
 #define LANE_CHANGE_PLANNER__ROUTE_HANDLER_HPP_
 
-#include <vector>
-#include <memory>
-#include <limits>
-#include "rclcpp/rclcpp.hpp"
-#include "lanelet2_routing/Route.h"
-#include "lanelet2_routing/RoutingCost.h"
-#include "lanelet2_routing/RoutingGraph.h"
-#include "lanelet2_routing/RoutingGraphContainer.h"
-#include "lanelet2_traffic_rules/TrafficRulesFactory.h"
-#include "autoware_lanelet2_msgs/msg/map_bin.hpp"
-#include "autoware_planning_msgs/msg/path_with_lane_id.hpp"
-#include "autoware_planning_msgs/msg/route.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "lanelet2_extension/utility/query.hpp"
 #include "lane_change_planner/parameters.hpp"
+
+#include <lanelet2_extension/utility/query.hpp>
+#include <rclcpp/rclcpp.hpp>
+
+#include <autoware_lanelet2_msgs/msg/map_bin.hpp>
+#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <autoware_planning_msgs/msg/route.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+
+#include <lanelet2_routing/Route.h>
+#include <lanelet2_routing/RoutingCost.h>
+#include <lanelet2_routing/RoutingGraph.h>
+#include <lanelet2_routing/RoutingGraphContainer.h>
+#include <lanelet2_traffic_rules/TrafficRulesFactory.h>
+
+#include <limits>
+#include <memory>
+#include <vector>
 
 namespace lane_change_planner
 {

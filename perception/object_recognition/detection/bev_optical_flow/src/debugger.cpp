@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-
 #include "bev_optical_flow/debugger.hpp"
 
-Debugger::Debugger(rclcpp::Node & node)
-: logger_(node.get_logger()), clock_(node.get_clock())
+#include <memory>
+
+Debugger::Debugger(rclcpp::Node & node) : logger_(node.get_logger()), clock_(node.get_clock())
 {
   debug_image_pub_ = node.create_publisher<sensor_msgs::msg::Image>("output/debug_image", 1);
   debug_marker_array_pub_ =
@@ -100,7 +99,7 @@ void Debugger::publishOpticalFlowImage(const cv::Point2f & vehicle_vel)
 
   sensor_msgs::msg::Image output_image_msg =
     *cv_bridge::CvImage(optical_flow_array_.header, sensor_msgs::image_encodings::BGR8, debug_image)
-    .toImageMsg();
+       .toImageMsg();
   debug_image_pub_->publish(output_image_msg);
 }
 

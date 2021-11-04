@@ -15,13 +15,12 @@
 #ifndef SHIFT_DECIDER__SHIFT_DECIDER_HPP_
 #define SHIFT_DECIDER__SHIFT_DECIDER_HPP_
 
-#include <memory>
+#include <rclcpp/rclcpp.hpp>
 
 #include "autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp"
 #include "autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp"
 
-#include "rclcpp/rclcpp.hpp"
-
+#include <memory>
 
 class ShiftDecider : public rclcpp::Node
 {

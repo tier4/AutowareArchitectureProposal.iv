@@ -15,15 +15,15 @@
 #ifndef VELOCITY_CONTROLLER__SMOOTH_STOP_HPP_
 #define VELOCITY_CONTROLLER__SMOOTH_STOP_HPP_
 
+#include <rclcpp/rclcpp.hpp>
+
+#include <boost/optional.hpp>
+
 #include <algorithm>
 #include <cmath>
 #include <limits>
 #include <utility>
 #include <vector>
-
-#include "boost/optional.hpp"
-#include "rclcpp/rclcpp.hpp"
-
 
 /**
  * @brief Smooth stop class to implement vehicle specific deceleration profiles
@@ -62,7 +62,8 @@ public:
    * @param [in] min_running_acc minimum acceleration to consider ego to be running [m/s]
    * @param [in] weak_stop_time time allowed for stopping with a weak acceleration [s]
    * @param [in] weak_stop_dist distance to the stop point bellow which a weak accel is applied [m]
-   * @param [in] strong_stop_dist distance to the stop point bellow which a strong accel is applied [m]
+   * @param [in] strong_stop_dist distance to the stop point bellow which a strong accel is applied
+   * [m]
    */
   void setParams(
     double max_strong_acc, double min_strong_acc, double weak_acc, double weak_stop_acc,
@@ -116,9 +117,8 @@ public:
 
     // return when gradient a (of v = at + b) cannot be calculated.
     // See the following calculation of a
-    if (std::abs(vel_hist_size * mean_t * mean_t - sum_tt) <
-      std::numeric_limits<double>::epsilon())
-    {
+    if (
+      std::abs(vel_hist_size * mean_t * mean_t - sum_tt) < std::numeric_limits<double>::epsilon()) {
       return {};
     }
 
@@ -163,7 +163,7 @@ public:
     // calculate some flags
     const bool is_fast_vel = std::abs(current_vel) > params_.min_fast_vel;
     const bool is_running = std::abs(current_vel) > params_.min_running_vel ||
-      std::abs(current_acc) > params_.min_running_acc;
+                            std::abs(current_acc) > params_.min_running_acc;
 
     // when exceeding the stopline (stop_dist is negative in these cases.)
     if (stop_dist < params_.strong_stop_dist) {  // when exceeding the stopline much
