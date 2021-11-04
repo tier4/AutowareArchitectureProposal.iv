@@ -41,11 +41,6 @@ include_directories(
 
 ament_auto_add_library(pointcloud_preprocessor_filter SHARED
   src/filter.cpp
-  src/compare_map_filter/distance_based_compare_map_filter_nodelet.cpp
-  src/compare_map_filter/voxel_based_approximate_compare_map_filter_nodelet.cpp
-  src/compare_map_filter/voxel_based_compare_map_filter_nodelet.cpp
-  src/compare_map_filter/voxel_distance_based_compare_map_filter_nodelet.cpp
-  src/compare_map_filter/compare_elevation_map_filter_node.cpp
   src/concatenate_data/concatenate_data_nodelet.cpp
   src/crop_box_filter/crop_box_filter_nodelet.cpp
   src/downsample_filter/voxel_grid_downsample_filter_nodelet.cpp
@@ -76,33 +71,6 @@ if(OPENMP_FOUND)
     LINK_FLAGS ${OpenMP_CXX_FLAGS}
   )
 endif()
-
-# ========== Compare Map Filter ==========
-# -- Distance Based Compare Map Filter --
-rclcpp_components_register_node(pointcloud_preprocessor_filter
-  PLUGIN "pointcloud_preprocessor::DistanceBasedCompareMapFilterComponent"
-  EXECUTABLE distance_based_compare_map_filter_node)
-
-# -- Voxel Based Approximate Compare Map Filter --
-rclcpp_components_register_node(pointcloud_preprocessor_filter
-  PLUGIN "pointcloud_preprocessor::VoxelBasedApproximateCompareMapFilterComponent"
-  EXECUTABLE voxel_based_approximate_compare_map_filter_node)
-
-# -- Voxel Based Compare Map Filter --
-rclcpp_components_register_node(pointcloud_preprocessor_filter
-  PLUGIN "pointcloud_preprocessor::VoxelBasedCompareMapFilterComponent"
-  EXECUTABLE voxel_based_compare_map_filter_node)
-
-# -- Voxel Distance Based Compare Map Filter --
-rclcpp_components_register_node(pointcloud_preprocessor_filter
-  PLUGIN "pointcloud_preprocessor::VoxelDistanceBasedCompareMapFilterComponent"
-  EXECUTABLE voxel_distance_based_compare_map_filter_node)
-
-# -- Compare Elevation Map Filter --
-rclcpp_components_register_node(pointcloud_preprocessor_filter
-  PLUGIN "pointcloud_preprocessor::CompareElevationMapFilterComponent"
-  EXECUTABLE compare_elevation_map_filter_node)
-
 
 # ========== Concatenate data ==========
 rclcpp_components_register_node(pointcloud_preprocessor_filter
