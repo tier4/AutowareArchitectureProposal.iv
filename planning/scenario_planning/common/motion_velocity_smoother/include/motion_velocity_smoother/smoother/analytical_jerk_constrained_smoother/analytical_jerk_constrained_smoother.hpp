@@ -12,28 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER_HPP_  // NOLINT
-#define MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER_HPP_  // NOLINT
-
-#include "motion_velocity_smoother/smoother/analytical_jerk_constrained_smoother/velocity_planning_utils.hpp"
-#include "motion_velocity_smoother/smoother/smoother_base.hpp"
-
-#include <autoware_utils/trajectory/trajectory.hpp>
-#include <rclcpp/rclcpp.hpp>
-
-#include <autoware_planning_msgs/msg/trajectory.hpp>
-#include <geometry_msgs/msg/pose.hpp>
-
-#include <tf2/utils.h>
+// *INDENT-OFF*
+#ifndef MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER_HPP_
+#define MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER_HPP_
+// *INDENT-ON*
 
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "rclcpp/rclcpp.hpp"
+#include "tf2/utils.h"
+#include "geometry_msgs/msg/pose.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
+#include "autoware_utils/trajectory/trajectory.hpp"
+
+// *INDENT-OFF*
+#include "motion_velocity_smoother/smoother/analytical_jerk_constrained_smoother/velocity_planning_utils.hpp"
+// *INDENT-ON*
+#include "motion_velocity_smoother/smoother/smoother_base.hpp"
+
 namespace motion_velocity_smoother
 {
-using autoware_planning_msgs::msg::Trajectory;
 using autoware_planning_msgs::msg::TrajectoryPoint;
+using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
 
 class AnalyticalJerkConstrainedSmoother : public SmootherBase
 {
@@ -73,14 +75,14 @@ public:
   explicit AnalyticalJerkConstrainedSmoother(const Param & p);
 
   bool apply(
-    const double initial_vel, const double initial_acc, const Trajectory & input,
-    Trajectory & output, std::vector<Trajectory> & debug_trajectories) override;
+    const double initial_vel, const double initial_acc, const TrajectoryPointArray & input,
+    TrajectoryPointArray & output, std::vector<TrajectoryPointArray> & debug_trajectories) override;
 
-  boost::optional<Trajectory> resampleTrajectory(
-    const Trajectory & input, const double v_current, const int closest_id) const override;
+  boost::optional<TrajectoryPointArray> resampleTrajectory(
+    const TrajectoryPointArray & input, const double v_current, const int closest_id) const override;
 
-  boost::optional<Trajectory> applyLateralAccelerationFilter(
-    const Trajectory & input) const override;
+  boost::optional<TrajectoryPointArray> applyLateralAccelerationFilter(
+    const TrajectoryPointArray & input) const override;
 
   void setParam(const Param & param);
 
@@ -90,29 +92,27 @@ private:
     rclcpp::get_logger("smoother").get_child("analytical_jerk_constrained_smoother")};
 
   bool searchDecelTargetIndices(
-    const Trajectory & trajectory, const size_t closest_index,
+    const TrajectoryPointArray & trajectory, const size_t closest_index,
     std::vector<std::pair<size_t, double>> & decel_target_indices) const;
   bool applyForwardJerkFilter(
-    const Trajectory & base_trajectory, const size_t start_index, const double initial_vel,
-    const double initial_acc, const Param & params, Trajectory & output_trajectory) const;
+    const TrajectoryPointArray & base_trajectory, const size_t start_index, const double initial_vel,
+    const double initial_acc, const Param & params, TrajectoryPointArray & output_trajectory) const;
   bool applyBackwardDecelFilter(
-    const std::vector<size_t> & start_Indices, const size_t decel_target_index,
-    const double decel_target_vel, const Param & params, Trajectory & output_trajectory) const;
+    const std::vector<size_t> & start_indices, const size_t decel_target_index,
+    const double decel_target_vel, const Param & params, TrajectoryPointArray & output_trajectory) const;
   bool calcEnoughDistForDecel(
-    const Trajectory & trajectory, const size_t start_index, const double decel_target_vel,
+    const TrajectoryPointArray & trajectory, const size_t start_index, const double decel_target_vel,
     const double planning_jerk, const Param & params, const std::vector<double> & dist_to_target,
     bool & is_enough_dist, int & type, std::vector<double> & times, double & stop_dist) const;
   bool applyDecelVelocityFilter(
     const size_t decel_start_index, const double decel_target_vel, const double planning_jerk,
     const Param & params, const int type, const std::vector<double> & times,
-    Trajectory & output_trajectory) const;
+    TrajectoryPointArray & output_trajectory) const;
 
   // debug
   std::string strTimes(const std::vector<double> & times) const;
-  std::string strStartIndices(const std::vector<size_t> & start_Indices) const;
+  std::string strStartIndices(const std::vector<size_t> & start_indices) const;
 };
 }  // namespace motion_velocity_smoother
 
-// clang-format off
-#endif  // MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER_HPP_ // NOLINT
-// clang-format on
+#endif  // MOTION_VELOCITY_SMOOTHER__SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER__ANALYTICAL_JERK_CONSTRAINED_SMOOTHER_HPP_

@@ -15,21 +15,20 @@
 #ifndef MOTION_VELOCITY_SMOOTHER__SMOOTHER__LINF_PSEUDO_JERK_SMOOTHER_HPP_
 #define MOTION_VELOCITY_SMOOTHER__SMOOTHER__LINF_PSEUDO_JERK_SMOOTHER_HPP_
 
-#include "motion_velocity_smoother/smoother/smoother_base.hpp"
-
-#include <autoware_utils/geometry/geometry.hpp>
-#include <autoware_utils/trajectory/trajectory.hpp>
-#include <osqp_interface/osqp_interface.hpp>
-
-#include <autoware_planning_msgs/msg/trajectory.hpp>
-
-#include <boost/optional.hpp>
-
 #include <vector>
+
+#include "boost/optional.hpp"
+
+#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
+#include "autoware_utils/geometry/geometry.hpp"
+#include "autoware_utils/trajectory/trajectory.hpp"
+#include "osqp_interface/osqp_interface.hpp"
+
+#include "motion_velocity_smoother/smoother/smoother_base.hpp"
 
 namespace motion_velocity_smoother
 {
-using autoware_planning_msgs::msg::Trajectory;
+using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
 class LinfPseudoJerkSmoother : public SmootherBase
 {
 public:
@@ -43,18 +42,21 @@ public:
   explicit LinfPseudoJerkSmoother(const Param & smoother_param);
 
   bool apply(
-    const double initial_vel, const double initial_acc, const Trajectory & input,
-    Trajectory & output, std::vector<Trajectory> & debug_trajectories) override;
+    const double initial_vel, const double initial_acc,
+    const TrajectoryPointArray & input, TrajectoryPointArray & output,
+    std::vector<TrajectoryPointArray> & debug_trajectories) override;
 
-  boost::optional<Trajectory> resampleTrajectory(
-    const Trajectory & input, const double v_current, const int closest_id) const override;
+  boost::optional<TrajectoryPointArray> resampleTrajectory(
+    const TrajectoryPointArray & input, const double v_current,
+    const int closest_id) const override;
 
   void setParam(const Param & smoother_param);
 
 private:
   Param smoother_param_;
   osqp::OSQPInterface qp_solver_;
-  rclcpp::Logger logger_{rclcpp::get_logger("smoother").get_child("linf_pseudo_jerk_smoother")};
+  rclcpp::Logger
+    logger_{rclcpp::get_logger("smoother").get_child("linf_pseudo_jerk_smoother")};
 };
 }  // namespace motion_velocity_smoother
 

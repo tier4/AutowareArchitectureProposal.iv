@@ -12,16 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "motion_velocity_smoother/smoother/linf_pseudo_jerk_smoother.hpp"
-
-#include "motion_velocity_smoother/trajectory_utils.hpp"
-
-#include <eigen3/Eigen/Core>
-
 #include <algorithm>
 #include <chrono>
 #include <limits>
 #include <vector>
+
+#include "eigen3/Eigen/Core"
+
+#include "motion_velocity_smoother/smoother/linf_pseudo_jerk_smoother.hpp"
+#include "motion_velocity_smoother/trajectory_utils.hpp"
 
 namespace motion_velocity_smoother
 {
@@ -41,8 +40,9 @@ void LinfPseudoJerkSmoother::setParam(const Param & smoother_param)
 }
 
 bool LinfPseudoJerkSmoother::apply(
-  const double initial_vel, const double initial_acc, const Trajectory & input, Trajectory & output,
-  std::vector<Trajectory> & debug_trajectories)
+  const double initial_vel, const double initial_acc,
+  const TrajectoryPointArray & input, TrajectoryPointArray & output,
+  std::vector<TrajectoryPointArray> & debug_trajectories)
 {
   debug_trajectories.clear();
 
@@ -50,7 +50,7 @@ bool LinfPseudoJerkSmoother::apply(
 
   output = input;
 
-  if (std::fabs(input.points.front().twist.linear.x) < 0.1) {
+  if (std::fabs(input.front().longitudinal_velocity_mps) < 0.1) {
     RCLCPP_DEBUG(
       logger_,
       "closest v_max < 0.1, keep stopping. "
@@ -58,7 +58,7 @@ bool LinfPseudoJerkSmoother::apply(
     return false;
   }
 
-  const size_t N{input.points.size()};
+  const size_t N{input.size()};
 
   if (N < 2) {
     return false;
@@ -68,15 +68,17 @@ bool LinfPseudoJerkSmoother::apply(
 
   std::vector<double> v_max(N, 0.0);
   for (size_t i = 0; i < N; ++i) {
-    v_max.at(i) = input.points.at(i).twist.linear.x;
+    v_max.at(i) = input.at(i).longitudinal_velocity_mps;
   }
 
   /*
-   * x = [b0, b1, ..., bN, |  a0, a1, ..., aN, | delta0, delta1, ..., deltaN, | sigma0, sigma1, ...,
-   * sigmaN, | psi] in R^{4N+1} b: velocity^2 a: acceleration delta: 0 < bi < v_max^2 + delta sigma:
-   * a_min < ai - sigma < a_max psi: a'*curr_v -  psi < 0, - a'*curr_v - psi < 0 (<=> |a'|*curr_v <
-   * psi)
-   */
+  * x = [b0, b1, ..., bN, |  a0, a1, ..., aN, | delta0, delta1, ..., deltaN, | sigma0, sigma1, ..., sigmaN, | psi] in R^{4N+1}
+  * b: velocity^2
+  * a: acceleration
+  * delta: 0 < bi < v_max^2 + delta
+  * sigma: a_min < ai - sigma < a_max
+  * psi: a'*curr_v -  psi < 0, - a'*curr_v - psi < 0 (<=> |a'|*curr_v < psi)
+  */
   const size_t l_variables{4 * N + 1};
   const size_t l_constraints{3 * N + 1 + 2 * (N - 1)};
 
@@ -200,12 +202,12 @@ bool LinfPseudoJerkSmoother::apply(
   /* get velocity & acceleration */
   for (unsigned int i = 0; i < N; ++i) {
     double v = optval.at(i);
-    output.points.at(i).twist.linear.x = std::sqrt(std::max(v, 0.0));
-    output.points.at(i).accel.linear.x = optval.at(i + N);
+    output.at(i).longitudinal_velocity_mps = std::sqrt(std::max(v, 0.0));
+    output.at(i).acceleration_mps2 = optval.at(i + N);
   }
-  for (unsigned int i = N; i < output.points.size(); ++i) {
-    output.points.at(i).twist.linear.x = 0.0;
-    output.points.at(i).accel.linear.x = 0.0;
+  for (unsigned int i = N; i < output.size(); ++i) {
+    output.at(i).longitudinal_velocity_mps = 0.0;
+    output.at(i).acceleration_mps2 = 0.0;
   }
 
   // -- to check the all optimization variables --
@@ -218,18 +220,23 @@ bool LinfPseudoJerkSmoother::apply(
 
   const int status_val = std::get<3>(result);
   if (status_val != 1) {
-    RCLCPP_WARN(logger_, "optimization failed : %s", qp_solver_.getStatusMessage().c_str());
+    RCLCPP_WARN(
+      logger_,
+      "optimization failed : %s", qp_solver_.getStatusMessage().c_str());
   }
 
   const auto tf2 = std::chrono::system_clock::now();
   const double dt_ms2 =
     std::chrono::duration_cast<std::chrono::nanoseconds>(tf2 - ts2).count() * 1.0e-6;
-  RCLCPP_DEBUG(logger_, "init time = %f [ms], optimization time = %f [ms]", dt_ms1, dt_ms2);
+  RCLCPP_DEBUG(
+    logger_,
+    "init time = %f [ms], optimization time = %f [ms]", dt_ms1, dt_ms2);
   return true;
 }
 
-boost::optional<Trajectory> LinfPseudoJerkSmoother::resampleTrajectory(
-  const Trajectory & input, const double v_current, const int closest_id) const
+boost::optional<TrajectoryPointArray> LinfPseudoJerkSmoother::resampleTrajectory(
+  const TrajectoryPointArray & input, const double v_current,
+  const int closest_id) const
 {
   return resampling::resampleTrajectory(input, v_current, closest_id, base_param_.resample_param);
 }
