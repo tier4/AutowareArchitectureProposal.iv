@@ -30,15 +30,16 @@ ShiftDecider::ShiftDecider(const rclcpp::NodeOptions & node_options)
   rclcpp::QoS durable_qos(queue_size);
   durable_qos.transient_local();
 
-  pub_shift_cmd_ =
-    create_publisher<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>("output/shift_cmd", durable_qos);
+  pub_shift_cmd_ = create_publisher<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>(
+    "output/shift_cmd", durable_qos);
   sub_control_cmd_ = create_subscription<autoware_auto_vehicle_msgs::msg::VehicleControlCommand>(
     "input/control_cmd", queue_size, std::bind(&ShiftDecider::onControlCmd, this, _1));
 
   initTimer(0.1);
 }
 
-void ShiftDecider::onControlCmd(autoware_auto_vehicle_msgs::msg::VehicleControlCommand::SharedPtr msg)
+void ShiftDecider::onControlCmd(
+  autoware_auto_vehicle_msgs::msg::VehicleControlCommand::SharedPtr msg)
 {
   control_cmd_ = msg;
 }
