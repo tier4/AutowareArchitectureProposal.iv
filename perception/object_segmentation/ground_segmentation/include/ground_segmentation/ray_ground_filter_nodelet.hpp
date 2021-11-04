@@ -59,7 +59,7 @@
 #include <vector>
 // #include <pcl_ros/point_cloud.h>
 
-#include "ground_filter/gencolors.hpp"
+#include "ground_segmentation/gencolors.hpp"
 #include "pointcloud_preprocessor/filter.hpp"
 
 #include <opencv2/core.hpp>
@@ -74,7 +74,7 @@ namespace bg = boost::geometry;
 using Point = bg::model::d2::point_xy<double>;
 using Polygon = bg::model::polygon<Point>;
 
-namespace ground_filter
+namespace ground_segmentation
 {
 class RayGroundFilterComponent : public pointcloud_preprocessor::Filter
 {
@@ -203,6 +203,6 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   explicit RayGroundFilterComponent(const rclcpp::NodeOptions & options);
 };
-}  // namespace ground_filter
+}  // namespace ground_segmentation
 
 #endif  // POINTCLOUD_PREPROCESSOR__GROUND_FILTER__RAY_GROUND_FILTER_NODELET_HPP_

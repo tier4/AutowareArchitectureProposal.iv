@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(ground_filter)
+project(ground_segmentation)
 
 ### Compile options
 if(NOT CMAKE_CXX_STANDARD)
@@ -39,20 +39,20 @@ include_directories(
   ${GRID_MAP_INCLUDE_DIR}
 )
 
-ament_auto_add_library(pointcloud_preprocessor_filter SHARED
+ament_auto_add_library(ground_segmentation SHARED
   src/ray_ground_filter_nodelet.cpp
   src/ransac_ground_filter_nodelet.cpp
   src/scan_ground_filter_nodelet.cpp
 )
 
-target_link_libraries(pointcloud_preprocessor_filter
+target_link_libraries(ground_segmentation
   ${Boost_LIBRARIES}
   ${OpenCV_LIBRARIES}
   ${PCL_LIBRARIES}
 )
 
 if(OPENMP_FOUND)
-  set_target_properties(pointcloud_preprocessor_filter PROPERTIES
+  set_target_properties(ground_segmentation PROPERTIES
     COMPILE_FLAGS ${OpenMP_CXX_FLAGS}
     LINK_FLAGS ${OpenMP_CXX_FLAGS}
   )
@@ -60,18 +60,18 @@ endif()
 
 # ========== Ground Filter ==========
 # -- Ray Ground Filter --
-rclcpp_components_register_node(pointcloud_preprocessor_filter
-  PLUGIN "ground_filter::RayGroundFilterComponent"
+rclcpp_components_register_node(ground_segmentation
+  PLUGIN "ground_segmentation::RayGroundFilterComponent"
   EXECUTABLE ray_ground_filter_node)
 
 # -- RANSAC Ground Filter --
-rclcpp_components_register_node(pointcloud_preprocessor_filter
-  PLUGIN "ground_filter::RANSACGroundFilterComponent"
+rclcpp_components_register_node(ground_segmentation
+  PLUGIN "ground_segmentation::RANSACGroundFilterComponent"
   EXECUTABLE ransac_ground_filter_node)
 
 # -- Scan Ground Filter --
-rclcpp_components_register_node(pointcloud_preprocessor_filter
-  PLUGIN "ground_filter::ScanGroundFilterComponent"
+rclcpp_components_register_node(ground_segmentation
+  PLUGIN "ground_segmentation::ScanGroundFilterComponent"
   EXECUTABLE scan_ground_filter_node)
 
 if(BUILD_TESTING)

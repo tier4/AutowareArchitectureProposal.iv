@@ -31,7 +31,7 @@
 #include <string>
 #include <vector>
 
-namespace ground_filter
+namespace ground_segmentation
 {
 using vehicle_info_util::VehicleInfo;
 
@@ -177,6 +177,6 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   explicit ScanGroundFilterComponent(const rclcpp::NodeOptions & options);
 };
-}  // namespace ground_filter
+}  // namespace ground_segmentation
 
 #endif  // POINTCLOUD_PREPROCESSOR__GROUND_FILTER__SCAN_GROUND_FILTER_NODELET_HPP_
