@@ -59,8 +59,8 @@
 #include <vector>
 // #include <pcl_ros/point_cloud.h>
 
-#include "ground_filter/filter.hpp"
 #include "ground_filter/gencolors.hpp"
+#include "pointcloud_preprocessor/filter.hpp"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -76,7 +76,7 @@ using Polygon = bg::model::polygon<Point>;
 
 namespace ground_filter
 {
-class RayGroundFilterComponent : public ground_filter::Filter
+class RayGroundFilterComponent : public pointcloud_preprocessor::Filter
 {
   typedef pcl::PointXYZ PointType_;
 

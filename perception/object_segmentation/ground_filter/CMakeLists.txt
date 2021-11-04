@@ -40,7 +40,6 @@ include_directories(
 )
 
 ament_auto_add_library(pointcloud_preprocessor_filter SHARED
-  src/filter.cpp
   src/ray_ground_filter_nodelet.cpp
   src/ransac_ground_filter_nodelet.cpp
   src/scan_ground_filter_nodelet.cpp

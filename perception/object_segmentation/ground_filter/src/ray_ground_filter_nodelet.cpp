@@ -38,6 +38,8 @@
 
 namespace ground_filter
 {
+using pointcloud_preprocessor::get_param;
+
 RayGroundFilterComponent::RayGroundFilterComponent(const rclcpp::NodeOptions & options)
 : Filter("RayGroundFilter", options)
 {

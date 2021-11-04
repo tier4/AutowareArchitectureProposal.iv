@@ -15,7 +15,7 @@
 #ifndef POINTCLOUD_PREPROCESSOR__GROUND_FILTER__SCAN_GROUND_FILTER_NODELET_HPP_
 #define POINTCLOUD_PREPROCESSOR__GROUND_FILTER__SCAN_GROUND_FILTER_NODELET_HPP_
 
-#include "ground_filter/filter.hpp"
+#include "pointcloud_preprocessor/filter.hpp"
 
 #include <vehicle_info_util/vehicle_info.hpp>
 
@@ -35,7 +35,7 @@ namespace ground_filter
 {
 using vehicle_info_util::VehicleInfo;
 
-class ScanGroundFilterComponent : public ground_filter::Filter
+class ScanGroundFilterComponent : public pointcloud_preprocessor::Filter
 {
 private:
   // classified point label

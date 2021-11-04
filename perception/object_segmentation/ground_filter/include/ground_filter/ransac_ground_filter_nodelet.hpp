@@ -15,7 +15,7 @@
 #ifndef POINTCLOUD_PREPROCESSOR__GROUND_FILTER__RANSAC_GROUND_FILTER_NODELET_HPP_
 #define POINTCLOUD_PREPROCESSOR__GROUND_FILTER__RANSAC_GROUND_FILTER_NODELET_HPP_
 
-#include "ground_filter/filter.hpp"
+#include "pointcloud_preprocessor/filter.hpp"
 
 #include <geometry_msgs/msg/pose_array.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
@@ -48,7 +48,7 @@ struct RGB
   double b = 0.0;
 };
 
-class RANSACGroundFilterComponent : public ground_filter::Filter
+class RANSACGroundFilterComponent : public pointcloud_preprocessor::Filter
 {
   using PointType = pcl::PointXYZ;
 

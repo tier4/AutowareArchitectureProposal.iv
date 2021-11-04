@@ -29,6 +29,7 @@ namespace ground_filter
 using autoware_utils::calcDistance3d;
 using autoware_utils::deg2rad;
 using autoware_utils::normalizeRadian;
+using pointcloud_preprocessor::get_param;
 using vehicle_info_util::VehicleInfoUtil;
 
 ScanGroundFilterComponent::ScanGroundFilterComponent(const rclcpp::NodeOptions & options)

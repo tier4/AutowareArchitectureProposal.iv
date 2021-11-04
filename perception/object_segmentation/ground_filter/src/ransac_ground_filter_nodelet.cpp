@@ -81,6 +81,8 @@ geometry_msgs::msg::Pose getDebugPose(const Eigen::Affine3d & plane_affine)
 
 namespace ground_filter
 {
+using pointcloud_preprocessor::get_param;
+
 RANSACGroundFilterComponent::RANSACGroundFilterComponent(const rclcpp::NodeOptions & options)
 : Filter("RANSACGroundFilter", options)
 {
