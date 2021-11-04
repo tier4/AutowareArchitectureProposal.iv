@@ -51,9 +51,6 @@ ament_auto_add_library(pointcloud_preprocessor_filter SHARED
   src/downsample_filter/voxel_grid_downsample_filter_nodelet.cpp
   src/downsample_filter/random_downsample_filter_nodelet.cpp
   src/downsample_filter/approximate_downsample_filter_nodelet.cpp
-  src/ground_filter/ray_ground_filter_nodelet.cpp
-  src/ground_filter/ransac_ground_filter_nodelet.cpp
-  src/ground_filter/scan_ground_filter_nodelet.cpp
   src/outlier_filter/ring_outlier_filter_nodelet.cpp
   src/outlier_filter/voxel_grid_outlier_filter_nodelet.cpp
   src/outlier_filter/radius_search_2d_outlier_filter_nodelet.cpp
@@ -133,22 +130,6 @@ rclcpp_components_register_node(pointcloud_preprocessor_filter
 rclcpp_components_register_node(pointcloud_preprocessor_filter
   PLUGIN "pointcloud_preprocessor::ApproximateDownsampleFilterComponent"
   EXECUTABLE approximate_downsample_filter_node)
-
-# ========== Ground Filter ==========
-# -- Ray Ground Filter --
-rclcpp_components_register_node(pointcloud_preprocessor_filter
-  PLUGIN "pointcloud_preprocessor::RayGroundFilterComponent"
-  EXECUTABLE ray_ground_filter_node)
-
-# -- RANSAC Ground Filter --
-rclcpp_components_register_node(pointcloud_preprocessor_filter
-  PLUGIN "pointcloud_preprocessor::RANSACGroundFilterComponent"
-  EXECUTABLE ransac_ground_filter_node)
-
-# -- Scan Ground Filter --
-rclcpp_components_register_node(pointcloud_preprocessor_filter
-  PLUGIN "pointcloud_preprocessor::ScanGroundFilterComponent"
-  EXECUTABLE scan_ground_filter_node)
 
 # ========== Outlier Filter ==========
 # -- Ring Outlier Filter --
