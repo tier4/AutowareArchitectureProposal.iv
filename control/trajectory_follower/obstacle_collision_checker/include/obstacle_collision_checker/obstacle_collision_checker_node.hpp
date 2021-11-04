@@ -25,8 +25,7 @@
 #include <diagnostic_updater/diagnostic_updater.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include <autoware_planning_msgs/msg/route.hpp>
-#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
@@ -51,9 +50,9 @@ private:
   std::shared_ptr<autoware_utils::SelfPoseListener> self_pose_listener_;
   std::shared_ptr<autoware_utils::TransformListener> transform_listener_;
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_obstacle_pointcloud_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr
+  rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr
     sub_reference_trajectory_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr
+  rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr
     sub_predicted_trajectory_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
 
@@ -62,13 +61,13 @@ private:
   geometry_msgs::msg::TwistStamped::ConstSharedPtr current_twist_;
   sensor_msgs::msg::PointCloud2::ConstSharedPtr obstacle_pointcloud_;
   geometry_msgs::msg::TransformStamped::ConstSharedPtr obstacle_transform_;
-  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr reference_trajectory_;
-  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr predicted_trajectory_;
+  autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr reference_trajectory_;
+  autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr predicted_trajectory_;
 
   // Callback
   void onObstaclePointcloud(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
-  void onReferenceTrajectory(const autoware_planning_msgs::msg::Trajectory::SharedPtr msg);
-  void onPredictedTrajectory(const autoware_planning_msgs::msg::Trajectory::SharedPtr msg);
+  void onReferenceTrajectory(const autoware_auto_planning_msgs::msg::Trajectory::SharedPtr msg);
+  void onPredictedTrajectory(const autoware_auto_planning_msgs::msg::Trajectory::SharedPtr msg);
   void onTwist(const geometry_msgs::msg::TwistStamped::SharedPtr msg);
 
   // Publisher

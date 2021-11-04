@@ -9,7 +9,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>autoware_planning_msgs</depend>
+  <depend>autoware_auto_planning_msgs</depend>
   <depend>autoware_utils</depend>
   <depend>boost</depend>
   <depend>diagnostic_updater</depend>
