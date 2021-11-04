@@ -50,12 +50,12 @@ SurroundObstacleCheckerNode::SurroundObstacleCheckerNode(const rclcpp::NodeOptio
 
   // Publishers
   path_pub_ =
-    this->create_publisher<autoware_planning_msgs::msg::Trajectory>("~/output/trajectory", 1);
+    this->create_publisher<autoware_auto_planning_msgs::msg::Trajectory>("~/output/trajectory", 1);
   stop_reason_diag_pub_ =
     this->create_publisher<diagnostic_msgs::msg::DiagnosticStatus>("~/output/no_start_reason", 1);
 
   // Subscriber
-  path_sub_ = this->create_subscription<autoware_planning_msgs::msg::Trajectory>(
+  path_sub_ = this->create_subscription<autoware_auto_planning_msgs::msg::Trajectory>(
     "~/input/trajectory", 1,
     std::bind(&SurroundObstacleCheckerNode::pathCallback, this, std::placeholders::_1));
   pointcloud_sub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
@@ -71,7 +71,7 @@ SurroundObstacleCheckerNode::SurroundObstacleCheckerNode(const rclcpp::NodeOptio
 }
 
 void SurroundObstacleCheckerNode::pathCallback(
-  const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr input_msg)
+  const autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr input_msg)
 {
   if (use_pointcloud_ && !pointcloud_ptr_) {
     RCLCPP_WARN_THROTTLE(
@@ -92,7 +92,7 @@ void SurroundObstacleCheckerNode::pathCallback(
   }
 
   // parameter description
-  autoware_planning_msgs::msg::Trajectory output_msg = *input_msg;
+  autoware_auto_planning_msgs::msg::Trajectory output_msg = *input_msg;
   diagnostic_msgs::msg::DiagnosticStatus no_start_reason_diag;
 
   // get current pose in traj frame
@@ -162,11 +162,11 @@ void SurroundObstacleCheckerNode::currentVelocityCallback(
 }
 
 void SurroundObstacleCheckerNode::insertStopVelocity(
-  const size_t closest_idx, autoware_planning_msgs::msg::Trajectory * traj)
+  const size_t closest_idx, autoware_auto_planning_msgs::msg::Trajectory * traj)
 {
   // set zero velocity from closest idx to last idx
   for (size_t i = closest_idx; i < traj->points.size(); i++) {
-    traj->points.at(i).twist.linear.x = 0.0;
+    traj->points.at(i).longitudinal_velocity_mps = 0.0;
   }
 }
 
@@ -215,7 +215,8 @@ bool SurroundObstacleCheckerNode::convertPose(
 }
 
 size_t SurroundObstacleCheckerNode::getClosestIdx(
-  const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose current_pose)
+  const autoware_auto_planning_msgs::msg::Trajectory & traj,
+  const geometry_msgs::msg::Pose current_pose)
 {
   double min_dist = std::numeric_limits<double>::max();
   size_t min_dist_idx = 0;
@@ -357,15 +358,15 @@ bool SurroundObstacleCheckerNode::isStopRequired(
 }
 
 bool SurroundObstacleCheckerNode::checkStop(
-  const autoware_planning_msgs::msg::TrajectoryPoint & closest_point)
+  const autoware_auto_planning_msgs::msg::TrajectoryPoint & closest_point)
 {
   if (std::fabs(current_velocity_ptr_->twist.linear.x) > stop_state_ego_speed_) {
     // ego vehicle has high velocity now. not stop.
     return false;
   }
 
-  const double closest_vel = closest_point.twist.linear.x;
-  const double closest_acc = closest_point.accel.linear.x;
+  const double closest_vel = closest_point.longitudinal_velocity_mps;
+  const double closest_acc = closest_point.acceleration_mps2;
 
   if (closest_vel * closest_acc < 0) {
     // ego vehicle is about to stop (during deceleration). not stop.

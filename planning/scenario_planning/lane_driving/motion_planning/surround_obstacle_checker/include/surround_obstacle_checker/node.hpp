@@ -20,8 +20,9 @@
 #include <rclcpp/rclcpp.hpp>
 #include <vehicle_info_util/vehicle_info_util.hpp>
 
+#include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
-#include <autoware_planning_msgs/msg/trajectory.hpp>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
 #include <diagnostic_msgs/msg/key_value.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
@@ -55,12 +56,13 @@ public:
   explicit SurroundObstacleCheckerNode(const rclcpp::NodeOptions & node_options);
 
 private:
-  void pathCallback(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr input_msg);
+  void pathCallback(const autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr input_msg);
   void pointCloudCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr input_msg);
   void dynamicObjectCallback(
     const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr input_msg);
   void currentVelocityCallback(const geometry_msgs::msg::TwistStamped::ConstSharedPtr input_msg);
-  void insertStopVelocity(const size_t closest_idx, autoware_planning_msgs::msg::Trajectory * traj);
+  void insertStopVelocity(
+    const size_t closest_idx, autoware_auto_planning_msgs::msg::Trajectory * traj);
   bool convertPose(
     const geometry_msgs::msg::Pose & pose, const std::string & source, const std::string & target,
     const rclcpp::Time & time, geometry_msgs::msg::Pose & conv_pose);
@@ -74,9 +76,9 @@ private:
   bool isObstacleFound(const double min_dist_to_obj);
   bool isStopRequired(const bool is_obstacle_found, const bool is_stopped);
   size_t getClosestIdx(
-    const autoware_planning_msgs::msg::Trajectory & traj,
+    const autoware_auto_planning_msgs::msg::Trajectory & traj,
     const geometry_msgs::msg::Pose current_pose);
-  bool checkStop(const autoware_planning_msgs::msg::TrajectoryPoint & closest_point);
+  bool checkStop(const autoware_auto_planning_msgs::msg::TrajectoryPoint & closest_point);
   Polygon2d createSelfPolygon();
   Polygon2d createObjPolygon(
     const geometry_msgs::msg::Pose & pose, const geometry_msgs::msg::Vector3 & size);
@@ -90,12 +92,12 @@ private:
    * ROS
    */
   // publisher and subscriber
-  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr path_sub_;
+  rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr path_sub_;
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_sub_;
   rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr
     dynamic_object_sub_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr current_velocity_sub_;
-  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr path_pub_;
+  rclcpp::Publisher<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr path_pub_;
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticStatus>::SharedPtr stop_reason_diag_pub_;
   std::shared_ptr<SurroundObstacleCheckerDebugNode> debug_ptr_;
   tf2_ros::Buffer tf_buffer_;
