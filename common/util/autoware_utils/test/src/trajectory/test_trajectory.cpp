@@ -602,21 +602,21 @@ TEST(trajectory, calcArcLength)
   EXPECT_NEAR(calcArcLength(traj.points), 9.0, epsilon);
 }
 
-TEST(trajectory, convertToTrajectoryByClipping)
+TEST(trajectory, convertToTrajectory)
 {
-  using autoware_utils::convertToTrajectoryByClipping;
+  using autoware_utils::convertToTrajectory;
 
   // Size check
   {
     const auto traj_input = generateTestTrajectoryPointArray(50, 1.0);
-    const auto traj = convertToTrajectoryByClipping(traj_input);
+    const auto traj = convertToTrajectory(traj_input);
     EXPECT_EQ(traj.points.size(), traj_input.size());
   }
 
   // Clipping check
   {
     const auto traj_input = generateTestTrajectoryPointArray(200, 1.0);
-    const auto traj = convertToTrajectoryByClipping(traj_input);
+    const auto traj = convertToTrajectory(traj_input);
     EXPECT_EQ(traj.points.size(), traj.CAPACITY);
     // Value check
     for (size_t i = 0; i < traj.points.size(); ++i) {
