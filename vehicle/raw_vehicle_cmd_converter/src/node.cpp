@@ -110,10 +110,10 @@ void RawVehicleCommandConverterNode::publishActuationCmd()
   double desired_brake_cmd = 0.0;
   double desired_steer_cmd = 0.0;
   ActuationCommandStamped actuation_cmd;
-  const double acc = control_cmd_ptr_->control.acceleration;
+  const double acc = control_cmd_ptr_->longitudinal.acceleration;
   const double vel = current_twist_ptr_->twist.linear.x;
-  const double steer = control_cmd_ptr_->control.steering_angle;
-  const double steer_rate = control_cmd_ptr_->control.steering_angle_velocity;
+  const double steer = control_cmd_ptr_->lateral.steering_tire_angle;
+  const double steer_rate = control_cmd_ptr_->lateral.steering_tire_rotation_rate;
   bool accel_cmd_is_zero = true;
   if (convert_accel_cmd_) {
     desired_accel_cmd = calculateAccelMap(vel, acc, accel_cmd_is_zero);
@@ -133,9 +133,10 @@ void RawVehicleCommandConverterNode::publishActuationCmd()
     desired_steer_cmd = calculateSteer(vel, steer, steer_rate);
   } else {
     // if conversion is disabled use steering angle as steer cmd
-    desired_steer_cmd = control_cmd_ptr_->control.steering_angle;
+    desired_steer_cmd = steer;
   }
-  actuation_cmd.header = control_cmd_ptr_->header;
+  actuation_cmd.header.frame_id = "base_link";
+  actuation_cmd.header.stamp = control_cmd_ptr_ -> stamp;
   actuation_cmd.actuation.accel_cmd = desired_accel_cmd;
   actuation_cmd.actuation.brake_cmd = desired_brake_cmd;
   actuation_cmd.actuation.steer_cmd = desired_steer_cmd;

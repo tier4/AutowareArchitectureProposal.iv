@@ -22,10 +22,9 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include <autoware_control_msgs/msg/control_command_stamped.hpp>
+#include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
 #include <autoware_debug_msgs/msg/float32_multi_array_stamped.hpp>
 #include <autoware_vehicle_msgs/msg/actuation_command_stamped.hpp>
-#include <autoware_vehicle_msgs/msg/shift.hpp>
 #include <autoware_vehicle_msgs/msg/steering.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 
@@ -35,7 +34,7 @@
 
 namespace raw_vehicle_cmd_converter
 {
-using autoware_control_msgs::msg::ControlCommandStamped;
+using ControlCommandStamped = autoware_auto_control_msgs::msg::AckermannControlCommand;
 using autoware_debug_msgs::msg::Float32MultiArrayStamped;
 using autoware_vehicle_msgs::msg::ActuationCommandStamped;
 using autoware_vehicle_msgs::msg::Steering;
