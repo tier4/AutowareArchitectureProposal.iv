@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "autoware_utils/geometry/boost_geometry.hpp"
-#include "autoware_utils/trajectory/convert.hpp"
+#include "autoware_utils/trajectory/tmp_conversion.hpp"
 #include "autoware_utils/trajectory/trajectory.hpp"
 
 #include <gtest/gtest.h>
