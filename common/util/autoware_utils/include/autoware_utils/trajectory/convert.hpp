@@ -32,8 +32,8 @@ using autoware_auto_planning_msgs::msg::Trajectory;
 using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
 
 // convertToTrajectoryByClipping() just clips TrajectoryPointArray up to the capacity of Trajectory.
-// Therefore, it is necessary to handle the situation that the size of TrajectoryPointArray greater
-// than the capacity out of this function.
+// Therefore, the error handling out of this function is necessary if the size of
+// TrajectoryPointArray greater than the capacity out of this function.
 Trajectory convertToTrajectoryByClipping(const TrajectoryPointArray & trajectory)
 {
   Trajectory output{};
