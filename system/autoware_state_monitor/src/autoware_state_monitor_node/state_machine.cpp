@@ -40,11 +40,11 @@ bool isNearGoal(
 }
 
 bool isStopped(
-  const std::deque<geometry_msgs::msg::TwistStamped::ConstSharedPtr> & twist_buffer,
+  const std::deque<nav_msgs::msg::Odometry::ConstSharedPtr> & odometry_buffer,
   const double th_stopped_velocity_mps)
 {
-  for (const auto & twist : twist_buffer) {
-    if (std::abs(twist->twist.linear.x) > th_stopped_velocity_mps) {
+  for (const auto & odometry : odometry_buffer) {
+    if (std::abs(odometry->twist.twist.linear.x) > th_stopped_velocity_mps) {
       return false;
     }
   }
@@ -158,11 +158,13 @@ bool StateMachine::isEngaged() const
     return false;
   }
 
-  if (!state_input_.vehicle_control_mode) {
+  if (!state_input_.vehicle_state_report) {
     return false;
   }
 
-  if (state_input_.vehicle_control_mode->data == autoware_vehicle_msgs::msg::ControlMode::MANUAL) {
+  if (
+    state_input_.vehicle_state_report->mode ==
+    autoware_auto_vehicle_msgs::msg::VehicleStateReport::MODE_MANUAL) {
     return false;
   }
 
@@ -185,7 +187,7 @@ bool StateMachine::hasArrivedGoal() const
   const auto is_near_goal = isNearGoal(
     state_input_.current_pose->pose, *state_input_.goal_pose, state_param_.th_arrived_distance_m);
   const auto is_stopped =
-    isStopped(state_input_.twist_buffer, state_param_.th_stopped_velocity_mps);
+    isStopped(state_input_.odometry_buffer, state_param_.th_stopped_velocity_mps);
 
   if (is_near_goal && is_stopped) {
     return true;
