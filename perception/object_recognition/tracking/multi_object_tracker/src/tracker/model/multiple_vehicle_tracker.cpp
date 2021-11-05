@@ -21,8 +21,8 @@
 #include <autoware_utils/autoware_utils.hpp>
 
 MultipleVehicleTracker::MultipleVehicleTracker(
-  const rclcpp::Time & time, const autoware_perception_msgs::msg::DynamicObject & object)
-: Tracker(time, object.semantic.type),
+  const rclcpp::Time & time, const autoware_auto_perception_msgs::msg::DetectedObject & object)
+: Tracker(time, utils::getHighestProbLabel(object.classification);),
   normal_vehicle_tracker_(time, object),
   big_vehicle_tracker_(time, object)
 {
@@ -36,11 +36,11 @@ bool MultipleVehicleTracker::predict(const rclcpp::Time & time)
 }
 
 bool MultipleVehicleTracker::measure(
-  const autoware_perception_msgs::msg::DynamicObject & object, const rclcpp::Time & time)
+  const autoware_auto_perception_msgs::msg::DetectedObject & object, const rclcpp::Time & time)
 {
   big_vehicle_tracker_.measure(object, time);
   normal_vehicle_tracker_.measure(object, time);
-  setType(object.semantic.type);
+  setLabel(utils::getHighestProbLabel(object.classification));
   return true;
 }
 
@@ -48,12 +48,27 @@ bool MultipleVehicleTracker::getEstimatedDynamicObject(
   const rclcpp::Time & time, autoware_perception_msgs::msg::DynamicObject & object) const
 {
   using autoware_perception_msgs::msg::Semantic;
-  if (getType() == Semantic::CAR) {
+  if (getLabel() == Semantic::CAR) {
     normal_vehicle_tracker_.getEstimatedDynamicObject(time, object);
-  } else if (getType() == Semantic::BUS || getType() == Semantic::TRUCK) {
+  } else if (getLabel() == Semantic::BUS || getLabel() == Semantic::TRUCK) {
     big_vehicle_tracker_.getEstimatedDynamicObject(time, object);
   }
-  object.id = getUUID();
-  object.semantic.type = getType();
+  object.object_id = getID();
+  object.semantic.type = getLabel();
+  return true;
+}
+
+bool MultipleVehicleTracker::getEstimatedTrackedObject(
+  const rclcpp::Time & time,
+  autoware_auto_perception_msgs::msg::TrackedObject & object) const
+{
+  using autoware_perception_msgs::msg::Semantic;
+  if (getLabel() == Semantic::CAR) {
+    normal_vehicle_tracker_.getEstimatedTrackedObject(time, object);
+  } else if (getLabel() == Semantic::BUS || getLabel() == Semantic::TRUCK) {
+    big_vehicle_tracker_.getEstimatedTrackedObject(time, object);
+  }
+  object.id = getID();
+  object.semantic.type = getLabel();
   return true;
 }

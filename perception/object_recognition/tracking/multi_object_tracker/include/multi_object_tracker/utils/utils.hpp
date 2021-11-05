@@ -21,8 +21,8 @@
 
 #include <autoware_utils/autoware_utils.hpp>
 
-#include <autoware_perception_msgs/msg/dynamic_object.hpp>
-#include <autoware_perception_msgs/msg/shape.hpp>
+#include <autoware_auto_perception_msgs/msg/dynamic_object.hpp>
+#include <autoware_auto_perception_msgs/msg/shape.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
 
@@ -33,11 +33,14 @@ namespace utils
 double getPolygonArea(const geometry_msgs::msg::Polygon & footprint);
 double getRectangleArea(const geometry_msgs::msg::Vector3 & dimensions);
 double getCircleArea(const geometry_msgs::msg::Vector3 & dimensions);
-double getArea(const autoware_perception_msgs::msg::Shape & shape);
+double getArea(const autoware_auto_perception_msgs::msg::Shape & shape);
 double get2dIoU(
-  const autoware_perception_msgs::msg::DynamicObject & object1,
-  const autoware_perception_msgs::msg::DynamicObject & object2);
-enum MSG_COV_IDX {
+  const autoware_auto_perception_msgs::msg::TrackedObject & object1,
+  const autoware_auto_perception_msgs::msg::TrackedObject & object2);
+std::uint8_t getHighestProbLabel(
+  const std::vector<autoware_auto_perception_msgs::msg::ObjectClassification> & classification);
+enum MSG_COV_IDX
+{
   X_X = 0,
   X_Y = 1,
   X_Z = 2,

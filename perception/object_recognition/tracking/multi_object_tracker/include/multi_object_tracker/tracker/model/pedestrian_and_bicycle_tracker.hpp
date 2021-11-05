@@ -25,8 +25,6 @@
 
 #include <kalman_filter/kalman_filter.hpp>
 
-#include <autoware_perception_msgs/msg/dynamic_object.hpp>
-
 class PedestrianAndBicycleTracker : public Tracker
 {
 private:
@@ -43,7 +41,10 @@ public:
     const rclcpp::Time & time) override;
   bool getEstimatedDynamicObject(
     const rclcpp::Time & time,
-    autoware_perception_msgs::msg::DynamicObject & object) const override;
+    autoware_perception_msgs::msg::DynamicObject & object) const override; // TODO
+  bool getEstimatedTrackedObject(
+    const rclcpp::Time & time,
+    autoware_auto_perception_msgs::msg::TrackedObject & object) const override;
   virtual ~PedestrianAndBicycleTracker() {}
 };
 

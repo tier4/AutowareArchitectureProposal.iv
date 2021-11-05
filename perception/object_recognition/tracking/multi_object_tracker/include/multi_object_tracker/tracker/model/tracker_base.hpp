@@ -23,35 +23,37 @@
 #include <Eigen/Core>
 #include <rclcpp/rclcpp.hpp>
 
-#include <autoware_perception_msgs/msg/dynamic_object.hpp>
+#include <autoware_perception_msgs/msg/dynamic_object.hpp> // TODO
+#include <autoware_auto_perception_msgs/msg/detected_object.hpp>
+#include <autoware_auto_perception_msgs/msg/tracked_object.hpp>
 #include <geometry_msgs/msg/point.hpp>
 #include <unique_identifier_msgs/msg/uuid.hpp>
 
 class Tracker
 {
 protected:
-  unique_identifier_msgs::msg::UUID getUUID() const { return uuid_; }
-  void setType(int type) { type_ = type; }
+  unique_identifier_msgs::msg::UUID getUUID() const {return uuid_;}
+  void setLabel(std::uint8_t label) {label_ = label;}
 
 private:
   unique_identifier_msgs::msg::UUID uuid_;
-  int type_;
+  std::uint8_t label_;
   int no_measurement_count_;
   int total_no_measurement_count_;
   int total_measurement_count_;
   rclcpp::Time last_update_with_measurement_time_;
 
 public:
-  Tracker(const rclcpp::Time & time, const int type);
+  Tracker(const rclcpp::Time & time, const std::uint8_t label);
   virtual ~Tracker() {}
   bool updateWithMeasurement(
     const autoware_perception_msgs::msg::DynamicObject & object,
     const rclcpp::Time & measurement_time);
   bool updateWithoutMeasurement();
-  int getType() const { return type_; }
-  int getNoMeasurementCount() const { return no_measurement_count_; }
-  int getTotalNoMeasurementCount() const { return total_no_measurement_count_; }
-  int getTotalMeasurementCount() const { return total_measurement_count_; }
+  std::uint8_t getLabel() const {return label_;}
+  int getNoMeasurementCount() const {return no_measurement_count_;}
+  int getTotalNoMeasurementCount() const {return total_no_measurement_count_;}
+  int getTotalMeasurementCount() const {return total_measurement_count_;}
   double getElapsedTimeFromLastUpdate(const rclcpp::Time & current_time) const
   {
     return (current_time - last_update_with_measurement_time_).seconds();
@@ -65,11 +67,13 @@ public:
 
 protected:
   virtual bool measure(
-    const autoware_perception_msgs::msg::DynamicObject & object, const rclcpp::Time & time) = 0;
+    const autoware_auto_perception_msgs::msg::DetectedObject & object,
+    const rclcpp::Time & time) = 0;
 
 public:
-  virtual bool getEstimatedDynamicObject(
-    const rclcpp::Time & time, autoware_perception_msgs::msg::DynamicObject & object) const = 0;
+  virtual bool getTrackedObject(
+    const rclcpp::Time & time,
+    autoware_auto_perception_msgs::msg::TrackedObject & object) const = 0;
   virtual bool predict(const rclcpp::Time & time) = 0;
 };
 

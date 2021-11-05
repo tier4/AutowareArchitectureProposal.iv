@@ -21,21 +21,21 @@
 #include <algorithm>
 #include <random>
 
-Tracker::Tracker(const rclcpp::Time & time, const int type)
-: type_(type),
+Tracker::Tracker(const rclcpp::Time & time, const std::uint8_t label)
+: label_(label),
   no_measurement_count_(0),
   total_no_measurement_count_(0),
   total_measurement_count_(1),
   last_update_with_measurement_time_(time)
 {
   // Generate random number
-  std::mt19937 gen(std::random_device{}());
+  std::mt19937 gen(std::random_device{} ());
   std::independent_bits_engine<std::mt19937, 8, uint8_t> bit_eng(gen);
   std::generate(uuid_.uuid.begin(), uuid_.uuid.end(), bit_eng);
 }
 
 bool Tracker::updateWithMeasurement(
-  const autoware_perception_msgs::msg::DynamicObject & object,
+  const autoware_auto_perception_msgs::msg::DetectedObject & object,
   const rclcpp::Time & measurement_time)
 {
   no_measurement_count_ = 0;
@@ -55,7 +55,7 @@ bool Tracker::updateWithoutMeasurement()
 geometry_msgs::msg::PoseWithCovariance Tracker::getPoseWithCovariance(
   const rclcpp::Time & time) const
 {
-  autoware_perception_msgs::msg::DynamicObject object;
-  getEstimatedDynamicObject(time, object);
-  return object.state.pose_covariance;
+  autoware_auto_perception_msgs::msg::TrackedObject object;
+  getTrackedObject(time, object);
+  return object.kinematics.pose_with_covariance;
 }

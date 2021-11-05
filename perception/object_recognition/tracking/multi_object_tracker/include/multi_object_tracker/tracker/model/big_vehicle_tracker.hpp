@@ -23,8 +23,6 @@
 
 #include <kalman_filter/kalman_filter.hpp>
 
-#include <autoware_perception_msgs/msg/dynamic_object.hpp>
-
 class BigVehicleTracker : public Tracker
 {
 private:
@@ -34,7 +32,8 @@ private:
 private:
   KalmanFilter ekf_;
   rclcpp::Time last_update_time_;
-  enum IDX {
+  enum IDX
+  {
     X = 0,
     Y = 1,
     YAW = 2,
@@ -84,9 +83,9 @@ public:
     const rclcpp::Time & time) override;
   bool measureWithPose(const autoware_perception_msgs::msg::DynamicObject & object);
   bool measureWithShape(const autoware_perception_msgs::msg::DynamicObject & object);
-  bool getEstimatedDynamicObject(
+  bool getTrackedObject(
     const rclcpp::Time & time,
-    autoware_perception_msgs::msg::DynamicObject & object) const override;
+    autoware_auto_perception_msgs::msg::TrackedObject & object) const override;
   virtual ~BigVehicleTracker() {}
 };
 

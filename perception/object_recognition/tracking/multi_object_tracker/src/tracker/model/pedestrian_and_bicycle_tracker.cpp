@@ -48,12 +48,27 @@ bool PedestrianAndBicycleTracker::getEstimatedDynamicObject(
   const rclcpp::Time & time, autoware_perception_msgs::msg::DynamicObject & object) const
 {
   using autoware_perception_msgs::msg::Semantic;
-  if (getType() == Semantic::PEDESTRIAN) {
+  if (getLabel() == Semantic::PEDESTRIAN) {
     pedestrian_tracker_.getEstimatedDynamicObject(time, object);
-  } else if (getType() == Semantic::BICYCLE || getType() == Semantic::MOTORBIKE) {
+  } else if (getLabel() == Semantic::BICYCLE || getLabel() == Semantic::MOTORBIKE) {
     bicycle_tracker_.getEstimatedDynamicObject(time, object);
   }
-  object.id = getUUID();
-  object.semantic.type = getType();
+  object.id = getID();
+  object.semantic.type = getLabel();
+  return true;
+}
+
+bool PedestrianAndBicycleTracker::getEstimatedTrackedObject(
+  const rclcpp::Time & time,
+  autoware_auto_perception_msgs::msg::TrackedObject & object) const
+{
+  using autoware_perception_msgs::msg::Semantic;
+  if (getLabel() == Semantic::PEDESTRIAN) {
+    pedestrian_tracker_.getEstimatedTrackedObject(time, object);
+  } else if (getLabel() == Semantic::BICYCLE || getLabel() == Semantic::MOTORBIKE) {
+    bicycle_tracker_.getEstimatedTrackedObject(time, object);
+  }
+  object.id = getID();
+  object.semantic.type = getLabel();
   return true;
 }

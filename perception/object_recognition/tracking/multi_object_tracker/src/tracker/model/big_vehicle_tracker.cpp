@@ -89,7 +89,8 @@ BigVehicleTracker::BigVehicleTracker(
     !ekf_params_.use_measurement_covariance ||
     object.state.pose_covariance.covariance[utils::MSG_COV_IDX::X_X] == 0.0 ||
     object.state.pose_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0 ||
-    object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] == 0.0) {
+    object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] == 0.0)
+  {
     const double cos_yaw = std::cos(X(IDX::YAW));
     const double sin_yaw = std::sin(X(IDX::YAW));
     const double sin_2yaw = std::sin(2.0f * X(IDX::YAW));
@@ -256,7 +257,8 @@ bool BigVehicleTracker::measureWithPose(const autoware_perception_msgs::msg::Dyn
     !ekf_params_.use_measurement_covariance ||
     object.state.pose_covariance.covariance[utils::MSG_COV_IDX::X_X] == 0.0 ||
     object.state.pose_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0 ||
-    object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] == 0.0) {
+    object.state.pose_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] == 0.0)
+  {
     const double cos_yaw = std::cos(measurement_yaw);
     const double sin_yaw = std::sin(measurement_yaw);
     const double sin_2yaw = std::sin(2.0f * measurement_yaw);
@@ -339,8 +341,8 @@ bool BigVehicleTracker::getEstimatedDynamicObject(
   const rclcpp::Time & time, autoware_perception_msgs::msg::DynamicObject & object) const
 {
   object = object_;
-  object.id = getUUID();
-  object.semantic.type = getType();
+  object.id = getID();
+  object.semantic.type = getLabel();
 
   // predict state
   KalmanFilter tmp_ekf_for_no_update = ekf_;

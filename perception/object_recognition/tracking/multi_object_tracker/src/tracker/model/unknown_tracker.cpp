@@ -76,7 +76,8 @@ UnknownTracker::UnknownTracker(
   if (
     !ekf_params_.use_measurement_covariance ||
     object.state.pose_covariance.covariance[utils::MSG_COV_IDX::X_X] == 0.0 ||
-    object.state.pose_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0) {
+    object.state.pose_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0)
+  {
     // Rotate the covariance matrix according to the vehicle yaw
     // because p0_cov_x and y are in the vehicle coordinate system.
     P(IDX::X, IDX::X) = ekf_params_.p0_cov_x;
@@ -185,7 +186,8 @@ bool UnknownTracker::measureWithPose(const autoware_perception_msgs::msg::Dynami
   if (
     !ekf_params_.use_measurement_covariance ||
     object.state.pose_covariance.covariance[utils::MSG_COV_IDX::X_X] == 0.0 ||
-    object.state.pose_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0) {
+    object.state.pose_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0)
+  {
     R(0, 0) = ekf_params_.r_cov_x;  // x - x
     R(0, 1) = 0.0;                  // x - y
     R(1, 1) = ekf_params_.r_cov_y;  // y - y
@@ -243,8 +245,8 @@ bool UnknownTracker::getEstimatedDynamicObject(
   const rclcpp::Time & time, autoware_perception_msgs::msg::DynamicObject & object) const
 {
   object = object_;
-  object.id = getUUID();
-  object.semantic.type = getType();
+  object.id = getID();
+  object.semantic.type = getLabel();
 
   // predict state
   KalmanFilter tmp_ekf_for_no_update = ekf_;
