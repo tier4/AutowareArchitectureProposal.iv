@@ -19,6 +19,7 @@
 
 #include <autoware_api_msgs/msg/stop_command.hpp>
 #include <autoware_api_msgs/msg/velocity_limit.hpp>
+#include <autoware_auto_system_msgs/msg/autoware_state.hpp>
 #include <autoware_control_msgs/msg/gate_mode.hpp>
 #include <autoware_planning_msgs/msg/is_avoidance_possible.hpp>
 #include <autoware_planning_msgs/msg/lane_change_status.hpp>
@@ -26,7 +27,6 @@
 #include <autoware_planning_msgs/msg/stop_reason_array.hpp>
 #include <autoware_planning_msgs/msg/trajectory.hpp>
 #include <autoware_planning_msgs/msg/velocity_limit.hpp>
-#include <autoware_system_msgs/msg/autoware_state.hpp>
 #include <autoware_system_msgs/msg/emergency_state_stamped.hpp>
 #include <autoware_system_msgs/msg/hazard_status_stamped.hpp>
 #include <autoware_v2x_msgs/msg/infrastructure_command_array.hpp>
@@ -63,7 +63,7 @@ struct AutowareInfo
   autoware_vehicle_msgs::msg::ShiftStamped::ConstSharedPtr gear_ptr;
   autoware_vehicle_msgs::msg::BatteryStatus::ConstSharedPtr battery_ptr;
   sensor_msgs::msg::NavSatFix::ConstSharedPtr nav_sat_ptr;
-  autoware_system_msgs::msg::AutowareState::ConstSharedPtr autoware_state_ptr;
+  autoware_auto_system_msgs::msg::AutowareState::ConstSharedPtr autoware_state_ptr;
   autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr control_mode_ptr;
   autoware_control_msgs::msg::GateMode::ConstSharedPtr gate_mode_ptr;
   autoware_system_msgs::msg::EmergencyStateStamped::ConstSharedPtr emergency_state_ptr;
