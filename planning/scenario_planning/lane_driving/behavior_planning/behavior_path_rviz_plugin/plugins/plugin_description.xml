@@ -1,0 +1,7 @@
+<library path="behavior_path_rviz_plugin">
+  <class name="rviz_plugins/PathWithLaneId"
+    type="rviz_plugins::AutowarePathWithLaneIdDisplay"
+    base_class_type="rviz_common::Display">
+    <description>Display autoware_planning_msg::PathWithLaneId</description>
+  </class>
+</library>
