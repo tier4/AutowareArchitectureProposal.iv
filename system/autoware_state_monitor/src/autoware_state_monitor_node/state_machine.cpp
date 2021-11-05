@@ -173,15 +173,6 @@ bool StateMachine::isEngaged() const
 
 bool StateMachine::isOverridden() const { return !isEngaged(); }
 
-bool StateMachine::isEmergency() const
-{
-  if (!state_input_.hazard_status) {
-    return false;
-  }
-
-  return state_input_.hazard_status->status.emergency_holding;
-}
-
 bool StateMachine::hasArrivedGoal() const
 {
   const auto is_near_goal = isNearGoal(
@@ -212,11 +203,6 @@ AutowareState StateMachine::judgeAutowareState() const
 {
   if (isFinalizing()) {
     return AutowareState::Finalizing;
-  }
-
-  if (autoware_state_ != AutowareState::Emergency && isEmergency()) {
-    state_before_emergency_ = autoware_state_;
-    return AutowareState::Emergency;
   }
 
   switch (autoware_state_) {
@@ -318,14 +304,6 @@ AutowareState StateMachine::judgeAutowareState() const
       const auto time_from_arrived_goal = state_input_.current_time - times_.arrived_goal;
       if (time_from_arrived_goal.seconds() > wait_time_after_arrived_goal) {
         return AutowareState::WaitingForRoute;
-      }
-
-      break;
-    }
-
-    case (AutowareState::Emergency): {
-      if (!isEmergency()) {
-        return state_before_emergency_;
       }
 
       break;

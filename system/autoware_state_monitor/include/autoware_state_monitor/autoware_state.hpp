@@ -26,7 +26,6 @@ enum class AutowareState : int8_t {
   WaitingForEngage,
   Driving,
   ArrivedGoal,
-  Emergency,
   Finalizing,
 };
 
@@ -52,11 +51,6 @@ inline AutowareState fromMsg(const int state)
   if (state == StateMessage::ARRIVED_GOAL) {
     return AutowareState::ArrivedGoal;
   }
-  /*
-  if (state == StateMessage::EMERGENCY) {
-    return AutowareState::Emergency;
-  }
-  */
   if (state == StateMessage::FINALIZING) {
     return AutowareState::Finalizing;
   }
@@ -86,11 +80,6 @@ inline int toMsg(const AutowareState & state)
   if (state == AutowareState::ArrivedGoal) {
     return StateMessage::ARRIVED_GOAL;
   }
-  /*
-  if (state == AutowareState::Emergency) {
-    return StateMessage::EMERGENCY;
-  }
-  */
   if (state == AutowareState::Finalizing) {
     return StateMessage::FINALIZING;
   }

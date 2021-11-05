@@ -89,7 +89,6 @@ private:
   StateInput state_input_;
   const StateParam state_param_;
 
-  mutable AutowareState state_before_emergency_ = AutowareState::InitializingVehicle;
   mutable std::vector<std::string> msgs_;
   mutable Times times_;
   mutable Flags flags_;
@@ -104,7 +103,6 @@ private:
   bool isPlanningCompleted() const;
   bool isEngaged() const;
   bool isOverridden() const;
-  bool isEmergency() const;
   bool hasArrivedGoal() const;
   bool isFinalizing() const;
   bool isRouteResetRequired() const;
