@@ -106,8 +106,8 @@ MapBasedDetector::MapBasedDetector(const rclcpp::NodeOptions & node_options)
     "~/input/route", 1, std::bind(&MapBasedDetector::routeCallback, this, _1));
 
   // publishers
-  roi_pub_ =
-    this->create_publisher<autoware_auto_perception_msgs::msg::TrafficLightRoiArray>("~/output/rois", 1);
+  roi_pub_ = this->create_publisher<autoware_auto_perception_msgs::msg::TrafficLightRoiArray>(
+    "~/output/rois", 1);
   viz_pub_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/debug/markers", 1);
 
   // parameter declaration needs default values: are 0.0 goof defaults for this?
