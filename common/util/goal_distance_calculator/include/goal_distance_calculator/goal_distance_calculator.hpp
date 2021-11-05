@@ -18,7 +18,7 @@
 #include <autoware_utils/geometry/pose_deviation.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include <autoware_planning_msgs/msg/route.hpp>
+#include <autoware_auto_planning_msgs/msg/route.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 
 #include <boost/optional.hpp>
@@ -34,7 +34,7 @@ struct Param
 struct Input
 {
   geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose;
-  autoware_planning_msgs::msg::Route::ConstSharedPtr route;
+  autoware_auto_planning_msgs::msg::Route::ConstSharedPtr route;
 };
 
 struct Output
@@ -47,7 +47,7 @@ class GoalDistanceCalculator
 public:
   Output update(const Input & input);
 
-  void setParam(const Param & param) { param_ = param; }
+  void setParam(const Param & param) {param_ = param;}
 
 private:
   Param param_;
