@@ -1564,13 +1564,9 @@ ConstrainRectangle EBPathOptimizer::getConstrainRectangle(
 }
 
 bool EBPathOptimizer::isFixingPathPoint(
-  const std::vector<autoware_auto_planning_msgs::msg::PathPoint> & path_points) const
+  [[maybe_unused]] const std::vector<autoware_auto_planning_msgs::msg::PathPoint> & path_points)
+  const
 {
-  for (const auto & point : path_points) {
-    if (point.type == point.FIXED) {
-      return true;
-    }
-  }
   return false;
 }
 

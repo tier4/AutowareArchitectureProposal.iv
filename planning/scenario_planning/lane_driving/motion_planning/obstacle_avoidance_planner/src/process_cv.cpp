@@ -155,22 +155,20 @@ bool isAvoidingObjectType(
   const TrajectoryParam & traj_param)
 {
   if (
-    (object.classification.at(0).type == object.classification.at(0).UNKNOWN &&
+    (object.classification.at(0).label == object.classification.at(0).UNKNOWN &&
      traj_param.is_avoiding_unknown) ||
-    (object.classification.at(0).type == object.classification.at(0).CAR &&
+    (object.classification.at(0).label == object.classification.at(0).CAR &&
      traj_param.is_avoiding_car) ||
-    (object.classification.at(0).type == object.classification.at(0).TRUCK &&
+    (object.classification.at(0).label == object.classification.at(0).TRUCK &&
      traj_param.is_avoiding_truck) ||
-    (object.classification.at(0).type == object.classification.at(0).BUS &&
+    (object.classification.at(0).label == object.classification.at(0).BUS &&
      traj_param.is_avoiding_bus) ||
-    (object.classification.at(0).type == object.classification.at(0).BICYCLE &&
+    (object.classification.at(0).label == object.classification.at(0).BICYCLE &&
      traj_param.is_avoiding_bicycle) ||
-    (object.classification.at(0).type == object.classification.at(0).MOTORBIKE &&
+    (object.classification.at(0).label == object.classification.at(0).MOTORCYCLE &&
      traj_param.is_avoiding_motorbike) ||
-    (object.classification.at(0).type == object.classification.at(0).PEDESTRIAN &&
-     traj_param.is_avoiding_pedestrian) ||
-    (object.classification.at(0).type == object.classification.at(0).ANIMAL &&
-     traj_param.is_avoiding_animal)) {
+    (object.classification.at(0).label == object.classification.at(0).PEDESTRIAN &&
+     traj_param.is_avoiding_pedestrian)) {
     return true;
   }
   return false;
