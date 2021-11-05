@@ -90,7 +90,7 @@ Output ObstacleCollisionChecker::update(const Input & input)
 
   // resample trajectory by braking distance
   constexpr double min_velocity = 0.01;
-  const auto & raw_abs_velocity = std::abs(input.current_twist->twist.linear.x);
+  const auto & raw_abs_velocity = std::abs(input.current_twist->linear.x);
   const auto abs_velocity = raw_abs_velocity < min_velocity ? 0.0 : raw_abs_velocity;
   const auto braking_distance =
     calcBrakingDistance(abs_velocity, param_.max_deceleration, param_.delay_time);

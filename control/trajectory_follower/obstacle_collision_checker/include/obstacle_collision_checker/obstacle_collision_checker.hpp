@@ -21,7 +21,7 @@
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <geometry_msgs/msg/twist.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <boost/optional.hpp>
@@ -49,7 +49,7 @@ struct Param
 struct Input
 {
   geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose;
-  geometry_msgs::msg::TwistStamped::ConstSharedPtr current_twist;
+  geometry_msgs::msg::Twist::ConstSharedPtr current_twist;
   sensor_msgs::msg::PointCloud2::ConstSharedPtr obstacle_pointcloud;
   geometry_msgs::msg::TransformStamped::ConstSharedPtr obstacle_transform;
   autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr reference_trajectory;

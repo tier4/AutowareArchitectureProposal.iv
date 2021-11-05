@@ -27,6 +27,7 @@
 
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
@@ -54,11 +55,11 @@ private:
     sub_reference_trajectory_;
   rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr
     sub_predicted_trajectory_;
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
+  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr sub_twist_;
 
   // Data Buffer
   geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose_;
-  geometry_msgs::msg::TwistStamped::ConstSharedPtr current_twist_;
+  geometry_msgs::msg::Twist::ConstSharedPtr current_twist_;
   sensor_msgs::msg::PointCloud2::ConstSharedPtr obstacle_pointcloud_;
   geometry_msgs::msg::TransformStamped::ConstSharedPtr obstacle_transform_;
   autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr reference_trajectory_;
@@ -68,7 +69,7 @@ private:
   void onObstaclePointcloud(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
   void onReferenceTrajectory(const autoware_auto_planning_msgs::msg::Trajectory::SharedPtr msg);
   void onPredictedTrajectory(const autoware_auto_planning_msgs::msg::Trajectory::SharedPtr msg);
-  void onTwist(const geometry_msgs::msg::TwistStamped::SharedPtr msg);
+  void onTwist(const nav_msgs::msg::Odometry::SharedPtr msg);
 
   // Publisher
   std::shared_ptr<autoware_utils::DebugPublisher> debug_publisher_;
