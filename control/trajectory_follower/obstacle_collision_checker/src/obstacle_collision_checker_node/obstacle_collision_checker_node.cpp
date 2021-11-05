@@ -79,8 +79,8 @@ ObstacleCollisionCheckerNode::ObstacleCollisionCheckerNode(const rclcpp::NodeOpt
   sub_predicted_trajectory_ = create_subscription<autoware_auto_planning_msgs::msg::Trajectory>(
     "input/predicted_trajectory", 1,
     std::bind(&ObstacleCollisionCheckerNode::onPredictedTrajectory, this, _1));
-  sub_twist_ = create_subscription<nav_msgs::msg::Odometry>(
-    "input/twist", 1, std::bind(&ObstacleCollisionCheckerNode::onTwist, this, _1));
+  sub_odom_ = create_subscription<nav_msgs::msg::Odometry>(
+    "input/odometry", 1, std::bind(&ObstacleCollisionCheckerNode::onOdom, this, _1));
 
   // Publisher
   debug_publisher_ = std::make_shared<autoware_utils::DebugPublisher>(this, "debug/marker");
@@ -117,7 +117,7 @@ void ObstacleCollisionCheckerNode::onPredictedTrajectory(
   predicted_trajectory_ = msg;
 }
 
-void ObstacleCollisionCheckerNode::onTwist(const nav_msgs::msg::Odometry::SharedPtr msg)
+void ObstacleCollisionCheckerNode::onOdom(const nav_msgs::msg::Odometry::SharedPtr msg)
 {
   current_twist_ = std::make_shared<geometry_msgs::msg::Twist>(msg->twist.twist);
 }
