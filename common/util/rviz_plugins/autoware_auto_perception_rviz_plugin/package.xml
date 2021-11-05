@@ -8,14 +8,10 @@
     <license>Apache 2.0</license>
 
     <buildtool_depend>ament_cmake</buildtool_depend>
-    <buildtool_depend>autoware_auto_cmake</buildtool_depend>
 
-    <build_depend>autoware_auto_common</build_depend>
     <build_depend>qtbase5-dev</build_depend>
 
-    <depend>autoware_auto_geometry</depend>
-    <depend>autoware_auto_msgs</depend>
-    <depend>autoware_auto_tf2</depend>
+    <depend>autoware_auto_perception_msgs</depend>
     <depend>rviz_common</depend>
     <depend>rviz_default_plugins</depend>
 

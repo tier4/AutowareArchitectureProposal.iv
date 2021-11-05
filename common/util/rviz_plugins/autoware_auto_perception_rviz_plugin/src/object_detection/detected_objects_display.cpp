@@ -33,12 +33,29 @@ void DetectedObjectsDisplay::processMessage(DetectedObjects::ConstSharedPtr msg)
   int id = 0;
   for (const auto & object : msg->objects) {
     // Get marker for shape
-    auto shape_marker_ptr = get_marker_ptr(
-      object.shape, object.kinematics.centroid_position, object.kinematics.orientation,
+    auto shape_marker = get_shape_marker_ptr(
+      object.shape,
+      object.kinematics.pose_with_covariance.pose.position,
+      object.kinematics.pose_with_covariance.pose.orientation,
       object.classification);
-    shape_marker_ptr->header = msg->header;
-    shape_marker_ptr->id = id++;
-    add_marker(shape_marker_ptr);
+    if (shape_marker) {
+      auto shape_marker_ptr = shape_marker.get();
+      shape_marker_ptr->header = msg->header;
+      shape_marker_ptr->id = id++;
+      add_marker(shape_marker_ptr);
+    }
+
+    // Get marker for label
+    auto label_marker = get_label_marker_ptr(
+      object.kinematics.pose_with_covariance.pose.position,
+      object.kinematics.pose_with_covariance.pose.orientation,
+      object.classification);
+    if (label_marker) {
+      auto label_marker_ptr = label_marker.get();
+      label_marker_ptr->header = msg->header;
+      label_marker_ptr->id = id++;
+      add_marker(label_marker_ptr);
+    }
   }
 }
 

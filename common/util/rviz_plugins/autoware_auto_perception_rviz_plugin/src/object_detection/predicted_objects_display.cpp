@@ -14,7 +14,7 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include <object_detection/tracked_objects_display.hpp>
+#include <object_detection/predicted_objects_display.hpp>
 
 #include <memory>
 
@@ -24,10 +24,10 @@ namespace rviz_plugins
 {
 namespace object_detection
 {
-TrackedObjectsDisplay::TrackedObjectsDisplay()
+PredictedObjectsDisplay::PredictedObjectsDisplay()
 : ObjectPolygonDisplayBase("tracks") {}
 
-void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
+void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr msg)
 {
   clear_markers();
   int id = 0;
@@ -35,8 +35,8 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
     // Get marker for shape
     auto shape_marker = get_shape_marker_ptr(
       object.shape,
-      object.kinematics.pose_with_covariance.pose.position,
-      object.kinematics.pose_with_covariance.pose.orientation,
+      object.kinematics.initial_pose_with_covariance.pose.position,
+      object.kinematics.initial_pose_with_covariance.pose.orientation,
       object.classification);
     if (shape_marker) {
       auto shape_marker_ptr = shape_marker.get();
@@ -47,8 +47,8 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
 
     // Get marker for label
     auto label_marker = get_label_marker_ptr(
-      object.kinematics.pose_with_covariance.pose.position,
-      object.kinematics.pose_with_covariance.pose.orientation,
+      object.kinematics.initial_pose_with_covariance.pose.position,
+      object.kinematics.initial_pose_with_covariance.pose.orientation,
       object.classification);
     if (label_marker) {
       auto label_marker_ptr = label_marker.get();
@@ -59,9 +59,9 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
 
     // Get marker for id
     geometry_msgs::msg::Point uuid_vis_position;
-    uuid_vis_position.x = object.kinematics.pose_with_covariance.pose.position.x - 0.5;
-    uuid_vis_position.y = object.kinematics.pose_with_covariance.pose.position.y;
-    uuid_vis_position.z = object.kinematics.pose_with_covariance.pose.position.z - 0.5;
+    uuid_vis_position.x = object.kinematics.initial_pose_with_covariance.pose.position.x - 0.5;
+    uuid_vis_position.y = object.kinematics.initial_pose_with_covariance.pose.position.y;
+    uuid_vis_position.z = object.kinematics.initial_pose_with_covariance.pose.position.z - 0.5;
 
     auto id_marker = get_uuid_marker_ptr(
       object.object_id,
@@ -76,7 +76,7 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
 
     // Get marker for pose with covariance
     auto pose_with_covariance_marker = get_pose_with_covariance_marker_ptr(
-      object.kinematics.pose_with_covariance);
+      object.kinematics.initial_pose_with_covariance);
     if (pose_with_covariance_marker) {
       auto pose_with_covariance_marker_ptr = pose_with_covariance_marker.get();
       pose_with_covariance_marker_ptr->header = msg->header;
@@ -90,7 +90,7 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
     vel_vis_position.y = uuid_vis_position.y;
     vel_vis_position.z = uuid_vis_position.z - 0.5;
     auto velocity_text_marker = get_velocity_text_marker_ptr(
-      object.kinematics.twist_with_covariance.twist,
+      object.kinematics.initial_twist_with_covariance.twist,
       vel_vis_position,
       object.classification);
     if (velocity_text_marker) {
@@ -102,8 +102,8 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
 
     // Get marker for twist
     auto twist_marker = get_twist_marker_ptr(
-      object.kinematics.pose_with_covariance,
-      object.kinematics.twist_with_covariance);
+      object.kinematics.initial_pose_with_covariance,
+      object.kinematics.initial_twist_with_covariance);
     if (twist_marker) {
       auto twist_marker_ptr = twist_marker.get();
       twist_marker_ptr->header = msg->header;
@@ -111,6 +111,36 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
       add_marker(twist_marker_ptr);
     }
 
+    // Add marker for each candidated path
+    for (const auto & predicted_path : object.kinematics.predicted_paths) {
+      // Get marker for predicted path
+      auto predicted_path_marker = get_predicted_path_marker_ptr(
+        object.object_id,
+        object.shape,
+        predicted_path);
+      if (predicted_path_marker) {
+        auto predicted_path_marker_ptr = predicted_path_marker.get();
+        predicted_path_marker_ptr->header = msg->header;
+        predicted_path_marker_ptr->id = id++;
+        add_marker(predicted_path_marker_ptr);
+      }
+    }
+
+    // Add confidence text marker for each candidated path
+    for (const auto & predicted_path : object.kinematics.predicted_paths) {
+      if (predicted_path.path.empty()) {
+        continue;
+      }
+      auto path_confidence_marker = get_path_confidence_marker_ptr(
+        object.object_id,
+        predicted_path);
+      if (path_confidence_marker) {
+        auto path_confidence_marker_ptr = path_confidence_marker.get();
+        path_confidence_marker_ptr->header = msg->header;
+        path_confidence_marker_ptr->id = id++;
+        add_marker(path_confidence_marker_ptr);
+      }
+    }
   }
 }
 
@@ -121,5 +151,5 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
 // Export the plugin
 #include <pluginlib/class_list_macros.hpp>  // NOLINT
 PLUGINLIB_EXPORT_CLASS(
-  autoware::rviz_plugins::object_detection::TrackedObjectsDisplay,
+  autoware::rviz_plugins::object_detection::PredictedObjectsDisplay,
   rviz_common::Display)

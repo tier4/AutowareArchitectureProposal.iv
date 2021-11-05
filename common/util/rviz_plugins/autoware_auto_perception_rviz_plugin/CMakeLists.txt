@@ -23,20 +23,18 @@ find_package(Qt5 REQUIRED COMPONENTS Widgets)
 ament_auto_find_build_dependencies()
 
 set(OD_PLUGIN_LIB_SRC
-  src/object_detection/bounding_box_array_display.cpp
   src/object_detection/detected_objects_display.cpp
   src/object_detection/tracked_objects_display.cpp
-  src/planning/trajectory_display.cpp
+  src/object_detection/predicted_objects_display.cpp
 )
 
 set(OD_PLUGIN_LIB_HEADERS
   include/visibility_control.hpp
 )
 set(OD_PLUGIN_LIB_HEADERS_TO_WRAP
-  include/planning/trajectory_display.hpp
-  include/object_detection/bounding_box_array_display.hpp
   include/object_detection/detected_objects_display.hpp
   include/object_detection/tracked_objects_display.hpp
+  include/object_detection/predicted_objects_display.hpp
 )
 
 set(COMMON_HEADERS
@@ -66,7 +64,6 @@ target_link_libraries(${PROJECT_NAME}
   Qt5::Widgets
 )
 target_include_directories(${PROJECT_NAME} PRIVATE include)
-autoware_set_compile_options(${PROJECT_NAME})
 
 # Settings to improve the build as suggested on https://github.com/ros2/rviz/blob/ros2/docs/plugin_development.md
 target_compile_definitions(${PROJECT_NAME} PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
@@ -81,5 +78,4 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-# Export the icons for the plugins
-ament_auto_package(INSTALL_TO_SHARE icons)
+ament_auto_package()
