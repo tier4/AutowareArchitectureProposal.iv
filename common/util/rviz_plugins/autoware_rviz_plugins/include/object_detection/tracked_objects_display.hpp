@@ -14,7 +14,7 @@
 #ifndef OBJECT_DETECTION__TRACKED_OBJECTS_DISPLAY_HPP_
 #define OBJECT_DETECTION__TRACKED_OBJECTS_DISPLAY_HPP_
 
-#include <autoware_auto_msgs/msg/tracked_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/tracked_objects.hpp>
 #include <object_detection/object_polygon_display_base.hpp>
 
 namespace autoware
@@ -25,12 +25,12 @@ namespace object_detection
 {
 /// \brief Class defining rviz plugin to visualize TrackedObjects
 class AUTOWARE_RVIZ_PLUGINS_PUBLIC TrackedObjectsDisplay
-  : public ObjectPolygonDisplayBase<autoware_auto_msgs::msg::TrackedObjects>
+  : public ObjectPolygonDisplayBase<autoware_auto_perception_msgs::msg::TrackedObjects>
 {
   Q_OBJECT
 
 public:
-  using TrackedObjects = autoware_auto_msgs::msg::TrackedObjects;
+  using TrackedObjects = autoware_auto_perception_msgs::msg::TrackedObjects;
 
   TrackedObjectsDisplay();
 
@@ -38,7 +38,7 @@ private:
   void processMessage(TrackedObjects::ConstSharedPtr msg) override;
 
   visualization_msgs::msg::Marker::SharedPtr get_marker_ptr_for_track_id(
-    const autoware_auto_msgs::msg::TrackedObject & track);
+    const autoware_auto_perception_msgs::msg::TrackedObject & track);
 };
 
 }  // namespace object_detection

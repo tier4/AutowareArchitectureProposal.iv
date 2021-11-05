@@ -22,7 +22,7 @@
 #include <rviz_common/properties/float_property.hpp>
 #include <rviz_default_plugins/displays/marker/marker_common.hpp>
 #include <rviz_default_plugins/displays/marker_array/marker_array_display.hpp>
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
 #include <visibility_control.hpp>
 #include <common/types.hpp>
 #include <memory>
@@ -35,15 +35,15 @@ namespace rviz_plugins
 {
 
 class AUTOWARE_RVIZ_PLUGINS_PUBLIC BoundingBoxArrayDisplay
-  : public rviz_common::RosTopicDisplay<autoware_auto_msgs::msg::BoundingBoxArray>
+  : public rviz_common::RosTopicDisplay<autoware_auto_perception_msgs::msg::BoundingBoxArray>
 {
   Q_OBJECT
 
 public:
   using MarkerCommon = rviz_default_plugins::displays::MarkerCommon;
   using Marker = visualization_msgs::msg::Marker;
-  using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
-  using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
+  using BoundingBox = autoware_auto_perception_msgs::msg::BoundingBox;
+  using BoundingBoxArray = autoware_auto_perception_msgs::msg::BoundingBoxArray;
 
   BoundingBoxArrayDisplay();
   void onInitialize() override;

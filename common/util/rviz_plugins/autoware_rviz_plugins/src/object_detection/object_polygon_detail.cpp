@@ -31,7 +31,7 @@ namespace detail
 using Marker = visualization_msgs::msg::Marker;
 
 visualization_msgs::msg::Marker::SharedPtr get_2d_polygon_marker_ptr(
-  const autoware_auto_msgs::msg::Shape & shape_msg,
+  const autoware_auto_perception_msgs::msg::Shape & shape_msg,
   const geometry_msgs::msg::Point & centroid,
   const geometry_msgs::msg::Quaternion & orientation,
   const std_msgs::msg::ColorRGBA & color_rgba)
@@ -61,7 +61,7 @@ visualization_msgs::msg::Marker::SharedPtr get_2d_polygon_marker_ptr(
 }
 
 visualization_msgs::msg::Marker::SharedPtr get_3d_polygon_marker_ptr(
-  const autoware_auto_msgs::msg::Shape & shape_msg,
+  const autoware_auto_perception_msgs::msg::Shape & shape_msg,
   const geometry_msgs::msg::Point & centroid,
   const geometry_msgs::msg::Quaternion & orientation,
   const std_msgs::msg::ColorRGBA & color_rgba)

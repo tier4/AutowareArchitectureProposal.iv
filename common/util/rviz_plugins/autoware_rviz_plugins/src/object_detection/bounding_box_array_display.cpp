@@ -27,7 +27,7 @@ namespace rviz_plugins
 {
 
 BoundingBoxArrayDisplay::BoundingBoxArrayDisplay()
-: rviz_common::RosTopicDisplay<autoware_auto_msgs::msg::BoundingBoxArray>(),
+: rviz_common::RosTopicDisplay<autoware_auto_perception_msgs::msg::BoundingBoxArray>(),
   m_marker_common(std::make_unique<MarkerCommon>(this))
 {
   no_label_color_property_ = new rviz_common::properties::ColorProperty(

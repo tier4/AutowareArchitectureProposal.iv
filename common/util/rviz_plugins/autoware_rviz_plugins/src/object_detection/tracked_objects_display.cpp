@@ -51,7 +51,7 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
 }
 
 visualization_msgs::msg::Marker::SharedPtr TrackedObjectsDisplay::get_marker_ptr_for_track_id(
-  const autoware_auto_msgs::msg::TrackedObject & track)
+  const autoware_auto_perception_msgs::msg::TrackedObject & track)
 {
   static constexpr auto kTextSize = 2.0;
 

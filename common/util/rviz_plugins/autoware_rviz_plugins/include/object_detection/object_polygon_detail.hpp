@@ -15,8 +15,8 @@
 #ifndef OBJECT_DETECTION__OBJECT_POLYGON_DETAIL_HPP_
 #define OBJECT_DETECTION__OBJECT_POLYGON_DETAIL_HPP_
 
-#include <autoware_auto_msgs/msg/object_classification.hpp>
-#include <autoware_auto_msgs/msg/shape.hpp>
+#include <autoware_auto_perception_msgs/msg/object_classification.hpp>
+#include <autoware_auto_perception_msgs/msg/shape.hpp>
 #include <rclcpp/logging.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 
@@ -47,17 +47,17 @@ struct ObjectPropertyValues
 };
 
 // Map defining colors according to value of label field in ObjectClassification msg
-const std::map<autoware_auto_msgs::msg::ObjectClassification::_classification_type,
+const std::map<autoware_auto_perception_msgs::msg::ObjectClassification::_classification_type,
   ObjectPropertyValues>
 // Color map is based on cityscapes color
 kDefaultObjectPropertyValues = {
-  {autoware_auto_msgs::msg::ObjectClassification::UNKNOWN, {"UNKNOWN", {255, 255, 255}}},
-  {autoware_auto_msgs::msg::ObjectClassification::CAR, {"CAR", {0, 0, 142}}},
-  {autoware_auto_msgs::msg::ObjectClassification::PEDESTRIAN, {"PEDESTRIAN", {220, 20, 60}}},
-  {autoware_auto_msgs::msg::ObjectClassification::BICYCLE, {"CYCLIST", {119, 11, 32}}},
-  {autoware_auto_msgs::msg::ObjectClassification::MOTORCYCLE, {"MOTORCYCLE", {0, 0, 230}}},
-  {autoware_auto_msgs::msg::ObjectClassification::TRAILER, {"TRAILER", {0, 80, 100}}},
-  {autoware_auto_msgs::msg::ObjectClassification::TRUCK, {"TRUCK", {0, 0, 70}}}
+  {autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN, {"UNKNOWN", {255, 255, 255}}},
+  {autoware_auto_perception_msgs::msg::ObjectClassification::CAR, {"CAR", {0, 0, 142}}},
+  {autoware_auto_perception_msgs::msg::ObjectClassification::PEDESTRIAN, {"PEDESTRIAN", {220, 20, 60}}},
+  {autoware_auto_perception_msgs::msg::ObjectClassification::BICYCLE, {"CYCLIST", {119, 11, 32}}},
+  {autoware_auto_perception_msgs::msg::ObjectClassification::MOTORCYCLE, {"MOTORCYCLE", {0, 0, 230}}},
+  {autoware_auto_perception_msgs::msg::ObjectClassification::TRAILER, {"TRAILER", {0, 80, 100}}},
+  {autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK, {"TRUCK", {0, 0, 70}}}
 };
 
 /// \brief Convert the given polygon into a marker representing the shape in 2d
@@ -67,7 +67,7 @@ kDefaultObjectPropertyValues = {
 /// \param color_rgba Color and alpha values to use for the marker
 /// \return Marker ptr. Id and header will have to be set by the caller
 AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_2d_polygon_marker_ptr(
-  const autoware_auto_msgs::msg::Shape & shape_msg,
+  const autoware_auto_perception_msgs::msg::Shape & shape_msg,
   const geometry_msgs::msg::Point & centroid,
   const geometry_msgs::msg::Quaternion & orientation,
   const std_msgs::msg::ColorRGBA & color_rgba);
@@ -79,7 +79,7 @@ AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_2d_p
 /// \param color_rgba Color and alpha values to use for the marker
 /// \return Marker ptr. Id and header will have to be set by the caller
 AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_3d_polygon_marker_ptr(
-  const autoware_auto_msgs::msg::Shape & shape_msg,
+  const autoware_auto_perception_msgs::msg::Shape & shape_msg,
   const geometry_msgs::msg::Point & centroid,
   const geometry_msgs::msg::Quaternion & orientation,
   const std_msgs::msg::ColorRGBA & color_rgba);
@@ -103,7 +103,7 @@ inline AUTOWARE_RVIZ_PLUGINS_PUBLIC geometry_msgs::msg::Point to_point(
 /// \param logger_name Name to use for logger in case of a warning (if labels is empty)
 /// \return Id of the best classification, Unknown if there is no best label
 template<typename ClassificationContainerT>
-AUTOWARE_RVIZ_PLUGINS_PUBLIC autoware_auto_msgs::msg::ObjectClassification::_classification_type
+AUTOWARE_RVIZ_PLUGINS_PUBLIC autoware_auto_perception_msgs::msg::ObjectClassification::_classification_type
 get_best_label(
   ClassificationContainerT labels, const std::string & logger_name)
 {
