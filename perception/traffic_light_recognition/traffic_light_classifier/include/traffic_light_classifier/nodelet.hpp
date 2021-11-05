@@ -55,7 +55,8 @@ public:
   explicit TrafficLightClassifierNodelet(const rclcpp::NodeOptions & options);
   void imageRoiCallback(
     const sensor_msgs::msg::Image::ConstSharedPtr & input_image_msg,
-    const autoware_auto_perception_msgs::msg::TrafficLightRoiArray::ConstSharedPtr & input_rois_msg);
+    const autoware_auto_perception_msgs::msg::TrafficLightRoiArray::ConstSharedPtr &
+      input_rois_msg);
 
 private:
   enum ClassifierType {

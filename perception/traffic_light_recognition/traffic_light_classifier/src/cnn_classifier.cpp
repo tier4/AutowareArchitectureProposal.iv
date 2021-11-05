@@ -249,13 +249,15 @@ std::vector<size_t> CNNClassifier::argsort(std::vector<float> & tensor, int num_
   return indices;
 }
 
-bool CNNClassifier::isColorLabel(const std::string label) {
+bool CNNClassifier::isColorLabel(const std::string label)
+{
   using autoware_auto_perception_msgs::msg::TrafficSignal;
-  if (label == state2label_[autoware_auto_perception_msgs::msg::TrafficLight::GREEN] ||
-      label == state2label_[autoware_auto_perception_msgs::msg::TrafficLight::AMBER] ||
-      label == state2label_[autoware_auto_perception_msgs::msg::TrafficLight::RED] ||
-      label == state2label_[autoware_auto_perception_msgs::msg::TrafficLight::WHITE]) {
-        return true;
+  if (
+    label == state2label_[autoware_auto_perception_msgs::msg::TrafficLight::GREEN] ||
+    label == state2label_[autoware_auto_perception_msgs::msg::TrafficLight::AMBER] ||
+    label == state2label_[autoware_auto_perception_msgs::msg::TrafficLight::RED] ||
+    label == state2label_[autoware_auto_perception_msgs::msg::TrafficLight::WHITE]) {
+    return true;
   }
   return false;
 }

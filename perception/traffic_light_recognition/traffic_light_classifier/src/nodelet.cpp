@@ -36,8 +36,9 @@ TrafficLightClassifierNodelet::TrafficLightClassifierNodelet(const rclcpp::NodeO
       std::bind(&TrafficLightClassifierNodelet::imageRoiCallback, this, _1, _2));
   }
 
-  trafic_signal_array_pub_ = this->create_publisher<autoware_auto_perception_msgs::msg::TrafficSignalArray>(
-    "~/output/traffic_light_states", rclcpp::QoS{1});
+  trafic_signal_array_pub_ =
+    this->create_publisher<autoware_auto_perception_msgs::msg::TrafficSignalArray>(
+      "~/output/traffic_light_states", rclcpp::QoS{1});
 
   //
   auto timer_callback = std::bind(&TrafficLightClassifierNodelet::connectCb, this);

@@ -54,7 +54,8 @@ private:
   void calcSoftmax(std::vector<float> & data, std::vector<float> & probs, int num_output);
   std::vector<size_t> argsort(std::vector<float> & tensor, int num_output);
   void outputDebugImage(
-    cv::Mat & debug_image, const autoware_auto_perception_msgs::msg::TrafficSignal & traffic_signal);
+    cv::Mat & debug_image,
+    const autoware_auto_perception_msgs::msg::TrafficSignal & traffic_signal);
 
 private:
   std::map<int, std::string> state2label_{

@@ -168,12 +168,12 @@ bool ColorClassifier::getTrafficSignal(
     traffic_signal.lights.push_back(light);
   } else if (green_ratio < red_ratio && yellow_ratio < red_ratio) {
     autoware_auto_perception_msgs::msg::TrafficLight light;
-    light.color =:: autoware_auto_perception_msgs::msg::TrafficLight::RED;
+    light.color = ::autoware_auto_perception_msgs::msg::TrafficLight::RED;
     light.confidence = std::min(1.0, static_cast<double>(red_pixel_num) / (20.0 * 20.0));
     traffic_signal.lights.push_back(light);
   } else {
     autoware_auto_perception_msgs::msg::TrafficLight light;
-    light.color =:: autoware_auto_perception_msgs::msg::TrafficLight::UNKNOWN;
+    light.color = ::autoware_auto_perception_msgs::msg::TrafficLight::UNKNOWN;
     light.confidence = 0.0;
     traffic_signal.lights.push_back(light);
   }
