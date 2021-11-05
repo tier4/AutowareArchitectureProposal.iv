@@ -73,47 +73,6 @@ geometry_msgs::msg::PoseStamped::SharedPtr getCurrentPose(const tf2_ros::Buffer 
   return p;
 }
 
-// unused
-/*
-std::string getStateMessage(const AutowareState & state)
-{
-  if (state == AutowareState::InitializingVehicle) {
-    return "Please wait for a while. If the current pose is not estimated automatically, please "
-           "set it manually.";
-  }
-
-  if (state == AutowareState::WaitingForRoute) {
-    return "Please send a route.";
-  }
-
-  if (state == AutowareState::Planning) {
-    return "Please wait for a while.";
-  }
-
-  if (state == AutowareState::WaitingForEngage) {
-    return "Please set engage.";
-  }
-
-  if (state == AutowareState::Driving) {
-    return "Under autonomous driving. Have fun!";
-  }
-
-  if (state == AutowareState::ArrivedGoal) {
-    return "Autonomous driving has completed. Thank you!";
-  }
-
-  if (state == AutowareState::Emergency) {
-    return "Emergency! Please recover the system.";
-  }
-
-  if (state == AutowareState::Finalizing) {
-    return "Finalizing Autoware...";
-  }
-
-  throw std::runtime_error("invalid state");
-}
-*/
-
 }  // namespace
 
 void AutowareStateMonitorNode::onAutowareEngage(
