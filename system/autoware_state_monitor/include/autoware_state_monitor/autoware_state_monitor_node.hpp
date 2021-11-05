@@ -26,7 +26,6 @@
 #include <autoware_auto_planning_msgs/msg/route.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_system_msgs/msg/autoware_state.hpp>
-#include <autoware_auto_system_msgs/msg/hazard_status_stamped.hpp>
 #include <autoware_auto_vehicle_msgs/msg/engage.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -69,16 +68,12 @@ private:
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::Engage>::SharedPtr sub_autoware_engage_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleStateReport>::SharedPtr
     sub_vehicle_state_report_;
-  rclcpp::Subscription<autoware_auto_system_msgs::msg::HazardStatusStamped>::SharedPtr
-    sub_hazard_status;
   rclcpp::Subscription<autoware_auto_planning_msgs::msg::Route>::SharedPtr sub_route_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr sub_odom_;
 
   void onAutowareEngage(const autoware_auto_vehicle_msgs::msg::Engage::ConstSharedPtr msg);
   void onVehicleVehicleStateReport(
     const autoware_auto_vehicle_msgs::msg::VehicleStateReport::ConstSharedPtr msg);
-  void onHazardStatus(
-    const autoware_auto_system_msgs::msg::HazardStatusStamped::ConstSharedPtr msg);
   void onRoute(const autoware_auto_planning_msgs::msg::Route::ConstSharedPtr msg);
   void onOdometry(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
 

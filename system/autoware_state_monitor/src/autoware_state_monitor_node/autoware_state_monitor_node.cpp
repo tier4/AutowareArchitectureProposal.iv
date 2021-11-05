@@ -87,12 +87,6 @@ void AutowareStateMonitorNode::onVehicleVehicleStateReport(
   state_input_.vehicle_state_report = msg;
 }
 
-void AutowareStateMonitorNode::onHazardStatus(
-  const autoware_auto_system_msgs::msg::HazardStatusStamped::ConstSharedPtr msg)
-{
-  state_input_.hazard_status = msg;
-}
-
 void AutowareStateMonitorNode::onRoute(
   const autoware_auto_planning_msgs::msg::Route::ConstSharedPtr msg)
 {
@@ -436,10 +430,6 @@ AutowareStateMonitorNode::AutowareStateMonitorNode()
     this->create_subscription<autoware_auto_vehicle_msgs::msg::VehicleStateReport>(
       "input/vehicle_state_report", 1,
       std::bind(&AutowareStateMonitorNode::onVehicleVehicleStateReport, this, _1),
-      subscriber_option);
-  sub_hazard_status =
-    this->create_subscription<autoware_auto_system_msgs::msg::HazardStatusStamped>(
-      "input/hazard_status", 1, std::bind(&AutowareStateMonitorNode::onHazardStatus, this, _1),
       subscriber_option);
   sub_route_ = this->create_subscription<autoware_auto_planning_msgs::msg::Route>(
     "input/route", rclcpp::QoS{1}.transient_local(),

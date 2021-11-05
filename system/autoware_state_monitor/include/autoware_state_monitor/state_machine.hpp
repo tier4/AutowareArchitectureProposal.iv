@@ -24,7 +24,6 @@
 #include <autoware_auto_planning_msgs/msg/route.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_system_msgs/msg/autoware_state.hpp>
-#include <autoware_auto_system_msgs/msg/hazard_status_stamped.hpp>
 #include <autoware_auto_vehicle_msgs/msg/engage.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -47,7 +46,6 @@ struct StateInput
 
   autoware_auto_vehicle_msgs::msg::Engage::ConstSharedPtr autoware_engage;
   autoware_auto_vehicle_msgs::msg::VehicleStateReport::ConstSharedPtr vehicle_state_report;
-  autoware_auto_system_msgs::msg::HazardStatusStamped::ConstSharedPtr hazard_status;
   bool is_finalizing = false;
   bool is_route_reset_required = false;
   autoware_auto_planning_msgs::msg::Route::ConstSharedPtr route;

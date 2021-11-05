@@ -10,18 +10,8 @@ This node manages AutowareState transitions.
 
 ### Input
 
-  <arg name="input_autoware_engage" default="/api/autoware/get/engage" />
-  <arg name="input_vehicle_state_report" default="/vehicle/state_report" />
-  <arg name="input_hazard_status" default="/system/emergency/hazard_status" />
-  <arg name="input_route" default="/planning/mission_planning/route" />
-
-  <!-- Output -->
-  <arg name="output_autoware_state" default="/autoware/state" />
-  <arg name="output_autoware_engage" default="/autoware/engage" />
-
 | Name                              | Type                                                  | Description                                       |
 | --------------------------------- | ----------------------------------------------------- | ------------------------------------------------- |
-| `/system/emergency/hazard_status` | `autoware_auto_system_msgs::msg::HazardStatusStamped` | Used to check autoware is emergency state or not  |
 | `/planning/mission_planning/rout` | `autoware_auto_planning_msgs::msg::Route`             | Subscribe route                                   |
 | `/localization/ekf_odom`          | `nav_msgs::msg::Odometry`                             | Used to decide whether vehicle is stopped or not  |
 | `/vehicle/state_report`           | `autoware_auto_vehicle_msgs::msg::VehicleStateReport` | Used to check vehicle mode: autonomous or manual. |
