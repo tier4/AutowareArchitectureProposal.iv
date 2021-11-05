@@ -36,7 +36,7 @@ TrafficLightClassifierNodelet::TrafficLightClassifierNodelet(const rclcpp::NodeO
       std::bind(&TrafficLightClassifierNodelet::imageRoiCallback, this, _1, _2));
   }
 
-  trafic_signal_array_pub_ =
+  traffic_signal_array_pub_ =
     this->create_publisher<autoware_auto_perception_msgs::msg::TrafficSignalArray>(
       "~/output/traffic_light_states", rclcpp::QoS{1});
 
@@ -68,8 +68,8 @@ void TrafficLightClassifierNodelet::connectCb()
 {
   // set callbacks only when there are subscribers to this node
   if (
-    trafic_signal_array_pub_->get_subscription_count() == 0 &&
-    trafic_signal_array_pub_->get_intra_process_subscription_count() == 0) {
+    traffic_signal_array_pub_->get_subscription_count() == 0 &&
+    traffic_signal_array_pub_->get_intra_process_subscription_count() == 0) {
     image_sub_.unsubscribe();
     roi_sub_.unsubscribe();
   } else if (!image_sub_.getSubscriber()) {
@@ -112,7 +112,7 @@ void TrafficLightClassifierNodelet::imageRoiCallback(
   }
 
   output_msg.header = input_image_msg->header;
-  trafic_signal_array_pub_->publish(output_msg);
+  traffic_signal_array_pub_->publish(output_msg);
 }
 
 }  // namespace traffic_light
