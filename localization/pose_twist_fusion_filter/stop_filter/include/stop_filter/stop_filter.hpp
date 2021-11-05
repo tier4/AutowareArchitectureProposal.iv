@@ -40,6 +40,7 @@ public:
   StopFilter(const std::string & node_name, const rclcpp::NodeOptions & options);
 
 private:
+  rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr pub_odom_;  //!< @brief odom publisher
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr
     pub_twist_;  //!< @brief twist publisher
   rclcpp::Publisher<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr

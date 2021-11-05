@@ -39,6 +39,7 @@ StopFilter::StopFilter(const std::string & node_name, const rclcpp::NodeOptions 
   sub_odom_ = create_subscription<nav_msgs::msg::Odometry>(
     "input/odom", 1, std::bind(&StopFilter::callbackOdometry, this, _1));
 
+  pub_odom_ = create_publisher<nav_msgs::msg::Odometry>("output/odom", 1);
   pub_twist_ = create_publisher<geometry_msgs::msg::TwistStamped>("output/twist", 1);
   pub_twist_with_covariance_ = create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>(
     "output/twist_with_covariance", 1);
@@ -51,6 +52,9 @@ void StopFilter::callbackOdometry(const nav_msgs::msg::Odometry::SharedPtr msg)
   stop_flag_msg.stamp = msg->header.stamp;
   stop_flag_msg.data = false;
 
+  nav_msgs::msg::Odometry odom_msg;
+  odom_msg = *msg;
+
   geometry_msgs::msg::TwistStamped twist_msg;
   twist_msg.header = msg->header;
   twist_msg.twist = msg->twist.twist;
@@ -62,13 +66,17 @@ void StopFilter::callbackOdometry(const nav_msgs::msg::Odometry::SharedPtr msg)
   if (
     std::fabs(msg->twist.twist.linear.x) < vx_threshold_ &&
     std::fabs(msg->twist.twist.angular.z) < wz_threshold_) {
+    odom_msg.twist.twist.linear.x = 0.0;
+    odom_msg.twist.twist.angular.z = 0.0;
     twist_msg.twist.linear.x = 0.0;
     twist_msg.twist.angular.z = 0.0;
     twist_with_cov_msg.twist.twist.linear.x = 0.0;
     twist_with_cov_msg.twist.twist.angular.z = 0.0;
     stop_flag_msg.data = true;
   }
+
   pub_stop_flag_->publish(stop_flag_msg);
+  pub_odom_->publish(odom_msg);
   pub_twist_->publish(twist_msg);
   pub_twist_with_covariance_->publish(twist_with_cov_msg);
 }
