@@ -65,7 +65,7 @@ PacmodInterface::PacmodInterface()
   using std::placeholders::_1;
 
   // From autoware
-  control_cmd_sub_ = create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
+  control_cmd_sub_ = create_subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>(
     "/control/control_cmd", 1, std::bind(&PacmodInterface::callbackControlCmd, this, _1));
   shift_cmd_sub_ = create_subscription<autoware_vehicle_msgs::msg::ShiftStamped>(
     "/control/shift_cmd", 1, std::bind(&PacmodInterface::callbackShiftCmd, this, _1));
@@ -161,7 +161,7 @@ void PacmodInterface::callbackVehicleCmd(
 }
 
 void PacmodInterface::callbackControlCmd(
-  const autoware_control_msgs::msg::ControlCommandStamped::ConstSharedPtr msg)
+  const autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg)
 {
   control_command_received_time_ = this->now();
   control_cmd_ptr_ = msg;
@@ -335,7 +335,7 @@ void PacmodInterface::publishCommands()
   /* calculate desired steering wheel */
   double adaptive_gear_ratio = calculateVariableGearRatio(current_velocity, current_steer_wheel);
   double desired_steer_wheel =
-    (control_cmd_ptr_->control.steering_angle + steering_offset_) * adaptive_gear_ratio;
+    (control_cmd_ptr_->lateral.steering_tire_angle + steering_offset_) * adaptive_gear_ratio;
   desired_steer_wheel =
     std::min(std::max(desired_steer_wheel, -max_steering_wheel_), max_steering_wheel_);
 
@@ -446,7 +446,7 @@ void PacmodInterface::publishCommands()
     raw_steer_cmd.clear_faults = false;
     raw_steer_cmd.command = desired_steer_wheel;
     raw_steer_cmd.rotation_rate =
-      control_cmd_ptr_->control.steering_angle_velocity * adaptive_gear_ratio;
+      control_cmd_ptr_->lateral.steering_tire_rotation_rate * adaptive_gear_ratio;
     raw_steer_cmd_pub_->publish(raw_steer_cmd);
   }
 
@@ -494,7 +494,7 @@ double PacmodInterface::calcSteerWheelRateCmd(const double gear_ratio)
   }
 
   constexpr double margin = 1.5;
-  const double rate = margin * control_cmd_ptr_->control.steering_angle_velocity * gear_ratio;
+  const double rate = margin * control_cmd_ptr_->lateral.steering_tire_rotation_rate * gear_ratio;
   return std::min(std::max(std::fabs(rate), min_steering_wheel_rate_), max_steering_wheel_rate_);
 }
 

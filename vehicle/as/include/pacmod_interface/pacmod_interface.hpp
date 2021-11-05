@@ -18,7 +18,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <vehicle_info_util/vehicle_info_util.hpp>
 
-#include <autoware_control_msgs/msg/control_command_stamped.hpp>
+#include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
 #include <autoware_vehicle_msgs/msg/actuation_command_stamped.hpp>
 #include <autoware_vehicle_msgs/msg/actuation_status_stamped.hpp>
 #include <autoware_vehicle_msgs/msg/control_mode.hpp>
@@ -60,7 +60,7 @@ private:
 
   /* subscribers */
   // From Autoware
-  rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
+  rclcpp::Subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr
     control_cmd_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::ShiftStamped>::SharedPtr shift_cmd_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr turn_signal_cmd_sub_;
@@ -139,7 +139,7 @@ private:
 
   /* input values */
   autoware_vehicle_msgs::msg::ActuationCommandStamped::ConstSharedPtr actuation_cmd_ptr_;
-  autoware_control_msgs::msg::ControlCommandStamped::ConstSharedPtr control_cmd_ptr_;
+  autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr control_cmd_ptr_;
   autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr turn_signal_cmd_ptr_;
   autoware_vehicle_msgs::msg::ShiftStamped::ConstSharedPtr shift_cmd_ptr_;
 
@@ -162,7 +162,7 @@ private:
   void callbackActuationCmd(
     const autoware_vehicle_msgs::msg::ActuationCommandStamped::ConstSharedPtr msg);
   void callbackControlCmd(
-    const autoware_control_msgs::msg::ControlCommandStamped::ConstSharedPtr msg);
+    const autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg);
   void callbackVehicleCmd(const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr msg);
   void callbackShiftCmd(const autoware_vehicle_msgs::msg::ShiftStamped::ConstSharedPtr msg);
   void callbackTurnSignalCmd(const autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr msg);
