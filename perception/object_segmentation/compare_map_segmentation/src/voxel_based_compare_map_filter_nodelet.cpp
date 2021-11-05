@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pointcloud_preprocessor/compare_map_filter/voxel_based_compare_map_filter_nodelet.hpp"
+#include "compare_map_segmentation/voxel_based_compare_map_filter_nodelet.hpp"
 
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/search/kdtree.h>
@@ -20,8 +20,10 @@
 
 #include <vector>
 
-namespace pointcloud_preprocessor
+namespace compare_map_segmentation
 {
+using pointcloud_preprocessor::get_param;
+
 VoxelBasedCompareMapFilterComponent::VoxelBasedCompareMapFilterComponent(
   const rclcpp::NodeOptions & options)
 : Filter("VoxelBasedCompareMapFilter", options)
@@ -269,7 +271,7 @@ rcl_interfaces::msg::SetParametersResult VoxelBasedCompareMapFilterComponent::pa
 
   return result;
 }
-}  // namespace pointcloud_preprocessor
+}  // namespace compare_map_segmentation
 
 #include <rclcpp_components/register_node_macro.hpp>
-RCLCPP_COMPONENTS_REGISTER_NODE(pointcloud_preprocessor::VoxelBasedCompareMapFilterComponent)
+RCLCPP_COMPONENTS_REGISTER_NODE(compare_map_segmentation::VoxelBasedCompareMapFilterComponent)

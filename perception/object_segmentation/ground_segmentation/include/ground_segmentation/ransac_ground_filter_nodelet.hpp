@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef POINTCLOUD_PREPROCESSOR__GROUND_FILTER__RANSAC_GROUND_FILTER_NODELET_HPP_
-#define POINTCLOUD_PREPROCESSOR__GROUND_FILTER__RANSAC_GROUND_FILTER_NODELET_HPP_
+#ifndef GROUND_SEGMENTATION__RANSAC_GROUND_FILTER_NODELET_HPP_
+#define GROUND_SEGMENTATION__RANSAC_GROUND_FILTER_NODELET_HPP_
 
 #include "pointcloud_preprocessor/filter.hpp"
 
@@ -32,7 +32,7 @@
 #include <string>
 #include <vector>
 
-namespace pointcloud_preprocessor
+namespace ground_segmentation
 {
 struct PlaneBasis
 {
@@ -123,6 +123,6 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   explicit RANSACGroundFilterComponent(const rclcpp::NodeOptions & options);
 };
-}  // namespace pointcloud_preprocessor
+}  // namespace ground_segmentation
 
-#endif  // POINTCLOUD_PREPROCESSOR__GROUND_FILTER__RANSAC_GROUND_FILTER_NODELET_HPP_
+#endif  // GROUND_SEGMENTATION__RANSAC_GROUND_FILTER_NODELET_HPP_

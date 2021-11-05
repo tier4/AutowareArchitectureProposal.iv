@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pointcloud_preprocessor/ground_filter/scan_ground_filter_nodelet.hpp"
+#include "ground_segmentation/scan_ground_filter_nodelet.hpp"
 
 #include <autoware_utils/geometry/geometry.hpp>
 #include <autoware_utils/math/normalization.hpp>
@@ -24,11 +24,12 @@
 #include <string>
 #include <vector>
 
-namespace pointcloud_preprocessor
+namespace ground_segmentation
 {
 using autoware_utils::calcDistance3d;
 using autoware_utils::deg2rad;
 using autoware_utils::normalizeRadian;
+using pointcloud_preprocessor::get_param;
 using vehicle_info_util::VehicleInfoUtil;
 
 ScanGroundFilterComponent::ScanGroundFilterComponent(const rclcpp::NodeOptions & options)
@@ -320,7 +321,7 @@ rcl_interfaces::msg::SetParametersResult ScanGroundFilterComponent::onParameter(
   return result;
 }
 
-}  // namespace pointcloud_preprocessor
+}  // namespace ground_segmentation
 
 #include <rclcpp_components/register_node_macro.hpp>
-RCLCPP_COMPONENTS_REGISTER_NODE(pointcloud_preprocessor::ScanGroundFilterComponent)
+RCLCPP_COMPONENTS_REGISTER_NODE(ground_segmentation::ScanGroundFilterComponent)

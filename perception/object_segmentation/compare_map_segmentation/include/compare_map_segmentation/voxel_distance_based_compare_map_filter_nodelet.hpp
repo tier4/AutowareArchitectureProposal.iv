@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__VOXEL_DISTANCE_BASED_COMPARE_MAP_FILTER_NODELET_HPP_  // NOLINT
-#define POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__VOXEL_DISTANCE_BASED_COMPARE_MAP_FILTER_NODELET_HPP_  // NOLINT
+#ifndef COMPARE_MAP_SEGMENTATION__VOXEL_DISTANCE_BASED_COMPARE_MAP_FILTER_NODELET_HPP_  // NOLINT
+#define COMPARE_MAP_SEGMENTATION__VOXEL_DISTANCE_BASED_COMPARE_MAP_FILTER_NODELET_HPP_  // NOLINT
 
 #include "pointcloud_preprocessor/filter.hpp"
 
@@ -22,7 +22,7 @@
 
 #include <vector>
 
-namespace pointcloud_preprocessor
+namespace compare_map_segmentation
 {
 class VoxelDistanceBasedCompareMapFilterComponent : public pointcloud_preprocessor::Filter
 {
@@ -52,8 +52,8 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   explicit VoxelDistanceBasedCompareMapFilterComponent(const rclcpp::NodeOptions & options);
 };
-}  // namespace pointcloud_preprocessor
+}  // namespace compare_map_segmentation
 
 // clang-format off
-#endif  // POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__VOXEL_DISTANCE_BASED_COMPARE_MAP_FILTER_NODELET_HPP_ // NOLINT
+#endif  // COMPARE_MAP_SEGMENTATION__VOXEL_DISTANCE_BASED_COMPARE_MAP_FILTER_NODELET_HPP_ // NOLINT
 // clang-format on

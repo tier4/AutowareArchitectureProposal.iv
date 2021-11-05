@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pointcloud_preprocessor/ground_filter/ransac_ground_filter_nodelet.hpp"
+#include "ground_segmentation/ransac_ground_filter_nodelet.hpp"
 
 #include <pcl_ros/transforms.hpp>
 
@@ -55,9 +55,9 @@ Eigen::Vector3d getArbitraryOrthogonalVector(const Eigen::Vector3d & input)
   return unit_vec;
 }
 
-pointcloud_preprocessor::PlaneBasis getPlaneBasis(const Eigen::Vector3d & plane_normal)
+ground_segmentation::PlaneBasis getPlaneBasis(const Eigen::Vector3d & plane_normal)
 {
-  pointcloud_preprocessor::PlaneBasis basis;
+  ground_segmentation::PlaneBasis basis;
   basis.e_z = plane_normal;
   basis.e_x = getArbitraryOrthogonalVector(plane_normal);
   basis.e_y = basis.e_x.cross(basis.e_z);
@@ -79,8 +79,10 @@ geometry_msgs::msg::Pose getDebugPose(const Eigen::Affine3d & plane_affine)
 }
 }  // namespace
 
-namespace pointcloud_preprocessor
+namespace ground_segmentation
 {
+using pointcloud_preprocessor::get_param;
+
 RANSACGroundFilterComponent::RANSACGroundFilterComponent(const rclcpp::NodeOptions & options)
 : Filter("RANSACGroundFilter", options)
 {
@@ -204,7 +206,7 @@ Eigen::Affine3d RANSACGroundFilterComponent::getPlaneAffine(
   pcl::PointXYZ centroid_point;
   centroid.get(centroid_point);
   Eigen::Translation<double, 3> trans(centroid_point.x, centroid_point.y, centroid_point.z);
-  const pointcloud_preprocessor::PlaneBasis basis = getPlaneBasis(plane_normal);
+  const ground_segmentation::PlaneBasis basis = getPlaneBasis(plane_normal);
   Eigen::Matrix3d rot;
   rot << basis.e_x.x(), basis.e_y.x(), basis.e_z.x(), basis.e_x.y(), basis.e_y.y(), basis.e_z.y(),
     basis.e_x.z(), basis.e_y.z(), basis.e_z.z();
@@ -381,7 +383,7 @@ rcl_interfaces::msg::SetParametersResult RANSACGroundFilterComponent::paramCallb
   return result;
 }
 
-}  // namespace pointcloud_preprocessor
+}  // namespace ground_segmentation
 
 #include <rclcpp_components/register_node_macro.hpp>
-RCLCPP_COMPONENTS_REGISTER_NODE(pointcloud_preprocessor::RANSACGroundFilterComponent)
+RCLCPP_COMPONENTS_REGISTER_NODE(ground_segmentation::RANSACGroundFilterComponent)

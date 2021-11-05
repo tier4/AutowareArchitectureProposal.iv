@@ -42,8 +42,8 @@
  *  v1.0: amc-nu (abrahammonrroy@yahoo.com)
  */
 
-#ifndef POINTCLOUD_PREPROCESSOR__GROUND_FILTER__RAY_GROUND_FILTER_NODELET_HPP_
-#define POINTCLOUD_PREPROCESSOR__GROUND_FILTER__RAY_GROUND_FILTER_NODELET_HPP_
+#ifndef GROUND_SEGMENTATION__RAY_GROUND_FILTER_NODELET_HPP_
+#define GROUND_SEGMENTATION__RAY_GROUND_FILTER_NODELET_HPP_
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
@@ -59,8 +59,8 @@
 #include <vector>
 // #include <pcl_ros/point_cloud.h>
 
+#include "ground_segmentation/gencolors.hpp"
 #include "pointcloud_preprocessor/filter.hpp"
-#include "pointcloud_preprocessor/ground_filter/gencolors.hpp"
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -74,7 +74,7 @@ namespace bg = boost::geometry;
 using Point = bg::model::d2::point_xy<double>;
 using Polygon = bg::model::polygon<Point>;
 
-namespace pointcloud_preprocessor
+namespace ground_segmentation
 {
 class RayGroundFilterComponent : public pointcloud_preprocessor::Filter
 {
@@ -203,6 +203,6 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   explicit RayGroundFilterComponent(const rclcpp::NodeOptions & options);
 };
-}  // namespace pointcloud_preprocessor
+}  // namespace ground_segmentation
 
-#endif  // POINTCLOUD_PREPROCESSOR__GROUND_FILTER__RAY_GROUND_FILTER_NODELET_HPP_
+#endif  // GROUND_SEGMENTATION__RAY_GROUND_FILTER_NODELET_HPP_

@@ -15,15 +15,17 @@
 #include <vector>
 
 // *INDENT-OFF*
-#include "pointcloud_preprocessor/compare_map_filter/voxel_based_approximate_compare_map_filter_nodelet.hpp"
+#include "compare_map_segmentation/voxel_based_approximate_compare_map_filter_nodelet.hpp"
 // *INDENT-ON*
 
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/search/kdtree.h>
 #include <pcl/segmentation/segment_differences.h>
 
-namespace pointcloud_preprocessor
+namespace compare_map_segmentation
 {
+using pointcloud_preprocessor::get_param;
+
 VoxelBasedApproximateCompareMapFilterComponent::VoxelBasedApproximateCompareMapFilterComponent(
   const rclcpp::NodeOptions & options)
 : Filter("VoxelBasedApproximateCompareMapFilter", options)
@@ -105,8 +107,8 @@ VoxelBasedApproximateCompareMapFilterComponent::paramCallback(
 
   return result;
 }
-}  // namespace pointcloud_preprocessor
+}  // namespace compare_map_segmentation
 
 #include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(
-  pointcloud_preprocessor::VoxelBasedApproximateCompareMapFilterComponent)
+  compare_map_segmentation::VoxelBasedApproximateCompareMapFilterComponent)

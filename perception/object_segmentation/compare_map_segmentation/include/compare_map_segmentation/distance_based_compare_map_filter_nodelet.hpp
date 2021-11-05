@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__VOXEL_BASED_APPROXIMATE_COMPARE_MAP_FILTER_NODELET_HPP_  // NOLINT
-#define POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__VOXEL_BASED_APPROXIMATE_COMPARE_MAP_FILTER_NODELET_HPP_  // NOLINT
+#ifndef COMPARE_MAP_SEGMENTATION__DISTANCE_BASED_COMPARE_MAP_FILTER_NODELET_HPP_
+#define COMPARE_MAP_SEGMENTATION__DISTANCE_BASED_COMPARE_MAP_FILTER_NODELET_HPP_
 
 #include "pointcloud_preprocessor/filter.hpp"
 
@@ -22,9 +22,9 @@
 
 #include <vector>
 
-namespace pointcloud_preprocessor
+namespace compare_map_segmentation
 {
-class VoxelBasedApproximateCompareMapFilterComponent : public pointcloud_preprocessor::Filter
+class DistanceBasedCompareMapFilterComponent : public pointcloud_preprocessor::Filter
 {
 protected:
   virtual void filter(
@@ -33,12 +33,10 @@ protected:
   void input_target_callback(const PointCloud2ConstPtr map);
 
 private:
-  // pcl::SegmentDifferences<pcl::PointXYZ> impl_;
   rclcpp::Subscription<PointCloud2>::SharedPtr sub_map_;
-  PointCloudPtr voxel_map_ptr_;
+  PointCloudConstPtr map_ptr_;
   double distance_threshold_;
-  pcl::VoxelGrid<pcl::PointXYZ> voxel_grid_;
-  bool set_map_in_voxel_grid_;
+  pcl::search::Search<pcl::PointXYZ>::Ptr tree_;
 
   /** \brief Parameter service callback result : needed to be hold */
   OnSetParametersCallbackHandle::SharedPtr set_param_res_;
@@ -48,10 +46,10 @@ private:
 
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  explicit VoxelBasedApproximateCompareMapFilterComponent(const rclcpp::NodeOptions & options);
+  explicit DistanceBasedCompareMapFilterComponent(const rclcpp::NodeOptions & options);
 };
-}  // namespace pointcloud_preprocessor
+}  // namespace compare_map_segmentation
 
 // clang-format off
-#endif  // POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__VOXEL_BASED_APPROXIMATE_COMPARE_MAP_FILTER_NODELET_HPP_ // NOLINT
+#endif  // COMPARE_MAP_SEGMENTATION__DISTANCE_BASED_COMPARE_MAP_FILTER_NODELET_HPP_ // NOLINT
 // clang-format on

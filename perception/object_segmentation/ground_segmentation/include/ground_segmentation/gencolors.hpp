@@ -53,8 +53,8 @@
 //
 //M*/
 
-#ifndef POINTCLOUD_PREPROCESSOR__GROUND_FILTER__GENCOLORS_HPP_
-#define POINTCLOUD_PREPROCESSOR__GROUND_FILTER__GENCOLORS_HPP_
+#ifndef GROUND_SEGMENTATION__GENCOLORS_HPP_
+#define GROUND_SEGMENTATION__GENCOLORS_HPP_
 
 #include <opencv2/core/core.hpp>
 
@@ -158,4 +158,4 @@ inline void generateColors(std::vector<Scalar> & colors, size_t count, size_t fa
   }
 }
 }  // namespace ray_ground_filter
-#endif  // POINTCLOUD_PREPROCESSOR__GROUND_FILTER__GENCOLORS_HPP_
+#endif  // GROUND_SEGMENTATION__GENCOLORS_HPP_

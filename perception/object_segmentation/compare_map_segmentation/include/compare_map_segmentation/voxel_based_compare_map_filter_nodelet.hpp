@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__VOXEL_BASED_COMPARE_MAP_FILTER_NODELET_HPP_
-#define POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__VOXEL_BASED_COMPARE_MAP_FILTER_NODELET_HPP_
+#ifndef COMPARE_MAP_SEGMENTATION__VOXEL_BASED_COMPARE_MAP_FILTER_NODELET_HPP_
+#define COMPARE_MAP_SEGMENTATION__VOXEL_BASED_COMPARE_MAP_FILTER_NODELET_HPP_
 
 #include "pointcloud_preprocessor/filter.hpp"
 
@@ -22,7 +22,7 @@
 
 #include <vector>
 
-namespace pointcloud_preprocessor
+namespace compare_map_segmentation
 {
 class VoxelBasedCompareMapFilterComponent : public pointcloud_preprocessor::Filter
 {
@@ -54,6 +54,6 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   explicit VoxelBasedCompareMapFilterComponent(const rclcpp::NodeOptions & options);
 };
-}  // namespace pointcloud_preprocessor
+}  // namespace compare_map_segmentation
 
-#endif  // POINTCLOUD_PREPROCESSOR__COMPARE_MAP_FILTER__VOXEL_BASED_COMPARE_MAP_FILTER_NODELET_HPP_
+#endif  // COMPARE_MAP_SEGMENTATION__VOXEL_BASED_COMPARE_MAP_FILTER_NODELET_HPP_
