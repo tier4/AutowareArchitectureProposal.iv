@@ -56,12 +56,12 @@ void putOccupancyGridValue(
 cv::Mat drawObstaclesOnImage(
   const bool enable_avoidance,
   const std::vector<autoware_perception_msgs::msg::DynamicObject> & objects,
-  const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points,
+  const std::vector<autoware_auto_planning_msgs::msg::PathPoint> & path_points,
   const nav_msgs::msg::MapMetaData & map_info, const cv::Mat & clearance_map,
   const TrajectoryParam & traj_param,
   std::vector<autoware_perception_msgs::msg::DynamicObject> * debug_avoiding_objects)
 {
-  std::vector<autoware_planning_msgs::msg::PathPoint> path_points_inside_area;
+  std::vector<autoware_auto_planning_msgs::msg::PathPoint> path_points_inside_area;
   for (const auto & point : path_points) {
     std::vector<geometry_msgs::msg::Point> points;
     geometry_msgs::msg::Point image_point;
@@ -99,7 +99,7 @@ cv::Mat drawObstaclesOnImage(
 bool isAvoidingObject(
   const PolygonPoints & polygon_points, const autoware_perception_msgs::msg::DynamicObject & object,
   const cv::Mat & clearance_map, const nav_msgs::msg::MapMetaData & map_info,
-  const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points,
+  const std::vector<autoware_auto_planning_msgs::msg::PathPoint> & path_points,
   const TrajectoryParam & traj_param)
 {
   if (path_points.empty()) {
@@ -274,7 +274,7 @@ PolygonPoints getPolygonPointsFromPolygon(
 
 std::vector<cv::Point> getCVPolygon(
   const autoware_perception_msgs::msg::DynamicObject & object, const PolygonPoints & polygon_points,
-  const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points,
+  const std::vector<autoware_auto_planning_msgs::msg::PathPoint> & path_points,
   const cv::Mat & clearance_map, const nav_msgs::msg::MapMetaData & map_info)
 {
   const int nearest_idx =
@@ -539,7 +539,7 @@ boost::optional<double> getDistance(
 }
 
 CVMaps getMaps(
-  const bool enable_avoidance, const autoware_planning_msgs::msg::Path & path,
+  const bool enable_avoidance, const autoware_auto_planning_msgs::msg::Path & path,
   const std::vector<autoware_perception_msgs::msg::DynamicObject> & objects,
   const TrajectoryParam & traj_param, DebugData * debug_data)
 {

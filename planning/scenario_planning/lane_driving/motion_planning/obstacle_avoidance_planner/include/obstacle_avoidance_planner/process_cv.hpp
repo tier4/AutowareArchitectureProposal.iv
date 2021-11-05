@@ -18,8 +18,8 @@
 
 #include <opencv2/core.hpp>
 
+#include <autoware_auto_planning_msgs/msg/path.hpp>
 #include <autoware_perception_msgs/msg/dynamic_object.hpp>
-#include <autoware_planning_msgs/msg/path.hpp>
 #include <geometry_msgs/msg/point32.hpp>
 
 #include <boost/optional/optional_fwd.hpp>
@@ -87,7 +87,7 @@ PolygonPoints getPolygonPointsFromPolygon(
 bool isAvoidingObject(
   const PolygonPoints & polygon_points, const autoware_perception_msgs::msg::DynamicObject & object,
   const cv::Mat & clearance_map, const nav_msgs::msg::MapMetaData & map_info,
-  const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points,
+  const std::vector<autoware_auto_planning_msgs::msg::PathPoint> & path_points,
   const TrajectoryParam & traj_param);
 
 bool isAvoidingObjectType(
@@ -95,7 +95,7 @@ bool isAvoidingObjectType(
 
 std::vector<cv::Point> getCVPolygon(
   const autoware_perception_msgs::msg::DynamicObject & object, const PolygonPoints & polygon_points,
-  const std::vector<autoware_planning_msgs::msg::PathPoint> & path_points,
+  const std::vector<autoware_auto_planning_msgs::msg::PathPoint> & path_points,
   const cv::Mat & clearance_map, const nav_msgs::msg::MapMetaData & map_info);
 
 std::vector<cv::Point> getDefaultCVPolygon(
@@ -134,7 +134,7 @@ boost::optional<int> getStopIdx(
   const nav_msgs::msg::MapMetaData & map_info);
 
 CVMaps getMaps(
-  const bool enable_avoidance, const autoware_planning_msgs::msg::Path & path,
+  const bool enable_avoidance, const autoware_auto_planning_msgs::msg::Path & path,
   const std::vector<autoware_perception_msgs::msg::DynamicObject> & objects,
   const TrajectoryParam & traj_param, DebugData * debug_data);
 }  // namespace process_cv

@@ -23,8 +23,8 @@
 #include <opencv2/core.hpp>
 #include <rclcpp/clock.hpp>
 
+#include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
 #include <autoware_perception_msgs/msg/dynamic_object.hpp>
-#include <autoware_planning_msgs/msg/trajectory_point.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <visualization_msgs/msg/marker.hpp>
@@ -38,8 +38,8 @@
 visualization_msgs::msg::MarkerArray getDebugVisualizationMarker(
   const DebugData & debug_data,
   // const std::vector<geometry_msgs::msg::Point> & interpolated_points,
-  // const std::vector<autoware_planning_msgs::msg::TrajectoryPoint> & smoothed_points,
-  const std::vector<autoware_planning_msgs::msg::TrajectoryPoint> & optimized_points,
+  // const std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> & smoothed_points,
+  const std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> & optimized_points,
   const VehicleParam & vehicle_param)
 {
   const auto points_marker_array = getDebugPointsMarkers(
@@ -146,7 +146,7 @@ geometry_msgs::msg::Pose getVirtualWallPose(
 
 visualization_msgs::msg::MarkerArray getDebugPointsMarkers(
   const std::vector<geometry_msgs::msg::Point> & interpolated_points,
-  const std::vector<autoware_planning_msgs::msg::TrajectoryPoint> & optimized_points,
+  const std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> & optimized_points,
   const std::vector<geometry_msgs::msg::Point> & straight_points,
   const std::vector<geometry_msgs::msg::Pose> & fixed_points,
   const std::vector<geometry_msgs::msg::Pose> & non_fixed_points)
@@ -576,8 +576,8 @@ visualization_msgs::msg::MarkerArray getPointsTextMarkerArray(
 }
 
 visualization_msgs::msg::MarkerArray getPointsTextMarkerArray(
-  const std::vector<autoware_planning_msgs::msg::TrajectoryPoint> & points, const std::string & ns,
-  const double r, const double g, const double b)
+  const std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> & points,
+  const std::string & ns, const double r, const double g, const double b)
 {
   const auto current_time = rclcpp::Clock().now();
   visualization_msgs::msg::MarkerArray msg;
