@@ -28,18 +28,21 @@
 
 namespace autoware_utils
 {
-using autoware_auto_planning_msgs::msg::Trajectory;
-using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
-
-// convertToTrajectoryByClipping() just clips TrajectoryPointArray up to the capacity of Trajectory.
-// Therefore, the error handling out of this function is necessary if the size of
-// TrajectoryPointArray greater than the capacity.
-// TODO(Tier IV): Decide how to handle the situation that we need to use the trajectory with the
-// size of points larger than the capacity. This function is temporarily added for porting to
-// autoware_auto_msgs. We should consider whether to remove this function after the porting is done.
-Trajectory convertToTrajectoryByClipping(const TrajectoryPointArray & trajectory)
+/**
+ * @brief Convert std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> to
+ * autoware_auto_planning_msgs::msg::Trajectory. This function is temporarily added for porting to
+ * autoware_auto_msgs. We should consider whether to remove this function after the porting is done.
+ * @attention This function just clips
+ * std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> up to the capacity of Trajectory.
+ * Therefore, the error handling out of this function is necessary if the size of the input greater
+ * than the capacity.
+ * @todo Decide how to handle the situation that we need to use the trajectory with the size of
+ * points larger than the capacity. (Tier IV)
+ */
+autoware_auto_planning_msgs::msg::Trajectory convertToTrajectoryByClipping(
+  const std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> & trajectory)
 {
-  Trajectory output{};
+  autoware_auto_planning_msgs::msg::Trajectory output{};
   for (const auto & pt : trajectory) {
     output.points.push_back(pt);
     if (output.points.size() >= output.CAPACITY) {
@@ -49,9 +52,14 @@ Trajectory convertToTrajectoryByClipping(const TrajectoryPointArray & trajectory
   return output;
 }
 
-TrajectoryPointArray convertToTrajectoryPointArray(const Trajectory & trajectory)
+/**
+ * @brief Convert autoware_auto_planning_msgs::msg::Trajectory to
+ * std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>.
+ */
+std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> convertToTrajectoryPointArray(
+  const autoware_auto_planning_msgs::msg::Trajectory & trajectory)
 {
-  TrajectoryPointArray output(trajectory.points.size());
+  std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> output(trajectory.points.size());
   std::copy(trajectory.points.begin(), trajectory.points.end(), output.begin());
   return output;
 }
