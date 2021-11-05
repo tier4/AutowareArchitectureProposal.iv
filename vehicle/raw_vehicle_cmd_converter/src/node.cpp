@@ -86,8 +86,8 @@ RawVehicleCommandConverterNode::RawVehicleCommandConverterNode(
   pub_actuation_cmd_ = create_publisher<ActuationCommandStamped>("/vehicle/actuation_cmd", 1);
   sub_control_cmd_ = create_subscription<ControlCommandStamped>(
     "/control/control_cmd", 1, std::bind(&RawVehicleCommandConverterNode::onControlCmd, this, _1));
-  sub_velocity_ = create_subscription<TwistStamped>(
-    "/localization/twist", 1, std::bind(&RawVehicleCommandConverterNode::onVelocity, this, _1));
+  sub_velocity_ = create_subscription<Odometry>(
+    "/localization/odometry", 1, std::bind(&RawVehicleCommandConverterNode::onVelocity, this, _1));
   sub_steering_ = create_subscription<Steering>(
     "/vehicle/status/steering", 1,
     std::bind(&RawVehicleCommandConverterNode::onSteering, this, _1));
@@ -136,7 +136,7 @@ void RawVehicleCommandConverterNode::publishActuationCmd()
     desired_steer_cmd = steer;
   }
   actuation_cmd.header.frame_id = "base_link";
-  actuation_cmd.header.stamp = control_cmd_ptr_ -> stamp;
+  actuation_cmd.header.stamp = control_cmd_ptr_->stamp;
   actuation_cmd.actuation.accel_cmd = desired_accel_cmd;
   actuation_cmd.actuation.brake_cmd = desired_brake_cmd;
   actuation_cmd.actuation.steer_cmd = desired_steer_cmd;
@@ -218,9 +218,11 @@ void RawVehicleCommandConverterNode::onSteering(const Steering::ConstSharedPtr m
   current_steer_ptr_ = msg;
 }
 
-void RawVehicleCommandConverterNode::onVelocity(const TwistStamped::ConstSharedPtr msg)
+void RawVehicleCommandConverterNode::onVelocity(const Odometry::ConstSharedPtr msg)
 {
-  current_twist_ptr_ = msg;
+  current_twist_ptr_ = std::make_unique<geometry_msgs::msg::TwistStamped>();
+  current_twist_ptr_->header = msg->header;
+  current_twist_ptr_->twist = msg->twist.twist;
 }
 
 void RawVehicleCommandConverterNode::onControlCmd(const ControlCommandStamped::ConstSharedPtr msg)
