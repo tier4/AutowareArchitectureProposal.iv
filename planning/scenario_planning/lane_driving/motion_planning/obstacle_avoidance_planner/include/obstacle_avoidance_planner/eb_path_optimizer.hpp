@@ -18,10 +18,10 @@
 #include <opencv2/core.hpp>
 #include <rclcpp/clock.hpp>
 
+#include <autoware_auto_perception_msgs/msg/predicted_object.hpp>
 #include <autoware_auto_planning_msgs/msg/path.hpp>
 #include <autoware_auto_planning_msgs/msg/path_point.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
-#include <autoware_perception_msgs/msg/dynamic_object.hpp>
 #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <nav_msgs/msg/map_meta_data.hpp>
@@ -214,7 +214,7 @@ struct DebugData
   std::vector<util::Footprint> current_vehicle_footprints;
   std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> avoiding_traj_points;
   std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> smoothed_points;
-  std::vector<autoware_perception_msgs::msg::DynamicObject> avoiding_objects;
+  std::vector<autoware_auto_perception_msgs::msg::PredictedObject> avoiding_objects;
   std::vector<Bounds> bounds;
   std::vector<geometry_msgs::msg::Pose> bounds_candidate_for_base_points;
   std::vector<geometry_msgs::msg::Pose> bounds_candidate_for_top_points;
@@ -464,7 +464,7 @@ public:
     const bool enable_avoidance, const geometry_msgs::msg::Pose & ego_pose,
     const autoware_auto_planning_msgs::msg::Path & path,
     const std::unique_ptr<Trajectories> & prev_trajs,
-    const std::vector<autoware_perception_msgs::msg::DynamicObject> & objects,
+    const std::vector<autoware_auto_perception_msgs::msg::PredictedObject> & objects,
     DebugData * debug_data);
 };
 

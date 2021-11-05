@@ -25,10 +25,10 @@
 #include <rclcpp/time.hpp>
 #include <vehicle_info_util/vehicle_info_util.hpp>
 
+#include <autoware_auto_perception_msgs/msg/predicted_object.hpp>
+#include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
 #include <autoware_auto_planning_msgs/msg/path.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
-#include <autoware_perception_msgs/msg/dynamic_object.hpp>
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <std_msgs/msg/bool.hpp>
@@ -81,7 +81,7 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner(const rclcpp::NodeOptions & n
   twist_sub_ = create_subscription<geometry_msgs::msg::TwistStamped>(
     "/localization/twist", rclcpp::QoS{1},
     std::bind(&ObstacleAvoidancePlanner::twistCallback, this, std::placeholders::_1));
-  objects_sub_ = create_subscription<autoware_perception_msgs::msg::DynamicObjectArray>(
+  objects_sub_ = create_subscription<autoware_auto_perception_msgs::msg::PredictedObjects>(
     "~/input/objects", rclcpp::QoS{10},
     std::bind(&ObstacleAvoidancePlanner::objectsCallback, this, std::placeholders::_1));
   is_avoidance_sub_ = create_subscription<autoware_planning_msgs::msg::EnableAvoidance>(
@@ -234,7 +234,7 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner(const rclcpp::NodeOptions & n
   mpt_param_->mid_point_dist_from_base_link =
     (mpt_param_->base_point_dist_from_base_link + mpt_param_->top_point_dist_from_base_link) * 0.5;
 
-  in_objects_ptr_ = std::make_unique<autoware_perception_msgs::msg::DynamicObjectArray>();
+  in_objects_ptr_ = std::make_unique<autoware_auto_perception_msgs::msg::PredictedObjects>();
 
   // set parameter callback
   set_param_res_ = this->add_on_set_parameters_callback(
@@ -323,9 +323,9 @@ void ObstacleAvoidancePlanner::twistCallback(const geometry_msgs::msg::TwistStam
 }
 
 void ObstacleAvoidancePlanner::objectsCallback(
-  const autoware_perception_msgs::msg::DynamicObjectArray::SharedPtr msg)
+  const autoware_auto_perception_msgs::msg::PredictedObjects::SharedPtr msg)
 {
-  in_objects_ptr_ = std::make_unique<autoware_perception_msgs::msg::DynamicObjectArray>(*msg);
+  in_objects_ptr_ = std::make_unique<autoware_auto_perception_msgs::msg::PredictedObjects>(*msg);
 }
 
 void ObstacleAvoidancePlanner::enableAvoidanceCallback(

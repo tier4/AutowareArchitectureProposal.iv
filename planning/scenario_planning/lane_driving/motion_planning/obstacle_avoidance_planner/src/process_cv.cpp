@@ -19,7 +19,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/opencv.hpp>
 
-#include <autoware_perception_msgs/msg/dynamic_object.hpp>
+#include <autoware_auto_perception_msgs/msg/predicted_object.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
 
 #include <boost/optional.hpp>
@@ -55,11 +55,11 @@ void putOccupancyGridValue(
 
 cv::Mat drawObstaclesOnImage(
   const bool enable_avoidance,
-  const std::vector<autoware_perception_msgs::msg::DynamicObject> & objects,
+  const std::vector<autoware_auto_perception_msgs::msg::PredictedObject> & objects,
   const std::vector<autoware_auto_planning_msgs::msg::PathPoint> & path_points,
   const nav_msgs::msg::MapMetaData & map_info, const cv::Mat & clearance_map,
   const TrajectoryParam & traj_param,
-  std::vector<autoware_perception_msgs::msg::DynamicObject> * debug_avoiding_objects)
+  std::vector<autoware_auto_perception_msgs::msg::PredictedObject> * debug_avoiding_objects)
 {
   std::vector<autoware_auto_planning_msgs::msg::PathPoint> path_points_inside_area;
   for (const auto & point : path_points) {
@@ -97,8 +97,9 @@ cv::Mat drawObstaclesOnImage(
 }
 
 bool isAvoidingObject(
-  const PolygonPoints & polygon_points, const autoware_perception_msgs::msg::DynamicObject & object,
-  const cv::Mat & clearance_map, const nav_msgs::msg::MapMetaData & map_info,
+  const PolygonPoints & polygon_points,
+  const autoware_auto_perception_msgs::msg::PredictedObject & object, const cv::Mat & clearance_map,
+  const nav_msgs::msg::MapMetaData & map_info,
   const std::vector<autoware_auto_planning_msgs::msg::PathPoint> & path_points,
   const TrajectoryParam & traj_param)
 {
@@ -150,7 +151,8 @@ bool isAvoidingObject(
 }
 
 bool isAvoidingObjectType(
-  const autoware_perception_msgs::msg::DynamicObject & object, const TrajectoryParam & traj_param)
+  const autoware_auto_perception_msgs::msg::PredictedObject & object,
+  const TrajectoryParam & traj_param)
 {
   if (
     (object.semantic.type == object.semantic.UNKNOWN && traj_param.is_avoiding_unknown) ||
@@ -167,7 +169,7 @@ bool isAvoidingObjectType(
 }
 
 PolygonPoints getPolygonPoints(
-  const autoware_perception_msgs::msg::DynamicObject & object,
+  const autoware_auto_perception_msgs::msg::PredictedObject & object,
   const nav_msgs::msg::MapMetaData & map_info)
 {
   std::vector<geometry_msgs::msg::Point> points_in_image;
@@ -184,7 +186,7 @@ PolygonPoints getPolygonPoints(
 }
 
 PolygonPoints getPolygonPointsFromBB(
-  const autoware_perception_msgs::msg::DynamicObject & object,
+  const autoware_auto_perception_msgs::msg::PredictedObject & object,
   const nav_msgs::msg::MapMetaData & map_info)
 {
   std::vector<geometry_msgs::msg::Point> points_in_image;
@@ -212,7 +214,7 @@ PolygonPoints getPolygonPointsFromBB(
 }
 
 PolygonPoints getPolygonPointsFromCircle(
-  const autoware_perception_msgs::msg::DynamicObject & object,
+  const autoware_auto_perception_msgs::msg::PredictedObject & object,
   const nav_msgs::msg::MapMetaData & map_info)
 {
   std::vector<geometry_msgs::msg::Point> points_in_image;
@@ -249,7 +251,7 @@ PolygonPoints getPolygonPointsFromCircle(
 }
 
 PolygonPoints getPolygonPointsFromPolygon(
-  const autoware_perception_msgs::msg::DynamicObject & object,
+  const autoware_auto_perception_msgs::msg::PredictedObject & object,
   const nav_msgs::msg::MapMetaData & map_info)
 {
   std::vector<geometry_msgs::msg::Point> points_in_image;
@@ -273,7 +275,8 @@ PolygonPoints getPolygonPointsFromPolygon(
 }
 
 std::vector<cv::Point> getCVPolygon(
-  const autoware_perception_msgs::msg::DynamicObject & object, const PolygonPoints & polygon_points,
+  const autoware_auto_perception_msgs::msg::PredictedObject & object,
+  const PolygonPoints & polygon_points,
   const std::vector<autoware_auto_planning_msgs::msg::PathPoint> & path_points,
   const cv::Mat & clearance_map, const nav_msgs::msg::MapMetaData & map_info)
 {
@@ -303,7 +306,7 @@ std::vector<cv::Point> getExtendedCVPolygon(
   const std::vector<geometry_msgs::msg::Point> & points_in_image,
   const std::vector<geometry_msgs::msg::Point> & points_in_map,
   const geometry_msgs::msg::Pose & nearest_path_point_pose,
-  const autoware_perception_msgs::msg::DynamicObject & object, const cv::Mat & clearance_map,
+  const autoware_auto_perception_msgs::msg::PredictedObject & object, const cv::Mat & clearance_map,
   const nav_msgs::msg::MapMetaData & map_info)
 {
   const boost::optional<Edges> optional_edges = getEdges(
@@ -378,7 +381,7 @@ boost::optional<Edges> getEdges(
   const std::vector<geometry_msgs::msg::Point> & points_in_image,
   const std::vector<geometry_msgs::msg::Point> & points_in_map,
   const geometry_msgs::msg::Pose & nearest_path_point_pose,
-  const autoware_perception_msgs::msg::DynamicObject & object, const cv::Mat & clearance_map,
+  const autoware_auto_perception_msgs::msg::PredictedObject & object, const cv::Mat & clearance_map,
   const nav_msgs::msg::MapMetaData & map_info)
 {
   // calculate perpendicular point to object along with path point orientation
@@ -540,14 +543,14 @@ boost::optional<double> getDistance(
 
 CVMaps getMaps(
   const bool enable_avoidance, const autoware_auto_planning_msgs::msg::Path & path,
-  const std::vector<autoware_perception_msgs::msg::DynamicObject> & objects,
+  const std::vector<autoware_auto_perception_msgs::msg::PredictedObject> & objects,
   const TrajectoryParam & traj_param, DebugData * debug_data)
 {
   CVMaps cv_maps;
   cv_maps.drivable_area = getDrivableAreaInCV(path.drivable_area);
   cv_maps.clearance_map = getClearanceMap(cv_maps.drivable_area);
 
-  std::vector<autoware_perception_msgs::msg::DynamicObject> debug_avoiding_objects;
+  std::vector<autoware_auto_perception_msgs::msg::PredictedObject> debug_avoiding_objects;
   cv::Mat objects_image = drawObstaclesOnImage(
     enable_avoidance, objects, path.points, path.drivable_area.info, cv_maps.clearance_map,
     traj_param, &debug_avoiding_objects);

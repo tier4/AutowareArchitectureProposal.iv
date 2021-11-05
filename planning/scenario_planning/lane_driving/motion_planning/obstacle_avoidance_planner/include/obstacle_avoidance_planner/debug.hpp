@@ -16,8 +16,8 @@
 
 #include <opencv2/core.hpp>
 
+#include <autoware_auto_perception_msgs/msg/predicted_object.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
-#include <autoware_perception_msgs/msg/dynamic_object.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
@@ -53,8 +53,8 @@ visualization_msgs::msg::MarkerArray getDebugConstrainMarkers(
   const std::vector<ConstrainRectangle> & constrain_ranges, const std::string & ns);
 
 visualization_msgs::msg::MarkerArray getObjectsMarkerArray(
-  const std::vector<autoware_perception_msgs::msg::DynamicObject> & objects, const std::string & ns,
-  const double r, const double g, const double b);
+  const std::vector<autoware_auto_perception_msgs::msg::PredictedObject> & objects,
+  const std::string & ns, const double r, const double g, const double b);
 
 visualization_msgs::msg::MarkerArray getRectanglesMarkerArray(
   const std::vector<util::Footprint> & rects, const std::string & ns, const double r,

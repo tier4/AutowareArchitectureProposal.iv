@@ -23,8 +23,8 @@
 #include <opencv2/core.hpp>
 #include <rclcpp/clock.hpp>
 
+#include <autoware_auto_perception_msgs/msg/predicted_object.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
-#include <autoware_perception_msgs/msg/dynamic_object.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <visualization_msgs/msg/marker.hpp>
@@ -392,8 +392,8 @@ visualization_msgs::msg::MarkerArray getDebugConstrainMarkers(
 }
 
 visualization_msgs::msg::MarkerArray getObjectsMarkerArray(
-  const std::vector<autoware_perception_msgs::msg::DynamicObject> & objects, const std::string & ns,
-  const double r, const double g, const double b)
+  const std::vector<autoware_auto_perception_msgs::msg::PredictedObject> & objects,
+  const std::string & ns, const double r, const double g, const double b)
 {
   const auto current_time = rclcpp::Clock().now();
   visualization_msgs::msg::MarkerArray msg;

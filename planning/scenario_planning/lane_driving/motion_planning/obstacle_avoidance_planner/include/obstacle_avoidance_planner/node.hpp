@@ -16,11 +16,11 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
 #include <autoware_auto_planning_msgs/msg/path.hpp>
 #include <autoware_auto_planning_msgs/msg/path_point.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
 #include <autoware_planning_msgs/msg/enable_avoidance.hpp>
 #include <autoware_planning_msgs/msg/is_avoidance_possible.hpp>
 #include <geometry_msgs/msg/point.hpp>
@@ -98,7 +98,7 @@ private:
   std::unique_ptr<geometry_msgs::msg::Pose> prev_ego_pose_ptr_;
   std::unique_ptr<Trajectories> prev_trajectories_ptr_;
   std::unique_ptr<std::vector<autoware_auto_planning_msgs::msg::PathPoint>> prev_path_points_ptr_;
-  std::unique_ptr<autoware_perception_msgs::msg::DynamicObjectArray> in_objects_ptr_;
+  std::unique_ptr<autoware_auto_perception_msgs::msg::PredictedObjects> in_objects_ptr_;
 
   // TF
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_ptr_;
@@ -118,13 +118,14 @@ private:
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr debug_area_with_objects_pub_;
   rclcpp::Subscription<autoware_auto_planning_msgs::msg::Path>::SharedPtr path_sub_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr twist_sub_;
-  rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr objects_sub_;
+  rclcpp::Subscription<autoware_auto_perception_msgs::msg::PredictedObjects>::SharedPtr
+    objects_sub_;
   rclcpp::Subscription<autoware_planning_msgs::msg::EnableAvoidance>::SharedPtr is_avoidance_sub_;
 
   // callback functions
   void pathCallback(const autoware_auto_planning_msgs::msg::Path::SharedPtr);
   void twistCallback(const geometry_msgs::msg::TwistStamped::SharedPtr);
-  void objectsCallback(const autoware_perception_msgs::msg::DynamicObjectArray::SharedPtr);
+  void objectsCallback(const autoware_auto_perception_msgs::msg::PredictedObjects::SharedPtr);
   void enableAvoidanceCallback(const autoware_planning_msgs::msg::EnableAvoidance::SharedPtr);
 
   void initialize();

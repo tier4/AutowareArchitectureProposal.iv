@@ -21,10 +21,10 @@
 #include <opencv2/opencv.hpp>
 #include <osqp_interface/osqp_interface.hpp>
 
+#include <autoware_auto_perception_msgs/msg/predicted_object.hpp>
 #include <autoware_auto_planning_msgs/msg/path.hpp>
 #include <autoware_auto_planning_msgs/msg/path_point.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
-#include <autoware_perception_msgs/msg/dynamic_object.hpp>
 #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
@@ -126,7 +126,8 @@ boost::optional<Trajectories> EBPathOptimizer::generateOptimizedTrajectory(
   const bool enable_avoidance, const geometry_msgs::msg::Pose & ego_pose,
   const autoware_auto_planning_msgs::msg::Path & path,
   const std::unique_ptr<Trajectories> & prev_trajs,
-  const std::vector<autoware_perception_msgs::msg::DynamicObject> & objects, DebugData * debug_data)
+  const std::vector<autoware_auto_perception_msgs::msg::PredictedObject> & objects,
+  DebugData * debug_data)
 {
   // processing drivable area
   auto t_start1 = std::chrono::high_resolution_clock::now();
