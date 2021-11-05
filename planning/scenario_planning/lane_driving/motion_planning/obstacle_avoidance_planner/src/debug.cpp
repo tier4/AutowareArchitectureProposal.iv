@@ -409,7 +409,7 @@ visualization_msgs::msg::MarkerArray getObjectsMarkerArray(
     marker.lifetime = rclcpp::Duration::from_seconds(1.0);
     marker.type = visualization_msgs::msg::Marker::CUBE;
     marker.action = visualization_msgs::msg::Marker::ADD;
-    marker.pose = object.state.pose_covariance.pose;
+    marker.pose = object.kinematics.initial_pose.pose;
     marker.scale = createMarkerScale(3.0, 1.0, 1.0);
     marker.color = createMarkerColor(r, g, b, 0.8);
     msg.markers.push_back(marker);

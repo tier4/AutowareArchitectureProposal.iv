@@ -20,6 +20,7 @@
 #include "obstacle_avoidance_planner/process_cv.hpp"
 #include "obstacle_avoidance_planner/util.hpp"
 
+#include <autoware_utils/trajectory/tmp_conversion.hpp>
 #include <opencv2/core.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/time.hpp>
@@ -345,9 +346,8 @@ autoware_auto_planning_msgs::msg::Trajectory ObstacleAvoidancePlanner::generateT
   const auto post_processed_traj =
     generatePostProcessedTrajectory(*current_ego_pose_ptr_, path.points, traj_points);
 
-  autoware_auto_planning_msgs::msg::Trajectory output;
+  auto output = autoware_utils::convertToTrajectory(post_processed_traj);
   output.header = path.header;
-  output.points = post_processed_traj;
 
   prev_path_points_ptr_ =
     std::make_unique<std::vector<autoware_auto_planning_msgs::msg::PathPoint>>(path.points);
@@ -595,14 +595,12 @@ void ObstacleAvoidancePlanner::publishingDebugData(
   const std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> & traj_points,
   const VehicleParam & vehicle_param)
 {
-  autoware_auto_planning_msgs::msg::Trajectory traj;
+  auto traj = autoware_utils::convertToTrajectory(debug_data.foa_data.avoiding_traj_points);
   traj.header = path.header;
-  traj.points = debug_data.foa_data.avoiding_traj_points;
   avoiding_traj_pub_->publish(traj);
 
-  autoware_auto_planning_msgs::msg::Trajectory debug_smoothed_points;
+  auto debug_smoothed_points = autoware_utils::convertToTrajectory(debug_data.smoothed_points);
   debug_smoothed_points.header = path.header;
-  debug_smoothed_points.points = debug_data.smoothed_points;
   debug_smoothed_points_pub_->publish(debug_smoothed_points);
 
   autoware_planning_msgs::msg::IsAvoidancePossible is_avoidance_possible;
