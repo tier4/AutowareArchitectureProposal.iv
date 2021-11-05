@@ -34,7 +34,7 @@ using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::Traje
 // convertToTrajectoryByClipping() just clips TrajectoryPointArray up to the capacity of Trajectory.
 // Therefore, the error handling out of this function is necessary if the size of
 // TrajectoryPointArray greater than the capacity.
-// (TODO) Decide how handle the situation that we need to use the trajectory with size of points
+// TODO(Tier IV): Decide how to handle the situation that we need to use the trajectory with the size of points
 // larger than the capacity.
 Trajectory convertToTrajectoryByClipping(const TrajectoryPointArray & trajectory)
 {
