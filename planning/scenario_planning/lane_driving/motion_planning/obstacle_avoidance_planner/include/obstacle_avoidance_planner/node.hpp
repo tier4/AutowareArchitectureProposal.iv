@@ -29,6 +29,7 @@
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <nav_msgs/msg/map_meta_data.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
 #include <boost/optional/optional_fwd.hpp>
@@ -117,14 +118,14 @@ private:
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr debug_object_clearance_map_pub_;
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr debug_area_with_objects_pub_;
   rclcpp::Subscription<autoware_auto_planning_msgs::msg::Path>::SharedPtr path_sub_;
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr twist_sub_;
+  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
   rclcpp::Subscription<autoware_auto_perception_msgs::msg::PredictedObjects>::SharedPtr
     objects_sub_;
   rclcpp::Subscription<autoware_planning_msgs::msg::EnableAvoidance>::SharedPtr is_avoidance_sub_;
 
   // callback functions
   void pathCallback(const autoware_auto_planning_msgs::msg::Path::SharedPtr);
-  void twistCallback(const geometry_msgs::msg::TwistStamped::SharedPtr);
+  void odomCallback(const nav_msgs::msg::Odometry::SharedPtr);
   void objectsCallback(const autoware_auto_perception_msgs::msg::PredictedObjects::SharedPtr);
   void enableAvoidanceCallback(const autoware_planning_msgs::msg::EnableAvoidance::SharedPtr);
 

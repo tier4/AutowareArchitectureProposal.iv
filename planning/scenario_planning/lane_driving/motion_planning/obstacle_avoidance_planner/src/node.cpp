@@ -79,9 +79,9 @@ ObstacleAvoidancePlanner::ObstacleAvoidancePlanner(const rclcpp::NodeOptions & n
   path_sub_ = create_subscription<autoware_auto_planning_msgs::msg::Path>(
     "~/input/path", rclcpp::QoS{1},
     std::bind(&ObstacleAvoidancePlanner::pathCallback, this, std::placeholders::_1));
-  twist_sub_ = create_subscription<geometry_msgs::msg::TwistStamped>(
-    "/localization/twist", rclcpp::QoS{1},
-    std::bind(&ObstacleAvoidancePlanner::twistCallback, this, std::placeholders::_1));
+  odom_sub_ = create_subscription<nav_msgs::msg::Odometry>(
+    "/localization/odometry", rclcpp::QoS{1},
+    std::bind(&ObstacleAvoidancePlanner::odomCallback, this, std::placeholders::_1));
   objects_sub_ = create_subscription<autoware_auto_perception_msgs::msg::PredictedObjects>(
     "~/input/objects", rclcpp::QoS{10},
     std::bind(&ObstacleAvoidancePlanner::objectsCallback, this, std::placeholders::_1));
@@ -318,9 +318,10 @@ void ObstacleAvoidancePlanner::pathCallback(
   trajectory_pub_->publish(output_trajectory_msg);
 }
 
-void ObstacleAvoidancePlanner::twistCallback(const geometry_msgs::msg::TwistStamped::SharedPtr msg)
+void ObstacleAvoidancePlanner::odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg)
 {
-  current_twist_ptr_ = std::make_unique<geometry_msgs::msg::TwistStamped>(*msg);
+  current_twist_ptr_ = std::make_unique<geometry_msgs::msg::TwistStamped>();
+  current_twist_ptr_->twist = msg->twist.twist;
 }
 
 void ObstacleAvoidancePlanner::objectsCallback(
