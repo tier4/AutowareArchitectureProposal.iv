@@ -39,7 +39,7 @@ namespace autoware_utils
  * @todo Decide how to handle the situation that we need to use the trajectory with the size of
  * points larger than the capacity. (Tier IV)
  */
-autoware_auto_planning_msgs::msg::Trajectory convertToTrajectoryByClipping(
+autoware_auto_planning_msgs::msg::Trajectory convertToTrajectory(
   const std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> & trajectory)
 {
   autoware_auto_planning_msgs::msg::Trajectory output{};
