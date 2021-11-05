@@ -24,7 +24,7 @@
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
 #include <diagnostic_msgs/msg/key_value.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
@@ -59,7 +59,7 @@ private:
   void pointCloudCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr input_msg);
   void dynamicObjectCallback(
     const autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr input_msg);
-  void currentVelocityCallback(const geometry_msgs::msg::TwistStamped::ConstSharedPtr input_msg);
+  void currentVelocityCallback(const nav_msgs::msg::Odometry::ConstSharedPtr input_msg);
   void insertStopVelocity(
     const size_t closest_idx, autoware_auto_planning_msgs::msg::Trajectory * traj);
   bool convertPose(
@@ -95,7 +95,7 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_sub_;
   rclcpp::Subscription<autoware_auto_perception_msgs::msg::PredictedObjects>::SharedPtr
     dynamic_object_sub_;
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr current_velocity_sub_;
+  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr current_velocity_sub_;
   rclcpp::Publisher<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr path_pub_;
   rclcpp::Publisher<diagnostic_msgs::msg::DiagnosticStatus>::SharedPtr stop_reason_diag_pub_;
   std::shared_ptr<SurroundObstacleCheckerDebugNode> debug_ptr_;
@@ -103,7 +103,7 @@ private:
   tf2_ros::TransformListener tf_listener_;
 
   // parameter
-  geometry_msgs::msg::TwistStamped::ConstSharedPtr current_velocity_ptr_;
+  nav_msgs::msg::Odometry::ConstSharedPtr current_velocity_ptr_;
   sensor_msgs::msg::PointCloud2::ConstSharedPtr pointcloud_ptr_;
   autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr object_ptr_;
   vehicle_info_util::VehicleInfo vehicle_info_;

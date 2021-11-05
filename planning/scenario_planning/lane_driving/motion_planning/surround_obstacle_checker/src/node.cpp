@@ -65,8 +65,8 @@ SurroundObstacleCheckerNode::SurroundObstacleCheckerNode(const rclcpp::NodeOptio
     this->create_subscription<autoware_auto_perception_msgs::msg::PredictedObjects>(
       "~/input/objects", 1,
       std::bind(&SurroundObstacleCheckerNode::dynamicObjectCallback, this, std::placeholders::_1));
-  current_velocity_sub_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
-    "~/input/twist", 1,
+  current_velocity_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
+    "~/input/odometry", 1,
     std::bind(&SurroundObstacleCheckerNode::currentVelocityCallback, this, std::placeholders::_1));
 }
 
@@ -156,7 +156,7 @@ void SurroundObstacleCheckerNode::dynamicObjectCallback(
 }
 
 void SurroundObstacleCheckerNode::currentVelocityCallback(
-  const geometry_msgs::msg::TwistStamped::ConstSharedPtr input_msg)
+  const nav_msgs::msg::Odometry::ConstSharedPtr input_msg)
 {
   current_velocity_ptr_ = input_msg;
 }
@@ -360,7 +360,7 @@ bool SurroundObstacleCheckerNode::isStopRequired(
 bool SurroundObstacleCheckerNode::checkStop(
   const autoware_auto_planning_msgs::msg::TrajectoryPoint & closest_point)
 {
-  if (std::fabs(current_velocity_ptr_->twist.linear.x) > stop_state_ego_speed_) {
+  if (std::fabs(current_velocity_ptr_->twist.twist.linear.x) > stop_state_ego_speed_) {
     // ego vehicle has high velocity now. not stop.
     return false;
   }
