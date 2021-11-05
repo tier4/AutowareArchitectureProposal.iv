@@ -458,7 +458,7 @@ visualization_msgs::msg::MarkerArray LaneDepartureCheckerNode::createMarkerArray
     }
   }
 
-  if (output_.resampled_trajectory.points.size() >= 2) {
+  if (output_.resampled_trajectory.size() >= 2) {
     // Line of resampled_trajectory
     {
       auto marker = createDefaultMarker(
@@ -466,7 +466,7 @@ visualization_msgs::msg::MarkerArray LaneDepartureCheckerNode::createMarkerArray
         visualization_msgs::msg::Marker::LINE_STRIP, createMarkerScale(0.05, 0, 0),
         createMarkerColor(1.0, 1.0, 1.0, 0.999));
 
-      for (const auto & p : output_.resampled_trajectory.points) {
+      for (const auto & p : output_.resampled_trajectory) {
         marker.points.push_back(p.pose.position);
         marker.colors.push_back(marker.color);
       }
@@ -481,7 +481,7 @@ visualization_msgs::msg::MarkerArray LaneDepartureCheckerNode::createMarkerArray
         visualization_msgs::msg::Marker::SPHERE_LIST, createMarkerScale(0.1, 0.1, 0.1),
         createMarkerColor(0.0, 1.0, 0.0, 0.999));
 
-      for (const auto & p : output_.resampled_trajectory.points) {
+      for (const auto & p : output_.resampled_trajectory) {
         marker.points.push_back(p.pose.position);
         marker.colors.push_back(marker.color);
       }

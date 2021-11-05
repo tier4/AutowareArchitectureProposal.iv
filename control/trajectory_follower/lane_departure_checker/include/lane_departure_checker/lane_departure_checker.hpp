@@ -75,7 +75,7 @@ struct Output
   bool is_out_of_lane{};
   PoseDeviation trajectory_deviation{};
   lanelet::ConstLanelets candidate_lanelets{};
-  Trajectory resampled_trajectory{};
+  TrajectoryPointArray resampled_trajectory{};
   std::vector<LinearRing2d> vehicle_footprints{};
   std::vector<LinearRing2d> vehicle_passing_areas{};
 };
@@ -101,13 +101,15 @@ private:
     const Trajectory & trajectory, const geometry_msgs::msg::Pose & pose);
 
   //! This function assumes the input trajectory is sampled dense enough
-  static Trajectory resampleTrajectory(const Trajectory & trajectory, const double interval);
+  static TrajectoryPointArray resampleTrajectory(
+    const Trajectory & trajectory, const double interval);
 
-  static Trajectory cutTrajectory(const Trajectory & trajectory, const double length);
+  static TrajectoryPointArray cutTrajectory(
+    const TrajectoryPointArray & trajectory, const double length);
 
   std::vector<LinearRing2d> createVehicleFootprints(
-    const geometry_msgs::msg::PoseWithCovariance & covariance, const Trajectory & trajectory,
-    const Param & param);
+    const geometry_msgs::msg::PoseWithCovariance & covariance,
+    const TrajectoryPointArray & trajectory, const Param & param);
 
   static std::vector<LinearRing2d> createVehiclePassingAreas(
     const std::vector<LinearRing2d> & vehicle_footprints);
