@@ -296,8 +296,11 @@ void SurroundObstacleCheckerNode::getNearestObstacleByDynamicObject(
 
     // create obj polygon
     Polygon2d obj_poly;
-    // if not polygon (e.g. BB or cylinder) shape type is implemented, shape checker is necessary
-    obj_poly = createObjPolygon(pose_baselink, obj.shape.front().polygon);
+    if (obj.shape.front().type == autoware_auto_perception_msgs::msg::Shape::POLYGON) {
+      obj_poly = createObjPolygon(pose_baselink, obj.shape.front().footprint);
+    } else {
+      obj_poly = createObjPolygon(pose_baselink, obj.shape.front().dimensions);
+    }
 
     // calc distance
     const double dist_to_obj = boost::geometry::distance(self_poly_, obj_poly);
