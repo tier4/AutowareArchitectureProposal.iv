@@ -232,11 +232,14 @@ void ScenarioSelectorNode::onRoute(
   current_scenario_ = autoware_planning_msgs::msg::Scenario::EMPTY;
 }
 
-void ScenarioSelectorNode::onTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
+void ScenarioSelectorNode::onOdom(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
 {
-  twist_ = msg;
+  geometry_msgs::msg::TwistStamped::SharedPtr twist;
+  twist->header = msg->header;
+  twist->twist = msg->twist.twist;
 
-  twist_buffer_.push_back(msg);
+  twist_ = twist;
+  twist_buffer_.push_back(twist);
 
   // Delete old data in buffer
   while (true) {
@@ -345,9 +348,9 @@ ScenarioSelectorNode::ScenarioSelectorNode(const rclcpp::NodeOptions & node_opti
   sub_route_ = this->create_subscription<autoware_auto_planning_msgs::msg::HADMapRoute>(
     "input/route", rclcpp::QoS{1},
     std::bind(&ScenarioSelectorNode::onRoute, this, std::placeholders::_1));
-  sub_twist_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
-    "input/twist", rclcpp::QoS{100},
-    std::bind(&ScenarioSelectorNode::onTwist, this, std::placeholders::_1));
+  sub_odom_ = this->create_subscription<nav_msgs::msg::Odometry>(
+    "input/odometry", rclcpp::QoS{100},
+    std::bind(&ScenarioSelectorNode::onOdom, this, std::placeholders::_1));
 
   // Output
   pub_scenario_ = this->create_publisher<autoware_planning_msgs::msg::Scenario>(

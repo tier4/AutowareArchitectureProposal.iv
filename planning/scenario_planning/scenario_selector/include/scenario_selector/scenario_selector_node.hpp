@@ -22,6 +22,7 @@
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_planning_msgs/msg/scenario.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_routing/RoutingGraph.h>
@@ -41,7 +42,7 @@ public:
 
   void onMap(const autoware_auto_mapping_msgs::msg::HADMapBin::ConstSharedPtr msg);
   void onRoute(const autoware_auto_planning_msgs::msg::HADMapRoute::ConstSharedPtr msg);
-  void onTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
+  void onOdom(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
 
   void onTimer();
   void onLaneDrivingTrajectory(
@@ -62,7 +63,7 @@ private:
 
   rclcpp::Subscription<autoware_auto_mapping_msgs::msg::HADMapBin>::SharedPtr sub_lanelet_map_;
   rclcpp::Subscription<autoware_auto_planning_msgs::msg::HADMapRoute>::SharedPtr sub_route_;
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
+  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr sub_odom_;
   rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr
     sub_lane_driving_trajectory_;
   rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr
