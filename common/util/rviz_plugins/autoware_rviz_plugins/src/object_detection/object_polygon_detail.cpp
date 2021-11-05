@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License..
 
-#include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
 #include <geometry/bounding_box/bounding_box_common.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <object_detection/object_polygon_detail.hpp>

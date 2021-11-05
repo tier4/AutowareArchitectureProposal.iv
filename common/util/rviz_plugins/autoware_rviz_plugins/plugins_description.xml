@@ -10,18 +10,7 @@
     <description>
       Convert an array of bounding boxes to markers and display them.
     </description>
-    <message_type>autoware_auto_msgs/msg/BoundingBoxArray</message_type>
-  </class>
-
-  <class
-    name="autoware_rviz_plugins/Trajectory"
-    type="autoware::rviz_plugins::TrajectoryDisplay"
-    base_class_type="rviz_common::Display"
-  >
-    <description>
-      Convert a trajectory to markers and display them.
-    </description>
-    <message_type>autoware_auto_msgs/msg/Trajectory</message_type>
+    <message_type>autoware_auto_perception_msgs/msg/BoundingBoxArray</message_type>
   </class>
 
   <class
@@ -32,7 +21,7 @@
     <description>
       Convert a TrackedObjects to markers and display them.
     </description>
-    <message_type>autoware_auto_msgs/msg/TrackedObjects</message_type>
+    <message_type>autoware_auto_perception_msgs/msg/TrackedObjects</message_type>
   </class>
 
     <class
@@ -43,7 +32,7 @@
         <description>
             Convert a DetectedObjects to markers and display them.
         </description>
-        <message_type>autoware_auto_msgs/msg/DetectedObjects</message_type>
+        <message_type>autoware_auto_perception_msgs/msg/DetectedObjects</message_type>
     </class>
 
 </library>
