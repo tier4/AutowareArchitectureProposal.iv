@@ -15,6 +15,8 @@
 #ifndef MAP_BASED_PREDICTION_ROS_HPP_
 #define MAP_BASED_PREDICTION_ROS_HPP_
 
+#include <lanelet2_extension/utility/message_conversion.hpp>
+#include <lanelet2_extension/utility/utilities.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <autoware_lanelet2_msgs/msg/map_bin.hpp>
@@ -24,9 +26,17 @@
 #include <unique_identifier_msgs/msg/uuid.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
+#include <lanelet2_core/LaneletMap.h>
+#include <lanelet2_core/geometry/BoundingBox.h>
+#include <lanelet2_core/geometry/Lanelet.h>
+#include <lanelet2_core/geometry/Point.h>
+#include <lanelet2_routing/RoutingGraph.h>
+#include <lanelet2_traffic_rules/TrafficRulesFactory.h>
+
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace tf2_ros
@@ -43,11 +53,11 @@ using LaneletMapPtr = std::shared_ptr<LaneletMap>;
 namespace routing
 {
 class RoutingGraph;
-}
+}  // namespace routing
 namespace traffic_rules
 {
 class TrafficRules;
-}
+}  // namespace traffic_rules
 }  // namespace lanelet
 
 class MapBasedPrediction;
@@ -60,6 +70,10 @@ private:
   double prediction_sampling_delta_time_;
   double interpolating_resolution_;
   double debug_accumulated_time_;
+  double dist_threshold_for_searching_lanelet_;
+  double delta_yaw_threshold_for_searching_lanelet_;
+  double sigma_lateral_offset_;
+  double sigma_yaw_angle_;
 
   rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr sub_objects_;
   rclcpp::Subscription<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr sub_map_;
@@ -79,6 +93,15 @@ private:
   bool getSelfPose(geometry_msgs::msg::Pose & self_pose, const std_msgs::msg::Header & header);
   bool getSelfPoseInMap(geometry_msgs::msg::Pose & self_pose);
 
+  double getObjectYaw(const autoware_perception_msgs::msg::DynamicObject & object);
+  double calculateLikelihood(
+    const std::vector<geometry_msgs::msg::Pose> & path,
+    const autoware_perception_msgs::msg::DynamicObject & object);
+
+  void addValidPath(
+    const lanelet::routing::LaneletPaths & candidate_paths,
+    lanelet::routing::LaneletPaths & valid_paths);
+
   void objectsCallback(
     const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr in_objects);
   void mapCallback(const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr msg);
@@ -86,7 +109,12 @@ private:
   bool getClosestLanelets(
     const autoware_perception_msgs::msg::DynamicObject & object,
     const lanelet::LaneletMapPtr & lanelet_map_ptr,
-    std::vector<lanelet::Lanelet> & closest_lanelets, std::string uuid_string);
+    std::vector<lanelet::Lanelet> & closest_lanelets, const std::string uuid_string);
+
+  bool checkCloseLaneletCondition(
+    const std::pair<double, lanelet::Lanelet> & lanelet,
+    const autoware_perception_msgs::msg::DynamicObject & object,
+    const lanelet::BasicPoint2d & search_point);
 
 public:
   explicit MapBasedPredictionROS(const rclcpp::NodeOptions & node_options);
