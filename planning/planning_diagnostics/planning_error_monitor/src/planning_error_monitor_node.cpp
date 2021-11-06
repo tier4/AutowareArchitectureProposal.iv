@@ -204,7 +204,8 @@ bool PlanningErrorMonitorNode::checkTrajectoryRelativeAngle(
 
     // ignore invert driving direction
     if (
-      traj.points.at(p1_id).longitudinal_velocity_mps < 0 || traj.points.at(p1_id + 1).longitudinal_velocity_mps < 0 ||
+      traj.points.at(p1_id).longitudinal_velocity_mps < 0 ||
+      traj.points.at(p1_id + 1).longitudinal_velocity_mps < 0 ||
       traj.points.at(p1_id + 2).longitudinal_velocity_mps < 0) {
       continue;
     }
