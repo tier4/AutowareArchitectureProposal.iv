@@ -22,7 +22,7 @@
 #include <std_srvs/srv/trigger.hpp>
 #include <vehicle_info_util/vehicle_info_util.hpp>
 
-#include <autoware_control_msgs/msg/control_command_stamped.hpp>
+#include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
 #include <autoware_control_msgs/msg/gate_mode.hpp>
 #include <autoware_debug_msgs/msg/bool_stamped.hpp>
 #include <autoware_external_api_msgs/msg/emergency.hpp>
@@ -41,7 +41,7 @@
 
 struct Commands
 {
-  autoware_control_msgs::msg::ControlCommandStamped control;
+  autoware_auto_control_msgs::msg::AckermannControlCommand control;
   autoware_vehicle_msgs::msg::TurnSignal turn_signal;
   autoware_vehicle_msgs::msg::ShiftStamped shift;
 };
@@ -54,7 +54,8 @@ public:
 private:
   // Publisher
   rclcpp::Publisher<autoware_vehicle_msgs::msg::VehicleCommand>::SharedPtr vehicle_cmd_pub_;
-  rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr control_cmd_pub_;
+  rclcpp::Publisher<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr
+    control_cmd_pub_;
   rclcpp::Publisher<autoware_vehicle_msgs::msg::ShiftStamped>::SharedPtr shift_cmd_pub_;
   rclcpp::Publisher<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr turn_signal_cmd_pub_;
   rclcpp::Publisher<autoware_control_msgs::msg::GateMode>::SharedPtr gate_mode_pub_;
@@ -90,34 +91,36 @@ private:
 
   // Subscriber for auto
   Commands auto_commands_;
-  rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
+  rclcpp::Subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr
     auto_control_cmd_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr auto_turn_signal_cmd_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::ShiftStamped>::SharedPtr auto_shift_cmd_sub_;
-  void onAutoCtrlCmd(autoware_control_msgs::msg::ControlCommandStamped::ConstSharedPtr msg);
+  void onAutoCtrlCmd(autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg);
   void onAutoTurnSignalCmd(autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr msg);
   void onAutoShiftCmd(autoware_vehicle_msgs::msg::ShiftStamped::ConstSharedPtr msg);
 
   // Subscription for external
   Commands remote_commands_;
-  rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
+  rclcpp::Subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr
     remote_control_cmd_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr
     remote_turn_signal_cmd_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::ShiftStamped>::SharedPtr remote_shift_cmd_sub_;
-  void onRemoteCtrlCmd(autoware_control_msgs::msg::ControlCommandStamped::ConstSharedPtr msg);
+  void onRemoteCtrlCmd(
+    autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg);
   void onRemoteTurnSignalCmd(autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr msg);
   void onRemoteShiftCmd(autoware_vehicle_msgs::msg::ShiftStamped::ConstSharedPtr msg);
 
   // Subscription for emergency
   Commands emergency_commands_;
-  rclcpp::Subscription<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
+  rclcpp::Subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr
     emergency_control_cmd_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr
     emergency_turn_signal_cmd_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::ShiftStamped>::SharedPtr
     emergency_shift_cmd_sub_;
-  void onEmergencyCtrlCmd(autoware_control_msgs::msg::ControlCommandStamped::ConstSharedPtr msg);
+  void onEmergencyCtrlCmd(
+    autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg);
   void onEmergencyTurnSignalCmd(autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr msg);
   void onEmergencyShiftCmd(autoware_vehicle_msgs::msg::ShiftStamped::ConstSharedPtr msg);
 
@@ -169,30 +172,30 @@ private:
   void checkExternalEmergencyStop(diagnostic_updater::DiagnosticStatusWrapper & stat);
 
   // Algorithm
-  autoware_control_msgs::msg::ControlCommand prev_control_cmd_;
-  autoware_control_msgs::msg::ControlCommand createStopControlCmd() const;
-  autoware_control_msgs::msg::ControlCommand createEmergencyStopControlCmd() const;
+  autoware_auto_control_msgs::msg::AckermannControlCommand prev_control_cmd_;
+  autoware_auto_control_msgs::msg::AckermannControlCommand createStopControlCmd() const;
+  autoware_auto_control_msgs::msg::AckermannControlCommand createEmergencyStopControlCmd() const;
 
   std::shared_ptr<rclcpp::Time> prev_time_;
   double getDt();
 
   VehicleCmdFilter filter_;
-  autoware_control_msgs::msg::ControlCommand filterControlCommand(
-    const autoware_control_msgs::msg::ControlCommand & msg);
+  autoware_auto_control_msgs::msg::AckermannControlCommand filterControlCommand(
+    const autoware_auto_control_msgs::msg::AckermannControlCommand & msg);
 
   // Start request service
   struct StartRequest
   {
   private:
     static constexpr double eps = 1e-3;
-    using ControlCommandStamped = autoware_control_msgs::msg::ControlCommandStamped;
+    using AckermannControlCommand = autoware_auto_control_msgs::msg::AckermannControlCommand;
 
   public:
     StartRequest(rclcpp::Node * node, bool use_start_request);
     bool isAccepted();
     void publishStartAccepted();
-    void checkStopped(const ControlCommandStamped & control);
-    void checkStartRequest(const ControlCommandStamped & control);
+    void checkStopped(const AckermannControlCommand & control);
+    void checkStartRequest(const AckermannControlCommand & control);
 
   private:
     bool use_start_request_;

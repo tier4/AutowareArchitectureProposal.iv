@@ -60,8 +60,9 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
   // Publisher
   vehicle_cmd_pub_ = this->create_publisher<autoware_vehicle_msgs::msg::VehicleCommand>(
     "output/vehicle_cmd", durable_qos);
-  control_cmd_pub_ = this->create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
-    "output/control_cmd", durable_qos);
+  control_cmd_pub_ =
+    this->create_publisher<autoware_auto_control_msgs::msg::AckermannControlCommand>(
+      "output/control_cmd", durable_qos);
   shift_cmd_pub_ = this->create_publisher<autoware_vehicle_msgs::msg::ShiftStamped>(
     "output/shift_cmd", durable_qos);
   turn_signal_cmd_pub_ = this->create_publisher<autoware_vehicle_msgs::msg::TurnSignal>(
@@ -90,7 +91,7 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
 
   // Subscriber for auto
   auto_control_cmd_sub_ =
-    this->create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
+    this->create_subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>(
       "input/auto/control_cmd", 1, std::bind(&VehicleCmdGate::onAutoCtrlCmd, this, _1));
   auto_turn_signal_cmd_sub_ = this->create_subscription<autoware_vehicle_msgs::msg::TurnSignal>(
     "input/auto/turn_signal_cmd", 1, std::bind(&VehicleCmdGate::onAutoTurnSignalCmd, this, _1));
@@ -99,7 +100,7 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
 
   // Subscriber for external
   remote_control_cmd_sub_ =
-    this->create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
+    this->create_subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>(
       "input/external/control_cmd", 1, std::bind(&VehicleCmdGate::onRemoteCtrlCmd, this, _1));
   remote_turn_signal_cmd_sub_ = this->create_subscription<autoware_vehicle_msgs::msg::TurnSignal>(
     "input/external/turn_signal_cmd", 1,
@@ -109,7 +110,7 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
 
   // Subscriber for emergency
   emergency_control_cmd_sub_ =
-    this->create_subscription<autoware_control_msgs::msg::ControlCommandStamped>(
+    this->create_subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>(
       "input/emergency/control_cmd", 1, std::bind(&VehicleCmdGate::onEmergencyCtrlCmd, this, _1));
   emergency_turn_signal_cmd_sub_ =
     this->create_subscription<autoware_vehicle_msgs::msg::TurnSignal>(
@@ -199,7 +200,7 @@ bool VehicleCmdGate::isHeartbeatTimeout(
 
 // for auto
 void VehicleCmdGate::onAutoCtrlCmd(
-  autoware_control_msgs::msg::ControlCommandStamped::ConstSharedPtr msg)
+  autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg)
 {
   auto_commands_.control = *msg;
 
@@ -218,7 +219,7 @@ void VehicleCmdGate::onAutoShiftCmd(autoware_vehicle_msgs::msg::ShiftStamped::Co
 
 // for remote
 void VehicleCmdGate::onRemoteCtrlCmd(
-  autoware_control_msgs::msg::ControlCommandStamped::ConstSharedPtr msg)
+  autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg)
 {
   remote_commands_.control = *msg;
 
@@ -238,7 +239,7 @@ void VehicleCmdGate::onRemoteShiftCmd(autoware_vehicle_msgs::msg::ShiftStamped::
 
 // for emergency
 void VehicleCmdGate::onEmergencyCtrlCmd(
-  autoware_control_msgs::msg::ControlCommandStamped::ConstSharedPtr msg)
+  autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg)
 {
   emergency_commands_.control = *msg;
 
@@ -381,14 +382,14 @@ void VehicleCmdGate::publishControlCommands(const Commands & commands)
 
   // Check engage
   if (!is_engaged_ || !start_request_->isAccepted()) {
-    filtered_commands.control.control = createStopControlCmd();
+    filtered_commands.control = createStopControlCmd();
   }
 
   // Check stopped after applying all gates
   start_request_->checkStopped(filtered_commands.control);
 
   // Apply limit filtering
-  filtered_commands.control.control = filterControlCommand(filtered_commands.control.control);
+  filtered_commands.control = filterControlCommand(filtered_commands.control);
 
   // tmp: Create VehicleCmd
   autoware_vehicle_msgs::msg::VehicleCommand vehicle_cmd;
@@ -406,7 +407,7 @@ void VehicleCmdGate::publishControlCommands(const Commands & commands)
   control_cmd_pub_->publish(filtered_commands.control);
 
   // Save ControlCmd to steering angle when disengaged
-  prev_control_cmd_ = filtered_commands.control.control;
+  prev_control_cmd_ = filtered_commands.control;
 }
 
 void VehicleCmdGate::publishEmergencyStopControlCommands()
@@ -414,10 +415,10 @@ void VehicleCmdGate::publishEmergencyStopControlCommands()
   const auto stamp = this->now();
 
   // ControlCommand
-  autoware_control_msgs::msg::ControlCommandStamped control_cmd;
-  control_cmd.header.stamp = stamp;
+  autoware_auto_control_msgs::msg::AckermannControlCommand control_cmd;
+  control_cmd.stamp = stamp;
   control_cmd.header.frame_id = "base_link";
-  control_cmd.control = createEmergencyStopControlCmd();
+  control_cmd = createEmergencyStopControlCmd();
 
   // Check stopped after applying all gates
   start_request_->checkStopped(control_cmd);
@@ -465,10 +466,10 @@ void VehicleCmdGate::publishEmergencyStopControlCommands()
   start_request_->publishStartAccepted();
 }
 
-autoware_control_msgs::msg::ControlCommand VehicleCmdGate::filterControlCommand(
-  const autoware_control_msgs::msg::ControlCommand & in)
+autoware_auto_control_msgs::msg::AckermannControlCommand VehicleCmdGate::filterControlCommand(
+  const autoware_auto_control_msgs::msg::AckermannControlCommand & in)
 {
-  autoware_control_msgs::msg::ControlCommand out = in;
+  autoware_auto_control_msgs::msg::AckermannControlCommand out = in;
   const double dt = getDt();
 
   filter_.limitLongitudinalWithVel(out);
@@ -481,26 +482,28 @@ autoware_control_msgs::msg::ControlCommand VehicleCmdGate::filterControlCommand(
   return out;
 }
 
-autoware_control_msgs::msg::ControlCommand VehicleCmdGate::createStopControlCmd() const
+autoware_auto_control_msgs::msg::AckermannControlCommand VehicleCmdGate::createStopControlCmd()
+  const
 {
-  autoware_control_msgs::msg::ControlCommand cmd;
+  autoware_auto_control_msgs::msg::AckermannControlCommand cmd;
 
-  cmd.steering_angle = current_steer_;
-  cmd.steering_angle_velocity = 0.0;
-  cmd.velocity = 0.0;
-  cmd.acceleration = stop_hold_acceleration_;
+  cmd.lateral.steering_tire_angle = current_steer_;
+  cmd.lateral.steering_tire_rotation_rate = 0.0;
+  cmd.longitudinal.speed = 0.0;
+  cmd.longitudinal.acceleration = stop_hold_acceleration_;
 
   return cmd;
 }
 
-autoware_control_msgs::msg::ControlCommand VehicleCmdGate::createEmergencyStopControlCmd() const
+autoware_auto_control_msgs::msg::AckermannControlCommand
+VehicleCmdGate::createEmergencyStopControlCmd() const
 {
-  autoware_control_msgs::msg::ControlCommand cmd;
+  autoware_auto_control_msgs::msg::AckermannControlCommand cmd;
 
-  cmd.steering_angle = prev_control_cmd_.steering_angle;
-  cmd.steering_angle_velocity = prev_control_cmd_.steering_angle_velocity;
-  cmd.velocity = 0.0;
-  cmd.acceleration = emergency_acceleration_;
+  cmd.lateral.steering_tire_angle = prev_control_cmd_.lateral.steering_tire_angle;
+  cmd.lateral.steering_tire_rotation_rate = prev_control_cmd_.lateral.steering_tire_rotation_rate;
+  cmd.longitudinal.speed = 0.0;
+  cmd.longitudinal.acceleration = emergency_acceleration_;
 
   return cmd;
 }
@@ -685,14 +688,14 @@ void VehicleCmdGate::StartRequest::publishStartAccepted()
   request_start_pub_->publish(start_accepted);
 }
 
-void VehicleCmdGate::StartRequest::checkStopped(const ControlCommandStamped & control)
+void VehicleCmdGate::StartRequest::checkStopped(const AckermannControlCommand & control)
 {
   if (!use_start_request_) {
     return;
   }
 
   if (is_start_accepted_) {
-    const auto control_velocity = std::abs(control.control.velocity);
+    const auto control_velocity = std::abs(control.longitudinal.speed);
     const auto current_velocity = std::abs(current_twist_.twist.linear.x);
     if (control_velocity < eps && current_velocity < eps) {
       is_start_accepted_ = false;
@@ -702,14 +705,14 @@ void VehicleCmdGate::StartRequest::checkStopped(const ControlCommandStamped & co
   }
 }
 
-void VehicleCmdGate::StartRequest::checkStartRequest(const ControlCommandStamped & control)
+void VehicleCmdGate::StartRequest::checkStartRequest(const AckermannControlCommand & control)
 {
   if (!use_start_request_) {
     return;
   }
 
   if (!is_start_accepted_ && !is_start_requesting_) {
-    const auto control_velocity = std::abs(control.control.velocity);
+    const auto control_velocity = std::abs(control.longitudinal.speed);
     if (eps < control_velocity) {
       is_start_requesting_ = true;
       is_start_cancelled_ = false;

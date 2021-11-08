@@ -15,7 +15,7 @@
 #ifndef VEHICLE_CMD_GATE__VEHICLE_CMD_FILTER_HPP_
 #define VEHICLE_CMD_GATE__VEHICLE_CMD_FILTER_HPP_
 
-#include <autoware_control_msgs/msg/control_command_stamped.hpp>
+#include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
 
 class VehicleCmdFilter
 {
@@ -23,36 +23,40 @@ public:
   VehicleCmdFilter();
   ~VehicleCmdFilter() = default;
 
-  void setWheelBase(double v) { wheel_base_ = v; }
-  void setVelLim(double v) { vel_lim_ = v; }
-  void setLonAccLim(double v) { lon_acc_lim_ = v; }
-  void setLonJerkLim(double v) { lon_jerk_lim_ = v; }
-  void setLatAccLim(double v) { lat_acc_lim_ = v; }
-  void setLatJerkLim(double v) { lat_jerk_lim_ = v; }
-  void setPrevCmd(const autoware_control_msgs::msg::ControlCommand & v) { prev_cmd_ = v; }
+  void setWheelBase(float v) { wheel_base_ = v; }
+  void setVelLim(float v) { vel_lim_ = v; }
+  void setLonAccLim(float v) { lon_acc_lim_ = v; }
+  void setLonJerkLim(float v) { lon_jerk_lim_ = v; }
+  void setLatAccLim(float v) { lat_acc_lim_ = v; }
+  void setLatJerkLim(float v) { lat_jerk_lim_ = v; }
+  void setPrevCmd(const autoware_auto_control_msgs::msg::AckermannControlCommand & v)
+  {
+    prev_cmd_ = v;
+  }
 
-  void limitLongitudinalWithVel(autoware_control_msgs::msg::ControlCommand & input) const;
+  void limitLongitudinalWithVel(
+    autoware_auto_control_msgs::msg::AckermannControlCommand & input) const;
   void limitLongitudinalWithAcc(
-    const double dt, autoware_control_msgs::msg::ControlCommand & input) const;
+    const float dt, autoware_auto_control_msgs::msg::AckermannControlCommand & input) const;
   void limitLongitudinalWithJerk(
-    const double dt, autoware_control_msgs::msg::ControlCommand & input) const;
+    const float dt, autoware_auto_control_msgs::msg::AckermannControlCommand & input) const;
   void limitLateralWithLatAcc(
-    const double dt, autoware_control_msgs::msg::ControlCommand & input) const;
+    const float dt, autoware_auto_control_msgs::msg::AckermannControlCommand & input) const;
   void limitLateralWithLatJerk(
-    const double dt, autoware_control_msgs::msg::ControlCommand & input) const;
+    const float dt, autoware_auto_control_msgs::msg::AckermannControlCommand & input) const;
 
 private:
-  double wheel_base_;
-  double vel_lim_;
-  double lon_acc_lim_;
-  double lon_jerk_lim_;
-  double lat_acc_lim_;
-  double lat_jerk_lim_;
-  autoware_control_msgs::msg::ControlCommand prev_cmd_;
+  float wheel_base_;
+  float vel_lim_;
+  float lon_acc_lim_;
+  float lon_jerk_lim_;
+  float lat_acc_lim_;
+  float lat_jerk_lim_;
+  autoware_auto_control_msgs::msg::AckermannControlCommand & prev_cmd_;
 
-  double calcLatAcc(const autoware_control_msgs::msg::ControlCommand & cmd) const;
-  double calcSteerFromLatacc(const double v, const double latacc) const;
-  double limitDiff(const double curr, const double prev, const double diff_lim) const;
+  auto calcLatAcc(const autoware_auto_control_msgs::msg::AckermannControlCommand & cmd) const;
+  auto calcSteerFromLatacc(const float v, const float latacc) const;
+  auto limitDiff(const float curr, const float prev, const float diff_lim) const;
 };
 
 #endif  // VEHICLE_CMD_GATE__VEHICLE_CMD_FILTER_HPP_
