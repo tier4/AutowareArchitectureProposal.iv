@@ -28,7 +28,8 @@ namespace motion_velocity_smoother
 {
 namespace resampling
 {
-using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using TrajectoryPoints = std::vector<TrajectoryPoint>;
 
 struct ResampleParam
 {
@@ -41,12 +42,12 @@ struct ResampleParam
   double sparse_min_interval_distance;  // minimum points-interval length for sparse sampling [m]
 };
 
-boost::optional<TrajectoryPointArray> resampleTrajectory(
-  const TrajectoryPointArray & input, const double v_current, const size_t closest_id,
+boost::optional<TrajectoryPoints> resampleTrajectory(
+  const TrajectoryPoints & input, const double v_current, const size_t closest_id,
   const ResampleParam & param);
 
-boost::optional<TrajectoryPointArray> resampleTrajectory(
-  const TrajectoryPointArray & input, const size_t closest_id, const ResampleParam & param,
+boost::optional<TrajectoryPoints> resampleTrajectory(
+  const TrajectoryPoints & input, const size_t closest_id, const ResampleParam & param,
   const double nominal_ds);
 }  // namespace resampling
 }  // namespace motion_velocity_smoother

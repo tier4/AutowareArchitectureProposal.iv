@@ -34,38 +34,38 @@ namespace motion_velocity_smoother
 namespace trajectory_utils
 {
 using autoware_auto_planning_msgs::msg::TrajectoryPoint;
-using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
+using TrajectoryPoints = std::vector<TrajectoryPoint>;
 using geometry_msgs::msg::Pose;
 
 TrajectoryPoint calcInterpolatedTrajectoryPoint(
-  const TrajectoryPointArray & trajectory, const Pose & target_pose);
+  const TrajectoryPoints & trajectory, const Pose & target_pose);
 
-boost::optional<TrajectoryPointArray> extractPathAroundIndex(
-  const TrajectoryPointArray & trajectory, const size_t index, const double & ahead_length,
+boost::optional<TrajectoryPoints> extractPathAroundIndex(
+  const TrajectoryPoints & trajectory, const size_t index, const double & ahead_length,
   const double & behind_length);
 
-double calcArcLength(const TrajectoryPointArray & trajectory, const int idx1, const int idx2);
+double calcArcLength(const TrajectoryPoints & trajectory, const int idx1, const int idx2);
 
-std::vector<double> calcArclengthArray(const TrajectoryPointArray & trajectory);
+std::vector<double> calcArclengthArray(const TrajectoryPoints & trajectory);
 
-std::vector<double> calcTrajectoryIntervalDistance(const TrajectoryPointArray & trajectory);
+std::vector<double> calcTrajectoryIntervalDistance(const TrajectoryPoints & trajectory);
 
 boost::optional<std::vector<double>> calcTrajectoryCurvatureFrom3Points(
-  const TrajectoryPointArray & trajectory, const size_t & idx_dist);
+  const TrajectoryPoints & trajectory, const size_t & idx_dist);
 
-void setZeroVelocity(TrajectoryPointArray & trajectory);
+void setZeroVelocity(TrajectoryPoints & trajectory);
 
-double getMaxVelocity(const TrajectoryPointArray & trajectory);
+double getMaxVelocity(const TrajectoryPoints & trajectory);
 
-double getMaxAbsVelocity(const TrajectoryPointArray & trajectory);
+double getMaxAbsVelocity(const TrajectoryPoints & trajectory);
 
 void applyMaximumVelocityLimit(
-  const size_t from, const size_t to, const double max_vel, TrajectoryPointArray & trajectory);
+  const size_t from, const size_t to, const double max_vel, TrajectoryPoints & trajectory);
 
-boost::optional<size_t> searchZeroVelocityIdx(const TrajectoryPointArray & trajectory);
+boost::optional<size_t> searchZeroVelocityIdx(const TrajectoryPoints & trajectory);
 
-boost::optional<TrajectoryPointArray> applyLinearInterpolation(
-  const std::vector<double> & base_index, const TrajectoryPointArray & base_trajectory,
+boost::optional<TrajectoryPoints> applyLinearInterpolation(
+  const std::vector<double> & base_index, const TrajectoryPoints & base_trajectory,
   const std::vector<double> & out_index, const bool use_spline_for_pose = false);
 
 bool calcStopDistWithJerkConstraints(
@@ -77,8 +77,8 @@ bool isValidStopDist(
   const double v_end, const double a_end, const double v_target, const double a_target,
   const double v_margin, const double a_margin);
 
-boost::optional<TrajectoryPointArray> applyDecelFilterWithJerkConstraint(
-  const TrajectoryPointArray & input, const size_t start_index, const double v0, const double a0,
+boost::optional<TrajectoryPoints> applyDecelFilterWithJerkConstraint(
+  const TrajectoryPoints & input, const size_t start_index, const double v0, const double a0,
   const double min_acc, const double decel_target_vel,
   const std::map<double, double> & jerk_profile);
 

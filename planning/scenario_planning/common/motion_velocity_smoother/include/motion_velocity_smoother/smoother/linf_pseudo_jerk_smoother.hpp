@@ -28,7 +28,6 @@
 
 namespace motion_velocity_smoother
 {
-using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
 class LinfPseudoJerkSmoother : public SmootherBase
 {
 public:
@@ -42,11 +41,11 @@ public:
   explicit LinfPseudoJerkSmoother(const Param & smoother_param);
 
   bool apply(
-    const double initial_vel, const double initial_acc, const TrajectoryPointArray & input,
-    TrajectoryPointArray & output, std::vector<TrajectoryPointArray> & debug_trajectories) override;
+    const double initial_vel, const double initial_acc, const TrajectoryPoints & input,
+    TrajectoryPoints & output, std::vector<TrajectoryPoints> & debug_trajectories) override;
 
-  boost::optional<TrajectoryPointArray> resampleTrajectory(
-    const TrajectoryPointArray & input, const double v_current,
+  boost::optional<TrajectoryPoints> resampleTrajectory(
+    const TrajectoryPoints & input, const double v_current,
     const int closest_id) const override;
 
   void setParam(const Param & smoother_param);

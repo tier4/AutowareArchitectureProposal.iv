@@ -225,8 +225,8 @@ Example:
 
   ### Core Parameters
 
-  | Name                 | Type   | Description                                                          |
-  | -------------------- | ------ | -------------------------------------------------------------------- |
+  | Name                 | Type     | Description                                                          |
+  | -------------------- | -------- | -------------------------------------------------------------------- |
   | `min_object_size_m`  | `double` | minimum object size to be selected as avoidance target obstacles [m] |
   | `avoidance_margin_m` | `double` | avoidance margin to obstacles [m]                                    |
 -->

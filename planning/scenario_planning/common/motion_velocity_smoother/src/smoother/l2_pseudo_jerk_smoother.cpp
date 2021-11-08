@@ -40,8 +40,8 @@ void L2PseudoJerkSmoother::setParam(const Param & smoother_param)
 }
 
 bool L2PseudoJerkSmoother::apply(
-  const double initial_vel, const double initial_acc, const TrajectoryPointArray & input,
-  TrajectoryPointArray & output, std::vector<TrajectoryPointArray> & debug_trajectories)
+  const double initial_vel, const double initial_acc, const TrajectoryPoints & input,
+  TrajectoryPoints & output, std::vector<TrajectoryPoints> & debug_trajectories)
 {
   debug_trajectories.clear();
 
@@ -215,8 +215,8 @@ bool L2PseudoJerkSmoother::apply(
   return true;
 }
 
-boost::optional<TrajectoryPointArray> L2PseudoJerkSmoother::resampleTrajectory(
-  const TrajectoryPointArray & input, const double v_current, const int closest_id) const
+boost::optional<TrajectoryPoints> L2PseudoJerkSmoother::resampleTrajectory(
+  const TrajectoryPoints & input, const double v_current, const int closest_id) const
 {
   return resampling::resampleTrajectory(input, v_current, closest_id, base_param_.resample_param);
 }

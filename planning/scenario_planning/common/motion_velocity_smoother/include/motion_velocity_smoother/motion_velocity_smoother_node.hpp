@@ -19,6 +19,7 @@
 #include "autoware_utils/math/unit_conversion.hpp"
 #include "autoware_utils/ros/self_pose_listener.hpp"
 #include "autoware_utils/trajectory/trajectory.hpp"
+#include "autoware_utils/trajectory/tmp_conversion.hpp"
 #include "motion_velocity_smoother/resample.hpp"
 #include "motion_velocity_smoother/smoother/jerk_filtered_smoother.hpp"
 #include "motion_velocity_smoother/smoother/l2_pseudo_jerk_smoother.hpp"
@@ -50,7 +51,7 @@ namespace motion_velocity_smoother
 {
 using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_planning_msgs::msg::TrajectoryPoint;
-using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
+using TrajectoryPoints = std::vector<TrajectoryPoint>;
 using autoware_debug_msgs::msg::Float32Stamped;        // temporary
 using autoware_planning_msgs::msg::StopSpeedExceeded;  // temporary
 using autoware_planning_msgs::msg::VelocityLimit;      // temporary
@@ -83,7 +84,7 @@ private:
                                                        // for external velocity limit
   double external_velocity_limit_dist_{0.0};           // distance to set external velocity limit
 
-  TrajectoryPointArray prev_output_;                       // previously published trajectory
+  TrajectoryPoints prev_output_;                       // previously published trajectory
   boost::optional<TrajectoryPoint> prev_closest_point_{};  // previous trajectory point
                                                            // closest to ego vehicle
 
@@ -149,9 +150,9 @@ private:
   void onExternalVelocityLimit(const VelocityLimit::ConstSharedPtr msg);
 
   // publish methods
-  void publishTrajectory(const TrajectoryPointArray & traj) const;
+  void publishTrajectory(const TrajectoryPoints & traj) const;
 
-  void publishStopDistance(const TrajectoryPointArray & trajectory, const size_t closest) const;
+  void publishStopDistance(const TrajectoryPoints & trajectory, const size_t closest) const;
 
   // non-const methods
   void publishClosestState(const TrajectoryPoint & closest_point);
@@ -161,32 +162,32 @@ private:
 
   AlgorithmType getAlgorithmType(const std::string & algorithm_name) const;
 
-  TrajectoryPointArray calcTrajectoryVelocity(const TrajectoryPointArray & input) const;
+  TrajectoryPoints calcTrajectoryVelocity(const TrajectoryPoints & input) const;
 
   bool smoothVelocity(
-    const TrajectoryPointArray & input, TrajectoryPointArray & traj_smoothed) const;
+    const TrajectoryPoints & input, TrajectoryPoints & traj_smoothed) const;
 
   std::tuple<double, double, InitializeType> calcInitialMotion(
-    const TrajectoryPointArray & input_traj, const size_t input_closest,
-    const TrajectoryPointArray & prev_traj) const;
+    const TrajectoryPoints & input_traj, const size_t input_closest,
+    const TrajectoryPoints & prev_traj) const;
 
-  void applyExternalVelocityLimit(TrajectoryPointArray & traj) const;
+  void applyExternalVelocityLimit(TrajectoryPoints & traj) const;
 
   void insertBehindVelocity(
-    const size_t output_closest, const InitializeType type, TrajectoryPointArray & output) const;
+    const size_t output_closest, const InitializeType type, TrajectoryPoints & output) const;
 
-  void applyStopApproachingVelocity(TrajectoryPointArray & traj) const;
+  void applyStopApproachingVelocity(TrajectoryPoints & traj) const;
 
-  void overwriteStopPoint(const TrajectoryPointArray & input, TrajectoryPointArray & output) const;
+  void overwriteStopPoint(const TrajectoryPoints & input, TrajectoryPoints & output) const;
 
   double calcTravelDistance() const;
 
   bool isEngageStatus(const double target_vel) const;
 
-  void publishDebugTrajectories(const std::vector<TrajectoryPointArray> & debug_trajectories) const;
+  void publishDebugTrajectories(const std::vector<TrajectoryPoints> & debug_trajectories) const;
 
   void publishClosestVelocity(
-    const TrajectoryPointArray & trajectory, const Pose & current_pose,
+    const TrajectoryPoints & trajectory, const Pose & current_pose,
     const rclcpp::Publisher<Float32Stamped>::SharedPtr pub) const;
 
   // parameter handling

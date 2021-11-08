@@ -58,7 +58,7 @@ inline double integ_v(double v0, double a0, double j0, double t)
 inline double integ_a(double a0, double j0, double t) { return a0 + j0 * t; }
 
 TrajectoryPoint calcInterpolatedTrajectoryPoint(
-  const TrajectoryPointArray & trajectory, const Pose & target_pose)
+  const TrajectoryPoints & trajectory, const Pose & target_pose)
 {
   TrajectoryPoint traj_p{};
   traj_p.pose = target_pose;
@@ -99,8 +99,8 @@ TrajectoryPoint calcInterpolatedTrajectoryPoint(
   return traj_p;
 }
 
-boost::optional<TrajectoryPointArray> extractPathAroundIndex(
-  const TrajectoryPointArray & trajectory, const size_t index, const double & ahead_length,
+boost::optional<TrajectoryPoints> extractPathAroundIndex(
+  const TrajectoryPoints & trajectory, const size_t index, const double & ahead_length,
   const double & behind_length)
 {
   if (trajectory.size() == 0 || trajectory.size() - 1 < index) {
@@ -134,15 +134,15 @@ boost::optional<TrajectoryPointArray> extractPathAroundIndex(
   }
 
   // extract trajectory
-  TrajectoryPointArray extracted_traj{};
+  TrajectoryPoints extracted_traj{};
   for (size_t i = behind_index; i < ahead_index + 1; ++i) {
     extracted_traj.push_back(trajectory.at(i));
   }
 
-  return boost::optional<TrajectoryPointArray>(extracted_traj);
+  return boost::optional<TrajectoryPoints>(extracted_traj);
 }
 
-double calcArcLength(const TrajectoryPointArray & path, const int idx1, const int idx2)
+double calcArcLength(const TrajectoryPoints & path, const int idx1, const int idx2)
 {
   if (idx1 == idx2) {  // zero distance
     return 0.0;
@@ -166,7 +166,7 @@ double calcArcLength(const TrajectoryPointArray & path, const int idx1, const in
   return dist_sum;
 }
 
-std::vector<double> calcArclengthArray(const TrajectoryPointArray & trajectory)
+std::vector<double> calcArclengthArray(const TrajectoryPoints & trajectory)
 {
   std::vector<double> arclength;
   double dist = 0.0;
@@ -181,7 +181,7 @@ std::vector<double> calcArclengthArray(const TrajectoryPointArray & trajectory)
   return arclength;
 }
 
-std::vector<double> calcTrajectoryIntervalDistance(const TrajectoryPointArray & trajectory)
+std::vector<double> calcTrajectoryIntervalDistance(const TrajectoryPoints & trajectory)
 {
   std::vector<double> intervals;
   for (unsigned int i = 1; i < trajectory.size(); ++i) {
@@ -194,7 +194,7 @@ std::vector<double> calcTrajectoryIntervalDistance(const TrajectoryPointArray & 
 }
 
 boost::optional<std::vector<double>> calcTrajectoryCurvatureFrom3Points(
-  const TrajectoryPointArray & trajectory, const size_t & idx_dist)
+  const TrajectoryPoints & trajectory, const size_t & idx_dist)
 {
   std::vector<double> k_arr;
   if (trajectory.size() < 2 * idx_dist + 1) {
@@ -239,14 +239,14 @@ boost::optional<std::vector<double>> calcTrajectoryCurvatureFrom3Points(
   return boost::optional<std::vector<double>>(k_arr);
 }
 
-void setZeroVelocity(TrajectoryPointArray & trajectory)
+void setZeroVelocity(TrajectoryPoints & trajectory)
 {
   for (auto & tp : trajectory) {
     tp.longitudinal_velocity_mps = 0.0;
   }
 }
 
-double getMaxVelocity(const TrajectoryPointArray & trajectory)
+double getMaxVelocity(const TrajectoryPoints & trajectory)
 {
   double max_vel = 0.0;
   for (auto & tp : trajectory) {
@@ -257,7 +257,7 @@ double getMaxVelocity(const TrajectoryPointArray & trajectory)
   return max_vel;
 }
 
-double getMaxAbsVelocity(const TrajectoryPointArray & trajectory)
+double getMaxAbsVelocity(const TrajectoryPoints & trajectory)
 {
   double max_vel = 0.0;
   for (auto & tp : trajectory) {
@@ -270,7 +270,7 @@ double getMaxAbsVelocity(const TrajectoryPointArray & trajectory)
 }
 
 void applyMaximumVelocityLimit(
-  const size_t begin, const size_t end, const double max_vel, TrajectoryPointArray & trajectory)
+  const size_t begin, const size_t end, const double max_vel, TrajectoryPoints & trajectory)
 {
   for (size_t idx = begin; idx < end; ++idx) {
     if (trajectory.at(idx).longitudinal_velocity_mps > max_vel) {
@@ -279,8 +279,8 @@ void applyMaximumVelocityLimit(
   }
 }
 
-boost::optional<TrajectoryPointArray> applyLinearInterpolation(
-  const std::vector<double> & base_index, const TrajectoryPointArray & base_trajectory,
+boost::optional<TrajectoryPoints> applyLinearInterpolation(
+  const std::vector<double> & base_index, const TrajectoryPoints & base_trajectory,
   const std::vector<double> & out_index, const bool use_spline_for_pose)
 {
   std::vector<double> px, py, pz, pyaw, tlx, taz, alx, aaz;
@@ -321,7 +321,7 @@ boost::optional<TrajectoryPointArray> applyLinearInterpolation(
     return {};
   }
 
-  TrajectoryPointArray out_trajectory;
+  TrajectoryPoints out_trajectory;
   TrajectoryPoint point;
   for (unsigned int i = 0; i < out_index.size(); ++i) {
     point.pose.position.x = px_p->at(i);
@@ -335,7 +335,7 @@ boost::optional<TrajectoryPointArray> applyLinearInterpolation(
     // point.accel.angular.z = aaz_p->at(i);
     out_trajectory.push_back(point);
   }
-  return boost::optional<TrajectoryPointArray>(out_trajectory);
+  return boost::optional<TrajectoryPoints>(out_trajectory);
 }
 
 bool calcStopDistWithJerkConstraints(
@@ -508,8 +508,8 @@ bool isValidStopDist(
   return true;
 }
 
-boost::optional<TrajectoryPointArray> applyDecelFilterWithJerkConstraint(
-  const TrajectoryPointArray & input, const size_t start_index, const double v0, const double a0,
+boost::optional<TrajectoryPoints> applyDecelFilterWithJerkConstraint(
+  const TrajectoryPoints & input, const size_t start_index, const double v0, const double a0,
   const double min_acc, const double decel_target_vel,
   const std::map<double, double> & jerk_profile)
 {
@@ -570,7 +570,7 @@ boost::optional<TrajectoryPointArray> applyDecelFilterWithJerkConstraint(
     return {};
   }
 
-  TrajectoryPointArray output_trajectory{input};
+  TrajectoryPoints output_trajectory{input};
 
   if (xs.empty()) {
     output_trajectory.at(start_index).longitudinal_velocity_mps = decel_target_vel;

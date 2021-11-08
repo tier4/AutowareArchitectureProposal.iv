@@ -28,7 +28,6 @@
 
 namespace motion_velocity_smoother
 {
-using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
 
 class JerkFilteredSmoother : public SmootherBase
 {
@@ -45,11 +44,11 @@ public:
   explicit JerkFilteredSmoother(const Param & p);
 
   bool apply(
-    const double initial_vel, const double initial_acc, const TrajectoryPointArray & input,
-    TrajectoryPointArray & output, std::vector<TrajectoryPointArray> & debug_trajectories) override;
+    const double initial_vel, const double initial_acc, const TrajectoryPoints & input,
+    TrajectoryPoints & output, std::vector<TrajectoryPoints> & debug_trajectories) override;
 
-  boost::optional<TrajectoryPointArray> resampleTrajectory(
-    const TrajectoryPointArray & input, const double v_current,
+  boost::optional<TrajectoryPoints> resampleTrajectory(
+    const TrajectoryPoints & input, const double v_current,
     const int closest_id) const override;
 
   void setParam(const Param & param);
@@ -59,16 +58,16 @@ private:
   osqp::OSQPInterface qp_solver_;
   rclcpp::Logger logger_{rclcpp::get_logger("smoother").get_child("jerk_filtered_smoother")};
 
-  TrajectoryPointArray forwardJerkFilter(
+  TrajectoryPoints forwardJerkFilter(
     const double v0, const double a0, const double a_max, const double a_stop, const double j_max,
-    const TrajectoryPointArray & input) const;
-  TrajectoryPointArray backwardJerkFilter(
+    const TrajectoryPoints & input) const;
+  TrajectoryPoints backwardJerkFilter(
     const double v0, const double a0, const double a_min, const double a_stop, const double j_min,
-    const TrajectoryPointArray & input) const;
-  TrajectoryPointArray mergeFilteredTrajectory(
+    const TrajectoryPoints & input) const;
+  TrajectoryPoints mergeFilteredTrajectory(
     const double v0, const double a0, const double a_min, const double j_min,
-    const TrajectoryPointArray & forward_filtered,
-    const TrajectoryPointArray & backward_filtered) const;
+    const TrajectoryPoints & forward_filtered,
+    const TrajectoryPoints & backward_filtered) const;
 };
 }  // namespace motion_velocity_smoother
 

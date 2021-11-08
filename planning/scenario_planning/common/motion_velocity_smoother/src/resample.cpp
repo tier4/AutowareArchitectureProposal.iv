@@ -21,8 +21,8 @@ namespace motion_velocity_smoother
 {
 namespace resampling
 {
-boost::optional<TrajectoryPointArray> resampleTrajectory(
-  const TrajectoryPointArray & input, const double v_current, const size_t closest_id,
+boost::optional<TrajectoryPoints> resampleTrajectory(
+  const TrajectoryPoints & input, const double v_current, const size_t closest_id,
   const ResampleParam & param)
 {
   // Arc length from the initial point to the closest point
@@ -142,8 +142,8 @@ boost::optional<TrajectoryPointArray> resampleTrajectory(
   return output;
 }
 
-boost::optional<TrajectoryPointArray> resampleTrajectory(
-  const TrajectoryPointArray & input, const size_t closest_id, const ResampleParam & param,
+boost::optional<TrajectoryPoints> resampleTrajectory(
+  const TrajectoryPoints & input, const size_t closest_id, const ResampleParam & param,
   const double nominal_ds)
 {
   // input arclength

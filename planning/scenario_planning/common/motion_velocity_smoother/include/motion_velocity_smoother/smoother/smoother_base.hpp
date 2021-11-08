@@ -30,7 +30,9 @@
 
 namespace motion_velocity_smoother
 {
-using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using TrajectoryPoints = std::vector<TrajectoryPoint>;
+
 class SmootherBase
 {
 public:
@@ -50,14 +52,14 @@ public:
 
   virtual ~SmootherBase() = default;
   virtual bool apply(
-    const double initial_vel, const double initial_acc, const TrajectoryPointArray & input,
-    TrajectoryPointArray & output, std::vector<TrajectoryPointArray> & debug_trajectories) = 0;
+    const double initial_vel, const double initial_acc, const TrajectoryPoints & input,
+    TrajectoryPoints & output, std::vector<TrajectoryPoints> & debug_trajectories) = 0;
 
-  virtual boost::optional<TrajectoryPointArray> resampleTrajectory(
-    const TrajectoryPointArray & input, const double v_current, const int closest_id) const = 0;
+  virtual boost::optional<TrajectoryPoints> resampleTrajectory(
+    const TrajectoryPoints & input, const double v_current, const int closest_id) const = 0;
 
-  virtual boost::optional<TrajectoryPointArray> applyLateralAccelerationFilter(
-    const TrajectoryPointArray & input) const;
+  virtual boost::optional<TrajectoryPoints> applyLateralAccelerationFilter(
+    const TrajectoryPoints & input) const;
 
   double getMaxAccel() const;
   double getMinDecel() const;

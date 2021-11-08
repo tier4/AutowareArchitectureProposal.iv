@@ -32,7 +32,9 @@ namespace motion_velocity_smoother
 {
 namespace analytical_velocity_planning_utils
 {
-using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using TrajectoryPoints = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
+
 bool calcStopDistWithJerkAndAccConstraints(
   const double v0, const double a0, const double jerk_acc, const double jerk_dec,
   const double min_acc, const double target_vel, int & type, std::vector<double> & times,
@@ -44,7 +46,7 @@ bool calcStopVelocityWithConstantJerkAccLimit(
   const double v0, const double a0, const double jerk_acc, const double jerk_dec,
   const double min_acc, const double decel_target_vel, const int type,
   const std::vector<double> & times, const size_t start_index,
-  TrajectoryPointArray & output_trajectory);
+  TrajectoryPoints & output_trajectory);
 void updateStopVelocityStatus(
   double v0, double a0, double jerk_acc, double jerk_dec, int type, std::vector<double> times,
   double t, double & x, double & v, double & a, double & j);

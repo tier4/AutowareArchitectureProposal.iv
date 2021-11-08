@@ -24,7 +24,7 @@
 
 namespace
 {
-using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
+using TrajectoryPoints = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
 
 geometry_msgs::msg::Pose lerpByPose(
   const geometry_msgs::msg::Pose & p1, const geometry_msgs::msg::Pose & p2, const double t)
@@ -46,7 +46,7 @@ geometry_msgs::msg::Pose lerpByPose(
 
 bool applyMaxVelocity(
   const double max_velocity, const size_t start_index, const size_t end_index,
-  TrajectoryPointArray & output_trajectory)
+  TrajectoryPoints & output_trajectory)
 {
   if (end_index < start_index || output_trajectory.size() < end_index) {
     return false;
@@ -74,9 +74,9 @@ void AnalyticalJerkConstrainedSmoother::setParam(const Param & smoother_param)
 }
 
 bool AnalyticalJerkConstrainedSmoother::apply(
-  const double initial_vel, const double initial_acc, const TrajectoryPointArray & input,
-  TrajectoryPointArray & output,
-  [[maybe_unused]] std::vector<TrajectoryPointArray> & debug_trajectories)
+  const double initial_vel, const double initial_acc, const TrajectoryPoints & input,
+  TrajectoryPoints & output,
+  [[maybe_unused]] std::vector<TrajectoryPoints> & debug_trajectories)
 {
   RCLCPP_DEBUG(logger_, "-------------------- Start --------------------");
 
@@ -109,8 +109,8 @@ bool AnalyticalJerkConstrainedSmoother::apply(
   }
 
   // Apply filters according to deceleration targets
-  TrajectoryPointArray reference_trajectory = input;
-  TrajectoryPointArray filtered_trajectory = input;
+  TrajectoryPoints reference_trajectory = input;
+  TrajectoryPoints filtered_trajectory = input;
   for (size_t i = 0; i < decel_target_indices.size(); ++i) {
     size_t fwd_start_index;
     double fwd_start_vel;
@@ -206,11 +206,11 @@ bool AnalyticalJerkConstrainedSmoother::apply(
   return true;
 }
 
-boost::optional<TrajectoryPointArray> AnalyticalJerkConstrainedSmoother::resampleTrajectory(
-  const TrajectoryPointArray & input, [[maybe_unused]] const double v_current,
+boost::optional<TrajectoryPoints> AnalyticalJerkConstrainedSmoother::resampleTrajectory(
+  const TrajectoryPoints & input, [[maybe_unused]] const double v_current,
   [[maybe_unused]] const int closest_id) const
 {
-  TrajectoryPointArray output;
+  TrajectoryPoints output;
   if (input.empty()) {
     RCLCPP_WARN(logger_, "Input trajectory is empty");
     return {};
@@ -247,19 +247,19 @@ boost::optional<TrajectoryPointArray> AnalyticalJerkConstrainedSmoother::resampl
 
   output.push_back(input.back());
 
-  return boost::optional<TrajectoryPointArray>(output);
+  return boost::optional<TrajectoryPoints>(output);
 }
 
-boost::optional<TrajectoryPointArray>
+boost::optional<TrajectoryPoints>
 AnalyticalJerkConstrainedSmoother::applyLateralAccelerationFilter(
-  const TrajectoryPointArray & input) const
+  const TrajectoryPoints & input) const
 {
   if (input.empty()) {
     return boost::none;
   }
 
   if (input.size() < 3) {
-    return boost::optional<TrajectoryPointArray>(
+    return boost::optional<TrajectoryPoints>(
       input);  // cannot calculate lateral acc. do nothing.
   }
 
@@ -284,7 +284,7 @@ AnalyticalJerkConstrainedSmoother::applyLateralAccelerationFilter(
   // Calculate curvature assuming the trajectory points interval is constant
   const auto curvature_v = trajectory_utils::calcTrajectoryCurvatureFrom3Points(*output, idx_dist);
   if (!curvature_v) {
-    return boost::optional<TrajectoryPointArray>(input);
+    return boost::optional<TrajectoryPoints>(input);
   }
 
   // Decrease speed according to lateral G
@@ -362,7 +362,7 @@ AnalyticalJerkConstrainedSmoother::applyLateralAccelerationFilter(
 }
 
 bool AnalyticalJerkConstrainedSmoother::searchDecelTargetIndices(
-  const TrajectoryPointArray & trajectory, const size_t closest_index,
+  const TrajectoryPoints & trajectory, const size_t closest_index,
   std::vector<std::pair<size_t, double>> & decel_target_indices) const
 {
   const double ep = -0.00001;
@@ -404,8 +404,8 @@ bool AnalyticalJerkConstrainedSmoother::searchDecelTargetIndices(
 }
 
 bool AnalyticalJerkConstrainedSmoother::applyForwardJerkFilter(
-  const TrajectoryPointArray & base_trajectory, const size_t start_index, const double initial_vel,
-  const double initial_acc, const Param & params, TrajectoryPointArray & output_trajectory) const
+  const TrajectoryPoints & base_trajectory, const size_t start_index, const double initial_vel,
+  const double initial_acc, const Param & params, TrajectoryPoints & output_trajectory) const
 {
   output_trajectory.at(start_index).longitudinal_velocity_mps = initial_vel;
   output_trajectory.at(start_index).acceleration_mps2 = initial_acc;
@@ -439,7 +439,7 @@ bool AnalyticalJerkConstrainedSmoother::applyForwardJerkFilter(
 bool AnalyticalJerkConstrainedSmoother::applyBackwardDecelFilter(
   const std::vector<size_t> & start_indices, const size_t decel_target_index,
   const double decel_target_vel, const Param & params,
-  TrajectoryPointArray & output_trajectory) const
+  TrajectoryPoints & output_trajectory) const
 {
   const double ep = 0.001;
 
@@ -537,7 +537,7 @@ bool AnalyticalJerkConstrainedSmoother::applyBackwardDecelFilter(
 }
 
 bool AnalyticalJerkConstrainedSmoother::calcEnoughDistForDecel(
-  const TrajectoryPointArray & trajectory, const size_t start_index, const double decel_target_vel,
+  const TrajectoryPoints & trajectory, const size_t start_index, const double decel_target_vel,
   const double planning_jerk, const Param & params, const std::vector<double> & dist_to_target,
   bool & is_enough_dist, int & type, std::vector<double> & times, double & stop_dist) const
 {
@@ -584,7 +584,7 @@ bool AnalyticalJerkConstrainedSmoother::calcEnoughDistForDecel(
 bool AnalyticalJerkConstrainedSmoother::applyDecelVelocityFilter(
   const size_t decel_start_index, const double decel_target_vel, const double planning_jerk,
   const Param & params, const int type, const std::vector<double> & times,
-  TrajectoryPointArray & output_trajectory) const
+  TrajectoryPoints & output_trajectory) const
 {
   const double v0 = output_trajectory.at(decel_start_index).longitudinal_velocity_mps;
   const double a0 = output_trajectory.at(decel_start_index).acceleration_mps2;
