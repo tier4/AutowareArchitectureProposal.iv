@@ -167,8 +167,7 @@ bool validCheckCalcStopDist(
 bool calcStopVelocityWithConstantJerkAccLimit(
   const double v0, const double a0, const double jerk_acc, const double jerk_dec,
   const double min_acc, const double decel_target_vel, const int type,
-  const std::vector<double> & times, const size_t start_index,
-  TrajectoryPoints & output_trajectory)
+  const std::vector<double> & times, const size_t start_index, TrajectoryPoints & output_trajectory)
 {
   const double t_total = std::accumulate(times.begin(), times.end(), 0.0);
   std::vector<double> ts, xs, vs, as, js;

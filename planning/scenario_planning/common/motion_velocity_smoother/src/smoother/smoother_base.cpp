@@ -41,8 +41,7 @@ boost::optional<TrajectoryPoints> SmootherBase::applyLateralAccelerationFilter(
   }
 
   if (input.size() < 3) {
-    return boost::optional<TrajectoryPoints>(
-      input);  // cannot calculate lateral acc. do nothing.
+    return boost::optional<TrajectoryPoints>(input);  // cannot calculate lateral acc. do nothing.
   }
 
   // Interpolate with constant interval distance for lateral acceleration calculation.

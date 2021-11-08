@@ -77,8 +77,7 @@ public:
     TrajectoryPoints & output, std::vector<TrajectoryPoints> & debug_trajectories) override;
 
   boost::optional<TrajectoryPoints> resampleTrajectory(
-    const TrajectoryPoints & input, const double v_current,
-    const int closest_id) const override;
+    const TrajectoryPoints & input, const double v_current, const int closest_id) const override;
 
   boost::optional<TrajectoryPoints> applyLateralAccelerationFilter(
     const TrajectoryPoints & input) const override;
@@ -94,18 +93,16 @@ private:
     const TrajectoryPoints & trajectory, const size_t closest_index,
     std::vector<std::pair<size_t, double>> & decel_target_indices) const;
   bool applyForwardJerkFilter(
-    const TrajectoryPoints & base_trajectory, const size_t start_index,
-    const double initial_vel, const double initial_acc, const Param & params,
-    TrajectoryPoints & output_trajectory) const;
+    const TrajectoryPoints & base_trajectory, const size_t start_index, const double initial_vel,
+    const double initial_acc, const Param & params, TrajectoryPoints & output_trajectory) const;
   bool applyBackwardDecelFilter(
     const std::vector<size_t> & start_indices, const size_t decel_target_index,
     const double decel_target_vel, const Param & params,
     TrajectoryPoints & output_trajectory) const;
   bool calcEnoughDistForDecel(
-    const TrajectoryPoints & trajectory, const size_t start_index,
-    const double decel_target_vel, const double planning_jerk, const Param & params,
-    const std::vector<double> & dist_to_target, bool & is_enough_dist, int & type,
-    std::vector<double> & times, double & stop_dist) const;
+    const TrajectoryPoints & trajectory, const size_t start_index, const double decel_target_vel,
+    const double planning_jerk, const Param & params, const std::vector<double> & dist_to_target,
+    bool & is_enough_dist, int & type, std::vector<double> & times, double & stop_dist) const;
   bool applyDecelVelocityFilter(
     const size_t decel_start_index, const double decel_target_vel, const double planning_jerk,
     const Param & params, const int type, const std::vector<double> & times,

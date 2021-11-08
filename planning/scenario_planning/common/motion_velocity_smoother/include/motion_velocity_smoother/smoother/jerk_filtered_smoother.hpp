@@ -28,7 +28,6 @@
 
 namespace motion_velocity_smoother
 {
-
 class JerkFilteredSmoother : public SmootherBase
 {
 public:
@@ -48,8 +47,7 @@ public:
     TrajectoryPoints & output, std::vector<TrajectoryPoints> & debug_trajectories) override;
 
   boost::optional<TrajectoryPoints> resampleTrajectory(
-    const TrajectoryPoints & input, const double v_current,
-    const int closest_id) const override;
+    const TrajectoryPoints & input, const double v_current, const int closest_id) const override;
 
   void setParam(const Param & param);
 
@@ -66,8 +64,7 @@ private:
     const TrajectoryPoints & input) const;
   TrajectoryPoints mergeFilteredTrajectory(
     const double v0, const double a0, const double a_min, const double j_min,
-    const TrajectoryPoints & forward_filtered,
-    const TrajectoryPoints & backward_filtered) const;
+    const TrajectoryPoints & forward_filtered, const TrajectoryPoints & backward_filtered) const;
 };
 }  // namespace motion_velocity_smoother
 

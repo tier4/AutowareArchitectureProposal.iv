@@ -42,8 +42,8 @@ void JerkFilteredSmoother::setParam(const Param & smoother_param)
 }
 
 bool JerkFilteredSmoother::apply(
-  const double v0, const double a0, const TrajectoryPoints & input,
-  TrajectoryPoints & output, std::vector<TrajectoryPoints> & debug_trajectories)
+  const double v0, const double a0, const TrajectoryPoints & input, TrajectoryPoints & output,
+  std::vector<TrajectoryPoints> & debug_trajectories)
 {
   output = input;
 
@@ -415,8 +415,7 @@ TrajectoryPoints JerkFilteredSmoother::backwardJerkFilter(
 
 TrajectoryPoints JerkFilteredSmoother::mergeFilteredTrajectory(
   const double v0, const double a0, const double a_min, const double j_min,
-  const TrajectoryPoints & forward_filtered,
-  const TrajectoryPoints & backward_filtered) const
+  const TrajectoryPoints & forward_filtered, const TrajectoryPoints & backward_filtered) const
 {
   TrajectoryPoints merged;
   merged = forward_filtered;

@@ -664,7 +664,8 @@ bool MotionVelocitySmootherNode::smoothVelocity(
 
   RCLCPP_DEBUG(get_logger(), "smoothVelocity : traj_smoothed.size() = %lu", traj_smoothed.size());
   if (publish_debug_trajs_) {
-    pub_trajectory_latacc_filtered_->publish(autoware_utils::convertToTrajectory(*traj_lateral_acc_filtered));
+    pub_trajectory_latacc_filtered_->publish(
+      autoware_utils::convertToTrajectory(*traj_lateral_acc_filtered));
     pub_trajectory_resampled_->publish(autoware_utils::convertToTrajectory(*traj_resampled));
 
     if (!debug_trajectories.empty()) {
@@ -916,9 +917,12 @@ void MotionVelocitySmootherNode::publishDebugTrajectories(
       RCLCPP_WARN(get_logger(), "Size of the debug trajectories is incorrect");
       return;
     }
-    pub_forward_filtered_trajectory_->publish(autoware_utils::convertToTrajectory(debug_trajectories.at(0)));
-    pub_backward_filtered_trajectory_->publish(autoware_utils::convertToTrajectory(debug_trajectories.at(1)));
-    pub_merged_filtered_trajectory_->publish(autoware_utils::convertToTrajectory(debug_trajectories.at(2)));
+    pub_forward_filtered_trajectory_->publish(
+      autoware_utils::convertToTrajectory(debug_trajectories.at(0)));
+    pub_backward_filtered_trajectory_->publish(
+      autoware_utils::convertToTrajectory(debug_trajectories.at(1)));
+    pub_merged_filtered_trajectory_->publish(
+      autoware_utils::convertToTrajectory(debug_trajectories.at(2)));
     publishClosestVelocity(
       debug_trajectories.at(2), current_pose_ptr_->pose, pub_closest_merged_velocity_);
   }

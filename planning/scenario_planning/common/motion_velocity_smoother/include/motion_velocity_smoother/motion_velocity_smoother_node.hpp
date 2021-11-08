@@ -18,8 +18,8 @@
 #include "autoware_utils/geometry/geometry.hpp"
 #include "autoware_utils/math/unit_conversion.hpp"
 #include "autoware_utils/ros/self_pose_listener.hpp"
-#include "autoware_utils/trajectory/trajectory.hpp"
 #include "autoware_utils/trajectory/tmp_conversion.hpp"
+#include "autoware_utils/trajectory/trajectory.hpp"
 #include "motion_velocity_smoother/resample.hpp"
 #include "motion_velocity_smoother/smoother/jerk_filtered_smoother.hpp"
 #include "motion_velocity_smoother/smoother/l2_pseudo_jerk_smoother.hpp"
@@ -84,7 +84,7 @@ private:
                                                        // for external velocity limit
   double external_velocity_limit_dist_{0.0};           // distance to set external velocity limit
 
-  TrajectoryPoints prev_output_;                       // previously published trajectory
+  TrajectoryPoints prev_output_;                           // previously published trajectory
   boost::optional<TrajectoryPoint> prev_closest_point_{};  // previous trajectory point
                                                            // closest to ego vehicle
 
@@ -164,8 +164,7 @@ private:
 
   TrajectoryPoints calcTrajectoryVelocity(const TrajectoryPoints & input) const;
 
-  bool smoothVelocity(
-    const TrajectoryPoints & input, TrajectoryPoints & traj_smoothed) const;
+  bool smoothVelocity(const TrajectoryPoints & input, TrajectoryPoints & traj_smoothed) const;
 
   std::tuple<double, double, InitializeType> calcInitialMotion(
     const TrajectoryPoints & input_traj, const size_t input_closest,

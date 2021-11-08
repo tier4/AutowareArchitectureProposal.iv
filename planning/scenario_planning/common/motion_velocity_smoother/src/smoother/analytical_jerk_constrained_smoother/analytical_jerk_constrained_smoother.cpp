@@ -75,8 +75,7 @@ void AnalyticalJerkConstrainedSmoother::setParam(const Param & smoother_param)
 
 bool AnalyticalJerkConstrainedSmoother::apply(
   const double initial_vel, const double initial_acc, const TrajectoryPoints & input,
-  TrajectoryPoints & output,
-  [[maybe_unused]] std::vector<TrajectoryPoints> & debug_trajectories)
+  TrajectoryPoints & output, [[maybe_unused]] std::vector<TrajectoryPoints> & debug_trajectories)
 {
   RCLCPP_DEBUG(logger_, "-------------------- Start --------------------");
 
@@ -250,8 +249,7 @@ boost::optional<TrajectoryPoints> AnalyticalJerkConstrainedSmoother::resampleTra
   return boost::optional<TrajectoryPoints>(output);
 }
 
-boost::optional<TrajectoryPoints>
-AnalyticalJerkConstrainedSmoother::applyLateralAccelerationFilter(
+boost::optional<TrajectoryPoints> AnalyticalJerkConstrainedSmoother::applyLateralAccelerationFilter(
   const TrajectoryPoints & input) const
 {
   if (input.empty()) {
@@ -259,8 +257,7 @@ AnalyticalJerkConstrainedSmoother::applyLateralAccelerationFilter(
   }
 
   if (input.size() < 3) {
-    return boost::optional<TrajectoryPoints>(
-      input);  // cannot calculate lateral acc. do nothing.
+    return boost::optional<TrajectoryPoints>(input);  // cannot calculate lateral acc. do nothing.
   }
 
   // Interpolate with constant interval distance for lateral acceleration calculation.
@@ -438,8 +435,7 @@ bool AnalyticalJerkConstrainedSmoother::applyForwardJerkFilter(
 
 bool AnalyticalJerkConstrainedSmoother::applyBackwardDecelFilter(
   const std::vector<size_t> & start_indices, const size_t decel_target_index,
-  const double decel_target_vel, const Param & params,
-  TrajectoryPoints & output_trajectory) const
+  const double decel_target_vel, const Param & params, TrajectoryPoints & output_trajectory) const
 {
   const double ep = 0.001;
 
