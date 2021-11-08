@@ -49,7 +49,7 @@ private:
     const autoware_auto_system_msgs::msg::AutowareState::ConstSharedPtr & autoware_state_ptr,
     autoware_api_msgs::msg::AwapiAutowareStatus * status);
   void getControlModeInfo(
-    const autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr & control_mode_ptr,
+    const autoware_auto_vehicle_msgs::msg::ControlModeReport::ConstSharedPtr & control_mode_ptr,
     autoware_api_msgs::msg::AwapiAutowareStatus * status);
   void getGateModeInfo(
     const autoware_control_msgs::msg::GateMode::ConstSharedPtr & gate_mode_ptr,

@@ -78,7 +78,7 @@ AutowareIvAdapter::AutowareIvAdapter()
     "input/nav_sat", 1, std::bind(&AutowareIvAdapter::callbackNavSat, this, _1));
   sub_autoware_state_ = this->create_subscription<autoware_auto_system_msgs::msg::AutowareState>(
     "input/autoware_state", 1, std::bind(&AutowareIvAdapter::callbackAutowareState, this, _1));
-  sub_control_mode_ = this->create_subscription<autoware_vehicle_msgs::msg::ControlMode>(
+  sub_control_mode_ = this->create_subscription<autoware_auto_vehicle_msgs::msg::ControlModeReport>(
     "input/control_mode", 1, std::bind(&AutowareIvAdapter::callbackControlMode, this, _1));
   sub_gate_mode_ = this->create_subscription<autoware_control_msgs::msg::GateMode>(
     "input/gate_mode", durable_qos, std::bind(&AutowareIvAdapter::callbackGateMode, this, _1));
@@ -239,7 +239,7 @@ void AutowareIvAdapter::callbackAutowareState(
   aw_info_.autoware_state_ptr = msg_ptr;
 }
 void AutowareIvAdapter::callbackControlMode(
-  const autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr msg_ptr)
+  const autoware_auto_vehicle_msgs::msg::ControlModeReport::ConstSharedPtr msg_ptr)
 {
   aw_info_.control_mode_ptr = msg_ptr;
 }

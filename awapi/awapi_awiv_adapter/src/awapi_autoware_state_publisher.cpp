@@ -83,7 +83,7 @@ void AutowareIvAutowareStatePublisher::getAutowareStateInfo(
 }
 
 void AutowareIvAutowareStatePublisher::getControlModeInfo(
-  const autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr & control_mode_ptr,
+  const autoware_auto_vehicle_msgs::msg::ControlModeReport::ConstSharedPtr & control_mode_ptr,
   autoware_api_msgs::msg::AwapiAutowareStatus * status)
 {
   if (!control_mode_ptr) {
@@ -92,7 +92,7 @@ void AutowareIvAutowareStatePublisher::getControlModeInfo(
   }
 
   // get control mode
-  status->control_mode = control_mode_ptr->data;
+  status->control_mode = convert(*control_mode_ptr).data;
 }
 
 void AutowareIvAutowareStatePublisher::getGateModeInfo(
@@ -208,7 +208,7 @@ void AutowareIvAutowareStatePublisher::getErrorDiagInfo(
   const AutowareInfo & aw_info, autoware_api_msgs::msg::AwapiAutowareStatus * status)
 {
   using autoware_auto_system_msgs::msg::AutowareState;
-  using autoware_vehicle_msgs::msg::ControlMode;
+  using autoware_auto_vehicle_msgs::msg::ControlModeReport;
 
   if (!aw_info.autoware_state_ptr) {
     RCLCPP_DEBUG_STREAM_THROTTLE(

@@ -17,13 +17,15 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include <autoware_api_msgs/msg/stop_command.hpp>
-#include <autoware_api_msgs/msg/velocity_limit.hpp>
 #include <autoware_auto_planning_msgs/msg/path.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_system_msgs/msg/autoware_state.hpp>
 #include <autoware_auto_system_msgs/msg/emergency_state_stamped.hpp>
 #include <autoware_auto_system_msgs/msg/hazard_status_stamped.hpp>
+#include <autoware_auto_vehicle_msgs/msg/control_mode_report.hpp>
+
+#include <autoware_api_msgs/msg/stop_command.hpp>
+#include <autoware_api_msgs/msg/velocity_limit.hpp>
 #include <autoware_control_msgs/msg/gate_mode.hpp>
 #include <autoware_planning_msgs/msg/is_avoidance_possible.hpp>
 #include <autoware_planning_msgs/msg/lane_change_status.hpp>
@@ -32,7 +34,6 @@
 #include <autoware_v2x_msgs/msg/infrastructure_command_array.hpp>
 #include <autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp>
 #include <autoware_vehicle_msgs/msg/battery_status.hpp>
-#include <autoware_vehicle_msgs/msg/control_mode.hpp>
 #include <autoware_vehicle_msgs/msg/shift_stamped.hpp>
 #include <autoware_vehicle_msgs/msg/steering.hpp>
 #include <autoware_vehicle_msgs/msg/turn_signal.hpp>
@@ -64,7 +65,7 @@ struct AutowareInfo
   autoware_vehicle_msgs::msg::BatteryStatus::ConstSharedPtr battery_ptr;
   sensor_msgs::msg::NavSatFix::ConstSharedPtr nav_sat_ptr;
   autoware_auto_system_msgs::msg::AutowareState::ConstSharedPtr autoware_state_ptr;
-  autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr control_mode_ptr;
+  autoware_auto_vehicle_msgs::msg::ControlModeReport::ConstSharedPtr control_mode_ptr;
   autoware_control_msgs::msg::GateMode::ConstSharedPtr gate_mode_ptr;
   autoware_auto_system_msgs::msg::EmergencyStateStamped::ConstSharedPtr emergency_state_ptr;
   autoware_auto_system_msgs::msg::HazardStatusStamped::ConstSharedPtr hazard_status_ptr;

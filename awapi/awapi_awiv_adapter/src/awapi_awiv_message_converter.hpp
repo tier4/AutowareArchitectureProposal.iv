@@ -24,6 +24,9 @@
 #include "autoware_auto_planning_msgs/msg/trajectory.hpp"
 #include "autoware_planning_msgs/msg/trajectory.hpp"
 
+#include "autoware_auto_vehicle_msgs/msg/control_mode_report.hpp"
+#include "autoware_vehicle_msgs/msg/control_mode.hpp"
+
 namespace autoware_api
 {
 
@@ -76,6 +79,24 @@ inline auto convert(const autoware_auto_planning_msgs::msg::Trajectory & traj)
     iv_traj.points.push_back(iv_point);
   }
   return iv_traj;
+}
+
+inline auto convert(const autoware_auto_vehicle_msgs::msg::ControlModeReport & state)
+{
+  autoware_vehicle_msgs::msg::ControlMode iv_mode;
+  iv_mode.header.stamp = state.stamp;
+  switch (state.mode) {
+    case autoware_auto_vehicle_msgs::msg::ControlModeReport::MANUAL:
+      iv_mode.data = autoware_vehicle_msgs::msg::ControlMode::MANUAL;
+      break;
+    case autoware_auto_vehicle_msgs::msg::ControlModeReport::AUTONOMOUS:
+      iv_mode.data = autoware_vehicle_msgs::msg::ControlMode::AUTO;
+      break;
+    default:
+      iv_mode.data = autoware_vehicle_msgs::msg::ControlMode::MANUAL;
+      break;
+  }
+  return iv_mode;
 }
 
 }  // namespace autoware_api
