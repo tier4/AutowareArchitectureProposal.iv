@@ -21,8 +21,10 @@
 #include <algorithm>
 #include <random>
 
-Tracker::Tracker(const rclcpp::Time & time, const std::uint8_t label)
-: label_(label),
+Tracker::Tracker(
+  const rclcpp::Time & time,
+  const std::allocator<autoware_auto_perception_msgs::msg::ObjectClassification> & classification)
+: classification_(classification),
   no_measurement_count_(0),
   total_no_measurement_count_(0),
   total_measurement_count_(1),

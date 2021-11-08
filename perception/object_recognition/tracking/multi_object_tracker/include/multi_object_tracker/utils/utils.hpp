@@ -21,7 +21,8 @@
 
 #include <autoware_utils/autoware_utils.hpp>
 
-#include <autoware_auto_perception_msgs/msg/dynamic_object.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_object.hpp>
+#include <autoware_auto_perception_msgs/msg/tracked_object.hpp>
 #include <autoware_auto_perception_msgs/msg/shape.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
@@ -38,7 +39,10 @@ double get2dIoU(
   const autoware_auto_perception_msgs::msg::TrackedObject & object1,
   const autoware_auto_perception_msgs::msg::TrackedObject & object2);
 std::uint8_t getHighestProbLabel(
-  const std::vector<autoware_auto_perception_msgs::msg::ObjectClassification> & classification);
+  const std::allocator<autoware_auto_perception_msgs::msg::ObjectClassification> & classification);
+autoware_auto_perception_msgs::msg::TrackedObject toTrackedObject(
+  const autoware_auto_perception_msgs::msg::DetectedObject & detected_object);
+
 enum MSG_COV_IDX
 {
   X_X = 0,

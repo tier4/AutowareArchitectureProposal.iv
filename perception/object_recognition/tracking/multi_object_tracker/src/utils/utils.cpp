@@ -34,14 +34,14 @@ void toPolygon2d(
 bool isClockWise(const autoware_utils::Polygon2d & polygon);
 autoware_utils::Polygon2d inverseClockWise(const autoware_utils::Polygon2d & polygon);
 
-double getArea(const autoware_perception_msgs::msg::Shape & shape)
+double getArea(const autoware_auto_perception_msgs::msg::Shape & shape)
 {
   double area = 0.0;
-  if (shape.type == autoware_perception_msgs::msg::Shape::BOUNDING_BOX) {
+  if (shape.type == autoware_auto_perception_msgs::msg::Shape::BOUNDING_BOX) {
     area = getRectangleArea(shape.dimensions);
-  } else if (shape.type == autoware_perception_msgs::msg::Shape::CYLINDER) {
+  } else if (shape.type == autoware_auto_perception_msgs::msg::Shape::CYLINDER) {
     area = getCircleArea(shape.dimensions);
-  } else if (shape.type == autoware_perception_msgs::msg::Shape::POLYGON) {
+  } else if (shape.type == autoware_auto_perception_msgs::msg::Shape::POLYGON) {
     area = getPolygonArea(shape.footprint);
   }
   return area;
@@ -191,17 +191,34 @@ void toPolygon2d(
 }
 
 std::uint8_t getHighestProbLabel(
-  const std::vector<autoware_auto_perception_msgs::msg::ObjectClassification> & classification)
+  const std::allocator<autoware_auto_perception_msgs::msg::ObjectClassification> & classification)
 {
-  std::uint8_t label = autoware_auto_perception_msgs::msg::ObjectClassification_Constants::UNKNOWN;
-  float highest_prob = 0.0f;
-  for (const auto & class : classification) {
-    if (highest_prob < class.probability) {
-      highest_prob = class.probability;
-      label = class.label;
+  std::uint8_t label = autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
+  float highest_prob = 0.0;
+  for (const auto & _class : classification) {
+    if (highest_prob < _class.probability) {
+      highest_prob = _class.probability;
+      label = _class.label;
     }
   }
   return label;
 }
+
+autoware_auto_perception_msgs::msg::TrackedObject toTrackedObject(
+  const autoware_auto_perception_msgs::msg::DetectedObject & detected_object)
+{
+  autoware_auto_perception_msgs::msg::TrackedObject tracked_object;
+  tracked_object.existence_probability = detected_object.existence_probability;
+
+  tracked_object.classification = detected_object.classification;
+
+  tracked_object.kinematics.pose_with_covariance = detected_object.kinematics.pose_with_covariance;
+  tracked_object.kinematics.twist_with_covariance =
+    detected_object.kinematics.twist_with_covariance;
+
+  tracked_object.shape = detected_object.shape;
+  return tracked_object;
+}
+
 
 }  // namespace utils

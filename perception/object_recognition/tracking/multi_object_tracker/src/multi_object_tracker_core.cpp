@@ -35,7 +35,7 @@
 #include <Eigen/Geometry>
 #include <rclcpp_components/register_node_macro.hpp>
 
-using Label = autoware_auto_perception_msgs::msg::ObjectClassification_Constants;
+using Label = autoware_auto_perception_msgs::msg::ObjectClassification;
 
 namespace
 {
@@ -55,10 +55,10 @@ boost::optional<geometry_msgs::msg::Transform> getTransform(
   }
 }
 
-bool transformDynamicObjects(
-  const autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & input_msg,
+bool transformDetectedObjects(
+  const autoware_auto_perception_msgs::msg::DetectedObjects & input_msg,
   const std::string & target_frame_id, const tf2_ros::Buffer & tf_buffer,
-  autoware_perception_msgs::msg::DynamicObjectWithFeatureArray & output_msg)
+  autoware_auto_perception_msgs::msg::DetectedObjects & output_msg)
 {
   output_msg = input_msg;
 
@@ -76,13 +76,14 @@ bool transformDynamicObjects(
       }
       tf2::fromMsg(*ros_target2objects_world, tf_target2objects_world);
     }
-    for (size_t i = 0; i < output_msg.feature_objects.size(); ++i) {
+    for (size_t i = 0; i < output_msg.objects.size(); ++i) {
       tf2::fromMsg(
-        output_msg.feature_objects.at(i).object.state.pose_covariance.pose,
+        output_msg.objects.at(i).kinematics.pose_with_covariance.pose,
         tf_objects_world2objects);
       tf_target2objects = tf_target2objects_world * tf_objects_world2objects;
       tf2::toMsg(
-        tf_target2objects, output_msg.feature_objects.at(i).object.state.pose_covariance.pose);
+        tf_target2objects, output_msg.objects.at(i).kinematics.pose_with_covariance.pose);
+      // TODO transform covariance
     }
   }
   return true;
@@ -124,7 +125,7 @@ bool isSpecificAlivePattern(
   const geometry_msgs::msg::Transform & self_transform)
 {
   autoware_auto_perception_msgs::msg::TrackedObject object;
-  tracker->getEstimatedTrackedObject(time, object);
+  tracker->getTrackedObject(time, object);
 
   constexpr float min_detection_rate = 0.2;
   constexpr int min_measurement_count = 5;
@@ -132,12 +133,13 @@ bool isSpecificAlivePattern(
   constexpr float max_velocity = 1.0;
   constexpr float max_distance = 100.0;
 
+  const std::uint8_t label = tracker->getHighestProbLabel();
+
   const float detection_rate =
     tracker->getTotalMeasurementCount() /
     (tracker->getTotalNoMeasurementCount() + tracker->getTotalMeasurementCount());
 
-  const bool big_vehicle =
-    tracker->getLabel() == Label::TRUCK || tracker->getLabel() == Label::BUS;
+  const bool big_vehicle = (label == Label::TRUCK || label == Label::BUS);
 
   const bool slow_velocity = getVelocity(object) < max_velocity;
 
@@ -219,7 +221,7 @@ void MultiObjectTracker::onMeasurement(
 
   /* transform to world coordinate */
   autoware_auto_perception_msgs::msg::DetectedObjects transformed_objects;
-  if (!transformDynamicObjects(
+  if (!transformDetectedObjects(
       *input_objects_msg, world_frame_id_, tf_buffer_, transformed_objects))
   {
     return;
@@ -244,8 +246,7 @@ void MultiObjectTracker::onMeasurement(
     if (direct_assignment.find(tracker_idx) != direct_assignment.end()) {  // found
       (*(tracker_itr))
       ->updateWithMeasurement(
-        transformed_objects.feature_objects.at(direct_assignment.find(tracker_idx)->second)
-        .object,
+        transformed_objects.objects.at(direct_assignment.find(tracker_idx)->second),
         measurement_time);
     } else {  // not found
       (*(tracker_itr))->updateWithoutMeasurement();
@@ -263,7 +264,7 @@ void MultiObjectTracker::onMeasurement(
       continue;
     }
     list_tracker_.push_back(
-      createNewTracker(transformed_objects.feature_objects.at(i).object, measurement_time));
+      createNewTracker(transformed_objects.objects.at(i), measurement_time));
   }
 
   if (publish_timer_ == nullptr) {
@@ -279,11 +280,11 @@ std::shared_ptr<Tracker> MultiObjectTracker::createNewTracker(
   if (label == Label::CAR || label == Label::TRUCK || label == Label::BUS) {
     return std::make_shared<MultipleVehicleTracker>(time, object);
   } else if (label == Label::PEDESTRIAN) {
-    // return std::make_shared<PedestrianAndBicycleTracker>(time, object);
-  } else if (label == Label::BICYCLE || label == Label::MOTORBIKE) {
-    // return std::make_shared<PedestrianAndBicycleTracker>(time, object);
+    return std::make_shared<PedestrianAndBicycleTracker>(time, object);
+  } else if (label == Label::BICYCLE || label == Label::MOTORCYCLE) {
+    return std::make_shared<PedestrianAndBicycleTracker>(time, object);
   } else {
-    // return std::make_shared<UnknownTracker>(time, object);
+    return std::make_shared<UnknownTracker>(time, object);
   }
 }
 
@@ -369,8 +370,8 @@ inline bool MultiObjectTracker::shouldTrackerPublish(
 
 void MultiObjectTracker::publish(const rclcpp::Time & time) const
 {
-  const auto subscriber_count = dynamic_object_pub_->get_subscription_count() +
-    dynamic_object_pub_->get_intra_process_subscription_count();
+  const auto subscriber_count = tracked_objects_pub_->get_subscription_count() +
+    tracked_objects_pub_->get_intra_process_subscription_count();
   if (subscriber_count < 1) {
     return;
   }
