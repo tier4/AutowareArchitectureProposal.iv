@@ -91,6 +91,8 @@ void LidarCenterPointNode::pointCloudCallback(
 
     autoware_auto_perception_msgs::msg::DetectedObject obj;
     autoware_auto_perception_msgs::msg::ObjectClassification classification;
+    obj.existence_probability = score;
+
     switch (class_id) {
       case 0:
         classification.label = autoware_auto_perception_msgs::msg::ObjectClassification::CAR;
