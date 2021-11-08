@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "trajectory_follower/longitudinal_controller_utils.hpp"
+
 #include <algorithm>
 #include <experimental/optional>  // NOLINT
 #include <limits>
 
-#include "trajectory_follower/longitudinal_controller_utils.hpp"
-
+#include "motion_common/motion_common.hpp"
 #include "tf2/LinearMath/Matrix3x3.h"
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
@@ -38,10 +39,12 @@ bool isValidTrajectory(const Trajectory & traj)
 {
   for (const auto & p : traj.points) {
     if (
-      !isfinite(p.x) || !isfinite(p.y) || !isfinite(p.z) ||
-      !isfinite(p.heading.real) || !isfinite(p.heading.imag) ||
-      !isfinite(p.longitudinal_velocity_mps) || !isfinite(p.lateral_velocity_mps) ||
-      !isfinite(p.acceleration_mps2) || !isfinite(p.heading_rate_rps))
+      !isfinite(p.pose.position.x) || !isfinite(p.pose.position.y) ||
+      !isfinite(p.pose.position.z) || !isfinite(p.pose.orientation.w) ||
+      !isfinite(p.pose.orientation.x) || !isfinite(p.pose.orientation.y) ||
+      !isfinite(p.pose.orientation.z) || !isfinite(p.longitudinal_velocity_mps) ||
+      !isfinite(p.lateral_velocity_mps) || !isfinite(p.acceleration_mps2) ||
+      !isfinite(p.heading_rate_rps))
     {
       return false;
     }
@@ -119,9 +122,9 @@ float64_t getPitchByTraj(
 
 float64_t calcElevationAngle(const TrajectoryPoint & p_from, const TrajectoryPoint & p_to)
 {
-  const float64_t dx = p_from.x - p_to.x;
-  const float64_t dy = p_from.y - p_to.y;
-  const float64_t dz = p_from.z - p_to.z;
+  const float64_t dx = p_from.pose.position.x - p_to.pose.position.x;
+  const float64_t dy = p_from.pose.position.y - p_to.pose.position.y;
+  const float64_t dz = p_from.pose.position.z - p_to.pose.position.z;
 
   const float64_t dxy = std::max(std::hypot(dx, dy), std::numeric_limits<float64_t>::epsilon());
   const float64_t pitch = std::atan2(dz, dxy);
@@ -133,7 +136,7 @@ Pose calcPoseAfterTimeDelay(
   const Pose & current_pose, const float64_t delay_time, const float64_t current_vel)
 {
   // simple linear prediction
-  const float64_t yaw = tf2::getYaw(current_pose.orientation);
+  const float64_t yaw = ::motion::motion_common::to_angle(current_pose.orientation);
   const float64_t running_distance = delay_time * current_vel;
   const float64_t dx = running_distance * std::cos(yaw);
   const float64_t dy = running_distance * std::sin(yaw);

@@ -34,7 +34,7 @@ TEST(TestLongitudinalControllerUtils, isValidTrajectory) {
   EXPECT_FALSE(longitudinal_utils::isValidTrajectory(traj));
   traj.points.push_back(point);
   EXPECT_TRUE(longitudinal_utils::isValidTrajectory(traj));
-  point.x = std::numeric_limits<decltype(TrajectoryPoint::x)>::infinity();
+  point.pose.position.x = std::numeric_limits<decltype(point.pose.position.x)>::infinity();
   traj.points.push_back(point);
   EXPECT_FALSE(longitudinal_utils::isValidTrajectory(traj));
 }
@@ -51,37 +51,37 @@ TEST(TestLongitudinalControllerUtils, calcStopDistance) {
   EXPECT_THROW(longitudinal_utils::calcStopDistance(current_pos, traj), std::invalid_argument);
   // one point trajectory : exception
   TrajectoryPoint point;
-  point.x = 0.0;
-  point.y = 0.0;
+  point.pose.position.x = 0.0;
+  point.pose.position.y = 0.0;
   point.longitudinal_velocity_mps = 0.0;
   traj.points.push_back(point);
   EXPECT_THROW(longitudinal_utils::calcStopDistance(current_pos, traj), std::out_of_range);
   traj.points.clear();
   // non stopping trajectory: stop distance = trajectory length
-  point.x = 0.0;
-  point.y = 0.0;
+  point.pose.position.x = 0.0;
+  point.pose.position.y = 0.0;
   point.longitudinal_velocity_mps = 1.0;
   traj.points.push_back(point);
-  point.x = 1.0;
-  point.y = 0.0;
+  point.pose.position.x = 1.0;
+  point.pose.position.y = 0.0;
   point.longitudinal_velocity_mps = 1.0;
   traj.points.push_back(point);
-  point.x = 2.0;
-  point.y = 0.0;
+  point.pose.position.x = 2.0;
+  point.pose.position.y = 0.0;
   point.longitudinal_velocity_mps = 1.0;
   traj.points.push_back(point);
   EXPECT_EQ(longitudinal_utils::calcStopDistance(current_pos, traj), 2.0);
   // stopping trajectory: stop distance = length until stopping point
-  point.x = 3.0;
-  point.y = 0.0;
+  point.pose.position.x = 3.0;
+  point.pose.position.y = 0.0;
   point.longitudinal_velocity_mps = 0.0;
   traj.points.push_back(point);
-  point.x = 4.0;
-  point.y = 0.0;
+  point.pose.position.x = 4.0;
+  point.pose.position.y = 0.0;
   point.longitudinal_velocity_mps = 1.0;
   traj.points.push_back(point);
-  point.x = 5.0;
-  point.y = 0.0;
+  point.pose.position.x = 5.0;
+  point.pose.position.y = 0.0;
   point.longitudinal_velocity_mps = 0.0;
   traj.points.push_back(point);
   EXPECT_EQ(longitudinal_utils::calcStopDistance(current_pos, traj), 3.0);
@@ -108,22 +108,22 @@ TEST(TestLongitudinalControllerUtils, getPitchByTraj) {
    */
   Trajectory traj;
   TrajectoryPoint point;
-  point.x = 0.0;
-  point.y = 0.0;
-  point.z = 0.0;
+  point.pose.position.x = 0.0;
+  point.pose.position.y = 0.0;
+  point.pose.position.z = 0.0;
   traj.points.push_back(point);
   // non stopping trajectory: stop distance = trajectory length
-  point.x = 1.0;
-  point.y = 0.0;
-  point.z = 1.0;
+  point.pose.position.x = 1.0;
+  point.pose.position.y = 0.0;
+  point.pose.position.z = 1.0;
   traj.points.push_back(point);
-  point.x = 2.0;
-  point.y = 0.0;
-  point.z = 0.0;
+  point.pose.position.x = 2.0;
+  point.pose.position.y = 0.0;
+  point.pose.position.z = 0.0;
   traj.points.push_back(point);
-  point.x = 3.0;
-  point.y = 0.0;
-  point.z = 0.5;
+  point.pose.position.x = 3.0;
+  point.pose.position.y = 0.0;
+  point.pose.position.z = 0.5;
   traj.points.push_back(point);
   size_t closest_idx = 0;
   EXPECT_DOUBLE_EQ(
@@ -150,32 +150,32 @@ TEST(TestLongitudinalControllerUtils, getPitchByTraj) {
 TEST(TestLongitudinalControllerUtils, calcElevationAngle) {
   using autoware_auto_msgs::msg::TrajectoryPoint;
   TrajectoryPoint p_from;
-  p_from.x = 0.0;
-  p_from.y = 0.0;
+  p_from.pose.position.x = 0.0;
+  p_from.pose.position.y = 0.0;
   TrajectoryPoint p_to;
-  p_to.x = 1.0;
-  p_to.y = 0.0;
+  p_to.pose.position.x = 1.0;
+  p_to.pose.position.y = 0.0;
   EXPECT_DOUBLE_EQ(longitudinal_utils::calcElevationAngle(p_from, p_to), 0.0);
-  p_to.x = 1.0;
-  p_to.z = 1.0;
+  p_to.pose.position.x = 1.0;
+  p_to.pose.position.z = 1.0;
   EXPECT_DOUBLE_EQ(longitudinal_utils::calcElevationAngle(p_from, p_to), -M_PI_4);
-  p_to.x = -1.0;
-  p_to.z = 1.0;
+  p_to.pose.position.x = -1.0;
+  p_to.pose.position.z = 1.0;
   EXPECT_DOUBLE_EQ(longitudinal_utils::calcElevationAngle(p_from, p_to), -M_PI_4);
-  p_to.x = 0.0;
-  p_to.z = 1.0;
+  p_to.pose.position.x = 0.0;
+  p_to.pose.position.z = 1.0;
   EXPECT_DOUBLE_EQ(longitudinal_utils::calcElevationAngle(p_from, p_to), -M_PI_2);
-  p_to.x = 1.0;
-  p_to.z = -1.0;
+  p_to.pose.position.x = 1.0;
+  p_to.pose.position.z = -1.0;
   EXPECT_DOUBLE_EQ(longitudinal_utils::calcElevationAngle(p_from, p_to), M_PI_4);
-  p_to.x = -1.0;
-  p_to.z = -1.0;
+  p_to.pose.position.x = -1.0;
+  p_to.pose.position.z = -1.0;
   EXPECT_DOUBLE_EQ(longitudinal_utils::calcElevationAngle(p_from, p_to), M_PI_4);
 }
 
 TEST(TestLongitudinalControllerUtils, calcPoseAfterTimeDelay) {
   using geometry_msgs::msg::Pose;
-  const double abs_err = 1e-15;
+  const double abs_err = 1e-7;
   Pose current_pose;
   current_pose.position.x = 0.0;
   current_pose.position.y = 0.0;
@@ -316,23 +316,23 @@ TEST(TestLongitudinalControllerUtils, lerpTrajectoryPoint) {
   const double abs_err = 1e-15;
   decltype(autoware_auto_msgs::msg::Trajectory::points) points;
   TrajectoryPoint p;
-  p.x = 0.0;
-  p.y = 0.0;
+  p.pose.position.x = 0.0;
+  p.pose.position.y = 0.0;
   p.longitudinal_velocity_mps = 10.0;
   p.acceleration_mps2 = 10.0;
   points.push_back(p);
-  p.x = 1.0;
-  p.y = 0.0;
+  p.pose.position.x = 1.0;
+  p.pose.position.y = 0.0;
   p.longitudinal_velocity_mps = 20.0;
   p.acceleration_mps2 = 20.0;
   points.push_back(p);
-  p.x = 1.0;
-  p.y = 1.0;
+  p.pose.position.x = 1.0;
+  p.pose.position.y = 1.0;
   p.longitudinal_velocity_mps = 30.0;
   p.acceleration_mps2 = 30.0;
   points.push_back(p);
-  p.x = 2.0;
-  p.y = 1.0;
+  p.pose.position.x = 2.0;
+  p.pose.position.y = 1.0;
   p.longitudinal_velocity_mps = 40.0;
   p.acceleration_mps2 = 40.0;
   points.push_back(p);
@@ -343,32 +343,32 @@ TEST(TestLongitudinalControllerUtils, lerpTrajectoryPoint) {
   point.x = 0.0;
   point.y = 0.0;
   result = longitudinal_utils::lerpTrajectoryPoint(points, point);
-  EXPECT_NEAR(result.x, point.x, abs_err);
-  EXPECT_NEAR(result.y, point.y, abs_err);
+  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
+  EXPECT_NEAR(result.pose.position.y, point.y, abs_err);
   EXPECT_NEAR(result.longitudinal_velocity_mps, 10.0, abs_err);
   EXPECT_NEAR(result.acceleration_mps2, 10.0, abs_err);
 
   point.x = 1.0;
   point.y = 0.0;
   result = longitudinal_utils::lerpTrajectoryPoint(points, point);
-  EXPECT_NEAR(result.x, point.x, abs_err);
-  EXPECT_NEAR(result.y, point.y, abs_err);
+  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
+  EXPECT_NEAR(result.pose.position.y, point.y, abs_err);
   EXPECT_NEAR(result.longitudinal_velocity_mps, 20.0, abs_err);
   EXPECT_NEAR(result.acceleration_mps2, 20.0, abs_err);
 
   point.x = 1.0;
   point.y = 1.0;
   result = longitudinal_utils::lerpTrajectoryPoint(points, point);
-  EXPECT_NEAR(result.x, point.x, abs_err);
-  EXPECT_NEAR(result.y, point.y, abs_err);
+  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
+  EXPECT_NEAR(result.pose.position.y, point.y, abs_err);
   EXPECT_NEAR(result.longitudinal_velocity_mps, 30.0, abs_err);
   EXPECT_NEAR(result.acceleration_mps2, 30.0, abs_err);
 
   point.x = 2.0;
   point.y = 1.0;
   result = longitudinal_utils::lerpTrajectoryPoint(points, point);
-  EXPECT_NEAR(result.x, point.x, abs_err);
-  EXPECT_NEAR(result.y, point.y, abs_err);
+  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
+  EXPECT_NEAR(result.pose.position.y, point.y, abs_err);
   EXPECT_NEAR(result.longitudinal_velocity_mps, 40.0, abs_err);
   EXPECT_NEAR(result.acceleration_mps2, 40.0, abs_err);
 
@@ -376,16 +376,16 @@ TEST(TestLongitudinalControllerUtils, lerpTrajectoryPoint) {
   point.x = 0.5;
   point.y = 0.0;
   result = longitudinal_utils::lerpTrajectoryPoint(points, point);
-  EXPECT_NEAR(result.x, point.x, abs_err);
-  EXPECT_NEAR(result.y, point.y, abs_err);
+  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
+  EXPECT_NEAR(result.pose.position.y, point.y, abs_err);
   EXPECT_NEAR(result.longitudinal_velocity_mps, 15.0, abs_err);
   EXPECT_NEAR(result.acceleration_mps2, 15.0, abs_err);
   point.x = 0.75;
   point.y = 0.0;
   result = longitudinal_utils::lerpTrajectoryPoint(points, point);
 
-  EXPECT_NEAR(result.x, point.x, abs_err);
-  EXPECT_NEAR(result.y, point.y, abs_err);
+  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
+  EXPECT_NEAR(result.pose.position.y, point.y, abs_err);
   EXPECT_NEAR(result.longitudinal_velocity_mps, 17.5, abs_err);
   EXPECT_NEAR(result.acceleration_mps2, 17.5, abs_err);
 
@@ -393,8 +393,8 @@ TEST(TestLongitudinalControllerUtils, lerpTrajectoryPoint) {
   point.x = 0.5;
   point.y = -1.0;
   result = longitudinal_utils::lerpTrajectoryPoint(points, point);
-  EXPECT_NEAR(result.x, point.x, abs_err);
-  EXPECT_NEAR(result.y, 0.0, abs_err);
+  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
+  EXPECT_NEAR(result.pose.position.y, 0.0, abs_err);
   EXPECT_NEAR(result.longitudinal_velocity_mps, 15.0, abs_err);
   EXPECT_NEAR(result.acceleration_mps2, 15.0, abs_err);
 
@@ -402,8 +402,8 @@ TEST(TestLongitudinalControllerUtils, lerpTrajectoryPoint) {
   point.x = 0.5;
   point.y = 0.5;
   result = longitudinal_utils::lerpTrajectoryPoint(points, point);
-  EXPECT_NEAR(result.x, point.x, abs_err);
-  EXPECT_NEAR(result.y, 0.0, abs_err);
+  EXPECT_NEAR(result.pose.position.x, point.x, abs_err);
+  EXPECT_NEAR(result.pose.position.y, 0.0, abs_err);
   EXPECT_NEAR(result.longitudinal_velocity_mps, 15.0, abs_err);
   EXPECT_NEAR(result.acceleration_mps2, 15.0, abs_err);
 }

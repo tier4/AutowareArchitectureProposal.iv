@@ -125,16 +125,14 @@ TrajectoryPoint lerpTrajectoryPoint(const T & points, const Point & point)
   {
     const size_t i = nearest_seg_idx;
 
-    interpolated_point.x = motion_common::interpolate(
-      points.at(i).x, points.at(
-        i + 1).x, interpolate_ratio);
-    interpolated_point.y = motion_common::interpolate(
-      points.at(i).y, points.at(
-        i + 1).y, interpolate_ratio);
-    interpolated_point.heading = motion_common::from_quat(
-      lerpOrientation(
-        motion_common::to_quat<Quaternion>(points.at(i).heading),
-        motion_common::to_quat<Quaternion>(points.at(i + 1).heading), interpolate_ratio));
+    interpolated_point.pose.position.x = motion_common::interpolate(
+      points.at(i).pose.position.x, points.at(
+        i + 1).pose.position.x, interpolate_ratio);
+    interpolated_point.pose.position.y = motion_common::interpolate(
+      points.at(i).pose.position.y, points.at(
+        i + 1).pose.position.y, interpolate_ratio);
+    interpolated_point.pose.orientation = lerpOrientation(
+      points.at(i).pose.orientation, points.at(i + 1).pose.orientation, interpolate_ratio);
     interpolated_point.longitudinal_velocity_mps =
       motion_common::interpolate(
       points.at(i).longitudinal_velocity_mps, points.at(

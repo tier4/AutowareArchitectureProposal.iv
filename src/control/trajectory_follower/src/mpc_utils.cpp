@@ -54,7 +54,7 @@ float64_t calcLateralError(
 {
   const float64_t err_x = ego_pose.position.x - ref_pose.position.x;
   const float64_t err_y = ego_pose.position.y - ref_pose.position.y;
-  const float64_t ref_yaw = tf2::getYaw(ref_pose.orientation);
+  const float64_t ref_yaw = ::motion::motion_common::to_angle(ref_pose.orientation);
   const float64_t lat_err = -std::sin(ref_yaw) * err_x + std::cos(ref_yaw) * err_y;
   return lat_err;
 }
@@ -249,10 +249,10 @@ bool8_t convertToMPCTrajectory(
 {
   output.clear();
   for (const autoware_auto_msgs::msg::TrajectoryPoint & p : input.points) {
-    const float64_t x = p.x;
-    const float64_t y = p.y;
+    const float64_t x = p.pose.position.x;
+    const float64_t y = p.pose.position.y;
     const float64_t z = 0.0;
-    const float64_t yaw = ::motion::motion_common::to_angle(p.heading);
+    const float64_t yaw = ::motion::motion_common::to_angle(p.pose.orientation);
     const float64_t vx = p.longitudinal_velocity_mps;
     const float64_t k = 0.0;
     const float64_t t = 0.0;
@@ -267,11 +267,12 @@ bool8_t convertToAutowareTrajectory(
 {
   output.points.clear();
   autoware_auto_msgs::msg::TrajectoryPoint p;
+  using Real = decltype(p.pose.position.x);
   for (size_t i = 0; i < input.size(); ++i) {
-    p.x = static_cast<decltype(p.x)>(input.x.at(i));
-    p.y = static_cast<decltype(p.y)>(input.y.at(i));
-    p.z = static_cast<decltype(p.z)>(input.z.at(i));
-    p.heading = ::motion::motion_common::from_angle(input.yaw.at(i));
+    p.pose.position.x = static_cast<Real>(input.x.at(i));
+    p.pose.position.y = static_cast<Real>(input.y.at(i));
+    p.pose.position.z = static_cast<Real>(input.z.at(i));
+    p.pose.orientation = ::motion::motion_common::from_angle(input.yaw.at(i));
     p.longitudinal_velocity_mps =
       static_cast<decltype(p.longitudinal_velocity_mps)>(input.vx.at(i));
     output.points.push_back(p);
@@ -323,7 +324,7 @@ int64_t calcNearestIndex(
   if (traj.empty()) {
     return -1;
   }
-  const float64_t my_yaw = tf2::getYaw(self_pose.orientation);
+  const float64_t my_yaw = ::motion::motion_common::to_angle(self_pose.orientation);
   int64_t nearest_idx = -1;
   float64_t min_dist_squared = std::numeric_limits<float64_t>::max();
   for (size_t i = 0; i < traj.size(); ++i) {
@@ -350,16 +351,19 @@ int64_t calcNearestIndex(
   if (traj.points.empty()) {
     return -1;
   }
-  const float64_t my_yaw = tf2::getYaw(self_pose.orientation);
+  const float64_t my_yaw = ::motion::motion_common::to_angle(self_pose.orientation);
   int64_t nearest_idx = -1;
   float64_t min_dist_squared = std::numeric_limits<float64_t>::max();
   for (size_t i = 0; i < traj.points.size(); ++i) {
-    const float64_t dx = self_pose.position.x - static_cast<float64_t>(traj.points.at(i).x);
-    const float64_t dy = self_pose.position.y - static_cast<float64_t>(traj.points.at(i).y);
+    const float64_t dx =
+      self_pose.position.x - static_cast<float64_t>(traj.points.at(i).pose.position.x);
+    const float64_t dy =
+      self_pose.position.y - static_cast<float64_t>(traj.points.at(i).pose.position.y);
     const float64_t dist_squared = dx * dx + dy * dy;
 
     /* ignore when yaw error is large, for crossing path */
-    const float64_t traj_yaw = ::motion::motion_common::to_angle(traj.points.at(i).heading);
+    const float64_t traj_yaw =
+      ::motion::motion_common::to_angle(traj.points.at(i).pose.orientation);
     const float64_t err_yaw = autoware::common::helper_functions::wrap_angle(my_yaw - traj_yaw);
     if (std::fabs(err_yaw) > (M_PI / 3.0)) {
       continue;

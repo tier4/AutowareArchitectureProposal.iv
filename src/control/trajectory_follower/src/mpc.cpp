@@ -34,6 +34,7 @@ namespace control
 namespace trajectory_follower
 {
 using namespace std::chrono_literals;
+using ::motion::motion_common::to_angle;
 
 bool8_t MPC::calculateMPC(
   const autoware_auto_msgs::msg::VehicleKinematicState & current_steer,
@@ -148,9 +149,9 @@ bool8_t MPC::calculateMPC(
   // [5] lateral error
   append_diag_data(mpc_data.lateral_err);
   // [6] current_pose yaw
-  append_diag_data(tf2::getYaw(current_pose.orientation));
+  append_diag_data(to_angle(current_pose.orientation));
   // [7] nearest_pose yaw
-  append_diag_data(tf2::getYaw(mpc_data.nearest_pose.orientation));
+  append_diag_data(to_angle(mpc_data.nearest_pose.orientation));
   // [8] yaw error
   append_diag_data(mpc_data.yaw_err);
   // [9] reference velocity
@@ -282,8 +283,8 @@ bool8_t MPC::getData(
     current_pose,
     data->nearest_pose);
   data->yaw_err = autoware::common::helper_functions::wrap_angle(
-    tf2::getYaw(current_pose.orientation) -
-    tf2::getYaw(data->nearest_pose.orientation));
+    to_angle(current_pose.orientation) -
+    to_angle(data->nearest_pose.orientation));
 
   /* get predicted steer */
   if (!m_steer_prediction_prev) {

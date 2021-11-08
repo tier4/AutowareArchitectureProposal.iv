@@ -37,17 +37,17 @@ TEST(TestMPCUtils, CalcNearestIndex) {
   pose.position.y = 0.0;
   Trajectory trajectory;
   TrajectoryPoint p;
-  p.x = -2.0;
-  p.y = 1.0;
+  p.pose.position.x = -2.0;
+  p.pose.position.y = 1.0;
   trajectory.points.push_back(p);
-  p.x = -1.0;
-  p.y = 1.0;
+  p.pose.position.x = -1.0;
+  p.pose.position.y = 1.0;
   trajectory.points.push_back(p);
-  p.x = 0.0;
-  p.y = 1.0;
+  p.pose.position.x = 0.0;
+  p.pose.position.y = 1.0;
   trajectory.points.push_back(p);
-  p.x = 1.0;
-  p.y = 1.0;
+  p.pose.position.x = 1.0;
+  p.pose.position.y = 1.0;
   trajectory.points.push_back(p);
   EXPECT_EQ(MPCUtils::calcNearestIndex(trajectory, pose), 2);
 }
@@ -60,43 +60,43 @@ TEST(TestMPC, CalcStopDistance) {
   Trajectory trajectory_msg;
   TrajectoryPoint p;
   // Point 0
-  p.x = 0.0;
-  p.y = 0.0;
+  p.pose.position.x = 0.0;
+  p.pose.position.y = 0.0;
   p.longitudinal_velocity_mps = 1.0f;
   trajectory_msg.points.push_back(p);
   // Point 1
-  p.x = 1.0;
-  p.y = 0.0;
+  p.pose.position.x = 1.0;
+  p.pose.position.y = 0.0;
   p.longitudinal_velocity_mps = 1.0f;
   trajectory_msg.points.push_back(p);
   // Point 2 - STOP
-  p.x = 2.0;
-  p.y = 0.0;
+  p.pose.position.x = 2.0;
+  p.pose.position.y = 0.0;
   p.longitudinal_velocity_mps = 0.0f;
   trajectory_msg.points.push_back(p);
   // Point 3
-  p.x = 3.0;
-  p.y = 0.0;
+  p.pose.position.x = 3.0;
+  p.pose.position.y = 0.0;
   p.longitudinal_velocity_mps = 1.0f;
   trajectory_msg.points.push_back(p);
   // Point 4
-  p.x = 4.0;
-  p.y = 0.0;
+  p.pose.position.x = 4.0;
+  p.pose.position.y = 0.0;
   p.longitudinal_velocity_mps = 1.0f;
   trajectory_msg.points.push_back(p);
   // Point 5
-  p.x = 5.0;
-  p.y = 0.0;
+  p.pose.position.x = 5.0;
+  p.pose.position.y = 0.0;
   p.longitudinal_velocity_mps = 1.0f;
   trajectory_msg.points.push_back(p);
   // Point 6 - STOP
-  p.x = 6.0;
-  p.y = 0.0;
+  p.pose.position.x = 6.0;
+  p.pose.position.y = 0.0;
   p.longitudinal_velocity_mps = 0.0f;
   trajectory_msg.points.push_back(p);
   // Point 7 - STOP
-  p.x = 7.0;
-  p.y = 0.0;
+  p.pose.position.x = 7.0;
+  p.pose.position.y = 0.0;
   p.longitudinal_velocity_mps = 0.0f;
   trajectory_msg.points.push_back(p);
 
