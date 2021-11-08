@@ -1038,8 +1038,9 @@ void ObstacleStopPlannerNode::insertSlowDownSection(
   }
 
   for (size_t i = update_start_idx; i <= update_end_idx; ++i) {
-    output.points.at(i).longitudinal_velocity_mps =
-      std::min(slow_down_section.velocity, output.points.at(i).longitudinal_velocity_mps);
+    output.points.at(i).longitudinal_velocity_mps = std::min(
+      slow_down_section.velocity,
+      static_cast<double>(output.points.at(i).longitudinal_velocity_mps));
   }
 
   debug_ptr_->pushPose(p_base_start.pose, PoseType::SlowDownStart);
