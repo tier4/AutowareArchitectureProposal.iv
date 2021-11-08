@@ -13,6 +13,7 @@
 // limitations under the License.
 #include "euclidean_cluster/utils.hpp"
 
+#include <autoware_auto_perception_msgs/msg/object_classification.hpp>
 #include <autoware_perception_msgs/msg/detected_object_with_feature.hpp>
 #include <autoware_perception_msgs/msg/detected_objects_with_feature.hpp>
 #include <sensor_msgs/msg/point_field.hpp>
@@ -54,6 +55,9 @@ void convertPointCloudClusters2Msg(
     feature_object.feature.cluster = ros_pointcloud;
     feature_object.object.kinematics.pose_with_covariance.pose.position =
       getCentroid(ros_pointcloud);
+    autoware_auto_perception_msgs::msg::ObjectClassification classification;
+    classification.label = autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
+    feature_object.object.classification.emplace_back(classification);
     msg.feature_objects.push_back(feature_object);
   }
 }
