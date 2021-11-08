@@ -30,8 +30,10 @@ std::string toStrInfo(const VehicleKinematicState & state)
 {
   const auto & s = state.state;
   std::stringstream ss;
-  ss << "state x: " << s.x << ", y: " << s.y << ", yaw: " << motion::motion_common::to_angle(
-    s.heading) << ", vx = " << s.longitudinal_velocity_mps << ", vy: " << s.lateral_velocity_mps <<
+  ss << "state x: " << s.pose.position.x << ", y: " << s.pose.position.y << ", yaw: " <<
+    motion::motion_common::to_angle(
+    s.pose.orientation) << ", vx = " << s.longitudinal_velocity_mps << ", vy: " <<
+    s.lateral_velocity_mps <<
     ", ax: " << s.acceleration_mps2 << ", steer: " << s.front_wheel_angle_rad;
   return ss.str();
 }
@@ -44,7 +46,7 @@ const std::vector<std::string> vehicle_model_type_vec = { // NOLINT
   "DELAY_STEER_ACC_GEARED",
 };
 
-static constexpr float32_t COM_TO_BASELINK = 1.5f;
+static constexpr float64_t COM_TO_BASELINK = 1.5;
 class PubSubNode : public rclcpp::Node
 {
 public:
@@ -185,9 +187,9 @@ void sendCommand(
 VehicleKinematicState comToBaselink(const VehicleKinematicState & com)
 {
   auto baselink = com;
-  float64_t yaw = motion::motion_common::to_angle(com.state.heading);
-  baselink.state.x -= COM_TO_BASELINK * static_cast<float>(std::cos(yaw));
-  baselink.state.y -= COM_TO_BASELINK * static_cast<float>(std::sin(yaw));
+  float64_t yaw = motion::motion_common::to_angle(com.state.pose.orientation);
+  baselink.state.pose.position.x -= COM_TO_BASELINK * std::cos(yaw);
+  baselink.state.pose.position.y -= COM_TO_BASELINK * std::sin(yaw);
   return baselink;
 }
 
@@ -204,42 +206,42 @@ VehicleKinematicState comToBaselink(const VehicleKinematicState & com)
 //
 void isOnForward(const VehicleKinematicState & _state, const VehicleKinematicState & _init)
 {
-  float32_t forward_thr = 1.0f;
+  float64_t forward_thr = 1.0;
   auto state = comToBaselink(_state);
   auto init = comToBaselink(_init);
-  float32_t dx = state.state.x - init.state.x;
+  float64_t dx = state.state.pose.position.x - init.state.pose.position.x;
   EXPECT_GT(dx, forward_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
 }
 
 void isOnBackward(const VehicleKinematicState & _state, const VehicleKinematicState & _init)
 {
-  float32_t backward_thr = -1.0f;
+  float64_t backward_thr = -1.0;
   auto state = comToBaselink(_state);
   auto init = comToBaselink(_init);
-  float32_t dx = state.state.x - init.state.x;
+  float64_t dx = state.state.pose.position.x - init.state.pose.position.x;
   EXPECT_LT(dx, backward_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
 }
 
 void isOnForwardLeft(const VehicleKinematicState & _state, const VehicleKinematicState & _init)
 {
-  float32_t forward_thr = 1.0f;
-  float32_t left_thr = 0.1f;
+  float64_t forward_thr = 1.0;
+  float64_t left_thr = 0.1f;
   auto state = comToBaselink(_state);
   auto init = comToBaselink(_init);
-  float32_t dx = state.state.x - init.state.x;
-  float32_t dy = state.state.y - init.state.y;
+  float64_t dx = state.state.pose.position.x - init.state.pose.position.x;
+  float64_t dy = state.state.pose.position.y - init.state.pose.position.y;
   EXPECT_GT(dx, forward_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
   EXPECT_GT(dy, left_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
 }
 
 void isOnBackwardRight(const VehicleKinematicState & _state, const VehicleKinematicState & _init)
 {
-  float32_t backward_thr = -1.0f;
-  float32_t right_thr = -0.1f;
+  float64_t backward_thr = -1.0;
+  float64_t right_thr = -0.1;
   auto state = comToBaselink(_state);
   auto init = comToBaselink(_init);
-  float32_t dx = state.state.x - init.state.x;
-  float32_t dy = state.state.y - init.state.y;
+  float64_t dx = state.state.pose.position.x - init.state.pose.position.x;
+  float64_t dy = state.state.pose.position.y - init.state.pose.position.y;
   EXPECT_LT(dx, backward_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
   EXPECT_LT(dy, right_thr) << "[curr] " << toStrInfo(state) << ", [init] " << toStrInfo(init);
 }
