@@ -28,11 +28,11 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <autoware_auto_planning_msgs/msg/path.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_system_msgs/msg/autoware_state.hpp>
 #include <autoware_auto_system_msgs/msg/emergency_state_stamped.hpp>
 #include <autoware_control_msgs/msg/gate_mode.hpp>
 #include <autoware_planning_msgs/msg/stop_reason_array.hpp>
-#include <autoware_planning_msgs/msg/trajectory.hpp>
 #include <autoware_v2x_msgs/msg/infrastructure_command_array.hpp>
 #include <autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp>
 #include <autoware_vehicle_msgs/msg/control_mode.hpp>
@@ -86,13 +86,13 @@ private:
   rclcpp::Subscription<autoware_auto_planning_msgs::msg::Path>::SharedPtr sub_lane_change_candidate_;
   rclcpp::Subscription<autoware_planning_msgs::msg::IsAvoidancePossible>::SharedPtr
     sub_obstacle_avoid_ready_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr
+  rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr
     sub_obstacle_avoid_candidate_;
   rclcpp::Subscription<autoware_api_msgs::msg::VelocityLimit>::SharedPtr sub_max_velocity_;
   rclcpp::Subscription<autoware_planning_msgs::msg::VelocityLimit>::SharedPtr
     sub_current_max_velocity_;
   rclcpp::Subscription<autoware_api_msgs::msg::StopCommand>::SharedPtr sub_temporary_stop_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_autoware_traj_;
+  rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr sub_autoware_traj_;
   rclcpp::Subscription<autoware_api_msgs::msg::DoorControlCommand>::SharedPtr sub_door_control_;
   rclcpp::Subscription<pacmod_msgs::msg::SystemRptInt>::SharedPtr sub_door_status_;
 
@@ -143,13 +143,13 @@ private:
   void callbackLaneObstacleAvoidReady(
     const autoware_planning_msgs::msg::IsAvoidancePossible::ConstSharedPtr msg_ptr);
   void callbackLaneObstacleAvoidCandidatePath(
-    const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr);
+    const autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr);
   void callbackMaxVelocity(const autoware_api_msgs::msg::VelocityLimit::ConstSharedPtr msg_ptr);
   void callbackCurrentMaxVelocity(
     const autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr msg_ptr);
   void callbackTemporaryStop(const autoware_api_msgs::msg::StopCommand::ConstSharedPtr msg_ptr);
   void callbackAutowareTrajectory(
-    const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr);
+    const autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr msg_ptr);
   void callbackDoorControl(
     const autoware_api_msgs::msg::DoorControlCommand::ConstSharedPtr msg_ptr);
   void callbackDoorStatus(const pacmod_msgs::msg::SystemRptInt::ConstSharedPtr msg_ptr);

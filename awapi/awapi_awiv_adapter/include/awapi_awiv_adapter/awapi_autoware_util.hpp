@@ -20,6 +20,7 @@
 #include <autoware_api_msgs/msg/stop_command.hpp>
 #include <autoware_api_msgs/msg/velocity_limit.hpp>
 #include <autoware_auto_planning_msgs/msg/path.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_system_msgs/msg/autoware_state.hpp>
 #include <autoware_auto_system_msgs/msg/emergency_state_stamped.hpp>
 #include <autoware_auto_system_msgs/msg/hazard_status_stamped.hpp>
@@ -27,7 +28,6 @@
 #include <autoware_planning_msgs/msg/is_avoidance_possible.hpp>
 #include <autoware_planning_msgs/msg/lane_change_status.hpp>
 #include <autoware_planning_msgs/msg/stop_reason_array.hpp>
-#include <autoware_planning_msgs/msg/trajectory.hpp>
 #include <autoware_planning_msgs/msg/velocity_limit.hpp>
 #include <autoware_v2x_msgs/msg/infrastructure_command_array.hpp>
 #include <autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp>
@@ -77,11 +77,11 @@ struct AutowareInfo
   autoware_planning_msgs::msg::LaneChangeStatus::ConstSharedPtr lane_change_ready_ptr;
   autoware_auto_planning_msgs::msg::Path::ConstSharedPtr lane_change_candidate_ptr;
   autoware_planning_msgs::msg::IsAvoidancePossible::ConstSharedPtr obstacle_avoid_ready_ptr;
-  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr obstacle_avoid_candidate_ptr;
+  autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr obstacle_avoid_candidate_ptr;
   autoware_api_msgs::msg::VelocityLimit::ConstSharedPtr max_velocity_ptr;
   autoware_planning_msgs::msg::VelocityLimit::ConstSharedPtr current_max_velocity_ptr;
   autoware_api_msgs::msg::StopCommand::ConstSharedPtr temporary_stop_ptr;
-  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr autoware_planning_traj_ptr;
+  autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr autoware_planning_traj_ptr;
   pacmod_msgs::msg::SystemRptInt::ConstSharedPtr door_state_ptr;
 };
 
@@ -115,11 +115,11 @@ double lowpass_filter(const double current_value, const double prev_value, const
 namespace planning_util
 {
 bool calcClosestIndex(
-  const autoware_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & pose,
+  const autoware_auto_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & pose,
   size_t & output_closest_idx, const double dist_thr = 10.0, const double angle_thr = M_PI / 2.0);
 
 inline geometry_msgs::msg::Pose getPose(
-  const autoware_planning_msgs::msg::Trajectory & traj, const int idx)
+  const autoware_auto_planning_msgs::msg::Trajectory & traj, const int idx)
 {
   return traj.points.at(idx).pose;
 }
@@ -132,11 +132,11 @@ inline double calcDist2d(const geometry_msgs::msg::Point & a, const geometry_msg
 double normalizeEulerAngle(double euler);
 
 double calcArcLengthFromWayPoint(
-  const autoware_planning_msgs::msg::Trajectory & input_path, const size_t src_idx,
+  const autoware_auto_planning_msgs::msg::Trajectory & input_path, const size_t src_idx,
   const size_t dst_idx);
 
 double calcDistanceAlongTrajectory(
-  const autoware_planning_msgs::msg::Trajectory & trajectory,
+  const autoware_auto_planning_msgs::msg::Trajectory & trajectory,
   const geometry_msgs::msg::Pose & current_pose, const geometry_msgs::msg::Pose & target_pose);
 
 }  // namespace planning_util

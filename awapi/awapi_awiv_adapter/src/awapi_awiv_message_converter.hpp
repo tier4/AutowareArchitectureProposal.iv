@@ -21,6 +21,9 @@
 #include "autoware_auto_planning_msgs/msg/path.hpp"
 #include "autoware_planning_msgs/msg/path.hpp"
 
+#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
+#include "autoware_planning_msgs/msg/trajectory.hpp"
+
 namespace autoware_api
 {
 
@@ -55,6 +58,24 @@ inline auto convert(const autoware_auto_planning_msgs::msg::Path & path)
     iv_path.points.push_back(iv_point);
   }
   return iv_path;
+}
+
+inline auto convert(const autoware_auto_planning_msgs::msg::Trajectory & traj)
+{
+  autoware_planning_msgs::msg::Trajectory iv_traj;
+  iv_traj.header = traj.header;
+  iv_traj.points.reserve(traj.points.size());
+  for (const auto point : traj.points)
+  {
+    autoware_planning_msgs::msg::TrajectoryPoint iv_point;
+    iv_point.pose = point.pose;
+    iv_point.accel.linear.x = point.acceleration_mps2;
+    iv_point.twist.linear.x = point.longitudinal_velocity_mps;
+    iv_point.twist.linear.y = point.lateral_velocity_mps;
+    iv_point.twist.angular.z = point.heading_rate_rps;
+    iv_traj.points.push_back(iv_point);
+  }
+  return iv_traj;
 }
 
 }  // namespace autoware_api
