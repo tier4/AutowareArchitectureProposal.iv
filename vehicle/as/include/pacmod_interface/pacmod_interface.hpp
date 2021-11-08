@@ -19,10 +19,10 @@
 #include <vehicle_info_util/vehicle_info_util.hpp>
 
 #include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/engage.hpp>
 #include <autoware_vehicle_msgs/msg/actuation_command_stamped.hpp>
 #include <autoware_vehicle_msgs/msg/actuation_status_stamped.hpp>
 #include <autoware_vehicle_msgs/msg/control_mode.hpp>
-#include <autoware_vehicle_msgs/msg/engage.hpp>
 #include <autoware_vehicle_msgs/msg/shift_stamped.hpp>
 #include <autoware_vehicle_msgs/msg/steering.hpp>
 #include <autoware_vehicle_msgs/msg/turn_signal.hpp>
@@ -64,7 +64,7 @@ private:
     control_cmd_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::ShiftStamped>::SharedPtr shift_cmd_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr turn_signal_cmd_sub_;
-  rclcpp::Subscription<autoware_vehicle_msgs::msg::Engage>::SharedPtr engage_cmd_sub_;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::Engage>::SharedPtr engage_cmd_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::ActuationCommandStamped>::SharedPtr
     actuation_cmd_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::VehicleCommand>::SharedPtr vehicle_cmd_sub_;
@@ -166,7 +166,7 @@ private:
   void callbackVehicleCmd(const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr msg);
   void callbackShiftCmd(const autoware_vehicle_msgs::msg::ShiftStamped::ConstSharedPtr msg);
   void callbackTurnSignalCmd(const autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr msg);
-  void callbackEngage(const autoware_vehicle_msgs::msg::Engage::ConstSharedPtr msg);
+  void callbackEngage(const autoware_auto_vehicle_msgs::msg::Engage::ConstSharedPtr msg);
   void callbackPacmodRpt(
     const pacmod_msgs::msg::SystemRptFloat::ConstSharedPtr steer_wheel_rpt,
     const pacmod_msgs::msg::WheelSpeedRpt::ConstSharedPtr wheel_speed_rpt,
