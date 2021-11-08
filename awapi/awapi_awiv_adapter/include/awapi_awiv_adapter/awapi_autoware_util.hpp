@@ -19,13 +19,13 @@
 
 #include <autoware_api_msgs/msg/stop_command.hpp>
 #include <autoware_api_msgs/msg/velocity_limit.hpp>
+#include <autoware_auto_planning_msgs/msg/path.hpp>
 #include <autoware_auto_system_msgs/msg/autoware_state.hpp>
 #include <autoware_auto_system_msgs/msg/emergency_state_stamped.hpp>
 #include <autoware_auto_system_msgs/msg/hazard_status_stamped.hpp>
 #include <autoware_control_msgs/msg/gate_mode.hpp>
 #include <autoware_planning_msgs/msg/is_avoidance_possible.hpp>
 #include <autoware_planning_msgs/msg/lane_change_status.hpp>
-#include <autoware_planning_msgs/msg/path.hpp>
 #include <autoware_planning_msgs/msg/stop_reason_array.hpp>
 #include <autoware_planning_msgs/msg/trajectory.hpp>
 #include <autoware_planning_msgs/msg/velocity_limit.hpp>
@@ -75,7 +75,7 @@ struct AutowareInfo
   pacmod_msgs::msg::GlobalRpt::ConstSharedPtr global_rpt_ptr;
   autoware_planning_msgs::msg::LaneChangeStatus::ConstSharedPtr lane_change_available_ptr;
   autoware_planning_msgs::msg::LaneChangeStatus::ConstSharedPtr lane_change_ready_ptr;
-  autoware_planning_msgs::msg::Path::ConstSharedPtr lane_change_candidate_ptr;
+  autoware_auto_planning_msgs::msg::Path::ConstSharedPtr lane_change_candidate_ptr;
   autoware_planning_msgs::msg::IsAvoidancePossible::ConstSharedPtr obstacle_avoid_ready_ptr;
   autoware_planning_msgs::msg::Trajectory::ConstSharedPtr obstacle_avoid_candidate_ptr;
   autoware_api_msgs::msg::VelocityLimit::ConstSharedPtr max_velocity_ptr;

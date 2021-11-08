@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "awapi_awiv_adapter/awapi_lane_change_state_publisher.hpp"
+#include "awapi_awiv_message_converter.hpp"
 
 namespace autoware_api
 {
@@ -70,7 +71,7 @@ void AutowareIvLaneChangeStatePublisher::getLaneChangeReadyInfo(
 }
 
 void AutowareIvLaneChangeStatePublisher::getCandidatePathInfo(
-  const autoware_planning_msgs::msg::Path::ConstSharedPtr & path_ptr,
+  const autoware_auto_planning_msgs::msg::Path::ConstSharedPtr & path_ptr,
   autoware_api_msgs::msg::LaneChangeStatus * status)
 {
   if (!path_ptr) {
@@ -79,7 +80,7 @@ void AutowareIvLaneChangeStatePublisher::getCandidatePathInfo(
     return;
   }
 
-  status->candidate_path = *path_ptr;
+  status->candidate_path = convert(*path_ptr);
 }
 
 }  // namespace autoware_api

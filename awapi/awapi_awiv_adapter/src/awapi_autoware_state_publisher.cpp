@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "awapi_awiv_message_converter.hpp"
 #include "awapi_awiv_adapter/awapi_autoware_state_publisher.hpp"
 #include "awapi_awiv_adapter/diagnostics_filter.hpp"
+#include "awapi_awiv_message_converter.hpp"
 
 #include <map>
 #include <regex>

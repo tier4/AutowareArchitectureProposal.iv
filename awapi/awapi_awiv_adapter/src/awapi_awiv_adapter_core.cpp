@@ -102,7 +102,7 @@ AutowareIvAdapter::AutowareIvAdapter()
       std::bind(&AutowareIvAdapter::callbackLaneChangeAvailable, this, _1));
   sub_lane_change_ready_ = this->create_subscription<autoware_planning_msgs::msg::LaneChangeStatus>(
     "input/lane_change_ready", 1, std::bind(&AutowareIvAdapter::callbackLaneChangeReady, this, _1));
-  sub_lane_change_candidate_ = this->create_subscription<autoware_planning_msgs::msg::Path>(
+  sub_lane_change_candidate_ = this->create_subscription<autoware_auto_planning_msgs::msg::Path>(
     "input/lane_change_candidate_path", 1,
     std::bind(&AutowareIvAdapter::callbackLaneChangeCandidatePath, this, _1));
   sub_obstacle_avoid_ready_ =
@@ -304,7 +304,7 @@ void AutowareIvAdapter::callbackLaneChangeReady(
 }
 
 void AutowareIvAdapter::callbackLaneChangeCandidatePath(
-  const autoware_planning_msgs::msg::Path::ConstSharedPtr msg_ptr)
+  const autoware_auto_planning_msgs::msg::Path::ConstSharedPtr msg_ptr)
 {
   aw_info_.lane_change_candidate_ptr = msg_ptr;
 }

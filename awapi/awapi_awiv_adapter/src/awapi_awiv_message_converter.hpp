@@ -18,10 +18,13 @@
 #include "autoware_auto_system_msgs/msg/hazard_status_stamped.hpp"
 #include "autoware_system_msgs/msg/hazard_status_stamped.hpp"
 
+#include "autoware_auto_planning_msgs/msg/path.hpp"
+#include "autoware_planning_msgs/msg/path.hpp"
+
 namespace autoware_api
 {
 
-auto convert(const autoware_auto_system_msgs::msg::HazardStatusStamped & status)
+inline auto convert(const autoware_auto_system_msgs::msg::HazardStatusStamped & status)
 {
   autoware_system_msgs::msg::HazardStatusStamped iv_status;
   iv_status.header.stamp = status.stamp;
@@ -33,6 +36,25 @@ auto convert(const autoware_auto_system_msgs::msg::HazardStatusStamped & status)
   iv_status.status.diagnostics_lf = status.status.diag_latent_fault;
   iv_status.status.diagnostics_spf = status.status.diag_single_point_fault;
   return iv_status;
+}
+
+inline auto convert(const autoware_auto_planning_msgs::msg::Path & path)
+{
+  autoware_planning_msgs::msg::Path iv_path;
+  iv_path.header = path.header;
+  iv_path.drivable_area = path.drivable_area;
+  iv_path.points.reserve(path.points.size());
+  for (const auto point : path.points)
+  {
+    autoware_planning_msgs::msg::PathPoint iv_point;
+    iv_point.pose = point.pose;
+    iv_point.twist.linear.x = point.longitudinal_velocity_mps;
+    iv_point.twist.linear.y = point.lateral_velocity_mps;
+    iv_point.twist.angular.z = point.heading_rate_rps;
+    iv_point.type = 0;  // not used
+    iv_path.points.push_back(iv_point);
+  }
+  return iv_path;
 }
 
 }  // namespace autoware_api

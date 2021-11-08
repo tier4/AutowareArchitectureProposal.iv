@@ -27,10 +27,10 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include <autoware_auto_planning_msgs/msg/path.hpp>
 #include <autoware_auto_system_msgs/msg/autoware_state.hpp>
 #include <autoware_auto_system_msgs/msg/emergency_state_stamped.hpp>
 #include <autoware_control_msgs/msg/gate_mode.hpp>
-#include <autoware_planning_msgs/msg/path.hpp>
 #include <autoware_planning_msgs/msg/stop_reason_array.hpp>
 #include <autoware_planning_msgs/msg/trajectory.hpp>
 #include <autoware_v2x_msgs/msg/infrastructure_command_array.hpp>
@@ -83,7 +83,7 @@ private:
     sub_lane_change_available_;
   rclcpp::Subscription<autoware_planning_msgs::msg::LaneChangeStatus>::SharedPtr
     sub_lane_change_ready_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::Path>::SharedPtr sub_lane_change_candidate_;
+  rclcpp::Subscription<autoware_auto_planning_msgs::msg::Path>::SharedPtr sub_lane_change_candidate_;
   rclcpp::Subscription<autoware_planning_msgs::msg::IsAvoidancePossible>::SharedPtr
     sub_obstacle_avoid_ready_;
   rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr
@@ -139,7 +139,7 @@ private:
   void callbackLaneChangeReady(
     const autoware_planning_msgs::msg::LaneChangeStatus::ConstSharedPtr msg_ptr);
   void callbackLaneChangeCandidatePath(
-    const autoware_planning_msgs::msg::Path::ConstSharedPtr msg_ptr);
+    const autoware_auto_planning_msgs::msg::Path::ConstSharedPtr msg_ptr);
   void callbackLaneObstacleAvoidReady(
     const autoware_planning_msgs::msg::IsAvoidancePossible::ConstSharedPtr msg_ptr);
   void callbackLaneObstacleAvoidCandidatePath(
