@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "autoware_system_msgs/msg/hazard_status_stamped.hpp"
 #include "awapi_awiv_adapter/awapi_autoware_state_publisher.hpp"
 #include "awapi_awiv_adapter/diagnostics_filter.hpp"
 
@@ -162,8 +163,22 @@ void AutowareIvAutowareStatePublisher::getHazardStatusInfo(
     return;
   }
 
+  static auto convert = [](const autoware_auto_system_msgs::msg::HazardStatusStamped & status)
+  {
+    autoware_system_msgs::msg::HazardStatusStamped iv_status;
+    iv_status.header.stamp = status.stamp;
+    iv_status.status.level = status.status.level;
+    iv_status.status.emergency = status.status.emergency;
+    iv_status.status.emergency_holding = status.status.emergency_holding;
+    iv_status.status.diagnostics_nf = status.status.diag_no_fault;
+    iv_status.status.diagnostics_sf = status.status.diag_safe_fault;
+    iv_status.status.diagnostics_lf = status.status.diag_latent_fault;
+    iv_status.status.diagnostics_spf = status.status.diag_single_point_fault;
+    return iv_status;
+  };
+
   // get emergency
-  status->hazard_status = *aw_info.hazard_status_ptr;
+  status->hazard_status = convert(*aw_info.hazard_status_ptr);
 
   // filter leaf diagnostics
   status->hazard_status.status.diagnostics_spf =
@@ -241,22 +256,22 @@ void AutowareIvAutowareStatePublisher::getErrorDiagInfo(
   const auto & hazard_status = aw_info.hazard_status_ptr->status;
   std::vector<DiagnosticStatus> error_diagnostics;
 
-  for (const auto & hazard_diag : hazard_status.diagnostics_spf) {
+  for (const auto & hazard_diag : hazard_status.diag_single_point_fault) {
     auto diag = hazard_diag;
     diag.message = "[Single Point Fault]" + hazard_diag.message;
     error_diagnostics.push_back(diag);
   }
-  for (const auto & hazard_diag : hazard_status.diagnostics_lf) {
+  for (const auto & hazard_diag : hazard_status.diag_latent_fault) {
     auto diag = hazard_diag;
     diag.message = "[Latent Fault]" + hazard_diag.message;
     error_diagnostics.push_back(diag);
   }
-  for (const auto & hazard_diag : hazard_status.diagnostics_sf) {
+  for (const auto & hazard_diag : hazard_status.diag_safe_fault) {
     auto diag = hazard_diag;
     diag.message = "[Safe Fault]" + hazard_diag.message;
     error_diagnostics.push_back(diag);
   }
-  for (const auto & hazard_diag : hazard_status.diagnostics_nf) {
+  for (const auto & hazard_diag : hazard_status.diag_no_fault) {
     auto diag = hazard_diag;
     diag.message = "[No Fault]" + hazard_diag.message;
     diag.level = DiagnosticStatus::OK;

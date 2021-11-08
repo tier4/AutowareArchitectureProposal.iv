@@ -70,7 +70,7 @@ private:
   rclcpp::Subscription<autoware_vehicle_msgs::msg::ControlMode>::SharedPtr sub_control_mode_;
   rclcpp::Subscription<autoware_control_msgs::msg::GateMode>::SharedPtr sub_gate_mode_;
   rclcpp::Subscription<autoware_auto_system_msgs::msg::EmergencyStateStamped>::SharedPtr sub_emergency_;
-  rclcpp::Subscription<autoware_system_msgs::msg::HazardStatusStamped>::SharedPtr
+  rclcpp::Subscription<autoware_auto_system_msgs::msg::HazardStatusStamped>::SharedPtr
     sub_hazard_status_;
   rclcpp::Subscription<autoware_planning_msgs::msg::StopReasonArray>::SharedPtr sub_stop_reason_;
   rclcpp::Subscription<autoware_v2x_msgs::msg::InfrastructureCommandArray>::SharedPtr
@@ -125,7 +125,7 @@ private:
   void callbackEmergencyState(
     const autoware_auto_system_msgs::msg::EmergencyStateStamped::ConstSharedPtr msg_ptr);
   void callbackHazardStatus(
-    const autoware_system_msgs::msg::HazardStatusStamped::ConstSharedPtr msg_ptr);
+    const autoware_auto_system_msgs::msg::HazardStatusStamped::ConstSharedPtr msg_ptr);
   void callbackStopReason(
     const autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr msg_ptr);
   void callbackV2XCommand(
