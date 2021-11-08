@@ -50,7 +50,7 @@ GoalDistanceCalculatorNode::GoalDistanceCalculatorNode(const rclcpp::NodeOptions
   // Subscriber
   sub_route_ = create_subscription<autoware_auto_planning_msgs::msg::Route>(
     "/planning/mission_planning/route", queue_size,
-    [&](const autoware_auto_planning_msgs::msg::Route::SharedPtr msg_ptr) {route_ = msg_ptr;});
+    [&](const autoware_auto_planning_msgs::msg::Route::SharedPtr msg_ptr) { route_ = msg_ptr; });
 
   // Wait for first self pose
   self_pose_listener_.waitForFirstPose();
