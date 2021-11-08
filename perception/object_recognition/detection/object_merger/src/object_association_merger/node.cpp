@@ -68,10 +68,8 @@ void ObjectAssociationMergerNode::objectsCallback(
     if (direct_assignment.find(object0_idx) != direct_assignment.end()) {  // found
       // The one with the higher score will be hired.
       if (
-        input_object1_msg->objects.at(direct_assignment.at(object0_idx))
-          .classification.front()
-          .probability <
-        input_object0_msg->objects.at(object0_idx).classification.front().probability) {
+        input_object1_msg->objects.at(direct_assignment.at(object0_idx)).existence_probability <
+        input_object0_msg->objects.at(object0_idx).existence_probability) {
         output_msg.objects.push_back(input_object0_msg->objects.at(object0_idx));
       } else {
         output_msg.objects.push_back(
