@@ -219,7 +219,7 @@ bool NormalVehicleTracker::measureWithPose(
 
   float r_cov_x;
   float r_cov_y;
-  const uint8_t label = utils::getHighestProbLabel(classification_);
+  const uint8_t label = utils::getHighestProbLabel(object.classification);
 
   if (label == Label::CAR) {
     r_cov_x = ekf_params_.r_cov_x;
@@ -356,7 +356,7 @@ bool NormalVehicleTracker::getTrackedObject(
 {
   object = utils::toTrackedObject(object_);
   object.object_id = getUUID();
-  object.classification = classification_;
+  object.classification = getClassification();
 
   // predict kinematics
   KalmanFilter tmp_ekf_for_no_update = ekf_;

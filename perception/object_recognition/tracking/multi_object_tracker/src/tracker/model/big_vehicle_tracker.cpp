@@ -219,7 +219,7 @@ bool BigVehicleTracker::measureWithPose(
 
   float r_cov_x;
   float r_cov_y;
-  const uint8_t label = utils::getHighestProbLabel(classification_);
+  const uint8_t label = utils::getHighestProbLabel(object.classification);
 
   if (label == Label::CAR) {
     constexpr float r_stddev_x = 8.0;  // [m]
@@ -355,7 +355,7 @@ bool BigVehicleTracker::getTrackedObject(
 {
   object = utils::toTrackedObject(object_);
   object.object_id = getUUID();
-  object.classification = classification_;
+  object.classification = getClassification();
 
   // predict state
   KalmanFilter tmp_ekf_for_no_update = ekf_;

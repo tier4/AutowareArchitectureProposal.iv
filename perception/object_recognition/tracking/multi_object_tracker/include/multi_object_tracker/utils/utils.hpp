@@ -39,7 +39,7 @@ double get2dIoU(
   const autoware_auto_perception_msgs::msg::TrackedObject & object1,
   const autoware_auto_perception_msgs::msg::TrackedObject & object2);
 std::uint8_t getHighestProbLabel(
-  const std::allocator<autoware_auto_perception_msgs::msg::ObjectClassification> & classification);
+  const std::vector<autoware_auto_perception_msgs::msg::ObjectClassification> & classification);
 autoware_auto_perception_msgs::msg::TrackedObject toTrackedObject(
   const autoware_auto_perception_msgs::msg::DetectedObject & detected_object);
 

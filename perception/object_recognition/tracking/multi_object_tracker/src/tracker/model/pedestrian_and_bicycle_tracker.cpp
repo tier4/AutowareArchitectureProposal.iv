@@ -48,7 +48,7 @@ bool PedestrianAndBicycleTracker::getTrackedObject(
   const rclcpp::Time & time, autoware_auto_perception_msgs::msg::TrackedObject & object) const
 {
   using Label = autoware_auto_perception_msgs::msg::ObjectClassification;
-  const uint8_t label = utils::getHighestProbLabel(classification_);
+  const uint8_t label = getHighestProbLabel();
 
   if (label == Label::PEDESTRIAN) {
     pedestrian_tracker_.getTrackedObject(time, object);
@@ -56,6 +56,6 @@ bool PedestrianAndBicycleTracker::getTrackedObject(
     bicycle_tracker_.getTrackedObject(time, object);
   }
   object.object_id = getUUID();
-  object.classification = classification_;
+  object.classification = getClassification();
   return true;
 }

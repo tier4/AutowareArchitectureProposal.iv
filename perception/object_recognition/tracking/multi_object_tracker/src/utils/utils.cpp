@@ -191,7 +191,7 @@ void toPolygon2d(
 }
 
 std::uint8_t getHighestProbLabel(
-  const std::allocator<autoware_auto_perception_msgs::msg::ObjectClassification> & classification)
+  const std::vector<autoware_auto_perception_msgs::msg::ObjectClassification> & classification)
 {
   std::uint8_t label = autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
   float highest_prob = 0.0;

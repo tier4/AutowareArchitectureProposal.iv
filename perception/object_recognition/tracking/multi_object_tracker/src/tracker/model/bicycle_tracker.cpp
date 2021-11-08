@@ -334,7 +334,7 @@ bool BicycleTracker::getTrackedObject(
 {
   object = utils::toTrackedObject(object_);
   object.object_id = getUUID();
-  object.classification = classification_;
+  object.classification = getClassification();
 
   // predict kinematics
   KalmanFilter tmp_ekf_for_no_update = ekf_;

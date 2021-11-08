@@ -34,14 +34,14 @@ class Tracker
 protected:
   unique_identifier_msgs::msg::UUID getUUID() const {return uuid_;}
   void setClassification(
-    const std::allocator<autoware_auto_perception_msgs::msg::ObjectClassification> & classification)
+    const std::vector<autoware_auto_perception_msgs::msg::ObjectClassification> & classification)
   {
     classification_ = classification;
   }
 
 private:
   unique_identifier_msgs::msg::UUID uuid_;
-  std::allocator<autoware_auto_perception_msgs::msg::ObjectClassification> classification_;
+  std::vector<autoware_auto_perception_msgs::msg::ObjectClassification> classification_;
   int no_measurement_count_;
   int total_no_measurement_count_;
   int total_measurement_count_;
@@ -50,12 +50,16 @@ private:
 public:
   Tracker(
     const rclcpp::Time & time,
-    const std::allocator<autoware_auto_perception_msgs::msg::ObjectClassification> & classification);
+    const std::vector<autoware_auto_perception_msgs::msg::ObjectClassification> & classification);
   virtual ~Tracker() {}
   bool updateWithMeasurement(
     const autoware_auto_perception_msgs::msg::DetectedObject & object,
     const rclcpp::Time & measurement_time);
   bool updateWithoutMeasurement();
+  std::vector<autoware_auto_perception_msgs::msg::ObjectClassification> getClassification() const
+  {
+    return classification_;
+  }
   std::uint8_t getHighestProbLabel() const {return utils::getHighestProbLabel(classification_);}
   int getNoMeasurementCount() const {return no_measurement_count_;}
   int getTotalNoMeasurementCount() const {return total_no_measurement_count_;}
