@@ -37,7 +37,7 @@ namespace
 {
 using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_planning_msgs::msg::TrajectoryPoint;
-using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
+using TrajectoryPoints = std::vector<TrajectoryPoint>;
 
 double calcBrakingDistance(
   const double abs_velocity, const double max_deceleration, const double delay_time)
@@ -158,10 +158,10 @@ PoseDeviation LaneDepartureChecker::calcTrajectoryDeviation(
   return autoware_utils::calcPoseDeviation(trajectory.points.at(nearest_idx).pose, pose);
 }
 
-TrajectoryPointArray LaneDepartureChecker::resampleTrajectory(
+TrajectoryPoints LaneDepartureChecker::resampleTrajectory(
   const Trajectory & trajectory, const double interval)
 {
-  TrajectoryPointArray resampled;
+  TrajectoryPoints resampled;
 
   resampled.push_back(trajectory.points.front());
   for (size_t i = 1; i < trajectory.points.size() - 1; ++i) {
@@ -179,10 +179,10 @@ TrajectoryPointArray LaneDepartureChecker::resampleTrajectory(
   return resampled;
 }
 
-TrajectoryPointArray LaneDepartureChecker::cutTrajectory(
-  const TrajectoryPointArray & trajectory, const double length)
+TrajectoryPoints LaneDepartureChecker::cutTrajectory(
+  const TrajectoryPoints & trajectory, const double length)
 {
-  TrajectoryPointArray cut;
+  TrajectoryPoints cut;
 
   double total_length = 0.0;
   cut.push_back(trajectory.front());
@@ -222,8 +222,8 @@ TrajectoryPointArray LaneDepartureChecker::cutTrajectory(
 }
 
 std::vector<LinearRing2d> LaneDepartureChecker::createVehicleFootprints(
-  const geometry_msgs::msg::PoseWithCovariance & covariance,
-  const TrajectoryPointArray & trajectory, const Param & param)
+  const geometry_msgs::msg::PoseWithCovariance & covariance, const TrajectoryPoints & trajectory,
+  const Param & param)
 {
   // Calculate longitudinal and lateral margin based on covariance
   const auto margin = calcFootprintMargin(covariance, param.footprint_margin_scale);

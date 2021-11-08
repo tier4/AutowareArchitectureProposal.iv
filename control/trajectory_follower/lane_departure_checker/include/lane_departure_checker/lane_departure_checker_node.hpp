@@ -42,10 +42,6 @@
 namespace lane_departure_checker
 {
 using autoware_auto_mapping_msgs::msg::HADMapBin;
-using autoware_auto_planning_msgs::msg::HADMapRoute;
-using autoware_auto_planning_msgs::msg::Trajectory;
-using autoware_auto_planning_msgs::msg::TrajectoryPoint;
-using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
 
 struct NodeParam
 {
@@ -68,8 +64,8 @@ private:
   rclcpp::Subscription<Trajectory>::SharedPtr sub_predicted_trajectory_;
 
   // Data Buffer
-  nav_msgs::msg::Odometry::ConstSharedPtr current_odom_;
   geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose_;
+  nav_msgs::msg::Odometry::ConstSharedPtr current_odom_;
   lanelet::LaneletMapPtr lanelet_map_;
   lanelet::traffic_rules::TrafficRulesPtr traffic_rules_;
   lanelet::routing::RoutingGraphPtr routing_graph_;

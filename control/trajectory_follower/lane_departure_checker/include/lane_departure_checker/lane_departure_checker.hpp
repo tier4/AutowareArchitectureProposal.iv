@@ -44,7 +44,7 @@ using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using autoware_utils::LinearRing2d;
 using autoware_utils::PoseDeviation;
-using TrajectoryPointArray = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
+using TrajectoryPoints = std::vector<TrajectoryPoint>;
 
 struct Param
 {
@@ -75,7 +75,7 @@ struct Output
   bool is_out_of_lane{};
   PoseDeviation trajectory_deviation{};
   lanelet::ConstLanelets candidate_lanelets{};
-  TrajectoryPointArray resampled_trajectory{};
+  TrajectoryPoints resampled_trajectory{};
   std::vector<LinearRing2d> vehicle_footprints{};
   std::vector<LinearRing2d> vehicle_passing_areas{};
 };
@@ -101,15 +101,13 @@ private:
     const Trajectory & trajectory, const geometry_msgs::msg::Pose & pose);
 
   //! This function assumes the input trajectory is sampled dense enough
-  static TrajectoryPointArray resampleTrajectory(
-    const Trajectory & trajectory, const double interval);
+  static TrajectoryPoints resampleTrajectory(const Trajectory & trajectory, const double interval);
 
-  static TrajectoryPointArray cutTrajectory(
-    const TrajectoryPointArray & trajectory, const double length);
+  static TrajectoryPoints cutTrajectory(const TrajectoryPoints & trajectory, const double length);
 
   std::vector<LinearRing2d> createVehicleFootprints(
-    const geometry_msgs::msg::PoseWithCovariance & covariance,
-    const TrajectoryPointArray & trajectory, const Param & param);
+    const geometry_msgs::msg::PoseWithCovariance & covariance, const TrajectoryPoints & trajectory,
+    const Param & param);
 
   static std::vector<LinearRing2d> createVehiclePassingAreas(
     const std::vector<LinearRing2d> & vehicle_footprints);
