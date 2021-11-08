@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "awapi_awiv_adapter/awapi_autoware_state_publisher.hpp"
-
 #include "awapi_awiv_adapter/diagnostics_filter.hpp"
 
 #include <map>
@@ -109,7 +108,7 @@ void AutowareIvAutowareStatePublisher::getGateModeInfo(
 }
 
 void AutowareIvAutowareStatePublisher::getEmergencyStateInfo(
-  const autoware_system_msgs::msg::EmergencyStateStamped::ConstSharedPtr & emergency_state_ptr,
+  const autoware_auto_system_msgs::msg::EmergencyStateStamped::ConstSharedPtr & emergency_state_ptr,
   autoware_api_msgs::msg::AwapiAutowareStatus * status)
 {
   if (!emergency_state_ptr) {
@@ -118,7 +117,7 @@ void AutowareIvAutowareStatePublisher::getEmergencyStateInfo(
   }
 
   // get emergency
-  using autoware_system_msgs::msg::EmergencyState;
+  using autoware_auto_system_msgs::msg::EmergencyState;
   status->emergency_stopped = (emergency_state_ptr->state.state == EmergencyState::MRM_OPERATING) ||
                               (emergency_state_ptr->state.state == EmergencyState::MRM_SUCCEEDED) ||
                               (emergency_state_ptr->state.state == EmergencyState::MRM_FAILED);

@@ -28,11 +28,11 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <autoware_auto_system_msgs/msg/autoware_state.hpp>
+#include <autoware_auto_system_msgs/msg/emergency_state_stamped.hpp>
 #include <autoware_control_msgs/msg/gate_mode.hpp>
 #include <autoware_planning_msgs/msg/path.hpp>
 #include <autoware_planning_msgs/msg/stop_reason_array.hpp>
 #include <autoware_planning_msgs/msg/trajectory.hpp>
-#include <autoware_system_msgs/msg/emergency_state_stamped.hpp>
 #include <autoware_v2x_msgs/msg/infrastructure_command_array.hpp>
 #include <autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp>
 #include <autoware_vehicle_msgs/msg/control_mode.hpp>
@@ -69,7 +69,7 @@ private:
   rclcpp::Subscription<autoware_auto_system_msgs::msg::AutowareState>::SharedPtr sub_autoware_state_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::ControlMode>::SharedPtr sub_control_mode_;
   rclcpp::Subscription<autoware_control_msgs::msg::GateMode>::SharedPtr sub_gate_mode_;
-  rclcpp::Subscription<autoware_system_msgs::msg::EmergencyStateStamped>::SharedPtr sub_emergency_;
+  rclcpp::Subscription<autoware_auto_system_msgs::msg::EmergencyStateStamped>::SharedPtr sub_emergency_;
   rclcpp::Subscription<autoware_system_msgs::msg::HazardStatusStamped>::SharedPtr
     sub_hazard_status_;
   rclcpp::Subscription<autoware_planning_msgs::msg::StopReasonArray>::SharedPtr sub_stop_reason_;
@@ -123,7 +123,7 @@ private:
   void callbackControlMode(const autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr msg_ptr);
   void callbackGateMode(const autoware_control_msgs::msg::GateMode::ConstSharedPtr msg_ptr);
   void callbackEmergencyState(
-    const autoware_system_msgs::msg::EmergencyStateStamped::ConstSharedPtr msg_ptr);
+    const autoware_auto_system_msgs::msg::EmergencyStateStamped::ConstSharedPtr msg_ptr);
   void callbackHazardStatus(
     const autoware_system_msgs::msg::HazardStatusStamped::ConstSharedPtr msg_ptr);
   void callbackStopReason(
