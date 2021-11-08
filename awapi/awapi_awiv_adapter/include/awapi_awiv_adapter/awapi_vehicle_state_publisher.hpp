@@ -52,7 +52,7 @@ private:
     const geometry_msgs::msg::TwistStamped::ConstSharedPtr & twist_ptr,
     autoware_api_msgs::msg::AwapiVehicleStatus * status);
   void getGearInfo(
-    const autoware_vehicle_msgs::msg::ShiftStamped::ConstSharedPtr & gear_ptr,
+    const autoware_auto_vehicle_msgs::msg::GearReport::ConstSharedPtr & gear_ptr,
     autoware_api_msgs::msg::AwapiVehicleStatus * status);
   void getBatteryInfo(
     const autoware_vehicle_msgs::msg::BatteryStatus::ConstSharedPtr & battery_ptr,

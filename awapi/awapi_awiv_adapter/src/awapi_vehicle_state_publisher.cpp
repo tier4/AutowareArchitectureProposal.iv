@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "awapi_awiv_adapter/awapi_vehicle_state_publisher.hpp"
+#include "awapi_awiv_message_converter.hpp"
 
 #include <limits>
 #include <memory>
@@ -172,7 +173,7 @@ void AutowareIvVehicleStatePublisher::getTwistInfo(
 }
 
 void AutowareIvVehicleStatePublisher::getGearInfo(
-  const autoware_vehicle_msgs::msg::ShiftStamped::ConstSharedPtr & gear_ptr,
+  const autoware_auto_vehicle_msgs::msg::GearReport::ConstSharedPtr & gear_ptr,
   autoware_api_msgs::msg::AwapiVehicleStatus * status)
 {
   if (!gear_ptr) {
@@ -181,7 +182,7 @@ void AutowareIvVehicleStatePublisher::getGearInfo(
   }
 
   // get gear (shift)
-  status->gear = gear_ptr->shift.data;
+  status->gear = convert(*gear_ptr).shift.data;
 }
 
 void AutowareIvVehicleStatePublisher::getBatteryInfo(

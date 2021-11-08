@@ -27,6 +27,9 @@
 #include "autoware_auto_vehicle_msgs/msg/control_mode_report.hpp"
 #include "autoware_vehicle_msgs/msg/control_mode.hpp"
 
+#include "autoware_auto_vehicle_msgs/msg/gear_report.hpp"
+#include "autoware_vehicle_msgs/msg/shift_stamped.hpp"
+
 namespace autoware_api
 {
 
@@ -81,11 +84,11 @@ inline auto convert(const autoware_auto_planning_msgs::msg::Trajectory & traj)
   return iv_traj;
 }
 
-inline auto convert(const autoware_auto_vehicle_msgs::msg::ControlModeReport & state)
+inline auto convert(const autoware_auto_vehicle_msgs::msg::ControlModeReport & mode)
 {
   autoware_vehicle_msgs::msg::ControlMode iv_mode;
-  iv_mode.header.stamp = state.stamp;
-  switch (state.mode) {
+  iv_mode.header.stamp = mode.stamp;
+  switch (mode.mode) {
     case autoware_auto_vehicle_msgs::msg::ControlModeReport::MANUAL:
       iv_mode.data = autoware_vehicle_msgs::msg::ControlMode::MANUAL;
       break;
@@ -97,6 +100,52 @@ inline auto convert(const autoware_auto_vehicle_msgs::msg::ControlModeReport & s
       break;
   }
   return iv_mode;
+}
+
+inline auto convert(const autoware_auto_vehicle_msgs::msg::GearReport & gear)
+{
+  autoware_vehicle_msgs::msg::ShiftStamped iv_shift;
+  iv_shift.header.stamp = gear.stamp;
+  switch (gear.report) {
+    case autoware_auto_vehicle_msgs::msg::GearReport::PARK:
+      iv_shift.shift.data = autoware_vehicle_msgs::msg::Shift::PARKING;
+      break;
+    case autoware_auto_vehicle_msgs::msg::GearReport::REVERSE:
+    case autoware_auto_vehicle_msgs::msg::GearReport::REVERSE_2:
+      iv_shift.shift.data = autoware_vehicle_msgs::msg::Shift::REVERSE;
+      break;
+    //case autoware_auto_vehicle_msgs::msg::GearReport::NEUTRAL:
+    //  iv_shift.shift.data = autoware_vehicle_msgs::msg::Shift::NEUTRAL;
+    //  break;
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_2:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_3:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_4:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_5:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_6:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_7:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_8:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_9:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_10:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_11:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_12:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_13:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_14:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_15:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_16:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_17:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_18:
+      iv_shift.shift.data = autoware_vehicle_msgs::msg::Shift::DRIVE;
+      break;
+    case autoware_auto_vehicle_msgs::msg::GearReport::LOW:
+    case autoware_auto_vehicle_msgs::msg::GearReport::LOW_2:
+      iv_shift.shift.data = autoware_vehicle_msgs::msg::Shift::LOW;
+      break;
+    default:
+      iv_shift.shift.data = autoware_vehicle_msgs::msg::Shift::NONE;
+      break;
+  }
+  return iv_shift;
 }
 
 }  // namespace autoware_api

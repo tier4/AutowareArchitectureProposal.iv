@@ -70,7 +70,7 @@ AutowareIvAdapter::AutowareIvAdapter()
     "input/turn_signal", 1, std::bind(&AutowareIvAdapter::callbackTurnSignal, this, _1));
   sub_twist_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
     "input/twist", 1, std::bind(&AutowareIvAdapter::callbackTwist, this, _1));
-  sub_gear_ = this->create_subscription<autoware_vehicle_msgs::msg::ShiftStamped>(
+  sub_gear_ = this->create_subscription<autoware_auto_vehicle_msgs::msg::GearReport>(
     "input/gear", 1, std::bind(&AutowareIvAdapter::callbackGear, this, _1));
   sub_battery_ = this->create_subscription<autoware_vehicle_msgs::msg::BatteryStatus>(
     "input/battery", 1, std::bind(&AutowareIvAdapter::callbackBattery, this, _1));
@@ -200,7 +200,7 @@ void AutowareIvAdapter::callbackTwist(
 }
 
 void AutowareIvAdapter::callbackGear(
-  const autoware_vehicle_msgs::msg::ShiftStamped::ConstSharedPtr msg_ptr)
+  const autoware_auto_vehicle_msgs::msg::GearReport::ConstSharedPtr msg_ptr)
 {
   aw_info_.gear_ptr = msg_ptr;
 }
