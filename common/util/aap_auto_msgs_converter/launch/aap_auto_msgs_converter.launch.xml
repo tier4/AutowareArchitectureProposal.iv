@@ -1,0 +1,17 @@
+<launch>
+  <arg name="input/detected_dynamic_object_array" default="/perception/object_recognition/detection/objects"/>
+  <arg name="input/tracked_dynamic_object_array" default="/perception/object_recognition/tracking/objects"/>
+  <arg name="input/predicted_dynamic_object_array" default="/perception/object_recognition/objects"/>
+  <arg name="output/detected_objects" default="/auto/perception/detected_objects"/>
+  <arg name="output/tracked_objects" default="/auto/perception/tracked_objects"/>
+  <arg name="output/predicted_objects" default="/auto/perception/predicted_objects"/>
+
+  <node pkg="aap_auto_msgs_converter" exec="aap_auto_perception_msgs_converter_node" name="aap_auto_perception_msgs_converter_node" output="screen">
+    <remap from="~/input/detected_dynamic_object_array" to="$(var input/detected_dynamic_object_array)" />
+    <remap from="~/input/tracked_dynamic_object_array" to="$(var input/tracked_dynamic_object_array)" />
+    <remap from="~/input/predicted_dynamic_object_array" to="$(var input/predicted_dynamic_object_array)" />
+    <remap from="~/output/detected_objects" to="$(var output/detected_objects)" />
+    <remap from="~/output/tracked_objects" to="$(var output/tracked_objects)" />
+    <remap from="~/output/predicted_objects" to="$(var output/predicted_objects)" />
+  </node>
+</launch>
