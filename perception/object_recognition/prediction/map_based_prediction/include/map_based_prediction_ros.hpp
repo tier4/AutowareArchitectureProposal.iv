@@ -23,6 +23,7 @@
 #include <autoware_perception_msgs/msg/dynamic_object.hpp>
 #include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
 #include <geometry_msgs/msg/pose.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 #include <unique_identifier_msgs/msg/uuid.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
@@ -33,6 +34,7 @@
 #include <lanelet2_routing/RoutingGraph.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 
+#include <deque>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -60,6 +62,19 @@ class TrafficRules;
 }  // namespace traffic_rules
 }  // namespace lanelet
 
+struct ObjectData
+{
+  lanelet::ConstLanelets current_lanelets;
+  lanelet::ConstLanelets future_possible_lanelets;
+  geometry_msgs::msg::PoseStamped pose;
+};
+
+enum class Maneuver {
+  LANE_FOLLOW,
+  LEFT_LANE_CHANGE,
+  RIGHT_LANE_CHANGE,
+};
+
 class MapBasedPrediction;
 
 class MapBasedPredictionROS : public rclcpp::Node
@@ -68,19 +83,26 @@ private:
   bool has_subscribed_map_;
   double prediction_time_horizon_;
   double prediction_sampling_delta_time_;
+  double min_velocity_for_map_based_prediction_;
   double interpolating_resolution_;
   double debug_accumulated_time_;
   double dist_threshold_for_searching_lanelet_;
   double delta_yaw_threshold_for_searching_lanelet_;
   double sigma_lateral_offset_;
   double sigma_yaw_angle_;
+  double object_buffer_time_length_;
+  double history_time_length_;
+  double dist_ratio_threshold_to_left_bound_;
+  double dist_ratio_threshold_to_right_bound_;
+  double diff_dist_threshold_to_left_bound_;
+  double diff_dist_threshold_to_right_bound_;
 
   rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr sub_objects_;
   rclcpp::Subscription<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr sub_map_;
   rclcpp::Publisher<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr pub_objects_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_markers_;
 
-  std::unordered_map<std::string, std::vector<int>> uuid2laneids_;
+  std::unordered_map<std::string, std::deque<ObjectData>> object_buffer_;
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_ptr_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_ptr_;
@@ -108,13 +130,28 @@ private:
 
   bool getClosestLanelets(
     const autoware_perception_msgs::msg::DynamicObject & object,
-    const lanelet::LaneletMapPtr & lanelet_map_ptr,
-    std::vector<lanelet::Lanelet> & closest_lanelets, const std::string uuid_string);
+    const lanelet::LaneletMapPtr & lanelet_map_ptr, lanelet::ConstLanelets & closest_lanelets);
 
   bool checkCloseLaneletCondition(
     const std::pair<double, lanelet::Lanelet> & lanelet,
     const autoware_perception_msgs::msg::DynamicObject & object,
     const lanelet::BasicPoint2d & search_point);
+
+  void removeInvalidObject(const double current_time);
+  bool updateObjectBuffer(
+    const std_msgs::msg::Header & header,
+    const autoware_perception_msgs::msg::DynamicObject & object,
+    lanelet::ConstLanelets & current_lanelets);
+  void updatePossibleLanelets(
+    const std::string object_id, const lanelet::routing::LaneletPaths & paths);
+
+  double calcRightLateralOffset(
+    const lanelet::ConstLineString2d & bound_line, const geometry_msgs::msg::Pose & search_pose);
+  double calcLeftLateralOffset(
+    const lanelet::ConstLineString2d & bound_line, const geometry_msgs::msg::Pose & search_pose);
+  Maneuver detectLaneChange(
+    const autoware_perception_msgs::msg::DynamicObject & object,
+    const lanelet::ConstLanelet & current_lanelet, const double current_time);
 
 public:
   explicit MapBasedPredictionROS(const rclcpp::NodeOptions & node_options);
