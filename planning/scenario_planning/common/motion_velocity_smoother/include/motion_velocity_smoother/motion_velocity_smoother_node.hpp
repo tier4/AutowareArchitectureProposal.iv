@@ -34,7 +34,7 @@
 #include "autoware_debug_msgs/msg/float32_stamped.hpp"         // temporary
 #include "autoware_planning_msgs/msg/stop_speed_exceeded.hpp"  // temporary
 #include "autoware_planning_msgs/msg/velocity_limit.hpp"       // temporary
-#include "geometry_msgs/msg/twist_stamped.hpp"
+#include "nav_msgs/msg/odometry.hpp"
 
 #include <iostream>
 #include <memory>
@@ -57,7 +57,7 @@ using autoware_planning_msgs::msg::StopSpeedExceeded;  // temporary
 using autoware_planning_msgs::msg::VelocityLimit;      // temporary
 using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::PoseStamped;
-using geometry_msgs::msg::TwistStamped;
+using nav_msgs::msg::Odometry;
 
 class MotionVelocitySmootherNode : public rclcpp::Node
 {
@@ -69,20 +69,20 @@ private:
     pub_trajectory_;  //!< @brief publisher for output trajectory
   rclcpp::Publisher<StopSpeedExceeded>::SharedPtr
     pub_over_stop_velocity_;  //!< @brief publisher for over stop velocity warning
-  rclcpp::Subscription<TwistStamped>::SharedPtr
-    sub_current_velocity_;  //!< @brief subscriber for current velocity
+  rclcpp::Subscription<Odometry>::SharedPtr
+    sub_current_odometry_;  //!< @brief subscriber for current velocity
   rclcpp::Subscription<Trajectory>::SharedPtr
     sub_current_trajectory_;  //!< @brief subscriber for reference trajectory
   rclcpp::Subscription<VelocityLimit>::SharedPtr
     sub_external_velocity_limit_;  //!< @brief subscriber for external velocity limit
 
-  PoseStamped::ConstSharedPtr current_pose_ptr_;       // current vehicle pose
-  TwistStamped::ConstSharedPtr current_velocity_ptr_;  // current vehicle twist
-  Trajectory::ConstSharedPtr base_traj_raw_ptr_;       // current base_waypoints
-  double external_velocity_limit_;                     // current external_velocity_limit
-  double max_velocity_with_deceleration_;              // maximum velocity with deceleration
-                                                       // for external velocity limit
-  double external_velocity_limit_dist_{0.0};           // distance to set external velocity limit
+  PoseStamped::ConstSharedPtr current_pose_ptr_;   // current vehicle pose
+  Odometry::ConstSharedPtr current_odometry_ptr_;  // current odometry
+  Trajectory::ConstSharedPtr base_traj_raw_ptr_;   // current base_waypoints
+  double external_velocity_limit_;                 // current external_velocity_limit
+  double max_velocity_with_deceleration_;          // maximum velocity with deceleration
+                                                   // for external velocity limit
+  double external_velocity_limit_dist_{0.0};       // distance to set external velocity limit
 
   TrajectoryPoints prev_output_;                           // previously published trajectory
   boost::optional<TrajectoryPoint> prev_closest_point_{};  // previous trajectory point
@@ -143,7 +143,7 @@ private:
     const std::vector<rclcpp::Parameter> & parameters);
 
   // topic callback
-  void onCurrentVelocity(const TwistStamped::ConstSharedPtr msg);
+  void onCurrentOdometry(const Odometry::ConstSharedPtr msg);
 
   void onCurrentTrajectory(const Trajectory::ConstSharedPtr msg);
 

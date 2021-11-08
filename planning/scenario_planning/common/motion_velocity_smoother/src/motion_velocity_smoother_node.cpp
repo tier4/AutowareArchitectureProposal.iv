@@ -91,8 +91,9 @@ MotionVelocitySmootherNode::MotionVelocitySmootherNode(const rclcpp::NodeOptions
   pub_over_stop_velocity_ = create_publisher<StopSpeedExceeded>("~/stop_speed_exceeded", 1);
   sub_current_trajectory_ = create_subscription<Trajectory>(
     "~/input/trajectory", 1, std::bind(&MotionVelocitySmootherNode::onCurrentTrajectory, this, _1));
-  sub_current_velocity_ = create_subscription<TwistStamped>(
-    "/localization/twist", 1, std::bind(&MotionVelocitySmootherNode::onCurrentVelocity, this, _1));
+  sub_current_odometry_ = create_subscription<Odometry>(
+    "/localization/odometry", 1,
+    std::bind(&MotionVelocitySmootherNode::onCurrentOdometry, this, _1));
   sub_external_velocity_limit_ = create_subscription<VelocityLimit>(
     "~/input/external_velocity_limit_mps", 1,
     std::bind(&MotionVelocitySmootherNode::onExternalVelocityLimit, this, _1));
@@ -350,9 +351,9 @@ void MotionVelocitySmootherNode::publishTrajectory(const TrajectoryPoints & traj
   pub_trajectory_->publish(publishing_trajectory);
 }
 
-void MotionVelocitySmootherNode::onCurrentVelocity(const TwistStamped::ConstSharedPtr msg)
+void MotionVelocitySmootherNode::onCurrentOdometry(const Odometry::ConstSharedPtr msg)
 {
-  current_velocity_ptr_ = msg;
+  current_odometry_ptr_ = msg;
 }
 
 void MotionVelocitySmootherNode::onExternalVelocityLimit(const VelocityLimit::ConstSharedPtr msg)
@@ -415,10 +416,10 @@ void MotionVelocitySmootherNode::onExternalVelocityLimit(const VelocityLimit::Co
 
 bool MotionVelocitySmootherNode::checkData() const
 {
-  if (!current_pose_ptr_ || !current_velocity_ptr_ || !base_traj_raw_ptr_) {
+  if (!current_pose_ptr_ || !current_odometry_ptr_ || !base_traj_raw_ptr_) {
     RCLCPP_DEBUG(
       get_logger(), "wait topics : current_pose = %d, current_vel = %d, base_traj = %d",
-      (bool)current_pose_ptr_, (bool)current_velocity_ptr_, (bool)base_traj_raw_ptr_);
+      (bool)current_pose_ptr_, (bool)current_odometry_ptr_, (bool)base_traj_raw_ptr_);
     return false;
   }
   if (base_traj_raw_ptr_->points.size() < 2) {
@@ -478,7 +479,7 @@ void MotionVelocitySmootherNode::onCurrentTrajectory(const Trajectory::ConstShar
 
   // Resample the optimized trajectory
   auto output_resampled = resampling::resampleTrajectory(
-    output, current_velocity_ptr_->twist.linear.x, *output_closest_idx,
+    output, current_odometry_ptr_->twist.twist.linear.x, *output_closest_idx,
     node_param_.post_resample_param);
   if (!output_resampled) {
     RCLCPP_WARN(get_logger(), "Failed to get the resampled output trajectory");
@@ -605,7 +606,8 @@ bool MotionVelocitySmootherNode::smoothVelocity(
     *traj_lateral_acc_filtered, current_pose_ptr_->pose, std::numeric_limits<double>::max(),
     node_param_.delta_yaw_threshold);
   auto traj_resampled = smoother_->resampleTrajectory(
-    *traj_lateral_acc_filtered, current_velocity_ptr_->twist.linear.x, *traj_pre_resampled_closest);
+    *traj_lateral_acc_filtered, current_odometry_ptr_->twist.twist.linear.x,
+    *traj_pre_resampled_closest);
   if (!traj_resampled) {
     RCLCPP_WARN(get_logger(), "Fail to do resampling before the optimization");
     return false;
@@ -732,7 +734,7 @@ MotionVelocitySmootherNode::calcInitialMotion(
   const TrajectoryPoints & input_traj, const size_t input_closest,
   const TrajectoryPoints & prev_traj) const
 {
-  const double vehicle_speed{std::fabs(current_velocity_ptr_->twist.linear.x)};
+  const double vehicle_speed{std::fabs(current_odometry_ptr_->twist.twist.linear.x)};
   const double target_vel{std::fabs(input_traj.at(input_closest).longitudinal_velocity_mps)};
 
   double initial_vel{};
@@ -1010,7 +1012,7 @@ double MotionVelocitySmootherNode::calcTravelDistance() const
 
 bool MotionVelocitySmootherNode::isEngageStatus(const double target_vel) const
 {
-  const double vehicle_speed = std::fabs(current_velocity_ptr_->twist.linear.x);
+  const double vehicle_speed = std::fabs(current_odometry_ptr_->twist.twist.linear.x);
   const double engage_vel_thr = node_param_.engage_velocity * node_param_.engage_exit_ratio;
   return vehicle_speed < engage_vel_thr && target_vel >= node_param_.engage_velocity;
 }
