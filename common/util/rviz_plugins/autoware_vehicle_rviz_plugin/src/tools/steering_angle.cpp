@@ -27,9 +27,9 @@ namespace rviz_plugins
 {
 SteeringAngleDisplay::SteeringAngleDisplay()
 : handle_image_(std::string(
-                  ament_index_cpp::get_package_share_directory("autoware_vehicle_rviz_plugin") +
-                  "/images/handle.png")
-                  .c_str())
+      ament_index_cpp::get_package_share_directory("autoware_vehicle_rviz_plugin") +
+      "/images/handle.png")
+    .c_str())
 {
   property_text_color_ = new rviz_common::properties::ColorProperty(
     "Text Color", QColor(25, 255, 240), "text color", this, SLOT(updateVisualization()), this);
@@ -99,7 +99,7 @@ void SteeringAngleDisplay::update(float wall_dt, float ros_dt)
     if (!last_msg_ptr_) {
       return;
     }
-    steering = last_msg_ptr_->data;
+    steering = last_msg_ptr_->steering_tire_angle;
   }
 
   QColor background_color;
@@ -154,7 +154,7 @@ void SteeringAngleDisplay::update(float wall_dt, float ros_dt)
 }
 
 void SteeringAngleDisplay::processMessage(
-  const autoware_vehicle_msgs::msg::Steering::ConstSharedPtr msg_ptr)
+  const autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr msg_ptr)
 {
   if (!isEnabled()) {
     return;
