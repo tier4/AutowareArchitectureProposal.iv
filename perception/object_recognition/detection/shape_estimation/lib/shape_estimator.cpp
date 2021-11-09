@@ -76,7 +76,7 @@ bool ShapeEstimator::estimateShape(
   } else if (type == Label::BICYCLE) {
     model_ptr.reset(new BoundingBoxShapeModel(yaw));
   } else {
-    model_ptr.reset(new ConvexhullShapeModel());
+    model_ptr.reset(new ConvexHullShapeModel());
   }
 
   return model_ptr->estimate(cluster, shape_output, pose_output);

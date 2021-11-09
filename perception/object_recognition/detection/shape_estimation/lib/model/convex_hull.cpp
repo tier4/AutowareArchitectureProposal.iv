@@ -28,7 +28,7 @@
 #include <algorithm>
 #include <vector>
 
-bool ConvexhullShapeModel::estimate(
+bool ConvexHullShapeModel::estimate(
   const pcl::PointCloud<pcl::PointXYZ> & cluster,
   autoware_auto_perception_msgs::msg::Shape & shape_output, geometry_msgs::msg::Pose & pose_output)
 {
