@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`obstacle_collision_checker` is a module to check obstacle collision for predicted path and publish diagnostic error message if collision is found.
+`obstacle_collision_checker` is a module to check obstacle collision for predicted path and publish diagnostic errors if collision is found.
 
 ## Inner-workings / Algorithms
 
