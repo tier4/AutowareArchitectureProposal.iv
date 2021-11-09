@@ -25,7 +25,7 @@
 
 #include <memory>
 
-using SemanticType = autoware_auto_perception_msgs::msg::ObjectClassification;
+using Label = autoware_auto_perception_msgs::msg::ObjectClassification;
 
 ShapeEstimationNode::ShapeEstimationNode(const rclcpp::NodeOptions & node_options)
 : Node("shape_estimation", node_options)
@@ -61,7 +61,7 @@ void ShapeEstimationNode::callback(
     const auto & type = object.classification.front().label;
     const auto & feature = feature_object.feature;
     const bool is_vehicle =
-      SemanticType::CAR == type || SemanticType::TRUCK == type || SemanticType::BUS == type;
+      Label::CAR == type || Label::TRUCK == type || Label::BUS == type;
 
     // convert ros to pcl
     pcl::PointCloud<pcl::PointXYZ>::Ptr cluster(new pcl::PointCloud<pcl::PointXYZ>);
