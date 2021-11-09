@@ -52,7 +52,7 @@ Check that `obstacle_collision_checker` receives no ground pointcloud, predicted
 
 ### Diagnostic update
 
-If any collision is found on predicted path, this module sets `ERRROR` level as diagnostic status else sets `OK`.
+If any collision is found on predicted path, this module sets `ERROR` level as diagnostic status else sets `OK`.
 
 ## Inputs / Outputs
 
