@@ -36,7 +36,7 @@ EmergencyHandler::EmergencyHandler() : Node("emergency_handler")
       "~/input/hazard_status", rclcpp::QoS{1},
       std::bind(&EmergencyHandler::onHazardStatusStamped, this, _1));
   sub_prev_control_command_ =
-    create_subscription<autoware_auto_vehicle_msgs::msg::VehicleControlCommand>(
+    create_subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>(
       "~/input/prev_control_command", rclcpp::QoS{1},
       std::bind(&EmergencyHandler::onPrevControlCommand, this, _1));
   sub_odom_ = create_subscription<nav_msgs::msg::Odometry>(
@@ -84,14 +84,10 @@ void EmergencyHandler::onHazardStatusStamped(
 
 // To be replaced by ControlCommand
 void EmergencyHandler::onPrevControlCommand(
-  const autoware_auto_vehicle_msgs::msg::VehicleControlCommand::ConstSharedPtr msg)
+  const autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg)
 {
-  const auto control_command = new autoware_auto_control_msgs::msg::AckermannControlCommand();
+  auto control_command = new autoware_auto_control_msgs::msg::AckermannControlCommand(*msg);
   control_command->stamp = msg->stamp;
-  // TODO(TierIV) use rear_wheel_angle_rad
-  control_command->lateral.steering_tire_angle = msg->front_wheel_angle_rad;
-  control_command->longitudinal.acceleration = msg->long_accel_mps2;
-  control_command->longitudinal.speed = msg->velocity_mps;
   prev_control_command_ =
     autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr(control_command);
 }

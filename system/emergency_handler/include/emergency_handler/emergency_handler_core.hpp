@@ -26,7 +26,6 @@
 #include <autoware_auto_vehicle_msgs/msg/control_mode_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/gear_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/hazard_lights_command.hpp>
-#include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
 
 // ROS2 core
 #include <autoware_utils/system/heartbeat_checker.hpp>
@@ -60,7 +59,7 @@ private:
   // Subscribers
   rclcpp::Subscription<autoware_auto_system_msgs::msg::HazardStatusStamped>::SharedPtr
     sub_hazard_status_stamped_;
-  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleControlCommand>::SharedPtr
+  rclcpp::Subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr
     sub_prev_control_command_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr sub_odom_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::ControlModeReport>::SharedPtr
@@ -75,7 +74,7 @@ private:
     const autoware_auto_system_msgs::msg::HazardStatusStamped::ConstSharedPtr msg);
   // To be replaced by ControlCommand
   void onPrevControlCommand(
-    const autoware_auto_vehicle_msgs::msg::VehicleControlCommand::ConstSharedPtr msg);
+    const autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg);
   void onOdometry(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
   void onControlMode(const autoware_auto_vehicle_msgs::msg::ControlModeReport::ConstSharedPtr msg);
 
