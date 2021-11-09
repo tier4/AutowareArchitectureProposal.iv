@@ -8,7 +8,7 @@
 
 | Name                         | Type                                                     | Description                                                                                                        |
 | ---------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `~input/control_cmd`         | autoware_auto_control_msgs::msg::AckermannControlCommand | target `velocity/acceleration/steering_angle/steering_angle_velocity` is necessary to calculate actuation command. |
+| `~/input/control_cmd`         | autoware_auto_control_msgs::msg::AckermannControlCommand | target `velocity/acceleration/steering_angle/steering_angle_velocity` is necessary to calculate actuation command. |
 | `~/vehicle/status/steering"` | autoware_vehicle_msgs::SteeringReport                    | current status of steering used for steering feed back control                                                     |
 | `~/input/twist`              | navigation_msgs::Odometry                                | twist topic in odometry is used.                                                                                   |
 
@@ -16,7 +16,7 @@
 
 | Name                    | Type                                         | Description                                             |
 | ----------------------- | -------------------------------------------- | ------------------------------------------------------- |
-| `~output/actuation_cmd` | autoware_vehicle_msgs::msg::ActuationCommand | actuation command for vehicle to apply mechanical input |
+| `~/output/actuation_cmd` | autoware_vehicle_msgs::msg::ActuationCommand | actuation command for vehicle to apply mechanical input |
 
 ### Parameters
 
