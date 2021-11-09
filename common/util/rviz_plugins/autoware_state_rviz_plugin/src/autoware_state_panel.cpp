@@ -23,13 +23,14 @@
 #include <memory>
 #include <string>
 
-inline std::string Bool2String(const bool var) { return var ? "True" : "False"; }
+inline std::string Bool2String(const bool var) {return var ? "True" : "False";}
 
 using std::placeholders::_1;
 
 namespace rviz_plugins
 {
-AutowareStatePanel::AutowareStatePanel(QWidget * parent) : rviz_common::Panel(parent)
+AutowareStatePanel::AutowareStatePanel(QWidget * parent)
+: rviz_common::Panel(parent)
 {
   // Gate Mode
   auto * gate_prefix_label_ptr = new QLabel("GATE: ");
@@ -90,7 +91,7 @@ void AutowareStatePanel::onInitialize()
   sub_autoware_state_ = raw_node_->create_subscription<autoware_system_msgs::msg::AutowareState>(
     "/autoware/state", 10, std::bind(&AutowareStatePanel::onAutowareState, this, _1));
 
-  sub_gear_ = raw_node_->create_subscription<autoware_vehicle_msgs::msg::ShiftStamped>(
+  sub_gear_ = raw_node_->create_subscription<autoware_auto_vehicle_msgs::msg::GearReport>(
     "/vehicle/status/shift", 10, std::bind(&AutowareStatePanel::onShift, this, _1));
 
   sub_engage_ = raw_node_->create_subscription<autoware_external_api_msgs::msg::EngageStatus>(
@@ -141,25 +142,26 @@ void AutowareStatePanel::onAutowareState(
   }
 }
 
-void AutowareStatePanel::onShift(const autoware_vehicle_msgs::msg::ShiftStamped::ConstSharedPtr msg)
+void AutowareStatePanel::onShift(
+  const autoware_auto_vehicle_msgs::msg::GearReport::ConstSharedPtr msg)
 {
-  switch (msg->shift.data) {
-    case autoware_vehicle_msgs::msg::Shift::NONE:
+  switch (msg->report) {
+    case autoware_auto_vehicle_msgs::msg::GearReport::NONE:
       gear_label_ptr_->setText("NONE");
       break;
-    case autoware_vehicle_msgs::msg::Shift::PARKING:
+    case autoware_auto_vehicle_msgs::msg::GearReport::PARK:
       gear_label_ptr_->setText("PARKING");
       break;
-    case autoware_vehicle_msgs::msg::Shift::REVERSE:
+    case autoware_auto_vehicle_msgs::msg::GearReport::REVERSE:
       gear_label_ptr_->setText("REVERSE");
       break;
-    case autoware_vehicle_msgs::msg::Shift::NEUTRAL:
+    case autoware_auto_vehicle_msgs::msg::GearReport::NEUTRAL:
       gear_label_ptr_->setText("NEUTRAL");
       break;
-    case autoware_vehicle_msgs::msg::Shift::DRIVE:
+    case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE:
       gear_label_ptr_->setText("DRIVE");
       break;
-    case autoware_vehicle_msgs::msg::Shift::LOW:
+    case autoware_auto_vehicle_msgs::msg::GearReport::LOW:
       gear_label_ptr_->setText("LOW");
       break;
   }
