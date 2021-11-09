@@ -64,7 +64,7 @@ AutowareIvAdapter::AutowareIvAdapter()
 
   sub_steer_ = this->create_subscription<autoware_auto_vehicle_msgs::msg::SteeringReport>(
     "input/steer", 1, std::bind(&AutowareIvAdapter::callbackSteer, this, _1));
-  sub_vehicle_cmd_ = this->create_subscription<autoware_vehicle_msgs::msg::VehicleCommand>(
+  sub_vehicle_cmd_ = this->create_subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>(
     "input/vehicle_cmd", durable_qos, std::bind(&AutowareIvAdapter::callbackVehicleCmd, this, _1));
   sub_turn_indicators_ = this->create_subscription<autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport>(
     "input/turn_indicators", 1, std::bind(&AutowareIvAdapter::callbackTurnIndicators, this, _1));
@@ -184,7 +184,7 @@ void AutowareIvAdapter::callbackSteer(
 }
 
 void AutowareIvAdapter::callbackVehicleCmd(
-  const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr msg_ptr)
+  const autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg_ptr)
 {
   aw_info_.vehicle_cmd_ptr = msg_ptr;
 }

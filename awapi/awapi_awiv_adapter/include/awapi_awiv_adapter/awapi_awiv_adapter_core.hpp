@@ -27,6 +27,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
 #include <autoware_auto_planning_msgs/msg/path.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_system_msgs/msg/autoware_state.hpp>
@@ -41,7 +42,6 @@
 #include <autoware_planning_msgs/msg/stop_reason_array.hpp>
 #include <autoware_v2x_msgs/msg/infrastructure_command_array.hpp>
 #include <autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp>
-#include <autoware_vehicle_msgs/msg/vehicle_command.hpp>
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <pacmod_msgs/msg/global_rpt.hpp>
@@ -62,7 +62,7 @@ public:
 private:
   // subscriber
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::SteeringReport>::SharedPtr sub_steer_;
-  rclcpp::Subscription<autoware_vehicle_msgs::msg::VehicleCommand>::SharedPtr sub_vehicle_cmd_;
+  rclcpp::Subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr sub_vehicle_cmd_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport>::SharedPtr sub_turn_indicators_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::HazardLightsReport>::SharedPtr sub_hazard_lights_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
@@ -115,7 +115,7 @@ private:
 
   // callback function
   void callbackSteer(const autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr msg_ptr);
-  void callbackVehicleCmd(const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr msg_ptr);
+  void callbackVehicleCmd(const autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg_ptr);
   void callbackTurnIndicators(const autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport::ConstSharedPtr msg_ptr);
   void callbackHazardLights(const autoware_auto_vehicle_msgs::msg::HazardLightsReport::ConstSharedPtr msg_ptr);
   void callbackTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg_ptr);

@@ -113,7 +113,7 @@ void AutowareIvVehicleStatePublisher::getSteerInfo(
   previous_steer_ptr_ = steer_ptr;
 }
 void AutowareIvVehicleStatePublisher::getVehicleCmdInfo(
-  const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr & vehicle_cmd_ptr,
+  const autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr & vehicle_cmd_ptr,
   autoware_api_msgs::msg::AwapiVehicleStatus * status)
 {
   if (!vehicle_cmd_ptr) {
@@ -122,10 +122,10 @@ void AutowareIvVehicleStatePublisher::getVehicleCmdInfo(
   }
 
   // get command
-  status->target_acceleration = vehicle_cmd_ptr->control.acceleration;
-  status->target_velocity = vehicle_cmd_ptr->control.velocity;
-  status->target_steering = vehicle_cmd_ptr->control.steering_angle;
-  status->target_steering_velocity = vehicle_cmd_ptr->control.steering_angle_velocity;
+  status->target_acceleration = vehicle_cmd_ptr->longitudinal.acceleration;
+  status->target_velocity = vehicle_cmd_ptr->longitudinal.speed;
+  status->target_steering = vehicle_cmd_ptr->lateral.steering_tire_angle;
+  status->target_steering_velocity = vehicle_cmd_ptr->lateral.steering_tire_rotation_rate;
 }
 
 void AutowareIvVehicleStatePublisher::getTurnSignalInfo(

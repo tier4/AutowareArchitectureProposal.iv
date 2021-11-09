@@ -17,6 +17,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
 #include <autoware_auto_planning_msgs/msg/path.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_system_msgs/msg/autoware_state.hpp>
@@ -38,7 +39,6 @@
 #include <autoware_v2x_msgs/msg/infrastructure_command_array.hpp>
 #include <autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp>
 #include <autoware_vehicle_msgs/msg/battery_status.hpp>
-#include <autoware_vehicle_msgs/msg/vehicle_command.hpp>
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
@@ -59,7 +59,7 @@ struct AutowareInfo
 {
   std::shared_ptr<geometry_msgs::msg::PoseStamped> current_pose_ptr;
   autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr steer_ptr;
-  autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr vehicle_cmd_ptr;
+  autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr vehicle_cmd_ptr;
   autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport::ConstSharedPtr turn_indicators_ptr;
   autoware_auto_vehicle_msgs::msg::HazardLightsReport::ConstSharedPtr hazard_lights_ptr;
   geometry_msgs::msg::TwistStamped::ConstSharedPtr twist_ptr;
