@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`obstacle_collision_checker` is a module to check obstacle collision for predicted path and publish `ERROR` diag if collision is found.
+`obstacle_collision_checker` is a module to check obstacle collision for predicted path and publish diagnostic error message if collision is found.
 
 ## Inner-workings / Algorithms
 
@@ -76,11 +76,11 @@ If any collision is found on predicted path, this module sets `ERROR` level as d
 
 | Name                | Type     | Description                                      | Default value |
 | :------------------ | :------- | :----------------------------------------------- | :------------ |
-| `delay_time`        | `double` | delay time of vehicle [s]                        | 0.3           |
-| `footprint_margin`  | `double` | foot print margin [m]                            | 0.0           |
-| `max_deceleration`  | `double` | max deceleration for ego vehicle to stop [m/s^2] | 2.0           |
-| `resample_interval` | `double` | interval for resampling trajectory [m]           | 0.3           |
-| `search_radius`     | `double` | resample for point cloud [s]                     | 5.0           |
+| `delay_time`        | `double` | Delay time of vehicle [s]                        | 0.3           |
+| `footprint_margin`  | `double` | Foot print margin [m]                            | 0.0           |
+| `max_deceleration`  | `double` | Max deceleration for ego vehicle to stop [m/s^2] | 2.0           |
+| `resample_interval` | `double` | Interval for resampling trajectory [m]           | 0.3           |
+| `search_radius`     | `double` | Resample for point cloud [s]                     | 5.0           |
 
 ## Assumptions / Known limits
 
