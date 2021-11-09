@@ -25,7 +25,7 @@
 #include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
 #include <autoware_debug_msgs/msg/float32_multi_array_stamped.hpp>
 #include <autoware_vehicle_msgs/msg/actuation_command_stamped.hpp>
-#include <autoware_vehicle_msgs/msg/steering.hpp>
+#include <autoware_auto_vehicle_msgs/msg/steering_report.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 
@@ -38,9 +38,9 @@ namespace raw_vehicle_cmd_converter
 using ControlCommandStamped = autoware_auto_control_msgs::msg::AckermannControlCommand;
 using autoware_debug_msgs::msg::Float32MultiArrayStamped;
 using autoware_vehicle_msgs::msg::ActuationCommandStamped;
-using autoware_vehicle_msgs::msg::Steering;
 using TwistStamped = geometry_msgs::msg::TwistStamped;
 using Odometry = nav_msgs::msg::Odometry;
+using Steering = autoware_auto_vehicle_msgs::msg::SteeringReport;
 
 class DebugValues
 {
@@ -82,8 +82,8 @@ public:
 
   rclcpp::TimerBase::SharedPtr timer_;
 
-  std::unique_ptr<geometry_msgs::msg::TwistStamped> current_twist_ptr_;  // [m/s]
-  Steering::ConstSharedPtr current_steer_ptr_;
+  std::unique_ptr<TwistStamped> current_twist_ptr_;  // [m/s]
+  std::unique_ptr<double> current_steer_ptr_;
   ControlCommandStamped::ConstSharedPtr control_cmd_ptr_;
   AccelMap accel_map_;
   BrakeMap brake_map_;

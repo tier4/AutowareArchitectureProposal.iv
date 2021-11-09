@@ -160,12 +160,12 @@ double RawVehicleCommandConverterNode::calculateSteer(
   prev_time_steer_calculation_ = current_time;
   // feed-forward
   if (use_steer_ff_) {
-    ff_value = steer_controller_.calcFFSteer(steer_rate, current_steer_ptr_->data);
+    ff_value = steer_controller_.calcFFSteer(steer_rate, *current_steer_ptr_);
   }
   // feedback
   if (use_steer_fb_) {
     fb_value = steer_controller_.calcFBSteer(
-      steering, steer_rate, dt, vel, current_steer_ptr_->data, pid_contributions, pid_errors);
+      steering, steer_rate, dt, vel, *current_steer_ptr_, pid_contributions, pid_errors);
   }
   steering_output = ff_value + fb_value;
   // for steer debugging
@@ -215,12 +215,12 @@ double RawVehicleCommandConverterNode::calculateBrakeMap(
 
 void RawVehicleCommandConverterNode::onSteering(const Steering::ConstSharedPtr msg)
 {
-  current_steer_ptr_ = msg;
+  current_steer_ptr_ = std::make_unique<double>(msg->steering_tire_angle);
 }
 
 void RawVehicleCommandConverterNode::onVelocity(const Odometry::ConstSharedPtr msg)
 {
-  current_twist_ptr_ = std::make_unique<geometry_msgs::msg::TwistStamped>();
+  current_twist_ptr_ = std::make_unique<TwistStamped>();
   current_twist_ptr_->header = msg->header;
   current_twist_ptr_->twist = msg->twist.twist;
 }
