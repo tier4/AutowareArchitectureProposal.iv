@@ -10,11 +10,11 @@ This node manages AutowareState transitions.
 
 ### Input
 
-| Name                              | Type                                                  | Description                                       |
-| --------------------------------- | ----------------------------------------------------- | ------------------------------------------------- |
-| `/planning/mission_planning/rout` | `autoware_auto_planning_msgs::msg::Route`             | Subscribe route                                   |
-| `/localization/ekf_odom`          | `nav_msgs::msg::Odometry`                             | Used to decide whether vehicle is stopped or not  |
-| `/vehicle/state_report`           | `autoware_auto_vehicle_msgs::msg::VehicleStateReport` | Used to check vehicle mode: autonomous or manual. |
+| Name                              | Type                                                 | Description                                       |
+| --------------------------------- | ---------------------------------------------------- | ------------------------------------------------- |
+| `/planning/mission_planning/rout` | `autoware_auto_planning_msgs::msg::Route`            | Subscribe route                                   |
+| `/localization/ekf_odom`          | `nav_msgs::msg::Odometry`                            | Used to decide whether vehicle is stopped or not  |
+| `/vehicle/state_report`           | `autoware_auto_vehicle_msgs::msg::ControlModeReport` | Used to check vehicle mode: autonomous or manual. |
 
 ### Output
 
