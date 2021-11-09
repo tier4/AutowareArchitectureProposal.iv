@@ -146,17 +146,11 @@ void AutowareStatePanel::onShift(
   const autoware_auto_vehicle_msgs::msg::GearReport::ConstSharedPtr msg)
 {
   switch (msg->report) {
-    case autoware_auto_vehicle_msgs::msg::GearReport::NONE:
-      gear_label_ptr_->setText("NONE");
-      break;
     case autoware_auto_vehicle_msgs::msg::GearReport::PARK:
       gear_label_ptr_->setText("PARKING");
       break;
     case autoware_auto_vehicle_msgs::msg::GearReport::REVERSE:
       gear_label_ptr_->setText("REVERSE");
-      break;
-    case autoware_auto_vehicle_msgs::msg::GearReport::NEUTRAL:
-      gear_label_ptr_->setText("NEUTRAL");
       break;
     case autoware_auto_vehicle_msgs::msg::GearReport::DRIVE:
       gear_label_ptr_->setText("DRIVE");
