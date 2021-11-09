@@ -27,8 +27,7 @@ end note
 
 :create vehicle passing area;
 
-partition will_collide{
-:will collide;
+partition will_collide {
 
 while (has next ego vehicle foot print) is (yes)
   :found collision with obstacle foot print;
