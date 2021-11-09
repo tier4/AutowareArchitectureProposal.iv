@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This node publishes a distance from the path point closest to the self-position to the end point of the path.
+This node publishes a distance from the closest path point from the self-position to the end point of the path.
 Note that the distance means the arc-length along the path, not the Euclidean distance between the two points.
 
 ## Inner-workings / Algorithms
@@ -18,9 +18,9 @@ Note that the distance means the arc-length along the path, not the Euclidean di
 
 ### Output
 
-| Name         | Type                                       | Description                                                                                         |
-| ------------ | ------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| `~/distance` | `autoware_debug_msgs::msg::Float64Stamped` | Publish a distance from the path point closest to the self-position to the end point of the path[m] |
+| Name         | Type                                       | Description                                                                                           |
+| ------------ | ------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `~/distance` | `autoware_debug_msgs::msg::Float64Stamped` | Publish a distance from the closest path point from the self-position to the end point of the path[m] |
 
 ## Parameters
 
