@@ -31,14 +31,14 @@ class ShapeEstimator
 {
 private:
   bool estimateShape(
-    const int type, const pcl::PointCloud<pcl::PointXYZ> & cluster,
+    const uint8_t label, const pcl::PointCloud<pcl::PointXYZ> & cluster,
     const boost::optional<float> & yaw, autoware_auto_perception_msgs::msg::Shape & shape_output,
     geometry_msgs::msg::Pose & pose_output);
   bool applyFilter(
-    const int type, const autoware_auto_perception_msgs::msg::Shape & shape_output,
+    const uint8_t label, const autoware_auto_perception_msgs::msg::Shape & shape_output,
     const geometry_msgs::msg::Pose & pose_output);
   bool applyCorrector(
-    const int type, const bool use_reference_yaw,
+    const uint8_t label, const bool use_reference_yaw,
     autoware_auto_perception_msgs::msg::Shape & shape_output,
     geometry_msgs::msg::Pose & pose_output);
 
@@ -51,7 +51,7 @@ public:
   virtual ~ShapeEstimator() = default;
 
   virtual bool estimateShapeAndPose(
-    const int type, const pcl::PointCloud<pcl::PointXYZ> & cluster,
+    const uint8_t label, const pcl::PointCloud<pcl::PointXYZ> & cluster,
     const boost::optional<float> & yaw, autoware_auto_perception_msgs::msg::Shape & shape_output,
     geometry_msgs::msg::Pose & pose_output);
 };

@@ -58,9 +58,9 @@ void ShapeEstimationNode::callback(
   // Estimate shape for each object and pack msg
   for (const auto & feature_object : input_msg->feature_objects) {
     const auto & object = feature_object.object;
-    const auto & type = object.classification.front().label;
+    const auto & label = object.classification.front().label;
     const auto & feature = feature_object.feature;
-    const bool is_vehicle = Label::CAR == type || Label::TRUCK == type || Label::BUS == type;
+    const bool is_vehicle = Label::CAR == label || Label::TRUCK == label || Label::BUS == label;
 
     // convert ros to pcl
     pcl::PointCloud<pcl::PointXYZ>::Ptr cluster(new pcl::PointCloud<pcl::PointXYZ>);
@@ -79,7 +79,7 @@ void ShapeEstimationNode::callback(
       yaw = tf2::getYaw(object.kinematics.pose_with_covariance.pose.orientation);
     }
     const bool estimated_success =
-      estimator_->estimateShapeAndPose(type, *cluster, yaw, shape, pose);
+      estimator_->estimateShapeAndPose(label, *cluster, yaw, shape, pose);
 
     // If the shape estimation fails, ignore it.
     if (!estimated_success) {
