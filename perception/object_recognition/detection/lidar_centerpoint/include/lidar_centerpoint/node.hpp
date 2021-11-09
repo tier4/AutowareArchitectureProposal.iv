@@ -20,6 +20,7 @@
 #include <pointcloud_densification.hpp>
 #include <rclcpp/rclcpp.hpp>
 
+#include <autoware_auto_perception_msgs/msg/detected_object_kinematics.hpp>
 #include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <autoware_auto_perception_msgs/msg/object_classification.hpp>
 #include <autoware_auto_perception_msgs/msg/shape.hpp>

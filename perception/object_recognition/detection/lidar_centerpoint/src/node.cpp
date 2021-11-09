@@ -103,15 +103,23 @@ void LidarCenterPointNode::pointCloudCallback(
         } else if (w * l > 2.5 * 7.9) {
           classification.label = autoware_auto_perception_msgs::msg::ObjectClassification::BUS;
         }
+        obj.kinematics.orientation_availability =
+          autoware_auto_perception_msgs::msg::DetectedObjectKinematics::SIGN_UNKNOWN;
         break;
       case 1:
         classification.label = autoware_auto_perception_msgs::msg::ObjectClassification::PEDESTRIAN;
+        obj.kinematics.orientation_availability =
+          autoware_auto_perception_msgs::msg::DetectedObjectKinematics::UNAVAILABLE;
         break;
       case 2:
         classification.label = autoware_auto_perception_msgs::msg::ObjectClassification::BICYCLE;
+        obj.kinematics.orientation_availability =
+          autoware_auto_perception_msgs::msg::DetectedObjectKinematics::UNAVAILABLE;
         break;
       default:
         classification.label = autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
+        obj.kinematics.orientation_availability =
+          autoware_auto_perception_msgs::msg::DetectedObjectKinematics::UNAVAILABLE;
     }
     classification.probability = score;
     obj.classification.emplace_back(classification);
