@@ -1,4 +1,4 @@
-# autoware_state_monitor
+# path_distance_calculator
 
 ## Purpose
 
@@ -26,19 +26,11 @@ Note that the distance means the arc-length along the path, not the Euclidean di
 
 ### Node Parameters
 
-no parameters
-
-| Name | Type | Default Value | Explanation |
-| ---- | ---- | ------------- | ----------- |
-|      |      |               |             |
+None.
 
 ### Core Parameters
 
-no parameters
-
-| Name | Type | Default Value | Explanation |
-| ---- | ---- | ------------- | ----------- |
-|      |      |               |             |
+None.
 
 ## Assumptions / Known limits
 
