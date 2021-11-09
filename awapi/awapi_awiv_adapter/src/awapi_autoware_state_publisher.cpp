@@ -62,23 +62,14 @@ void AutowareIvAutowareStatePublisher::getAutowareStateInfo(
   const autoware_auto_system_msgs::msg::AutowareState::ConstSharedPtr & autoware_state_ptr,
   autoware_api_msgs::msg::AwapiAutowareStatus * status)
 {
-  using AutowareState = autoware_auto_system_msgs::msg::AutowareState;
-  static std::map<AutowareState::_state_type, std::string> mapping = {
-    {AutowareState::INITIALIZING, "InitializingVehicle"},
-    {AutowareState::WAITING_FOR_ROUTE, "WaitingForRoute"},
-    {AutowareState::PLANNING, "Planning"},
-    {AutowareState::WAITING_FOR_ENGAGE, "WaitingForEngage"},
-    {AutowareState::DRIVING, "Driving"},
-    {AutowareState::ARRIVED_GOAL, "ArrivedGoal"},
-    {AutowareState::FINALIZING, "Finalizing"}};
-
   if (!autoware_state_ptr) {
     RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "autoware_state is nullptr");
     return;
   }
 
   // get autoware_state
-  status->autoware_state = mapping[autoware_state_ptr->state];
+  using autoware_iv_auto_msgs_converter::convert;
+  status->autoware_state = convert(*autoware_state_ptr).state;
   status->arrived_goal = isGoal(autoware_state_ptr);
 }
 
