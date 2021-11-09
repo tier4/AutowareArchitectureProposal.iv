@@ -401,11 +401,7 @@ void LongitudinalController::callbackTimerControl()
   ::motion::motion_common::doTransform(m_current_state_ptr->state, current_state_tf, tf);
   // calculate current pose and control data
   geometry_msgs::msg::Pose current_pose;
-  current_pose.position.x = current_state_tf.x;
-  current_pose.position.y = current_state_tf.y;
-  current_pose.position.z = current_state_tf.z;
-  current_pose.orientation = ::motion::motion_common::to_quat<decltype(current_pose.orientation)>(
-    current_state_tf.heading);
+  current_pose = current_state_tf.pose;
 
 
   const auto control_data = getControlData(current_pose);
