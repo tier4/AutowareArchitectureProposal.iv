@@ -1837,15 +1837,14 @@ BehaviorModuleOutput AvoidanceModule::plan()
     }
   }
 
+  BehaviorModuleOutput output;
+  output.turn_signal_info = calcTurnSignalInfo(avoidance_path);
   // sparse resampling for computational cost
   {
     avoidance_path.path =
       util::resamplePathWithSpline(avoidance_path.path, parameters_.resample_interval_for_output);
   }
-
-  BehaviorModuleOutput output;
   output.path = std::make_shared<PathWithLaneId>(avoidance_path.path);
-  output.turn_signal_info = calcTurnSignalInfo(avoidance_path);
 
   clipPathLength(*output.path);
 
@@ -2306,29 +2305,21 @@ TurnSignalInfo AvoidanceModule::calcTurnSignalInfo(const ShiftedPath & path) con
 
   const auto latest_shift_point = shift_points.front();  // assuming it is sorted.
 
-  // Set turn signal if the shift length is larger than threshold.
-  // TODO(Horibe) Turn signal should be turned on only when the vehicle across the lane.
-  const auto tl_on_threshold = 0.3;  // [m]
+  const auto turn_info = util::getPathTurnSignal(
+    avoidance_data_.current_lanelets, path, latest_shift_point, planner_data_->self_pose->pose,
+    planner_data_->self_odometry->twist.twist.linear.x, planner_data_->parameters,
+    parameters_.avoidance_search_distance);
+
+  // Set turn signal if the vehicle across the lane.
   if (!path.shift_length.empty()) {
     if (isAvoidancePlanRunning()) {
-      const double diff = path.shift_length.at(latest_shift_point.end_idx) -
-                          path.shift_length.at(latest_shift_point.start_idx);
-      if (diff > tl_on_threshold) {
-        turn_signal.turn_signal.command = TurnIndicatorsCommand::ENABLE_LEFT;
-      } else if (diff < -tl_on_threshold) {
-        turn_signal.turn_signal.command = TurnIndicatorsCommand::ENABLE_RIGHT;
-      }
+      turn_signal.turn_signal.command = turn_info.first.command;
     }
   }
 
   // calc distance from ego to latest_shift_point end point.
-  {
-    const double distance =
-      calcSignedArcLength(path.path.points, getEgoPosition(), latest_shift_point.end.position) -
-      planner_data_->parameters.base_link2front;
-    if (distance >= 0.0) {
-      turn_signal.signal_distance = distance;
-    }
+  if (turn_info.second >= 0.0) {
+    turn_signal.signal_distance = turn_info.second;
   }
 
   return turn_signal;
