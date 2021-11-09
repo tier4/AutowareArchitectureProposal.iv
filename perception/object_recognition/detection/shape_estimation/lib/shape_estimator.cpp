@@ -67,7 +67,9 @@ bool ShapeEstimator::estimateShape(
 {
   // estimate shape
   std::unique_ptr<ShapeEstimationModelInterface> model_ptr;
-  if (label == Label::CAR || label == Label::TRUCK || label == Label::BUS) {
+  if (
+    label == Label::CAR || label == Label::TRUCK || label == Label::BUS ||
+    label == Label::TRAILER) {
     model_ptr.reset(new BoundingBoxShapeModel(yaw));
   } else if (label == Label::PEDESTRIAN) {
     model_ptr.reset(new CylinderShapeModel());
@@ -91,7 +93,7 @@ bool ShapeEstimator::applyFilter(
     filter_ptr.reset(new CarFilter);
   } else if (label == Label::BUS) {
     filter_ptr.reset(new BusFilter);
-  } else if (label == Label::TRUCK) {
+  } else if (label == Label::TRUCK || label == Label::TRAILER) {
     filter_ptr.reset(new TruckFilter);
   } else {
     filter_ptr.reset(new NoFilter);
@@ -109,7 +111,7 @@ bool ShapeEstimator::applyCorrector(
     corrector_ptr.reset(new CarCorrector(use_reference_yaw));
   } else if (label == Label::BUS) {
     corrector_ptr.reset(new BusCorrector(use_reference_yaw));
-  } else if (label == Label::TRUCK) {
+  } else if (label == Label::TRUCK || label == Label::TRAILER) {
     corrector_ptr.reset(new TruckCorrector(use_reference_yaw));
   } else {
     corrector_ptr.reset(new NoCorrector);
