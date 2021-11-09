@@ -18,8 +18,8 @@ Emergency Handler is a node to select proper MRM from from system failure state 
 | --------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | `/system/emergency/hazard_status` | `autoware_auto_system_msgs::msg::HazardStatusStamped`      | Used to select proper MRM from system failure state contained in HazardStatus |
 | `/control/vehicle_cmd`            | `autoware_auto_control_msgs::msg::AckermannControlCommand` | Used as reference when generate Emergency Control Command                     |
-| `/localization/ekf_odom`          | `nav_msgs::msg::Odometry`                                  | Used to decide whether vehicle is stopped or not                              |
-| `/vehicle/state_report`           | `autoware_auto_vehicle_msgs::msg::ControlModeReport`       | Used to check vehicle mode: autonomous or manual.                             |
+| `/localization/kinematic_state`   | `nav_msgs::msg::Odometry`                                  | Used to decide whether vehicle is stopped or not                              |
+| `/vehicle/status/control_mode`    | `autoware_auto_vehicle_msgs::msg::ControlModeReport`       | Used to check vehicle mode: autonomous or manual.                             |
 
 ### Output
 
