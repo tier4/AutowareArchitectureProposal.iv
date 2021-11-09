@@ -42,10 +42,9 @@ EmergencyHandler::EmergencyHandler() : Node("emergency_handler")
   sub_odom_ = create_subscription<nav_msgs::msg::Odometry>(
     "~/input/odometry", rclcpp::QoS{1}, std::bind(&EmergencyHandler::onOdometry, this, _1));
   // subscribe control mode
-  sub_vehicle_state_report_ =
-    create_subscription<autoware_auto_vehicle_msgs::msg::VehicleStateReport>(
-      "~/input/vehicle_state_report", rclcpp::QoS{1},
-      std::bind(&EmergencyHandler::onVehicleStateReport, this, _1));
+  sub_control_mode_ = create_subscription<autoware_auto_vehicle_msgs::msg::ControlModeReport>(
+    "~/input/vehicle_state_report", rclcpp::QoS{1},
+    std::bind(&EmergencyHandler::onControlMode, this, _1));
 
   // Heartbeat
   heartbeat_hazard_status_ = std::make_shared<
@@ -63,8 +62,7 @@ EmergencyHandler::EmergencyHandler() : Node("emergency_handler")
 
   // Initialize
   odom_ = std::make_shared<const nav_msgs::msg::Odometry>();
-  vehicle_state_report_ =
-    std::make_shared<const autoware_auto_vehicle_msgs::msg::VehicleStateReport>();
+  control_mode_ = std::make_shared<const autoware_auto_vehicle_msgs::msg::ControlModeReport>();
   prev_control_command_ = autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr(
     new autoware_auto_control_msgs::msg::AckermannControlCommand);
 
@@ -103,10 +101,10 @@ void EmergencyHandler::onOdometry(const nav_msgs::msg::Odometry::ConstSharedPtr 
   odom_ = msg;
 }
 
-void EmergencyHandler::onVehicleStateReport(
-  const autoware_auto_vehicle_msgs::msg::VehicleStateReport::ConstSharedPtr msg)
+void EmergencyHandler::onControlMode(
+  const autoware_auto_vehicle_msgs::msg::ControlModeReport::ConstSharedPtr msg)
 {
-  vehicle_state_report_ = msg;
+  control_mode_ = msg;
 }
 
 autoware_auto_vehicle_msgs::msg::VehicleStateCommand EmergencyHandler::createVehicleStateCmdMsg()
@@ -234,14 +232,14 @@ void EmergencyHandler::transitionTo(const int new_state)
 void EmergencyHandler::updateEmergencyState()
 {
   using autoware_auto_system_msgs::msg::EmergencyState;
-  using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
+  using autoware_auto_vehicle_msgs::msg::ControlModeReport;
 
   // Check emergency
   const bool is_emergency = isEmergency(hazard_status_stamped_->status);
 
   // Get mode
-  const bool is_auto_mode = vehicle_state_report_->mode == VehicleStateReport::MODE_AUTONOMOUS;
-  const bool is_takeover_done = vehicle_state_report_->mode == VehicleStateReport::MODE_MANUAL;
+  const bool is_auto_mode = control_mode_->mode == ControlModeReport::AUTONOMOUS;
+  const bool is_takeover_done = control_mode_->mode == ControlModeReport::MANUAL;
 
   // State Machine
   if (emergency_state_ == EmergencyState::NORMAL) {
