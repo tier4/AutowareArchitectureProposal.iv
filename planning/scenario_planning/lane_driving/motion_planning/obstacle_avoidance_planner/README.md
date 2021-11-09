@@ -28,7 +28,7 @@ Each module is explained briefly here based on the flowchart.
 
 ### Manage trajectory generation
 
-When one of the following conditions area realized, callback functoin to generate a trajectory is called and publish the trajectory.
+When one of the following conditions area realized, callback function to generate a trajectory is called and publish the trajectory.
 Otherwise, previously generated trajectory is published.
 
 - Ego moves a certain distance compared to the previous ego pose (default: 10.0 [m])
@@ -46,7 +46,7 @@ In detail, this equals to the following three conditions at the same time, and t
 - Velocity is under a certain value (default: 0.1 [m/s])
 - CoG of the obstacles is not on the center line
   - so that the ego will not avoid the car in front of the ego in the same lane.
-- At least one point of the obstacle polygon is outo of the drivable area.
+- At least one point of the obstacle polygon is outside the drivable area.
 
 ![obstacle_to_avoid](./media/obstacle_to_avoid.drawio.svg)
 
@@ -119,7 +119,7 @@ In this section, Elastic band (to smooth the path) and Model Predictive Trajecto
 #### Abstract
 
 Elastic band smooths the path generated in the behavior.
-Since the latter process of optimization uses the curvature and normal vector of the reference path, smoothing should be applied here so that the optmization will be stable.
+Since the latter process of optimization uses the curvature and normal vector of the reference path, smoothing should be applied here so that the optimization will be stable.
 
 This smoothing process does not consider collision.
 Therefore the output path may have a collision with road boundaries or obstacles.
@@ -130,7 +130,7 @@ We formulate a QP problem minimizing the distance between the previous point and
 Conditions that each point can move to a certain extent are used so that the path will not changed a lot but will be smoother.
 
 For $k$'th point ($\boldsymbol{p}_k$), the objective function is as follows.
-The beggining and end point are fixed during the optimization.
+The beginning and end point are fixed during the optimization.
 
 $$
 \min \sum_{k=1}^{n-1} |\boldsymbol{p}_{k+1} - \boldsymbol{p}_{k}| - |\boldsymbol{p}_{k} - \boldsymbol{p}_{k-1}|
@@ -142,13 +142,13 @@ $$
 
 Model Predictive Trajectory (MPT) calculates the trajectory that realizes the following conditions.
 
-- Kinematically feasible for linear vehicle kineamtics model
+- Kinematically feasible for linear vehicle kinematics model
 - Collision free with obstacles and road boundaries
 
 Conditions for collision free is considered to be not hard constraints but soft constraints.
 When the optimization failed or the optimized trajectory is not collision free, the output trajectory will be previously generated trajectory.
 
-Trajectory near the ego must be stable, therfore the condition where trajectory points near the ego are the same as previously generated trajectory is considered, and this is the only hard constraints in MPT.
+Trajectory near the ego must be stable, therefore the condition where trajectory points near the ego are the same as previously generated trajectory is considered, and this is the only hard constraints in MPT.
 
 #### Formulation
 
@@ -168,7 +168,7 @@ y_{k+1} & = y_{k} + v \sin \theta_k dt \\
 \end{align}
 $$
 
-Then we linearlize these equations.
+Then we linearize these equations.
 $y_k$ and $\theta_k$ are tracking errors, so we assume that those are small enough.
 Therefore $\sin \theta_k \approx \theta_k$.
 
@@ -186,7 +186,7 @@ $$
 \end{align}
 $$
 
-$\mathrm{clamp}(v, v_{\min}, v_{\max})$ is a function to convert $v$ to be larger thatn $v_{\min}$ and smaller than $v_{\max}$.
+$\mathrm{clamp}(v, v_{\min}, v_{\max})$ is a function to convert $v$ to be larger than $v_{\min}$ and smaller than $v_{\max}$.
 
 Using this $\delta_{\mathrm{ref}, k}$, $\tan \delta_k$ is linearized as follows.
 
@@ -198,7 +198,7 @@ $$
 \end{align}
 $$
 
-Based on these linearlizations, the error kinematics is formulated with the following linear equations.
+Based on the linearization, the error kinematics is formulated with the following linear equations.
 
 $$
 \begin{align}
@@ -301,7 +301,7 @@ $$
 
 - When turning right or left in the intersection, the output trajectory is close to the outside road boundary.
 - Roles of planning for behavior_path_planner and obstacle_avoidance_planner are not decided clearly.
-- High compulation cost
+- High computation cost
 
 ## How to debug
 
@@ -330,7 +330,7 @@ Topics for debugging will be explained in this section.
 ![optimized_points_marker](./media/optimized_points_marker.png)
 
 - **Trajectory with footprint**
-  - Trajectory footprints can be visualized by TrajectoryFootprint of rviz_plugin. Whether trajectory footprints of input/outputo of obstacle_avoidance_planner is inside the drivable area or not can be checked.
+  - Trajectory footprints can be visualized by TrajectoryFootprint of rviz_plugin. Whether trajectory footprints of input/output of obstacle_avoidance_planner is inside the drivable area or not can be checked.
 
 ![trajectory_with_footprint](./media/trajectory_with_footprint.png)
 
