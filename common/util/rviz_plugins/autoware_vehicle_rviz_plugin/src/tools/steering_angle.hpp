@@ -32,7 +32,7 @@
 namespace rviz_plugins
 {
 class SteeringAngleDisplay
-  : public rviz_common::RosTopicDisplay<autoware_auto_vehicle_msgs::msg::SteeringReport>
+: public rviz_common::RosTopicDisplay<autoware_auto_vehicle_msgs::msg::SteeringReport>
 {
   Q_OBJECT
 
@@ -49,8 +49,8 @@ private Q_SLOTS:
 
 protected:
   void update(float wall_dt, float ros_dt) override;
-  void processMessage(const autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr msg_ptr)
-  override;
+  void processMessage(
+    const autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr msg_ptr) override;
 
   jsk_rviz_plugins::OverlayObject::Ptr overlay_;
   rviz_common::properties::ColorProperty * property_text_color_;
