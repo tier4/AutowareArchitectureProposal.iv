@@ -165,7 +165,7 @@ double RawVehicleCommandConverterNode::calculateSteer(
   // feedback
   if (use_steer_fb_) {
     fb_value = steer_controller_.calcFBSteer(
-      steering, steer_rate, dt, vel, *current_steer_ptr_, pid_contributions, pid_errors);
+      steering, dt, vel, *current_steer_ptr_, pid_contributions, pid_errors);
   }
   steering_output = ff_value + fb_value;
   // for steer debugging
