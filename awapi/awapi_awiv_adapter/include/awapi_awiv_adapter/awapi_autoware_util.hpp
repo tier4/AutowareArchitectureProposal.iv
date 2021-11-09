@@ -25,6 +25,7 @@
 #include <autoware_auto_vehicle_msgs/msg/control_mode_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/gear_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/hazard_lights_report.hpp>
+#include <autoware_auto_vehicle_msgs/msg/steering_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/turn_indicators_report.hpp>
 
 #include <autoware_api_msgs/msg/stop_command.hpp>
@@ -37,7 +38,6 @@
 #include <autoware_v2x_msgs/msg/infrastructure_command_array.hpp>
 #include <autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp>
 #include <autoware_vehicle_msgs/msg/battery_status.hpp>
-#include <autoware_vehicle_msgs/msg/steering.hpp>
 #include <autoware_vehicle_msgs/msg/vehicle_command.hpp>
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
@@ -58,7 +58,7 @@ namespace autoware_api
 struct AutowareInfo
 {
   std::shared_ptr<geometry_msgs::msg::PoseStamped> current_pose_ptr;
-  autoware_vehicle_msgs::msg::Steering::ConstSharedPtr steer_ptr;
+  autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr steer_ptr;
   autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr vehicle_cmd_ptr;
   autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport::ConstSharedPtr turn_indicators_ptr;
   autoware_auto_vehicle_msgs::msg::HazardLightsReport::ConstSharedPtr hazard_lights_ptr;

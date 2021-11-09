@@ -40,7 +40,7 @@ private:
     const std::shared_ptr<geometry_msgs::msg::PoseStamped> & pose_ptr,
     autoware_api_msgs::msg::AwapiVehicleStatus * status);
   void getSteerInfo(
-    const autoware_vehicle_msgs::msg::Steering::ConstSharedPtr & steer_ptr,
+    const autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr & steer_ptr,
     autoware_api_msgs::msg::AwapiVehicleStatus * status);
   void getVehicleCmdInfo(
     const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr & vehicle_cmd_ptr,
@@ -67,7 +67,7 @@ private:
 
   // parameters
   geometry_msgs::msg::TwistStamped::ConstSharedPtr previous_twist_ptr_;
-  autoware_vehicle_msgs::msg::Steering::ConstSharedPtr previous_steer_ptr_;
+  autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr previous_steer_ptr_;
   double prev_accel_;
   double prev_steer_vel_;
 

@@ -83,7 +83,7 @@ void AutowareIvVehicleStatePublisher::getPoseInfo(
 }
 
 void AutowareIvVehicleStatePublisher::getSteerInfo(
-  const autoware_vehicle_msgs::msg::Steering::ConstSharedPtr & steer_ptr,
+  const autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr & steer_ptr,
   autoware_api_msgs::msg::AwapiVehicleStatus * status)
 {
   if (!steer_ptr) {
@@ -92,15 +92,15 @@ void AutowareIvVehicleStatePublisher::getSteerInfo(
   }
 
   // get steer
-  status->steering = steer_ptr->data;
+  using autoware_iv_auto_msgs_converter::convert;
+  status->steering = convert(*steer_ptr).data;
 
   // get steer vel
   if (previous_steer_ptr_) {
     // calculate steer vel from steer
-    const double ds = steer_ptr->data - previous_steer_ptr_->data;
+    const double ds = steer_ptr->steering_tire_angle - previous_steer_ptr_->steering_tire_angle;
     const double dt = std::max(
-      (rclcpp::Time(steer_ptr->header.stamp) - rclcpp::Time(previous_steer_ptr_->header.stamp))
-        .seconds(),
+      (rclcpp::Time(steer_ptr->stamp) - rclcpp::Time(previous_steer_ptr_->stamp)).seconds(),
       1e-03);
     const double steer_vel = ds / dt;
 

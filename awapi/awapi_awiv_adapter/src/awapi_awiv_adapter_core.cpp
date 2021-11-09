@@ -62,7 +62,7 @@ AutowareIvAdapter::AutowareIvAdapter()
 
   auto durable_qos = rclcpp::QoS{1}.transient_local();
 
-  sub_steer_ = this->create_subscription<autoware_vehicle_msgs::msg::Steering>(
+  sub_steer_ = this->create_subscription<autoware_auto_vehicle_msgs::msg::SteeringReport>(
     "input/steer", 1, std::bind(&AutowareIvAdapter::callbackSteer, this, _1));
   sub_vehicle_cmd_ = this->create_subscription<autoware_vehicle_msgs::msg::VehicleCommand>(
     "input/vehicle_cmd", durable_qos, std::bind(&AutowareIvAdapter::callbackVehicleCmd, this, _1));
@@ -178,7 +178,7 @@ void AutowareIvAdapter::timerCallback()
 }
 
 void AutowareIvAdapter::callbackSteer(
-  const autoware_vehicle_msgs::msg::Steering::ConstSharedPtr msg_ptr)
+  const autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr msg_ptr)
 {
   aw_info_.steer_ptr = msg_ptr;
 }

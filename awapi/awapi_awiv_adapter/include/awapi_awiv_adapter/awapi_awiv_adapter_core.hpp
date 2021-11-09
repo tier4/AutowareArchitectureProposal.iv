@@ -34,13 +34,13 @@
 #include <autoware_auto_vehicle_msgs/msg/control_mode_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/gear_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/hazard_lights_report.hpp>
+#include <autoware_auto_vehicle_msgs/msg/steering_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/turn_indicators_report.hpp>
 
 #include <autoware_control_msgs/msg/gate_mode.hpp>
 #include <autoware_planning_msgs/msg/stop_reason_array.hpp>
 #include <autoware_v2x_msgs/msg/infrastructure_command_array.hpp>
 #include <autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp>
-#include <autoware_vehicle_msgs/msg/steering.hpp>
 #include <autoware_vehicle_msgs/msg/vehicle_command.hpp>
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
@@ -61,7 +61,7 @@ public:
 
 private:
   // subscriber
-  rclcpp::Subscription<autoware_vehicle_msgs::msg::Steering>::SharedPtr sub_steer_;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::SteeringReport>::SharedPtr sub_steer_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::VehicleCommand>::SharedPtr sub_vehicle_cmd_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport>::SharedPtr sub_turn_indicators_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::HazardLightsReport>::SharedPtr sub_hazard_lights_;
@@ -114,7 +114,7 @@ private:
   tf2_ros::TransformListener tf_listener_;
 
   // callback function
-  void callbackSteer(const autoware_vehicle_msgs::msg::Steering::ConstSharedPtr msg_ptr);
+  void callbackSteer(const autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr msg_ptr);
   void callbackVehicleCmd(const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr msg_ptr);
   void callbackTurnIndicators(const autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport::ConstSharedPtr msg_ptr);
   void callbackHazardLights(const autoware_auto_vehicle_msgs::msg::HazardLightsReport::ConstSharedPtr msg_ptr);
