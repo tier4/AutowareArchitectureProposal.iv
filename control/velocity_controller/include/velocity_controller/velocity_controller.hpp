@@ -127,6 +127,8 @@ private:
   PIDController pid_vel_;
   std::shared_ptr<LowpassFilter1d> lpf_vel_error_{nullptr};
   double current_vel_threshold_pid_integrate_;
+  bool enable_brake_keeping_before_stop_;
+  double brake_keeping_acc_;
 
   // smooth stop
   SmoothStop smooth_stop_;
@@ -275,6 +277,15 @@ private:
    * @param [in] shift direction that vehicle move (forward or backward)
    */
   double applySlopeCompensation(const double acc, const double pitch, const Shift shift) const;
+
+  /**
+   * @brief keep target motion acceleration negative before stop
+   * @param [in] traj reference trajectory
+   * @param [in] motion delay compensated target motion
+   */
+  Motion keepBrakeBeforeStop(
+    const autoware_planning_msgs::msg::Trajectory & traj, const Motion & target_motion,
+    const size_t nearest_idx) const;
 
   /**
    * @brief interpolate trajectory point that is nearest to vehicle
