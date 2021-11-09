@@ -121,7 +121,8 @@ private:
   bool8_t m_enable_smooth_stop;
   bool8_t m_enable_overshoot_emergency;
   bool8_t m_enable_slope_compensation;
-
+  bool8_t m_enable_brake_keeping_before_stop;
+  float64_t m_brake_keeping_acc;
   // smooth stop transition
   struct StateTransitionParams
   {
@@ -302,6 +303,15 @@ private:
   float64_t applySlopeCompensation(
     const float64_t acc, const float64_t pitch,
     const Shift shift) const;
+
+  /**
+   * @brief keep target motion acceleration negative before stop
+   * @param [in] traj reference trajectory
+   * @param [in] motion delay compensated target motion
+   */
+  Motion keepBrakeBeforeStop(
+    const autoware_auto_planning_msgs::msg::Trajectory & traj, const Motion & target_motion,
+    const size_t nearest_idx) const;
 
   /**
    * @brief interpolate trajectory point that is nearest to vehicle
