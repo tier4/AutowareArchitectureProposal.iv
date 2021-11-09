@@ -43,10 +43,12 @@ private:
     const autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr & steer_ptr,
     autoware_api_msgs::msg::AwapiVehicleStatus * status);
   void getVehicleCmdInfo(
-    const autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr & vehicle_cmd_ptr,
+    const autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr &
+      vehicle_cmd_ptr,
     autoware_api_msgs::msg::AwapiVehicleStatus * status);
   void getTurnSignalInfo(
-    const autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport::ConstSharedPtr & turn_indicators_ptr,
+    const autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport::ConstSharedPtr &
+      turn_indicators_ptr,
     const autoware_auto_vehicle_msgs::msg::HazardLightsReport::ConstSharedPtr & hazard_lights_ptr,
     autoware_api_msgs::msg::AwapiVehicleStatus * status);
   void getTwistInfo(

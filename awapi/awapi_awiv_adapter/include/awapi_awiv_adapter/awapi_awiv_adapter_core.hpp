@@ -37,7 +37,6 @@
 #include <autoware_auto_vehicle_msgs/msg/hazard_lights_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/steering_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/turn_indicators_report.hpp>
-
 #include <autoware_control_msgs/msg/gate_mode.hpp>
 #include <autoware_planning_msgs/msg/stop_reason_array.hpp>
 #include <autoware_v2x_msgs/msg/infrastructure_command_array.hpp>
@@ -62,15 +61,20 @@ public:
 private:
   // subscriber
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::SteeringReport>::SharedPtr sub_steer_;
-  rclcpp::Subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr sub_vehicle_cmd_;
-  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport>::SharedPtr sub_turn_indicators_;
-  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::HazardLightsReport>::SharedPtr sub_hazard_lights_;
+  rclcpp::Subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr
+    sub_vehicle_cmd_;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport>::SharedPtr
+    sub_turn_indicators_;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::HazardLightsReport>::SharedPtr
+    sub_hazard_lights_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::GearReport>::SharedPtr sub_gear_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::BatteryStatus>::SharedPtr sub_battery_;
   rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr sub_nav_sat_;
-  rclcpp::Subscription<autoware_auto_system_msgs::msg::AutowareState>::SharedPtr sub_autoware_state_;
-  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::ControlModeReport>::SharedPtr sub_control_mode_;
+  rclcpp::Subscription<autoware_auto_system_msgs::msg::AutowareState>::SharedPtr
+    sub_autoware_state_;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::ControlModeReport>::SharedPtr
+    sub_control_mode_;
   rclcpp::Subscription<autoware_control_msgs::msg::GateMode>::SharedPtr sub_gate_mode_;
   rclcpp::Subscription<autoware_auto_system_msgs::msg::EmergencyState>::SharedPtr sub_emergency_;
   rclcpp::Subscription<autoware_auto_system_msgs::msg::HazardStatusStamped>::SharedPtr
@@ -86,7 +90,8 @@ private:
     sub_lane_change_available_;
   rclcpp::Subscription<autoware_planning_msgs::msg::LaneChangeStatus>::SharedPtr
     sub_lane_change_ready_;
-  rclcpp::Subscription<autoware_auto_planning_msgs::msg::Path>::SharedPtr sub_lane_change_candidate_;
+  rclcpp::Subscription<autoware_auto_planning_msgs::msg::Path>::SharedPtr
+    sub_lane_change_candidate_;
   rclcpp::Subscription<autoware_planning_msgs::msg::IsAvoidancePossible>::SharedPtr
     sub_obstacle_avoid_ready_;
   rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr
@@ -115,16 +120,20 @@ private:
 
   // callback function
   void callbackSteer(const autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr msg_ptr);
-  void callbackVehicleCmd(const autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg_ptr);
-  void callbackTurnIndicators(const autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport::ConstSharedPtr msg_ptr);
-  void callbackHazardLights(const autoware_auto_vehicle_msgs::msg::HazardLightsReport::ConstSharedPtr msg_ptr);
+  void callbackVehicleCmd(
+    const autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg_ptr);
+  void callbackTurnIndicators(
+    const autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport::ConstSharedPtr msg_ptr);
+  void callbackHazardLights(
+    const autoware_auto_vehicle_msgs::msg::HazardLightsReport::ConstSharedPtr msg_ptr);
   void callbackTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg_ptr);
   void callbackGear(const autoware_auto_vehicle_msgs::msg::GearReport::ConstSharedPtr msg_ptr);
   void callbackBattery(const autoware_vehicle_msgs::msg::BatteryStatus::ConstSharedPtr msg_ptr);
   void callbackNavSat(const sensor_msgs::msg::NavSatFix::ConstSharedPtr msg_ptr);
   void callbackAutowareState(
     const autoware_auto_system_msgs::msg::AutowareState::ConstSharedPtr msg_ptr);
-  void callbackControlMode(const autoware_auto_vehicle_msgs::msg::ControlModeReport::ConstSharedPtr msg_ptr);
+  void callbackControlMode(
+    const autoware_auto_vehicle_msgs::msg::ControlModeReport::ConstSharedPtr msg_ptr);
   void callbackGateMode(const autoware_control_msgs::msg::GateMode::ConstSharedPtr msg_ptr);
   void callbackEmergencyState(
     const autoware_auto_system_msgs::msg::EmergencyState::ConstSharedPtr msg_ptr);

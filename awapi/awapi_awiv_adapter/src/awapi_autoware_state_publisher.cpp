@@ -13,8 +13,9 @@
 // limitations under the License.
 
 #include "awapi_awiv_adapter/awapi_autoware_state_publisher.hpp"
-#include "awapi_awiv_adapter/diagnostics_filter.hpp"
+
 #include "autoware_iv_auto_msgs_converter/autoware_iv_auto_msgs_converter.hpp"
+#include "awapi_awiv_adapter/diagnostics_filter.hpp"
 
 #include <map>
 #include <regex>
@@ -69,8 +70,7 @@ void AutowareIvAutowareStatePublisher::getAutowareStateInfo(
     {AutowareState::WAITING_FOR_ENGAGE, "WaitingForEngage"},
     {AutowareState::DRIVING, "Driving"},
     {AutowareState::ARRIVED_GOAL, "ArrivedGoal"},
-    {AutowareState::FINALIZING, "Finalizing"}
-  };
+    {AutowareState::FINALIZING, "Finalizing"}};
 
   if (!autoware_state_ptr) {
     RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "autoware_state is nullptr");

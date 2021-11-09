@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "awapi_awiv_adapter/awapi_vehicle_state_publisher.hpp"
+
 #include "autoware_iv_auto_msgs_converter/autoware_iv_auto_msgs_converter.hpp"
 
 #include <limits>
@@ -100,8 +101,7 @@ void AutowareIvVehicleStatePublisher::getSteerInfo(
     // calculate steer vel from steer
     const double ds = steer_ptr->steering_tire_angle - previous_steer_ptr_->steering_tire_angle;
     const double dt = std::max(
-      (rclcpp::Time(steer_ptr->stamp) - rclcpp::Time(previous_steer_ptr_->stamp)).seconds(),
-      1e-03);
+      (rclcpp::Time(steer_ptr->stamp) - rclcpp::Time(previous_steer_ptr_->stamp)).seconds(), 1e-03);
     const double steer_vel = ds / dt;
 
     // apply lowpass filter
