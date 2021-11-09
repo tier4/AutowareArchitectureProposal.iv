@@ -84,6 +84,10 @@ VelocityController::VelocityController(const rclcpp::NodeOptions & node_options)
 
     current_vel_threshold_pid_integrate_ =
       declare_parameter("current_vel_threshold_pid_integration", 0.5);  // [m/s]
+
+    enable_brake_keeping_before_stop_ =
+      declare_parameter("enable_brake_keeping_before_stop", false);     // [-]
+    brake_keeping_acc_ = declare_parameter("brake_keeping_acc", -0.2);  // [m/s^2]
   }
 
   // parameters for smooth stop state
@@ -519,6 +523,8 @@ VelocityController::Motion VelocityController::calcCtrlCmd(
     target_motion =
       Motion{target_interpolated_point.twist.linear.x, target_interpolated_point.accel.linear.x};
 
+    target_motion = keepBrakeBeforeStop(*trajectory_ptr_, target_motion, nearest_idx);
+
     const double pred_vel_in_target =
       predictedVelocityInTargetPoint(control_data.current_motion, delay_compensation_time_);
     debug_values_.setValues(DebugValues::TYPE::PREDICTED_VEL, pred_vel_in_target);
@@ -714,6 +720,38 @@ double VelocityController::applySlopeCompensation(
   double sign = (shift == Shift::Forward) ? -1 : (shift == Shift::Reverse ? 1 : 0);
   double compensated_acc = input_acc + sign * autoware_utils::gravity * std::sin(pitch_limited);
   return compensated_acc;
+}
+
+VelocityController::Motion VelocityController::keepBrakeBeforeStop(
+  const autoware_planning_msgs::msg::Trajectory & traj, const Motion & target_motion,
+  const size_t nearest_idx) const
+{
+  Motion output_motion = target_motion;
+
+  if (enable_brake_keeping_before_stop_ == false) {
+    return output_motion;
+  }
+  const auto stop_idx = autoware_utils::searchZeroVelocityIndex(traj.points);
+  if (!stop_idx) {
+    return output_motion;
+  }
+
+  double min_acc_before_stop = std::numeric_limits<double>::max();
+  size_t min_acc_idx = std::numeric_limits<size_t>::max();
+  for (int i = static_cast<int>(*stop_idx); i >= 0; --i) {
+    if (traj.points.at(i).accel.linear.x > min_acc_before_stop) {
+      break;
+    }
+    min_acc_before_stop = traj.points.at(i).accel.linear.x;
+    min_acc_idx = i;
+  }
+
+  const double brake_keeping_acc = std::max(brake_keeping_acc_, min_acc_before_stop);
+  if (nearest_idx >= min_acc_idx && target_motion.acc > brake_keeping_acc) {
+    output_motion.acc = brake_keeping_acc;
+  }
+
+  return output_motion;
 }
 
 autoware_planning_msgs::msg::TrajectoryPoint VelocityController::calcInterpolatedTargetValue(
