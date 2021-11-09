@@ -50,7 +50,7 @@ stop
 
 Check that `obstacle_collision_checker` receives no ground pointcloud, predicted_trajectory, reference trajectory, and current velocity data.
 
-### Diagnostic Update
+### Diagnostic update
 
 If any collision is found on predicted path, this module sets `ERRROR` level as diagnostic status else sets `OK`.
 
