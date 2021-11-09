@@ -21,6 +21,8 @@
 #include <iostream>
 #include <memory>
 
+using Label = autoware_auto_perception_msgs::msg::ObjectClassification;
+
 ShapeEstimator::ShapeEstimator(bool use_corrector, bool use_filter)
 : use_corrector_(use_corrector), use_filter_(use_filter)
 {
@@ -63,18 +65,15 @@ bool ShapeEstimator::estimateShape(
   const boost::optional<float> & yaw, autoware_auto_perception_msgs::msg::Shape & shape_output,
   geometry_msgs::msg::Pose & pose_output)
 {
-  using autoware_auto_perception_msgs::msg::ObjectClassification;
   // estimate shape
   std::unique_ptr<ShapeEstimationModelInterface> model_ptr;
-  if (
-    type == ObjectClassification::CAR || type == ObjectClassification::TRUCK ||
-    type == ObjectClassification::BUS) {
+  if (type == Label::CAR || type == Label::TRUCK || type == Label::BUS) {
     model_ptr.reset(new BoundingBoxShapeModel(yaw));
-  } else if (type == ObjectClassification::PEDESTRIAN) {
+  } else if (type == Label::PEDESTRIAN) {
     model_ptr.reset(new CylinderShapeModel());
-  } else if (type == ObjectClassification::MOTORCYCLE) {
+  } else if (type == Label::MOTORCYCLE) {
     model_ptr.reset(new BoundingBoxShapeModel(yaw));
-  } else if (type == ObjectClassification::BICYCLE) {
+  } else if (type == Label::BICYCLE) {
     model_ptr.reset(new BoundingBoxShapeModel(yaw));
   } else {
     model_ptr.reset(new ConvexhullShapeModel());
@@ -87,13 +86,12 @@ bool ShapeEstimator::applyFilter(
   const int type, const autoware_auto_perception_msgs::msg::Shape & shape_output,
   const geometry_msgs::msg::Pose & pose_output)
 {
-  using autoware_auto_perception_msgs::msg::ObjectClassification;
   std::unique_ptr<ShapeEstimationFilterInterface> filter_ptr;
-  if (type == ObjectClassification::CAR) {
+  if (type == Label::CAR) {
     filter_ptr.reset(new CarFilter);
-  } else if (type == ObjectClassification::BUS) {
+  } else if (type == Label::BUS) {
     filter_ptr.reset(new BusFilter);
-  } else if (type == ObjectClassification::TRUCK) {
+  } else if (type == Label::TRUCK) {
     filter_ptr.reset(new TruckFilter);
   } else {
     filter_ptr.reset(new NoFilter);
@@ -106,13 +104,12 @@ bool ShapeEstimator::applyCorrector(
   const int type, const bool use_reference_yaw,
   autoware_auto_perception_msgs::msg::Shape & shape_output, geometry_msgs::msg::Pose & pose_output)
 {
-  using autoware_auto_perception_msgs::msg::ObjectClassification;
   std::unique_ptr<ShapeEstimationCorrectorInterface> corrector_ptr;
-  if (type == ObjectClassification::CAR) {
+  if (type == Label::CAR) {
     corrector_ptr.reset(new CarCorrector(use_reference_yaw));
-  } else if (type == ObjectClassification::BUS) {
+  } else if (type == Label::BUS) {
     corrector_ptr.reset(new BusCorrector(use_reference_yaw));
-  } else if (type == ObjectClassification::TRUCK) {
+  } else if (type == Label::TRUCK) {
     corrector_ptr.reset(new TruckCorrector(use_reference_yaw));
   } else {
     corrector_ptr.reset(new NoCorrector);
