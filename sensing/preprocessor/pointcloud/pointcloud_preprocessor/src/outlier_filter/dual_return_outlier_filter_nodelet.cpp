@@ -49,6 +49,7 @@ DualReturnOutlierFilterComponent::DualReturnOutlierFilterComponent(
   updater_.add(
     std::string(this->get_namespace()) + ": visibility_validation", this,
     &DualReturnOutlierFilterComponent::onVisibilityChecker);
+  updater_.setPeriod(0.1);
 
   image_pub_ =
     image_transport::create_publisher(this, "/dual_return_outlier_filter/frequency_image");
