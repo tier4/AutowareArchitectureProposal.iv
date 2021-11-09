@@ -23,9 +23,9 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/steering_report.hpp>
 #include <autoware_debug_msgs/msg/float32_multi_array_stamped.hpp>
 #include <autoware_vehicle_msgs/msg/actuation_command_stamped.hpp>
-#include <autoware_auto_vehicle_msgs/msg/steering_report.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 
