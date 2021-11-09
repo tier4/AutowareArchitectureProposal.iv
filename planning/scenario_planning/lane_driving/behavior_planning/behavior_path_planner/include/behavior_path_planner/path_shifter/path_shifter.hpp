@@ -183,15 +183,6 @@ public:
     const PathWithLaneId & path, const Point & origin, double dist_to_start, double dist_to_end,
     double shift_length, ShiftPoint * shift_point);
 
-  /**
-   * @brief  Calculate turn signal from shifted path.
-   */
-
-  std::pair<TurnSignal, double> calcTurnSignalAndDistance(
-    const lanelet::ConstLanelets & current_lanes, const ShiftedPath & path,
-    const ShiftPoint & shift_point, const Pose & pose, const double & velocity,
-    const BehaviorPathPlannerParameters & common_parameter, const double & search_distance);
-
 private:
   // The reference path along which the shift will be performed.
   PathWithLaneId reference_path_;

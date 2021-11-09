@@ -132,8 +132,6 @@ BehaviorModuleOutput LaneChangeModule::plan()
 {
   constexpr double RESAMPLE_INTERVAL = 1.0;
   auto path = util::resamplePathWithSpline(status_.lane_change_path.path, RESAMPLE_INTERVAL);
-  const auto current_pose = planner_data_->self_pose->pose;
-  const auto current_twist = planner_data_->self_velocity->twist;
   // Generate drivable area
   {
     const auto & route_handler = planner_data_->route_handler;
@@ -158,13 +156,13 @@ BehaviorModuleOutput LaneChangeModule::plan()
 
   BehaviorModuleOutput output;
   output.path = std::make_shared<PathWithLaneId>(path);
-  const auto turn_signal_info_path_shifter = path_shifter_.calcTurnSignalAndDistance(
+  const auto turn_signal_info = util::getPathTurnSignal(
     status_.current_lanes, status_.lane_change_path.shifted_path,
-    status_.lane_change_path.shift_point, current_pose, current_twist.linear.x,
-    planner_data_->parameters, parameters_.lane_change_search_distance);
-  output.turn_signal_info.turn_signal.data = turn_signal_info_path_shifter.first.data;
-  output.turn_signal_info.signal_distance = turn_signal_info_path_shifter.second;
-
+    status_.lane_change_path.shift_point, planner_data_->self_pose->pose,
+    planner_data_->self_velocity->twist.linear.x, planner_data_->parameters,
+    parameters_.lane_change_search_distance);
+  output.turn_signal_info.turn_signal.data = turn_signal_info.first.data;
+  output.turn_signal_info.signal_distance = turn_signal_info.second;
   return output;
 }
 
