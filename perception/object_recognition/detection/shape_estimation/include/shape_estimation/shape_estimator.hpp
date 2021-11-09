@@ -15,8 +15,8 @@
 #ifndef SHAPE_ESTIMATION__SHAPE_ESTIMATOR_HPP_
 #define SHAPE_ESTIMATION__SHAPE_ESTIMATOR_HPP_
 
-#include <autoware_perception_msgs/msg/semantic.hpp>
-#include <autoware_perception_msgs/msg/shape.hpp>
+#include <autoware_auto_perception_msgs/msg/object_classification.hpp>
+#include <autoware_auto_perception_msgs/msg/shape.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 
 #include <boost/optional.hpp>
@@ -32,14 +32,15 @@ class ShapeEstimator
 private:
   bool estimateShape(
     const int type, const pcl::PointCloud<pcl::PointXYZ> & cluster,
-    const boost::optional<float> & yaw, autoware_perception_msgs::msg::Shape & shape_output,
+    const boost::optional<float> & yaw, autoware_auto_perception_msgs::msg::Shape & shape_output,
     geometry_msgs::msg::Pose & pose_output);
   bool applyFilter(
-    const int type, const autoware_perception_msgs::msg::Shape & shape_output,
+    const int type, const autoware_auto_perception_msgs::msg::Shape & shape_output,
     const geometry_msgs::msg::Pose & pose_output);
   bool applyCorrector(
     const int type, const bool use_reference_yaw,
-    autoware_perception_msgs::msg::Shape & shape_output, geometry_msgs::msg::Pose & pose_output);
+    autoware_auto_perception_msgs::msg::Shape & shape_output,
+    geometry_msgs::msg::Pose & pose_output);
 
   bool use_corrector_;
   bool use_filter_;
@@ -51,7 +52,7 @@ public:
 
   virtual bool estimateShapeAndPose(
     const int type, const pcl::PointCloud<pcl::PointXYZ> & cluster,
-    const boost::optional<float> & yaw, autoware_perception_msgs::msg::Shape & shape_output,
+    const boost::optional<float> & yaw, autoware_auto_perception_msgs::msg::Shape & shape_output,
     geometry_msgs::msg::Pose & pose_output);
 };
 

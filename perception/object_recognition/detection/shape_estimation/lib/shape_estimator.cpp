@@ -28,10 +28,10 @@ ShapeEstimator::ShapeEstimator(bool use_corrector, bool use_filter)
 
 bool ShapeEstimator::estimateShapeAndPose(
   const int type, const pcl::PointCloud<pcl::PointXYZ> & cluster,
-  const boost::optional<float> & yaw, autoware_perception_msgs::msg::Shape & shape_output,
+  const boost::optional<float> & yaw, autoware_auto_perception_msgs::msg::Shape & shape_output,
   geometry_msgs::msg::Pose & pose_output)
 {
-  autoware_perception_msgs::msg::Shape shape;
+  autoware_auto_perception_msgs::msg::Shape shape;
   geometry_msgs::msg::Pose pose;
   // estimate shape
   if (!estimateShape(type, cluster, yaw, shape, pose)) {
@@ -60,21 +60,21 @@ bool ShapeEstimator::estimateShapeAndPose(
 
 bool ShapeEstimator::estimateShape(
   const int type, const pcl::PointCloud<pcl::PointXYZ> & cluster,
-  const boost::optional<float> & yaw, autoware_perception_msgs::msg::Shape & shape_output,
+  const boost::optional<float> & yaw, autoware_auto_perception_msgs::msg::Shape & shape_output,
   geometry_msgs::msg::Pose & pose_output)
 {
+  using autoware_auto_perception_msgs::msg::ObjectClassification;
   // estimate shape
   std::unique_ptr<ShapeEstimationModelInterface> model_ptr;
   if (
-    type == autoware_perception_msgs::msg::Semantic::CAR ||
-    type == autoware_perception_msgs::msg::Semantic::TRUCK ||
-    type == autoware_perception_msgs::msg::Semantic::BUS) {
+    type == ObjectClassification::CAR || type == ObjectClassification::TRUCK ||
+    type == ObjectClassification::BUS) {
     model_ptr.reset(new BoundingBoxShapeModel(yaw));
-  } else if (type == autoware_perception_msgs::msg::Semantic::PEDESTRIAN) {
+  } else if (type == ObjectClassification::PEDESTRIAN) {
     model_ptr.reset(new CylinderShapeModel());
-  } else if (type == autoware_perception_msgs::msg::Semantic::MOTORBIKE) {
+  } else if (type == ObjectClassification::MOTORCYCLE) {
     model_ptr.reset(new BoundingBoxShapeModel(yaw));
-  } else if (type == autoware_perception_msgs::msg::Semantic::BICYCLE) {
+  } else if (type == ObjectClassification::BICYCLE) {
     model_ptr.reset(new BoundingBoxShapeModel(yaw));
   } else {
     model_ptr.reset(new ConvexhullShapeModel());
@@ -84,15 +84,16 @@ bool ShapeEstimator::estimateShape(
 }
 
 bool ShapeEstimator::applyFilter(
-  const int type, const autoware_perception_msgs::msg::Shape & shape_output,
+  const int type, const autoware_auto_perception_msgs::msg::Shape & shape_output,
   const geometry_msgs::msg::Pose & pose_output)
 {
+  using autoware_auto_perception_msgs::msg::ObjectClassification;
   std::unique_ptr<ShapeEstimationFilterInterface> filter_ptr;
-  if (type == autoware_perception_msgs::msg::Semantic::CAR) {
+  if (type == ObjectClassification::CAR) {
     filter_ptr.reset(new CarFilter);
-  } else if (type == autoware_perception_msgs::msg::Semantic::BUS) {
+  } else if (type == ObjectClassification::BUS) {
     filter_ptr.reset(new BusFilter);
-  } else if (type == autoware_perception_msgs::msg::Semantic::TRUCK) {
+  } else if (type == ObjectClassification::TRUCK) {
     filter_ptr.reset(new TruckFilter);
   } else {
     filter_ptr.reset(new NoFilter);
@@ -102,15 +103,16 @@ bool ShapeEstimator::applyFilter(
 }
 
 bool ShapeEstimator::applyCorrector(
-  const int type, const bool use_reference_yaw, autoware_perception_msgs::msg::Shape & shape_output,
-  geometry_msgs::msg::Pose & pose_output)
+  const int type, const bool use_reference_yaw,
+  autoware_auto_perception_msgs::msg::Shape & shape_output, geometry_msgs::msg::Pose & pose_output)
 {
+  using autoware_auto_perception_msgs::msg::ObjectClassification;
   std::unique_ptr<ShapeEstimationCorrectorInterface> corrector_ptr;
-  if (type == autoware_perception_msgs::msg::Semantic::CAR) {
+  if (type == ObjectClassification::CAR) {
     corrector_ptr.reset(new CarCorrector(use_reference_yaw));
-  } else if (type == autoware_perception_msgs::msg::Semantic::BUS) {
+  } else if (type == ObjectClassification::BUS) {
     corrector_ptr.reset(new BusCorrector(use_reference_yaw));
-  } else if (type == autoware_perception_msgs::msg::Semantic::TRUCK) {
+  } else if (type == ObjectClassification::TRUCK) {
     corrector_ptr.reset(new TruckCorrector(use_reference_yaw));
   } else {
     corrector_ptr.reset(new NoCorrector);
