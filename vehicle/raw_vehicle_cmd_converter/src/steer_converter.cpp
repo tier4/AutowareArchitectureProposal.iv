@@ -155,7 +155,8 @@ void SteerConverter::calcFFMap(double steer_vel, double vehicle_vel, double & ou
 
   for (std::vector<double> steer_angle_velocities : steer_map_) {
     double steer_angle_vel_interp;
-    linear_interp.interpolate(vel_index_, steer_angle_velocities, vehicle_vel, steer_angle_vel_interp);
+    linear_interp.interpolate(
+      vel_index_, steer_angle_velocities, vehicle_vel, steer_angle_vel_interp);
     steer_angle_velocities_interp.push_back(steer_angle_vel_interp);
   }
   if (steer_vel < steer_angle_velocities_interp.front()) {
