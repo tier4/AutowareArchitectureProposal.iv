@@ -21,7 +21,7 @@
 #include <autoware_auto_planning_msgs/msg/path.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_system_msgs/msg/autoware_state.hpp>
-#include <autoware_auto_system_msgs/msg/emergency_state_stamped.hpp>
+#include <autoware_auto_system_msgs/msg/emergency_state.hpp>
 #include <autoware_auto_system_msgs/msg/hazard_status_stamped.hpp>
 #include <autoware_auto_vehicle_msgs/msg/control_mode_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/gear_report.hpp>
@@ -69,7 +69,7 @@ struct AutowareInfo
   autoware_auto_system_msgs::msg::AutowareState::ConstSharedPtr autoware_state_ptr;
   autoware_auto_vehicle_msgs::msg::ControlModeReport::ConstSharedPtr control_mode_ptr;
   autoware_control_msgs::msg::GateMode::ConstSharedPtr gate_mode_ptr;
-  autoware_auto_system_msgs::msg::EmergencyStateStamped::ConstSharedPtr emergency_state_ptr;
+  autoware_auto_system_msgs::msg::EmergencyState::ConstSharedPtr emergency_state_ptr;
   autoware_auto_system_msgs::msg::HazardStatusStamped::ConstSharedPtr hazard_status_ptr;
   autoware_planning_msgs::msg::StopReasonArray::ConstSharedPtr stop_reason_ptr;
   autoware_v2x_msgs::msg::InfrastructureCommandArray::ConstSharedPtr v2x_command_ptr;

@@ -110,7 +110,7 @@ void AutowareIvAutowareStatePublisher::getGateModeInfo(
 }
 
 void AutowareIvAutowareStatePublisher::getEmergencyStateInfo(
-  const autoware_auto_system_msgs::msg::EmergencyStateStamped::ConstSharedPtr & emergency_state_ptr,
+  const autoware_auto_system_msgs::msg::EmergencyState::ConstSharedPtr & emergency_state_ptr,
   autoware_api_msgs::msg::AwapiAutowareStatus * status)
 {
   if (!emergency_state_ptr) {
@@ -120,9 +120,9 @@ void AutowareIvAutowareStatePublisher::getEmergencyStateInfo(
 
   // get emergency
   using autoware_auto_system_msgs::msg::EmergencyState;
-  status->emergency_stopped = (emergency_state_ptr->state.state == EmergencyState::MRM_OPERATING) ||
-                              (emergency_state_ptr->state.state == EmergencyState::MRM_SUCCEEDED) ||
-                              (emergency_state_ptr->state.state == EmergencyState::MRM_FAILED);
+  status->emergency_stopped = (emergency_state_ptr->state == EmergencyState::MRM_OPERATING) ||
+                              (emergency_state_ptr->state == EmergencyState::MRM_SUCCEEDED) ||
+                              (emergency_state_ptr->state == EmergencyState::MRM_FAILED);
 }
 
 void AutowareIvAutowareStatePublisher::getCurrentMaxVelInfo(
