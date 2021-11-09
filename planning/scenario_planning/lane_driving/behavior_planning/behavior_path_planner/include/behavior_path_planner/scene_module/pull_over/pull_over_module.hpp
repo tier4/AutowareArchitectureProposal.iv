@@ -59,6 +59,8 @@ struct PullOverParameters
   double maximum_lateral_jerk;
   double minimum_lateral_jerk;
   double deceleration_interval;
+  double hazard_on_threshold_dis;
+  double hazard_on_threshold_vel;
 };
 
 struct PullOverStatus
@@ -108,7 +110,10 @@ private:
   TurnSignalInfo getTurnSignalAndDistance(const PathWithLaneId & path) const;
 
   // turn signal
-  TurnSignalInfo calcTurnSignalInfo(const ShiftPoint & shift_point) const;
+  std::pair<TurnSignal, double> getHazard(
+    const lanelet::ConstLanelets & target_lanes, const Pose & current_pose, const Pose & goal_pose,
+    const double & velocity, const double & hazard_on_threshold_dis,
+    const double & hazard_on_threshold_vel, const double & base_link2front) const;
 
   void updatePullOverStatus();
   bool isInLane(
