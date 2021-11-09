@@ -36,7 +36,7 @@ while (has next ego vehicle foot print) is (yes)
       :set diag to ERROR;
       stop
   endif
-endwhile (no)
+end while (no)
 :set diag to OK;
 stop
 }
@@ -52,7 +52,7 @@ Check that `obstacle_collision_checker` receives no ground pointcloud, predicted
 
 ### Diagnostic Update
 
-If any collision is found on predicted path, this module sets `ERRRO` level as diagnostic status else sets `OK`.
+If any collision is found on predicted path, this module sets `ERRROR` level as diagnostic status else sets `OK`.
 
 ## Inputs / Outputs
 
