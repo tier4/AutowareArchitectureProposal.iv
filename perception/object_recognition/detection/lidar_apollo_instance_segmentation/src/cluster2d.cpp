@@ -48,6 +48,7 @@
 
 #include <autoware_auto_perception_msgs/msg/detected_object_kinematics.hpp>
 #include <autoware_auto_perception_msgs/msg/object_classification.hpp>
+
 #include <pcl_conversions/pcl_conversions.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
@@ -252,7 +253,9 @@ autoware_perception_msgs::msg::DetectedObjectWithFeature Cluster2D::obstacleToOb
   // pcl::PointCloud<pcl::PointXYZI> in_cluster = *(in_obstacle.cloud_ptr);
 
   resulting_object.object.classification.emplace_back(
-    autoware_auto_perception_msgs::build<ObjectClassification>().label(ObjectClassification::UNKNOWN).probability(in_obstacle.score));
+    autoware_auto_perception_msgs::build<ObjectClassification>()
+      .label(ObjectClassification::UNKNOWN)
+      .probability(in_obstacle.score));
   if (in_obstacle.meta_type == MetaType::META_PEDESTRIAN) {
     resulting_object.object.classification.front().label = ObjectClassification::PEDESTRIAN;
   } else if (in_obstacle.meta_type == MetaType::META_NONMOT) {
@@ -318,9 +321,11 @@ autoware_perception_msgs::msg::DetectedObjectWithFeature Cluster2D::obstacleToOb
   const float height = max_point.z - min_point.z;
   const float length = max_point.x - min_point.x;
   const float width = max_point.y - min_point.y;
-  resulting_object.object.kinematics.pose_with_covariance.pose.position.x = min_point.x + length / 2;
+  resulting_object.object.kinematics.pose_with_covariance.pose.position.x =
+    min_point.x + length / 2;
   resulting_object.object.kinematics.pose_with_covariance.pose.position.y = min_point.y + width / 2;
-  resulting_object.object.kinematics.pose_with_covariance.pose.position.z = min_point.z + height / 2;
+  resulting_object.object.kinematics.pose_with_covariance.pose.position.z =
+    min_point.z + height / 2;
 
   resulting_object.object.kinematics.pose_with_covariance.pose.orientation =
     getQuaternionFromRPY(0.0, 0.0, in_obstacle.heading);
