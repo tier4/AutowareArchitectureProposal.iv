@@ -23,11 +23,12 @@ Emergency Handler is a node to select proper MRM from from system failure state 
 
 ### Output
 
-| Name                                | Type                                                       | Description                                                    |
-| ----------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------- |
-| `/system/emergency/control_cmd`     | `autoware_auto_control_msgs::msg::AckermannControlCommand` | Required to execute proper MRM                                 |
-| `/vehicle/vehicle_state_command`    | `autoware_auto_vehicle_msgs::msg::VehicleStateCommand`     | Required to execute proper MRM (send turn signal and gear cmd) |
-| `/system/emergency/emergency_state` | `autoware_auto_system_msgs::msg::EmergencyStateStamped`    | Used to inform the emergency situation of the vehicle          |
+| Name                                | Type                                                       | Description                                           |
+| ----------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------- |
+| `/system/emergency/control_cmd`     | `autoware_auto_control_msgs::msg::AckermannControlCommand` | Required to execute proper MRM                        |
+| `/system/emergency/shift_cmd`       | `autoware_auto_vehicle_msgs::msg::GearCommand`             | Required to execute proper MRM (send gear cmd)        |
+| `/system/emergency/hazard_cmd`      | `autoware_auto_vehicle_msgs::msg::HazardLightsCommand`     | Required to execute proper MRM (send turn signal cmd) |
+| `/system/emergency/emergency_state` | `autoware_auto_system_msgs::msg::EmergencyStateStamped`    | Used to inform the emergency situation of the vehicle |
 
 ## Parameters
 

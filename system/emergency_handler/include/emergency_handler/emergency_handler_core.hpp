@@ -24,8 +24,9 @@
 #include <autoware_auto_system_msgs/msg/emergency_state.hpp>
 #include <autoware_auto_system_msgs/msg/hazard_status_stamped.hpp>
 #include <autoware_auto_vehicle_msgs/msg/control_mode_report.hpp>
+#include <autoware_auto_vehicle_msgs/msg/gear_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/hazard_lights_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
-#include <autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp>
 
 // ROS2 core
 #include <autoware_utils/system/heartbeat_checker.hpp>
@@ -84,11 +85,13 @@ private:
 
   // rclcpp::Publisher<autoware_vehicle_msgs::msg::ShiftStamped>::SharedPtr pub_shift_;
   // rclcpp::Publisher<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr pub_turn_signal_;
-  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>::SharedPtr
-    pub_vehicle_state_cmd_;
+  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::HazardLightsCommand>::SharedPtr
+    pub_hazard_cmd_;
+  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::GearCommand>::SharedPtr pub_gear_cmd_;
   rclcpp::Publisher<autoware_auto_system_msgs::msg::EmergencyState>::SharedPtr pub_emergency_state_;
 
-  autoware_auto_vehicle_msgs::msg::VehicleStateCommand createVehicleStateCmdMsg();
+  autoware_auto_vehicle_msgs::msg::HazardLightsCommand createHazardCmdMsg();
+  autoware_auto_vehicle_msgs::msg::GearCommand createGearCmdMsg();
   void publishControlCommands();
 
   // Timer
