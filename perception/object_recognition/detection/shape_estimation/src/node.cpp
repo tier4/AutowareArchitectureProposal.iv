@@ -60,8 +60,7 @@ void ShapeEstimationNode::callback(
     const auto & object = feature_object.object;
     const auto & type = object.classification.front().label;
     const auto & feature = feature_object.feature;
-    const bool is_vehicle =
-      Label::CAR == type || Label::TRUCK == type || Label::BUS == type;
+    const bool is_vehicle = Label::CAR == type || Label::TRUCK == type || Label::BUS == type;
 
     // convert ros to pcl
     pcl::PointCloud<pcl::PointXYZ>::Ptr cluster(new pcl::PointCloud<pcl::PointXYZ>);
