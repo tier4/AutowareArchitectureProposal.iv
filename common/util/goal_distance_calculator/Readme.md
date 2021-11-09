@@ -28,8 +28,8 @@ This node publishes deviation of self-pose from goal pose.
 
 ### Node Parameters
 
-| Name          | Type   | Default Value | Explanation            |
-| ------------- | ------ | ------------- | ---------------------- |
+| Name          | Type   | Default Value | Explanation                 |
+| ------------- | ------ | ------------- | --------------------------- |
 | `update_rate` | double | 10.0          | Timer callback period. [Hz] |
 
 ### Core Parameters
