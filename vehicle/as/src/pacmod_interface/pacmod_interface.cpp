@@ -69,9 +69,14 @@ PacmodInterface::PacmodInterface()
     "/control/control_cmd", 1, std::bind(&PacmodInterface::callbackControlCmd, this, _1));
   gear_cmd_sub_ = create_subscription<autoware_auto_vehicle_msgs::msg::GearCommand>(
     "/control/gear_cmd", 1, std::bind(&PacmodInterface::callbackGearCmd, this, _1));
-  turn_signal_cmd_sub_ = create_subscription<autoware_vehicle_msgs::msg::TurnSignal>(
-    "/control/turn_signal_cmd", rclcpp::QoS{1},
-    std::bind(&PacmodInterface::callbackTurnSignalCmd, this, _1));
+  turn_indicators_cmd_sub_ =
+    create_subscription<autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand>(
+      "/control/turn_indicators_cmd", rclcpp::QoS{1},
+      std::bind(&PacmodInterface::callbackTurnIndicatorsCommand, this, _1));
+  hazard_lights_cmd_sub_ =
+    create_subscription<autoware_auto_vehicle_msgs::msg::HazardLightsCommand>(
+      "/control/hazard_lights_cmd", rclcpp::QoS{1},
+      std::bind(&PacmodInterface::callbackHazardLightsCommand, this, _1));
   engage_cmd_sub_ = create_subscription<autoware_auto_vehicle_msgs::msg::Engage>(
     "/vehicle/engage", rclcpp::QoS{1}, std::bind(&PacmodInterface::callbackEngage, this, _1));
   actuation_cmd_sub_ = create_subscription<autoware_vehicle_msgs::msg::ActuationCommandStamped>(
@@ -130,10 +135,13 @@ PacmodInterface::PacmodInterface()
     create_publisher<geometry_msgs::msg::TwistStamped>("/vehicle/status/twist", rclcpp::QoS{1});
   steering_status_pub_ = create_publisher<autoware_vehicle_msgs::msg::Steering>(
     "/vehicle/status/steering", rclcpp::QoS{1});
-  gear_cmd_status_pub_ = create_publisher<autoware_auto_vehicle_msgs::msg::GearCommand>(
+  gear_status_pub_ = create_publisher<autoware_auto_vehicle_msgs::msg::GearReport>(
     "/vehicle/status/gear_cmd", rclcpp::QoS{1});
-  turn_signal_status_pub_ = create_publisher<autoware_vehicle_msgs::msg::TurnSignal>(
-    "/vehicle/status/turn_signal", rclcpp::QoS{1});
+  turn_indicators_status_pub_ =
+    create_publisher<autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport>(
+      "/vehicle/status/turn_indicators", rclcpp::QoS{1});
+  hazard_lights_status_pub_ = create_publisher<autoware_auto_vehicle_msgs::msg::HazardLightsReport>(
+    "/vehicle/status/hazard_lights", rclcpp::QoS{1});
   actuation_status_pub_ = create_publisher<autoware_vehicle_msgs::msg::ActuationStatusStamped>(
     "/vehicle/status/actuation_status", 1);
 
@@ -173,10 +181,16 @@ void PacmodInterface::callbackGearCmd(
   gear_cmd_ptr_ = msg;
 }
 
-void PacmodInterface::callbackTurnSignalCmd(
-  const autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr msg)
+void PacmodInterface::callbackTurnIndicatorsCommand(
+  const autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand::ConstSharedPtr msg)
 {
-  turn_signal_cmd_ptr_ = msg;
+  turn_indicators_cmd_ptr_ = msg;
+}
+
+void PacmodInterface::callbackHazardLightsCommand(
+  const autoware_auto_vehicle_msgs::msg::HazardLightsCommand::ConstSharedPtr msg)
+{
+  hazard_lights_cmd_ptr_ = msg;
 }
 
 void PacmodInterface::callbackEngage(
@@ -262,10 +276,13 @@ void PacmodInterface::callbackPacmodRpt(
 
   /* publish current shift */
   {
-    autoware_auto_vehicle_msgs::msg::GearCommand gear_cmd_msg;
-    gear_cmd_msg.stamp = header.stamp;
-    gear_cmd_msg.command = toAutowareShiftCmd(*gear_cmd_rpt_ptr_);
-    gear_cmd_status_pub_->publish(gear_cmd_msg);
+    autoware_auto_vehicle_msgs::msg::GearReport gear_report_msg;
+    gear_report_msg.stamp = header.stamp;
+    const auto opt_gear_report = toAutowareShiftReport(*gear_cmd_rpt_ptr_);
+    if (opt_gear_report) {
+      gear_report_msg.report = opt_gear_report.get();
+      gear_status_pub_->publish(gear_report_msg);
+    }
   }
 
   /* publish current status */
@@ -288,10 +305,15 @@ void PacmodInterface::callbackPacmodRpt(
 
   /* publish current turn signal */
   {
-    autoware_vehicle_msgs::msg::TurnSignal turn_msg;
-    turn_msg.header = header;
-    turn_msg.data = toAutowareTurnSignal(*turn_rpt);
-    turn_signal_status_pub_->publish(turn_msg);
+    autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport turn_msg;
+    turn_msg.stamp = header.stamp;
+    turn_msg.report = toAutowareTurnIndicatorsReport(*turn_rpt);
+    turn_indicators_status_pub_->publish(turn_msg);
+
+    autoware_auto_vehicle_msgs::msg::HazardLightsReport hazard_msg;
+    hazard_msg.stamp = header.stamp;
+    hazard_msg.report = toAutowareHazardLightsReport(*turn_rpt);
+    hazard_lights_status_pub_->publish(hazard_msg);
   }
 }
 
@@ -466,7 +488,7 @@ void PacmodInterface::publishCommands()
     shift_cmd_pub_->publish(shift_cmd);
   }
 
-  if (turn_signal_cmd_ptr_) {
+  if (turn_indicators_cmd_ptr_) {
     /* publish shift cmd */
     pacmod_msgs::msg::SystemCmdInt turn_cmd;
     turn_cmd.header.frame_id = base_frame_id_;
@@ -475,7 +497,8 @@ void PacmodInterface::publishCommands()
     turn_cmd.ignore_overrides = false;
     turn_cmd.clear_override = clear_override;
     turn_cmd.clear_faults = false;
-    turn_cmd.command = toPacmodTurnCmdWithHazardRecover(*turn_signal_cmd_ptr_);
+    turn_cmd.command =
+      toPacmodTurnCmdWithHazardRecover(*turn_indicators_cmd_ptr_, *hazard_lights_cmd_ptr_);
     turn_cmd_pub_->publish(turn_cmd);
   }
 }
@@ -539,54 +562,60 @@ uint16_t PacmodInterface::toPacmodShiftCmd(
   return SystemCmdInt::SHIFT_NONE;
 }
 
-int32_t PacmodInterface::toAutowareShiftCmd(const pacmod_msgs::msg::SystemRptInt & shift)
+boost::optional<int32_t> PacmodInterface::toAutowareShiftReport(
+  const pacmod_msgs::msg::SystemRptInt & shift)
 {
+  using autoware_auto_vehicle_msgs::msg::GearReport;
   using pacmod_msgs::msg::SystemRptInt;
 
   if (shift.output == SystemRptInt::SHIFT_PARK) {
-    return autoware_auto_vehicle_msgs::msg::GearCommand::PARK;
+    return GearReport::PARK;
   }
   if (shift.output == SystemRptInt::SHIFT_REVERSE) {
-    return autoware_auto_vehicle_msgs::msg::GearCommand::REVERSE;
+    return GearReport::REVERSE;
   }
   if (shift.output == SystemRptInt::SHIFT_FORWARD) {
-    return autoware_auto_vehicle_msgs::msg::GearCommand::DRIVE;
+    return GearReport::DRIVE;
   }
   if (shift.output == SystemRptInt::SHIFT_LOW) {
-    return autoware_auto_vehicle_msgs::msg::GearCommand::LOW;
+    return GearReport::LOW;
   }
+  return boost::none;
 }
 
-uint16_t PacmodInterface::toPacmodTurnCmd(const autoware_vehicle_msgs::msg::TurnSignal & turn)
+uint16_t PacmodInterface::toPacmodTurnCmd(
+  const autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand & turn,
+  const autoware_auto_vehicle_msgs::msg::HazardLightsCommand & hazard)
 {
-  using autoware_vehicle_msgs::msg::TurnSignal;
+  using autoware_auto_vehicle_msgs::msg::HazardLightsCommand;
+  using autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand;
   using pacmod_msgs::msg::SystemCmdInt;
 
-  if (turn.data == TurnSignal::LEFT) {
+  if (turn.command == TurnIndicatorsCommand::ENABLE_LEFT) {
     return SystemCmdInt::TURN_LEFT;
   }
-  if (turn.data == TurnSignal::RIGHT) {
+  if (turn.command == TurnIndicatorsCommand::ENABLE_RIGHT) {
     return SystemCmdInt::TURN_RIGHT;
   }
-  if (turn.data == TurnSignal::HAZARD) {
+  if (hazard.command == HazardLightsCommand::ENABLE) {
     return SystemCmdInt::TURN_HAZARDS;
   }
-
   return SystemCmdInt::TURN_NONE;
 }
 
 uint16_t PacmodInterface::toPacmodTurnCmdWithHazardRecover(
-  const autoware_vehicle_msgs::msg::TurnSignal & turn)
+  const autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand & turn,
+  const autoware_auto_vehicle_msgs::msg::HazardLightsCommand & hazard)
 {
   using pacmod_msgs::msg::SystemRptInt;
 
   if (!engage_cmd_ || turn_rpt_ptr_->command == turn_rpt_ptr_->output) {
     last_shift_inout_matched_time_ = this->now();
-    return toPacmodTurnCmd(turn);
+    return toPacmodTurnCmd(turn, hazard);
   }
 
   if ((this->now() - last_shift_inout_matched_time_).seconds() < hazard_thresh_time_) {
-    return toPacmodTurnCmd(turn);
+    return toPacmodTurnCmd(turn, hazard);
   }
 
   // hazard recover mode
@@ -612,24 +641,37 @@ uint16_t PacmodInterface::toPacmodTurnCmdWithHazardRecover(
       get_logger(), "turn signal command and output do not match. "
                       << "COMMAND: " << turn_rpt_ptr_->command
                       << "; OUTPUT: " << turn_rpt_ptr_->output);
-    return toPacmodTurnCmd(turn);
+    return toPacmodTurnCmd(turn, hazard);
   }
 }
 
-int32_t PacmodInterface::toAutowareTurnSignal(const pacmod_msgs::msg::SystemRptInt & turn)
+// TODO(murooka) disable
+int32_t PacmodInterface::toAutowareTurnIndicatorsReport(const pacmod_msgs::msg::SystemRptInt & turn)
 {
+  using autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport;
   using pacmod_msgs::msg::SystemRptInt;
+
   if (turn.output == SystemRptInt::TURN_RIGHT) {
-    return autoware_vehicle_msgs::msg::TurnSignal::RIGHT;
+    return TurnIndicatorsReport::ENABLE_RIGHT;
   } else if (turn.output == SystemRptInt::TURN_LEFT) {
-    return autoware_vehicle_msgs::msg::TurnSignal::LEFT;
+    return TurnIndicatorsReport::ENABLE_LEFT;
   } else if (turn.output == SystemRptInt::TURN_NONE) {
-    return autoware_vehicle_msgs::msg::TurnSignal::NONE;
-  } else if (turn.output == SystemRptInt::TURN_HAZARDS) {
-    return autoware_vehicle_msgs::msg::TurnSignal::HAZARD;
-  } else {
-    return autoware_vehicle_msgs::msg::TurnSignal::NONE;
+    return TurnIndicatorsReport::DISABLE;
   }
+  return TurnIndicatorsReport::DISABLE;
+}
+
+// TODO(murooka) disable
+int32_t PacmodInterface::toAutowareHazardLightsReport(const pacmod_msgs::msg::SystemRptInt & hazard)
+{
+  using autoware_auto_vehicle_msgs::msg::HazardLightsReport;
+  using pacmod_msgs::msg::SystemRptInt;
+
+  if (hazard.output == SystemRptInt::TURN_HAZARDS) {
+    return HazardLightsReport::ENABLE;
+  }
+
+  return HazardLightsReport::DISABLE;
 }
 
 double PacmodInterface::steerWheelRateLimiter(
