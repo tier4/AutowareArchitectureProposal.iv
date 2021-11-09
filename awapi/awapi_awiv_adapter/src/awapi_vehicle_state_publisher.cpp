@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "awapi_awiv_adapter/awapi_vehicle_state_publisher.hpp"
-#include "awapi_awiv_message_converter.hpp"
+#include "autoware_iv_auto_msgs_converter/autoware_iv_auto_msgs_converter.hpp"
 
 #include <limits>
 #include <memory>
@@ -42,7 +42,7 @@ void AutowareIvVehicleStatePublisher::statePublisher(const AutowareInfo & aw_inf
   getPoseInfo(aw_info.current_pose_ptr, &status);
   getSteerInfo(aw_info.steer_ptr, &status);
   getVehicleCmdInfo(aw_info.vehicle_cmd_ptr, &status);
-  getTurnSignalInfo(aw_info.turn_signal_ptr, &status);
+  getTurnSignalInfo(aw_info.turn_indicators_ptr, aw_info.hazard_lights_ptr, &status);
   getTwistInfo(aw_info.twist_ptr, &status);
   getGearInfo(aw_info.gear_ptr, &status);
   getBatteryInfo(aw_info.battery_ptr, &status);
@@ -129,16 +129,23 @@ void AutowareIvVehicleStatePublisher::getVehicleCmdInfo(
 }
 
 void AutowareIvVehicleStatePublisher::getTurnSignalInfo(
-  const autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr & turn_signal_ptr,
+  const autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport::ConstSharedPtr & turn_indicators_ptr,
+  const autoware_auto_vehicle_msgs::msg::HazardLightsReport::ConstSharedPtr & hazard_lights_ptr,
   autoware_api_msgs::msg::AwapiVehicleStatus * status)
 {
-  if (!turn_signal_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "turn signal is nullptr");
+  if (!turn_indicators_ptr) {
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "turn indicators is nullptr");
+    return;
+  }
+
+  if (!hazard_lights_ptr) {
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "hazard lights is nullptr");
     return;
   }
 
   // get turn signal
-  status->turn_signal = turn_signal_ptr->data;
+  using autoware_iv_auto_msgs_converter::convert;
+  status->turn_signal = convert(*turn_indicators_ptr, *hazard_lights_ptr).data;
 }
 
 void AutowareIvVehicleStatePublisher::getTwistInfo(
@@ -182,6 +189,7 @@ void AutowareIvVehicleStatePublisher::getGearInfo(
   }
 
   // get gear (shift)
+  using autoware_iv_auto_msgs_converter::convert;
   status->gear = convert(*gear_ptr).shift.data;
 }
 

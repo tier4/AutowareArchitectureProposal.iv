@@ -46,7 +46,8 @@ private:
     const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr & vehicle_cmd_ptr,
     autoware_api_msgs::msg::AwapiVehicleStatus * status);
   void getTurnSignalInfo(
-    const autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr & turn_signal_ptr,
+    const autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport::ConstSharedPtr & turn_indicators_ptr,
+    const autoware_auto_vehicle_msgs::msg::HazardLightsReport::ConstSharedPtr & hazard_lights_ptr,
     autoware_api_msgs::msg::AwapiVehicleStatus * status);
   void getTwistInfo(
     const geometry_msgs::msg::TwistStamped::ConstSharedPtr & twist_ptr,

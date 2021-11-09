@@ -66,8 +66,10 @@ AutowareIvAdapter::AutowareIvAdapter()
     "input/steer", 1, std::bind(&AutowareIvAdapter::callbackSteer, this, _1));
   sub_vehicle_cmd_ = this->create_subscription<autoware_vehicle_msgs::msg::VehicleCommand>(
     "input/vehicle_cmd", durable_qos, std::bind(&AutowareIvAdapter::callbackVehicleCmd, this, _1));
-  sub_turn_signal_cmd_ = this->create_subscription<autoware_vehicle_msgs::msg::TurnSignal>(
-    "input/turn_signal", 1, std::bind(&AutowareIvAdapter::callbackTurnSignal, this, _1));
+  sub_turn_indicators_ = this->create_subscription<autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport>(
+    "input/turn_indicators", 1, std::bind(&AutowareIvAdapter::callbackTurnIndicators, this, _1));
+  sub_hazard_lights_ = this->create_subscription<autoware_auto_vehicle_msgs::msg::HazardLightsReport>(
+    "input/hazard_lights", 1, std::bind(&AutowareIvAdapter::callbackHazardLights, this, _1));
   sub_twist_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
     "input/twist", 1, std::bind(&AutowareIvAdapter::callbackTwist, this, _1));
   sub_gear_ = this->create_subscription<autoware_auto_vehicle_msgs::msg::GearReport>(
@@ -187,10 +189,16 @@ void AutowareIvAdapter::callbackVehicleCmd(
   aw_info_.vehicle_cmd_ptr = msg_ptr;
 }
 
-void AutowareIvAdapter::callbackTurnSignal(
-  const autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr msg_ptr)
+void AutowareIvAdapter::callbackTurnIndicators(
+  const autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport::ConstSharedPtr msg_ptr)
 {
-  aw_info_.turn_signal_ptr = msg_ptr;
+  aw_info_.turn_indicators_ptr = msg_ptr;
+}
+
+void AutowareIvAdapter::callbackHazardLights(
+  const autoware_auto_vehicle_msgs::msg::HazardLightsReport::ConstSharedPtr msg_ptr)
+{
+  aw_info_.hazard_lights_ptr = msg_ptr;
 }
 
 void AutowareIvAdapter::callbackTwist(

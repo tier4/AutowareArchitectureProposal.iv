@@ -33,13 +33,14 @@
 #include <autoware_auto_system_msgs/msg/emergency_state_stamped.hpp>
 #include <autoware_auto_vehicle_msgs/msg/control_mode_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/gear_report.hpp>
+#include <autoware_auto_vehicle_msgs/msg/hazard_lights_report.hpp>
+#include <autoware_auto_vehicle_msgs/msg/turn_indicators_report.hpp>
 
 #include <autoware_control_msgs/msg/gate_mode.hpp>
 #include <autoware_planning_msgs/msg/stop_reason_array.hpp>
 #include <autoware_v2x_msgs/msg/infrastructure_command_array.hpp>
 #include <autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp>
 #include <autoware_vehicle_msgs/msg/steering.hpp>
-#include <autoware_vehicle_msgs/msg/turn_signal.hpp>
 #include <autoware_vehicle_msgs/msg/vehicle_command.hpp>
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
@@ -62,7 +63,8 @@ private:
   // subscriber
   rclcpp::Subscription<autoware_vehicle_msgs::msg::Steering>::SharedPtr sub_steer_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::VehicleCommand>::SharedPtr sub_vehicle_cmd_;
-  rclcpp::Subscription<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr sub_turn_signal_cmd_;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport>::SharedPtr sub_turn_indicators_;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::HazardLightsReport>::SharedPtr sub_hazard_lights_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::GearReport>::SharedPtr sub_gear_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::BatteryStatus>::SharedPtr sub_battery_;
@@ -114,7 +116,8 @@ private:
   // callback function
   void callbackSteer(const autoware_vehicle_msgs::msg::Steering::ConstSharedPtr msg_ptr);
   void callbackVehicleCmd(const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr msg_ptr);
-  void callbackTurnSignal(const autoware_vehicle_msgs::msg::TurnSignal::ConstSharedPtr msg_ptr);
+  void callbackTurnIndicators(const autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport::ConstSharedPtr msg_ptr);
+  void callbackHazardLights(const autoware_auto_vehicle_msgs::msg::HazardLightsReport::ConstSharedPtr msg_ptr);
   void callbackTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg_ptr);
   void callbackGear(const autoware_auto_vehicle_msgs::msg::GearReport::ConstSharedPtr msg_ptr);
   void callbackBattery(const autoware_vehicle_msgs::msg::BatteryStatus::ConstSharedPtr msg_ptr);
