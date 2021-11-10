@@ -44,7 +44,7 @@ void AutowareIvVehicleStatePublisher::statePublisher(const AutowareInfo & aw_inf
   getSteerInfo(aw_info.steer_ptr, &status);
   getVehicleCmdInfo(aw_info.vehicle_cmd_ptr, &status);
   getTurnSignalInfo(aw_info.turn_indicators_ptr, aw_info.hazard_lights_ptr, &status);
-  getTwistInfo(aw_info.twist_ptr, &status);
+  getTwistInfo(aw_info.odometry_ptr, &status);
   getGearInfo(aw_info.gear_ptr, &status);
   getBatteryInfo(aw_info.battery_ptr, &status);
   getGpsInfo(aw_info.nav_sat_ptr, &status);
@@ -149,24 +149,26 @@ void AutowareIvVehicleStatePublisher::getTurnSignalInfo(
 }
 
 void AutowareIvVehicleStatePublisher::getTwistInfo(
-  const geometry_msgs::msg::TwistStamped::ConstSharedPtr & twist_ptr,
+  const nav_msgs::msg::Odometry::ConstSharedPtr & odometry_ptr,
   autoware_api_msgs::msg::AwapiVehicleStatus * status)
 {
-  if (!twist_ptr) {
-    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "twist is nullptr");
+  if (!odometry_ptr) {
+    RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 5000 /* ms */, "odometry is nullptr");
     return;
   }
 
   // get twist
-  status->velocity = twist_ptr->twist.linear.x;
-  status->angular_velocity = twist_ptr->twist.angular.z;
+  status->velocity = odometry_ptr->twist.twist.linear.x;
+  status->angular_velocity = odometry_ptr->twist.twist.angular.z;
 
   // get accel
-  if (previous_twist_ptr_) {
+  if (previous_odometry_ptr_) {
     // calculate acceleration from velocity
-    const double dv = twist_ptr->twist.linear.x - previous_twist_ptr_->twist.linear.x;
+    const double dv =
+      odometry_ptr->twist.twist.linear.x - previous_odometry_ptr_->twist.twist.linear.x;
     const double dt = std::max(
-      (rclcpp::Time(twist_ptr->header.stamp) - rclcpp::Time(previous_twist_ptr_->header.stamp))
+      (rclcpp::Time(odometry_ptr->header.stamp) -
+       rclcpp::Time(previous_odometry_ptr_->header.stamp))
         .seconds(),
       1e-03);
     const double accel = dv / dt;
@@ -176,7 +178,7 @@ void AutowareIvVehicleStatePublisher::getTwistInfo(
     prev_accel_ = lowpass_accel;
     status->acceleration = lowpass_accel;
   }
-  previous_twist_ptr_ = twist_ptr;
+  previous_odometry_ptr_ = odometry_ptr;
 }
 
 void AutowareIvVehicleStatePublisher::getGearInfo(

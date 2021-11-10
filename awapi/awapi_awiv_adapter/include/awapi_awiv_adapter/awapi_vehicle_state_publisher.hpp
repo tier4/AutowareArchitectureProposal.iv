@@ -52,7 +52,7 @@ private:
     const autoware_auto_vehicle_msgs::msg::HazardLightsReport::ConstSharedPtr & hazard_lights_ptr,
     autoware_api_msgs::msg::AwapiVehicleStatus * status);
   void getTwistInfo(
-    const geometry_msgs::msg::TwistStamped::ConstSharedPtr & twist_ptr,
+    const nav_msgs::msg::Odometry::ConstSharedPtr & odometry_ptr,
     autoware_api_msgs::msg::AwapiVehicleStatus * status);
   void getGearInfo(
     const autoware_auto_vehicle_msgs::msg::GearReport::ConstSharedPtr & gear_ptr,
@@ -68,7 +68,7 @@ private:
   rclcpp::Clock::SharedPtr clock_;
 
   // parameters
-  geometry_msgs::msg::TwistStamped::ConstSharedPtr previous_twist_ptr_;
+  nav_msgs::msg::Odometry::ConstSharedPtr previous_odometry_ptr_;
   autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr previous_steer_ptr_;
   double prev_accel_;
   double prev_steer_vel_;

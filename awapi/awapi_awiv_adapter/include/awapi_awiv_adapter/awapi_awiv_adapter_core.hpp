@@ -42,7 +42,7 @@
 #include <autoware_v2x_msgs/msg/infrastructure_command_array.hpp>
 #include <autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp>
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <pacmod_msgs/msg/global_rpt.hpp>
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
 
@@ -67,7 +67,7 @@ private:
     sub_turn_indicators_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::HazardLightsReport>::SharedPtr
     sub_hazard_lights_;
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
+  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr sub_odometry_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::GearReport>::SharedPtr sub_gear_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::BatteryStatus>::SharedPtr sub_battery_;
   rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr sub_nav_sat_;
@@ -126,7 +126,7 @@ private:
     const autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport::ConstSharedPtr msg_ptr);
   void callbackHazardLights(
     const autoware_auto_vehicle_msgs::msg::HazardLightsReport::ConstSharedPtr msg_ptr);
-  void callbackTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg_ptr);
+  void callbackTwist(const nav_msgs::msg::Odometry::ConstSharedPtr msg_ptr);
   void callbackGear(const autoware_auto_vehicle_msgs::msg::GearReport::ConstSharedPtr msg_ptr);
   void callbackBattery(const autoware_vehicle_msgs::msg::BatteryStatus::ConstSharedPtr msg_ptr);
   void callbackNavSat(const sensor_msgs::msg::NavSatFix::ConstSharedPtr msg_ptr);

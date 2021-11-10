@@ -40,7 +40,7 @@
 #include <autoware_vehicle_msgs/msg/battery_status.hpp>
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <pacmod_msgs/msg/global_rpt.hpp>
 #include <pacmod_msgs/msg/system_rpt_int.hpp>
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
@@ -61,7 +61,7 @@ struct AutowareInfo
   autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr vehicle_cmd_ptr;
   autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport::ConstSharedPtr turn_indicators_ptr;
   autoware_auto_vehicle_msgs::msg::HazardLightsReport::ConstSharedPtr hazard_lights_ptr;
-  geometry_msgs::msg::TwistStamped::ConstSharedPtr twist_ptr;
+  nav_msgs::msg::Odometry::ConstSharedPtr odometry_ptr;
   autoware_auto_vehicle_msgs::msg::GearReport::ConstSharedPtr gear_ptr;
   autoware_vehicle_msgs::msg::BatteryStatus::ConstSharedPtr battery_ptr;
   sensor_msgs::msg::NavSatFix::ConstSharedPtr nav_sat_ptr;

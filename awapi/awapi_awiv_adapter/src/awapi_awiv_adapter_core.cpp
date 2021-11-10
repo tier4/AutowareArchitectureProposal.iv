@@ -74,8 +74,8 @@ AutowareIvAdapter::AutowareIvAdapter()
   sub_hazard_lights_ =
     this->create_subscription<autoware_auto_vehicle_msgs::msg::HazardLightsReport>(
       "input/hazard_lights", 1, std::bind(&AutowareIvAdapter::callbackHazardLights, this, _1));
-  sub_twist_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
-    "input/twist", 1, std::bind(&AutowareIvAdapter::callbackTwist, this, _1));
+  sub_odometry_ = this->create_subscription<nav_msgs::msg::Odometry>(
+    "input/odometry", 1, std::bind(&AutowareIvAdapter::callbackTwist, this, _1));
   sub_gear_ = this->create_subscription<autoware_auto_vehicle_msgs::msg::GearReport>(
     "input/gear", 1, std::bind(&AutowareIvAdapter::callbackGear, this, _1));
   sub_battery_ = this->create_subscription<autoware_vehicle_msgs::msg::BatteryStatus>(
@@ -206,10 +206,9 @@ void AutowareIvAdapter::callbackHazardLights(
   aw_info_.hazard_lights_ptr = msg_ptr;
 }
 
-void AutowareIvAdapter::callbackTwist(
-  const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg_ptr)
+void AutowareIvAdapter::callbackTwist(const nav_msgs::msg::Odometry::ConstSharedPtr msg_ptr)
 {
-  aw_info_.twist_ptr = msg_ptr;
+  aw_info_.odometry_ptr = msg_ptr;
 }
 
 void AutowareIvAdapter::callbackGear(
