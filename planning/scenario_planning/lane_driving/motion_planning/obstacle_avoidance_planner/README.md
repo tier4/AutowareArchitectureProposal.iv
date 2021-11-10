@@ -2,8 +2,8 @@
 
 ## Purpose
 
-This package generates trajectory that is feasible to drive and collision free based on the reference path, the drivable area, and static/dynamic obstacles.
-Only position and orientation of trajectory are updated, and velocity or acceleration will be updated in the latter modules.
+This package generates a trajectory that is feasible to drive and collision free based on a reference path, drivable area, and static/dynamic obstacles.
+Only position and orientation of trajectory are calculated in this module, and velocity or acceleration will be updated in the latter modules.
 
 ## Inputs / Outputs
 
@@ -302,6 +302,29 @@ $$
 - When turning right or left in the intersection, the output trajectory is close to the outside road boundary.
 - Roles of planning for behavior_path_planner and obstacle_avoidance_planner are not decided clearly.
 - High computation cost
+
+## Comparison to other methods
+
+Planning a trajectory that satisfies kinematic feasibility and collision-free has two main characterictics that makes hard to be solved: one is non-convex and the other is high dimension.
+According to the characteristics, we investigate pros and cons of the typical planning methods: optimization-based, sampling-based, and learning-based method.
+
+### Optimization-based method
+
+- pros: comparatively fast against high dimension by leveraging the gradient descent
+- cons: often converge to the local minima in the non-convex problem
+
+### Sampling-based method
+
+- pros: realize global optimization
+- cons: high computation cost espesially in the complex case
+
+### Learning-based method
+
+- pros: fast
+- cons: not stable (under research yet)
+
+Based on these pros/cons, we chose the optimization-based planner first.
+Although it has a cons to converge to the local minima, it can get a good solution by the preprocessing to approximate the convex problem that almost equals to the original non-convex problem.
 
 ## How to debug
 
