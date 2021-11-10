@@ -270,10 +270,10 @@ bool UnknownTracker::getTrackedObject(
   object.kinematics.pose_with_covariance.pose.position.y = X_t(IDX::Y);
   object.kinematics.pose_with_covariance.pose.position.z = z_;
   // position covariance
-  constexpr double z_cov = 0.1 * 0.1;  // TODO Currently tentative
-  constexpr double r_cov = 0.1 * 0.1;  // TODO Currently tentative
-  constexpr double p_cov = 0.1 * 0.1;  // TODO Currently tentative
-  constexpr double yaw_cov = 0.1 * 0.1;  // TODO Currently tentative
+  constexpr double z_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
+  constexpr double r_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
+  constexpr double p_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
+  constexpr double yaw_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
   object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::X_X] = P(IDX::X, IDX::X);
   object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::X_Y] = P(IDX::X, IDX::Y);
   object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_X] = P(IDX::Y, IDX::X);
@@ -287,10 +287,10 @@ bool UnknownTracker::getTrackedObject(
   object.kinematics.twist_with_covariance.twist.linear.x = X_t(IDX::VX);
   object.kinematics.twist_with_covariance.twist.linear.y = X_t(IDX::VY);
   // twist covariance
-  constexpr double vz_cov = 0.1 * 0.1;  // TODO Currently tentative
-  constexpr double wx_cov = 0.1 * 0.1;  // TODO Currently tentative
-  constexpr double wy_cov = 0.1 * 0.1;  // TODO Currently tentative
-  constexpr double wz_cov = 0.1 * 0.1;  // TODO Currently tentative
+  constexpr double vz_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
+  constexpr double wx_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
+  constexpr double wy_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
+  constexpr double wz_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
   object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::X_X] = P(IDX::VX, IDX::VX);
   object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y] = P(IDX::VY, IDX::VY);
   object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::Z_Z] = vz_cov;

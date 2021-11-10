@@ -388,9 +388,9 @@ bool BigVehicleTracker::getTrackedObject(
       autoware_auto_perception_msgs::msg::TrackedObjectKinematics::SIGN_UNKNOWN;
   }
   // position covariance
-  constexpr double z_cov = 0.1 * 0.1;  // TODO Currently tentative
-  constexpr double r_cov = 0.1 * 0.1;  // TODO Currently tentative
-  constexpr double p_cov = 0.1 * 0.1;  // TODO Currently tentative
+  constexpr double z_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
+  constexpr double r_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
+  constexpr double p_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
   object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::X_X] = P(IDX::X, IDX::X);
   object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::X_Y] = P(IDX::X, IDX::Y);
   object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_X] = P(IDX::Y, IDX::X);
@@ -406,10 +406,10 @@ bool BigVehicleTracker::getTrackedObject(
   object.kinematics.twist_with_covariance.twist.linear.x = X_t(IDX::VX);
   object.kinematics.twist_with_covariance.twist.angular.z = X_t(IDX::WZ);
   // twist covariance
-  constexpr double vy_cov = 0.1 * 0.1;  // TODO Currently tentative
-  constexpr double vz_cov = 0.1 * 0.1;  // TODO Currently tentative
-  constexpr double wx_cov = 0.1 * 0.1;  // TODO Currently tentative
-  constexpr double wy_cov = 0.1 * 0.1;  // TODO Currently tentative
+  constexpr double vy_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
+  constexpr double vz_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
+  constexpr double wx_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
+  constexpr double wy_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
   object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::X_X] = P(IDX::VX, IDX::VX);
   object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y] = vy_cov;
   object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::Z_Z] = vz_cov;

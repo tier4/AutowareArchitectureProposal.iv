@@ -83,7 +83,7 @@ bool transformDetectedObjects(
       tf_target2objects = tf_target2objects_world * tf_objects_world2objects;
       tf2::toMsg(
         tf_target2objects, output_msg.objects.at(i).kinematics.pose_with_covariance.pose);
-      // TODO transform covariance
+      // TODO(yukkysaito) transform covariance
     }
   }
   return true;
