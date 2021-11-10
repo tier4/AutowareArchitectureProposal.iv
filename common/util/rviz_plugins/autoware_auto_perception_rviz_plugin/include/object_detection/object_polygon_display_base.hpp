@@ -42,7 +42,7 @@ namespace object_detection
 ///        classes.
 /// \tparam MsgT PredictedObjects or TrackedObjects or DetectedObjects type
 template<typename MsgT>
-class AUTOWARE_RVIZ_PLUGINS_PUBLIC ObjectPolygonDisplayBase
+class AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC ObjectPolygonDisplayBase
   : public rviz_common::RosTopicDisplay<MsgT>
 {
 public:
@@ -358,7 +358,7 @@ protected:
   /// \param todo
   /// \param todo
   /// \return todo
-  std_msgs::msg::ColorRGBA AUTOWARE_RVIZ_PLUGINS_PUBLIC getColorFromUUID(const std::string & uuid) const
+  std_msgs::msg::ColorRGBA AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC getColorFromUUID(const std::string & uuid) const
   {
     int i = (static_cast<int>(uuid.at(0)) * 4 + static_cast<int>(uuid.at(1))) %
             static_cast<int>(predicted_path_colors.size());

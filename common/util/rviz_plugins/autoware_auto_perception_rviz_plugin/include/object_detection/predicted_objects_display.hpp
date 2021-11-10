@@ -24,7 +24,7 @@ namespace rviz_plugins
 namespace object_detection
 {
 /// \brief Class defining rviz plugin to visualize PredictedObjects
-class AUTOWARE_RVIZ_PLUGINS_PUBLIC PredictedObjectsDisplay
+class AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC PredictedObjectsDisplay
   : public ObjectPolygonDisplayBase<autoware_auto_perception_msgs::msg::PredictedObjects>
 {
   Q_OBJECT

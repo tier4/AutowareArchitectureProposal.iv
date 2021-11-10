@@ -18,21 +18,21 @@
 #define VISIBILITY_CONTROL_HPP_
 
 #if defined(__WIN32)
-  #if defined(AUTOWARE_RVIZ_PLUGINS_BUILDING_DLL) || defined(AUTOWARE_RVIZ_PLUGINS_EXPORTS)
-    #define AUTOWARE_RVIZ_PLUGINS_PUBLIC __declspec(dllexport)
-    #define AUTOWARE_RVIZ_PLUGINS_LOCAL
-// defined(AUTOWARE_RVIZ_PLUGINS_BUILDING_DLL) || defined(AUTOWARE_RVIZ_PLUGINS_EXPORTS)
+  #if defined(AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_BUILDING_DLL) || defined(AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_EXPORTS)
+    #define AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC __declspec(dllexport)
+    #define AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_LOCAL
+// defined(AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_BUILDING_DLL) || defined(AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_EXPORTS)
   #else
-    #define AUTOWARE_RVIZ_PLUGINS_PUBLIC __declspec(dllimport)
-    #define AUTOWARE_RVIZ_PLUGINS_LOCAL
-// defined(AUTOWARE_RVIZ_PLUGINS_BUILDING_DLL) || defined(AUTOWARE_RVIZ_PLUGINS_EXPORTS)
+    #define AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC __declspec(dllimport)
+    #define AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_LOCAL
+// defined(AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_BUILDING_DLL) || defined(AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_EXPORTS)
   #endif
 #elif defined(__linux__)
-  #define AUTOWARE_RVIZ_PLUGINS_PUBLIC __attribute__((visibility("default")))
-  #define AUTOWARE_RVIZ_PLUGINS_LOCAL __attribute__((visibility("hidden")))
+  #define AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC __attribute__((visibility("default")))
+  #define AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_LOCAL __attribute__((visibility("hidden")))
 #elif defined(__APPLE__)
-  #define AUTOWARE_RVIZ_PLUGINS_PUBLIC __attribute__((visibility("default")))
-  #define AUTOWARE_RVIZ_PLUGINS_LOCAL __attribute__((visibility("hidden")))
+  #define AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC __attribute__((visibility("default")))
+  #define AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_LOCAL __attribute__((visibility("hidden")))
 #else  // defined(_LINUX)
   #error "Unsupported Build Configuration"
 #endif  // defined(_WINDOWS)

@@ -1,9 +1,9 @@
-<library path="autoware_rviz_plugins">
+<library path="autoware_auto_perception_rviz_plugin">
 
   <!-- Displays plugins -->
 
   <class
-          name="autoware_rviz_plugins/PredictedObjects"
+          name="autoware_auto_perception_rviz_plugin/PredictedObjects"
           type="autoware::rviz_plugins::object_detection::PredictedObjectsDisplay"
           base_class_type="rviz_common::Display"
   >
@@ -14,7 +14,7 @@
   </class>
 
   <class
-          name="autoware_rviz_plugins/TrackedObjects"
+          name="autoware_auto_perception_rviz_plugin/TrackedObjects"
           type="autoware::rviz_plugins::object_detection::TrackedObjectsDisplay"
           base_class_type="rviz_common::Display"
   >
@@ -25,7 +25,7 @@
   </class>
 
     <class
-            name="autoware_rviz_plugins/DetectedObjects"
+            name="autoware_auto_perception_rviz_plugin/DetectedObjects"
             type="autoware::rviz_plugins::object_detection::DetectedObjectsDisplay"
             base_class_type="rviz_common::Display"
     >

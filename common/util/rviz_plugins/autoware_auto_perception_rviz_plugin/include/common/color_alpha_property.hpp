@@ -29,7 +29,7 @@ namespace rviz_plugins
 namespace common
 {
 /// \brief Class to define Color and Alpha values as plugin properties
-class AUTOWARE_RVIZ_PLUGINS_PUBLIC ColorAlphaProperty
+class AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC ColorAlphaProperty
 {
 public:
   /// \brief Constructor

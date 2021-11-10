@@ -72,7 +72,7 @@ kDefaultObjectPropertyValues = {
 /// \param orientation Orientation of the shape in Object.header.frame_id frame
 /// \param color_rgba Color and alpha values to use for the marker
 /// \return Marker ptr. Id and header will have to be set by the caller
-AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_shape_marker_ptr(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_shape_marker_ptr(
   const autoware_auto_perception_msgs::msg::Shape & shape_msg,
   const geometry_msgs::msg::Point & centroid,
   const geometry_msgs::msg::Quaternion & orientation,
@@ -81,7 +81,7 @@ AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_shap
 /// \brief Convert the given polygon into a marker representing the shape in 3d
 /// \param centroid Centroid position of the shape in Object.header.frame_id frame
 /// \return Marker ptr. Id and header will have to be set by the caller
-AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_label_marker_ptr(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_label_marker_ptr(
   const geometry_msgs::msg::Point & centroid,
   const geometry_msgs::msg::Quaternion & orientation,
   const std::string label,
@@ -90,7 +90,7 @@ AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_labe
 /// \brief todo
 /// \param todo
 /// \return todo
-AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_uuid_marker_ptr(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_uuid_marker_ptr(
   const std::string & uuid,
   const geometry_msgs::msg::Point & centroid,
   const std_msgs::msg::ColorRGBA & color_rgba);
@@ -98,13 +98,13 @@ AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_uuid
 /// \brief todo
 /// \param todo
 /// \return todo
-AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_pose_with_covariance_marker_ptr(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_pose_with_covariance_marker_ptr(
   const geometry_msgs::msg::PoseWithCovariance & pose_with_covariance);
 
 /// \brief todo
 /// \param todo
 /// \return todo
-AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_velocity_text_marker_ptr(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_velocity_text_marker_ptr(
   const geometry_msgs::msg::Twist & twist,
   const geometry_msgs::msg::Point & vis_pos,
   const std_msgs::msg::ColorRGBA & color_rgba);
@@ -112,7 +112,7 @@ AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_velo
 /// \brief todo
 /// \param todo
 /// \return todo
-AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_twist_marker_ptr(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_twist_marker_ptr(
   const geometry_msgs::msg::PoseWithCovariance & pose_with_covariance,
   const geometry_msgs::msg::TwistWithCovariance & twist_with_covariance);
 
@@ -120,7 +120,7 @@ AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_twis
 /// \brief todo
 /// \param todo
 /// \return todo
-AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_predicted_path_marker_ptr(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_predicted_path_marker_ptr(
   const autoware_auto_perception_msgs::msg::Shape & shape,
   const autoware_auto_perception_msgs::msg::PredictedPath & predicted_path,
   const std_msgs::msg::ColorRGBA & predicted_path_color);
@@ -128,7 +128,7 @@ AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_pred
 /// \brief todo
 /// \param todo
 /// \return todo
-AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_path_confidence_marker_ptr(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_path_confidence_marker_ptr(
   const autoware_auto_perception_msgs::msg::PredictedPath & predicted_path,
   const std_msgs::msg::ColorRGBA & path_confidence_color);
 
@@ -136,7 +136,7 @@ AUTOWARE_RVIZ_PLUGINS_PUBLIC visualization_msgs::msg::Marker::SharedPtr get_path
 /// \param todo
 /// \param todo
 /// \return todo
-AUTOWARE_RVIZ_PLUGINS_PUBLIC void calcBoundingBoxLineList(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calcBoundingBoxLineList(
   const autoware_auto_perception_msgs::msg::Shape & shape,
   std::vector<geometry_msgs::msg::Point> & points);
 
@@ -144,7 +144,7 @@ AUTOWARE_RVIZ_PLUGINS_PUBLIC void calcBoundingBoxLineList(
 /// \param todo
 /// \param todo
 /// \return todo
-AUTOWARE_RVIZ_PLUGINS_PUBLIC void calcCylinderLineList(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calcCylinderLineList(
   const autoware_auto_perception_msgs::msg::Shape & shape,
   std::vector<geometry_msgs::msg::Point> & points);
 
@@ -152,7 +152,7 @@ AUTOWARE_RVIZ_PLUGINS_PUBLIC void calcCylinderLineList(
 /// \param todo
 /// \param todo
 /// \return todo
-AUTOWARE_RVIZ_PLUGINS_PUBLIC void calcCircleLineList(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calcCircleLineList(
   const geometry_msgs::msg::Point center, const double radius,
   std::vector<geometry_msgs::msg::Point> & points, const int n);
 
@@ -160,7 +160,7 @@ AUTOWARE_RVIZ_PLUGINS_PUBLIC void calcCircleLineList(
 /// \param todo
 /// \param todo
 /// \return todo
-AUTOWARE_RVIZ_PLUGINS_PUBLIC void calcPolygonLineList(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calcPolygonLineList(
   const autoware_auto_perception_msgs::msg::Shape & shape,
   std::vector<geometry_msgs::msg::Point> & points);
 
@@ -168,14 +168,14 @@ AUTOWARE_RVIZ_PLUGINS_PUBLIC void calcPolygonLineList(
 /// \param todo
 /// \param todo
 /// \return todo
-AUTOWARE_RVIZ_PLUGINS_PUBLIC void calcPathLineList(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calcPathLineList(
   const autoware_auto_perception_msgs::msg::PredictedPath & paths,
   std::vector<geometry_msgs::msg::Point> & points);
 
 /// \brief Convert Point32 to Point
 /// \param val Point32 to be converted
 /// \return Point type
-inline AUTOWARE_RVIZ_PLUGINS_PUBLIC geometry_msgs::msg::Point to_point(
+inline AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC geometry_msgs::msg::Point to_point(
   const geometry_msgs::msg::Point32 & val)
 {
   geometry_msgs::msg::Point ret;
@@ -189,7 +189,7 @@ inline AUTOWARE_RVIZ_PLUGINS_PUBLIC geometry_msgs::msg::Point to_point(
 /// \param point
 /// \param orientation
 /// \return Pose type
-inline AUTOWARE_RVIZ_PLUGINS_PUBLIC geometry_msgs::msg::Pose to_pose(
+inline AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC geometry_msgs::msg::Pose to_pose(
   const geometry_msgs::msg::Point & point,
   const geometry_msgs::msg::Quaternion & orientation)
 {
@@ -203,7 +203,7 @@ inline AUTOWARE_RVIZ_PLUGINS_PUBLIC geometry_msgs::msg::Pose to_pose(
 /// \param todo
 /// \param todo
 /// \return todo
-inline AUTOWARE_RVIZ_PLUGINS_PUBLIC geometry_msgs::msg::Pose initPose()
+inline AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC geometry_msgs::msg::Pose initPose()
 {
   geometry_msgs::msg::Pose pose;
   pose.position.x = 0.0;
@@ -222,7 +222,7 @@ inline AUTOWARE_RVIZ_PLUGINS_PUBLIC geometry_msgs::msg::Pose initPose()
 /// \param logger_name Name to use for logger in case of a warning (if labels is empty)
 /// \return Id of the best classification, Unknown if there is no best label
 template<typename ClassificationContainerT>
-AUTOWARE_RVIZ_PLUGINS_PUBLIC autoware_auto_perception_msgs::msg::ObjectClassification::_label_type
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC autoware_auto_perception_msgs::msg::ObjectClassification::_label_type
 get_best_label(
   ClassificationContainerT labels, const std::string & logger_name)
 {

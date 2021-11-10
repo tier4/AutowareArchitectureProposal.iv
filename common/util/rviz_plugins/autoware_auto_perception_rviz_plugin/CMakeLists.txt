@@ -15,7 +15,7 @@
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 cmake_minimum_required(VERSION 3.5)
-project(autoware_rviz_plugins)
+project(autoware_auto_perception_rviz_plugin)
 
 #dependencies
 find_package(ament_cmake_auto REQUIRED)
