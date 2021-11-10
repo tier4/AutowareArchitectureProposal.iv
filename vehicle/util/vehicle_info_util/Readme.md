@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This package is to get vehicle info from parameter server.
+This package is to get vehicle info parameters.
 
-### Discription
+### Description
 
 ![description](./media/vehicle_info.drawio.svg)
 
