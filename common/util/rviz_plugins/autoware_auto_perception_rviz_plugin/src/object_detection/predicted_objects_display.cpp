@@ -102,7 +102,7 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
       add_marker(twist_marker_ptr);
     }
 
-    // Add marker for each candidated path
+    // Add marker for each candidate path
     for (const auto & predicted_path : object.kinematics.predicted_paths) {
       // Get marker for predicted path
       auto predicted_path_marker =
@@ -115,7 +115,7 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
       }
     }
 
-    // Add confidence text marker for each candidated path
+    // Add confidence text marker for each candidate path
     for (const auto & predicted_path : object.kinematics.predicted_paths) {
       if (predicted_path.path.empty()) {
         continue;
