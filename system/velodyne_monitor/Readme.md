@@ -7,7 +7,7 @@ The result of the status is published as diagnostics.
 
 ## Inner-workings / Algorithms
 
-The status of Velodyne LiDAR is get from `http://[ip_address]/cgi/{info, settings, status, diag}.json`.
+The status of Velodyne LiDAR can be retrieved from `http://[ip_address]/cgi/{info, settings, status, diag}.json`.
 
 The types of abnormal status and corresponding diagnostics status are following.
 
