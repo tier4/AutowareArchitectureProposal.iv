@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This node monitors the status of Velodyne.
+This node monitors the status of Velodyne LiDARs.
 The result of the status is published as diagnostics.
 
 ## Inner-workings / Algorithms
