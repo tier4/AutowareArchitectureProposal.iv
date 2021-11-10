@@ -32,6 +32,7 @@ if(BUILD_TESTING)
   add_dependencies(motion_common_unit_tests ${PROJECT_NAME})
   ament_target_dependencies(motion_common_unit_tests
     "geometry_msgs"
+    "autoware_auto_geometry_msgs"
   )
 endif()
 

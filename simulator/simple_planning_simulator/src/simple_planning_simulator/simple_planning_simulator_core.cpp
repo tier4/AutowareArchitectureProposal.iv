@@ -35,10 +35,10 @@ using namespace std::chrono_literals;
 
 namespace
 {
-autoware_auto_msgs::msg::VehicleKinematicState convert_baselink_to_com(
-  const autoware_auto_msgs::msg::VehicleKinematicState & in, const float32_t baselink_to_com)
+autoware_auto_vehicle_msgs::msg::VehicleKinematicState convert_baselink_to_com(
+  const autoware_auto_vehicle_msgs::msg::VehicleKinematicState & in, const float32_t baselink_to_com)
 {
-  autoware_auto_msgs::msg::VehicleKinematicState out = in;
+  autoware_auto_vehicle_msgs::msg::VehicleKinematicState out = in;
 
   // TODO(Horibe) convert to CoM for vehicle_kinematic_state msg.
   const auto yaw = motion::motion_common::to_angle(out.state.pose.orientation);
@@ -48,10 +48,10 @@ autoware_auto_msgs::msg::VehicleKinematicState convert_baselink_to_com(
   return out;
 }
 
-autoware_auto_msgs::msg::VehicleKinematicState to_kinematic_state(
+autoware_auto_vehicle_msgs::msg::VehicleKinematicState to_kinematic_state(
   const std::shared_ptr<SimModelInterface> vehicle_model_ptr)
 {
-  autoware_auto_msgs::msg::VehicleKinematicState s;
+  autoware_auto_vehicle_msgs::msg::VehicleKinematicState s;
   s.state.pose.position.x = vehicle_model_ptr->getX();
   s.state.pose.position.y = vehicle_model_ptr->getY();
   s.state.pose.orientation = motion::motion_common::from_angle(vehicle_model_ptr->getYaw());
@@ -223,14 +223,14 @@ void SimplePlanningSimulator::on_initialpose(
 }
 
 void SimplePlanningSimulator::on_vehicle_cmd(
-  const autoware_auto_msgs::msg::VehicleControlCommand::ConstSharedPtr msg)
+  const autoware_auto_vehicle_msgs::msg::VehicleControlCommand::ConstSharedPtr msg)
 {
   current_vehicle_cmd_ptr_ = msg;
   set_input(msg->front_wheel_angle_rad, msg->velocity_mps, msg->long_accel_mps2);
 }
 
 void SimplePlanningSimulator::on_ackermann_cmd(
-  const autoware_auto_msgs::msg::AckermannControlCommand::ConstSharedPtr msg)
+  const autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg)
 {
   current_ackermann_cmd_ptr_ = msg;
   set_input(
@@ -259,7 +259,7 @@ void SimplePlanningSimulator::set_input(const float steer, const float vel, cons
 }
 
 void SimplePlanningSimulator::on_state_cmd(
-  const autoware_auto_msgs::msg::VehicleStateCommand::ConstSharedPtr msg)
+  const autoware_auto_vehicle_msgs::msg::VehicleStateCommand::ConstSharedPtr msg)
 {
   current_vehicle_state_cmd_ptr_ = msg;
 

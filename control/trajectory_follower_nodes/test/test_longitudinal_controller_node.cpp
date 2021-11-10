@@ -18,9 +18,9 @@
 #include <memory>
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
-#include "autoware_auto_msgs/msg/trajectory.hpp"
-#include "autoware_auto_msgs/msg/longitudinal_command.hpp"
-#include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
+#include "autoware_auto_control_msgs/msg/longitudinal_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
@@ -32,10 +32,10 @@
 
 using LongitudinalController =
   autoware::motion::control::trajectory_follower_nodes::LongitudinalController;
-using LongitudinalCommand = autoware_auto_msgs::msg::LongitudinalCommand;
-using Trajectory = autoware_auto_msgs::msg::Trajectory;
-using TrajectoryPoint = autoware_auto_msgs::msg::TrajectoryPoint;
-using VehicleState = autoware_auto_msgs::msg::VehicleKinematicState;
+using LongitudinalCommand = autoware_auto_control_msgs::msg::LongitudinalCommand;
+using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
+using TrajectoryPoint = autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using VehicleState = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 

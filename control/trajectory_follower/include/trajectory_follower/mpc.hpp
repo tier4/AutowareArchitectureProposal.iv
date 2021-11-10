@@ -34,10 +34,10 @@
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp"
 #include "trajectory_follower/visibility_control.hpp"
 
-#include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
-#include "autoware_auto_msgs/msg/float32_multi_array_diagnostic.hpp"
-#include "autoware_auto_msgs/msg/trajectory.hpp"
-#include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
+#include "autoware_auto_control_msgs/msg/ackermann_lateral_command.hpp"
+#include "autoware_auto_system_msgs/msg/float32_multi_array_diagnostic.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp"
 #include "common/types.hpp"
 #include "geometry/common_2d.hpp"
 #include "geometry_msgs/msg/pose.hpp"
@@ -180,14 +180,14 @@ private:
   //!< @brief sign of previous target speed to calculate curvature when the target speed is 0.
   float64_t m_sign_vx = 0.0;
   //!< @brief buffer of sent command
-  std::vector<autoware_auto_msgs::msg::AckermannLateralCommand> m_ctrl_cmd_vec;
+  std::vector<autoware_auto_control_msgs::msg::AckermannLateralCommand> m_ctrl_cmd_vec;
 
   /**
    * @brief get variables for mpc calculation
    */
   bool8_t getData(
     const trajectory_follower::MPCTrajectory & traj,
-    const autoware_auto_msgs::msg::VehicleKinematicState & current_steer,
+    const autoware_auto_vehicle_msgs::msg::VehicleKinematicState & current_steer,
     const geometry_msgs::msg::Pose & current_pose,
     MPCData * data);
   /**
@@ -369,18 +369,18 @@ public:
    * @param [out] diagnostic diagnostic msg to be filled-out
    */
   bool8_t calculateMPC(
-    const autoware_auto_msgs::msg::VehicleKinematicState & current_steer,
+    const autoware_auto_vehicle_msgs::msg::VehicleKinematicState & current_steer,
     const float64_t current_velocity,
     const geometry_msgs::msg::Pose & current_pose,
-    autoware_auto_msgs::msg::AckermannLateralCommand & ctrl_cmd,
-    autoware_auto_msgs::msg::Trajectory & predicted_traj,
-    autoware_auto_msgs::msg::Float32MultiArrayDiagnostic & diagnostic
+    autoware_auto_control_msgs::msg::AckermannLateralCommand & ctrl_cmd,
+    autoware_auto_planning_msgs::msg::Trajectory & predicted_traj,
+    autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic & diagnostic
   );
   /**
    * @brief set the reference trajectory to follow
    */
   void setReferenceTrajectory(
-    const autoware_auto_msgs::msg::Trajectory & trajectory_msg,
+    const autoware_auto_planning_msgs::msg::Trajectory & trajectory_msg,
     const float64_t traj_resample_dist,
     const bool8_t enable_path_smoothing,
     const int64_t path_filter_moving_ave_num,

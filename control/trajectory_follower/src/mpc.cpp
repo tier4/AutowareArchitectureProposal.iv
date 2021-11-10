@@ -37,12 +37,12 @@ using namespace std::chrono_literals;
 using ::motion::motion_common::to_angle;
 
 bool8_t MPC::calculateMPC(
-  const autoware_auto_msgs::msg::VehicleKinematicState & current_steer,
+  const autoware_auto_vehicle_msgs::msg::VehicleKinematicState & current_steer,
   const float64_t current_velocity,
   const geometry_msgs::msg::Pose & current_pose,
-  autoware_auto_msgs::msg::AckermannLateralCommand & ctrl_cmd,
-  autoware_auto_msgs::msg::Trajectory & predicted_traj,
-  autoware_auto_msgs::msg::Float32MultiArrayDiagnostic & diagnostic)
+  autoware_auto_control_msgs::msg::AckermannLateralCommand & ctrl_cmd,
+  autoware_auto_planning_msgs::msg::Trajectory & predicted_traj,
+  autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic & diagnostic)
 {
   /* recalculate velocity from ego-velocity with dynamics */
   trajectory_follower::MPCTrajectory reference_trajectory =
@@ -177,7 +177,7 @@ bool8_t MPC::calculateMPC(
 }
 
 void MPC::setReferenceTrajectory(
-  const autoware_auto_msgs::msg::Trajectory & trajectory_msg,
+  const autoware_auto_planning_msgs::msg::Trajectory & trajectory_msg,
   const float64_t traj_resample_dist,
   const bool8_t enable_path_smoothing,
   const int64_t path_filter_moving_ave_num,
@@ -260,7 +260,7 @@ void MPC::setReferenceTrajectory(
 
 bool8_t MPC::getData(
   const trajectory_follower::MPCTrajectory & traj,
-  const autoware_auto_msgs::msg::VehicleKinematicState & current_steer,
+  const autoware_auto_vehicle_msgs::msg::VehicleKinematicState & current_steer,
   const geometry_msgs::msg::Pose & current_pose,
   MPCData * data)
 {
@@ -376,7 +376,7 @@ float64_t MPC::getSteerCmdSum(
 void MPC::storeSteerCmd(const float64_t steer)
 {
   const auto time_delayed = m_clock->now() + rclcpp::Duration::from_seconds(m_param.input_delay);
-  autoware_auto_msgs::msg::AckermannLateralCommand cmd;
+  autoware_auto_control_msgs::msg::AckermannLateralCommand cmd;
   cmd.stamp = time_delayed;
   cmd.steering_tire_angle = static_cast<float>(steer);
 

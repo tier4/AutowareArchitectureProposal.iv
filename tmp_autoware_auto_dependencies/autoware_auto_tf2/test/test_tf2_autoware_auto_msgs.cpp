@@ -84,14 +84,14 @@ TEST(Tf2AutowareAuto, DoTransformPolygon)
 TEST(Tf2AutowareAuto, DoTransformQuaternion32)
 {
   const auto trans = filled_transfom();
-  autoware_auto_msgs::msg::Quaternion32 q1;
+  autoware_auto_geometry_msgs::msg::Quaternion32 q1;
   q1.w = 0;
   q1.x = 0;
   q1.y = 0;
   q1.z = 1;
 
   // doTransform
-  autoware_auto_msgs::msg::Quaternion32 q_out;
+  autoware_auto_geometry_msgs::msg::Quaternion32 q_out;
   tf2::doTransform(q1, q_out, trans);
 
   EXPECT_NEAR(q_out.x, 0.0, EPS);

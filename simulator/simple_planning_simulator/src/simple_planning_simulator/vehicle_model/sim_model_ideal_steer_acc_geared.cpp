@@ -15,7 +15,7 @@
 #include <algorithm>
 
 #include "simple_planning_simulator/vehicle_model/sim_model_ideal_steer_acc_geared.hpp"
-#include "autoware_auto_msgs/msg/vehicle_state_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp"
 
 SimModelIdealSteerAccGeared::SimModelIdealSteerAccGeared(float64_t wheelbase)
 : SimModelInterface(4 /* dim x */, 2 /* dim u */), wheelbase_(wheelbase), current_acc_(0.0) {}
@@ -62,7 +62,7 @@ Eigen::VectorXd SimModelIdealSteerAccGeared::calcModel(
 float64_t SimModelIdealSteerAccGeared::calcVelocityWithGear(
   const Eigen::VectorXd & state, const uint8_t gear) const
 {
-  using autoware_auto_msgs::msg::VehicleStateCommand;
+  using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
   if (gear == VehicleStateCommand::GEAR_DRIVE ||
     gear == VehicleStateCommand::GEAR_LOW ||
     gear == VehicleStateCommand::GEAR_NEUTRAL)

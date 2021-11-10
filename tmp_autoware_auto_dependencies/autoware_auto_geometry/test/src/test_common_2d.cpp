@@ -15,7 +15,7 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <gtest/gtest.h>
-#include <autoware_auto_msgs/msg/point_clusters.hpp>
+#include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
 #include <geometry/common_2d.hpp>
 #include <geometry_msgs/msg/point32.hpp>
 
@@ -153,46 +153,46 @@ INSTANTIATE_TYPED_TEST_SUITE_P(Test, InsidePolygon, PointTypes, );
 
 TEST(ordered_check, basic) {
   // CW
-  std::vector<autoware_auto_msgs::msg::PointXYZIF> points_list = {
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(8.0, 4.0),
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(9.0, 1.0),
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(3.0, 2.0),
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(2.0, 5.0)
+  std::vector<autoware_auto_perception_msgs::msg::PointXYZIF> points_list = {
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(8.0, 4.0),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(9.0, 1.0),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(3.0, 2.0),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(2.0, 5.0)
   };
   EXPECT_TRUE(autoware::common::geometry::all_ordered(points_list.begin(), points_list.end()));
 
   // CCW
   points_list = {
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(2.0, 5.0),
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(3.0, 2.0),
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(9.0, 1.0),
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(8.0, 4.0)
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(2.0, 5.0),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(3.0, 2.0),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(9.0, 1.0),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(8.0, 4.0)
   };
   EXPECT_TRUE(autoware::common::geometry::all_ordered(points_list.begin(), points_list.end()));
 
   // Unordered
   points_list = {
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(2.0, 5.0),
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(3.0, 2.0),
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(8.0, 4.0),
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(9.0, 1.0)
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(2.0, 5.0),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(3.0, 2.0),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(8.0, 4.0),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(9.0, 1.0)
   };
   EXPECT_FALSE(autoware::common::geometry::all_ordered(points_list.begin(), points_list.end()));
 
   // Unordered
   points_list = {
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(0.0, 0.0),
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(1.0, 1.0),
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(1.0, 0.0),
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(2.0, 1.0)
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(0.0, 0.0),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(1.0, 1.0),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(1.0, 0.0),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(2.0, 1.0)
   };
   EXPECT_FALSE(autoware::common::geometry::all_ordered(points_list.begin(), points_list.end()));
 
   // Colinearity
   points_list = {
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(2.0, 2.0),
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(4.0, 4.0),
-    make_points<autoware_auto_msgs::msg::PointXYZIF>(6.0, 6.0)
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(2.0, 2.0),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(4.0, 4.0),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(6.0, 6.0)
   };
   EXPECT_TRUE(autoware::common::geometry::all_ordered(points_list.begin(), points_list.end()));
 }

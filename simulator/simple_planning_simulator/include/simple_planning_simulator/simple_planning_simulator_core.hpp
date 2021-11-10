@@ -34,12 +34,12 @@
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 
-#include "autoware_auto_msgs/msg/ackermann_control_command.hpp"
-#include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
-#include "autoware_auto_msgs/msg/vehicle_control_command.hpp"
-#include "autoware_auto_msgs/msg/vehicle_state_command.hpp"
-#include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
-#include "autoware_auto_msgs/msg/complex32.hpp"
+#include "autoware_auto_control_msgs/msg/ackermann_control_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp"
+#include "autoware_auto_geometry_msgs/msg/complex32.hpp"
 #include "common/types.hpp"
 
 #include "simple_planning_simulator/vehicle_model/sim_model_interface.hpp"
@@ -53,17 +53,17 @@ using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
 
-using autoware_auto_msgs::msg::AckermannControlCommand;
-using autoware_auto_msgs::msg::VehicleKinematicState;
-using autoware_auto_msgs::msg::VehicleControlCommand;
-using autoware_auto_msgs::msg::VehicleStateReport;
-using autoware_auto_msgs::msg::VehicleStateCommand;
+using autoware_auto_control_msgs::msg::AckermannControlCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
+using autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
+using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 using geometry_msgs::msg::TransformStamped;
 using geometry_msgs::msg::PoseWithCovarianceStamped;
 using geometry_msgs::msg::PoseStamped;
 using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::Twist;
-using autoware_auto_msgs::msg::Complex32;
+using autoware_auto_geometry_msgs::msg::Complex32;
 
 class DeltaTime
 {

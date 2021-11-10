@@ -15,11 +15,11 @@
 #define MOTION_COMMON__MOTION_COMMON_HPP_
 
 #include <motion_common/visibility_control.hpp>
-#include <autoware_auto_msgs/msg/complex32.hpp>
-#include <autoware_auto_msgs/msg/control_diagnostic.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_geometry_msgs/msg/complex32.hpp>
+#include <autoware_auto_system_msgs/msg/control_diagnostic.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 
 #include <tf2/LinearMath/Quaternion.h>
@@ -35,12 +35,12 @@ namespace motion
 namespace motion_common
 {
 // Use same representation as message type
-using Real = decltype(autoware_auto_msgs::msg::TrajectoryPoint::heading_rate_rps);
-using Command = autoware_auto_msgs::msg::VehicleControlCommand;
-using Diagnostic = autoware_auto_msgs::msg::ControlDiagnostic;
-using State = autoware_auto_msgs::msg::VehicleKinematicState;
-using Trajectory = autoware_auto_msgs::msg::Trajectory;
-using Heading = autoware_auto_msgs::msg::Complex32;
+using Real = decltype(autoware_auto_planning_msgs::msg::TrajectoryPoint::heading_rate_rps);
+using Command = autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
+using Diagnostic = autoware_auto_system_msgs::msg::ControlDiagnostic;
+using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
+using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
+using Heading = autoware_auto_geometry_msgs::msg::Complex32;
 using Orientation = geometry_msgs::msg::Quaternion;
 using Index = decltype(Trajectory::points)::size_type;
 using Point = decltype(Trajectory::points)::value_type;
@@ -250,7 +250,7 @@ void error(const Point & state, const Point & ref, Diagnostic & out) noexcept;
 }  // namespace motion_common
 }  // namespace motion
 
-namespace autoware_auto_msgs
+namespace autoware_auto_geometry_msgs
 {
 namespace msg
 {

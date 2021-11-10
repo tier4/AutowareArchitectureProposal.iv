@@ -30,15 +30,15 @@ LatLonMuxer::LatLonMuxer(const rclcpp::NodeOptions & node_options)
 : rclcpp::Node("latlon_muxer", node_options)
 {
   m_control_cmd_pub =
-    create_publisher<autoware_auto_msgs::msg::AckermannControlCommand>(
+    create_publisher<autoware_auto_control_msgs::msg::AckermannControlCommand>(
     "output/control_cmd",
     rclcpp::QoS{1}.transient_local());
   m_lat_control_cmd_sub =
-    create_subscription<autoware_auto_msgs::msg::AckermannLateralCommand>(
+    create_subscription<autoware_auto_control_msgs::msg::AckermannLateralCommand>(
     "input/lateral/control_cmd", rclcpp::QoS{1},
     std::bind(&LatLonMuxer::latCtrlCmdCallback, this, std::placeholders::_1));
   m_lon_control_cmd_sub =
-    create_subscription<autoware_auto_msgs::msg::LongitudinalCommand>(
+    create_subscription<autoware_auto_control_msgs::msg::LongitudinalCommand>(
     "input/longitudinal/control_cmd", rclcpp::QoS{1},
     std::bind(&LatLonMuxer::lonCtrlCmdCallback, this, std::placeholders::_1));
   m_timeout_thr_sec = declare_parameter<double>("timeout_thr_sec");
@@ -73,7 +73,7 @@ void LatLonMuxer::publishCmd()
     return;
   }
 
-  autoware_auto_msgs::msg::AckermannControlCommand out;
+  autoware_auto_control_msgs::msg::AckermannControlCommand out;
   out.stamp = this->now();
   out.lateral = *m_lat_cmd;
   out.longitudinal = *m_lon_cmd;
@@ -82,16 +82,16 @@ void LatLonMuxer::publishCmd()
 }
 
 void LatLonMuxer::latCtrlCmdCallback(
-  const autoware_auto_msgs::msg::AckermannLateralCommand::SharedPtr input_msg)
+  const autoware_auto_control_msgs::msg::AckermannLateralCommand::SharedPtr input_msg)
 {
   m_lat_cmd = input_msg;
   publishCmd();
 }
 
 void LatLonMuxer::lonCtrlCmdCallback(
-  const autoware_auto_msgs::msg::LongitudinalCommand::SharedPtr input_msg)
+  const autoware_auto_control_msgs::msg::LongitudinalCommand::SharedPtr input_msg)
 {
-  m_lon_cmd = std::make_shared<autoware_auto_msgs::msg::LongitudinalCommand>(*input_msg);
+  m_lon_cmd = std::make_shared<autoware_auto_control_msgs::msg::LongitudinalCommand>(*input_msg);
   publishCmd();
 }
 }  // namespace trajectory_follower_nodes

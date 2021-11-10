@@ -15,9 +15,9 @@
 #define MOTION_TESTING__MOTION_TESTING_HPP_
 
 #include <motion_testing/visibility_control.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 
 #include <chrono>
 #include <random>
@@ -27,9 +27,9 @@ namespace motion
 namespace motion_testing
 {
 using Generator = std::mt19937;
-using State = autoware_auto_msgs::msg::VehicleKinematicState;
-using Point = autoware_auto_msgs::msg::TrajectoryPoint;
-using Trajectory = autoware_auto_msgs::msg::Trajectory;
+using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
+using Point = autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
 using Index = decltype(Trajectory::points)::size_type;
 using Real = decltype(Point::longitudinal_velocity_mps);
 // TODO(c.ho) Make these more modular

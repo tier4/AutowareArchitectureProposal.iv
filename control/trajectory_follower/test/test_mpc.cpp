@@ -22,11 +22,11 @@
 #include "trajectory_follower/qp_solver/qp_solver_osqp.hpp"
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics.hpp"
 
-#include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
-#include "autoware_auto_msgs/msg/float32_multi_array_diagnostic.hpp"
-#include "autoware_auto_msgs/msg/trajectory.hpp"
-#include "autoware_auto_msgs/msg/trajectory_point.hpp"
-#include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
+#include "autoware_auto_control_msgs/msg/ackermann_lateral_command.hpp"
+#include "autoware_auto_system_msgs/msg/float32_multi_array_diagnostic.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp"
 #include "common/types.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "gtest/gtest.h"
@@ -37,13 +37,13 @@ namespace
 using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
 namespace trajectory_follower = ::autoware::motion::control::trajectory_follower;
-typedef autoware_auto_msgs::msg::Trajectory Trajectory;
-typedef autoware_auto_msgs::msg::TrajectoryPoint TrajectoryPoint;
-typedef autoware_auto_msgs::msg::VehicleKinematicState VehicleKinematicState;
+typedef autoware_auto_planning_msgs::msg::Trajectory Trajectory;
+typedef autoware_auto_planning_msgs::msg::TrajectoryPoint TrajectoryPoint;
+typedef autoware_auto_vehicle_msgs::msg::VehicleKinematicState VehicleKinematicState;
 typedef geometry_msgs::msg::Pose Pose;
 typedef geometry_msgs::msg::PoseStamped PoseStamped;
-typedef autoware_auto_msgs::msg::AckermannLateralCommand AckermannLateralCommand;
-typedef autoware_auto_msgs::msg::Float32MultiArrayDiagnostic Float32MultiArrayDiagnostic;
+typedef autoware_auto_control_msgs::msg::AckermannLateralCommand AckermannLateralCommand;
+typedef autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic Float32MultiArrayDiagnostic;
 
 class MPCTest : public ::testing::Test
 {

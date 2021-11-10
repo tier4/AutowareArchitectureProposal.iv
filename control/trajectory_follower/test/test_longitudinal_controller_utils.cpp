@@ -16,8 +16,8 @@
 
 #include "gtest/gtest.h"
 #include "trajectory_follower/longitudinal_controller_utils.hpp"
-#include "autoware_auto_msgs/msg/trajectory.hpp"
-#include "autoware_auto_msgs/msg/trajectory_point.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
@@ -27,8 +27,8 @@
 namespace longitudinal_utils = ::autoware::motion::control::trajectory_follower::longitudinal_utils;
 
 TEST(TestLongitudinalControllerUtils, isValidTrajectory) {
-  using autoware_auto_msgs::msg::Trajectory;
-  using autoware_auto_msgs::msg::TrajectoryPoint;
+  using autoware_auto_planning_msgs::msg::Trajectory;
+  using autoware_auto_planning_msgs::msg::TrajectoryPoint;
   Trajectory traj;
   TrajectoryPoint point;
   EXPECT_FALSE(longitudinal_utils::isValidTrajectory(traj));
@@ -40,8 +40,8 @@ TEST(TestLongitudinalControllerUtils, isValidTrajectory) {
 }
 
 TEST(TestLongitudinalControllerUtils, calcStopDistance) {
-  using autoware_auto_msgs::msg::Trajectory;
-  using autoware_auto_msgs::msg::TrajectoryPoint;
+  using autoware_auto_planning_msgs::msg::Trajectory;
+  using autoware_auto_planning_msgs::msg::TrajectoryPoint;
   using geometry_msgs::msg::Point;
   Point current_pos;
   current_pos.x = 0.0;
@@ -96,8 +96,8 @@ TEST(TestLongitudinalControllerUtils, getPitchByPose) {
 }
 
 TEST(TestLongitudinalControllerUtils, getPitchByTraj) {
-  using autoware_auto_msgs::msg::Trajectory;
-  using autoware_auto_msgs::msg::TrajectoryPoint;
+  using autoware_auto_planning_msgs::msg::Trajectory;
+  using autoware_auto_planning_msgs::msg::TrajectoryPoint;
   const double wheel_base = 0.9;
   /**
    * Trajectory:
@@ -148,7 +148,7 @@ TEST(TestLongitudinalControllerUtils, getPitchByTraj) {
 }
 
 TEST(TestLongitudinalControllerUtils, calcElevationAngle) {
-  using autoware_auto_msgs::msg::TrajectoryPoint;
+  using autoware_auto_planning_msgs::msg::TrajectoryPoint;
   TrajectoryPoint p_from;
   p_from.pose.position.x = 0.0;
   p_from.pose.position.y = 0.0;
@@ -311,10 +311,10 @@ TEST(TestLongitudinalControllerUtils, lerpOrientation) {
 }
 
 TEST(TestLongitudinalControllerUtils, lerpTrajectoryPoint) {
-  using autoware_auto_msgs::msg::TrajectoryPoint;
+  using autoware_auto_planning_msgs::msg::TrajectoryPoint;
   using geometry_msgs::msg::Point;
   const double abs_err = 1e-15;
-  decltype(autoware_auto_msgs::msg::Trajectory::points) points;
+  decltype(autoware_auto_planning_msgs::msg::Trajectory::points) points;
   TrajectoryPoint p;
   p.pose.position.x = 0.0;
   p.pose.position.y = 0.0;

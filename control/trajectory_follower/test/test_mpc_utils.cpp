@@ -19,16 +19,16 @@
 #include "trajectory_follower/mpc_utils.hpp"
 #include "trajectory_follower/mpc_trajectory.hpp"
 
-#include "autoware_auto_msgs/msg/trajectory.hpp"
-#include "autoware_auto_msgs/msg/trajectory_point.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "gtest/gtest.h"
 
 namespace
 {
 namespace MPCUtils = ::autoware::motion::control::trajectory_follower::MPCUtils;
-typedef autoware_auto_msgs::msg::Trajectory Trajectory;
-typedef autoware_auto_msgs::msg::TrajectoryPoint TrajectoryPoint;
+typedef autoware_auto_planning_msgs::msg::Trajectory Trajectory;
+typedef autoware_auto_planning_msgs::msg::TrajectoryPoint TrajectoryPoint;
 typedef geometry_msgs::msg::Pose Pose;
 
 TEST(TestMPCUtils, CalcNearestIndex) {
@@ -54,8 +54,8 @@ TEST(TestMPCUtils, CalcNearestIndex) {
 
 /* cppcheck-suppress syntaxError */
 TEST(TestMPC, CalcStopDistance) {
-  using autoware_auto_msgs::msg::Trajectory;
-  using autoware_auto_msgs::msg::TrajectoryPoint;
+  using autoware_auto_planning_msgs::msg::Trajectory;
+  using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 
   Trajectory trajectory_msg;
   TrajectoryPoint p;

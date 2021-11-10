@@ -14,8 +14,10 @@
 
   <buildtool_export_depend>autoware_auto_cmake</buildtool_export_depend>
 
-  <build_export_depend>autoware_auto_msgs</build_export_depend>
-  <build_depend>autoware_auto_msgs</build_depend>
+  <build_export_depend>autoware_auto_planning_msgs</build_export_depend>
+  <build_export_depend>autoware_auto_vehicle_msgs</build_export_depend>
+  <build_depend>autoware_auto_planning_msgs</build_depend>
+  <build_depend>autoware_auto_vehicle_msgs</build_depend>
   <build_depend>time_utils</build_depend>
   <build_depend>tf2</build_depend>
   <build_depend>tf2_geometry_msgs</build_depend>

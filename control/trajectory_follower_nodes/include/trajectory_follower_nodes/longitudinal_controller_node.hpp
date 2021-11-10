@@ -20,10 +20,10 @@
 #include <utility>
 #include <vector>
 
-#include "autoware_auto_msgs/msg/longitudinal_command.hpp"
-#include "autoware_auto_msgs/msg/trajectory.hpp"
-#include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
-#include "autoware_auto_msgs/msg/float32_multi_array_diagnostic.hpp"
+#include "autoware_auto_control_msgs/msg/longitudinal_command.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp"
+#include "autoware_auto_system_msgs/msg/float32_multi_array_diagnostic.hpp"
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Geometry"
 #include "geometry_msgs/msg/pose_stamped.hpp"
@@ -80,12 +80,12 @@ private:
   };
 
   // ros variables
-  rclcpp::Subscription<autoware_auto_msgs::msg::VehicleKinematicState>::SharedPtr
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>::SharedPtr
     m_sub_current_state;
-  rclcpp::Subscription<autoware_auto_msgs::msg::Trajectory>::SharedPtr m_sub_trajectory;
-  rclcpp::Publisher<autoware_auto_msgs::msg::LongitudinalCommand>::SharedPtr m_pub_control_cmd;
-  rclcpp::Publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr m_pub_slope;
-  rclcpp::Publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr m_pub_debug;
+  rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr m_sub_trajectory;
+  rclcpp::Publisher<autoware_auto_control_msgs::msg::LongitudinalCommand>::SharedPtr m_pub_control_cmd;
+  rclcpp::Publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr m_pub_slope;
+  rclcpp::Publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr m_pub_debug;
   rclcpp::TimerBase::SharedPtr m_timer_control;
 
   rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_sub;
@@ -97,9 +97,9 @@ private:
     const std::vector<rclcpp::Parameter> & parameters);
 
   // pointers for ros topic
-  std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState> m_current_state_ptr{nullptr};
-  std::shared_ptr<autoware_auto_msgs::msg::VehicleKinematicState> m_prev_state_ptr{nullptr};
-  std::shared_ptr<autoware_auto_msgs::msg::Trajectory> m_trajectory_ptr{nullptr};
+  std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleKinematicState> m_current_state_ptr{nullptr};
+  std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleKinematicState> m_prev_state_ptr{nullptr};
+  std::shared_ptr<autoware_auto_planning_msgs::msg::Trajectory> m_trajectory_ptr{nullptr};
 
   // vehicle info
   float64_t m_wheel_base;
@@ -181,7 +181,7 @@ private:
   std::shared_ptr<trajectory_follower::LowpassFilter1d> m_lpf_acc{nullptr};
 
   // buffer of send command
-  std::vector<autoware_auto_msgs::msg::LongitudinalCommand> m_ctrl_cmd_vec;
+  std::vector<autoware_auto_control_msgs::msg::LongitudinalCommand> m_ctrl_cmd_vec;
 
   // for calculating dt
   std::shared_ptr<rclcpp::Time> m_prev_control_time{nullptr};
@@ -204,13 +204,13 @@ private:
    * @param [in] msg current state message
    */
   void callbackCurrentState(
-    const autoware_auto_msgs::msg::VehicleKinematicState::ConstSharedPtr msg);
+    const autoware_auto_vehicle_msgs::msg::VehicleKinematicState::ConstSharedPtr msg);
 
   /**
    * @brief set reference trajectory with received message
    * @param [in] msg trajectory message
    */
-  void callbackTrajectory(const autoware_auto_msgs::msg::Trajectory::ConstSharedPtr msg);
+  void callbackTrajectory(const autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr msg);
 
   /**
    * @brief compute control command, and publish periodically
@@ -318,8 +318,8 @@ private:
    * @param [in] point vehicle position
    * @param [in] nearest_idx index of the trajectory point nearest to the vehicle position
    */
-  autoware_auto_msgs::msg::TrajectoryPoint calcInterpolatedTargetValue(
-    const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
+  autoware_auto_planning_msgs::msg::TrajectoryPoint calcInterpolatedTargetValue(
+    const autoware_auto_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
     const size_t nearest_idx) const;
 
   /**

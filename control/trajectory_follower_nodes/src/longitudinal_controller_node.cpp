@@ -169,10 +169,10 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   m_min_pitch_rad = declare_parameter<float64_t>("min_pitch_rad");  // [rad]
 
   // subscriber, publisher
-  m_sub_current_state = create_subscription<autoware_auto_msgs::msg::VehicleKinematicState>(
+  m_sub_current_state = create_subscription<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>(
     "input/current_state", rclcpp::QoS{1},
     std::bind(&LongitudinalController::callbackCurrentState, this, _1));
-  m_sub_trajectory = create_subscription<autoware_auto_msgs::msg::Trajectory>(
+  m_sub_trajectory = create_subscription<autoware_auto_planning_msgs::msg::Trajectory>(
     "input/current_trajectory", rclcpp::QoS{1},
     std::bind(&LongitudinalController::callbackTrajectory, this, _1));
   m_tf_sub = create_subscription<tf2_msgs::msg::TFMessage>(
@@ -180,11 +180,11 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   m_tf_static_sub = create_subscription<tf2_msgs::msg::TFMessage>(
     "input/tf_static", rclcpp::QoS{1}.transient_local(),
     std::bind(&LongitudinalController::callbackStaticTF, this, _1));
-  m_pub_control_cmd = create_publisher<autoware_auto_msgs::msg::LongitudinalCommand>(
+  m_pub_control_cmd = create_publisher<autoware_auto_control_msgs::msg::LongitudinalCommand>(
     "output/longitudinal_control_cmd", rclcpp::QoS{1});
-  m_pub_slope = create_publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>(
+  m_pub_slope = create_publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>(
     "output/slope_angle", rclcpp::QoS{1});
-  m_pub_debug = create_publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>(
+  m_pub_debug = create_publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>(
     "output/longitudinal/diagnostic", rclcpp::QoS{1});
 
 
@@ -211,16 +211,16 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
 }
 
 void LongitudinalController::callbackCurrentState(
-  const autoware_auto_msgs::msg::VehicleKinematicState::ConstSharedPtr msg)
+  const autoware_auto_vehicle_msgs::msg::VehicleKinematicState::ConstSharedPtr msg)
 {
   if (m_current_state_ptr) {
     m_prev_state_ptr = m_current_state_ptr;
   }
-  m_current_state_ptr = std::make_shared<autoware_auto_msgs::msg::VehicleKinematicState>(*msg);
+  m_current_state_ptr = std::make_shared<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>(*msg);
 }
 
 void LongitudinalController::callbackTrajectory(
-  const autoware_auto_msgs::msg::Trajectory::ConstSharedPtr msg)
+  const autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr msg)
 {
   if (!trajectory_follower::longitudinal_utils::isValidTrajectory(*msg)) {
     RCLCPP_ERROR_THROTTLE(
@@ -236,7 +236,7 @@ void LongitudinalController::callbackTrajectory(
     return;
   }
 
-  m_trajectory_ptr = std::make_shared<autoware_auto_msgs::msg::Trajectory>(*msg);
+  m_trajectory_ptr = std::make_shared<autoware_auto_planning_msgs::msg::Trajectory>(*msg);
 }
 
 void LongitudinalController::callbackTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg)
@@ -397,7 +397,7 @@ void LongitudinalController::callbackTimerControl()
     m_trajectory_ptr->header.frame_id,
     m_current_state_ptr->header.frame_id,
     tf2::TimePointZero);
-  autoware_auto_msgs::msg::TrajectoryPoint current_state_tf;
+  autoware_auto_planning_msgs::msg::TrajectoryPoint current_state_tf;
   ::motion::motion_common::doTransform(m_current_state_ptr->state, current_state_tf, tf);
   // calculate current pose and control data
   geometry_msgs::msg::Pose current_pose = current_state_tf.pose;
@@ -650,7 +650,7 @@ LongitudinalController::Motion LongitudinalController::calcCtrlCmd(
 void LongitudinalController::publishCtrlCmd(const Motion & ctrl_cmd, float64_t current_vel)
 {
   // publish control command
-  autoware_auto_msgs::msg::LongitudinalCommand cmd{};
+  autoware_auto_control_msgs::msg::LongitudinalCommand cmd{};
   cmd.stamp = this->now();
   cmd.speed = static_cast<decltype(cmd.speed)>(ctrl_cmd.vel);
   cmd.acceleration = static_cast<decltype(cmd.acceleration)>(ctrl_cmd.acc);
@@ -680,7 +680,7 @@ void LongitudinalController::publishDebugData(
   m_debug_values.setValues(DebugValues::TYPE::ACC_CMD_PUBLISHED, ctrl_cmd.acc);
 
   // publish debug values
-  autoware_auto_msgs::msg::Float32MultiArrayDiagnostic debug_msg{};
+  autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic debug_msg{};
   debug_msg.diag_header.data_stamp = this->now();
   for (const auto & v : m_debug_values.getValues()) {
     debug_msg.diag_array.data.push_back(
@@ -689,7 +689,7 @@ void LongitudinalController::publishDebugData(
   m_pub_debug->publish(debug_msg);
 
   // slope angle
-  autoware_auto_msgs::msg::Float32MultiArrayDiagnostic slope_msg{};
+  autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic slope_msg{};
   slope_msg.diag_header.data_stamp = this->now();
   slope_msg.diag_array.data.push_back(
     static_cast<decltype(slope_msg.diag_array.data)::value_type>(
@@ -771,7 +771,7 @@ void LongitudinalController::storeAccelCmd(const float64_t accel)
 {
   if (m_control_state == ControlState::DRIVE) {
     // convert format
-    autoware_auto_msgs::msg::LongitudinalCommand cmd;
+    autoware_auto_control_msgs::msg::LongitudinalCommand cmd;
     cmd.stamp = this->now();
     cmd.acceleration = static_cast<decltype(cmd.acceleration)>(accel);
 
@@ -807,8 +807,8 @@ float64_t LongitudinalController::applySlopeCompensation(
   return compensated_acc;
 }
 
-autoware_auto_msgs::msg::TrajectoryPoint LongitudinalController::calcInterpolatedTargetValue(
-  const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
+autoware_auto_planning_msgs::msg::TrajectoryPoint LongitudinalController::calcInterpolatedTargetValue(
+  const autoware_auto_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Point & point,
   const size_t nearest_idx) const
 {
   if (traj.points.size() == 1) {

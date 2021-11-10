@@ -208,7 +208,7 @@ void error(const Point & state, const Point & ref, Diagnostic & out) noexcept
 }
 }  // namespace motion_common
 }  // namespace motion
-namespace autoware_auto_msgs
+namespace autoware_auto_geometry_msgs
 {
 namespace msg
 {

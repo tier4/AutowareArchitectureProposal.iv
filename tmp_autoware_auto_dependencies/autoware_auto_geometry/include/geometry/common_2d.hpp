@@ -24,7 +24,7 @@
 #include <limits>
 #include <stdexcept>
 
-#include "autoware_auto_msgs/msg/trajectory_point.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
 #include "geometry/interval.hpp"
 
 using autoware::common::types::float32_t;
@@ -54,7 +54,7 @@ inline auto x_(const PointT & pt)
 /// \brief Gets the x value for a TrajectoryPoint message
 /// \return The x value of the point
 /// \param[in] pt The point
-inline auto x_(const autoware_auto_msgs::msg::TrajectoryPoint & pt)
+inline auto x_(const autoware_auto_planning_msgs::msg::TrajectoryPoint & pt)
 {
   return pt.pose.position.x;
 }
@@ -70,7 +70,7 @@ inline auto y_(const PointT & pt)
 /// \brief Gets the y value for a TrajectoryPoint message
 /// \return The y value of the point
 /// \param[in] pt The point
-inline auto y_(const autoware_auto_msgs::msg::TrajectoryPoint & pt)
+inline auto y_(const autoware_auto_planning_msgs::msg::TrajectoryPoint & pt)
 {
   return pt.pose.position.y;
 }
@@ -86,7 +86,7 @@ inline auto z_(const PointT & pt)
 /// \brief Gets the z value for a TrajectoryPoint message
 /// \return The z value of the point
 /// \param[in] pt The point
-inline auto z_(const autoware_auto_msgs::msg::TrajectoryPoint & pt)
+inline auto z_(const autoware_auto_planning_msgs::msg::TrajectoryPoint & pt)
 {
   return pt.pose.position.z;
 }
@@ -102,7 +102,7 @@ inline auto & xr_(PointT & pt)
 /// \brief Gets a reference to the x value for a TrajectoryPoint
 /// \return A reference to the x value of the TrajectoryPoint
 /// \param[in] pt The TrajectoryPoint
-inline auto & xr_(autoware_auto_msgs::msg::TrajectoryPoint & pt)
+inline auto & xr_(autoware_auto_planning_msgs::msg::TrajectoryPoint & pt)
 {
   return pt.pose.position.x;
 }
@@ -118,7 +118,7 @@ inline auto & yr_(PointT & pt)
 /// \brief Gets a reference to the y value for a TrajectoryPoint
 /// \return A reference to the y value of the TrajectoryPoint
 /// \param[in] pt The TrajectoryPoint
-inline auto & yr_(autoware_auto_msgs::msg::TrajectoryPoint & pt)
+inline auto & yr_(autoware_auto_planning_msgs::msg::TrajectoryPoint & pt)
 {
   return pt.pose.position.y;
 }
@@ -134,7 +134,7 @@ inline auto & zr_(PointT & pt)
 /// \brief Gets a reference to the z value for a TrajectoryPoint
 /// \return A reference to the z value of the TrajectoryPoint
 /// \param[in] pt The TrajectoryPoint
-inline auto & zr_(autoware_auto_msgs::msg::TrajectoryPoint & pt)
+inline auto & zr_(autoware_auto_planning_msgs::msg::TrajectoryPoint & pt)
 {
   return pt.pose.position.z;
 }

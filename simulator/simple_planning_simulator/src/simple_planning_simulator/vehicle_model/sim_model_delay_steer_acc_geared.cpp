@@ -15,7 +15,7 @@
 #include <algorithm>
 
 #include "simple_planning_simulator/vehicle_model/sim_model_delay_steer_acc_geared.hpp"
-#include "autoware_auto_msgs/msg/vehicle_state_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp"
 
 SimModelDelaySteerAccGeared::SimModelDelaySteerAccGeared(
   float64_t vx_lim, float64_t steer_lim, float64_t vx_rate_lim, float64_t steer_rate_lim,
@@ -111,7 +111,7 @@ Eigen::VectorXd SimModelDelaySteerAccGeared::calcModel(
 float64_t SimModelDelaySteerAccGeared::calcVelocityWithGear(
   const Eigen::VectorXd & state, const uint8_t gear) const
 {
-  using autoware_auto_msgs::msg::VehicleStateCommand;
+  using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
   if (gear == VehicleStateCommand::GEAR_DRIVE ||
     gear == VehicleStateCommand::GEAR_LOW ||
     gear == VehicleStateCommand::GEAR_NEUTRAL)

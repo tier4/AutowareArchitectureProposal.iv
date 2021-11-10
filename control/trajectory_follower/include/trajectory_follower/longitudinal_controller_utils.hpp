@@ -22,7 +22,7 @@
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Geometry"
 
-#include "autoware_auto_msgs/msg/trajectory.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
 #include "common/types.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry/common_2d.hpp"
@@ -43,8 +43,8 @@ namespace longitudinal_utils
 {
 using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
-using autoware_auto_msgs::msg::Trajectory;
-using autoware_auto_msgs::msg::TrajectoryPoint;
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using geometry_msgs::msg::Point;
 using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::Quaternion;

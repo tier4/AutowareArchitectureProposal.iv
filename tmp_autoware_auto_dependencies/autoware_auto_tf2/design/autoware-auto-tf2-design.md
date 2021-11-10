@@ -13,7 +13,7 @@ types defined in `geometry_msgs` and `sensor_msgs`, respectively. However, Autow
 some specialized message types which are not transformable between frames using the ROS2 library.
 The `autoware_auto_tf2` package aims to provide developers with tools to transform applicable
 `autoware_auto_msgs` types. In addition to this, this package also provides transform tools for
-messages types in `geometry_msgs` missing in `tf2_geometry_msgs`. 
+messages types in `geometry_msgs` missing in `tf2_geometry_msgs`.
 
 
 # Design
@@ -39,7 +39,7 @@ template<typename A, typename B>
 tf2_ros::BufferInterface::transform(...)
 ```
 
-Which, in turn, is dependent on the following: 
+Which, in turn, is dependent on the following:
 ```
 void tf2::convert( const A & a,B & b)
 const std::string& tf2::getFrameId(const T& t)
@@ -67,7 +67,7 @@ were not added; such as `Vector3`, `Point`, or ported in this commit ros/geometr
 The non-stamped data with `toMsg` and `fromMsg` are `Quaternion`, `Transform`. `Pose` has the
 modified `toMsg` and not used by `PoseStamped`.
 
-## Plan for autoware_auto_msgs::msg::BoundingBoxArray
+## Plan for autoware_auto_perception_msgs::msg::BoundingBoxArray
 
 The initial rough plan was to implement some of the common tf2 functions like `toMsg`, `fromMsg`,
 and `doTransform`, as needed for all the underlying data types in `BoundingBoxArray`. Examples
@@ -107,8 +107,8 @@ inline void doTransform(
 * `Quarternion32` (`autoware_auto_msgs`)
 ```
 inline void doTransform(
-  const autoware_auto_msgs::msg::Quaternion32 & t_in,
-  autoware_auto_msgs::msg::Quaternion32 & t_out,
+  const autoware_auto_geometry_msgs::msg::Quaternion32 & t_in,
+  autoware_auto_geometry_msgs::msg::Quaternion32 & t_out,
   const geometry_msgs::msg::TransformStamped & transform)
 ```
 * `BoundingBox` (`autoware_auto_msgs`)

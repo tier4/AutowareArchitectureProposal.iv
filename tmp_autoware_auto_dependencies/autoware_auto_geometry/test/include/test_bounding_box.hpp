@@ -26,7 +26,7 @@
 #include "geometry/bounding_box/rotating_calipers.hpp"
 #include "geometry/bounding_box/lfit.hpp"
 
-using autoware_auto_msgs::msg::BoundingBox;
+using autoware_auto_perception_msgs::msg::BoundingBox;
 using autoware::common::geometry::point_adapter::x_;
 using autoware::common::geometry::point_adapter::y_;
 using autoware::common::geometry::point_adapter::xr_;

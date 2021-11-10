@@ -32,10 +32,10 @@
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics.hpp"
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp"
 
-#include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
-#include "autoware_auto_msgs/msg/float32_multi_array_diagnostic.hpp"
-#include "autoware_auto_msgs/msg/trajectory.hpp"
-#include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
+#include "autoware_auto_control_msgs/msg/ackermann_lateral_command.hpp"
+#include "autoware_auto_system_msgs/msg/float32_multi_array_diagnostic.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp"
 #include "common/types.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
@@ -74,16 +74,16 @@ public:
 
 private:
   //!< @brief topic publisher for control command
-  rclcpp::Publisher<autoware_auto_msgs::msg::AckermannLateralCommand>::SharedPtr m_pub_ctrl_cmd;
+  rclcpp::Publisher<autoware_auto_control_msgs::msg::AckermannLateralCommand>::SharedPtr m_pub_ctrl_cmd;
   //!< @brief topic publisher for predicted trajectory
-  rclcpp::Publisher<autoware_auto_msgs::msg::Trajectory>::SharedPtr m_pub_predicted_traj;
+  rclcpp::Publisher<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr m_pub_predicted_traj;
   //!< @brief topic publisher for control diagnostic
-  rclcpp::Publisher<autoware_auto_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr
+  rclcpp::Publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr
     m_pub_diagnostic;
   //!< @brief topic subscription for reference waypoints
-  rclcpp::Subscription<autoware_auto_msgs::msg::Trajectory>::SharedPtr m_sub_ref_path;
+  rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr m_sub_ref_path;
   //!< @brief subscription for current state
-  rclcpp::Subscription<autoware_auto_msgs::msg::VehicleKinematicState>::SharedPtr m_sub_steering;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>::SharedPtr m_sub_steering;
   //!< @brief timer to update after a given interval
   rclcpp::TimerBase::SharedPtr m_timer;
   //!< @brief subscription for transform messages
@@ -113,9 +113,9 @@ private:
   //!< @brief measured pose
   geometry_msgs::msg::PoseStamped::SharedPtr m_current_pose_ptr;
   //!< @brief measured state
-  autoware_auto_msgs::msg::VehicleKinematicState::SharedPtr m_current_state_ptr;
+  autoware_auto_vehicle_msgs::msg::VehicleKinematicState::SharedPtr m_current_state_ptr;
   //!< @brief reference trajectory
-  autoware_auto_msgs::msg::Trajectory::SharedPtr
+  autoware_auto_planning_msgs::msg::Trajectory::SharedPtr
     m_current_trajectory_ptr;
 
   //!< @brief mpc filtered output in previous period
@@ -124,7 +124,7 @@ private:
   //!< @brief flag of m_ctrl_cmd_prev initialization
   bool8_t m_is_ctrl_cmd_prev_initialized = false;
   //!< @brief previous control command
-  autoware_auto_msgs::msg::AckermannLateralCommand m_ctrl_cmd_prev;
+  autoware_auto_control_msgs::msg::AckermannLateralCommand m_ctrl_cmd_prev;
 
   //!< @brief buffer for transforms
   tf2::BufferCore m_tf_buffer{tf2::BUFFER_CORE_DEFAULT_CACHE_TIME};
@@ -139,7 +139,7 @@ private:
   /**
    * @brief set m_current_trajectory with received message
    */
-  void onTrajectory(const autoware_auto_msgs::msg::Trajectory::SharedPtr);
+  void onTrajectory(const autoware_auto_planning_msgs::msg::Trajectory::SharedPtr);
 
   /**
    * @brief callback for TF message
@@ -167,35 +167,35 @@ private:
   /**
    * @brief set current_state with received message
    */
-  void onState(const autoware_auto_msgs::msg::VehicleKinematicState::SharedPtr msg);
+  void onState(const autoware_auto_vehicle_msgs::msg::VehicleKinematicState::SharedPtr msg);
 
   /**
    * @brief publish control command
    * @param [in] cmd published control command
    */
-  void publishCtrlCmd(autoware_auto_msgs::msg::AckermannLateralCommand cmd);
+  void publishCtrlCmd(autoware_auto_control_msgs::msg::AckermannLateralCommand cmd);
 
   /**
    * @brief publish predicted future trajectory
    * @param [in] predicted_traj published predicted trajectory
    */
-  void publishPredictedTraj(autoware_auto_msgs::msg::Trajectory & predicted_traj) const;
+  void publishPredictedTraj(autoware_auto_planning_msgs::msg::Trajectory & predicted_traj) const;
 
   /**
    * @brief publish diagnostic message
    * @param [in] diagnostic published diagnostic
    */
-  void publishDiagnostic(autoware_auto_msgs::msg::Float32MultiArrayDiagnostic & diagnostic) const;
+  void publishDiagnostic(autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic & diagnostic) const;
 
   /**
    * @brief get stop command
    */
-  autoware_auto_msgs::msg::AckermannLateralCommand getStopControlCommand() const;
+  autoware_auto_control_msgs::msg::AckermannLateralCommand getStopControlCommand() const;
 
   /**
    * @brief get initial command
    */
-  autoware_auto_msgs::msg::AckermannLateralCommand getInitialControlCommand() const;
+  autoware_auto_control_msgs::msg::AckermannLateralCommand getInitialControlCommand() const;
 
   /**
    * @brief check ego car is in stopped state
@@ -205,7 +205,7 @@ private:
   /**
    * @brief check if the trajectory has valid value
    */
-  bool8_t isValidTrajectory(const autoware_auto_msgs::msg::Trajectory & traj) const;
+  bool8_t isValidTrajectory(const autoware_auto_planning_msgs::msg::Trajectory & traj) const;
 
   OnSetParametersCallbackHandle::SharedPtr m_set_param_res;
 

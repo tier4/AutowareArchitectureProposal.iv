@@ -20,9 +20,9 @@
 
 #include "trajectory_follower_nodes/visibility_control.hpp"
 
-#include "autoware_auto_msgs/msg/ackermann_control_command.hpp"
-#include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
-#include "autoware_auto_msgs/msg/longitudinal_command.hpp"
+#include "autoware_auto_control_msgs/msg/ackermann_control_command.hpp"
+#include "autoware_auto_control_msgs/msg/ackermann_lateral_command.hpp"
+#include "autoware_auto_control_msgs/msg/longitudinal_command.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/time.hpp"
@@ -46,23 +46,23 @@ public:
 
 private:
   // \brief Callback for the lateral control command
-  void latCtrlCmdCallback(const autoware_auto_msgs::msg::AckermannLateralCommand::SharedPtr msg);
+  void latCtrlCmdCallback(const autoware_auto_control_msgs::msg::AckermannLateralCommand::SharedPtr msg);
   // \brief Callback for the longitudinal control command
-  void lonCtrlCmdCallback(const autoware_auto_msgs::msg::LongitudinalCommand::SharedPtr msg);
+  void lonCtrlCmdCallback(const autoware_auto_control_msgs::msg::LongitudinalCommand::SharedPtr msg);
   // \brief Publish the combined control command message
   void publishCmd();
   // \brief Check that the received messages are not too old
   // \return bool True if the stored messages timed out
   bool checkTimeout();
 
-  rclcpp::Publisher<autoware_auto_msgs::msg::AckermannControlCommand>::SharedPtr m_control_cmd_pub;
-  rclcpp::Subscription<autoware_auto_msgs::msg::AckermannLateralCommand>::SharedPtr
+  rclcpp::Publisher<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr m_control_cmd_pub;
+  rclcpp::Subscription<autoware_auto_control_msgs::msg::AckermannLateralCommand>::SharedPtr
     m_lat_control_cmd_sub;
-  rclcpp::Subscription<autoware_auto_msgs::msg::LongitudinalCommand>::SharedPtr
+  rclcpp::Subscription<autoware_auto_control_msgs::msg::LongitudinalCommand>::SharedPtr
     m_lon_control_cmd_sub;
 
-  std::shared_ptr<autoware_auto_msgs::msg::AckermannLateralCommand> m_lat_cmd;
-  std::shared_ptr<autoware_auto_msgs::msg::LongitudinalCommand> m_lon_cmd;
+  std::shared_ptr<autoware_auto_control_msgs::msg::AckermannLateralCommand> m_lat_cmd;
+  std::shared_ptr<autoware_auto_control_msgs::msg::LongitudinalCommand> m_lon_cmd;
   // \brief Timeout duration in seconds
   double m_timeout_thr_sec;
 };  // class LatLonMuxer

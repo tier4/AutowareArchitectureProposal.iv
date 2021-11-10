@@ -20,7 +20,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "autoware_auto_msgs/msg/trajectory_point.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
 #include "common/types.hpp"
 #include "eigen3/Eigen/Core"
 #include "geometry/common_2d.hpp"
@@ -36,8 +36,8 @@ namespace motion
 {
 namespace motion_common
 {
-typedef autoware_auto_msgs::msg::TrajectoryPoint Point;
-typedef decltype (autoware_auto_msgs::msg::Trajectory::points) Points;
+typedef autoware_auto_planning_msgs::msg::TrajectoryPoint Point;
+typedef decltype (autoware_auto_planning_msgs::msg::Trajectory::points) Points;
 using autoware::common::types::float64_t;
 typedef Eigen::Matrix<float64_t, 3, 1> Vector3f;
 

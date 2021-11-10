@@ -17,13 +17,13 @@
 
 #include <gtest/gtest.h>
 
-#include <autoware_auto_msgs/msg/complex32.hpp>
+#include <autoware_auto_geometry_msgs/msg/complex32.hpp>
 #include <common/types.hpp>
 #include <geometry_msgs/msg/quaternion.hpp>
 #include <motion_common/motion_common.hpp>
 
 using autoware::common::types::float64_t;
-using autoware_auto_msgs::msg::Complex32;
+using autoware_auto_geometry_msgs::msg::Complex32;
 using geometry_msgs::msg::Quaternion;
 using motion::motion_common::from_quat;
 

@@ -20,9 +20,9 @@
 #ifndef GEOMETRY__BOUNDING_BOX__BOUNDING_BOX_COMMON_HPP_
 #define GEOMETRY__BOUNDING_BOX__BOUNDING_BOX_COMMON_HPP_
 
-#include <autoware_auto_msgs/msg/bounding_box.hpp>
-#include <autoware_auto_msgs/msg/detected_object.hpp>
-#include <autoware_auto_msgs/msg/shape.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_object.hpp>
+#include <autoware_auto_perception_msgs/msg/shape.hpp>
 #include <geometry/visibility_control.hpp>
 #include <geometry/common_2d.hpp>
 #include <geometry_msgs/msg/pose.hpp>
@@ -40,7 +40,7 @@ namespace geometry
 /// \brief Functions and types for generating enclosing bounding boxes around a set of points
 namespace bounding_box
 {
-using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
+using BoundingBox = autoware_auto_perception_msgs::msg::BoundingBox;
 
 /// \brief Computes height of bounding box given a full list of points
 /// \param[in] begin The start of the list of points
@@ -76,7 +76,7 @@ void compute_height(const IT begin, const IT end, BoundingBox & box)
 /// \tparam IT An iterator type, must dereference into a point type with float member z, or
 ///            appropriate point adapter defined
 template<typename IT>
-void compute_height(const IT begin, const IT end, autoware_auto_msgs::msg::Shape & shape)
+void compute_height(const IT begin, const IT end, autoware_auto_perception_msgs::msg::Shape & shape)
 {
   float32_t max_z = -std::numeric_limits<float32_t>::max();
   float32_t min_z = std::numeric_limits<float32_t>::max();
@@ -158,7 +158,7 @@ void compute_corners(
 /// \brief Copy vertices of the given box into a Shape type
 /// \param box Box to be converted
 /// \return Shape type filled with box vertices
-autoware_auto_msgs::msg::Shape GEOMETRY_PUBLIC make_shape(const BoundingBox & box);
+autoware_auto_perception_msgs::msg::Shape GEOMETRY_PUBLIC make_shape(const BoundingBox & box);
 
 /// \brief Copy centroid and orientation info of the box into Pose type
 /// \param box BoundingBox to be converted
@@ -168,7 +168,7 @@ geometry_msgs::msg::Pose GEOMETRY_PUBLIC make_pose(const BoundingBox & box);
 /// \brief Fill DetectedObject type with contents from a BoundingBox type
 /// \param box BoundingBox to be converted
 /// \return Filled DetectedObject type
-autoware_auto_msgs::msg::DetectedObject GEOMETRY_PUBLIC make_detected_object(
+autoware_auto_perception_msgs::msg::DetectedObject GEOMETRY_PUBLIC make_detected_object(
   const BoundingBox & box);
 
 /// \brief Transform corners from object-local coordinates using the given centroid and orientation
@@ -178,7 +178,7 @@ autoware_auto_msgs::msg::DetectedObject GEOMETRY_PUBLIC make_detected_object(
 /// \return corners transformed such that their centroid and orientation correspond to the
 ///         given inputs
 std::vector<geometry_msgs::msg::Point32> GEOMETRY_PUBLIC get_transformed_corners(
-  const autoware_auto_msgs::msg::Shape & shape_msg, const geometry_msgs::msg::Point & centroid,
+  const autoware_auto_perception_msgs::msg::Shape & shape_msg, const geometry_msgs::msg::Point & centroid,
   const geometry_msgs::msg::Quaternion & orientation);
 
 }  // namespace details

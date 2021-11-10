@@ -23,8 +23,8 @@
 #include "trajectory_follower/mpc_trajectory.hpp"
 #include "trajectory_follower/visibility_control.hpp"
 
-#include "autoware_auto_msgs/msg/trajectory.hpp"
-#include "autoware_auto_msgs/msg/trajectory_point.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
 #include "common/types.hpp"
 #include "eigen3/Eigen/Core"
 #include "geometry/common_2d.hpp"
@@ -76,7 +76,7 @@ TRAJECTORY_FOLLOWER_PUBLIC float64_t calcLateralError(
  * @return true if the conversion was successful
  */
 TRAJECTORY_FOLLOWER_PUBLIC bool8_t convertToMPCTrajectory(
-  const autoware_auto_msgs::msg::Trajectory & input, MPCTrajectory & output);
+  const autoware_auto_planning_msgs::msg::Trajectory & input, MPCTrajectory & output);
 /**
  * @brief convert the given MPCTrajectory to a Trajectory msg
  * @param [in] input MPCTrajectory to convert
@@ -84,7 +84,7 @@ TRAJECTORY_FOLLOWER_PUBLIC bool8_t convertToMPCTrajectory(
  * @return true if the conversion was successful
  */
 TRAJECTORY_FOLLOWER_PUBLIC bool8_t convertToAutowareTrajectory(
-  const MPCTrajectory & input, autoware_auto_msgs::msg::Trajectory & output);
+  const MPCTrajectory & input, autoware_auto_planning_msgs::msg::Trajectory & output);
 /**
  * @brief calculate the arc length at each point of the given trajectory
  * @param [in] trajectory trajectory for which to calculate the arc length
@@ -182,12 +182,12 @@ TRAJECTORY_FOLLOWER_PUBLIC int64_t calcNearestIndex(
  * @return index of the input trajectory nearest to the pose
  */
 TRAJECTORY_FOLLOWER_PUBLIC int64_t calcNearestIndex(
-  const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose);
+  const autoware_auto_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose);
 /**
  * @brief calculate distance to stopped point
  */
 TRAJECTORY_FOLLOWER_PUBLIC float64_t calcStopDistance(
-  const autoware_auto_msgs::msg::Trajectory & current_trajectory,
+  const autoware_auto_planning_msgs::msg::Trajectory & current_trajectory,
   const int64_t origin);
 }  // namespace MPCUtils
 }  // namespace trajectory_follower

@@ -52,7 +52,9 @@ if(BUILD_TESTING)
   target_include_directories(${GEOMETRY_GTEST} PRIVATE "test/include" "include")
   ament_target_dependencies(${GEOMETRY_GTEST}
     "autoware_auto_common"
-    "autoware_auto_msgs"
+    "autoware_auto_geometry_msgs"
+    "autoware_auto_planning_msgs"
+    "autoware_auto_vehicle_msgs"
     "geometry_msgs"
     "osrf_testing_tools_cpp")
   target_link_libraries(${GEOMETRY_GTEST} ${PROJECT_NAME})

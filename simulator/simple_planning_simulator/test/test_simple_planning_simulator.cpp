@@ -18,10 +18,10 @@
 #include "simple_planning_simulator/simple_planning_simulator_core.hpp"
 #include "motion_common/motion_common.hpp"
 
-using autoware_auto_msgs::msg::AckermannControlCommand;
-using autoware_auto_msgs::msg::VehicleControlCommand;
-using autoware_auto_msgs::msg::VehicleStateCommand;
-using autoware_auto_msgs::msg::VehicleKinematicState;
+using autoware_auto_control_msgs::msg::AckermannControlCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using geometry_msgs::msg::PoseWithCovarianceStamped;
 
 using simulation::simple_planning_simulator::SimplePlanningSimulator;

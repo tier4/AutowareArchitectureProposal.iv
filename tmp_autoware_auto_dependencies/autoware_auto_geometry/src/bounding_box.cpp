@@ -67,9 +67,9 @@ void finalize_box(const decltype(BoundingBox::corners) & corners, BoundingBox & 
 }
 
 
-autoware_auto_msgs::msg::Shape make_shape(const BoundingBox & box)
+autoware_auto_perception_msgs::msg::Shape make_shape(const BoundingBox & box)
 {
-  autoware_auto_msgs::msg::Shape retval;
+  autoware_auto_perception_msgs::msg::Shape retval;
   // Polygon is 2D rectangle
   geometry_msgs::msg::Polygon polygon;
   auto & points = polygon.points;
@@ -97,9 +97,9 @@ autoware_auto_msgs::msg::Shape make_shape(const BoundingBox & box)
   return retval;
 }
 
-autoware_auto_msgs::msg::DetectedObject make_detected_object(const BoundingBox & box)
+autoware_auto_perception_msgs::msg::DetectedObject make_detected_object(const BoundingBox & box)
 {
-  autoware_auto_msgs::msg::DetectedObject ret;
+  autoware_auto_perception_msgs::msg::DetectedObject ret;
 
   ret.kinematics.centroid_position.x = static_cast<double>(box.centroid.x);
   ret.kinematics.centroid_position.y = static_cast<double>(box.centroid.y);
@@ -109,14 +109,14 @@ autoware_auto_msgs::msg::DetectedObject make_detected_object(const BoundingBox &
   ret.kinematics.orientation.z = static_cast<double>(box.orientation.z);
   ret.kinematics.orientation.w = static_cast<double>(box.orientation.w);
   ret.kinematics.orientation_availability =
-    autoware_auto_msgs::msg::DetectedObjectKinematics::SIGN_UNKNOWN;
+    autoware_auto_perception_msgs::msg::DetectedObjectKinematics::SIGN_UNKNOWN;
 
   ret.shape = make_shape(box);
 
   ret.existence_probability = 1.0F;
 
-  autoware_auto_msgs::msg::ObjectClassification label;
-  label.classification = autoware_auto_msgs::msg::ObjectClassification::UNKNOWN;
+  autoware_auto_perception_msgs::msg::ObjectClassification label;
+  label.classification = autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
   label.probability = 1.0F;
   ret.classification.emplace_back(std::move(label));
 
@@ -124,7 +124,7 @@ autoware_auto_msgs::msg::DetectedObject make_detected_object(const BoundingBox &
 }
 
 std::vector<geometry_msgs::msg::Point32> GEOMETRY_PUBLIC get_transformed_corners(
-  const autoware_auto_msgs::msg::Shape & shape_msg, const geometry_msgs::msg::Point & centroid,
+  const autoware_auto_perception_msgs::msg::Shape & shape_msg, const geometry_msgs::msg::Point & centroid,
   const geometry_msgs::msg::Quaternion & orientation)
 {
   std::vector<geometry_msgs::msg::Point32> retval(shape_msg.polygon.points.size());

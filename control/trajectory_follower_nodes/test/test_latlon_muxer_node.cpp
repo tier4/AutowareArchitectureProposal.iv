@@ -19,9 +19,9 @@
 #include <string>
 #include <vector>
 
-#include "autoware_auto_msgs/msg/ackermann_control_command.hpp"
-#include "autoware_auto_msgs/msg/ackermann_lateral_command.hpp"
-#include "autoware_auto_msgs/msg/longitudinal_command.hpp"
+#include "autoware_auto_control_msgs/msg/ackermann_control_command.hpp"
+#include "autoware_auto_control_msgs/msg/ackermann_lateral_command.hpp"
+#include "autoware_auto_control_msgs/msg/longitudinal_command.hpp"
 #include "fake_test_node/fake_test_node.hpp"
 
 #include "rclcpp/rclcpp.hpp"
@@ -31,9 +31,9 @@
 
 
 using LatLonMuxer = autoware::motion::control::trajectory_follower_nodes::LatLonMuxer;
-using LateralCommand = autoware_auto_msgs::msg::AckermannLateralCommand;
-using LongitudinalCommand = autoware_auto_msgs::msg::LongitudinalCommand;
-using ControlCommand = autoware_auto_msgs::msg::AckermannControlCommand;
+using LateralCommand = autoware_auto_control_msgs::msg::AckermannLateralCommand;
+using LongitudinalCommand = autoware_auto_control_msgs::msg::LongitudinalCommand;
+using ControlCommand = autoware_auto_control_msgs::msg::AckermannControlCommand;
 
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
