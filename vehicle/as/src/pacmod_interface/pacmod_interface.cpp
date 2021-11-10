@@ -81,8 +81,8 @@ PacmodInterface::PacmodInterface()
     "/vehicle/engage", rclcpp::QoS{1}, std::bind(&PacmodInterface::callbackEngage, this, _1));
   actuation_cmd_sub_ = create_subscription<autoware_vehicle_msgs::msg::ActuationCommandStamped>(
     "/vehicle/actuation_cmd", 1, std::bind(&PacmodInterface::callbackActuationCmd, this, _1));
-  vehicle_cmd_sub_ = create_subscription<autoware_vehicle_msgs::msg::VehicleCommand>(
-    "/control/vehicle_cmd", 1, std::bind(&PacmodInterface::callbackVehicleCmd, this, _1));
+  emergency_sub_ = create_subscription<autoware_vehicle_msgs::msg::VehicleEmergencyStamped>(
+    "/control/emergency_cmd", 1, std::bind(&PacmodInterface::callbackEmergencyCmd, this, _1));
 
   // From pacmod
 
@@ -162,8 +162,8 @@ void PacmodInterface::callbackActuationCmd(
   actuation_cmd_ptr_ = msg;
 }
 
-void PacmodInterface::callbackVehicleCmd(
-  const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr msg)
+void PacmodInterface::callbackEmergencyCmd(
+  const autoware_vehicle_msgs::msg::VehicleEmergencyStamped::ConstSharedPtr msg)
 {
   is_emergency_ = (msg->emergency == 1);
 }

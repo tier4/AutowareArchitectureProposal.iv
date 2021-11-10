@@ -31,7 +31,7 @@
 #include <autoware_vehicle_msgs/msg/actuation_command_stamped.hpp>
 #include <autoware_vehicle_msgs/msg/actuation_status_stamped.hpp>
 #include <autoware_vehicle_msgs/msg/control_mode.hpp>
-#include <autoware_vehicle_msgs/msg/vehicle_command.hpp>
+#include <autoware_vehicle_msgs/msg/vehicle_emergency_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <pacmod_msgs/msg/global_rpt.hpp>
 #include <pacmod_msgs/msg/steer_system_cmd.hpp>
@@ -76,7 +76,8 @@ private:
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::Engage>::SharedPtr engage_cmd_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::ActuationCommandStamped>::SharedPtr
     actuation_cmd_sub_;
-  rclcpp::Subscription<autoware_vehicle_msgs::msg::VehicleCommand>::SharedPtr vehicle_cmd_sub_;
+  rclcpp::Subscription<autoware_vehicle_msgs::msg::VehicleEmergencyStamped>::SharedPtr
+    emergency_sub_;
 
   // From Pacmod
   std::unique_ptr<message_filters::Subscriber<pacmod_msgs::msg::SystemRptFloat>>
@@ -178,7 +179,10 @@ private:
     const autoware_vehicle_msgs::msg::ActuationCommandStamped::ConstSharedPtr msg);
   void callbackControlCmd(
     const autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg);
-  void callbackVehicleCmd(const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr msg);
+
+  void callbackEmergencyCmd(
+    const autoware_vehicle_msgs::msg::VehicleEmergencyStamped::ConstSharedPtr msg);
+
   void callbackGearCmd(const autoware_auto_vehicle_msgs::msg::GearCommand::ConstSharedPtr msg);
   void callbackTurnIndicatorsCommand(
     const autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand::ConstSharedPtr msg);
