@@ -16,9 +16,10 @@
 
 #include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
 #include <geometry/bounding_box/bounding_box_common.hpp>
-#include <geometry/bounding_box/rotating_calipers.hpp>
 #include <geometry/bounding_box/eigenbox_2d.hpp>
 #include <geometry/bounding_box/lfit.hpp>
+#include <geometry/bounding_box/rotating_calipers.hpp>
+
 #include <geometry_msgs/msg/point32.hpp>
 
 #include <algorithm>
@@ -38,20 +39,12 @@ namespace bounding_box
 namespace details
 {
 ////////////////////////////////////////////////////////////////////////////////
-void size_2d(
-  const decltype(BoundingBox::corners) & corners,
-  geometry_msgs::msg::Point32 & ret)
+void size_2d(const decltype(BoundingBox::corners) & corners, geometry_msgs::msg::Point32 & ret)
 {
   ret.x = std::max(
-    norm_2d(
-      minus_2d(
-        corners[1U],
-        corners[0U])), std::numeric_limits<float32_t>::epsilon());
+    norm_2d(minus_2d(corners[1U], corners[0U])), std::numeric_limits<float32_t>::epsilon());
   ret.y = std::max(
-    norm_2d(
-      minus_2d(
-        corners[2U],
-        corners[1U])), std::numeric_limits<float32_t>::epsilon());
+    norm_2d(minus_2d(corners[2U], corners[1U])), std::numeric_limits<float32_t>::epsilon());
 }
 ////////////////////////////////////////////////////////////////////////////////
 void finalize_box(const decltype(BoundingBox::corners) & corners, BoundingBox & box)
@@ -65,7 +58,6 @@ void finalize_box(const decltype(BoundingBox::corners) & corners, BoundingBox & 
   // centroid
   box.centroid = times_2d(plus_2d(corners[0U], corners[2U]), 0.5F);
 }
-
 
 autoware_auto_perception_msgs::msg::Shape make_shape(const BoundingBox & box)
 {
@@ -91,8 +83,8 @@ autoware_auto_perception_msgs::msg::Shape make_shape(const BoundingBox & box)
   points[3] = points[2];
   points[3].y -= box.size.x;
 
-  retval.polygon = polygon;
-  retval.height = 2 * box.size.z;
+  retval.footprint = polygon;
+  retval.dimensions.z = 2 * box.size.z;
 
   return retval;
 }
@@ -101,13 +93,13 @@ autoware_auto_perception_msgs::msg::DetectedObject make_detected_object(const Bo
 {
   autoware_auto_perception_msgs::msg::DetectedObject ret;
 
-  ret.kinematics.centroid_position.x = static_cast<double>(box.centroid.x);
-  ret.kinematics.centroid_position.y = static_cast<double>(box.centroid.y);
-  ret.kinematics.centroid_position.z = static_cast<double>(box.centroid.z);
-  ret.kinematics.orientation.x = static_cast<double>(box.orientation.x);
-  ret.kinematics.orientation.y = static_cast<double>(box.orientation.y);
-  ret.kinematics.orientation.z = static_cast<double>(box.orientation.z);
-  ret.kinematics.orientation.w = static_cast<double>(box.orientation.w);
+  ret.kinematics.pose_with_covariance.pose.position.x = static_cast<double>(box.centroid.x);
+  ret.kinematics.pose_with_covariance.pose.position.y = static_cast<double>(box.centroid.y);
+  ret.kinematics.pose_with_covariance.pose.position.z = static_cast<double>(box.centroid.z);
+  ret.kinematics.pose_with_covariance.pose.orientation.x = static_cast<double>(box.orientation.x);
+  ret.kinematics.pose_with_covariance.pose.orientation.y = static_cast<double>(box.orientation.y);
+  ret.kinematics.pose_with_covariance.pose.orientation.z = static_cast<double>(box.orientation.z);
+  ret.kinematics.pose_with_covariance.pose.orientation.w = static_cast<double>(box.orientation.w);
   ret.kinematics.orientation_availability =
     autoware_auto_perception_msgs::msg::DetectedObjectKinematics::SIGN_UNKNOWN;
 
@@ -116,7 +108,7 @@ autoware_auto_perception_msgs::msg::DetectedObject make_detected_object(const Bo
   ret.existence_probability = 1.0F;
 
   autoware_auto_perception_msgs::msg::ObjectClassification label;
-  label.classification = autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
+  label.label = autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
   label.probability = 1.0F;
   ret.classification.emplace_back(std::move(label));
 
@@ -124,18 +116,18 @@ autoware_auto_perception_msgs::msg::DetectedObject make_detected_object(const Bo
 }
 
 std::vector<geometry_msgs::msg::Point32> GEOMETRY_PUBLIC get_transformed_corners(
-  const autoware_auto_perception_msgs::msg::Shape & shape_msg, const geometry_msgs::msg::Point & centroid,
-  const geometry_msgs::msg::Quaternion & orientation)
+  const autoware_auto_perception_msgs::msg::Shape & shape_msg,
+  const geometry_msgs::msg::Point & centroid, const geometry_msgs::msg::Quaternion & orientation)
 {
-  std::vector<geometry_msgs::msg::Point32> retval(shape_msg.polygon.points.size());
+  std::vector<geometry_msgs::msg::Point32> retval(shape_msg.footprint.points.size());
   geometry_msgs::msg::TransformStamped tf;
   tf.transform.rotation = orientation;
   tf.transform.translation.x = centroid.x;
   tf.transform.translation.y = centroid.y;
   tf.transform.translation.z = centroid.z;
 
-  for (size_t i = 0U; i < shape_msg.polygon.points.size(); ++i) {
-    tf2::doTransform(shape_msg.polygon.points[i], retval[i], tf);
+  for (size_t i = 0U; i < shape_msg.footprint.points.size(); ++i) {
+    tf2::doTransform(shape_msg.footprint.points[i], retval[i], tf);
   }
   return retval;
 }
