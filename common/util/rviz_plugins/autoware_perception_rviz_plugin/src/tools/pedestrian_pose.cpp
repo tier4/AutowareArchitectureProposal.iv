@@ -158,7 +158,7 @@ void PedestrianInitialPoseTool::onPoseSet(double x, double y, double theta)
   output_msg.action = dummy_perception_publisher::msg::Object::ADD;
 
   // id
-  std::mt19937 gen(std::random_device{} ());
+  std::mt19937 gen(std::random_device{}());
   std::independent_bits_engine<std::mt19937, 8, uint8_t> bit_eng(gen);
   std::generate(output_msg.id.uuid.begin(), output_msg.id.uuid.end(), bit_eng);
 
