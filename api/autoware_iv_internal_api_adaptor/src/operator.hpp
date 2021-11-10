@@ -18,6 +18,7 @@
 #include <autoware_api_utils/autoware_api_utils.hpp>
 #include <rclcpp/rclcpp.hpp>
 
+#include <autoware_auto_vehicle_msgs/msg/control_mode_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/engage.hpp>
 #include <autoware_control_msgs/msg/external_command_selector_mode.hpp>
 #include <autoware_control_msgs/msg/gate_mode.hpp>
@@ -26,7 +27,6 @@
 #include <autoware_external_api_msgs/msg/operator.hpp>
 #include <autoware_external_api_msgs/srv/set_observer.hpp>
 #include <autoware_external_api_msgs/srv/set_operator.hpp>
-#include <autoware_vehicle_msgs/msg/control_mode.hpp>
 
 namespace internal_api
 {
@@ -44,7 +44,7 @@ private:
   using ExternalCommandSelectorMode = autoware_control_msgs::msg::ExternalCommandSelectorMode;
   using GateMode = autoware_control_msgs::msg::GateMode;
   using VehicleEngage = autoware_auto_vehicle_msgs::msg::Engage;
-  using VehicleControlMode = autoware_vehicle_msgs::msg::ControlMode;
+  using VehicleControlMode = autoware_auto_vehicle_msgs::msg::ControlModeReport;
 
   // ros interface
   rclcpp::CallbackGroup::SharedPtr group_;
@@ -70,13 +70,14 @@ private:
   void onExternalSelect(
     const autoware_control_msgs::msg::ExternalCommandSelectorMode::ConstSharedPtr message);
   void onGateMode(const autoware_control_msgs::msg::GateMode::ConstSharedPtr message);
-  void onVehicleControlMode(const autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr message);
+  void onVehicleControlMode(
+    const autoware_auto_vehicle_msgs::msg::ControlModeReport::ConstSharedPtr message);
   void onTimer();
 
   // class field
   autoware_control_msgs::msg::ExternalCommandSelectorMode::ConstSharedPtr external_select_;
   autoware_control_msgs::msg::GateMode::ConstSharedPtr gate_mode_;
-  autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr vehicle_control_mode_;
+  autoware_auto_vehicle_msgs::msg::ControlModeReport::ConstSharedPtr vehicle_control_mode_;
 
   // class method
   void publishOperator();

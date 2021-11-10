@@ -16,7 +16,6 @@
   <depend>autoware_external_api_msgs</depend>
   <depend>autoware_localization_srvs</depend>
   <depend>autoware_planning_msgs</depend>
-  <depend>autoware_vehicle_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
