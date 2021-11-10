@@ -14,7 +14,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include <autoware_auto_perception_msgs/msg/tracked_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
 
 #include <memory>
 #include <utility>
@@ -24,8 +24,9 @@ class EmptyObjectsPublisher : public rclcpp::Node
 public:
   EmptyObjectsPublisher() : Node("empty_objects_publisher")
   {
-    empty_objects_pub_ = this->create_publisher<autoware_auto_perception_msgs::msg::TrackedObjects>(
-      "~/output/objects", 1);
+    empty_objects_pub_ =
+      this->create_publisher<autoware_auto_perception_msgs::msg::PredictedObjects>(
+        "~/output/objects", 1);
 
     auto timer_callback = std::bind(&EmptyObjectsPublisher::timerCallback, this);
     const auto period = std::chrono::milliseconds(100);
@@ -36,13 +37,13 @@ public:
   }
 
 private:
-  rclcpp::Publisher<autoware_auto_perception_msgs::msg::TrackedObjects>::SharedPtr
+  rclcpp::Publisher<autoware_auto_perception_msgs::msg::PredictedObjects>::SharedPtr
     empty_objects_pub_;
   rclcpp::TimerBase::SharedPtr timer_;
 
   void timerCallback()
   {
-    autoware_auto_perception_msgs::msg::TrackedObjects empty_objects;
+    autoware_auto_perception_msgs::msg::PredictedObjects empty_objects;
     empty_objects.header.frame_id = "map";
     empty_objects.header.stamp = this->now();
     empty_objects_pub_->publish(empty_objects);
