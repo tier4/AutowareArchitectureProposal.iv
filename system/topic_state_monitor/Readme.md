@@ -29,7 +29,7 @@ The types of topic status and corresponding diagnostic status are following.
 
 | Name           | Type                              | Description         |
 | -------------- | --------------------------------- | ------------------- |
-| `/diagnostics` | `diagnostic_msgs/DiagnosticArray` | diagnostics outputs |
+| `/diagnostics` | `diagnostic_msgs/DiagnosticArray` | Diagnostics outputs |
 
 ## Parameters
 
