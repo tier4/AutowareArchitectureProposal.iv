@@ -186,9 +186,8 @@ ExternalCmdSelector::InternalGearShift ExternalCmdSelector::convert(
   const ExternalGearShift & command)
 {
   InternalGearShift message;
-  message.header.stamp = command.stamp;
-  message.header.frame_id = "base_link";  // dummy
-  message.shift.data = command.gear_shift.data;
+  message.stamp = command.stamp;
+  message.command = command.gear_shift.data;
   return message;
 }
 

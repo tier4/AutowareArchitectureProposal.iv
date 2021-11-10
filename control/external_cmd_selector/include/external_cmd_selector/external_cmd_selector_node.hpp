@@ -19,6 +19,7 @@
 #include <diagnostic_updater/update_functions.hpp>
 #include <rclcpp/rclcpp.hpp>
 
+#include <autoware_auto_vehicle_msgs/msg/gear_command.hpp>
 #include <autoware_control_msgs/msg/external_command_selector_mode.hpp>
 #include <autoware_control_msgs/srv/external_command_select.hpp>
 #include <autoware_external_api_msgs/msg/control_command_stamped.hpp>
@@ -38,7 +39,7 @@ public:
 private:
   using CommandSourceSelect = autoware_control_msgs::srv::ExternalCommandSelect;
   using CommandSourceMode = autoware_control_msgs::msg::ExternalCommandSelectorMode;
-  using InternalGearShift = autoware_vehicle_msgs::msg::ShiftStamped;
+  using InternalGearShift = autoware_auto_vehicle_msgs::msg::GearCommand;
   using InternalTurnSignal = autoware_vehicle_msgs::msg::TurnSignal;
   using InternalHeartbeat = autoware_external_api_msgs::msg::Heartbeat;
   using ExternalControlCommand = autoware_external_api_msgs::msg::ControlCommandStamped;
