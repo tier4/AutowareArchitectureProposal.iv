@@ -41,8 +41,6 @@
 #include <pacmod_msgs/msg/system_rpt_int.hpp>
 #include <pacmod_msgs/msg/wheel_speed_rpt.hpp>
 
-#include <boost/optional.hpp>
-
 #include <message_filters/subscriber.h>
 #include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/synchronizer.h>
@@ -51,6 +49,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <memory>
+#include <optional>
 #include <string>
 
 class PacmodInterface : public rclcpp::Node
@@ -210,7 +209,7 @@ private:
     const autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand & turn,
     const autoware_auto_vehicle_msgs::msg::HazardLightsCommand & hazard);
 
-  boost::optional<int32_t> toAutowareShiftReport(const pacmod_msgs::msg::SystemRptInt & shift);
+  std::optional<int32_t> toAutowareShiftReport(const pacmod_msgs::msg::SystemRptInt & shift);
   int32_t toAutowareTurnIndicatorsReport(const pacmod_msgs::msg::SystemRptInt & turn);
   int32_t toAutowareHazardLightsReport(const pacmod_msgs::msg::SystemRptInt & turn);
   double steerWheelRateLimiter(

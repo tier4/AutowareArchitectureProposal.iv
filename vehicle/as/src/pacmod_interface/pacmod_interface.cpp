@@ -280,7 +280,7 @@ void PacmodInterface::callbackPacmodRpt(
     gear_report_msg.stamp = header.stamp;
     const auto opt_gear_report = toAutowareShiftReport(*gear_cmd_rpt_ptr_);
     if (opt_gear_report) {
-      gear_report_msg.report = opt_gear_report.get();
+      gear_report_msg.report = *opt_gear_report;
       gear_status_pub_->publish(gear_report_msg);
     }
   }
@@ -562,7 +562,7 @@ uint16_t PacmodInterface::toPacmodShiftCmd(
   return SystemCmdInt::SHIFT_NONE;
 }
 
-boost::optional<int32_t> PacmodInterface::toAutowareShiftReport(
+std::optional<int32_t> PacmodInterface::toAutowareShiftReport(
   const pacmod_msgs::msg::SystemRptInt & shift)
 {
   using autoware_auto_vehicle_msgs::msg::GearReport;
@@ -580,7 +580,7 @@ boost::optional<int32_t> PacmodInterface::toAutowareShiftReport(
   if (shift.output == SystemRptInt::SHIFT_LOW) {
     return GearReport::LOW;
   }
-  return boost::none;
+  return {};
 }
 
 uint16_t PacmodInterface::toPacmodTurnCmd(
