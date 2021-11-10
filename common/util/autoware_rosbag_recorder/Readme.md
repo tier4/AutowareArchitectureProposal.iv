@@ -1,4 +1,4 @@
-# Autoware Global Parameter Loader
+# Autoware Rosbag Recorder
 
 This package is to record ros2 bag with desired topic.
 
