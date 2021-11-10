@@ -49,7 +49,8 @@ protected:
 
   virtual bool isRoutingGraphReady() const = 0;
   virtual autoware_auto_planning_msgs::msg::HADMapRoute planRoute() = 0;
-  virtual void visualizeRoute(const autoware_auto_planning_msgs::msg::HADMapRoute & route) const = 0;
+  virtual void visualizeRoute(
+    const autoware_auto_planning_msgs::msg::HADMapRoute & route) const = 0;
   virtual void publishRoute(const autoware_auto_planning_msgs::msg::HADMapRoute & route) const;
 
 private:

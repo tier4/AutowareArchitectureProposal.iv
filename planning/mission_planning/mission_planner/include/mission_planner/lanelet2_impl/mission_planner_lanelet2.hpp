@@ -62,7 +62,7 @@ private:
   // virtual functions
   bool isRoutingGraphReady() const;
   autoware_auto_planning_msgs::msg::HADMapRoute planRoute();
-  void visualizeRoute(const autoware_auto_planning_msgs::msg::HADMapRoute& route) const;
+  void visualizeRoute(const autoware_auto_planning_msgs::msg::HADMapRoute & route) const;
 
   // routing
   bool planPathBetweenCheckpoints(
