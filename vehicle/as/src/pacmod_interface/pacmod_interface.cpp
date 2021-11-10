@@ -129,11 +129,11 @@ PacmodInterface::PacmodInterface()
     "pacmod/as_rx/raw_steer_cmd", rclcpp::QoS{1});  // only for debug
 
   // To Autoware
-  control_mode_pub_ = create_publisher<autoware_vehicle_msgs::msg::ControlMode>(
+  control_mode_pub_ = create_publisher<autoware_auto_vehicle_msgs::msg::ControlModeReport>(
     "/vehicle/status/control_mode", rclcpp::QoS{1});
   vehicle_twist_pub_ =
     create_publisher<geometry_msgs::msg::TwistStamped>("/vehicle/status/twist", rclcpp::QoS{1});
-  steering_status_pub_ = create_publisher<autoware_vehicle_msgs::msg::Steering>(
+  steering_status_pub_ = create_publisher<autoware_auto_vehicle_msgs::msg::SteeringReport>(
     "/vehicle/status/steering", rclcpp::QoS{1});
   gear_status_pub_ = create_publisher<autoware_auto_vehicle_msgs::msg::GearReport>(
     "/vehicle/status/gear_cmd", rclcpp::QoS{1});
@@ -241,24 +241,24 @@ void PacmodInterface::callbackPacmodRpt(
 
   /* publish vehicle status control_mode */
   {
-    autoware_vehicle_msgs::msg::ControlMode control_mode_msg;
-    control_mode_msg.header = header;
+    autoware_auto_vehicle_msgs::msg::ControlModeReport control_mode_msg;
+    control_mode_msg.stamp = header.stamp;
 
     if (!global_rpt->enabled) {
-      control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::MANUAL;
+      control_mode_msg.mode = autoware_auto_vehicle_msgs::msg::ControlModeReport::MANUAL;
     } else if (is_pacmod_enabled_) {
-      control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::AUTO;
+      control_mode_msg.mode = autoware_auto_vehicle_msgs::msg::ControlModeReport::AUTONOMOUS;
     } else {
-      bool is_pedal_enable = (accel_rpt_ptr_->enabled && brake_rpt_ptr_->enabled);
-      bool is_steer_enable = steer_wheel_rpt_ptr_->enabled;
+      const bool is_pedal_enable = (accel_rpt_ptr_->enabled && brake_rpt_ptr_->enabled);
+      const bool is_steer_enable = steer_wheel_rpt_ptr_->enabled;
       if (is_pedal_enable) {
-        control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::AUTO_PEDAL_ONLY;
+        control_mode_msg.mode = autoware_auto_vehicle_msgs::msg::ControlModeReport::AUTONOMOUS;
       } else if (is_steer_enable) {
-        control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::AUTO_STEER_ONLY;
+        control_mode_msg.mode = autoware_auto_vehicle_msgs::msg::ControlModeReport::AUTONOMOUS;
       } else {
         RCLCPP_ERROR(
           get_logger(), "global_rpt is enable, but steer & pedal is disabled. Set mode = MANUAL");
-        control_mode_msg.data = autoware_vehicle_msgs::msg::ControlMode::MANUAL;
+        control_mode_msg.mode = autoware_auto_vehicle_msgs::msg::ControlModeReport::MANUAL;
       }
     }
 
@@ -287,9 +287,9 @@ void PacmodInterface::callbackPacmodRpt(
 
   /* publish current status */
   {
-    autoware_vehicle_msgs::msg::Steering steer_msg;
-    steer_msg.header = header;
-    steer_msg.data = current_steer;
+    autoware_auto_vehicle_msgs::msg::SteeringReport steer_msg;
+    steer_msg.stamp = header.stamp;
+    steer_msg.steering_tire_angle = current_steer;
     steering_status_pub_->publish(steer_msg);
   }
 
