@@ -244,22 +244,10 @@ void PacmodInterface::callbackPacmodRpt(
     autoware_auto_vehicle_msgs::msg::ControlModeReport control_mode_msg;
     control_mode_msg.stamp = header.stamp;
 
-    if (!global_rpt->enabled) {
-      control_mode_msg.mode = autoware_auto_vehicle_msgs::msg::ControlModeReport::MANUAL;
-    } else if (is_pacmod_enabled_) {
+    if (global_rpt->enabled && is_pacmod_enabled_) {
       control_mode_msg.mode = autoware_auto_vehicle_msgs::msg::ControlModeReport::AUTONOMOUS;
     } else {
-      const bool is_pedal_enable = (accel_rpt_ptr_->enabled && brake_rpt_ptr_->enabled);
-      const bool is_steer_enable = steer_wheel_rpt_ptr_->enabled;
-      if (is_pedal_enable) {
-        control_mode_msg.mode = autoware_auto_vehicle_msgs::msg::ControlModeReport::AUTONOMOUS;
-      } else if (is_steer_enable) {
-        control_mode_msg.mode = autoware_auto_vehicle_msgs::msg::ControlModeReport::AUTONOMOUS;
-      } else {
-        RCLCPP_ERROR(
-          get_logger(), "global_rpt is enable, but steer & pedal is disabled. Set mode = MANUAL");
-        control_mode_msg.mode = autoware_auto_vehicle_msgs::msg::ControlModeReport::MANUAL;
-      }
+      control_mode_msg.mode = autoware_auto_vehicle_msgs::msg::ControlModeReport::MANUAL;
     }
 
     control_mode_pub_->publish(control_mode_msg);
