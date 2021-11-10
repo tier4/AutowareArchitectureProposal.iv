@@ -305,7 +305,7 @@ $$
 
 ## Comparison to other methods
 
-Planning a trajectory that satisfies kinematic feasibility and collision-free has two main characterictics that makes hard to be solved: one is non-convex and the other is high dimension.
+Planning a trajectory that satisfies kinematic feasibility and collision-free has two main characteristics that makes hard to be solved: one is non-convex and the other is high dimension.
 According to the characteristics, we investigate pros and cons of the typical planning methods: optimization-based, sampling-based, and learning-based method.
 
 ### Optimization-based method
@@ -316,7 +316,7 @@ According to the characteristics, we investigate pros and cons of the typical pl
 ### Sampling-based method
 
 - pros: realize global optimization
-- cons: high computation cost espesially in the complex case
+- cons: high computation cost especially in the complex case
 
 ### Learning-based method
 
