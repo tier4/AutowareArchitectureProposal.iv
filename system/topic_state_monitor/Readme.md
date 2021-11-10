@@ -46,8 +46,8 @@ The types of topic status and corresponding diagnostic status are following.
 | ----------------- | ------ | ------------- | ---------------------------------------------------------------------------------------------------- |
 | `topic`           | string | -             | Name of target topic                                                                                 |
 | `topic_type`      | string | -             | Type pf target topic                                                                                 |
-| `transient_local` | bool   | false         | QoS policy of topic Subscription (Transient Local/Volatile)                                          |
-| `best_effort`     | bool   | false         | QoS policy of topic Subscription (Best Effort/Reliable)                                              |
+| `transient_local` | bool   | false         | QoS policy of topic subscription (Transient Local/Volatile)                                          |
+| `best_effort`     | bool   | false         | QoS policy of topic subscription (Best Effort/Reliable)                                              |
 | `diag_name`       | string | -             | Name used for the diagnostics to publish                                                             |
 | `warn_rate`       | double | 0.5           | If the topic rate is lower than this value, the topic status becomes `WarnRate`                      |
 | `error_rate`      | double | 0.1           | If the topic rate is lower than this value, the topic status becomes `ErrorRate`                     |
