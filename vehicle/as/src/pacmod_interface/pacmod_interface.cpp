@@ -591,14 +591,15 @@ uint16_t PacmodInterface::toPacmodTurnCmd(
   using autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand;
   using pacmod_msgs::msg::SystemCmdInt;
 
+  // NOTE: hazard lights command has a highest priority here.
+  if (hazard.command == HazardLightsCommand::ENABLE) {
+    return SystemCmdInt::TURN_HAZARDS;
+  }
   if (turn.command == TurnIndicatorsCommand::ENABLE_LEFT) {
     return SystemCmdInt::TURN_LEFT;
   }
   if (turn.command == TurnIndicatorsCommand::ENABLE_RIGHT) {
     return SystemCmdInt::TURN_RIGHT;
-  }
-  if (hazard.command == HazardLightsCommand::ENABLE) {
-    return SystemCmdInt::TURN_HAZARDS;
   }
   return SystemCmdInt::TURN_NONE;
 }
