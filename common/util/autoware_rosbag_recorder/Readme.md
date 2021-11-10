@@ -18,4 +18,4 @@ If you want some other topics to record, you need to modify below in record.sh a
 
 ## Assumptions / Known limits
 
-recording to all topics in autoware is very heavy so usually you need to avoid points cloud topics to record.
+Recording all topics in autoware is very heavy so usually you need to avoid points cloud topics to record.
