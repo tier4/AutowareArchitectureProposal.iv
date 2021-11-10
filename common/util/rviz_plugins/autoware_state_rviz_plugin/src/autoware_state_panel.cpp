@@ -23,14 +23,13 @@
 #include <memory>
 #include <string>
 
-inline std::string Bool2String(const bool var) {return var ? "True" : "False";}
+inline std::string Bool2String(const bool var) { return var ? "True" : "False"; }
 
 using std::placeholders::_1;
 
 namespace rviz_plugins
 {
-AutowareStatePanel::AutowareStatePanel(QWidget * parent)
-: rviz_common::Panel(parent)
+AutowareStatePanel::AutowareStatePanel(QWidget * parent) : rviz_common::Panel(parent)
 {
   // Gate Mode
   auto * gate_prefix_label_ptr = new QLabel("GATE: ");
@@ -88,8 +87,9 @@ void AutowareStatePanel::onInitialize()
   sub_gate_mode_ = raw_node_->create_subscription<autoware_control_msgs::msg::GateMode>(
     "/control/current_gate_mode", 10, std::bind(&AutowareStatePanel::onGateMode, this, _1));
 
-  sub_autoware_state_ = raw_node_->create_subscription<autoware_system_msgs::msg::AutowareState>(
-    "/autoware/state", 10, std::bind(&AutowareStatePanel::onAutowareState, this, _1));
+  sub_autoware_state_ =
+    raw_node_->create_subscription<autoware_auto_system_msgs::msg::AutowareState>(
+      "/autoware/state", 10, std::bind(&AutowareStatePanel::onAutowareState, this, _1));
 
   sub_gear_ = raw_node_->create_subscription<autoware_auto_vehicle_msgs::msg::GearReport>(
     "/vehicle/status/shift", 10, std::bind(&AutowareStatePanel::onShift, this, _1));
@@ -122,22 +122,28 @@ void AutowareStatePanel::onGateMode(const autoware_control_msgs::msg::GateMode::
 }
 
 void AutowareStatePanel::onAutowareState(
-  const autoware_system_msgs::msg::AutowareState::ConstSharedPtr msg)
+  const autoware_auto_system_msgs::msg::AutowareState::ConstSharedPtr msg)
 {
-  if (msg->state == autoware_system_msgs::msg::AutowareState::WAITING_FOR_ENGAGE) {
-    autoware_state_label_ptr_->setText(msg->state.c_str());
+  if (msg->state == autoware_auto_system_msgs::msg::AutowareState::INITIALIZING) {
+    autoware_state_label_ptr_->setText("INITIALIZING");
+    autoware_state_label_ptr_->setStyleSheet("background-color: #FFFF00;");
+  } else if (msg->state == autoware_auto_system_msgs::msg::AutowareState::WAITING_FOR_ROUTE) {
+    autoware_state_label_ptr_->setText("WAITING_FOR_ROUTE");
+    autoware_state_label_ptr_->setStyleSheet("background-color: #FFFF00;");
+  } else if (msg->state == autoware_auto_system_msgs::msg::AutowareState::PLANNING) {
+    autoware_state_label_ptr_->setText("PLANNING");
+    autoware_state_label_ptr_->setStyleSheet("background-color: #FFFF00;");
+  } else if (msg->state == autoware_auto_system_msgs::msg::AutowareState::WAITING_FOR_ENGAGE) {
+    autoware_state_label_ptr_->setText("WAITING_FOR_ENGAGE");
     autoware_state_label_ptr_->setStyleSheet("background-color: #00FFFF;");
-  } else if (msg->state == autoware_system_msgs::msg::AutowareState::DRIVING) {
-    autoware_state_label_ptr_->setText(msg->state.c_str());
+  } else if (msg->state == autoware_auto_system_msgs::msg::AutowareState::DRIVING) {
+    autoware_state_label_ptr_->setText("DRIVING");
     autoware_state_label_ptr_->setStyleSheet("background-color: #00FF00;");
-  } else if (msg->state == autoware_system_msgs::msg::AutowareState::ARRIVAL_GOAL) {
-    autoware_state_label_ptr_->setText(msg->state.c_str());
+  } else if (msg->state == autoware_auto_system_msgs::msg::AutowareState::ARRIVED_GOAL) {
+    autoware_state_label_ptr_->setText("ARRIVED_GOAL");
     autoware_state_label_ptr_->setStyleSheet("background-color: #FF00FF;");
-  } else if (msg->state == autoware_system_msgs::msg::AutowareState::EMERGENCY) {
-    autoware_state_label_ptr_->setText("Stop");
-    autoware_state_label_ptr_->setStyleSheet("background-color: #0000FF;");
-  } else {
-    autoware_state_label_ptr_->setText(msg->state.c_str());
+  } else if (msg->state == autoware_auto_system_msgs::msg::AutowareState::FINALIZING) {
+    autoware_state_label_ptr_->setText("FINALIZING");
     autoware_state_label_ptr_->setStyleSheet("background-color: #FFFF00;");
   }
 }
