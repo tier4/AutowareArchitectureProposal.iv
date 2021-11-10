@@ -15,18 +15,17 @@
 #ifndef OSQP_INTERFACE__OSQP_INTERFACE_HPP_
 #define OSQP_INTERFACE__OSQP_INTERFACE_HPP_
 
+#include "common/types.hpp"
+#include "eigen3/Eigen/Core"
+#include "osqp/osqp.h"
+#include "osqp_interface/csc_matrix_conv.hpp"
+#include "osqp_interface/visibility_control.hpp"
+
 #include <limits>
 #include <memory>
 #include <string>
 #include <tuple>
 #include <vector>
-
-#include "common/types.hpp"
-#include "eigen3/Eigen/Core"
-#include "osqp/osqp.h"
-#include "osqp_interface/visibility_control.hpp"
-#include "osqp_interface/csc_matrix_conv.hpp"
-
 
 namespace autoware
 {
@@ -35,8 +34,8 @@ namespace common
 namespace osqp
 {
 constexpr c_float INF = OSQP_INFTY;
-using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
+using autoware::common::types::float64_t;
 
 /**
  * Implementation of a native C++ interface for the OSQP solver.
@@ -129,26 +128,48 @@ public:
     const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<float64_t> & q,
     const std::vector<float64_t> & l, const std::vector<float64_t> & u);
 
+  // Updates problem parameters while keeping solution in memory.
+  //
+  // Args:
+  //   P_new: (n,n) matrix defining relations between parameters.
+  //   A_new: (m,n) matrix defining parameter constraints relative to the lower and upper bound.
+  //   q_new: (n) vector defining the linear cost of the problem.
+  //   l_new: (m) vector defining the lower bound problem constraint.
+  //   u_new: (m) vector defining the upper bound problem constraint.
+  void updateP(const Eigen::MatrixXd & P_new);
+  void updateA(const Eigen::MatrixXd & A_new);
+  void updateQ(const std::vector<double> & q_new);
+  void updateL(const std::vector<double> & l_new);
+  void updateU(const std::vector<double> & u_new);
+  void updateBounds(const std::vector<double> & l_new, const std::vector<double> & u_new);
+  void updateEpsAbs(const double eps_abs);
+  void updateEpsRel(const double eps_rel);
+  void updateMaxIter(const int iter);
+  void updateVerbose(const bool verbose);
+  void updateRhoInterval(const int rho_interval);
+  void updateRho(const double rho);
+  void updateAlpha(const double alpha);
+
   /// \brief Get the number of iteration taken to solve the problem
-  inline int64_t getTakenIter() const {return static_cast<int64_t>(m_latest_work_info.iter);}
+  inline int64_t getTakenIter() const { return static_cast<int64_t>(m_latest_work_info.iter); }
   /// \brief Get the status message for the latest problem solved
   inline std::string getStatusMessage() const
   {
     return static_cast<std::string>(m_latest_work_info.status);
   }
   /// \brief Get the status value for the latest problem solved
-  inline int64_t getStatus() const {return static_cast<int64_t>(m_latest_work_info.status_val);}
+  inline int64_t getStatus() const { return static_cast<int64_t>(m_latest_work_info.status_val); }
   /// \brief Get the status polish for the latest problem solved
   inline int64_t getStatusPolish() const
   {
     return static_cast<int64_t>(m_latest_work_info.status_polish);
   }
   /// \brief Get the runtime of the latest problem solved
-  inline float64_t getRunTime() const {return m_latest_work_info.run_time;}
+  inline float64_t getRunTime() const { return m_latest_work_info.run_time; }
   /// \brief Get the objective value the latest problem solved
-  inline float64_t getObjVal() const {return m_latest_work_info.obj_val;}
+  inline float64_t getObjVal() const { return m_latest_work_info.obj_val; }
   /// \brief Returns flag asserting interface condition (Healthy condition: 0).
-  inline int64_t getExitFlag() const {return m_exitflag;}
+  inline int64_t getExitFlag() const { return m_exitflag; }
 };
 
 }  // namespace osqp
