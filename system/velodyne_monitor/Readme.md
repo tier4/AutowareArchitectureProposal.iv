@@ -44,7 +44,7 @@ None
 
 | Name      | Type   | Default Value | Description                                         |
 | --------- | ------ | ------------- | --------------------------------------------------- |
-| `timeout` | double | 0.5           | timeout for HTTP request to get Velodyne status [s] |
+| `timeout` | double | 0.5           | Timeout for HTTP request to get Velodyne status [s] |
 
 ### Core Parameters
 
