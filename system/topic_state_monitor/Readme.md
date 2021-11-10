@@ -9,7 +9,7 @@ The result of topic status is published as diagnostics.
 
 The types of topic status and corresponding diagnostic status are following.
 
-| topic status  | diagnostic status | Description                                          |
+| Topic status  | Diagnostic status | Description                                          |
 | ------------- | ----------------- | ---------------------------------------------------- |
 | `OK`          | OK                | The topic has no abnormalities                       |
 | `NotReceived` | ERROR             | The topic has not been received yet                  |
