@@ -140,7 +140,7 @@ get_path_confidence_marker_ptr(
 /// \param todo
 /// \param todo
 /// \return todo
-AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calcBoundingBoxLineList(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calc_bounding_box_line_list(
   const autoware_auto_perception_msgs::msg::Shape & shape,
   std::vector<geometry_msgs::msg::Point> & points);
 
@@ -148,7 +148,7 @@ AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calcBoundingBoxLineList(
 /// \param todo
 /// \param todo
 /// \return todo
-AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calcCylinderLineList(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calc_cylinder_line_list(
   const autoware_auto_perception_msgs::msg::Shape & shape,
   std::vector<geometry_msgs::msg::Point> & points);
 
@@ -156,7 +156,7 @@ AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calcCylinderLineList(
 /// \param todo
 /// \param todo
 /// \return todo
-AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calcCircleLineList(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calc_circle_line_list(
   const geometry_msgs::msg::Point center, const double radius,
   std::vector<geometry_msgs::msg::Point> & points, const int n);
 
@@ -164,7 +164,7 @@ AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calcCircleLineList(
 /// \param todo
 /// \param todo
 /// \return todo
-AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calcPolygonLineList(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calc_polygon_line_list(
   const autoware_auto_perception_msgs::msg::Shape & shape,
   std::vector<geometry_msgs::msg::Point> & points);
 
@@ -172,7 +172,7 @@ AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calcPolygonLineList(
 /// \param todo
 /// \param todo
 /// \return todo
-AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calcPathLineList(
+AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC void calc_path_line_list(
   const autoware_auto_perception_msgs::msg::PredictedPath & paths,
   std::vector<geometry_msgs::msg::Point> & points);
 

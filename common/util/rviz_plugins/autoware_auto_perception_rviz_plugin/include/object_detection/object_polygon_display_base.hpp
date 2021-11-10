@@ -93,7 +93,7 @@ public:
         std::forward_as_tuple(
           QColor{color[0], color[1], color[2]}, class_property_values.alpha, &parent_property));
     }
-    initColorList(predicted_path_colors);
+    init_color_list(predicted_path_colors);
   }
 
   void onInitialize() override
@@ -242,7 +242,7 @@ protected:
   {
     if (m_display_predicted_paths_property.getBool()) {
       const std::string uuid_str = uuid_to_string(uuid);
-      const std_msgs::msg::ColorRGBA predicted_path_color = getColorFromUUID(uuid_str);
+      const std_msgs::msg::ColorRGBA predicted_path_color = get_color_from_uuid(uuid_str);
       return detail::get_predicted_path_marker_ptr(shape, predicted_path, predicted_path_color);
     } else {
       return boost::none;
@@ -259,7 +259,7 @@ protected:
   {
     if (m_display_path_confidence_property.getBool()) {
       const std::string uuid_str = uuid_to_string(uuid);
-      const std_msgs::msg::ColorRGBA path_confidence_color = getColorFromUUID(uuid_str);
+      const std_msgs::msg::ColorRGBA path_confidence_color = get_color_from_uuid(uuid_str);
       return detail::get_path_confidence_marker_ptr(predicted_path, path_confidence_color);
     } else {
       return boost::none;
@@ -317,7 +317,7 @@ protected:
   /// \param todo
   /// \return todo
   std_msgs::msg::ColorRGBA AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC
-  getColorFromUUID(const std::string & uuid) const
+  get_color_from_uuid(const std::string & uuid) const
   {
     int i = (static_cast<int>(uuid.at(0)) * 4 + static_cast<int>(uuid.at(1))) %
             static_cast<int>(predicted_path_colors.size());
@@ -333,7 +333,7 @@ protected:
   /// \param todo
   /// \param todo
   /// \return todo
-  void initColorList(std::vector<std_msgs::msg::ColorRGBA> & colors) const
+  void init_color_list(std::vector<std_msgs::msg::ColorRGBA> & colors) const
   {
     std_msgs::msg::ColorRGBA sample_color;
     sample_color.r = 1.0;

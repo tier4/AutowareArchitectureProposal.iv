@@ -67,7 +67,7 @@ visualization_msgs::msg::Marker::SharedPtr get_predicted_path_marker_ptr(
   marker_ptr->color.a = std::max(
     static_cast<double>(std::min(static_cast<double>(predicted_path.confidence), 0.999)), 0.5);
   marker_ptr->scale.x = 0.03 * marker_ptr->color.a;
-  calcPathLineList(predicted_path, marker_ptr->points);
+  calc_path_line_list(predicted_path, marker_ptr->points);
   for (size_t k = 0; k < marker_ptr->points.size(); ++k) {
     marker_ptr->points.at(k).z -= shape.dimensions.z / 2.0;
   }
@@ -216,16 +216,16 @@ visualization_msgs::msg::Marker::SharedPtr get_shape_marker_ptr(
   using autoware_auto_perception_msgs::msg::Shape;
   if (shape_msg.type == Shape::BOUNDING_BOX) {
     marker_ptr->type = visualization_msgs::msg::Marker::LINE_LIST;
-    calcBoundingBoxLineList(shape_msg, marker_ptr->points);
+    calc_bounding_box_line_list(shape_msg, marker_ptr->points);
   } else if (shape_msg.type == Shape::CYLINDER) {
     marker_ptr->type = visualization_msgs::msg::Marker::LINE_LIST;
-    calcCylinderLineList(shape_msg, marker_ptr->points);
+    calc_cylinder_line_list(shape_msg, marker_ptr->points);
   } else if (shape_msg.type == Shape::POLYGON) {
     marker_ptr->type = visualization_msgs::msg::Marker::LINE_LIST;
-    calcPolygonLineList(shape_msg, marker_ptr->points);
+    calc_polygon_line_list(shape_msg, marker_ptr->points);
   } else {
     marker_ptr->type = visualization_msgs::msg::Marker::LINE_LIST;
-    calcPolygonLineList(shape_msg, marker_ptr->points);
+    calc_polygon_line_list(shape_msg, marker_ptr->points);
   }
 
   marker_ptr->action = visualization_msgs::msg::Marker::MODIFY;
@@ -237,7 +237,7 @@ visualization_msgs::msg::Marker::SharedPtr get_shape_marker_ptr(
   return marker_ptr;
 }
 
-void calcBoundingBoxLineList(
+void calc_bounding_box_line_list(
   const autoware_auto_perception_msgs::msg::Shape & shape,
   std::vector<geometry_msgs::msg::Point> & points)
 {
@@ -353,7 +353,7 @@ void calcBoundingBoxLineList(
   points.push_back(point);
 }
 
-void calcCylinderLineList(
+void calc_cylinder_line_list(
   const autoware_auto_perception_msgs::msg::Shape & shape,
   std::vector<geometry_msgs::msg::Point> & points)
 {
@@ -364,9 +364,9 @@ void calcCylinderLineList(
     center.x = 0.0;
     center.y = 0.0;
     center.z = shape.dimensions.z * 0.5;
-    calcCircleLineList(center, radius, points, n);
+    calc_circle_line_list(center, radius, points, n);
     center.z = -shape.dimensions.z * 0.5;
-    calcCircleLineList(center, radius, points, n);
+    calc_circle_line_list(center, radius, points, n);
   }
   {
     constexpr int n = 4;
@@ -396,7 +396,7 @@ void calcCylinderLineList(
   }
 }
 
-void calcCircleLineList(
+void calc_circle_line_list(
   const geometry_msgs::msg::Point center, const double radius,
   std::vector<geometry_msgs::msg::Point> & points, const int n)
 {
@@ -429,7 +429,7 @@ void calcCircleLineList(
   }
 }
 
-void calcPolygonLineList(
+void calc_polygon_line_list(
   const autoware_auto_perception_msgs::msg::Shape & shape,
   std::vector<geometry_msgs::msg::Point> & points)
 {
@@ -482,7 +482,7 @@ void calcPolygonLineList(
   }
 }
 
-void calcPathLineList(
+void calc_path_line_list(
   const autoware_auto_perception_msgs::msg::PredictedPath & paths,
   std::vector<geometry_msgs::msg::Point> & points)
 {
@@ -496,7 +496,7 @@ void calcPathLineList(
     point.y = paths.path.at(i + 1).position.y;
     point.z = paths.path.at(i + 1).position.z;
     points.push_back(point);
-    calcCircleLineList(point, 0.25, points, 10);
+    calc_circle_line_list(point, 0.25, points, 10);
   }
 }
 
