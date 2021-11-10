@@ -115,11 +115,12 @@ void PedestrianInitialPoseTool::onPoseSet(double x, double y, double theta)
   output_msg.header.stamp = clock_->now();
 
   // semantic
-  output_msg.semantic.type = autoware_perception_msgs::msg::Semantic::PEDESTRIAN;
-  output_msg.semantic.confidence = 1.0;
+  output_msg.classification.label =
+    autoware_auto_perception_msgs::msg::ObjectClassification::PEDESTRIAN;
+  output_msg.classification.probability = 1.0;
 
   // shape
-  output_msg.shape.type = autoware_perception_msgs::msg::Shape::CYLINDER;
+  output_msg.shape.type = autoware_auto_perception_msgs::msg::Shape::CYLINDER;
   const double width = 0.8;
   const double length = 0.8;
   output_msg.shape.dimensions.x = length;
@@ -157,7 +158,7 @@ void PedestrianInitialPoseTool::onPoseSet(double x, double y, double theta)
   output_msg.action = dummy_perception_publisher::msg::Object::ADD;
 
   // id
-  std::mt19937 gen(std::random_device{}());
+  std::mt19937 gen(std::random_device{} ());
   std::independent_bits_engine<std::mt19937, 8, uint8_t> bit_eng(gen);
   std::generate(output_msg.id.uuid.begin(), output_msg.id.uuid.end(), bit_eng);
 
