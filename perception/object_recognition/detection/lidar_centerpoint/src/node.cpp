@@ -90,9 +90,11 @@ void LidarCenterPointNode::pointCloudCallback(
     float yaw = boxes3d_vec[obj_i * Config::num_box_features + 8];
 
     autoware_auto_perception_msgs::msg::DetectedObject obj;
-    autoware_auto_perception_msgs::msg::ObjectClassification classification;
+    // TODO(yukke42): the value of classification confidence of DNN, not probability.
     obj.existence_probability = score;
 
+    autoware_auto_perception_msgs::msg::ObjectClassification classification;
+    classification.probability = 1.0f;
     switch (class_id) {
       case 0:
         classification.label = autoware_auto_perception_msgs::msg::ObjectClassification::CAR;
