@@ -4,7 +4,7 @@ This package is to get global parameters.
 
 ## Usage
 
-Add launch file to below description to get global parameters in the node.
+Add the following lines to the launch file of the node in which you want to get global parameters.
 
 ```xml
 <!-- Global parameters -->
