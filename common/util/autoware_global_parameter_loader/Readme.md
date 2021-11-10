@@ -1,6 +1,6 @@
 # Autoware Global Parameter Loader
 
-This package is to get global parameters.
+This package is to set common ROS parameters to each node.
 
 ## Usage
 
