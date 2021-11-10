@@ -57,6 +57,7 @@ void convertPointCloudClusters2Msg(
       getCentroid(ros_pointcloud);
     autoware_auto_perception_msgs::msg::ObjectClassification classification;
     classification.label = autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
+    classification.probability = 1.0f;
     feature_object.object.classification.emplace_back(classification);
     msg.feature_objects.push_back(feature_object);
   }
