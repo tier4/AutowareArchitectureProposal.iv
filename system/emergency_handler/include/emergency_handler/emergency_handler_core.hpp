@@ -20,13 +20,12 @@
 #include <string>
 
 // Autoware
-#include <autoware_control_msgs/msg/control_command_stamped.hpp>
-#include <autoware_system_msgs/msg/emergency_state_stamped.hpp>
-#include <autoware_system_msgs/msg/hazard_status_stamped.hpp>
-#include <autoware_vehicle_msgs/msg/control_mode.hpp>
-#include <autoware_vehicle_msgs/msg/shift_stamped.hpp>
-#include <autoware_vehicle_msgs/msg/turn_signal.hpp>
-#include <autoware_vehicle_msgs/msg/vehicle_command.hpp>
+#include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
+#include <autoware_auto_system_msgs/msg/emergency_state.hpp>
+#include <autoware_auto_system_msgs/msg/hazard_status_stamped.hpp>
+#include <autoware_auto_vehicle_msgs/msg/control_mode_report.hpp>
+#include <autoware_auto_vehicle_msgs/msg/gear_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/hazard_lights_command.hpp>
 
 // ROS2 core
 #include <autoware_utils/system/heartbeat_checker.hpp>
@@ -34,7 +33,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 
 struct HazardLampPolicy
 {
@@ -58,34 +57,40 @@ public:
 
 private:
   // Subscribers
-  rclcpp::Subscription<autoware_system_msgs::msg::HazardStatusStamped>::SharedPtr
+  rclcpp::Subscription<autoware_auto_system_msgs::msg::HazardStatusStamped>::SharedPtr
     sub_hazard_status_stamped_;
-  rclcpp::Subscription<autoware_vehicle_msgs::msg::VehicleCommand>::SharedPtr
+  rclcpp::Subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr
     sub_prev_control_command_;
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
-  rclcpp::Subscription<autoware_vehicle_msgs::msg::ControlMode>::SharedPtr sub_control_mode_;
+  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr sub_odom_;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::ControlModeReport>::SharedPtr
+    sub_control_mode_;
 
-  autoware_system_msgs::msg::HazardStatusStamped::ConstSharedPtr hazard_status_stamped_;
-  autoware_control_msgs::msg::ControlCommand::ConstSharedPtr prev_control_command_;
-  geometry_msgs::msg::TwistStamped::ConstSharedPtr twist_;
-  autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr control_mode_;
+  autoware_auto_system_msgs::msg::HazardStatusStamped::ConstSharedPtr hazard_status_stamped_;
+  autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr prev_control_command_;
+  nav_msgs::msg::Odometry::ConstSharedPtr odom_;
+  autoware_auto_vehicle_msgs::msg::ControlModeReport::ConstSharedPtr control_mode_;
 
   void onHazardStatusStamped(
-    const autoware_system_msgs::msg::HazardStatusStamped::ConstSharedPtr msg);
+    const autoware_auto_system_msgs::msg::HazardStatusStamped::ConstSharedPtr msg);
   // To be replaced by ControlCommand
-  void onPrevControlCommand(const autoware_vehicle_msgs::msg::VehicleCommand::ConstSharedPtr msg);
-  void onTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
-  void onControlMode(const autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr msg);
+  void onPrevControlCommand(
+    const autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg);
+  void onOdometry(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
+  void onControlMode(const autoware_auto_vehicle_msgs::msg::ControlModeReport::ConstSharedPtr msg);
 
   // Publisher
-  rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr
+  rclcpp::Publisher<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr
     pub_control_command_;
-  rclcpp::Publisher<autoware_vehicle_msgs::msg::ShiftStamped>::SharedPtr pub_shift_;
-  rclcpp::Publisher<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr pub_turn_signal_;
-  rclcpp::Publisher<autoware_system_msgs::msg::EmergencyStateStamped>::SharedPtr
-    pub_emergency_state_;
 
-  autoware_vehicle_msgs::msg::TurnSignal createTurnSignalMsg();
+  // rclcpp::Publisher<autoware_vehicle_msgs::msg::ShiftStamped>::SharedPtr pub_shift_;
+  // rclcpp::Publisher<autoware_vehicle_msgs::msg::TurnSignal>::SharedPtr pub_turn_signal_;
+  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::HazardLightsCommand>::SharedPtr
+    pub_hazard_cmd_;
+  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::GearCommand>::SharedPtr pub_gear_cmd_;
+  rclcpp::Publisher<autoware_auto_system_msgs::msg::EmergencyState>::SharedPtr pub_emergency_state_;
+
+  autoware_auto_vehicle_msgs::msg::HazardLightsCommand createHazardCmdMsg();
+  autoware_auto_vehicle_msgs::msg::GearCommand createGearCmdMsg();
   void publishControlCommands();
 
   // Timer
@@ -98,19 +103,19 @@ private:
   void onTimer();
 
   // Heartbeat
-  std::shared_ptr<HeaderlessHeartbeatChecker<autoware_system_msgs::msg::HazardStatusStamped>>
+  std::shared_ptr<HeaderlessHeartbeatChecker<autoware_auto_system_msgs::msg::HazardStatusStamped>>
     heartbeat_hazard_status_;
 
   // Algorithm
-  autoware_system_msgs::msg::EmergencyState::_state_type emergency_state_{
-    autoware_system_msgs::msg::EmergencyState::NORMAL};
+  autoware_auto_system_msgs::msg::EmergencyState::_state_type emergency_state_{
+    autoware_auto_system_msgs::msg::EmergencyState::NORMAL};
   rclcpp::Time takeover_requested_time_;
 
   void transitionTo(const int new_state);
   void updateEmergencyState();
   bool isStopped();
-  bool isEmergency(const autoware_system_msgs::msg::HazardStatus & hazard_status);
-  autoware_control_msgs::msg::ControlCommand selectAlternativeControlCommand();
+  bool isEmergency(const autoware_auto_system_msgs::msg::HazardStatus & hazard_status);
+  autoware_auto_control_msgs::msg::AckermannControlCommand selectAlternativeControlCommand();
 };
 
 #endif  // EMERGENCY_HANDLER__EMERGENCY_HANDLER_CORE_HPP_
