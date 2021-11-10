@@ -34,7 +34,7 @@ DummyPerceptionPublisherNode::DummyPerceptionPublisherNode()
   rclcpp::QoS qos{1};
   qos.transient_local();
   dynamic_object_pub_ =
-    this->create_publisher<autoware_perception_msgs::msg::DynamicObjectWithFeatureArray>(
+    this->create_publisher<autoware_perception_msgs::msg::DetectedObjectsWithFeature>(
       "output/dynamic_object", qos);
   pointcloud_pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("output/points_raw", qos);
 
@@ -58,7 +58,7 @@ DummyPerceptionPublisherNode::DummyPerceptionPublisherNode()
 void DummyPerceptionPublisherNode::timerCallback()
 {
   // output msgs
-  autoware_perception_msgs::msg::DynamicObjectWithFeatureArray output_dynamic_object_msg;
+  autoware_perception_msgs::msg::DetectedObjectsWithFeature output_dynamic_object_msg;
   geometry_msgs::msg::PoseStamped output_moved_object_pose;
   sensor_msgs::msg::PointCloud2 output_pointcloud_msg;
   std_msgs::msg::Header header;
@@ -138,14 +138,17 @@ void DummyPerceptionPublisherNode::timerCallback()
     tf2::Transform tf_base_link2noised_moved_object;
     tf_base_link2noised_moved_object =
       tf_base_link2map * tf_map2moved_object * tf_moved_object2noised_moved_object;
-    autoware_perception_msgs::msg::DynamicObjectWithFeature feature_object;
-    feature_object.object.semantic = objects_.at(i).semantic;
-    feature_object.object.state.pose_covariance = objects_.at(i).initial_state.pose_covariance;
-    feature_object.object.state.twist_covariance = objects_.at(i).initial_state.twist_covariance;
-    feature_object.object.state.orientation_reliable = false;
-    feature_object.object.state.twist_reliable = false;
-    feature_object.object.state.acceleration_reliable = false;
-    tf2::toMsg(tf_base_link2noised_moved_object, feature_object.object.state.pose_covariance.pose);
+    autoware_perception_msgs::msg::DetectedObjectWithFeature feature_object;
+    feature_object.object.classification.push_back(objects_.at(i).classification);
+    feature_object.object.kinematics.pose_with_covariance =
+      objects_.at(i).initial_state.pose_covariance;
+    feature_object.object.kinematics.twist_with_covariance =
+      objects_.at(i).initial_state.twist_covariance;
+    feature_object.object.kinematics.orientation_availability =
+      autoware_auto_perception_msgs::msg::DetectedObjectKinematics::UNAVAILABLE;
+    feature_object.object.kinematics.has_twist = false;
+    tf2::toMsg(
+      tf_base_link2noised_moved_object, feature_object.object.kinematics.pose_with_covariance.pose);
     feature_object.object.shape = objects_.at(i).shape;
     pcl::toROSMsg(*pointcloud_ptr, feature_object.feature.cluster);
     output_dynamic_object_msg.feature_objects.push_back(feature_object);
