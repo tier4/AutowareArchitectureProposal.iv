@@ -227,7 +227,7 @@ RoiClusterFusionNodelet::RoiClusterFusionNodelet(const rclcpp::NodeOptions & opt
     std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6,
     std::placeholders::_7, std::placeholders::_8, std::placeholders::_9));
   labeled_cluster_pub_ =
-    this->create_publisher<autoware_auto_perception_msgs::msg::DetectedObjects>(
+    this->create_publisher<autoware_perception_msgs::msg::DetectedObjectsWithFeature>(
       "output/labeled_clusters", rclcpp::QoS{1});
 
   const bool debug_mode = declare_parameter("debug_mode", false);
@@ -259,18 +259,15 @@ void RoiClusterFusionNodelet::fusionCallback(
   }
 
   // build output msg
-  autoware_auto_perception_msgs::msg::DetectedObjects output_msg;
-  output_msg.header = input_cluster_msg->header;
-  for (const auto & feature_object : input_cluster_msg->feature_objects) {
-    output_msg.objects.push_back(feature_object.object);
-  }
+  autoware_perception_msgs::msg::DetectedObjectsWithFeature output_msg;
+  output_msg = *input_cluster_msg;
 
   // reset cluster semantic type
   if (!use_cluster_semantic_type_) {
-    for (auto & object : output_msg.objects) {
-      object.classification.front().label =
+    for (auto & feature_object : output_msg.feature_objects) {
+      feature_object.object.classification.front().label =
         autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
-      object.existence_probability = 0.0;
+      feature_object.object.existence_probability = 0.0;
     }
   }
 
@@ -420,9 +417,9 @@ void RoiClusterFusionNodelet::fusionCallback(
       }
       if (
         iou_threshold_ < max_iou &&
-        output_msg.objects.at(index).existence_probability <=
+        output_msg.feature_objects.at(index).object.existence_probability <=
           input_roi_msg->feature_objects.at(i).object.existence_probability) {
-        output_msg.objects.at(index).classification =
+        output_msg.feature_objects.at(index).object.classification =
           input_roi_msg->feature_objects.at(i).object.classification;
       }
       debug_image_rois.push_back(input_roi_msg->feature_objects.at(i).feature.roi);

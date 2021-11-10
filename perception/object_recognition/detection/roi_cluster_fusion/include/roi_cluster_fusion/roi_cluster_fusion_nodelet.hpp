@@ -21,7 +21,6 @@
 #include <image_transport/image_transport.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <autoware_perception_msgs/msg/detected_objects_with_feature.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
 
@@ -89,7 +88,7 @@ private:
     const sensor_msgs::msg::RegionOfInterest & roi_1,
     const sensor_msgs::msg::RegionOfInterest & roi_2);
 
-  rclcpp::Publisher<autoware_auto_perception_msgs::msg::DetectedObjects>::SharedPtr
+  rclcpp::Publisher<autoware_perception_msgs::msg::DetectedObjectsWithFeature>::SharedPtr
     labeled_cluster_pub_;
   std::vector<rclcpp::Subscription<sensor_msgs::msg::CameraInfo>::SharedPtr> v_camera_info_sub_;
   tf2_ros::Buffer tf_buffer_;
