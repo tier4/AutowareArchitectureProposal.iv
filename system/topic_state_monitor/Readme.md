@@ -12,7 +12,7 @@ The types of topic status and corresponding diagnostic status are following.
 | topic status  | diagnostic status | Description                                          |
 | ------------- | ----------------- | ---------------------------------------------------- |
 | `OK`          | OK                | The topic has no abnormalities                       |
-| `NotReceived` | ERROR             | The topic has not received yet.                      |
+| `NotReceived` | ERROR             | The topic has not been received yet                  |
 | `WarnRate`    | WARN              | The frequency of the topic is dropped                |
 | `ErrorRate`   | ERROR             | The frequency of the topic is significantly dropped  |
 | `Timeout`     | ERROR             | The topic subscription is stopped for a certain time |
