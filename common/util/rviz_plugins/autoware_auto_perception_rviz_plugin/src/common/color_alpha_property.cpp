@@ -24,19 +24,19 @@ namespace rviz_plugins
 {
 namespace common
 {
-
 ColorAlphaProperty::ColorAlphaProperty(
   const QColor & color_default, const float alpha_default,
   rviz_common::properties::Property * parent_property)
 : m_color_property("Color", color_default, "Set color value.", parent_property),
-  m_alpha_property("Alpha", alpha_default, "Set transparency value. Should be between 0  and 1.",
-    parent_property)
+  m_alpha_property(
+    "Alpha", alpha_default, "Set transparency value. Should be between 0  and 1.", parent_property)
 {
   m_alpha_property.setMax(1.0F);
   m_alpha_property.setMin(0.0F);
 }
 
-ColorAlphaProperty::operator std_msgs::msg::ColorRGBA() const {
+ColorAlphaProperty::operator std_msgs::msg::ColorRGBA() const
+{
   std_msgs::msg::ColorRGBA ret;
   ret.r = static_cast<float>(m_color_property.getColor().redF());
   ret.g = static_cast<float>(m_color_property.getColor().greenF());

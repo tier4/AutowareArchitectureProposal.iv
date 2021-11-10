@@ -17,8 +17,9 @@
 #include <rviz_common/display.hpp>
 #include <rviz_common/properties/color_property.hpp>
 #include <rviz_common/properties/float_property.hpp>
-#include <std_msgs/msg/color_rgba.hpp>
 #include <visibility_control.hpp>
+
+#include <std_msgs/msg/color_rgba.hpp>
 
 #include <memory>
 
@@ -54,4 +55,4 @@ private:
 }  // namespace rviz_plugins
 }  // namespace autoware
 
-#endif   // COMMON__COLOR_ALPHA_PROPERTY_HPP_
+#endif  // COMMON__COLOR_ALPHA_PROPERTY_HPP_

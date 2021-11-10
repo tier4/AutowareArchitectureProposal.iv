@@ -22,8 +22,7 @@ namespace rviz_plugins
 {
 namespace object_detection
 {
-PredictedObjectsDisplay::PredictedObjectsDisplay()
-: ObjectPolygonDisplayBase("tracks") {}
+PredictedObjectsDisplay::PredictedObjectsDisplay() : ObjectPolygonDisplayBase("tracks") {}
 
 void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr msg)
 {
@@ -32,10 +31,8 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
   for (const auto & object : msg->objects) {
     // Get marker for shape
     auto shape_marker = get_shape_marker_ptr(
-      object.shape,
-      object.kinematics.initial_pose_with_covariance.pose.position,
-      object.kinematics.initial_pose_with_covariance.pose.orientation,
-      object.classification);
+      object.shape, object.kinematics.initial_pose_with_covariance.pose.position,
+      object.kinematics.initial_pose_with_covariance.pose.orientation, object.classification);
     if (shape_marker) {
       auto shape_marker_ptr = shape_marker.get();
       shape_marker_ptr->header = msg->header;
@@ -46,8 +43,7 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
     // Get marker for label
     auto label_marker = get_label_marker_ptr(
       object.kinematics.initial_pose_with_covariance.pose.position,
-      object.kinematics.initial_pose_with_covariance.pose.orientation,
-      object.classification);
+      object.kinematics.initial_pose_with_covariance.pose.orientation, object.classification);
     if (label_marker) {
       auto label_marker_ptr = label_marker.get();
       label_marker_ptr->header = msg->header;
@@ -61,10 +57,8 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
     uuid_vis_position.y = object.kinematics.initial_pose_with_covariance.pose.position.y;
     uuid_vis_position.z = object.kinematics.initial_pose_with_covariance.pose.position.z - 0.5;
 
-    auto id_marker = get_uuid_marker_ptr(
-      object.object_id,
-      uuid_vis_position,
-      object.classification);
+    auto id_marker =
+      get_uuid_marker_ptr(object.object_id, uuid_vis_position, object.classification);
     if (id_marker) {
       auto id_marker_ptr = id_marker.get();
       id_marker_ptr->header = msg->header;
@@ -73,8 +67,8 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
     }
 
     // Get marker for pose with covariance
-    auto pose_with_covariance_marker = get_pose_with_covariance_marker_ptr(
-      object.kinematics.initial_pose_with_covariance);
+    auto pose_with_covariance_marker =
+      get_pose_with_covariance_marker_ptr(object.kinematics.initial_pose_with_covariance);
     if (pose_with_covariance_marker) {
       auto pose_with_covariance_marker_ptr = pose_with_covariance_marker.get();
       pose_with_covariance_marker_ptr->header = msg->header;
@@ -88,8 +82,7 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
     vel_vis_position.y = uuid_vis_position.y;
     vel_vis_position.z = uuid_vis_position.z - 0.5;
     auto velocity_text_marker = get_velocity_text_marker_ptr(
-      object.kinematics.initial_twist_with_covariance.twist,
-      vel_vis_position,
+      object.kinematics.initial_twist_with_covariance.twist, vel_vis_position,
       object.classification);
     if (velocity_text_marker) {
       auto velocity_text_marker_ptr = velocity_text_marker.get();
@@ -112,10 +105,8 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
     // Add marker for each candidated path
     for (const auto & predicted_path : object.kinematics.predicted_paths) {
       // Get marker for predicted path
-      auto predicted_path_marker = get_predicted_path_marker_ptr(
-        object.object_id,
-        object.shape,
-        predicted_path);
+      auto predicted_path_marker =
+        get_predicted_path_marker_ptr(object.object_id, object.shape, predicted_path);
       if (predicted_path_marker) {
         auto predicted_path_marker_ptr = predicted_path_marker.get();
         predicted_path_marker_ptr->header = msg->header;
@@ -129,9 +120,8 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
       if (predicted_path.path.empty()) {
         continue;
       }
-      auto path_confidence_marker = get_path_confidence_marker_ptr(
-        object.object_id,
-        predicted_path);
+      auto path_confidence_marker =
+        get_path_confidence_marker_ptr(object.object_id, predicted_path);
       if (path_confidence_marker) {
         auto path_confidence_marker_ptr = path_confidence_marker.get();
         path_confidence_marker_ptr->header = msg->header;
@@ -149,5 +139,4 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
 // Export the plugin
 #include <pluginlib/class_list_macros.hpp>  // NOLINT
 PLUGINLIB_EXPORT_CLASS(
-  autoware::rviz_plugins::object_detection::PredictedObjectsDisplay,
-  rviz_common::Display)
+  autoware::rviz_plugins::object_detection::PredictedObjectsDisplay, rviz_common::Display)

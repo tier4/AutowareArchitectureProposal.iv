@@ -14,8 +14,6 @@
 #ifndef OBJECT_DETECTION__OBJECT_POLYGON_DISPLAY_BASE_HPP_
 #define OBJECT_DETECTION__OBJECT_POLYGON_DISPLAY_BASE_HPP_
 
-#include <autoware_auto_perception_msgs/msg/object_classification.hpp>
-#include <boost/optional.hpp>
 #include <common/color_alpha_property.hpp>
 #include <object_detection/object_polygon_detail.hpp>
 #include <rviz_common/display.hpp>
@@ -23,13 +21,18 @@
 #include <rviz_common/properties/float_property.hpp>
 #include <rviz_default_plugins/displays/marker/marker_common.hpp>
 #include <rviz_default_plugins/displays/marker_array/marker_array_display.hpp>
-#include <unique_identifier_msgs/msg/uuid.hpp>
 #include <visibility_control.hpp>
+
+#include <autoware_auto_perception_msgs/msg/object_classification.hpp>
+#include <unique_identifier_msgs/msg/uuid.hpp>
+
+#include <boost/optional.hpp>
 
 #include <list>
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace autoware
 {
@@ -41,9 +44,9 @@ namespace object_detection
 ///        for the plugin and also defines common helper functions that can be used by its derived
 ///        classes.
 /// \tparam MsgT PredictedObjects or TrackedObjects or DetectedObjects type
-template<typename MsgT>
+template <typename MsgT>
 class AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC ObjectPolygonDisplayBase
-  : public rviz_common::RosTopicDisplay<MsgT>
+: public rviz_common::RosTopicDisplay<MsgT>
 {
 public:
   using Color = std::array<float, 3U>;
@@ -52,51 +55,26 @@ public:
   using ObjectClassificationMsg = autoware_auto_perception_msgs::msg::ObjectClassification;
   using RosTopicDisplay = rviz_common::RosTopicDisplay<MsgT>;
 
-  using PolygonPropertyMap = std::unordered_map<ObjectClassificationMsg::_label_type,
-      common::ColorAlphaProperty>;
+  using PolygonPropertyMap =
+    std::unordered_map<ObjectClassificationMsg::_label_type, common::ColorAlphaProperty>;
 
   explicit ObjectPolygonDisplayBase(const std::string & default_topic)
   : m_marker_common(this),
     m_display_3d_property{
-      "Display 3d polygon",
-      true,
-      "Enable/disable height visualization of the polygon", this
-    },
-    m_display_label_property{
-      "Display Label",
-      true,
-      "Enable/disable label visualization", this
-    },
-    m_display_uuid_property{
-      "Display UUID",
-      true,
-      "Enable/disable uuid visualization", this
-    },
+      "Display 3d polygon", true, "Enable/disable height visualization of the polygon", this},
+    m_display_label_property{"Display Label", true, "Enable/disable label visualization", this},
+    m_display_uuid_property{"Display UUID", true, "Enable/disable uuid visualization", this},
     m_display_pose_with_covariance_property{
-      "Display PoseWithCovariance",
-      true,
-      "Enable/disable pose with covariance visualization", this
-    },
+      "Display PoseWithCovariance", true, "Enable/disable pose with covariance visualization",
+      this},
     m_display_velocity_text_property{
-      "Display Velocity",
-      true,
-      "Enable/disable velocity text visualization", this
-    },
-    m_display_twist_property{
-      "Display Twist",
-      true,
-      "Enable/disable twist visualization", this
-    },
+      "Display Velocity", true, "Enable/disable velocity text visualization", this},
+    m_display_twist_property{"Display Twist", true, "Enable/disable twist visualization", this},
     m_display_predicted_paths_property{
-      "Display Predicted Paths",
-      true,
-      "Enable/disable predicted paths visualization", this
-    },
+      "Display Predicted Paths", true, "Enable/disable predicted paths visualization", this},
     m_display_path_confidence_property{
-      "Display Predicted Path Confidence",
-      true,
-      "Enable/disable predicted paths visualization", this
-    },
+      "Display Predicted Path Confidence", true, "Enable/disable predicted paths visualization",
+      this},
     m_default_topic{default_topic}
   {
     // iterate over default values to create and initialize the properties.
@@ -111,11 +89,9 @@ public:
       // Associate a color and opacity property for the given class and attach them to the
       // parent property of the class so they can have a drop down view from the label property:
       m_polygon_properties.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(map_property_it.first),
+        std::piecewise_construct, std::forward_as_tuple(map_property_it.first),
         std::forward_as_tuple(
-          QColor{color[0], color[1], color[2]}, class_property_values.alpha,
-          &parent_property));
+          QColor{color[0], color[1], color[2]}, class_property_values.alpha, &parent_property));
     }
     initColorList(predicted_path_colors);
   }
@@ -134,10 +110,7 @@ public:
     m_marker_common.load(config);
   }
 
-  void update(float wall_dt, float ros_dt) override
-  {
-    m_marker_common.update(wall_dt, ros_dt);
-  }
+  void update(float wall_dt, float ros_dt) override { m_marker_common.update(wall_dt, ros_dt); }
 
   void reset() override
   {
@@ -145,10 +118,7 @@ public:
     m_marker_common.clearMarkers();
   }
 
-  void clear_markers()
-  {
-    m_marker_common.clearMarkers();
-  }
+  void clear_markers() { m_marker_common.clearMarkers(); }
 
   void add_marker(visualization_msgs::msg::Marker::ConstSharedPtr marker_ptr)
   {
@@ -163,13 +133,11 @@ protected:
   /// \param orientation Orientation of the shape in Object.header.frame_id frame
   /// \param labels List of ObjectClassificationMsg objects
   /// \return Marker ptr. Id and header will have to be set by the caller
-  template<typename ClassificationContainerT>
+  template <typename ClassificationContainerT>
   boost::optional<Marker::SharedPtr> get_shape_marker_ptr(
     const autoware_auto_perception_msgs::msg::Shape & shape_msg,
-    const geometry_msgs::msg::Point & centroid,
-    const geometry_msgs::msg::Quaternion & orientation,
-    const ClassificationContainerT & labels)
-  const
+    const geometry_msgs::msg::Point & centroid, const geometry_msgs::msg::Quaternion & orientation,
+    const ClassificationContainerT & labels) const
   {
     const std_msgs::msg::ColorRGBA color_rgba = get_color_rgba(labels);
 
@@ -185,12 +153,10 @@ protected:
   /// \param centroid Centroid position of the shape in Object.header.frame_id frame
   /// \param labels List of ObjectClassificationMsg objects
   /// \return Marker ptr. Id and header will have to be set by the caller
-  template<typename ClassificationContainerT>
+  template <typename ClassificationContainerT>
   boost::optional<Marker::SharedPtr> get_label_marker_ptr(
-    const geometry_msgs::msg::Point & centroid,
-    const geometry_msgs::msg::Quaternion & orientation,
-    const ClassificationContainerT & labels)
-  const
+    const geometry_msgs::msg::Point & centroid, const geometry_msgs::msg::Quaternion & orientation,
+    const ClassificationContainerT & labels) const
   {
     if (m_display_label_property.getBool()) {
       const std::string label = get_best_label(labels);
@@ -205,12 +171,10 @@ protected:
   /// \tparam todo
   /// \param todo
   /// \return todo
-  template<typename ClassificationContainerT>
+  template <typename ClassificationContainerT>
   boost::optional<Marker::SharedPtr> get_uuid_marker_ptr(
-    const unique_identifier_msgs::msg::UUID & uuid,
-    const geometry_msgs::msg::Point & centroid,
-    const ClassificationContainerT & labels)
-  const
+    const unique_identifier_msgs::msg::UUID & uuid, const geometry_msgs::msg::Point & centroid,
+    const ClassificationContainerT & labels) const
   {
     if (m_display_uuid_property.getBool()) {
       const std_msgs::msg::ColorRGBA color_rgba = get_color_rgba(labels);
@@ -225,9 +189,8 @@ protected:
   /// \tparam todo
   /// \param todo
   /// \return todo
-    boost::optional<Marker::SharedPtr> get_pose_with_covariance_marker_ptr(
-    const geometry_msgs::msg::PoseWithCovariance & pose_with_covariance)
-  const
+  boost::optional<Marker::SharedPtr> get_pose_with_covariance_marker_ptr(
+    const geometry_msgs::msg::PoseWithCovariance & pose_with_covariance) const
   {
     if (m_display_pose_with_covariance_property.getBool()) {
       return detail::get_pose_with_covariance_marker_ptr(pose_with_covariance);
@@ -240,12 +203,10 @@ protected:
   /// \tparam todo
   /// \param todo
   /// \return todo
-  template<typename ClassificationContainerT>
+  template <typename ClassificationContainerT>
   boost::optional<Marker::SharedPtr> get_velocity_text_marker_ptr(
-    const geometry_msgs::msg::Twist & twist,
-    const geometry_msgs::msg::Point & vis_pos,
-    const ClassificationContainerT & labels)
-  const
+    const geometry_msgs::msg::Twist & twist, const geometry_msgs::msg::Point & vis_pos,
+    const ClassificationContainerT & labels) const
   {
     if (m_display_velocity_text_property.getBool()) {
       const std_msgs::msg::ColorRGBA color_rgba = get_color_rgba(labels);
@@ -261,8 +222,7 @@ protected:
   /// \return todo
   boost::optional<Marker::SharedPtr> get_twist_marker_ptr(
     const geometry_msgs::msg::PoseWithCovariance & pose_with_covariance,
-    const geometry_msgs::msg::TwistWithCovariance & twist_with_covariance)
-  const
+    const geometry_msgs::msg::TwistWithCovariance & twist_with_covariance) const
   {
     if (m_display_twist_property.getBool()) {
       return detail::get_twist_marker_ptr(pose_with_covariance, twist_with_covariance);
@@ -278,8 +238,7 @@ protected:
   boost::optional<Marker::SharedPtr> get_predicted_path_marker_ptr(
     const unique_identifier_msgs::msg::UUID & uuid,
     const autoware_auto_perception_msgs::msg::Shape & shape,
-    const autoware_auto_perception_msgs::msg::PredictedPath & predicted_path)
-  const
+    const autoware_auto_perception_msgs::msg::PredictedPath & predicted_path) const
   {
     if (m_display_predicted_paths_property.getBool()) {
       const std::string uuid_str = uuid_to_string(uuid);
@@ -296,8 +255,7 @@ protected:
   /// \return todo
   boost::optional<Marker::SharedPtr> get_path_confidence_marker_ptr(
     const unique_identifier_msgs::msg::UUID & uuid,
-    const autoware_auto_perception_msgs::msg::PredictedPath & predicted_path)
-  const
+    const autoware_auto_perception_msgs::msg::PredictedPath & predicted_path) const
   {
     if (m_display_path_confidence_property.getBool()) {
       const std::string uuid_str = uuid_to_string(uuid);
@@ -313,7 +271,7 @@ protected:
   /// \param labels list of classifications
   /// \return Color and alpha for the best class in the given list. Unknown class is used in
   ///         degenerate cases
-  template<typename ClassificationContainerT>
+  template <typename ClassificationContainerT>
   std_msgs::msg::ColorRGBA get_color_rgba(const ClassificationContainerT & labels) const
   {
     static const std::string kLoggerName("ObjectPolygonDisplayBase");
@@ -329,7 +287,7 @@ protected:
   /// \tparam ClassificationContainerT Container of ObjectClassification
   /// \param labels list of classifications
   /// \return best label string
-  template<typename ClassificationContainerT>
+  template <typename ClassificationContainerT>
   std::string get_best_label(const ClassificationContainerT & labels) const
   {
     static const std::string kLoggerName("ObjectPolygonDisplayBase");
@@ -358,7 +316,8 @@ protected:
   /// \param todo
   /// \param todo
   /// \return todo
-  std_msgs::msg::ColorRGBA AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC getColorFromUUID(const std::string & uuid) const
+  std_msgs::msg::ColorRGBA AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC
+  getColorFromUUID(const std::string & uuid) const
   {
     int i = (static_cast<int>(uuid.at(0)) * 4 + static_cast<int>(uuid.at(1))) %
             static_cast<int>(predicted_path_colors.size());
@@ -409,8 +368,7 @@ protected:
     sample_color.g = 1.0;
     sample_color.b = 0.5;
     colors.push_back(sample_color);  // spring green
-}
-
+  }
 
 private:
   // All rviz plugins should have this. Should be initialized with pointer to this class
@@ -444,4 +402,4 @@ private:
 }  // namespace rviz_plugins
 }  // namespace autoware
 
-#endif   // OBJECT_DETECTION__OBJECT_POLYGON_DISPLAY_BASE_HPP_
+#endif  // OBJECT_DETECTION__OBJECT_POLYGON_DISPLAY_BASE_HPP_

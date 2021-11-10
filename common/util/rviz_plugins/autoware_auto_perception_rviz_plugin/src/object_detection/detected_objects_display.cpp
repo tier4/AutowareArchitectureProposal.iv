@@ -24,8 +24,7 @@ namespace rviz_plugins
 {
 namespace object_detection
 {
-DetectedObjectsDisplay::DetectedObjectsDisplay()
-: ObjectPolygonDisplayBase("detected_objects") {}
+DetectedObjectsDisplay::DetectedObjectsDisplay() : ObjectPolygonDisplayBase("detected_objects") {}
 
 void DetectedObjectsDisplay::processMessage(DetectedObjects::ConstSharedPtr msg)
 {
@@ -34,10 +33,8 @@ void DetectedObjectsDisplay::processMessage(DetectedObjects::ConstSharedPtr msg)
   for (const auto & object : msg->objects) {
     // Get marker for shape
     auto shape_marker = get_shape_marker_ptr(
-      object.shape,
-      object.kinematics.pose_with_covariance.pose.position,
-      object.kinematics.pose_with_covariance.pose.orientation,
-      object.classification);
+      object.shape, object.kinematics.pose_with_covariance.pose.position,
+      object.kinematics.pose_with_covariance.pose.orientation, object.classification);
     if (shape_marker) {
       auto shape_marker_ptr = shape_marker.get();
       shape_marker_ptr->header = msg->header;
@@ -48,8 +45,7 @@ void DetectedObjectsDisplay::processMessage(DetectedObjects::ConstSharedPtr msg)
     // Get marker for label
     auto label_marker = get_label_marker_ptr(
       object.kinematics.pose_with_covariance.pose.position,
-      object.kinematics.pose_with_covariance.pose.orientation,
-      object.classification);
+      object.kinematics.pose_with_covariance.pose.orientation, object.classification);
     if (label_marker) {
       auto label_marker_ptr = label_marker.get();
       label_marker_ptr->header = msg->header;
@@ -66,5 +62,4 @@ void DetectedObjectsDisplay::processMessage(DetectedObjects::ConstSharedPtr msg)
 // Export the plugin
 #include <pluginlib/class_list_macros.hpp>  // NOLINT
 PLUGINLIB_EXPORT_CLASS(
-  autoware::rviz_plugins::object_detection::DetectedObjectsDisplay,
-  rviz_common::Display)
+  autoware::rviz_plugins::object_detection::DetectedObjectsDisplay, rviz_common::Display)

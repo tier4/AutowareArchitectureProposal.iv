@@ -14,8 +14,9 @@
 #ifndef OBJECT_DETECTION__PREDICTED_OBJECTS_DISPLAY_HPP_
 #define OBJECT_DETECTION__PREDICTED_OBJECTS_DISPLAY_HPP_
 
-#include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
 #include <object_detection/object_polygon_display_base.hpp>
+
+#include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
 
 namespace autoware
 {
@@ -25,7 +26,7 @@ namespace object_detection
 {
 /// \brief Class defining rviz plugin to visualize PredictedObjects
 class AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC PredictedObjectsDisplay
-  : public ObjectPolygonDisplayBase<autoware_auto_perception_msgs::msg::PredictedObjects>
+: public ObjectPolygonDisplayBase<autoware_auto_perception_msgs::msg::PredictedObjects>
 {
   Q_OBJECT
 

@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License..
 
-#include <geometry_msgs/msg/transform_stamped.hpp>
-#include <object_detection/object_polygon_detail.hpp>
-
-#include <memory>
-#include <cmath>
 #include <Eigen/Core>
 #include <Eigen/Eigen>
+#include <object_detection/object_polygon_detail.hpp>
+
+#include <geometry_msgs/msg/transform_stamped.hpp>
+
+#include <cmath>
+#include <memory>
 
 namespace autoware
 {
@@ -28,7 +29,6 @@ namespace object_detection
 {
 namespace detail
 {
-
 using Marker = visualization_msgs::msg::Marker;
 
 visualization_msgs::msg::Marker::SharedPtr get_path_confidence_marker_ptr(
@@ -107,8 +107,7 @@ visualization_msgs::msg::Marker::SharedPtr get_twist_marker_ptr(
 }
 
 visualization_msgs::msg::Marker::SharedPtr get_velocity_text_marker_ptr(
-  const geometry_msgs::msg::Twist & twist,
-  const geometry_msgs::msg::Point & vis_pos,
+  const geometry_msgs::msg::Twist & twist, const geometry_msgs::msg::Point & vis_pos,
   const std_msgs::msg::ColorRGBA & color_rgba)
 {
   auto marker_ptr = std::make_shared<Marker>();
@@ -117,9 +116,9 @@ visualization_msgs::msg::Marker::SharedPtr get_velocity_text_marker_ptr(
   marker_ptr->scale.x = 0.5;
   marker_ptr->scale.z = 0.5;
 
-  double vel = std::sqrt(twist.linear.x * twist.linear.x +
-                         twist.linear.y * twist.linear.y +
-                         twist.linear.z * twist.linear.z);
+  double vel = std::sqrt(
+    twist.linear.x * twist.linear.x + twist.linear.y * twist.linear.y +
+    twist.linear.z * twist.linear.z);
   marker_ptr->text = std::to_string(static_cast<int>(vel * 3.6)) + std::string("[km/h]");
   marker_ptr->action = visualization_msgs::msg::Marker::MODIFY;
   marker_ptr->pose.position = vis_pos;
@@ -144,8 +143,7 @@ visualization_msgs::msg::Marker::SharedPtr get_pose_with_covariance_marker_ptr(
   geometry_msgs::msg::Point point;
   Eigen::Matrix2d eigen_pose_with_covariance;
   eigen_pose_with_covariance << pose_with_covariance.covariance[0],
-    pose_with_covariance.covariance[1],
-    pose_with_covariance.covariance[6],
+    pose_with_covariance.covariance[1], pose_with_covariance.covariance[6],
     pose_with_covariance.covariance[7];
   Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d> solver(eigen_pose_with_covariance);
   double sigma1 = 2.448 * std::sqrt(solver.eigenvalues().x());  // 2.448 sigma is 95%
@@ -177,8 +175,7 @@ visualization_msgs::msg::Marker::SharedPtr get_pose_with_covariance_marker_ptr(
 }
 
 visualization_msgs::msg::Marker::SharedPtr get_uuid_marker_ptr(
-  const std::string & uuid,
-  const geometry_msgs::msg::Point & centroid,
+  const std::string & uuid, const geometry_msgs::msg::Point & centroid,
   const std_msgs::msg::ColorRGBA & color_rgba)
 {
   auto marker_ptr = std::make_shared<Marker>();
@@ -192,10 +189,8 @@ visualization_msgs::msg::Marker::SharedPtr get_uuid_marker_ptr(
 }
 
 visualization_msgs::msg::Marker::SharedPtr get_label_marker_ptr(
-  const geometry_msgs::msg::Point & centroid,
-  const geometry_msgs::msg::Quaternion & orientation,
-  const std::string label,
-  const std_msgs::msg::ColorRGBA & color_rgba)
+  const geometry_msgs::msg::Point & centroid, const geometry_msgs::msg::Quaternion & orientation,
+  const std::string label, const std_msgs::msg::ColorRGBA & color_rgba)
 {
   auto marker_ptr = std::make_shared<Marker>();
   marker_ptr->type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
@@ -212,8 +207,7 @@ visualization_msgs::msg::Marker::SharedPtr get_label_marker_ptr(
 
 visualization_msgs::msg::Marker::SharedPtr get_shape_marker_ptr(
   const autoware_auto_perception_msgs::msg::Shape & shape_msg,
-  const geometry_msgs::msg::Point & centroid,
-  const geometry_msgs::msg::Quaternion & orientation,
+  const geometry_msgs::msg::Point & centroid, const geometry_msgs::msg::Quaternion & orientation,
   const std_msgs::msg::ColorRGBA & color_rgba)
 {
   auto marker_ptr = std::make_shared<Marker>();
@@ -440,8 +434,9 @@ void calcPolygonLineList(
   std::vector<geometry_msgs::msg::Point> & points)
 {
   if (shape.footprint.points.size() < 2) {
-    RCLCPP_WARN(rclcpp::get_logger("ObjectPolygonDisplayBase"),
-    "there are no enough footprint to visualize polygon");
+    RCLCPP_WARN(
+      rclcpp::get_logger("ObjectPolygonDisplayBase"),
+      "there are no enough footprint to visualize polygon");
     return;
   }
   for (size_t i = 0; i < shape.footprint.points.size(); ++i) {
