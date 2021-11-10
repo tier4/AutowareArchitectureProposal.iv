@@ -39,98 +39,98 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   using std::placeholders::_1;
 
   // parameters timer
-  m_control_rate = declare_parameter("control_rate").get<float64_t>();
+  m_control_rate = declare_parameter<float64_t>("control_rate");
 
-  const float64_t cog_to_rear_axle = declare_parameter("vehicle.cg_to_rear_m").get<float64_t>();
-  const float64_t cog_to_front_axle = declare_parameter("vehicle.cg_to_front_m").get<float64_t>();
+  const float64_t cog_to_rear_axle = declare_parameter<float64_t>("vehicle.cg_to_rear_m");
+  const float64_t cog_to_front_axle = declare_parameter<float64_t>("vehicle.cg_to_front_m");
   m_wheel_base = cog_to_rear_axle + cog_to_front_axle;
 
   // parameters for delay compensation
-  m_delay_compensation_time = declare_parameter("delay_compensation_time").get<float64_t>();  // [s]
+  m_delay_compensation_time = declare_parameter<float64_t>("delay_compensation_time");  // [s]
 
   // parameters to enable functions
-  m_enable_smooth_stop = declare_parameter("enable_smooth_stop").get<bool8_t>();
-  m_enable_overshoot_emergency = declare_parameter("enable_overshoot_emergency").get<bool8_t>();
-  m_enable_slope_compensation = declare_parameter("enable_slope_compensation").get<bool8_t>();
+  m_enable_smooth_stop = declare_parameter<float64_t>("enable_smooth_stop");
+  m_enable_overshoot_emergency = declare_parameter<float64_t>("enable_overshoot_emergency");
+  m_enable_slope_compensation = declare_parameter<float64_t>("enable_slope_compensation");
 
   // parameters for state transition
   {
     auto & p = m_state_transition_params;
     // drive
-    p.drive_state_stop_dist = declare_parameter("drive_state_stop_dist").get<float64_t>();  // [m]
-    p.drive_state_offset_stop_dist = declare_parameter(
-      "drive_state_offset_stop_dist").get<float64_t>();  // [m]
+    p.drive_state_stop_dist = declare_parameter<float64_t>("drive_state_stop_dist");  // [m]
+    p.drive_state_offset_stop_dist = declare_parameter<float64_t>(
+      "drive_state_offset_stop_dist");  // [m]
     // stopping
     p.stopping_state_stop_dist =
-      declare_parameter("stopping_state_stop_dist").get<float64_t>();  // [m]
+      declare_parameter<float64_t>("stopping_state_stop_dist");  // [m]
     // stop
     p.stopped_state_entry_vel =
-      declare_parameter("stopped_state_entry_vel").get<float64_t>();  // [m/s]
+      declare_parameter<float64_t>("stopped_state_entry_vel");  // [m/s]
     p.stopped_state_entry_acc =
-      declare_parameter("stopped_state_entry_acc").get<float64_t>();  // [m/s²]
+      declare_parameter<float64_t>("stopped_state_entry_acc");  // [m/s²]
     // emergency
-    p.emergency_state_overshoot_stop_dist = declare_parameter(
-      "emergency_state_overshoot_stop_dist").get<float64_t>();  // [m]
-    p.emergency_state_traj_trans_dev = declare_parameter(
-      "emergency_state_traj_trans_dev").get<float64_t>();  // [m]
-    p.emergency_state_traj_rot_dev = declare_parameter(
-      "emergency_state_traj_rot_dev").get<float64_t>();  // [m]
+    p.emergency_state_overshoot_stop_dist = declare_parameter<float64_t>(
+      "emergency_state_overshoot_stop_dist");  // [m]
+    p.emergency_state_traj_trans_dev = declare_parameter<float64_t>(
+      "emergency_state_traj_trans_dev");  // [m]
+    p.emergency_state_traj_rot_dev = declare_parameter<float64_t>(
+      "emergency_state_traj_rot_dev");  // [m]
   }
 
   // parameters for drive state
   {
     // initialize PID gain
-    const float64_t kp{declare_parameter("kp").get<float64_t>()};
-    const float64_t ki{declare_parameter("ki").get<float64_t>()};
-    const float64_t kd{declare_parameter("kd").get<float64_t>()};
+    const float64_t kp{declare_parameter<float64_t>("kp")};
+    const float64_t ki{declare_parameter<float64_t>("ki")};
+    const float64_t kd{declare_parameter<float64_t>("kd")};
     m_pid_vel.setGains(kp, ki, kd);
 
     // initialize PID limits
-    const float64_t max_pid{declare_parameter("max_out").get<float64_t>()};     // [m/s^2]
-    const float64_t min_pid{declare_parameter("min_out").get<float64_t>()};     // [m/s^2]
-    const float64_t max_p{declare_parameter("max_p_effort").get<float64_t>()};  // [m/s^2]
-    const float64_t min_p{declare_parameter("min_p_effort").get<float64_t>()};  // [m/s^2]
-    const float64_t max_i{declare_parameter("max_i_effort").get<float64_t>()};  // [m/s^2]
-    const float64_t min_i{declare_parameter("min_i_effort").get<float64_t>()};  // [m/s^2]
-    const float64_t max_d{declare_parameter("max_d_effort").get<float64_t>()};  // [m/s^2]
-    const float64_t min_d{declare_parameter("min_d_effort").get<float64_t>()};  // [m/s^2]
+    const float64_t max_pid{declare_parameter<float64_t>("max_out")};     // [m/s^2]
+    const float64_t min_pid{declare_parameter<float64_t>("min_out")};     // [m/s^2]
+    const float64_t max_p{declare_parameter<float64_t>("max_p_effort")};  // [m/s^2]
+    const float64_t min_p{declare_parameter<float64_t>("min_p_effort")};  // [m/s^2]
+    const float64_t max_i{declare_parameter<float64_t>("max_i_effort")};  // [m/s^2]
+    const float64_t min_i{declare_parameter<float64_t>("min_i_effort")};  // [m/s^2]
+    const float64_t max_d{declare_parameter<float64_t>("max_d_effort")};  // [m/s^2]
+    const float64_t min_d{declare_parameter<float64_t>("min_d_effort")};  // [m/s^2]
     m_pid_vel.setLimits(max_pid, min_pid, max_p, min_p, max_i, min_i, max_d, min_d);
 
     // set lowpass filter for vel error and pitch
-    const float64_t lpf_vel_error_gain{declare_parameter("lpf_vel_error_gain").get<float64_t>()};
+    const float64_t lpf_vel_error_gain{declare_parameter<float64_t>("lpf_vel_error_gain")};
     m_lpf_vel_error =
       std::make_shared<trajectory_follower::LowpassFilter1d>(0.0, lpf_vel_error_gain);
 
-    m_current_vel_threshold_pid_integrate = declare_parameter(
-      "current_vel_threshold_pid_integration").get<float64_t>();  // [m/s]
+    m_current_vel_threshold_pid_integrate = declare_parameter<float64_t>(
+      "current_vel_threshold_pid_integration");  // [m/s]
   }
 
   // parameters for smooth stop state
   {
-    const float64_t max_strong_acc{declare_parameter(
-        "smooth_stop_max_strong_acc").get<float64_t>()};         // [m/s^2]
-    const float64_t min_strong_acc{declare_parameter(
-        "smooth_stop_min_strong_acc").get<float64_t>()};         // [m/s^2]
-    const float64_t weak_acc{declare_parameter(
-        "smooth_stop_weak_acc").get<float64_t>()};               // [m/s^2]
-    const float64_t weak_stop_acc{declare_parameter(
-        "smooth_stop_weak_stop_acc").get<float64_t>()};          // [m/s^2]
-    const float64_t strong_stop_acc{declare_parameter(
-        "smooth_stop_strong_stop_acc").get<float64_t>()};        // [m/s^2]
+    const float64_t max_strong_acc{declare_parameter<float64_t>(
+        "smooth_stop_max_strong_acc")};         // [m/s^2]
+    const float64_t min_strong_acc{declare_parameter<float64_t>(
+        "smooth_stop_min_strong_acc")};         // [m/s^2]
+    const float64_t weak_acc{declare_parameter<float64_t>(
+        "smooth_stop_weak_acc")};               // [m/s^2]
+    const float64_t weak_stop_acc{declare_parameter<float64_t>(
+        "smooth_stop_weak_stop_acc")};          // [m/s^2]
+    const float64_t strong_stop_acc{declare_parameter<float64_t>(
+        "smooth_stop_strong_stop_acc")};        // [m/s^2]
 
-    const float64_t max_fast_vel{declare_parameter(
-        "smooth_stop_max_fast_vel").get<float64_t>()};            // [m/s]
-    const float64_t min_running_vel{declare_parameter(
-        "smooth_stop_min_running_vel").get<float64_t>()};        // [m/s]
-    const float64_t min_running_acc{declare_parameter(
-        "smooth_stop_min_running_acc").get<float64_t>()};        // [m/s^2]
-    const float64_t weak_stop_time{declare_parameter(
-        "smooth_stop_weak_stop_time").get<float64_t>()};          // [s]
+    const float64_t max_fast_vel{declare_parameter<float64_t>(
+        "smooth_stop_max_fast_vel")};            // [m/s]
+    const float64_t min_running_vel{declare_parameter<float64_t>(
+        "smooth_stop_min_running_vel")};        // [m/s]
+    const float64_t min_running_acc{declare_parameter<float64_t>(
+        "smooth_stop_min_running_acc")};        // [m/s^2]
+    const float64_t weak_stop_time{declare_parameter<float64_t>(
+        "smooth_stop_weak_stop_time")};          // [s]
 
-    const float64_t weak_stop_dist{declare_parameter(
-        "smooth_stop_weak_stop_dist").get<float64_t>()};         // [m]
-    const float64_t strong_stop_dist{declare_parameter(
-        "smooth_stop_strong_stop_dist").get<float64_t>()};       // [m]
+    const float64_t weak_stop_dist{declare_parameter<float64_t>(
+        "smooth_stop_weak_stop_dist")};         // [m]
+    const float64_t strong_stop_dist{declare_parameter<float64_t>(
+        "smooth_stop_strong_stop_dist")};       // [m]
 
     m_smooth_stop.setParams(
       max_strong_acc, min_strong_acc, weak_acc, weak_stop_acc, strong_stop_acc, max_fast_vel,
@@ -140,33 +140,33 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   // parameters for stop state
   {
     auto & p = m_stopped_state_params;
-    p.vel = declare_parameter("stopped_vel").get<float64_t>();   // [m/s]
-    p.acc = declare_parameter("stopped_acc").get<float64_t>();  // [m/s^2]
-    p.jerk = declare_parameter("stopped_jerk").get<float64_t>();  // [m/s^3]
+    p.vel = declare_parameter<float64_t>("stopped_vel");   // [m/s]
+    p.acc = declare_parameter<float64_t>("stopped_acc");  // [m/s^2]
+    p.jerk = declare_parameter<float64_t>("stopped_jerk");  // [m/s^3]
   }
 
   // parameters for emergency state
   {
     auto & p = m_emergency_state_params;
-    p.vel = declare_parameter("emergency_vel").get<float64_t>();     // [m/s]
-    p.acc = declare_parameter("emergency_acc").get<float64_t>();    // [m/s^2]
-    p.jerk = declare_parameter("emergency_jerk").get<float64_t>();  // [m/s^3]
+    p.vel = declare_parameter<float64_t>("emergency_vel");     // [m/s]
+    p.acc = declare_parameter<float64_t>("emergency_acc");    // [m/s^2]
+    p.jerk = declare_parameter<float64_t>("emergency_jerk");  // [m/s^3]
   }
 
   // parameters for acceleration limit
-  m_max_acc = declare_parameter("max_acc").get<float64_t>();   // [m/s^2]
-  m_min_acc = declare_parameter("min_acc").get<float64_t>();  // [m/s^2]
+  m_max_acc = declare_parameter<float64_t>("max_acc");   // [m/s^2]
+  m_min_acc = declare_parameter<float64_t>("min_acc");  // [m/s^2]
 
   // parameters for jerk limit
-  m_max_jerk = declare_parameter("max_jerk").get<float64_t>();   // [m/s^3]
-  m_min_jerk = declare_parameter("min_jerk").get<float64_t>();  // [m/s^3]
+  m_max_jerk = declare_parameter<float64_t>("max_jerk");   // [m/s^3]
+  m_min_jerk = declare_parameter<float64_t>("min_jerk");  // [m/s^3]
 
   // parameters for slope compensation
-  m_use_traj_for_pitch = declare_parameter("use_trajectory_for_pitch_calculation").get<bool8_t>();
-  const float64_t lpf_pitch_gain{declare_parameter("lpf_pitch_gain").get<float64_t>()};
+  m_use_traj_for_pitch = declare_parameter<bool8_t>("use_trajectory_for_pitch_calculation");
+  const float64_t lpf_pitch_gain{declare_parameter<float64_t>("lpf_pitch_gain")};
   m_lpf_pitch = std::make_shared<trajectory_follower::LowpassFilter1d>(0.0, lpf_pitch_gain);
-  m_max_pitch_rad = declare_parameter("max_pitch_rad").get<float64_t>();   // [rad]
-  m_min_pitch_rad = declare_parameter("min_pitch_rad").get<float64_t>();  // [rad]
+  m_max_pitch_rad = declare_parameter<float64_t>("max_pitch_rad");   // [rad]
+  m_min_pitch_rad = declare_parameter<float64_t>("min_pitch_rad");  // [rad]
 
   // subscriber, publisher
   m_sub_current_state = create_subscription<autoware_auto_msgs::msg::VehicleKinematicState>(
