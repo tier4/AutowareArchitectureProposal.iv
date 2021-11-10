@@ -68,7 +68,7 @@ bool isRouteLooped(const autoware_auto_planning_msgs::msg::HADMapRoute & route_m
     for (auto itr = primitives.begin(); itr != primitives.end(); ++itr) {
       const auto next_itr = itr + 1;
       if (next_itr == primitives.end()) break;
-      if (std::any_of(next_itr, primitives.end(), [itr](auto p){ return p.id == itr->id; })) {
+      if (std::any_of(next_itr, primitives.end(), [itr](auto p) { return p.id == itr->id; })) {
         return true;
       }
     }
@@ -124,8 +124,9 @@ PathWithLaneId removeOverlappingPoints(const PathWithLaneId & input_path)
     constexpr double min_dist = 0.001;
     if (autoware_utils::calcDistance3d(filtered_path.points.back().point, pt.point) < min_dist) {
       filtered_path.points.back().lane_ids.push_back(pt.lane_ids.front());
-      filtered_path.points.back().point.longitudinal_velocity_mps =
-        std::min(pt.point.longitudinal_velocity_mps, filtered_path.points.back().point.longitudinal_velocity_mps);
+      filtered_path.points.back().point.longitudinal_velocity_mps = std::min(
+        pt.point.longitudinal_velocity_mps,
+        filtered_path.points.back().point.longitudinal_velocity_mps);
     } else {
       filtered_path.points.push_back(pt);
     }
@@ -166,10 +167,7 @@ std::string toString(const geometry_msgs::msg::Pose & pose)
 
 namespace route_handler
 {
-RouteHandler::RouteHandler(const HADMapBin & map_msg)
-{
-  setMap(map_msg);
-}
+RouteHandler::RouteHandler(const HADMapBin & map_msg) { setMap(map_msg); }
 
 void RouteHandler::setMap(const HADMapBin & map_msg)
 {
@@ -1280,16 +1278,16 @@ lanelet::ConstLanelets RouteHandler::getNextLaneSequence(
   return getLaneSequence(next_lanelet);
 }
 
-bool RouteHandler::planPathLaneletsBetweenCheckpoints(const Pose & start_checkpoint, const Pose & goal_checkpoint, lanelet::ConstLanelets * path_lanelets) const
+bool RouteHandler::planPathLaneletsBetweenCheckpoints(
+  const Pose & start_checkpoint, const Pose & goal_checkpoint,
+  lanelet::ConstLanelets * path_lanelets) const
 {
   lanelet::Lanelet start_lanelet;
-  if (!lanelet::utils::query::getClosestLanelet(
-        road_lanelets_, start_checkpoint, &start_lanelet)) {
+  if (!lanelet::utils::query::getClosestLanelet(road_lanelets_, start_checkpoint, &start_lanelet)) {
     return false;
   }
   lanelet::Lanelet goal_lanelet;
-  if (!lanelet::utils::query::getClosestLanelet(
-        road_lanelets_, goal_checkpoint, &goal_lanelet)) {
+  if (!lanelet::utils::query::getClosestLanelet(road_lanelets_, goal_checkpoint, &goal_lanelet)) {
     return false;
   }
 
@@ -1299,11 +1297,11 @@ bool RouteHandler::planPathLaneletsBetweenCheckpoints(const Pose & start_checkpo
   if (!optional_route) {
     RCLCPP_ERROR_STREAM(
       logger_, "Failed to find a proper path!"
-                      << std::endl
-                      << "start checkpoint: " << toString(start_checkpoint) << std::endl
-                      << "goal checkpoint: " << toString(goal_checkpoint) << std::endl
-                      << "start lane id: " << start_lanelet.id() << std::endl
-                      << "goal lane id: " << goal_lanelet.id() << std::endl);
+                 << std::endl
+                 << "start checkpoint: " << toString(start_checkpoint) << std::endl
+                 << "goal checkpoint: " << toString(goal_checkpoint) << std::endl
+                 << "start lane id: " << start_lanelet.id() << std::endl
+                 << "goal lane id: " << goal_lanelet.id() << std::endl);
     return false;
   }
 
@@ -1314,7 +1312,8 @@ bool RouteHandler::planPathLaneletsBetweenCheckpoints(const Pose & start_checkpo
   return true;
 }
 
-std::vector<HADMapSegment> RouteHandler::createMapSegments(const lanelet::ConstLanelets & path_lanelets) const
+std::vector<HADMapSegment> RouteHandler::createMapSegments(
+  const lanelet::ConstLanelets & path_lanelets) const
 {
   const auto main_path = getMainLanelets(path_lanelets);
 
@@ -1339,7 +1338,8 @@ std::vector<HADMapSegment> RouteHandler::createMapSegments(const lanelet::ConstL
   return route_sections;
 }
 
-lanelet::ConstLanelets RouteHandler::getMainLanelets(const lanelet::ConstLanelets & path_lanelets) const
+lanelet::ConstLanelets RouteHandler::getMainLanelets(
+  const lanelet::ConstLanelets & path_lanelets) const
 {
   auto lanelet_sequence = getLaneletSequence(path_lanelets.back());
   lanelet::ConstLanelets main_lanelets;

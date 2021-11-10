@@ -15,18 +15,17 @@
 #ifndef ROUTE_HANDLER__ROUTE_HANDLER_HPP_
 #define ROUTE_HANDLER__ROUTE_HANDLER_HPP_
 
+#include <autoware_utils/autoware_utils.hpp>
 #include <lanelet2_extension/utility/query.hpp>
 #include <rclcpp/rclcpp.hpp>
-
-#include <autoware_utils/autoware_utils.hpp>
 
 #include <autoware_auto_mapping_msgs/msg/had_map_bin.hpp>
 #include <autoware_auto_mapping_msgs/msg/had_map_segment.hpp>
 #include <autoware_auto_mapping_msgs/msg/map_primitive.hpp>
-#include <autoware_auto_planning_msgs/msg/path.hpp>
-#include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
-#include <autoware_auto_planning_msgs/msg/path_point_with_lane_id.hpp>
 #include <autoware_auto_planning_msgs/msg/had_map_route.hpp>
+#include <autoware_auto_planning_msgs/msg/path.hpp>
+#include <autoware_auto_planning_msgs/msg/path_point_with_lane_id.hpp>
+#include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 
 #include <lanelet2_routing/Route.h>
@@ -43,10 +42,10 @@ namespace route_handler
 {
 using autoware_auto_mapping_msgs::msg::HADMapBin;
 using autoware_auto_mapping_msgs::msg::HADMapSegment;
-using autoware_auto_planning_msgs::msg::Path;
-using autoware_auto_planning_msgs::msg::PathWithLaneId;
-using autoware_auto_planning_msgs::msg::PathPointWithLaneId;
 using autoware_auto_planning_msgs::msg::HADMapRoute;
+using autoware_auto_planning_msgs::msg::Path;
+using autoware_auto_planning_msgs::msg::PathPointWithLaneId;
+using autoware_auto_planning_msgs::msg::PathWithLaneId;
 using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::PoseStamped;
 using std_msgs::msg::Header;
@@ -59,7 +58,7 @@ class RouteHandler
 {
 public:
   RouteHandler() = default;
-  RouteHandler(const HADMapBin & map_msg);
+  explicit RouteHandler(const HADMapBin & map_msg);
 
   // non-const methods
   void setMap(const HADMapBin & map_msg);
@@ -76,7 +75,9 @@ public:
   lanelet::routing::RoutingGraphContainer getOverallGraph() const;
 
   // for routing
-  bool planPathLaneletsBetweenCheckpoints(const Pose & start_checkpoint, const Pose & goal_checkpoint, lanelet::ConstLanelets * path_lanelets) const;
+  bool planPathLaneletsBetweenCheckpoints(
+    const Pose & start_checkpoint, const Pose & goal_checkpoint,
+    lanelet::ConstLanelets * path_lanelets) const;
   std::vector<HADMapSegment> createMapSegments(const lanelet::ConstLanelets & path_lanelets) const;
 
   // for goal
@@ -95,10 +96,12 @@ public:
   lanelet::ConstLanelets getLaneletsFromIds(const lanelet::Ids ids) const;
   lanelet::ConstLanelets getLaneletSequence(
     const lanelet::ConstLanelet & lanelet,
-    const double backward_distance = std::numeric_limits<double>::max(), const double forward_distance = std::numeric_limits<double>::max()) const;
+    const double backward_distance = std::numeric_limits<double>::max(),
+    const double forward_distance = std::numeric_limits<double>::max()) const;
   lanelet::ConstLanelets getShoulderLaneletSequence(
     const lanelet::ConstLanelet & lanelet, const Pose & current_pose,
-    const double backward_distance = std::numeric_limits<double>::max(), const double forward_distance = std::numeric_limits<double>::max()) const;
+    const double backward_distance = std::numeric_limits<double>::max(),
+    const double forward_distance = std::numeric_limits<double>::max()) const;
   lanelet::ConstLanelets getCheckTargetLanesFromPath(
     const PathWithLaneId & path, const lanelet::ConstLanelets & target_lanes,
     const double check_length) const;
