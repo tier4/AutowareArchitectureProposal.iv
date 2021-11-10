@@ -17,7 +17,6 @@
 #include "autoware_iv_auto_msgs_converter/autoware_iv_auto_msgs_converter.hpp"
 #include "awapi_awiv_adapter/diagnostics_filter.hpp"
 
-#include <map>
 #include <regex>
 #include <string>
 #include <vector>
