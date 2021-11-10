@@ -51,7 +51,7 @@ Stop condition の項で述べたように、状態によって障害物判定�
 | `~/input/trajectory`                     | `autoware_auto_planning_msgs::msg::Trajectory`         | Reference trajectory |
 | `/sensing/lidar/no_ground/pointcloud`    | `sensor_msgs::msg::PointCloud2`                        | No ground pointcloud |
 | `/perception/object_recognition/objects` | `autoware_auto_perception_msgs::msg::PredictedObjects` | Dynamic objects      |
-| `/localization/kinematic_state`          | `geometry_msgs::msg::TwistStamped`                     | Current twist        |
+| `/localization/kinematic_state`          | `nav_msgs::msg::Odometry`                              | Current twist        |
 | `/tf`                                    | `tf2_msgs::msg::TFMessage`                             | TF                   |
 | `/tf_static`                             | `tf2_msgs::msg::TFMessage`                             | TF static            |
 
