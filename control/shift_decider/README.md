@@ -17,7 +17,7 @@ start
 if (absolute target velocity is less than threshold) then (yes)
     :set previous shift;
 else(no)
-if (velocity is more than threshold) then (yes)
+if (target velocity is positive) then (yes)
     :set shift DRIVE;
 else
     :set shift REVERSE;
