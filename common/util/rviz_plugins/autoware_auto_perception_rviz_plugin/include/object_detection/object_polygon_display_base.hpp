@@ -100,6 +100,8 @@ public:
   {
     RosTopicDisplay::RTDClass::onInitialize();
     m_marker_common.initialize(this->context_, this->scene_node_);
+    QString message_type = QString::fromStdString(rosidl_generator_traits::name<MsgT>());
+    this->topic_property_->setMessageType(message_type);
     this->topic_property_->setValue(m_default_topic.c_str());
     this->topic_property_->setDescription("Topic to subscribe to.");
   }
