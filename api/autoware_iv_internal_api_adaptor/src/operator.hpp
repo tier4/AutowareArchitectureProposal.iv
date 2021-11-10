@@ -18,6 +18,7 @@
 #include <autoware_api_utils/autoware_api_utils.hpp>
 #include <rclcpp/rclcpp.hpp>
 
+#include <autoware_auto_vehicle_msgs/msg/engage.hpp>
 #include <autoware_control_msgs/msg/external_command_selector_mode.hpp>
 #include <autoware_control_msgs/msg/gate_mode.hpp>
 #include <autoware_control_msgs/srv/external_command_select.hpp>
@@ -26,7 +27,6 @@
 #include <autoware_external_api_msgs/srv/set_observer.hpp>
 #include <autoware_external_api_msgs/srv/set_operator.hpp>
 #include <autoware_vehicle_msgs/msg/control_mode.hpp>
-#include <autoware_vehicle_msgs/msg/engage.hpp>
 
 namespace internal_api
 {
@@ -43,7 +43,7 @@ private:
   using ExternalCommandSelect = autoware_control_msgs::srv::ExternalCommandSelect;
   using ExternalCommandSelectorMode = autoware_control_msgs::msg::ExternalCommandSelectorMode;
   using GateMode = autoware_control_msgs::msg::GateMode;
-  using VehicleEngage = autoware_vehicle_msgs::msg::Engage;
+  using VehicleEngage = autoware_auto_vehicle_msgs::msg::Engage;
   using VehicleControlMode = autoware_vehicle_msgs::msg::ControlMode;
 
   // ros interface

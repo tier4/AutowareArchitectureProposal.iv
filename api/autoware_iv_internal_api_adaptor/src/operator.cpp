@@ -38,7 +38,7 @@ Operator::Operator(const rclcpp::NodeOptions & options) : Node("external_api_ope
   pub_gate_mode_ = create_publisher<autoware_control_msgs::msg::GateMode>(
     "/control/gate_mode_cmd", rclcpp::QoS(1));
   pub_vehicle_engage_ =
-    create_publisher<autoware_vehicle_msgs::msg::Engage>("/vehicle/engage", rclcpp::QoS(1));
+    create_publisher<autoware_auto_vehicle_msgs::msg::Engage>("/vehicle/engage", rclcpp::QoS(1));
 
   pub_operator_ = create_publisher<autoware_external_api_msgs::msg::Operator>(
     "/api/autoware/get/operator", rclcpp::QoS(1));
@@ -179,8 +179,9 @@ void Operator::publishObserver()
 
 void Operator::setVehicleEngage(bool engage)
 {
-  const auto msg =
-    autoware_vehicle_msgs::build<autoware_vehicle_msgs::msg::Engage>().stamp(now()).engage(engage);
+  const auto msg = autoware_auto_vehicle_msgs::build<autoware_auto_vehicle_msgs::msg::Engage>()
+                     .stamp(now())
+                     .engage(engage);
   pub_vehicle_engage_->publish(msg);
 }
 
