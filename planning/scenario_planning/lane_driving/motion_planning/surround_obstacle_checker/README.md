@@ -60,7 +60,7 @@ As mentioned in stop condition section, it prevents chattering by changing thres
 
 | Name                       | Type                                           | Description              |
 | -------------------------- | ---------------------------------------------- | ------------------------ |
-| `~/output/trajectory`      | `autoware_planning_msgs/Trajectory`            | Modified trajectory      |
+| `~/output/trajectory`      | `autoware_auto_planning_msgs/Trajectory`       | Modified trajectory      |
 | `~/output/no_start_reason` | `diagnostic_msgs::msg::DiagnosticStatus`       | No start reason          |
 | `~/output/stop_reasons`    | `autoware_planning_msgs::msg::StopReasonArray` | Stop reasons             |
 | `~/debug/marker`           | `visualization_msgs::msg::MarkerArray`         | Marker for visualization |
