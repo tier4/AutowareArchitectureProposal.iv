@@ -20,6 +20,8 @@
 #define MULTI_OBJECT_TRACKER__TRACKER__MODEL__TRACKER_BASE_HPP_
 
 #define EIGEN_MPL2_ONLY
+#include "multi_object_tracker/utils/utils.hpp"
+
 #include <Eigen/Core>
 #include <rclcpp/rclcpp.hpp>
 
@@ -27,12 +29,13 @@
 #include "autoware_auto_perception_msgs/msg/tracked_object.hpp"
 #include "geometry_msgs/msg/point.hpp"
 #include "unique_identifier_msgs/msg/uuid.hpp"
-#include "multi_object_tracker/utils/utils.hpp"
+
+#include <vector>
 
 class Tracker
 {
 protected:
-  unique_identifier_msgs::msg::UUID getUUID() const {return uuid_;}
+  unique_identifier_msgs::msg::UUID getUUID() const { return uuid_; }
   void setClassification(
     const std::vector<autoware_auto_perception_msgs::msg::ObjectClassification> & classification)
   {
@@ -60,10 +63,10 @@ public:
   {
     return classification_;
   }
-  std::uint8_t getHighestProbLabel() const {return utils::getHighestProbLabel(classification_);}
-  int getNoMeasurementCount() const {return no_measurement_count_;}
-  int getTotalNoMeasurementCount() const {return total_no_measurement_count_;}
-  int getTotalMeasurementCount() const {return total_measurement_count_;}
+  std::uint8_t getHighestProbLabel() const { return utils::getHighestProbLabel(classification_); }
+  int getNoMeasurementCount() const { return no_measurement_count_; }
+  int getTotalNoMeasurementCount() const { return total_no_measurement_count_; }
+  int getTotalMeasurementCount() const { return total_measurement_count_; }
   double getElapsedTimeFromLastUpdate(const rclcpp::Time & current_time) const
   {
     return (current_time - last_update_with_measurement_time_).seconds();

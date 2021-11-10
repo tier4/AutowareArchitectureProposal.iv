@@ -43,7 +43,7 @@ double getMahalanobisDistance(
   Eigen::Vector2d tracker_point;
   tracker_point << tracker.x, tracker.y;
   Eigen::MatrixXd mahalanobis_squared = (measurement_point - tracker_point).transpose() *
-    covariance.inverse() * (measurement_point - tracker_point);
+                                        covariance.inverse() * (measurement_point - tracker_point);
   return std::sqrt(mahalanobis_squared(0));
 }
 
@@ -129,7 +129,7 @@ void DataAssociation::assign(
   // Solve
   gnn_solver_ptr_->maximizeLinearAssignment(score, &direct_assignment, &reverse_assignment);
 
-  for (auto itr = direct_assignment.begin(); itr != direct_assignment.end(); ) {
+  for (auto itr = direct_assignment.begin(); itr != direct_assignment.end();) {
     if (src(itr->first, itr->second) < score_threshold_) {
       itr = direct_assignment.erase(itr);
       continue;
@@ -137,7 +137,7 @@ void DataAssociation::assign(
       ++itr;
     }
   }
-  for (auto itr = reverse_assignment.begin(); itr != reverse_assignment.end(); ) {
+  for (auto itr = reverse_assignment.begin(); itr != reverse_assignment.end();) {
     if (src(itr->second, itr->first) < score_threshold_) {
       itr = reverse_assignment.erase(itr);
       continue;
@@ -155,30 +155,24 @@ Eigen::MatrixXd DataAssociation::calcScoreMatrix(
     Eigen::MatrixXd::Zero(trackers.size(), measurements.objects.size());
   size_t tracker_idx = 0;
   for (auto tracker_itr = trackers.begin(); tracker_itr != trackers.end();
-    ++tracker_itr, ++tracker_idx)
-  {
+       ++tracker_itr, ++tracker_idx) {
     const std::uint8_t tracker_label = (*tracker_itr)->getHighestProbLabel();
 
     for (size_t measurement_idx = 0; measurement_idx < measurements.objects.size();
-      ++measurement_idx)
-    {
+         ++measurement_idx) {
       const autoware_auto_perception_msgs::msg::DetectedObject & measurement_object =
         measurements.objects.at(measurement_idx);
-      const std::uint8_t measurement_label = utils::getHighestProbLabel(
-        measurement_object.classification);
+      const std::uint8_t measurement_label =
+        utils::getHighestProbLabel(measurement_object.classification);
 
       double score = 0.0;
       const geometry_msgs::msg::PoseWithCovariance tracker_pose_covariance =
         (*tracker_itr)->getPoseWithCovariance(measurements.header.stamp);
       if (can_assign_matrix_(tracker_label, measurement_label)) {
-        const double max_dist =
-          max_dist_matrix_(tracker_label, measurement_label);
-        const double max_area =
-          max_area_matrix_(tracker_label, measurement_label);
-        const double min_area =
-          min_area_matrix_(tracker_label, measurement_label);
-        const double max_rad =
-          max_rad_matrix_(tracker_label, measurement_label);
+        const double max_dist = max_dist_matrix_(tracker_label, measurement_label);
+        const double max_area = max_area_matrix_(tracker_label, measurement_label);
+        const double min_area = min_area_matrix_(tracker_label, measurement_label);
+        const double max_rad = max_rad_matrix_(tracker_label, measurement_label);
         const double dist = getDistance(
           measurement_object.kinematics.pose_with_covariance.pose.position,
           tracker_pose_covariance.pose.position);
@@ -202,8 +196,7 @@ Eigen::MatrixXd DataAssociation::calcScoreMatrix(
           // mahalanobis dist gate
         } else if (score < score_threshold_) {
           double mahalanobis_dist = getMahalanobisDistance(
-            measurements.objects.at(measurement_idx)
-            .kinematics.pose_with_covariance.pose.position,
+            measurements.objects.at(measurement_idx).kinematics.pose_with_covariance.pose.position,
             tracker_pose_covariance.pose.position, getXYCovariance(tracker_pose_covariance));
 
           if (2.448 /*95%*/ <= mahalanobis_dist) {

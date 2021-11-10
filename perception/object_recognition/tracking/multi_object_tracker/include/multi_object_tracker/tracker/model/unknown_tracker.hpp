@@ -32,8 +32,7 @@ private:
 private:
   KalmanFilter ekf_;
   rclcpp::Time last_update_time_;
-  enum IDX
-  {
+  enum IDX {
     X = 0,
     Y = 1,
     VX = 2,

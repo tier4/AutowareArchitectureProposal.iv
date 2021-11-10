@@ -76,8 +76,7 @@ UnknownTracker::UnknownTracker(
   if (
     !ekf_params_.use_measurement_covariance ||
     object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::X_X] == 0.0 ||
-    object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0)
-  {
+    object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0) {
     // Rotate the covariance matrix according to the vehicle yaw
     // because p0_cov_x and y are in the vehicle coordinate system.
     P(IDX::X, IDX::X) = ekf_params_.p0_cov_x;
@@ -92,12 +91,10 @@ UnknownTracker::UnknownTracker(
     P(IDX::Y, IDX::Y) = object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y];
     P(IDX::Y, IDX::X) = object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_X];
     if (object.kinematics.has_twist_covariance) {
-      P(
-        IDX::VX,
-        IDX::VX) = object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::X_X];
-      P(
-        IDX::VY,
-        IDX::VY) = object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y];
+      P(IDX::VX, IDX::VX) =
+        object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::X_X];
+      P(IDX::VY, IDX::VY) =
+        object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y];
     } else {
       P(IDX::VX, IDX::VX) = ekf_params_.p0_cov_vx;
       P(IDX::VY, IDX::VY) = ekf_params_.p0_cov_vy;
@@ -192,8 +189,7 @@ bool UnknownTracker::measureWithPose(
   if (
     !ekf_params_.use_measurement_covariance ||
     object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::X_X] == 0.0 ||
-    object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0)
-  {
+    object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0) {
     R(0, 0) = ekf_params_.r_cov_x;  // x - x
     R(0, 1) = 0.0;                  // x - y
     R(1, 1) = ekf_params_.r_cov_y;  // y - y
@@ -270,9 +266,9 @@ bool UnknownTracker::getTrackedObject(
   object.kinematics.pose_with_covariance.pose.position.y = X_t(IDX::Y);
   object.kinematics.pose_with_covariance.pose.position.z = z_;
   // position covariance
-  constexpr double z_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
-  constexpr double r_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
-  constexpr double p_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
+  constexpr double z_cov = 0.1 * 0.1;    // TODO(yukkysaito) Currently tentative
+  constexpr double r_cov = 0.1 * 0.1;    // TODO(yukkysaito) Currently tentative
+  constexpr double p_cov = 0.1 * 0.1;    // TODO(yukkysaito) Currently tentative
   constexpr double yaw_cov = 0.1 * 0.1;  // TODO(yukkysaito) Currently tentative
   object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::X_X] = P(IDX::X, IDX::X);
   object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::X_Y] = P(IDX::X, IDX::Y);

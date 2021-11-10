@@ -89,8 +89,7 @@ NormalVehicleTracker::NormalVehicleTracker(
     !ekf_params_.use_measurement_covariance ||
     object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::X_X] == 0.0 ||
     object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0 ||
-    object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] == 0.0)
-  {
+    object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] == 0.0) {
     const double cos_yaw = std::cos(X(IDX::YAW));
     const double sin_yaw = std::sin(X(IDX::YAW));
     const double sin_2yaw = std::sin(2.0f * X(IDX::YAW));
@@ -110,16 +109,13 @@ NormalVehicleTracker::NormalVehicleTracker(
     P(IDX::X, IDX::Y) = object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::X_Y];
     P(IDX::Y, IDX::Y) = object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y];
     P(IDX::Y, IDX::X) = object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_X];
-    P(
-      IDX::YAW,
-      IDX::YAW) = object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW];
+    P(IDX::YAW, IDX::YAW) =
+      object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW];
     if (object.kinematics.has_twist_covariance) {
-      P(
-        IDX::VX,
-        IDX::VX) = object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::X_X];
-      P(
-        IDX::WZ,
-        IDX::WZ) = object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW];
+      P(IDX::VX, IDX::VX) =
+        object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::X_X];
+      P(IDX::WZ, IDX::WZ) =
+        object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW];
     } else {
       P(IDX::VX, IDX::VX) = ekf_params_.p0_cov_vx;
       P(IDX::WZ, IDX::WZ) = ekf_params_.p0_cov_wz;
@@ -235,11 +231,8 @@ bool NormalVehicleTracker::measureWithPose(
   }
 
   constexpr int dim_y = 3;  // pos x, pos y, yaw, depending on Pose output
-  double measurement_yaw =
-    autoware_utils::normalizeRadian(
-    tf2::getYaw(
-      object.kinematics.pose_with_covariance.pose.
-      orientation));
+  double measurement_yaw = autoware_utils::normalizeRadian(
+    tf2::getYaw(object.kinematics.pose_with_covariance.pose.orientation));
   {
     Eigen::MatrixXd X_t(ekf_params_.dim_x, 1);
     ekf_.getX(X_t);
@@ -255,8 +248,7 @@ bool NormalVehicleTracker::measureWithPose(
   /* Set measurement matrix */
   Eigen::MatrixXd Y(dim_y, 1);
   Y << object.kinematics.pose_with_covariance.pose.position.x,
-    object.kinematics.pose_with_covariance.pose.position.y,
-    measurement_yaw;
+    object.kinematics.pose_with_covariance.pose.position.y, measurement_yaw;
 
   /* Set measurement matrix */
   Eigen::MatrixXd C = Eigen::MatrixXd::Zero(dim_y, ekf_params_.dim_x);
@@ -270,8 +262,7 @@ bool NormalVehicleTracker::measureWithPose(
     !ekf_params_.use_measurement_covariance ||
     object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::X_X] == 0.0 ||
     object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0 ||
-    object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] == 0.0)
-  {
+    object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] == 0.0) {
     const double cos_yaw = std::cos(measurement_yaw);
     const double sin_yaw = std::sin(measurement_yaw);
     const double sin_2yaw = std::sin(2.0f * measurement_yaw);
@@ -351,8 +342,7 @@ bool NormalVehicleTracker::measure(
 }
 
 bool NormalVehicleTracker::getTrackedObject(
-  const rclcpp::Time & time,
-  autoware_auto_perception_msgs::msg::TrackedObject & object) const
+  const rclcpp::Time & time, autoware_auto_perception_msgs::msg::TrackedObject & object) const
 {
   object = utils::toTrackedObject(object_);
   object.object_id = getUUID();
@@ -399,9 +389,8 @@ bool NormalVehicleTracker::getTrackedObject(
   object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Z_Z] = z_cov;
   object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::ROLL_ROLL] = r_cov;
   object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::PITCH_PITCH] = p_cov;
-  object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] = P(
-    IDX::YAW,
-    IDX::YAW);
+  object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] =
+    P(IDX::YAW, IDX::YAW);
 
   // twist
   object.kinematics.twist_with_covariance.twist.linear.x = X_t(IDX::VX);
@@ -420,9 +409,8 @@ bool NormalVehicleTracker::getTrackedObject(
     P(IDX::WZ, IDX::VX);
   object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::ROLL_ROLL] = wx_cov;
   object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::PITCH_PITCH] = wy_cov;
-  object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] = P(
-    IDX::WZ,
-    IDX::WZ);
+  object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] =
+    P(IDX::WZ, IDX::WZ);
 
   // set shape
   object.shape.dimensions.x = bounding_box_.width;

@@ -22,12 +22,13 @@
 #include <autoware_utils/autoware_utils.hpp>
 
 #include <autoware_auto_perception_msgs/msg/detected_object.hpp>
-#include <autoware_auto_perception_msgs/msg/tracked_object.hpp>
 #include <autoware_auto_perception_msgs/msg/shape.hpp>
+#include <autoware_auto_perception_msgs/msg/tracked_object.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
 
 #include <cmath>
+#include <vector>
 
 namespace utils
 {
@@ -43,8 +44,7 @@ std::uint8_t getHighestProbLabel(
 autoware_auto_perception_msgs::msg::TrackedObject toTrackedObject(
   const autoware_auto_perception_msgs::msg::DetectedObject & detected_object);
 
-enum MSG_COV_IDX
-{
+enum MSG_COV_IDX {
   X_X = 0,
   X_Y = 1,
   X_Z = 2,

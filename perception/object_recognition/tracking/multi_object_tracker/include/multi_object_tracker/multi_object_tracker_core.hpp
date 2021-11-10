@@ -24,8 +24,8 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include <autoware_auto_perception_msgs/msg/tracked_objects.hpp>
 #include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/tracked_objects.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 
 #include <tf2/LinearMath/Transform.h>
@@ -56,8 +56,7 @@ private:
   tf2_ros::TransformListener tf_listener_;
 
   void onMeasurement(
-    const autoware_auto_perception_msgs::msg::DetectedObjects::ConstSharedPtr
-    input_objects_msg);
+    const autoware_auto_perception_msgs::msg::DetectedObjects::ConstSharedPtr input_objects_msg);
   void onTimer();
 
   std::string world_frame_id_;  // tracking frame

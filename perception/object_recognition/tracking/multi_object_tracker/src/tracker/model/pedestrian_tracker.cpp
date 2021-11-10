@@ -91,8 +91,7 @@ PedestrianTracker::PedestrianTracker(
     !ekf_params_.use_measurement_covariance ||
     object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::X_X] == 0.0 ||
     object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0 ||
-    object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] == 0.0)
-  {
+    object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] == 0.0) {
     const double cos_yaw = std::cos(X(IDX::YAW));
     const double sin_yaw = std::sin(X(IDX::YAW));
     const double sin_2yaw = std::sin(2.0f * X(IDX::YAW));
@@ -112,16 +111,13 @@ PedestrianTracker::PedestrianTracker(
     P(IDX::X, IDX::Y) = object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::X_Y];
     P(IDX::Y, IDX::Y) = object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y];
     P(IDX::Y, IDX::X) = object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_X];
-    P(
-      IDX::YAW,
-      IDX::YAW) = object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW];
+    P(IDX::YAW, IDX::YAW) =
+      object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW];
     if (object.kinematics.has_twist_covariance) {
-      P(
-        IDX::VX,
-        IDX::VX) = object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::X_X];
-      P(
-        IDX::WZ,
-        IDX::WZ) = object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW];
+      P(IDX::VX, IDX::VX) =
+        object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::X_X];
+      P(IDX::WZ, IDX::WZ) =
+        object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW];
     } else {
       P(IDX::VX, IDX::VX) = ekf_params_.p0_cov_vx;
       P(IDX::WZ, IDX::WZ) = ekf_params_.p0_cov_wz;
@@ -254,8 +250,7 @@ bool PedestrianTracker::measureWithPose(
   if (
     !ekf_params_.use_measurement_covariance ||
     object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::X_X] == 0.0 ||
-    object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0)
-  {
+    object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Y_Y] == 0.0) {
     R(0, 0) = ekf_params_.r_cov_x;  // x - x
     R(0, 1) = 0.0;                  // x - y
     R(1, 1) = ekf_params_.r_cov_y;  // y - y
@@ -382,9 +377,8 @@ bool PedestrianTracker::getTrackedObject(
   object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::Z_Z] = z_cov;
   object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::ROLL_ROLL] = r_cov;
   object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::PITCH_PITCH] = p_cov;
-  object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] = P(
-    IDX::YAW,
-    IDX::YAW);
+  object.kinematics.pose_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] =
+    P(IDX::YAW, IDX::YAW);
 
   // twist
   object.kinematics.twist_with_covariance.twist.linear.x = X_t(IDX::VX);
@@ -403,9 +397,8 @@ bool PedestrianTracker::getTrackedObject(
     P(IDX::WZ, IDX::VX);
   object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::ROLL_ROLL] = wx_cov;
   object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::PITCH_PITCH] = wy_cov;
-  object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] = P(
-    IDX::WZ,
-    IDX::WZ);
+  object.kinematics.twist_with_covariance.covariance[utils::MSG_COV_IDX::YAW_YAW] =
+    P(IDX::WZ, IDX::WZ);
 
   // set shape
   object.shape.dimensions.x = bounding_box_.width;

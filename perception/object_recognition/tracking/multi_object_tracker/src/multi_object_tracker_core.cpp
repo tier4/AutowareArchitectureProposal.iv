@@ -78,11 +78,9 @@ bool transformDetectedObjects(
     }
     for (size_t i = 0; i < output_msg.objects.size(); ++i) {
       tf2::fromMsg(
-        output_msg.objects.at(i).kinematics.pose_with_covariance.pose,
-        tf_objects_world2objects);
+        output_msg.objects.at(i).kinematics.pose_with_covariance.pose, tf_objects_world2objects);
       tf_target2objects = tf_target2objects_world * tf_objects_world2objects;
-      tf2::toMsg(
-        tf_target2objects, output_msg.objects.at(i).kinematics.pose_with_covariance.pose);
+      tf2::toMsg(tf_target2objects, output_msg.objects.at(i).kinematics.pose_with_covariance.pose);
       // TODO(yukkysaito) transform covariance
     }
   }
@@ -145,7 +143,7 @@ bool isSpecificAlivePattern(
 
   const bool high_confidence =
     (min_detection_rate < detection_rate ||
-    min_measurement_count < tracker->getTotalMeasurementCount());
+     min_measurement_count < tracker->getTotalMeasurementCount());
 
   const bool not_too_far =
     getXYSquareDistance(self_transform, object) < max_distance * max_distance;
@@ -167,14 +165,11 @@ MultiObjectTracker::MultiObjectTracker(const rclcpp::NodeOptions & node_options)
   tf_listener_(tf_buffer_)
 {
   // Create publishers and subscribers
-  detected_object_sub_ =
-    create_subscription<autoware_auto_perception_msgs::msg::DetectedObjects>(
+  detected_object_sub_ = create_subscription<autoware_auto_perception_msgs::msg::DetectedObjects>(
     "input", rclcpp::QoS{1},
     std::bind(&MultiObjectTracker::onMeasurement, this, std::placeholders::_1));
   tracked_objects_pub_ =
-    create_publisher<autoware_auto_perception_msgs::msg::TrackedObjects>(
-    "output",
-    rclcpp::QoS{1});
+    create_publisher<autoware_auto_perception_msgs::msg::TrackedObjects>("output", rclcpp::QoS{1});
 
   // Parameters
   double publish_rate = declare_parameter<double>("publish_rate", 30.0);
@@ -210,8 +205,7 @@ MultiObjectTracker::MultiObjectTracker(const rclcpp::NodeOptions & node_options)
 }
 
 void MultiObjectTracker::onMeasurement(
-  const autoware_auto_perception_msgs::msg::DetectedObjects::ConstSharedPtr
-  input_objects_msg)
+  const autoware_auto_perception_msgs::msg::DetectedObjects::ConstSharedPtr input_objects_msg)
 {
   const auto self_transform =
     getTransform(tf_buffer_, "base_link", world_frame_id_, input_objects_msg->header.stamp);
@@ -222,8 +216,7 @@ void MultiObjectTracker::onMeasurement(
   /* transform to world coordinate */
   autoware_auto_perception_msgs::msg::DetectedObjects transformed_objects;
   if (!transformDetectedObjects(
-      *input_objects_msg, world_frame_id_, tf_buffer_, transformed_objects))
-  {
+        *input_objects_msg, world_frame_id_, tf_buffer_, transformed_objects)) {
     return;
   }
   /* tracker prediction */
@@ -241,13 +234,12 @@ void MultiObjectTracker::onMeasurement(
   /* tracker measurement update */
   int tracker_idx = 0;
   for (auto tracker_itr = list_tracker_.begin(); tracker_itr != list_tracker_.end();
-    ++tracker_itr, ++tracker_idx)
-  {
+       ++tracker_itr, ++tracker_idx) {
     if (direct_assignment.find(tracker_idx) != direct_assignment.end()) {  // found
       (*(tracker_itr))
-      ->updateWithMeasurement(
-        transformed_objects.objects.at(direct_assignment.find(tracker_idx)->second),
-        measurement_time);
+        ->updateWithMeasurement(
+          transformed_objects.objects.at(direct_assignment.find(tracker_idx)->second),
+          measurement_time);
     } else {  // not found
       (*(tracker_itr))->updateWithoutMeasurement();
     }
@@ -263,8 +255,7 @@ void MultiObjectTracker::onMeasurement(
     if (reverse_assignment.find(i) != reverse_assignment.end()) {  // found
       continue;
     }
-    list_tracker_.push_back(
-      createNewTracker(transformed_objects.objects.at(i), measurement_time));
+    list_tracker_.push_back(createNewTracker(transformed_objects.objects.at(i), measurement_time));
   }
 
   if (publish_timer_ == nullptr) {
@@ -338,9 +329,9 @@ void MultiObjectTracker::sanitizeTracker(
       (*itr2)->getTrackedObject(time, object2);
       const double distance = std::hypot(
         object1.kinematics.pose_with_covariance.pose.position.x -
-        object2.kinematics.pose_with_covariance.pose.position.x,
+          object2.kinematics.pose_with_covariance.pose.position.x,
         object1.kinematics.pose_with_covariance.pose.position.y -
-        object2.kinematics.pose_with_covariance.pose.position.y);
+          object2.kinematics.pose_with_covariance.pose.position.y);
       if (distance_threshold < distance) {
         continue;
       }
@@ -371,7 +362,7 @@ inline bool MultiObjectTracker::shouldTrackerPublish(
 void MultiObjectTracker::publish(const rclcpp::Time & time) const
 {
   const auto subscriber_count = tracked_objects_pub_->get_subscription_count() +
-    tracked_objects_pub_->get_intra_process_subscription_count();
+                                tracked_objects_pub_->get_intra_process_subscription_count();
   if (subscriber_count < 1) {
     return;
   }
