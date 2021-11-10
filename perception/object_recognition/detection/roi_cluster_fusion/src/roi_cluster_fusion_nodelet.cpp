@@ -418,7 +418,9 @@ void RoiClusterFusionNodelet::fusionCallback(
       if (
         iou_threshold_ < max_iou &&
         output_msg.feature_objects.at(index).object.existence_probability <=
-          input_roi_msg->feature_objects.at(i).object.existence_probability) {
+          input_roi_msg->feature_objects.at(i).object.existence_probability &&
+        input_roi_msg->feature_objects.at(i).object.classification.front().label !=
+          autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN) {
         output_msg.feature_objects.at(index).object.classification =
           input_roi_msg->feature_objects.at(i).object.classification;
       }
