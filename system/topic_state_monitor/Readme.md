@@ -45,7 +45,7 @@ The types of topic status and corresponding diagnostic status are following.
 | Name              | Type   | Default Value | Description                                                                                          |
 | ----------------- | ------ | ------------- | ---------------------------------------------------------------------------------------------------- |
 | `topic`           | string | -             | Name of target topic                                                                                 |
-| `topic_type`      | string | -             | Type pf target topic                                                                                 |
+| `topic_type`      | string | -             | Type of target topic                                                                                 |
 | `transient_local` | bool   | false         | QoS policy of topic subscription (Transient Local/Volatile)                                          |
 | `best_effort`     | bool   | false         | QoS policy of topic subscription (Best Effort/Reliable)                                              |
 | `diag_name`       | string | -             | Name used for the diagnostics to publish                                                             |
