@@ -320,8 +320,7 @@ According to the characteristics, we investigate pros and cons of the typical pl
 
 ### Learning-based method
 
-- pros: fast
-- cons: not stable (under research yet)
+under research yet
 
 Based on these pros/cons, we chose the optimization-based planner first.
 Although it has a cons to converge to the local minima, it can get a good solution by the preprocessing to approximate the convex problem that almost equals to the original non-convex problem.
