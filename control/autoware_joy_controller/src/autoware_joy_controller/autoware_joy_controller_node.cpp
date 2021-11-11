@@ -254,25 +254,27 @@ void AutowareJoyControllerNode::publishControlCommand()
       cmd.longitudinal.acceleration = accel_ratio_ * joy_->accel();
       cmd.longitudinal.speed =
         twist_->twist.linear.x + velocity_gain_ * cmd.longitudinal.acceleration;
-      cmd.longitudinal.speed = std::min(cmd.longitudinal.speed, max_forward_velocity_);
+      cmd.longitudinal.speed =
+        std::min(cmd.longitudinal.speed, static_cast<float>(max_forward_velocity_));
     }
 
     if (joy_->brake()) {
-      cmd.longitudinal.velocity = 0.0;
+      cmd.longitudinal.speed = 0.0;
       cmd.longitudinal.acceleration = -brake_ratio_ * joy_->brake();
     }
 
     // Backward
     if (joy_->accel() && joy_->brake()) {
       cmd.longitudinal.acceleration = backward_accel_ratio_ * joy_->accel();
-      cmd.longitudinal.velocity =
+      cmd.longitudinal.speed =
         twist_->twist.linear.x - velocity_gain_ * cmd.longitudinal.acceleration;
-      cmd.longitudinal.velocity = std::max(cmd.longitudinal.velocity, -max_backward_velocity_);
+      cmd.longitudinal.speed =
+        std::max(cmd.longitudinal.speed, static_cast<float>(-max_backward_velocity_));
     }
   }
 
-  pub_control_command_->publish(cmd_stamped);
-  prev_control_command_ = cmd_stamped;
+  pub_control_command_->publish(cmd);
+  prev_control_command_ = cmd;
 }
 
 void AutowareJoyControllerNode::publishExternalControlCommand()
