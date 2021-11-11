@@ -28,7 +28,7 @@ GyroOdometer::GyroOdometer()
 {
   use_twist_with_covariance_ = declare_parameter("use_twist_with_covariance", true);
 
-  vehicle_twist_sub_ = create_subscription<geometry_msgs::msg::TwistStamped>(
+  vehicle_twist_sub_ = create_subscription<autoware_auto_vehicle_msgs::msg::VelocityReport>(
     "vehicle/twist", rclcpp::QoS{100},
     std::bind(
       &GyroOdometer::callbackTwist, this,
@@ -51,7 +51,7 @@ GyroOdometer::GyroOdometer()
 GyroOdometer::~GyroOdometer() {}
 
 void GyroOdometer::callbackTwist(
-  const geometry_msgs::msg::TwistStamped::ConstSharedPtr twist_msg_ptr)
+  const autoware_auto_vehicle_msgs::msg::VelocityReport::ConstSharedPtr twist_msg_ptr)
 {
   if (use_twist_with_covariance_) {
     return;
@@ -60,8 +60,10 @@ void GyroOdometer::callbackTwist(
   // TODO(YamatoAndo) trans from twist_msg_ptr->header to base_frame
 
   geometry_msgs::msg::TwistWithCovarianceStamped twist_with_cov_msg;
-  twist_with_cov_msg.header = twist_msg_ptr->header;
-  twist_with_cov_msg.twist.twist = twist_msg_ptr->twist;
+  twist_with_cov_msg.header.stamp = twist_msg_ptr->stamp;
+  twist_with_cov_msg.twist.twist.linear.x = twist_msg_ptr->longitudinal_velocity;
+  twist_with_cov_msg.twist.twist.linear.y = twist_msg_ptr->lateral_velocity;
+  twist_with_cov_msg.twist.twist.angular.z = twist_msg_ptr->heading_rate;
 
   // NOTE
   // linear.y, linear.z, angular.x, and angular.y are not measured values.

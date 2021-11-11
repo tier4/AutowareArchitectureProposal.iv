@@ -17,6 +17,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include <autoware_auto_vehicle_msgs/msg/velocity_report.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <sensor_msgs/msg/imu.hpp>
@@ -35,8 +36,8 @@ public:
   ~GyroOdometer();
 
 private:
-  void callbackTwist(
-    const geometry_msgs::msg::TwistStamped::ConstSharedPtr twist_msg_ptr);  // Deprecated
+  void callbackTwist(const autoware_auto_vehicle_msgs::msg::VelocityReport::ConstSharedPtr
+                       twist_msg_ptr);  // Deprecated
   void callbackTwistWithCovariance(
     const geometry_msgs::msg::TwistWithCovarianceStamped::ConstSharedPtr twist_with_cov_msg_ptr);
   void callbackImu(const sensor_msgs::msg::Imu::ConstSharedPtr imu_msg_ptr);
@@ -44,7 +45,7 @@ private:
     const std::string & target_frame, const std::string & source_frame,
     const geometry_msgs::msg::TransformStamped::SharedPtr transform_stamped_ptr);
 
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VelocityReport>::SharedPtr
     vehicle_twist_sub_;  // Deprecated
   rclcpp::Subscription<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr
     vehicle_twist_with_cov_sub_;
