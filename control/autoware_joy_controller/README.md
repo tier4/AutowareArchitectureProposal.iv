@@ -17,7 +17,7 @@
 
 | Name                                | Type                                                     | Description                              |
 | ----------------------------------- | -------------------------------------------------------- | ---------------------------------------- |
-| `~/output/control_command`          | autoware_auto_control_msgs::msg::AckermannCommandStamped | lateral and longitudinal control command |
+| `~/output/control_command`          | autoware_auto_control_msgs::msg::AckermannControlCommand| lateral and longitudinal control command |
 | `~/output/external_control_command` | autoware_external_api_msgs::msg::ControlCommandStamped   | lateral and longitudinal control command |
 | `~/output/shift`                    | autoware_external_api_msgs::msg::GearShiftStamped        | gear command                             |
 | `~/output/turn_signal`              | autoware_external_api_msgs::msg::TurnSignalStamped       | turn signal command                      |
