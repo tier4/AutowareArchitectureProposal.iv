@@ -54,8 +54,8 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
-#include <autoware_auto_msgs/action/planner_costmap.hpp>
-#include <autoware_auto_msgs/srv/had_map_service.hpp>
+#include <autoware_auto_planning_msgs/action/planner_costmap.hpp>
+#include <autoware_auto_mapping_msgs/srv/had_map_service.hpp>
 #include <costmap_generator/costmap_generator.hpp>
 #include <costmap_generator_nodes/visibility_control.hpp>
 #include <grid_map_ros/GridMapRosConverter.hpp>
@@ -105,12 +105,12 @@ private:
   // it would require using MultiThreadedExecutor and CallbackGroupType::MutuallyExclusive
   // therefore for now we use an action here
   // TODO(danielm1405): use service when synchronous call is available
-  rclcpp_action::Server<autoware_auto_msgs::action::PlannerCostmap>::SharedPtr
+  rclcpp_action::Server<autoware_auto_planning_msgs::action::PlannerCostmap>::SharedPtr
     costmap_action_server_;
-  std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_msgs::action::PlannerCostmap>>
+  std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_planning_msgs::action::PlannerCostmap>>
   goal_handle_{nullptr};
 
-  rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedPtr map_client_;
+  rclcpp::Client<autoware_auto_mapping_msgs::srv::HADMapService>::SharedPtr map_client_;
 
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
@@ -118,20 +118,20 @@ private:
   // action
   rclcpp_action::GoalResponse handleGoal(
     const rclcpp_action::GoalUUID &,
-    std::shared_ptr<const autoware_auto_msgs::action::PlannerCostmap::Goal>);
+    std::shared_ptr<const autoware_auto_planning_msgs::action::PlannerCostmap::Goal>);
   rclcpp_action::CancelResponse handleCancel(
-    std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_msgs::action::PlannerCostmap>>);
+    std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_planning_msgs::action::PlannerCostmap>>);
   void handleAccepted(
-    std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_msgs::action::PlannerCostmap>>);
+    std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_planning_msgs::action::PlannerCostmap>>);
 
   grid_map::Position getCostmapToVehicleTranslation();
 
   /// \brief create map request for driveable area with bounds that are based on route
-  autoware_auto_msgs::srv::HADMapService::Request createMapRequest(
-    const autoware_auto_msgs::msg::HADMapRoute &) const;
+  autoware_auto_mapping_msgs::srv::HADMapService::Request createMapRequest(
+    const autoware_auto_planning_msgs::msg::HADMapRoute &) const;
 
   /// \brief callback for HAD map that composes costmap and successes action
-  void mapResponse(rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedFuture future);
+  void mapResponse(rclcpp::Client<autoware_auto_mapping_msgs::srv::HADMapService>::SharedFuture future);
 
   /// \brief publish visualization of received part of the HAD map
   void publishLaneletVisualization(std::shared_ptr<lanelet::LaneletMap> & map);

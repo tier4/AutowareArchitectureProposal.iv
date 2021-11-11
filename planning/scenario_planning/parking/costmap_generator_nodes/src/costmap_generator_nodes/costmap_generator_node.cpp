@@ -182,7 +182,7 @@ CostmapGeneratorNode::CostmapGeneratorNode(const rclcpp::NodeOptions & node_opti
 
   // Setup Map Service
   map_client_ =
-    this->create_client<autoware_auto_msgs::srv::HADMapService>("~/client/HAD_Map_Service");
+    this->create_client<autoware_auto_mapping_msgs::srv::HADMapService>("~/client/HAD_Map_Service");
 
   while (!map_client_->wait_for_service(std::chrono::seconds(1))) {
     if (!rclcpp::ok()) {
@@ -200,7 +200,7 @@ CostmapGeneratorNode::CostmapGeneratorNode(const rclcpp::NodeOptions & node_opti
     this->create_publisher<visualization_msgs::msg::MarkerArray>("~/debug/local_had_map", 1);
 
   // Action server
-  costmap_action_server_ = rclcpp_action::create_server<autoware_auto_msgs::action::PlannerCostmap>(
+  costmap_action_server_ = rclcpp_action::create_server<autoware_auto_planning_msgs::action::PlannerCostmap>(
     this->get_node_base_interface(), this->get_node_clock_interface(),
     this->get_node_logging_interface(), this->get_node_waitables_interface(), "generate_costmap",
     [this](auto uuid, auto goal) {return this->handleGoal(uuid, goal);},
@@ -210,7 +210,7 @@ CostmapGeneratorNode::CostmapGeneratorNode(const rclcpp::NodeOptions & node_opti
 
 rclcpp_action::GoalResponse CostmapGeneratorNode::handleGoal(
   const rclcpp_action::GoalUUID &,
-  const std::shared_ptr<const autoware_auto_msgs::action::PlannerCostmap::Goal>)
+  const std::shared_ptr<const autoware_auto_planning_msgs::action::PlannerCostmap::Goal>)
 {
   if (!isIdle()) {
     RCLCPP_WARN(get_logger(), "Costmap generator is not in idle. Rejecting new request.");
@@ -223,21 +223,21 @@ rclcpp_action::GoalResponse CostmapGeneratorNode::handleGoal(
 
 rclcpp_action::CancelResponse CostmapGeneratorNode::handleCancel(
   const std::shared_ptr<
-    rclcpp_action::ServerGoalHandle<autoware_auto_msgs::action::PlannerCostmap>>)
+    rclcpp_action::ServerGoalHandle<autoware_auto_planning_msgs::action::PlannerCostmap>>)
 {
   RCLCPP_WARN(get_logger(), "Received action cancellation, rejecting.");
   return rclcpp_action::CancelResponse::REJECT;
 }
 
 void CostmapGeneratorNode::handleAccepted(
-  const std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_msgs::action::PlannerCostmap>>
+  const std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_planning_msgs::action::PlannerCostmap>>
   goal_handle)
 {
   setGeneratingState();
 
   goal_handle_ = goal_handle;
 
-  auto map_request = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>(
+  auto map_request = std::make_shared<autoware_auto_mapping_msgs::srv::HADMapService::Request>(
     createMapRequest(goal_handle_->get_goal()->route));
 
   // TODO(kielczykowski-rai): replace it with synchronized implementation
@@ -247,29 +247,29 @@ void CostmapGeneratorNode::handleAccepted(
   RCLCPP_INFO(get_logger(), "Requested HAD map.");
 }
 
-autoware_auto_msgs::srv::HADMapService::Request CostmapGeneratorNode::createMapRequest(
-  const autoware_auto_msgs::msg::HADMapRoute & route) const
+autoware_auto_mapping_msgs::srv::HADMapService::Request CostmapGeneratorNode::createMapRequest(
+  const autoware_auto_planning_msgs::msg::HADMapRoute & route) const
 {
-  auto request = autoware_auto_msgs::srv::HADMapService::Request();
+  auto request = autoware_auto_mapping_msgs::srv::HADMapService::Request();
 
   request.requested_primitives.push_back(
-    autoware_auto_msgs::srv::HADMapService_Request::DRIVEABLE_GEOMETRY);
+    autoware_auto_mapping_msgs::srv::HADMapService_Request::DRIVEABLE_GEOMETRY);
 
   // x
   request.geom_upper_bound.push_back(
-    std::fmax(route.start_point.position.x, route.goal_point.position.x) + route_box_padding_);
+    std::fmax(route.start_pose.position.x, route.goal_pose.position.x) + route_box_padding_);
   // y
   request.geom_upper_bound.push_back(
-    std::fmax(route.start_point.position.y, route.goal_point.position.y) + route_box_padding_);
+    std::fmax(route.start_pose.position.y, route.goal_pose.position.y) + route_box_padding_);
   // z (ignored)
   request.geom_upper_bound.push_back(0.0);
 
   // x
   request.geom_lower_bound.push_back(
-    std::fmin(route.start_point.position.x, route.goal_point.position.x) - route_box_padding_);
+    std::fmin(route.start_pose.position.x, route.goal_pose.position.x) - route_box_padding_);
   // y
   request.geom_lower_bound.push_back(
-    std::fmin(route.start_point.position.y, route.goal_point.position.y) - route_box_padding_);
+    std::fmin(route.start_pose.position.y, route.goal_pose.position.y) - route_box_padding_);
   // z (ignored)
   request.geom_lower_bound.push_back(0.0);
 
@@ -287,7 +287,7 @@ grid_map::Position CostmapGeneratorNode::getCostmapToVehicleTranslation()
 }
 
 void CostmapGeneratorNode::mapResponse(
-  rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedFuture future)
+  rclcpp::Client<autoware_auto_mapping_msgs::srv::HADMapService>::SharedFuture future)
 {
   RCLCPP_INFO(get_logger(), "Received HAD map.");
 
@@ -320,7 +320,7 @@ void CostmapGeneratorNode::mapResponse(
     lanelet_map_ptr, vehicle_to_grid_position, costmap_to_map_transform);
 
   // Create result
-  auto result = std::make_shared<autoware_auto_msgs::action::PlannerCostmap::Result>();
+  auto result = std::make_shared<autoware_auto_planning_msgs::action::PlannerCostmap::Result>();
   auto out_occupancy_grid =
     createOccupancyGrid(costmap, LayerName::COMBINED, costmap_params_, get_clock());
   result->costmap = out_occupancy_grid;
