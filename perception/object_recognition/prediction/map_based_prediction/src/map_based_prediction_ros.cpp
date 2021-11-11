@@ -56,14 +56,14 @@ std::string toHexString(const unique_identifier_msgs::msg::UUID & id)
 }
 
 bool MapBasedPredictionROS::getClosestLanelets(
-  const autoware_auto_perception_msgs::msg::PredictedObject & object,
+  const autoware_auto_perception_msgs::msg::TrackedObject & object,
   const lanelet::LaneletMapPtr & lanelet_map_ptr_, std::vector<lanelet::Lanelet> & closest_lanelets,
   std::string uuid_string)
 {
   std::chrono::high_resolution_clock::time_point begin = std::chrono::high_resolution_clock::now();
   lanelet::BasicPoint2d search_point(
-    object.kinematics.initial_pose_with_covariance.pose.position.x,
-    object.kinematics.initial_pose_with_covariance.pose.position.y);
+    object.kinematics.pose_with_covariance.pose.position.x,
+    object.kinematics.pose_with_covariance.pose.position.y);
   std::vector<std::pair<double, lanelet::Lanelet>> nearest_lanelets =
     lanelet::geometry::findNearest(lanelet_map_ptr_->laneletLayer, search_point, 10);
   std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
@@ -87,22 +87,20 @@ bool MapBasedPredictionROS::getClosestLanelets(
       // } else {
       geometry_msgs::msg::Pose object_frame_pose;
       geometry_msgs::msg::Pose map_frame_pose;
-      object_frame_pose.position.x =
-        object.kinematics.initial_twist_with_covariance.twist.linear.x * 0.1;
-      object_frame_pose.position.y =
-        object.kinematics.initial_twist_with_covariance.twist.linear.y * 0.1;
+      object_frame_pose.position.x = object.kinematics.twist_with_covariance.twist.linear.x * 0.1;
+      object_frame_pose.position.y = object.kinematics.twist_with_covariance.twist.linear.y * 0.1;
       tf2::Transform tf_object2future;
       tf2::Transform tf_map2object;
       tf2::Transform tf_map2future;
 
-      tf2::fromMsg(object.kinematics.initial_pose_with_covariance.pose, tf_map2object);
+      tf2::fromMsg(object.kinematics.pose_with_covariance.pose, tf_map2object);
       tf2::fromMsg(object_frame_pose, tf_object2future);
       tf_map2future = tf_map2object * tf_object2future;
       tf2::toMsg(tf_map2future, map_frame_pose);
       double dx =
-        map_frame_pose.position.x - object.kinematics.initial_pose_with_covariance.pose.position.x;
+        map_frame_pose.position.x - object.kinematics.pose_with_covariance.pose.position.x;
       double dy =
-        map_frame_pose.position.y - object.kinematics.initial_pose_with_covariance.pose.position.y;
+        map_frame_pose.position.y - object.kinematics.pose_with_covariance.pose.position.y;
       object_yaw = std::atan2(dy, dx);
       // }
 
@@ -110,7 +108,7 @@ bool MapBasedPredictionROS::getClosestLanelets(
         continue;
       }
       double lane_yaw = lanelet::utils::getLaneletAngle(
-        lanelet.second, object.kinematics.initial_pose_with_covariance.pose.position);
+        lanelet.second, object.kinematics.pose_with_covariance.pose.position);
       double delta_yaw = object_yaw - lane_yaw;
       double normalized_delta_yaw = std::atan2(std::sin(delta_yaw), std::cos(delta_yaw));
       double abs_norm_delta = std::fabs(normalized_delta_yaw);
@@ -142,22 +140,20 @@ bool MapBasedPredictionROS::getClosestLanelets(
         // } else {
         geometry_msgs::msg::Pose object_frame_pose;
         geometry_msgs::msg::Pose map_frame_pose;
-        object_frame_pose.position.x =
-          object.kinematics.initial_twist_with_covariance.twist.linear.x * 0.1;
-        object_frame_pose.position.y =
-          object.kinematics.initial_twist_with_covariance.twist.linear.y * 0.1;
+        object_frame_pose.position.x = object.kinematics.twist_with_covariance.twist.linear.x * 0.1;
+        object_frame_pose.position.y = object.kinematics.twist_with_covariance.twist.linear.y * 0.1;
         tf2::Transform tf_object2future;
         tf2::Transform tf_map2object;
         tf2::Transform tf_map2future;
 
-        tf2::fromMsg(object.kinematics.initial_pose_with_covariance.pose, tf_map2object);
+        tf2::fromMsg(object.kinematics.pose_with_covariance.pose, tf_map2object);
         tf2::fromMsg(object_frame_pose, tf_object2future);
         tf_map2future = tf_map2object * tf_object2future;
         tf2::toMsg(tf_map2future, map_frame_pose);
-        double dx = map_frame_pose.position.x -
-                    object.kinematics.initial_pose_with_covariance.pose.position.x;
-        double dy = map_frame_pose.position.y -
-                    object.kinematics.initial_pose_with_covariance.pose.position.y;
+        double dx =
+          map_frame_pose.position.x - object.kinematics.pose_with_covariance.pose.position.x;
+        double dy =
+          map_frame_pose.position.y - object.kinematics.pose_with_covariance.pose.position.y;
         object_yaw = std::atan2(dy, dx);
         // }
 
@@ -165,7 +161,7 @@ bool MapBasedPredictionROS::getClosestLanelets(
           continue;
         }
         double lane_yaw = lanelet::utils::getLaneletAngle(
-          lanelet.second, object.kinematics.initial_pose_with_covariance.pose.position);
+          lanelet.second, object.kinematics.pose_with_covariance.pose.position);
         double delta_yaw = object_yaw - lane_yaw;
         double normalized_delta_yaw = std::atan2(std::sin(delta_yaw), std::cos(delta_yaw));
         double abs_norm_delta = std::fabs(normalized_delta_yaw);
@@ -261,9 +257,9 @@ void MapBasedPredictionROS::objectsCallback(
     if (in_objects->header.frame_id != "map") {
       geometry_msgs::msg::PoseStamped pose_in_map;
       geometry_msgs::msg::PoseStamped pose_orig;
-      pose_orig.pose = object.kinematics.initial_pose_with_covariance.pose;
+      pose_orig.pose = object.kinematics.pose_with_covariance.pose;
       tf2::doTransform(pose_orig, pose_in_map, world2map_transform);
-      tmp_object.object.kinematics.initial_pose_with_covariance.pose = pose_in_map.pose;
+      tmp_object.object.kinematics.pose_with_covariance.pose = pose_in_map.pose;
     }
 
     if (
@@ -273,7 +269,8 @@ void MapBasedPredictionROS::objectsCallback(
         autoware_auto_perception_msgs::msg::ObjectClassification::BUS &&
       object.classification.front().label !=
         autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK) {
-      tmp_objects_without_map.objects.push_back(tmp_object.object);
+      tmp_objects_without_map.objects.push_back(
+        map_based_prediction_->convertToPredictedObject(tmp_object.object));
       continue;
     }
 
@@ -287,9 +284,10 @@ void MapBasedPredictionROS::objectsCallback(
     if (!getClosestLanelets(tmp_object.object, lanelet_map_ptr_, start_lanelets, uuid_string)) {
       geometry_msgs::msg::PointStamped debug_point;
       geometry_msgs::msg::PointStamped point_orig;
-      point_orig.point = tmp_object.object.kinematics.initial_pose_with_covariance.pose.position;
+      point_orig.point = tmp_object.object.kinematics.pose_with_covariance.pose.position;
       tf2::doTransform(point_orig, debug_point, debug_map2lidar_transform);
-      tmp_objects_without_map.objects.push_back(object);
+      tmp_objects_without_map.objects.push_back(
+        map_based_prediction_->convertToPredictedObject(object));
       continue;
     }
 
@@ -357,9 +355,10 @@ void MapBasedPredictionROS::objectsCallback(
     if (paths.size() == 0) {
       geometry_msgs::msg::PointStamped debug_point;
       geometry_msgs::msg::PointStamped point_orig;
-      point_orig.point = tmp_object.object.kinematics.initial_pose_with_covariance.pose.position;
+      point_orig.point = tmp_object.object.kinematics.pose_with_covariance.pose.position;
       tf2::doTransform(point_orig, debug_point, debug_map2lidar_transform);
-      tmp_objects_without_map.objects.push_back(object);
+      tmp_objects_without_map.objects.push_back(
+        map_based_prediction_->convertToPredictedObject(object));
       continue;
     }
 

@@ -57,6 +57,9 @@ private:
   void normalizeLikelihood(
     autoware_auto_perception_msgs::msg::PredictedObjectKinematics & predicted_object_kinematics);
 
+  autoware_auto_perception_msgs::msg::PredictedObjectKinematics convertToPredictedKinematics(
+    const autoware_auto_perception_msgs::msg::TrackedObjectKinematics & tracked_object);
+
 public:
   MapBasedPrediction(
     double interpolating_resolution, double time_horizon, double sampling_delta_time);
@@ -69,6 +72,9 @@ public:
   bool doLinearPrediction(
     const autoware_auto_perception_msgs::msg::PredictedObjects & in_objects,
     std::vector<autoware_auto_perception_msgs::msg::PredictedObject> & out_objects);
+
+  autoware_auto_perception_msgs::msg::PredictedObject convertToPredictedObject(
+    const autoware_auto_perception_msgs::msg::TrackedObject & tracked_object);
 };
 
 #endif  // MAP_BASED_PREDICTION_HPP_

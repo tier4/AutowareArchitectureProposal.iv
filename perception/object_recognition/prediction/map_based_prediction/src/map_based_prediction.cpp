@@ -91,13 +91,13 @@ bool MapBasedPrediction::doPrediction(
         object_with_lanes.object.kinematics.twist_with_covariance.twist, predicted_path);
       autoware_auto_perception_msgs::msg::PredictedObject tmp_object;
       // convert to predicted object
-      tmp_object = object_with_lanes.object;
+      tmp_object = convertToPredictedObject(object_with_lanes.object);
       tmp_object.kinematics.predicted_paths.push_back(predicted_path);
       out_objects.push_back(tmp_object);
       continue;
     }
     autoware_auto_perception_msgs::msg::PredictedObject tmp_object;
-    tmp_object = object_with_lanes.object;
+    tmp_object = convertToPredictedObject(object_with_lanes.object);
     for (const auto & path : object_with_lanes.lanes) {
       std::vector<double> tmp_x;
       std::vector<double> tmp_y;
@@ -189,6 +189,29 @@ bool MapBasedPrediction::doLinearPrediction(
   }
 
   return true;
+}
+
+autoware_auto_perception_msgs::msg::PredictedObject MapBasedPrediction::convertToPredictedObject(
+  const autoware_auto_perception_msgs::msg::TrackedObject & tracked_object)
+{
+  autoware_auto_perception_msgs::msg::PredictedObject output;
+  output.object_id = tracked_object.object_id;
+  output.existence_probability = tracked_object.existence_probability;
+  output.classification = tracked_object.classification;
+  output.kinematics = convertToPredictedKinematics(tracked_object.kinematics);
+  output.shape = tracked_object.shape;
+  return output;
+}
+
+autoware_auto_perception_msgs::msg::PredictedObjectKinematics
+MapBasedPrediction::convertToPredictedKinematics(
+  const autoware_auto_perception_msgs::msg::TrackedObjectKinematics & tracked_object)
+{
+  autoware_auto_perception_msgs::msg::PredictedObjectKinematics output;
+  output.initial_pose_with_covariance = tracked_object.pose_with_covariance;
+  output.initial_twist_with_covariance = tracked_object.twist_with_covariance;
+  output.initial_acceleration_with_covariance = tracked_object.acceleration_with_covariance;
+  return output;
 }
 
 void MapBasedPrediction::normalizeLikelihood(

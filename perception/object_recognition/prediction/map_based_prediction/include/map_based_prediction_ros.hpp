@@ -84,7 +84,7 @@ private:
   void mapCallback(const autoware_auto_mapping_msgs::msg::HADMapBin::ConstSharedPtr msg);
 
   bool getClosestLanelets(
-    const autoware_auto_perception_msgs::msg::PredictedObject & object,
+    const autoware_auto_perception_msgs::msg::TrackedObject & object,
     const lanelet::LaneletMapPtr & lanelet_map_ptr,
     std::vector<lanelet::Lanelet> & closest_lanelets, std::string uuid_string);
 
