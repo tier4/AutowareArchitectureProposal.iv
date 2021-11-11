@@ -1,4 +1,4 @@
-# Autoware Localization Rviz Plugin
+# autoware_localization_rviz_plugin
 ## Purpose
 This plugin can display the history of the localization obtained by ekf_localizer or ndt_scan_matching.  
 
@@ -6,20 +6,20 @@ This plugin can display the history of the localization obtained by ekf_localize
 
 ### Input
 
-| Name                              | Type                                                  | Description                                       |
-| --------------------------------- | ----------------------------------------------------- | ------------------------------------------------- |
-| `input/pose` | `geometry_msgs::msg::PoseStamped`             | In input/pose, put the result of localization calculated by ekf_localizer or ndt_scan_matching |
+| Name         | Type                              | Description                                                                                    |
+| ------------ | --------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `input/pose` | `geometry_msgs::msg::PoseStamped` | In input/pose, put the result of localization calculated by ekf_localizer or ndt_scan_matching |
 
 ## Parameters
 
 ### Core Parameters
-| Name          | Type   | Default Value | Description                 |
-| ------------- | ------ | ------------- | --------------------------- |
-| `property_buffer_size_` | int | 100          | Buffer size of topic |
-| `property_line_view_` | bool | true          | Use Line property or not |
-| `property_line_width_` | float | 0.1          | Width of Line property [m] |
-| `property_line_alpha_` | float | 1.0          | Alpha of Line property |
-| `property_line_color_` | QColor | Qt::white          | Color of Line property |
+| Name                    | Type   | Default Value | Description                |
+| ----------------------- | ------ | ------------- | -------------------------- |
+| `property_buffer_size_` | int    | 100           | Buffer size of topic       |
+| `property_line_view_`   | bool   | true          | Use Line property or not   |
+| `property_line_width_`  | float  | 0.1           | Width of Line property [m] |
+| `property_line_alpha_`  | float  | 1.0           | Alpha of Line property     |
+| `property_line_color_`  | QColor | Qt::white     | Color of Line property     |
 
 ## Assumptions / Known limits
 Using a planning simulator

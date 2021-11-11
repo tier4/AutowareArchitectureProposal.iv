@@ -1,4 +1,4 @@
-# Autoware Perception Rviz Plugin
+# autoware_perception_rviz_plugin
 
 ## Purpose
 This plugin is used to generate dummy pedestrians, cars, and obstacles in planning simulator.  
@@ -10,20 +10,20 @@ The UnknownInitialPoseTool simulates a dummy obstacle.
 The DeleteAllObjectsTool deletes the dummy cars, pedestrians, and obstacles displayed by the above three tools.  
 ## Inputs / Outputs
 ### Output
-| Name                              | Type                                                  | Description                                       |
-| --------------------------------- | ----------------------------------------------------- | ------------------------------------------------- |
-| `/simulation/dummy_perception_publisher/object_info` | `dummy_perception_publisher::msg::Object`             | The topic on which to publish dummy object info |
+| Name                                                 | Type                                      | Description                                     |
+| ---------------------------------------------------- | ----------------------------------------- | ----------------------------------------------- |
+| `/simulation/dummy_perception_publisher/object_info` | `dummy_perception_publisher::msg::Object` | The topic on which to publish dummy object info |
 ## Parameter
 ### Core Parameters
-| Name          | Type   | Default Value | Description                 |
-| ------------- | ------ | ------------- | --------------------------- |
-| `topic_property_` | string | `/simulation/dummy_perception_publisher/object_info`          | The topic on which to publish dummy object info |
-| `std_dev_x_` | float | 0.03          | X standard deviation for initial pose [m] |
-| `std_dev_y_` | float | 0.03          | Y standard deviation for initial pose [m] |
-| `std_dev_z_` | float | 0.03          | Z standard deviation for initial pose [m] |
-| `std_dev_theta_` | float | 5.0 * M_PI / 180.0          | Theta standard deviation for initial pose [rad] |
-| `position_z_` | float | 0.0          | Z position for initial pose [m] |
-| `velocity_` | float | 0.0          | Velocity [m/s] |
+| Name              | Type   | Default Value                                        | Description                                     |
+| ----------------- | ------ | ---------------------------------------------------- | ----------------------------------------------- |
+| `topic_property_` | string | `/simulation/dummy_perception_publisher/object_info` | The topic on which to publish dummy object info |
+| `std_dev_x_`      | float  | 0.03                                                 | X standard deviation for initial pose [m]       |
+| `std_dev_y_`      | float  | 0.03                                                 | Y standard deviation for initial pose [m]       |
+| `std_dev_z_`      | float  | 0.03                                                 | Z standard deviation for initial pose [m]       |
+| `std_dev_theta_`  | float  | 5.0 * M_PI / 180.0                                   | Theta standard deviation for initial pose [rad] |
+| `position_z_`     | float  | 0.0                                                  | Z position for initial pose [m]                 |
+| `velocity_`       | float  | 0.0                                                  | Velocity [m/s]                                  |
 
 
 ## Assumptions / Known limits

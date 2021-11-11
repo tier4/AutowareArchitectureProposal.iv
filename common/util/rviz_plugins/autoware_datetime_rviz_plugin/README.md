@@ -1,4 +1,4 @@
-# Autoware Datetime Rviz Plugin
+# autoware_datetime_rviz_plugin
 
 ## Purpose
 This plugin displays the ROS Time and Wall Time in rviz.  
