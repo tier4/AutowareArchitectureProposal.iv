@@ -31,8 +31,8 @@ TBD.
 ## Usage
 
 1. Start rviz and select Add under the Displays panel.
-![select_add](./images/select_add.png)
+   ![select_add](./images/select_add.png)
 2. Select autoware_localization_rviz_plugin/PoseHistory and press OK.
-![select_localization_plugin](./images/select_localization_plugin.png)
+   ![select_localization_plugin](./images/select_localization_plugin.png)
 3. Enter the name of the topic where you want to view the trajectory.
-![select_topic_name](./images/select_topic_name.png)
+   ![select_topic_name](./images/select_topic_name.png)

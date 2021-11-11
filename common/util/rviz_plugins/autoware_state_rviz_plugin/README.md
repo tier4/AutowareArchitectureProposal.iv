@@ -25,13 +25,8 @@ This plugin also can engage from the panel.
 ## HowToUse
 
 1. Start rviz and select panels/Add new panel.
-
-![select_panel](./images/select_panels.png)
-
+   ![select_panel](./images/select_panels.png)
 2. Select autoware_state_rviz_plugin/AutowareStatePanel and press OK.
-
-![select_state_plugin](./images/select_state_plugin.png)
-
+   ![select_state_plugin](./images/select_state_plugin.png)
 3. If the AutowareState is WaitingForEngage, can engage by clicking the Engage button.
-
-![select_engage](./images/select_engage.png)
+   ![select_engage](./images/select_engage.png)

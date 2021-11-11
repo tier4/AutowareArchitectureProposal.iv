@@ -4,6 +4,10 @@
 
 This plugin displays the ROS Time and Wall Time in rviz.
 
+## Assumptions / Known limits
+
+TBD.
+
 ## Usage
 
 1. Start rviz and select panels/Add new panel.
