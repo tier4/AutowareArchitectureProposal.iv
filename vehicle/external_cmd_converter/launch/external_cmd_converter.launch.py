@@ -74,8 +74,8 @@ def generate_launch_description():
             default_value="/external/selected/external_control_cmd",
         ),
         DeclareLaunchArgument(
-            "in/shift_cmd",
-            default_value="/external/selected/shift_cmd",
+            "in/gear_cmd",
+            default_value="/external/selected/gear_cmd",
         ),
         DeclareLaunchArgument(
             "in/emergency_stop",
@@ -86,8 +86,8 @@ def generate_launch_description():
             default_value="/control/current_gate_mode",
         ),
         DeclareLaunchArgument(
-            "in/twist",
-            default_value="/localization/twist",
+            "in/odometry",
+            default_value="/localization/kinematic_state",
         ),
         # output
         DeclareLaunchArgument(
@@ -106,10 +106,10 @@ def generate_launch_description():
         name="external_cmd_converter",
         remappings=[
             _create_mapping_tuple("in/external_control_cmd"),
-            _create_mapping_tuple("in/shift_cmd"),
+            _create_mapping_tuple("in/gear_cmd"),
             _create_mapping_tuple("in/emergency_stop"),
             _create_mapping_tuple("in/current_gate_mode"),
-            _create_mapping_tuple("in/twist"),
+            _create_mapping_tuple("in/odometry"),
             _create_mapping_tuple("out/control_cmd"),
             _create_mapping_tuple("out/latest_external_control_cmd"),
         ],
