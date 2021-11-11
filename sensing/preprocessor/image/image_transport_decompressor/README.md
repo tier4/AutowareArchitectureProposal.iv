@@ -1,13 +1,8 @@
-# {package_name}
+# image_transport_decompressor
 
 ## Purpose
 
-<!-- Write the purpose of this package and briefly describe the features.
-
-Example:
-  {package_name} is a package for planning trajectories that can avoid obstacles.
-  This feature consists of two steps: obstacle filtering and optimizing trajectory.
--->
+The `image_transport_decompressor` is a node that decompresses images.
 
 ## Inner-workings / Algorithms
 
@@ -33,22 +28,17 @@ Example:
 
 ## Inputs / Outputs
 
-<!-- Write inputs/outputs of this package.
+### Input
 
-Example:
-  ### Input
+| Name                       | Type                                | Description      |
+| -------------------------- | ----------------------------------- | ---------------- |
+| `~/input/compressed_image` | `sensor_msgs::msg::CompressedImage` | compressed image |
 
-  | Name                 | Type                                                | Description          |
-  | -------------------- | --------------------------------------------------- | -------------------- |
-  | `~/input/trajectory` | `autoware_planning_msgs::msg::Trajectory`           | reference trajectory |
-  | `~/input/obstacles`  | `autoware_perception_msgs::msg::DynamicObjectArray` | obstacles            |
+### Output
 
-  ### Output
-
-  | Name                  | Type                                      | Description         |
-  | --------------------- | ----------------------------------------- | ------------------- |
-  | `~/output/trajectory` | `autoware_planning_msgs::msg::Trajectory` | modified trajectory |
--->
+| Name                 | Type                      | Description        |
+| -------------------- | ------------------------- | ------------------ |
+| `~/output/raw_image` | `sensor_msgs::msg::Image` | decompressed image |
 
 ## Parameters
 
