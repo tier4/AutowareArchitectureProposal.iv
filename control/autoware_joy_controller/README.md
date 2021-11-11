@@ -2,7 +2,7 @@
 
 ## Role
 
-`autoware_joy_controller` operate a vehicle by a joy controller via Autoware (e.g. steering wheel, shift, turn signal, engage) by several kinds of joy sticks.
+`autoware_joy_controller` is the package to convert a joy msg to autoware commands (e.g. steering wheel, shift, turn signal, engage) for a vehicle.
 
 ## Input / Output
 
@@ -17,7 +17,7 @@
 
 | Name                                | Type                                                     | Description                              |
 | ----------------------------------- | -------------------------------------------------------- | ---------------------------------------- |
-| `~/output/control_command`          | autoware_auto_control_msgs::msg::AckermannControlCommand| lateral and longitudinal control command |
+| `~/output/control_command`          | autoware_auto_control_msgs::msg::AckermannControlCommand | lateral and longitudinal control command |
 | `~/output/external_control_command` | autoware_external_api_msgs::msg::ControlCommandStamped   | lateral and longitudinal control command |
 | `~/output/shift`                    | autoware_external_api_msgs::msg::GearShiftStamped        | gear command                             |
 | `~/output/turn_signal`              | autoware_external_api_msgs::msg::TurnSignalStamped       | turn signal command                      |
