@@ -265,14 +265,12 @@ void MapBasedPredictionROS::objectsCallback(
       tf2::doTransform(pose_orig, pose_in_map, world2map_transform);
       tmp_object.object.kinematics.pose_with_covariance.pose = pose_in_map.pose;
     }
+    using Label = autoware_auto_perception_msgs::msg::ObjectClassification;
+    const auto & label = object.classification.front().label;
 
     if (
-      object.classification.front().label !=
-        autoware_auto_perception_msgs::msg::ObjectClassification::CAR &&
-      object.classification.front().label !=
-        autoware_auto_perception_msgs::msg::ObjectClassification::BUS &&
-      object.classification.front().label !=
-        autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK) {
+      label != Label::CAR && label != Label::BUS && label != Label::TRUCK &&
+      label != Label::TRAILER) {
       tmp_objects_without_map.objects.push_back(
         map_based_prediction_->convertToPredictedObject(tmp_object.object));
       continue;
