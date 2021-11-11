@@ -30,7 +30,6 @@
 #include <autoware_auto_vehicle_msgs/msg/turn_indicators_report.hpp>
 #include <autoware_vehicle_msgs/msg/actuation_command_stamped.hpp>
 #include <autoware_vehicle_msgs/msg/actuation_status_stamped.hpp>
-#include <autoware_vehicle_msgs/msg/control_mode.hpp>
 #include <autoware_vehicle_msgs/msg/vehicle_emergency_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <pacmod_msgs/msg/global_rpt.hpp>
