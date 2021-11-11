@@ -373,6 +373,7 @@ float DetectionByTracker::optimizeUnderSegmentedObject(
 
   // build output
   highest_iou_object.object.classification = target_object.classification;
+  // TODO(yukkysaito): It is necessary to consider appropriate values in the future.
   highest_iou_object.object.existence_probability = 0.1f;
   output = highest_iou_object;
   return highest_iou;
