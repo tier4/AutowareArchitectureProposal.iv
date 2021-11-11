@@ -50,6 +50,7 @@
 #include <autoware_auto_system_msgs/msg/emergency_state.hpp>
 
 #include <autoware_vehicle_msgs/msg/steering.hpp>
+#include <autoware_auto_vehicle_msgs/msg/steering_report.hpp>
 
 
 #include <memory>
