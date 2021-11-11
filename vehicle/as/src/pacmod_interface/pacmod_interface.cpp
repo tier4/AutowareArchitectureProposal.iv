@@ -165,7 +165,7 @@ void PacmodInterface::callbackActuationCmd(
 void PacmodInterface::callbackEmergencyCmd(
   const autoware_vehicle_msgs::msg::VehicleEmergencyStamped::ConstSharedPtr msg)
 {
-  is_emergency_ = (msg->emergency == 1);
+  is_emergency_ = msg->emergency;
 }
 
 void PacmodInterface::callbackControlCmd(
