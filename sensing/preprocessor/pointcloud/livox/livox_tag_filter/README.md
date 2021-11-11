@@ -52,6 +52,8 @@ Example:
 | ------------- | --------------- | -------------------------------------- |
 | `ignore_tags` | vector<int64_t> | ignored tags (See the following table) |
 
+### Tag Parameters
+
 | Bit | Description                              | Options                                    |
 | --- | ---------------------------------------- | ------------------------------------------ |
 | 0~1 | Point property based on spatial position | 00: Normal                                 |
