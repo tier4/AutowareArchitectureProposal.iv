@@ -4,12 +4,9 @@
 
 This plugin displays the ROS Time and Wall Time in rviz.
 
-## HowToUse
+## Usage
 
 1. Start rviz and select panels/Add new panel.
-
-![select_panel](./images/select_panels.png)
-
+   ![select_panel](./images/select_panels.png)
 2. Select autoware_datetime_rviz_plugin/AutowareDateTimePanel and press OK.
-
-![select_datetime_plugin](./images/select_datetime_plugin.png)
+   ![select_datetime_plugin](./images/select_datetime_plugin.png)
