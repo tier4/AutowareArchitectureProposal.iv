@@ -184,9 +184,13 @@ void AutowareJoyControllerNode::onJoy(const sensor_msgs::msg::Joy::ConstSharedPt
   }
 }
 
-void AutowareJoyControllerNode::onTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
+void AutowareJoyControllerNode::onOdometry(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
 {
-  twist_ = msg;
+  auto twist = std::make_shared<geometry_msgs::msg::TwistStamped>();
+  twist->header = msg->header;
+  twist->twist = msg->twist.twist;
+
+  twist_ = twist;
 }
 
 bool AutowareJoyControllerNode::isDataReady()
@@ -473,8 +477,9 @@ AutowareJoyControllerNode::AutowareJoyControllerNode(const rclcpp::NodeOptions &
   sub_joy_ = this->create_subscription<sensor_msgs::msg::Joy>(
     "input/joy", 1, std::bind(&AutowareJoyControllerNode::onJoy, this, std::placeholders::_1),
     subscriber_option);
-  sub_twist_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
-    "input/twist", 1, std::bind(&AutowareJoyControllerNode::onTwist, this, std::placeholders::_1),
+  sub_odom_ = this->create_subscription<nav_msgs::msg::Odometry>(
+    "input/odometry", 1,
+    std::bind(&AutowareJoyControllerNode::onOdometry, this, std::placeholders::_1),
     subscriber_option);
 
   // Publisher

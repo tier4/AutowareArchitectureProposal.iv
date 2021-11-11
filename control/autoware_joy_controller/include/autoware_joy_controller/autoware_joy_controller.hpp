@@ -29,6 +29,7 @@
 #include <autoware_external_api_msgs/srv/engage.hpp>
 #include <autoware_external_api_msgs/srv/set_emergency.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/joy.hpp>
 
 #include <algorithm>
@@ -69,14 +70,14 @@ private:
 
   // Subscriber
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr sub_joy_;
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
+  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr sub_odom_;
 
   rclcpp::Time last_joy_received_time_;
   std::shared_ptr<const JoyConverterBase> joy_;
   geometry_msgs::msg::TwistStamped::ConstSharedPtr twist_;
 
   void onJoy(const sensor_msgs::msg::Joy::ConstSharedPtr msg);
-  void onTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
+  void onOdometry(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
 
   // Publisher
   rclcpp::Publisher<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr
