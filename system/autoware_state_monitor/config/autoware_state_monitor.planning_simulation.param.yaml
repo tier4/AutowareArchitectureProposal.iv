@@ -28,11 +28,11 @@
         "/initialpose2d",
         "/planning/mission_planning/route",
         "/planning/scenario_planning/trajectory",
-        #"/control/trajectory_follower/control_cmd",
-        #"/control/vehicle_cmd",
+        "/control/trajectory_follower/control_cmd",
+        "/control/vehicle_cmd",
         "/vehicle/status/twist",
         "/vehicle/status/steering",
-        #"/system/emergency/control_cmd"
+        "/system/emergency/control_cmd"
       ]
 
       configs:
