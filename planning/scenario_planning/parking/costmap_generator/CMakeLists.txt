@@ -31,10 +31,10 @@ autoware_set_compile_options(${COSTMAP_GENERATOR_LIB})
 # skipping Werrors from external `grid_map_cv` package
 target_compile_options(${COSTMAP_GENERATOR_LIB} PRIVATE -Wno-old-style-cast -Wno-sign-conversion -Wno-conversion -Wno-double-conversion -Wno-double-promotion)
 
-if(BUILD_TESTING)
-  # run linters
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-endif()
+# if(BUILD_TESTING)
+#   # run linters
+#   find_package(ament_lint_auto REQUIRED)
+#   ament_lint_auto_find_test_dependencies()
+# endif()
 
 ament_auto_package(INSTALL_TO_SHARE)

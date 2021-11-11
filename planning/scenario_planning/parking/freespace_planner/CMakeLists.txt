@@ -15,17 +15,17 @@ rclcpp_components_register_node(${FREESPACE_PLANNER_NODE_LIB}
   EXECUTABLE ${FREESPACE_PLANNER_NODE_LIB}_exe
 )
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-
-  find_package(autoware_testing REQUIRED)
-  add_smoke_test(${PROJECT_NAME} ${FREESPACE_PLANNER_NODE_LIB}_exe)
-
-  add_ros_test(
-    test/freespace_planner.test.py
-    TIMEOUT "15"
-  )
-endif()
+# if(BUILD_TESTING)
+#   find_package(ament_lint_auto REQUIRED)
+#   ament_lint_auto_find_test_dependencies()
+# 
+#   find_package(autoware_testing REQUIRED)
+#   add_smoke_test(${PROJECT_NAME} ${FREESPACE_PLANNER_NODE_LIB}_exe)
+# 
+#   add_ros_test(
+#     test/freespace_planner.test.py
+#     TIMEOUT "15"
+#   )
+# endif()
 
 ament_auto_package(INSTALL_TO_SHARE launch param)

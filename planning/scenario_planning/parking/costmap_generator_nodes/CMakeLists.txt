@@ -34,9 +34,9 @@ rclcpp_components_register_node(${COSTMAP_GENERATOR_NODE_NAME}
   EXECUTABLE ${COSTMAP_GENERATOR_NODE_NAME}_exe
 )
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-endif()
+# if(BUILD_TESTING)
+#   find_package(ament_lint_auto REQUIRED)
+#   ament_lint_auto_find_test_dependencies()
+# endif()
 
 ament_auto_package(INSTALL_TO_SHARE launch param)
