@@ -190,7 +190,7 @@ private:
   void on_initialpose(const PoseWithCovarianceStamped::ConstSharedPtr msg);
 
   /**
-   * @brief subscribe trajector for deciding self z position.
+   * @brief subscribe trajectory for deciding self z position.
    */
   void on_trajectory(const Trajectory::ConstSharedPtr msg);
 
