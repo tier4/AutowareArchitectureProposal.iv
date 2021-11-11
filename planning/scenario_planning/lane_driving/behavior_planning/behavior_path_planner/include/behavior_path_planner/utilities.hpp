@@ -16,15 +16,18 @@
 #define BEHAVIOR_PATH_PLANNER__UTILITIES_HPP_
 
 #include "behavior_path_planner/data_manager.hpp"
-#include "behavior_path_planner/route_handler.hpp"
+#include "behavior_path_planner/scene_module/pull_out/pull_out_path.hpp"
 
 #include <autoware_utils/autoware_utils.hpp>
 #include <opencv2/opencv.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <route_handler/route_handler.hpp>
 
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
-#include <autoware_planning_msgs/msg/path.hpp>
-#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
+#include <autoware_auto_perception_msgs/msg/predicted_object.hpp>
+#include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/predicted_path.hpp>
+#include <autoware_auto_planning_msgs/msg/path.hpp>
+#include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
 #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <geometry_msgs/msg/pose_array.hpp>
@@ -101,12 +104,12 @@ namespace behavior_path_planner
 {
 namespace util
 {
-using autoware_perception_msgs::msg::DynamicObject;
-using autoware_perception_msgs::msg::DynamicObjectArray;
-using autoware_perception_msgs::msg::PredictedPath;
-using autoware_planning_msgs::msg::Path;
-using autoware_planning_msgs::msg::PathPointWithLaneId;
-using autoware_planning_msgs::msg::PathWithLaneId;
+using autoware_auto_perception_msgs::msg::PredictedObject;
+using autoware_auto_perception_msgs::msg::PredictedObjects;
+using autoware_auto_perception_msgs::msg::PredictedPath;
+using autoware_auto_planning_msgs::msg::Path;
+using autoware_auto_planning_msgs::msg::PathPointWithLaneId;
+using autoware_auto_planning_msgs::msg::PathWithLaneId;
 using autoware_utils::LineString2d;
 using autoware_utils::Point2d;
 using autoware_utils::Polygon2d;
@@ -174,13 +177,13 @@ Pose lerpByPose(const Pose & p1, const Pose & p2, const double t);
 
 Point lerpByLength(const std::vector<Point> & array, const double length);
 
-bool lerpByTimeStamp(const PredictedPath & path, const rclcpp::Time & t, Pose * lerped_pt);
+bool lerpByTimeStamp(const PredictedPath & path, const double t, Pose * lerped_pt);
 
 bool lerpByDistance(
   const behavior_path_planner::PullOutPath & path, const double & s, Pose * lerped_pt,
   const lanelet::ConstLanelets & road_lanes);
 
-bool calcObjectPolygon(const DynamicObject & object, Polygon2d * object_polygon);
+bool calcObjectPolygon(const PredictedObject & object, Polygon2d * object_polygon);
 
 PredictedPath resamplePredictedPath(
   const PredictedPath & input_path, const double resolution, const double duration);
@@ -190,11 +193,11 @@ double getDistanceBetweenPredictedPaths(
   const double end_time, const double resolution);
 
 double getDistanceBetweenPredictedPathAndObject(
-  const DynamicObject & object, const PredictedPath & path, const double start_time,
+  const PredictedObject & object, const PredictedPath & path, const double start_time,
   const double end_time, const double resolution);
 
 double getDistanceBetweenPredictedPathAndObjectPolygon(
-  const DynamicObject & object, const PullOutPath & ego_path,
+  const PredictedObject & object, const PullOutPath & ego_path,
   const autoware_utils::LinearRing2d & vehicle_footprint, double distance_resolution,
   const lanelet::ConstLanelets & road_lanes);
 
@@ -203,7 +206,7 @@ double getDistanceBetweenPredictedPathAndObjectPolygon(
  * @return Indices corresponding to the obstacle inside the lanelets
  */
 std::vector<size_t> filterObjectsByLanelets(
-  const DynamicObjectArray & objects, const lanelet::ConstLanelets & lanelets,
+  const PredictedObjects & objects, const lanelet::ConstLanelets & lanelets,
   const double start_arc_length, const double end_arc_length);
 
 /**
@@ -211,16 +214,16 @@ std::vector<size_t> filterObjectsByLanelets(
  * @return Indices corresponding to the obstacle inside the lanelets
  */
 std::vector<size_t> filterObjectsByLanelets(
-  const DynamicObjectArray & objects, const lanelet::ConstLanelets & target_lanelets);
+  const PredictedObjects & objects, const lanelet::ConstLanelets & target_lanelets);
 
 std::vector<size_t> filterObjectsByPath(
-  const DynamicObjectArray & objects, const std::vector<size_t> & object_indices,
+  const PredictedObjects & objects, const std::vector<size_t> & object_indices,
   const PathWithLaneId & ego_path, const double vehicle_width);
 
-DynamicObjectArray filterObjectsByVelocity(const DynamicObjectArray & objects, double lim_v);
+PredictedObjects filterObjectsByVelocity(const PredictedObjects & objects, double lim_v);
 
-DynamicObjectArray filterObjectsByVelocity(
-  const DynamicObjectArray & objects, double min_v, double max_v);
+PredictedObjects filterObjectsByVelocity(
+  const PredictedObjects & objects, double min_v, double max_v);
 
 // drivable area generation
 

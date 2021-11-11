@@ -28,8 +28,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <vehicle_info_util/vehicle_info.hpp>
 
-#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
-
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -230,7 +228,7 @@ BehaviorModuleOutput PullOutModule::planWaitingApproval()
       common_parameters.vehicle_length, *route_handler);
   }
   for (size_t i = 1; i < candidatePath.points.size(); i++) {
-    candidatePath.points.at(i).point.twist.linear.x = 0.0;
+    candidatePath.points.at(i).point.longitudinal_velocity_mps = 0.0;
   }
   out.path = std::make_shared<PathWithLaneId>(candidatePath);
 
@@ -690,7 +688,7 @@ TurnSignalInfo PullOutModule::calcTurnSignalInfo(const ShiftPoint & shift_point)
   TurnSignalInfo turn_signal;
 
   if (status_.is_retreat_path_valid && !status_.back_finished) {
-    turn_signal.turn_signal.data = TurnSignal::HAZARD;
+    turn_signal.turn_signal.data = TurnIndicatorsCommand::HAZARD;
     turn_signal.signal_distance =
       autoware_utils::calcDistance2d(status_.backed_pose, planner_data_->self_pose->pose);
     return turn_signal;
@@ -736,9 +734,9 @@ TurnSignalInfo PullOutModule::calcTurnSignalInfo(const ShiftPoint & shift_point)
   }
 
   if (distance_to_pull_out_start < turn_signal_on_threshold) {
-    turn_signal.turn_signal.data = TurnSignal::RIGHT;
+    turn_signal.turn_signal.data = TurnIndicatorsCommand::ENABLE_RIGHT;
     if (distance_to_pull_out_end < turn_signal_off_threshold) {
-      turn_signal.turn_signal.data = TurnSignal::NONE;
+      turn_signal.turn_signal.data = TurnIndicatorsCommand::DISABLE;
       if (distance_to_target_pose < turn_hazard_on_threshold) {
         turn_signal.turn_signal.data = TurnSignal::HAZARD;
       }

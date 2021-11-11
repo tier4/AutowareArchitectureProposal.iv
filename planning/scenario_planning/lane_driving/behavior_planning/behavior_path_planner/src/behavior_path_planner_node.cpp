@@ -49,7 +49,7 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
 
   velocity_subscriber_ = create_subscription<TwistStamped>(
     "~/input/velocity", 1, std::bind(&BehaviorPathPlannerNode::onVelocity, this, _1));
-  perception_subscriber_ = create_subscription<DynamicObjectArray>(
+  perception_subscriber_ = create_subscription<PredictedObjects>(
     "~/input/perception", 1, std::bind(&BehaviorPathPlannerNode::onPerception, this, _1));
   external_approval_subscriber_ = create_subscription<ApprovalMsg>(
     "~/input/external_approval", 1,
@@ -58,16 +58,16 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
     "~/input/force_approval", 1, std::bind(&BehaviorPathPlannerNode::onForceApproval, this, _1));
 
   // route_handler
-  vector_map_subscriber_ = create_subscription<MapBin>(
+  vector_map_subscriber_ = create_subscription<HADMapBin>(
     "~/input/vector_map", rclcpp::QoS{1}.transient_local(),
     std::bind(&BehaviorPathPlannerNode::onMap, this, _1));
-  route_subscriber_ = create_subscription<Route>(
+  route_subscriber_ = create_subscription<HADMapRoute>(
     "~/input/route", 1, std::bind(&BehaviorPathPlannerNode::onRoute, this, _1));
 
   // publisher
   path_publisher_ = create_publisher<PathWithLaneId>("~/output/path", 1);
   path_candidate_publisher_ = create_publisher<Path>("~/output/path_candidate", 1);
-  turn_signal_publisher_ = create_publisher<TurnSignal>("~/output/turn_signal_cmd", 1);
+  turn_signal_publisher_ = create_publisher<TurnIndicatorsCommand>("~/output/turn_signal_cmd", 1);
   debug_drivable_area_publisher_ = create_publisher<OccupancyGrid>("~/debug/drivable_area", 1);
   debug_path_publisher_ = create_publisher<Path>("~/debug/path_for_visualize", 1);
 
@@ -595,7 +595,7 @@ void BehaviorPathPlannerNode::onVelocity(const TwistStamped::ConstSharedPtr msg)
 {
   planner_data_->self_velocity = msg;
 }
-void BehaviorPathPlannerNode::onPerception(const DynamicObjectArray::ConstSharedPtr msg)
+void BehaviorPathPlannerNode::onPerception(const PredictedObjects::ConstSharedPtr msg)
 {
   planner_data_->dynamic_object = msg;
 }
@@ -617,11 +617,11 @@ void BehaviorPathPlannerNode::onForceApproval(const PathChangeModule::ConstShare
   planner_data_->approval.is_force_approved.module_name = getModuleName(msg->module);
   planner_data_->approval.is_force_approved.stamp = msg->header.stamp;
 }
-void BehaviorPathPlannerNode::onMap(const MapBin::ConstSharedPtr msg)
+void BehaviorPathPlannerNode::onMap(const HADMapBin::ConstSharedPtr msg)
 {
   planner_data_->route_handler->setMap(*msg);
 }
-void BehaviorPathPlannerNode::onRoute(const Route::ConstSharedPtr msg)
+void BehaviorPathPlannerNode::onRoute(const HADMapRoute::ConstSharedPtr msg)
 {
   const bool is_first_time = !(planner_data_->route_handler->isHandlerReady());
 

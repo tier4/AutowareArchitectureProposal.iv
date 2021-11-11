@@ -34,9 +34,6 @@ namespace behavior_path_planner
 {
 namespace lane_change_utils
 {
-using autoware_perception_msgs::msg::PredictedPath;
-using autoware_planning_msgs::msg::PathPoint;
-
 PathWithLaneId combineReferencePath(const PathWithLaneId path1, const PathWithLaneId path2)
 {
   PathWithLaneId path;

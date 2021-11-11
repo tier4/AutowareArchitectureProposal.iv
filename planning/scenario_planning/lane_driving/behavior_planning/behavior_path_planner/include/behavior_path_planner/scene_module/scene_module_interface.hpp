@@ -21,8 +21,8 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-#include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
-#include <autoware_vehicle_msgs/msg/turn_signal.hpp>
+#include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
+#include <autoware_auto_vehicle_msgs/msg/turn_indicators_command.hpp>
 
 #include <boost/optional.hpp>
 
@@ -35,8 +35,8 @@
 
 namespace behavior_path_planner
 {
-using autoware_planning_msgs::msg::PathWithLaneId;
-using autoware_vehicle_msgs::msg::TurnSignal;
+using autoware_auto_planning_msgs::msg::PathWithLaneId;
+using autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand;
 using visualization_msgs::msg::MarkerArray;
 using PlanResult = PathWithLaneId::SharedPtr;
 
