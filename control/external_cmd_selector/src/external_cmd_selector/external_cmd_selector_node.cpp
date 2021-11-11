@@ -14,6 +14,8 @@
 
 #include "external_cmd_selector/external_cmd_selector_node.hpp"
 
+#include <autoware_iv_auto_msgs_converter/autoware_iv_auto_msgs_converter.hpp>
+
 #include <chrono>
 #include <memory>
 #include <string>
@@ -185,10 +187,7 @@ void ExternalCmdSelector::onTimer() { pub_current_selector_mode_->publish(curren
 ExternalCmdSelector::InternalGearShift ExternalCmdSelector::convert(
   const ExternalGearShift & command)
 {
-  InternalGearShift message;
-  message.stamp = command.stamp;
-  message.command = command.gear_shift.data;
-  return message;
+  return convert(command);
 }
 
 ExternalCmdSelector::InternalTurnSignal ExternalCmdSelector::convert(
