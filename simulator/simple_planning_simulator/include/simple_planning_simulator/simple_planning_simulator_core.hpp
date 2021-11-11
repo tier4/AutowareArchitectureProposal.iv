@@ -37,10 +37,10 @@
 
 #include "autoware_auto_control_msgs/msg/ackermann_control_command.hpp"
 #include "autoware_auto_vehicle_msgs/msg/steering_report.hpp"
-#include "autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp"
+#include "autoware_auto_vehicle_msgs/msg/control_mode_report.hpp"
+#include "autoware_auto_vehicle_msgs/msg/gear_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/gear_report.hpp"
 #include "autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp"
-#include "autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp"
-#include "autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp"
 #include "autoware_auto_geometry_msgs/msg/complex32.hpp"
 #include "common/types.hpp"
 
@@ -56,10 +56,11 @@ using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
 
 using autoware_auto_control_msgs::msg::AckermannControlCommand;
+using autoware_auto_vehicle_msgs::msg::ControlModeReport;
+using autoware_auto_vehicle_msgs::msg::GearCommand;
+using autoware_auto_vehicle_msgs::msg::GearReport;
 using autoware_auto_vehicle_msgs::msg::SteeringReport;
 using autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
-using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
-using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 using geometry_msgs::msg::TransformStamped;
 using geometry_msgs::msg::PoseWithCovarianceStamped;
 using geometry_msgs::msg::PoseStamped;
@@ -111,11 +112,12 @@ private:
   rclcpp::Publisher<TwistStamped>::SharedPtr pub_twist_;
   rclcpp::Publisher<Odometry>::SharedPtr pub_odom_;
   rclcpp::Publisher<SteeringReport>::SharedPtr pub_steer_;
-  rclcpp::Publisher<VehicleStateReport>::SharedPtr pub_state_report_;
+  rclcpp::Publisher<ControlModeReport>::SharedPtr pub_control_mode_report_;
+  rclcpp::Publisher<GearReport>::SharedPtr pub_gear_report_;
   rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr pub_tf_;
   rclcpp::Publisher<PoseStamped>::SharedPtr pub_current_pose_;
 
-  rclcpp::Subscription<VehicleStateCommand>::SharedPtr sub_state_cmd_;
+  rclcpp::Subscription<GearCommand>::SharedPtr sub_gear_cmd_;
   rclcpp::Subscription<VehicleControlCommand>::SharedPtr sub_vehicle_cmd_;
   rclcpp::Subscription<AckermannControlCommand>::SharedPtr sub_ackermann_cmd_;
   rclcpp::Subscription<PoseWithCovarianceStamped>::SharedPtr sub_init_pose_;
@@ -133,7 +135,7 @@ private:
   SteeringReport current_steer_;
   VehicleControlCommand::ConstSharedPtr current_vehicle_cmd_ptr_;
   AckermannControlCommand::ConstSharedPtr current_ackermann_cmd_ptr_;
-  VehicleStateCommand::ConstSharedPtr current_vehicle_state_cmd_ptr_;
+  GearCommand::ConstSharedPtr current_gear_cmd_ptr_;
 
   /* frame_id */
   std::string simulated_frame_id_;  //!< @brief simulated vehicle frame id
@@ -146,9 +148,6 @@ private:
   DeltaTime delta_time_;  //!< @brief to calculate delta time
 
   MeasurementNoiseGenerator measurement_noise_;  //!< @brief for measurement noise
-
-  float32_t cg_to_rear_m_;  //!< @brief length from baselink to CoM
-
 
   /* vehicle model */
   enum class VehicleModelType
@@ -179,7 +178,7 @@ private:
   /**
    * @brief set current_vehicle_state_ with received message
    */
-  void on_state_cmd(const VehicleStateCommand::ConstSharedPtr msg);
+  void on_gear_cmd(const GearCommand::ConstSharedPtr msg);
 
   /**
    * @brief set initial pose for simulation with received message
@@ -245,9 +244,14 @@ private:
   void publish_steering(const SteeringReport & steer);
 
   /**
-   * @brief publish vehicle state report
+   * @brief publish control_mode report
    */
-  void publish_state_report();
+  void publish_control_mode_report();
+
+  /**
+   * @brief publish gear report
+   */
+  void publish_gear_report();
 
   /**
    * @brief publish tf

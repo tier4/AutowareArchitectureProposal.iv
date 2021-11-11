@@ -28,6 +28,7 @@
 #include "autoware_auto_tf2/tf2_autoware_auto_msgs.hpp"
 #include "simple_planning_simulator/vehicle_model/sim_model.hpp"
 #include "motion_common/motion_common.hpp"
+#include "vehicle_info_util/vehicle_info_util.hpp"
 
 #include "rclcpp_components/register_node_macro.hpp"
 
@@ -81,7 +82,6 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
   simulated_frame_id_ = declare_parameter("simulated_frame_id", "base_link");
   origin_frame_id_ = declare_parameter("origin_frame_id", "odom");
   add_measurement_noise_ = declare_parameter("add_measurement_noise", false);
-  cg_to_rear_m_ = static_cast<float>(declare_parameter("vehicle.cg_to_rear_m", 1.5));
 
   using rclcpp::QoS;
   using std::placeholders::_1;
@@ -95,11 +95,12 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
   sub_ackermann_cmd_ = create_subscription<AckermannControlCommand>(
     "input/ackermann_control_command", QoS{1},
     std::bind(&SimplePlanningSimulator::on_ackermann_cmd, this, _1));
-  sub_state_cmd_ = create_subscription<VehicleStateCommand>(
-    "input/vehicle_state_command", QoS{1},
-    std::bind(&SimplePlanningSimulator::on_state_cmd, this, _1));
+  sub_gear_cmd_ = create_subscription<GearCommand>(
+    "input/gear_command", QoS{1}, std::bind(&SimplePlanningSimulator::on_gear_cmd, this, _1));
 
-  pub_state_report_ = create_publisher<VehicleStateReport>("output/vehicle_state_report", QoS{1});
+  pub_control_mode_report_ =
+    create_publisher<ControlModeReport>("output/control_mode_report", QoS{1});
+  pub_gear_report_ = create_publisher<GearReport>("output/gear_report", QoS{1});
   pub_current_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>("/current_pose", QoS{1});
   pub_twist_ = create_publisher<TwistStamped>("output/twist", QoS{1});
   pub_odom_ = create_publisher<Odometry>("output/odometry", QoS{1});
@@ -149,8 +150,6 @@ void SimplePlanningSimulator::initialize_vehicle_model()
 
   RCLCPP_INFO(this->get_logger(), "vehicle_model_type = %s", vehicle_model_type_str.c_str());
 
-  const float64_t cg_to_front_m = declare_parameter("vehicle.cg_to_front_m", 1.5);
-  const float64_t wheelbase = cg_to_front_m + static_cast<float64_t>(cg_to_rear_m_);
   const float64_t vel_lim = declare_parameter("vel_lim", 50.0);
   const float64_t vel_rate_lim = declare_parameter("vel_rate_lim", 7.0);
   const float64_t steer_lim = declare_parameter("steer_lim", 1.0);
@@ -159,6 +158,8 @@ void SimplePlanningSimulator::initialize_vehicle_model()
   const float64_t acc_time_constant = declare_parameter("acc_time_constant", 0.1);
   const float64_t steer_time_delay = declare_parameter("steer_time_delay", 0.24);
   const float64_t steer_time_constant = declare_parameter("steer_time_constant", 0.27);
+  const float64_t wheelbase =
+    vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo().wheel_base_m;
 
   if (vehicle_model_type_str == "IDEAL_STEER_VEL") {
     vehicle_model_type_ = VehicleModelType::IDEAL_STEER_VEL;
@@ -216,7 +217,8 @@ void SimplePlanningSimulator::on_timer()
   publish_twist(current_twist_);
   publish_steering(current_steer_);
 
-  publish_state_report();
+  publish_control_mode_report();
+  publish_gear_report();
   publish_tf(current_odometry_);
 }
 
@@ -267,15 +269,15 @@ void SimplePlanningSimulator::set_input(const float steer, const float vel, cons
   vehicle_model_ptr_->setInput(input);
 }
 
-void SimplePlanningSimulator::on_state_cmd(
-  const autoware_auto_vehicle_msgs::msg::VehicleStateCommand::ConstSharedPtr msg)
+void SimplePlanningSimulator::on_gear_cmd(
+  const autoware_auto_vehicle_msgs::msg::GearCommand::ConstSharedPtr msg)
 {
-  current_vehicle_state_cmd_ptr_ = msg;
+  current_gear_cmd_ptr_ = msg;
 
   if (vehicle_model_type_ == VehicleModelType::IDEAL_STEER_ACC_GEARED ||
     vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC_GEARED)
   {
-    vehicle_model_ptr_->setGear(current_vehicle_state_cmd_ptr_->gear);
+    vehicle_model_ptr_->setGear(current_gear_cmd_ptr_->command);
   }
 }
 
@@ -382,15 +384,23 @@ void SimplePlanningSimulator::publish_steering(const SteeringReport & steer)
   pub_steer_->publish(msg);
 }
 
-void SimplePlanningSimulator::publish_state_report()
+void SimplePlanningSimulator::publish_control_mode_report()
 {
-  VehicleStateReport msg;
+  ControlModeReport msg;
   msg.stamp = get_clock()->now();
-  msg.mode = VehicleStateReport::MODE_AUTONOMOUS;
-  if (current_vehicle_state_cmd_ptr_) {
-    msg.gear = current_vehicle_state_cmd_ptr_->gear;
+  msg.mode = ControlModeReport::AUTONOMOUS;
+  pub_control_mode_report_->publish(msg);
+}
+
+void SimplePlanningSimulator::publish_gear_report()
+{
+  if (!current_gear_cmd_ptr_) {
+    return;
   }
-  pub_state_report_->publish(msg);
+  GearReport msg;
+  msg.stamp = get_clock()->now();
+  msg.report = current_gear_cmd_ptr_->command;
+  pub_gear_report_->publish(msg);
 }
 
 void SimplePlanningSimulator::publish_tf(const Odometry & odometry)
