@@ -81,28 +81,29 @@ bool MapBasedPredictionROS::getClosestLanelets(
     lanelet::Lanelet target_closest_lanelet;
     for (const auto & lanelet : nearest_lanelets) {
       double object_yaw = 0;
-      // if (object.state.orientation_reliable) {
-      //   object_yaw =
-      //   tf2::getYaw(object.kinematics.initial_pose_with_covariance.pose.orientation);
-      // } else {
-      geometry_msgs::msg::Pose object_frame_pose;
-      geometry_msgs::msg::Pose map_frame_pose;
-      object_frame_pose.position.x = object.kinematics.twist_with_covariance.twist.linear.x * 0.1;
-      object_frame_pose.position.y = object.kinematics.twist_with_covariance.twist.linear.y * 0.1;
-      tf2::Transform tf_object2future;
-      tf2::Transform tf_map2object;
-      tf2::Transform tf_map2future;
+      if (
+        object.kinematics.orientation_availability ==
+        autoware_auto_perception_msgs::msg::TrackedObjectKinematics::AVAILABLE) {
+        object_yaw = tf2::getYaw(object.kinematics.pose_with_covariance.pose.orientation);
+      } else {
+        geometry_msgs::msg::Pose object_frame_pose;
+        geometry_msgs::msg::Pose map_frame_pose;
+        object_frame_pose.position.x = object.kinematics.twist_with_covariance.twist.linear.x * 0.1;
+        object_frame_pose.position.y = object.kinematics.twist_with_covariance.twist.linear.y * 0.1;
+        tf2::Transform tf_object2future;
+        tf2::Transform tf_map2object;
+        tf2::Transform tf_map2future;
 
-      tf2::fromMsg(object.kinematics.pose_with_covariance.pose, tf_map2object);
-      tf2::fromMsg(object_frame_pose, tf_object2future);
-      tf_map2future = tf_map2object * tf_object2future;
-      tf2::toMsg(tf_map2future, map_frame_pose);
-      double dx =
-        map_frame_pose.position.x - object.kinematics.pose_with_covariance.pose.position.x;
-      double dy =
-        map_frame_pose.position.y - object.kinematics.pose_with_covariance.pose.position.y;
-      object_yaw = std::atan2(dy, dx);
-      // }
+        tf2::fromMsg(object.kinematics.pose_with_covariance.pose, tf_map2object);
+        tf2::fromMsg(object_frame_pose, tf_object2future);
+        tf_map2future = tf_map2object * tf_object2future;
+        tf2::toMsg(tf_map2future, map_frame_pose);
+        double dx =
+          map_frame_pose.position.x - object.kinematics.pose_with_covariance.pose.position.x;
+        double dy =
+          map_frame_pose.position.y - object.kinematics.pose_with_covariance.pose.position.y;
+        object_yaw = std::atan2(dy, dx);
+      }
 
       if (lanelet.second.centerline().size() <= 1) {
         continue;
@@ -134,28 +135,31 @@ bool MapBasedPredictionROS::getClosestLanelets(
           continue;
         }
         double object_yaw = 0;
-        // if (object.state.orientation_reliable) {
-        //   object_yaw =
-        //   tf2::getYaw(object.kinematics.initial_pose_with_covariance.pose.orientation);
-        // } else {
-        geometry_msgs::msg::Pose object_frame_pose;
-        geometry_msgs::msg::Pose map_frame_pose;
-        object_frame_pose.position.x = object.kinematics.twist_with_covariance.twist.linear.x * 0.1;
-        object_frame_pose.position.y = object.kinematics.twist_with_covariance.twist.linear.y * 0.1;
-        tf2::Transform tf_object2future;
-        tf2::Transform tf_map2object;
-        tf2::Transform tf_map2future;
+        if (
+          object.kinematics.orientation_availability ==
+          autoware_auto_perception_msgs::msg::TrackedObjectKinematics::AVAILABLE) {
+          object_yaw = tf2::getYaw(object.kinematics.pose_with_covariance.pose.orientation);
+        } else {
+          geometry_msgs::msg::Pose object_frame_pose;
+          geometry_msgs::msg::Pose map_frame_pose;
+          object_frame_pose.position.x =
+            object.kinematics.twist_with_covariance.twist.linear.x * 0.1;
+          object_frame_pose.position.y =
+            object.kinematics.twist_with_covariance.twist.linear.y * 0.1;
+          tf2::Transform tf_object2future;
+          tf2::Transform tf_map2object;
+          tf2::Transform tf_map2future;
 
-        tf2::fromMsg(object.kinematics.pose_with_covariance.pose, tf_map2object);
-        tf2::fromMsg(object_frame_pose, tf_object2future);
-        tf_map2future = tf_map2object * tf_object2future;
-        tf2::toMsg(tf_map2future, map_frame_pose);
-        double dx =
-          map_frame_pose.position.x - object.kinematics.pose_with_covariance.pose.position.x;
-        double dy =
-          map_frame_pose.position.y - object.kinematics.pose_with_covariance.pose.position.y;
-        object_yaw = std::atan2(dy, dx);
-        // }
+          tf2::fromMsg(object.kinematics.pose_with_covariance.pose, tf_map2object);
+          tf2::fromMsg(object_frame_pose, tf_object2future);
+          tf_map2future = tf_map2object * tf_object2future;
+          tf2::toMsg(tf_map2future, map_frame_pose);
+          double dx =
+            map_frame_pose.position.x - object.kinematics.pose_with_covariance.pose.position.x;
+          double dy =
+            map_frame_pose.position.y - object.kinematics.pose_with_covariance.pose.position.y;
+          object_yaw = std::atan2(dy, dx);
+        }
 
         if (lanelet.second.centerline().size() <= 1) {
           continue;
