@@ -19,8 +19,8 @@
 
 #include <autoware_api_msgs/msg/crosswalk_status.hpp>
 #include <autoware_api_msgs/msg/intersection_status.hpp>
-#include <autoware_lanelet2_msgs/msg/map_bin.hpp>
-#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <autoware_auto_mapping_msgs/msg/had_map_bin.hpp>
+#include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
 #include <autoware_perception_msgs/msg/traffic_light_state_array.hpp>
 #include <autoware_perception_msgs/msg/traffic_light_state_stamped.hpp>
 #include <autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp>
@@ -67,7 +67,7 @@ struct PlannerData
   boost::optional<double> current_accel;
   static constexpr double velocity_buffer_time_sec = 10.0;
   std::deque<geometry_msgs::msg::TwistStamped> velocity_buffer;
-  autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr dynamic_objects;
+  autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr predicted_objects;
   pcl::PointCloud<pcl::PointXYZ>::ConstPtr no_ground_pointcloud;
   lanelet::LaneletMapPtr lanelet_map;
   // occupancy grid

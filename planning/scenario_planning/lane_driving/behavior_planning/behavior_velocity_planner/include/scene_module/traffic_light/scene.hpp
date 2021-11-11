@@ -71,7 +71,7 @@ public:
     const rclcpp::Clock::SharedPtr clock);
 
   bool modifyPathVelocity(
-    autoware_planning_msgs::msg::PathWithLaneId * path,
+    autoware_auto_planning_msgs::msg::PathWithLaneId * path,
     autoware_planning_msgs::msg::StopReason * stop_reason) override;
 
   visualization_msgs::msg::MarkerArray createDebugMarkerArray() override;
@@ -94,8 +94,8 @@ private:
   bool isTrafficLightStateStop(
     const autoware_perception_msgs::msg::TrafficLightState & tl_state) const;
 
-  autoware_planning_msgs::msg::PathWithLaneId insertStopPose(
-    const autoware_planning_msgs::msg::PathWithLaneId & input,
+  autoware_auto_planning_msgs::msg::PathWithLaneId insertStopPose(
+    const autoware_auto_planning_msgs::msg::PathWithLaneId & input,
     const size_t & insert_target_point_idx, const Eigen::Vector2d & target_point,
     autoware_planning_msgs::msg::StopReason * stop_reason);
 

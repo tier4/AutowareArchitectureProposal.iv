@@ -28,7 +28,7 @@ namespace
 {
 std::unordered_map<lanelet::TrafficLightConstPtr, lanelet::ConstLanelet>
 getTrafficLightRegElemsOnPath(
-  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
   const lanelet::LaneletMapPtr lanelet_map)
 {
   std::unordered_map<lanelet::TrafficLightConstPtr, lanelet::ConstLanelet> traffic_light_reg_elems;
@@ -47,7 +47,7 @@ getTrafficLightRegElemsOnPath(
 }
 
 std::set<int64_t> getLaneletIdSetOnPath(
-  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
   const lanelet::LaneletMapPtr lanelet_map)
 {
   std::set<int64_t> lanelet_id_set;
@@ -74,7 +74,7 @@ TrafficLightModuleManager::TrafficLightModuleManager(rclcpp::Node & node)
 }
 
 void TrafficLightModuleManager::modifyPathVelocity(
-  autoware_planning_msgs::msg::PathWithLaneId * path)
+  autoware_auto_planning_msgs::msg::PathWithLaneId * path)
 {
   visualization_msgs::msg::MarkerArray debug_marker_array;
   autoware_planning_msgs::msg::StopReasonArray stop_reason_array;
@@ -120,7 +120,7 @@ void TrafficLightModuleManager::modifyPathVelocity(
 }
 
 void TrafficLightModuleManager::launchNewModules(
-  const autoware_planning_msgs::msg::PathWithLaneId & path)
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path)
 {
   for (const auto & traffic_light_reg_elem :
        getTrafficLightRegElemsOnPath(path, planner_data_->lanelet_map)) {
@@ -145,7 +145,7 @@ void TrafficLightModuleManager::launchNewModules(
 
 std::function<bool(const std::shared_ptr<SceneModuleInterface> &)>
 TrafficLightModuleManager::getModuleExpiredFunction(
-  const autoware_planning_msgs::msg::PathWithLaneId & path)
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path)
 {
   const auto lanelet_id_set = getLaneletIdSetOnPath(path, planner_data_->lanelet_map);
 

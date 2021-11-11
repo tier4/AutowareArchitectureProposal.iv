@@ -33,7 +33,7 @@ namespace bg = boost::geometry;
 namespace
 {
 std::pair<int, double> findWayPointAndDistance(
-  const autoware_planning_msgs::msg::PathWithLaneId & input_path, const Eigen::Vector2d & p)
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & input_path, const Eigen::Vector2d & p)
 {
   constexpr double max_lateral_dist = 3.0;
   for (size_t i = 0; i < input_path.points.size() - 1; ++i) {
@@ -71,7 +71,8 @@ std::pair<int, double> findWayPointAndDistance(
 }
 
 double calcArcLengthFromWayPoint(
-  const autoware_planning_msgs::msg::PathWithLaneId & input_path, const int & src, const int & dst)
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & input_path, const int & src,
+  const int & dst)
 {
   double length = 0;
   const size_t src_idx = src >= 0 ? static_cast<size_t>(src) : 0;
@@ -87,7 +88,7 @@ double calcArcLengthFromWayPoint(
 }
 
 double calcSignedArcLength(
-  const autoware_planning_msgs::msg::PathWithLaneId & input_path,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & input_path,
   const geometry_msgs::msg::Pose & p1, const Eigen::Vector2d & p2)
 {
   std::pair<int, double> src =
@@ -153,7 +154,7 @@ boost::optional<Point2d> findNearestCollisionPoint(
 }
 
 bool createTargetPoint(
-  const autoware_planning_msgs::msg::PathWithLaneId & input, const LineString2d & stop_line,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & input, const LineString2d & stop_line,
   const double offset, size_t & target_point_idx, Eigen::Vector2d & target_point)
 {
   if (input.points.size() < 2) {
@@ -218,7 +219,7 @@ bool createTargetPoint(
 }
 
 bool calcStopPointAndInsertIndex(
-  const autoware_planning_msgs::msg::PathWithLaneId & input_path,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & input_path,
   const lanelet::ConstLineString3d & lanelet_stop_lines, const double & offset,
   const double & stop_line_extend_length, Eigen::Vector2d & stop_line_point,
   size_t & stop_line_point_idx)
@@ -281,7 +282,7 @@ TrafficLightModule::TrafficLightModule(
 }
 
 bool TrafficLightModule::modifyPathVelocity(
-  autoware_planning_msgs::msg::PathWithLaneId * path,
+  autoware_auto_planning_msgs::msg::PathWithLaneId * path,
   autoware_planning_msgs::msg::StopReason * stop_reason)
 {
   looking_tl_state_ = initializeTrafficLightState(path->header.stamp);
@@ -534,11 +535,12 @@ bool TrafficLightModule::getHighestConfidenceTrafficLightState(
   return true;
 }
 
-autoware_planning_msgs::msg::PathWithLaneId TrafficLightModule::insertStopPose(
-  const autoware_planning_msgs::msg::PathWithLaneId & input, const size_t & insert_target_point_idx,
-  const Eigen::Vector2d & target_point, autoware_planning_msgs::msg::StopReason * stop_reason)
+autoware_auto_planning_msgs::msg::PathWithLaneId TrafficLightModule::insertStopPose(
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & input,
+  const size_t & insert_target_point_idx, const Eigen::Vector2d & target_point,
+  autoware_planning_msgs::msg::StopReason * stop_reason)
 {
-  autoware_planning_msgs::msg::PathWithLaneId modified_path;
+  autoware_auto_planning_msgs::msg::PathWithLaneId modified_path;
   modified_path = input;
 
   // Create stop pose
@@ -546,7 +548,7 @@ autoware_planning_msgs::msg::PathWithLaneId TrafficLightModule::insertStopPose(
   auto target_point_with_lane_id = modified_path.points.at(target_velocity_point_idx);
   target_point_with_lane_id.point.pose.position.x = target_point.x();
   target_point_with_lane_id.point.pose.position.y = target_point.y();
-  target_point_with_lane_id.point.twist.linear.x = 0.0;
+  target_point_with_lane_id.point.longitudinal_velocity_mps = 0.0;
 
   // Insert stop pose into path
   modified_path.points.insert(
@@ -555,7 +557,7 @@ autoware_planning_msgs::msg::PathWithLaneId TrafficLightModule::insertStopPose(
 
   // insert 0 velocity after target point
   for (size_t j = insert_target_point_idx; j < modified_path.points.size(); ++j) {
-    modified_path.points.at(j).point.twist.linear.x = 0.0;
+    modified_path.points.at(j).point.longitudinal_velocity_mps = 0.0;
   }
   if (target_velocity_point_idx < first_stop_path_point_index_) {
     first_stop_path_point_index_ = target_velocity_point_idx;

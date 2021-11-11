@@ -21,7 +21,6 @@ namespace behavior_velocity_planner
 {
 namespace interpolation
 {
-// TODO(murooka) delete these functions
 /*
  * linear interpolation
  */
