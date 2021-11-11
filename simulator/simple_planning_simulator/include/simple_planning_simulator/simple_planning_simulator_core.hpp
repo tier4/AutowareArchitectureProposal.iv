@@ -36,6 +36,7 @@
 #include "nav_msgs/msg/odometry.hpp"
 
 #include "autoware_auto_control_msgs/msg/ackermann_control_command.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
 #include "autoware_auto_vehicle_msgs/msg/steering_report.hpp"
 #include "autoware_auto_vehicle_msgs/msg/control_mode_report.hpp"
 #include "autoware_auto_vehicle_msgs/msg/gear_command.hpp"
@@ -56,6 +57,7 @@ using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
 
 using autoware_auto_control_msgs::msg::AckermannControlCommand;
+using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_vehicle_msgs::msg::ControlModeReport;
 using autoware_auto_vehicle_msgs::msg::GearCommand;
 using autoware_auto_vehicle_msgs::msg::GearReport;
@@ -121,6 +123,7 @@ private:
   rclcpp::Subscription<VehicleControlCommand>::SharedPtr sub_vehicle_cmd_;
   rclcpp::Subscription<AckermannControlCommand>::SharedPtr sub_ackermann_cmd_;
   rclcpp::Subscription<PoseWithCovarianceStamped>::SharedPtr sub_init_pose_;
+  rclcpp::Subscription<Trajectory>::SharedPtr sub_trajectory_;
 
   uint32_t timer_sampling_time_ms_;  //!< @brief timer sampling time
   rclcpp::TimerBase::SharedPtr on_timer_;  //!< @brief timer for simulation
@@ -136,6 +139,7 @@ private:
   VehicleControlCommand::ConstSharedPtr current_vehicle_cmd_ptr_;
   AckermannControlCommand::ConstSharedPtr current_ackermann_cmd_ptr_;
   GearCommand::ConstSharedPtr current_gear_cmd_ptr_;
+  Trajectory::ConstSharedPtr current_trajectory_ptr_;
 
   /* frame_id */
   std::string simulated_frame_id_;  //!< @brief simulated vehicle frame id
@@ -184,6 +188,19 @@ private:
    * @brief set initial pose for simulation with received message
    */
   void on_initialpose(const PoseWithCovarianceStamped::ConstSharedPtr msg);
+
+  /**
+   * @brief subscribe trajector for deciding self z position.
+   */
+  void on_trajectory(const Trajectory::ConstSharedPtr msg);
+
+  /**
+   * @brief get z-position from trajectory
+   * @param [in] x current x-position
+   * @param [in] y current y-position
+   * @return get z-position from trajectory
+   */
+  double get_z_pose_from_trajectory(const double x, const double y);
 
   /**
    * @brief get transform from two frame_ids

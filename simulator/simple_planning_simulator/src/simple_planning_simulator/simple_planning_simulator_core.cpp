@@ -51,7 +51,6 @@ nav_msgs::msg::Odometry to_odometry(const std::shared_ptr<SimModelInterface> veh
   nav_msgs::msg::Odometry odometry;
   odometry.pose.pose.position.x = vehicle_model_ptr->getX();
   odometry.pose.pose.position.y = vehicle_model_ptr->getY();
-  // TODO(TierIV) get z-coordinate from trajectory
   odometry.pose.pose.orientation = motion::motion_common::from_angle(vehicle_model_ptr->getYaw());
   odometry.twist.twist.linear.x = vehicle_model_ptr->getVx();
   odometry.twist.twist.angular.z = vehicle_model_ptr->getWz();
@@ -97,6 +96,8 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
     std::bind(&SimplePlanningSimulator::on_ackermann_cmd, this, _1));
   sub_gear_cmd_ = create_subscription<GearCommand>(
     "input/gear_command", QoS{1}, std::bind(&SimplePlanningSimulator::on_gear_cmd, this, _1));
+  sub_trajectory_ = create_subscription<Trajectory>(
+    "input/trajectory", QoS{1}, std::bind(&SimplePlanningSimulator::on_trajectory, this, _1));
 
   pub_control_mode_report_ =
     create_publisher<ControlModeReport>("output/control_mode_report", QoS{1});
@@ -281,6 +282,11 @@ void SimplePlanningSimulator::on_gear_cmd(
   }
 }
 
+void SimplePlanningSimulator::on_trajectory(const Trajectory::ConstSharedPtr msg)
+{
+  current_trajectory_ptr_ = msg;
+}
+
 void SimplePlanningSimulator::add_measurement_noise(
   Odometry & odom, TwistStamped & twist, SteeringReport & steer) const
 {
@@ -341,6 +347,34 @@ void SimplePlanningSimulator::set_initial_state(
   is_initialized_ = true;
 }
 
+double SimplePlanningSimulator::get_z_pose_from_trajectory(const double x, const double y)
+{
+  // calculate closest point on trajectory
+  if (!current_trajectory_ptr_) {
+    return 0.0;
+  }
+
+  const double max_sqrt_dist = std::numeric_limits<double>::max();
+  double min_sqrt_dist = max_sqrt_dist;
+  size_t index;
+  bool found = false;
+  for (size_t i = 0; i < current_trajectory_ptr_->points.size(); ++i) {
+    const double dist_x = (current_trajectory_ptr_->points.at(i).pose.position.x - x);
+    const double dist_y = (current_trajectory_ptr_->points.at(i).pose.position.y - y);
+    double sqrt_dist = dist_x * dist_x + dist_y * dist_y;
+    if (sqrt_dist < min_sqrt_dist) {
+      min_sqrt_dist = sqrt_dist;
+      index = i;
+      found = true;
+    }
+  }
+    if (found) {
+      return current_trajectory_ptr_->points.at(index).pose.position.z;
+    }
+
+    return 0.0;
+}
+
 geometry_msgs::msg::TransformStamped SimplePlanningSimulator::get_transform_msg(
   const std::string parent_frame, const std::string child_frame)
 {
@@ -374,6 +408,8 @@ void SimplePlanningSimulator::publish_odometry(const Odometry & odometry)
   msg.header.frame_id = origin_frame_id_;
   msg.header.stamp = get_clock()->now();
   msg.child_frame_id = simulated_frame_id_;
+  msg.pose.pose.position.z =
+    get_z_pose_from_trajectory(odometry.pose.pose.position.x, odometry.pose.pose.position.y);
   pub_odom_->publish(msg);
 }
 
