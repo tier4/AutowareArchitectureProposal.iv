@@ -416,7 +416,7 @@ bool AnalyticalJerkConstrainedSmoother::applyForwardJerkFilter(
     const double dt = ds / std::max(prev_vel, 1.0);
 
     const double prev_acc = output_trajectory.points.at(i - 1).accel.linear.x;
-    const double curr_vel = prev_vel + prev_acc * dt;
+    const double curr_vel = std::max(prev_vel + prev_acc * dt, 0.0);
 
     const double error_vel = base_trajectory.points.at(i).twist.linear.x - curr_vel;
     const double fb_acc = params.forward.kp * error_vel;
