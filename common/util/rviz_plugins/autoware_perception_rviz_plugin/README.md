@@ -6,9 +6,9 @@ This plugin is used to generate dummy pedestrians, cars, and obstacles in planni
 
 ## Overview
 
-The CarInitialPoseTool sends a topic for generating dummy car.  
-The PedestrianInitialPoseTool sends a topic for generating dummy pedestrian.  
-The UnknownInitialPoseTool sends a topic for generating dummy obstacle.  
+The CarInitialPoseTool sends a topic for generating a dummy car.  
+The PedestrianInitialPoseTool sends a topic for generating a dummy pedestrian.  
+The UnknownInitialPoseTool sends a topic for generating a dummy obstacle.  
 The DeleteAllObjectsTool deletes the dummy cars, pedestrians, and obstacles displayed by the above three tools.
 
 ## Inputs / Outputs
@@ -40,13 +40,8 @@ Using a planning simulator
 ## Usage
 
 1. Start rviz and select + on the tool tab.
-
 ![select_add](./images/select_add.png)
-
 2. Select one of the following: autoware_perception_rviz_plugin and press OK.
-
 ![select_plugin](./images/select_plugin.png)
-
 3. Select the new item in the tool tab (2D Dummy Car in the example) and click on it in rviz.
-
 ![select_dummy_car](./images/select_dummy_car.png)
