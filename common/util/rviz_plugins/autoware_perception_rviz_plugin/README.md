@@ -6,9 +6,9 @@ This plugin is used to generate dummy pedestrians, cars, and obstacles in planni
 
 ## Overview
 
-The CarInitialPoseTool simulates a dummy car.  
-The PedestrianInitialPoseTool simulates a dummy pedestrian.  
-The UnknownInitialPoseTool simulates a dummy obstacle.  
+The CarInitialPoseTool sends a topic for generating dummy car.  
+The PedestrianInitialPoseTool sends a topic for generating dummy pedestrian.  
+The UnknownInitialPoseTool sends a topic for generating dummy obstacle.  
 The DeleteAllObjectsTool deletes the dummy cars, pedestrians, and obstacles displayed by the above three tools.
 
 ## Inputs / Outputs
