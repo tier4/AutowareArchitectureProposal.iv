@@ -36,7 +36,7 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
       object.shape, object.kinematics.pose_with_covariance.pose.position,
       object.kinematics.pose_with_covariance.pose.orientation, object.classification);
     if (shape_marker) {
-      auto shape_marker_ptr = shape_marker.get();
+      auto shape_marker_ptr = shape_marker.value();
       shape_marker_ptr->header = msg->header;
       shape_marker_ptr->id = id++;
       add_marker(shape_marker_ptr);
@@ -47,7 +47,7 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
       object.kinematics.pose_with_covariance.pose.position,
       object.kinematics.pose_with_covariance.pose.orientation, object.classification);
     if (label_marker) {
-      auto label_marker_ptr = label_marker.get();
+      auto label_marker_ptr = label_marker.value();
       label_marker_ptr->header = msg->header;
       label_marker_ptr->id = id++;
       add_marker(label_marker_ptr);
@@ -62,7 +62,7 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
     auto id_marker =
       get_uuid_marker_ptr(object.object_id, uuid_vis_position, object.classification);
     if (id_marker) {
-      auto id_marker_ptr = id_marker.get();
+      auto id_marker_ptr = id_marker.value();
       id_marker_ptr->header = msg->header;
       id_marker_ptr->id = id++;
       add_marker(id_marker_ptr);
@@ -72,7 +72,7 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
     auto pose_with_covariance_marker =
       get_pose_with_covariance_marker_ptr(object.kinematics.pose_with_covariance);
     if (pose_with_covariance_marker) {
-      auto pose_with_covariance_marker_ptr = pose_with_covariance_marker.get();
+      auto pose_with_covariance_marker_ptr = pose_with_covariance_marker.value();
       pose_with_covariance_marker_ptr->header = msg->header;
       pose_with_covariance_marker_ptr->id = id++;
       add_marker(pose_with_covariance_marker_ptr);
@@ -86,7 +86,7 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
     auto velocity_text_marker = get_velocity_text_marker_ptr(
       object.kinematics.twist_with_covariance.twist, vel_vis_position, object.classification);
     if (velocity_text_marker) {
-      auto velocity_text_marker_ptr = velocity_text_marker.get();
+      auto velocity_text_marker_ptr = velocity_text_marker.value();
       velocity_text_marker_ptr->header = msg->header;
       velocity_text_marker_ptr->id = id++;
       add_marker(velocity_text_marker_ptr);
@@ -96,7 +96,7 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
     auto twist_marker = get_twist_marker_ptr(
       object.kinematics.pose_with_covariance, object.kinematics.twist_with_covariance);
     if (twist_marker) {
-      auto twist_marker_ptr = twist_marker.get();
+      auto twist_marker_ptr = twist_marker.value();
       twist_marker_ptr->header = msg->header;
       twist_marker_ptr->id = id++;
       add_marker(twist_marker_ptr);

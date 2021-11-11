@@ -26,8 +26,6 @@
 #include <autoware_auto_perception_msgs/msg/object_classification.hpp>
 #include <unique_identifier_msgs/msg/uuid.hpp>
 
-#include <boost/optional.hpp>
-
 #include <list>
 #include <memory>
 #include <string>
@@ -136,7 +134,7 @@ protected:
   /// \param labels List of ObjectClassificationMsg objects
   /// \return Marker ptr. Id and header will have to be set by the caller
   template <typename ClassificationContainerT>
-  boost::optional<Marker::SharedPtr> get_shape_marker_ptr(
+  std::optional<Marker::SharedPtr> get_shape_marker_ptr(
     const autoware_auto_perception_msgs::msg::Shape & shape_msg,
     const geometry_msgs::msg::Point & centroid, const geometry_msgs::msg::Quaternion & orientation,
     const ClassificationContainerT & labels) const
@@ -146,7 +144,7 @@ protected:
     if (m_display_3d_property.getBool()) {
       return detail::get_shape_marker_ptr(shape_msg, centroid, orientation, color_rgba);
     } else {
-      return boost::none;
+      return std::nullopt;
     }
   }
 
@@ -156,7 +154,7 @@ protected:
   /// \param labels List of ObjectClassificationMsg objects
   /// \return Marker ptr. Id and header will have to be set by the caller
   template <typename ClassificationContainerT>
-  boost::optional<Marker::SharedPtr> get_label_marker_ptr(
+  std::optional<Marker::SharedPtr> get_label_marker_ptr(
     const geometry_msgs::msg::Point & centroid, const geometry_msgs::msg::Quaternion & orientation,
     const ClassificationContainerT & labels) const
   {
@@ -165,7 +163,7 @@ protected:
       const std_msgs::msg::ColorRGBA color_rgba = get_color_rgba(labels);
       return detail::get_label_marker_ptr(centroid, orientation, label, color_rgba);
     } else {
-      return boost::none;
+      return std::nullopt;
     }
   }
 
@@ -174,7 +172,7 @@ protected:
   /// \param todo
   /// \return todo
   template <typename ClassificationContainerT>
-  boost::optional<Marker::SharedPtr> get_uuid_marker_ptr(
+  std::optional<Marker::SharedPtr> get_uuid_marker_ptr(
     const unique_identifier_msgs::msg::UUID & uuid, const geometry_msgs::msg::Point & centroid,
     const ClassificationContainerT & labels) const
   {
@@ -183,7 +181,7 @@ protected:
       const std::string uuid_str = uuid_to_string(uuid);
       return detail::get_uuid_marker_ptr(uuid_str, centroid, color_rgba);
     } else {
-      return boost::none;
+      return std::nullopt;
     }
   }
 
@@ -191,13 +189,13 @@ protected:
   /// \tparam todo
   /// \param todo
   /// \return todo
-  boost::optional<Marker::SharedPtr> get_pose_with_covariance_marker_ptr(
+  std::optional<Marker::SharedPtr> get_pose_with_covariance_marker_ptr(
     const geometry_msgs::msg::PoseWithCovariance & pose_with_covariance) const
   {
     if (m_display_pose_with_covariance_property.getBool()) {
       return detail::get_pose_with_covariance_marker_ptr(pose_with_covariance);
     } else {
-      return boost::none;
+      return std::nullopt;
     }
   }
 
@@ -206,7 +204,7 @@ protected:
   /// \param todo
   /// \return todo
   template <typename ClassificationContainerT>
-  boost::optional<Marker::SharedPtr> get_velocity_text_marker_ptr(
+  std::optional<Marker::SharedPtr> get_velocity_text_marker_ptr(
     const geometry_msgs::msg::Twist & twist, const geometry_msgs::msg::Point & vis_pos,
     const ClassificationContainerT & labels) const
   {
@@ -214,7 +212,7 @@ protected:
       const std_msgs::msg::ColorRGBA color_rgba = get_color_rgba(labels);
       return detail::get_velocity_text_marker_ptr(twist, vis_pos, color_rgba);
     } else {
-      return boost::none;
+      return std::nullopt;
     }
   }
 
@@ -222,14 +220,14 @@ protected:
   /// \tparam todo
   /// \param todo
   /// \return todo
-  boost::optional<Marker::SharedPtr> get_twist_marker_ptr(
+  std::optional<Marker::SharedPtr> get_twist_marker_ptr(
     const geometry_msgs::msg::PoseWithCovariance & pose_with_covariance,
     const geometry_msgs::msg::TwistWithCovariance & twist_with_covariance) const
   {
     if (m_display_twist_property.getBool()) {
       return detail::get_twist_marker_ptr(pose_with_covariance, twist_with_covariance);
     } else {
-      return boost::none;
+      return std::nullopt;
     }
   }
 
@@ -237,7 +235,7 @@ protected:
   /// \tparam todo
   /// \param todo
   /// \return todo
-  boost::optional<Marker::SharedPtr> get_predicted_path_marker_ptr(
+  std::optional<Marker::SharedPtr> get_predicted_path_marker_ptr(
     const unique_identifier_msgs::msg::UUID & uuid,
     const autoware_auto_perception_msgs::msg::Shape & shape,
     const autoware_auto_perception_msgs::msg::PredictedPath & predicted_path) const
@@ -247,7 +245,7 @@ protected:
       const std_msgs::msg::ColorRGBA predicted_path_color = get_color_from_uuid(uuid_str);
       return detail::get_predicted_path_marker_ptr(shape, predicted_path, predicted_path_color);
     } else {
-      return boost::none;
+      return std::nullopt;
     }
   }
 
@@ -255,7 +253,7 @@ protected:
   /// \tparam todo
   /// \param todo
   /// \return todo
-  boost::optional<Marker::SharedPtr> get_path_confidence_marker_ptr(
+  std::optional<Marker::SharedPtr> get_path_confidence_marker_ptr(
     const unique_identifier_msgs::msg::UUID & uuid,
     const autoware_auto_perception_msgs::msg::PredictedPath & predicted_path) const
   {
@@ -264,7 +262,7 @@ protected:
       const std_msgs::msg::ColorRGBA path_confidence_color = get_color_from_uuid(uuid_str);
       return detail::get_path_confidence_marker_ptr(predicted_path, path_confidence_color);
     } else {
-      return boost::none;
+      return std::nullopt;
     }
   }
 

@@ -36,7 +36,7 @@ void DetectedObjectsDisplay::processMessage(DetectedObjects::ConstSharedPtr msg)
       object.shape, object.kinematics.pose_with_covariance.pose.position,
       object.kinematics.pose_with_covariance.pose.orientation, object.classification);
     if (shape_marker) {
-      auto shape_marker_ptr = shape_marker.get();
+      auto shape_marker_ptr = shape_marker.value();
       shape_marker_ptr->header = msg->header;
       shape_marker_ptr->id = id++;
       add_marker(shape_marker_ptr);
@@ -47,7 +47,7 @@ void DetectedObjectsDisplay::processMessage(DetectedObjects::ConstSharedPtr msg)
       object.kinematics.pose_with_covariance.pose.position,
       object.kinematics.pose_with_covariance.pose.orientation, object.classification);
     if (label_marker) {
-      auto label_marker_ptr = label_marker.get();
+      auto label_marker_ptr = label_marker.value();
       label_marker_ptr->header = msg->header;
       label_marker_ptr->id = id++;
       add_marker(label_marker_ptr);
