@@ -27,7 +27,7 @@ This node aims to:
 
 ## Parameters
 
-| Name           | Type   | Description                                                                                     |
-| -------------- | ------ | ----------------------------------------------------------------------------------------------- |
-| `vx_threshold` | double | longitudinal velocity threshold to determine if the vehicle is stopping [m/sec] (default: 0.01) |
-| `wz_threshold` | double | yaw velocity threshold to determine if the vehicle is stopping [rad/sec] (default: 0.01)        |
+| Name           | Type   | Description                                                                                   |
+| -------------- | ------ | --------------------------------------------------------------------------------------------- |
+| `vx_threshold` | double | longitudinal velocity threshold to determine if the vehicle is stopping [m/s] (default: 0.01) |
+| `wz_threshold` | double | yaw velocity threshold to determine if the vehicle is stopping [rad/s] (default: 0.01)        |
