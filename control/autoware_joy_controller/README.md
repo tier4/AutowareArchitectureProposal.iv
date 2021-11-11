@@ -2,7 +2,7 @@
 
 ## Role
 
-`autoware_joy_controller` operate a vehilce by a joy controller via Autoware (e.g. steering wheel, shift, turn signal, engage) by several kinds of joy sticks.
+`autoware_joy_controller` operate a vehicle by a joy controller via Autoware (e.g. steering wheel, shift, turn signal, engage) by several kinds of joy sticks.
 
 ## Input / Output
 
