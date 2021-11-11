@@ -1,24 +1,32 @@
 # autoware_planning_rviz_plugin
 
 This package is including jsk code.  
-Note that jsk_overlay_utils.cpp and jsk_overlay_utils.hpp are BSD license.  
+Note that jsk_overlay_utils.cpp and jsk_overlay_utils.hpp are BSD license.
+
 ## Purpose
-This plugin displays the path, trajectory, and maximum speed.  
+
+This plugin displays the path, trajectory, and maximum speed.
 
 ## Inputs / Outputs
+
 ### Input
-| Name                                               | Type                                           | Description                                 |
-| -------------------------------------------------- | ---------------------------------------------- | ------------------------------------------- |
-| `/input/path`                                      | `autoware_auto_planning_msgs::msg::Path`       |  The topic on which to subscribe path       |
-| `/input/trajectory`                                | `autoware_auto_planning_msgs::msg::Trajectory` |  The topic on which to subscribe trajectory |
-| `/planning/scenario_planning/current_max_velocity` | `autoware_planning_msgs/msg/VelocityLimit`     | The topic on which to publish max velocity  |
+
+| Name                                               | Type                                           | Description                                |
+| -------------------------------------------------- | ---------------------------------------------- | ------------------------------------------ |
+| `/input/path`                                      | `autoware_auto_planning_msgs::msg::Path`       | The topic on which to subscribe path       |
+| `/input/trajectory`                                | `autoware_auto_planning_msgs::msg::Trajectory` | The topic on which to subscribe trajectory |
+| `/planning/scenario_planning/current_max_velocity` | `autoware_planning_msgs/msg/VelocityLimit`     | The topic on which to publish max velocity |
+
 ### Output
+
 | Name                                    | Type                            | Description                              |
 | --------------------------------------- | ------------------------------- | ---------------------------------------- |
 | `/planning/mission_planning/checkpoint` | `geometry_msgs/msg/PoseStamped` | The topic on which to publish checkpoint |
 
 ## Parameter
+
 ### Core Parameters
+
 | Name                                   | Type   | Default Value                                      | Description                                     |
 | -------------------------------------- | ------ | -------------------------------------------------- | ----------------------------------------------- |
 | `pose_topic_property_`                 | string | `mission_checkpoint`                               | The topic on which to publish checkpoint        |
@@ -54,14 +62,15 @@ This plugin displays the path, trajectory, and maximum speed.
 | `property_value_scale_`                | float  | 1.0 / 4.0                                          | Value scale                                     |
 
 ## Usage
-1. Start rviz and select Add under the Displays panel.  
+
+1. Start rviz and select Add under the Displays panel.
 
 ![select_add](./images/select_add.png)
 
-2. Select any one of the autoware_planning_rviz_plugin and press OK.  
+2. Select any one of the autoware_planning_rviz_plugin and press OK.
 
 ![select_planning_plugin](./images/select_planning_plugin.png)
 
-3. Enter the name of the topic where you want to view the path or trajectory.  
+3. Enter the name of the topic where you want to view the path or trajectory.
 
 ![select_topic_name](./images/select_topic_name.png)
