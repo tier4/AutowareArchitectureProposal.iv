@@ -64,7 +64,7 @@ const std::map<
      {"PEDESTRIAN", {255, 192, 203}}},
     {autoware_auto_perception_msgs::msg::ObjectClassification::BICYCLE, {"CYCLIST", {119, 11, 32}}},
     {autoware_auto_perception_msgs::msg::ObjectClassification::MOTORCYCLE,
-     {"MOTORCYCLE", {255, 204, 102}}},
+     {"MOTORCYCLE", {119, 11, 32}}},
     {autoware_auto_perception_msgs::msg::ObjectClassification::TRAILER,
      {"TRAILER", {30, 144, 255}}},
     {autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK, {"TRUCK", {30, 144, 255}}}};
