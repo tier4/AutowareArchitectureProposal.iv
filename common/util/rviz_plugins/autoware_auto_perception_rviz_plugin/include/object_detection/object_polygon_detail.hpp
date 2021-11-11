@@ -58,15 +58,15 @@ const std::map<
   kDefaultObjectPropertyValues = {
     {autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN,
      {"UNKNOWN", {255, 255, 255}}},
-    {autoware_auto_perception_msgs::msg::ObjectClassification::CAR, {"CAR", {0, 255, 142}}},
-    {autoware_auto_perception_msgs::msg::ObjectClassification::BUS, {"BUS", {0, 200, 100}}},
+    {autoware_auto_perception_msgs::msg::ObjectClassification::CAR, {"CAR", {30, 144, 255}}},
+    {autoware_auto_perception_msgs::msg::ObjectClassification::BUS, {"BUS", {30, 144, 255}}},
     {autoware_auto_perception_msgs::msg::ObjectClassification::PEDESTRIAN,
-     {"PEDESTRIAN", {220, 20, 60}}},
+     {"PEDESTRIAN", {255, 192, 203}}},
     {autoware_auto_perception_msgs::msg::ObjectClassification::BICYCLE, {"CYCLIST", {119, 11, 32}}},
     {autoware_auto_perception_msgs::msg::ObjectClassification::MOTORCYCLE,
-     {"MOTORCYCLE", {0, 0, 230}}},
-    {autoware_auto_perception_msgs::msg::ObjectClassification::TRAILER, {"TRAILER", {0, 80, 100}}},
-    {autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK, {"TRUCK", {0, 0, 70}}}};
+     {"MOTORCYCLE", {255, 204, 102}}},
+    {autoware_auto_perception_msgs::msg::ObjectClassification::TRAILER, {"TRAILER", {30, 144, 255}}},
+    {autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK, {"TRUCK", {30, 144, 255}}}};
 
 /// \brief Convert the given polygon into a marker representing the shape in 3d
 /// \param shape_msg Shape msg to be converted. Corners should be in object-local frame
