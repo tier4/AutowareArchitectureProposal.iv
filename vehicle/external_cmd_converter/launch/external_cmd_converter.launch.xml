@@ -13,7 +13,7 @@
 
   <!-- input -->
   <arg name="in/external_control_cmd" default="/external/selected/external_control_cmd" />
-  <arg name="in/vehicle_state_cmd" default="/external/selected/vehicle_state_cmd" />
+  <arg name="in/shift_cmd" default="/external/selected/shift_cmd" />
   <arg name="in/emergency_stop" default="/external/selected/heartbeat" />
   <arg name="in/current_gate_mode" default="/control/current_gate_mode" />
   <arg name="in/odometry" default="/localization/kinematic_state" />
@@ -31,7 +31,7 @@
     <param name="control_command_timeout" value="$(var control_command_timeout)" />
     <param name="emergency_stop_timeout" value="$(var emergency_stop_timeout)" />
     <remap from="in/external_control_cmd" to="$(var in/external_control_cmd)" />
-    <remap from="in/vehicle_state_cmd" to="$(var in/vehicle_state_cmd)" />
+    <remap from="in/shift_cmd" to="$(var in/shift_cmd)" />
     <remap from="in/emergency_stop" to="$(var in/emergency_stop)" />
     <remap from="in/current_gate_mode" to="$(var in/current_gate_mode)" />
     <remap from="in/odometry" to="$(var in/odometry)" />
