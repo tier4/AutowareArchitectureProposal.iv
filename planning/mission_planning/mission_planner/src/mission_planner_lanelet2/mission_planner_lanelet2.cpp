@@ -14,7 +14,6 @@
 
 #include "mission_planner/lanelet2_impl/mission_planner_lanelet2.hpp"
 
-#include "mission_planner/lanelet2_impl/route_handler.hpp"
 #include "mission_planner/lanelet2_impl/utility_functions.hpp"
 
 #include <lanelet2_extension/utility/message_conversion.hpp>
@@ -34,6 +33,7 @@
 
 namespace
 {
+using RouteSections = std::vector<autoware_auto_mapping_msgs::msg::HADMapSegment>;
 RouteSections combineConsecutiveRouteSections(
   const RouteSections & route_sections1, const RouteSections & route_sections2)
 {
@@ -53,10 +53,10 @@ bool isRouteLooped(const RouteSections & route_sections)
 {
   for (std::size_t i = 0; i < route_sections.size(); i++) {
     const auto & route_section = route_sections.at(i);
-    for (const auto & lane_id : route_section.lane_ids) {
+    for (const auto & lane_id : route_section.primitives) {
       for (std::size_t j = i + 1; j < route_sections.size(); j++) {
         const auto & future_route_section = route_sections.at(j);
-        if (exists(future_route_section.lane_ids, lane_id)) {
+        if (exists(future_route_section.primitives, lane_id)) {
           return true;
         }
       }
@@ -126,14 +126,15 @@ MissionPlannerLanelet2::MissionPlannerLanelet2(const rclcpp::NodeOptions & node_
 : MissionPlanner("mission_planner_node", node_options), is_graph_ready_(false)
 {
   using std::placeholders::_1;
-  map_subscriber_ = create_subscription<autoware_lanelet2_msgs::msg::MapBin>(
+  map_subscriber_ = create_subscription<autoware_auto_mapping_msgs::msg::HADMapBin>(
     "input/vector_map", rclcpp::QoS{10}.transient_local(),
     std::bind(&MissionPlannerLanelet2::mapCallback, this, _1));
 }
 
 void MissionPlannerLanelet2::mapCallback(
-  const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr msg)
+  const autoware_auto_mapping_msgs::msg::HADMapBin::ConstSharedPtr msg)
 {
+  route_handler_.setMap(*msg);
   lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
   lanelet::utils::conversion::fromBinMsg(
     *msg, lanelet_map_ptr_, &traffic_rules_ptr_, &routing_graph_ptr_);
@@ -145,21 +146,20 @@ void MissionPlannerLanelet2::mapCallback(
 
 bool MissionPlannerLanelet2::isRoutingGraphReady() const { return is_graph_ready_; }
 
-void MissionPlannerLanelet2::visualizeRoute(const autoware_planning_msgs::msg::Route & route) const
+void MissionPlannerLanelet2::visualizeRoute(
+  const autoware_auto_planning_msgs::msg::HADMapRoute & route) const
 {
   lanelet::ConstLanelets route_lanelets;
   lanelet::ConstLanelets end_lanelets;
   lanelet::ConstLanelets normal_lanelets;
   lanelet::ConstLanelets goal_lanelets;
 
-  for (const auto & route_section : route.route_sections) {
-    for (const auto & lane_id : route_section.lane_ids) {
-      auto lanelet = lanelet_map_ptr_->laneletLayer.get(lane_id);
+  for (const auto & route_section : route.segments) {
+    for (const auto & lane_id : route_section.primitives) {
+      auto lanelet = lanelet_map_ptr_->laneletLayer.get(lane_id.id);
       route_lanelets.push_back(lanelet);
-      if (route_section.preferred_lane_id == lane_id) {
+      if (route_section.preferred_primitive_id == lane_id.id) {
         goal_lanelets.push_back(lanelet);
-      } else if (exists(route_section.continued_lane_ids, lane_id)) {
-        normal_lanelets.push_back(lanelet);
       } else {
         end_lanelets.push_back(lanelet);
       }
@@ -248,7 +248,7 @@ bool MissionPlannerLanelet2::isGoalValid() const
   return false;
 }
 
-autoware_planning_msgs::msg::Route MissionPlannerLanelet2::planRoute()
+autoware_auto_planning_msgs::msg::HADMapRoute MissionPlannerLanelet2::planRoute()
 {
   std::stringstream ss;
   for (const auto & checkpoint : checkpoints_) {
@@ -259,7 +259,7 @@ autoware_planning_msgs::msg::Route MissionPlannerLanelet2::planRoute()
     get_logger(), "start planning route with checkpoints: " << std::endl
                                                             << ss.str());
 
-  autoware_planning_msgs::msg::Route route_msg;
+  autoware_auto_planning_msgs::msg::HADMapRoute route_msg;
   RouteSections route_sections;
 
   if (!isGoalValid()) {
@@ -271,15 +271,12 @@ autoware_planning_msgs::msg::Route MissionPlannerLanelet2::planRoute()
     const auto start_checkpoint = checkpoints_.at(i - 1);
     const auto goal_checkpoint = checkpoints_.at(i);
     lanelet::ConstLanelets path_lanelets;
-    if (!planPathBetweenCheckpoints(start_checkpoint, goal_checkpoint, &path_lanelets)) {
+    if (!route_handler_.planPathLaneletsBetweenCheckpoints(
+          start_checkpoint.pose, goal_checkpoint.pose, &path_lanelets)) {
       return route_msg;
     }
-
-    RouteHandler route_handler(lanelet_map_ptr_, routing_graph_ptr_, path_lanelets);
-    const auto main_lanelets = getMainLanelets(path_lanelets, route_handler);
-
-    // //  create routesections
-    const auto local_route_sections = createRouteSections(main_lanelets, route_handler);
+    // create local route sections
+    const auto local_route_sections = route_handler_.createMapSegments(path_lanelets);
     route_sections = combineConsecutiveRouteSections(route_sections, local_route_sections);
   }
 
@@ -290,84 +287,10 @@ autoware_planning_msgs::msg::Route MissionPlannerLanelet2::planRoute()
 
   route_msg.header.stamp = this->now();
   route_msg.header.frame_id = map_frame_;
-  route_msg.route_sections = route_sections;
+  route_msg.segments = route_sections;
   route_msg.goal_pose = goal_pose_.pose;
 
   return route_msg;
-}
-
-bool MissionPlannerLanelet2::planPathBetweenCheckpoints(
-  const geometry_msgs::msg::PoseStamped & start_checkpoint,
-  const geometry_msgs::msg::PoseStamped & goal_checkpoint,
-  lanelet::ConstLanelets * path_lanelets_ptr) const
-{
-  lanelet::Lanelet start_lanelet;
-  if (!lanelet::utils::query::getClosestLanelet(
-        road_lanelets_, start_checkpoint.pose, &start_lanelet)) {
-    return false;
-  }
-  lanelet::Lanelet goal_lanelet;
-  if (!lanelet::utils::query::getClosestLanelet(
-        road_lanelets_, goal_checkpoint.pose, &goal_lanelet)) {
-    return false;
-  }
-
-  // get all possible lanes that can be used to reach goal (including all possible lane change)
-  lanelet::Optional<lanelet::routing::Route> optional_route =
-    routing_graph_ptr_->getRoute(start_lanelet, goal_lanelet, 0);
-  if (!optional_route) {
-    RCLCPP_ERROR_STREAM(
-      get_logger(), "Failed to find a proper path!"
-                      << std::endl
-                      << "start checkpoint: " << toString(start_pose_.pose) << std::endl
-                      << "goal checkpoint: " << toString(goal_pose_.pose) << std::endl
-                      << "start lane id: " << start_lanelet.id() << std::endl
-                      << "goal lane id: " << goal_lanelet.id() << std::endl);
-    return false;
-  }
-
-  const auto shortest_path = optional_route->shortestPath();
-  for (const auto & llt : shortest_path) {
-    path_lanelets_ptr->push_back(llt);
-  }
-  return true;
-}
-
-lanelet::ConstLanelets MissionPlannerLanelet2::getMainLanelets(
-  const lanelet::ConstLanelets & path_lanelets, const RouteHandler & route_handler)
-{
-  auto lanelet_sequence = route_handler.getLaneletSequence(path_lanelets.back());
-  lanelet::ConstLanelets main_lanelets;
-  while (!lanelet_sequence.empty()) {
-    main_lanelets.insert(main_lanelets.begin(), lanelet_sequence.begin(), lanelet_sequence.end());
-    lanelet_sequence = route_handler.getPreviousLaneletSequence(lanelet_sequence);
-  }
-  return main_lanelets;
-}
-
-RouteSections MissionPlannerLanelet2::createRouteSections(
-  const lanelet::ConstLanelets & main_path, const RouteHandler & route_handler)
-{
-  RouteSections route_sections;
-
-  if (main_path.empty()) {
-    return route_sections;
-  }
-
-  for (const auto & main_llt : main_path) {
-    autoware_planning_msgs::msg::RouteSection route_section_msg;
-    lanelet::ConstLanelets route_section_lanelets = route_handler.getNeighborsWithinRoute(main_llt);
-    route_section_msg.preferred_lane_id = main_llt.id();
-    for (const auto & section_llt : route_section_lanelets) {
-      route_section_msg.lane_ids.push_back(section_llt.id());
-      lanelet::ConstLanelet next_lanelet;
-      if (route_handler.getNextLaneletWithinRoute(section_llt, &next_lanelet)) {
-        route_section_msg.continued_lane_ids.push_back(section_llt.id());
-      }
-    }
-    route_sections.push_back(route_section_msg);
-  }
-  return route_sections;
 }
 
 }  // namespace mission_planner
