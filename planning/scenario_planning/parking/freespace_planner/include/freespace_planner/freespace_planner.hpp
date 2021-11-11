@@ -30,9 +30,9 @@
 
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/action/planner_costmap.hpp>
-#include <autoware_auto_msgs/action/plan_trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/action/planner_costmap.hpp>
+#include <autoware_auto_planning_msgs/action/plan_trajectory.hpp>
 #include <geometry_msgs/msg/pose_array.hpp>
 
 #include <freespace_planner/visibility_control.hpp>
@@ -72,15 +72,15 @@ public:
   explicit FreespacePlannerNode(const rclcpp::NodeOptions & node_options);
 
 private:
-  using PlanTrajectoryAction = autoware_auto_msgs::action::PlanTrajectory;
+  using PlanTrajectoryAction = autoware_auto_planning_msgs::action::PlanTrajectory;
   using GoalHandle = rclcpp_action::ServerGoalHandle<PlanTrajectoryAction>;
-  using PlannerCostmapAction = autoware_auto_msgs::action::PlannerCostmap;
+  using PlannerCostmapAction = autoware_auto_planning_msgs::action::PlannerCostmap;
   using PlannerCostmapGoalHandle = rclcpp_action::ClientGoalHandle<PlannerCostmapAction>;
 
   // ros communication
   rclcpp_action::Client<PlannerCostmapAction>::SharedPtr map_client_;
   rclcpp_action::Server<PlanTrajectoryAction>::SharedPtr plan_trajectory_srv_;
-  rclcpp::Publisher<autoware_auto_msgs::msg::Trajectory>::SharedPtr trajectory_debug_pub_;
+  rclcpp::Publisher<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr trajectory_debug_pub_;
   rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr pose_array_trajectory_debug_pub_;
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
@@ -96,7 +96,7 @@ private:
   std::shared_ptr<GoalHandle> planning_goal_handle_{nullptr};
   geometry_msgs::msg::PoseStamped start_pose_;
   geometry_msgs::msg::PoseStamped goal_pose_;
-  autoware_auto_msgs::msg::Trajectory trajectory_;
+  autoware_auto_planning_msgs::msg::Trajectory trajectory_;
   nav_msgs::msg::OccupancyGrid::SharedPtr occupancy_grid_;
 
   // callbacks

@@ -30,10 +30,8 @@ namespace planning
 namespace freespace_planner
 {
 
-using motion::motion_common::to_quat;
-using motion::motion_common::from_quat;
-using autoware_auto_msgs::action::PlannerCostmap;
-using autoware_auto_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::action::PlannerCostmap;
+using autoware_auto_planning_msgs::msg::Trajectory;
 using common::vehicle_constants_manager::declare_and_get_vehicle_constants;
 
 
@@ -82,7 +80,7 @@ astar_search::AstarWaypoints adjustWaypointsSize(
   return astar_waypoints;
 }
 
-autoware_auto_msgs::msg::Trajectory createTrajectory(
+autoware_auto_planning_msgs::msg::Trajectory createTrajectory(
   const geometry_msgs::msg::PoseStamped & current_pose,
   const astar_search::AstarWaypoints & astar_waypoints,
   const float & velocity)
@@ -91,12 +89,10 @@ autoware_auto_msgs::msg::Trajectory createTrajectory(
   trajectory.header = astar_waypoints.header;
 
   for (const auto & awp : astar_waypoints.waypoints) {
-    autoware_auto_msgs::msg::TrajectoryPoint point;
+    autoware_auto_planning_msgs::msg::TrajectoryPoint point;
 
-    point.x = static_cast<float>(awp.pose.pose.position.x);
-    point.y = static_cast<float>(awp.pose.pose.position.y);
-    point.z = static_cast<float>(current_pose.pose.position.z);  // height = const
-    point.heading = from_quat<geometry_msgs::msg::Quaternion>(awp.pose.pose.orientation);
+    point.pose = awp.pose.pose;
+    point.pose.position.z = current_pose.pose.position.z;  // height = const
 
     // switch sign by forward/backward
     // velocity = const
@@ -176,7 +172,7 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     rclcpp::QoS qos{1};
     qos.transient_local();  // latch
     trajectory_debug_pub_ =
-      create_publisher<autoware_auto_msgs::msg::Trajectory>("~/debug/trajectory", qos);
+      create_publisher<autoware_auto_planning_msgs::msg::Trajectory>("~/debug/trajectory", qos);
     pose_array_trajectory_debug_pub_ =
       create_publisher<geometry_msgs::msg::PoseArray>("~/debug/trajectory_pose_array", qos);
   }
@@ -259,16 +255,10 @@ void FreespacePlannerNode::handleAccepted(
 
   // acquire start and goal position from action request
   start_pose_.header = goal_handle->get_goal()->sub_route.header;
-  start_pose_.pose.position = goal_handle->get_goal()->sub_route.start_point.position;
-  start_pose_.pose.orientation =
-    to_quat<geometry_msgs::msg::Quaternion>(
-    goal_handle->get_goal()->sub_route.start_point.heading);
+  start_pose_.pose = goal_handle->get_goal()->sub_route.start_pose;
 
   goal_pose_.header = goal_handle->get_goal()->sub_route.header;
-  goal_pose_.pose.position = goal_handle->get_goal()->sub_route.goal_point.position;
-  goal_pose_.pose.orientation =
-    to_quat<geometry_msgs::msg::Quaternion>(
-    goal_handle->get_goal()->sub_route.goal_point.heading);
+  goal_pose_.pose = goal_handle->get_goal()->sub_route.goal_pose;
 
   // request costmap and plan trajectory
   auto action_goal = PlannerCostmapAction::Goal();
@@ -400,7 +390,7 @@ void FreespacePlannerNode::stopPlanning()
 
 void FreespacePlannerNode::reset()
 {
-  trajectory_ = autoware_auto_msgs::msg::Trajectory();
+  trajectory_ = autoware_auto_planning_msgs::msg::Trajectory();
 }
 
 geometry_msgs::msg::TransformStamped FreespacePlannerNode::getTransform(
@@ -422,13 +412,8 @@ void FreespacePlannerNode::visualizeTrajectory()
 
   debug_pose_array_trajectory.header = trajectory_.header;
 
-  for (const auto & trajectory_pose : trajectory_.points) {
-    auto pose = geometry_msgs::msg::Pose();
-    pose.position.x = trajectory_pose.x;
-    pose.position.y = trajectory_pose.y;
-    pose.position.z = trajectory_pose.z;
-    pose.orientation = to_quat<geometry_msgs::msg::Quaternion>(trajectory_pose.heading);
-    debug_pose_array_trajectory.poses.push_back(pose);
+  for (const auto & trajectory_point : trajectory_.points) {
+    debug_pose_array_trajectory.poses.push_back(trajectory_point.pose);
   }
 
   // publish visualization friendly pose array
