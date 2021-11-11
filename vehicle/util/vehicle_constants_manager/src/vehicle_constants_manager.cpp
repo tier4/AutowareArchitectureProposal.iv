@@ -166,11 +166,11 @@ VehicleConstants declare_and_get_vehicle_constants(rclcpp::Node & node)
   for (auto & pair : params) {
     // If it is already declared
     if (node.has_parameter(pair.first)) {
-      pair.second = node.get_parameter(pair.first).get_value<float64_t>();
+      node.get_parameter(pair.first, pair.second);
       continue;
     }
 
-    pair.second = node.declare_parameter(pair.first).get<float64_t>();
+    pair.second = node.declare_parameter(pair.first, rclcpp::ParameterType::PARAMETER_DOUBLE).get<float64_t>();
   }
 
   return VehicleConstants(
