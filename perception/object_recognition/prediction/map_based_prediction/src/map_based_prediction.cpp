@@ -83,13 +83,14 @@ bool MapBasedPrediction::doPrediction(
   for (auto & object_with_lanes : in_objects.objects) {
     const double min_lon_velocity_ms_for_map_based_prediction = 1;
     if (
-      std::fabs(object_with_lanes.object.kinematics.initial_twist_with_covariance.twist.linear.x) <
+      std::fabs(object_with_lanes.object.kinematics.twist_with_covariance.twist.linear.x) <
       min_lon_velocity_ms_for_map_based_prediction) {
       autoware_auto_perception_msgs::msg::PredictedPath predicted_path;
       getLinearPredictedPath(
-        object_with_lanes.object.kinematics.initial_pose_with_covariance.pose,
-        object_with_lanes.object.kinematics.initial_twist_with_covariance.twist, predicted_path);
+        object_with_lanes.object.kinematics.pose_with_covariance.pose,
+        object_with_lanes.object.kinematics.twist_with_covariance.twist, predicted_path);
       autoware_auto_perception_msgs::msg::PredictedObject tmp_object;
+      // convert to predicted object
       tmp_object = object_with_lanes.object;
       tmp_object.kinematics.predicted_paths.push_back(predicted_path);
       out_objects.push_back(tmp_object);
@@ -121,15 +122,14 @@ bool MapBasedPrediction::doPrediction(
         geometry_msgs::msg::Point g_point;
         g_point.x = point1[0];
         g_point.y = point1[1];
-        g_point.z =
-          object_with_lanes.object.kinematics.initial_pose_with_covariance.pose.position.z;
+        g_point.z = object_with_lanes.object.kinematics.pose_with_covariance.pose.position.z;
         interpolated_points.push_back(g_point);
         interpolated_yaws.push_back(spline2d.calc_yaw(s));
       }
       debug_interpolated_points = interpolated_points;
 
       geometry_msgs::msg::Point object_point =
-        object_with_lanes.object.kinematics.initial_pose_with_covariance.pose.position;
+        object_with_lanes.object.kinematics.pose_with_covariance.pose.position;
       geometry_msgs::msg::Point nearest_point;
       size_t nearest_point_idx;
       if (getNearestPointIdx(interpolated_points, object_point, nearest_point, nearest_point_idx)) {
@@ -151,9 +151,9 @@ bool MapBasedPrediction::doPrediction(
 
         // Does not consider orientation of twist since predicting lane-direction
         double current_d_velocity =
-          object_with_lanes.object.kinematics.initial_twist_with_covariance.twist.linear.y;
-        double current_s_velocity = std::fabs(
-          object_with_lanes.object.kinematics.initial_twist_with_covariance.twist.linear.x);
+          object_with_lanes.object.kinematics.twist_with_covariance.twist.linear.y;
+        double current_s_velocity =
+          std::fabs(object_with_lanes.object.kinematics.twist_with_covariance.twist.linear.x);
         autoware_auto_perception_msgs::msg::PredictedPath path;
 
         geometry_msgs::msg::PoseWithCovarianceStamped point;

@@ -16,6 +16,7 @@
 #define MAP_BASED_PREDICTION_HPP_
 
 #include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/tracked_objects.hpp>
 #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 
@@ -23,7 +24,7 @@
 
 struct DynamicObjectWithLanes
 {
-  autoware_auto_perception_msgs::msg::PredictedObject object;
+  autoware_auto_perception_msgs::msg::TrackedObject object;
   std::vector<std::vector<geometry_msgs::msg::Pose>> lanes;
 };
 
