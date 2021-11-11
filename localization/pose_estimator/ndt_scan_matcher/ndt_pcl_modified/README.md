@@ -9,4 +9,4 @@ This package is a modified version of NDT library, which is implemented in Point
 ## Change Points
   - You can get the Hessian matrix by getHessian(). 
   - You can get the estimated position for each iteration by getFinalTransformationArray().
-  - It don't align the 6 axes at the same time, just process the rotational component first, then process the 6 axes. [experimental feature]
+  - It doesn't align the 6 axes at the same time, just processes the rotational component first, then processes the 6 axes. [experimental feature]
