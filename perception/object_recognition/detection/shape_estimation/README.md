@@ -37,8 +37,8 @@ keywords = {autonomous driving, laser scanner, perception, segmentation},
 
 | Name                        | Type | Default Value | Description                                        |
 | --------------------------- | ---- | ------------- | -------------------------------------------------- |
-| `use_corrector`             | bool | true          | The flag to apply rule based filter.               |
-| `use_filter`                | bool | true          | The flag to apply rule based corrector             |
+| `use_corrector`             | bool | true          | The flag to apply rule-based filter                 |
+| `use_filter`                | bool | true          | The flag to apply rule-based corrector              |
 | `use_vehicle_reference_yaw` | bool | true          | The flag to use vehicle reference yaw for corrector |
 
 ## Assumptions / Known limits
