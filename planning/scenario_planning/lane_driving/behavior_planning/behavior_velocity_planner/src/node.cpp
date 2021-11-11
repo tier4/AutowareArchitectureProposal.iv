@@ -272,11 +272,11 @@ void BehaviorVelocityPlannerNode::onLaneletMap(
 void BehaviorVelocityPlannerNode::onTrafficSignals(
   const autoware_auto_perception_msgs::msg::TrafficSignalArray::ConstSharedPtr msg)
 {
-  for (const auto & state : msg->states) {
+  for (const auto & signal : msg->signals) {
     autoware_auto_perception_msgs::msg::TrafficSignalStamped traffic_signal;
     traffic_signal.header = msg->header;
-    traffic_signal.state = state;
-    planner_data_.traffic_light_id_map[state.id] = traffic_signal;
+    traffic_signal.signal = signal;
+    planner_data_.traffic_light_id_map[signal.map_primitive_id] = traffic_signal;
   }
 }
 
@@ -295,11 +295,11 @@ void BehaviorVelocityPlannerNode::onExternalIntersectionStates(
 void BehaviorVelocityPlannerNode::onExternalTrafficSignals(
   const autoware_auto_perception_msgs::msg::TrafficSignalArray::ConstSharedPtr msg)
 {
-  for (const auto & state : msg->states) {
+  for (const auto & signal : msg->signals) {
     autoware_auto_perception_msgs::msg::TrafficSignalStamped traffic_signal;
     traffic_signal.header = msg->header;
-    traffic_signal.state = state;
-    planner_data_.external_traffic_light_id_map[state.id] = traffic_signal;
+    traffic_signal.signal = signal;
+    planner_data_.external_traffic_light_id_map[signal.map_primitive_id] = traffic_signal;
   }
 }
 
