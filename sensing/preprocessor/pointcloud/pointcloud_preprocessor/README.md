@@ -11,16 +11,16 @@ Example:
 
 ## Inner-workings / Algorithms
 
-| Filter Name            | Description | Detail                                  |
-| ---------------------- | ----------- | --------------------------------------- |
-| concatenate_data       | temp        | [link](/docs/concatenate-data.md)       |
-| crop_box_filter        | temp        | [link](/docs/crop-box-filter.md)        |
-| distortion_corrector   | temp        | [link](/docs/distortion-corrector.md)   |
-| downsample_filter      | temp        | [link](/docs/downsample-filter.md)      |
-| outlier_filter         | temp        | [link](/docs/outlier-filter.md)         |
-| passthrough_filter     | temp        | [link](/docs/passthrough-filter.md)     |
-| pointcloud_accumulator | temp        | [link](/docs/pointcloud-accumulator.md) |
-| vector_map_filter      | temp        | [link](/docs/vector-map-filter.md)      |
+| Filter Name            | Description | Detail                                 |
+| ---------------------- | ----------- | -------------------------------------- |
+| concatenate_data       | temp        | [link](docs/concatenate-data.md)       |
+| crop_box_filter        | temp        | [link](docs/crop-box-filter.md)        |
+| distortion_corrector   | temp        | [link](docs/distortion-corrector.md)   |
+| downsample_filter      | temp        | [link](docs/downsample-filter.md)      |
+| outlier_filter         | temp        | [link](docs/outlier-filter.md)         |
+| passthrough_filter     | temp        | [link](docs/passthrough-filter.md)     |
+| pointcloud_accumulator | temp        | [link](docs/pointcloud-accumulator.md) |
+| vector_map_filter      | temp        | [link](docs/vector-map-filter.md)      |
 
 ## Inputs / Outputs
 
