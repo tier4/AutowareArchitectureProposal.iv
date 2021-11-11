@@ -321,9 +321,10 @@ protected:
   {
     std::string str32;
     for (auto i = 0; i < 4; ++i) {
-        str32 += (std::bitset<8>{u.uuid[i]}).to_string();
+      str32 += (std::bitset<8>{u.uuid[i]}).to_string();
     }
-    return static_cast<int32_t>(std::numeric_limits<int32_t>::min() + std::bitset<32>{str32}.to_ulong());
+    return static_cast<int32_t>(
+      std::numeric_limits<int32_t>::min() + std::bitset<32>{str32}.to_ulong());
   }
 
   /// \brief todo

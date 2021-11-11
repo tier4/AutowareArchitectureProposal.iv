@@ -65,7 +65,8 @@ const std::map<
     {autoware_auto_perception_msgs::msg::ObjectClassification::BICYCLE, {"CYCLIST", {119, 11, 32}}},
     {autoware_auto_perception_msgs::msg::ObjectClassification::MOTORCYCLE,
      {"MOTORCYCLE", {255, 204, 102}}},
-    {autoware_auto_perception_msgs::msg::ObjectClassification::TRAILER, {"TRAILER", {30, 144, 255}}},
+    {autoware_auto_perception_msgs::msg::ObjectClassification::TRAILER,
+     {"TRAILER", {30, 144, 255}}},
     {autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK, {"TRUCK", {30, 144, 255}}}};
 
 /// \brief Convert the given polygon into a marker representing the shape in 3d
