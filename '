@@ -1,4 +1,4 @@
-# pointcloud_preprocessor
+# pointcloud_preprocessor 
 
 ## Purpose
 
@@ -11,44 +11,44 @@ Example:
 
 ## Inner-workings / Algorithms
 
-| Filter Name            | Description | Detail                                  |
-| ---------------------- | ----------- | --------------------------------------- |
-| concatenate_data       | temp        | [link](/docs/concatenate-data.md)       |
-| crop_box_filter        | temp        | [link](/docs/crop-box-filter.md)        |
-| distortion_corrector   | temp        | [link](/docs/distortion-corrector.md)   |
-| downsample_filter      | temp        | [link](/docs/downsample-filter.md)      |
-| outlier_filter         | temp        | [link](/docs/outlier-filter.md)         |
-| passthrough_filter     | temp        | [link](/docs/passthrough-filter.md)     |
-| pointcloud_accumulator | temp        | [link](/docs/pointcloud-accumulator.md) |
-| vector_map_filter      | temp        | [link](/docs/vector-map-filter.md)      |
+| Filter Name                 | Description                                                | Detail          |
+| -------------------- | --------------------------------------------------- | -------------------- |
+| concatenate_data | temp           | [link](/docs/concatenate-data.md) |
+| crop_box_filter  | temp | [link](/docs/crop-box-filter.md)            |
+| distortion_corrector  | temp | [link](/docs/distortion-corrector.md)    |
+| downsample_filter  | temp | [link](/docs/downsample-filter.md)   |
+| outlier_filter | temp | [link](/docs/outlier-filter.md)       |
+| passthrough_filter | temp | [link](/docs/passthrough-filter.md)         |
+| pointcloud_accumulator| temp | [link](/docs/pointcloud-accumulator.md)        |
+| vector_map_filter| temp | [link](/docs/vector-map-filter.md) |
 
 ## Inputs / Outputs
 
 ### Input
 
-| Name              | Type                            | Description       |
-| ----------------- | ------------------------------- | ----------------- |
-| `~/input/points`  | `sensor_msgs::msg::PointCloud2` | reference points  |
-| `~/input/indices` | `pcl_msgs::msg::Indices`        | reference indices |
+| Name                 | Type                                                | Description          |
+| -------------------- | --------------------------------------------------- | -------------------- |
+| `~/input/points` | `sensor_msgs::msg::PointCloud2`           | reference points |
+| `~/input/indices`  | `pcl_msgs::msg::Indices` | reference indices            |
 
 ### Output
 
-| Name              | Type                                      | Description     |
-| ----------------- | ----------------------------------------- | --------------- |
+| Name                  | Type                                      | Description         |
+| --------------------- | ----------------------------------------- | ------------------- |
 | `~/output/points` | `autoware_planning_msgs::msg::Trajectory` | filtered points |
 
 ## Parameters
 
 ### Node Parameters
 
-| Name               | Type   | Default Value | Description                     |
-| ------------------ | ------ | ------------- | ------------------------------- |
-| `input_frame`      | string | ""            | whether to output debug markers |
-| `output_frame`     | string | ""            | whether to output debug markers |
-| `max_queue_size`   | int    | 5             | whether to output debug markers |
-| `use_indices`      | bool   | false         | whether to output debug markers |
-| `latched_indices`  | bool   | false         | whether to output debug markers |
-| `approximate_sync` | bool   | false         | whether to output debug markers |
+| Name                   | Type| Default Value | Description                     |
+| ---------------------- | ---- | -----------|-------------------- |
+| `input_frame` | string |""| whether to output debug markers |
+| `output_frame` | string |""| whether to output debug markers |
+| `max_queue_size` | int |5| whether to output debug markers |
+| `use_indices` | bool | false| whether to output debug markers |
+| `latched_indices` | bool | false| whether to output debug markers |
+| `approximate_sync` | bool | false| whether to output debug markers |
 
 ## Assumptions / Known limits
 
