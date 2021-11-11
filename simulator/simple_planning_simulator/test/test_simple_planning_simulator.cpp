@@ -21,7 +21,6 @@
 using autoware_auto_control_msgs::msg::AckermannControlCommand;
 using autoware_auto_vehicle_msgs::msg::GearCommand;
 using autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
-using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 using autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using geometry_msgs::msg::PoseWithCovarianceStamped;
 
