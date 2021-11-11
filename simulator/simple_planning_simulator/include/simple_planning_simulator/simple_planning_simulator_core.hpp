@@ -31,7 +31,6 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "geometry_msgs/msg/twist.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 
@@ -42,6 +41,7 @@
 #include "autoware_auto_vehicle_msgs/msg/gear_command.hpp"
 #include "autoware_auto_vehicle_msgs/msg/gear_report.hpp"
 #include "autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/velocity_report.hpp"
 #include "autoware_auto_geometry_msgs/msg/complex32.hpp"
 #include "common/types.hpp"
 
@@ -57,20 +57,20 @@ using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
 
 using autoware_auto_control_msgs::msg::AckermannControlCommand;
+using autoware_auto_geometry_msgs::msg::Complex32;
 using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_vehicle_msgs::msg::ControlModeReport;
 using autoware_auto_vehicle_msgs::msg::GearCommand;
 using autoware_auto_vehicle_msgs::msg::GearReport;
 using autoware_auto_vehicle_msgs::msg::SteeringReport;
 using autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
-using geometry_msgs::msg::TransformStamped;
-using geometry_msgs::msg::PoseWithCovarianceStamped;
-using geometry_msgs::msg::PoseStamped;
+using autoware_auto_vehicle_msgs::msg::VelocityReport;
 using geometry_msgs::msg::Pose;
+using geometry_msgs::msg::PoseStamped;
+using geometry_msgs::msg::PoseWithCovarianceStamped;
+using geometry_msgs::msg::TransformStamped;
 using geometry_msgs::msg::Twist;
-using geometry_msgs::msg::TwistStamped;
 using nav_msgs::msg::Odometry;
-using autoware_auto_geometry_msgs::msg::Complex32;
 
 class DeltaTime
 {
@@ -111,7 +111,7 @@ public:
 
 private:
   /* ros system */
-  rclcpp::Publisher<TwistStamped>::SharedPtr pub_twist_;
+  rclcpp::Publisher<VelocityReport>::SharedPtr pub_velocity_;
   rclcpp::Publisher<Odometry>::SharedPtr pub_odom_;
   rclcpp::Publisher<SteeringReport>::SharedPtr pub_steer_;
   rclcpp::Publisher<ControlModeReport>::SharedPtr pub_control_mode_report_;
@@ -133,7 +133,7 @@ private:
   tf2_ros::TransformListener tf_listener_;
 
   /* received & published topics */
-  TwistStamped current_twist_;
+  VelocityReport current_velocity_;
   Odometry current_odometry_;
   SteeringReport current_steer_;
   VehicleControlCommand::ConstSharedPtr current_vehicle_cmd_ptr_;
@@ -223,10 +223,10 @@ private:
   /**
    * @brief add measurement noise
    * @param [in] odometry odometry to add noise
-   * @param [in] twist twist to add noise
+   * @param [in] vel velocity report to add noise
    * @param [in] steer steering to add noise
    */
-  void add_measurement_noise(Odometry & odom, TwistStamped & twist, SteeringReport & steer) const;
+  void add_measurement_noise(Odometry & odom, VelocityReport & vel, SteeringReport & steer) const;
 
   /**
    * @brief set initial state of simulated vehicle
@@ -243,10 +243,10 @@ private:
   void set_initial_state_with_transform(const PoseStamped & pose, const Twist & twist);
 
   /**
-   * @brief publish twist
-   * @param [in] odometry The twist to publish
+   * @brief publish velocity
+   * @param [in] velocity The velocity report to publish
    */
-  void publish_twist(const TwistStamped & twist);
+  void publish_velocity(const VelocityReport & velocity);
 
   /**
    * @brief publish pose and twist

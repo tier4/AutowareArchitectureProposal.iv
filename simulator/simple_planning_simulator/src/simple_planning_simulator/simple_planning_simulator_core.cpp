@@ -37,13 +37,14 @@ using namespace std::chrono_literals;
 namespace
 {
 
-geometry_msgs::msg::TwistStamped to_twist(
+autoware_auto_vehicle_msgs::msg::VelocityReport to_velocity_report(
   const std::shared_ptr<SimModelInterface> vehicle_model_ptr)
 {
-  geometry_msgs::msg::TwistStamped twist;
-  twist.twist.linear.x = vehicle_model_ptr->getVx();
-  twist.twist.angular.z = vehicle_model_ptr->getWz();
-  return twist;
+  autoware_auto_vehicle_msgs::msg::VelocityReport velocity;
+  velocity.longitudinal_velocity = static_cast<float32_t>(vehicle_model_ptr->getVx());
+  velocity.lateral_velocity = 0.0F;
+  velocity.heading_rate = static_cast<float32_t>(vehicle_model_ptr->getWz());
+  return velocity;
 }
 
 nav_msgs::msg::Odometry to_odometry(const std::shared_ptr<SimModelInterface> vehicle_model_ptr)
@@ -103,7 +104,7 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
     create_publisher<ControlModeReport>("output/control_mode_report", QoS{1});
   pub_gear_report_ = create_publisher<GearReport>("output/gear_report", QoS{1});
   pub_current_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>("/current_pose", QoS{1});
-  pub_twist_ = create_publisher<TwistStamped>("output/twist", QoS{1});
+  pub_velocity_ = create_publisher<VelocityReport>("output/twist", QoS{1});
   pub_odom_ = create_publisher<Odometry>("output/odometry", QoS{1});
   pub_steer_ = create_publisher<SteeringReport>("output/steering", QoS{1});
   pub_tf_ = create_publisher<tf2_msgs::msg::TFMessage>("/tf", QoS{1});
@@ -206,16 +207,16 @@ void SimplePlanningSimulator::on_timer()
   // set current state
   current_odometry_ = to_odometry(vehicle_model_ptr_);
 
-  current_twist_ = to_twist(vehicle_model_ptr_);
+  current_velocity_ = to_velocity_report(vehicle_model_ptr_);
   current_steer_ = to_steering_report(vehicle_model_ptr_);
 
   if (add_measurement_noise_) {
-    add_measurement_noise(current_odometry_, current_twist_, current_steer_);
+    add_measurement_noise(current_odometry_, current_velocity_, current_steer_);
   }
 
   // publish vehicle state
   publish_odometry(current_odometry_);
-  publish_twist(current_twist_);
+  publish_velocity(current_velocity_);
   publish_steering(current_steer_);
 
   publish_control_mode_report();
@@ -288,7 +289,7 @@ void SimplePlanningSimulator::on_trajectory(const Trajectory::ConstSharedPtr msg
 }
 
 void SimplePlanningSimulator::add_measurement_noise(
-  Odometry & odom, TwistStamped & twist, SteeringReport & steer) const
+  Odometry & odom, VelocityReport & vel, SteeringReport & steer) const
 {
   auto & n = measurement_noise_;
   odom.pose.pose.position.x += (*n.pos_dist_)(*n.rand_engine_);
@@ -299,7 +300,7 @@ void SimplePlanningSimulator::add_measurement_noise(
   yaw += static_cast<float>((*n.rpy_dist_)(*n.rand_engine_));
   odom.pose.pose.orientation = motion::motion_common::from_angle(yaw);
 
-  twist.twist.linear.x += velocity_noise;
+  vel.longitudinal_velocity += static_cast<float32_t>(velocity_noise);
 
   steer.steering_tire_angle += static_cast<float32_t>((*n.steer_dist_)(*n.rand_engine_));
 }
@@ -394,12 +395,11 @@ geometry_msgs::msg::TransformStamped SimplePlanningSimulator::get_transform_msg(
   return transform;
 }
 
-void SimplePlanningSimulator::publish_twist(const TwistStamped & twist)
+void SimplePlanningSimulator::publish_velocity(const VelocityReport & velocity)
 {
-  TwistStamped msg = twist;
-  msg.header.frame_id = simulated_frame_id_;
-  msg.header.stamp = get_clock()->now();
-  pub_twist_->publish(msg);
+  VelocityReport msg = velocity;
+  msg.stamp = get_clock()->now();
+  pub_velocity_->publish(msg);
 }
 
 void SimplePlanningSimulator::publish_odometry(const Odometry & odometry)
