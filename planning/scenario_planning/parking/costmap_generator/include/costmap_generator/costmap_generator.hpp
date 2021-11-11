@@ -54,8 +54,7 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
-#include <autoware_auto_msgs/action/planner_costmap.hpp>
-#include <autoware_auto_msgs/srv/had_map_service.hpp>
+#include <autoware_auto_planning_msgs/action/planner_costmap.hpp>
 #include <costmap_generator/visibility_control.hpp>
 #include <grid_map_ros/GridMapRosConverter.hpp>
 #include <grid_map_ros/grid_map_ros.hpp>
