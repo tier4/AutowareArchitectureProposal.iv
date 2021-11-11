@@ -23,19 +23,34 @@
 #include <vehicle_info_util/vehicle_info_util.hpp>
 
 #include <autoware_control_msgs/msg/control_command_stamped.hpp>
+#include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
+
 #include <autoware_control_msgs/msg/gate_mode.hpp>
+#include <autoware_auto_vehicle_msgs/msg/control_mode_report.hpp>
+
+#include <autoware_vehicle_msgs/msg/engage.hpp>
+#include <autoware_auto_vehicle_msgs/msg/engage.hpp>
+
+#include <autoware_vehicle_msgs/msg/shift_stamped.hpp>
+#include <autoware_auto_vehicle_msgs/msg/gear_command.hpp>
+
+#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
+
+#include <autoware_vehicle_msgs/msg/turn_signal.hpp>
+#include <autoware_auto_vehicle_msgs/msg/hazard_lights_command.hpp>
+
 #include <autoware_debug_msgs/msg/bool_stamped.hpp>
 #include <autoware_external_api_msgs/msg/emergency.hpp>
 #include <autoware_external_api_msgs/msg/heartbeat.hpp>
 #include <autoware_external_api_msgs/srv/engage.hpp>
 #include <autoware_external_api_msgs/srv/set_emergency.hpp>
+
 #include <autoware_system_msgs/msg/emergency_state_stamped.hpp>
-#include <autoware_vehicle_msgs/msg/engage.hpp>
-#include <autoware_vehicle_msgs/msg/shift_stamped.hpp>
+#include <autoware_auto_system_msgs/msg/emergency_state.hpp>
+
 #include <autoware_vehicle_msgs/msg/steering.hpp>
-#include <autoware_vehicle_msgs/msg/turn_signal.hpp>
-#include <autoware_vehicle_msgs/msg/vehicle_command.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
+
 
 #include <memory>
 
