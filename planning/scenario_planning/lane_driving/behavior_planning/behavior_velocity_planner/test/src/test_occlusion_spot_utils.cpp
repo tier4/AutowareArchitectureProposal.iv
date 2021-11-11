@@ -168,6 +168,7 @@ TEST(createPossibleCollisionBehindParkedVehicle, TooManyPathPointsAndObstacles)
   // obj.kinematics.orientation_reliable = true;
   // obj.kinematics.twist_reliable = true;
   obj.kinematics.initial_twist_with_covariance.twist.linear.x = 0;
+  obj.classification.push_back(autoware_auto_perception_msgs::msg::ObjectClassification{});
 
   // car
   obj.kinematics.initial_pose_with_covariance.pose.position.x = 2.5;

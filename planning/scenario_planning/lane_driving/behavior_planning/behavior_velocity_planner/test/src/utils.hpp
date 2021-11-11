@@ -180,6 +180,7 @@ inline autoware_auto_perception_msgs::msg::PredictedObject generatePredictedObje
   obj.kinematics.initial_twist_with_covariance.twist.linear.x = 0;
   obj.kinematics.initial_pose_with_covariance.pose.position.x = x;
   obj.kinematics.initial_pose_with_covariance.pose.position.y = 0;
+  obj.classification.push_back(autoware_auto_perception_msgs::msg::ObjectClassification{});
   obj.classification.at(0).label = autoware_auto_perception_msgs::msg::ObjectClassification::CAR;
   return obj;
 }
