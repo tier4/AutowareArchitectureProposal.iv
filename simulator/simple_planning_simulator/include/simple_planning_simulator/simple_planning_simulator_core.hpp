@@ -33,8 +33,10 @@
 #include "geometry_msgs/msg/twist.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
+#include "nav_msgs/msg/odometry.hpp"
 
 #include "autoware_auto_control_msgs/msg/ackermann_control_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/steering_report.hpp"
 #include "autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp"
 #include "autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp"
 #include "autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp"
@@ -54,7 +56,7 @@ using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
 
 using autoware_auto_control_msgs::msg::AckermannControlCommand;
-using autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
+using autoware_auto_vehicle_msgs::msg::SteeringReport;
 using autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
 using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
 using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
@@ -63,6 +65,8 @@ using geometry_msgs::msg::PoseWithCovarianceStamped;
 using geometry_msgs::msg::PoseStamped;
 using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::Twist;
+using geometry_msgs::msg::TwistStamped;
+using nav_msgs::msg::Odometry;
 using autoware_auto_geometry_msgs::msg::Complex32;
 
 class DeltaTime
@@ -104,7 +108,9 @@ public:
 
 private:
   /* ros system */
-  rclcpp::Publisher<VehicleKinematicState>::SharedPtr pub_kinematic_state_;
+  rclcpp::Publisher<TwistStamped>::SharedPtr pub_twist_;
+  rclcpp::Publisher<Odometry>::SharedPtr pub_odom_;
+  rclcpp::Publisher<SteeringReport>::SharedPtr pub_steer_;
   rclcpp::Publisher<VehicleStateReport>::SharedPtr pub_state_report_;
   rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr pub_tf_;
   rclcpp::Publisher<PoseStamped>::SharedPtr pub_current_pose_;
@@ -122,7 +128,9 @@ private:
   tf2_ros::TransformListener tf_listener_;
 
   /* received & published topics */
-  VehicleKinematicState current_kinematic_state_;
+  TwistStamped current_twist_;
+  Odometry current_odometry_;
+  SteeringReport current_steer_;
   VehicleControlCommand::ConstSharedPtr current_vehicle_cmd_ptr_;
   AckermannControlCommand::ConstSharedPtr current_ackermann_cmd_ptr_;
   VehicleStateCommand::ConstSharedPtr current_vehicle_state_cmd_ptr_;
@@ -198,8 +206,11 @@ private:
 
   /**
    * @brief add measurement noise
+   * @param [in] odometry odometry to add noise
+   * @param [in] twist twist to add noise
+   * @param [in] steer steering to add noise
    */
-  void add_measurement_noise(VehicleKinematicState & state) const;
+  void add_measurement_noise(Odometry & odom, TwistStamped & twist, SteeringReport & steer) const;
 
   /**
    * @brief set initial state of simulated vehicle
@@ -216,10 +227,22 @@ private:
   void set_initial_state_with_transform(const PoseStamped & pose, const Twist & twist);
 
   /**
-   * @brief publish pose and twist
-   * @param [in] state The kinematic state to publish
+   * @brief publish twist
+   * @param [in] odometry The twist to publish
    */
-  void publish_kinematic_state(const VehicleKinematicState & state);
+  void publish_twist(const TwistStamped & twist);
+
+  /**
+   * @brief publish pose and twist
+   * @param [in] odometry The odometry to publish
+   */
+  void publish_odometry(const Odometry & odometry);
+
+  /**
+   * @brief publish steering
+   * @param [in] steer The steering to publish
+   */
+  void publish_steering(const SteeringReport & steer);
 
   /**
    * @brief publish vehicle state report
@@ -230,7 +253,7 @@ private:
    * @brief publish tf
    * @param [in] state The kinematic state to publish as a TF
    */
-  void publish_tf(const VehicleKinematicState & state);
+  void publish_tf(const Odometry & odometry);
 };
 }  // namespace simple_planning_simulator
 }  // namespace simulation

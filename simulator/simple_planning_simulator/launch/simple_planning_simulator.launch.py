@@ -53,7 +53,9 @@ def generate_launch_description():
             ('input/vehicle_control_command', '/vehicle/vehicle_command'),
             ('input/ackermann_control_command', '/vehicle/ackermann_vehicle_command'),
             ('input/vehicle_state_command', '/vehicle/state_command'),
-            ('output/kinematic_state', '/vehicle/vehicle_kinematic_state'),
+            ('output/twist', '/vehicle/status/twist'),
+            ('output/odometry', '/localization/kinematic_state'),
+            ('output/steering', '/vehicle/status/steering'),
             ('output/vehicle_state_report', '/vehicle/state_report'),
             ('/initialpose', '/localization/initialpose'),
         ]
