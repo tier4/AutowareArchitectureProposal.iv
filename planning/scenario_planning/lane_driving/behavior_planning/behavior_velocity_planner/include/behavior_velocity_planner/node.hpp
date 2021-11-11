@@ -55,14 +55,14 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_no_ground_pointcloud_;
   rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_vehicle_velocity_;
   rclcpp::Subscription<autoware_auto_mapping_msgs::msg::HADMapBin>::SharedPtr sub_lanelet_map_;
-  rclcpp::Subscription<autoware_perception_msgs::msg::TrafficLightStateArray>::SharedPtr
-    sub_traffic_light_states_;
+  rclcpp::Subscription<autoware_auto_perception_msgs::msg::TrafficSignalArray>::SharedPtr
+    sub_traffic_signals_;
   rclcpp::Subscription<autoware_api_msgs::msg::CrosswalkStatus>::SharedPtr
     sub_external_crosswalk_states_;
   rclcpp::Subscription<autoware_api_msgs::msg::IntersectionStatus>::SharedPtr
     sub_external_intersection_states_;
-  rclcpp::Subscription<autoware_perception_msgs::msg::TrafficLightStateArray>::SharedPtr
-    sub_external_traffic_light_states_;
+  rclcpp::Subscription<autoware_auto_perception_msgs::msg::TrafficSignalArray>::SharedPtr
+    sub_external_traffic_signals_;
   rclcpp::Subscription<autoware_v2x_msgs::msg::VirtualTrafficLightStateArray>::SharedPtr
     sub_virtual_traffic_light_states_;
   rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr sub_occupancy_grid_;
@@ -74,10 +74,10 @@ private:
   void onNoGroundPointCloud(const sensor_msgs::msg::PointCloud2::ConstSharedPtr msg);
   void onVehicleVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
   void onLaneletMap(const autoware_auto_mapping_msgs::msg::HADMapBin::ConstSharedPtr msg);
-  void onTrafficLightStates(
-    const autoware_perception_msgs::msg::TrafficLightStateArray::ConstSharedPtr msg);
-  void onExternalTrafficLightStates(
-    const autoware_perception_msgs::msg::TrafficLightStateArray::ConstSharedPtr msg);
+  void onTrafficSignals(
+    const autoware_auto_perception_msgs::msg::TrafficSignalArray::ConstSharedPtr msg);
+  void onExternalTrafficSignals(
+    const autoware_auto_perception_msgs::msg::TrafficSignalArray::ConstSharedPtr msg);
   void onExternalCrosswalkStates(const autoware_api_msgs::msg::CrosswalkStatus::ConstSharedPtr msg);
   void onExternalIntersectionStates(
     const autoware_api_msgs::msg::IntersectionStatus::ConstSharedPtr msg);

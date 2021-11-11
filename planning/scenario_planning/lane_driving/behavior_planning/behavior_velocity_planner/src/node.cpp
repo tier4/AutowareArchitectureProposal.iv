@@ -90,10 +90,10 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode(const rclcpp::NodeOptio
   sub_lanelet_map_ = this->create_subscription<autoware_auto_mapping_msgs::msg::HADMapBin>(
     "~/input/vector_map", rclcpp::QoS(10).transient_local(),
     std::bind(&BehaviorVelocityPlannerNode::onLaneletMap, this, _1));
-  sub_traffic_light_states_ =
-    this->create_subscription<autoware_perception_msgs::msg::TrafficLightStateArray>(
-      "~/input/traffic_light_states", 10,
-      std::bind(&BehaviorVelocityPlannerNode::onTrafficLightStates, this, _1));
+  sub_traffic_signals_ =
+    this->create_subscription<autoware_auto_perception_msgs::msg::TrafficSignalArray>(
+      "~/input/traffic_signals", 10,
+      std::bind(&BehaviorVelocityPlannerNode::onTrafficSignals, this, _1));
   sub_external_crosswalk_states_ =
     this->create_subscription<autoware_api_msgs::msg::CrosswalkStatus>(
       "~/input/external_crosswalk_states", 10,
@@ -102,10 +102,10 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode(const rclcpp::NodeOptio
     this->create_subscription<autoware_api_msgs::msg::IntersectionStatus>(
       "~/input/external_intersection_states", 10,
       std::bind(&BehaviorVelocityPlannerNode::onExternalIntersectionStates, this, _1));
-  sub_external_traffic_light_states_ =
-    this->create_subscription<autoware_perception_msgs::msg::TrafficLightStateArray>(
-      "~/input/external_traffic_light_states", 10,
-      std::bind(&BehaviorVelocityPlannerNode::onExternalTrafficLightStates, this, _1));
+  sub_external_traffic_signals_ =
+    this->create_subscription<autoware_auto_perception_msgs::msg::TrafficSignalArray>(
+      "~/input/external_traffic_signals", 10,
+      std::bind(&BehaviorVelocityPlannerNode::onExternalTrafficSignals, this, _1));
   sub_virtual_traffic_light_states_ =
     this->create_subscription<autoware_v2x_msgs::msg::VirtualTrafficLightStateArray>(
       "~/input/virtual_traffic_light_states", 10,
@@ -269,14 +269,14 @@ void BehaviorVelocityPlannerNode::onLaneletMap(
   }
 }
 
-void BehaviorVelocityPlannerNode::onTrafficLightStates(
-  const autoware_perception_msgs::msg::TrafficLightStateArray::ConstSharedPtr msg)
+void BehaviorVelocityPlannerNode::onTrafficSignals(
+  const autoware_auto_perception_msgs::msg::TrafficSignalArray::ConstSharedPtr msg)
 {
   for (const auto & state : msg->states) {
-    autoware_perception_msgs::msg::TrafficLightStateStamped traffic_light_state;
-    traffic_light_state.header = msg->header;
-    traffic_light_state.state = state;
-    planner_data_.traffic_light_id_map[state.id] = traffic_light_state;
+    autoware_auto_perception_msgs::msg::TrafficSignalStamped traffic_signal;
+    traffic_signal.header = msg->header;
+    traffic_signal.state = state;
+    planner_data_.traffic_light_id_map[state.id] = traffic_signal;
   }
 }
 
@@ -292,14 +292,14 @@ void BehaviorVelocityPlannerNode::onExternalIntersectionStates(
   planner_data_.external_intersection_status_input = *msg;
 }
 
-void BehaviorVelocityPlannerNode::onExternalTrafficLightStates(
-  const autoware_perception_msgs::msg::TrafficLightStateArray::ConstSharedPtr msg)
+void BehaviorVelocityPlannerNode::onExternalTrafficSignals(
+  const autoware_auto_perception_msgs::msg::TrafficSignalArray::ConstSharedPtr msg)
 {
   for (const auto & state : msg->states) {
-    autoware_perception_msgs::msg::TrafficLightStateStamped traffic_light_state;
-    traffic_light_state.header = msg->header;
-    traffic_light_state.state = state;
-    planner_data_.external_traffic_light_id_map[state.id] = traffic_light_state;
+    autoware_auto_perception_msgs::msg::TrafficSignalStamped traffic_signal;
+    traffic_signal.header = msg->header;
+    traffic_signal.state = state;
+    planner_data_.external_traffic_light_id_map[state.id] = traffic_signal;
   }
 }
 

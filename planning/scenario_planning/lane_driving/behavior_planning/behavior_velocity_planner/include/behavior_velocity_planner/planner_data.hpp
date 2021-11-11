@@ -21,8 +21,8 @@
 #include <autoware_api_msgs/msg/intersection_status.hpp>
 #include <autoware_auto_mapping_msgs/msg/had_map_bin.hpp>
 #include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
-#include <autoware_perception_msgs/msg/traffic_light_state_array.hpp>
-#include <autoware_perception_msgs/msg/traffic_light_state_stamped.hpp>
+#include <autoware_auto_perception_msgs/msg/traffic_signal_array.hpp>
+#include <autoware_auto_perception_msgs/msg/traffic_signal_stamped.hpp>
 #include <autoware_v2x_msgs/msg/virtual_traffic_light_state_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
@@ -74,13 +74,13 @@ struct PlannerData
   nav_msgs::msg::OccupancyGrid::ConstSharedPtr occupancy_grid;
 
   // other internal data
-  std::map<int, autoware_perception_msgs::msg::TrafficLightStateStamped> traffic_light_id_map;
+  std::map<int, autoware_auto_perception_msgs::msg::TrafficSignalStamped> traffic_light_id_map;
   lanelet::traffic_rules::TrafficRulesPtr traffic_rules;
   lanelet::routing::RoutingGraphPtr routing_graph;
   std::shared_ptr<const lanelet::routing::RoutingGraphContainer> overall_graphs;
 
   // external data
-  std::map<int, autoware_perception_msgs::msg::TrafficLightStateStamped>
+  std::map<int, autoware_auto_perception_msgs::msg::TrafficSignalStamped>
     external_traffic_light_id_map;
   boost::optional<autoware_api_msgs::msg::CrosswalkStatus> external_crosswalk_status_input;
   boost::optional<autoware_api_msgs::msg::IntersectionStatus> external_intersection_status_input;
@@ -125,23 +125,23 @@ struct PlannerData
     return true;
   }
 
-  std::shared_ptr<autoware_perception_msgs::msg::TrafficLightStateStamped> getTrafficLightState(
+  std::shared_ptr<autoware_auto_perception_msgs::msg::TrafficSignalStamped> getTrafficSignal(
     const int id) const
   {
     if (traffic_light_id_map.count(id) == 0) {
       return {};
     }
-    return std::make_shared<autoware_perception_msgs::msg::TrafficLightStateStamped>(
+    return std::make_shared<autoware_auto_perception_msgs::msg::TrafficSignalStamped>(
       traffic_light_id_map.at(id));
   }
 
-  std::shared_ptr<autoware_perception_msgs::msg::TrafficLightStateStamped>
-  getExternalTrafficLightState(const int id) const
+  std::shared_ptr<autoware_auto_perception_msgs::msg::TrafficSignalStamped>
+  getExternalTrafficSignal(const int id) const
   {
     if (external_traffic_light_id_map.count(id) == 0) {
       return {};
     }
-    return std::make_shared<autoware_perception_msgs::msg::TrafficLightStateStamped>(
+    return std::make_shared<autoware_auto_perception_msgs::msg::TrafficSignalStamped>(
       external_traffic_light_id_map.at(id));
   }
 

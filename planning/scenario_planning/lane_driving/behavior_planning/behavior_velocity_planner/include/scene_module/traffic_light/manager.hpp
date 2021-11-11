@@ -43,7 +43,7 @@ private:
     const autoware_auto_planning_msgs::msg::PathWithLaneId & path) override;
 
   // Debug
-  rclcpp::Publisher<autoware_perception_msgs::msg::LookingTrafficLightState>::SharedPtr
+  rclcpp::Publisher<autoware_auto_perception_msgs::msg::LookingTrafficSignal>::SharedPtr
     pub_tl_state_;
 
   boost::optional<int> first_ref_stop_path_point_index_;

@@ -20,14 +20,14 @@ So for example, in order to stop at a stop line with the vehicles' front on the 
 
 ## Input topics
 
-| Name                          | Type                                             | Description          |
-| ----------------------------- | ------------------------------------------------ | -------------------- |
-| `~input/path_with_lane_id`    | autoware_auto_planning_msgs::PathWithLaneId      | path with lane_id    |
-| `~input/vector_map`           | autoware_auto_mapping_msgs::HADMapBin            | vector map           |
-| `~input/vehicle_velocity`     | geometry_msgs::TwistStamped                      | vehicle velocity     |
-| `~input/predicted_objects`    | autoware_perception_msgs::PredictedObjects       | dynamic objects      |
-| `~input/no_ground_pointcloud` | sensor_msgs::PointCloud2                         | obstacle pointcloud  |
-| `~input/traffic_light_states` | autoware_perception_msgs::TrafficLightStateArray | traffic light states |
+| Name                          | Type                                              | Description          |
+| ----------------------------- | ------------------------------------------------- | -------------------- |
+| `~input/path_with_lane_id`    | autoware_auto_planning_msgs::PathWithLaneId       | path with lane_id    |
+| `~input/vector_map`           | autoware_auto_mapping_msgs::HADMapBin             | vector map           |
+| `~input/vehicle_velocity`     | geometry_msgs::TwistStamped                       | vehicle velocity     |
+| `~input/predicted_objects`    | autoware_auto_perception_msgs::PredictedObjects   | dynamic objects      |
+| `~input/no_ground_pointcloud` | sensor_msgs::PointCloud2                          | obstacle pointcloud  |
+| `~input/traffic_signals`      | autoware_auto_perception_msgs::TrafficSignalArray | traffic light states |
 
 ## Output topics
 
