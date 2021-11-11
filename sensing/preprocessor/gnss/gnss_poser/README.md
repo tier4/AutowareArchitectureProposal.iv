@@ -1,4 +1,4 @@
-# Gnss Poser
+# gnss_poser
 
 ## Purpose
 
