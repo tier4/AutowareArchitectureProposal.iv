@@ -476,7 +476,7 @@ void PacmodInterface::publishCommands()
     shift_cmd_pub_->publish(shift_cmd);
   }
 
-  if (turn_indicators_cmd_ptr_) {
+  if (turn_indicators_cmd_ptr_ && hazard_lights_cmd_ptr_) {
     /* publish shift cmd */
     pacmod_msgs::msg::SystemCmdInt turn_cmd;
     turn_cmd.header.frame_id = base_frame_id_;
@@ -634,7 +634,6 @@ uint16_t PacmodInterface::toPacmodTurnCmdWithHazardRecover(
   }
 }
 
-// TODO(murooka) disable
 int32_t PacmodInterface::toAutowareTurnIndicatorsReport(const pacmod_msgs::msg::SystemRptInt & turn)
 {
   using autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport;
@@ -650,7 +649,6 @@ int32_t PacmodInterface::toAutowareTurnIndicatorsReport(const pacmod_msgs::msg::
   return TurnIndicatorsReport::DISABLE;
 }
 
-// TODO(murooka) disable
 int32_t PacmodInterface::toAutowareHazardLightsReport(const pacmod_msgs::msg::SystemRptInt & hazard)
 {
   using autoware_auto_vehicle_msgs::msg::HazardLightsReport;
