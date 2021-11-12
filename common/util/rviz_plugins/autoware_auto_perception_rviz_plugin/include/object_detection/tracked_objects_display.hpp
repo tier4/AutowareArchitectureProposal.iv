@@ -21,6 +21,11 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 
+#include <list>
+#include <map>
+#include <string>
+#include <vector>
+
 namespace autoware
 {
 namespace rviz_plugins
