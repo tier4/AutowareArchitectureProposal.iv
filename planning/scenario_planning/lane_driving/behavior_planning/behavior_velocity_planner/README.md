@@ -25,7 +25,7 @@ So for example, in order to stop at a stop line with the vehicles' front on the 
 | `~input/path_with_lane_id`    | autoware_auto_planning_msgs::msg::PathWithLaneId       | path with lane_id    |
 | `~input/vector_map`           | autoware_auto_mapping_msgs::msg::HADMapBin             | vector map           |
 | `~input/vehicle_odometry`     | nav_msgs::msg::Odometry                                | vehicle velocity     |
-| `~input/predicted_objects`    | autoware_auto_perception_msgs::msg::PredictedObjects   | dynamic objects      |
+| `~input/dynamic_objects`      | autoware_auto_perception_msgs::msg::PredictedObjects   | dynamic objects      |
 | `~input/no_ground_pointcloud` | sensor_msgs::msg::PointCloud2                          | obstacle pointcloud  |
 | `~input/traffic_signals`      | autoware_auto_perception_msgs::msg::TrafficSignalArray | traffic light states |
 

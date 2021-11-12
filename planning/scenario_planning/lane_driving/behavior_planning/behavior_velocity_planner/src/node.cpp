@@ -79,7 +79,7 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode(const rclcpp::NodeOptio
   // Subscribers
   sub_predicted_objects_ =
     this->create_subscription<autoware_auto_perception_msgs::msg::PredictedObjects>(
-      "~/input/predicted_objects", 1,
+      "~/input/dynamic_objects", 1,
       std::bind(&BehaviorVelocityPlannerNode::onPredictedObjects, this, _1));
   sub_no_ground_pointcloud_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
     "~/input/no_ground_pointcloud", rclcpp::SensorDataQoS(),
