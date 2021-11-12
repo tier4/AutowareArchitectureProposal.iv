@@ -2,118 +2,80 @@
 
 ## Purpose
 
-<!-- Write the purpose of this package and briefly describe the features.
-
-Example:
-  {package_name} is a package for planning trajectories that can avoid obstacles.
-  This feature consists of two steps: obstacle filtering and optimizing trajectory.
--->
+This node is an outlier filter based on a occupancy grid map.
+Depending on the implementation of occupancy grid map, it can be called an outlier filter in time series, since the occupancy grid map expresses the occupancy probabilities in time series.
 
 ## Inner-workings / Algorithms
 
-<!-- Write how this package works. Flowcharts and figures are great. Add sub-sections as you like.
+### Dual Return Outlier Filter
 
-Example:
-  ### Flowcharts
+WIP
 
-  ...(PlantUML or something)
+### Occupancy GridMap Outlier Filter
 
-  ### State Transitions
+1. Use the occupancy grid map to separate point clouds into those with low occupancy probability and those with high occupancy probability.
 
-  ...(PlantUML or something)
+2. The point clouds that belong to the low occupancy probability are not necessarily outliers. In particular, the top of the moving object tends to belong to the low occupancy probability. Therefore, if `use_radius_search_2d_filter` is true, then apply an radius search 2d outlier filter to the point cloud that is determined to have a low occupancy probability.
+   1. For each low occupancy probability point, determine the outlier from the radius (`radius_search_2d_filter/search_radius`) and the number of point clouds. In this case, the point cloud to be referenced is not only low occupancy probability points, but all point cloud including high occupancy probability points.
+   2. The number of point clouds can be multiplied by `radius_search_2d_filter/min_points_and_distance_ratio` and distance from base link. However, the minimum and maximum number of point clouds is limited.
 
-  ### How to filter target obstacles
+The following video is a sample. Yellow points are high occupancy probability, green points are low occupancy probability which is not an outlier, and red points are outliers. At around 0:15 and 1:16 in the first video, a bird crosses the road, but it is considered as an outlier.
 
-  ...
+- [movie1](https://www.youtube.com/watch?v=hEVv0LaTpP8)
+- [movie2](https://www.youtube.com/watch?v=VaHs1CdLcD0)
 
-  ### How to optimize trajectory
+### Radius Search 2d Outlier Filter [1]
 
-  ...
--->
+WIP
+
+### Ring Outlier Filter
+
+WIP
+
+### Voxel Grid Outlier Filter
+
+WIP
 
 ## Inputs / Outputs
 
-<!-- Write inputs/outputs of this package.
+### Input
 
-Example:
-  ### Input
+| Name                         | Type                      | Description                                                                                |
+| ---------------------------- | ------------------------- | ------------------------------------------------------------------------------------------ |
+| `~/input/pointcloud`         | `sensor_msgs/PointCloud2` | Obstacle point cloud with ground removed.                                                  |
+| `~/input/occupancy_grid_map` | `nav_msgs/OccupancyGrid`  | A map in which the probability of the presence of an obstacle is occupancy probability map |
 
-  | Name                 | Type                                                | Description          |
-  | -------------------- | --------------------------------------------------- | -------------------- |
-  | `~/input/trajectory` | `autoware_planning_msgs::msg::Trajectory`           | reference trajectory |
-  | `~/input/obstacles`  | `autoware_perception_msgs::msg::DynamicObjectArray` | obstacles            |
+### Output
 
-  ### Output
-
-  | Name                  | Type                                      | Description         |
-  | --------------------- | ----------------------------------------- | ------------------- |
-  | `~/output/trajectory` | `autoware_planning_msgs::msg::Trajectory` | modified trajectory |
--->
+| Name                                        | Type                      | Description                                                                                                                  |
+| ------------------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `~/output/pointcloud`                       | `sensor_msgs/PointCloud2` | Point cloud with outliers removed. trajectory                                                                                |
+| `~/output/debug/outlier/pointcloud`         | `sensor_msgs/PointCloud2` | Point clouds removed as outliers.                                                                                            |
+| `~/output/debug/low_confidence/pointcloud`  | `sensor_msgs/PointCloud2` | Point clouds that had a low probability of occupancy in the occupancy grid map. However, it is not considered as an outlier. |
+| `~/output/debug/high_confidence/pointcloud` | `sensor_msgs/PointCloud2` | Point clouds that had a high probability of occupancy in the occupancy grid map. trajectory                                  |
 
 ## Parameters
 
-<!-- Write parameters of this package.
-
-Example:
-  ### Node Parameters
-
-  | Name                   | Type | Description                     |
-  | ---------------------- | ---- | ------------------------------- |
-  | `output_debug_markers` | bool | whether to output debug markers |
-
-  ### Core Parameters
-
-  | Name                 | Type   | Description                                                          |
-  | -------------------- | ------ | -------------------------------------------------------------------- |
-  | `min_object_size_m`  | double | minimum object size to be selected as avoidance target obstacles [m] |
-  | `avoidance_margin_m` | double | avoidance margin to obstacles [m]                                    |
--->
+| Name                                                    | Type   | Description                                                                                                                                                                                                                    |
+| ------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `map_frame`                                             | string | map frame id                                                                                                                                                                                                                   |
+| `base_link_frame`                                       | string | base link frame id                                                                                                                                                                                                             |
+| `cost_threshold`                                        | int    | Cost threshold of occupancy grid map (0~100). 100 means 100% probability that there is an obstacle, close to 50 means that it is indistinguishable whether it is an obstacle or free space, 0 means that there is no obstacle. |
+| `enable_debugger`                                       | bool   | Whether to output the point cloud for debugging.                                                                                                                                                                               |
+| `use_radius_search_2d_filter`                           | bool   | Whether or not to apply density-based outlier filters to objects that are judged to have low probability of occupancy on the occupancy grid map.                                                                               |
+| `radius_search_2d_filter/search_radius`                 | float  | Radius when calculating the density                                                                                                                                                                                            |
+| `radius_search_2d_filter/min_points_and_distance_ratio` | float  | Threshold value of the number of point clouds per radius when the distance from baselink is 1m, because the number of point clouds varies with the distance from baselink.                                                     |
+| `radius_search_2d_filter/min_points`                    | int    | Minimum number of point clouds per radius                                                                                                                                                                                      |
+| `radius_search_2d_filter/max_points`                    | int    | Maximum number of point clouds per radius                                                                                                                                                                                      |
 
 ## Assumptions / Known limits
 
-<!-- Write assumptions and limitations of your implementation.
-
-Example:
-  This algorithm assumes obstacles are not moving, so if they rapidly move after the vehicle started to avoid them, it might collide with them.
-  Also, this algorithm doesn't care about blind spots. In general, since too close obstacles aren't visible due to the sensing performance limit, please take enough margin to obstacles.
--->
-
 ## (Optional) Error detection and handling
-
-<!-- Write how to detect errors and how to recover from them.
-
-Example:
-  This package can handle up to 20 obstacles. If more obstacles found, this node will give up and raise diagnostic errors.
--->
 
 ## (Optional) Performance characterization
 
-<!-- Write performance information like complexity. If it wouldn't be the bottleneck, not necessary.
-
-Example:
-  ### Complexity
-
-  This algorithm is O(N).
-
-  ### Processing time
-
-  ...
--->
-
 ## (Optional) References/External links
 
-<!-- Write links you referred to when you implemented.
-
-Example:
-  [1] {link_to_a_thesis}
-  [2] {link_to_an_issue}
--->
+[1] <https://pcl.readthedocs.io/projects/tutorials/en/latest/remove_outliers.html>
 
 ## (Optional) Future extensions / Unimplemented parts
-
-<!-- Write future extensions of this package.
-
-Example:
-  Currently, this package can't handle the chattering obstacles well. We plan to add some probabilistic filters in the perception layer to improve it.
-  Also, there are some parameters that should be global(e.g. vehicle size, max steering, etc.). These will be refactored and defined as global parameters so that we can share the same parameters between different nodes.
--->
