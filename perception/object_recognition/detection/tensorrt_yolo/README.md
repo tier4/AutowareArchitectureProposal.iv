@@ -10,73 +10,15 @@ This package detects 2D bounding boxes for target objects e.g., cars, trucks, bi
 
 yolov3
 
-```bibtex
-@article{yolov3,
-  title={YOLOv3: An Incremental Improvement},
-  author={Redmon, Joseph and Farhadi, Ali},
-  journal = {arXiv},
-  year={2018}
-}
-```
+Redmon, J., & Farhadi, A. (2018). Yolov3: An incremental improvement. arXiv preprint arXiv:1804.02767.
 
 yolov4
 
-```bibtex
-@misc{bochkovskiy2020yolov4,
-      title={YOLOv4: Optimal Speed and Accuracy of Object Detection},
-      author={Alexey Bochkovskiy and Chien-Yao Wang and Hong-Yuan Mark Liao},
-      year={2020},
-      eprint={2004.10934},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
-```
+Bochkovskiy, A., Wang, C. Y., & Liao, H. Y. M. (2020). Yolov4: Optimal speed and accuracy of object detection. arXiv preprint arXiv:2004.10934.
 
 yolov5
 
-```bibtex
-@software{glenn_jocher_2021_5563715,
-  author       = {Glenn Jocher and
-                  Alex Stoken and
-                  Ayush Chaurasia and
-                  Jirka Borovec and
-                  NanoCode012 and
-                  TaoXie and
-                  Yonghye Kwon and
-                  Kalen Michael and
-                  Liu Changyu and
-                  Jiacong Fang and
-                  Abhiram V and
-                  Laughing and
-                  tkianai and
-                  yxNONG and
-                  Piotr Skalski and
-                  Adam Hogan and
-                  Jebastin Nadar and
-                  imyhxy and
-                  Lorenzo Mammana and
-                  AlexWang1900 and
-                  Cristi Fati and
-                  Diego Montes and
-                  Jan Hajek and
-                  Laurentiu Diaconu and
-                  Mai Thanh Minh and
-                  Marc and
-                  albinxavi and
-                  fatih and
-                  oleg and
-                  wanghaoyang0106},
-  title        = {{ultralytics/yolov5: v6.0 - YOLOv5n 'Nano' models,
-                   Roboflow integration, TensorFlow export, OpenCV
-                   DNN support}},
-  month        = oct,
-  year         = 2021,
-  publisher    = {Zenodo},
-  version      = {v6.0},
-  doi          = {10.5281/zenodo.5563715},
-  url          = {https://doi.org/10.5281/zenodo.5563715}
-}
-```
+Jocher, G., et al. (2021). ultralytics/yolov5: v6.0 - YOLOv5n 'Nano' models, Roboflow integration, TensorFlow export, OpenCV DNN support (v6.0). Zenodo. https://doi.org/10.5281/zenodo.5563715
 
 ## Inputs / Outputs
 
