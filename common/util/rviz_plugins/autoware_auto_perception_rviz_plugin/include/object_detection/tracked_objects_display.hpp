@@ -31,7 +31,7 @@ namespace object_detection
 {
 /// \brief Class defining rviz plugin to visualize TrackedObjects
 class AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC TrackedObjectsDisplay
-: public ObjectPolygonDisplayBase<autoware_auto_perception_msgs::msg::TrackedObjects>
+  : public ObjectPolygonDisplayBase<autoware_auto_perception_msgs::msg::TrackedObjects>
 {
   Q_OBJECT
 
@@ -61,7 +61,8 @@ private:
     }
     for (auto itr = id_map.begin(); itr != id_map.end(); ++itr) {
       if (
-        std::find(tracked_uuids.begin(), tracked_uuids.end(), itr->first) == tracked_uuids.end()) {
+        std::find(tracked_uuids.begin(), tracked_uuids.end(), itr->first) == tracked_uuids.end())
+      {
         unused_marker_ids.push_back(itr->second);
       }
     }

@@ -23,7 +23,8 @@ namespace rviz_plugins
 {
 namespace object_detection
 {
-DetectedObjectsDisplay::DetectedObjectsDisplay() : ObjectPolygonDisplayBase("detected_objects") {}
+DetectedObjectsDisplay::DetectedObjectsDisplay()
+: ObjectPolygonDisplayBase("detected_objects") {}
 
 void DetectedObjectsDisplay::processMessage(DetectedObjects::ConstSharedPtr msg)
 {

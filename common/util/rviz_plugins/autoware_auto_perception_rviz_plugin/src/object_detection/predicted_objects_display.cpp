@@ -21,7 +21,8 @@ namespace rviz_plugins
 {
 namespace object_detection
 {
-PredictedObjectsDisplay::PredictedObjectsDisplay() : ObjectPolygonDisplayBase("tracks") {}
+PredictedObjectsDisplay::PredictedObjectsDisplay()
+: ObjectPolygonDisplayBase("tracks") {}
 
 void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr msg)
 {
@@ -37,7 +38,6 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
       auto shape_marker_ptr = shape_marker.value();
       shape_marker_ptr->header = msg->header;
       shape_marker_ptr->id = uuid_to_marker_id(object.object_id);
-      ;
       add_marker(shape_marker_ptr);
     }
 
@@ -49,7 +49,6 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
       auto label_marker_ptr = label_marker.value();
       label_marker_ptr->header = msg->header;
       label_marker_ptr->id = uuid_to_marker_id(object.object_id);
-      ;
       add_marker(label_marker_ptr);
     }
 
@@ -65,7 +64,6 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
       auto id_marker_ptr = id_marker.value();
       id_marker_ptr->header = msg->header;
       id_marker_ptr->id = uuid_to_marker_id(object.object_id);
-      ;
       add_marker(id_marker_ptr);
     }
 
@@ -76,7 +74,6 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
       auto pose_with_covariance_marker_ptr = pose_with_covariance_marker.value();
       pose_with_covariance_marker_ptr->header = msg->header;
       pose_with_covariance_marker_ptr->id = uuid_to_marker_id(object.object_id);
-      ;
       add_marker(pose_with_covariance_marker_ptr);
     }
 
@@ -92,7 +89,6 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
       auto velocity_text_marker_ptr = velocity_text_marker.value();
       velocity_text_marker_ptr->header = msg->header;
       velocity_text_marker_ptr->id = uuid_to_marker_id(object.object_id);
-      ;
       add_marker(velocity_text_marker_ptr);
     }
 
@@ -104,7 +100,6 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
       auto twist_marker_ptr = twist_marker.value();
       twist_marker_ptr->header = msg->header;
       twist_marker_ptr->id = uuid_to_marker_id(object.object_id);
-      ;
       add_marker(twist_marker_ptr);
     }
 
@@ -117,7 +112,6 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
         auto predicted_path_marker_ptr = predicted_path_marker.value();
         predicted_path_marker_ptr->header = msg->header;
         predicted_path_marker_ptr->id = uuid_to_marker_id(object.object_id);
-        ;
         add_marker(predicted_path_marker_ptr);
       }
     }
@@ -133,7 +127,6 @@ void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr ms
         auto path_confidence_marker_ptr = path_confidence_marker.value();
         path_confidence_marker_ptr->header = msg->header;
         path_confidence_marker_ptr->id = uuid_to_marker_id(object.object_id);
-        ;
         add_marker(path_confidence_marker_ptr);
       }
     }

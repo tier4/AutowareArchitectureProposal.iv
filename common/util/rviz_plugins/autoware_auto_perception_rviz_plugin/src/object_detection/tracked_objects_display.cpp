@@ -23,7 +23,8 @@ namespace rviz_plugins
 {
 namespace object_detection
 {
-TrackedObjectsDisplay::TrackedObjectsDisplay() : ObjectPolygonDisplayBase("tracks") {}
+TrackedObjectsDisplay::TrackedObjectsDisplay()
+: ObjectPolygonDisplayBase("tracks") {}
 
 void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
 {
@@ -50,7 +51,6 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
       auto label_marker_ptr = label_marker.value();
       label_marker_ptr->header = msg->header;
       label_marker_ptr->id = uuid_to_marker_id(object.object_id);
-      ;
       add_marker(label_marker_ptr);
     }
 
@@ -66,7 +66,6 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
       auto id_marker_ptr = id_marker.value();
       id_marker_ptr->header = msg->header;
       id_marker_ptr->id = uuid_to_marker_id(object.object_id);
-      ;
       add_marker(id_marker_ptr);
     }
 
@@ -77,7 +76,6 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
       auto pose_with_covariance_marker_ptr = pose_with_covariance_marker.value();
       pose_with_covariance_marker_ptr->header = msg->header;
       pose_with_covariance_marker_ptr->id = uuid_to_marker_id(object.object_id);
-      ;
       add_marker(pose_with_covariance_marker_ptr);
     }
 
@@ -92,7 +90,6 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
       auto velocity_text_marker_ptr = velocity_text_marker.value();
       velocity_text_marker_ptr->header = msg->header;
       velocity_text_marker_ptr->id = uuid_to_marker_id(object.object_id);
-      ;
       add_marker(velocity_text_marker_ptr);
     }
 
@@ -103,7 +100,6 @@ void TrackedObjectsDisplay::processMessage(TrackedObjects::ConstSharedPtr msg)
       auto twist_marker_ptr = twist_marker.value();
       twist_marker_ptr->header = msg->header;
       twist_marker_ptr->id = uuid_to_marker_id(object.object_id);
-      ;
       add_marker(twist_marker_ptr);
     }
   }
