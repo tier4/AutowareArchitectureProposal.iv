@@ -1,10 +1,20 @@
-# scan_ground_filter
+# ground_segmentation
 
 ## Purpose
 
-This node filters the ground points from the pointclouds.
+The `ground_segmentation` is a node that filters the ground points from the input pointcloud.
 
 ## Inner-workings / Algorithms
+
+### Ransac Ground Filter
+
+WIP
+
+### Ray Ground Filter
+
+WIP
+
+### Scan Ground Filter
 
 This algorithm works by following steps,
 
@@ -32,7 +42,7 @@ This algorithm works by following steps,
 
 ## Parameters
 
-### Node Parameters
+### Core Parameters
 
 | Name                              | Type   | Description                                                                   |
 | --------------------------------- | ------ | ----------------------------------------------------------------------------- |
