@@ -4,7 +4,7 @@
 
 This is a modification of [PCL](https://github.com/PointCloudLibrary/pcl)'s NDT.
 
-## Change Points
+## Modifications
 
 - You can get the Hessian matrix by getHessian().
 - You can get the estimated position for each iteration by getFinalTransformationArray().
