@@ -4,7 +4,7 @@
 
 `initial_pose_button_panel` is the package to send a request to the localization module to calculate the current ego pose
 
-It starts calculating the current ego pose by pushing the button on Rviz, imeplemented as a Rviz plugin.
+It starts calculating the current ego pose by pushing the button on Rviz, implemented as a Rviz plugin.
 You can see the button on the right bottom of Rviz.
 
 ![initialize_button](./media/initialize_button.png)
