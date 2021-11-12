@@ -2,25 +2,20 @@
 
 ## Purpose
 
-<!-- Write the purpose of this package and briefly describe the features.
-
-Example:
-  {package_name} is a package for planning trajectories that can avoid obstacles.
-  This feature consists of two steps: obstacle filtering and optimizing trajectory.
--->
+The `pointcloud_preprocessor` is a package that includes filters for denoising, cropping and concatenating pointclouds, and correcting distortions. Downsampling filter is also included in this package.
 
 ## Inner-workings / Algorithms
 
-| Filter Name            | Description | Detail                                 |
-| ---------------------- | ----------- | -------------------------------------- |
-| concatenate_data       | temp        | [link](docs/concatenate-data.md)       |
-| crop_box_filter        | temp        | [link](docs/crop-box-filter.md)        |
-| distortion_corrector   | temp        | [link](docs/distortion-corrector.md)   |
-| downsample_filter      | temp        | [link](docs/downsample-filter.md)      |
-| outlier_filter         | temp        | [link](docs/outlier-filter.md)         |
-| passthrough_filter     | temp        | [link](docs/passthrough-filter.md)     |
-| pointcloud_accumulator | temp        | [link](docs/pointcloud-accumulator.md) |
-| vector_map_filter      | temp        | [link](docs/vector-map-filter.md)      |
+| Filter Name            | Description                                                                        | Detail                                 |
+| ---------------------- | ---------------------------------------------------------------------------------- | -------------------------------------- |
+| concatenate_data       | subscribe multiple pointclouds and concatenate them into a pointcloud              | [link](docs/concatenate-data.md)       |
+| crop_box_filter        | remove points within a given box                                                   | [link](doc/crop-box-filter.md)         |
+| distortion_corrector   | compensate pointcloud distortion caused by ego vehicle's movement during 1 scan    | [link](docs/distortion-corrector.md)   |
+| downsample_filter      | downsampling input pointcloud                                                      | [link](docs/downsample-filter.md)      |
+| outlier_filter         | remove points caused by hardware problems, rain drops and small insects as a noise | [link](docs/outlier-filter.md)         |
+| passthrough_filter     | remove points on the outside of a range in given field (e.g. x, y, z, intensity)   | [link](docs/passthrough-filter.md)     |
+| pointcloud_accumulator | accumulate pointclouds for a given amount of time                                  | [link](docs/pointcloud-accumulator.md) |
+| vector_map_filter      | remove points on the outside of lane by using vector map                           | [link](docs/vector-map-filter.md)      |
 
 ## Inputs / Outputs
 
@@ -43,8 +38,8 @@ Example:
 
 | Name               | Type   | Default Value | Description                     |
 | ------------------ | ------ | ------------- | ------------------------------- |
-| `input_frame`      | string | ""            | whether to output debug markers |
-| `output_frame`     | string | ""            | whether to output debug markers |
+| `input_frame`      | string | " "           | whether to output debug markers |
+| `output_frame`     | string | " "           | whether to output debug markers |
 | `max_queue_size`   | int    | 5             | whether to output debug markers |
 | `use_indices`      | bool   | false         | whether to output debug markers |
 | `latched_indices`  | bool   | false         | whether to output debug markers |
@@ -52,49 +47,10 @@ Example:
 
 ## Assumptions / Known limits
 
-<!-- Write assumptions and limitations of your implementation.
-
-Example:
-  This algorithm assumes obstacles are not moving, so if they rapidly move after the vehicle started to avoid them, it might collide with them.
-  Also, this algorithm doesn't care about blind spots. In general, since too close obstacles aren't visible due to the sensing performance limit, please take enough margin to obstacles.
--->
-
 ## (Optional) Error detection and handling
-
-<!-- Write how to detect errors and how to recover from them.
-
-Example:
-  This package can handle up to 20 obstacles. If more obstacles found, this node will give up and raise diagnostic errors.
--->
 
 ## (Optional) Performance characterization
 
-<!-- Write performance information like complexity. If it wouldn't be the bottleneck, not necessary.
-
-Example:
-  ### Complexity
-
-  This algorithm is O(N).
-
-  ### Processing time
-
-  ...
--->
-
 ## (Optional) References/External links
 
-<!-- Write links you referred to when you implemented.
-
-Example:
-  [1] {link_to_a_thesis}
-  [2] {link_to_an_issue}
--->
-
 ## (Optional) Future extensions / Unimplemented parts
-
-<!-- Write future extensions of this package.
-
-Example:
-  Currently, this package can't handle the chattering obstacles well. We plan to add some probabilistic filters in the perception layer to improve it.
-  Also, there are some parameters that should be global(e.g. vehicle size, max steering, etc.). These will be refactored and defined as global parameters so that we can share the same parameters between different nodes.
--->
