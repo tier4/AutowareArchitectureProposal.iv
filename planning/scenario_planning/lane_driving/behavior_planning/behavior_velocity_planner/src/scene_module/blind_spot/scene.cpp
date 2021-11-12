@@ -266,7 +266,6 @@ void BlindSpotModule::cutPredictPathWithDuration(
 
   for (auto & object : objects_ptr->objects) {                         // each objects
     for (auto & predicted_path : object.kinematics.predicted_paths) {  // each predicted paths
-      // TODO(murooka) check this logic
       const auto origin_path = predicted_path;
       predicted_path.path.clear();
 

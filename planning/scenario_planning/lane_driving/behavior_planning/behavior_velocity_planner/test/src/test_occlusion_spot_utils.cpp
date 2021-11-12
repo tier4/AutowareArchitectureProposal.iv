@@ -164,9 +164,6 @@ TEST(createPossibleCollisionBehindParkedVehicle, TooManyPathPointsAndObstacles)
   obj.shape.dimensions.y = 0.0;
   tf2::Quaternion q;
   obj.kinematics.initial_pose_with_covariance.pose.orientation = tf2::toMsg(q);
-  // TODO(murooka) reliable
-  // obj.kinematics.orientation_reliable = true;
-  // obj.kinematics.twist_reliable = true;
   obj.kinematics.initial_twist_with_covariance.twist.linear.x = 0;
   obj.classification.push_back(autoware_auto_perception_msgs::msg::ObjectClassification{});
 

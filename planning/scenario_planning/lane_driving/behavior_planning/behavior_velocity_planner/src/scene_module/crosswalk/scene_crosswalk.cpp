@@ -165,7 +165,6 @@ bool CrosswalkModule::checkStopArea(
             rclcpp::Time(objects_ptr->header.stamp) +
             rclcpp::Duration(object_path.time_step) * static_cast<double>(k);
           if (
-            // TODO(murooka) ask someone to check prediction time calculation
             (predicted_time - current_time).seconds() <
             planner_param_.stop_predicted_object_prediction_time_margin) {
             const auto op0 = object_path.path.at(k).position;
