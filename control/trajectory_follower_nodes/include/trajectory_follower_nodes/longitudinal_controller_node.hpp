@@ -22,7 +22,7 @@
 
 #include "autoware_auto_control_msgs/msg/longitudinal_command.hpp"
 #include "autoware_auto_planning_msgs/msg/trajectory.hpp"
-#include "autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_odometry.hpp"
 #include "autoware_auto_system_msgs/msg/float32_multi_array_diagnostic.hpp"
 #include "eigen3/Eigen/Core"
 #include "eigen3/Eigen/Geometry"
@@ -80,8 +80,8 @@ private:
   };
 
   // ros variables
-  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>::SharedPtr
-    m_sub_current_state;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleOdometry>::SharedPtr
+    m_sub_current_velocity;
   rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr m_sub_trajectory;
   rclcpp::Publisher<autoware_auto_control_msgs::msg::LongitudinalCommand>::SharedPtr m_pub_control_cmd;
   rclcpp::Publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>::SharedPtr m_pub_slope;
@@ -97,8 +97,8 @@ private:
     const std::vector<rclcpp::Parameter> & parameters);
 
   // pointers for ros topic
-  std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleKinematicState> m_current_state_ptr{nullptr};
-  std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleKinematicState> m_prev_state_ptr{nullptr};
+  std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleOdometry> m_current_velocity_ptr{nullptr};
+  std::shared_ptr<autoware_auto_vehicle_msgs::msg::VehicleOdometry> m_prev_velocity_ptr{nullptr};
   std::shared_ptr<autoware_auto_planning_msgs::msg::Trajectory> m_trajectory_ptr{nullptr};
 
   // vehicle info
@@ -203,8 +203,8 @@ private:
    * @brief set current and previous velocity with received message
    * @param [in] msg current state message
    */
-  void callbackCurrentState(
-    const autoware_auto_vehicle_msgs::msg::VehicleKinematicState::ConstSharedPtr msg);
+  void callbackCurrentVelocity(
+    const autoware_auto_vehicle_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
 
   /**
    * @brief set reference trajectory with received message

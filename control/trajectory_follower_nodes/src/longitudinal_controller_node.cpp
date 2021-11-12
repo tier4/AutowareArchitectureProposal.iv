@@ -169,9 +169,9 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   m_min_pitch_rad = declare_parameter<float64_t>("min_pitch_rad");  // [rad]
 
   // subscriber, publisher
-  m_sub_current_state = create_subscription<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>(
+  m_sub_current_velocity = create_subscription<autoware_auto_vehicle_msgs::msg::VehicleOdometry>(
     "input/current_state", rclcpp::QoS{1},
-    std::bind(&LongitudinalController::callbackCurrentState, this, _1));
+    std::bind(&LongitudinalController::callbackCurrentVelocity, this, _1));
   m_sub_trajectory = create_subscription<autoware_auto_planning_msgs::msg::Trajectory>(
     "input/current_trajectory", rclcpp::QoS{1},
     std::bind(&LongitudinalController::callbackTrajectory, this, _1));
@@ -210,13 +210,13 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   m_lpf_acc = std::make_shared<trajectory_follower::LowpassFilter1d>(0.0, 0.2);
 }
 
-void LongitudinalController::callbackCurrentState(
-  const autoware_auto_vehicle_msgs::msg::VehicleKinematicState::ConstSharedPtr msg)
+void LongitudinalController::callbackCurrentVelocity(
+  const autoware_auto_vehicle_msgs::msg::VehicleOdometry::ConstSharedPtr msg)
 {
-  if (m_current_state_ptr) {
-    m_prev_state_ptr = m_current_state_ptr;
+  if (m_current_velocity_ptr) {
+    m_prev_velocity_ptr = m_current_velocity_ptr;
   }
-  m_current_state_ptr = std::make_shared<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>(*msg);
+  m_current_velocity_ptr = std::make_shared<autoware_auto_vehicle_msgs::msg::VehicleOdometry>(*msg);
 }
 
 void LongitudinalController::callbackTrajectory(
@@ -383,24 +383,21 @@ void LongitudinalController::callbackTimerControl()
 {
   // wait for initial pointers
   if (
-    !m_current_state_ptr || !m_prev_state_ptr || !m_trajectory_ptr ||
-    !m_tf_buffer.canTransform(
-      m_trajectory_ptr->header.frame_id,
-      m_current_state_ptr->header.frame_id,
-      tf2::TimePointZero))
-  {
+    !m_current_velocity_ptr || !m_prev_velocity_ptr || !m_trajectory_ptr ||
+    !m_tf_buffer.canTransform(m_trajectory_ptr->header.frame_id, "base_link", tf2::TimePointZero)) {
     return;
   }
 
-  // transform state to the same frame as the trajectory
-  geometry_msgs::msg::TransformStamped tf = m_tf_buffer.lookupTransform(
-    m_trajectory_ptr->header.frame_id,
-    m_current_state_ptr->header.frame_id,
-    tf2::TimePointZero);
-  autoware_auto_planning_msgs::msg::TrajectoryPoint current_state_tf;
-  ::motion::motion_common::doTransform(m_current_state_ptr->state, current_state_tf, tf);
+  // get current ego pose
+  geometry_msgs::msg::TransformStamped tf =
+    m_tf_buffer.lookupTransform(m_trajectory_ptr->header.frame_id, "base_link", tf2::TimePointZero);
+
   // calculate current pose and control data
-  geometry_msgs::msg::Pose current_pose = current_state_tf.pose;
+  geometry_msgs::msg::Pose current_pose;
+  current_pose.position.x = tf.transform.translation.x;
+  current_pose.position.y = tf.transform.translation.y;
+  current_pose.position.z = tf.transform.translation.z;
+  current_pose.orientation = tf.transform.rotation;
 
   const auto control_data = getControlData(current_pose);
 
@@ -714,15 +711,15 @@ float64_t LongitudinalController::getDt()
 
 LongitudinalController::Motion LongitudinalController::getCurrentMotion() const
 {
-  const float64_t dv = m_current_state_ptr->state.longitudinal_velocity_mps -
-    m_prev_state_ptr->state.longitudinal_velocity_mps;
+  const float64_t dv = m_current_velocity_ptr->velocity_mps -
+    m_prev_velocity_ptr->velocity_mps;
   const float64_t dt =
     std::max(
-    (rclcpp::Time(m_current_state_ptr->header.stamp) -
-    rclcpp::Time(m_prev_state_ptr->header.stamp)).seconds(), 1e-03);
+    (rclcpp::Time(m_current_velocity_ptr->stamp) -
+    rclcpp::Time(m_prev_velocity_ptr->stamp)).seconds(), 1e-03);
   const float64_t accel = dv / dt;
 
-  const float64_t current_vel = m_current_state_ptr->state.longitudinal_velocity_mps;
+  const float64_t current_vel = m_current_velocity_ptr->velocity_mps;
   const float64_t current_acc = m_lpf_acc->filter(accel);
 
   return Motion{current_vel, current_acc};
