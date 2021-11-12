@@ -2,41 +2,32 @@
 
 ## Purpose
 
-`vehicle_cmd_gate` is the package to get information from emergency handler and planning module and external controller and send a msg to vehicle.
+`gyro_odometer` is the package to estimate twist.
 
 ## Inputs / Outputs
 
 ### Input
 
-| Name                            | Type                                                       | Description                                  |
-| ------------------------------- | ---------------------------------------------------------- | -------------------------------------------- |
-| `vehicle/twist`                 | `autoware_auto_vehicle_msgs::msg::SteeringReport`          | steering status                              |
-| `vehicle/twist_with_covariance` | `autoware_auto_control_msgs::msg::AckermannControlCommand` | control command from planning module         |
-| `imu`                           | `autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand`   | turn indicators command from planning module |
+| Name                            | Type                                             | Description                        |
+| ------------------------------- | ------------------------------------------------ | ---------------------------------- |
+| `vehicle/twist`                 | `geometry_msgs::msg::TwistStamped`               | twist from vehicle                 |
+| `vehicle/twist_with_covariance` | `geometry_msgs::msg::TwistWithCovarianceStamped` | twist with covariance from vehicle |
+| `imu`                           | `sensor_msgs::msg::Imu`                          | imu from sensor                    |
 
 ### Output
 
-| Name                    | Type                                                       | Description                                             |
-| ----------------------- | ---------------------------------------------------------- | ------------------------------------------------------- |
-| `twist`                 | `autoware_auto_system_msgs::msg::EmergencyState`           | emergency state which was originally in vehicle command |
-| `twist_with_covariance` | `autoware_auto_control_msgs::msg::AckermannControlCommand` | gear command to vehicle                                 |
+| Name                    | Type                                             | Description                     |
+| ----------------------- | ------------------------------------------------ | ------------------------------- |
+| `twist`                 | `geometry_msgs::msg::TwistStamped`               | estimated twist                 |
+| `twist_with_covariance` | `geometry_msgs::msg::TwistWithCovarianceStamped` | estimated twist with covariance |
 
 ## Parameters
 
-| Parameter                                    | Type   | Description                                                    |
-| -------------------------------------------- | ------ | -------------------------------------------------------------- |
-| `output_frame`                               | bool   | true when subscribed path exists                               |
-| `use_emergency_handling_`                    | bool   | true when emergency handler is used                            |
-| `use_external_emergency_stop_`               | bool   | true when external emergency stop information is used          |
-| `system_emergency_heartbeat_timeout_`        | bool   | timeout for system emergency                                   |
-| `external_emergency_stop_heartbeat_timeout_` | bool   | timeout for external emergency                                 |
-| `stop_hold_acceleration_`                    | double | longitudinal acceleration cmd when vehicle should stop         |
-| `emergency_acceleration_`                    | bool   | longitudinal acceleration cmd when vehicle stop with emergency |
-| `vel_lim`                                    | double | limit of longitudinal velocity                                 |
-| `lon_acc_lim`                                | bool   | limit of longitudinal acceleration                             |
-| `lon_jerk_lim`                               | bool   | limit of longitudinal jerk                                     |
-| `lat_acc_lim`                                | bool   | limit of lateral acceleration                                  |
-| `lat_jerk_lim`                               | bool   | limit of lateral jerk                                          |
+| Parameter                   | Type   | Description                             |
+| --------------------------- | ------ | --------------------------------------- |
+| `output_frame`              | String | true when subscribed path exists        |
+| `use_twist_with_covariance` | bool   | true when twist with covariance is used |
+
 
 ## Assumptions / Known limits
 
