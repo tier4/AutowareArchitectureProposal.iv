@@ -33,6 +33,7 @@
 #include "tf2/utils.h"
 #include "tf2_msgs/msg/tf_message.hpp"
 #include "tf2_ros/buffer.h"
+#include "tf2_ros/transform_listener.h"
 #include "trajectory_follower/debug_values.hpp"
 #include "trajectory_follower/longitudinal_controller_utils.hpp"
 #include "trajectory_follower/lowpass_filter.hpp"
@@ -91,6 +92,7 @@ private:
   rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_sub;
   rclcpp::Subscription<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_static_sub;
   tf2::BufferCore m_tf_buffer{tf2::BUFFER_CORE_DEFAULT_CACHE_TIME};
+  tf2_ros::TransformListener m_tf_listener{m_tf_buffer};
 
   OnSetParametersCallbackHandle::SharedPtr m_set_param_res;
   rcl_interfaces::msg::SetParametersResult paramCallback(
@@ -216,18 +218,6 @@ private:
    * @brief compute control command, and publish periodically
    */
   void callbackTimerControl();
-
-  /**
-   * @brief callback for TF message
-   * @param [in] msg transform message
-   */
-  void callbackTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg);
-
-  /**
-   * @brief callback for static TF message
-   * @param [in] msg static transform message
-   */
-  void callbackStaticTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg);
 
   /**
    * @brief calculate data for controllers whose type is ControlData

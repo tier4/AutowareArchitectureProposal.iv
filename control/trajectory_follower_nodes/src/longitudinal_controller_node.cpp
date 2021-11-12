@@ -49,9 +49,9 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   m_delay_compensation_time = declare_parameter<float64_t>("delay_compensation_time");  // [s]
 
   // parameters to enable functions
-  m_enable_smooth_stop = declare_parameter<float64_t>("enable_smooth_stop");
-  m_enable_overshoot_emergency = declare_parameter<float64_t>("enable_overshoot_emergency");
-  m_enable_slope_compensation = declare_parameter<float64_t>("enable_slope_compensation");
+  m_enable_smooth_stop = declare_parameter<bool8_t>("enable_smooth_stop");
+  m_enable_overshoot_emergency = declare_parameter<bool8_t>("enable_overshoot_emergency");
+  m_enable_slope_compensation = declare_parameter<bool8_t>("enable_slope_compensation");
 
   // parameters for state transition
   {
@@ -175,11 +175,6 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
   m_sub_trajectory = create_subscription<autoware_auto_planning_msgs::msg::Trajectory>(
     "input/current_trajectory", rclcpp::QoS{1},
     std::bind(&LongitudinalController::callbackTrajectory, this, _1));
-  m_tf_sub = create_subscription<tf2_msgs::msg::TFMessage>(
-    "input/tf", rclcpp::QoS{1}, std::bind(&LongitudinalController::callbackTF, this, _1));
-  m_tf_static_sub = create_subscription<tf2_msgs::msg::TFMessage>(
-    "input/tf_static", rclcpp::QoS{1}.transient_local(),
-    std::bind(&LongitudinalController::callbackStaticTF, this, _1));
   m_pub_control_cmd = create_publisher<autoware_auto_control_msgs::msg::LongitudinalCommand>(
     "output/longitudinal_control_cmd", rclcpp::QoS{1});
   m_pub_slope = create_publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>(
@@ -237,24 +232,6 @@ void LongitudinalController::callbackTrajectory(
   }
 
   m_trajectory_ptr = std::make_shared<autoware_auto_planning_msgs::msg::Trajectory>(*msg);
-}
-
-void LongitudinalController::callbackTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg)
-{
-  for (const auto & tf : msg->transforms) {
-    if (!m_tf_buffer.setTransform(tf, "external", false)) {
-      RCLCPP_WARN(get_logger(), "Warning: tf2::BufferCore::setTransform failed");
-    }
-  }
-}
-
-void LongitudinalController::callbackStaticTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg)
-{
-  for (const auto & tf : msg->transforms) {
-    if (!m_tf_buffer.setTransform(tf, "external", true)) {
-      RCLCPP_WARN(get_logger(), "Warning: tf2::BufferCore::setTransform failed");
-    }
-  }
 }
 
 rcl_interfaces::msg::SetParametersResult LongitudinalController::paramCallback(
