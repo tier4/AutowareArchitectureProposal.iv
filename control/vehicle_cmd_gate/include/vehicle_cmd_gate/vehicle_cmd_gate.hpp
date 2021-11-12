@@ -35,7 +35,6 @@
 #include <autoware_external_api_msgs/msg/heartbeat.hpp>
 #include <autoware_external_api_msgs/srv/engage.hpp>
 #include <autoware_external_api_msgs/srv/set_emergency.hpp>
-#include <autoware_system_msgs/msg/emergency_state_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 
 #include <memory>
@@ -55,7 +54,7 @@ public:
 
 private:
   // Publisher
-  rclcpp::Publisher<autoware_external_api_msgs::msg::Emergency>::SharedPtr
+  rclcpp::Publisher<autoware_auto_system_msgs::msg::EmergencyState>::SharedPtr
     vehicle_cmd_emergency_pub_;
   rclcpp::Publisher<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr
     control_cmd_pub_;
@@ -68,7 +67,7 @@ private:
   rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::Engage>::SharedPtr engage_pub_;
 
   // Subscription
-  rclcpp::Subscription<autoware_system_msgs::msg::EmergencyStateStamped>::SharedPtr
+  rclcpp::Subscription<autoware_auto_system_msgs::msg::EmergencyState>::SharedPtr
     emergency_state_sub_;
   rclcpp::Subscription<autoware_external_api_msgs::msg::Heartbeat>::SharedPtr
     external_emergency_stop_heartbeat_sub_;
@@ -76,7 +75,7 @@ private:
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::SteeringReport>::SharedPtr steer_sub_;
 
   void onGateMode(autoware_control_msgs::msg::GateMode::ConstSharedPtr msg);
-  void onEmergencyState(autoware_system_msgs::msg::EmergencyStateStamped::ConstSharedPtr msg);
+  void onEmergencyState(autoware_auto_system_msgs::msg::EmergencyState::ConstSharedPtr msg);
   void onExternalEmergencyStopHeartbeat(
     autoware_external_api_msgs::msg::Heartbeat::ConstSharedPtr msg);
   void onSteering(autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr msg);

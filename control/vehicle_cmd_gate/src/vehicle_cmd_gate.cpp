@@ -51,8 +51,9 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
   durable_qos.transient_local();
 
   // Publisher
-  vehicle_cmd_emergency_pub_ = this->create_publisher<autoware_external_api_msgs::msg::Emergency>(
-    "output/vehicle_cmd_emergency", durable_qos);
+  vehicle_cmd_emergency_pub_ =
+    this->create_publisher<autoware_auto_system_msgs::msg::EmergencyState>(
+      "output/vehicle_cmd_emergency", durable_qos);
   control_cmd_pub_ =
     this->create_publisher<autoware_auto_control_msgs::msg::AckermannControlCommand>(
       "output/control_cmd", durable_qos);
@@ -73,9 +74,8 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
     "output/external_emergency", durable_qos);
 
   // Subscriber
-  emergency_state_sub_ =
-    this->create_subscription<autoware_system_msgs::msg::EmergencyStateStamped>(
-      "input/emergency_state", 1, std::bind(&VehicleCmdGate::onEmergencyState, this, _1));
+  emergency_state_sub_ = this->create_subscription<autoware_auto_system_msgs::msg::EmergencyState>(
+    "input/emergency_state", 1, std::bind(&VehicleCmdGate::onEmergencyState, this, _1));
   external_emergency_stop_heartbeat_sub_ =
     this->create_subscription<autoware_external_api_msgs::msg::Heartbeat>(
       "input/external_emergency_stop_heartbeat", 1,
@@ -445,8 +445,8 @@ void VehicleCmdGate::publishControlCommands(const Commands & commands)
   filtered_commands.control = filterControlCommand(filtered_commands.control);
 
   // tmp: Publish vehicle emergency status
-  autoware_external_api_msgs::msg::Emergency vehicle_cmd_emergency;
-  vehicle_cmd_emergency.emergency = (use_emergency_handling_ && is_system_emergency_);
+  autoware_auto_system_msgs::msg::EmergencyState vehicle_cmd_emergency;
+  vehicle_cmd_emergency.state = (use_emergency_handling_ && is_system_emergency_);
   vehicle_cmd_emergency.stamp = filtered_commands.control.stamp;
 
   // Publish commands
@@ -485,9 +485,9 @@ void VehicleCmdGate::publishEmergencyStopControlCommands()
   hazard_light.command = autoware_auto_vehicle_msgs::msg::HazardLightsCommand::ENABLE;
 
   // VehicleCommand emergency;
-  autoware_external_api_msgs::msg::Emergency vehicle_cmd_emergency;
+  autoware_auto_system_msgs::msg::EmergencyState vehicle_cmd_emergency;
   vehicle_cmd_emergency.stamp = stamp;
-  vehicle_cmd_emergency.emergency = true;
+  vehicle_cmd_emergency.state = true;
 
   // Engage
   autoware_auto_vehicle_msgs::msg::Engage autoware_engage;
@@ -556,17 +556,17 @@ VehicleCmdGate::createEmergencyStopControlCmd() const
 }
 
 void VehicleCmdGate::onEmergencyState(
-  autoware_system_msgs::msg::EmergencyStateStamped::ConstSharedPtr msg)
+  autoware_auto_system_msgs::msg::EmergencyState::ConstSharedPtr msg)
 {
-  using autoware_system_msgs::msg::EmergencyState;
-  is_system_emergency_ = (msg->state.state == EmergencyState::MRM_OPERATING) ||
-                         (msg->state.state == EmergencyState::MRM_SUCCEEDED) ||
-                         (msg->state.state == EmergencyState::MRM_FAILED);
+  using autoware_auto_system_msgs::msg::EmergencyState;
+  is_system_emergency_ = (msg->state == EmergencyState::MRM_OPERATING) ||
+                         (msg->state == EmergencyState::MRM_SUCCEEDED) ||
+                         (msg->state == EmergencyState::MRM_FAILED);
   emergency_state_heartbeat_received_time_ = std::make_shared<rclcpp::Time>(this->now());
 }
 
-void VehicleCmdGate::onExternalEmergencyStopHeartbeat(
-  [[maybe_unused]] autoware_external_api_msgs::msg::Heartbeat::ConstSharedPtr msg)
+void VehicleCmdGate::onExternalEmergencyStopHeartbeat([
+  [maybe_unused]] autoware_external_api_msgs::msg::Heartbeat::ConstSharedPtr msg)
 {
   external_emergency_stop_heartbeat_received_time_ = std::make_shared<rclcpp::Time>(this->now());
 }
