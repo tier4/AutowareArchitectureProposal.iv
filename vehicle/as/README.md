@@ -64,7 +64,7 @@
 | `command_timeout_ms`              | double | timeout [ms]                                                                              |
 | `loop_rate`                       | double | loop rate to publish commands                                                             |
 | `steering_offset`                 | double | steering wheel angle offset                                                               |
-| `enable_steering_rate_control`    | bool   | when enabled, max steering wheel rate is used for steering wheel angluar velocity command |
+| `enable_steering_rate_control`    | bool   | when enabled, max steering wheel rate is used for steering wheel angular velocity command |
 | `emergency_brake`                 | double | brake pedal for emergency                                                                 |
 | `vgr_coef_a`                      | double | coefficient to calculate steering wheel angle                                             |
 | `vgr_coef_b`                      | double | coefficient to calculate steering wheel angle                                             |
