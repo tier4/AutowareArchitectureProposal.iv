@@ -6,6 +6,8 @@ The `pointcloud_preprocessor` is a package that includes filters for denoising, 
 
 ## Inner-workings / Algorithms
 
+Detail description of each filter's algorithm is in the following links.
+
 | Filter Name            | Description                                                                        | Detail                                 |
 | ---------------------- | ---------------------------------------------------------------------------------- | -------------------------------------- |
 | concatenate_data       | subscribe multiple pointclouds and concatenate them into a pointcloud              | [link](docs/concatenate-data.md)       |
@@ -36,14 +38,14 @@ The `pointcloud_preprocessor` is a package that includes filters for denoising, 
 
 ### Node Parameters
 
-| Name               | Type   | Default Value | Description                     |
-| ------------------ | ------ | ------------- | ------------------------------- |
-| `input_frame`      | string | " "           | whether to output debug markers |
-| `output_frame`     | string | " "           | whether to output debug markers |
-| `max_queue_size`   | int    | 5             | whether to output debug markers |
-| `use_indices`      | bool   | false         | whether to output debug markers |
-| `latched_indices`  | bool   | false         | whether to output debug markers |
-| `approximate_sync` | bool   | false         | whether to output debug markers |
+| Name               | Type   | Default Value | Description                           |
+| ------------------ | ------ | ------------- | ------------------------------------- |
+| `input_frame`      | string | " "           | input frame id                        |
+| `output_frame`     | string | " "           | output frame id                       |
+| `max_queue_size`   | int    | 5             | max queue size of input/output topics |
+| `use_indices`      | bool   | false         | flag to use pointcloud indices        |
+| `latched_indices`  | bool   | false         | flag to latch pointcloud indices      |
+| `approximate_sync` | bool   | false         | flag to use approximate sync option   |
 
 ## Assumptions / Known limits
 
