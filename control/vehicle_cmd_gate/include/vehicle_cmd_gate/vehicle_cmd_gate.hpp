@@ -58,7 +58,7 @@ private:
     vehicle_cmd_emergency_pub_;
   rclcpp::Publisher<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr
     control_cmd_pub_;
-  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::GearCommand>::SharedPtr shift_cmd_pub_;
+  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::GearCommand>::SharedPtr gear_cmd_pub_;
   rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand>::SharedPtr
     turn_indicator_cmd_pub_;
   rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::HazardLightsCommand>::SharedPtr
@@ -102,7 +102,7 @@ private:
     auto_turn_indicator_cmd_sub_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::HazardLightsCommand>::SharedPtr
     auto_hazard_light_cmd_sub_;
-  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::GearCommand>::SharedPtr auto_shift_cmd_sub_;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::GearCommand>::SharedPtr auto_gear_cmd_sub_;
   void onAutoCtrlCmd(autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg);
   void onAutoTurnIndicatorsCmd(
     autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand::ConstSharedPtr msg);
@@ -119,7 +119,7 @@ private:
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::HazardLightsCommand>::SharedPtr
     remote_hazard_light_cmd_sub_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::GearCommand>::SharedPtr
-    remote_shift_cmd_sub_;
+    remote_gear_cmd_sub_;
   void onRemoteCtrlCmd(
     autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg);
   void onRemoteTurnIndicatorsCmd(
@@ -132,12 +132,10 @@ private:
   Commands emergency_commands_;
   rclcpp::Subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>::SharedPtr
     emergency_control_cmd_sub_;
-  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand>::SharedPtr
-    emergency_turn_indicator_cmd_sub_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::HazardLightsCommand>::SharedPtr
     emergency_hazard_light_cmd_sub_;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::GearCommand>::SharedPtr
-    emergency_shift_cmd_sub_;
+    emergency_gear_cmd_sub_;
   void onEmergencyCtrlCmd(
     autoware_auto_control_msgs::msg::AckermannControlCommand::ConstSharedPtr msg);
   void onEmergencyTurnIndicatorsCmd(

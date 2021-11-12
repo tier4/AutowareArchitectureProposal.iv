@@ -57,8 +57,8 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
   control_cmd_pub_ =
     this->create_publisher<autoware_auto_control_msgs::msg::AckermannControlCommand>(
       "output/control_cmd", durable_qos);
-  shift_cmd_pub_ = this->create_publisher<autoware_auto_vehicle_msgs::msg::GearCommand>(
-    "output/shift_cmd", durable_qos);
+  gear_cmd_pub_ = this->create_publisher<autoware_auto_vehicle_msgs::msg::GearCommand>(
+    "output/gear_cmd", durable_qos);
   turn_indicator_cmd_pub_ =
     this->create_publisher<autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand>(
       "output/turn_indicators_cmd", durable_qos);
@@ -102,8 +102,8 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
       "input/auto/hazard_lights_cmd", 1,
       std::bind(&VehicleCmdGate::onAutoHazardLightsCmd, this, _1));
 
-  auto_shift_cmd_sub_ = this->create_subscription<autoware_auto_vehicle_msgs::msg::GearCommand>(
-    "input/auto/shift_cmd", 1, std::bind(&VehicleCmdGate::onAutoShiftCmd, this, _1));
+  auto_gear_cmd_sub_ = this->create_subscription<autoware_auto_vehicle_msgs::msg::GearCommand>(
+    "input/auto/gear_cmd", 1, std::bind(&VehicleCmdGate::onAutoShiftCmd, this, _1));
 
   // Subscriber for external
   remote_control_cmd_sub_ =
@@ -120,27 +120,21 @@ VehicleCmdGate::VehicleCmdGate(const rclcpp::NodeOptions & node_options)
       "input/external/hazard_lights_cmd", 1,
       std::bind(&VehicleCmdGate::onRemoteHazardLightsCmd, this, _1));
 
-  remote_shift_cmd_sub_ = this->create_subscription<autoware_auto_vehicle_msgs::msg::GearCommand>(
-    "input/external/shift_cmd", 1, std::bind(&VehicleCmdGate::onRemoteShiftCmd, this, _1));
+  remote_gear_cmd_sub_ = this->create_subscription<autoware_auto_vehicle_msgs::msg::GearCommand>(
+    "input/external/gear_cmd", 1, std::bind(&VehicleCmdGate::onRemoteShiftCmd, this, _1));
 
   // Subscriber for emergency
   emergency_control_cmd_sub_ =
     this->create_subscription<autoware_auto_control_msgs::msg::AckermannControlCommand>(
       "input/emergency/control_cmd", 1, std::bind(&VehicleCmdGate::onEmergencyCtrlCmd, this, _1));
 
-  emergency_turn_indicator_cmd_sub_ =
-    this->create_subscription<autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand>(
-      "input/emergency/turn_indicators_cmd", 1,
-      std::bind(&VehicleCmdGate::onEmergencyTurnIndicatorsCmd, this, _1));
-
   emergency_hazard_light_cmd_sub_ =
     this->create_subscription<autoware_auto_vehicle_msgs::msg::HazardLightsCommand>(
       "input/emergency/hazard_lights_cmd", 1,
       std::bind(&VehicleCmdGate::onEmergencyHazardLightsCmd, this, _1));
 
-  emergency_shift_cmd_sub_ =
-    this->create_subscription<autoware_auto_vehicle_msgs::msg::GearCommand>(
-      "input/emergency/shift_cmd", 1, std::bind(&VehicleCmdGate::onEmergencyShiftCmd, this, _1));
+  emergency_gear_cmd_sub_ = this->create_subscription<autoware_auto_vehicle_msgs::msg::GearCommand>(
+    "input/emergency/gear_cmd", 1, std::bind(&VehicleCmdGate::onEmergencyShiftCmd, this, _1));
 
   // Parameter
   update_period_ = 1.0 / declare_parameter("update_rate", 10.0);
@@ -289,11 +283,6 @@ void VehicleCmdGate::onEmergencyCtrlCmd(
     publishControlCommands(emergency_commands_);
   }
 }
-void VehicleCmdGate::onEmergencyTurnIndicatorsCmd(
-  autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand::ConstSharedPtr msg)
-{
-  emergency_commands_.turn_indicator = *msg;
-}
 void VehicleCmdGate::onEmergencyHazardLightsCmd(
   autoware_auto_vehicle_msgs::msg::HazardLightsCommand::ConstSharedPtr msg)
 {
@@ -374,10 +363,6 @@ void VehicleCmdGate::onTimer()
     }
   }
 
-  // Add frame_id to prevent RViz warnings
-  // fillFrameId(&shift.header.frame_id, "base_link");
-  // fillFrameId(&turn_signal.header.frame_id, "base_link");
-
   // Engage
   autoware_auto_vehicle_msgs::msg::Engage autoware_engage;
   autoware_engage.stamp = this->now();
@@ -392,7 +377,7 @@ void VehicleCmdGate::onTimer()
   gate_mode_pub_->publish(current_gate_mode_);
   turn_indicator_cmd_pub_->publish(turn_indicator);
   hazard_light_cmd_pub_->publish(hazard_light);
-  shift_cmd_pub_->publish(shift);
+  gear_cmd_pub_->publish(shift);
   engage_pub_->publish(autoware_engage);
   pub_external_emergency_->publish(external_emergency);
 
@@ -505,7 +490,7 @@ void VehicleCmdGate::publishEmergencyStopControlCommands()
   gate_mode_pub_->publish(current_gate_mode_);
   turn_indicator_cmd_pub_->publish(turn_indicator);
   hazard_light_cmd_pub_->publish(hazard_light);
-  shift_cmd_pub_->publish(shift);
+  gear_cmd_pub_->publish(shift);
   engage_pub_->publish(autoware_engage);
   pub_external_emergency_->publish(external_emergency);
 
@@ -565,8 +550,8 @@ void VehicleCmdGate::onEmergencyState(
   emergency_state_heartbeat_received_time_ = std::make_shared<rclcpp::Time>(this->now());
 }
 
-void VehicleCmdGate::onExternalEmergencyStopHeartbeat(
-  [[maybe_unused]] autoware_external_api_msgs::msg::Heartbeat::ConstSharedPtr msg)
+void VehicleCmdGate::onExternalEmergencyStopHeartbeat([
+  [maybe_unused]] autoware_external_api_msgs::msg::Heartbeat::ConstSharedPtr msg)
 {
   external_emergency_stop_heartbeat_received_time_ = std::make_shared<rclcpp::Time>(this->now());
 }
