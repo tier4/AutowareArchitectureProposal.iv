@@ -241,7 +241,7 @@ void VehicleCmdGate::onAutoHazardLightsCmd(
 void VehicleCmdGate::onAutoShiftCmd(
   autoware_auto_vehicle_msgs::msg::GearCommand::ConstSharedPtr msg)
 {
-  auto_commands_.shift = *msg;
+  auto_commands_.gear = *msg;
 }
 
 // for remote
@@ -270,7 +270,7 @@ void VehicleCmdGate::onRemoteHazardLightsCmd(
 void VehicleCmdGate::onRemoteShiftCmd(
   autoware_auto_vehicle_msgs::msg::GearCommand::ConstSharedPtr msg)
 {
-  remote_commands_.shift = *msg;
+  remote_commands_.gear = *msg;
 }
 
 // for emergency
@@ -291,7 +291,7 @@ void VehicleCmdGate::onEmergencyHazardLightsCmd(
 void VehicleCmdGate::onEmergencyShiftCmd(
   autoware_auto_vehicle_msgs::msg::GearCommand::ConstSharedPtr msg)
 {
-  emergency_commands_.shift = *msg;
+  emergency_commands_.gear = *msg;
 }
 
 void VehicleCmdGate::onTimer()
@@ -338,16 +338,16 @@ void VehicleCmdGate::onTimer()
   // Select commands
   autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand turn_indicator;
   autoware_auto_vehicle_msgs::msg::HazardLightsCommand hazard_light;
-  autoware_auto_vehicle_msgs::msg::GearCommand shift;
+  autoware_auto_vehicle_msgs::msg::GearCommand gear;
   if (use_emergency_handling_ && is_system_emergency_) {
     turn_indicator = emergency_commands_.turn_indicator;
     hazard_light = emergency_commands_.hazard_light;
-    shift = emergency_commands_.shift;
+    gear = emergency_commands_.gear;
   } else {
     if (current_gate_mode_.data == autoware_control_msgs::msg::GateMode::AUTO) {
       turn_indicator = auto_commands_.turn_indicator;
       hazard_light = emergency_commands_.hazard_light;
-      shift = auto_commands_.shift;
+      gear = auto_commands_.gear;
 
       // Don't send turn signal when autoware is not engaged
       if (!is_engaged_) {
@@ -357,7 +357,7 @@ void VehicleCmdGate::onTimer()
     } else if (current_gate_mode_.data == autoware_control_msgs::msg::GateMode::EXTERNAL) {
       turn_indicator = remote_commands_.turn_indicator;
       hazard_light = remote_commands_.hazard_light;
-      shift = remote_commands_.shift;
+      gear = remote_commands_.gear;
     } else {
       throw std::runtime_error("invalid mode");
     }
@@ -377,7 +377,7 @@ void VehicleCmdGate::onTimer()
   gate_mode_pub_->publish(current_gate_mode_);
   turn_indicator_cmd_pub_->publish(turn_indicator);
   hazard_light_cmd_pub_->publish(hazard_light);
-  gear_cmd_pub_->publish(shift);
+  gear_cmd_pub_->publish(gear);
   engage_pub_->publish(autoware_engage);
   pub_external_emergency_->publish(external_emergency);
 
@@ -402,7 +402,7 @@ void VehicleCmdGate::publishControlCommands(const Commands & commands)
   // Set default commands
   {
     filtered_commands.control = commands.control;
-    filtered_commands.shift = commands.shift;  // tmp
+    filtered_commands.gear = commands.gear;  // tmp
   }
 
   // Check emergency
@@ -410,7 +410,7 @@ void VehicleCmdGate::publishControlCommands(const Commands & commands)
     RCLCPP_WARN_THROTTLE(
       get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(), "Emergency!");
     filtered_commands.control = emergency_commands_.control;
-    filtered_commands.shift = emergency_commands_.shift;  // tmp
+    filtered_commands.gear = emergency_commands_.gear;  // tmp
   }
 
   // Check start after applying all gates except engage
@@ -454,9 +454,9 @@ void VehicleCmdGate::publishEmergencyStopControlCommands()
   // Check stopped after applying all gates
   start_request_->checkStopped(control_cmd);
 
-  // Shift
-  autoware_auto_vehicle_msgs::msg::GearCommand shift;
-  shift.stamp = stamp;
+  // gear
+  autoware_auto_vehicle_msgs::msg::GearCommand gear;
+  gear.stamp = stamp;
   // default value is 0
 
   // TurnSignal
@@ -490,7 +490,7 @@ void VehicleCmdGate::publishEmergencyStopControlCommands()
   gate_mode_pub_->publish(current_gate_mode_);
   turn_indicator_cmd_pub_->publish(turn_indicator);
   hazard_light_cmd_pub_->publish(hazard_light);
-  gear_cmd_pub_->publish(shift);
+  gear_cmd_pub_->publish(gear);
   engage_pub_->publish(autoware_engage);
   pub_external_emergency_->publish(external_emergency);
 
@@ -550,8 +550,8 @@ void VehicleCmdGate::onEmergencyState(
   emergency_state_heartbeat_received_time_ = std::make_shared<rclcpp::Time>(this->now());
 }
 
-void VehicleCmdGate::onExternalEmergencyStopHeartbeat([
-  [maybe_unused]] autoware_external_api_msgs::msg::Heartbeat::ConstSharedPtr msg)
+void VehicleCmdGate::onExternalEmergencyStopHeartbeat(
+  [[maybe_unused]] autoware_external_api_msgs::msg::Heartbeat::ConstSharedPtr msg)
 {
   external_emergency_stop_heartbeat_received_time_ = std::make_shared<rclcpp::Time>(this->now());
 }

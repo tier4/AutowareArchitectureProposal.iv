@@ -44,7 +44,7 @@ struct Commands
   autoware_auto_control_msgs::msg::AckermannControlCommand control;
   autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand turn_indicator;
   autoware_auto_vehicle_msgs::msg::HazardLightsCommand hazard_light;
-  autoware_auto_vehicle_msgs::msg::GearCommand shift;
+  autoware_auto_vehicle_msgs::msg::GearCommand gear;
 };
 
 class VehicleCmdGate : public rclcpp::Node
