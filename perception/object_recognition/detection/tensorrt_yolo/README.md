@@ -116,7 +116,7 @@ yolov5
 | `label_file`            | string | ""            | The label file with label names for detected objects written on it |
 | `calib_image_directory` | string | ""            | The directory name including calibration images for int8 inference |
 | `calib_cache_file`      | string | ""            | The calibration cache file for int8 inference                      |
-| `mode`                  | string | "FP32"        | The inference mode: "FP32", "FP16", "INT8"                          |
+| `mode`                  | string | "FP32"        | The inference mode: "FP32", "FP16", "INT8"                         |
 
 ## Assumptions / Known limits
 
