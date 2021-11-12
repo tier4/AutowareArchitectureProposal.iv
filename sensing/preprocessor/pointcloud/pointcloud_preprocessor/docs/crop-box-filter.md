@@ -14,9 +14,9 @@ The `box_crop_filter` is a node that removes points with in a given box region. 
 
 ### Output
 
-| Name              | Type                                      | Description     |
-| ----------------- | ----------------------------------------- | --------------- |
-| `~/output/points` | `autoware_planning_msgs::msg::Trajectory` | filtered points |
+| Name              | Type                            | Description     |
+| ----------------- | ------------------------------- | --------------- |
+| `~/output/points` | `sensor_msgs::msg::PointCloud2` | filtered points |
 
 ## Parameters
 
