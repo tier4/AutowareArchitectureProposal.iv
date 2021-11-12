@@ -2,7 +2,13 @@
 
 ## Purpose
 
-The `pointcloud_preprocessor` is a package that includes filters for denoising, cropping and concatenating pointclouds, and correcting distortions. Downsampling filter is also included in this package.
+The `pointcloud_preprocessor` is a package that includes the following filters:
+
+- removing outlier points
+- cropping
+- concatenating pointclouds
+- correcting distortion
+- downsampling
 
 ## Inner-workings / Algorithms
 
