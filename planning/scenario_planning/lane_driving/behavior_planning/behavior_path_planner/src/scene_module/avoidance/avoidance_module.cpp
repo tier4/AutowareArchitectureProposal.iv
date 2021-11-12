@@ -1683,8 +1683,8 @@ PathWithLaneId AvoidanceModule::calcCenterLinePath(
 
   const lanelet::ConstLanelets current_lanes =
     calcLaneAroundPose(planner_data, pose.pose, backward_length);
-  centerline_path = route_handler->getCenterLinePath(
-    current_lanes, pose.pose, backward_length, p.forward_path_length, p);
+  centerline_path = util::getCenterLinePath(
+    *route_handler, current_lanes, pose.pose, backward_length, p.forward_path_length, p);
 
   // for debug: check if the path backward distance is same as the desired length.
   // {
@@ -2151,8 +2151,8 @@ void AvoidanceModule::updateRegisteredObject(const ObjectDataArray & now_objects
   const auto updateIfDetectedNow = [&now_objects, this](auto & registered_object) {
     const auto & n = now_objects;
     const auto r_id = registered_object.object.object_id;
-    const auto same_id_obj =
-      std::find_if(n.begin(), n.end(), [&r_id](const auto & o) { return o.object.id == r_id; });
+    const auto same_id_obj = std::find_if(
+      n.begin(), n.end(), [&r_id](const auto & o) { return o.object.object_id == r_id; });
 
     // same id object is detected. update registered.
     if (same_id_obj != n.end()) {
@@ -2163,7 +2163,7 @@ void AvoidanceModule::updateRegisteredObject(const ObjectDataArray & now_objects
     constexpr auto POS_THR = 1.5;
     const auto r_pos = registered_object.object.kinematics.initial_pose_with_covariance.pose;
     const auto similar_pos_obj = std::find_if(n.begin(), n.end(), [&](const auto & o) {
-      return calcDistance2d(r_pos, o.object.state.pose_covariance.pose) < POS_THR;
+      return calcDistance2d(r_pos, o.object.kinematics.initial_pose_with_covariance.pose) < POS_THR;
     });
 
     // same id object is not detected, but object is found around registered. update registered.
@@ -2194,7 +2194,8 @@ void AvoidanceModule::updateRegisteredObject(const ObjectDataArray & now_objects
 
   const auto isAlreadyRegistered = [this](const auto & n_id) {
     const auto & r = registered_objects_;
-    return std::any_of(r.begin(), r.end(), [&n_id](const auto & o) { return o.object.id == n_id; });
+    return std::any_of(
+      r.begin(), r.end(), [&n_id](const auto & o) { return o.object.object_id == n_id; });
   };
 
   // -- check now_objects, add it if it has new object id --
@@ -2217,7 +2218,8 @@ void AvoidanceModule::CompensateDetectionLost(ObjectDataArray & now_objects) con
 
   const auto isDetectedNow = [&](const auto & r_id) {
     const auto & n = now_objects;
-    return std::any_of(n.begin(), n.end(), [&r_id](const auto & o) { return o.object.id == r_id; });
+    return std::any_of(
+      n.begin(), n.end(), [&r_id](const auto & o) { return o.object.object_id == r_id; });
   };
 
   for (const auto & registered : registered_objects_) {
@@ -2274,7 +2276,7 @@ void AvoidanceModule::clipPathLength(PathWithLaneId & path) const
 bool AvoidanceModule::isTargetObjectType(const PredictedObject & object) const
 {
   using autoware_auto_perception_msgs::msg::ObjectClassification;
-  const auto t = object.classification.front().label;
+  const auto t = util::getHighestProbLabel(object.classification);
   const auto is_object_type =
     (t == ObjectClassification::CAR || t == ObjectClassification::TRUCK ||
      t == ObjectClassification::BUS);
@@ -2300,9 +2302,9 @@ TurnSignalInfo AvoidanceModule::calcTurnSignalInfo(const ShiftedPath & path) con
       const double diff = path.shift_length.at(latest_shift_point.end_idx) -
                           path.shift_length.at(latest_shift_point.start_idx);
       if (diff > tl_on_threshold) {
-        turn_signal.turn_signal.data = TurnIndicatorsCommand::ENABLE_LEFT;
+        turn_signal.turn_signal.command = TurnIndicatorsCommand::ENABLE_LEFT;
       } else if (diff < -tl_on_threshold) {
-        turn_signal.turn_signal.data = TurnIndicatorsCommand::ENABLE_RIGHT;
+        turn_signal.turn_signal.command = TurnIndicatorsCommand::ENABLE_RIGHT;
       }
     }
   }

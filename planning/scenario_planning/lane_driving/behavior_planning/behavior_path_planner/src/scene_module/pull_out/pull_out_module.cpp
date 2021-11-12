@@ -330,12 +330,12 @@ PathWithLaneId PullOutModule::getReferencePath() const
     return reference_path;
   }
 
-  reference_path = route_handler->getCenterLinePath(
-    pull_out_lanes, current_pose, common_parameters.backward_path_length,
+  reference_path = util::getCenterLinePath(
+    *route_handler, pull_out_lanes, current_pose, common_parameters.backward_path_length,
     common_parameters.forward_path_length, common_parameters);
 
-  reference_path = route_handler->setDecelerationVelocity(
-    reference_path, current_lanes, parameters_.after_pull_out_straight_distance,
+  reference_path = util::setDecelerationVelocity(
+    *route_handler, reference_path, current_lanes, parameters_.after_pull_out_straight_distance,
     common_parameters.minimum_pull_out_length, parameters_.before_pull_out_straight_distance,
     parameters_.deceleration_interval, goal_pose);
 
@@ -688,7 +688,7 @@ TurnSignalInfo PullOutModule::calcTurnSignalInfo(const ShiftPoint & shift_point)
   TurnSignalInfo turn_signal;
 
   if (status_.is_retreat_path_valid && !status_.back_finished) {
-    turn_signal.turn_signal.data = TurnIndicatorsCommand::HAZARD;
+    turn_signal.hazard_signal.command = HazardLightsCommand::ENABLE;
     turn_signal.signal_distance =
       autoware_utils::calcDistance2d(status_.backed_pose, planner_data_->self_pose->pose);
     return turn_signal;
@@ -734,11 +734,11 @@ TurnSignalInfo PullOutModule::calcTurnSignalInfo(const ShiftPoint & shift_point)
   }
 
   if (distance_to_pull_out_start < turn_signal_on_threshold) {
-    turn_signal.turn_signal.data = TurnIndicatorsCommand::ENABLE_RIGHT;
+    turn_signal.turn_signal.command = TurnIndicatorsCommand::ENABLE_RIGHT;
     if (distance_to_pull_out_end < turn_signal_off_threshold) {
-      turn_signal.turn_signal.data = TurnIndicatorsCommand::DISABLE;
+      turn_signal.turn_signal.command = TurnIndicatorsCommand::DISABLE;
       if (distance_to_target_pose < turn_hazard_on_threshold) {
-        turn_signal.turn_signal.data = TurnSignal::HAZARD;
+        turn_signal.hazard_signal.command = HazardLightsCommand::ENABLE;
       }
     }
   }

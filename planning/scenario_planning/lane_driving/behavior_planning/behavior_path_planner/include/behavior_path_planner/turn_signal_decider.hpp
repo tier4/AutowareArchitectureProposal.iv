@@ -30,6 +30,7 @@ namespace behavior_path_planner
 using autoware_auto_planning_msgs::msg::PathWithLaneId;
 using autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand;
 using geometry_msgs::msg::Pose;
+using route_handler::RouteHandler;
 class TurnSignalDecider
 {
 public:

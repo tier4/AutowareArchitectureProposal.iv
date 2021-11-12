@@ -243,12 +243,12 @@ PathWithLaneId PullOverModule::getReferencePath() const
     return reference_path;
   }
 
-  reference_path = route_handler->getCenterLinePath(
-    current_lanes, current_pose, common_parameters.backward_path_length,
+  reference_path = util::getCenterLinePath(
+    *route_handler, current_lanes, current_pose, common_parameters.backward_path_length,
     common_parameters.forward_path_length, common_parameters);
 
-  reference_path = route_handler->setDecelerationVelocity(
-    reference_path, current_lanes, parameters_.after_pull_over_straight_distance,
+  reference_path = util::setDecelerationVelocity(
+    *route_handler, reference_path, current_lanes, parameters_.after_pull_over_straight_distance,
     common_parameters.minimum_pull_over_length, parameters_.before_pull_over_straight_distance,
     parameters_.deceleration_interval, goal_pose);
 
@@ -479,11 +479,11 @@ TurnSignalInfo PullOverModule::calcTurnSignalInfo(const ShiftPoint & shift_point
   }
 
   if (distance_to_pull_over_start < turn_signal_on_threshold) {
-    turn_signal.turn_signal.data = TurnSignal::LEFT;
+    turn_signal.turn_signal.command = TurnIndicatorsCommand::ENABLE_LEFT;
     if (distance_to_pull_over_end < turn_signal_off_threshold) {
-      turn_signal.turn_signal.data = TurnSignal::NONE;
+      turn_signal.turn_signal.command = TurnIndicatorsCommand::DISABLE;
       if (distance_to_target_pose < turn_hazard_on_threshold) {
-        turn_signal.turn_signal.data = TurnSignal::HAZARD;
+        turn_signal.hazard_signal.command = HazardLightsCommand::ENABLE;
       }
     }
   }

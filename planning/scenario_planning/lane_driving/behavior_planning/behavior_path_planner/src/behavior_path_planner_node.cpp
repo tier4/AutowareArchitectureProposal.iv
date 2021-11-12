@@ -67,7 +67,9 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
   // publisher
   path_publisher_ = create_publisher<PathWithLaneId>("~/output/path", 1);
   path_candidate_publisher_ = create_publisher<Path>("~/output/path_candidate", 1);
-  turn_signal_publisher_ = create_publisher<TurnIndicatorsCommand>("~/output/turn_signal_cmd", 1);
+  turn_signal_publisher_ =
+    create_publisher<TurnIndicatorsCommand>("~/output/turn_indicators_cmd", 1);
+  hazard_signal_publisher_ = create_publisher<HazardLightsCommand>("~/output/hazard_lights_cmd", 1);
   debug_drivable_area_publisher_ = create_publisher<OccupancyGrid>("~/debug/drivable_area", 1);
   debug_path_publisher_ = create_publisher<Path>("~/debug/path_for_visualize", 1);
 
@@ -464,10 +466,20 @@ void BehaviorPathPlannerNode::run()
   debug_drivable_area_publisher_->publish(path->drivable_area);
 
   // for turn signal
-  const auto turn_signal = turn_signal_decider_.getTurnSignal(
-    *path, planner_data_->self_pose->pose, *(planner_data_->route_handler),
-    output.turn_signal_info.turn_signal, output.turn_signal_info.signal_distance);
-  turn_signal_publisher_->publish(turn_signal);
+  if (output.turn_signal_info.hazard_signal.command == HazardLightsCommand::ENABLE) {
+    TurnIndicatorsCommand turn_signal;
+    turn_signal.command = TurnIndicatorsCommand::DISABLE;
+    turn_signal_publisher_->publish(turn_signal);
+    hazard_signal_publisher_->publish(output.turn_signal_info.hazard_signal);
+  } else {
+    const auto turn_signal = turn_signal_decider_.getTurnSignal(
+      *path, planner_data_->self_pose->pose, *(planner_data_->route_handler),
+      output.turn_signal_info.turn_signal, output.turn_signal_info.signal_distance);
+    HazardLightsCommand hazard_signal;
+    hazard_signal.command = HazardLightsCommand::DISABLE;
+    turn_signal_publisher_->publish(turn_signal);
+    hazard_signal_publisher_->publish(hazard_signal);
+  }
 
   // for remote operation
   publishModuleStatus(bt_manager_->getModulesStatus());

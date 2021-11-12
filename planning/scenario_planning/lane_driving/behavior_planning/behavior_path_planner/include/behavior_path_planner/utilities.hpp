@@ -16,6 +16,7 @@
 #define BEHAVIOR_PATH_PLANNER__UTILITIES_HPP_
 
 #include "behavior_path_planner/data_manager.hpp"
+#include "behavior_path_planner/scene_module/lane_change/lane_change_path.hpp"
 #include "behavior_path_planner/scene_module/pull_out/pull_out_path.hpp"
 
 #include <autoware_utils/autoware_utils.hpp>
@@ -23,10 +24,12 @@
 #include <rclcpp/rclcpp.hpp>
 #include <route_handler/route_handler.hpp>
 
+#include <autoware_auto_perception_msgs/msg/object_classification.hpp>
 #include <autoware_auto_perception_msgs/msg/predicted_object.hpp>
 #include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
 #include <autoware_auto_perception_msgs/msg/predicted_path.hpp>
 #include <autoware_auto_planning_msgs/msg/path.hpp>
+#include <autoware_auto_planning_msgs/msg/path_point_with_lane_id.hpp>
 #include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
 #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/pose.hpp>
@@ -52,7 +55,8 @@
 namespace autoware_utils
 {
 template <>
-inline geometry_msgs::msg::Pose getPose(const autoware_planning_msgs::msg::PathPointWithLaneId & p)
+inline geometry_msgs::msg::Pose getPose(
+  const autoware_auto_planning_msgs::msg::PathPointWithLaneId & p)
 {
   return p.point.pose;
 }
@@ -104,6 +108,7 @@ namespace behavior_path_planner
 {
 namespace util
 {
+using autoware_auto_perception_msgs::msg::ObjectClassification;
 using autoware_auto_perception_msgs::msg::PredictedObject;
 using autoware_auto_perception_msgs::msg::PredictedObjects;
 using autoware_auto_perception_msgs::msg::PredictedPath;
@@ -120,6 +125,7 @@ using geometry_msgs::msg::PoseStamped;
 using geometry_msgs::msg::Twist;
 using geometry_msgs::msg::Vector3;
 using nav_msgs::msg::OccupancyGrid;
+using route_handler::RouteHandler;
 
 struct FrenetCoordinate3d
 {
@@ -296,6 +302,26 @@ std::vector<Polygon2d> getTargetLaneletPolygons(
   const std::string & target_type);
 
 void shiftPose(Pose * pose, double shift_length);
+
+// route handler
+PathWithLaneId getCenterLinePath(
+  const RouteHandler & route_handler, const lanelet::ConstLanelets & lanelet_sequence,
+  const Pose & pose, const double backward_path_length, const double forward_path_length,
+  const BehaviorPathPlannerParameters & parameter);
+
+PathWithLaneId setDecelerationVelocity(
+  const RouteHandler & route_handler, const PathWithLaneId & input,
+  const lanelet::ConstLanelets & lanelet_sequence, const double lane_change_prepare_duration,
+  const double lane_change_buffer);
+
+PathWithLaneId setDecelerationVelocity(
+  const RouteHandler & route_handler, const PathWithLaneId & input,
+  const lanelet::ConstLanelets & lanelet_sequence, const double distance_after_pullover,
+  const double pullover_distance_min, const double distance_before_pull_over,
+  const double deceleration_interval, Pose goal_pose);
+
+// object label
+std::uint8_t getHighestProbLabel(const std::vector<ObjectClassification> & classification);
 
 }  // namespace util
 }  // namespace behavior_path_planner

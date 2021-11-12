@@ -1348,8 +1348,8 @@ std::shared_ptr<PathWithLaneId> generateCenterLinePath(
   lanelet::ConstLanelets current_lanes = route_handler->getLaneletSequence(
     current_lane, pose->pose, p.backward_path_length, p.forward_path_length);
 
-  *centerline_path = route_handler->getCenterLinePath(
-    current_lanes, pose->pose, p.backward_path_length, p.forward_path_length, p);
+  *centerline_path = getCenterLinePath(
+    *route_handler, current_lanes, pose->pose, p.backward_path_length, p.forward_path_length, p);
 
   centerline_path->header = route_handler->getRouteHeader();
 
@@ -1384,6 +1384,116 @@ void shiftPose(Pose * pose, double shift_length)
   auto yaw = tf2::getYaw(pose->orientation);
   pose->position.x -= std::sin(yaw) * shift_length;
   pose->position.y += std::cos(yaw) * shift_length;
+}
+
+PathWithLaneId getCenterLinePath(
+  const RouteHandler & route_handler, const lanelet::ConstLanelets & lanelet_sequence,
+  const Pose & pose, const double backward_path_length, const double forward_path_length,
+  const BehaviorPathPlannerParameters & parameter)
+{
+  PathWithLaneId reference_path;
+
+  if (lanelet_sequence.empty()) {
+    return reference_path;
+  }
+
+  const auto arc_coordinates = lanelet::utils::getArcCoordinates(lanelet_sequence, pose);
+  const double s = arc_coordinates.length;
+  const double s_backward = std::max(0., s - backward_path_length);
+  double s_forward = s + forward_path_length;
+
+  const double buffer =
+    parameter.backward_length_buffer_for_end_of_lane;  // buffer for min_lane_change_length
+  const int num_lane_change =
+    std::abs(route_handler.getNumLaneToPreferredLane(lanelet_sequence.back()));
+  const double lane_length = lanelet::utils::getLaneletLength2d(lanelet_sequence);
+  const double lane_change_buffer =
+    num_lane_change * (parameter.minimum_lane_change_length + buffer);
+
+  if (route_handler.isDeadEndLanelet(lanelet_sequence.back())) {
+    s_forward = std::min(s_forward, lane_length - lane_change_buffer);
+  }
+
+  if (route_handler.isInGoalRouteSection(lanelet_sequence.back())) {
+    const auto goal_arc_coordinates =
+      lanelet::utils::getArcCoordinates(lanelet_sequence, route_handler.getGoalPose());
+    s_forward = std::min(s_forward, goal_arc_coordinates.length - lane_change_buffer);
+  }
+
+  return route_handler.getCenterLinePath(lanelet_sequence, s_backward, s_forward, true);
+}
+
+PathWithLaneId setDecelerationVelocity(
+  const RouteHandler & route_handler, const PathWithLaneId & input,
+  const lanelet::ConstLanelets & lanelet_sequence, const double lane_change_prepare_duration,
+  const double lane_change_buffer)
+{
+  auto reference_path = input;
+  if (
+    route_handler.isDeadEndLanelet(lanelet_sequence.back()) &&
+    lane_change_prepare_duration > std::numeric_limits<double>::epsilon()) {
+    for (auto & point : reference_path.points) {
+      const double lane_length = lanelet::utils::getLaneletLength2d(lanelet_sequence);
+      const auto arclength = lanelet::utils::getArcCoordinates(lanelet_sequence, point.point.pose);
+      const double distance_to_end =
+        std::max(0.0, lane_length - lane_change_buffer - arclength.length);
+      point.point.longitudinal_velocity_mps = std::min(
+        point.point.longitudinal_velocity_mps,
+        static_cast<float>(distance_to_end / lane_change_prepare_duration));
+    }
+  }
+  return reference_path;
+}
+
+PathWithLaneId setDecelerationVelocity(
+  const RouteHandler & route_handler, const PathWithLaneId & input,
+  const lanelet::ConstLanelets & lanelet_sequence, const double distance_after_pullover,
+  const double pullover_distance_min, const double distance_before_pull_over,
+  const double deceleration_interval, Pose goal_pose)
+{
+  auto reference_path = input;
+  const auto pullover_buffer =
+    distance_after_pullover + pullover_distance_min + distance_before_pull_over;
+  const auto arclength_goal_pose =
+    lanelet::utils::getArcCoordinates(lanelet_sequence, goal_pose).length;
+  const auto arclength_pull_over_start = arclength_goal_pose - pullover_buffer;
+  const auto arclength_path_front =
+    lanelet::utils::getArcCoordinates(lanelet_sequence, reference_path.points.front().point.pose)
+      .length;
+
+  if (
+    route_handler.isDeadEndLanelet(lanelet_sequence.back()) &&
+    pullover_distance_min > std::numeric_limits<double>::epsilon()) {
+    for (auto & point : reference_path.points) {
+      const auto arclength =
+        lanelet::utils::getArcCoordinates(lanelet_sequence, point.point.pose).length;
+      const double distance_to_pull_over_start =
+        std::max(0.0, arclength_pull_over_start - arclength);
+      point.point.longitudinal_velocity_mps = std::min(
+        point.point.longitudinal_velocity_mps,
+        static_cast<float>(distance_to_pull_over_start / deceleration_interval) *
+          point.point.longitudinal_velocity_mps);
+    }
+  }
+
+  double distance_to_pull_over_start =
+    std::max(0.0, arclength_pull_over_start - arclength_path_front);
+  const auto stop_point = util::insertStopPoint(distance_to_pull_over_start, &reference_path);
+
+  return reference_path;
+}
+
+std::uint8_t getHighestProbLabel(const std::vector<ObjectClassification> & classification)
+{
+  std::uint8_t label = ObjectClassification::UNKNOWN;
+  float highest_prob = 0.0;
+  for (const auto & _class : classification) {
+    if (highest_prob < _class.probability) {
+      highest_prob = _class.probability;
+      label = _class.label;
+    }
+  }
+  return label;
 }
 
 }  // namespace util

@@ -403,8 +403,8 @@ PathWithLaneId SideShiftModule::calcCenterLinePath(
 
   const lanelet::ConstLanelets current_lanes =
     calcLaneAroundPose(planner_data, pose.pose, backward_length);
-  centerline_path = route_handler->getCenterLinePath(
-    current_lanes, pose.pose, backward_length, p.forward_path_length, p);
+  centerline_path = util::getCenterLinePath(
+    *route_handler, current_lanes, pose.pose, backward_length, p.forward_path_length, p);
 
   centerline_path.header = route_handler->getRouteHeader();
 
