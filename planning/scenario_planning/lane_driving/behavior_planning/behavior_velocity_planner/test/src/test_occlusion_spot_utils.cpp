@@ -162,8 +162,8 @@ TEST(createPossibleCollisionBehindParkedVehicle, TooManyPathPointsAndObstacles)
   autoware_auto_perception_msgs::msg::PredictedObject obj;
   obj.shape.dimensions.x = 0.0;
   obj.shape.dimensions.y = 0.0;
-  tf2::Quaternion q;
-  obj.kinematics.initial_pose_with_covariance.pose.orientation = tf2::toMsg(q);
+  obj.kinematics.initial_pose_with_covariance.pose.orientation =
+    autoware_utils::createQuaternionFromYaw(0.0);
   obj.kinematics.initial_twist_with_covariance.twist.linear.x = 0;
   obj.classification.push_back(autoware_auto_perception_msgs::msg::ObjectClassification{});
 
@@ -183,10 +183,10 @@ TEST(createPossibleCollisionBehindParkedVehicle, TooManyPathPointsAndObstacles)
   obj_arr.objects.emplace_back(obj);
 
   // bus
-  q.setRPY(0, 0, M_PI);
   obj.kinematics.initial_pose_with_covariance.pose.position.x = 4.5;
   obj.kinematics.initial_pose_with_covariance.pose.position.y = 2.0;
-  obj.kinematics.initial_pose_with_covariance.pose.orientation = tf2::toMsg(q);
+  obj.kinematics.initial_pose_with_covariance.pose.orientation =
+    autoware_utils::createQuaternionFromYaw(M_PI);
   obj.classification.at(0).label = autoware_auto_perception_msgs::msg::ObjectClassification::BUS;
   obj_arr.objects.emplace_back(obj);
 
