@@ -2,118 +2,45 @@
 
 ## Purpose
 
-<!-- Write the purpose of this package and briefly describe the features.
-
-Example:
-  {package_name} is a package for planning trajectories that can avoid obstacles.
-  This feature consists of two steps: obstacle filtering and optimizing trajectory.
--->
+The `concatenate_data` is a node that concatenates multiple pointclouds aquiered by multiple LiDARs into a pointcloud.
 
 ## Inner-workings / Algorithms
 
-<!-- Write how this package works. Flowcharts and figures are great. Add sub-sections as you like.
-
-Example:
-  ### Flowcharts
-
-  ...(PlantUML or something)
-
-  ### State Transitions
-
-  ...(PlantUML or something)
-
-  ### How to filter target obstacles
-
-  ...
-
-  ### How to optimize trajectory
-
-  ...
--->
-
 ## Inputs / Outputs
 
-<!-- Write inputs/outputs of this package.
+### Input
 
-Example:
-  ### Input
+| Name             | Type                                              | Description      |
+| ---------------- | ------------------------------------------------- | ---------------- |
+| `~/input/points` | `sensor_msgs::msg::Pointcloud2`                   | reference points |
+| `~/input/twist`  | `autoware_auto_vehicle_msgs::msg::VelocityReport` | vehicle velocity |
 
-  | Name                 | Type                                                | Description          |
-  | -------------------- | --------------------------------------------------- | -------------------- |
-  | `~/input/trajectory` | `autoware_planning_msgs::msg::Trajectory`           | reference trajectory |
-  | `~/input/obstacles`  | `autoware_perception_msgs::msg::DynamicObjectArray` | obstacles            |
+### Output
 
-  ### Output
-
-  | Name                  | Type                                      | Description         |
-  | --------------------- | ----------------------------------------- | ------------------- |
-  | `~/output/trajectory` | `autoware_planning_msgs::msg::Trajectory` | modified trajectory |
--->
+| Name              | Type                            | Description     |
+| ----------------- | ------------------------------- | --------------- |
+| `~/output/points` | `sensor_msgs::msg::Pointcloud2` | filtered points |
 
 ## Parameters
 
-<!-- Write parameters of this package.
+| Name             | Type   | Default Value | Description                           |
+| ---------------- | ------ | ------------- | ------------------------------------- |
+| `input_frame`    | string | " "           | input frame id                        |
+| `output_frame`   | string | " "           | output frame id                       |
+| `max_queue_size` | int    | 5             | max queue size of input/output topics |
 
-Example:
-  ### Node Parameters
+### Core Parameters
 
-  | Name                   | Type | Description                     |
-  | ---------------------- | ---- | ------------------------------- |
-  | `output_debug_markers` | bool | whether to output debug markers |
-
-  ### Core Parameters
-
-  | Name                 | Type   | Description                                                          |
-  | -------------------- | ------ | -------------------------------------------------------------------- |
-  | `min_object_size_m`  | double | minimum object size to be selected as avoidance target obstacles [m] |
-  | `avoidance_margin_m` | double | avoidance margin to obstacles [m]                                    |
--->
+| Name          | Type   | Default Value | Description                                                                                                                                                                              |
+| ------------- | ------ | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `timeout_sec` | double | 0.1           | tolerance of time to publish next pointcloud [s]<br>When this time limit is exceeded, the filter concatenates and publishes pointcloud, even if not all the point clouds are subscribed. |
 
 ## Assumptions / Known limits
 
-<!-- Write assumptions and limitations of your implementation.
-
-Example:
-  This algorithm assumes obstacles are not moving, so if they rapidly move after the vehicle started to avoid them, it might collide with them.
-  Also, this algorithm doesn't care about blind spots. In general, since too close obstacles aren't visible due to the sensing performance limit, please take enough margin to obstacles.
--->
-
 ## (Optional) Error detection and handling
-
-<!-- Write how to detect errors and how to recover from them.
-
-Example:
-  This package can handle up to 20 obstacles. If more obstacles found, this node will give up and raise diagnostic errors.
--->
 
 ## (Optional) Performance characterization
 
-<!-- Write performance information like complexity. If it wouldn't be the bottleneck, not necessary.
-
-Example:
-  ### Complexity
-
-  This algorithm is O(N).
-
-  ### Processing time
-
-  ...
--->
-
 ## (Optional) References/External links
 
-<!-- Write links you referred to when you implemented.
-
-Example:
-  [1] {link_to_a_thesis}
-  [2] {link_to_an_issue}
--->
-
 ## (Optional) Future extensions / Unimplemented parts
-
-<!-- Write future extensions of this package.
-
-Example:
-  Currently, this package can't handle the chattering obstacles well. We plan to add some probabilistic filters in the perception layer to improve it.
-  Also, there are some parameters that should be global(e.g. vehicle size, max steering, etc.). These will be refactored and defined as global parameters so that we can share the same parameters between different nodes.
--->
