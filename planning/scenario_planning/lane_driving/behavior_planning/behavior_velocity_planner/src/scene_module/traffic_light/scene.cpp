@@ -262,7 +262,7 @@ autoware_auto_perception_msgs::msg::LookingTrafficSignal initializeTrafficSignal
   state.is_module_running = true;
   state.perception.has_state = false;
   state.external.has_state = false;
-  state.final.has_state = false;
+  state.result.has_state = false;
   return state;
 }
 }  // namespace
@@ -362,7 +362,7 @@ bool TrafficLightModule::isStopSignal(const lanelet::ConstLineStringsOrPolygons3
     return false;
   }
 
-  return looking_tl_state_.final.judge ==
+  return looking_tl_state_.result.judge ==
          autoware_auto_perception_msgs::msg::TrafficSignalWithJudge::STOP;
 }
 
@@ -382,13 +382,13 @@ bool TrafficLightModule::updateTrafficSignal(
 
   if (found_perception) {
     looking_tl_state_.perception = generateTlStateWithJudgeFromTlState(tl_state_perception.signal);
-    looking_tl_state_.final = looking_tl_state_.perception;
+    looking_tl_state_.result = looking_tl_state_.perception;
     input_ = Input::PERCEPTION;
   }
 
   if (found_external) {
     looking_tl_state_.external = generateTlStateWithJudgeFromTlState(tl_state_external.signal);
-    looking_tl_state_.final = looking_tl_state_.external;
+    looking_tl_state_.result = looking_tl_state_.external;
     input_ = Input::EXTERNAL;
   }
 
