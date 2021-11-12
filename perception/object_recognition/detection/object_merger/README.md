@@ -2,11 +2,11 @@
 
 ## Purpose
 
-object_merger is a package for merging detected obejcts from two methods by data association.
+object_merger is a package for merging detected objects from two methods by data association.
 
 ## Inner-workings / Algorithms
 
-The successive shortest path algorithm is used to solve the data association problem (the minimum-cost flow problem). The cost is calculated by the distance between two objects and gate functions are applied to reset cost, s.t. the maximun distance, the maximum area and the minimum area.
+The successive shortest path algorithm is used to solve the data association problem (the minimum-cost flow problem). The cost is calculated by the distance between two objects and gate functions are applied to reset cost, s.t. the maximum distance, the maximum area and the minimum area.
 
 ## Inputs / Outputs
 
@@ -69,4 +69,4 @@ Example:
 
 ## (Optional) Future extensions / Unimplemented parts
 
-Data assiciation algorithm was the same as that of multi_object_traker, but the algorithm of multi_object_traker was already updated.
+Data association algorithm was the same as that of multi_object_tracker, but the algorithm of multi_object_tracker was already updated.
