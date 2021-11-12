@@ -10,4 +10,3 @@ NormalDistributionsTransformBase <|-- NormalDistributionsTransformPCLGeneric
 NormalDistributionsTransformBase <|-- NormalDistributionsTransformPCLModified
 @enduml
 ```
-
