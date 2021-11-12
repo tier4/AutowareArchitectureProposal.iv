@@ -14,15 +14,12 @@
 #ifndef OBJECT_DETECTION__TRACKED_OBJECTS_DISPLAY_HPP_
 #define OBJECT_DETECTION__TRACKED_OBJECTS_DISPLAY_HPP_
 
-#include <object_detection/object_polygon_display_base.hpp>
-
 #include <autoware_auto_perception_msgs/msg/tracked_objects.hpp>
-
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
-
 #include <list>
 #include <map>
+#include <object_detection/object_polygon_display_base.hpp>
 #include <string>
 #include <vector>
 

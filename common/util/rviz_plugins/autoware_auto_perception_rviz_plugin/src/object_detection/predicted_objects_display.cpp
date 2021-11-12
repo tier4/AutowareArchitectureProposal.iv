@@ -12,9 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <object_detection/predicted_objects_display.hpp>
-
 #include <memory>
+#include <object_detection/predicted_objects_display.hpp>
 
 namespace autoware
 {

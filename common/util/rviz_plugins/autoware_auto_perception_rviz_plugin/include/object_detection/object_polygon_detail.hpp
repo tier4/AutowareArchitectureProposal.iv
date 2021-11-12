@@ -15,21 +15,19 @@
 #ifndef OBJECT_DETECTION__OBJECT_POLYGON_DETAIL_HPP_
 #define OBJECT_DETECTION__OBJECT_POLYGON_DETAIL_HPP_
 
-#include <rclcpp/logging.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <visibility_control.hpp>
-
 #include <autoware_auto_perception_msgs/msg/object_classification.hpp>
 #include <autoware_auto_perception_msgs/msg/predicted_path.hpp>
 #include <autoware_auto_perception_msgs/msg/shape.hpp>
 #include <geometry_msgs/msg/pose_with_covariance.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <geometry_msgs/msg/twist_with_covariance.hpp>
-#include <visualization_msgs/msg/marker.hpp>
-
 #include <map>
+#include <rclcpp/logging.hpp>
+#include <rclcpp/rclcpp.hpp>
 #include <string>
 #include <vector>
+#include <visibility_control.hpp>
+#include <visualization_msgs/msg/marker.hpp>
 
 namespace autoware
 {

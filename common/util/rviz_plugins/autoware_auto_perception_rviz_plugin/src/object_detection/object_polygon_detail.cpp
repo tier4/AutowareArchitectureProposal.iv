@@ -14,12 +14,10 @@
 
 #include <Eigen/Core>
 #include <Eigen/Eigen>
-#include <object_detection/object_polygon_detail.hpp>
-
-#include <geometry_msgs/msg/transform_stamped.hpp>
-
 #include <cmath>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 #include <memory>
+#include <object_detection/object_polygon_detail.hpp>
 
 namespace autoware
 {

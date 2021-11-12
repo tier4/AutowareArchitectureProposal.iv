@@ -14,9 +14,8 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include <object_detection/detected_objects_display.hpp>
-
 #include <memory>
+#include <object_detection/detected_objects_display.hpp>
 
 namespace autoware
 {
