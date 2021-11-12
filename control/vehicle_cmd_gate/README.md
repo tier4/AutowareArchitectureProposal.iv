@@ -42,20 +42,20 @@
 
 ## Parameters
 
-| Parameter                                    | Type   | Description                                                    |
-| -------------------------------------------- | ------ | -------------------------------------------------------------- |
-| `update_period`                              | double | update period                                                  |
-| `use_emergency_handling_`                    | bool   | true when emergency handler is used                            |
-| `use_external_emergency_stop_`               | bool   | true when external emergency stop information is used          |
-| `system_emergency_heartbeat_timeout_`        | double | timeout for system emergency                                   |
-| `external_emergency_stop_heartbeat_timeout_` | double | timeout for external emergency                                 |
-| `stop_hold_acceleration_`                    | double | longitudinal acceleration cmd when vehicle should stop         |
-| `emergency_acceleration_`                    | double | longitudinal acceleration cmd when vehicle stop with emergency |
-| `vel_lim`                                    | double | limit of longitudinal velocity                                 |
-| `lon_acc_lim`                                | double | limit of longitudinal acceleration                             |
-| `lon_jerk_lim`                               | double | limit of longitudinal jerk                                     |
-| `lat_acc_lim`                                | double | limit of lateral acceleration                                  |
-| `lat_jerk_lim`                               | double | limit of lateral jerk                                          |
+| Parameter                                   | Type   | Description                                                    |
+| ------------------------------------------- | ------ | -------------------------------------------------------------- |
+| `update_period`                             | double | update period                                                  |
+| `use_emergency_handling`                    | bool   | true when emergency handler is used                            |
+| `use_external_emergency_stop`               | bool   | true when external emergency stop information is used          |
+| `system_emergency_heartbeat_timeout`        | double | timeout for system emergency                                   |
+| `external_emergency_stop_heartbeat_timeout` | double | timeout for external emergency                                 |
+| `stop_hold_acceleration`                    | double | longitudinal acceleration cmd when vehicle should stop         |
+| `emergency_acceleration`                    | double | longitudinal acceleration cmd when vehicle stop with emergency |
+| `vel_lim`                                   | double | limit of longitudinal velocity                                 |
+| `lon_acc_lim`                               | double | limit of longitudinal acceleration                             |
+| `lon_jerk_lim`                              | double | limit of longitudinal jerk                                     |
+| `lat_acc_lim`                               | double | limit of lateral acceleration                                  |
+| `lat_jerk_lim`                              | double | limit of lateral jerk                                          |
 
 ## Assumptions / Known limits
 
