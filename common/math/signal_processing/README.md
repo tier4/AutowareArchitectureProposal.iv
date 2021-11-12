@@ -1,6 +1,6 @@
-# Signal Processing
+# signal_processing
 
-![lowpass filter](./media/lowpass_filter.drawio.svg)
+low-pass filter currently supports only the 1-D low pass filtering.
 
 ## Assumptions / Known limits
 
