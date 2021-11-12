@@ -27,6 +27,7 @@
 #include <autoware_auto_planning_msgs/msg/path.hpp>
 #include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <tf2_ros/buffer.h>
@@ -53,7 +54,7 @@ private:
   rclcpp::Subscription<autoware_auto_perception_msgs::msg::PredictedObjects>::SharedPtr
     sub_predicted_objects_;
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_no_ground_pointcloud_;
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_vehicle_velocity_;
+  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr sub_vehicle_odometry_;
   rclcpp::Subscription<autoware_auto_mapping_msgs::msg::HADMapBin>::SharedPtr sub_lanelet_map_;
   rclcpp::Subscription<autoware_auto_perception_msgs::msg::TrafficSignalArray>::SharedPtr
     sub_traffic_signals_;
@@ -72,7 +73,7 @@ private:
   void onPredictedObjects(
     const autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr msg);
   void onNoGroundPointCloud(const sensor_msgs::msg::PointCloud2::ConstSharedPtr msg);
-  void onVehicleVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
+  void onVehicleVelocity(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
   void onLaneletMap(const autoware_auto_mapping_msgs::msg::HADMapBin::ConstSharedPtr msg);
   void onTrafficSignals(
     const autoware_auto_perception_msgs::msg::TrafficSignalArray::ConstSharedPtr msg);

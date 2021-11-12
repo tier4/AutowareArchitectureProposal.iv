@@ -84,8 +84,8 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode(const rclcpp::NodeOptio
   sub_no_ground_pointcloud_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
     "~/input/no_ground_pointcloud", rclcpp::SensorDataQoS(),
     std::bind(&BehaviorVelocityPlannerNode::onNoGroundPointCloud, this, _1));
-  sub_vehicle_velocity_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
-    "~/input/vehicle_velocity", 1,
+  sub_vehicle_odometry_ = this->create_subscription<nav_msgs::msg::Odometry>(
+    "~/input/vehicle_odometry", 1,
     std::bind(&BehaviorVelocityPlannerNode::onVehicleVelocity, this, _1));
   sub_lanelet_map_ = this->create_subscription<autoware_auto_mapping_msgs::msg::HADMapBin>(
     "~/input/vector_map", rclcpp::QoS(10).transient_local(),
@@ -215,13 +215,17 @@ void BehaviorVelocityPlannerNode::onNoGroundPointCloud(
 }
 
 void BehaviorVelocityPlannerNode::onVehicleVelocity(
-  const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
+  const nav_msgs::msg::Odometry::ConstSharedPtr msg)
 {
-  planner_data_.current_velocity = msg;
+  auto current_velocity = std::make_shared<geometry_msgs::msg::TwistStamped>();
+  current_velocity->header = msg->header;
+  current_velocity->twist = msg->twist.twist;
+  planner_data_.current_velocity = current_velocity;
+
   planner_data_.updateCurrentAcc();
 
   // Add velocity to buffer
-  planner_data_.velocity_buffer.push_front(*msg);
+  planner_data_.velocity_buffer.push_front(*current_velocity);
   const auto now = this->now();
   while (true) {
     // Check oldest data time

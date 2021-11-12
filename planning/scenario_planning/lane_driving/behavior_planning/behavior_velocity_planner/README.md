@@ -20,21 +20,21 @@ So for example, in order to stop at a stop line with the vehicles' front on the 
 
 ## Input topics
 
-| Name                          | Type                                              | Description          |
-| ----------------------------- | ------------------------------------------------- | -------------------- |
-| `~input/path_with_lane_id`    | autoware_auto_planning_msgs::PathWithLaneId       | path with lane_id    |
-| `~input/vector_map`           | autoware_auto_mapping_msgs::HADMapBin             | vector map           |
-| `~input/vehicle_velocity`     | geometry_msgs::TwistStamped                       | vehicle velocity     |
-| `~input/predicted_objects`    | autoware_auto_perception_msgs::PredictedObjects   | dynamic objects      |
-| `~input/no_ground_pointcloud` | sensor_msgs::PointCloud2                          | obstacle pointcloud  |
-| `~input/traffic_signals`      | autoware_auto_perception_msgs::TrafficSignalArray | traffic light states |
+| Name                          | Type                                                   | Description          |
+| ----------------------------- | ------------------------------------------------------ | -------------------- |
+| `~input/path_with_lane_id`    | autoware_auto_planning_msgs::msg::PathWithLaneId       | path with lane_id    |
+| `~input/vector_map`           | autoware_auto_mapping_msgs::msg::HADMapBin             | vector map           |
+| `~input/vehicle_odometry`     | nav_msgs::msg::Odometry                                | vehicle velocity     |
+| `~input/predicted_objects`    | autoware_auto_perception_msgs::msg::PredictedObjects   | dynamic objects      |
+| `~input/no_ground_pointcloud` | sensor_msgs::msg::PointCloud2                          | obstacle pointcloud  |
+| `~input/traffic_signals`      | autoware_auto_perception_msgs::msg::TrafficSignalArray | traffic light states |
 
 ## Output topics
 
 | Name                   | Type                                         | Description                            |
 | ---------------------- | -------------------------------------------- | -------------------------------------- |
-| `~output/path`         | autoware_auto_planning_msgs::Path            | path to be followed                    |
-| `~output/stop_reasons` | autoware_auto_planning_msgs::StopReasonArray | reasons that cause the vehicle to stop |
+| `~output/path`         | autoware_auto_planning_msgs::msg::Path       | path to be followed                    |
+| `~output/stop_reasons` | autoware_planning_msgs::msg::StopReasonArray | reasons that cause the vehicle to stop |
 
 ## Node parameters
 
