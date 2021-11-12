@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License..
 
+#include <algorithm>
 #include <Eigen/Core>
 #include <Eigen/Eigen>
 #include <cmath>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <memory>
 #include <object_detection/object_polygon_detail.hpp>
+#include <string>
+#include <vector>
 
 namespace autoware
 {
