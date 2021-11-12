@@ -72,6 +72,7 @@ private:
 
   rclcpp::Client<autoware_localization_srvs::srv::PoseWithCovarianceStamped>::SharedPtr ndt_client_;
 
+  rclcpp::CallbackGroup::SharedPtr initialize_pose_service_group_;
   rclcpp::Service<autoware_localization_srvs::srv::PoseWithCovarianceStamped>::SharedPtr
     initialize_pose_service_;
   rclcpp::Service<autoware_external_api_msgs::srv::InitializePoseAuto>::SharedPtr
