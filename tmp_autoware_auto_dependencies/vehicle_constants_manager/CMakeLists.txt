@@ -34,17 +34,17 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
 autoware_set_compile_options(${PROJECT_NAME})
 
 # Testing
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
+# if(BUILD_TESTING)
+#   find_package(ament_lint_auto REQUIRED)
+#   ament_lint_auto_find_test_dependencies()
 
-  # Unit tests
-  set(TEST_SOURCES test/test_vehicle_constants_manager.cpp)
-  set(TEST_VEHICLE_CONSTANTS_MANAGER_EXE test_vehicle_constants_manager)
-  ament_add_gtest(${TEST_VEHICLE_CONSTANTS_MANAGER_EXE} ${TEST_SOURCES})
-  autoware_set_compile_options(${TEST_VEHICLE_CONSTANTS_MANAGER_EXE})
-  target_link_libraries(${TEST_VEHICLE_CONSTANTS_MANAGER_EXE} ${PROJECT_NAME})
-endif()
+#   # Unit tests
+#   set(TEST_SOURCES test/test_vehicle_constants_manager.cpp)
+#   set(TEST_VEHICLE_CONSTANTS_MANAGER_EXE test_vehicle_constants_manager)
+#   ament_add_gtest(${TEST_VEHICLE_CONSTANTS_MANAGER_EXE} ${TEST_SOURCES})
+#   autoware_set_compile_options(${TEST_VEHICLE_CONSTANTS_MANAGER_EXE})
+#   target_link_libraries(${TEST_VEHICLE_CONSTANTS_MANAGER_EXE} ${PROJECT_NAME})
+# endif()
 
 # ament package generation and installing
 ament_auto_package(INSTALL_TO_SHARE)
