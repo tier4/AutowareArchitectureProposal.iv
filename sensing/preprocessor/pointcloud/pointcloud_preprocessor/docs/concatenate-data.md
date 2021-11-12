@@ -1,4 +1,4 @@
-# {package_name}
+# concatenate_data
 
 ## Purpose
 

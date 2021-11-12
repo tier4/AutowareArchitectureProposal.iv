@@ -1,4 +1,4 @@
-# {package_name}
+# distortion_corrector
 
 ## Purpose
 

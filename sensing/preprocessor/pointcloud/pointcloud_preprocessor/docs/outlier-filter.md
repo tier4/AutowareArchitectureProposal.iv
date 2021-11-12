@@ -1,4 +1,4 @@
-# {package_name}
+# outlier_filter
 
 ## Purpose
 

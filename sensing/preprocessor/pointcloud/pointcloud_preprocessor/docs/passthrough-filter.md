@@ -1,4 +1,4 @@
-# {package_name}
+# passthrough_filter
 
 ## Purpose
 

@@ -1,4 +1,4 @@
-# {package_name}
+# pointcloud_accululator
 
 ## Purpose
 

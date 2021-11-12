@@ -1,4 +1,4 @@
-# {package_name}
+# vector_map_filter
 
 ## Purpose
 
