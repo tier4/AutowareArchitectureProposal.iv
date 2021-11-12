@@ -22,27 +22,27 @@
 
 - From Pacmod
 
-  | Name                                | Type                             | Description                                                             |
-  | ----------------------------------- | -------------------------------- | ----------------------------------------------------------------------- |
-  | `/pacmod/parsed_tx/steer_rpt`       | pacmod_msgs::msg::SystemRptFloat | current steering wheel angle                                            |
-  | `/pacmod/parsed_tx/wheel_speed_rpt` | pacmod_msgs::msg::WheelSpeedRpt  | current wheel speed                                                     |
-  | `/pacmod/parsed_tx/accel_rpt`       | pacmod_msgs::msg::SystemRptFloat | current accel pedal                                                     |
-  | `/pacmod/parsed_tx/brake_rpt`       | pacmod_msgs::msg::SystemRptFloat | current brake pedal                                                     |
-  | `/pacmod/parsed_tx/shift_rpt`       | pacmod_msgs::msg::SystemRptInt   | current gear status                                                     |
-  | `/pacmod/parsed_tx/turn_rpt`        | pacmod_msgs::msg::SystemRptInt   | current turn indicators status                                          |
-  | `/pacmod/parsed_tx/global_rpt`      | pacmod_msgs::msg::GlobalRpt      | current status of other parameters (e.g. override_active, can_time_out) |
+  | Name                                | Type                              | Description                                                             |
+  | ----------------------------------- | --------------------------------- | ----------------------------------------------------------------------- |
+  | `/pacmod/parsed_tx/steer_rpt`       | pacmod3_msgs::msg::SystemRptFloat | current steering wheel angle                                            |
+  | `/pacmod/parsed_tx/wheel_speed_rpt` | pacmod3_msgs::msg::WheelSpeedRpt  | current wheel speed                                                     |
+  | `/pacmod/parsed_tx/accel_rpt`       | pacmod3_msgs::msg::SystemRptFloat | current accel pedal                                                     |
+  | `/pacmod/parsed_tx/brake_rpt`       | pacmod3_msgs::msg::SystemRptFloat | current brake pedal                                                     |
+  | `/pacmod/parsed_tx/shift_rpt`       | pacmod3_msgs::msg::SystemRptInt   | current gear status                                                     |
+  | `/pacmod/parsed_tx/turn_rpt`        | pacmod3_msgs::msg::SystemRptInt   | current turn indicators status                                          |
+  | `/pacmod/parsed_tx/global_rpt`      | pacmod3_msgs::msg::GlobalRpt      | current status of other parameters (e.g. override_active, can_time_out) |
 
 #### Output topics
 
 - To Pacmod
 
-  | Name                         | Type                             | Description                                           |
-  | ---------------------------- | -------------------------------- | ----------------------------------------------------- |
-  | `pacmod/as_rx/accel_cmd`     | pacmod_msgs::msg::SystemCmdFloat | accel pedal command                                   |
-  | `pacmod/as_rx/brake_cmd`     | pacmod_msgs::msg::SystemCmdFloat | brake pedal command                                   |
-  | `pacmod/as_rx/steer_cmd`     | pacmod_msgs::msg::SystemCmdFloat | steering wheel angle and angular velocity command     |
-  | `pacmod/as_rx/shift_cmd`     | pacmod_msgs::msg::SystemCmdInt   | gear command                                          |
-  | `pacmod/as_rx/raw_steer_cmd` | pacmod_msgs::msg::SteerSystemCmd | raw steering wheel angle and angular velocity command |
+  | Name                         | Type                              | Description                                           |
+  | ---------------------------- | --------------------------------- | ----------------------------------------------------- |
+  | `pacmod/as_rx/accel_cmd`     | pacmod3_msgs::msg::SystemCmdFloat | accel pedal command                                   |
+  | `pacmod/as_rx/brake_cmd`     | pacmod3_msgs::msg::SystemCmdFloat | brake pedal command                                   |
+  | `pacmod/as_rx/steer_cmd`     | pacmod3_msgs::msg::SystemCmdFloat | steering wheel angle and angular velocity command     |
+  | `pacmod/as_rx/shift_cmd`     | pacmod3_msgs::msg::SystemCmdInt   | gear command                                          |
+  | `pacmod/as_rx/raw_steer_cmd` | pacmod3_msgs::msg::SteerSystemCmd | raw steering wheel angle and angular velocity command |
 
 - To Autoware
 
