@@ -1,27 +1,22 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>costmap_generator</name>
+  <name>astar_search</name>
   <version>1.0.0</version>
-  <description>The costmap_generator package</description>
-
-  <maintainer email="kenji.miyake@tier4.jp">Kenji Miyake</maintainer>
-  <maintainer email="cirpue49@yahoo.co.jp">ando</maintainer>
+  <description>The astar_search package</description>
+  <maintainer email="aohsato@gmail.com">Akihito Ohsato</maintainer>
   <license>Apache License 2.0</license>
-  <license>BSD-3-Clause</license>
+  <author email="aohsato@gmail.com">Akihito Ohsato</author>
 
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
   <buildtool_depend>autoware_auto_cmake</buildtool_depend>
 
   <depend>rclcpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>std_msgs</depend>
   <depend>tf2</depend>
-  <depend>tf2_eigen</depend>
-  <depend>tf2_ros</depend>
   <depend>tf2_geometry_msgs</depend>
-  <depend>grid_map_msgs</depend>
-  <depend>grid_map_ros</depend>
-  <depend>autoware_auto_planning_msgs</depend>
-  <depend>had_map_utils</depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
