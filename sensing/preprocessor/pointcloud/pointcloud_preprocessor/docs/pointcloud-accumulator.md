@@ -1,4 +1,4 @@
-# pointcloud_accululator
+# pointcloud_accumulator
 
 ## Purpose
 
