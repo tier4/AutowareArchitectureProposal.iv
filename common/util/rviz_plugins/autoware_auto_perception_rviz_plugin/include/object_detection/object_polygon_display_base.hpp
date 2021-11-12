@@ -313,7 +313,6 @@ protected:
     return ss.str();
   }
 
-
   /// \brief todo
   /// \param todo
   /// \param todo

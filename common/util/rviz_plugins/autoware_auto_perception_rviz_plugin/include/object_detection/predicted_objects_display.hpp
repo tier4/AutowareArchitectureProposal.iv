@@ -58,7 +58,8 @@ private:
       ((id_map.find(uuid) != id_map.end()) ? tracked_uuids : new_uuids).push_back(uuid);
     }
     for (auto itr = id_map.begin(); itr != id_map.end(); ++itr) {
-      if (std::find(tracked_uuids.begin(), tracked_uuids.end(), itr->first) == tracked_uuids.end()) {
+      if (
+        std::find(tracked_uuids.begin(), tracked_uuids.end(), itr->first) == tracked_uuids.end()) {
         unused_marker_ids.push_back(itr->second);
       }
     }
