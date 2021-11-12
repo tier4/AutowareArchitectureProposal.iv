@@ -14,59 +14,50 @@
 
 #include "route.hpp"
 
+#include <autoware_auto_mapping_msgs/msg/had_map_segment.hpp>
+#include <autoware_auto_mapping_msgs/msg/map_primitive.hpp>
+#include <autoware_auto_planning_msgs/msg/had_map_route.hpp>
+#include <autoware_external_api_msgs/msg/route.hpp>
 #include <autoware_external_api_msgs/msg/route_section.hpp>
-#include <autoware_planning_msgs/msg/route_section.hpp>
 
 #include <memory>
 
 namespace
 {
-using ExternalRoute = autoware_external_api_msgs::msg::Route;
-using ExternalRouteSection = autoware_external_api_msgs::msg::RouteSection;
-using PlanningRoute = autoware_planning_msgs::msg::Route;
-using PlanningRouteSection = autoware_planning_msgs::msg::RouteSection;
-
-PlanningRouteSection convertRouteSection(const ExternalRouteSection & section)
+auto convertRoute(const autoware_external_api_msgs::msg::Route & route)
 {
-  return autoware_planning_msgs::build<PlanningRouteSection>()
-    .lane_ids(section.lane_ids)
-    .preferred_lane_id(section.preferred_lane_id)
-    .continued_lane_ids(section.continued_lane_ids);
-}
-
-ExternalRouteSection convertRouteSection(const PlanningRouteSection & section)
-{
-  return autoware_external_api_msgs::build<ExternalRouteSection>()
-    .preferred_lane_id(section.preferred_lane_id)
-    .lane_ids(section.lane_ids)
-    .continued_lane_ids(section.continued_lane_ids);
-}
-
-PlanningRoute convertRoute(const ExternalRoute & route)
-{
-  PlanningRoute::_route_sections_type route_sections;
-  route_sections.reserve(route.route_sections.size());
+  // there is no input for start_pose
+  autoware_auto_planning_msgs::msg::HADMapRoute msg;
+  msg.header = route.goal_pose.header;
+  msg.goal_pose = route.goal_pose.pose;
   for (const auto & section : route.route_sections) {
-    route_sections.push_back(convertRouteSection(section));
+    autoware_auto_mapping_msgs::msg::HADMapSegment segment;
+    segment.preferred_primitive_id = section.preferred_lane_id;
+    for (const auto & lane_id : section.lane_ids) {
+      autoware_auto_mapping_msgs::msg::MapPrimitive primitive;
+      primitive.id = lane_id;
+      segment.primitives.push_back(primitive);
+    }
+    msg.segments.push_back(segment);
   }
-  return autoware_planning_msgs::build<PlanningRoute>()
-    .header(route.goal_pose.header)
-    .goal_pose(route.goal_pose.pose)
-    .route_sections(route_sections);
+  return msg;
 }
 
-ExternalRoute convertRoute(const PlanningRoute & route)
+auto convertRoute(const autoware_auto_planning_msgs::msg::HADMapRoute & route)
 {
-  ExternalRoute::_route_sections_type route_sections;
-  route_sections.reserve(route.route_sections.size());
-  for (const auto & section : route.route_sections) {
-    route_sections.push_back(convertRouteSection(section));
+  // there is no input for continued_lane_ids
+  autoware_external_api_msgs::msg::Route msg;
+  msg.goal_pose.header = route.header;
+  msg.goal_pose.pose = route.goal_pose;
+  for (const auto & segment : route.segments) {
+    autoware_external_api_msgs::msg::RouteSection section;
+    section.preferred_lane_id = segment.preferred_primitive_id;
+    for (const auto & primitive : segment.primitives) {
+      section.lane_ids.push_back(primitive.id);
+    }
+    msg.route_sections.push_back(section);
   }
-  auto goal_pose = geometry_msgs::build<geometry_msgs::msg::PoseStamped>()
-                     .header(route.header)
-                     .pose(route.goal_pose);
-  return autoware_external_api_msgs::build<ExternalRoute>().goal_pose(goal_pose).route_sections(
-    route_sections);
+  return msg;
 }
 
 }  // namespace
@@ -97,10 +88,10 @@ Route::Route(const rclcpp::NodeOptions & options) : Node("external_api_route", o
     "/api/autoware/get/route", rclcpp::QoS(1).transient_local());
 
   cli_clear_route_ = proxy.create_client<std_srvs::srv::Trigger>("/autoware/reset_route");
-  sub_planning_route_ = create_subscription<autoware_planning_msgs::msg::Route>(
+  sub_planning_route_ = create_subscription<autoware_auto_planning_msgs::msg::HADMapRoute>(
     "/planning/mission_planning/route", rclcpp::QoS(1).transient_local(),
     std::bind(&Route::onRoute, this, _1));
-  pub_planning_route_ = create_publisher<autoware_planning_msgs::msg::Route>(
+  pub_planning_route_ = create_publisher<autoware_auto_planning_msgs::msg::HADMapRoute>(
     "/planning/mission_planning/route", rclcpp::QoS(1).transient_local());
   pub_planning_goal_ = create_publisher<geometry_msgs::msg::PoseStamped>(
     "/planning/mission_planning/goal", rclcpp::QoS(1));
@@ -149,7 +140,7 @@ void Route::setCheckpoint(
   response->status = autoware_api_utils::response_success();
 }
 
-void Route::onRoute(const autoware_planning_msgs::msg::Route::ConstSharedPtr message)
+void Route::onRoute(const autoware_auto_planning_msgs::msg::HADMapRoute::ConstSharedPtr message)
 {
   pub_get_route_->publish(convertRoute(*message));
 }

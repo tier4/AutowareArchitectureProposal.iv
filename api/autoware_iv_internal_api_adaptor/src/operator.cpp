@@ -38,7 +38,7 @@ Operator::Operator(const rclcpp::NodeOptions & options) : Node("external_api_ope
   pub_gate_mode_ = create_publisher<autoware_control_msgs::msg::GateMode>(
     "/control/gate_mode_cmd", rclcpp::QoS(1));
   pub_vehicle_engage_ =
-    create_publisher<autoware_vehicle_msgs::msg::Engage>("/vehicle/engage", rclcpp::QoS(1));
+    create_publisher<autoware_auto_vehicle_msgs::msg::Engage>("/vehicle/engage", rclcpp::QoS(1));
 
   pub_operator_ = create_publisher<autoware_external_api_msgs::msg::Operator>(
     "/api/autoware/get/operator", rclcpp::QoS(1));
@@ -51,9 +51,10 @@ Operator::Operator(const rclcpp::NodeOptions & options) : Node("external_api_ope
       std::bind(&Operator::onExternalSelect, this, _1));
   sub_gate_mode_ = create_subscription<autoware_control_msgs::msg::GateMode>(
     "/control/current_gate_mode", rclcpp::QoS(1), std::bind(&Operator::onGateMode, this, _1));
-  sub_vehicle_control_mode_ = create_subscription<autoware_vehicle_msgs::msg::ControlMode>(
-    "/vehicle/status/control_mode", rclcpp::QoS(1),
-    std::bind(&Operator::onVehicleControlMode, this, _1));
+  sub_vehicle_control_mode_ =
+    create_subscription<autoware_auto_vehicle_msgs::msg::ControlModeReport>(
+      "/vehicle/status/control_mode", rclcpp::QoS(1),
+      std::bind(&Operator::onVehicleControlMode, this, _1));
 
   timer_ = rclcpp::create_timer(this, get_clock(), 200ms, std::bind(&Operator::onTimer, this));
 }
@@ -120,7 +121,7 @@ void Operator::onGateMode(const autoware_control_msgs::msg::GateMode::ConstShare
 }
 
 void Operator::onVehicleControlMode(
-  const autoware_vehicle_msgs::msg::ControlMode::ConstSharedPtr message)
+  const autoware_auto_vehicle_msgs::msg::ControlModeReport::ConstSharedPtr message)
 {
   vehicle_control_mode_ = message;
 }
@@ -140,7 +141,7 @@ void Operator::publishOperator()
     return;
   }
 
-  if (vehicle_control_mode_->data == autoware_vehicle_msgs::msg::ControlMode::MANUAL) {
+  if (vehicle_control_mode_->mode == autoware_auto_vehicle_msgs::msg::ControlModeReport::MANUAL) {
     pub_operator_->publish(build<OperatorMsg>().mode(OperatorMsg::DRIVER));
     return;
   }
@@ -179,8 +180,9 @@ void Operator::publishObserver()
 
 void Operator::setVehicleEngage(bool engage)
 {
-  const auto msg =
-    autoware_vehicle_msgs::build<autoware_vehicle_msgs::msg::Engage>().stamp(now()).engage(engage);
+  const auto msg = autoware_auto_vehicle_msgs::build<autoware_auto_vehicle_msgs::msg::Engage>()
+                     .stamp(now())
+                     .engage(engage);
   pub_vehicle_engage_->publish(msg);
 }
 
