@@ -64,8 +64,9 @@ SSCInterface::SSCInterface() : Node("ssc_interface")
   gear_feedback_sub_ =
     std::make_unique<message_filters::Subscriber<automotive_platform_msgs::msg::GearFeedback>>(
       this, "as/gear_feedback");
-  wheel_speed_sub_ = std::make_unique<message_filters::Subscriber<pacmod3_msgs::msg::WheelSpeedRpt>>(
-    this, "pacmod/parsed_tx/wheel_speed_rpt");
+  wheel_speed_sub_ =
+    std::make_unique<message_filters::Subscriber<pacmod3_msgs::msg::WheelSpeedRpt>>(
+      this, "pacmod/parsed_tx/wheel_speed_rpt");
   steering_wheel_sub_ =
     std::make_unique<message_filters::Subscriber<pacmod3_msgs::msg::SystemRptFloat>>(
       this, "pacmod/parsed_tx/steer_rpt");

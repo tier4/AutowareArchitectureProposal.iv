@@ -311,7 +311,8 @@ void PacmodInterface::publishCommands()
   if (!actuation_cmd_ptr_ || !control_cmd_ptr_ || !is_pacmod_rpt_received_ || !gear_cmd_ptr_) {
     RCLCPP_INFO_THROTTLE(
       get_logger(), *get_clock(), std::chrono::milliseconds(1000).count(),
-      "vehicle_cmd = %d, pacmod3_msgs = %d", actuation_cmd_ptr_ != nullptr, is_pacmod_rpt_received_);
+      "vehicle_cmd = %d, pacmod3_msgs = %d", actuation_cmd_ptr_ != nullptr,
+      is_pacmod_rpt_received_);
     return;
   }
 
@@ -627,7 +628,8 @@ uint16_t PacmodInterface::toPacmodTurnCmdWithHazardRecover(
   }
 }
 
-int32_t PacmodInterface::toAutowareTurnIndicatorsReport(const pacmod3_msgs::msg::SystemRptInt & turn)
+int32_t PacmodInterface::toAutowareTurnIndicatorsReport(
+  const pacmod3_msgs::msg::SystemRptInt & turn)
 {
   using autoware_auto_vehicle_msgs::msg::TurnIndicatorsReport;
   using pacmod3_msgs::msg::SystemRptInt;
@@ -642,7 +644,8 @@ int32_t PacmodInterface::toAutowareTurnIndicatorsReport(const pacmod3_msgs::msg:
   return TurnIndicatorsReport::DISABLE;
 }
 
-int32_t PacmodInterface::toAutowareHazardLightsReport(const pacmod3_msgs::msg::SystemRptInt & hazard)
+int32_t PacmodInterface::toAutowareHazardLightsReport(
+  const pacmod3_msgs::msg::SystemRptInt & hazard)
 {
   using autoware_auto_vehicle_msgs::msg::HazardLightsReport;
   using pacmod3_msgs::msg::SystemRptInt;

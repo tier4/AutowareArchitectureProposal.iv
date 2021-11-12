@@ -298,7 +298,8 @@ void AutowareIvAdapter::callbackDiagnostics(
   aw_info_.diagnostic_ptr = msg_ptr;
 }
 
-void AutowareIvAdapter::callbackGlobalRpt(const pacmod3_msgs::msg::GlobalRpt::ConstSharedPtr msg_ptr)
+void AutowareIvAdapter::callbackGlobalRpt(
+  const pacmod3_msgs::msg::GlobalRpt::ConstSharedPtr msg_ptr)
 {
   aw_info_.global_rpt_ptr = msg_ptr;
 }
