@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The `concatenate_data` is a node that concatenates multiple pointclouds aquiered by multiple LiDARs into a pointcloud.
+The `concatenate_data` is a node that concatenates multiple pointclouds acquired by multiple LiDARs into a pointcloud.
 
 ## Inner-workings / Algorithms
 

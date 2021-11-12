@@ -25,7 +25,7 @@ The `box_crop_filter` is a node that removes points with in a given box region. 
 | Name    | Type   | Default Value | Description                               |
 | ------- | ------ | ------------- | ----------------------------------------- |
 | `min_x` | double | -1.0          | x-coordinate minimum value for crop range |
-| `max_x` | doubel | 1.0           | x-coordinate maximum value for crop range |
+| `max_x` | double | 1.0           | x-coordinate maximum value for crop range |
 | `min_y` | double | -1.0          | y-coordinate minimum value for crop range |
 | `max_y` | double | 1.0           | y-coordinate maximum value for crop range |
 | `min_z` | double | -1.0          | z-coordinate minimum value for crop range |
