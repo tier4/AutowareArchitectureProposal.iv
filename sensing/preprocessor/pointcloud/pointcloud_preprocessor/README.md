@@ -36,9 +36,9 @@ Detail description of each filter's algorithm is in the following links.
 
 ### Output
 
-| Name              | Type                                      | Description     |
-| ----------------- | ----------------------------------------- | --------------- |
-| `~/output/points` | `autoware_planning_msgs::msg::Trajectory` | filtered points |
+| Name              | Type                            | Description     |
+| ----------------- | ------------------------------- | --------------- |
+| `~/output/points` | `sensor_msgs::msg::PointCloud2` | filtered points |
 
 ## Parameters
 
