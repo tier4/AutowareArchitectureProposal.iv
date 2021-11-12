@@ -265,7 +265,6 @@ bool IntersectionModule::checkCollision(
   for (const auto & object : target_objects.objects) {
     bool has_collision = false;
     for (const auto & predicted_path : object.kinematics.predicted_paths) {
-      // TODO(murooka) confidence or existence_probability
       if (predicted_path.confidence < planner_param_.min_predicted_path_confidence) {
         // ignore the predicted path with too low confidence
         continue;
