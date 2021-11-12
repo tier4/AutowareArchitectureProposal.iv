@@ -90,7 +90,7 @@ yolov5
 
 | Name          | Type                                                  | Description                                        |
 | ------------- | ----------------------------------------------------- | -------------------------------------------------- |
-| `out/objects` | `autoware_perception_msgs/DetectedObjectsWithFeature` | The detetcted objects with 2D bounding boxes       |
+| `out/objects` | `autoware_perception_msgs/DetectedObjectsWithFeature` | The detected objects with 2D bounding boxes        |
 | `out/image`   | `sensor_msgs/Image`                                   | The image with 2D bounding boxes for visualization |
 
 ## Parameters
