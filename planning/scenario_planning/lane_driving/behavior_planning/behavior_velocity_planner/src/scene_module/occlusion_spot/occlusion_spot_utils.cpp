@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <autoware_utils/geometry/geometry.hpp>
+#include <autoware_utils/math/normalization.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <scene_module/occlusion_spot/occlusion_spot_utils.hpp>
 #include <utilization/path_utilization.hpp>
@@ -277,7 +278,8 @@ void createPossibleCollisionBehindParkedVehicle(
     double path_angle = lanelet::utils::getLaneletAngle(path_lanelet, search_point);
     // ignore if angle is more different than 10[degree]
     double obj_angle = tf2::getYaw(q);
-    if (std::abs(path_angle - obj_angle) > param.angle_thr) {
+    const double diff_angle = autoware_utils::normalizeRadian(path_angle - obj_angle);
+    if (std::abs(diff_angle) > param.angle_thr) {
       continue;
     }
     lanelet::BasicPoint2d obstacle_point = lanelet::geometry::fromArcCoordinates(
