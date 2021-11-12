@@ -466,19 +466,23 @@ void BehaviorPathPlannerNode::run()
   debug_drivable_area_publisher_->publish(path->drivable_area);
 
   // for turn signal
-  if (output.turn_signal_info.hazard_signal.command == HazardLightsCommand::ENABLE) {
-    TurnIndicatorsCommand turn_signal;
-    turn_signal.command = TurnIndicatorsCommand::DISABLE;
-    turn_signal_publisher_->publish(turn_signal);
-    hazard_signal_publisher_->publish(output.turn_signal_info.hazard_signal);
-  } else {
-    const auto turn_signal = turn_signal_decider_.getTurnSignal(
-      *path, planner_data_->self_pose->pose, *(planner_data_->route_handler),
-      output.turn_signal_info.turn_signal, output.turn_signal_info.signal_distance);
+  {
+    auto clock{rclcpp::Clock{RCL_ROS_TIME}};
     HazardLightsCommand hazard_signal;
-    hazard_signal.command = HazardLightsCommand::DISABLE;
-    turn_signal_publisher_->publish(turn_signal);
+    hazard_signal.command = output.turn_signal_info.hazard_signal.command;
+    hazard_signal.stamp = clock.now();
     hazard_signal_publisher_->publish(hazard_signal);
+    if (hazard_signal.command == HazardLightsCommand::ENABLE) {
+      TurnIndicatorsCommand turn_signal;
+      turn_signal.command = TurnIndicatorsCommand::DISABLE;
+      turn_signal.stamp = clock.now();
+      turn_signal_publisher_->publish(turn_signal);
+    } else {
+      const auto turn_signal = turn_signal_decider_.getTurnSignal(
+        *path, planner_data_->self_pose->pose, *(planner_data_->route_handler),
+        output.turn_signal_info.turn_signal, output.turn_signal_info.signal_distance);
+      turn_signal_publisher_->publish(turn_signal);
+    }
   }
 
   // for remote operation
