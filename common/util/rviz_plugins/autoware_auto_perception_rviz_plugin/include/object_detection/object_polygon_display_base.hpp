@@ -168,10 +168,6 @@ protected:
     }
   }
 
-  /// \brief todo
-  /// \tparam todo
-  /// \param todo
-  /// \return todo
   template <typename ClassificationContainerT>
   std::optional<Marker::SharedPtr> get_uuid_marker_ptr(
     const unique_identifier_msgs::msg::UUID & uuid, const geometry_msgs::msg::Point & centroid,
@@ -186,10 +182,6 @@ protected:
     }
   }
 
-  /// \brief todo
-  /// \tparam todo
-  /// \param todo
-  /// \return todo
   std::optional<Marker::SharedPtr> get_pose_with_covariance_marker_ptr(
     const geometry_msgs::msg::PoseWithCovariance & pose_with_covariance) const
   {
@@ -200,10 +192,6 @@ protected:
     }
   }
 
-  /// \brief todo
-  /// \tparam todo
-  /// \param todo
-  /// \return todo
   template <typename ClassificationContainerT>
   std::optional<Marker::SharedPtr> get_velocity_text_marker_ptr(
     const geometry_msgs::msg::Twist & twist, const geometry_msgs::msg::Point & vis_pos,
@@ -217,10 +205,6 @@ protected:
     }
   }
 
-  /// \brief todo
-  /// \tparam todo
-  /// \param todo
-  /// \return todo
   std::optional<Marker::SharedPtr> get_twist_marker_ptr(
     const geometry_msgs::msg::PoseWithCovariance & pose_with_covariance,
     const geometry_msgs::msg::TwistWithCovariance & twist_with_covariance) const
@@ -232,10 +216,6 @@ protected:
     }
   }
 
-  /// \brief todo
-  /// \tparam todo
-  /// \param todo
-  /// \return todo
   std::optional<Marker::SharedPtr> get_predicted_path_marker_ptr(
     const unique_identifier_msgs::msg::UUID & uuid,
     const autoware_auto_perception_msgs::msg::Shape & shape,
@@ -250,10 +230,6 @@ protected:
     }
   }
 
-  /// \brief todo
-  /// \tparam todo
-  /// \param todo
-  /// \return todo
   std::optional<Marker::SharedPtr> get_path_confidence_marker_ptr(
     const unique_identifier_msgs::msg::UUID & uuid,
     const autoware_auto_perception_msgs::msg::PredictedPath & predicted_path) const
@@ -300,10 +276,6 @@ protected:
     return (it->second).label;
   }
 
-  /// \brief todo
-  /// \tparam todo
-  /// \param todo
-  /// \return todo
   std::string uuid_to_string(const unique_identifier_msgs::msg::UUID & u) const
   {
     std::stringstream ss;
@@ -313,10 +285,6 @@ protected:
     return ss.str();
   }
 
-  /// \brief todo
-  /// \param todo
-  /// \param todo
-  /// \return todo
   std_msgs::msg::ColorRGBA AUTOWARE_AUTO_PERCEPTION_RVIZ_PLUGIN_PUBLIC
   get_color_from_uuid(const std::string & uuid) const
   {
@@ -330,10 +298,6 @@ protected:
     return color;
   }
 
-  /// \brief todo
-  /// \param todo
-  /// \param todo
-  /// \return todo
   void init_color_list(std::vector<std_msgs::msg::ColorRGBA> & colors) const
   {
     std_msgs::msg::ColorRGBA sample_color;
