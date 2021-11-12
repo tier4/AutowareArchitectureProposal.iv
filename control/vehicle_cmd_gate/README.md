@@ -44,7 +44,7 @@
 
 | Parameter                                    | Type   | Description                                                    |
 | -------------------------------------------- | ------ | -------------------------------------------------------------- |
-| `update_period`                              | bool   | true when subscribed path exists                               |
+| `update_period`                              | bool   | update period                                                  |
 | `use_emergency_handling_`                    | bool   | true when emergency handler is used                            |
 | `use_external_emergency_stop_`               | bool   | true when external emergency stop information is used          |
 | `system_emergency_heartbeat_timeout_`        | bool   | timeout for system emergency                                   |
