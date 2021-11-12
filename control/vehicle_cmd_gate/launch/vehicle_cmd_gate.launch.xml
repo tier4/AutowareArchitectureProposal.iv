@@ -24,11 +24,11 @@
     <remap from="input/emergency/hazard_lights_cmd" to="/system/emergency/hazard_lights_cmd"/>
     <remap from="input/emergency/gear_cmd" to="/system/emergency/gear_cmd"/>
 
-    <remap from="output/vehicle_cmd_emergency" to="/control/vehicle_cmd_emergency"/>
-    <remap from="output/control_cmd" to="/control/control_cmd"/>
-    <remap from="output/gear_cmd" to="/control/gear_cmd"/>
-    <remap from="output/turn_indicators_cmd" to="/control/turn_indicators_cmd"/>
-    <remap from="output/hazard_lights_cmd" to="/control/hazard_lights_cmd"/>
+    <remap from="output/vehicle_cmd_emergency" to="/control/command/vehicle_cmd_emergency"/>
+    <remap from="output/control_cmd" to="/control/command/control_cmd"/>
+    <remap from="output/gear_cmd" to="/control/command/gear_cmd"/>
+    <remap from="output/turn_indicators_cmd" to="/control/command/turn_indicators_cmd"/>
+    <remap from="output/hazard_lights_cmd" to="/control/command/hazard_lights_cmd"/>
     <remap from="output/gate_mode" to="/control/current_gate_mode"/>
     <remap from="output/engage" to="/api/autoware/get/engage"/>
     <remap from="output/external_emergency" to="/api/autoware/get/emergency"/>
