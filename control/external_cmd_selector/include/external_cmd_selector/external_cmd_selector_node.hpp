@@ -20,8 +20,8 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <autoware_auto_vehicle_msgs/msg/gear_command.hpp>
-#include <autoware_auto_vehicle_msgs/msg/turn_indicators_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/hazard_lights_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/turn_indicators_command.hpp>
 #include <autoware_control_msgs/msg/external_command_selector_mode.hpp>
 #include <autoware_control_msgs/srv/external_command_select.hpp>
 #include <autoware_external_api_msgs/msg/control_command_stamped.hpp>
