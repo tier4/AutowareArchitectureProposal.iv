@@ -27,7 +27,8 @@ PredictedObjectsDisplay::PredictedObjectsDisplay() : ObjectPolygonDisplayBase("t
 void PredictedObjectsDisplay::processMessage(PredictedObjects::ConstSharedPtr msg)
 {
   clear_markers();
-  int id = 0;
+  update_id_map(msg);
+
   for (const auto & object : msg->objects) {
     // Get marker for shape
     auto shape_marker = get_shape_marker_ptr(
