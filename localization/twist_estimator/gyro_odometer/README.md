@@ -25,9 +25,8 @@
 
 | Parameter                   | Type   | Description                             |
 | --------------------------- | ------ | --------------------------------------- |
-| `output_frame`              | String | true when subscribed path exists        |
+| `output_frame`              | String | output's frame id                       |
 | `use_twist_with_covariance` | bool   | true when twist with covariance is used |
-
 
 ## Assumptions / Known limits
 
