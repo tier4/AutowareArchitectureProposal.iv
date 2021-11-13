@@ -1,7 +1,5 @@
 # Velocity Controller
 
-===========
-
 ## Purpose / Use cases
 
 velocity_controller は目標軌道上の各点に設定された目標速度を実現するための機能であり、フィードバックループを用いて自車速度と目標速度から目標加速度を出力します。
@@ -107,6 +105,15 @@ Ideally, this message should be defined as a specific debug message with meaning
 目標軌道に埋め込まれた加速度、および勾配補正項を FF 成分として出力します。モデル化誤差がない理想下においては、この FF 項のみで適切な速度追従が可能です。
 
 離散化やモデル化誤差によって生じた追従誤差は feedback 系によって取り除かれます。
+
+#### Brake keeping
+
+加速度 0 で停止することは停止時のブレーキの衝撃を緩和するため、乗り心地の観点において重要です。
+しかし停止際の目標加速度を 0 で出力すると、車両モデル誤差や勾配推定誤差によって停止線で止まりきれなかったり、停止際で車両が加速して乗員に違和感を与えることがあります。
+
+この機能は、停止際での停止を確実にするため、停止際において FeedForward 系で算出された目標加速度を負の値でリミットします。
+
+![BrakeKeepingDiagram](./media/BrakeKeeping.drawio.svg)
 
 #### Slope compensation
 
