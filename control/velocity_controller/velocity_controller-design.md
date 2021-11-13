@@ -1,7 +1,5 @@
 # Velocity Controller
 
-===========
-
 ## Purpose / Use cases
 
 The velocity_controller computes the target acceleration from the ego-velocity to realize the target velocity set at each point on the target trajectory using a feed-forward/back control.
@@ -108,6 +106,14 @@ The state transition diagram is shown below.
 The reference acceleration set in the trajectory and slope compensation terms are output as a feedforward. Under ideal conditions with no modeling error, this FF term alone should be sufficient for velocity tracking.
 
 Tracking errors causing modeling or discretization errors are removed by the feedback control (now using PID).
+
+#### Brake keeping
+
+From the viewpoint of ride comfort, stopping with 0 acceleration is important because it reduces the impact of braking. However, if the target acceleration when stopping is 0, the vehicle may cross over the stop line or accelerate a little in front of the stop line due to vehicle model error or gradient estimation error.
+
+For reliable stopping, the target acceleration calculated by the FeedForward system is limited to a negative acceleration when stopping.
+
+![BrakeKeepingDiagram](./media/BrakeKeeping.drawio.svg)
 
 #### Slope compensation
 
