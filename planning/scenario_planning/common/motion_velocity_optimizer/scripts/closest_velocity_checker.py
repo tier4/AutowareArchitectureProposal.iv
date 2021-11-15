@@ -128,7 +128,7 @@ class VelocityChecker(Node):
             TwistStamped, "/localization/twist", self.CallBackLocalizationTwist, 1
         )
         self.sub11 = self.create_subscription(
-            TwistStamped, "/vehicle/status/twist", self.CallBackVehicleTwist, 1
+            TwistStamped, "/vehicle/status/velocity_status", self.CallBackVehicleTwist, 1
         )
 
         # publish data

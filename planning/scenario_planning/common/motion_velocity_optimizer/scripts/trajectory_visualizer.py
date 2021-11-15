@@ -112,7 +112,7 @@ class TrajectoryVisualizer(Node):
             TwistStamped, "/localization/twist", self.CallbackLocalizationTwist, 1
         )
         self.sub_vehicle_twist = self.create_subscription(
-            TwistStamped, "/vehicle/status/twist", self.CallbackVehicleTwist, 1
+            TwistStamped, "/vehicle/status/velocity_status", self.CallbackVehicleTwist, 1
         )
 
         # BUFFER_SIZE = 65536*100
