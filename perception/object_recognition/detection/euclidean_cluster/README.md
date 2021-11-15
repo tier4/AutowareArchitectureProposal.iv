@@ -4,7 +4,7 @@
 
 euclidean_cluster is a package for clustering points into smaller parts to reduce processing time.
 
-This package has two clustering methods: `euclidean_cluster` and `voxel_grid_based_euclidean_cluster`
+This package has two clustering methods: `euclidean_cluster` and `voxel_grid_based_euclidean_cluster`.
 
 ## Inner-workings / Algorithms
 
