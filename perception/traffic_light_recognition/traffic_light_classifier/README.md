@@ -16,12 +16,14 @@ Traffic light colors (green, yellow and red) are classified in HSV model.
 
 ### About Label
 
-The message type is designed to comply with the unified road signs proposed at the [Vienna Convention](https://en.wikipedia.org/wiki/Vienna_Convention_on_Road_Signs_and_Signals#Traffic_lights). This idea has been also proposed in [Autoware.Auto](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/merge_requests/16). 
+The message type is designed to comply with the unified road signs proposed at the [Vienna Convention](https://en.wikipedia.org/wiki/Vienna_Convention_on_Road_Signs_and_Signals#Traffic_lights). This idea has been also proposed in [Autoware.Auto](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/merge_requests/16).
 
 There are rules for naming labels that nodes receive. One traffic light is represented by the following character string separated by commas.
+
 ```
 "color1-shape1, color2-shape2, ..."
 ```
+
 For example, the simple red and red cross traffic light label must be expressed as "red-circle, red-cross".
 
 ## Inputs / Outputs
