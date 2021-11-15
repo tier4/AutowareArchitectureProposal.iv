@@ -40,6 +40,8 @@
 #include <autoware_planning_msgs/msg/path_change_module_array.hpp>
 #include <autoware_planning_msgs/msg/path_change_module_id.hpp>
 #include <autoware_planning_msgs/msg/stop_reason_array.hpp>
+#include <nav_msgs/msg/occupancy_grid.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_routing/RoutingGraph.h>
@@ -63,6 +65,7 @@ using autoware_planning_msgs::msg::PathChangeModule;
 using autoware_planning_msgs::msg::PathChangeModuleArray;
 using geometry_msgs::msg::TwistStamped;
 using nav_msgs::msg::OccupancyGrid;
+using nav_msgs::msg::Odometry;
 using route_handler::RouteHandler;
 using visualization_msgs::msg::MarkerArray;
 
@@ -74,7 +77,7 @@ public:
 private:
   rclcpp::Subscription<HADMapRoute>::SharedPtr route_subscriber_;
   rclcpp::Subscription<HADMapBin>::SharedPtr vector_map_subscriber_;
-  rclcpp::Subscription<TwistStamped>::SharedPtr velocity_subscriber_;
+  rclcpp::Subscription<Odometry>::SharedPtr velocity_subscriber_;
   rclcpp::Subscription<PredictedObjects>::SharedPtr perception_subscriber_;
   rclcpp::Subscription<ApprovalMsg>::SharedPtr external_approval_subscriber_;
   rclcpp::Subscription<PathChangeModule>::SharedPtr force_approval_subscriber_;
@@ -109,7 +112,7 @@ private:
   PullOutParameters getPullOutParam();
 
   // callback
-  void onVelocity(const TwistStamped::ConstSharedPtr msg);
+  void onVelocity(const Odometry::ConstSharedPtr msg);
   void onPerception(const PredictedObjects::ConstSharedPtr msg);
   void onExternalApproval(const ApprovalMsg::ConstSharedPtr msg);
   void onForceApproval(const PathChangeModule::ConstSharedPtr msg);

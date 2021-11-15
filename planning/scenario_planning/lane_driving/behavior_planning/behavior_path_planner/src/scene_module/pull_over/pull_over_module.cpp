@@ -315,7 +315,7 @@ std::pair<bool, bool> PullOverModule::getSafePath(
 
   const auto & route_handler = planner_data_->route_handler;
   const auto current_pose = planner_data_->self_pose->pose;
-  const auto current_twist = planner_data_->self_velocity->twist;
+  const auto current_twist = planner_data_->self_odometry->twist.twist;
   const auto common_parameters = planner_data_->parameters;
 
   const auto current_lanes = getCurrentLanes();
@@ -395,7 +395,7 @@ bool PullOverModule::isNearEndOfLane() const
 
 bool PullOverModule::isCurrentSpeedLow() const
 {
-  const auto current_twist = planner_data_->self_velocity->twist;
+  const auto current_twist = planner_data_->self_odometry->twist.twist;
   const double threshold_kmph = 10;
   return util::l2Norm(current_twist.linear) < threshold_kmph * 1000 / 3600;
 }
@@ -414,7 +414,7 @@ bool PullOverModule::hasFinishedPullOver() const
       : false;
 
   // check ego car is stopping
-  const double ego_vel = util::l2Norm(planner_data_->self_velocity->twist.linear);
+  const double ego_vel = util::l2Norm(planner_data_->self_odometry->twist.twist.linear);
   const bool car_is_stopping = (ego_vel == 0.0) ? true : false;
 
   lanelet::Lanelet closest_shoulder_lanelet;

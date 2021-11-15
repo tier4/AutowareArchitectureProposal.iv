@@ -281,7 +281,7 @@ lanelet::ConstLanelets LaneChangeModule::getLaneChangeLanes(
   lanelet::ConstLanelets lane_change_lanes;
   const auto & route_handler = planner_data_->route_handler;
   const auto current_pose = planner_data_->self_pose->pose;
-  const auto current_twist = planner_data_->self_velocity->twist;
+  const auto current_twist = planner_data_->self_odometry->twist.twist;
 
   if (current_lanes.empty()) {
     return lane_change_lanes;
@@ -314,7 +314,7 @@ std::pair<bool, bool> LaneChangeModule::getSafePath(
 
   const auto & route_handler = planner_data_->route_handler;
   const auto current_pose = planner_data_->self_pose->pose;
-  const auto current_twist = planner_data_->self_velocity->twist;
+  const auto current_twist = planner_data_->self_odometry->twist.twist;
   const auto common_parameters = planner_data_->parameters;
 
   const auto current_lanes = getCurrentLanes();
@@ -438,7 +438,7 @@ bool LaneChangeModule::isNearEndOfLane() const
 
 bool LaneChangeModule::isCurrentSpeedLow() const
 {
-  const auto current_twist = planner_data_->self_velocity->twist;
+  const auto current_twist = planner_data_->self_odometry->twist.twist;
   const double threshold_kmph = 10;
   return util::l2Norm(current_twist.linear) < threshold_kmph * 1000 / 3600;
 }
@@ -495,7 +495,7 @@ bool LaneChangeModule::isAbortConditionSatisfied() const
 {
   const auto & route_handler = planner_data_->route_handler;
   const auto current_pose = planner_data_->self_pose->pose;
-  const auto current_twist = planner_data_->self_velocity->twist;
+  const auto current_twist = planner_data_->self_odometry->twist.twist;
   const auto objects = planner_data_->dynamic_object;
   const auto common_parameters = planner_data_->parameters;
 

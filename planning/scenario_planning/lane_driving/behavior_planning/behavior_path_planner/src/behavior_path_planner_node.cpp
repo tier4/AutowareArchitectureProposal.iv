@@ -47,8 +47,8 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
     planner_data_->parameters = getCommonParam();
   }
 
-  velocity_subscriber_ = create_subscription<TwistStamped>(
-    "~/input/velocity", 1, std::bind(&BehaviorPathPlannerNode::onVelocity, this, _1));
+  velocity_subscriber_ = create_subscription<Odometry>(
+    "~/input/odometry", 1, std::bind(&BehaviorPathPlannerNode::onVelocity, this, _1));
   perception_subscriber_ = create_subscription<PredictedObjects>(
     "~/input/perception", 1, std::bind(&BehaviorPathPlannerNode::onPerception, this, _1));
   external_approval_subscriber_ = create_subscription<ApprovalMsg>(
@@ -423,7 +423,7 @@ void BehaviorPathPlannerNode::waitForData()
   }
 
   while (rclcpp::ok()) {
-    if (planner_data_->dynamic_object && planner_data_->self_velocity) {
+    if (planner_data_->dynamic_object && planner_data_->self_odometry) {
       break;
     }
     RCLCPP_WARN_THROTTLE(
@@ -606,9 +606,9 @@ void BehaviorPathPlannerNode::updateCurrentPose()
   planner_data_->self_pose = self_pose;
 }
 
-void BehaviorPathPlannerNode::onVelocity(const TwistStamped::ConstSharedPtr msg)
+void BehaviorPathPlannerNode::onVelocity(const Odometry::ConstSharedPtr msg)
 {
-  planner_data_->self_velocity = msg;
+  planner_data_->self_odometry = msg;
 }
 void BehaviorPathPlannerNode::onPerception(const PredictedObjects::ConstSharedPtr msg)
 {

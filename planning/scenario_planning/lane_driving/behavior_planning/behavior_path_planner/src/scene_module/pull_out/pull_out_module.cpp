@@ -79,7 +79,7 @@ bool PullOutModule::isExecutionRequested() const
   }
 
   const bool car_is_stopping =
-    (util::l2Norm(planner_data_->self_velocity->twist.linear) <= 1.5) ? true : false;
+    (util::l2Norm(planner_data_->self_odometry->twist.twist.linear) <= 1.5) ? true : false;
 
   lanelet::Lanelet closest_shoulder_lanelet;
 
@@ -255,7 +255,7 @@ void PullOutModule::updatePullOutStatus()
   status_.pull_out_lanes = pull_out_lanes;
 
   const auto current_pose = planner_data_->self_pose->pose;
-  // const auto current_twist = planner_data_->self_velocity->twist;
+  // const auto current_twist = planner_data_->self_odometry->twist.twist;
   // const auto common_parameters = planner_data_->parameters;
 
   // Find pull_out path
@@ -405,7 +405,7 @@ std::pair<bool, bool> PullOutModule::getSafePath(
 
   const auto & route_handler = planner_data_->route_handler;
   const auto current_pose = planner_data_->self_pose->pose;
-  const auto current_twist = planner_data_->self_velocity->twist;
+  const auto current_twist = planner_data_->self_odometry->twist.twist;
   const auto common_parameters = planner_data_->parameters;
   const auto road_lanes = getCurrentLanes();
 
@@ -457,7 +457,7 @@ std::pair<bool, bool> PullOutModule::getSafeRetreatPath(
 
   const auto & route_handler = planner_data_->route_handler;
   const auto current_pose = planner_data_->self_pose->pose;
-  const auto current_twist = planner_data_->self_velocity->twist;
+  const auto current_twist = planner_data_->self_odometry->twist.twist;
   const auto common_parameters = planner_data_->parameters;
 
   const auto road_lanes = getCurrentLanes();
@@ -528,7 +528,7 @@ bool PullOutModule::getBackDistance(
 
   const auto & route_handler = planner_data_->route_handler;
   const auto current_pose = planner_data_->self_pose->pose;
-  const auto current_twist = planner_data_->self_velocity->twist;
+  const auto current_twist = planner_data_->self_odometry->twist.twist;
   const auto common_parameters = planner_data_->parameters;
 
   const double back_distance_search_resolution = 1;
@@ -652,7 +652,7 @@ bool PullOutModule::isNearEndOfLane() const
 
 bool PullOutModule::isCurrentSpeedLow() const
 {
-  const auto current_twist = planner_data_->self_velocity->twist;
+  const auto current_twist = planner_data_->self_odometry->twist.twist;
   const double threshold_kmph = 10;
   return util::l2Norm(current_twist.linear) < threshold_kmph * 1000 / 3600;
 }

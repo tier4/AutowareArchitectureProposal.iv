@@ -2011,7 +2011,7 @@ boost::optional<AvoidPointArray> AvoidanceModule::findNewShiftPoint(
 
 double AvoidanceModule::getEgoSpeed() const
 {
-  return std::abs(planner_data_->self_velocity->twist.linear.x);
+  return std::abs(planner_data_->self_odometry->twist.twist.linear.x);
 }
 
 double AvoidanceModule::getNominalAvoidanceEgoSpeed() const

@@ -24,6 +24,7 @@
 #include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_routing/RoutingGraph.h>
@@ -38,6 +39,7 @@ using autoware_auto_perception_msgs::msg::PredictedObjects;
 using autoware_auto_planning_msgs::msg::PathWithLaneId;
 using geometry_msgs::msg::PoseStamped;
 using geometry_msgs::msg::TwistStamped;
+using nav_msgs::msg::Odometry;
 using route_handler::RouteHandler;
 struct BoolStamped
 {
@@ -61,7 +63,7 @@ struct Approval
 struct PlannerData
 {
   PoseStamped::ConstSharedPtr self_pose{};
-  TwistStamped::ConstSharedPtr self_velocity{};
+  Odometry::ConstSharedPtr self_odometry{};
   PredictedObjects::ConstSharedPtr dynamic_object{};
   PathWithLaneId::SharedPtr reference_path{std::make_shared<PathWithLaneId>()};
   PathWithLaneId::SharedPtr prev_output_path{std::make_shared<PathWithLaneId>()};
