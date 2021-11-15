@@ -32,18 +32,18 @@ The `traffic_light_visualization` is a package that includes two visualizing nod
 
 #### Input
 
-| Name                          | Type                                                       | Description              |
-| ----------------------------- | ---------------------------------------------------------- | ------------------------ |
-| `~/input/tl_state`            | `autoware_auto_perception_msgs::msg::TrafficSignalArray`   | status of traffic lights |
-| `~/input/image`               | `sensor_msgs::msg::Image`                                  | input image              |
-| `~/input/rois`                | `autoware_auto_perception_msgs::msg::TrafficLightRoiArray` | input rois               |
-| `~/input/rough/rois` (option) | `autoware_auto_perception_msgs::msg::TrafficLightRoiArray` | input rois               |
+| Name                          | Type                                                       | Description                                             |
+| ----------------------------- | ---------------------------------------------------------- | ------------------------------------------------------- |
+| `~/input/tl_state`            | `autoware_auto_perception_msgs::msg::TrafficSignalArray`   | status of traffic lights                                |
+| `~/input/image`               | `sensor_msgs::msg::Image`                                  | the image captured by perception cameras                |
+| `~/input/rois`                | `autoware_auto_perception_msgs::msg::TrafficLightRoiArray` | the ROIs detected by `traffic_light_ssd_fine_detector`  |
+| `~/input/rough/rois` (option) | `autoware_auto_perception_msgs::msg::TrafficLightRoiArray` | the ROIs detected by `traffic_light_map_based_detector` |
 
 #### Output
 
 | Name             | Type                      | Description            |
 | ---------------- | ------------------------- | ---------------------- |
-| `~/output/image` | `sensor_msgs::msg::Image` | output image with rois |
+| `~/output/image` | `sensor_msgs::msg::Image` | output image with ROIs |
 
 ## Parameters
 
@@ -55,9 +55,9 @@ None
 
 #### Node Parameters
 
-| Name                    | Type | Default Value | Description                   |
-| ----------------------- | ---- | ------------- | ----------------------------- |
-| `enable_fine_detection` | bool | false         | whether to use fine detection |
+| Name                    | Type | Default Value | Description                                                     |
+| ----------------------- | ---- | ------------- | --------------------------------------------------------------- |
+| `enable_fine_detection` | bool | false         | whether to visualize result of the traffic light fine detection |
 
 ## Assumptions / Known limits
 
