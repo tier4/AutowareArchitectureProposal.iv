@@ -14,9 +14,9 @@
 
 ### Output topics
 
-| Name                     | Type                                         | Description                                             |
-| ------------------------ | -------------------------------------------- | ------------------------------------------------------- |
-| `~/output/actuation_cmd` | autoware_control_msgs::msg::ActuationCommand | actuation command for vehicle to apply mechanical input |
+| Name                     | Type                                                | Description                                             |
+| ------------------------ | --------------------------------------------------- | ------------------------------------------------------- |
+| `~/output/actuation_cmd` | autoware_control_msgs::msg::ActuationCommandStamped | actuation command for vehicle to apply mechanical input |
 
 ### Parameters
 
