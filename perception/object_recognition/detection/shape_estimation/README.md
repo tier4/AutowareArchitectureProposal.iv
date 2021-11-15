@@ -2,22 +2,23 @@
 
 ## Purpose
 
-This node calculates a refined object shape from a labeled pointcloud cluster by using L-shape fitting.
+This node calculates a refined object shape (bounding box, cylinder, convex hull) in which a pointcloud cluster fits according to a label.
 
 ## Inner-workings / Algorithms
 
-L-shape fitting implementation of the paper:
+### Fitting algorithms
 
-```bibtex
-@conference{Zhang-2017-26536,
-author = {Xiao Zhang and Wenda Xu and Chiyu Dong and John M. Dolan},
-title = {Efficient L-Shape Fitting for Vehicle Detection Using Laser Scanners},
-booktitle = {2017 IEEE Intelligent Vehicles Symposium},
-year = {2017},
-month = {June},
-keywords = {autonomous driving, laser scanner, perception, segmentation},
-}
-```
+- bounding box
+
+  L-shape fitting. See reference below for details.
+
+- cylinder
+
+  `cv::minEnclosingCircle`
+
+- convex hull
+
+  `cv::convexHull`
 
 ## Inputs / Outputs
 
@@ -44,3 +45,18 @@ keywords = {autonomous driving, laser scanner, perception, segmentation},
 ## Assumptions / Known limits
 
 TBD
+
+## References/External links
+
+L-shape fitting implementation of the paper:
+
+```bibtex
+@conference{Zhang-2017-26536,
+author = {Xiao Zhang and Wenda Xu and Chiyu Dong and John M. Dolan},
+title = {Efficient L-Shape Fitting for Vehicle Detection Using Laser Scanners},
+booktitle = {2017 IEEE Intelligent Vehicles Symposium},
+year = {2017},
+month = {June},
+keywords = {autonomous driving, laser scanner, perception, segmentation},
+}
+```
