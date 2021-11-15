@@ -15,4 +15,4 @@ You can see the button on the right bottom of Rviz.
 
 | Name                                           | Type                                          | Description                                                    |
 | ---------------------------------------------- | --------------------------------------------- | -------------------------------------------------------------- |
-| `/sensing/gnss/pose_with_covariance` (default) | geometry_msgs::msg::PoseWithCovarianceStamped | initial pose with covariance to calculate the current eog pose |
+| `/sensing/gnss/pose_with_covariance` (default) | geometry_msgs::msg::PoseWithCovarianceStamped | initial pose with covariance to calculate the current ego pose |
