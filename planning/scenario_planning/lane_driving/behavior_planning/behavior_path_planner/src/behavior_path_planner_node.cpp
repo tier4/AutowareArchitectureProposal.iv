@@ -467,22 +467,21 @@ void BehaviorPathPlannerNode::run()
 
   // for turn signal
   {
-    auto clock{rclcpp::Clock{RCL_ROS_TIME}};
+    TurnIndicatorsCommand turn_signal;
     HazardLightsCommand hazard_signal;
-    hazard_signal.command = output.turn_signal_info.hazard_signal.command;
-    hazard_signal.stamp = clock.now();
-    hazard_signal_publisher_->publish(hazard_signal);
-    if (hazard_signal.command == HazardLightsCommand::ENABLE) {
-      TurnIndicatorsCommand turn_signal;
+    if (output.turn_signal_info.hazard_signal.command == HazardLightsCommand::ENABLE) {
       turn_signal.command = TurnIndicatorsCommand::DISABLE;
-      turn_signal.stamp = clock.now();
-      turn_signal_publisher_->publish(turn_signal);
+      hazard_signal.command = output.turn_signal_info.hazard_signal.command;
     } else {
-      const auto turn_signal = turn_signal_decider_.getTurnSignal(
+      turn_signal = turn_signal_decider_.getTurnSignal(
         *path, planner_data_->self_pose->pose, *(planner_data_->route_handler),
         output.turn_signal_info.turn_signal, output.turn_signal_info.signal_distance);
-      turn_signal_publisher_->publish(turn_signal);
+      hazard_signal.command = HazardLightsCommand::DISABLE;
     }
+    turn_signal.stamp = get_clock()->now();
+    hazard_signal.stamp = get_clock()->now();
+    turn_signal_publisher_->publish(turn_signal);
+    hazard_signal_publisher_->publish(hazard_signal);
   }
 
   // for remote operation

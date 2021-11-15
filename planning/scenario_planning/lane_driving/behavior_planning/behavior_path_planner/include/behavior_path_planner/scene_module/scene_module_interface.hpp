@@ -50,8 +50,8 @@ struct TurnSignalInfo
 {
   TurnSignalInfo()
   {
-    turn_signal.command = TurnIndicatorsCommand::DISABLE;
-    hazard_signal.command = HazardLightsCommand::ENABLE;
+    turn_signal.command = TurnIndicatorsCommand::NO_COMMAND;
+    hazard_signal.command = HazardLightsCommand::NO_COMMAND;
   }
 
   // desired turn signal

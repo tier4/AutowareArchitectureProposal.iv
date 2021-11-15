@@ -296,20 +296,6 @@ bool lerpByTimeStamp(const PredictedPath & path, const double t_query, Pose * le
       "Empty path. Failed to interpolate path by time!");
     return false;
   }
-  // predicted pathの仕様的にここには入らない？
-  // if (t < path.path.front().header.stamp) {
-  //   RCLCPP_DEBUG_STREAM(
-  //     rclcpp::get_logger("behavior_path_planner").get_child("utilities"),
-  //     "failed to interpolate path by time!"
-  //       << std::endl
-  //       << "path start time sec: " << path.path.front().header.stamp.sec
-  //       << " nanosec: " << path.path.front().header.stamp.nanosec << std::endl
-  //       << "path end time sec: " << path.path.back().header.stamp.sec
-  //       << " nanosec: " << path.path.back().header.stamp.nanosec << std::endl
-  //       << "query time     : " << t.seconds());
-  //   *lerped_pt = path.path.front().pose.pose;
-  //   return false;
-  // }
 
   const double t_final = time_step.seconds() * static_cast<double>(path.path.size());
   if (t_query > t_final) {

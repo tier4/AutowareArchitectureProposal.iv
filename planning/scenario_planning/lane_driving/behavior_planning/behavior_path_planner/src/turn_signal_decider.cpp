@@ -40,10 +40,6 @@ TurnIndicatorsCommand TurnSignalDecider::getTurnSignal(
     turn_signal.command = intersection_turn_signal.command;
   }
 
-  // Set time stamp
-  auto clock{rclcpp::Clock{RCL_ROS_TIME}};
-  turn_signal.stamp = clock.now();
-
   return turn_signal;
 }
 
