@@ -297,10 +297,12 @@ bool MapBasedPrediction::getPredictedPath(
     quat.setRPY(0.0, 0.0, yaw);
     tmp_point.orientation = tf2::toMsg(quat);
     path.path.push_back(tmp_point);
+    if (path.path.size() >= path.path.max_size()) {
+      break;
+    }
   }
   path.confidence = calculateLikelihood(current_d_position);
   path.time_step = rclcpp::Duration::from_seconds(dt);
-
   return false;
 }
 
@@ -331,6 +333,9 @@ void MapBasedPrediction::getLinearPredictedPath(
     tf2::toMsg(tf_world2future, world_frame_pose);
     tmp_pose = world_frame_pose;
     predicted_path.path.push_back(tmp_pose);
+    if (predicted_path.path.size() >= predicted_path.path.max_size()) {
+      break;
+    }
   }
 
   predicted_path.confidence = 1.0;
