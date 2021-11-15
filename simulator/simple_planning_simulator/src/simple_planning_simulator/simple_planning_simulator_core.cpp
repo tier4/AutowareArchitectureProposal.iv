@@ -399,7 +399,7 @@ void SimplePlanningSimulator::publish_velocity(const VelocityReport & velocity)
 {
   VelocityReport msg = velocity;
   msg.header.stamp = get_clock()->now();
-  msg.header.frame_id = "base_link";
+  msg.header.frame_id = simulated_frame_id_;
   pub_velocity_->publish(msg);
 }
 
