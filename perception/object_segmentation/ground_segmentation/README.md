@@ -8,11 +8,13 @@ The `ground_segmentation` is a node that filters the ground points from the inpu
 
 ### Ransac Ground Filter
 
-WIP
+This algorithm is SAC-based ground segmentation.
+
+See: <https://pcl.readthedocs.io/projects/tutorials/en/latest/planar_segmentation.html>
 
 ### Ray Ground Filter
 
-WIP
+This algorithm is deprecated in current architecture.
 
 ### Scan Ground Filter
 
@@ -42,17 +44,36 @@ This algorithm works by following steps,
 
 ## Parameters
 
-### Core Parameters
+### Ransac Ground Filter
 
-| Name                              | Type   | Description                                                                   |
-| --------------------------------- | ------ | ----------------------------------------------------------------------------- |
-| `base_frame`                      | string | base_link frame                                                               |
-| `global_slope_max`                | double | The global angle to classify as the ground or object [deg]                    |
-| `local_max_slope`                 | double | The local angle to classify as the ground or object [deg]                     |
-| `radial_divider_angle`            | double | The angle which divide the whole pointcloud to sliced group [deg]             |
-| `split_points_distance_tolerance` | double | The xy-distance threshold to to distinguishing far and near [m]               |
-| `split_height_distance`           | double | The height threshold to distinguishing far and near [m]                       |
-| `use_virtual_ground_point`        | bool   | whether to use the ground center of front wheels as the virtual ground point. |
+#### Core Parameters
+
+| Name                     | Type   | Default Value | Description                                                     |
+| ------------------------ | ------ | ------------- | --------------------------------------------------------------- |
+| `base_frame`             | string | "base_link"   | base_link frame                                                 |
+| `unit_axis`              | string | "z"           | The axis which we need to search ground plane                   |
+| `max_iterations`         | int    | 1000          | The maximum number of iterations                                |
+| `outlier_threshould`     | double | 0.01          | The distance threshold to the model [m]                         |
+| `plane_slope_threshould` | double | 10.0          | The slope threshold to prevent mis-fitting [deg]                |
+| `voxel_size_x`           | double | 0.04          | voxel size x [m]                                                |
+| `voxel_size_y`           | double | 0.04          | voxel size y [m]                                                |
+| `voxel_size_z`           | double | 0.04          | voxel size z [m]                                                |
+| `height_threshould`      | double | 0.01          | The height threshold from ground plane for no ground points [m] |
+| `debug`                  | bool   | false         | whether to output debug infomations                             |
+
+### Scan Ground Filter
+
+#### Core Parameters
+
+| Name                              | Type   | Default Value | Description                                                                   |
+| --------------------------------- | ------ | ------------- | ----------------------------------------------------------------------------- |
+| `base_frame`                      | string | "base_link"   | base_link frame                                                               |
+| `global_slope_max`                | double | 8.0           | The global angle to classify as the ground or object [deg]                    |
+| `local_max_slope`                 | double | 6.0           | The local angle to classify as the ground or object [deg]                     |
+| `radial_divider_angle`            | double | 1.0           | The angle which divide the whole pointcloud to sliced group [deg]             |
+| `split_points_distance_tolerance` | double | 0.2           | The xy-distance threshold to to distinguishing far and near [m]               |
+| `split_height_distance`           | double | 0.2           | The height threshold to distinguishing far and near [m]                       |
+| `use_virtual_ground_point`        | bool   | true          | whether to use the ground center of front wheels as the virtual ground point. |
 
 ## Assumptions / Known limits
 
