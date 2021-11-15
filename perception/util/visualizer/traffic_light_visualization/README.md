@@ -2,12 +2,12 @@
 
 ## Purpose
 
-<!-- Write the purpose of this package and briefly describe the features.
+The `traffic_light_visualization` is a package that includes two visualizing nodes:
 
-Example:
-  {package_name} is a package for planning trajectories that can avoid obstacles.
-  This feature consists of two steps: obstacle filtering and optimizing trajectory.
--->
+- **traffic_light_map_visualizer** is a node that shows traffic lights color status and position on rviz as markers.
+- **traffic_light_roi_visualizer** is a node that draws the result of traffic light recognition nodes (traffic light status, posiiton and classification probability) on the input image as shown in the following figure and publishes it.
+
+![](./images/roi-visualization.png)
 
 ## Inner-workings / Algorithms
 
@@ -34,10 +34,10 @@ Example:
 
 | Name                          | Type                                                       | Description              |
 | ----------------------------- | ---------------------------------------------------------- | ------------------------ |
+| `~/input/tl_state`            | `autoware_auto_perception_msgs::msg::TrafficSignalArray`   | status of traffic lights |
 | `~/input/image`               | `sensor_msgs::msg::Image`                                  | input image              |
 | `~/input/rois`                | `autoware_auto_perception_msgs::msg::TrafficLightRoiArray` | input rois               |
 | `~/input/rough/rois` (option) | `autoware_auto_perception_msgs::msg::TrafficLightRoiArray` | input rois               |
-| `~/input/tl_state`            | `autoware_auto_perception_msgs::msg::TrafficSignalArray`   | status of traffic lights |
 
 #### Output
 
