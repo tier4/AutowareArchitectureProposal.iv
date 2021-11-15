@@ -43,6 +43,16 @@ ObjectAssociationMergerNode::ObjectAssociationMergerNode(const rclcpp::NodeOptio
 
   merged_object_pub_ = create_publisher<autoware_auto_perception_msgs::msg::DetectedObjects>(
     "output/object", rclcpp::QoS{1});
+
+  // parameters
+  const auto tmp = this->declare_parameter<std::vector<int64_t>>("can_assign_matrix");
+  const std::vector<int> can_assign_matrix(tmp.begin(), tmp.end());
+  const auto max_dist_matrix = this->declare_parameter<std::vector<double>>("max_dist_matrix");
+  const auto max_area_matrix = this->declare_parameter<std::vector<double>>("max_area_matrix");
+  const auto min_area_matrix = this->declare_parameter<std::vector<double>>("min_area_matrix");
+  const auto max_rad_matrix = this->declare_parameter<std::vector<double>>("max_rad_matrix");
+  data_association_ = std::make_unique<DataAssociation>(
+    can_assign_matrix, max_dist_matrix, max_area_matrix, min_area_matrix, max_rad_matrix);
 }
 
 void ObjectAssociationMergerNode::objectsCallback(
@@ -62,14 +72,15 @@ void ObjectAssociationMergerNode::objectsCallback(
   std::unordered_map<int, int> direct_assignment;
   std::unordered_map<int, int> reverse_assignment;
   Eigen::MatrixXd score_matrix =
-    data_association_.calcScoreMatrix(*input_object1_msg, *input_object0_msg);
-  data_association_.assign(score_matrix, direct_assignment, reverse_assignment);
+    data_association_->calcScoreMatrix(*input_object1_msg, *input_object0_msg);
+  data_association_->assign(score_matrix, direct_assignment, reverse_assignment);
   for (size_t object0_idx = 0; object0_idx < input_object0_msg->objects.size(); ++object0_idx) {
     if (direct_assignment.find(object0_idx) != direct_assignment.end()) {  // found
       // The one with the higher score will be hired.
       if (
         input_object1_msg->objects.at(direct_assignment.at(object0_idx)).existence_probability <
-        input_object0_msg->objects.at(object0_idx).existence_probability) {
+        input_object0_msg->objects.at(object0_idx).existence_probability)
+      {
         output_msg.objects.push_back(input_object0_msg->objects.at(object0_idx));
       } else {
         output_msg.objects.push_back(

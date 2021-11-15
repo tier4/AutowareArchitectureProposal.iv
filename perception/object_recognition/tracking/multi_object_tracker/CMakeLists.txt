@@ -38,11 +38,13 @@ set(MULTI_OBJECT_TRACKER_SRC
   src/tracker/model/pedestrian_tracker.cpp
   src/tracker/model/pedestrian_and_bicycle_tracker.cpp
   src/tracker/model/unknown_tracker.cpp
-  src/data_association/data_association.cpp
 )
 
-ament_auto_add_library(mu_successive_shortest_path SHARED
+ament_auto_add_library(data_association SHARED
   src/data_association/mu_successive_shortest_path/mu_successive_shortest_path_wrapper.cpp
+  src/data_association/successive_shortest_path/successive_shortest_path.cpp
+  src/data_association/data_association.cpp
+  src/utils/utils.cpp
 )
 
 ament_auto_add_library(multi_object_tracker_node SHARED
@@ -50,7 +52,7 @@ ament_auto_add_library(multi_object_tracker_node SHARED
 )
 
 target_link_libraries(multi_object_tracker_node
-  mu_successive_shortest_path
+  data_association
   Eigen3::Eigen
 )
 

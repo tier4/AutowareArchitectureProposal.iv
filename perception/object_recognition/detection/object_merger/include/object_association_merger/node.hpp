@@ -15,7 +15,7 @@
 #ifndef OBJECT_ASSOCIATION_MERGER__NODE_HPP_
 #define OBJECT_ASSOCIATION_MERGER__NODE_HPP_
 
-#include <object_association_merger/data_association.hpp>
+#include <multi_object_tracker/data_association/data_association.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
@@ -48,12 +48,12 @@ private:
   message_filters::Subscriber<autoware_auto_perception_msgs::msg::DetectedObjects> object0_sub_;
   message_filters::Subscriber<autoware_auto_perception_msgs::msg::DetectedObjects> object1_sub_;
   typedef message_filters::sync_policies::ApproximateTime<
-    autoware_auto_perception_msgs::msg::DetectedObjects,
-    autoware_auto_perception_msgs::msg::DetectedObjects>
+      autoware_auto_perception_msgs::msg::DetectedObjects,
+      autoware_auto_perception_msgs::msg::DetectedObjects>
     SyncPolicy;
   typedef message_filters::Synchronizer<SyncPolicy> Sync;
   Sync sync_;
-  DataAssociation data_association_;
+  std::unique_ptr<DataAssociation> data_association_;
 };
 }  // namespace object_association
 
