@@ -166,6 +166,8 @@ void SSCInterface::callbackFromSSCFeedbacks(
   const pacmod3_msgs::msg::WheelSpeedRpt::ConstSharedPtr msg_wheel_speed,
   const pacmod3_msgs::msg::SystemRptFloat::ConstSharedPtr msg_steering_wheel)
 {
+  (void)msg_throttle;
+  (void)msg_brake;
   std_msgs::msg::Header published_msgs_header;
   published_msgs_header.frame_id = BASE_FRAME_ID;
   published_msgs_header.stamp = msg_velocity->header.stamp;
