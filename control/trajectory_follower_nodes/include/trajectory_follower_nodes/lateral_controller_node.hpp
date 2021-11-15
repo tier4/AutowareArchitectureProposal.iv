@@ -48,6 +48,7 @@
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 
+#include "nav_msgs/msg/odometry.hpp"
 
 namespace autoware
 {
@@ -85,7 +86,7 @@ private:
   //!< @brief topic subscription for reference waypoints
   rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr m_sub_ref_path;
   //!< @brief subscription for current velocity
-  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleOdometry>::SharedPtr m_sub_odometry;
+  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr m_sub_odometry;
   //!< @brief subscription for current steering
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::SteeringReport>::SharedPtr m_sub_steering;
   //!< @brief timer to update after a given interval
@@ -162,7 +163,7 @@ private:
   /**
    * @brief set current_velocity with received message
    */
-  void onOdometry(const autoware_auto_vehicle_msgs::msg::VehicleOdometry::SharedPtr msg);
+  void onOdometry(const nav_msgs::msg::Odometry::SharedPtr msg);
 
   /**
    * @brief set current_steering with received message
