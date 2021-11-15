@@ -303,6 +303,7 @@ bool MapBasedPrediction::getPredictedPath(
   }
   path.confidence = calculateLikelihood(current_d_position);
   path.time_step = rclcpp::Duration::from_seconds(dt);
+
   return false;
 }
 
