@@ -2,7 +2,7 @@
 
 ## Purpose
 
-euclidean_cluster is a package for clustering points into smaller parts to reduce processing time.
+euclidean_cluster is a package for clustering points into smaller parts to classify objects.
 
 This package has two clustering methods: `euclidean_cluster` and `voxel_grid_based_euclidean_cluster`.
 
@@ -14,7 +14,9 @@ This package has two clustering methods: `euclidean_cluster` and `voxel_grid_bas
 
 ### voxel_grid_based_euclidean_cluster
 
-`pcl::EuclideanClusterExtraction` is applied to points downsampled by `pcl::VoxelGrid`.
+1. A centroid in each voxel is calculated by `pcl::VoxelGrid`.
+2. The centroids are clustered by `pcl::EuclideanClusterExtraction`.
+3. The input points are clustered based on the clustered centroids.
 
 ## Inputs / Outputs
 
@@ -35,14 +37,25 @@ This package has two clustering methods: `euclidean_cluster` and `voxel_grid_bas
 
 ### Core Parameters
 
+#### euclidean_cluster
+
+| Name               | Type  | Description                                                                                  |
+| ------------------ | ----- | -------------------------------------------------------------------------------------------- |
+| `use_height`       | bool  | use point.z for clustering                                                                   |
+| `min_cluster_size` | int   | the minimum number of points that a cluster needs to contain in order to be considered valid |
+| `max_cluster_size` | int   | the maximum number of points that a cluster needs to contain in order to be considered valid |
+| `tolerance`        | float | the spatial cluster tolerance as a measure in the L2 Euclidean space                         |
+
+#### voxel_grid_based_euclidean_cluster
+
 | Name                          | Type  | Description                                                                                  |
 | ----------------------------- | ----- | -------------------------------------------------------------------------------------------- |
 | `use_height`                  | bool  | use point.z for clustering                                                                   |
 | `min_cluster_size`            | int   | the minimum number of points that a cluster needs to contain in order to be considered valid |
 | `max_cluster_size`            | int   | the maximum number of points that a cluster needs to contain in order to be considered valid |
 | `tolerance`                   | float | the spatial cluster tolerance as a measure in the L2 Euclidean space                         |
-| `voxel_leaf_size`             | float | the voxel leaf size of x and y (only for `voxel_grid_based_euclidean_cluster`)               |
-| `min_points_number_per_voxel` | int   | the minimum number of points for a voxel (only for `voxel_grid_based_euclidean_cluster`)     |
+| `voxel_leaf_size`             | float | the voxel leaf size of x and y                                                               |
+| `min_points_number_per_voxel` | int   | the minimum number of points for a voxel                                                     |
 
 ## Assumptions / Known limits
 
