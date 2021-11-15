@@ -1,6 +1,6 @@
 # pose_initializer
 
-## Role
+## Purpose
 
 `pose_initializer` is the package to send an initial pose to `ekf_localizer`.
 It receives roughly estimated initial pose from GNSS/user.
