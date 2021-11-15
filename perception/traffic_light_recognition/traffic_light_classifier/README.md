@@ -16,7 +16,14 @@ Traffic light colors (green, yellow and red) are classified in HSV model.
 
 ### About Label
 
-By default, this package only support typical type of traffic light in Japan, so only basic type of lamp is supported. Please refer [LampState](https://github.com/tier4/autoware.iv/blob/master/common/msgs/autoware_perception_msgs/msg/traffic_light_recognition/LampState.msg) label names are assumed to be comma-separated to represent each lamp. For example, the traffic light with red and right arrow lit are represented by label such as `"red,right"`, which are converted to the string array `["red", "right"]` in cnn_classifier, and finally array is converted to [LampState](https://github.com/tier4/autoware.iv/blob/master/common/msgs/autoware_perception_msgs/msg/traffic_light_recognition/LampState.msg) array.
+The message type is designed to comply with the unified road signs proposed at the [Vienna Convention](https://en.wikipedia.org/wiki/Vienna_Convention_on_Road_Signs_and_Signals#Traffic_lights). This idea has been also proposed in [Autoware.Auto](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/merge_requests/16)
+
+There are rules for naming labels that nodes receive. One traffic light is represented by the following character string separated by commas.
+```
+"color1-shape1, color2-shape2, ..."
+```
+For example, the simple red and red cross traffic light label must be expressed as "red-circle, red-cross".
+
 
 If you use a traffic light model of other country, please download from below list and replace onnx and label file in the data directory.
 
