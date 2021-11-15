@@ -8,11 +8,9 @@ This package outputs a dummy diagnostic data for debugging and developing.
 
 ### Outputs
 
-| Name               | Type                                    | Description                                                                                                                                                                                |
-| ------------------ | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `/diagnostics`     | `diagnostic_msgs/DiagnosticArray`       | Diagnostics outputs                                                                                                                                                                        |
-| `/diagnostics_agg` | `diagnostic_msgs::msg::DiagnosticArray` | Use aggregated diagnostic information based on [diagnostic_aggregator setting](https://github.com/tier4/autoware.iv/tree/main/system/autoware_error_monitor/config/diagnostic_aggregator). |
-| `/diagnostics_err` | `diagnostic_msgs::msg::DiagnosticArray` | This information is used to visualize HazardStatus.                                                                                                                                        |
+| Name           | Type                                     | Description         |
+| -------------- | ---------------------------------------- | ------------------- |
+| `/diagnostics` | `diagnostic_msgs::msgs::DiagnosticArray` | Diagnostics outputs |
 
 ## Parameters
 
