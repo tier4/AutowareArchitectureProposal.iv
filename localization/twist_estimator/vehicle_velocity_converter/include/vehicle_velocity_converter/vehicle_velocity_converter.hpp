@@ -17,10 +17,13 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include "autoware_auto_vehicle_msgs/msg/velocity_report.hpp"
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 
-#include "autoware_auto_vehicle_msgs/msg/velocity_report.hpp"
+#include <array>
+#include <string>
+#include <vector>
 
 class VehicleVelocityConverter : public rclcpp::Node
 {
@@ -31,10 +34,12 @@ public:
 private:
   void callbackVelocityReport(const autoware_auto_vehicle_msgs::msg::VelocityReport::SharedPtr msg);
 
-  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VelocityReport>::SharedPtr vehicle_report_sub_;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VelocityReport>::SharedPtr
+    vehicle_report_sub_;
 
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr twist_pub_;
-  rclcpp::Publisher<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr twist_with_covariance_pub_;
+  rclcpp::Publisher<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr
+    twist_with_covariance_pub_;
 
   std::string frame_id_;
   std::array<double, 36> twist_covariance_;

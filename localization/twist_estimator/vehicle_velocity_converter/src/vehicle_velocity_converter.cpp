@@ -19,19 +19,24 @@ VehicleVelocityConverter::VehicleVelocityConverter() : Node("vehicle_velocity_co
   // set covariance value for twist with covariance msg
   std::vector<double> covariance;
   declare_parameter("twist_covariance", covariance);
-  for(std::size_t i=0;i<covariance.size();++i)
+  for (std::size_t i = 0; i < covariance.size(); ++i) {
     twist_covariance_[i] = covariance[i];
+  }
   frame_id_ = declare_parameter("frame_id", "base_link");
 
-  vehicle_report_sub_ = create_subscription<autoware_auto_vehicle_msgs::msg::VelocityReport>("velocity_status", rclcpp::QoS{100}, std::bind(&VehicleVelocityConverter::callbackVelocityReport, this, std::placeholders::_1));
+  vehicle_report_sub_ = create_subscription<autoware_auto_vehicle_msgs::msg::VelocityReport>(
+    "velocity_status", rclcpp::QoS{100},
+    std::bind(&VehicleVelocityConverter::callbackVelocityReport, this, std::placeholders::_1));
 
   twist_pub_ = create_publisher<geometry_msgs::msg::TwistStamped>("twist", rclcpp::QoS{10});
-  twist_with_covariance_pub_ = create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>("twist_with_covariance", rclcpp::QoS{10});
+  twist_with_covariance_pub_ = create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>(
+    "twist_with_covariance", rclcpp::QoS{10});
 }
 
-void VehicleVelocityConverter::callbackVelocityReport(const autoware_auto_vehicle_msgs::msg::VelocityReport::SharedPtr msg)
+void VehicleVelocityConverter::callbackVelocityReport(
+  const autoware_auto_vehicle_msgs::msg::VelocityReport::SharedPtr msg)
 {
-  if(msg->header.frame_id != frame_id_) {
+  if (msg->header.frame_id != frame_id_) {
     RCLCPP_WARN(get_logger(), "frame_id is not base_link.");
   }
   // set twist stamp msg from vehicle report msg
