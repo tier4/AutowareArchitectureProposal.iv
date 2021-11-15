@@ -17,7 +17,7 @@ Detail description of each filter's algorithm is in the following links.
 | Filter Name            | Description                                                                        | Detail                                 |
 | ---------------------- | ---------------------------------------------------------------------------------- | -------------------------------------- |
 | concatenate_data       | subscribe multiple pointclouds and concatenate them into a pointcloud              | [link](docs/concatenate-data.md)       |
-| crop_box_filter        | remove points within a given box                                                   | [link](doc/crop-box-filter.md)         |
+| crop_box_filter        | remove points within a given box                                                   | [link](docs/crop-box-filter.md)        |
 | distortion_corrector   | compensate pointcloud distortion caused by ego vehicle's movement during 1 scan    | [link](docs/distortion-corrector.md)   |
 | downsample_filter      | downsampling input pointcloud                                                      | [link](docs/downsample-filter.md)      |
 | outlier_filter         | remove points caused by hardware problems, rain drops and small insects as a noise | [link](docs/outlier-filter.md)         |
