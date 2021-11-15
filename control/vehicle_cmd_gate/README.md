@@ -1,4 +1,4 @@
-# Vehicle Cmd Gate
+# vehicle_cmd_gate
 
 ## Purpose
 
