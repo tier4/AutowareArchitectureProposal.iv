@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This node publishers the result of the dummy detection with the type of perception. if `real_use_param_` is True, the data containing the Feature is delivered, and if False, the data without the Feature is delivered.
+This node publishes the result of the dummy detection with the type of perception. if `real_use_param_` is True, the data containing the Feature is delivered, and if False, the data without the Feature is delivered.
 
 ## Inner-workings / Algorithms
 
@@ -19,7 +19,7 @@ This node publishers the result of the dummy detection with the type of percepti
 
 | Name                    | Type                                                                                                              | Description                                           |
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| `output/dynamic_object` | `autoware_perception_msgs::msg::DetectedObjectsWithFeature / autoware_auto_perception_msgs::msg::DetectedObjects` | Publishers objects.(True:w/Feature, False:wo/Feature) |
+| `output/dynamic_object` | `autoware_perception_msgs::msg::DetectedObjectsWithFeature / autoware_auto_perception_msgs::msg::DetectedObjects` | Publishes objects (True:w/Feature, False:w/o Feature) |
 | `output/points_raw`     | `sensor_msgs::msg::PointCloud2`                                                                                   | point cloud of objects                                |
 
 ## Parameters
