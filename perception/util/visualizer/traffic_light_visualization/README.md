@@ -59,8 +59,6 @@ None
 | ----------------------- | ---- | ------------- | ----------------------------- |
 | `enable_fine_detection` | bool | false         | whether to use fine detection |
 
-See detail algorithm about the fine detection in [1].
-
 ## Assumptions / Known limits
 
 ## (Optional) Error detection and handling
@@ -68,7 +66,5 @@ See detail algorithm about the fine detection in [1].
 ## (Optional) Performance characterization
 
 ## (Optional) References/External links
-
-[1] M. Sandler, A. Howard, M. Zhu, A. Zhmoginov and L. Chen, "MobileNetV2: Inverted Residuals and Linear Bottlenecks," 2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition, Salt Lake City, UT, 2018, pp. 4510-4520, doi: 10.1109/CVPR.2018.00474.
 
 ## (Optional) Future extensions / Unimplemented parts
