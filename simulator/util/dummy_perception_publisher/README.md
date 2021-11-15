@@ -10,28 +10,30 @@ This node publishers the result of the dummy detection with the type of percepti
 
 ### Input
 
-| Name                     | Type                                       | Description    |
-| ------------------------ | ------------------------------------------ | -------------- |
-| `/tf`                    | `tf2_msgs/TFMessage`                       | TF (self-pose) |
-| `input/object`           | `dummy_perception_publisher::msg::Object`  | dummy detection objects |
+| Name           | Type                                      | Description             |
+| -------------- | ----------------------------------------- | ----------------------- |
+| `/tf`          | `tf2_msgs/TFMessage`                      | TF (self-pose)          |
+| `input/object` | `dummy_perception_publisher::msg::Object` | dummy detection objects |
 
 ### Output
 
-| Name         | Type                                       | Description                                                                                           |
-| ------------ | ------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| Name                    | Type                                                                                                              | Description                                           |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
 | `output/dynamic_object` | `autoware_perception_msgs::msg::DetectedObjectsWithFeature / autoware_auto_perception_msgs::msg::DetectedObjects` | Publishers objects.(True:w/Feature, False:wo/Feature) |
-| `output/points_raw` | `sensor_msgs::msg::PointCloud2` | point cloud of objects |
+| `output/points_raw`     | `sensor_msgs::msg::PointCloud2`                                                                                   | point cloud of objects                                |
 
 ## Parameters
-| Name          | Type   | Default Value | Explanation                 |
-| ------------- | ------ | ------------- | --------------------------- |
-| `visible_range` | double | 100.0          | sensor visible range [m] |
-| `detection_successful_rate` | double | 0.8          | sensor detection rate. (min) 0.0 - 1.0(max) |
-| `enable_ray_tracing` | bool | true          | if True, use ray tracking |
-| `use_object_recognition` | bool | true          | if True, publish objects topic |
-| `real_use_param_` | bool | true          | This parameter is a switch that toggles the presence or absence of "feature" in the output object. |
+
+| Name                        | Type   | Default Value | Explanation                                                                                        |
+| --------------------------- | ------ | ------------- | -------------------------------------------------------------------------------------------------- |
+| `visible_range`             | double | 100.0         | sensor visible range [m]                                                                           |
+| `detection_successful_rate` | double | 0.8           | sensor detection rate. (min) 0.0 - 1.0(max)                                                        |
+| `enable_ray_tracing`        | bool   | true          | if True, use ray tracking                                                                          |
+| `use_object_recognition`    | bool   | true          | if True, publish objects topic                                                                     |
+| `real_use_param_`           | bool   | true          | This parameter is a switch that toggles the presence or absence of "feature" in the output object. |
 
 ### Node Parameters
+
 None.
 
 ### Core Parameters
