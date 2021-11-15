@@ -162,6 +162,11 @@ bool MapBasedPrediction::doPrediction(
           object_point.z, current_d_position, current_d_velocity, current_s_position,
           current_s_velocity, spline2d, path);
         tmp_object.kinematics.predicted_paths.push_back(path);
+        if (
+          tmp_object.kinematics.predicted_paths.size() >=
+          tmp_object.kinematics.predicted_paths.capacity()) {
+          break;
+        }
       } else {
         continue;
       }
