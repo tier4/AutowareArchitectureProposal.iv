@@ -1,4 +1,4 @@
-# traffic_light_visualization 
+# traffic_light_visualization
 
 ## Purpose
 
@@ -17,33 +17,33 @@ Example:
 
 #### Input
 
-| Name                 | Type                                                | Description          |
-| -------------------- | --------------------------------------------------- | -------------------- |
-| `~/input/tl_state` | `autoware_auto_perception_msgs::msg::TrafficSignalArray`           | status of traffic lights|
-| `~/input/vector_map`  | `autoware_auto_mapping_msgs::msg::HADMapBin` | vector map            |
+| Name                 | Type                                                     | Description              |
+| -------------------- | -------------------------------------------------------- | ------------------------ |
+| `~/input/tl_state`   | `autoware_auto_perception_msgs::msg::TrafficSignalArray` | status of traffic lights |
+| `~/input/vector_map` | `autoware_auto_mapping_msgs::msg::HADMapBin`             | vector map               |
 
 #### Output
 
-| Name                  | Type                                      | Description         |
-| --------------------- | ----------------------------------------- | ------------------- |
+| Name                     | Type                                   | Description                                          |
+| ------------------------ | -------------------------------------- | ---------------------------------------------------- |
 | `~/output/traffic_light` | `visualization_msgs::msg::MarkerArray` | marker array that indicates status of traffic lights |
 
 ### traffic_light_roi_visualizer
 
 #### Input
 
-| Name                 | Type                                                | Description          |
-| -------------------- | --------------------------------------------------- | -------------------- |
-| `~/input/image` | `sensor_msgs::msg::Image`           | input image |
-| `~/input/rois`  | `autoware_auto_perception_msgs::msg::TrafficLightRoiArray` | input rois            |
-| `~/input/rough/rois` (option)  | `autoware_auto_perception_msgs::msg::TrafficLightRoiArray` | input rois            |
-| `~/input/tl_state`  | `autoware_auto_perception_msgs::msg::TrafficSignalArray` | status of traffic lights            |
+| Name                          | Type                                                       | Description              |
+| ----------------------------- | ---------------------------------------------------------- | ------------------------ |
+| `~/input/image`               | `sensor_msgs::msg::Image`                                  | input image              |
+| `~/input/rois`                | `autoware_auto_perception_msgs::msg::TrafficLightRoiArray` | input rois               |
+| `~/input/rough/rois` (option) | `autoware_auto_perception_msgs::msg::TrafficLightRoiArray` | input rois               |
+| `~/input/tl_state`            | `autoware_auto_perception_msgs::msg::TrafficSignalArray`   | status of traffic lights |
 
 #### Output
 
-| Name                  | Type                                      | Description         |
-| --------------------- | ----------------------------------------- | ------------------- |
-| `~/output/image` | `sensor_msgs::msg::Image`           | output image with rois |
+| Name             | Type                      | Description            |
+| ---------------- | ------------------------- | ---------------------- |
+| `~/output/image` | `sensor_msgs::msg::Image` | output image with rois |
 
 ## Parameters
 
@@ -55,9 +55,9 @@ None
 
 #### Node Parameters
 
-| Name                   | Type | Default Value | Description                     |
-| ---------------------- | ---- | --|----------------------------- |
-| `enable_fine_detection` | bool | false| whether to use fine detection |
+| Name                    | Type | Default Value | Description                   |
+| ----------------------- | ---- | ------------- | ----------------------------- |
+| `enable_fine_detection` | bool | false         | whether to use fine detection |
 
 See detail algorithm about the fine detection in [1].
 
