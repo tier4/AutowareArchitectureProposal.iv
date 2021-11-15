@@ -1,4 +1,4 @@
-# Gyro Odometer
+# gyro_odometer
 
 ## Purpose
 
