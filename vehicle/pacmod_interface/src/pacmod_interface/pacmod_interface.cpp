@@ -144,8 +144,8 @@ PacmodInterface::PacmodInterface()
       "/vehicle/status/turn_indicators_status", rclcpp::QoS{1});
   hazard_lights_status_pub_ = create_publisher<autoware_auto_vehicle_msgs::msg::HazardLightsReport>(
     "/vehicle/status/hazard_lights_status", rclcpp::QoS{1});
-  actuation_status_pub_ = create_publisher<autoware_vehicle_msgs::msg::ActuationStatusStamped>(
-    "/vehicle/status/actuation_status", 1);
+  actuation_status_pub_ =
+    create_publisher<ActuationStatusStamped>("/vehicle/status/actuation_status", 1);
 
   // Timer
   auto timer_callback = std::bind(&PacmodInterface::publishCommands, this);
@@ -284,7 +284,7 @@ void PacmodInterface::callbackPacmodRpt(
 
   /* publish control status */
   {
-    autoware_vehicle_msgs::msg::ActuationStatusStamped actuation_status;
+    ActuationStatusStamped actuation_status;
     actuation_status.header = header;
     actuation_status.status.accel_status = accel_rpt_ptr_->output;
     actuation_status.status.brake_status = brake_rpt_ptr_->output;

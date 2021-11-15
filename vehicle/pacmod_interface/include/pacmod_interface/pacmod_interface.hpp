@@ -55,6 +55,7 @@ class PacmodInterface : public rclcpp::Node
 {
 public:
   using ActuationCommandStamped = autoware_control_msgs::msg::ActuationCommandStamped;
+  using ActuationStatusStamped = autoware_control_msgs::msg::ActuationStatusStamped;
   PacmodInterface();
 
 private:
@@ -111,8 +112,7 @@ private:
     turn_indicators_status_pub_;
   rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::HazardLightsReport>::SharedPtr
     hazard_lights_status_pub_;
-  rclcpp::Publisher<autoware_vehicle_msgs::msg::ActuationStatusStamped>::SharedPtr
-    actuation_status_pub_;
+  rclcpp::Publisher<ActuationStatusStamped>::SharedPtr actuation_status_pub_;
 
   rclcpp::TimerBase::SharedPtr timer_;
 
