@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This package outputs a dummy diag for debugging and developing.
+This package outputs a dummy diagnostic data for debugging and developing.
 
 ## Inputs / Outputs
 
