@@ -2,8 +2,7 @@
 
 ## Purpose
 
-This node publishes a distance from the closest path point from the self-position to the end point of the path.
-Note that the distance means the arc-length along the path, not the Euclidean distance between the two points.
+This node publishers the result of the dummy detection with the type of perception. if `real_use_param_` is True, the data containing the Feature is delivered, and if False, the data without the Feature is delivered.
 
 ## Inner-workings / Algorithms
 
@@ -14,20 +13,20 @@ Note that the distance means the arc-length along the path, not the Euclidean di
 | Name                     | Type                                       | Description    |
 | ------------------------ | ------------------------------------------ | -------------- |
 | `/tf`                    | `tf2_msgs/TFMessage`                       | TF (self-pose) |
-| `input/object`           | `dummy_perception_publisher::msg::Object`  | TF (self-pose) |
+| `input/object`           | `dummy_perception_publisher::msg::Object`  | dummy detection objects |
 
 ### Output
 
 | Name         | Type                                       | Description                                                                                           |
 | ------------ | ------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| `output/dynamic_object` | `autoware_perception_msgs::msg::DetectedObjectsWithFeature / autoware_auto_perception_msgs::msg::DetectedObjects` | Publish a distance from the closest path point from the self-position to the end point of the path[m] |
-| `output/points_raw` | `sensor_msgs::msg::PointCloud2` | Reference path |
+| `output/dynamic_object` | `autoware_perception_msgs::msg::DetectedObjectsWithFeature / autoware_auto_perception_msgs::msg::DetectedObjects` | Publishers objects.(True:w/Feature, False:wo/Feature) |
+| `output/points_raw` | `sensor_msgs::msg::PointCloud2` | point cloud of objects |
 
 ## Parameters
 | Name          | Type   | Default Value | Explanation                 |
 | ------------- | ------ | ------------- | --------------------------- |
 | `visible_range` | double | 100.0          | sensor visible range [m] |
-| `detection_successful_rate` | double | 0.8          | sensor visible range [m] |
+| `detection_successful_rate` | double | 0.8          | sensor detection rate. (min) 0.0 - 1.0(max) |
 | `enable_ray_tracing` | bool | true          | sensor visible range [m] |
 | `use_object_recognition` | bool | true          | sensor visible range [m] |
 | `real_use_param_` | bool | true          | sensor visible range [m] |
