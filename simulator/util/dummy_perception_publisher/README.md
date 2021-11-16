@@ -30,7 +30,7 @@ This node publishes the result of the dummy detection with the type of perceptio
 | `detection_successful_rate` | double | 0.8           | sensor detection rate. (min) 0.0 - 1.0(max)                                                        |
 | `enable_ray_tracing`        | bool   | true          | if True, use ray tracking                                                                          |
 | `use_object_recognition`    | bool   | true          | if True, publish objects topic                                                                     |
-| `real_use_param_`           | bool   | true          | This parameter is a switch that toggles the presence or absence of "feature" in the output object. |
+| `real_use_param`           | bool   | true          | This parameter is a switch that toggles the presence or absence of "feature" in the output object. |
 
 ### Node Parameters
 
