@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This node publishes the result of the dummy detection with the type of perception. if `real_use_param_` is True, the data containing the Feature is delivered, and if False, the data without the Feature is delivered.
+This node publishes the result of the dummy detection with the type of perception. f `real_use_param_` is True, the data containing the Feature is delivered, and if False, the data without the Feature is delivered.
 
 ## Inner-workings / Algorithms
 
