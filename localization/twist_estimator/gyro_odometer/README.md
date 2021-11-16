@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`gyro_odometer` is the package to estimate twist.
+`gyro_odometer` is the package to estimate twist by combining imu and vehicle speed.
 
 ## Inputs / Outputs
 
