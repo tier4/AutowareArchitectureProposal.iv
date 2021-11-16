@@ -1,0 +1,10 @@
+<launch>
+  <arg name="input" />
+  <arg name="output" />
+
+  <node pkg="dynamic_object_converter" exec="ynamic_object_converter" name="ynamic_object_converter" output="screen">
+    <remap from="~/input" to="$(var input)"/>
+    <remap from="~/output" to="$(var output)"/>
+  </node>
+
+</launch>
