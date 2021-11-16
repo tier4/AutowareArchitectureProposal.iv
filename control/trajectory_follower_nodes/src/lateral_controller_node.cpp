@@ -146,12 +146,12 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
 
   m_pub_ctrl_cmd =
     create_publisher<autoware_auto_control_msgs::msg::AckermannLateralCommand>(
-    "~/output/lateral/control_cmd", 1);
+    "~/output/control_cmd", 1);
   m_pub_predicted_traj =
-    create_publisher<autoware_auto_planning_msgs::msg::Trajectory>("~/output/lateral/predicted_trajectory", 1);
+    create_publisher<autoware_auto_planning_msgs::msg::Trajectory>("~/output/predicted_trajectory", 1);
   m_pub_diagnostic =
     create_publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>(
-    "~/output/lateral/diagnostic", 1);
+    "~/output/diagnostic", 1);
   m_sub_ref_path = create_subscription<autoware_auto_planning_msgs::msg::Trajectory>(
     "~/input/reference_trajectory", rclcpp::QoS{1},
     std::bind(&LateralController::onTrajectory, this, _1));
