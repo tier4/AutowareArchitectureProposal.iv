@@ -42,5 +42,4 @@ None.
 
 ## Assumptions / Known limits
 
-use_real_param
 TBD.
