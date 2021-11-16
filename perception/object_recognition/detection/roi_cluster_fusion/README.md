@@ -32,7 +32,7 @@ The clusters are projected onto image planes, and then if the ROIs of clusters a
 | Name                        | Type  | Description                                                                   |
 | --------------------------- | ----- | ----------------------------------------------------------------------------- |
 | `use_iou_x`                 | bool  | calculate IoU only along x-axis                                               |
-| `use_iou_y`                 | bool  | calculate IoU only along x-axis                                               |
+| `use_iou_y`                 | bool  | calculate IoU only along y-axis                                               |
 | `use_iou`                   | bool  | calculate IoU both along x-axis and y-axis                                    |
 | `use_cluster_semantic_type` | bool  | if `false`, the labels of clusters are overwritten by `UNKNOWN` before fusion |
 | `iou_threshold`             | float | the IoU threshold to overwrite a label of clusters with a label of roi        |
