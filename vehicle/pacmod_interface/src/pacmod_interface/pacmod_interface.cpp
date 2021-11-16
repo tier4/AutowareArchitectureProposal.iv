@@ -128,7 +128,7 @@ PacmodInterface::PacmodInterface()
   turn_cmd_pub_ =
     create_publisher<pacmod3_msgs::msg::SystemCmdInt>("/pacmod/turn_cmd", rclcpp::QoS{1});
   raw_steer_cmd_pub_ = create_publisher<pacmod3_msgs::msg::SteeringCmd>(
-    "pacmod/raw_steer_cmd", rclcpp::QoS{1});  // only for debug
+    "/pacmod/raw_steer_cmd", rclcpp::QoS{1});  // only for debug
 
   // To Autoware
   control_mode_pub_ = create_publisher<autoware_auto_vehicle_msgs::msg::ControlModeReport>(
