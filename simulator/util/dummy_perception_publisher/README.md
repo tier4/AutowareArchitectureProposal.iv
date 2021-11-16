@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This node publishes the result of the dummy detection with the type of perception. If `real_use_param_` is True, the data containing the Feature is delivered, and if False, the data without the Feature is delivered.
+This node publishes the result of the dummy detection with the type of perception. If `use_real_param` is True, the data containing the Feature is delivered, and if False, the data without the Feature is delivered.
 
 ## Inner-workings / Algorithms
 
@@ -30,7 +30,7 @@ This node publishes the result of the dummy detection with the type of perceptio
 | `detection_successful_rate` | double | 0.8           | sensor detection rate. (min) 0.0 - 1.0(max)                                                        |
 | `enable_ray_tracing`        | bool   | true          | if True, use ray tracking                                                                          |
 | `use_object_recognition`    | bool   | true          | if True, publish objects topic                                                                     |
-| `real_use_param`            | bool   | true          | This parameter is a switch that toggles the presence or absence of "feature" in the output object. |
+| `use_real_param`            | bool   | true          | This parameter is a switch that toggles the presence or absence of "feature" in the output object. |
 
 ### Node Parameters
 
@@ -42,4 +42,5 @@ None.
 
 ## Assumptions / Known limits
 
+use_real_param
 TBD.
