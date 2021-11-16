@@ -42,9 +42,9 @@ For example, the simple red and red cross traffic light label must be expressed 
 
 ### Node Parameters
 
-| Name              | Type | Description                                  |
-| ----------------- | ---- | -------------------------------------------- |
-| `classifier_type` | int  | if the value is `1`, cnn_classifier is used. |
+| Name              | Type | Description                                 |
+| ----------------- | ---- | ------------------------------------------- |
+| `classifier_type` | int  | if the value is `1`, cnn_classifier is used |
 
 ### Core Parameters
 
@@ -114,9 +114,9 @@ Example:
   ...
 -->
 
-## (Optional) References/External links
+## References/External links
 
-[1] {M. Sandler, A. Howard, M. Zhu, A. Zhmoginov and L. Chen, "MobileNetV2: Inverted Residuals and Linear Bottlenecks," 2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition, Salt Lake City, UT, 2018, pp. 4510-4520, doi: 10.1109/CVPR.2018.00474.}
+[1] M. Sandler, A. Howard, M. Zhu, A. Zhmoginov and L. Chen, "MobileNetV2: Inverted Residuals and Linear Bottlenecks," 2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition, Salt Lake City, UT, 2018, pp. 4510-4520, doi: 10.1109/CVPR.2018.00474.
 
 ## (Optional) Future extensions / Unimplemented parts
 
