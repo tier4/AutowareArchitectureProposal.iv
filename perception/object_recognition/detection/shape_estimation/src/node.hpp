@@ -41,15 +41,6 @@ private:
 
 public:
   explicit ShapeEstimationNode(const rclcpp::NodeOptions & node_options);
-  DetectedObjects convert(const DetectedObjectsWithFeature & objs_with_feature)
-  {
-    DetectedObjects obj;
-    obj.header = objs_with_feature.header;
-    for (const auto & obj_with_feature : objs_with_feature.feature_objects) {
-      obj.objects.emplace_back(obj_with_feature.object);
-    }
-    return obj;
-  }
 };
 
 #endif  // NODE_HPP_
