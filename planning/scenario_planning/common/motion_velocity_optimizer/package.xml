@@ -23,6 +23,7 @@
   <depend>boost</depend>
   <depend>eigen</depend>
   <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
   <depend>osqp_interface</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
