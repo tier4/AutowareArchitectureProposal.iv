@@ -28,7 +28,6 @@ VehicleVelocityConverter::VehicleVelocityConverter() : Node("vehicle_velocity_co
     "velocity_status", rclcpp::QoS{100},
     std::bind(&VehicleVelocityConverter::callbackVelocityReport, this, std::placeholders::_1));
 
-  twist_pub_ = create_publisher<geometry_msgs::msg::TwistStamped>("twist", rclcpp::QoS{10});
   twist_with_covariance_pub_ = create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>(
     "twist_with_covariance", rclcpp::QoS{10});
 }
@@ -39,19 +38,14 @@ void VehicleVelocityConverter::callbackVelocityReport(
   if (msg->header.frame_id != frame_id_) {
     RCLCPP_WARN(get_logger(), "frame_id is not base_link.");
   }
-  // set twist stamp msg from vehicle report msg
-  geometry_msgs::msg::TwistStamped twist_msg;
-  twist_msg.header = msg->header;
-  twist_msg.twist.linear.x = msg->longitudinal_velocity;
-  twist_msg.twist.linear.y = msg->lateral_velocity;
-  twist_msg.twist.angular.z = msg->heading_rate;
 
   // set twist with covariance msg from vehicle report msg
   geometry_msgs::msg::TwistWithCovarianceStamped twist_with_covariance_msg;
   twist_with_covariance_msg.header = msg->header;
-  twist_with_covariance_msg.twist.twist = twist_msg.twist;
+  twist_with_covariance_msg.twist.twist.linear.x = msg->longitudinal_velocity;
+  twist_with_covariance_msg.twist.twist.linear.y = msg->lateral_velocity;
+  twist_with_covariance_msg.twist.twist.angular.z = msg->heading_rate;
   twist_with_covariance_msg.twist.covariance = twist_covariance_;
 
-  twist_pub_->publish(twist_msg);
   twist_with_covariance_pub_->publish(twist_with_covariance_msg);
 }

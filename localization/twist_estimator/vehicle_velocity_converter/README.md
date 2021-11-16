@@ -2,6 +2,8 @@
 
 ## Purpose
 
+This package is converted autoware_auto_vehicle_msgs::msg::VehicleReport message to geometry_msgs::msg::TwistWithCovarianceStamped for gyro odometer node.
+
 ## Inputs / Outputs
 
 ### Input
@@ -14,7 +16,6 @@
 
 | Name                    | Type                                             | Description                                        |
 | ----------------------- | ------------------------------------------------ | -------------------------------------------------- |
-| `twist`                 | `geometry_msg::msg::TwistStamped`                | twist converted from VehicleReport message         |
 | `twist_with_covariance` | `geometry_msgs::msg::TwistWithCovarianceStamped` | twist with covariance converted from VehicleReport |
 
 ## Parameters
