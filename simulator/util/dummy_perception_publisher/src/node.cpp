@@ -32,7 +32,7 @@ DummyPerceptionPublisherNode::DummyPerceptionPublisherNode()
   detection_successful_rate_ = this->declare_parameter("detection_successful_rate", 0.8);
   enable_ray_tracing_ = this->declare_parameter("enable_ray_tracing", true);
   use_object_recognition_ = this->declare_parameter("use_object_recognition", true);
-  real_use_param_ = this->declare_parameter("real_use_param_", true);
+  real_use_param_ = this->declare_parameter("real_use_param", true);
 
   std::random_device seed_gen;
   random_generator_.seed(seed_gen());
