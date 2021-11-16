@@ -44,6 +44,7 @@ void VehicleVelocityConverter::callbackVelocityReport(
   twist_msg.header = msg->header;
   twist_msg.twist.linear.x = msg->longitudinal_velocity;
   twist_msg.twist.linear.y = msg->lateral_velocity;
+  twist_msg.twist.angular.z = msg->heading_rate;
 
   // set twist with covariance msg from vehicle report msg
   geometry_msgs::msg::TwistWithCovarianceStamped twist_with_covariance_msg;
