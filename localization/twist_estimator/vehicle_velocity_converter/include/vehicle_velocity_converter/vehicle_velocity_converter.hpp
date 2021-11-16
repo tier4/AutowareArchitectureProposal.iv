@@ -33,13 +33,16 @@ public:
 
 private:
   void callbackVelocityReport(const autoware_auto_vehicle_msgs::msg::VelocityReport::SharedPtr msg);
+  void callbackTwistStamped(const geometry_msgs::msg::TwistStamped::SharedPtr msg);
 
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VelocityReport>::SharedPtr
     vehicle_report_sub_;
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr twist_stamped_sub_;
 
   rclcpp::Publisher<geometry_msgs::msg::TwistStamped>::SharedPtr twist_pub_;
   rclcpp::Publisher<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr
     twist_with_covariance_pub_;
+  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::VelocityReport>::SharedPtr velocity_report_pub_;
 
   std::string frame_id_;
   std::array<double, 36> twist_covariance_;

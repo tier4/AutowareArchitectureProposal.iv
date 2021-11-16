@@ -24,19 +24,26 @@ VehicleVelocityConverter::VehicleVelocityConverter() : Node("vehicle_velocity_co
   }
   frame_id_ = declare_parameter("frame_id", "base_link");
 
+  // velocity report to twist stamped and stamped with covariance
   vehicle_report_sub_ = create_subscription<autoware_auto_vehicle_msgs::msg::VelocityReport>(
-    "velocity_status", rclcpp::QoS{100},
+    "~/input/velocity_report", rclcpp::QoS{100},
     std::bind(&VehicleVelocityConverter::callbackVelocityReport, this, std::placeholders::_1));
-
   twist_pub_ = create_publisher<geometry_msgs::msg::TwistStamped>("twist", rclcpp::QoS{10});
   twist_with_covariance_pub_ = create_publisher<geometry_msgs::msg::TwistWithCovarianceStamped>(
     "twist_with_covariance", rclcpp::QoS{10});
+
+  // twist stamped to velocity report
+  twist_stamped_sub_ = create_subscription<geometry_msgs::msg::TwistStamped>(
+    "~/input/twist_stamped", rclcpp::QoS{100},
+    std::bind(&VehicleVelocityConverter::callbackTwistStamped, this, std::placeholders::_1));
+  velocity_report_pub_ = create_publisher<autoware_auto_vehicle_msgs::msg::VelocityReport>(
+    "~/output/velocity_report", rclcpp::QoS{10});
 }
 
 void VehicleVelocityConverter::callbackVelocityReport(
   const autoware_auto_vehicle_msgs::msg::VelocityReport::SharedPtr msg)
 {
-  if (msg->header.frame_id != frame_id_) {
+/*   if (msg->header.frame_id != frame_id_) {
     RCLCPP_WARN(get_logger(), "frame_id is not base_link.");
   }
   // set twist stamp msg from vehicle report msg
@@ -52,5 +59,20 @@ void VehicleVelocityConverter::callbackVelocityReport(
   twist_with_covariance_msg.twist.covariance = twist_covariance_;
 
   twist_pub_->publish(twist_msg);
-  twist_with_covariance_pub_->publish(twist_with_covariance_msg);
+  twist_with_covariance_pub_->publish(twist_with_covariance_msg); */
+}
+
+void VehicleVelocityConverter::callbackTwistStamped(
+  const geometry_msgs::msg::TwistStamped::SharedPtr msg)
+{
+  if (msg->header.frame_id != frame_id_) {
+    RCLCPP_WARN(get_logger(), "frame_id is not base_link.");
+  }
+
+  autoware_auto_vehicle_msgs::msg::VelocityReport velocity_report_msg;
+  velocity_report_msg.header = msg->header;
+  velocity_report_msg.longitudinal_velocity = msg->twist.linear.x;
+  velocity_report_msg.lateral_velocity = msg->twist.linear.y;
+  velocity_report_msg.heading_rate = msg->twist.angular.z;
+  velocity_report_pub_->publish(velocity_report_msg);
 }
