@@ -35,7 +35,7 @@
 | `/output/command/control_cmd`         | `autoware_auto_control_msgs::msg::AckermannControlCommand` | gear command to vehicle                                 |
 | `/output/command/turn_indicators_cmd` | `autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand`   | turn indicators command to vehicle                      |
 | `/output/command/hazard_lights_cmd`   | `autoware_auto_vehicle_msgs::msg::HazardLightsCommand`     | hazard lights command to vehicle                        |
-| `/output/command/gear_cmd`            | `autoware_auto_vehicle_msgs::msg::GearCommand`             | gear command to vehicle                              |
+| `/output/command/gear_cmd`            | `autoware_auto_vehicle_msgs::msg::GearCommand`             | gear command to vehicle                                 |
 | `/output/gate_mode`                   | `autoware_control_msgs::msg::GateMode`                     | gate mode (AUTO or EXTERNAL)                            |
 | `/output/engage`                      | `autoware_auto_vehicle_msgs::msg::Engage`                  | engage signal                                           |
 | `/output/external_emergency`          | `autoware_external_api_msgs::msg::Emergency`               | external emergency signal                               |

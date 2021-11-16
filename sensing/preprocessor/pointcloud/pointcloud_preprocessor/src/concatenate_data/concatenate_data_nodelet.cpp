@@ -133,7 +133,7 @@ PointCloudConcatenateDataSynchronizerComponent::PointCloudConcatenateDataSynchro
     auto twist_cb = std::bind(
       &PointCloudConcatenateDataSynchronizerComponent::twist_callback, this, std::placeholders::_1);
     sub_twist_ = this->create_subscription<autoware_auto_vehicle_msgs::msg::VelocityReport>(
-      "/vehicle/status/twist", rclcpp::QoS{100}, twist_cb);
+      "/vehicle/status/velocity_status", rclcpp::QoS{100}, twist_cb);
   }
 
   // Set timer
@@ -397,7 +397,7 @@ void PointCloudConcatenateDataSynchronizerComponent::twist_callback(
 {
   // if rosbag restart, clear buffer
   if (!twist_ptr_queue_.empty()) {
-    if (rclcpp::Time(twist_ptr_queue_.front()->header.stamp) > rclcpp::Time(input->stamp)) {
+    if (rclcpp::Time(twist_ptr_queue_.front()->header.stamp) > rclcpp::Time(input->header.stamp)) {
       twist_ptr_queue_.clear();
     }
   }
@@ -406,14 +406,14 @@ void PointCloudConcatenateDataSynchronizerComponent::twist_callback(
   while (!twist_ptr_queue_.empty()) {
     if (
       rclcpp::Time(twist_ptr_queue_.front()->header.stamp) + rclcpp::Duration::from_seconds(1.0) >
-      rclcpp::Time(input->stamp)) {
+      rclcpp::Time(input->header.stamp)) {
       break;
     }
     twist_ptr_queue_.pop_front();
   }
 
   geometry_msgs::msg::TwistStamped::SharedPtr twist_ptr;
-  twist_ptr->header.stamp = input->stamp;
+  twist_ptr->header.stamp = input->header.stamp;
   twist_ptr->twist.linear.x = input->longitudinal_velocity;
   twist_ptr->twist.linear.y = input->lateral_velocity;
   twist_ptr->twist.angular.z = input->heading_rate;

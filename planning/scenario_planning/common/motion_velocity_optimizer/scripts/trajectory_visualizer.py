@@ -25,6 +25,7 @@ from geometry_msgs.msg import TwistStamped
 from matplotlib import animation
 import matplotlib.pyplot as plt
 import message_filters
+from nav_msgs.msg import Odometry
 import numpy as np
 import rclpy
 from rclpy.node import Node
@@ -112,7 +113,7 @@ class TrajectoryVisualizer(Node):
             TwistStamped, "/localization/twist", self.CallbackLocalizationTwist, 1
         )
         self.sub_vehicle_twist = self.create_subscription(
-            TwistStamped, "/vehicle/status/twist", self.CallbackVehicleTwist, 1
+            Odometry, "/vehicle/status/velocity_status", self.CallbackVehicleTwist, 1
         )
 
         # BUFFER_SIZE = 65536*100
@@ -177,7 +178,7 @@ class TrajectoryVisualizer(Node):
         self.localization_twist = cmd.twist
 
     def CallbackVehicleTwist(self, cmd):
-        self.vehicle_twist = cmd.twist
+        self.vehicle_twist = cmd.twist.twist
 
     def CallbackMotionVelOptTraj(self, cmd1, cmd2, cmd3, cmd4, cmd5):
         self.CallBackTrajExVelLim(cmd1)
