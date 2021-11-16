@@ -8,6 +8,8 @@ roi_cluster_fusion is a package for filtering clusters that are less likely to b
 
 The clusters are projected onto image planes, and then if the ROIs of clusters and ROIs by a detector are overlapped, the labels of clusters are overwritten with that of ROIs by detector. Intersection over Union (IoU) is used to determine if there are overlaps between them.
 
+![roi_cluster_fusion_image](./images/roi_cluster_fusion.png)
+
 ## Inputs / Outputs
 
 ### Input
