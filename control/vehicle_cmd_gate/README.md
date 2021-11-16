@@ -8,8 +8,8 @@
 
 ### Input
 
-| Name                                       | Type                                                       | Description                                                          |
-| ------------------------------------------ | ---------------------------------------------------------- | -------------------------------------------------------------------- |
+| Name                                        | Type                                                       | Description                                                          |
+| ------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------- |
 | `~/input/steering`                          | `autoware_auto_vehicle_msgs::msg::SteeringReport`          | steering status                                                      |
 | `~/input/auto/control_cmd`                  | `autoware_auto_control_msgs::msg::AckermannControlCommand` | command for lateral and longitudinal velocity from planning module   |
 | `~/input/auto/turn_indicators_cmd`          | `autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand`   | turn indicators command from planning module                         |
@@ -29,8 +29,8 @@
 
 ### Output
 
-| Name                                  | Type                                                       | Description                                              |
-| ------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------- |
+| Name                                   | Type                                                       | Description                                              |
+| -------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------- |
 | `~/output/vehicle_cmd_emergency`       | `autoware_auto_system_msgs::msg::EmergencyState`           | emergency state which was originally in vehicle command  |
 | `~/output/command/control_cmd`         | `autoware_auto_control_msgs::msg::AckermannControlCommand` | command for lateral and longitudinal velocity to vehicle |
 | `~/output/command/turn_indicators_cmd` | `autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand`   | turn indicators command to vehicle                       |
