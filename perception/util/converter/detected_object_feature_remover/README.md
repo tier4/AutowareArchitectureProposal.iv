@@ -4,8 +4,6 @@
 
 The `detected_object_feature_remover` is a package to convert topic-type from `DetectedObjectWithFeatureArray` to `DetectedObjects`.
 
-![traffic light roi visualization](./images/roi-visualization.png)
-
 ## Inner-workings / Algorithms
 
 ## Inputs / Outputs
