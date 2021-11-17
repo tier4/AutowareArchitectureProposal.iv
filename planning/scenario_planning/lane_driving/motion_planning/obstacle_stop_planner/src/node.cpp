@@ -1136,7 +1136,6 @@ TrajectoryPoints ObstacleStopPlannerNode::decimateTrajectory(
   std::map<size_t /* decimate */, size_t /* origin */> & index_map)
 {
   TrajectoryPoints output{};
-  // output.header = input.header;
 
   double trajectory_length_sum = 0.0;
   double next_length = 0.0;
@@ -1187,7 +1186,6 @@ TrajectoryPoints ObstacleStopPlannerNode::trimTrajectoryWithIndexFromSelfPose(
   for (size_t i = min_distance_index; i < input.size(); ++i) {
     output.push_back(input.at(i));
   }
-  // output.header = input.header;
   index = min_distance_index;
 
   return output;
