@@ -149,7 +149,7 @@ NDTScanMatcher::NDTScanMatcher()
   diagnostics_pub_ =
     this->create_publisher<diagnostic_msgs::msg::DiagnosticArray>("/diagnostics", 10);
 
-  service_ = this->create_service<autoware_localization_srvs::srv::PoseWithCovarianceStamped>(
+  service_ = this->create_service<autoware_localization_msgs::srv::PoseWithCovarianceStamped>(
     "ndt_align_srv",
     std::bind(
       &NDTScanMatcher::serviceNDTAlign, this, std::placeholders::_1, std::placeholders::_2));
@@ -210,8 +210,8 @@ void NDTScanMatcher::timerDiagnostic()
 }
 
 void NDTScanMatcher::serviceNDTAlign(
-  const autoware_localization_srvs::srv::PoseWithCovarianceStamped::Request::SharedPtr req,
-  autoware_localization_srvs::srv::PoseWithCovarianceStamped::Response::SharedPtr res)
+  const autoware_localization_msgs::srv::PoseWithCovarianceStamped::Request::SharedPtr req,
+  autoware_localization_msgs::srv::PoseWithCovarianceStamped::Response::SharedPtr res)
 {
   // get TF from pose_frame to map_frame
   auto TF_pose_to_map_ptr = std::make_shared<geometry_msgs::msg::TransformStamped>();

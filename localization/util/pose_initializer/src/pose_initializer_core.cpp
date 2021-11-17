@@ -64,14 +64,14 @@ PoseInitializer::PoseInitializer()
   initial_pose_pub_ =
     this->create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>("initialpose3d", 10);
 
-  ndt_client_ = this->create_client<autoware_localization_srvs::srv::PoseWithCovarianceStamped>(
+  ndt_client_ = this->create_client<autoware_localization_msgs::srv::PoseWithCovarianceStamped>(
     "ndt_align_srv");
   while (!ndt_client_->wait_for_service(std::chrono::seconds(1)) && rclcpp::ok()) {
     RCLCPP_INFO(get_logger(), "Waiting for service...");
   }
 
   initialize_pose_service_ =
-    this->create_service<autoware_localization_srvs::srv::PoseWithCovarianceStamped>(
+    this->create_service<autoware_localization_msgs::srv::PoseWithCovarianceStamped>(
       "service/initialize_pose", std::bind(
                                    &PoseInitializer::serviceInitializePose, this,
                                    std::placeholders::_1, std::placeholders::_2));
@@ -94,8 +94,8 @@ void PoseInitializer::callbackMapPoints(
 }
 
 void PoseInitializer::serviceInitializePose(
-  const std::shared_ptr<autoware_localization_srvs::srv::PoseWithCovarianceStamped::Request> req,
-  std::shared_ptr<autoware_localization_srvs::srv::PoseWithCovarianceStamped::Response> res)
+  const std::shared_ptr<autoware_localization_msgs::srv::PoseWithCovarianceStamped::Request> req,
+  std::shared_ptr<autoware_localization_msgs::srv::PoseWithCovarianceStamped::Response> res)
 {
   enable_gnss_callback_ = false;  // get only first topic
 
@@ -211,7 +211,7 @@ bool PoseInitializer::callAlignServiceAndPublishResult(
     return false;
   }
   auto req =
-    std::make_shared<autoware_localization_srvs::srv::PoseWithCovarianceStamped::Request>();
+    std::make_shared<autoware_localization_msgs::srv::PoseWithCovarianceStamped::Request>();
   req->pose_with_cov = *input_pose_msg;
   req->seq = ++request_id_;
 
@@ -219,7 +219,7 @@ bool PoseInitializer::callAlignServiceAndPublishResult(
 
   ndt_client_->async_send_request(
     req,
-    [this](rclcpp::Client<autoware_localization_srvs::srv::PoseWithCovarianceStamped>::SharedFuture
+    [this](rclcpp::Client<autoware_localization_msgs::srv::PoseWithCovarianceStamped>::SharedFuture
              result) {
       if (result.get()->success) {
         RCLCPP_INFO(get_logger(), "called NDT Align Server");

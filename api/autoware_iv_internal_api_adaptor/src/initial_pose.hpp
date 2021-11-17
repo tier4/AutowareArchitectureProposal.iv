@@ -16,7 +16,7 @@
 #define INITIAL_POSE_HPP_
 
 #include <autoware_api_utils/autoware_api_utils.hpp>
-#include <autoware_localization_srvs/srv/pose_with_covariance_stamped.hpp>
+#include <autoware_localization_msgs/srv/pose_with_covariance_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <autoware_external_api_msgs/srv/initialize_pose.hpp>
@@ -33,7 +33,7 @@ public:
 private:
   using InitializePose = autoware_external_api_msgs::srv::InitializePose;
   using InitializePoseAuto = autoware_external_api_msgs::srv::InitializePoseAuto;
-  using PoseWithCovarianceStampedSrv = autoware_localization_srvs::srv::PoseWithCovarianceStamped;
+  using PoseWithCovarianceStampedSrv = autoware_localization_msgs::srv::PoseWithCovarianceStamped;
 
   // ros parameter
   bool init_simulator_pose_;
