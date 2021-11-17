@@ -69,6 +69,15 @@ inline geometry_msgs::msg::TransformStamped getDummyTransform()
   transform_stamped.child_frame_id = "base_link";
   return transform_stamped;
 }
+// TODO remove this to modify latlon muxer publish topic only when data is ready
+template <typename T>
+inline void warmStart(T &node){
+    for (size_t i = 0; i < 10; i++) {
+      rclcpp::spin_some(node);  
+      const auto dt{std::chrono::milliseconds{100LL}};
+      std::this_thread::sleep_for(dt);
+  }
+}
 }  // namespace test_utils
 
 #endif  // TRAJECTORY_FOLLOWER_TEST_UTILS_HPP_

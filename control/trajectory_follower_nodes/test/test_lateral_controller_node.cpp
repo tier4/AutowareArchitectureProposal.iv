@@ -278,7 +278,8 @@ TEST_F(FakeNodeFixture, right_turn)
   steer_msg.steering_tire_angle = 0.0;
   odom_pub->publish(odom_msg);
   steer_pub->publish(steer_msg);
-
+  
+  test_utils::warmStart(node);
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
   EXPECT_LT(cmd_msg->steering_tire_angle, 0.0f);
@@ -349,6 +350,7 @@ TEST_F(FakeNodeFixture, left_turn)
   odom_pub->publish(odom_msg);
   steer_pub->publish(steer_msg);
 
+  test_utils::warmStart(node);
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
   EXPECT_GT(cmd_msg->steering_tire_angle, 0.0f);
@@ -420,6 +422,7 @@ TEST_F(FakeNodeFixture, stopped)
   odom_pub->publish(odom_msg);
   steer_pub->publish(steer_msg);
 
+  test_utils::warmStart(node);
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
   EXPECT_EQ(cmd_msg->steering_tire_angle, steer_msg.steering_tire_angle);
