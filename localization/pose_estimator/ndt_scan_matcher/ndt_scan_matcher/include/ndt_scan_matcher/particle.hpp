@@ -15,7 +15,7 @@
 #ifndef NDT_SCAN_MATCHER__PARTICLE_HPP_
 #define NDT_SCAN_MATCHER__PARTICLE_HPP_
 
-#include "geometry_msgs/msg/pose.hpp"
+#include <geometry_msgs/msg/pose.hpp>
 
 struct Particle
 {

@@ -16,10 +16,10 @@
 
 #include "behavior_path_planner/path_utilities.hpp"
 #include "behavior_path_planner/utilities.hpp"
-#include "lanelet2_extension/utility/utilities.hpp"
 
 #include <autoware_utils/autoware_utils.hpp>
 #include <interpolation/spline_interpolation.hpp>
+#include <lanelet2_extension/utility/utilities.hpp>
 
 #include <limits>
 #include <string>
