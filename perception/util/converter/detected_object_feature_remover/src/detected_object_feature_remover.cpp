@@ -28,18 +28,18 @@ DetectedObjectFeatureRemover::DetectedObjectFeatureRemover(const rclcpp::NodeOpt
 void DetectedObjectFeatureRemover::objectCallback(
   const DetectedObjectsWithFeature::ConstSharedPtr input)
 {
-  pub_->publish(convert(*input));
+  DetectedObjects output;
+  convert(*input, output);
+  pub_->publish(output);
 }
 
-DetectedObjects DetectedObjectFeatureRemover::convert(
-  const DetectedObjectsWithFeature & objs_with_feature)
+void DetectedObjectFeatureRemover::convert(
+  const DetectedObjectsWithFeature & objs_with_feature, DetectedObjects & objs)
 {
-  DetectedObjects obj;
-  obj.header = objs_with_feature.header;
+  objs.header = objs_with_feature.header;
   for (const auto & obj_with_feature : objs_with_feature.feature_objects) {
-    obj.objects.emplace_back(obj_with_feature.object);
+    objs.objects.emplace_back(obj_with_feature.object);
   }
-  return obj;
 }
 
 }  // namespace detected_object_feature_remover

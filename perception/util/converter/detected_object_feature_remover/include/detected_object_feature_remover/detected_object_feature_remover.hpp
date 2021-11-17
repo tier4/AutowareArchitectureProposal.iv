@@ -34,7 +34,7 @@ private:
   rclcpp::Subscription<DetectedObjectsWithFeature>::SharedPtr sub_;
   rclcpp::Publisher<DetectedObjects>::SharedPtr pub_;
   void objectCallback(const DetectedObjectsWithFeature::ConstSharedPtr input);
-  DetectedObjects convert(const DetectedObjectsWithFeature & objs_with_feature);
+  void convert(const DetectedObjectsWithFeature & objs_with_feature, DetectedObjects & objs);
 };
 
 }  // namespace detected_object_feature_remover
