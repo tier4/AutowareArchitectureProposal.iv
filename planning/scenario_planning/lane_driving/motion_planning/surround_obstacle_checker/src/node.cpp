@@ -104,8 +104,7 @@ void SurroundObstacleCheckerNode::pathCallback(
   }
 
   // get closest idx
-  const size_t closest_idx =
-    getClosestIdx(autoware_utils::convertToTrajectoryPointArray(*input_msg), current_pose);
+  const size_t closest_idx = getClosestIdx(output_trajectory_points, current_pose);
 
   // get nearest object
   double min_dist_to_obj = std::numeric_limits<double>::max();
