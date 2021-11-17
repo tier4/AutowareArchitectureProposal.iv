@@ -13,7 +13,7 @@
 
   <!-- input -->
   <arg name="in/external_control_cmd" default="/external/selected/external_control_cmd" />
-  <arg name="in/shift_cmd" default="/external/selected/shift_cmd" />
+  <arg name="in/shift_cmd" default="/external/selected/gear_cmd" />
   <arg name="in/emergency_stop" default="/external/selected/heartbeat" />
   <arg name="in/current_gate_mode" default="/control/current_gate_mode" />
   <arg name="in/odometry" default="/localization/kinematic_state" />
