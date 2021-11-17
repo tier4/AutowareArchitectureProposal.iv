@@ -189,7 +189,7 @@ void AdaptiveCruiseController::insertAdaptiveCruiseVelocity(
   const rclcpp::Time nearest_collision_point_time,
   const autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr object_ptr,
   const nav_msgs::msg::Odometry::ConstSharedPtr current_velocity_ptr, bool * need_to_stop,
-  TrajectoryPoints * output_trajectory)
+  TrajectoryPoints * output_trajectory, const std_msgs::msg::Header trajectory_header)
 {
   debug_values_.data.clear();
   debug_values_.data.resize(num_debug_values_, 0.0);
@@ -203,7 +203,7 @@ void AdaptiveCruiseController::insertAdaptiveCruiseVelocity(
    */
   calcDistanceToNearestPointOnPath(
     trajectory, nearest_collision_point_idx, self_pose, nearest_collision_point,
-    nearest_collision_point_time, &col_point_distance);
+    nearest_collision_point_time, &col_point_distance, trajectory_header);
 
   /*
    * calc yaw of trajectory at collision point
@@ -269,7 +269,8 @@ void AdaptiveCruiseController::insertAdaptiveCruiseVelocity(
 void AdaptiveCruiseController::calcDistanceToNearestPointOnPath(
   const TrajectoryPoints & trajectory, const int nearest_point_idx,
   const geometry_msgs::msg::Pose & self_pose, const pcl::PointXYZ & nearest_collision_point,
-  [[maybe_unused]] const rclcpp::Time & nearest_collision_point_time, double * distance)
+  const rclcpp::Time & nearest_collision_point_time, double * distance,
+  const std_msgs::msg::Header & trajectory_header)
 {
   if (trajectory.size() == 0) {
     RCLCPP_DEBUG_THROTTLE(
@@ -318,9 +319,9 @@ void AdaptiveCruiseController::calcDistanceToNearestPointOnPath(
 
   // time compensation
   if (param_.use_time_compensation_to_dist) {
-    // const rclcpp::Time base_time = trajectory.header.stamp;
-    // double delay_time = (base_time - nearest_collision_point_time).seconds();
-    // dist_to_point += prev_target_velocity_ * delay_time;
+    const rclcpp::Time base_time = trajectory_header.stamp;
+    double delay_time = (base_time - nearest_collision_point_time).seconds();
+    dist_to_point += prev_target_velocity_ * delay_time;
   }
 
   *distance = std::max(0.0, dist_to_point);

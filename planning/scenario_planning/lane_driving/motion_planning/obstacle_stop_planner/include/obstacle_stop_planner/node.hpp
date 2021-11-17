@@ -217,7 +217,7 @@ private:
 
   void searchObstacle(
     const TrajectoryPoints & decimate_trajectory, TrajectoryPoints & output,
-    PlannerData & planner_data, const std_msgs::msg::Header & output_header);
+    PlannerData & planner_data, const std_msgs::msg::Header & trajectory_header);
 
   void insertVelocity(Trajectory & trajectory, PlannerData & planner_data);
 
@@ -231,7 +231,7 @@ private:
     const TrajectoryPoints & trajectory,
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr & input_points_ptr,
     pcl::PointCloud<pcl::PointXYZ>::Ptr output_points_ptr,
-    const std_msgs::msg::Header & output_header);
+    const std_msgs::msg::Header & trajectory_header);
 
   void createOneStepPolygon(
     const geometry_msgs::msg::Pose & base_step_pose,

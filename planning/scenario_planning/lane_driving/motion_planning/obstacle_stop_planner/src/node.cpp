@@ -597,7 +597,7 @@ void ObstacleStopPlannerNode::pathCallback(const Trajectory::ConstSharedPtr inpu
 
 void ObstacleStopPlannerNode::searchObstacle(
   const TrajectoryPoints & decimate_trajectory, TrajectoryPoints & output,
-  PlannerData & planner_data, const std_msgs::msg::Header & output_header)
+  PlannerData & planner_data, const std_msgs::msg::Header & trajectory_header)
 {
   // search candidate obstacle pointcloud
   pcl::PointCloud<pcl::PointXYZ>::Ptr slow_down_pointcloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
@@ -605,7 +605,7 @@ void ObstacleStopPlannerNode::searchObstacle(
     new pcl::PointCloud<pcl::PointXYZ>);
   if (!searchPointcloudNearTrajectory(
         decimate_trajectory, obstacle_ros_pointcloud_ptr_, obstacle_candidate_pointcloud_ptr,
-        output_header)) {
+        trajectory_header)) {
     return;
   }
 
@@ -687,7 +687,7 @@ void ObstacleStopPlannerNode::searchObstacle(
           decimate_trajectory, planner_data.decimate_trajectory_collision_index,
           planner_data.current_pose, planner_data.nearest_collision_point,
           planner_data.nearest_collision_point_time, object_ptr_, current_velocity_ptr_,
-          &planner_data.stop_require, &output);
+          &planner_data.stop_require, &output, trajectory_header);
 
         break;
       }
@@ -1196,17 +1196,17 @@ bool ObstacleStopPlannerNode::searchPointcloudNearTrajectory(
   const TrajectoryPoints & trajectory,
   const sensor_msgs::msg::PointCloud2::ConstSharedPtr & input_points_ptr,
   pcl::PointCloud<pcl::PointXYZ>::Ptr output_points_ptr,
-  const std_msgs::msg::Header & output_header)
+  const std_msgs::msg::Header & trajectory_header)
 {
   // transform pointcloud
   geometry_msgs::msg::TransformStamped transform_stamped{};
   try {
     transform_stamped = tf_buffer_.lookupTransform(
-      output_header.frame_id, input_points_ptr->header.frame_id, input_points_ptr->header.stamp,
+      trajectory_header.frame_id, input_points_ptr->header.frame_id, input_points_ptr->header.stamp,
       rclcpp::Duration::from_seconds(0.5));
   } catch (tf2::TransformException & ex) {
     RCLCPP_ERROR_STREAM(
-      get_logger(), "Failed to look up transform from " << output_header.frame_id << " to "
+      get_logger(), "Failed to look up transform from " << trajectory_header.frame_id << " to "
                                                         << input_points_ptr->header.frame_id);
     return false;
   }
