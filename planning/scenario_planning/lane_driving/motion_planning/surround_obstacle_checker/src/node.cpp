@@ -92,8 +92,8 @@ void SurroundObstacleCheckerNode::pathCallback(
   }
 
   // parameter description
-  // autoware_auto_planning_msgs::msg::Trajectory output_msg = *input_msg;
-  TrajectoryPoints output_msg = autoware_utils::convertToTrajectoryPointArray(*input_msg);
+  TrajectoryPoints output_trajectory_points =
+    autoware_utils::convertToTrajectoryPointArray(*input_msg);
 
   diagnostic_msgs::msg::DiagnosticStatus no_start_reason_diag;
 
@@ -128,7 +128,7 @@ void SurroundObstacleCheckerNode::pathCallback(
     RCLCPP_WARN_THROTTLE(
       get_logger(), *this->get_clock(), 500 /* ms */,
       "do not start because there is obstacle near the ego vehicle.");
-    insertStopVelocity(closest_idx, &output_msg);
+    insertStopVelocity(closest_idx, &output_trajectory_points);
 
     // visualization for debug
     if (is_obstacle_found) {
@@ -141,7 +141,9 @@ void SurroundObstacleCheckerNode::pathCallback(
   }
 
   // publish trajectory and debug info
-  path_pub_->publish(autoware_utils::convertToTrajectory(output_msg));
+  auto output_msg = autoware_utils::convertToTrajectory(output_trajectory_points);
+  output_msg.header = input_msg->header;
+  path_pub_->publish(output_msg);
   stop_reason_diag_pub_->publish(no_start_reason_diag);
   debug_ptr_->publish();
 }
