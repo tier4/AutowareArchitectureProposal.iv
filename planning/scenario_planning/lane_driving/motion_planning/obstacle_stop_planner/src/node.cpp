@@ -997,12 +997,12 @@ void ObstacleStopPlannerNode::insertSlowDownSection(
   const auto & start_idx = slow_down_section.slow_down_start_idx;
   const auto & end_idx = slow_down_section.slow_down_end_idx;
 
-  const auto & p_base_start = output.at(start_idx);
-  const auto & p_next_start = output.at(std::min(start_idx + 1, traj_end_idx));
+  const auto p_base_start = output.at(start_idx);
+  const auto p_next_start = output.at(std::min(start_idx + 1, traj_end_idx));
   const auto & p_insert_start = slow_down_section.start_point;
 
-  const auto & p_base_end = output.at(end_idx);
-  const auto & p_next_end = output.at(std::min(end_idx + 1, traj_end_idx));
+  const auto p_base_end = output.at(end_idx);
+  const auto p_next_end = output.at(std::min(end_idx + 1, traj_end_idx));
   const auto & p_insert_end = slow_down_section.end_point;
 
   constexpr double min_dist = 1e-3;
