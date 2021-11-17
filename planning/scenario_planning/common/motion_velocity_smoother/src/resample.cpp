@@ -254,6 +254,8 @@ boost::optional<TrajectoryPoints> resampleTrajectory(
     constexpr double ep_dist = 1.0E-3;
     if (autoware_utils::calcDistance2d(output->back(), input.back()) < ep_dist) {
       output->back() = input.back();
+    } else if (output->size() >= output->max_size()) {
+      output->back() = input.back();
     } else {
       output->push_back(input.back());
     }

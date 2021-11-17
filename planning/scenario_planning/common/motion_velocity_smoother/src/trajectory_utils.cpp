@@ -136,10 +136,10 @@ boost::optional<TrajectoryPoints> extractPathAroundIndex(
   // extract trajectory
   TrajectoryPoints extracted_traj{};
   for (size_t i = behind_index; i < ahead_index + 1; ++i) {
-    extracted_traj.push_back(trajectory.at(i));
     if (extracted_traj.size() >= extracted_traj.max_size()) {
       break;
     }
+    extracted_traj.push_back(trajectory.at(i));
   }
 
   return boost::optional<TrajectoryPoints>(extracted_traj);
