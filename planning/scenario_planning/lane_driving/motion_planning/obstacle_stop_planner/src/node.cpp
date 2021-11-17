@@ -579,10 +579,9 @@ void ObstacleStopPlannerNode::pathCallback(const Trajectory::ConstSharedPtr inpu
     extend_trajectory, stop_param_.step_length, planner_data.decimate_trajectory_index_map);
 
   // search obstacles within slow-down/collision area
-  searchObstacle(
-    decimate_trajectory, output_trajectory_points, planner_data, output_trajectory.header);
+  searchObstacle(decimate_trajectory, output_trajectory_points, planner_data, input_msg->header);
   // insert slow-down-section/stop-point
-  insertVelocity(output_trajectory_points, planner_data, output_trajectory.header);
+  insertVelocity(output_trajectory_points, planner_data, input_msg->header);
 
   const auto no_slow_down_section = !planner_data.slow_down_require && !latest_slow_down_section_;
   const auto no_hunting = (rclcpp::Time(input_msg->header.stamp) - last_detection_time_).seconds() >
@@ -591,7 +590,9 @@ void ObstacleStopPlannerNode::pathCallback(const Trajectory::ConstSharedPtr inpu
     resetExternalVelocityLimit();
   }
 
-  path_pub_->publish(autoware_utils::convertToTrajectory(output_trajectory_points));
+  auto trajectory = autoware_utils::convertToTrajectory(output_trajectory_points);
+  trajectory.header = input_msg->header;
+  path_pub_->publish(trajectory);
   publishDebugData(planner_data);
 }
 
