@@ -582,7 +582,7 @@ void ObstacleStopPlannerNode::pathCallback(const Trajectory::ConstSharedPtr inpu
   searchObstacle(
     decimate_trajectory, output_trajectory_points, planner_data, output_trajectory.header);
   // insert slow-down-section/stop-point
-  insertVelocity(output_trajectory, planner_data);
+  insertVelocity(output_trajectory_points, planner_data, output_trajectory.header);
 
   const auto no_slow_down_section = !planner_data.slow_down_require && !latest_slow_down_section_;
   const auto no_hunting = (rclcpp::Time(input_msg->header.stamp) - last_detection_time_).seconds() >
@@ -695,47 +695,48 @@ void ObstacleStopPlannerNode::searchObstacle(
   }
 }
 
-void ObstacleStopPlannerNode::insertVelocity(Trajectory & output, PlannerData & planner_data)
+void ObstacleStopPlannerNode::insertVelocity(
+  TrajectoryPoints & output, PlannerData & planner_data,
+  const std_msgs::msg::Header & trajectory_header)
 {
-  TrajectoryPoints output_points = autoware_utils::convertToTrajectoryPointArray(output);
   if (planner_data.stop_require) {
     // insert stop point
-    const auto traj_end_idx = output_points.size() - 1;
+    const auto traj_end_idx = output.size() - 1;
     const auto idx = planner_data.decimate_trajectory_index_map.at(
                        planner_data.decimate_trajectory_collision_index) +
                      planner_data.trajectory_trim_index;
     const auto index_with_dist_remain = findNearestFrontIndex(
-      std::min(idx, traj_end_idx), output_points,
+      std::min(idx, traj_end_idx), output,
       createPoint(
         planner_data.nearest_collision_point.x, planner_data.nearest_collision_point.y, 0));
 
     if (index_with_dist_remain) {
       const auto stop_point = searchInsertPoint(
-        index_with_dist_remain.get().first, output_points, index_with_dist_remain.get().second);
-      insertStopPoint(stop_point, output_points, planner_data.stop_reason_diag);
+        index_with_dist_remain.get().first, output, index_with_dist_remain.get().second);
+      insertStopPoint(stop_point, output, planner_data.stop_reason_diag);
     }
   }
 
   if (planner_data.slow_down_require) {
     // insert slow down point
-    const auto traj_end_idx = output_points.size() - 1;
+    const auto traj_end_idx = output.size() - 1;
     const auto idx = planner_data.decimate_trajectory_index_map.at(
       planner_data.decimate_trajectory_slow_down_index);
     const auto index_with_dist_remain = findNearestFrontIndex(
-      std::min(idx, traj_end_idx), output_points,
+      std::min(idx, traj_end_idx), output,
       createPoint(
         planner_data.nearest_slow_down_point.x, planner_data.nearest_slow_down_point.y, 0));
 
     if (index_with_dist_remain) {
       const auto vehicle_idx = std::min(planner_data.trajectory_trim_index, traj_end_idx);
       const auto dist_baselink_to_obstacle =
-        calcSignedArcLength(output_points, vehicle_idx, index_with_dist_remain.get().first);
+        calcSignedArcLength(output, vehicle_idx, index_with_dist_remain.get().first);
 
       debug_ptr_->setDebugValues(
         DebugValues::TYPE::OBSTACLE_DISTANCE,
         dist_baselink_to_obstacle + index_with_dist_remain.get().second);
       const auto slow_down_section = createSlowDownSection(
-        index_with_dist_remain.get().first, output_points, planner_data.lateral_deviation,
+        index_with_dist_remain.get().first, output, planner_data.lateral_deviation,
         index_with_dist_remain.get().second, dist_baselink_to_obstacle);
 
       if (
@@ -745,10 +746,10 @@ void ObstacleStopPlannerNode::insertVelocity(Trajectory & output, PlannerData & 
         latest_slow_down_section_ = slow_down_section;
       }
 
-      insertSlowDownSection(slow_down_section, output_points);
+      insertSlowDownSection(slow_down_section, output);
     }
 
-    last_detection_time_ = output.header.stamp;
+    last_detection_time_ = trajectory_header.stamp;
   }
 
   if (node_param_.enable_slow_down && latest_slow_down_section_) {
@@ -759,30 +760,30 @@ void ObstacleStopPlannerNode::insertVelocity(Trajectory & output, PlannerData & 
       isInFrontOfTargetPoint(planner_data.current_pose, p_start);
     const auto reach_slow_down_end_point = isInFrontOfTargetPoint(planner_data.current_pose, p_end);
     const auto is_in_slow_down_section = reach_slow_down_start_point && !reach_slow_down_end_point;
-    const auto index_with_dist_remain = findNearestFrontIndex(0, output_points, p_end);
+    const auto index_with_dist_remain = findNearestFrontIndex(0, output, p_end);
 
     if (is_in_slow_down_section && index_with_dist_remain) {
       const auto end_insert_point_with_idx = getBackwardInsertPointFromBasePoint(
-        index_with_dist_remain.get().first, output_points, -index_with_dist_remain.get().second);
+        index_with_dist_remain.get().first, output, -index_with_dist_remain.get().second);
 
       SlowDownSection slow_down_section{};
       slow_down_section.slow_down_start_idx = 0;
-      slow_down_section.start_point = output_points.front();
+      slow_down_section.start_point = output.front();
       slow_down_section.slow_down_end_idx = end_insert_point_with_idx.get().first;
       slow_down_section.end_point = end_insert_point_with_idx.get().second;
       slow_down_section.velocity =
         set_velocity_limit_ ? std::numeric_limits<double>::max() : slow_down_param_.slow_down_vel;
 
-      insertSlowDownSection(slow_down_section, output_points);
+      insertSlowDownSection(slow_down_section, output);
     } else {
       latest_slow_down_section_ = {};
     }
   }
 
-  for (size_t i = 0; i < output_points.size() - 2; ++i) {
-    const auto & p_base = output_points.at(i).pose;
-    const auto & p_target = output_points.at(i + 1).pose;
-    const auto & p_next = output_points.at(i + 2).pose;
+  for (size_t i = 0; i < output.size() - 2; ++i) {
+    const auto & p_base = output.at(i).pose;
+    const auto & p_target = output.at(i + 1).pose;
+    const auto & p_next = output.at(i + 2).pose;
     if (!checkValidIndex(p_base, p_next, p_target)) {
       RCLCPP_ERROR(get_logger(), "detect bad index");
     }

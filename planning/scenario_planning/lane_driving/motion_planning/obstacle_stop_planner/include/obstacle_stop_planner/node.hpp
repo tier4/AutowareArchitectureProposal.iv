@@ -219,7 +219,9 @@ private:
     const TrajectoryPoints & decimate_trajectory, TrajectoryPoints & output,
     PlannerData & planner_data, const std_msgs::msg::Header & trajectory_header);
 
-  void insertVelocity(Trajectory & trajectory, PlannerData & planner_data);
+  void insertVelocity(
+    TrajectoryPoints & trajectory, PlannerData & planner_data,
+    const std_msgs::msg::Header & trajectory_header);
 
   TrajectoryPoints decimateTrajectory(
     const TrajectoryPoints & input, const double step_length, std::map<size_t, size_t> & index_map);
