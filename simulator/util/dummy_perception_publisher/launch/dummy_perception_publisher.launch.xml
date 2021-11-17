@@ -40,7 +40,7 @@
     </group>
 
     <!-- convert DynamicObjectsWithFeatureArray to DynamicObjects -->
-    <include file="$(find-pkg-share dynamic_object_converter)/launch/dynamic_object_converter.launch.xml">
+    <include file="$(find-pkg-share detected_object_feature_remover)/launch/detected_object_feature_remover.launch.xml">
       <arg name="input" value="/perception/object_recognition/detection/objects_raw" />
       <arg name="output" value="/perception/object_recognition/detection/objects" />
     </include>

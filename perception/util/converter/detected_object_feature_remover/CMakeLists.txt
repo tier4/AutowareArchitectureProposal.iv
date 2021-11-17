@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(dynamic_object_converter)
+project(detected_object_feature_remover)
 
 ### Compile options
 if(NOT CMAKE_CXX_STANDARD)
@@ -16,13 +16,13 @@ find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
 # Generate exe file
-ament_auto_add_library(dynamic_object_converter_node SHARED
-  src/dynamic_object_converter.cpp
+ament_auto_add_library(detected_object_feature_remover_node SHARED
+  src/detected_object_feature_remover.cpp
 )
 
-rclcpp_components_register_node(dynamic_object_converter_node
-  PLUGIN "dynamic_object_converter::DynamicObjectConverter"
-  EXECUTABLE dynamic_object_converter
+rclcpp_components_register_node(detected_object_feature_remover_node
+  PLUGIN "detected_object_feature_remover::DetectedObjectFeatureRemover"
+  EXECUTABLE detected_object_feature_remover
 )
 
 ament_auto_package(

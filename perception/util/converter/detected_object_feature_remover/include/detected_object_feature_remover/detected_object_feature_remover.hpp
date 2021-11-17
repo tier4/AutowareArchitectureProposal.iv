@@ -12,23 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef DYNAMIC_OBJECT_CONVERTER__DYNAMIC_OBJECT_CONVERTER_HPP_
-#define DYNAMIC_OBJECT_CONVERTER__DYNAMIC_OBJECT_CONVERTER_HPP_
+#ifndef DETECTED_OBJECT_FEATURE_REMOVER__DETECTED_OBJECT_FEATURE_REMOVER_HPP_
+#define DETECTED_OBJECT_FEATURE_REMOVER__DETECTED_OBJECT_FEATURE_REMOVER_HPP_
 
 #include <rclcpp/rclcpp.hpp>
 
 #include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <autoware_perception_msgs/msg/detected_objects_with_feature.hpp>
 
-namespace dynamic_object_converter
+namespace detected_object_feature_remover
 {
 using autoware_auto_perception_msgs::msg::DetectedObjects;
 using autoware_perception_msgs::msg::DetectedObjectsWithFeature;
 
-class DynamicObjectConverter : public rclcpp::Node
+class DetectedObjectFeatureRemover : public rclcpp::Node
 {
 public:
-  explicit DynamicObjectConverter(const rclcpp::NodeOptions & node_options);
+  explicit DetectedObjectFeatureRemover(const rclcpp::NodeOptions & node_options);
 
 private:
   rclcpp::Subscription<DetectedObjectsWithFeature>::SharedPtr sub_;
@@ -37,6 +37,6 @@ private:
   DetectedObjects convert(const DetectedObjectsWithFeature & objs_with_feature);
 };
 
-}  // namespace dynamic_object_converter
+}  // namespace detected_object_feature_remover
 
-#endif  // DYNAMIC_OBJECT_CONVERTER__DYNAMIC_OBJECT_CONVERTER_HPP_
+#endif  // DETECTED_OBJECT_FEATURE_REMOVER__DETECTED_OBJECT_FEATURE_REMOVER_HPP_

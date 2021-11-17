@@ -12,25 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <dynamic_object_converter/dynamic_object_converter.hpp>
+#include <detected_object_feature_remover/detected_object_feature_remover.hpp>
 
-namespace dynamic_object_converter
+namespace detected_object_feature_remover
 {
-DynamicObjectConverter::DynamicObjectConverter(const rclcpp::NodeOptions & node_options)
-: Node("dynamic_object_converter", node_options)
+DetectedObjectFeatureRemover::DetectedObjectFeatureRemover(const rclcpp::NodeOptions & node_options)
+: Node("detected_object_feature_remover", node_options)
 {
   using std::placeholders::_1;
   pub_ = this->create_publisher<DetectedObjects>("~/output", rclcpp::QoS(1));
   sub_ = this->create_subscription<DetectedObjectsWithFeature>(
-    "~/input", 1, std::bind(&DynamicObjectConverter::objectCallback, this, _1));
+    "~/input", 1, std::bind(&DetectedObjectFeatureRemover::objectCallback, this, _1));
 }
 
-void DynamicObjectConverter::objectCallback(const DetectedObjectsWithFeature::ConstSharedPtr input)
+void DetectedObjectFeatureRemover::objectCallback(
+  const DetectedObjectsWithFeature::ConstSharedPtr input)
 {
   pub_->publish(convert(*input));
 }
 
-DetectedObjects DynamicObjectConverter::convert(
+DetectedObjects DetectedObjectFeatureRemover::convert(
   const DetectedObjectsWithFeature & objs_with_feature)
 {
   DetectedObjects obj;
@@ -41,7 +42,7 @@ DetectedObjects DynamicObjectConverter::convert(
   return obj;
 }
 
-}  // namespace dynamic_object_converter
+}  // namespace detected_object_feature_remover
 
 #include <rclcpp_components/register_node_macro.hpp>
-RCLCPP_COMPONENTS_REGISTER_NODE(dynamic_object_converter::DynamicObjectConverter)
+RCLCPP_COMPONENTS_REGISTER_NODE(detected_object_feature_remover::DetectedObjectFeatureRemover)

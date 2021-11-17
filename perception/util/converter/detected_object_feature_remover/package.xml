@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>dynamic_object_converter</name>
+  <name>detected_object_feature_remover</name>
   <version>0.1.0</version>
-  <description>The dynamic_object_converter package</description>
+  <description>The detected_object_feature_remover package</description>
   <maintainer email="tomoya.kimura@tier4.jp">Tomoya Kimura</maintainer>
   <license>Apache License 2.0</license>
 
