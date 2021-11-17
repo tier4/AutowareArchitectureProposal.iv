@@ -1,4 +1,4 @@
-// Copyright 2018 Autoware Foundation. All rights reserved.
+// Copyright 2021 Tier IV, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,34 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef NODE_HPP_
-#define NODE_HPP_
-
-#include "shape_estimation/shape_estimator.hpp"
+#ifndef DETECTED_OBJECT_FEATURE_REMOVER__DETECTED_OBJECT_FEATURE_REMOVER_HPP_
+#define DETECTED_OBJECT_FEATURE_REMOVER__DETECTED_OBJECT_FEATURE_REMOVER_HPP_
 
 #include <rclcpp/rclcpp.hpp>
 
 #include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <autoware_perception_msgs/msg/detected_objects_with_feature.hpp>
 
-#include <memory>
-
+namespace detected_object_feature_remover
+{
 using autoware_auto_perception_msgs::msg::DetectedObjects;
 using autoware_perception_msgs::msg::DetectedObjectsWithFeature;
-class ShapeEstimationNode : public rclcpp::Node
+
+class DetectedObjectFeatureRemover : public rclcpp::Node
 {
-private:
-  // ros
-  rclcpp::Publisher<DetectedObjectsWithFeature>::SharedPtr pub_;
-  rclcpp::Subscription<DetectedObjectsWithFeature>::SharedPtr sub_;
-
-  void callback(const DetectedObjectsWithFeature::ConstSharedPtr input_msg);
-
-  std::unique_ptr<ShapeEstimator> estimator_;
-  bool use_vehicle_reference_yaw_;
-
 public:
-  explicit ShapeEstimationNode(const rclcpp::NodeOptions & node_options);
+  explicit DetectedObjectFeatureRemover(const rclcpp::NodeOptions & node_options);
+
+private:
+  rclcpp::Subscription<DetectedObjectsWithFeature>::SharedPtr sub_;
+  rclcpp::Publisher<DetectedObjects>::SharedPtr pub_;
+  void objectCallback(const DetectedObjectsWithFeature::ConstSharedPtr input);
+  void convert(const DetectedObjectsWithFeature & objs_with_feature, DetectedObjects & objs);
 };
 
-#endif  // NODE_HPP_
+}  // namespace detected_object_feature_remover
+
+#endif  // DETECTED_OBJECT_FEATURE_REMOVER__DETECTED_OBJECT_FEATURE_REMOVER_HPP_
