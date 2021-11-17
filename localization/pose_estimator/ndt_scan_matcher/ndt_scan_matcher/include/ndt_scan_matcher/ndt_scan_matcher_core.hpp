@@ -15,16 +15,13 @@
 #ifndef NDT_SCAN_MATCHER__NDT_SCAN_MATCHER_CORE_HPP_
 #define NDT_SCAN_MATCHER__NDT_SCAN_MATCHER_CORE_HPP_
 
-#include <array>
-#include <deque>
-#include <map>
-#include <memory>
-#include <mutex>
-#include <string>
-#include <thread>
-#include <vector>
-
 #define FMT_HEADER_ONLY
+
+#include "ndt_scan_matcher/particle.hpp"
+
+#include <ndt/omp.hpp>
+#include <ndt/pcl_generic.hpp>
+#include <ndt/pcl_modified.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <autoware_debug_msgs/msg/float32_stamped.hpp>
@@ -44,13 +41,15 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
 #include <tf2_sensor_msgs/tf2_sensor_msgs.h>
-// #include <pcl/registration/ndt.h>
-// #include <pcl_registration/ndt.h>
-#include "ndt_scan_matcher/particle.hpp"
 
-#include <ndt/omp.hpp>
-#include <ndt/pcl_generic.hpp>
-#include <ndt/pcl_modified.hpp>
+#include <array>
+#include <deque>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <thread>
+#include <vector>
 
 enum class NDTImplementType { PCL_GENERIC = 0, PCL_MODIFIED = 1, OMP = 2 };
 

@@ -274,13 +274,7 @@ void NDTScanMatcher::serviceNDTAlign(
   getTransform(map_frame_, req->pose_with_covariance.header.frame_id, TF_pose_to_map_ptr);
 
   // transform pose_frame to map_frame
-<<<<<<< HEAD
-  auto mapTF_initial_pose_msg_ptr =
-    std::make_shared<geometry_msgs::msg::PoseWithCovarianceStamped>();
-  *mapTF_initial_pose_msg_ptr = transform(req->pose_with_covariance, *TF_pose_to_map_ptr);
-=======
-  const auto mapTF_initial_pose_msg = transform(req->pose_with_cov, *TF_pose_to_map_ptr);
->>>>>>> Make a transform object const (#2311)
+  const auto mapTF_initial_pose_msg = transform(req->pose_with_covariance, *TF_pose_to_map_ptr);
 
   if (ndt_ptr_->getInputTarget() == nullptr) {
     res->success = false;
