@@ -185,7 +185,7 @@ LateralController::~LateralController()
 void LateralController::onTimer()
 {
   if (!checkData() || !updateCurrentPose()) {
-    publishCtrlCmd(getStopControlCommand());    
+    publishCtrlCmd(getStopControlCommand());
     return;
   }
 
