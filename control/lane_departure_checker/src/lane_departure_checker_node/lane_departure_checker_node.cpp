@@ -289,7 +289,7 @@ void LaneDepartureCheckerNode::onTimer()
     return;
   }
 
-  if (isDataValid()) {
+  if (!isDataValid()) {
     return;
   }
 
