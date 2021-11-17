@@ -137,6 +137,9 @@ boost::optional<TrajectoryPoints> extractPathAroundIndex(
   TrajectoryPoints extracted_traj{};
   for (size_t i = behind_index; i < ahead_index + 1; ++i) {
     extracted_traj.push_back(trajectory.at(i));
+    if (extracted_traj.size() >= extracted_traj.max_size()) {
+      break;
+    }
   }
 
   return boost::optional<TrajectoryPoints>(extracted_traj);
@@ -331,6 +334,10 @@ boost::optional<TrajectoryPoints> applyLinearInterpolation(
     point.heading_rate_rps = taz_p->at(i);
     point.acceleration_mps2 = alx_p->at(i);
     out_trajectory.push_back(point);
+
+    if (out_trajectory.size() >= out_trajectory.max_size()) {
+      break;
+    }
   }
   return boost::optional<TrajectoryPoints>(out_trajectory);
 }
