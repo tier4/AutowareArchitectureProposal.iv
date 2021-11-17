@@ -51,7 +51,7 @@ def generate_launch_description():
         ],
         remappings=[
             ('input/vehicle_control_command', '/vehicle/vehicle_command'),
-            ('input/ackermann_control_command', '/vehicle/ackermann_vehicle_command'),
+            ('input/ackermann_control_command', '/control/command/control_cmd'),
             ('input/gear_command', '/control/shift_decider/shift_cmd'),
             ('input/trajectory', '/planning/scenario_planning/trajectory'),
             ('output/twist', '/vehicle/status/velocity_status'),
