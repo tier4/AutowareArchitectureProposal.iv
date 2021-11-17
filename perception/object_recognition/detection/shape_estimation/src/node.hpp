@@ -32,7 +32,6 @@ private:
   // ros
   rclcpp::Publisher<DetectedObjectsWithFeature>::SharedPtr pub_;
   rclcpp::Subscription<DetectedObjectsWithFeature>::SharedPtr sub_;
-  bool output_object_with_feature_;
 
   void callback(const DetectedObjectsWithFeature::ConstSharedPtr input_msg);
 
