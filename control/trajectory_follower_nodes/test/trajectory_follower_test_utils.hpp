@@ -69,9 +69,10 @@ inline geometry_msgs::msg::TransformStamped getDummyTransform()
   transform_stamped.child_frame_id = "base_link";
   return transform_stamped;
 }
-// TODO remove this to modify latlon muxer publish topic only when data is ready
+// TODO modify the controller nodes so that they does not publish topics when data is not ready.
+// then, remove this function.
 template <typename T>
-inline void warmStart(T &node){
+inline void spinWhile(T &node){
     for (size_t i = 0; i < 10; i++) {
       rclcpp::spin_some(node);  
       const auto dt{std::chrono::milliseconds{100LL}};
