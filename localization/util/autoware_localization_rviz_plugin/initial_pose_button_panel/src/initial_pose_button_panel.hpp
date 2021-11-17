@@ -30,7 +30,6 @@
 #include <rviz_common/properties/ros_topic_property.hpp>
 #endif
 #include <autoware_localization_msgs/srv/pose_with_covariance_stamped.hpp>
-
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 
 namespace autoware_localization_rviz_plugin

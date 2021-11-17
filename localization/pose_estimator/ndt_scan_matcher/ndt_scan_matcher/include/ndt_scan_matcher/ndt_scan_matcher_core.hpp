@@ -25,11 +25,11 @@
 #include <vector>
 
 #define FMT_HEADER_ONLY
-#include <autoware_localization_msgs/srv/pose_with_covariance_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <autoware_debug_msgs/msg/float32_stamped.hpp>
 #include <autoware_debug_msgs/msg/int32_stamped.hpp>
+#include <autoware_localization_msgs/srv/pose_with_covariance_stamped.hpp>
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
