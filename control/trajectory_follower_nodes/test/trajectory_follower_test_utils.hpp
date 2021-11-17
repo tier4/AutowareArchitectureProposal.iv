@@ -69,7 +69,7 @@ inline geometry_msgs::msg::TransformStamped getDummyTransform()
   transform_stamped.child_frame_id = "base_link";
   return transform_stamped;
 }
-// TODO modify the controller nodes so that they does not publish topics when data is not ready.
+// TODO(Horibe): modify the controller nodes so that they does not publish topics when data is not ready.
 // then, remove this function.
 template <typename T>
 inline void spinWhile(T &node){
