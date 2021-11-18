@@ -137,11 +137,13 @@ TRAJECTORY_FOLLOWER_PUBLIC void calcTrajectoryYawFromXY(
   MPCTrajectory * traj, const int64_t nearest_idx, const float64_t ego_yaw);
 /**
  * @brief Calculate path curvature by 3-points circle fitting with smoothing num (use nearest 3 points when num = 1)
- * @param [in] curvature_smoothing_num index distance for 3 points for curvature calculation
+ * @param [in] curvature_smoothing_num_traj index distance for 3 points for curvature calculation
+ * @param [in] curvature_smoothing_num_ref_steer index distance for 3 points for smoothed curvature calculation
  * @param [inout] traj object trajectory
  */
 TRAJECTORY_FOLLOWER_PUBLIC bool8_t calcTrajectoryCurvature(
-  const size_t curvature_smoothing_num,
+  const size_t curvature_smoothing_num_traj,
+  const size_t curvature_smoothing_num_ref_steer,
   MPCTrajectory * traj);
 /**
  * @brief Calculate path curvature by 3-points circle fitting with smoothing num (use nearest 3 points when num = 1)

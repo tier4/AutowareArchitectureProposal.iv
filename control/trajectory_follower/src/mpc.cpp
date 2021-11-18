@@ -181,7 +181,8 @@ void MPC::setReferenceTrajectory(
   const float64_t traj_resample_dist,
   const bool8_t enable_path_smoothing,
   const int64_t path_filter_moving_ave_num,
-  const int64_t curvature_smoothing_num,
+  const int64_t curvature_smoothing_num_traj,
+  const int64_t curvature_smoothing_num_ref_steer,
   const geometry_msgs::msg::PoseStamped::SharedPtr current_pose_ptr)
 {
   trajectory_follower::MPCTrajectory mpc_traj_raw;        // received raw trajectory
@@ -234,7 +235,9 @@ void MPC::setReferenceTrajectory(
   /* calculate curvature */
   trajectory_follower::MPCUtils::calcTrajectoryCurvature(
     static_cast<size_t>(
-      curvature_smoothing_num),
+      curvature_smoothing_num_traj),
+    static_cast<size_t>(
+      curvature_smoothing_num_ref_steer),
     &mpc_traj_smoothed);
 
   /* add end point with vel=0 on traj for mpc prediction */

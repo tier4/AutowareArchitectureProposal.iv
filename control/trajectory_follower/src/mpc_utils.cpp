@@ -193,14 +193,14 @@ void calcTrajectoryYawFromXY(
   }
 }
 
-bool8_t calcTrajectoryCurvature(const size_t curvature_smoothing_num, MPCTrajectory * traj)
+bool8_t calcTrajectoryCurvature(const size_t curvature_smoothing_num_traj, const size_t curvature_smoothing_num_ref_steer, MPCTrajectory * traj)
 {
   if (!traj) {
     return false;
   }
 
-  traj->k = calcTrajectoryCurvature(1, *traj);
-  traj->smooth_k = calcTrajectoryCurvature(curvature_smoothing_num, *traj);
+  traj->k = calcTrajectoryCurvature(curvature_smoothing_num_traj, *traj);
+  traj->smooth_k = calcTrajectoryCurvature(curvature_smoothing_num_ref_steer, *traj);
   return true;
 }
 
