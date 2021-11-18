@@ -43,19 +43,11 @@ The parameters and input topic names can be set in the `ekf_localizer.launch` fi
 
 - measured_pose_with_covariance (geometry_msgs/PoseWithCovarianceStamped)
 
-  Input pose source with measurement covariance matrix, used when `use_pose_with_covariance` is true.
+  Input pose source with measurement covariance matrix.
 
 - measured_twist_with_covariance (geometry_msgs/PoseWithCovarianceStamped)
 
-  Input twist source with measurement covariance matrix, used when `use_twist_with_covariance` is true.
-
-- measured_pose (geometry_msgs/PoseStamped)
-
-  Input pose source, used when `use_pose_with_covariance` is false.
-
-- measured_twist (geometry_msgs/TwistStamped)
-
-  Input twist source, used when `use_twist_with_covariance` is false.
+  Input twist source with measurement covariance matrix.
 
 - initialpose (geometry_msgs/PoseWithCovarianceStamped)
 
@@ -131,7 +123,6 @@ The parameters are set in `launch/ekf_localizer.launch` .
 | pose_measure_uncertainty_time | double | Measured time uncertainty used for covariance calculation [s]                             | 0.01          |
 | pose_rate                     | double | Approximated input pose rate used for covariance calculation [Hz]                         | 10.0          |
 | pose_gate_dist                | double | Limit of Mahalanobis distance used for outliers detection                                 | 10000.0       |
-| use_pose_with_covariance      | bool   | Flag to use covariance in pose_with_covariance message                                    | false         |
 | pose_stddev_x                 | double | Standard deviation for pose position x [m] (used when use_pose_with_covariance is false)  | 0.05          |
 | pose_stddev_y                 | double | Standard deviation for pose position y [m] (used when use_pose_with_covariance is false)  | 0.05          |
 | pose_stddev_yaw               | double | Standard deviation for pose yaw angle [rad] (used when use_pose_with_covariance is false) | 0.025         |
@@ -143,7 +134,6 @@ The parameters are set in `launch/ekf_localizer.launch` .
 | twist_additional_delay    | double | Additional delay time for twist [s]                                                           | 0.0           |
 | twist_rate                | double | Approximated input twist rate used for covariance calculation [Hz]                            | 10.0          |
 | twist_gate_dist           | double | Limit of Mahalanobis distance used for outliers detection                                     | 10000.0       |
-| use_twist_with_covariance | bool   | Flag to use covariance in twist_with_covariance message                                       | false         |
 | twist_stddev_vx           | double | Standard deviation for twist linear x [m/s] (used when use_twist_with_covariance is false)    | 0.2           |
 | twist_stddev_wz           | double | Standard deviation for twist angular z [rad/s] (used when use_twist_with_covariance is false) | 0.03          |
 
