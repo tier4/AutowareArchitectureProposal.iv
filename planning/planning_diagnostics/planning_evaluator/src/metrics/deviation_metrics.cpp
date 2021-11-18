@@ -20,8 +20,8 @@ namespace planning_diagnostics
 {
 namespace metrics
 {
-using autoware_planning_msgs::msg::Trajectory;
-using autoware_planning_msgs::msg::TrajectoryPoint;
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 
 Stat<double> calcLateralDeviation(const Trajectory & ref, const Trajectory & traj)
 {
@@ -70,7 +70,7 @@ Stat<double> calcVelocityDeviation(const Trajectory & ref, const Trajectory & tr
   // TODO(Maxime CLEMENT) need more precise calculation
   for (TrajectoryPoint p : traj.points) {
     const size_t nearest_index = autoware_utils::findNearestIndex(ref.points, p.pose.position);
-    stat.add(p.twist.linear.x - ref.points[nearest_index].twist.linear.x);
+    stat.add(p.longitudinal_velocity_mps - ref.points[nearest_index].longitudinal_velocity_mps);
   }
   return stat;
 }

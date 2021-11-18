@@ -65,9 +65,9 @@ Stat<double> MetricsCalculator::calculate(const Metric metric, const Trajectory 
           traj, parameters.trajectory.lookahead.max_dist_m,
           parameters.trajectory.lookahead.max_time_s));
     case Metric::obstacle_distance:
-      return metrics::calcDistanceToObstacle(dynamic_objects_, traj);
+      return metrics::calcDistanceToObstacle(predicted_objects_, traj);
     case Metric::obstacle_ttc:
-      return metrics::calcTimeToCollision(dynamic_objects_, traj, parameters.obstacle.dist_thr_m);
+      return metrics::calcTimeToCollision(predicted_objects_, traj, parameters.obstacle.dist_thr_m);
     default:
       throw std::runtime_error(
         "[MetricsCalculator][calculate()] unknown Metric " +
@@ -85,9 +85,9 @@ void MetricsCalculator::setPreviousTrajectory(const Trajectory & traj)
   previous_trajectory_ = traj;
 }
 
-void MetricsCalculator::setDynamicObjects(const DynamicObjectArray & objects)
+void MetricsCalculator::setDynamicObjects(const PredictedObjects & objects)
 {
-  dynamic_objects_ = objects;
+  predicted_objects_ = objects;
 }
 
 void MetricsCalculator::setEgoPose(const geometry_msgs::msg::Pose & pose) { ego_pose_ = pose; }
@@ -111,8 +111,8 @@ Trajectory MetricsCalculator::getLookaheadTrajectory(
     const auto d =
       autoware_utils::calcDistance2d(prev_point_it->pose.position, curr_point_it->pose.position);
     dist += d;
-    if (prev_point_it->twist.linear.x != 0.0) {
-      time += d / std::abs(prev_point_it->twist.linear.x);
+    if (prev_point_it->longitudinal_velocity_mps != 0.0) {
+      time += d / std::abs(prev_point_it->longitudinal_velocity_mps);
     }
     prev_point_it = curr_point_it;
     ++curr_point_it;

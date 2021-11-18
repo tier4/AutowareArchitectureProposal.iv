@@ -38,7 +38,7 @@ PlanningEvaluatorNode::PlanningEvaluatorNode(const rclcpp::NodeOptions & node_op
     "~/input/reference_trajectory", 1,
     std::bind(&PlanningEvaluatorNode::onReferenceTrajectory, this, _1));
 
-  objects_sub_ = create_subscription<DynamicObjectArray>(
+  objects_sub_ = create_subscription<PredictedObjects>(
     "~/input/objects", 1, std::bind(&PlanningEvaluatorNode::onObjects, this, _1));
   tf_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
   transform_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
@@ -164,7 +164,7 @@ void PlanningEvaluatorNode::onReferenceTrajectory(const Trajectory::ConstSharedP
   metrics_calculator_.setReferenceTrajectory(*traj_msg);
 }
 
-void PlanningEvaluatorNode::onObjects(const DynamicObjectArray::ConstSharedPtr objects_msg)
+void PlanningEvaluatorNode::onObjects(const PredictedObjects::ConstSharedPtr objects_msg)
 {
   metrics_calculator_.setDynamicObjects(*objects_msg);
 }
@@ -173,16 +173,14 @@ bool PlanningEvaluatorNode::isFinite(const TrajectoryPoint & point)
 {
   const auto & o = point.pose.orientation;
   const auto & p = point.pose.position;
-  const auto & v = point.twist.linear;
-  const auto & w = point.twist.angular;
-  const auto & a = point.accel.linear;
-  const auto & z = point.accel.angular;
+  const auto & v = point.longitudinal_velocity_mps;
+  const auto & w = point.heading_rate_rps;
+  const auto & a = point.acceleration_mps2;
+  const auto & z = point.front_wheel_angle_rad;
 
   return std::isfinite(o.x) && std::isfinite(o.y) && std::isfinite(o.z) && std::isfinite(o.w) &&
-         std::isfinite(p.x) && std::isfinite(p.y) && std::isfinite(p.z) && std::isfinite(v.x) &&
-         std::isfinite(v.y) && std::isfinite(v.z) && std::isfinite(w.x) && std::isfinite(w.y) &&
-         std::isfinite(w.z) && std::isfinite(a.x) && std::isfinite(a.y) && std::isfinite(a.z) &&
-         std::isfinite(z.x) && std::isfinite(z.y) && std::isfinite(z.z);
+         std::isfinite(p.x) && std::isfinite(p.y) && std::isfinite(p.z) && std::isfinite(v) &&
+         std::isfinite(w) && std::isfinite(a) && std::isfinite(z);
 }
 }  // namespace planning_diagnostics
 

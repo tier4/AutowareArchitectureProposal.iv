@@ -17,7 +17,7 @@
 #include "autoware_utils/autoware_utils.hpp"
 #include "eigen3/Eigen/Core"
 
-#include "autoware_planning_msgs/msg/trajectory_point.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
 
 #include <algorithm>
 #include <limits>
@@ -26,17 +26,17 @@ namespace planning_diagnostics
 {
 namespace metrics
 {
-using autoware_planning_msgs::msg::TrajectoryPoint;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using autoware_utils::calcDistance2d;
 
-Stat<double> calcDistanceToObstacle(const DynamicObjectArray & obstacles, const Trajectory & traj)
+Stat<double> calcDistanceToObstacle(const PredictedObjects & obstacles, const Trajectory & traj)
 {
   Stat<double> stat;
   for (const TrajectoryPoint & p : traj.points) {
     double min_dist = std::numeric_limits<double>::max();
     for (const auto & object : obstacles.objects) {
       // TODO(Maxime CLEMENT): take into account the shape, not only the centroid
-      const auto dist = calcDistance2d(object.state.pose_covariance.pose, p);
+      const auto dist = calcDistance2d(object.kinematics.initial_pose_with_covariance.pose, p);
       min_dist = std::min(min_dist, dist);
     }
     stat.add(min_dist);
@@ -45,7 +45,7 @@ Stat<double> calcDistanceToObstacle(const DynamicObjectArray & obstacles, const 
 }
 
 Stat<double> calcTimeToCollision(
-  const DynamicObjectArray & obstacles, const Trajectory & traj, const double distance_threshold)
+  const PredictedObjects & obstacles, const Trajectory & traj, const double distance_threshold)
 {
   Stat<double> stat;
   /** TODO(Maxime CLEMENT):
@@ -59,11 +59,12 @@ Stat<double> calcTimeToCollision(
   double t = 0.0;  // [s] time from start of trajectory
   for (const TrajectoryPoint & p : traj.points) {
     const double traj_dist = calcDistance2d(p0, p);
-    if (p0.twist.linear.x != 0) {
-      const double dt = traj_dist / std::abs(p0.twist.linear.x);
+    if (p0.longitudinal_velocity_mps != 0) {
+      const double dt = traj_dist / std::abs(p0.longitudinal_velocity_mps);
       t += dt;
       for (auto obstacle : obstacles.objects) {
-        const double obst_dist = calcDistance2d(p, obstacle.state.pose_covariance.pose);
+        const double obst_dist =
+          calcDistance2d(p, obstacle.kinematics.initial_pose_with_covariance.pose);
         // TODO(Maxime CLEMENT): take shape into consideration
         if (obst_dist <= distance_threshold) {
           stat.add(t);
