@@ -28,4 +28,4 @@
 
 ## Limitation
 
-current feed back implementation is only applied to steering control.
+The current feed back implementation is only applied to steering control.
