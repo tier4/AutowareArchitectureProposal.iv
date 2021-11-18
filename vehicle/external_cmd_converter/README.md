@@ -2,7 +2,7 @@
 
 `external_cmd_converter` is a node that convert desired mechanical input to acceleration and velocity to by using accel/brake map .
 
-### Input topics
+## Input topics
 
 | Name                        | Type                                            | Description                                                                                                       |
 | --------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
@@ -12,15 +12,13 @@
 | `~/input/current_gate_mode` | autoware_control_msgs::msg::GateMode            | topic for gate mode.                                                                                              |
 | `~/input/odometry`          | navigation_msgs::Odometry                       | twist topic in odometry is used.                                                                                  |
 
-p
-
-### Output topics
+## Output topics
 
 | Name                | Type                                                | Description                                                        |
 | ------------------- | --------------------------------------------------- | ------------------------------------------------------------------ |
 | `~/out/control_cmd` | autoware_control_msgs::msg::AckermannControlCommand | ackermann control command converted from selected external command |
 
-### Parameters
+## Parameters
 
 | Parameter                 | Type   | Description                                           |
 | ------------------------- | ------ | ----------------------------------------------------- |
@@ -29,6 +27,6 @@ p
 | `control_command_timeout` | double | time out check for control command                    |
 | `emergency_stop_timeout`  | double | time out check for emergency stop command             |
 
-### Limitation
+## Limitation
 
 tbd.
