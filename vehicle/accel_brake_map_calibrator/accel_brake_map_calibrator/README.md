@@ -1,4 +1,4 @@
-# Accel Brake Map Calibrator
+# accel_brake_map_calibrator
 
 The role of this node is to automatically calibrate `accel_map.csv` / `brake_map.csv` used in the `raw_vehicle_cmd_converter` node.
 
