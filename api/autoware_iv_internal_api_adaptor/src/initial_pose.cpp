@@ -70,7 +70,7 @@ void InitialPose::setInitializePose(
 
   if (init_localization_pose_) {
     const auto req = std::make_shared<PoseWithCovarianceStampedSrv::Request>();
-    req->pose_with_cov = request->pose;
+    req->pose_with_covariance = request->pose;
     const auto [status, resp] = cli_set_initialize_pose_->call(req);
     if (!autoware_api_utils::is_success(status)) {
       response->status = status;
