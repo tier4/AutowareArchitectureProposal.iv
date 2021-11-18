@@ -1,24 +1,22 @@
-# as
+# pacmod_interface
 
-`as` is the package to connect Autoware with Pacmod via pacmod_interface.
+`pacmod_interface` is the package to connect Autoware with Pacmod.
 
-## pacmod interface
+## Input / Output
 
-### Input / Output
-
-#### Input topics
+### Input topics
 
 - From Autoware
 
-  | Name                           | Type                                                     | Description                                           |
-  | ------------------------------ | -------------------------------------------------------- | ----------------------------------------------------- |
-  | `/control/control_cmd`         | autoware_auto_control_msgs::msg::AckermannControlCommand | lateral and longitudinal control command              |
-  | `/control/gear_cmd`            | autoware_auto_vehicle_msgs::msg::GearCommand             | gear command                                          |
-  | `/control/turn_indicators_cmd` | autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand   | turn indicators command                               |
-  | `/control/hazard_lights_cmd`   | autoware_auto_vehicle_msgs::msg::HazardLightsCommand     | hazard lights command                                 |
-  | `/vehicle/engage`              | autoware_auto_vehicle_msgs::msg::Engage                  | engage command                                        |
-  | `/vehicle/actuation_cmd`       | autoware_vehicle_msgs::msg::ActuationCommandStamped      | actuation (accel/brake pedal, steering wheel) command |
-  | `/control/emergency_cmd`       | autoware_vehicle_msgs::msg::VehicleEmergencyStamped      | emergency command                                     |
+  | Name                                   | Type                                                     | Description                                           |
+  | -------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------- |
+  | `/control/command/control_cmd`         | autoware_auto_control_msgs::msg::AckermannControlCommand | lateral and longitudinal control command              |
+  | `/control/command/gear_cmd`            | autoware_auto_vehicle_msgs::msg::GearCommand             | gear command                                          |
+  | `/control/command/turn_indicators_cmd` | autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand   | turn indicators command                               |
+  | `/control/command/hazard_lights_cmd`   | autoware_auto_vehicle_msgs::msg::HazardLightsCommand     | hazard lights command                                 |
+  | `/vehicle/engage`                      | autoware_auto_vehicle_msgs::msg::Engage                  | engage command                                        |
+  | `/vehicle/command/actuation_cmd`       | autoware_vehicle_msgs::msg::ActuationCommandStamped      | actuation (accel/brake pedal, steering wheel) command |
+  | `/control/command/emergency_cmd`       | autoware_vehicle_msgs::msg::VehicleEmergencyStamped      | emergency command                                     |
 
 - From Pacmod
 
@@ -32,7 +30,7 @@
   | `/pacmod/parsed_tx/turn_rpt`        | pacmod3_msgs::msg::SystemRptInt   | current turn indicators status                                          |
   | `/pacmod/parsed_tx/global_rpt`      | pacmod3_msgs::msg::GlobalRpt      | current status of other parameters (e.g. override_active, can_time_out) |
 
-#### Output topics
+### Output topics
 
 - To Pacmod
 
@@ -46,17 +44,17 @@
 
 - To Autoware
 
-  | Name                               | Type                                                   | Description                                          |
-  | ---------------------------------- | ------------------------------------------------------ | ---------------------------------------------------- |
-  | `/vehicle/status/control_mode`     | autoware_auto_vehicle_mgs::msg::ControlModeReport      | control mode                                         |
-  | `/vehicle/status/twist`            | autoware_auto_vehicle_mgs::msg::VelocityReport         | velocity                                             |
-  | `/vehicle/status/steering`         | autoware_auto_vehicle_mgs::msg::SteeringReport         | steering wheel angle                                 |
-  | `/vehicle/status/gear_cmd`         | autoware_auto_vehicle_mgs::msg::GearReport             | gear status                                          |
-  | `/vehicle/status/turn_indicators`  | autoware_auto_vehicle_mgs::msg::TurnIndicatorsReport   | turn indicators status                               |
-  | `/vehicle/status/hazard_lights`    | autoware_auto_vehicle_mgs::msg::HazardLightsReport     | hazard lights status                                 |
-  | `/vehicle/status/actuation_status` | autoware_auto_vehicle_mgs::msg::ActuationStatusStamped | actuation (accel/brake pedal, steering wheel) status |
+  | Name                                     | Type                                                   | Description                                          |
+  | ---------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------- |
+  | `/vehicle/status/control_mode`           | autoware_auto_vehicle_mgs::msg::ControlModeReport      | control mode                                         |
+  | `/vehicle/status/velocity_status`        | autoware_auto_vehicle_mgs::msg::VelocityReport         | velocity                                             |
+  | `/vehicle/status/steering_status`        | autoware_auto_vehicle_mgs::msg::SteeringReport         | steering wheel angle                                 |
+  | `/vehicle/status/gear_status`            | autoware_auto_vehicle_mgs::msg::GearReport             | gear status                                          |
+  | `/vehicle/status/turn_indicators_status` | autoware_auto_vehicle_mgs::msg::TurnIndicatorsReport   | turn indicators status                               |
+  | `/vehicle/status/hazard_lights_status`   | autoware_auto_vehicle_mgs::msg::HazardLightsReport     | hazard lights status                                 |
+  | `/vehicle/status/actuation_status`       | autoware_auto_vehicle_mgs::msg::ActuationStatusStamped | actuation (accel/brake pedal, steering wheel) status |
 
-### ROS Parameters
+## ROS Parameters
 
 | Name                              | Type   | Description                                                                               |
 | --------------------------------- | ------ | ----------------------------------------------------------------------------------------- |
