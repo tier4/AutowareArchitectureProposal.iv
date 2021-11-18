@@ -30,9 +30,9 @@ ros2 run rqt_reconfigure rqt_reconfigure
 | Name                | Type   | Default Value | Explanation                                       |
 | ------------------- | ------ | ------------- | ------------------------------------------------- |
 | `update_rate`       | int    | `10`          | Timer callback period [Hz]                        |
-| `use_first_command` | bool   | `true`        | Use first command or not                          |
+| `use_first_command` | bool   | `true`        | Consider instrument id or not                     |
 | `instrument_id`     | string | ``            | Used as command id                                |
-| `approval`          | bool   | `false`       | Has right of way or not                           |
+| `approval`          | bool   | `false`       | set approval filed to ros param                   |
 | `is_finalized`      | bool   | `false`       | Stop at stop_line if finalization isn't completed |
 
 ## Assumptions / Known limits
