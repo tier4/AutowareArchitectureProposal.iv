@@ -413,7 +413,7 @@ bool AnalyticalJerkConstrainedSmoother::applyForwardJerkFilter(
       autoware_utils::calcDistance2d(base_trajectory.at(i - 1), base_trajectory.at(i));
     const double dt = ds / std::max(prev_vel, 1.0);
 
-    const double prev_acc = output_trajectory.points.at(i - 1).acceleration_mps2;
+    const double prev_acc = output_trajectory.at(i - 1).acceleration_mps2;
     const double curr_vel = std::max(prev_vel + prev_acc * dt, 0.0);
 
     const double error_vel = base_trajectory.at(i).longitudinal_velocity_mps - curr_vel;
