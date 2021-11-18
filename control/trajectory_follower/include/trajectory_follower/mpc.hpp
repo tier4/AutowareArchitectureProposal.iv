@@ -139,8 +139,7 @@ struct MPCMatrix
   Eigen::MatrixXd Qex;
   Eigen::MatrixXd R1ex;
   Eigen::MatrixXd R2ex;
-  Eigen::MatrixXd Urefex;
-  Eigen::MatrixXd Yrefex;
+  Eigen::MatrixXd Uref_ex;
 };
 /**
  * MPC-based waypoints follower class

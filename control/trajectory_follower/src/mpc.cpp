@@ -141,7 +141,7 @@ bool8_t MPC::calculateMPC(
   // [1] mpc calculation result
   append_diag_data(Uex(0));
   // [2] feedforward steering value
-  append_diag_data(mpc_matrix.Urefex(0));
+  append_diag_data(mpc_matrix.Uref_ex(0));
   // [3] feedforward steering value raw
   append_diag_data(std::atan(nearest_smooth_k * wb));
   // [4] current steering angle
@@ -309,7 +309,7 @@ bool8_t MPC::getData(
   /* check yaw error limit */
   if (std::fabs(data->yaw_err) > m_admissible_yaw_error_rad) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      m_logger, *m_clock, duration, "yaw error is over limit. error = %fdeg, limit %fdeg",
+      m_logger, *m_clock, duration, "yaw error is over limit. error = %f deg, limit %f deg",
       RAD2DEG * data->yaw_err, RAD2DEG * m_admissible_yaw_error_rad);
     return false;
   }
@@ -502,13 +502,13 @@ trajectory_follower::MPCTrajectory MPC::applyVelocityDynamicsFilter(
     trajectory_follower::MPCUtils::calcNearestIndex(input, current_pose);
   if (nearest_idx < 0) {return input;}
 
-  const float64_t alim = m_param.acceleration_limit;
+  const float64_t acc_lim = m_param.acceleration_limit;
   const float64_t tau = m_param.velocity_time_constant;
 
   trajectory_follower::MPCTrajectory output = input;
   trajectory_follower::MPCUtils::dynamicSmoothingVelocity(
     static_cast<size_t>(nearest_idx), v0,
-    alim, tau, output);
+    acc_lim, tau, output);
   const float64_t t_ext = 100.0;  // extra time to prevent mpc calculation failure due to short time
   const float64_t t_end = output.relative_time.back() + getPredictionTime() + t_ext;
   const float64_t v_end = 0.0;
@@ -521,7 +521,7 @@ trajectory_follower::MPCTrajectory MPC::applyVelocityDynamicsFilter(
 
 /*
  * predict equation: Xec = Aex * x0 + Bex * Uex + Wex
- * cost function: J = Xex' * Qex * Xex + (Uex - Uref)' * R1ex * (Uex - Urefex) + Uex' * R2ex * Uex
+ * cost function: J = Xex' * Qex * Xex + (Uex - Uref)' * R1ex * (Uex - Uref_ex) + Uex' * R2ex * Uex
  * Qex = diag([Q,Q,...]), R1ex = diag([R,R,...])
  */
 MPCMatrix MPC::generateMPCMatrix(
@@ -543,7 +543,7 @@ MPCMatrix MPC::generateMPCMatrix(
   m.Qex = MatrixXd::Zero(DIM_Y * N, DIM_Y * N);
   m.R1ex = MatrixXd::Zero(DIM_U * N, DIM_U * N);
   m.R2ex = MatrixXd::Zero(DIM_U * N, DIM_U * N);
-  m.Urefex = MatrixXd::Zero(DIM_U * N, 1);
+  m.Uref_ex = MatrixXd::Zero(DIM_U * N, 1);
 
   /* weight matrix depends on the vehicle model */
   MatrixXd Q = MatrixXd::Zero(DIM_Y, DIM_Y);
@@ -618,7 +618,7 @@ MPCMatrix MPC::generateMPCMatrix(
     if (std::fabs(Uref(0, 0)) < DEG2RAD * m_param.zero_ff_steer_deg) {
       Uref(0, 0) = 0.0;  // ignore curvature noise
     }
-    m.Urefex.block(i * DIM_U, 0, DIM_U, 1) = Uref;
+    m.Uref_ex.block(i * DIM_U, 0, DIM_U, 1) = Uref;
   }
 
   /* add lateral jerk : weight for (v * {u(i) - u(i-1)} )^2 */
@@ -638,7 +638,7 @@ MPCMatrix MPC::generateMPCMatrix(
 
 /*
  * solve quadratic optimization.
- * cost function: J = Xex' * Qex * Xex + (Uex - Uref)' * R1ex * (Uex - Urefex) + Uex' * R2ex * Uex
+ * cost function: J = Xex' * Qex * Xex + (Uex - Uref)' * R1ex * (Uex - Uref_ex) + Uex' * R2ex * Uex
  *                , Qex = diag([Q,Q,...]), R1ex = diag([R,R,...])
  * constraint matrix : lb < U < ub, lbA < A*U < ubA
  * current considered constraint
@@ -680,7 +680,7 @@ bool8_t MPC::executeOptimization(
   H.triangularView<Eigen::Upper>() = CB.transpose() * QCB;
   H.triangularView<Eigen::Upper>() += m.R1ex + m.R2ex;
   H.triangularView<Eigen::Lower>() = H.transpose();
-  MatrixXd f = (m.Cex * (m.Aex * x0 + m.Wex)).transpose() * QCB - m.Urefex.transpose() * m.R1ex;
+  MatrixXd f = (m.Cex * (m.Aex * x0 + m.Wex)).transpose() * QCB - m.Uref_ex.transpose() * m.R1ex;
   addSteerWeightF(&f);
 
   MatrixXd A = MatrixXd::Identity(DIM_U_N, DIM_U_N);
@@ -800,7 +800,7 @@ bool8_t MPC::isValid(const MPCMatrix & m) const
   if (
     m.Aex.array().isNaN().any() || m.Bex.array().isNaN().any() || m.Cex.array().isNaN().any() ||
     m.Wex.array().isNaN().any() || m.Qex.array().isNaN().any() || m.R1ex.array().isNaN().any() ||
-    m.R2ex.array().isNaN().any() || m.Urefex.array().isNaN().any())
+    m.R2ex.array().isNaN().any() || m.Uref_ex.array().isNaN().any())
   {
     return false;
   }
@@ -808,7 +808,7 @@ bool8_t MPC::isValid(const MPCMatrix & m) const
   if (
     m.Aex.array().isInf().any() || m.Bex.array().isInf().any() || m.Cex.array().isInf().any() ||
     m.Wex.array().isInf().any() || m.Qex.array().isInf().any() || m.R1ex.array().isInf().any() ||
-    m.R2ex.array().isInf().any() || m.Urefex.array().isInf().any())
+    m.R2ex.array().isInf().any() || m.Uref_ex.array().isInf().any())
   {
     return false;
   }
