@@ -68,7 +68,7 @@ def generate_launch_description():
                 {
                     "input_topic": LaunchConfiguration("input_nearest_traffic_light_state"),
                     "output_topic": LaunchConfiguration("get_nearest_traffic_light_status"),
-                    "type": "autoware_perception_msgs/msg/LookingTrafficSignal",
+                    "type": "autoware_auto_perception_msgs/msg/LookingTrafficSignal",
                 }
             ],
             extra_arguments=[{"use_intra_process_comms": LaunchConfiguration("use_intra_process")}],
