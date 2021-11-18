@@ -1,6 +1,6 @@
 # external_cmd_converter
 
-`external_cmd_converter` is a node that convert desired mechanical input to acceleration and velocity to by using accel/brake map .
+`external_cmd_converter` is a node that converts desired mechanical input to acceleration and velocity by using accel/brake map.
 
 ## Input topics
 
