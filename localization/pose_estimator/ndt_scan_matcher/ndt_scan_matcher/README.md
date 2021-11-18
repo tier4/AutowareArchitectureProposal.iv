@@ -1,4 +1,4 @@
-# ndt scan matcher
+# ndt_scan_matcher
 
 ## Purpose
 
