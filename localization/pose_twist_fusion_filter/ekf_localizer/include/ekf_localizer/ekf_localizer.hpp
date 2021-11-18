@@ -71,10 +71,6 @@ private:
     pub_pose_cov_no_yawbias_;
   //!< @brief initial pose subscriber
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr sub_initialpose_;
-  //!< @brief measurement pose subscriber
-  rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr sub_pose_;
-  //!< @brief measurement twist subscriber
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_twist_;
   //!< @brief measurement pose with covariance subscriber
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr sub_pose_with_cov_;
   //!< @brief measurement twist with covariance subscriber
@@ -112,8 +108,6 @@ private:
   double pose_stddev_x_;            //!< @brief  standard deviation for pose position x [m]
   double pose_stddev_y_;            //!< @brief  standard deviation for pose position y [m]
   double pose_stddev_yaw_;          //!< @brief  standard deviation for pose position yaw [rad]
-  bool use_pose_with_covariance_;   //!< @brief  use covariance in pose_with_covariance message
-  bool use_twist_with_covariance_;  //!< @brief  use covariance in twist_with_covariance message
 
   /* twist */
   double twist_additional_delay_;  //!< @brief  compensated delay = (twist.header.stamp - now)
@@ -159,16 +153,6 @@ private:
    * @brief publish tf for tf_rate [Hz]
    */
   void timerTFCallback();
-
-  /**
-   * @brief set pose measurement
-   */
-  void callbackPose(geometry_msgs::msg::PoseStamped::SharedPtr msg);
-
-  /**
-   * @brief set twist measurement
-   */
-  void callbackTwist(geometry_msgs::msg::TwistStamped::SharedPtr msg);
 
   /**
    * @brief set poseWithCovariance measurement

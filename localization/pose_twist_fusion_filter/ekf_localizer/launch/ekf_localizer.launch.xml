@@ -9,8 +9,6 @@
   <arg name="input_initial_pose_name" default="initialpose" />
 
   <!-- for Pose measurement -->
-  <arg name="use_pose_with_covariance" default="false"/>
-  <arg name="input_pose_name" default="in_pose"/>
   <arg name="input_pose_with_cov_name" default="in_pose_with_covariance"/>
   <arg name="pose_additional_delay" default="0.0"/>
   <arg name="pose_measure_uncertainty_time" default="0.01"/>
@@ -21,8 +19,6 @@
   <arg name="pose_stddev_yaw" default="0.025"/>
 
   <!-- for twist measurement -->
-  <arg name="use_twist_with_covariance" default="false"/>
-  <arg name="input_twist_name" default="in_twist"/>
   <arg name="input_twist_with_cov_name" default="in_twist_with_covariance"/>
   <arg name="twist_additional_delay" default="0.0"/>
   <arg name="twist_rate" default="10.0"/>
@@ -47,10 +43,8 @@
 
   <node pkg="ekf_localizer" exec="ekf_localizer" name="ekf_localizer" output="screen">
 
-    <remap from="in_pose" to="$(var input_pose_name)"/>
     <remap from="in_pose_with_covariance" to="$(var input_pose_with_cov_name)"/>
 
-    <remap from="in_twist" to="$(var input_twist_name)"/>
     <remap from="in_twist_with_covariance" to="$(var input_twist_with_cov_name)"/>
 
     <remap from="initialpose" to="$(var input_initial_pose_name)"/>
@@ -64,7 +58,6 @@
     <param name="tf_rate" value="$(var tf_rate)"/>
     <param name="extend_state_step" value="$(var extend_state_step)"/>
 
-    <param name="use_pose_with_covariance" value="$(var use_pose_with_covariance)"/>
     <param name="pose_additional_delay" value="$(var pose_additional_delay)"/>
     <param name="pose_measure_uncertainty_time" value="$(var pose_measure_uncertainty_time)"/>
     <param name="pose_rate" value="$(var pose_rate)"/>
@@ -73,7 +66,6 @@
     <param name="pose_stddev_y" value="$(var pose_stddev_y)"/>
     <param name="pose_stddev_yaw" value="$(var pose_stddev_yaw)"/>
 
-    <param name="use_twist_with_covariance" value="$(var use_twist_with_covariance)"/>
     <param name="twist_additional_delay" value="$(var twist_additional_delay)"/>
     <param name="twist_rate" value="$(var twist_rate)"/>
     <param name="twist_gate_dist" value="$(var twist_gate_dist)"/>
