@@ -33,18 +33,14 @@ namespace behavior_velocity_planner
 namespace bg = boost::geometry;
 
 static geometry_msgs::msg::Pose getObjectPoseWithVelocityDirection(
-  const autoware_perception_msgs::msg::State & obj_state)
+  const autoware_auto_perception_msgs::msg::PredictedObjectKinematics & obj_state)
 {
-  if (obj_state.orientation_reliable) {
-    return obj_state.pose_covariance.pose;
-  }
-
-  if (obj_state.twist_covariance.twist.linear.x >= 0) {
-    return obj_state.pose_covariance.pose;
+  if (obj_state.initial_twist_with_covariance.twist.linear.x >= 0) {
+    return obj_state.initial_pose_with_covariance.pose;
   }
 
   // When the object velocity is negative, invert orientation (yaw)
-  auto obj_pose = obj_state.pose_covariance.pose;
+  auto obj_pose = obj_state.initial_pose_with_covariance.pose;
   double yaw, pitch, roll;
   tf2::getEulerYPR(obj_pose.orientation, yaw, pitch, roll);
   tf2::Quaternion inv_q;
@@ -273,7 +269,7 @@ bool IntersectionModule::checkCollision(
         continue;
       }
       // check direction of objects
-      const auto object_direction = getObjectPoseWithVelocityDirection(object.state);
+      const auto object_direction = getObjectPoseWithVelocityDirection(object.kinematics);
       if (checkAngleForTargetLanelets(object_direction, detection_area_lanelet_ids)) {
         target_objects.objects.push_back(object);
         break;
@@ -322,9 +318,8 @@ bool IntersectionModule::checkCollision(
             return bg::intersects(ego_poly, LineString2d{to_bg2d(a), to_bg2d(b)});
           });
         const double ref_object_enter_time =
-          (rclcpp::Time((*first_itr).header.stamp) -
-           rclcpp::Time(predicted_path.path.front().header.stamp))
-            .seconds();
+          static_cast<double>(first_itr - predicted_path.path.begin()) *
+          rclcpp::Duration(predicted_path.time_step).seconds();
         auto start_time_distance_itr = time_distance_array.begin();
         if (ref_object_enter_time - planner_param_.collision_start_margin_time > 0) {
           start_time_distance_itr = std::lower_bound(
@@ -335,9 +330,9 @@ bool IntersectionModule::checkCollision(
             continue;
           }
         }
-        const double ref_object_exit_time = (rclcpp::Time((*last_itr).header.stamp) -
-                                             rclcpp::Time(predicted_path.path.front().header.stamp))
-                                              .seconds();
+        const double ref_object_exit_time =
+          static_cast<double>(last_itr.base() - predicted_path.path.begin()) *
+          rclcpp::Duration(predicted_path.time_step).seconds();
         auto end_time_distance_itr = std::lower_bound(
           time_distance_array.begin(), time_distance_array.end(),
           ref_object_exit_time + planner_param_.collision_end_margin_time,
@@ -517,10 +512,10 @@ Polygon2d IntersectionModule::toFootprintPolygon(
 }
 
 Polygon2d IntersectionModule::toPredictedFootprintPolygon(
-  const autoware_perception_msgs::msg::DynamicObject & object,
-  const geometry_msgs::msg::PoseWithCovarianceStamped & predicted_pose) const
+  const autoware_auto_perception_msgs::msg::PredictedObject & object,
+  const geometry_msgs::msg::Pose & predicted_pose) const
 {
-  return obj2polygon(predicted_pose.pose.pose, object.shape.dimensions);
+  return obj2polygon(predicted_pose, object.shape.dimensions);
 }
 
 bool IntersectionModule::isTargetCollisionVehicleType(
@@ -625,7 +620,7 @@ bool IntersectionModule::checkAngleForTargetLanelets(
 
 lanelet::ConstLanelets IntersectionModule::getEgoLaneWithNextLane(
   lanelet::LaneletMapConstPtr lanelet_map_ptr,
-  const autoware_planning_msgs::msg::PathWithLaneId & path) const
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path) const
 {
   const auto & assigned_lanelet = lanelet_map_ptr->laneletLayer.get(lane_id_);
   const auto last_itr = std::find_if(
@@ -644,7 +639,7 @@ lanelet::ConstLanelets IntersectionModule::getEgoLaneWithNextLane(
 
 double IntersectionModule::calcDistanceUntilIntersectionLanelet(
   lanelet::LaneletMapConstPtr lanelet_map_ptr,
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const size_t closest_idx) const
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const size_t closest_idx) const
 {
   const auto & assigned_lanelet = lanelet_map_ptr->laneletLayer.get(lane_id_);
   const auto intersection_first_itr = std::find_if(
