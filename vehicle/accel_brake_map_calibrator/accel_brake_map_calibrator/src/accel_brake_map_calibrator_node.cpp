@@ -444,7 +444,7 @@ void AccelBrakeMapCalibrator::timerCallbackOutputCSV()
 void AccelBrakeMapCalibrator::callbackVelocity(
   const autoware_auto_vehicle_msgs::msg::VelocityReport::ConstSharedPtr msg)
 {
-  // convert odometry to twiststamped
+  // convert velocity-report to twist-stamped
   auto twist_msg = std::make_shared<geometry_msgs::msg::TwistStamped>();
   twist_msg->header = msg->header;
   twist_msg->twist.linear.x = msg->longitudinal_velocity;
