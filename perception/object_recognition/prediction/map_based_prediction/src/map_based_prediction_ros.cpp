@@ -274,6 +274,7 @@ void MapBasedPredictionROS::removeInvalidObject(const double current_time)
       invalid_object_id.push_back(object_id);
       continue;
     }
+
     const double latest_object_time = rclcpp::Time(object_data.back().pose.header.stamp).seconds();
 
     // Delete Old Objects

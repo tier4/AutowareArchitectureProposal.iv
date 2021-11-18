@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #pragma once
-
 #include "euclidean_cluster/euclidean_cluster_interface.hpp"
 #include "euclidean_cluster/utils.hpp"
 
