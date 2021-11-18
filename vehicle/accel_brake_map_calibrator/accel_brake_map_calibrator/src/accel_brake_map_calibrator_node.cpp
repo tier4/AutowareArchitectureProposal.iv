@@ -180,9 +180,10 @@ AccelBrakeMapCalibrator::AccelBrakeMapCalibrator(const rclcpp::NodeOptions & nod
   using std::placeholders::_2;
   using std::placeholders::_3;
 
-  twist_sub_ = create_subscription<geometry_msgs::msg::TwistStamped>(
-    "~/input/twist", queue_size, std::bind(&AccelBrakeMapCalibrator::callbackTwist, this, _1));
-  steer_sub_ = create_subscription<autoware_vehicle_msgs::msg::Steering>(
+  velocity_sub_ = create_subscription<autoware_auto_vehicle_msgs::msg::VelocityReport>(
+    "~/input/velocity", queue_size,
+    std::bind(&AccelBrakeMapCalibrator::callbackVelocity, this, _1));
+  steer_sub_ = create_subscription<autoware_auto_vehicle_msgs::msg::SteeringReport>(
     "~/input/steer", queue_size, std::bind(&AccelBrakeMapCalibrator::callbackSteer, this, _1));
   actuation_status_sub_ = create_subscription<autoware_vehicle_msgs::msg::ActuationStatusStamped>(
     "~/input/actuation_status", queue_size,
@@ -285,8 +286,9 @@ void AccelBrakeMapCalibrator::timerCallback()
 
   // data check 2
   if (
-    isTimeout(twist_ptr_->header, timeout_sec_) || isTimeout(steer_ptr_->header, timeout_sec_) ||
-    isTimeout(accel_pedal_ptr_, timeout_sec_) || isTimeout(brake_pedal_ptr_, timeout_sec_)) {
+    isTimeout(twist_ptr_->header.stamp, timeout_sec_) ||
+    isTimeout(steer_ptr_->stamp, timeout_sec_) || isTimeout(accel_pedal_ptr_, timeout_sec_) ||
+    isTimeout(brake_pedal_ptr_, timeout_sec_)) {
     auto & clk = *this->get_clock();
     RCLCPP_WARN_STREAM_THROTTLE(
       rclcpp::get_logger("accel_brake_map_calibrator"), clk, 5000,
@@ -311,7 +313,7 @@ void AccelBrakeMapCalibrator::timerCallback()
       &output_log_, rclcpp::Time(twist_ptr_->header.stamp).seconds(), twist_ptr_->twist.linear.x,
       acceleration_, getPitchCompensatedAcceleration(), delayed_accel_pedal_ptr_->data,
       delayed_brake_pedal_ptr_->data, accel_pedal_speed_, brake_pedal_speed_, pitch_,
-      steer_ptr_->data, jerk_, full_original_accel_rmse_, part_original_accel_rmse_,
+      steer_ptr_->steering_tire_angle, jerk_, full_original_accel_rmse_, part_original_accel_rmse_,
       new_accel_rmse_);
   }
 
@@ -352,7 +354,7 @@ void AccelBrakeMapCalibrator::timerCallback()
   }
 
   // steer check
-  if (std::fabs(steer_ptr_->data) > max_steer_threshold_) {
+  if (std::fabs(steer_ptr_->steering_tire_angle) > max_steer_threshold_) {
     // too large steer
     too_large_steer_count_++;
     return;
@@ -439,12 +441,19 @@ void AccelBrakeMapCalibrator::timerCallbackOutputCSV()
   }
 }
 
-void AccelBrakeMapCalibrator::callbackTwist(
-  const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
+void AccelBrakeMapCalibrator::callbackVelocity(
+  const autoware_auto_vehicle_msgs::msg::VelocityReport::ConstSharedPtr msg)
 {
+  // convert odometry to twiststamped
+  auto twist_msg = std::make_shared<geometry_msgs::msg::TwistStamped>();
+  twist_msg->header = msg->header;
+  twist_msg->twist.linear.x = msg->longitudinal_velocity;
+  twist_msg->twist.linear.y = msg->lateral_velocity;
+  twist_msg->twist.angular.z = msg->heading_rate;
+
   if (!twist_vec_.empty()) {
-    const auto past_msg = getNearestTimeDataFromVec(msg, dif_twist_time_, twist_vec_);
-    const double raw_acceleration = getAccel(past_msg, msg);
+    const auto past_msg = getNearestTimeDataFromVec(twist_msg, dif_twist_time_, twist_vec_);
+    const double raw_acceleration = getAccel(past_msg, twist_msg);
     acceleration_ = lowpass(acceleration_, raw_acceleration, 0.25);
     acceleration_time_ = rclcpp::Time(msg->header.stamp).seconds();
     debug_values_.data.at(CURRENT_RAW_ACCEL) = raw_acceleration;
@@ -468,15 +477,15 @@ void AccelBrakeMapCalibrator::callbackTwist(
     pre_acceleration_time_ = acceleration_time_;
   }
 
-  debug_values_.data.at(CURRENT_SPEED) = msg->twist.linear.x;
-  twist_ptr_ = msg;
-  pushDataToVec(msg, twist_vec_max_size_, &twist_vec_);
+  debug_values_.data.at(CURRENT_SPEED) = twist_msg->twist.linear.x;
+  twist_ptr_ = twist_msg;
+  pushDataToVec(twist_msg, twist_vec_max_size_, &twist_vec_);
 }
 
 void AccelBrakeMapCalibrator::callbackSteer(
-  const autoware_vehicle_msgs::msg::Steering::ConstSharedPtr msg)
+  const autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr msg)
 {
-  debug_values_.data.at(CURRENT_STEER) = msg->data;
+  debug_values_.data.at(CURRENT_STEER) = msg->steering_tire_angle;
   steer_ptr_ = msg;
 }
 
@@ -1038,9 +1047,9 @@ double AccelBrakeMapCalibrator::getStandardDeviation(const std::vector<double> &
 }
 
 bool AccelBrakeMapCalibrator::isTimeout(
-  const std_msgs::msg::Header & header, const double timeout_sec)
+  const builtin_interfaces::msg::Time & stamp, const double timeout_sec)
 {
-  const double dt = this->now().seconds() - rclcpp::Time(header.stamp).seconds();
+  const double dt = this->now().seconds() - rclcpp::Time(stamp).seconds();
   return dt > timeout_sec;
 }
 

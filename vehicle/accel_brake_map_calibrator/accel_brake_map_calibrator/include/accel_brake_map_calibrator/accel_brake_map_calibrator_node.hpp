@@ -25,10 +25,11 @@
 #include "rclcpp/rclcpp.hpp"
 #include "tf2/utils.h"
 
+#include "autoware_auto_vehicle_msgs/msg/steering_report.hpp"
+#include "autoware_auto_vehicle_msgs/msg/velocity_report.hpp"
 #include "autoware_debug_msgs/msg/float32_multi_array_stamped.hpp"
 #include "autoware_debug_msgs/msg/float32_stamped.hpp"
 #include "autoware_vehicle_msgs/msg/actuation_status_stamped.hpp"
-#include "autoware_vehicle_msgs/msg/steering.hpp"
 #include "autoware_vehicle_msgs/srv/update_accel_brake_map.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
@@ -77,8 +78,8 @@ private:
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr updated_map_error_pub_;
   rclcpp::Publisher<autoware_debug_msgs::msg::Float32Stamped>::SharedPtr map_error_ratio_pub_;
 
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr twist_sub_;
-  rclcpp::Subscription<autoware_vehicle_msgs::msg::Steering>::SharedPtr steer_sub_;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VelocityReport>::SharedPtr velocity_sub_;
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::SteeringReport>::SharedPtr steer_sub_;
   rclcpp::Subscription<autoware_vehicle_msgs::msg::ActuationStatusStamped>::SharedPtr
     actuation_status_sub_;
 
@@ -92,10 +93,10 @@ private:
   void initOutputCSVTimer(double period_s);
 
   geometry_msgs::msg::TwistStamped::ConstSharedPtr twist_ptr_;
-  std::vector<geometry_msgs::msg::TwistStamped::ConstSharedPtr> twist_vec_;
+  std::vector<std::shared_ptr<geometry_msgs::msg::TwistStamped>> twist_vec_;
   std::vector<DataStampedPtr> accel_pedal_vec_;  // for delayed pedal
   std::vector<DataStampedPtr> brake_pedal_vec_;  // for delayed pedal
-  autoware_vehicle_msgs::msg::Steering::ConstSharedPtr steer_ptr_;
+  autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr steer_ptr_;
   DataStampedPtr accel_pedal_ptr_;
   DataStampedPtr brake_pedal_ptr_;
   DataStampedPtr delayed_accel_pedal_ptr_;
@@ -206,8 +207,8 @@ private:
   void updateTotalMapOffset(const double measured_acc, const double map_acc);
   void callbackActuationStatus(
     const autoware_vehicle_msgs::msg::ActuationStatusStamped::ConstSharedPtr msg);
-  void callbackTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
-  void callbackSteer(const autoware_vehicle_msgs::msg::Steering::ConstSharedPtr msg);
+  void callbackVelocity(const autoware_auto_vehicle_msgs::msg::VelocityReport::ConstSharedPtr msg);
+  void callbackSteer(const autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr msg);
   bool callbackUpdateMapService(
     const std::shared_ptr<rmw_request_id_t> request_header,
     autoware_vehicle_msgs::srv::UpdateAccelBrakeMap::Request::SharedPtr req,
@@ -257,7 +258,7 @@ private:
     DataStampedPtr base_data, const double back_time, const std::vector<DataStampedPtr> & vec);
   double getAverage(const std::vector<double> & vec);
   double getStandardDeviation(const std::vector<double> & vec);
-  bool isTimeout(const std_msgs::msg::Header & header, const double timeout_sec);
+  bool isTimeout(const builtin_interfaces::msg::Time & stamp, const double timeout_sec);
   bool isTimeout(const DataStampedPtr & data_stamped, const double timeout_sec);
 
   nav_msgs::msg::OccupancyGrid getOccMsg(
