@@ -181,7 +181,6 @@ void MPC::setReferenceTrajectory(
   const float64_t traj_resample_dist,
   const bool8_t enable_path_smoothing,
   const int64_t path_filter_moving_ave_num,
-  const bool8_t enable_yaw_recalculation,
   const int64_t curvature_smoothing_num,
   const geometry_msgs::msg::PoseStamped::SharedPtr current_pose_ptr)
 {
@@ -222,7 +221,7 @@ void MPC::setReferenceTrajectory(
   }
 
   /* calculate yaw angle */
-  if (enable_yaw_recalculation && current_pose_ptr) {
+  if (current_pose_ptr) {
     const int64_t nearest_idx =
       MPCUtils::calcNearestIndex(mpc_traj_smoothed, current_pose_ptr->pose);
     const float64_t ego_yaw = tf2::getYaw(current_pose_ptr->pose.orientation);

@@ -98,8 +98,6 @@ private:
   /* parameters for path smoothing */
   //!< @brief flag for path smoothing
   bool8_t m_enable_path_smoothing;
-  //!< @brief flag for recalculation of yaw angle after resampling
-  bool8_t m_enable_yaw_recalculation;
   //!< @brief param of moving average filter for path smoothing
   int64_t m_path_filter_moving_ave_num;
   //!< @brief point-to-point index distance for curvature calculation

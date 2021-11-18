@@ -56,7 +56,6 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
 
   m_mpc.m_ctrl_period = declare_parameter<float64_t>("ctrl_period");
   m_enable_path_smoothing = declare_parameter<bool8_t>("enable_path_smoothing");
-  m_enable_yaw_recalculation = declare_parameter<bool8_t>("enable_yaw_recalculation");
   m_path_filter_moving_ave_num = declare_parameter<int64_t>("path_filter_moving_ave_num");
   m_curvature_smoothing_num = declare_parameter<int64_t>("curvature_smoothing_num");
   m_traj_resample_dist = declare_parameter<float64_t>("traj_resample_dist");
@@ -276,7 +275,7 @@ void LateralController::onTrajectory(const autoware_auto_planning_msgs::msg::Tra
 
   m_mpc.setReferenceTrajectory(
     *msg, m_traj_resample_dist, m_enable_path_smoothing, m_path_filter_moving_ave_num,
-    m_enable_yaw_recalculation, m_curvature_smoothing_num, m_current_pose_ptr);
+    m_curvature_smoothing_num, m_current_pose_ptr);
 }
 
 bool8_t LateralController::updateCurrentPose()
