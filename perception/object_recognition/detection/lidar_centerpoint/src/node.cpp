@@ -101,19 +101,20 @@ void LidarCenterPointNode::pointCloudCallback(
     classification.probability = 1.0f;
     classification.label = getSemanticType(class_names_[class_id]);
 
-    using Label = autoware_auto_perception_msgs::msg::ObjectClassification;
-    if (classification.label == Label::CAR) {
-      obj.kinematics.orientation_availability =
-        autoware_auto_perception_msgs::msg::DetectedObjectKinematics::SIGN_UNKNOWN;
-      if (rename_car_to_truck_and_bus_) {
-        // Note: object size is referred from multi_object_tracker
-        if ((w * l > 2.2 * 5.5) && (w * l <= 2.5 * 7.9)) {
-          classification.label = Label::TRUCK;
-        } else if (w * l > 2.5 * 7.9) {
-          classification.label = Label::BUS;
-        }
+    if (classification.label == Label::CAR && rename_car_to_truck_and_bus_) {
+      // Note: object size is referred from multi_object_tracker
+      if ((w * l > 2.2 * 5.5) && (w * l <= 2.5 * 7.9)) {
+        classification.label = Label::TRUCK;
+      } else if (w * l > 2.5 * 7.9) {
+        classification.label = Label::BUS;
       }
     }
+
+    if (isCarLikeVehicleLabel(classification.label)) {
+      obj.kinematics.orientation_availability =
+        autoware_auto_perception_msgs::msg::DetectedObjectKinematics::SIGN_UNKNOWN;
+    }
+
     obj.classification.emplace_back(classification);
 
     obj.kinematics.pose_with_covariance.pose.position = autoware_utils::createPoint(x, y, z);
@@ -141,13 +142,14 @@ void LidarCenterPointNode::pointCloudCallback(
 
 uint8_t LidarCenterPointNode::getSemanticType(const std::string & class_name)
 {
-  using Label = autoware_auto_perception_msgs::msg::ObjectClassification;
   if (class_name == "CAR") {
     return Label::CAR;
   } else if (class_name == "TRUCK") {
     return Label::TRUCK;
   } else if (class_name == "BUS") {
     return Label::BUS;
+  } else if (class_name == "TRAILER") {
+    return Label::TRAILER;
   } else if (class_name == "BICYCLE") {
     return Label::BICYCLE;
   } else if (class_name == "MOTORBIKE") {
@@ -157,6 +159,12 @@ uint8_t LidarCenterPointNode::getSemanticType(const std::string & class_name)
   } else {
     return Label::UNKNOWN;
   }
+}
+
+bool LidarCenterPointNode::isCarLikeVehicleLabel(const uint8_t label)
+{
+  return label == Label::CAR || label == Label::TRUCK || label == Label::BUS ||
+         label == Label::TRAILER;
 }
 
 }  // namespace centerpoint

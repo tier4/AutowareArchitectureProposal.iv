@@ -32,6 +32,8 @@
 
 namespace centerpoint
 {
+using Label = autoware_auto_perception_msgs::msg::ObjectClassification;
+
 class LidarCenterPointNode : public rclcpp::Node
 {
 public:
@@ -41,6 +43,7 @@ private:
   void pointCloudCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr input_pointcloud_msg);
 
   static uint8_t getSemanticType(const std::string & class_name);
+  static bool isCarLikeVehicleLabel(const uint8_t label);
 
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_sub_;
   rclcpp::Publisher<autoware_auto_perception_msgs::msg::DetectedObjects>::SharedPtr objects_pub_;
