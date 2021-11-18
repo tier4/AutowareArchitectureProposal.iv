@@ -1,6 +1,6 @@
 # raw_vehicle_cmd_converter
 
-`raw_vehicle_command_converter` is a node that convert desired acceleration and velocity to mechanical input by using feed forward + feed back control(optional).
+`raw_vehicle_command_converter` is a node that converts desired acceleration and velocity to mechanical input by using feed forward + feed back control (optional).
 
 ## Input topics
 
