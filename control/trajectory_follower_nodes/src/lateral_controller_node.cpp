@@ -24,10 +24,6 @@
 
 #include "tf2_ros/create_timer_ros.h"
 
-
-#define UPDATE_MPC_PARAM(PARAM_STRUCT, NAME) \
-  update_param(parameters, "m_mpc" #NAME, PARAM_STRUCT.NAME)
-
 namespace autoware
 {
 namespace motion
@@ -459,30 +455,30 @@ rcl_interfaces::msg::SetParametersResult LateralController::paramCallback(
   // strong exception safety wrt MPCParam
   trajectory_follower::MPCParam param = m_mpc.m_param;
   try {
-    UPDATE_MPC_PARAM(param, prediction_horizon);
-    UPDATE_MPC_PARAM(param, prediction_dt);
-    UPDATE_MPC_PARAM(param, weight_lat_error);
-    UPDATE_MPC_PARAM(param, weight_heading_error);
-    UPDATE_MPC_PARAM(param, weight_heading_error_squared_vel);
-    UPDATE_MPC_PARAM(param, weight_steering_input);
-    UPDATE_MPC_PARAM(param, weight_steering_input_squared_vel);
-    UPDATE_MPC_PARAM(param, weight_lat_jerk);
-    UPDATE_MPC_PARAM(param, weight_steer_rate);
-    UPDATE_MPC_PARAM(param, weight_steer_acc);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_lat_error);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_heading_error);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_heading_error_squared_vel);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_steering_input);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_steering_input_squared_vel);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_lat_jerk);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_steer_rate);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_steer_acc);
-    UPDATE_MPC_PARAM(param, low_curvature_thresh_curvature);
-    UPDATE_MPC_PARAM(param, weight_terminal_lat_error);
-    UPDATE_MPC_PARAM(param, weight_terminal_heading_error);
-    UPDATE_MPC_PARAM(param, zero_ff_steer_deg);
-    UPDATE_MPC_PARAM(param, acceleration_limit);
-    UPDATE_MPC_PARAM(param, velocity_time_constant);
+    update_param(parameters, "mpc_prediction_horizon", param.prediction_horizon);
+    update_param(parameters, "mpc_prediction_dt", param.prediction_dt);
+    update_param(parameters, "mpc_weight_lat_error", param.weight_lat_error);
+    update_param(parameters, "mpc_weight_heading_error", param.weight_heading_error);
+    update_param(parameters, "mpc_weight_heading_error_squared_vel", param.weight_heading_error_squared_vel);
+    update_param(parameters, "mpc_weight_steering_input", param.weight_steering_input);
+    update_param(parameters, "mpc_weight_steering_input_squared_vel", param.weight_steering_input_squared_vel);
+    update_param(parameters, "mpc_weight_lat_jerk", param.weight_lat_jerk);
+    update_param(parameters, "mpc_weight_steer_rate", param.weight_steer_rate);
+    update_param(parameters, "mpc_weight_steer_acc", param.weight_steer_acc);
+    update_param(parameters, "mpc_low_curvature_weight_lat_error", param.low_curvature_weight_lat_error);
+    update_param(parameters, "mpc_low_curvature_weight_heading_error", param.low_curvature_weight_heading_error);
+    update_param(parameters, "mpc_low_curvature_weight_heading_error_squared_vel", param.low_curvature_weight_heading_error_squared_vel);
+    update_param(parameters, "mpc_low_curvature_weight_steering_input", param.low_curvature_weight_steering_input);
+    update_param(parameters, "mpc_low_curvature_weight_steering_input_squared_vel", param.low_curvature_weight_steering_input_squared_vel);
+    update_param(parameters, "mpc_low_curvature_weight_lat_jerk", param.low_curvature_weight_lat_jerk);
+    update_param(parameters, "mpc_low_curvature_weight_steer_rate", param.low_curvature_weight_steer_rate);
+    update_param(parameters, "mpc_low_curvature_weight_steer_acc", param.low_curvature_weight_steer_acc);
+    update_param(parameters, "mpc_low_curvature_thresh_curvature", param.low_curvature_thresh_curvature);
+    update_param(parameters, "mpc_weight_terminal_lat_error", param.weight_terminal_lat_error);
+    update_param(parameters, "mpc_weight_terminal_heading_error", param.weight_terminal_heading_error);
+    update_param(parameters, "mpc_zero_ff_steer_deg", param.zero_ff_steer_deg);
+    update_param(parameters, "mpc_acceleration_limit", param.acceleration_limit);
+    update_param(parameters, "mpc_velocity_time_constant", param.velocity_time_constant);
 
     // initialize input buffer
     update_param(parameters, "input_delay", param.input_delay);
