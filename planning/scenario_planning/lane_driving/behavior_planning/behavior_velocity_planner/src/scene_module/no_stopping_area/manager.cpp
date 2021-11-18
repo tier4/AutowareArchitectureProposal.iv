@@ -30,7 +30,7 @@ namespace behavior_velocity_planner
 namespace
 {
 std::vector<lanelet::NoStoppingAreaConstPtr> getNoStoppingAreaRegElemsOnPath(
-  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
   const lanelet::LaneletMapPtr lanelet_map)
 {
   std::vector<lanelet::NoStoppingAreaConstPtr> no_stopping_area_reg_elems;
@@ -49,7 +49,7 @@ std::vector<lanelet::NoStoppingAreaConstPtr> getNoStoppingAreaRegElemsOnPath(
 }
 
 std::set<int64_t> getNoStoppingAreaIdSetOnPath(
-  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
   const lanelet::LaneletMapPtr lanelet_map)
 {
   std::set<int64_t> no_stopping_area_id_set;
@@ -77,7 +77,7 @@ NoStoppingAreaModuleManager::NoStoppingAreaModuleManager(rclcpp::Node & node)
 }
 
 void NoStoppingAreaModuleManager::launchNewModules(
-  const autoware_planning_msgs::msg::PathWithLaneId & path)
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path)
 {
   for (const auto & no_stopping_area :
        getNoStoppingAreaRegElemsOnPath(path, planner_data_->lanelet_map)) {
@@ -94,7 +94,7 @@ void NoStoppingAreaModuleManager::launchNewModules(
 
 std::function<bool(const std::shared_ptr<SceneModuleInterface> &)>
 NoStoppingAreaModuleManager::getModuleExpiredFunction(
-  const autoware_planning_msgs::msg::PathWithLaneId & path)
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path)
 {
   const auto no_stopping_area_id_set =
     getNoStoppingAreaIdSetOnPath(path, planner_data_->lanelet_map);
