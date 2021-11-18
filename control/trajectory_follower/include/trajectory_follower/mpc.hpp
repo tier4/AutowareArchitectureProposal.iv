@@ -204,6 +204,10 @@ private:
    */
   void storeSteerCmd(const float64_t steer);
   /**
+   * @brief reset previous result of MPC
+   */
+  void resetPrevResult(const autoware_auto_vehicle_msgs::msg::SteeringReport & current_steer);
+  /**
    * @brief set initial condition for mpc
    * @param [in] data mpc data
    */
