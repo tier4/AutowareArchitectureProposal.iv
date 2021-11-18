@@ -21,8 +21,8 @@ namespace metrics
 {
 namespace utils
 {
-using autoware_planning_msgs::msg::Trajectory;
-using autoware_planning_msgs::msg::TrajectoryPoint;
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using autoware_utils::calcDistance2d;
 
 size_t getIndexAfterDistance(const Trajectory & traj, const size_t curr_id, const double distance)

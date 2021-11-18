@@ -17,7 +17,7 @@
 #include "autoware_utils/autoware_utils.hpp"
 #include "eigen3/Eigen/Core"
 
-#include "autoware_planning_msgs/msg/trajectory_point.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
 
 #include <algorithm>
 
@@ -25,7 +25,7 @@ namespace planning_diagnostics
 {
 namespace metrics
 {
-using autoware_planning_msgs::msg::TrajectoryPoint;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 
 Stat<double> calcFrechetDistance(const Trajectory & traj1, const Trajectory & traj2)
 {
@@ -62,7 +62,7 @@ Stat<double> calcLateralDistance(const Trajectory & traj1, const Trajectory & tr
     return stat;
   }
   for (const auto point : traj2.points) {
-    const auto p0 = autoware_utils::getPoint(point);
+    const auto p0 = autoware_utils::getPoint(point.pose);
     // find nearest segment
     const size_t nearest_segment_idx = autoware_utils::findNearestSegmentIndex(traj1.points, p0);
     double dist;
@@ -81,8 +81,8 @@ Stat<double> calcLateralDistance(const Trajectory & traj1, const Trajectory & tr
       dist = autoware_utils::calcDistance2d(traj1.points.front(), p0);
     } else {
       // orthogonal distance
-      const auto p1 = autoware_utils::getPoint(traj1.points[nearest_segment_idx]);
-      const auto p2 = autoware_utils::getPoint(traj1.points[nearest_segment_idx + 1]);
+      const auto p1 = autoware_utils::getPoint(traj1.points[nearest_segment_idx].pose);
+      const auto p2 = autoware_utils::getPoint(traj1.points[nearest_segment_idx + 1].pose);
       dist = std::abs((p2.x - p1.x) * (p1.y - p0.y) - (p1.x - p0.x) * (p2.y - p1.y)) /
              std::sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y));
     }

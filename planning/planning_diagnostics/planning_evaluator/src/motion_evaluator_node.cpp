@@ -65,11 +65,12 @@ void MotionEvaluatorNode::onTwist(const geometry_msgs::msg::TwistStamped::Shared
   // TODO(Maxime CLEMENT): set some desired minimum time/distance between two points
   TrajectoryPoint current_point;
   current_point.pose = getCurrentEgoPose();
-  current_point.twist = msg->twist;
+  current_point.longitudinal_velocity_mps = msg->twist.linear.x;
+  current_point.heading_rate_rps = msg->twist.angular.z;
   const rclcpp::Time now = this->get_clock()->now();
   if (!accumulated_trajectory_.points.empty()) {
-    current_point.accel.linear.x =
-      (msg->twist.linear.x - accumulated_trajectory_.points.back().twist.linear.x) /
+    current_point.acceleration_mps2 =
+      (msg->twist.linear.x - accumulated_trajectory_.points.back().longitudinal_velocity_mps) /
       (now - stamps_.back()).seconds();
   }
   accumulated_trajectory_.points.push_back(current_point);
