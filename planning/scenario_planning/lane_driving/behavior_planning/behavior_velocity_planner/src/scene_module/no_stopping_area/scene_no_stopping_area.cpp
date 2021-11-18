@@ -34,8 +34,8 @@ namespace behavior_velocity_planner
 {
 namespace bg = boost::geometry;
 bool splineInterpolate(
-  const autoware_planning_msgs::msg::PathWithLaneId & input, const double interval,
-  autoware_planning_msgs::msg::PathWithLaneId * output, const rclcpp::Logger logger)
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & input, const double interval,
+  autoware_auto_planning_msgs::msg::PathWithLaneId * output, const rclcpp::Logger logger)
 {
   *output = input;
 
@@ -87,7 +87,7 @@ bool splineInterpolate(
   // set xy
   output->points.clear();
   for (size_t i = 0; i < resampled_s.size(); i++) {
-    autoware_planning_msgs::msg::PathPointWithLaneId p;
+    autoware_auto_planning_msgs::msg::PathPointWithLaneId p;
     p.point.pose.position.x = resampled_x.at(i);
     p.point.pose.position.y = resampled_y.at(i);
     p.point.pose.position.z = resampled_z.at(i);
@@ -122,7 +122,8 @@ NoStoppingAreaModule::NoStoppingAreaModule(
 }
 
 boost::optional<LineString2d> NoStoppingAreaModule::getStopLineGeometry2d(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const double stop_line_margin) const
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+  const double stop_line_margin) const
 {
   // get stop line from map
   {
@@ -175,12 +176,12 @@ boost::optional<LineString2d> NoStoppingAreaModule::getStopLineGeometry2d(
 }
 
 bool NoStoppingAreaModule::modifyPathVelocity(
-  autoware_planning_msgs::msg::PathWithLaneId * path,
+  autoware_auto_planning_msgs::msg::PathWithLaneId * path,
   autoware_planning_msgs::msg::StopReason * stop_reason)
 {
   // Store original path
   const auto original_path = *path;
-  const auto & dynamic_obj_arr_ptr = planner_data_->dynamic_objects;
+  const auto & predicted_obj_arr_ptr = planner_data_->predicted_objects;
   const auto & current_pose = planner_data_->current_pose;
   if (path->points.size() <= 2) {
     return true;
@@ -225,7 +226,7 @@ bool NoStoppingAreaModule::modifyPathVelocity(
   debug_data_.stop_line_detect_area = toGeomMsg(stop_line_detect_area);
   // Find stuck vehicle in no stopping area
   const bool is_entry_prohibited_by_stuck_vehicle =
-    checkStuckVehiclesInNoStoppingArea(stuck_vehicle_detect_area, dynamic_obj_arr_ptr);
+    checkStuckVehiclesInNoStoppingArea(stuck_vehicle_detect_area, predicted_obj_arr_ptr);
   // Find stop line in no stopping area
   const bool is_entry_prohibited_by_stop_line =
     checkStopLinesInNoStoppingArea(*path, stop_line_detect_area);
@@ -274,14 +275,15 @@ bool NoStoppingAreaModule::modifyPathVelocity(
 
 bool NoStoppingAreaModule::checkStuckVehiclesInNoStoppingArea(
   const Polygon2d & poly,
-  const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr & dynamic_obj_arr_ptr)
+  const autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr &
+    predicted_obj_arr_ptr)
 {
-  // stuck points by dynamic objects
-  for (const auto & object : dynamic_obj_arr_ptr->objects) {
+  // stuck points by predicted objects
+  for (const auto & object : predicted_obj_arr_ptr->objects) {
     if (!isTargetStuckVehicleType(object)) {
       continue;  // not target vehicle type
     }
-    const auto obj_v = std::fabs(object.state.twist_covariance.twist.linear.x);
+    const auto obj_v = std::fabs(object.kinematics.initial_twist_with_covariance.twist.linear.x);
     if (obj_v > planner_param_.stuck_vehicle_vel_thr) {
       continue;  // not stop vehicle
     }
@@ -303,15 +305,15 @@ bool NoStoppingAreaModule::checkStuckVehiclesInNoStoppingArea(
   return false;
 }
 bool NoStoppingAreaModule::checkStopLinesInNoStoppingArea(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const Polygon2d & poly)
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const Polygon2d & poly)
 {
   const double stop_vel = std::numeric_limits<float>::min();
   // stuck points by stop line
   for (size_t i = 0; i < path.points.size() - 1; ++i) {
     const auto p0 = path.points.at(i).point.pose.position;
     const auto p1 = path.points.at(i + 1).point.pose.position;
-    const auto v0 = path.points.at(i).point.twist.linear.x;
-    const auto v1 = path.points.at(i + 1).point.twist.linear.x;
+    const auto v0 = path.points.at(i).point.longitudinal_velocity_mps;
+    const auto v1 = path.points.at(i + 1).point.longitudinal_velocity_mps;
     if (v0 > stop_vel && v1 > stop_vel) {
       continue;
     }
@@ -331,21 +333,21 @@ bool NoStoppingAreaModule::checkStopLinesInNoStoppingArea(
 }
 
 Polygon2d NoStoppingAreaModule::generateEgoNoStoppingAreaLanePolygon(
-  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
   const geometry_msgs::msg::Pose & ego_pose, const double margin, const double extra_dist) const
 {
   Polygon2d ego_area;  // open polygon
   double dist_from_start_sum = 0.0;
   const double interpolation_interval = 0.5;
   bool is_in_area = false;
-  autoware_planning_msgs::msg::PathWithLaneId interpolated_path;
+  autoware_auto_planning_msgs::msg::PathWithLaneId interpolated_path;
   if (!splineInterpolate(path, interpolation_interval, &interpolated_path, logger_)) {
     return ego_area;
   }
   auto & pp = interpolated_path.points;
   /* calc closest index */
   int closest_idx = -1;
-  if (!planning_utils::calcClosestIndex<autoware_planning_msgs::msg::PathWithLaneId>(
+  if (!planning_utils::calcClosestIndex<autoware_auto_planning_msgs::msg::PathWithLaneId>(
         interpolated_path, ego_pose, closest_idx)) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000 /* ms */, "calcClosestIndex fail");
     return ego_area;
@@ -398,20 +400,26 @@ Polygon2d NoStoppingAreaModule::generateEgoNoStoppingAreaLanePolygon(
 }
 
 bool NoStoppingAreaModule::isTargetStuckVehicleType(
-  const autoware_perception_msgs::msg::DynamicObject & object) const
+  const autoware_auto_perception_msgs::msg::PredictedObject & object) const
 {
   if (
-    object.semantic.type == autoware_perception_msgs::msg::Semantic::CAR ||
-    object.semantic.type == autoware_perception_msgs::msg::Semantic::BUS ||
-    object.semantic.type == autoware_perception_msgs::msg::Semantic::TRUCK ||
-    object.semantic.type == autoware_perception_msgs::msg::Semantic::MOTORBIKE) {
+    object.classification.front().label ==
+      autoware_auto_perception_msgs::msg::ObjectClassification::CAR ||
+    object.classification.front().label ==
+      autoware_auto_perception_msgs::msg::ObjectClassification::BUS ||
+    object.classification.front().label ==
+      autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK ||
+    object.classification.front().label ==
+      autoware_auto_perception_msgs::msg::ObjectClassification::TRAILER ||
+    object.classification.front().label ==
+      autoware_auto_perception_msgs::msg::ObjectClassification::MOTORCYCLE) {
     return true;
   }
   return false;
 }
 
 bool NoStoppingAreaModule::isOverDeadLine(
-  const autoware_planning_msgs::msg::PathWithLaneId & path,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
   const geometry_msgs::msg::Pose & self_pose, const geometry_msgs::msg::Pose & line_pose) const
 {
   return autoware_utils::calcSignedArcLength(path.points, self_pose.position, line_pose.position) +
@@ -461,28 +469,28 @@ bool NoStoppingAreaModule::isStoppable(
 }
 
 void NoStoppingAreaModule::insertStopPoint(
-  autoware_planning_msgs::msg::PathWithLaneId & path, const PathIndexWithPose & stop_point)
+  autoware_auto_planning_msgs::msg::PathWithLaneId & path, const PathIndexWithPose & stop_point)
 {
   const auto insert_idx = stop_point.first + 1;
   const auto stop_pose = stop_point.second;
 
   // To PathPointWithLaneId
-  autoware_planning_msgs::msg::PathPointWithLaneId stop_point_with_lane_id;
+  autoware_auto_planning_msgs::msg::PathPointWithLaneId stop_point_with_lane_id;
   stop_point_with_lane_id = path.points.at(insert_idx);
   stop_point_with_lane_id.point.pose = stop_pose;
-  stop_point_with_lane_id.point.twist.linear.x = 0.0;
+  stop_point_with_lane_id.point.longitudinal_velocity_mps = 0.0;
 
   // Insert stop point
   path.points.insert(path.points.begin() + insert_idx, stop_point_with_lane_id);
 
   // Insert 0 velocity after stop point
   for (size_t j = insert_idx; j < path.points.size(); ++j) {
-    path.points.at(j).point.twist.linear.x = 0.0;
+    path.points.at(j).point.longitudinal_velocity_mps = 0.0;
   }
 }
 
 boost::optional<PathIndexWithPose> NoStoppingAreaModule::createTargetPoint(
-  const autoware_planning_msgs::msg::PathWithLaneId & path, const LineString2d & stop_line,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const LineString2d & stop_line,
   const double margin) const
 {
   // Find collision segment
