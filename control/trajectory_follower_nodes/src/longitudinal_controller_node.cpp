@@ -103,11 +103,6 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
 
     m_current_vel_threshold_pid_integrate = declare_parameter<float64_t>(
       "current_vel_threshold_pid_integration");  // [m/s]
-
-
-    m_enable_brake_keeping_before_stop =
-      declare_parameter<bool8_t>("enable_brake_keeping_before_stop");        // [-]
-    m_brake_keeping_acc = declare_parameter<float64_t>("brake_keeping_acc"); // [m/s^2]
   }
 
   // parameters for smooth stop state
@@ -570,8 +565,6 @@ LongitudinalController::Motion LongitudinalController::calcCtrlCmd(
       Motion{target_interpolated_point.longitudinal_velocity_mps,
       target_interpolated_point.acceleration_mps2};
 
-    target_motion = keepBrakeBeforeStop(*m_trajectory_ptr, target_motion, nearest_idx);
-
     const float64_t pred_vel_in_target =
       predictedVelocityInTargetPoint(control_data.current_motion, m_delay_compensation_time);
     m_debug_values.setValues(
@@ -786,38 +779,6 @@ float64_t LongitudinalController::applySlopeCompensation(
   float64_t sign = (shift == Shift::Forward) ? -1 : (shift == Shift::Reverse ? 1 : 0);
   float64_t compensated_acc = input_acc + sign * 9.81 * std::sin(pitch_limited);
   return compensated_acc;
-}
-
-LongitudinalController::Motion LongitudinalController::keepBrakeBeforeStop(
-  const autoware_auto_planning_msgs::msg::Trajectory & traj, const Motion & target_motion,
-  const size_t nearest_idx) const
-{
-  Motion output_motion = target_motion;
-
-  if (m_enable_brake_keeping_before_stop == false) {
-    return output_motion;
-  }
-  const auto stop_idx = motion_common::searchZeroVelocityIndex(traj.points);
-  if (!stop_idx) {
-    return output_motion;
-  }
-
-  double min_acc_before_stop = std::numeric_limits<double>::max();
-  size_t min_acc_idx = std::numeric_limits<size_t>::max();
-  for (int i = static_cast<int>(*stop_idx); i >= 0; --i) {
-    if (traj.points.at(static_cast<size_t>(i)).acceleration_mps2 > static_cast<float>(min_acc_before_stop)) {
-      break;
-    }
-    min_acc_before_stop = traj.points.at(static_cast<size_t>(i)).acceleration_mps2;
-    min_acc_idx = static_cast<size_t>(i);
-  }
-
-  const double brake_keeping_acc = std::max(m_brake_keeping_acc, min_acc_before_stop);
-  if (nearest_idx >= min_acc_idx && target_motion.acc > brake_keeping_acc) {
-    output_motion.acc = brake_keeping_acc;
-  }
-
-  return output_motion;
 }
 
 autoware_auto_planning_msgs::msg::TrajectoryPoint LongitudinalController::calcInterpolatedTargetValue(
