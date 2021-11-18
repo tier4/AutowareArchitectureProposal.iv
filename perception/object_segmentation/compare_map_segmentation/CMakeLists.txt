@@ -92,10 +92,4 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-#############
-## Install ##
-#############
-
-# ament_auto_package(INSTALL_TO_SHARE
-#   launch
-# )
+ament_auto_package()

@@ -102,9 +102,9 @@ void VelocityHistoryDisplay::reset()
 }
 
 bool VelocityHistoryDisplay::validateFloats(
-  const geometry_msgs::msg::TwistStamped::ConstSharedPtr & msg_ptr)
+  const autoware_auto_vehicle_msgs::msg::VelocityReport::ConstSharedPtr & msg_ptr)
 {
-  if (!rviz_common::validateFloats(msg_ptr->twist.linear.x)) {
+  if (!rviz_common::validateFloats(msg_ptr->longitudinal_velocity)) {
     return false;
   }
 
@@ -120,7 +120,7 @@ void VelocityHistoryDisplay::update(float wall_dt, float ros_dt)
 }
 
 void VelocityHistoryDisplay::processMessage(
-  const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg_ptr)
+  const autoware_auto_vehicle_msgs::msg::VelocityReport::ConstSharedPtr msg_ptr)
 {
   if (!isEnabled()) {
     return;
@@ -136,7 +136,7 @@ void VelocityHistoryDisplay::processMessage(
   Ogre::Vector3 position;
   Ogre::Quaternion orientation;
   std_msgs::msg::Header header;
-  header = msg_ptr->header;
+  header.stamp = msg_ptr->header.stamp;
   header.frame_id = "base_link";
   if (!context_->getFrameManager()->getTransform(header, position, orientation)) {
     RCLCPP_DEBUG(
@@ -187,7 +187,7 @@ void VelocityHistoryDisplay::updateVisualization()
     } else {
       /* color change depending on velocity */
       std::unique_ptr<Ogre::ColourValue> dynamic_color_ptr = setColorDependsOnVelocity(
-        property_vel_max_->getFloat(), std::get<0>(history)->twist.linear.x);
+        property_vel_max_->getFloat(), std::get<0>(history)->longitudinal_velocity);
       color = *dynamic_color_ptr;
     }
     color.a = 1.0 - (current_time - std::get<0>(history)->header.stamp).seconds() /
@@ -199,7 +199,7 @@ void VelocityHistoryDisplay::updateVisualization()
     velocity_manual_object_->position(
       std::get<1>(history).x, std::get<1>(history).y,
       std::get<1>(history).z +
-        std::get<0>(history)->twist.linear.x * property_velocity_scale_->getFloat());
+        std::get<0>(history)->longitudinal_velocity * property_velocity_scale_->getFloat());
     velocity_manual_object_->colour(color);
   }
   velocity_manual_object_->end();

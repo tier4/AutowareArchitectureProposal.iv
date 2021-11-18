@@ -187,6 +187,7 @@ void RouteHandler::setMap(const HADMapBin & map_msg)
   overall_graphs_ptr_ =
     std::make_shared<const lanelet::routing::RoutingGraphContainer>(overall_graphs);
   lanelet::ConstLanelets all_lanelets = lanelet::utils::query::laneletLayer(lanelet_map_ptr_);
+  road_lanelets_ = lanelet::utils::query::roadLanelets(all_lanelets);
   shoulder_lanelets_ = lanelet::utils::query::shoulderLanelets(all_lanelets);
 
   is_map_msg_ready_ = true;
@@ -516,6 +517,39 @@ lanelet::ConstLanelets RouteHandler::getLaneletSequence(
     current_pose.position = lanelet::utils::conversion::toGeomMsgPt(lanelet.centerline().front());
   }
 
+  lanelet::ConstLanelets lanelet_sequence;
+  lanelet::ConstLanelets lanelet_sequence_backward;
+  lanelet::ConstLanelets lanelet_sequence_forward;
+  if (!exists(route_lanelets_, lanelet)) {
+    return lanelet_sequence;
+  }
+
+  lanelet_sequence_forward = getLaneletSequenceAfter(lanelet, forward_distance);
+
+  const auto arc_coordinate = lanelet::utils::getArcCoordinates({lanelet}, current_pose);
+  if (arc_coordinate.length < backward_distance) {
+    lanelet_sequence_backward = getLaneletSequenceUpTo(lanelet, backward_distance);
+  }
+
+  // loop check
+  if (!lanelet_sequence_forward.empty() && !lanelet_sequence_backward.empty()) {
+    if (lanelet_sequence_backward.back().id() == lanelet_sequence_forward.front().id()) {
+      return lanelet_sequence_forward;
+    }
+  }
+  lanelet_sequence.insert(
+    lanelet_sequence.end(), lanelet_sequence_backward.begin(), lanelet_sequence_backward.end());
+  lanelet_sequence.push_back(lanelet);
+  lanelet_sequence.insert(
+    lanelet_sequence.end(), lanelet_sequence_forward.begin(), lanelet_sequence_forward.end());
+
+  return lanelet_sequence;
+}
+
+lanelet::ConstLanelets RouteHandler::getLaneletSequence(
+  const lanelet::ConstLanelet & lanelet, const Pose & current_pose, const double backward_distance,
+  const double forward_distance) const
+{
   lanelet::ConstLanelets lanelet_sequence;
   lanelet::ConstLanelets lanelet_sequence_backward;
   lanelet::ConstLanelets lanelet_sequence_forward;
@@ -1170,6 +1204,38 @@ lanelet::routing::RelationType RouteHandler::getRelation(
 }
 
 lanelet::ConstLanelets RouteHandler::getShoulderLanelets() const { return shoulder_lanelets_; }
+
+lanelet::ConstLanelets RouteHandler::getPreviousLaneletSequence(
+  const lanelet::ConstLanelets & lanelet_sequence) const
+{
+  lanelet::ConstLanelets previous_lanelet_sequence;
+  if (lanelet_sequence.empty()) {
+    return previous_lanelet_sequence;
+  }
+
+  auto first_lane = lanelet_sequence.front();
+  if (exists(start_lanelets_, first_lane)) {
+    return previous_lanelet_sequence;
+  }
+
+  auto right_relations =
+    lanelet::utils::query::getAllNeighborsRight(routing_graph_ptr_, first_lane);
+  for (const auto & right : right_relations) {
+    previous_lanelet_sequence = getLaneletSequenceUpTo(right);
+    if (!previous_lanelet_sequence.empty()) {
+      return previous_lanelet_sequence;
+    }
+  }
+
+  auto left_relations = lanelet::utils::query::getAllNeighborsLeft(routing_graph_ptr_, first_lane);
+  for (const auto & left : left_relations) {
+    previous_lanelet_sequence = getLaneletSequenceUpTo(left);
+    if (!previous_lanelet_sequence.empty()) {
+      return previous_lanelet_sequence;
+    }
+  }
+  return previous_lanelet_sequence;
+}
 
 lanelet::ConstLanelets RouteHandler::getLaneSequence(const lanelet::ConstLanelet & lanelet) const
 {

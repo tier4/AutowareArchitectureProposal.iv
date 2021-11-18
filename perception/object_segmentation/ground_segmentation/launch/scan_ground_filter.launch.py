@@ -28,8 +28,8 @@ def generate_launch_description():
 
     nodes = [
         ComposableNode(
-            package="pointcloud_preprocessor",
-            plugin="pointcloud_preprocessor::ScanGroundFilterComponent",
+            package="ground_segmentation",
+            plugin="ground_segmentation::ScanGroundFilterComponent",
             name="scan_ground_filter",
             remappings=[
                 ("input", LaunchConfiguration("input/pointcloud")),

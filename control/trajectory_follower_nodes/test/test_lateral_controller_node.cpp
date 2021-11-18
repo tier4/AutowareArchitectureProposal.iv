@@ -21,10 +21,12 @@
 #include "ament_index_cpp/get_package_share_directory.hpp"
 #include "autoware_auto_planning_msgs/msg/trajectory.hpp"
 #include "autoware_auto_control_msgs/msg/ackermann_lateral_command.hpp"
-#include "autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_odometry.hpp"
+#include "autoware_auto_vehicle_msgs/msg/steering_report.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
+#include "nav_msgs/msg/odometry.hpp"
 #include "gtest/gtest.h"
 #include "fake_test_node/fake_test_node.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -36,7 +38,8 @@ using LateralController = autoware::motion::control::trajectory_follower_nodes::
 using LateralCommand = autoware_auto_control_msgs::msg::AckermannLateralCommand;
 using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
 using TrajectoryPoint = autoware_auto_planning_msgs::msg::TrajectoryPoint;
-using VehicleKinematicState = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
+using VehicleOdometry = nav_msgs::msg::Odometry;
+using SteeringReport = autoware_auto_vehicle_msgs::msg::SteeringReport;
 
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
@@ -68,13 +71,16 @@ TEST_F(FakeNodeFixture, no_input)
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
-    "input/reference_trajectory");
-  rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
-    this->create_publisher<VehicleKinematicState>(
-    "input/current_kinematic_state");
+    "lateral_controller/input/reference_trajectory");
+  rclcpp::Publisher<VehicleOdometry>::SharedPtr odom_pub =
+    this->create_publisher<VehicleOdometry>(
+    "lateral_controller/input/current_odometry");
+  rclcpp::Publisher<SteeringReport>::SharedPtr steer_pub =
+    this->create_publisher<SteeringReport>(
+    "lateral_controller/input/current_steering");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *this->get_fake_node(),
+    "lateral_controller/output/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -98,13 +104,16 @@ TEST_F(FakeNodeFixture, empty_trajectory)
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
-    "input/reference_trajectory");
-  rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
-    this->create_publisher<VehicleKinematicState>(
-    "input/current_kinematic_state");
+    "lateral_controller/input/reference_trajectory");
+  rclcpp::Publisher<VehicleOdometry>::SharedPtr odom_pub =
+    this->create_publisher<VehicleOdometry>(
+    "lateral_controller/input/current_odometry");
+  rclcpp::Publisher<SteeringReport>::SharedPtr steer_pub =
+    this->create_publisher<SteeringReport>(
+    "lateral_controller/input/current_steering");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *this->get_fake_node(),
+    "lateral_controller/output/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -117,13 +126,18 @@ TEST_F(FakeNodeFixture, empty_trajectory)
   br->sendTransform(transform);
   // Empty trajectory: expect a stopped command
   Trajectory traj_msg;
-  VehicleKinematicState state_msg;
   traj_msg.header.stamp = node->now();
-  state_msg.header.stamp = node->now();
-  state_msg.state.longitudinal_velocity_mps = 0.0;
-  state_msg.state.front_wheel_angle_rad = 0.0;
+  traj_msg.header.frame_id = "map";
+  VehicleOdometry odom_msg;
+  SteeringReport steer_msg;
+  traj_msg.header.stamp = node->now();
+  odom_msg.header.stamp = node->now();
+  odom_msg.twist.twist.linear.x = 0.0;
+  steer_msg.stamp = node->now();
+  steer_msg.steering_tire_angle = 0.0;
   traj_pub->publish(traj_msg);
-  state_pub->publish(state_msg);
+  odom_pub->publish(odom_msg);
+  steer_pub->publish(steer_msg);
 
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
@@ -142,13 +156,16 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
-    "input/reference_trajectory");
-  rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
-    this->create_publisher<VehicleKinematicState>(
-    "input/current_kinematic_state");
+    "lateral_controller/input/reference_trajectory");
+  rclcpp::Publisher<VehicleOdometry>::SharedPtr odom_pub =
+    this->create_publisher<VehicleOdometry>(
+    "lateral_controller/input/current_odometry");
+  rclcpp::Publisher<SteeringReport>::SharedPtr steer_pub =
+    this->create_publisher<SteeringReport>(
+    "lateral_controller/input/current_steering");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *this->get_fake_node(),
+    "lateral_controller/output/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -162,7 +179,10 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   // Straight trajectory: expect no steering
   received_lateral_command = false;
   Trajectory traj_msg;
-  VehicleKinematicState state_msg;
+  traj_msg.header.stamp = node->now();
+  traj_msg.header.frame_id = "map";
+  VehicleOdometry odom_msg;
+  SteeringReport steer_msg;
   TrajectoryPoint p;
   traj_msg.header.stamp = node->now();
   p.pose.position.x = -1.0;
@@ -182,10 +202,12 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   p.longitudinal_velocity_mps = 1.0f;
   traj_msg.points.push_back(p);
   traj_pub->publish(traj_msg);
-  state_msg.header.stamp = node->now();
-  state_msg.state.longitudinal_velocity_mps = 1.0;
-  state_msg.state.front_wheel_angle_rad = 0.0;
-  state_pub->publish(state_msg);
+  odom_msg.header.stamp = node->now();
+  odom_msg.twist.twist.linear.x = 1.0;
+  steer_msg.stamp = node->now();
+  steer_msg.steering_tire_angle = 0.0;
+  odom_pub->publish(odom_msg);
+  steer_pub->publish(steer_msg);
 
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
@@ -204,13 +226,16 @@ TEST_F(FakeNodeFixture, right_turn)
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
-    "input/reference_trajectory");
-  rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
-    this->create_publisher<VehicleKinematicState>(
-    "input/current_kinematic_state");
+    "lateral_controller/input/reference_trajectory");
+  rclcpp::Publisher<VehicleOdometry>::SharedPtr odom_pub =
+    this->create_publisher<VehicleOdometry>(
+    "lateral_controller/input/current_odometry");
+  rclcpp::Publisher<SteeringReport>::SharedPtr steer_pub =
+    this->create_publisher<SteeringReport>(
+    "lateral_controller/input/current_steering");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *this->get_fake_node(),
+    "lateral_controller/output/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -224,7 +249,10 @@ TEST_F(FakeNodeFixture, right_turn)
   // Right turning trajectory: expect right steering
   received_lateral_command = false;
   Trajectory traj_msg;
-  VehicleKinematicState state_msg;
+  traj_msg.header.stamp = node->now();
+  traj_msg.header.frame_id = "map";
+  VehicleOdometry odom_msg;
+  SteeringReport steer_msg;
   TrajectoryPoint p;
   traj_msg.points.clear();
   p.pose.position.x = -1.0;
@@ -244,17 +272,18 @@ TEST_F(FakeNodeFixture, right_turn)
   p.longitudinal_velocity_mps = 1.0f;
   traj_msg.points.push_back(p);
   traj_pub->publish(traj_msg);
-  state_msg.header.stamp = node->now();
-  state_msg.state.longitudinal_velocity_mps = 1.0;
-  state_msg.state.front_wheel_angle_rad = 0.0;
-  state_pub->publish(state_msg);
+  odom_msg.header.stamp = node->now();
+  odom_msg.twist.twist.linear.x = 1.0;
+  steer_msg.stamp = node->now();
+  steer_msg.steering_tire_angle = 0.0;
+  odom_pub->publish(odom_msg);
+  steer_pub->publish(steer_msg);
 
+  test_utils::spinWhile(node);
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
-  /* TODO (Maxime CLEMENT): these tests fail only in the Autoware.auto CI (not on forks or locally)
   EXPECT_LT(cmd_msg->steering_tire_angle, 0.0f);
   EXPECT_LT(cmd_msg->steering_tire_rotation_rate, 0.0f);
-  */
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
@@ -268,13 +297,16 @@ TEST_F(FakeNodeFixture, left_turn)
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
-    "input/reference_trajectory");
-  rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
-    this->create_publisher<VehicleKinematicState>(
-    "input/current_kinematic_state");
+    "lateral_controller/input/reference_trajectory");
+  rclcpp::Publisher<VehicleOdometry>::SharedPtr odom_pub =
+    this->create_publisher<VehicleOdometry>(
+    "lateral_controller/input/current_odometry");
+  rclcpp::Publisher<SteeringReport>::SharedPtr steer_pub =
+    this->create_publisher<SteeringReport>(
+    "lateral_controller/input/current_steering");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *this->get_fake_node(),
+    "lateral_controller/output/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -288,7 +320,10 @@ TEST_F(FakeNodeFixture, left_turn)
   // Left turning trajectory: expect left steering
   received_lateral_command = false;
   Trajectory traj_msg;
-  VehicleKinematicState state_msg;
+  traj_msg.header.stamp = node->now();
+  traj_msg.header.frame_id = "map";
+  VehicleOdometry odom_msg;
+  SteeringReport steer_msg;
   TrajectoryPoint p;
   traj_msg.points.clear();
   p.pose.position.x = -1.0;
@@ -308,17 +343,18 @@ TEST_F(FakeNodeFixture, left_turn)
   p.longitudinal_velocity_mps = 1.0f;
   traj_msg.points.push_back(p);
   traj_pub->publish(traj_msg);
-  state_msg.header.stamp = node->now();
-  state_msg.state.longitudinal_velocity_mps = 1.0;
-  state_msg.state.front_wheel_angle_rad = 0.0;
-  state_pub->publish(state_msg);
+  odom_msg.header.stamp = node->now();
+  odom_msg.twist.twist.linear.x = 1.0;
+  steer_msg.stamp = node->now();
+  steer_msg.steering_tire_angle = 0.0;
+  odom_pub->publish(odom_msg);
+  steer_pub->publish(steer_msg);
 
+  test_utils::spinWhile(node);
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
-  /* TODO (Maxime CLEMENT): these tests fail only in the Autoware.auto CI (not on forks or locally)
   EXPECT_GT(cmd_msg->steering_tire_angle, 0.0f);
   EXPECT_GT(cmd_msg->steering_tire_rotation_rate, 0.0f);
-  */
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
@@ -332,13 +368,16 @@ TEST_F(FakeNodeFixture, stopped)
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
-    "input/reference_trajectory");
-  rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
-    this->create_publisher<VehicleKinematicState>(
-    "input/current_kinematic_state");
+    "lateral_controller/input/reference_trajectory");
+  rclcpp::Publisher<VehicleOdometry>::SharedPtr odom_pub =
+    this->create_publisher<VehicleOdometry>(
+    "lateral_controller/input/current_odometry");
+  rclcpp::Publisher<SteeringReport>::SharedPtr steer_pub =
+    this->create_publisher<SteeringReport>(
+    "lateral_controller/input/current_steering");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *this->get_fake_node(),
+    "lateral_controller/output/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -352,7 +391,10 @@ TEST_F(FakeNodeFixture, stopped)
   // Straight trajectory: expect no steering
   received_lateral_command = false;
   Trajectory traj_msg;
-  VehicleKinematicState state_msg;
+  traj_msg.header.stamp = node->now();
+  traj_msg.header.frame_id = "map";
+  VehicleOdometry odom_msg;
+  SteeringReport steer_msg;
   TrajectoryPoint p;
   traj_msg.header.stamp = node->now();
   p.pose.position.x = -1.0;
@@ -373,17 +415,17 @@ TEST_F(FakeNodeFixture, stopped)
   p.longitudinal_velocity_mps = 0.0f;
   traj_msg.points.push_back(p);
   traj_pub->publish(traj_msg);
-  state_msg.header.stamp = node->now();
-  state_msg.state.longitudinal_velocity_mps = 0.0;
-  state_msg.state.front_wheel_angle_rad = -0.5;  // dummy value
-  state_pub->publish(state_msg);
+  odom_msg.header.stamp = node->now();
+  odom_msg.twist.twist.linear.x = 0.0;
+  steer_msg.stamp = node->now();
+  steer_msg.steering_tire_angle = -0.5;
+  odom_pub->publish(odom_msg);
+  steer_pub->publish(steer_msg);
 
+  test_utils::spinWhile(node);
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
-  // when stopped we expect a command that do not change the current state
-  /* TODO (Maxime CLEMENT): these tests fail only in the Autoware.auto CI (not on forks or locally)
-  EXPECT_EQ(cmd_msg->steering_tire_angle, state_msg.state.front_wheel_angle_rad);
-  */
+  EXPECT_EQ(cmd_msg->steering_tire_angle, steer_msg.steering_tire_angle);
   EXPECT_EQ(cmd_msg->steering_tire_rotation_rate, 0.0f);
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
