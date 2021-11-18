@@ -144,7 +144,7 @@ private:
   PlannerParam planner_param_;
 
   /**
-   * @brief check collision for all lanelet area & dynamic objects (call checkPathCollision() as
+   * @brief check collision for all lanelet area & predicted objects (call checkPathCollision() as
    * actual collision check algorithm inside this function)
    * @param lanelet_map_ptr  lanelet map
    * @param path             ego-car lane
@@ -243,8 +243,8 @@ private:
    * @return 2d polygon of the object footprint
    */
   Polygon2d toPredictedFootprintPolygon(
-    const autoware_perception_msgs::msg::DynamicObject & object,
-    const geometry_msgs::msg::PoseWithCovarianceStamped & predicted_pose) const;
+    const autoware_auto_perception_msgs::msg::PredictedObject & object,
+    const geometry_msgs::msg::Pose & predicted_pose) const;
 
   /**
    * @brief Whether target autoware_api_msgs::Intersection::status is valid or not
@@ -271,7 +271,7 @@ private:
    */
   lanelet::ConstLanelets getEgoLaneWithNextLane(
     lanelet::LaneletMapConstPtr lanelet_map_ptr,
-    const autoware_planning_msgs::msg::PathWithLaneId & path) const;
+    const autoware_auto_planning_msgs::msg::PathWithLaneId & path) const;
 
   /**
    * @brief Calculate distance between closest path point and intersection lanelet along path
@@ -282,7 +282,7 @@ private:
    */
   double calcDistanceUntilIntersectionLanelet(
     lanelet::LaneletMapConstPtr lanelet_map_ptr,
-    const autoware_planning_msgs::msg::PathWithLaneId & path, const size_t closest_idx) const;
+    const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const size_t closest_idx) const;
 
   StateMachine state_machine_;  //! for state
 
