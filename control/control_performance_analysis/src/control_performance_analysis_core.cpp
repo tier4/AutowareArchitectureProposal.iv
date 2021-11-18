@@ -53,9 +53,9 @@ void ControlPerformanceAnalysisCore::setCurrentPose(const Pose & msg)
   current_vec_pose_ptr_ = std::make_shared<Pose>(msg);
 }
 
-void ControlPerformanceAnalysisCore::setCurrentControlValue(const ControlCommandStamped & msg)
+void ControlPerformanceAnalysisCore::setCurrentControlValue(const AckermannLateralCommand & msg)
 {
-  current_control_ptr_ = std::make_shared<ControlCommandStamped>(msg);
+  current_control_ptr_ = std::make_shared<AckermannLateralCommand>(msg);
 }
 
 std::pair<bool, int32_t> ControlPerformanceAnalysisCore::findClosestPrevWayPointIdx_path_direction()
@@ -216,7 +216,7 @@ std::pair<bool, TargetPerformanceMsgVars> ControlPerformanceAnalysisCore::getPer
   target_vars.lateral_error = lateral_error;
   target_vars.heading_error = heading_yaw_error;
 
-  double steering_val = current_control_ptr_->control.steering_angle;
+  double steering_val = current_control_ptr_->steering_tire_angle;
   target_vars.control_effort_energy = contR * steering_val * steering_val;  // u*R*u';
 
   Eigen::Vector2d error_vec;

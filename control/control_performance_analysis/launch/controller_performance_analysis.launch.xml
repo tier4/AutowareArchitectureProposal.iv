@@ -5,7 +5,7 @@
   <arg name="input/reference_trajectory" default="/planning/scenario_planning/trajectory" />
   <arg name="input/control_raw" default="/control/trajectory_follower/lateral/control_cmd" />
   <arg name="input/measured_steering" default="/vehicle/status/steering" />
-  <arg name="input/current_velocity" default="/localization/twist" />
+  <arg name="input/current_odometry" default="/localization/odometry" />
   <arg name="output/error_stamped" default="/control_performance/performance_vars" />
 
   <!-- vehicle info -->
@@ -17,7 +17,7 @@
 
    <remap from="~/input/reference_trajectory" to="$(var input/reference_trajectory)" />
    <remap from="~/input/control_raw" to="$(var input/control_raw)" />
-   <remap from="~/input/current_velocity" to="$(var input/current_velocity)" />
+   <remap from="~/input/current_odometry" to="$(var input/current_odometry)" />
    <remap from="~/output/error_stamped" to="$(var output/error_stamped)" />
   </node>
 </launch>
