@@ -4,7 +4,7 @@ if (!AutowareStateSubscriber) {
     name: "",
     init: function () {
       this.ros = new ROSLIB.Ros();
-      this.ros.connect("ws://" + location.hostname + ":9090");
+      this.ros.connect("ws://" + location.hostname + ":9091");
 
       var sub = new ROSLIB.Topic({
         ros: this.ros,

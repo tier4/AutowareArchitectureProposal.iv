@@ -13,7 +13,7 @@ if (!PathChangeApprovalPublisher) {
       this.ros.on("close", function (error) {
         document.getElementById("path_change_approval_info").innerHTML = "Closed";
       });
-      this.ros.connect("ws://" + location.hostname + ":9090");
+      this.ros.connect("ws://" + location.hostname + ":9091");
     },
     send: function () {
       var pub = new ROSLIB.Topic({
@@ -53,7 +53,7 @@ if (!PathChangeApprovalStateSubscriber) {
       this.ros.on("close", function (error) {
         document.getElementById("state").innerHTML = "Close";
       });
-      this.ros.connect("ws://" + location.hostname + ":9090");
+      this.ros.connect("ws://" + location.hostname + ":9091");
 
       var sub = new ROSLIB.Topic({
         ros: this.ros,
