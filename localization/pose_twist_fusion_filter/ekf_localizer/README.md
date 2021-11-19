@@ -129,13 +129,13 @@ The parameters are set in `launch/ekf_localizer.launch` .
 
 ### For twist measurement
 
-| Name                      | Type   | Description                                                                                   | Default value |
-| :------------------------ | :----- | :-------------------------------------------------------------------------------------------- | :------------ |
-| twist_additional_delay    | double | Additional delay time for twist [s]                                                           | 0.0           |
-| twist_rate                | double | Approximated input twist rate used for covariance calculation [Hz]                            | 10.0          |
-| twist_gate_dist           | double | Limit of Mahalanobis distance used for outliers detection                                     | 10000.0       |
-| twist_stddev_vx           | double | Standard deviation for twist linear x [m/s] (used when use_twist_with_covariance is false)    | 0.2           |
-| twist_stddev_wz           | double | Standard deviation for twist angular z [rad/s] (used when use_twist_with_covariance is false) | 0.03          |
+| Name                   | Type   | Description                                                                                   | Default value |
+| :--------------------- | :----- | :-------------------------------------------------------------------------------------------- | :------------ |
+| twist_additional_delay | double | Additional delay time for twist [s]                                                           | 0.0           |
+| twist_rate             | double | Approximated input twist rate used for covariance calculation [Hz]                            | 10.0          |
+| twist_gate_dist        | double | Limit of Mahalanobis distance used for outliers detection                                     | 10000.0       |
+| twist_stddev_vx        | double | Standard deviation for twist linear x [m/s] (used when use_twist_with_covariance is false)    | 0.2           |
+| twist_stddev_wz        | double | Standard deviation for twist angular z [rad/s] (used when use_twist_with_covariance is false) | 0.03          |
 
 ### For process noise
 

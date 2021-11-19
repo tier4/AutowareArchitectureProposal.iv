@@ -105,9 +105,9 @@ private:
   double pose_rate_;  //!< @brief  pose rate [s], used for covariance calculation
   //!< @brief  the mahalanobis distance threshold to ignore pose measurement
   double pose_gate_dist_;
-  double pose_stddev_x_;            //!< @brief  standard deviation for pose position x [m]
-  double pose_stddev_y_;            //!< @brief  standard deviation for pose position y [m]
-  double pose_stddev_yaw_;          //!< @brief  standard deviation for pose position yaw [rad]
+  double pose_stddev_x_;    //!< @brief  standard deviation for pose position x [m]
+  double pose_stddev_y_;    //!< @brief  standard deviation for pose position y [m]
+  double pose_stddev_yaw_;  //!< @brief  standard deviation for pose position yaw [rad]
 
   /* twist */
   double twist_additional_delay_;  //!< @brief  compensated delay = (twist.header.stamp - now)
