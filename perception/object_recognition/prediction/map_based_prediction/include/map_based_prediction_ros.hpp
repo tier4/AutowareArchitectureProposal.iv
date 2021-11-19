@@ -15,15 +15,24 @@
 #ifndef MAP_BASED_PREDICTION_ROS_HPP_
 #define MAP_BASED_PREDICTION_ROS_HPP_
 
-#include "rclcpp/rclcpp.hpp"
+#include <lanelet2_extension/utility/message_conversion.hpp>
+#include <lanelet2_extension/utility/utilities.hpp>
+#include <rclcpp/rclcpp.hpp>
 
-#include "autoware_lanelet2_msgs/msg/map_bin.hpp"
-#include "autoware_perception_msgs/msg/dynamic_object.hpp"
-#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
-#include "geometry_msgs/msg/pose.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "unique_identifier_msgs/msg/uuid.hpp"
-#include "visualization_msgs/msg/marker_array.hpp"
+#include <autoware_lanelet2_msgs/msg/map_bin.hpp>
+#include <autoware_perception_msgs/msg/dynamic_object.hpp>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <geometry_msgs/msg/pose.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <unique_identifier_msgs/msg/uuid.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
+
+#include <lanelet2_core/LaneletMap.h>
+#include <lanelet2_core/geometry/BoundingBox.h>
+#include <lanelet2_core/geometry/Lanelet.h>
+#include <lanelet2_core/geometry/Point.h>
+#include <lanelet2_routing/RoutingGraph.h>
+#include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 
 #include <deque>
 #include <memory>
@@ -31,16 +40,6 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
-// lanelet
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_core/geometry/BoundingBox.h"
-#include "lanelet2_core/geometry/Lanelet.h"
-#include "lanelet2_core/geometry/Point.h"
-#include "lanelet2_extension/utility/message_conversion.hpp"
-#include "lanelet2_extension/utility/utilities.hpp"
-#include "lanelet2_routing/RoutingGraph.h"
-#include "lanelet2_traffic_rules/TrafficRulesFactory.h"
 
 namespace tf2_ros
 {

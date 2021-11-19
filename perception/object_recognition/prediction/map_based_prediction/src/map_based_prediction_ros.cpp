@@ -645,6 +645,7 @@ void MapBasedPredictionROS::objectsCallback(
         paths.insert(paths.end(), center_paths.begin(), center_paths.end());
       }
     }
+
     // If there is no valid path, we'll mark this object as map-less object
     if (paths.empty()) {
       objects_without_map.objects.push_back(transformed_object.object);

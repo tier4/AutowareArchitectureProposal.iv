@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "scene_module/no_stopping_area/scene_no_stopping_area.hpp"
+
+#include "utilization/arc_lane_util.hpp"
+#include "utilization/interpolate.hpp"
+#include "utilization/util.hpp"
+
 #include <autoware_utils/autoware_utils.hpp>
 #include <interpolation/spline_interpolation.hpp>
-#include <scene_module/no_stopping_area/scene_no_stopping_area.hpp>
-#include <utilization/arc_lane_util.hpp>
-#include <utilization/interpolate.hpp>
-#include <utilization/util.hpp>
 
 #include <lanelet2_core/utility/Optional.h>
 #include <tf2_eigen/tf2_eigen.h>

@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "scene_module/no_stopping_area/scene_no_stopping_area.hpp"
+#include "utilization/marker_helper.hpp"
+#include "utilization/util.hpp"
+
 #include <autoware_utils/planning/planning_marker_helper.hpp>
-#include <scene_module/no_stopping_area/scene_no_stopping_area.hpp>
-#include <utilization/marker_helper.hpp>
-#include <utilization/util.hpp>
 
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 

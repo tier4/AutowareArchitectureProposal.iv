@@ -15,24 +15,26 @@
 #ifndef SCENE_MODULE__NO_STOPPING_AREA__SCENE_NO_STOPPING_AREA_HPP_
 #define SCENE_MODULE__NO_STOPPING_AREA__SCENE_NO_STOPPING_AREA_HPP_
 
+#define EIGEN_MPL2_ONLY
+
+#include "scene_module/scene_module_interface.hpp"
+#include "utilization/boost_geometry_helper.hpp"
+#include "utilization/state_machine.hpp"
+
+#include <Eigen/Core>
+#include <lanelet2_extension/regulatory_elements/no_stopping_area.hpp>
+#include <rclcpp/rclcpp.hpp>
+
 #include <autoware_planning_msgs/msg/path_with_lane_id.hpp>
 
 #include <boost/optional.hpp>
 
+#include <lanelet2_core/LaneletMap.h>
+#include <tf2/LinearMath/Transform.h>
+
 #include <memory>
 #include <utility>
 #include <vector>
-
-#define EIGEN_MPL2_ONLY
-#include <Eigen/Core>
-#include <lanelet2_extension/regulatory_elements/no_stopping_area.hpp>
-#include <rclcpp/rclcpp.hpp>
-#include <scene_module/scene_module_interface.hpp>
-#include <utilization/boost_geometry_helper.hpp>
-#include <utilization/state_machine.hpp>
-
-#include <lanelet2_core/LaneletMap.h>
-#include <tf2/LinearMath/Transform.h>
 
 namespace behavior_velocity_planner
 {

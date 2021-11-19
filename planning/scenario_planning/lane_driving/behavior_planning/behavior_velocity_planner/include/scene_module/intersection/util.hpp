@@ -107,6 +107,7 @@ std::vector<int> getLaneletIdsFromLaneletsVec(const std::vector<lanelet::ConstLa
 double calcArcLengthFromPath(
   const autoware_planning_msgs::msg::PathWithLaneId & input_path, const size_t src_idx,
   const size_t dst_idx);
+
 }  // namespace util
 }  // namespace behavior_velocity_planner
 
