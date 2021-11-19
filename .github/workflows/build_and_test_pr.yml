@@ -98,7 +98,7 @@ jobs:
           # Fetch with depth=0 to calculate modified packages
           fetch-depth: 0
 
-      - name: Install pip and Clang-Tidy
+      - name: Install pip, apt-transport-https, and Clang-Tidy
         run: |
           apt-get -y -q update
           apt-get -y -q install python3-pip apt-transport-https clang-tidy
