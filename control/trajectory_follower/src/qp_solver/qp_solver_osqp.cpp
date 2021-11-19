@@ -67,6 +67,7 @@ bool8_t QPSolverOSQP::solve(
 
   const int64_t status_val = std::get<3>(result);
   if (status_val != 1) {
+  // TODO(Horibe): Should return false and the failure must be handled in an appropriate way.
     RCLCPP_WARN(logger_, "optimization failed : %s", osqpsolver_.getStatusMessage().c_str());
   }
 
