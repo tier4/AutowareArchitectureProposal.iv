@@ -186,7 +186,8 @@ TRAJECTORY_FOLLOWER_PUBLIC int64_t calcNearestIndex(
  * @return index of the input trajectory nearest to the pose
  */
 TRAJECTORY_FOLLOWER_PUBLIC int64_t calcNearestIndex(
-  const autoware_auto_planning_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose);
+  const autoware_auto_planning_msgs::msg::Trajectory & traj,
+  const geometry_msgs::msg::Pose & self_pose);
 /**
  * @brief calculate distance to stopped point
  */

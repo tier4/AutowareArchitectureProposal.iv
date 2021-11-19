@@ -77,7 +77,8 @@ public:
 
 private:
   //!< @brief topic publisher for control command
-  rclcpp::Publisher<autoware_auto_control_msgs::msg::AckermannLateralCommand>::SharedPtr m_pub_ctrl_cmd;
+  rclcpp::Publisher<autoware_auto_control_msgs::msg::AckermannLateralCommand>::SharedPtr
+    m_pub_ctrl_cmd;
   //!< @brief topic publisher for predicted trajectory
   rclcpp::Publisher<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr m_pub_predicted_traj;
   //!< @brief topic publisher for control diagnostic
@@ -186,7 +187,8 @@ private:
    * @brief publish diagnostic message
    * @param [in] diagnostic published diagnostic
    */
-  void publishDiagnostic(autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic & diagnostic) const;
+  void publishDiagnostic(autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic & diagnostic)
+  const;
 
   /**
    * @brief get stop command

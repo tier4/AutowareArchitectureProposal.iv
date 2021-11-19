@@ -58,7 +58,8 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
   m_enable_path_smoothing = declare_parameter<bool8_t>("enable_path_smoothing");
   m_path_filter_moving_ave_num = declare_parameter<int64_t>("path_filter_moving_ave_num");
   m_curvature_smoothing_num_traj = declare_parameter<int64_t>("curvature_smoothing_num_traj");
-  m_curvature_smoothing_num_ref_steer = declare_parameter<int64_t>("curvature_smoothing_num_ref_steer");
+  m_curvature_smoothing_num_ref_steer = declare_parameter<int64_t>(
+    "curvature_smoothing_num_ref_steer");
   m_traj_resample_dist = declare_parameter<float64_t>("traj_resample_dist");
   m_mpc.m_admissible_position_error =
     declare_parameter<float64_t>("admissible_position_error");
@@ -144,7 +145,9 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
     create_publisher<autoware_auto_control_msgs::msg::AckermannLateralCommand>(
     "~/output/control_cmd", 1);
   m_pub_predicted_traj =
-    create_publisher<autoware_auto_planning_msgs::msg::Trajectory>("~/output/predicted_trajectory", 1);
+    create_publisher<autoware_auto_planning_msgs::msg::Trajectory>(
+    "~/output/predicted_trajectory",
+    1);
   m_pub_diagnostic =
     create_publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>(
     "~/output/diagnostic", 1);
@@ -260,8 +263,9 @@ bool8_t LateralController::checkData() const
   return true;
 }
 
-void LateralController::onTrajectory(const autoware_auto_planning_msgs::msg::Trajectory::SharedPtr msg)
-{ 
+void LateralController::onTrajectory(
+  const autoware_auto_planning_msgs::msg::Trajectory::SharedPtr msg)
+{
   m_current_trajectory_ptr = msg;
 
   if (!m_current_pose_ptr && !updateCurrentPose()) {
@@ -316,12 +320,14 @@ void LateralController::onOdometry(const nav_msgs::msg::Odometry::SharedPtr msg)
   m_current_odometry_ptr = msg;
 }
 
-void LateralController::onSteering(const autoware_auto_vehicle_msgs::msg::SteeringReport::SharedPtr msg)
+void LateralController::onSteering(
+  const autoware_auto_vehicle_msgs::msg::SteeringReport::SharedPtr msg)
 {
   m_current_steering_ptr = msg;
 }
 
-autoware_auto_control_msgs::msg::AckermannLateralCommand LateralController::getStopControlCommand() const
+autoware_auto_control_msgs::msg::AckermannLateralCommand LateralController::getStopControlCommand()
+const
 {
   autoware_auto_control_msgs::msg::AckermannLateralCommand cmd;
   cmd.steering_tire_angle = static_cast<decltype(cmd.steering_tire_angle)>(m_steer_cmd_prev);
@@ -329,7 +335,8 @@ autoware_auto_control_msgs::msg::AckermannLateralCommand LateralController::getS
   return cmd;
 }
 
-autoware_auto_control_msgs::msg::AckermannLateralCommand LateralController::getInitialControlCommand() const
+autoware_auto_control_msgs::msg::AckermannLateralCommand LateralController::getInitialControlCommand()
+const
 {
   autoware_auto_control_msgs::msg::AckermannLateralCommand cmd;
   cmd.steering_tire_angle = m_current_steering_ptr->steering_tire_angle;
@@ -369,14 +376,16 @@ bool8_t LateralController::isStoppedState() const
   }
 }
 
-void LateralController::publishCtrlCmd(autoware_auto_control_msgs::msg::AckermannLateralCommand ctrl_cmd)
+void LateralController::publishCtrlCmd(
+  autoware_auto_control_msgs::msg::AckermannLateralCommand ctrl_cmd)
 {
   ctrl_cmd.stamp = this->now();
   m_pub_ctrl_cmd->publish(ctrl_cmd);
   m_steer_cmd_prev = ctrl_cmd.steering_tire_angle;
 }
 
-void LateralController::publishPredictedTraj(autoware_auto_planning_msgs::msg::Trajectory & predicted_traj)
+void LateralController::publishPredictedTraj(
+  autoware_auto_planning_msgs::msg::Trajectory & predicted_traj)
 const
 {
   predicted_traj.header.stamp = this->now();
@@ -463,23 +472,47 @@ rcl_interfaces::msg::SetParametersResult LateralController::paramCallback(
     update_param(parameters, "mpc_prediction_dt", param.prediction_dt);
     update_param(parameters, "mpc_weight_lat_error", param.weight_lat_error);
     update_param(parameters, "mpc_weight_heading_error", param.weight_heading_error);
-    update_param(parameters, "mpc_weight_heading_error_squared_vel", param.weight_heading_error_squared_vel);
+    update_param(
+      parameters, "mpc_weight_heading_error_squared_vel",
+      param.weight_heading_error_squared_vel);
     update_param(parameters, "mpc_weight_steering_input", param.weight_steering_input);
-    update_param(parameters, "mpc_weight_steering_input_squared_vel", param.weight_steering_input_squared_vel);
+    update_param(
+      parameters, "mpc_weight_steering_input_squared_vel",
+      param.weight_steering_input_squared_vel);
     update_param(parameters, "mpc_weight_lat_jerk", param.weight_lat_jerk);
     update_param(parameters, "mpc_weight_steer_rate", param.weight_steer_rate);
     update_param(parameters, "mpc_weight_steer_acc", param.weight_steer_acc);
-    update_param(parameters, "mpc_low_curvature_weight_lat_error", param.low_curvature_weight_lat_error);
-    update_param(parameters, "mpc_low_curvature_weight_heading_error", param.low_curvature_weight_heading_error);
-    update_param(parameters, "mpc_low_curvature_weight_heading_error_squared_vel", param.low_curvature_weight_heading_error_squared_vel);
-    update_param(parameters, "mpc_low_curvature_weight_steering_input", param.low_curvature_weight_steering_input);
-    update_param(parameters, "mpc_low_curvature_weight_steering_input_squared_vel", param.low_curvature_weight_steering_input_squared_vel);
-    update_param(parameters, "mpc_low_curvature_weight_lat_jerk", param.low_curvature_weight_lat_jerk);
-    update_param(parameters, "mpc_low_curvature_weight_steer_rate", param.low_curvature_weight_steer_rate);
-    update_param(parameters, "mpc_low_curvature_weight_steer_acc", param.low_curvature_weight_steer_acc);
-    update_param(parameters, "mpc_low_curvature_thresh_curvature", param.low_curvature_thresh_curvature);
+    update_param(
+      parameters, "mpc_low_curvature_weight_lat_error",
+      param.low_curvature_weight_lat_error);
+    update_param(
+      parameters, "mpc_low_curvature_weight_heading_error",
+      param.low_curvature_weight_heading_error);
+    update_param(
+      parameters, "mpc_low_curvature_weight_heading_error_squared_vel",
+      param.low_curvature_weight_heading_error_squared_vel);
+    update_param(
+      parameters, "mpc_low_curvature_weight_steering_input",
+      param.low_curvature_weight_steering_input);
+    update_param(
+      parameters, "mpc_low_curvature_weight_steering_input_squared_vel",
+      param.low_curvature_weight_steering_input_squared_vel);
+    update_param(
+      parameters, "mpc_low_curvature_weight_lat_jerk",
+      param.low_curvature_weight_lat_jerk);
+    update_param(
+      parameters, "mpc_low_curvature_weight_steer_rate",
+      param.low_curvature_weight_steer_rate);
+    update_param(
+      parameters, "mpc_low_curvature_weight_steer_acc",
+      param.low_curvature_weight_steer_acc);
+    update_param(
+      parameters, "mpc_low_curvature_thresh_curvature",
+      param.low_curvature_thresh_curvature);
     update_param(parameters, "mpc_weight_terminal_lat_error", param.weight_terminal_lat_error);
-    update_param(parameters, "mpc_weight_terminal_heading_error", param.weight_terminal_heading_error);
+    update_param(
+      parameters, "mpc_weight_terminal_heading_error",
+      param.weight_terminal_heading_error);
     update_param(parameters, "mpc_zero_ff_steer_deg", param.zero_ff_steer_deg);
     update_param(parameters, "mpc_acceleration_limit", param.acceleration_limit);
     update_param(parameters, "mpc_velocity_time_constant", param.velocity_time_constant);
@@ -503,7 +536,8 @@ rcl_interfaces::msg::SetParametersResult LateralController::paramCallback(
   return result;
 }
 
-bool8_t LateralController::isValidTrajectory(const autoware_auto_planning_msgs::msg::Trajectory & traj) const
+bool8_t LateralController::isValidTrajectory(
+  const autoware_auto_planning_msgs::msg::Trajectory & traj) const
 {
   for (const auto & p : traj.points) {
     if (
