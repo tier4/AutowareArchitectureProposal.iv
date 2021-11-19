@@ -97,6 +97,9 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
   sub_turn_indicators_cmd_ = create_subscription<TurnIndicatorsCommand>(
     "input/turn_indicators_command", QoS{1},
     std::bind(&SimplePlanningSimulator::on_turn_indicators_cmd, this, _1));
+  sub_hazard_lights_cmd_ = create_subscription<HazardLightsCommand>(
+    "input/hazard_lights_command", QoS{1},
+    std::bind(&SimplePlanningSimulator::on_hazard_lights_cmd, this, _1));
   sub_trajectory_ = create_subscription<Trajectory>(
     "input/trajectory", QoS{1}, std::bind(&SimplePlanningSimulator::on_trajectory, this, _1));
 
@@ -105,6 +108,8 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
   pub_gear_report_ = create_publisher<GearReport>("output/gear_report", QoS{1});
   pub_turn_indicators_report_ =
     create_publisher<TurnIndicatorsReport>("output/turn_indicators_report", QoS{1});
+  pub_hazard_lights_report_ =
+    create_publisher<HazardLightsReport>("output/hazard_lights_report", QoS{1});
   pub_current_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>("/current_pose", QoS{1});
   pub_velocity_ = create_publisher<VelocityReport>("output/twist", QoS{1});
   pub_odom_ = create_publisher<Odometry>("output/odometry", QoS{1});
@@ -224,6 +229,7 @@ void SimplePlanningSimulator::on_timer()
   publish_control_mode_report();
   publish_gear_report();
   publish_turn_indicators_report();
+  publish_hazard_lights_report();
   publish_tf(current_odometry_);
 }
 
@@ -283,6 +289,12 @@ void SimplePlanningSimulator::on_turn_indicators_cmd(
   const autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand::ConstSharedPtr msg)
 {
   current_turn_indicators_cmd_ptr_ = msg;
+}
+
+void SimplePlanningSimulator::on_hazard_lights_cmd(
+  const autoware_auto_vehicle_msgs::msg::HazardLightsCommand::ConstSharedPtr msg)
+{
+  current_hazard_lights_cmd_ptr_ = msg;
 }
 
 void SimplePlanningSimulator::on_trajectory(const Trajectory::ConstSharedPtr msg)
@@ -451,6 +463,17 @@ void SimplePlanningSimulator::publish_turn_indicators_report()
   msg.stamp = get_clock()->now();
   msg.report = current_turn_indicators_cmd_ptr_->command;
   pub_turn_indicators_report_->publish(msg);
+}
+
+void SimplePlanningSimulator::publish_hazard_lights_report()
+{
+  if (!current_hazard_lights_cmd_ptr_) {
+    return;
+  }
+  HazardLightsReport msg;
+  msg.stamp = get_clock()->now();
+  msg.report = current_hazard_lights_cmd_ptr_->command;
+  pub_hazard_lights_report_->publish(msg);
 }
 
 void SimplePlanningSimulator::publish_tf(const Odometry & odometry)
