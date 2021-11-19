@@ -94,12 +94,17 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
     std::bind(&SimplePlanningSimulator::on_ackermann_cmd, this, _1));
   sub_gear_cmd_ = create_subscription<GearCommand>(
     "input/gear_command", QoS{1}, std::bind(&SimplePlanningSimulator::on_gear_cmd, this, _1));
+  sub_turn_indicators_cmd_ = create_subscription<TurnIndicatorsCommand>(
+    "input/turn_indicators_command", QoS{1},
+    std::bind(&SimplePlanningSimulator::on_turn_indicators_cmd, this, _1));
   sub_trajectory_ = create_subscription<Trajectory>(
     "input/trajectory", QoS{1}, std::bind(&SimplePlanningSimulator::on_trajectory, this, _1));
 
   pub_control_mode_report_ =
     create_publisher<ControlModeReport>("output/control_mode_report", QoS{1});
   pub_gear_report_ = create_publisher<GearReport>("output/gear_report", QoS{1});
+  pub_turn_indicators_report_ =
+    create_publisher<TurnIndicatorsReport>("output/turn_indicators_report", QoS{1});
   pub_current_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>("/current_pose", QoS{1});
   pub_velocity_ = create_publisher<VelocityReport>("output/twist", QoS{1});
   pub_odom_ = create_publisher<Odometry>("output/odometry", QoS{1});
@@ -218,6 +223,7 @@ void SimplePlanningSimulator::on_timer()
 
   publish_control_mode_report();
   publish_gear_report();
+  publish_turn_indicators_report();
   publish_tf(current_odometry_);
 }
 
@@ -271,6 +277,12 @@ void SimplePlanningSimulator::on_gear_cmd(
   {
     vehicle_model_ptr_->setGear(current_gear_cmd_ptr_->command);
   }
+}
+
+void SimplePlanningSimulator::on_turn_indicators_cmd(
+  const autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand::ConstSharedPtr msg)
+{
+  current_turn_indicators_cmd_ptr_ = msg;
 }
 
 void SimplePlanningSimulator::on_trajectory(const Trajectory::ConstSharedPtr msg)
@@ -359,11 +371,11 @@ double SimplePlanningSimulator::get_z_pose_from_trajectory(const double x, const
       found = true;
     }
   }
-    if (found) {
-      return current_trajectory_ptr_->points.at(index).pose.position.z;
-    }
+  if (found) {
+    return current_trajectory_ptr_->points.at(index).pose.position.z;
+  }
 
-    return 0.0;
+  return 0.0;
 }
 
 geometry_msgs::msg::TransformStamped SimplePlanningSimulator::get_transform_msg(
@@ -428,6 +440,17 @@ void SimplePlanningSimulator::publish_gear_report()
   msg.stamp = get_clock()->now();
   msg.report = current_gear_cmd_ptr_->command;
   pub_gear_report_->publish(msg);
+}
+
+void SimplePlanningSimulator::publish_turn_indicators_report()
+{
+  if (!current_turn_indicators_cmd_ptr_) {
+    return;
+  }
+  TurnIndicatorsReport msg;
+  msg.stamp = get_clock()->now();
+  msg.report = current_turn_indicators_cmd_ptr_->command;
+  pub_turn_indicators_report_->publish(msg);
 }
 
 void SimplePlanningSimulator::publish_tf(const Odometry & odometry)
