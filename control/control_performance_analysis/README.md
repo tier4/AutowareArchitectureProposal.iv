@@ -18,11 +18,11 @@ Based on the various input from planning, control, and vehicle, it publishes the
 | `/planning/scenario_planning/trajectory`           | autoware_auto_planning_msgs::msg::Trajectory             | Output trajectory from planning module.             |
 | `/control/trajectory_follower/lateral/control_cmd` | autoware_auto_control_msgs::msg::AckermannLateralCommand | Output lateral control command from control module. |
 | `/vehicle/status/steering_status`                  | autoware_auto_vehicle_msgs::msg::SteeringReport          | Steering information from vehicle.                  |
-| `/localization/odometry`                           | nav_msgs::msg::Odometry                                  | Use twist from odometry                             |
+| `/localization/odometry`                           | nav_msgs::msg::Odometry                                  | Use twist from odometry.                             |
 | `/tf`                                              | `tf2_msgs::msg::TFMessage                                | Extract ego pose from tf.                           |
 
 ### Output topics
 
 | Name                                    | Type                                            | Description                            |
 | --------------------------------------- | ----------------------------------------------- | -------------------------------------- |
-| `/control_performance/performance_vars` | control_performance_analysis::msg::ErrorStamped | The result of the performance analysis |
+| `/control_performance/performance_vars` | control_performance_analysis::msg::ErrorStamped | The result of the performance analysis. |
