@@ -48,16 +48,11 @@ EKFLocalizer::EKFLocalizer(const std::string & node_name, const rclcpp::NodeOpti
   pose_measure_uncertainty_time_ = declare_parameter("pose_measure_uncertainty_time", 0.01);
   pose_rate_ = declare_parameter("pose_rate", 10.0);  // used for covariance calculation
   pose_gate_dist_ = declare_parameter("pose_gate_dist", 10000.0);  // Mahalanobis limit
-  pose_stddev_x_ = declare_parameter("pose_stddev_x", 0.05);
-  pose_stddev_y_ = declare_parameter("pose_stddev_y", 0.05);
-  pose_stddev_yaw_ = declare_parameter("pose_stddev_yaw", 0.035);
 
   /* twist measurement */
   twist_additional_delay_ = declare_parameter("twist_additional_delay", 0.0);
   twist_rate_ = declare_parameter("twist_rate", 10.0);  // used for covariance calculation
   twist_gate_dist_ = declare_parameter("twist_gate_dist", 10000.0);  // Mahalanobis limit
-  twist_stddev_vx_ = declare_parameter("twist_stddev_vx", 0.2);
-  twist_stddev_wz_ = declare_parameter("twist_stddev_wz", 0.03);
 
   /* process noise */
   double proc_stddev_yaw_c, proc_stddev_yaw_bias_c, proc_stddev_vx_c, proc_stddev_wz_c;
