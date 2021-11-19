@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`control_performance_analysis` is the package to analyze the output of a control module.
+`control_performance_analysis` is the package to analyze the tracking performance of a control module.
 
 This package is used as a tool to quantify the results of the control module.
 That's why it doesn't interfere with the core logic of autonomous driving.
