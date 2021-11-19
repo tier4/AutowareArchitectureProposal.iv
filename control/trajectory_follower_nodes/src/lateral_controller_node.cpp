@@ -24,10 +24,6 @@
 
 #include "tf2_ros/create_timer_ros.h"
 
-
-#define UPDATE_MPC_PARAM(PARAM_STRUCT, NAME) \
-  update_param(parameters, "m_mpc" #NAME, PARAM_STRUCT.NAME)
-
 namespace autoware
 {
 namespace motion
@@ -60,9 +56,10 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
 
   m_mpc.m_ctrl_period = declare_parameter<float64_t>("ctrl_period");
   m_enable_path_smoothing = declare_parameter<bool8_t>("enable_path_smoothing");
-  m_enable_yaw_recalculation = declare_parameter<bool8_t>("enable_yaw_recalculation");
   m_path_filter_moving_ave_num = declare_parameter<int64_t>("path_filter_moving_ave_num");
-  m_curvature_smoothing_num = declare_parameter<int64_t>("curvature_smoothing_num");
+  m_curvature_smoothing_num_traj = declare_parameter<int64_t>("curvature_smoothing_num_traj");
+  m_curvature_smoothing_num_ref_steer = declare_parameter<int64_t>(
+    "curvature_smoothing_num_ref_steer");
   m_traj_resample_dist = declare_parameter<float64_t>("traj_resample_dist");
   m_mpc.m_admissible_position_error =
     declare_parameter<float64_t>("admissible_position_error");
@@ -79,10 +76,10 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
 
   /* mpc parameters */
   const float64_t steer_lim_deg = declare_parameter<float64_t>("steer_lim_deg");
-  const float64_t steer_rate_lim_degs = declare_parameter<float64_t>("steer_rate_lim_dps");
+  const float64_t steer_rate_lim_dps = declare_parameter<float64_t>("steer_rate_lim_dps");
   constexpr float64_t deg2rad = static_cast<float64_t>(autoware::common::types::PI) / 180.0;
   m_mpc.m_steer_lim = steer_lim_deg * deg2rad;
-  m_mpc.m_steer_rate_lim = steer_rate_lim_degs * deg2rad;
+  m_mpc.m_steer_rate_lim = steer_rate_lim_dps * deg2rad;
   const float64_t wheelbase =
     vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo().wheel_base_m;
 
@@ -270,6 +267,10 @@ void LateralController::onTrajectory(
 {
   m_current_trajectory_ptr = msg;
 
+  if (!m_current_pose_ptr && !updateCurrentPose()) {
+    return;
+  }
+
   if (msg->points.size() < 3) {
     RCLCPP_DEBUG(get_logger(), "received path size is < 3, not enough.");
     return;
@@ -282,7 +283,7 @@ void LateralController::onTrajectory(
 
   m_mpc.setReferenceTrajectory(
     *msg, m_traj_resample_dist, m_enable_path_smoothing, m_path_filter_moving_ave_num,
-    m_enable_yaw_recalculation, m_curvature_smoothing_num, m_current_pose_ptr);
+    m_curvature_smoothing_num_traj, m_curvature_smoothing_num_ref_steer, m_current_pose_ptr);
 }
 
 bool8_t LateralController::updateCurrentPose()
@@ -466,30 +467,54 @@ rcl_interfaces::msg::SetParametersResult LateralController::paramCallback(
   // strong exception safety wrt MPCParam
   trajectory_follower::MPCParam param = m_mpc.m_param;
   try {
-    UPDATE_MPC_PARAM(param, prediction_horizon);
-    UPDATE_MPC_PARAM(param, prediction_dt);
-    UPDATE_MPC_PARAM(param, weight_lat_error);
-    UPDATE_MPC_PARAM(param, weight_heading_error);
-    UPDATE_MPC_PARAM(param, weight_heading_error_squared_vel);
-    UPDATE_MPC_PARAM(param, weight_steering_input);
-    UPDATE_MPC_PARAM(param, weight_steering_input_squared_vel);
-    UPDATE_MPC_PARAM(param, weight_lat_jerk);
-    UPDATE_MPC_PARAM(param, weight_steer_rate);
-    UPDATE_MPC_PARAM(param, weight_steer_acc);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_lat_error);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_heading_error);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_heading_error_squared_vel);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_steering_input);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_steering_input_squared_vel);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_lat_jerk);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_steer_rate);
-    UPDATE_MPC_PARAM(param, low_curvature_weight_steer_acc);
-    UPDATE_MPC_PARAM(param, low_curvature_thresh_curvature);
-    UPDATE_MPC_PARAM(param, weight_terminal_lat_error);
-    UPDATE_MPC_PARAM(param, weight_terminal_heading_error);
-    UPDATE_MPC_PARAM(param, zero_ff_steer_deg);
-    UPDATE_MPC_PARAM(param, acceleration_limit);
-    UPDATE_MPC_PARAM(param, velocity_time_constant);
+    update_param(parameters, "mpc_prediction_horizon", param.prediction_horizon);
+    update_param(parameters, "mpc_prediction_dt", param.prediction_dt);
+    update_param(parameters, "mpc_weight_lat_error", param.weight_lat_error);
+    update_param(parameters, "mpc_weight_heading_error", param.weight_heading_error);
+    update_param(
+      parameters, "mpc_weight_heading_error_squared_vel",
+      param.weight_heading_error_squared_vel);
+    update_param(parameters, "mpc_weight_steering_input", param.weight_steering_input);
+    update_param(
+      parameters, "mpc_weight_steering_input_squared_vel",
+      param.weight_steering_input_squared_vel);
+    update_param(parameters, "mpc_weight_lat_jerk", param.weight_lat_jerk);
+    update_param(parameters, "mpc_weight_steer_rate", param.weight_steer_rate);
+    update_param(parameters, "mpc_weight_steer_acc", param.weight_steer_acc);
+    update_param(
+      parameters, "mpc_low_curvature_weight_lat_error",
+      param.low_curvature_weight_lat_error);
+    update_param(
+      parameters, "mpc_low_curvature_weight_heading_error",
+      param.low_curvature_weight_heading_error);
+    update_param(
+      parameters, "mpc_low_curvature_weight_heading_error_squared_vel",
+      param.low_curvature_weight_heading_error_squared_vel);
+    update_param(
+      parameters, "mpc_low_curvature_weight_steering_input",
+      param.low_curvature_weight_steering_input);
+    update_param(
+      parameters, "mpc_low_curvature_weight_steering_input_squared_vel",
+      param.low_curvature_weight_steering_input_squared_vel);
+    update_param(
+      parameters, "mpc_low_curvature_weight_lat_jerk",
+      param.low_curvature_weight_lat_jerk);
+    update_param(
+      parameters, "mpc_low_curvature_weight_steer_rate",
+      param.low_curvature_weight_steer_rate);
+    update_param(
+      parameters, "mpc_low_curvature_weight_steer_acc",
+      param.low_curvature_weight_steer_acc);
+    update_param(
+      parameters, "mpc_low_curvature_thresh_curvature",
+      param.low_curvature_thresh_curvature);
+    update_param(parameters, "mpc_weight_terminal_lat_error", param.weight_terminal_lat_error);
+    update_param(
+      parameters, "mpc_weight_terminal_heading_error",
+      param.weight_terminal_heading_error);
+    update_param(parameters, "mpc_zero_ff_steer_deg", param.zero_ff_steer_deg);
+    update_param(parameters, "mpc_acceleration_limit", param.acceleration_limit);
+    update_param(parameters, "mpc_velocity_time_constant", param.velocity_time_constant);
 
     // initialize input buffer
     update_param(parameters, "input_delay", param.input_delay);
