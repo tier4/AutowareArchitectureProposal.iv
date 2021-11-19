@@ -4,7 +4,7 @@
   <arg name="input/reference_trajectory" default="/planning/scenario_planning/trajectory" />
   <arg name="input/control_raw" default="/control/trajectory_follower/lateral/control_cmd" />
   <arg name="input/measured_steering" default="/vehicle/status/steering_status" />
-  <arg name="input/current_odometry" default="/localization/odometry" />
+  <arg name="input/current_odometry" default="/localization/kinematic_state" />
   <arg name="output/error_stamped" default="/control_performance/performance_vars" />
 
   <!-- vehicle info -->
