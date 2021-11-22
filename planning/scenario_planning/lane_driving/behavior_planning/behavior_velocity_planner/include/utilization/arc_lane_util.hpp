@@ -14,7 +14,9 @@
 
 #ifndef UTILIZATION__ARC_LANE_UTIL_HPP_
 #define UTILIZATION__ARC_LANE_UTIL_HPP_
+#define EIGEN_MPL2_ONLY
 
+#include <Eigen/Core>
 #include <autoware_utils/geometry/geometry.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <utilization/boost_geometry_helper.hpp>
@@ -30,9 +32,6 @@
 #include <memory>
 #include <utility>
 #include <vector>
-
-#define EIGEN_MPL2_ONLY
-#include <Eigen/Core>
 
 namespace behavior_velocity_planner
 {
