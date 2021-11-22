@@ -246,7 +246,7 @@ void PacmodInterface::callbackPacmodRpt(
   {
     SteeringWheelStatusStamped steering_wheel_status_msg;
     steering_wheel_status_msg.stamp = header.stamp;
-    steering_wheel_status_msg.data = steer_wheel_rpt_ptr_->output;
+    steering_wheel_status_msg.data = current_steer_wheel;
     steering_wheel_status_pub_->publish(steering_wheel_status_msg);
   }
 
