@@ -85,7 +85,7 @@ private:
 
   std::map<boost::uuids::uuid, int32_t> id_map;
   std::list<int32_t> unused_marker_ids;
-  int32_t marker_id;
+  int32_t marker_id = 0;
 };
 
 }  // namespace object_detection
