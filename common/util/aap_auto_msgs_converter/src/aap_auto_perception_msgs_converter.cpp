@@ -128,11 +128,9 @@ AAPAutoPerceptionMsgsConverter::convertToTrackedObjects(
     tracked_obj.kinematics.orientation_availability = convertOrientationReliable(dynamic_obj);
 
     // Shape -> Shape
-    autoware_auto_perception_msgs::msg::Shape shape;
-    shape.type = dynamic_obj.shape.type;
-    shape.footprint = dynamic_obj.shape.footprint;
-    shape.dimensions = dynamic_obj.shape.dimensions;
-    tracked_obj.shape.push_back(shape);
+    tracked_obj.shape.type = dynamic_obj.shape.type;
+    tracked_obj.shape.footprint = dynamic_obj.shape.footprint;
+    tracked_obj.shape.dimensions = dynamic_obj.shape.dimensions;
 
     tracked_objects.objects.push_back(tracked_obj);
   }
@@ -175,11 +173,9 @@ AAPAutoPerceptionMsgsConverter::convertToPredictedObjects(
     }
 
     // Shape -> Shape
-    autoware_auto_perception_msgs::msg::Shape shape;
-    shape.type = dynamic_obj.shape.type;
-    shape.footprint = dynamic_obj.shape.footprint;
-    shape.dimensions = dynamic_obj.shape.dimensions;
-    predicted_obj.shape.push_back(shape);
+    predicted_obj.shape.type = dynamic_obj.shape.type;
+    predicted_obj.shape.footprint = dynamic_obj.shape.footprint;
+    predicted_obj.shape.dimensions = dynamic_obj.shape.dimensions;
 
     predicted_objects.objects.push_back(predicted_obj);
   }
