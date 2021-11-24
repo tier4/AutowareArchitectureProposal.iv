@@ -168,7 +168,7 @@ AAPAutoPerceptionMsgsConverter::convertToPredictedObjects(
         geometry_msgs::msg::Pose pose = aap_path.pose.pose;
         predicted_path.path.push_back(pose);
       }
-      // predicted_path.confidence = 1.0;
+      predicted_path.confidence = aap_path_combination.confidence;
       predicted_obj.kinematics.predicted_paths.push_back(predicted_path);
     }
 
