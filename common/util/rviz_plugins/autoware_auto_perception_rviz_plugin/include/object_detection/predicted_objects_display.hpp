@@ -68,7 +68,7 @@ private:
         std::find(tracked_uuids.begin(), tracked_uuids.end(), itr->first) == tracked_uuids.end())
       {
         unused_marker_ids.push_back(itr->second);
-        id_map.erase(itr++);
+        itr = id_map.erase(itr);
       } else {
         ++itr;
       }
