@@ -55,29 +55,23 @@ private:
   {
     std::vector<boost::uuids::uuid> new_uuids;
     std::vector<boost::uuids::uuid> tracked_uuids;
-    std::vector<boost::uuids::uuid> unused_uuids;
+    new_uuids.reserve(msg->objects.size());
+    tracked_uuids.reserve(msg->objects.size());
     for (const auto & object : msg->objects) {
       const auto uuid = to_boost_uuid(object.object_id);
       ((id_map.find(uuid) != id_map.end()) ? tracked_uuids : new_uuids).push_back(uuid);
     }
-    for (auto itr = id_map.begin(); itr != id_map.end(); ++itr) {
+
+    auto itr = id_map.begin();
+    while (itr != id_map.end()) {
       if (
         std::find(tracked_uuids.begin(), tracked_uuids.end(), itr->first) == tracked_uuids.end())
       {
-        if (
-          std::find(unused_marker_ids.begin(), unused_marker_ids.end(), itr->second) ==
-          unused_marker_ids.end())
-        {
-          // if unused_marker_ids has not "itr->second" value, push_back it.
-          unused_marker_ids.push_back(itr->second);
-          unused_uuids.push_back(itr->first);
-        }
+        unused_marker_ids.push_back(itr->second);
+        id_map.erase(itr++);
+      } else {
+        ++itr;
       }
-    }
-
-    // remove unused uuid from id_map
-    for (const auto uuid : unused_uuids) {
-      id_map.erase(uuid);
     }
 
     for (const auto & new_uuid : new_uuids) {
