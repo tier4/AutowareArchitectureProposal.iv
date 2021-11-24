@@ -740,8 +740,7 @@ bool setGoal(
 
       const double closest_vel = input.points.at(closest_seg_idx).point.longitudinal_velocity_mps;
       const double next_vel = input.points.at(closest_seg_idx + 1).point.longitudinal_velocity_mps;
-      const double internal_div_ratio =
-        std::min(std::max(0.0, closest_to_pre_goal_dist / seg_dist), 1.0);
+      const double internal_div_ratio = std::clamp(closest_to_pre_goal_dist / seg_dist, 0.0, 1.0);
       pre_refined_goal.point.longitudinal_velocity_mps =
         std::abs(seg_dist) < 1e-06 ? next_vel
                                    : closest_vel + (next_vel - closest_vel) * internal_div_ratio;
