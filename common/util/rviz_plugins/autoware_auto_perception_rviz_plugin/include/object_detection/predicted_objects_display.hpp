@@ -66,7 +66,8 @@ private:
       {
         if (
           std::find(unused_marker_ids.begin(), unused_marker_ids.end(), itr->second) ==
-          unused_marker_ids.end()) {
+          unused_marker_ids.end())
+        {
           // if unused_marker_ids has not "itr->second" value, push_back it.
           unused_marker_ids.push_back(itr->second);
           unused_uuids.push_back(itr->first);
