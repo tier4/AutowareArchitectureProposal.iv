@@ -51,7 +51,7 @@ private:
     return uuid;
   }
 
-  void update_id_map(const PredictedObjects::ConstSharedPtr & msg)
+  void update_id_map(const TrackedObjects::ConstSharedPtr & msg)
   {
     std::vector<boost::uuids::uuid> new_uuids;
     std::vector<boost::uuids::uuid> tracked_uuids;
