@@ -13,7 +13,7 @@ if (!AutowareEngagePublisher) {
       this.ros.on("close", function (error) {
         document.getElementById("autoware_engage_info").innerHTML = "Closed";
       });
-      this.ros.connect("ws://" + location.hostname + ":9091");
+      this.ros.connect("ws://" + location.hostname + ":9090");
     },
     send: function (value) {
       var pub = new ROSLIB.Topic({
@@ -66,7 +66,7 @@ if (!AutowareEngageStatusSubscriber) {
       this.ros.on("close", function (error) {
         document.getElementById("state").innerHTML = "Close";
       });
-      this.ros.connect("ws://" + location.hostname + ":9091");
+      this.ros.connect("ws://" + location.hostname + ":9090");
 
       var sub = new ROSLIB.Topic({
         ros: this.ros,
