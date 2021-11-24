@@ -24,6 +24,7 @@ For example, the simple red and red cross traffic light label must be expressed 
 
 These colors and shapes are assigned to the message as follows:
 ![TrafficLightDataStructure.jpg](./image/TrafficLightDataStructure.jpg)
+
 ## Inputs / Outputs
 
 ### Input
