@@ -3,7 +3,7 @@
 ## Overview
 
 `behavior_velocity_planner` is a planner that adjust velocity based on the traffic rules.
-It consists of several modules.
+It consists of several modules. Please refer to the links listed below for detail on each module.
 
 - [Blind Spot](blind-spot-design.md)
 - [Crosswalk](crosswalk-design.md)
@@ -53,4 +53,3 @@ So for example, in order to stop at a stop line with the vehicles' front on the 
 | `max_accel`             | double | (to be a global parameter) max acceleration of the vehicle                          |
 | `delay_response_time`   | double | (to be a global parameter) delay time of the vehicle's response to control commands |
 
-## Modules

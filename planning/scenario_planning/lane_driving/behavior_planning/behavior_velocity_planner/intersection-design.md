@@ -47,7 +47,7 @@ Ignore the object in front of/ behind the ego vehicle in the same lane (Improvem
 
 #### Stuck vehicle
 
-If there is any object in a certain distance (default : 5m) from the end point of the intersection lane on the driving lane and a infered velocity of the object is less than a threshold (default 3.0km/h), the object is regarded as a stuck vehicle. If the stuck vehicle exists, the ego vehicle cannot enter the intersection.
+If there is any object in a certain distance (default : 5m) from the end point of the intersection lane on the driving lane and the object velocity is less than a threshold (default 3.0km/h), the object is regarded as a stuck vehicle. If the stuck vehicle exists, the ego vehicle cannot enter the intersection.
 
 ### Launch Timing
 
@@ -83,9 +83,8 @@ The intersection stop target should be limited to stuck vehicle in the middle of
 | `intersection/min_predicted_path_confidence`  | double | [-] minimum confidence value of predicted path to use for collision detection |
 | `merge_from_private_road/stop_duration_sec`   | double | [s] duration to stop                                                          |
 
-### Usage And Parameter Tuning
+### How To Tune Parameters
 
-Incase
 
 - The time to change state form `Stop` to `GO` is too long.
   - Change `state_transit_margin_time` to lower value. Be careful if this margin is too small then vehicle is going to change state many times and cause chattering.
