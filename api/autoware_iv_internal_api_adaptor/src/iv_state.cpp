@@ -13,11 +13,11 @@
 // limitations under the License.
 
 #include "iv_state.hpp"
+
 #include <autoware_iv_auto_msgs_converter/autoware_iv_auto_msgs_converter.hpp>
 
 namespace internal_api
 {
-
 IVState::IVState(const rclcpp::NodeOptions & options) : Node("external_api_iv_state", options)
 {
   using std::placeholders::_1;

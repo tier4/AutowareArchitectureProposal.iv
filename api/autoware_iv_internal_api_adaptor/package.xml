@@ -22,6 +22,7 @@
   <depend>rclcpp_components</depend>
   <depend>std_srvs</depend>
 
+  <!-- for backward compatibility -->
   <depend>autoware_auto_system_msgs</depend>
   <depend>autoware_system_msgs</depend>
   <depend>autoware_iv_auto_msgs_converter</depend>
