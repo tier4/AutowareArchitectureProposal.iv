@@ -132,6 +132,7 @@ private:
   rclcpp::Publisher<HazardLightsReport>::SharedPtr pub_hazard_lights_report_;
   rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr pub_tf_;
   rclcpp::Publisher<PoseStamped>::SharedPtr pub_current_pose_;
+  rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr pub_cov_;
 
   rclcpp::Subscription<GearCommand>::SharedPtr sub_gear_cmd_;
   rclcpp::Subscription<TurnIndicatorsCommand>::SharedPtr sub_turn_indicators_cmd_;
@@ -146,6 +147,10 @@ private:
 
   uint32_t timer_sampling_time_ms_;  //!< @brief timer sampling time
   rclcpp::TimerBase::SharedPtr on_timer_;  //!< @brief timer for simulation
+
+  OnSetParametersCallbackHandle::SharedPtr set_param_res_;
+  rcl_interfaces::msg::SetParametersResult on_parameter(
+    const std::vector<rclcpp::Parameter> & parameters);
 
   /* tf */
   tf2_ros::Buffer tf_buffer_;
@@ -173,6 +178,9 @@ private:
   DeltaTime delta_time_;  //!< @brief to calculate delta time
 
   MeasurementNoiseGenerator measurement_noise_;  //!< @brief for measurement noise
+
+  float64_t x_stddev_;  //!< @brief x standard deviation for dummy covariance in map coordinate
+  float64_t y_stddev_;  //!< @brief y standard deviation for dummy covariance in map coordinate
 
   /* vehicle model */
   enum class VehicleModelType
@@ -291,6 +299,12 @@ private:
    * @param [in] odometry The odometry to publish
    */
   void publish_odometry(const Odometry & odometry);
+
+  /*
+   * @brief publish pose_with_covariance. Covariance is added with given parameters.
+   * @param [in] pose to be published
+   */
+  void publish_pose_with_cov(const Pose & pose);
 
   /**
    * @brief publish steering
