@@ -85,7 +85,6 @@ The intersection stop target should be limited to stuck vehicle in the middle of
 
 ### How To Tune Parameters
 
-
 - The time to change state form `Stop` to `GO` is too long.
   - Change `state_transit_margin_time` to lower value. Be careful if this margin is too small then vehicle is going to change state many times and cause chattering.
 - The distance to stuck vehicle is too long.
