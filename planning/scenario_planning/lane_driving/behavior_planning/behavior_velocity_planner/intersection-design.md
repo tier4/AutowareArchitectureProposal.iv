@@ -1,25 +1,59 @@
-### intersection
+### Intersection
 
 #### Role
 
-Judgement whether a vehicle can go into an intersection or not by a dynamic object information, and planning a velocity of the low-down/stop
+Judgement whether a vehicle can go into an intersection or not by a dynamic object information, and planning a velocity of the low-down/stop.
 This module is designed for rule-based intersection velocity decision that is easy for developers to design its behavior. It generates proper velocity for intersection scene.
 
-In addition, the approval interface of behavior_velocity_planner allows external users / modules (e.g. remote operation) to intervene the decision of the vehicle behavior.　 This function is expected to be used, for example, for remote intervention in emergency situations or gathering information on operator decisions during development.
+In addition, the external users / modules (e.g. remote operation) to can intervene the STOP/GO decision for the vehicle behavior. The override interface is expected to be used, for example, for remote intervention in emergency situations or gathering information on operator decisions during development.
 
 ![brief](./docs/intersection/intersection.svg)
 
-
 ### Limitations
 
-This module allows developers to design vehicle velocity in intersection module using specific rules. Due to the property of rule-based planning, the algorithm is greatly depends on object detection and prediction accuracy considering as stuck vehicle in this intersection module. Also, this module only handles "safe velocity" at the intersection, so rushing or quick decision according to traffic condition is future work.
+This module allows developers to design vehicle velocity in intersection module using specific rules. This module is affected by object detection and prediction accuracy considering as stuck vehicle in this intersection module.
 
-#### Launch Timing
+### Inner-workings / Algorithms
+
+#### Attention Target Objects
+
+Car, truck, bus, motorbike are included in the attention target object for the velocity planning in the intersection and bicycle, pedestrian, animal, unknown are not.
+
+#### Attention Lane
+
+The lane crossing with driving lane and has high priority for the driving lane is defined as attention lane. (Priority tags are needed to be configured according to the situation.)
+
+#### Crossing Judgement
+
+Time to pass the intersection will be calculated with the length of the intersection (Supposed constant velocity : 10km/h). Driving lane polygon is defined from the position of the ego vehicle to the end point of the lane with intersection tag. It is checked if the polygon and the predicted path of the attention target objects will be crossed.
+
+#### State Transition (go / stop)
+
+If there is no crossing more than a certain period (default : 2.0s), the state transits to “go”. If crossing is detected even once, the state transits to “stop”.
+
+#### Stop Line Automatic Generation
+
+The driving lane is complemented at a certain intervals (default : 20cm), and the line which is a margin distance (default : 100cm) in front of the attention lane is defined as a stop line. (Also the length of the vehicle is considered and the stop point is set at the base_link point in front of the stop lane.)
+
+#### Pass Judge Line
+
+To avoid a rapid braking, in case that a deceleration more than a threshold (default : 0.5G) is needed, the ego vehicle doesn’t stop. In order to judge this condition, pass judge line is set a certain distance (default : 0.5\*v_curr^2/a_max) in front of the stop line.
+To prevent a chattering, once the ego vehicle passes this line, “stop” decision in the intersection won’t be done any more.
+To prevent going over the pass judge line before the traffic light stop line, the distance between stopline and pass judge line become 0m in case that there is a stop line between the ego vehicle and an intersection stop line.
+
+#### Vehicle In a Same Lane Removal
+
+Ignore the object in front of/ behind the ego vehicle in the same lane (Improvement needed : the linkage with the uuid in tracking is needed)
+
+#### Stuck vehicle
+
+If there is any object in a certain distance (default : 5m) from the end point of the intersection lane on the driving lane and a infered velocity of the object is less than a threshold (default 3.0km/h), the object is regarded as a stuck vehicle. If the stuck vehicle exists, the ego vehicle cannot enter the intersection.
+
+### Launch Timing
 
 Launches when there is a conflicting lanelet in ego lane.
 
-
-#### How to Decide Intersection Stop
+### How to Decide Intersection Stop
 
 The intersection stop target should be limited to stuck vehicle in the middle of the road or incoming cruising vehicle that will collide with ego vehicle. Therefore, target vehicles for considering intersection stop meet the following specific conditions.
 
@@ -30,7 +64,7 @@ The intersection stop target should be limited to stuck vehicle in the middle of
 - It will collide with ego vehicle.
   - This means that the other incoming vehicle from conflicting lanelet can collide with ego vehicle.
 
-#### Module Parameters
+### Module Parameters
 
 | Parameter                                     | Type   | Description                                                                   |
 | --------------------------------------------- | ------ | ----------------------------------------------------------------------------- |
@@ -49,20 +83,18 @@ The intersection stop target should be limited to stuck vehicle in the middle of
 | `intersection/min_predicted_path_confidence`  | double | [-] minimum confidence value of predicted path to use for collision detection |
 | `merge_from_private_road/stop_duration_sec`   | double | [s] duration to stop                                                          |
 
+### Usage And Parameter Tuning
 
-#### Usage And Parameter Tuning
+Incase
 
- Incase
-
-- The time to change state form `Stop` to `GO` is  too long.
-  - Change `state_transit_margin_time` to lower value. Be careful if this margin is too small then vehicle is going to change state many times and cause chattering. 
+- The time to change state form `Stop` to `GO` is too long.
+  - Change `state_transit_margin_time` to lower value. Be careful if this margin is too small then vehicle is going to change state many times and cause chattering.
 - The distance to stuck vehicle is too long.
   - Change `stuck_vehicle_detect_dist` to lower value. Note this module consider obstacle stop max distance as detection distance.
--  The speed in intersection is too slow
-  - Change `intersection_velocity` to higher value.
+- The speed in intersection is too slow
+- Change `intersection_velocity` to higher value.
 
-
-#### Flowchart
+### Flowchart
 
 ```plantuml
 @startuml
@@ -147,9 +179,6 @@ stop
 
 NOTE current state is treated as `STOP` if `is_entry_prohibited` = `true` else `GO`
 
+### Known Limits
 
-##### Known Limits
-
-- Currently intersection module creates detection area polygon by interpolation of ego path point with an interval of 1m so if ego path point is changing little by little, it can have chattering at the corner of detection area polygon.
 - This module generate intersection stop line and ignoring lanelet automatically form lanelet map , however if you want to set intersection stop line and ignoring lanelet manually you need to tag `right_of_way` and `yield` to all conflicting lanes properly.
-
