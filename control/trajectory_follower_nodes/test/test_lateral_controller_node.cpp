@@ -290,8 +290,7 @@ TEST_F(FakeNodeFixture, right_turn)
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
   EXPECT_LT(cmd_msg->steering_tire_angle, 0.0f);
-  // EXPECT_LT(cmd_msg->steering_tire_rotation_rate, 0.0f);  // NOTE: Is the statement correct?
-  // 1: Expected: (cmd_msg->steering_tire_rotation_rate) < (0.0f), actual: 5.55112e-16 vs 0
+  EXPECT_LT(cmd_msg->steering_tire_rotation_rate, 0.0f);
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
