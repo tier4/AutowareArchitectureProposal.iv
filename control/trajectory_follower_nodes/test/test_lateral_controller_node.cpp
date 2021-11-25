@@ -123,6 +123,10 @@ TEST_F(FakeNodeFixture, empty_trajectory)
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
+
+  // Spin for transform to be published
+  test_utils::spinWhile(node);
+
   // Empty trajectory: expect a stopped command
   Trajectory traj_msg;
   traj_msg.header.stamp = node->now();
@@ -395,6 +399,10 @@ TEST_F(FakeNodeFixture, stopped)
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
+
+  // Spin for transform to be published
+  test_utils::spinWhile(node);
+
   // Straight trajectory: expect no steering
   received_lateral_command = false;
   Trajectory traj_msg;
