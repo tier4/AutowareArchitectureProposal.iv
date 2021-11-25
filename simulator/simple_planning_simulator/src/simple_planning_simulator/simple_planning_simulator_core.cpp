@@ -173,8 +173,8 @@ void SimplePlanningSimulator::initialize_vehicle_model()
   const float64_t acc_time_constant = declare_parameter("acc_time_constant", 0.1);
   const float64_t steer_time_delay = declare_parameter("steer_time_delay", 0.24);
   const float64_t steer_time_constant = declare_parameter("steer_time_constant", 0.27);
-  const float64_t wheelbase =
-    vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo().wheel_base_m;
+  const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo();
+  const float64_t wheelbase = vehicle_info.wheel_base_m;
 
   if (vehicle_model_type_str == "IDEAL_STEER_VEL") {
     vehicle_model_type_ = VehicleModelType::IDEAL_STEER_VEL;
