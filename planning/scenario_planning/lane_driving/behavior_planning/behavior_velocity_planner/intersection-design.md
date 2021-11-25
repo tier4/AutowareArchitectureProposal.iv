@@ -47,7 +47,7 @@ Ignore the object in front of/ behind the ego vehicle in the same lane (Improvem
 
 #### Stuck vehicle
 
-If there is any object in a certain distance (default : 5m) from the end point of the intersection lane on the driving lane and a infered velocity of the object is less than a threshold (default 3.0km/h), the object is regarded as a stuck vehicle. If the stuck vehicle exists, the ego vehicle cannot enter the intersection.
+If there is any object in a certain distance (default : 5m) from the end point of the intersection lane on the driving lane and the object velocity is less than a threshold (default 3.0km/h), the object is regarded as a stuck vehicle. If the stuck vehicle exists, the ego vehicle cannot enter the intersection.
 
 ### Launch Timing
 
