@@ -53,4 +53,3 @@ So for example, in order to stop at a stop line with the vehicles' front on the 
 | `max_accel`             | double | (to be a global parameter) max acceleration of the vehicle                          |
 | `delay_response_time`   | double | (to be a global parameter) delay time of the vehicle's response to control commands |
 
-## Modules
