@@ -1,6 +1,5 @@
 ### Traffic Light
 
-
 #### Role
 
 Judgement whether a vehicle can go into an intersection or not by internal and external traffic light status, and planning a velocity of the stop if necessary.
@@ -9,7 +8,6 @@ This module is designed for rule-based velocity decision that is easy for develo
 In addition, the STOP/GO interface of behavior_velocity_planner allows external users / modules (e.g. remote operation) to intervene the decision of the internal perception. This function is expected to be used, for example, for remote intervention in detection failure or gathering information on operator decisions during development.
 
 ![brief](./docs/traffic_light/traffic_light.svg)
-
 
 ### Limitations
 
@@ -120,4 +118,3 @@ endif
 ##### Known Limits
 
 - tbd.
-
