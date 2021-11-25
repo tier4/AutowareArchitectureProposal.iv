@@ -265,7 +265,7 @@ void LateralController::onTrajectory(
   m_current_trajectory_ptr = msg;
 
   if (!m_current_pose_ptr && !updateCurrentPose()) {
-    RCLCPP_DEBUG(get_logger(), "Current pose is invalid!!");
+    RCLCPP_DEBUG(get_logger(), "Current pose is not received yet.");
     return;
   }
 
