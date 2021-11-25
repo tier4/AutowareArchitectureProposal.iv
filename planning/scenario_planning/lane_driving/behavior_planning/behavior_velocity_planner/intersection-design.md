@@ -83,7 +83,7 @@ The intersection stop target should be limited to stuck vehicle in the middle of
 | `intersection/min_predicted_path_confidence`  | double | [-] minimum confidence value of predicted path to use for collision detection |
 | `merge_from_private_road/stop_duration_sec`   | double | [s] duration to stop                                                          |
 
-### Usage And Parameter Tuning
+### How To Tune Parameters
 
 Incase
 
