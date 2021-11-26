@@ -13,13 +13,8 @@
   <depend>autoware_auto_mapping_msgs</depend>
   <depend>autoware_utils</depend>
   <depend>geometry_msgs</depend>
-  <depend>grid_map_cv</depend>
-  <depend>grid_map_pcl</depend>
-  <depend>grid_map_ros</depend>
-  <depend>hash_library_vendor</depend>
   <depend>lanelet2_extension</depend>
   <depend>libpcl-all-dev</depend>
-  <depend>nlohmann-json-dev</depend>
   <depend>pcl_conversions</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
