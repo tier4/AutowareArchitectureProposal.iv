@@ -132,7 +132,6 @@ private:
   rclcpp::Publisher<HazardLightsReport>::SharedPtr pub_hazard_lights_report_;
   rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr pub_tf_;
   rclcpp::Publisher<PoseStamped>::SharedPtr pub_current_pose_;
-  rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr pub_cov_;
 
   rclcpp::Subscription<GearCommand>::SharedPtr sub_gear_cmd_;
   rclcpp::Subscription<TurnIndicatorsCommand>::SharedPtr sub_turn_indicators_cmd_;
@@ -299,12 +298,6 @@ private:
    * @param [in] odometry The odometry to publish
    */
   void publish_odometry(const Odometry & odometry);
-
-  /*
-   * @brief publish pose_with_covariance. Covariance is added with given parameters.
-   * @param [in] pose to be published
-   */
-  void publish_pose_with_cov(const Pose & pose);
 
   /**
    * @brief publish steering

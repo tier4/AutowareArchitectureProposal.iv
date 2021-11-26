@@ -57,7 +57,6 @@ def generate_launch_description():
             ('input/trajectory', '/planning/scenario_planning/trajectory'),
             ('output/twist', '/vehicle/status/velocity_status'),
             ('output/odometry', '/localization/kinematic_state'),
-            ('output/cov', '/localization/pose_with_covariance'),
             ('output/steering', '/vehicle/status/steering_status'),
             ('output/gear_report', '/vehicle/status/gear_status'),
             ('output/turn_indicators_report', '/vehicle/status/turn_indicators_status'),

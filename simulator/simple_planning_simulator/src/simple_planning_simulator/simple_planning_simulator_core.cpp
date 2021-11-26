@@ -115,7 +115,6 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
   pub_current_pose_ = create_publisher<PoseStamped>("/current_pose", QoS{1});
   pub_velocity_ = create_publisher<VelocityReport>("output/twist", QoS{1});
   pub_odom_ = create_publisher<Odometry>("output/odometry", QoS{1});
-  pub_cov_ = create_publisher<PoseWithCovarianceStamped>("output/cov", QoS{1});
   pub_steer_ = create_publisher<SteeringReport>("output/steering", QoS{1});
   pub_tf_ = create_publisher<tf2_msgs::msg::TFMessage>("/tf", QoS{1});
 
@@ -256,11 +255,16 @@ void SimplePlanningSimulator::on_timer()
     add_measurement_noise(current_odometry_, current_velocity_, current_steer_);
   }
 
+  // add estimate covariance
+  {
+    current_odometry_.pose.covariance[0 * 6 + 0] = x_stddev_;
+    current_odometry_.pose.covariance[1 * 6 + 1] = y_stddev_;
+  }
+
   // publish vehicle state
   publish_odometry(current_odometry_);
   publish_velocity(current_velocity_);
   publish_steering(current_steer_);
-  publish_pose_with_cov(current_odometry_.pose.pose);
 
   publish_control_mode_report();
   publish_gear_report();
@@ -473,19 +477,6 @@ void SimplePlanningSimulator::publish_odometry(const Odometry & odometry)
   msg.header.stamp = get_clock()->now();
   msg.child_frame_id = simulated_frame_id_;
   pub_odom_->publish(msg);
-}
-
-
-void SimplePlanningSimulator::publish_pose_with_cov(const Pose & pose)
-{
-  /* make current vehicle pose with covariance  */
-  geometry_msgs::msg::PoseWithCovarianceStamped cs;
-  cs.header.frame_id = origin_frame_id_;
-  cs.header.stamp = get_clock()->now();
-  cs.pose.pose = pose;
-  cs.pose.covariance[0 * 6 + 0] = x_stddev_;
-  cs.pose.covariance[1 * 6 + 1] = y_stddev_;
-  pub_cov_->publish(cs);
 }
 
 void SimplePlanningSimulator::publish_steering(const SteeringReport & steer)
