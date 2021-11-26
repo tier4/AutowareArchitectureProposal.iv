@@ -85,6 +85,7 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
 
   using rclcpp::QoS;
   using std::placeholders::_1;
+  using std::placeholders::_2;
 
   sub_init_pose_ = create_subscription<PoseWithCovarianceStamped>(
     "/initialpose", QoS{1},
@@ -121,6 +122,11 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
     std::chrono::milliseconds(timer_sampling_time_ms_),
     std::bind(&SimplePlanningSimulator::on_timer, this));
 
+  autoware_api_utils::ServiceProxyNodeInterface proxy(this);
+  group_api_service_ = create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+  srv_set_pose_ = proxy.create_service<autoware_external_api_msgs::srv::InitializePose>(
+    "/api/simulator/set/pose", std::bind(&SimplePlanningSimulator::on_set_pose, this, _1, _2),
+    rmw_qos_profile_services_default, group_api_service_);
 
   // set vehicle model type
   initialize_vehicle_model();
@@ -213,6 +219,8 @@ void SimplePlanningSimulator::on_timer()
 
   // set current state
   current_odometry_ = to_odometry(vehicle_model_ptr_);
+  current_odometry_.pose.pose.position.z = get_z_pose_from_trajectory(
+    current_odometry_.pose.pose.position.x, current_odometry_.pose.pose.position.y);
 
   current_velocity_ = to_velocity_report(vehicle_model_ptr_);
   current_steer_ = to_steering_report(vehicle_model_ptr_);
@@ -242,6 +250,19 @@ void SimplePlanningSimulator::on_initialpose(
   initial_pose.header = msg->header;
   initial_pose.pose = msg->pose.pose;
   set_initial_state_with_transform(initial_pose, initial_twist);
+}
+
+void SimplePlanningSimulator::on_set_pose(
+  const InitializePose::Request::ConstSharedPtr request,
+  const InitializePose::Response::SharedPtr response)
+{
+  // save initial pose
+  Twist initial_twist;
+  PoseStamped initial_pose;
+  initial_pose.header = request->pose.header;
+  initial_pose.pose = request->pose.pose.pose;
+  set_initial_state_with_transform(initial_pose, initial_twist);
+  response->status = autoware_api_utils::response_success();
 }
 
 void SimplePlanningSimulator::on_ackermann_cmd(
@@ -423,8 +444,6 @@ void SimplePlanningSimulator::publish_odometry(const Odometry & odometry)
   msg.header.frame_id = origin_frame_id_;
   msg.header.stamp = get_clock()->now();
   msg.child_frame_id = simulated_frame_id_;
-  msg.pose.pose.position.z =
-    get_z_pose_from_trajectory(odometry.pose.pose.position.x, odometry.pose.pose.position.y);
   pub_odom_->publish(msg);
 }
 
@@ -484,7 +503,7 @@ void SimplePlanningSimulator::publish_tf(const Odometry & odometry)
   tf.child_frame_id = simulated_frame_id_;
   tf.transform.translation.x = odometry.pose.pose.position.x;
   tf.transform.translation.y = odometry.pose.pose.position.y;
-  tf.transform.translation.z = 0.0;
+  tf.transform.translation.z = odometry.pose.pose.position.z;
   tf.transform.rotation = odometry.pose.pose.orientation;
 
   tf2_msgs::msg::TFMessage tf_msg{};

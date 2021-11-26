@@ -60,6 +60,7 @@ void InitialPose::setInitializePose(
 
   if (init_simulator_pose_) {
     const auto [status, resp] = cli_set_simulator_pose_->call(request);
+    RCLCPP_INFO(get_logger(), "%d %s", status.code, status.message.c_str());
     if (!autoware_api_utils::is_success(status)) {
       response->status = status;
       return;

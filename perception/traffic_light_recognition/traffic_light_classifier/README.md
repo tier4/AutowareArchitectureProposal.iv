@@ -22,6 +22,9 @@ There are rules for naming labels that nodes receive. One traffic light is repre
 
 For example, the simple red and red cross traffic light label must be expressed as "red-circle, red-cross".
 
+These colors and shapes are assigned to the message as follows:
+![TrafficLightDataStructure.jpg](./image/TrafficLightDataStructure.jpg)
+
 ## Inputs / Outputs
 
 ### Input
@@ -33,10 +36,10 @@ For example, the simple red and red cross traffic light label must be expressed 
 
 ### Output
 
-| Name                            | Type                                                     | Description         |
-| ------------------------------- | -------------------------------------------------------- | ------------------- |
-| `~/output/traffic_light_states` | `autoware_auto_perception_msgs::msg::TrafficSignalArray` | classified signals  |
-| `~/output/debug/image`          | `sensor_msgs::msg::Image`                                | image for debugging |
+| Name                       | Type                                                     | Description         |
+| -------------------------- | -------------------------------------------------------- | ------------------- |
+| `~/output/traffic_signals` | `autoware_auto_perception_msgs::msg::TrafficSignalArray` | classified signals  |
+| `~/output/debug/image`     | `sensor_msgs::msg::Image`                                | image for debugging |
 
 ## Parameters
 

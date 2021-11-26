@@ -25,6 +25,11 @@
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>autoware_lint_common</test_depend>
 
+  <!-- for backward compatibility -->
+  <!-- nolint --> <depend>autoware_auto_system_msgs</depend>
+  <!-- nolint --> <depend>autoware_system_msgs</depend>
+  <!-- nolint --> <depend>autoware_iv_auto_msgs_converter</depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>
