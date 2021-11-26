@@ -18,6 +18,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <autoware_auto_system_msgs/msg/autoware_state.hpp>
+#include <autoware_auto_system_msgs/msg/emergency_state.hpp>
 #include <autoware_system_msgs/msg/autoware_state.hpp>
 
 namespace internal_api
@@ -28,9 +29,17 @@ public:
   explicit IVState(const rclcpp::NodeOptions & options);
 
 private:
-  rclcpp::Subscription<autoware_auto_system_msgs::msg::AutowareState>::SharedPtr sub_state_;
-  rclcpp::Publisher<autoware_system_msgs::msg::AutowareState>::SharedPtr pub_state_;
-  void onState(const autoware_auto_system_msgs::msg::AutowareState::ConstSharedPtr message);
+  using EmergencyStateAuto = autoware_auto_system_msgs::msg::EmergencyState;
+  using AutowareStateAuto = autoware_auto_system_msgs::msg::AutowareState;
+  using AutowareStateIV = autoware_system_msgs::msg::AutowareState;
+
+  rclcpp::Subscription<EmergencyStateAuto>::SharedPtr sub_emergency_;
+  rclcpp::Subscription<AutowareStateAuto>::SharedPtr sub_state_;
+  rclcpp::Publisher<AutowareStateIV>::SharedPtr pub_state_;
+  void onState(const AutowareStateAuto::ConstSharedPtr message);
+  void onEmergency(const EmergencyStateAuto::ConstSharedPtr message);
+
+  EmergencyStateAuto::ConstSharedPtr emergency_;
 };
 
 }  // namespace internal_api
