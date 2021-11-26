@@ -85,6 +85,7 @@ void SimModelDelaySteerAccGeared::initializeInputQueue(const float64_t & dt)
 Eigen::VectorXd SimModelDelaySteerAccGeared::calcModel(
   const Eigen::VectorXd & state, const Eigen::VectorXd & input)
 {
+  using autoware_auto_vehicle_msgs::msg::GearCommand;
   auto sat = [](float64_t val, float64_t u, float64_t l) {return std::max(std::min(val, u), l);};
 
   const float64_t vel = sat(state(IDX::VX), vx_lim_, -vx_lim_);
@@ -100,7 +101,11 @@ Eigen::VectorXd SimModelDelaySteerAccGeared::calcModel(
   d_state(IDX::X) = vel * cos(yaw);
   d_state(IDX::Y) = vel * sin(yaw);
   d_state(IDX::YAW) = vel * std::tan(steer) / wheelbase_;
-  d_state(IDX::VX) = acc;
+  if (gear_ == GearCommand::REVERSE || gear_ == GearCommand::REVERSE_2) {
+    d_state(IDX::VX) = -acc;
+  } else {
+    d_state(IDX::VX) = acc;
+  }
   d_state(IDX::STEER) = steer_rate;
   d_state(IDX::ACCX) = -(acc - acc_des) / acc_time_constant_;
 

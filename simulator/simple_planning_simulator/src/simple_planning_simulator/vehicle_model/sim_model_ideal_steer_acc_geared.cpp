@@ -45,6 +45,7 @@ void SimModelIdealSteerAccGeared::update(const float64_t & dt)
 Eigen::VectorXd SimModelIdealSteerAccGeared::calcModel(
   const Eigen::VectorXd & state, const Eigen::VectorXd & input)
 {
+  using autoware_auto_vehicle_msgs::msg::GearCommand;
   const float64_t vx = state(IDX::VX);
   const float64_t yaw = state(IDX::YAW);
   const float64_t ax = input(IDX_U::AX_DES);
@@ -53,7 +54,11 @@ Eigen::VectorXd SimModelIdealSteerAccGeared::calcModel(
   Eigen::VectorXd d_state = Eigen::VectorXd::Zero(dim_x_);
   d_state(IDX::X) = vx * std::cos(yaw);
   d_state(IDX::Y) = vx * std::sin(yaw);
-  d_state(IDX::VX) = ax;
+  if (gear_ == GearCommand::REVERSE || gear_ == GearCommand::REVERSE_2) {
+    d_state(IDX::VX) = -ax;
+  } else {
+    d_state(IDX::VX) = ax;
+  }
   d_state(IDX::YAW) = vx * std::tan(steer) / wheelbase_;
 
   return d_state;
