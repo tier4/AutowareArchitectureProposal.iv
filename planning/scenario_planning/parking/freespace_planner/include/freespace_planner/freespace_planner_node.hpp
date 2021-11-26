@@ -35,12 +35,12 @@
 #include <rclcpp/rclcpp.hpp>
 #include <vehicle_info_util/vehicle_info_util.hpp>
 
-#include <autoware_planning_msgs/msg/route.hpp>
+#include <autoware_auto_planning_msgs/msg/had_map_route.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_planning_msgs/msg/scenario.hpp>
-#include <autoware_planning_msgs/msg/trajectory.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <geometry_msgs/msg/twist_stamped.hpp>
+#include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/buffer.h>
@@ -54,17 +54,18 @@
 
 namespace freespace_planner
 {
-using autoware_planning_msgs::msg::Route;
+using autoware_auto_planning_msgs::msg::HADMapRoute;
+using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_planning_msgs::msg::Scenario;
-using autoware_planning_msgs::msg::Trajectory;
 using freespace_planning_algorithms::AbstractPlanningAlgorithm;
 using freespace_planning_algorithms::AstarParam;
 using freespace_planning_algorithms::PlannerCommonParam;
 using geometry_msgs::msg::PoseArray;
 using geometry_msgs::msg::PoseStamped;
 using geometry_msgs::msg::TransformStamped;
-using geometry_msgs::msg::TwistStamped;
+using geometry_msgs::msg::Twist;
 using nav_msgs::msg::OccupancyGrid;
+using nav_msgs::msg::Odometry;
 
 struct NodeParam
 {
@@ -90,10 +91,10 @@ private:
   rclcpp::Publisher<PoseArray>::SharedPtr debug_pose_array_pub_;
   rclcpp::Publisher<PoseArray>::SharedPtr debug_partial_pose_array_pub_;
 
-  rclcpp::Subscription<Route>::SharedPtr route_sub_;
+  rclcpp::Subscription<HADMapRoute>::SharedPtr route_sub_;
   rclcpp::Subscription<OccupancyGrid>::SharedPtr occupancy_grid_sub_;
   rclcpp::Subscription<Scenario>::SharedPtr scenario_sub_;
-  rclcpp::Subscription<TwistStamped>::SharedPtr twist_sub_;
+  rclcpp::Subscription<Odometry>::SharedPtr odom_sub_;
 
   rclcpp::TimerBase::SharedPtr timer_;
 
@@ -117,22 +118,22 @@ private:
   size_t target_index_;
   bool is_completed_ = false;
 
-  Route::ConstSharedPtr route_;
+  HADMapRoute::ConstSharedPtr route_;
   OccupancyGrid::ConstSharedPtr occupancy_grid_;
   Scenario::ConstSharedPtr scenario_;
-  TwistStamped::ConstSharedPtr twist_;
+  Odometry::ConstSharedPtr odom_;
 
-  std::deque<TwistStamped::ConstSharedPtr> twist_buffer_;
+  std::deque<Odometry::ConstSharedPtr> odom_buffer_;
 
   // functions used in the constructor
   void getPlanningCommonParam();
   void getAstarParam();
 
   // functions, callback
-  void onRoute(const Route::ConstSharedPtr msg);
+  void onRoute(const HADMapRoute::ConstSharedPtr msg);
   void onOccupancyGrid(const OccupancyGrid::ConstSharedPtr msg);
   void onScenario(const Scenario::ConstSharedPtr msg);
-  void onTwist(const TwistStamped::ConstSharedPtr msg);
+  void onOdometry(const Odometry::ConstSharedPtr msg);
 
   void onTimer();
 

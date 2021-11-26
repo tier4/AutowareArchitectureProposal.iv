@@ -41,19 +41,19 @@
 
 namespace
 {
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using TrajectoryPoints = std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint>;
 using autoware_planning_msgs::msg::Scenario;
-using autoware_planning_msgs::msg::Trajectory;
-using autoware_planning_msgs::msg::TrajectoryPoint;
 using freespace_planning_algorithms::AstarSearch;
 using freespace_planning_algorithms::PlannerWaypoint;
 using freespace_planning_algorithms::PlannerWaypoints;
-using geometry_msgs::msg::Accel;
 using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::PoseArray;
 using geometry_msgs::msg::PoseStamped;
 using geometry_msgs::msg::TransformStamped;
 using geometry_msgs::msg::Twist;
-using geometry_msgs::msg::TwistStamped;
+using nav_msgs::msg::Odometry;
 
 bool isActive(const Scenario::ConstSharedPtr & scenario)
 {
@@ -86,7 +86,7 @@ std::vector<size_t> getReversingIndices(const Trajectory & trajectory)
   std::vector<size_t> indices;
 
   for (size_t i = 0; i < trajectory.points.size() - 1; ++i) {
-    if (trajectory.points.at(i).twist.linear.x * trajectory.points.at(i + 1).twist.linear.x < 0) {
+    if (trajectory.points.at(i).longitudinal_velocity_mps * trajectory.points.at(i + 1).longitudinal_velocity_mps < 0) {
       indices.push_back(i);
     }
   }
@@ -123,11 +123,11 @@ Trajectory getPartialTrajectory(
 
   // Modify velocity at start/end point
   if (partial_trajectory.points.size() >= 2) {
-    partial_trajectory.points.front().twist.linear.x =
-      partial_trajectory.points.at(1).twist.linear.x;
+    partial_trajectory.points.front().longitudinal_velocity_mps =
+      partial_trajectory.points.at(1).longitudinal_velocity_mps;
   }
   if (!partial_trajectory.points.empty()) {
-    partial_trajectory.points.back().twist.linear.x = 0;
+    partial_trajectory.points.back().longitudinal_velocity_mps = 0;
   }
 
   return partial_trajectory;
@@ -161,14 +161,11 @@ Trajectory createTrajectory(
 
     point.pose = awp.pose.pose;
 
-    point.accel = Accel();
-    point.twist = Twist();
-
     point.pose.position.z = current_pose.pose.position.z;  // height = const
-    point.twist.linear.x = velocity / 3.6;                 // velocity = const
+    point.longitudinal_velocity_mps = velocity / 3.6;                 // velocity = const
 
     // switch sign by forward/backward
-    point.twist.linear.x = (awp.is_back ? -1 : 1) * point.twist.linear.x;
+    point.longitudinal_velocity_mps = (awp.is_back ? -1 : 1) * point.longitudinal_velocity_mps;
 
     trajectory.points.push_back(point);
   }
@@ -192,11 +189,11 @@ Trajectory createStopTrajectory(const PoseStamped & current_pose)
 }
 
 bool isStopped(
-  const std::deque<TwistStamped::ConstSharedPtr> & twist_buffer,
+  const std::deque<Odometry::ConstSharedPtr> & odom_buffer,
   const double th_stopped_velocity_mps)
 {
-  for (const auto & twist : twist_buffer) {
-    if (std::abs(twist->twist.linear.x) > th_stopped_velocity_mps) {
+  for (const auto & odom : odom_buffer) {
+    if (std::abs(odom->twist.twist.linear.x) > th_stopped_velocity_mps) {
       return false;
     }
   }
@@ -233,14 +230,14 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
 
   // Subscribers
   {
-    route_sub_ = create_subscription<Route>(
+    route_sub_ = create_subscription<HADMapRoute>(
       "~/input/route", 1, std::bind(&FreespacePlannerNode::onRoute, this, _1));
     occupancy_grid_sub_ = create_subscription<OccupancyGrid>(
       "~/input/occupancy_grid", 1, std::bind(&FreespacePlannerNode::onOccupancyGrid, this, _1));
     scenario_sub_ = create_subscription<Scenario>(
       "~/input/scenario", 1, std::bind(&FreespacePlannerNode::onScenario, this, _1));
-    twist_sub_ = create_subscription<TwistStamped>(
-      "~/input/twist", 100, std::bind(&FreespacePlannerNode::onTwist, this, _1));
+    odom_sub_ = create_subscription<Odometry>(
+      "~/input/odometry", 100, std::bind(&FreespacePlannerNode::onOdometry, this, _1));
   }
 
   // Publishers
@@ -307,7 +304,7 @@ void FreespacePlannerNode::getAstarParam()
   p.distance_heuristic_weight = declare_parameter("astar.distance_heuristic_weight", 1.0);
 }
 
-void FreespacePlannerNode::onRoute(const Route::ConstSharedPtr msg)
+void FreespacePlannerNode::onRoute(const HADMapRoute::ConstSharedPtr msg)
 {
   route_ = msg;
 
@@ -324,22 +321,22 @@ void FreespacePlannerNode::onOccupancyGrid(const OccupancyGrid::ConstSharedPtr m
 
 void FreespacePlannerNode::onScenario(const Scenario::ConstSharedPtr msg) { scenario_ = msg; }
 
-void FreespacePlannerNode::onTwist(const TwistStamped::ConstSharedPtr msg)
+void FreespacePlannerNode::onOdometry(const Odometry::ConstSharedPtr msg)
 {
-  twist_ = msg;
+  odom_ = msg;
 
-  twist_buffer_.push_back(msg);
+  odom_buffer_.push_back(msg);
 
   // Delete old data in buffer
   while (true) {
     const auto time_diff =
-      rclcpp::Time(msg->header.stamp) - rclcpp::Time(twist_buffer_.front()->header.stamp);
+      rclcpp::Time(msg->header.stamp) - rclcpp::Time(odom_buffer_.front()->header.stamp);
 
     if (time_diff.seconds() < node_param_.th_stopped_time_sec) {
       break;
     }
 
-    twist_buffer_.pop_front();
+    odom_buffer_.pop_front();
   }
 }
 
@@ -385,7 +382,7 @@ void FreespacePlannerNode::updateTargetIndex()
     autoware_utils::calcDistance2d(trajectory_.points.at(target_index_), current_pose_) <
     node_param_.th_arrived_distance_m;
 
-  const auto is_stopped = isStopped(twist_buffer_, node_param_.th_stopped_velocity_mps);
+  const auto is_stopped = isStopped(odom_buffer_, node_param_.th_stopped_velocity_mps);
 
   if (is_near_target && is_stopped) {
     const auto new_target_index =
@@ -408,7 +405,7 @@ void FreespacePlannerNode::updateTargetIndex()
 void FreespacePlannerNode::onTimer()
 {
   // Check all inputs are ready
-  if (!occupancy_grid_ || !route_ || !scenario_ || !twist_) {
+  if (!occupancy_grid_ || !route_ || !scenario_ || !odom_) {
     return;
   }
 
