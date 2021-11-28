@@ -1,6 +1,6 @@
-### Intersection
+## Intersection
 
-#### Role
+### Role
 
 Judgement whether a vehicle can go into an intersection or not by a dynamic object information, and planning a velocity of the low-down/stop.
 This module is designed for rule-based intersection velocity decision that is easy for developers to design its behavior. It generates proper velocity for intersection scene.
@@ -8,6 +8,10 @@ This module is designed for rule-based intersection velocity decision that is ea
 In addition, the external users / modules (e.g. remote operation) to can intervene the STOP/GO decision for the vehicle behavior. The override interface is expected to be used, for example, for remote intervention in emergency situations or gathering information on operator decisions during development.
 
 ![brief](./docs/intersection/intersection.svg)
+
+### Launch Timing
+
+Launches when there is a conflicting lanelet in ego lane.
 
 ### Limitations
 
@@ -48,10 +52,6 @@ Ignore the object in front of/ behind the ego vehicle in the same lane (Improvem
 #### Stuck vehicle
 
 If there is any object in a certain distance (default : 5m) from the end point of the intersection lane on the driving lane and the object velocity is less than a threshold (default 3.0km/h), the object is regarded as a stuck vehicle. If the stuck vehicle exists, the ego vehicle cannot enter the intersection.
-
-### Launch Timing
-
-Launches when there is a conflicting lanelet in ego lane.
 
 ### How to Decide Intersection Stop
 

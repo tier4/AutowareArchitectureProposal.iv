@@ -1,4 +1,4 @@
-### Blind Spot
+## Blind Spot
 
 #### Role
 
@@ -6,7 +6,10 @@ Blind spot check while turning right/left by a dynamic object information, and p
 
 ![brief](./docs/blind_spot/blind_spot.svg)
 
-### Definition
+### Launch Timing
+
+Launches when there is a right/left turn area on a target lane.
+### Inner-workings / Algorithms
 
 Sets a stop line, a pass judge line, a detection area and conflict area based on a map information and a self position.
 
@@ -17,6 +20,20 @@ Sets a stop line, a pass judge line, a detection area and conflict area based on
 - Detection area : Right/left side area of the self position.
 
 - Conflict area : Right/left side area from the self position to the stop line.
+
+Stop judgement
+When both conditions are met for any of each object, it’s judged as “no go”.
+
+- Object is on the detection area
+- Object’s predicted path is on the conflict area
+
+In order to avoid a rapid stop, the detection won’t be executed after the vehicle
+passed the judge line
+
+Once judged as “no go”, the judgement will be changed to
+“go” after the “clear” state succeeds a certain period (e.g. 2 seconds).
+(To prevent a chattering)
+
 
 #### Module Parameters
 

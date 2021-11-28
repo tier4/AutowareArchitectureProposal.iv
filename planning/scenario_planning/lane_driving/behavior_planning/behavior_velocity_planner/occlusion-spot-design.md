@@ -1,28 +1,56 @@
-### Occlusion Spot
+## Occlusion Spot
 
-#### Role
+### Role
 
 This module plans safe velocity to slow down before reaching collision point that hidden object is darting out from `occlusion spot` where driver can't see clearly because of obstacles.
 
 ![brief](./docs/occlusion_spot/occlusion_spot.svg)
 
-#### Occlusion Spot Private
+### Launch Timing
 
-This module only works in private road and use occupancy grid map to detect occlusion spots.
+Launches when there is a private/public are on a target lane
+
+### Limitation
+`point cloud` vs `occupancy grid` vs `object detection`
+
+このモジュールでは`occupancy grid` と `object detection`の情報を使用している。安全を担保するためにpoint cloudの生の情報を利用する方法もあるが、その点群が草なのか、落ち葉なのか、柱なのか、信号待ちの車両によるものなのかの判定がつかない。そこでこのモジュールではOccupancy Gridを用いて死角と判定する際に死角の大きさ、死角と自分のレーンとの間に専有グリッドがないかどうかなどの判定を入れている。これによって死角の誤検知は減った。しかしながら植え込みや柵の形状などによってはOccupancyGridの生成がうまく行かないシーンもありその場合は不要な減速が入ってしまうこともある。こちらはOccupancyGridの改善が課題となっている。また、公道では信号待ちの車両や、渋滞しているレーンにいる車両など人が飛び出てくるとは考えづらいシーンで減速をかけないために、減速対象の死角を作成する車両が路駐しているのかどうかなど判定をいれている。
+
+`point cloud` vs `occupancy grid` vs `object detection`.
+
+This module uses information from `occupancy grid` and `object detection`. There is a way to use the raw information of point cloud to ensure safety, but it is not possible to determine whether the point cloud is grass, leaves, pillars, or a vehicle waiting at a traffic light. Therefore, this module uses Occupancy Grid to determine the size of the occlusion spot and whether or not there is a proprietary grid between the occlusion spot and the user's lane. This has reduced the number of false occlusion spot detections. However, there are some scenes where OccupancyGrid generation does not work properly due to the shape of planted trees or fences, and in such cases, unnecessary deceleration may occur. Improving the Occupancy Grid is an issue that needs to be addressed. Also, on public roads, in order to avoid slowing down in scenes where it is difficult to imagine people jumping out, such as when a vehicle is waiting at a traffic light or in a congested lane, a judgment is made as to whether or not the vehicle creating the occlusion spot for slowing down is parked on the road.
+
+### Inner-workings / Algorithms
 
 #### Occlusion Spot Public
 
-This module only works in public road and use dynamic objects to detect occlusion spots.
+This module insert safe velocity at collision point and show virtual wall at intersection below.
+
+![brief](./docs/occlusion_spot/possible_collision_info.svg)
+
+This module consider 3 policy that is very important for risk predicting system for occlusion spot.
+
+1. "Passable" without deceleration
+If ego vehicle is fast enough to pass the occlusion spot without collision consider hidden object darting out from occlusion spot, then it's possible for ego vehicle to pass there without deceleration. However there aren't many cases that ego vehicle can pass occlusion spot without deceleration consider hidden object's maximum velocity. So this policy is not implemented yet.
+
+2. "Predictable" with enough distance to occlusion
+If ego vehicle has enough distance to occlusion spot, then ego vehicle is going to slow down to the speed that is slow enough to stop before collision with full brake.
+If ego vehicle pass the possible collision point, then ego vehicle is going to drive normally.
+
+3. "Unavoidable" without enough distance to occlusion spot
+This module consider only occlusion spot that is detected stably far from occlusion spot. That means this module can't handle occlusion that appear suddenly in front of ego vehicle. Also this module doesn't consider occlusion spot to decelerate that is on the contrary to the rationality of public transportation. So far pedestrian behind parking vehicle is considered as avoidable target.
+
+#### Occlusion Spot Private
+
+This module is going to consider any occlusion spot that is along with ego path. The occlusion is the area which can't be seen from ego vehicle.
+This module only works in private road and use occupancy grid map to detect occlusion spots.
+
+![occupancy_grid](./docs/occlusion_spot/occupancy_grid.svg)
 
 Considering all occupancy grid cells inside focus range requires a lot of computation cost, so this module ignores to search farther occlusion spot which is longitudinally or laterally slice once occlusion spot is found.
 
 ![brief](./docs/occlusion_spot/sidewalk_slice.svg)
 
-##### Definition
 
-This module insert safe velocity at collision point and show virtual wall at intersection below.
-
-![brief](./docs/occlusion_spot/possible_collision_info.svg)
 
 #### Module Parameters
 
@@ -55,6 +83,7 @@ This module insert safe velocity at collision point and show virtual wall at int
 
 #### Flowchart
 
+
 ```plantuml
 @startuml
 title modifyPathVelocity (Private/Public) Road
@@ -63,9 +92,9 @@ start
 :get current road type;
 
 if (road type is PUBLIC) then (yes)
-  :use dynamic object array info;
+  :preprocess dynamic object;
 else if (road type is PRIVATE) then (yes)
-  :use occupancy grid map info;
+  :preprocess occupancy grid map info;
 else (no)
   stop
 endif
@@ -85,6 +114,139 @@ endif
 
 :insertSafeVelocityToPath;
 
+stop
+@enduml
+```
+
+```plantuml
+@startuml
+title modifyPathVelocity For Public Road
+start
+partition parking_vehicle_selection {
+:get all lanelet id on ego path;
+:get right/left lanelets around ego path;
+:get center lane lines from lanelets around ego path;
+:get parked vehicle from dynamic object array;
+note right
+  target parked vehicle is define as follow .
+  - dynamic object's semantic type is "car","bus","track".
+  - velocity is below `stuck_vehicle_vel`.
+  - lateral position from lane center is farther than `lateral_deviation_thresold`. 
+end note
+}
+partition offset_calculation {
+:interpolate ego path;
+note right
+  using spline interpolation and interpolate (x,y,z,v)
+end note
+:get closest index from ego position in interpolated path;
+:calculate offset from path start to ego;
+}
+:convert interpolated path to `path_lanelet`;
+note right
+  `path_lanelet` is lanelet which is created by ego path 
+    and mainly used for arc coordinate conversion.
+end note
+partition generate_possible_collision {
+:generate possible collision behind parked vehicle;
+note right
+  - occlusion spot candidate is stuck vehicle polygon 2 points farther which is closer to ego path. 
+  - consider occlusion which is nearer than `lateral_distance_threshold`.
+end note
+:calculate collision path point and intersection point;
+note right
+  - occlusion spot is calculated by stuck vehicle polygon. 
+  - intersection point is where ego front bamper and darting object will crash.
+  - collision path point is calculated by arc coordinate consider ego vehicle's geometry.
+end note
+}
+:extract target road type start/end distance by arc length;
+:calculate original velocity and height for the possible collision;
+note right
+calculated (x,y,z,v) at the path using linear interpolation between interpolated path points.
+end note
+partition calculate_safe_velocity {
+:calculate safe velocity consider lateral distance and safe velocity;
+note right
+calculated by 
+- ebs deceleration [m/s] emergency braking system consider lateral distance to the occlusion spot.
+- pbs deceleration [m/s] predictive braking system consider distance to the possible collision.
+- min velocity [m/s] the velocity that is allowed on the road.
+- original_velocity [m/s]
+end note
+}
+:insert safe velocity to path;
+note right
+ set minimum velocity for path point after occlusion spot.
+end note
+stop
+@enduml
+```
+
+```plantuml
+@startuml
+title modifyPathVelocity For Public Road
+start
+partition occupancy_grid_preprocess {
+:convert occupancy grid to image;
+note right
+  convert from occupancy grid to image to use opencv functions.
+end note
+:remove noise from occupancy to apply dilate and erode;
+note right
+  applying dilate and erode is much better and faster than rule base noise reduction.
+end note
+:quantize image to categorize to free_space,unknown,occupied;
+:convert image to occupancy grid;
+note right
+  convert from occupancy grid to image to use opencv functions.
+end note
+}
+partition offset_calculation {
+:interpolate ego path;
+note right
+  using spline interpolation and interpolate (x,y,z,v)
+end note
+:get closest index from ego position in interpolated path;
+:calculate offset from path start to ego;
+}
+:convert interpolated path to `path_lanelet`;
+note right
+  `path_lanelet` is lanelet which is created by ego path 
+    and mainly used for arc coordinate conversion.
+end note
+partition generate_possible_collision {
+:generate possible collision from occlusion spot;
+note right
+  - occlusion spot candidate is N by N size unknown cells. 
+  - consider occlusion which is nearer than `lateral_distance_threshold`.
+end note
+:calculate collision path point and intersection point;
+note right
+  - occlusion spot is calculated by longitudinally closest point of unknown cells. 
+  - intersection point is where ego front bamper and darting object will crash.
+  - collision path point is calculated by arc coordinate consider ego vehicle's geometry.
+end note
+}
+:extract target road type start/end distance by arc length;
+:calculate original velocity and height for the possible collision;
+note right
+calculated (x,y,z,v) at the path using linear interpolation between interpolated path points.
+end note
+partition calculate_safe_velocity {
+:calculate safe velocity consider lateral distance and safe velocity;
+note right
+calculated by 
+- ebs deceleration [m/s] emergency braking system consider lateral distance to the occlusion spot.
+- pbs deceleration [m/s] predictive braking system consider distance to the possible collision.
+- min velocity [m/s] the velocity that is allowed on the road.
+- original_velocity [m/s]
+end note
+}
+:insert safe velocity to path;
+note right
+ set minimum velocity for path point after occlusion spot.
+end note
 stop
 @enduml
 ```
