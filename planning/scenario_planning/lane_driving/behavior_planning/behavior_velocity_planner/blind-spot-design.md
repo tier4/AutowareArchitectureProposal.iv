@@ -9,6 +9,7 @@ Blind spot check while turning right/left by a dynamic object information, and p
 ### Launch Timing
 
 Launches when there is a right/left turn area on a target lane.
+
 ### Inner-workings / Algorithms
 
 Sets a stop line, a pass judge line, a detection area and conflict area based on a map information and a self position.
@@ -33,7 +34,6 @@ passed the judge line
 Once judged as “no go”, the judgement will be changed to
 “go” after the “clear” state succeeds a certain period (e.g. 2 seconds).
 (To prevent a chattering)
-
 
 #### Module Parameters
 

@@ -41,7 +41,7 @@ The driving lane is complemented at a certain intervals (default : 20 [cm]), and
 
 #### Pass Judge Line
 
-To avoid a rapid braking, in case that a deceleration more than a threshold (default : 0.5[G]) is needed, the ego vehicle doesn’t stop. In order to judge this condition, pass judge line is set a certain distance (default : 0.5 * v_current^2 / a_max) in front of the stop line.
+To avoid a rapid braking, in case that a deceleration more than a threshold (default : 0.5[G]) is needed, the ego vehicle doesn’t stop. In order to judge this condition, pass judge line is set a certain distance (default : 0.5 \* v_current^2 / a_max) in front of the stop line.
 To prevent a chattering, once the ego vehicle passes this line, “stop” decision in the intersection won’t be done any more.
 To prevent going over the pass judge line before the traffic light stop line, the distance between stop line and pass judge line become 0m in case that there is a stop line between the ego vehicle and an intersection stop line.
 
@@ -72,7 +72,7 @@ The intersection stop target should be limited to stuck vehicle in the middle of
 
 IntersectionModule will be launched by this tag. If this tag is not set, ego-vehicle don’t recognize the lane as an intersection. Even if it’s a straight lane, this tag is mandatory if it is located within intersection.
 Set a value in turn_direction tag to light up turn signals
-Values  of turn_direction must be one of “straight”(no turn signal), “right” or “left”. Autoware will light up respective turn signals 30[m] before entering the specified lane. You may also set optional tag “turn_signal_distance” to modify the distance to start lighting up turn signals.
+Values of turn_direction must be one of “straight”(no turn signal), “right” or “left”. Autoware will light up respective turn signals 30[m] before entering the specified lane. You may also set optional tag “turn_signal_distance” to modify the distance to start lighting up turn signals.
 Lanes within intersections must be defined as a single Lanelet
 For example, blue lane in Fig.3 cannot be split into 2 Lanelets
 
@@ -106,7 +106,7 @@ By default, IntersectionModule treats all lanes crossing with the registered lan
 | `intersection/intersection_velocity`          | double | [m/s] velocity to pass intersection. 10[km/h] is by default                   |
 | `intersection/intersection_max_accel`         | double | [m/s^2] acceleration in intersection                                          |
 | `intersection/detection_area_margin`          | double | [m] range for expanding detection area                                        |
-| `intersection/detection_area_length`          | double | [m] range for lidar detection 200[m] is by default                              |
+| `intersection/detection_area_length`          | double | [m] range for lidar detection 200[m] is by default                            |
 | `intersection/detection_area_angle_threshold` | double | [rad] threshold of angle difference between the detection object and lane     |
 | `intersection/min_predicted_path_confidence`  | double | [-] minimum confidence value of predicted path to use for collision detection |
 | `merge_from_private_road/stop_duration_sec`   | double | [s] duration to stop                                                          |
