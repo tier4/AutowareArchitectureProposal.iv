@@ -131,7 +131,7 @@ note right
   target parked vehicle is define as follow .
   - dynamic object's semantic type is "car","bus","track".
   - velocity is below `stuck_vehicle_vel`.
-  - lateral position from lane center is farther than `lateral_deviation_thresold`. 
+  - lateral position from lane center is farther than `lateral_deviation_threshold`. 
 end note
 }
 partition offset_calculation {
@@ -156,7 +156,7 @@ end note
 :calculate collision path point and intersection point;
 note right
   - occlusion spot is calculated by stuck vehicle polygon. 
-  - intersection point is where ego front bamper and darting object will crash.
+  - intersection point is where ego front bumper and darting object will crash.
   - collision path point is calculated by arc coordinate consider ego vehicle's geometry.
 end note
 }
@@ -224,7 +224,7 @@ end note
 :calculate collision path point and intersection point;
 note right
   - occlusion spot is calculated by longitudinally closest point of unknown cells. 
-  - intersection point is where ego front bamper and darting object will crash.
+  - intersection point is where ego front bumper and darting object will crash.
   - collision path point is calculated by arc coordinate consider ego vehicle's geometry.
 end note
 }

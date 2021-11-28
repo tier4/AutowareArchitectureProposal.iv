@@ -33,17 +33,17 @@ Time to pass the intersection will be calculated with the length of the intersec
 
 #### State Transition (go / stop)
 
-If there is no crossing more than a certain period (default : 2.0s), the state transits to “go”. If crossing is detected even once, the state transits to “stop”.
+If there is no crossing more than a certain period (default : 2.0[s]), the state transits to “go”. If crossing is detected even once, the state transits to “stop”.
 
 #### Stop Line Automatic Generation
 
-The driving lane is complemented at a certain intervals (default : 20cm), and the line which is a margin distance (default : 100cm) in front of the attention lane is defined as a stop line. (Also the length of the vehicle is considered and the stop point is set at the base_link point in front of the stop lane.)
+The driving lane is complemented at a certain intervals (default : 20 [cm]), and the line which is a margin distance (default : 100cm) in front of the attention lane is defined as a stop line. (Also the length of the vehicle is considered and the stop point is set at the base_link point in front of the stop lane.)
 
 #### Pass Judge Line
 
-To avoid a rapid braking, in case that a deceleration more than a threshold (default : 0.5G) is needed, the ego vehicle doesn’t stop. In order to judge this condition, pass judge line is set a certain distance (default : 0.5\*v_curr^2/a_max) in front of the stop line.
+To avoid a rapid braking, in case that a deceleration more than a threshold (default : 0.5[G]) is needed, the ego vehicle doesn’t stop. In order to judge this condition, pass judge line is set a certain distance (default : 0.5 * v_current^2 / a_max) in front of the stop line.
 To prevent a chattering, once the ego vehicle passes this line, “stop” decision in the intersection won’t be done any more.
-To prevent going over the pass judge line before the traffic light stop line, the distance between stopline and pass judge line become 0m in case that there is a stop line between the ego vehicle and an intersection stop line.
+To prevent going over the pass judge line before the traffic light stop line, the distance between stop line and pass judge line become 0m in case that there is a stop line between the ego vehicle and an intersection stop line.
 
 #### Vehicle In a Same Lane Removal
 
@@ -51,7 +51,7 @@ Ignore the object in front of/ behind the ego vehicle in the same lane (Improvem
 
 #### Stuck vehicle
 
-If there is any object in a certain distance (default : 5m) from the end point of the intersection lane on the driving lane and the object velocity is less than a threshold (default 3.0km/h), the object is regarded as a stuck vehicle. If the stuck vehicle exists, the ego vehicle cannot enter the intersection.
+If there is any object in a certain distance (default : 5[m]) from the end point of the intersection lane on the driving lane and the object velocity is less than a threshold (default 3.0[km/h]), the object is regarded as a stuck vehicle. If the stuck vehicle exists, the ego vehicle cannot enter the intersection.
 
 ### How to Decide Intersection Stop
 
@@ -72,7 +72,7 @@ The intersection stop target should be limited to stuck vehicle in the middle of
 
 IntersectionModule will be launched by this tag. If this tag is not set, ego-vehicle don’t recognize the lane as an intersection. Even if it’s a straight lane, this tag is mandatory if it is located within intersection.
 Set a value in turn_direction tag to light up turn signals
-Values  of turn_direction must be one of “straight”(no turn signal), “right” or “left”. Autoware will light up respective turn signals 30 m before entering the specified lane. You may also set optional tag “turn_signal_distance” to modify the distance to start lighting up turn signals. 
+Values  of turn_direction must be one of “straight”(no turn signal), “right” or “left”. Autoware will light up respective turn signals 30[m] before entering the specified lane. You may also set optional tag “turn_signal_distance” to modify the distance to start lighting up turn signals.
 Lanes within intersections must be defined as a single Lanelet
 For example, blue lane in Fig.3 cannot be split into 2 Lanelets
 
@@ -84,6 +84,14 @@ As a default, IntersectionModule estimates a stop position by the crossing point
 
 By default, IntersectionModule treats all lanes crossing with the registered lane as attention targets (yellow and green lanelets). But in some cases (eg. when driving lane is priority lane or traffic light is green for the driving lane), we want to ignore some of the yield lanes. By setting RightOfWay of the RegulatoryElement item, we can define lanes to be ignored. Register ignored lanes as “yield” and register the attention lanes and driving lane as “right_of_way” lanelets in RightOfWay RegulatoryElement (For an intersection with traffic lights, we need to create items for each lane in the intersection. Please note that it needs a lot of man-hours.)
 
+### Attention Area
+
+![intersection_straight](docs/intersection/intersection_straight.png)
+
+![intersection_right](docs/intersection/intersection_right.png)
+
+![intersection_left](docs/intersection/intersection_left.png)
+
 ### Module Parameters
 
 | Parameter                                     | Type   | Description                                                                   |
@@ -93,12 +101,12 @@ By default, IntersectionModule treats all lanes crossing with the registered lan
 | `intersection/path_expand_width`              | bool   | [m] path area to see with expansion                                           |
 | `intersection/stop_line_margin`               | double | [m] margin before stop line                                                   |
 | `intersection/stuck_vehicle_detect_dist`      | double | [m] this should be the length between cars when they are stopped.             |
-| `intersection/stuck_vehicle_ignore_dist`      | double | [m] obstacle stop max distance(5.0m) + stuck vehicle size / 2 (0.0m-)         |
+| `intersection/stuck_vehicle_ignore_dist`      | double | [m] obstacle stop max distance(5.0[m]) + stuck vehicle size / 2.0[m])         |
 | `intersection/stuck_vehicle_vel_thr`          | double | [m/s] velocity below 3[km/h] is ignored by default                            |
 | `intersection/intersection_velocity`          | double | [m/s] velocity to pass intersection. 10[km/h] is by default                   |
 | `intersection/intersection_max_accel`         | double | [m/s^2] acceleration in intersection                                          |
 | `intersection/detection_area_margin`          | double | [m] range for expanding detection area                                        |
-| `intersection/detection_area_length`          | double | [m] range for lidar detection 200m is by default                              |
+| `intersection/detection_area_length`          | double | [m] range for lidar detection 200[m] is by default                              |
 | `intersection/detection_area_angle_threshold` | double | [rad] threshold of angle difference between the detection object and lane     |
 | `intersection/min_predicted_path_confidence`  | double | [-] minimum confidence value of predicted path to use for collision detection |
 | `merge_from_private_road/stop_duration_sec`   | double | [s] duration to stop                                                          |
