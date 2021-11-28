@@ -64,6 +64,26 @@ The intersection stop target should be limited to stuck vehicle in the middle of
 - It will collide with ego vehicle.
   - This means that the other incoming vehicle from conflicting lanelet can collide with ego vehicle.
 
+### Mandatory information and point of attention
+
+![intersection_fig](docs/intersection/intersection_fig.png)
+
+#### set a turn_direction tag (Fig. 1)
+
+IntersectionModule will be launched by this tag. If this tag is not set, ego-vehicle don’t recognize the lane as an intersection. Even if it’s a straight lane, this tag is mandatory if it is located within intersection.
+Set a value in turn_direction tag to light up turn signals
+Values  of turn_direction must be one of “straight”(no turn signal), “right” or “left”. Autoware will light up respective turn signals 30 m before entering the specified lane. You may also set optional tag “turn_signal_distance” to modify the distance to start lighting up turn signals. 
+Lanes within intersections must be defined as a single Lanelet
+For example, blue lane in Fig.3 cannot be split into 2 Lanelets
+
+#### Optional information Explicitly describe a stop position [RoadMarking] (Fig. 2)
+
+As a default, IntersectionModule estimates a stop position by the crossing point of driving lane and attention lane. But there are some cases like Fig.2 in which we would like to set a stop position explicitly. When a stop_line is defined as a RoadMarking item in the intersection lane, it overwrites the stop position. (Not only creating stop_line, but also defining as a RoadMaking item are needed.)
+
+#### Exclusion setting of attention lanes [RightOfWay] (Fig.3)
+
+By default, IntersectionModule treats all lanes crossing with the registered lane as attention targets (yellow and green lanelets). But in some cases (eg. when driving lane is priority lane or traffic light is green for the driving lane), we want to ignore some of the yield lanes. By setting RightOfWay of the RegulatoryElement item, we can define lanes to be ignored. Register ignored lanes as “yield” and register the attention lanes and driving lane as “right_of_way” lanelets in RightOfWay RegulatoryElement (For an intersection with traffic lights, we need to create items for each lane in the intersection. Please note that it needs a lot of man-hours.)
+
 ### Module Parameters
 
 | Parameter                                     | Type   | Description                                                                   |
@@ -176,6 +196,13 @@ stop
 ```
 
 NOTE current state is treated as `STOP` if `is_entry_prohibited` = `true` else `GO`
+
+## Walkway
+
+私有地（例えば駐車場）から公道へ出る際には面出しする必要がある. もし交差点のレーンに私有地タグ(location = private)がついていて、次のレーンが私有地ではない場合は必ず一時停止をして交差点に侵入する. 停止位置の算出方法は交差点モジュールと同じで、注視領域も同じ
+i.e. 必ず一時停止を行う以外は交差点モジュールと同じ機能になる.
+
+![walkway](docs/intersection/merge_from_private.png)
 
 ### Known Limits
 
