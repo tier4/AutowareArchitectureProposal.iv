@@ -232,7 +232,7 @@ bool StopLineModule::modifyPathVelocity(
       state_ = State::STOPPED;
       if (signed_arc_dist_to_stop_point < -planner_param_.stop_check_dist) {
         RCLCPP_ERROR(
-          logger_, "Failed to stop near stop line but ego stopped change state to STOPPED");
+          logger_, "Failed to stop near stop line but ego stopped. Change state to STOPPED");
       }
     }
   } else if (state_ == State::STOPPED) {

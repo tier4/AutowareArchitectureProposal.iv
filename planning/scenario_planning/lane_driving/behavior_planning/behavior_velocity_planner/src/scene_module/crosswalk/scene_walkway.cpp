@@ -94,7 +94,7 @@ bool WalkwayModule::modifyPathVelocity(
       state_ = State::STOP;
       if (distance < -distance_threshold) {
         RCLCPP_ERROR(
-          logger_, "Failed to stop near walkway but ego stopped change state to STOPPED");
+          logger_, "Failed to stop near walkway but ego stopped. Change state to STOPPED");
       }
     }
     return true;
