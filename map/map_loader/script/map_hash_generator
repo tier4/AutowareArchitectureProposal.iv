@@ -63,12 +63,24 @@ class MapHashGenerator(Node):
 
     @staticmethod
     def generate_pcd_file_hash(path):
-        try:
-            with open(path, "rb") as pcd_file:
-                data = pcd_file.read()
-                return hashlib.sha256(data).hexdigest()
-        except FileNotFoundError:
+        path = pathlib.Path(path)
+        if path.is_dir():
+            pcd_file_paths = [f for f in path.iterdir() if pathlib.Path(f).suffix == ".pcd"]
+        elif path.is_file():
+            if path.suffix == ".pcd":
+                pcd_file_paths = [path]
+        else:
             return ""
+
+        concatenated_hash = ""
+        for pcd_file_path in pcd_file_paths:
+            try:
+                with open(pcd_file_path, "rb") as pcd_file:
+                    data = pcd_file.read()
+                    concatenated_hash += hashlib.sha256(data).hexdigest()
+            except FileNotFoundError:
+                return ""
+        return hashlib.sha256(concatenated_hash.encode()).hexdigest()
 
 
 def main(args=None):
