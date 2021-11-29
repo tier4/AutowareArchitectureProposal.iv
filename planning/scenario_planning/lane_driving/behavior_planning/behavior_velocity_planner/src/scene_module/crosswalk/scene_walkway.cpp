@@ -81,8 +81,7 @@ bool WalkwayModule::modifyPathVelocity(
     stop_factor.stop_factor_points.emplace_back(debug_data_.nearest_collision_point);
     planning_utils::appendStopReason(stop_factor, stop_reason);
 
-    // use arc length to identify if ego vehicle is in front of stop line or after passing stop
-    // line.
+    // use arc length to identify if ego vehicle is in front of walkway stop or not.
     const double distance = autoware_utils::calcSignedArcLength(
       path->points, planner_data_->current_pose.pose.position,
       debug_data_.first_stop_pose.position);
@@ -95,7 +94,7 @@ bool WalkwayModule::modifyPathVelocity(
       state_ = State::STOP;
     } else if (
       // If ego vehicle pass stop line without stopping then move state to surpassed
-      // Note : without this condition, vehicle stuck and never move.
+      // Note : without this condition, vehicle stuck and never restore to move by this state.
       distance < -distance_threshold &&
       planner_data_->isVehicleStopped(planner_param_.stop_duration_sec)) {
       state_ = State::SURPASSED;
