@@ -70,6 +70,7 @@ class MapHashGenerator(Node):
         except FileNotFoundError:
             return ""
 
+
 def main(args=None):
     rclpy.init(args=args)
     node = MapHashGenerator()
