@@ -54,11 +54,7 @@ Eigen::VectorXd SimModelIdealSteerAccGeared::calcModel(
   Eigen::VectorXd d_state = Eigen::VectorXd::Zero(dim_x_);
   d_state(IDX::X) = vx * std::cos(yaw);
   d_state(IDX::Y) = vx * std::sin(yaw);
-  if (gear_ == GearCommand::REVERSE || gear_ == GearCommand::REVERSE_2) {
-    d_state(IDX::VX) = -ax;
-  } else {
-    d_state(IDX::VX) = ax;
-  }
+  d_state(IDX::VX) = ax;
   d_state(IDX::YAW) = vx * std::tan(steer) / wheelbase_;
 
   return d_state;

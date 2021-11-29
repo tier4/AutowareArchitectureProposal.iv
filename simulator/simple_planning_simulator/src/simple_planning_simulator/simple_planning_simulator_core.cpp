@@ -310,6 +310,12 @@ void SimplePlanningSimulator::set_input(const float steer, const float vel, cons
 {
   Eigen::VectorXd input(vehicle_model_ptr_->getDimU());
 
+  // TODO (Watanabe): The definition of the sign of acceleration in REVERSE mode is different
+  // between .auto and proposal.iv, and will be discussed later.
+  if (current_gear_cmd_ptr_ && current_gear_cmd_ptr_->command == REVERSE) {
+      accel = -accel;
+  }
+
   if (vehicle_model_type_ == VehicleModelType::IDEAL_STEER_VEL) {
     input << vel, steer;
   } else if (  // NOLINT

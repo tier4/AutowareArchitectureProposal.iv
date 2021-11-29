@@ -101,11 +101,7 @@ Eigen::VectorXd SimModelDelaySteerAccGeared::calcModel(
   d_state(IDX::X) = vel * cos(yaw);
   d_state(IDX::Y) = vel * sin(yaw);
   d_state(IDX::YAW) = vel * std::tan(steer) / wheelbase_;
-  if (gear_ == GearCommand::REVERSE || gear_ == GearCommand::REVERSE_2) {
-    d_state(IDX::VX) = -acc;
-  } else {
-    d_state(IDX::VX) = acc;
-  }
+  d_state(IDX::VX) = acc;
   d_state(IDX::STEER) = steer_rate;
   d_state(IDX::ACCX) = -(acc - acc_des) / acc_time_constant_;
 
