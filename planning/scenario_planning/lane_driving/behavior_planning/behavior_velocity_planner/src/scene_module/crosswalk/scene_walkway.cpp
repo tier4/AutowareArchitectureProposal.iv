@@ -88,15 +88,14 @@ bool WalkwayModule::modifyPathVelocity(
     const double distance_threshold = 1.0;
     debug_data_.stop_judge_range = distance_threshold;
     if (
-      std::abs(distance) <= distance_threshold &&
+      distance < distance_threshold &&
       planner_data_->isVehicleStopped(planner_param_.stop_duration_sec)) {
-      // If ego vehicle is inside distance threshold then move to stop state
+      // If ego vehicle is after walkway stop and stopped then move to stop state
       state_ = State::STOP;
-    } else if (distance < -distance_threshold) {
-      // If ego vehicle pass stop line without stopping then move state to surpassed
-      // Note : without this condition, vehicle stuck and never restore to move by this state.
-      state_ = State::SURPASSED;
-      RCLCPP_ERROR(logger_, "Failed to stop at walkway but ego stopped change state to SURPASSED");
+      if (distance < -distance_threshold) {
+        RCLCPP_ERROR(
+          logger_, "Failed to stop near walkway but ego stopped change state to STOPPED");
+      }
     }
     return true;
   } else if (state_ == State::STOP) {
