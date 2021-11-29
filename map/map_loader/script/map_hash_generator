@@ -31,11 +31,15 @@ class MapHashGenerator(Node):
         super().__init__("map_hash_generator")
         self.lanelet_path = self.declare_parameter("lanelet2_map_path", "").value
         self.lanelet_text = self.load_lanelet_text(self.lanelet_path)
-        self.lanelet_hash = self.generate_file_hash(self.lanelet_text)
+        self.lanelet_hash = self.generate_lanelet_file_hash(self.lanelet_text)
+
+        self.pcd_map_path = self.declare_parameter("pointcloud_map_path", "").value
+        self.pcd_map_hash = self.generate_pcd_file_hash(self.pcd_map_path)
 
         qos_profile = QoSProfile(depth=1, durability=QoSDurabilityPolicy.TRANSIENT_LOCAL)
         msg = MapHash()
         msg.lanelet = self.lanelet_hash
+        msg.pcd = self.pcd_map_hash
         self.pub = self.create_publisher(MapHash, "/api/autoware/get/map/info/hash", qos_profile)
         self.pub.publish(msg)
 
@@ -54,9 +58,17 @@ class MapHashGenerator(Node):
         return path.read_text() if path.is_file() else ""
 
     @staticmethod
-    def generate_file_hash(data):
+    def generate_lanelet_file_hash(data):
         return hashlib.sha256(data.encode()).hexdigest() if data else ""
 
+    @staticmethod
+    def generate_pcd_file_hash(path):
+        try:
+            with open(path, "rb") as pcd_file:
+                data = pcd_file.read()
+                return hashlib.sha256(data).hexdigest()
+        except FileNotFoundError:
+            return ""
 
 def main(args=None):
     rclpy.init(args=args)
