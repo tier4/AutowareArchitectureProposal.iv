@@ -45,7 +45,6 @@ void SimModelIdealSteerAccGeared::update(const float64_t & dt)
 Eigen::VectorXd SimModelIdealSteerAccGeared::calcModel(
   const Eigen::VectorXd & state, const Eigen::VectorXd & input)
 {
-  using autoware_auto_vehicle_msgs::msg::GearCommand;
   const float64_t vx = state(IDX::VX);
   const float64_t yaw = state(IDX::YAW);
   const float64_t ax = input(IDX_U::AX_DES);

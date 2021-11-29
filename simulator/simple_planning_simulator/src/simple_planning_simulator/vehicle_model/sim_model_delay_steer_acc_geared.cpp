@@ -85,7 +85,6 @@ void SimModelDelaySteerAccGeared::initializeInputQueue(const float64_t & dt)
 Eigen::VectorXd SimModelDelaySteerAccGeared::calcModel(
   const Eigen::VectorXd & state, const Eigen::VectorXd & input)
 {
-  using autoware_auto_vehicle_msgs::msg::GearCommand;
   auto sat = [](float64_t val, float64_t u, float64_t l) {return std::max(std::min(val, u), l);};
 
   const float64_t vel = sat(state(IDX::VX), vx_lim_, -vx_lim_);
