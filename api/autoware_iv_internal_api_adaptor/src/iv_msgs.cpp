@@ -12,30 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "iv_state.hpp"
+#include "iv_msgs.hpp"
 
 #include <autoware_iv_auto_msgs_converter/autoware_iv_auto_msgs_converter.hpp>
 
 namespace internal_api
 {
-IVState::IVState(const rclcpp::NodeOptions & options) : Node("external_api_iv_state", options)
+IVMsgs::IVMsgs(const rclcpp::NodeOptions & options) : Node("external_api_iv_msgs", options)
 {
   using std::placeholders::_1;
 
   pub_state_ = create_publisher<AutowareStateIV>("/api/iv_msgs/autoware/state", rclcpp::QoS(1));
   sub_state_ = create_subscription<AutowareStateAuto>(
-    "/autoware/state", rclcpp::QoS(1), std::bind(&IVState::onState, this, _1));
+    "/autoware/state", rclcpp::QoS(1), std::bind(&IVMsgs::onState, this, _1));
   sub_emergency_ = create_subscription<EmergencyStateAuto>(
-    "/system/emergency/emergency_state", rclcpp::QoS(1),
-    std::bind(&IVState::onEmergency, this, _1));
+    "/system/emergency/emergency_state", rclcpp::QoS(1), std::bind(&IVMsgs::onEmergency, this, _1));
 
-  pub_control_mode_ =
-    create_publisher<ControlModeIV>("/api/iv_msgs/vehicle/status/control_mode", rclcpp::QoS(1));
+  pub_control_mode_ = create_publisher<ControlModeIV>(
+    "/api/iv_msgs/vehicle/status/control_mode", rclcpp::QoS(1));
   sub_control_mode_ = create_subscription<ControlModeAuto>(
-    "/vehicle/status/control_mode", rclcpp::QoS(1), std::bind(&IVState::onControlMode, this, _1));
+    "/vehicle/status/control_mode", rclcpp::QoS(1), std::bind(&IVMsgs::onControlMode, this, _1));
 }
 
-void IVState::onState(const AutowareStateAuto::ConstSharedPtr message)
+void IVMsgs::onState(const AutowareStateAuto::ConstSharedPtr message)
 {
   auto state = autoware_iv_auto_msgs_converter::convert(*message);
   if (emergency_) {
@@ -50,12 +49,12 @@ void IVState::onState(const AutowareStateAuto::ConstSharedPtr message)
   pub_state_->publish(state);
 }
 
-void IVState::onEmergency(const EmergencyStateAuto::ConstSharedPtr message)
+void IVMsgs::onEmergency(const EmergencyStateAuto::ConstSharedPtr message)
 {
   emergency_ = message;
 }
 
-void IVState::onControlMode(const ControlModeAuto::ConstSharedPtr message)
+void IVMsgs::onControlMode(const ControlModeAuto::ConstSharedPtr message)
 {
   pub_control_mode_->publish(autoware_iv_auto_msgs_converter::convert(*message));
 }
@@ -63,4 +62,4 @@ void IVState::onControlMode(const ControlModeAuto::ConstSharedPtr message)
 }  // namespace internal_api
 
 #include <rclcpp_components/register_node_macro.hpp>
-RCLCPP_COMPONENTS_REGISTER_NODE(internal_api::IVState)
+RCLCPP_COMPONENTS_REGISTER_NODE(internal_api::IVMsgs)

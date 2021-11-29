@@ -25,10 +25,10 @@
 
 namespace internal_api
 {
-class IVState : public rclcpp::Node
+class IVMsgs : public rclcpp::Node
 {
 public:
-  explicit IVState(const rclcpp::NodeOptions & options);
+  explicit IVMsgs(const rclcpp::NodeOptions & options);
 
 private:
   using EmergencyStateAuto = autoware_auto_system_msgs::msg::EmergencyState;
