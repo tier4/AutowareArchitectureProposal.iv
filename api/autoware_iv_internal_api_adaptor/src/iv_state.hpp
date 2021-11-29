@@ -19,7 +19,9 @@
 
 #include <autoware_auto_system_msgs/msg/autoware_state.hpp>
 #include <autoware_auto_system_msgs/msg/emergency_state.hpp>
+#include <autoware_auto_vehicle_msgs/msg/control_mode_report.hpp>
 #include <autoware_system_msgs/msg/autoware_state.hpp>
+#include <autoware_vehicle_msgs/msg/control_mode.hpp>
 
 namespace internal_api
 {
@@ -32,12 +34,18 @@ private:
   using EmergencyStateAuto = autoware_auto_system_msgs::msg::EmergencyState;
   using AutowareStateAuto = autoware_auto_system_msgs::msg::AutowareState;
   using AutowareStateIV = autoware_system_msgs::msg::AutowareState;
-
   rclcpp::Subscription<EmergencyStateAuto>::SharedPtr sub_emergency_;
   rclcpp::Subscription<AutowareStateAuto>::SharedPtr sub_state_;
   rclcpp::Publisher<AutowareStateIV>::SharedPtr pub_state_;
+
+  using ControlModeAuto = autoware_auto_vehicle_msgs::msg::ControlModeReport;
+  using ControlModeIV = autoware_vehicle_msgs::msg::ControlMode;
+  rclcpp::Subscription<ControlModeAuto>::SharedPtr sub_control_mode_;
+  rclcpp::Publisher<ControlModeIV>::SharedPtr pub_control_mode_;
+
   void onState(const AutowareStateAuto::ConstSharedPtr message);
   void onEmergency(const EmergencyStateAuto::ConstSharedPtr message);
+  void onControlMode(const ControlModeAuto::ConstSharedPtr message);
 
   EmergencyStateAuto::ConstSharedPtr emergency_;
 };
