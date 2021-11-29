@@ -26,7 +26,9 @@ The following video is a sample. Yellow points are high occupancy probability, g
 
 ### Radius Search 2d Outlier Filter [1]
 
-WIP
+> RadiusOutlierRemoval filter which removes all indices in its input cloud that don’t have at least some number of neighbors within a certain range.
+
+The description above is quoted from [1]. In this package, `pcl::search::KdTree` [2] is used to implement RadiusOutlierRemoval.
 
 ### Ring Outlier Filter
 
@@ -40,12 +42,68 @@ WIP
 
 ### Input
 
+#### Common Topics
+
+| Name      | Type                      | Description |
+| --------- | ------------------------- | ----------- |
+| `input`   | `sensor_msgs/PointCloud2` |             |
+| `indices` | `pcl_msgs/PointIndices`   |             |
+
+#### Dual Return Outlier Filter
+
+| Name                                           | Type                                 | Description |
+| ---------------------------------------------- | ------------------------------------ | ----------- |
+| `/dual_return_outlier_filter/frequency_image`  | `sensor_msgs/PointCloud2`            |             |
+| `/dual_return_outlier_filter/visibility`       | `autoware_debug_msgs/Float32Stamped` |             |
+| `/dual_return_outlier_filter/pointcloud_noise` | `sensor_msgs/PointCloud2`            |             |
+
+#### Occupancy GridMap Outlier Filter
+
 | Name                         | Type                      | Description                                                                                |
 | ---------------------------- | ------------------------- | ------------------------------------------------------------------------------------------ |
 | `~/input/pointcloud`         | `sensor_msgs/PointCloud2` | Obstacle point cloud with ground removed.                                                  |
 | `~/input/occupancy_grid_map` | `nav_msgs/OccupancyGrid`  | A map in which the probability of the presence of an obstacle is occupancy probability map |
 
+#### Radius Search 2d Outlier Filter
+
+| Name            | Type   | Description                                       |
+| --------------- | ------ | ------------------------------------------------- |
+| `min_neighbors` | int    | the minimum number of points in the bounding area |
+| `search_radius` | double | the radius of the bounding area [m]               |
+
+
+#### Ring Outlier Filter
+
+| Name                               | Type   | Description |
+| ---------------------------------- | ------ | ----------- |
+| `vertical_bins`                    | int    |             |
+
+
+#### Voxel Grid Outlier Filter
+
+| Name                               | Type   | Description |
+| ---------------------------------- | ------ | ----------- |
+| `vertical_bins`                    | int    |             |
+
 ### Output
+
+#### Common Topics
+
+| Name      | Type                      | Description |
+| --------- | ------------------------- | ----------- |
+| `input`   | `sensor_msgs/PointCloud2` |             |
+| `indices` | `pcl_msgs/PointIndices`   |             |
+
+#### Dual Return Outlier Filter
+
+| Name                                           | Type                                 | Description |
+| ---------------------------------------------- | ------------------------------------ | ----------- |
+| `/dual_return_outlier_filter/frequency_image`  | `sensor_msgs/PointCloud2`            |             |
+| `/dual_return_outlier_filter/visibility`       | `autoware_debug_msgs/Float32Stamped` |             |
+| `/dual_return_outlier_filter/pointcloud_noise` | `sensor_msgs/PointCloud2`            |             |
+
+#### Occupancy GridMap Outlier Filter
+
 
 | Name                                        | Type                      | Description                                                                                                                  |
 | ------------------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
@@ -54,7 +112,41 @@ WIP
 | `~/output/debug/low_confidence/pointcloud`  | `sensor_msgs/PointCloud2` | Point clouds that had a low probability of occupancy in the occupancy grid map. However, it is not considered as an outlier. |
 | `~/output/debug/high_confidence/pointcloud` | `sensor_msgs/PointCloud2` | Point clouds that had a high probability of occupancy in the occupancy grid map. trajectory                                  |
 
+#### Radius Search 2d Outlier Filter
+
+| Name                               | Type   | Description |
+| ---------------------------------- | ------ | ----------- |
+| `vertical_bins`                    | int    |             |
+
+
+#### Ring Outlier Filter
+
+| Name                               | Type   | Description |
+| ---------------------------------- | ------ | ----------- |
+| `vertical_bins`                    | int    |             |
+
+
+#### Voxel Grid Outlier Filter
+
+| Name                               | Type   | Description |
+| ---------------------------------- | ------ | ----------- |
+| `vertical_bins`                    | int    |             |
+
+
 ## Parameters
+
+#### Dual Return Outlier Filter
+
+| Name                               | Type   | Description |
+| ---------------------------------- | ------ | ----------- |
+| `vertical_bins`                    | int    |             |
+| `max_azimuth_diff`                 | float  |             |
+| `weak_first_distance_ratio`        | double |             |
+| `general_distance_ratio`           | double |             |
+| `weak_first_local_noise_threshold` | int    |             |
+| `visibility_threshold`             | float  |             |
+
+#### Occupancy GridMap Outlier Filter
 
 | Name                                                    | Type   | Description                                                                                                                                                                                                                    |
 | ------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -68,6 +160,27 @@ WIP
 | `radius_search_2d_filter/min_points`                    | int    | Minimum number of point clouds per radius                                                                                                                                                                                      |
 | `radius_search_2d_filter/max_points`                    | int    | Maximum number of point clouds per radius                                                                                                                                                                                      |
 
+#### Radius Search 2d Outlier Filter
+
+| Name                               | Type   | Description |
+| ---------------------------------- | ------ | ----------- |
+| `vertical_bins`                    | int    |             |
+
+
+#### Ring Outlier Filter
+
+| Name                               | Type   | Description |
+| ---------------------------------- | ------ | ----------- |
+| `vertical_bins`                    | int    |             |
+
+
+#### Voxel Grid Outlier Filter
+
+| Name                               | Type   | Description |
+| ---------------------------------- | ------ | ----------- |
+| `vertical_bins`                    | int    |             |
+
+
 ## Assumptions / Known limits
 
 ## (Optional) Error detection and handling
@@ -76,6 +189,7 @@ WIP
 
 ## (Optional) References/External links
 
-[1] <https://pcl.readthedocs.io/projects/tutorials/en/latest/remove_outliers.html>
+[1]: <https://pcl.readthedocs.io/projects/tutorials/en/latest/remove_outliers.html>
+[2]: <https://pcl.readthedocs.io/projects/tutorials/en/latest/kdtree_search.html#kdtree-search>
 
 ## (Optional) Future extensions / Unimplemented parts

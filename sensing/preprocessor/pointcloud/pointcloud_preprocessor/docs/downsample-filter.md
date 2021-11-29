@@ -8,15 +8,15 @@ The `downsample_filter` is a node that reduces the number of points.
 
 ### Approximate Downsample Filter
 
-WIP
+`pcl::VoxelGridNearestCentroid` is used. The algorithm is described in [tier4_pcl_extensions](../../tier4_pcl_extensions/README.md)
 
 ### Random Downsample Filter
 
-WIP
+`pcl::RandomSample` is used.
 
 ### Voxel Grid Downsample Filter
 
-WIP
+`pcl::VoxelGrid` is used.
 
 ## Inputs / Outputs
 

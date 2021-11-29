@@ -6,6 +6,8 @@ The `box_crop_filter` is a node that removes points with in a given box region. 
 
 ## Inner-workings / Algorithms
 
+`pcl::CropBox` is used.
+
 ## Inputs / Outputs
 
 | Name             | Type                            | Description      |
