@@ -26,7 +26,6 @@
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/iostreams/device/mapped_file.hpp>
 
-#include <hash_library_vendor/md5.h>
 #include <lanelet2_core/geometry/Polygon.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/pcl_base.h>
@@ -44,72 +43,6 @@
 #define EIGEN_MPL2_ONLY
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-
-namespace
-{
-bool isPcdFile(const std::string & p)
-{
-  if (!std::filesystem::is_regular_file(std::filesystem::status(p))) {
-    return false;
-  }
-
-  const auto ext = p.substr(p.find_last_of(".") + 1);
-
-  if (ext != "pcd" && ext != "PCD") {
-    return false;
-  }
-
-  return true;
-}
-
-std::string getMd5Sum(const std::string & data)
-{
-  MD5 digest_md5;
-  digest_md5.add(data.c_str(), data.size());
-  return digest_md5.getHash();
-}
-
-// reference https://create.stephan-brumme.com/hash-library/
-std::string getMd5Sum(const std::filesystem::path & file_path)
-{
-  MD5 digest_md5;
-  const size_t buffer_size = 1'000'000;
-  auto buffer = std::array<char, buffer_size>();
-  std::ifstream file(file_path, std::ios::in | std::ios::binary);
-
-  while (file) {
-    file.read(buffer.begin(), buffer_size);
-    const auto num_bytes_read = static_cast<size_t>(file.gcount());
-    digest_md5.add(buffer.begin(), num_bytes_read);
-  }
-
-  return digest_md5.getHash();
-}
-
-nlohmann::json getPcdMapHashJson(const std::string & file_path)
-{
-  // Get PCD file paths
-  std::vector<std::filesystem::path> pcd_file_paths;
-  if (std::filesystem::is_directory(file_path)) {
-    for (const auto & file : std::filesystem::directory_iterator(file_path)) {
-      if (!isPcdFile(file.path())) {
-        continue;
-      }
-      pcd_file_paths.push_back(file.path());
-    }
-  } else if (isPcdFile(file_path)) {
-    pcd_file_paths.push_back(file_path);
-  }
-
-  // Create JSON meta file
-  nlohmann::json j;
-  for (const auto & file_path : pcd_file_paths) {
-    j[file_path.string()] = getMd5Sum(file_path);
-  }
-
-  return j;
-}
-}  // namespace
 
 ElevationMapLoaderNode::ElevationMapLoaderNode(const rclcpp::NodeOptions & options)
 : Node("elevation_map_loader", options)
@@ -142,33 +75,57 @@ ElevationMapLoaderNode::ElevationMapLoaderNode(const rclcpp::NodeOptions & optio
       "output/elevation_map_cloud", durable_qos);
   }
 
-  std::filesystem::path pointcloud_map_path(
-    this->declare_parameter("pointcloud_map_path", "path_default"));
-  hash_json_ = getPcdMapHashJson(pointcloud_map_path.lexically_normal().string());
+  using std::placeholders::_1;
+  sub_map_hash_ = create_subscription<autoware_external_api_msgs::msg::MapHash>(
+    "/api/autoware/get/map/info/hash", durable_qos,
+    std::bind(&ElevationMapLoaderNode::onMapHash, this, _1));
+  sub_pointcloud_map_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
+    "input/pointcloud_map", durable_qos,
+    std::bind(&ElevationMapLoaderNode::onPointcloudMap, this, _1));
+  sub_vector_map_ = this->create_subscription<autoware_auto_mapping_msgs::msg::HADMapBin>(
+    "input/vector_map", durable_qos, std::bind(&ElevationMapLoaderNode::onVectorMap, this, _1));
 
-  const auto elevation_map_hash = getMd5Sum(hash_json_.dump());
+  auto cb = std::bind(&ElevationMapLoaderNode::onTimer, this);
+  auto period =
+    std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::duration<double>(0.1));
+  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(cb)>>(
+    get_clock(), period, std::move(cb), get_node_base_interface()->get_context());
+  get_node_timers_interface()->add_timer(timer_, nullptr);
+}
+
+void ElevationMapLoaderNode::onTimer()
+{
+  if (!map_pcl_ptr_) {
+    return;
+  }
+  if (!lanelet_map_ptr_) {
+    return;
+  }
+  if (!elevation_map_path_) {
+    return;
+  }
+
+  struct stat info;
+  if (stat(elevation_map_path_->c_str(), &info) != 0) {
+    RCLCPP_INFO(this->get_logger(), "Create elevation map from pointcloud map ");
+    createElevationMap();
+  } else if (info.st_mode & S_IFDIR) {
+    RCLCPP_INFO(this->get_logger(), "Load elevation map from: %s", elevation_map_path_->c_str());
+    grid_map::GridMapRosConverter::loadFromBag(
+      *elevation_map_path_, "elevation_map", elevation_map_);
+  }
+  publishElevationMap();
+  timer_->cancel();
+}
+
+void ElevationMapLoaderNode::onMapHash(const autoware_external_api_msgs::msg::MapHash::SharedPtr map_hash)
+{
+  RCLCPP_INFO(this->get_logger(), "subscribe map_hash");
+  const auto elevation_map_hash = map_hash->pcd;
   const std::string elevation_map_directory =
     this->declare_parameter("elevation_map_directory", "path_default");
-  elevation_map_path_ = std::filesystem::path(elevation_map_directory) / elevation_map_hash;
-
-  use_elevation_map_file_ = false;
-  struct stat info;
-  if (stat(elevation_map_path_.c_str(), &info) != 0) {
-    RCLCPP_INFO(this->get_logger(), "Create elevation map from pointcloud map ");
-    already_sub_vector_map_ = false;
-    already_sub_pointcloud_map_ = false;
-    using std::placeholders::_1;
-    sub_pointcloud_map_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
-      "input/pointcloud_map", durable_qos,
-      std::bind(&ElevationMapLoaderNode::onPointcloudMap, this, _1));
-    sub_vector_map_ = this->create_subscription<autoware_auto_mapping_msgs::msg::HADMapBin>(
-      "input/vector_map", durable_qos, std::bind(&ElevationMapLoaderNode::onVectorMap, this, _1));
-  } else if (info.st_mode & S_IFDIR) {
-    RCLCPP_INFO(this->get_logger(), "Load elevation map from: %s", elevation_map_path_.c_str());
-    use_elevation_map_file_ = grid_map::GridMapRosConverter::loadFromBag(
-      elevation_map_path_, "elevation_map", elevation_map_);
-    publishElevationMap();
-  }
+  elevation_map_path_ = std::make_unique<std::filesystem::path>(
+    std::filesystem::path(elevation_map_directory) / elevation_map_hash);
 }
 
 void ElevationMapLoaderNode::onPointcloudMap(
@@ -178,59 +135,43 @@ void ElevationMapLoaderNode::onPointcloudMap(
   pcl::PointCloud<pcl::PointXYZ> map_pcl;
   pcl::fromROSMsg<pcl::PointXYZ>(*pointcloud_map, map_pcl);
   map_pcl_ptr_ = pcl::make_shared<pcl::PointCloud<pcl::PointXYZ>>(map_pcl);
-
-  already_sub_pointcloud_map_ = true;
-  if (already_sub_vector_map_) {
-    publishElevationMap();
-  }
 }
 
 void ElevationMapLoaderNode::onVectorMap(
   const autoware_auto_mapping_msgs::msg::HADMapBin::ConstSharedPtr vector_map)
 {
   RCLCPP_INFO(this->get_logger(), "subscribe vector_map");
-  already_sub_vector_map_ = false;
-  lanelet::LaneletMapPtr lanelet_map_ptr;
-  lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
-  lanelet::utils::conversion::fromBinMsg(*vector_map, lanelet_map_ptr);
-  const lanelet::ConstLanelets all_lanelets = lanelet::utils::query::laneletLayer(lanelet_map_ptr);
+  lanelet_map_ptr_ = std::make_shared<lanelet::LaneletMap>();
+  lanelet::utils::conversion::fromBinMsg(*vector_map, lanelet_map_ptr_);
+  const lanelet::ConstLanelets all_lanelets = lanelet::utils::query::laneletLayer(lanelet_map_ptr_);
   lane_filter_.road_lanelets_ = lanelet::utils::query::roadLanelets(all_lanelets);
+}
 
-  already_sub_vector_map_ = true;
-  if (already_sub_pointcloud_map_) {
-    publishElevationMap();
+void ElevationMapLoaderNode::createElevationMap()
+{
+  if (lane_filter_.use_lane_filter_) {
+    const auto convex_hull = getConvexHull(map_pcl_ptr_);
+    lanelet::ConstLanelets intersected_lanelets =
+      getIntersectedLanelets(convex_hull, lane_filter_.road_lanelets_);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr lane_filtered_map_pcl_ptr =
+      getLaneFilteredPointCloud(intersected_lanelets, map_pcl_ptr_);
+    grid_map_pcl_loader_->setInputCloud(lane_filtered_map_pcl_ptr);
+  } else {
+    grid_map_pcl_loader_->setInputCloud(map_pcl_ptr_);
   }
+  createElevationMapFromPointcloud();
+  elevation_map_ = grid_map_pcl_loader_->getGridMap();
+  if (use_inpaint_) {
+    inpaintElevationMap(inpaint_radius_);
+  }
+  saveElevationMap();
 }
 
 void ElevationMapLoaderNode::publishElevationMap()
 {
-  if (!use_elevation_map_file_) {
-    if (lane_filter_.use_lane_filter_) {
-      // calculate convex hull
-      const auto convex_hull = getConvexHull(map_pcl_ptr_);
-      // get intersected lanelets
-      lanelet::ConstLanelets intersected_lanelets =
-        getIntersectedLanelets(convex_hull, lane_filter_.road_lanelets_);
-      // filter pointcloud by lanelet
-      pcl::PointCloud<pcl::PointXYZ>::Ptr lane_filtered_map_pcl_ptr =
-        getLaneFilteredPointCloud(intersected_lanelets, map_pcl_ptr_);
-      grid_map_pcl_loader_->setInputCloud(lane_filtered_map_pcl_ptr);
-    } else {
-      grid_map_pcl_loader_->setInputCloud(map_pcl_ptr_);
-    }
-    createElevationMapFromPointcloud();
-    elevation_map_ = grid_map_pcl_loader_->getGridMap();
-    if (use_inpaint_) {
-      inpaintElevationMap(inpaint_radius_);
-    }
-    saveElevationMap();
-  }
-
   elevation_map_.setFrameId(map_frame_);
   auto msg = grid_map::GridMapRosConverter::toMessage(elevation_map_);
   pub_elevation_map_->publish(std::move(msg));
-  already_sub_pointcloud_map_ = false;
-  already_sub_vector_map_ = false;
 
   if (use_elevation_map_cloud_publisher_) {
     pcl::PointCloud<pcl::PointXYZ>::Ptr elevation_map_cloud_ptr =
@@ -439,9 +380,9 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr ElevationMapLoaderNode::createPointcloudFrom
 void ElevationMapLoaderNode::saveElevationMap()
 {
   const bool saving_successful =
-    grid_map::GridMapRosConverter::saveToBag(elevation_map_, elevation_map_path_, "elevation_map");
+    grid_map::GridMapRosConverter::saveToBag(elevation_map_, *elevation_map_path_, "elevation_map");
 
-  std::ofstream json_file(elevation_map_path_ / "input_pcd.json");
+  std::ofstream json_file(*elevation_map_path_ / "input_pcd.json");
   json_file << hash_json_;
   json_file.close();
 

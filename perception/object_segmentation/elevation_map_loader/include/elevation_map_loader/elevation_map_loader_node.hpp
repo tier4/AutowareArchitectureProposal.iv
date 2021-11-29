@@ -16,6 +16,7 @@
 #define MAP_LOADER__ELEVATION_MAP_LOADER_NODE_HPP_
 
 #include <autoware_utils/geometry/boost_geometry.hpp>
+#include "autoware_external_api_msgs/msg/map_hash.hpp"
 #include <filters/filter_chain.hpp>
 #include <grid_map_core/GridMap.hpp>
 #include <grid_map_pcl/GridMapPclLoader.hpp>
@@ -43,10 +44,15 @@ public:
 private:
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_pointcloud_map_;
   rclcpp::Subscription<autoware_auto_mapping_msgs::msg::HADMapBin>::SharedPtr sub_vector_map_;
+  rclcpp::Subscription<autoware_external_api_msgs::msg::MapHash>::SharedPtr sub_map_hash_;
   rclcpp::Publisher<grid_map_msgs::msg::GridMap>::SharedPtr pub_elevation_map_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pub_elevation_map_cloud_;
   void onPointcloudMap(const sensor_msgs::msg::PointCloud2::ConstSharedPtr pointcloud_map);
+  void onMapHash(const autoware_external_api_msgs::msg::MapHash::SharedPtr map_hash);
   void onVectorMap(const autoware_auto_mapping_msgs::msg::HADMapBin::ConstSharedPtr vector_map);
+  void onTimer();
+
+  void createElevationMap();
   void setVerbosityLevelToDebugIfFlagSet();
   void createElevationMapFromPointcloud();
   autoware_utils::LinearRing2d getConvexHull(
@@ -66,17 +72,16 @@ private:
   float calculateDistancePointFromPlane(
     const pcl::PointXYZ & point, const lanelet::ConstLanelet & lanelet);
 
+  rclcpp::TimerBase::SharedPtr timer_;
   pcl::PointCloud<pcl::PointXYZ>::Ptr map_pcl_ptr_;
+  lanelet::LaneletMapPtr lanelet_map_ptr_;
   grid_map::GridMap elevation_map_;
   std::string layer_name_;
-  std::filesystem::path elevation_map_path_;
+  std::unique_ptr<std::filesystem::path> elevation_map_path_;
   nlohmann::json hash_json_;
   std::string map_frame_;
   bool use_inpaint_;
   float inpaint_radius_;
-  bool already_sub_vector_map_;
-  bool already_sub_pointcloud_map_;
-  bool use_elevation_map_file_;
   bool use_elevation_map_cloud_publisher_;
   pcl::shared_ptr<grid_map::GridMapPclLoader> grid_map_pcl_loader_;
 
