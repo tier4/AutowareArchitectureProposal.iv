@@ -39,7 +39,7 @@ For deceleration area, if any of conditions below is matched, the vehicle decele
 
 #### Scene Walkway
 
-- There is a pedestrian or a cyclist in deceleration area
+- There is a walkway in the middle of ego path.
 
 #### Module Parameters
 

@@ -90,6 +90,14 @@ By default, IntersectionModule treats all lanes crossing with the registered lan
 
 ![intersection_right](docs/intersection/intersection_right.png)
 
+1. 障害物が Detection area 内にいるかどうかの判定は障害物の中心座標が Detection area から一定以内にいるかどうかで判定している。基本的には”障害物の中心座標が Detection area にいるときのみ対象として検知”でよいが、非対象レーンから対象レーンにレーンチェンジして来る障害物などは、対象として検知したい。全長 4.5m の車が、経路に対して 10 度程度で対象レーンに車線変更してきたとき、車両先頭がレーンに侵入してきた瞬間の車両中心位置の対象レーンからの距離は 39cm となる。これにややマージンをもたせ、Detection area から 50cm 以内を検知の対象とした。
+
+2. 障害物が Detection area 内にいる場合その障害物の姿勢をレーン姿勢とし、逆走している車両などは無視する。
+3. Detection area 内にはいっている物体の Predicted path を見るとき、confidence が一定以下のものは無視する。現状の confidence は、中央線までの横距離を d として、1/d に比例する。また、全ての predicted path の confidence の総和は 1 となっている。
+   predicted path の個数は、車線変更可能なレーンがあるかどうか、また各レーンがその先でいくつに分岐しているかに依存する。Path の個数によっても confidence の個数は変わるため、絶対値がそれほど意味を持たないことには注意したい。このモジュールでは、まったくレーンチェンジしてくる素振りのない障害物のレーンチェンジパスなど、無意味なものだけを無視し、他は全て考慮しておきたい。そのため、以下の様な目安で 0.05 とした。全長 1.7m 程度の車が車線変更してくるとする。この際、車の中心位置と道路境界の間の距離が 65cm 程度のところまで近づいてきた場合に 0.05 となる。つまり、”障害物と Detection area の距離”というパラメタに換算すると 65cm となり、1.よりも緩めのパラメタとなる（つまり、妥当な predicted_path が confidence によって無視されてしまう可能性は極めて低い。）
+4. 交差点モジュールで Detection area を生成する際に、経路がループしているような状況ではエゴレーンの後ろの経路は Detection area に含めない。
+5. Detection area 内にいる検知対象の自車と障害物の予測軌道をもとに衝突判定を行い、衝突しない場合は障害物が Detection area 内にいても intersection もジュールによる停止はかけない。
+
 ![intersection_left](docs/intersection/intersection_left.png)
 
 ### Module Parameters
@@ -204,13 +212,6 @@ stop
 ```
 
 NOTE current state is treated as `STOP` if `is_entry_prohibited` = `true` else `GO`
-
-## Walkway
-
-私有地（例えば駐車場）から公道へ出る際には面出しする必要がある. もし交差点のレーンに私有地タグ(location = private)がついていて、次のレーンが私有地ではない場合は必ず一時停止をして交差点に侵入する. 停止位置の算出方法は交差点モジュールと同じで、注視領域も同じ
-i.e. 必ず一時停止を行う以外は交差点モジュールと同じ機能になる.
-
-![walkway](docs/intersection/merge_from_private.png)
 
 ### Known Limits
 

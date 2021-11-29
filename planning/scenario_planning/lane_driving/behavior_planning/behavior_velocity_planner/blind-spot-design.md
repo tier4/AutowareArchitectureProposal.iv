@@ -1,6 +1,6 @@
 ## Blind Spot
 
-#### Role
+### Role
 
 Blind spot check while turning right/left by a dynamic object information, and planning and planning of a velocity of the start/stop.
 
@@ -35,7 +35,7 @@ Once judged as “no go”, the judgement will be changed to
 “go” after the “clear” state succeeds a certain period (e.g. 2 seconds).
 (To prevent a chattering)
 
-#### Module Parameters
+### Module Parameters
 
 | Parameter                       | Type   | Description                                                                 |
 | ------------------------------- | ------ | --------------------------------------------------------------------------- |
@@ -44,7 +44,7 @@ Once judged as “no go”, the judgement will be changed to
 | `ignore_width_from_center_line` | double | [m] ignore threshold that vehicle behind is collide with ego vehicle or not |
 | `max_future_movement_time`      | double | [s] maximum time for considering future movement of object                  |
 
-#### Flowchart
+### Flowchart
 
 ```plantuml
 @startuml

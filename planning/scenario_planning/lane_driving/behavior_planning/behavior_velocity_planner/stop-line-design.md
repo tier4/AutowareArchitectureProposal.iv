@@ -1,6 +1,6 @@
 ## Stop Line
 
-#### Role
+### Role
 
 This module plans velocity so that the vehicle can stop right before stop lines and restart driving after stopped.
 
@@ -17,14 +17,14 @@ Launches when there is a stop line in a target lane.
 - Rewrites velocities of the pass after the stop point with 0[m/s].
 - Finishes when the vehicle stopped within a radius of 2[m] from the stop point.
 
-#### Module Parameters
+### Module Parameters
 
 | Parameter         | Type   | Description                                                                                    |
 | ----------------- | ------ | ---------------------------------------------------------------------------------------------- |
 | `stop_margin`     | double | a margin that the vehicle tries to stop before stop_line                                       |
 | `stop_check_dist` | double | when the vehicle is within `stop_check_dist` from stop_line and stopped, move to STOPPED state |
 
-#### Flowchart
+### Flowchart
 
 ```plantuml
 @startuml
