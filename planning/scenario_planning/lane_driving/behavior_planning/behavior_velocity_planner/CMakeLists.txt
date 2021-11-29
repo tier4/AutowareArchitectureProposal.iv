@@ -270,6 +270,7 @@ target_link_libraries(behavior_velocity_planner
   scene_module_traffic_light
   scene_module_blind_spot
   scene_module_occlusion_spot
+  scene_module_no_stopping_area
   scene_module_detection_area
   scene_module_virtual_traffic_light
   scene_module_manager
