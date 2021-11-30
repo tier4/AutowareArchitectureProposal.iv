@@ -385,11 +385,6 @@ void ElevationMapLoaderNode::saveElevationMap()
 {
   const bool saving_successful =
     grid_map::GridMapRosConverter::saveToBag(elevation_map_, *elevation_map_path_, "elevation_map");
-
-  std::ofstream json_file(*elevation_map_path_ / "input_pcd.json");
-  json_file << hash_json_;
-  json_file.close();
-
   RCLCPP_INFO_STREAM(
     this->get_logger(), "Saving elevation map successful: " << std::boolalpha << saving_successful);
 }

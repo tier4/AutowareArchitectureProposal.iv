@@ -22,7 +22,6 @@
 #include <grid_map_ros/GridMapRosConverter.hpp>
 #include <lanelet2_extension/utility/message_conversion.hpp>
 #include <lanelet2_extension/utility/query.hpp>
-#include <nlohmann/json.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include "autoware_external_api_msgs/msg/map_hash.hpp"
@@ -79,7 +78,6 @@ private:
   grid_map::GridMap elevation_map_;
   std::string layer_name_;
   std::unique_ptr<std::filesystem::path> elevation_map_path_;
-  nlohmann::json hash_json_;
   std::string map_frame_;
   bool use_inpaint_;
   float inpaint_radius_;
