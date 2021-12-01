@@ -17,9 +17,13 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include <autoware_auto_perception_msgs/msg/tracked_objects.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_system_msgs/msg/autoware_state.hpp>
 #include <autoware_auto_system_msgs/msg/emergency_state.hpp>
 #include <autoware_auto_vehicle_msgs/msg/control_mode_report.hpp>
+#include <autoware_perception_msgs/msg/dynamic_object_array.hpp>
+#include <autoware_planning_msgs/msg/trajectory.hpp>
 #include <autoware_system_msgs/msg/autoware_state.hpp>
 #include <autoware_vehicle_msgs/msg/control_mode.hpp>
 
@@ -43,9 +47,21 @@ private:
   rclcpp::Subscription<ControlModeAuto>::SharedPtr sub_control_mode_;
   rclcpp::Publisher<ControlModeIV>::SharedPtr pub_control_mode_;
 
+  using TrajectoryAuto = autoware_auto_planning_msgs::msg::Trajectory;
+  using TrajectoryIV = autoware_planning_msgs::msg::Trajectory;
+  rclcpp::Subscription<TrajectoryAuto>::SharedPtr sub_trajectory_;
+  rclcpp::Publisher<TrajectoryIV>::SharedPtr pub_trajectory_;
+
+  using TrackedObjectsAuto = autoware_auto_perception_msgs::msg::TrackedObjects;
+  using DynamicObjectsIV = autoware_perception_msgs::msg::DynamicObjectArray;
+  rclcpp::Subscription<TrackedObjectsAuto>::SharedPtr sub_tracked_objects_;
+  rclcpp::Publisher<DynamicObjectsIV>::SharedPtr pub_dynamic_objects_;
+
   void onState(const AutowareStateAuto::ConstSharedPtr message);
   void onEmergency(const EmergencyStateAuto::ConstSharedPtr message);
   void onControlMode(const ControlModeAuto::ConstSharedPtr message);
+  void onTrajectory(const TrajectoryAuto::ConstSharedPtr message);
+  void onTrackedObjects(const TrackedObjectsAuto::ConstSharedPtr message);
 
   EmergencyStateAuto::ConstSharedPtr emergency_;
 };
