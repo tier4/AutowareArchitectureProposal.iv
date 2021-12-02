@@ -10,7 +10,7 @@ To combine multiple sensor data with a similar timestamp, the [message_filters](
 
 The figure below represents the reception time of each sensor data and how it is combined in the case.
 
-![concatenate_data_timeing_chart](./image/concatenate_data.drawio.svg)
+![concatenate_data_timing_chart](./image/concatenate_data.drawio.svg)
 
 ## Inputs / Outputs
 
