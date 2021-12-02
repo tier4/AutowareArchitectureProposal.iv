@@ -7,31 +7,27 @@ TODO
 ## Inner-workings / Algorithms
 
 TODO
+
 ![voxel_grid_outlier_filter_picture](./image/outlier_filter-voxel_grid.drawio.svg)
 
 ## Inputs / Outputs
 
-### Input
-
-| Name                 | Type                      | Description                               |
-| -------------------- | ------------------------- | ----------------------------------------- |
-| `~/input/pointcloud` | `sensor_msgs/PointCloud2` | Obstacle point cloud with ground removed. |
-
-### Output
-
-| Name                  | Type                      | Description                                  |
-| --------------------- | ------------------------- | -------------------------------------------- |
-| `~/output/pointcloud` | `sensor_msgs/PointCloud2` | Point cloud with outliers removed trajectory |
+This implementation inherits `pointcloud_preprocessor::Filter` class, please refer [README](../README.md).
 
 ## Parameters
 
-| Name           | Type   | Description                  |
-| -------------- | ------ | ---------------------------- |
-| `input_frame`  | string | The input topic frame id     |
-| `output_frame` | string | The output topic frame id    |
-| `voxel_size_x` | string | The voxel size in the x-axis |
-| `voxel_size_y` | string | The voxel size in the y-axis |
-| `voxel_size_z` | string | The voxel size in the z-axis |
+### Node Parameters
+
+This implementation inherits `pointcloud_preprocessor::Filter` class, please refer [README](../README.md).
+
+### Core Parameters
+
+| Name                     | Type   | Default Value | Description                                |
+| ------------------------ | ------ | ------------- | ------------------------------------------ |
+| `voxel_size_x`           | double | 0.3           | the voxel size along x-axis [m]            |
+| `voxel_size_y`           | double | 0.3           | the voxel size along y-axis [m]            |
+| `voxel_size_z`           | double | 0.1           | the voxel size along z-axis [m]            |
+| `voxel_points_threshold` | int    | 2             | the minimum number of points in each voxel |
 
 ## Assumptions / Known limits
 
