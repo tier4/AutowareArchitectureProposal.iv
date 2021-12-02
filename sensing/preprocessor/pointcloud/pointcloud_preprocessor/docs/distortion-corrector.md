@@ -11,7 +11,7 @@ Since the LiDAR sensor scans by rotating an internal laser, the resulting point 
 - Use the equations below (specific to the Velodyne 32C sensor) to obtain an accurate timestamp for each scan data point.
 - Use twist information to determine the distance the ego-vehicle has travelled between the time that the scan started and the corrected timestamp of each point, and then correct the position of the point.
 
-The offset qeuation is given by
+The offset equation is given by
 $ TimeOffset = (55.296 \mu s _SequenceIndex) + (2.304 \mu s_ DataPointIndex) $
 
 To valculate the exact point time, add the TimeOffset to the timestamp.
