@@ -51,7 +51,7 @@ Diagnostic type `WARN` indicates that the current accel/brake map is estimated t
 | No calibration required | `OK`             | "OK"                                       |                                                     |
 | Calibration Required    | `WARN`           | "Accel/brake map Calibration is required." | The accuracy of current accel/brake map may be low. |
 
-This diagnostics status can be also checked on Ros topic.
+This diagnostics status can be also checked on the following ROS topic.
 
 ```sh
 ros2 topic echo /accel_brake_map_calibrator/output/update_suggest
