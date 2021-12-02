@@ -43,7 +43,7 @@ The value of each cell in the map is gray at first, and it changes from blue to 
 
 ### Diagnostics
 
-`accel brake map_calibrator` publishes diagnostics depending on calibration status.
+The `accel brake map_calibrator` publishes diagnostics message depending on the calibration status.
 Diagnostic type `WARN` indicates that the current accel/brake map is estimated to be inaccurate. In this situation, it is strongly recommended to perform a re-calibration of the accel/brake map.
 
 | Status                  | Diagnostics Type | Diagnostics message                        | Description                                         |
