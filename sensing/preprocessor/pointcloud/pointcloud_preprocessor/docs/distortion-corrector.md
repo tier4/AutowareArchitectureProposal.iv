@@ -4,7 +4,7 @@
 
 The `distortion_corrector` is a node that compensates pointcloud distortion caused by ego vehicle's movement during 1 scan.
 
-Since the LiDAR sensor scans by rotating an internal laser, the resulting point cloud will be distoted if the ego-vehicle moves during a single scan (as shown by the figure below). The node corrects this by interpolating sensor data using odometry of ego-vehicle.
+Since the LiDAR sensor scans by rotating an internal laser, the resulting point cloud will be distorted if the ego-vehicle moves during a single scan (as shown by the figure below). The node corrects this by interpolating sensor data using odometry of ego-vehicle.
 
 ## Inner-workings / Algorithms
 
