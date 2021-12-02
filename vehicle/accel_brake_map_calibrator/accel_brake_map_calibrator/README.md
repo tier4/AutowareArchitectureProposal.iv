@@ -59,11 +59,9 @@ ros2 topic echo /accel_brake_map_calibrator/output/update_suggest
 
 When the diagnostics type is `WARN`, `True` is published on this topic and the update of the accel/brake map is suggested.
 
-
 ### Error evaluation of the accel / brake map
 
 The accuracy of map is evaluated by the **Root Mean Squared Error (RMSE)** between the observed acceleration and predicted acceleration.
-
 
 **TERMS:**
 
