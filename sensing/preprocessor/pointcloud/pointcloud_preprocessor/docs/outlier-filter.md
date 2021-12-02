@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TODO
+The `outlier_filter` is a package for filtering outlier of points.
 
 ## Inner-workings / Algorithms
 

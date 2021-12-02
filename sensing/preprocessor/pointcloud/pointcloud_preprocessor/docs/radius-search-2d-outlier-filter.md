@@ -39,7 +39,8 @@ Since the method is to count the number of points contained in the cylinder with
 
 ## References/External links
 
-[1]: https://pcl.readthedocs.io/projects/tutorials/en/latest/remove_outliers.html
-[2]: https://pcl.readthedocs.io/projects/tutorials/en/latest/kdtree_search.html#kdtree-search
+[1] <https://pcl.readthedocs.io/projects/tutorials/en/latest/remove_outliers.html>
+
+[2] <https://pcl.readthedocs.io/projects/tutorials/en/latest/kdtree_search.html#kdtree-search>
 
 ## (Optional) Future extensions / Unimplemented parts
