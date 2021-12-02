@@ -8,7 +8,7 @@ TODO
 
 TODO
 
-![ring_outlier_filter](./image/ring_outlier_filter.jpg)
+![ring_outlier_filter](./image/outlier_filter-ring.drawio.svg)
 
 ## Inputs / Outputs
 

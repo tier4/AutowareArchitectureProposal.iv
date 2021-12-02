@@ -10,7 +10,7 @@ TODO
 
 The description above is quoted from [1]. `pcl::search::KdTree` [2] is used to implement this package.
 
-![radius_search_2d_outlier_filter_picture](./image/radius_search_2d_outlier_filter.jpg)
+![radius_search_2d_outlier_filter_picture](./image/outlier_filter-radius_serach_2d.drawio.svg)
 
 ## Inputs / Outputs
 

@@ -7,7 +7,7 @@ TODO
 ## Inner-workings / Algorithms
 
 TODO
-![voxel_grid_outlier_filter_picture](./image/voxel_grid_outlier_filter.jpg)
+![voxel_grid_outlier_filter_picture](./image/outlier_filter-voxel_grid.drawio.svg)
 
 ## Inputs / Outputs
 

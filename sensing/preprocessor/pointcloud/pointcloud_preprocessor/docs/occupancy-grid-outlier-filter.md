@@ -20,7 +20,7 @@ The following video is a sample. Yellow points are high occupancy probability, g
 - [movie1](https://www.youtube.com/watch?v=hEVv0LaTpP8)
 - [movie2](https://www.youtube.com/watch?v=VaHs1CdLcD0)
 
-![occupancy_grid_outlier_filter](./image/occupancy_grid_outlier_filter.jpg)
+![occupancy_grid_outlier_filter](./image/outlier_filter-occupancy_grid.drawio.svg)
 
 ## Inputs / Outputs
 
