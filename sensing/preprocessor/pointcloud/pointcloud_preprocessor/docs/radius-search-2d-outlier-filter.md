@@ -2,7 +2,7 @@
 
 ## Purpose
 
-TODO
+The purpose is to remove point cloud noise such as insects and rain.
 
 ## Inner-workings / Algorithms
 
@@ -10,7 +10,7 @@ TODO
 
 The description above is quoted from [1]. `pcl::search::KdTree` [2] is used to implement this package.
 
-![radius_search_2d_outlier_filter_picture](./image/outlier_filter-radius_serach_2d.drawio.svg)
+![radius_search_2d_outlier_filter_picture](./image/outlier_filter-radius_search_2d.drawio.svg)
 
 ## Inputs / Outputs
 
