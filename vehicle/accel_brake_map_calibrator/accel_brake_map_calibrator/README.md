@@ -57,7 +57,7 @@ This diagnostics status can be also checked on the following ROS topic.
 ros2 topic echo /accel_brake_map_calibrator/output/update_suggest
 ```
 
-When the diagnostics type is `WARN`, `True` is published on this topic.
+When the diagnostics type is `WARN`, `True` is published on this topic and the update of the accel/brake map is suggested.
 
 
 ### Error evaluation of the accel / brake map
