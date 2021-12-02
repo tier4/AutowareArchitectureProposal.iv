@@ -1,4 +1,4 @@
-# outlier_filter
+# occupancy_grid_map_outlier_filter
 
 ## Purpose
 
@@ -6,8 +6,6 @@ This node is an outlier filter based on a occupancy grid map.
 Depending on the implementation of occupancy grid map, it can be called an outlier filter in time series, since the occupancy grid map expresses the occupancy probabilities in time series.
 
 ## Inner-workings / Algorithms
-
-### Occupancy GridMap Outlier Filter
 
 1. Use the occupancy grid map to separate point clouds into those with low occupancy probability and those with high occupancy probability.
 

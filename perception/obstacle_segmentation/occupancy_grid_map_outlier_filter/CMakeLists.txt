@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(outlier_filter)
+project(occupancy_grid_map_outlier_filter)
 
 ### Compile options
 if(NOT CMAKE_CXX_STANDARD)
@@ -39,18 +39,18 @@ include_directories(
   ${GRID_MAP_INCLUDE_DIR}
 )
 
-ament_auto_add_library(outlier_filter SHARED
+ament_auto_add_library(occupancy_grid_map_outlier_filter SHARED
   src/occupancy_grid_map_outlier_filter_nodelet.cpp
 )
 
-target_link_libraries(outlier_filter
+target_link_libraries(occupancy_grid_map_outlier_filter
   ${Boost_LIBRARIES}
   ${OpenCV_LIBRARIES}
   ${PCL_LIBRARIES}
 )
 
 if(OPENMP_FOUND)
-  set_target_properties(outlier_filter PROPERTIES
+  set_target_properties(occupancy_grid_map_outlier_filter PROPERTIES
     COMPILE_FLAGS ${OpenMP_CXX_FLAGS}
     LINK_FLAGS ${OpenMP_CXX_FLAGS}
   )
@@ -58,8 +58,8 @@ endif()
 
 
 # -- Occupancy Grid Map Outlier Filter --
-rclcpp_components_register_node(outlier_filter
-  PLUGIN "outlier_filter::OccupancyGridMapOutlierFilterComponent"
+rclcpp_components_register_node(occupancy_grid_map_outlier_filter
+  PLUGIN "occupancy_grid_map_outlier_filter::OccupancyGridMapOutlierFilterComponent"
   EXECUTABLE occupancy_grid_map_outlier_filter_node)
 
 
@@ -72,5 +72,4 @@ endif()
 ## Install ##
 #############
 
-ament_auto_package(INSTALL_TO_SHARE
-)
+ament_auto_package(INSTALL_TO_SHARE)
