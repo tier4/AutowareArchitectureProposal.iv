@@ -8,7 +8,7 @@ TODO
 
 TODO
 
-![](./image/ring_outlier_filter.jpg)
+![ring_outlier_filter_image](./image/ring_outlier_filter.jpg)
 
 ## Inputs / Outputs
 
