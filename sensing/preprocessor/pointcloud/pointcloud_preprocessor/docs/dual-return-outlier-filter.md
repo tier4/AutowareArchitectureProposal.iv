@@ -6,12 +6,6 @@ TODO
 
 ## Inner-workings / Algorithms
 
-> RadiusOutlierRemoval filter which removes all indices in its input cloud that don’t have at least some number of neighbors within a certain range.
-
-The description above is quoted from [1]. `pcl::search::KdTree` [2] is used to implement this package.
-
-![radius_search_2d_outlier_filter_picture](./image/radius_search_2d_outlier_filter.jpg)
-
 ## Inputs / Outputs
 
 This implementation inherits `pointcloud_preprocessor::Filter` class, please refer [README](../README.md).
