@@ -14,7 +14,7 @@ Since the LiDAR sensor scans by rotating an internal laser, the resulting point 
 The offset equation is given by
 $ TimeOffset = (55.296 \mu s _SequenceIndex) + (2.304 \mu s_ DataPointIndex) $
 
-To valculate the exact point time, add the TimeOffset to the timestamp.
+To calculate the exact point time, add the TimeOffset to the timestamp.
 $ ExactPointTime = TimeStamp + TimeOffset $
 
 ![distortion corrector figure](./image/distortion_corrector.jpg)
