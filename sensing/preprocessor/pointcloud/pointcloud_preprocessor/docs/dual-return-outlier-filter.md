@@ -1,4 +1,4 @@
-# radius_search_2d_outlier_filter
+# dual_return_outlier_filter
 
 ## Purpose
 
@@ -9,6 +9,14 @@ TODO
 ## Inputs / Outputs
 
 This implementation inherits `pointcloud_preprocessor::Filter` class, please refer [README](../README.md).
+
+### Output
+
+| Name                                           | Type                                       | Description |
+| ---------------------------------------------- | ------------------------------------------ | ----------- |
+| `/dual_return_outlier_filter/frequency_image`  | `sensor_msgs::msg::Image`                  |             |
+| `/dual_return_outlier_filter/visibility`       | `autoware_debug_msgs::msg::Float32Stamped` |             |
+| `/dual_return_outlier_filter/pointcloud_noise` | `sensor_msgs::msg::Pointcloud2`            |             |
 
 ## Parameters
 
@@ -25,15 +33,12 @@ This implementation inherits `pointcloud_preprocessor::Filter` class, please ref
 
 ## Assumptions / Known limits
 
-Since the method is to count the number of points contained in the cylinder with the direction of gravity as the direction of the cylinder axis, it is a prerequisite that the ground has been removed.
+TODO
 
 ## (Optional) Error detection and handling
 
 ## (Optional) Performance characterization
 
 ## References/External links
-
-[1]: https://pcl.readthedocs.io/projects/tutorials/en/latest/remove_outliers.html
-[2]: https://pcl.readthedocs.io/projects/tutorials/en/latest/kdtree_search.html#kdtree-search
 
 ## (Optional) Future extensions / Unimplemented parts
