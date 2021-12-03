@@ -84,7 +84,6 @@ private:
     const pcl::PointCloud<pcl::PointXYZ>::Ptr & cloud);
   bool checkPointWithinLanelets(
     const pcl::PointXYZ & point, const lanelet::ConstLanelets & joint_lanelets);
-  void publishElevationMap();
   void inpaintElevationMap(const float radius);
   pcl::PointCloud<pcl::PointXYZ>::Ptr createPointcloudFromElevationMap();
   void saveElevationMap();

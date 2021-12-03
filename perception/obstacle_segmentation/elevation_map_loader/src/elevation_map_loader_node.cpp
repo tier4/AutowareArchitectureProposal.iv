@@ -105,7 +105,18 @@ void ElevationMapLoaderNode::publish()
     grid_map::GridMapRosConverter::loadFromBag(
       *data_manager_.elevation_map_path_, "elevation_map", elevation_map_);
   }
-  publishElevationMap();
+
+  elevation_map_.setFrameId(map_frame_);
+  auto msg = grid_map::GridMapRosConverter::toMessage(elevation_map_);
+  pub_elevation_map_->publish(std::move(msg));
+
+  if (use_elevation_map_cloud_publisher_) {
+    pcl::PointCloud<pcl::PointXYZ>::Ptr elevation_map_cloud_ptr =
+      createPointcloudFromElevationMap();
+    sensor_msgs::msg::PointCloud2 elevation_map_cloud_msg;
+    pcl::toROSMsg(*elevation_map_cloud_ptr, elevation_map_cloud_msg);
+    pub_elevation_map_cloud_->publish(elevation_map_cloud_msg);
+  }
 }
 
 void ElevationMapLoaderNode::onMapHash(
@@ -166,21 +177,6 @@ void ElevationMapLoaderNode::createElevationMap()
     inpaintElevationMap(inpaint_radius_);
   }
   saveElevationMap();
-}
-
-void ElevationMapLoaderNode::publishElevationMap()
-{
-  elevation_map_.setFrameId(map_frame_);
-  auto msg = grid_map::GridMapRosConverter::toMessage(elevation_map_);
-  pub_elevation_map_->publish(std::move(msg));
-
-  if (use_elevation_map_cloud_publisher_) {
-    pcl::PointCloud<pcl::PointXYZ>::Ptr elevation_map_cloud_ptr =
-      createPointcloudFromElevationMap();
-    sensor_msgs::msg::PointCloud2 elevation_map_cloud_msg;
-    pcl::toROSMsg(*elevation_map_cloud_ptr, elevation_map_cloud_msg);
-    pub_elevation_map_cloud_->publish(elevation_map_cloud_msg);
-  }
 }
 
 void ElevationMapLoaderNode::createElevationMapFromPointcloud()
