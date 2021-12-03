@@ -50,7 +50,6 @@
 
 | Parameter                        | Type   | Description                                |
 | -------------------------------- | ------ | ------------------------------------------ |
-| `has_subscribed_map`             | bool   | true when subscribed path exists           |
 | `prediction_time_horizon`        | double | predict time duration for predicted path   |
 | `prediction_sampling_delta_time` | double | sampling time for points in predicted path |
 

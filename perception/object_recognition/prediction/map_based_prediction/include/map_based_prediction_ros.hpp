@@ -80,7 +80,6 @@ class MapBasedPrediction;
 class MapBasedPredictionROS : public rclcpp::Node
 {
 private:
-  bool has_subscribed_map_;
   double prediction_time_horizon_;
   double prediction_sampling_delta_time_;
   double min_velocity_for_map_based_prediction_;
