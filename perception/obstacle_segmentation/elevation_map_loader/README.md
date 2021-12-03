@@ -66,14 +66,12 @@ See: <https://github.com/ANYbotics/grid_map/tree/ros2/grid_map_pcl>
 
 Resulting grid map parameters.
 
-0: Smallest value among the average values ​​of each cluster, 1: Mean value of the cluster with the most points
-
-| Name                                                     | Type  | Description                                                                                                                                                             | Default value |
-| :------------------------------------------------------- | :---- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------ |
-| pcl_grid_map_extraction/grid_map/min_num_points_per_cell | int   | Minimum number of points in the point cloud that have to fall within any of the grid map cells. Otherwise the cell elevation will be set to NaN.                        | 3             |
-| pcl_grid_map_extraction/grid_map/resolution              | float | Resolution of the grid map. Width and length are computed automatically.                                                                                                | 0.3           |
-| pcl_grid_map_extraction/grid_map/height_type             | int   | The parameter that determine the elevation of a cell `0: Smallest value among the average values ​​of each cluster` `1: Mean value of the cluster with the most points` | 1             |
-| pcl_grid_map_extraction/grid_map/height_thresh           | float | Height range from the smallest cluster                                                                                                                                  | 1.0           |
+| Name                                                     | Type  | Description                                                                                                                                                            | Default value |
+| :------------------------------------------------------- | :---- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------ |
+| pcl_grid_map_extraction/grid_map/min_num_points_per_cell | int   | Minimum number of points in the point cloud that have to fall within any of the grid map cells. Otherwise the cell elevation will be set to NaN.                       | 3             |
+| pcl_grid_map_extraction/grid_map/resolution              | float | Resolution of the grid map. Width and length are computed automatically.                                                                                               | 0.3           |
+| pcl_grid_map_extraction/grid_map/height_type             | int   | The parameter that determine the elevation of a cell `0: Smallest value among the average values of each cluster`, `1: Mean value of the cluster with the most points` | 1             |
+| pcl_grid_map_extraction/grid_map/height_thresh           | float | Height range from the smallest cluster (Only for height_type 1)                                                                                                        | 1.0           |
 
 #### Point Cloud Pre-processing Parameters
 
