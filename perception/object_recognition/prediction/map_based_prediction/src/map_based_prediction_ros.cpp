@@ -67,7 +67,6 @@ MapBasedPredictionROS::MapBasedPredictionROS(const rclcpp::NodeOptions & node_op
     declare_parameter("delta_yaw_threshold_for_searching_lanelet", 0.785);
   sigma_lateral_offset_ = declare_parameter("sigma_lateral_offset", 0.5);
   sigma_yaw_angle_ = declare_parameter("sigma_yaw_angle", 5.0);
-  object_buffer_time_length_ = declare_parameter("object_buffer_time_length", 2.0);
   history_time_length_ = declare_parameter("history_time_length", 1.0);
   dist_ratio_threshold_to_left_bound_ =
     declare_parameter("dist_ratio_threshold_to_left_bound", -0.5);
