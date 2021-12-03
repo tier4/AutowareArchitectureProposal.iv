@@ -230,5 +230,7 @@ private:
   autoware_utils::StopWatch<std::chrono::milliseconds> stop_watch_;
 
   friend class EKFLocalizerTestSuite;  // for test code
+  bool is_set_initialpose_ = false;
+
 };
 #endif  // EKF_LOCALIZER__EKF_LOCALIZER_HPP_

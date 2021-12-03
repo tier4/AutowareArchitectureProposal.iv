@@ -124,6 +124,9 @@ EKFLocalizer::EKFLocalizer(const std::string & node_name, const rclcpp::NodeOpti
  */
 void EKFLocalizer::timerCallback()
 {
+  if (!is_set_initialpose_) {
+    return;
+  }
   DEBUG_INFO(get_logger(), "========================= timer called =========================");
 
   /* predict model in EKF */
@@ -204,6 +207,10 @@ void EKFLocalizer::setCurrentResult()
 void EKFLocalizer::timerTFCallback()
 {
   if (current_ekf_pose_.header.frame_id == "") {
+    return;
+  }
+
+  if (!is_set_initialpose_) {
     return;
   }
 
@@ -290,6 +297,7 @@ void EKFLocalizer::callbackInitialPose(
   ekf_.init(X, P, extend_state_step_);
 
   current_pose_ptr_ = nullptr;
+  is_set_initialpose_ = true;
 }
 
 /*
