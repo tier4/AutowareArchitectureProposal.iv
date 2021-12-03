@@ -86,12 +86,11 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
   {
     bt_manager_ = std::make_shared<BehaviorTreeManager>(*this, getBehaviorTreeManagerParam());
 
-
     const auto register_default_module = [&](const std::string & module_name, const auto module_param){
       auto default_module =
       std::make_shared<LaneFollowingModule>(module_name, *this, module_param);
       bt_manager_->registerSceneModule(default_module);
-    }
+    };
 
     const auto lane_following_param = getLaneFollowingParam();
     auto lane_following_module =
