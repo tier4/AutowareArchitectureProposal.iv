@@ -26,8 +26,11 @@
   <test_depend>autoware_lint_common</test_depend>
 
   <!-- for backward compatibility -->
+  <!-- nolint --> <depend>autoware_auto_perception_msgs</depend>
   <!-- nolint --> <depend>autoware_auto_system_msgs</depend>
+  <!-- nolint --> <depend>autoware_perception_msgs</depend>
   <!-- nolint --> <depend>autoware_system_msgs</depend>
+  <!-- nolint --> <depend>autoware_vehicle_msgs</depend>
   <!-- nolint --> <depend>autoware_iv_auto_msgs_converter</depend>
 
   <export>
