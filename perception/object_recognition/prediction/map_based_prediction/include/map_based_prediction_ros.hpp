@@ -89,7 +89,6 @@ private:
   double delta_yaw_threshold_for_searching_lanelet_;
   double sigma_lateral_offset_;
   double sigma_yaw_angle_;
-  double object_buffer_time_length_;
   double history_time_length_;
   double dist_ratio_threshold_to_left_bound_;
   double dist_ratio_threshold_to_right_bound_;
