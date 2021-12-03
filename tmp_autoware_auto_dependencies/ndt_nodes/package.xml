@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+    <name>ndt_nodes</name>
+    <version>1.0.0</version>
+    <description>NDT related ROS2 nodes</description>
+    <maintainer email="opensource@apex.ai">Apex.AI, Inc.</maintainer>
+    <license>Apache 2.0</license>
+
+    <buildtool_depend>ament_cmake_auto</buildtool_depend>
+    <buildtool_depend>autoware_auto_cmake</buildtool_depend>
+    <build_depend>libpcl-all-dev</build_depend>
+    <build_depend>autoware_auto_common</build_depend>
+    <build_depend>yaml-cpp</build_depend>
+
+    <depend>rclcpp</depend>
+    <depend>rclcpp_components</depend>
+    <depend>autoware_auto_ndt</depend>
+    <depend>localization_nodes</depend>
+    <depend>voxel_grid_nodes</depend>
+    <test_depend>point_cloud_msg_wrapper</test_depend>
+
+    <exec_depend>ament_index_python</exec_depend>
+
+    <test_depend>ament_cmake_gtest</test_depend>
+    <test_depend>ament_index_python</test_depend>
+    <test_depend>ament_lint_auto</test_depend>
+    <test_depend>ament_lint_common</test_depend>
+    <test_depend>osrf_testing_tools_cpp</test_depend>
+    <test_depend>autoware_auto_common</test_depend>
+    <test_depend>ros_testing</test_depend>
+    <test_depend>autoware_testing</test_depend>
+
+    <export><build_type>ament_cmake</build_type></export>
+</package>

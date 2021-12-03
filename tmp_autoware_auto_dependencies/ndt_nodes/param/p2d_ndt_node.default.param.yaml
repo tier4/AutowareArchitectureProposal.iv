@@ -1,0 +1,43 @@
+# param/p2d_ndt_node.param.yaml
+---
+
+/**:
+  ros__parameters:
+    ##### Define input and outputs:
+    # Config of the input point cloud subscription
+    observation_sub:
+      history_depth: 10
+    # Config of the maps point cloud subscription
+    map_sub:
+      history_depth: 10
+    # Config of the maps point clouds to register
+    pose_pub:
+      history_depth: 10
+    # Publish the result to `/tf` topic
+    publish_tf: true
+    # Maximum allowed difference between the initial guess and the ndt pose estimate
+    predict_pose_threshold:
+      # Translation threshold in meters
+      translation: 0.5
+      # Rotation threshold in radians
+      rotation: 0.1
+    # localizer specific configuration
+    localizer:
+      # ndt scan representation config
+      scan:
+        capacity: 55000
+      # ndt optimization problem configuration
+      optimization:
+        outlier_ratio: 0.55 # default value from PCL
+      # newton optimizer configuration
+      optimizer:
+        max_iterations: 50
+        score_tolerance: 0.001
+        parameter_tolerance: 0.001
+        gradient_tolerance: 0.001
+        line_search:
+          step_max: 0.12
+          step_min: 0.0001
+      # Maximum accepted duration between a scan and an initial pose guess
+      guess_time_tolerance_ms: 5
+

@@ -1,0 +1,23 @@
+# params/map_publisher.param.yaml
+---
+
+/**:
+  ros__parameters:
+#   map_pcd_file: "map_data/path/here.pcd"
+#   map_yaml_file: "map_info/path/here.yaml"
+    map_frame: "map"
+    map_config:
+      capacity: 55000
+      min_point:
+        x: -130.0
+        y: -130.0
+        z: -3.0
+      max_point:
+        x: 130.0
+        y: 130.0
+        z: 3.0
+      voxel_size:
+        x: 2.0
+        y: 2.0
+        z: 2.0
+    viz_map: True
