@@ -24,9 +24,18 @@ This module uses information from `occupancy grid` and `object detection`. There
 
 #### なぜ public と private で分けるのか？
 
-こういう理由で分けた。結果、実装として public では xxx を死角とした扱い、private では ooo から死角を検出している。
+まず死角には様々な種類のものがあり、大まかに以下のように分類される。
+1. 壁や柱などの遮蔽物による死角
+2. 渋滞待ちの車両による死角
+3. 路駐車による死角、
+4. 動的な障害物によって作成される死角
 
-The occlusion is the area which can't be seen from ego vehicle.
+私有地のような飛び出しが比較的頻繁に起こりやすいシーンでは死角を常に警戒して走行すべきであり、1~3のケース全てに対応することができるOccupancyGridを用いている。
+
+一方で公道のような飛び出しが比較的考えづらく公共交通の合理性の観点から死角としては3のケースしか考慮しないようなシーンでは車両の重心などの情報が必要となるためDynamicObjectの情報を用いている。
+
+また、4のケースに関しては理想的な速度の定義が難しくどちらのモジュールでも対応していない。
+
 
 #### Occlusion Spot Public
 
