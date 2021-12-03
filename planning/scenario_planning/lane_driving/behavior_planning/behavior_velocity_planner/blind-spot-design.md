@@ -6,9 +6,9 @@ Blind spot check while turning right/left by a dynamic object information, and p
 
 ![brief](./docs/blind_spot/blind_spot.svg)
 
-### Launch Timing
+### Activation Timing
 
-Launches when there is a right/left turn area on a target lane.
+This function is activated when the lane id of the target path has an intersection label (i.e. the `turn_direction` attribute is `left` or `right`).
 
 ### Inner-workings / Algorithms
 
@@ -22,18 +22,14 @@ Sets a stop line, a pass judge line, a detection area and conflict area based on
 
 - Conflict area : Right/left side area from the self position to the stop line.
 
-Stop judgement
-When both conditions are met for any of each object, it’s judged as “no go”.
+Stop/Go state: When both conditions are met for any of each object, this module state is transited to the "stop" state and insert zero velocity to stop the vehicle.
 
 - Object is on the detection area
 - Object’s predicted path is on the conflict area
 
-In order to avoid a rapid stop, the detection won’t be executed after the vehicle
-passed the judge line
+In order to avoid a rapid stop, the “stop” judgement is not executed after the judgment line is passed.
 
-Once judged as “no go”, the judgement will be changed to
-“go” after the “clear” state succeeds a certain period (e.g. 2 seconds).
-(To prevent a chattering)
+Once a "stop" is judged, it will not transit to the "go" state until the "go" judgment continues for a certain period in order to prevent chattering of the state (e.g. 2 seconds).
 
 ### Module Parameters
 

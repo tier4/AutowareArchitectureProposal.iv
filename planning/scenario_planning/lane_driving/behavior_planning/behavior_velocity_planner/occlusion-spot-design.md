@@ -6,9 +6,9 @@ This module plans safe velocity to slow down before reaching collision point tha
 
 ![brief](./docs/occlusion_spot/occlusion_spot.svg)
 
-### Launch Timing
+### Activation Timing
 
-Launches when there is a private/public are on a target lane
+This module is activated when the ego-lane has a private/public attribute.
 
 ### Limitation
 
@@ -22,34 +22,40 @@ This module uses information from `occupancy grid` and `object detection`. There
 
 ### Inner-workings / Algorithms
 
+#### なぜ public と private で分けるのか？
+
+こういう理由で分けた。結果、実装として public では xxx を死角とした扱い、private では ooo から死角を検出している。
+
+The occlusion is the area which can't be seen from ego vehicle.
+
 #### Occlusion Spot Public
 
-This module insert safe velocity at collision point and show virtual wall at intersection below.
-
+This module inserts safe velocity at the collision point estimated from the associated occlusion spot under assumption that the pedestrian possibly coming out of the occlusion spot.
 ![brief](./docs/occlusion_spot/possible_collision_info.svg)
 
-This module consider 3 policy that is very important for risk predicting system for occlusion spot.
+This module consider 3 policies that are very important for risk predicting system for occlusion spot.
 
-1. "Passable" without deceleration
-   If ego vehicle is fast enough to pass the occlusion spot without collision consider hidden object darting out from occlusion spot, then it's possible for ego vehicle to pass there without deceleration. However there aren't many cases that ego vehicle can pass occlusion spot without deceleration consider hidden object's maximum velocity. So this policy is not implemented yet.
+1. "Passable" without deceleration (Not implemented yet)
+   If ego vehicle speed is high enough to pass the occlusion spot and expected to have no collision with any objects coming out of the occlusion spot, then it's possible for ego vehicle to pass the spot without deceleration.
 
 2. "Predictable" with enough distance to occlusion
-   If ego vehicle has enough distance to occlusion spot, then ego vehicle is going to slow down to the speed that is slow enough to stop before collision with full brake.
+   If ego vehicle has enough distance to the occlusion spot, then ego vehicle is going to slow down to the speed that is slow enough to stop before collision with full brake.
    If ego vehicle pass the possible collision point, then ego vehicle is going to drive normally.
 
 3. "Unavoidable" without enough distance to occlusion spot
-   This module consider only occlusion spot that is detected stably far from occlusion spot. That means this module can't handle occlusion that appear suddenly in front of ego vehicle. Also this module doesn't consider occlusion spot to decelerate that is on the contrary to the rationality of public transportation. So far pedestrian behind parking vehicle is considered as avoidable target.
+   This module assumes the occlusion spot is detected stably far from the ego vehicle. Therefore this module can not guarantee the safety behavior for the occlusion spot detected suddenly in front of the ego vehicle. In this case, slow velocity that does not cause the strong deceleration is only applied.
 
 #### Occlusion Spot Private
 
-This module is going to consider any occlusion spot that is along with ego path. The occlusion is the area which can't be seen from ego vehicle.
-This module only works in private road and use occupancy grid map to detect occlusion spots.
+This module considers any occlusion spot around ego path computed from the occupancy grid.
 
 ![occupancy_grid](./docs/occlusion_spot/occupancy_grid.svg)
 
-Considering all occupancy grid cells inside focus range requires a lot of computation cost, so this module ignores to search farther occlusion spot which is longitudinally or laterally slice once occlusion spot is found.
+Occlusion spot computation: searching occlusion spots for all cells in the occupancy_grid inside "focus range" requires a lot of computational cost, so this module will stop searching if the first occlusion spot is found in the following searching process.
 
 ![brief](./docs/occlusion_spot/sidewalk_slice.svg)
+
+Note that the accuracy and performance of this search method is limited due to the approximation.
 
 #### Module Parameters
 
@@ -81,6 +87,8 @@ Considering all occupancy grid cells inside focus range requires a lot of comput
 | `occupied_min`   | double | [-] buffer around the ego path used to build the sidewalk area. |
 
 #### Flowchart
+
+##### Rough overview of the whole process
 
 ```plantuml
 @startuml
@@ -115,6 +123,8 @@ endif
 stop
 @enduml
 ```
+
+##### Detail process for public road
 
 ```plantuml
 @startuml
@@ -181,9 +191,11 @@ stop
 @enduml
 ```
 
+##### Detail process for private road
+
 ```plantuml
 @startuml
-title modifyPathVelocity For Public Road
+title modifyPathVelocity For Private Road
 start
 partition occupancy_grid_preprocess {
 :convert occupancy grid to image;

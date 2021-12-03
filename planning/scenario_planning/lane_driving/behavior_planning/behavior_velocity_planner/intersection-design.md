@@ -9,9 +9,9 @@ In addition, the external users / modules (e.g. remote operation) to can interve
 
 ![brief](./docs/intersection/intersection.svg)
 
-### Launch Timing
+### Activation Timing
 
-Launches when there is a conflicting lanelet in ego lane.
+This function is activated when the attention lane conflicts with the ego vehicle's lane.
 
 ### Limitations
 
@@ -64,31 +64,37 @@ The intersection stop target should be limited to stuck vehicle in the middle of
 - It will collide with ego vehicle.
   - This means that the other incoming vehicle from conflicting lanelet can collide with ego vehicle.
 
-### Mandatory information and point of attention
+### How to set lanelet map: mandatory information
 
 ![intersection_fig](docs/intersection/intersection_fig.png)
 
-#### set a turn_direction tag (Fig. 1)
+#### Set a turn_direction tag (Fig. 1)
 
-IntersectionModule will be launched by this tag. If this tag is not set, ego-vehicle don’t recognize the lane as an intersection. Even if it’s a straight lane, this tag is mandatory if it is located within intersection.
-Set a value in turn_direction tag to light up turn signals
-Values of turn_direction must be one of “straight”(no turn signal), “right” or “left”. Autoware will light up respective turn signals 30[m] before entering the specified lane. You may also set optional tag “turn_signal_distance” to modify the distance to start lighting up turn signals.
-Lanes within intersections must be defined as a single Lanelet
-For example, blue lane in Fig.3 cannot be split into 2 Lanelets
+IntersectionModule will be activated by this tag. If this tag is not set, ego-vehicle don’t recognize the lane as an intersection. Even if it’s a straight lane, this tag is mandatory if it is located within intersection.
 
-#### Optional information Explicitly describe a stop position [RoadMarking] (Fig. 2)
+Set a value in `turn_direction` tag to light up turn signals.
 
-As a default, IntersectionModule estimates a stop position by the crossing point of driving lane and attention lane. But there are some cases like Fig.2 in which we would like to set a stop position explicitly. When a stop_line is defined as a RoadMarking item in the intersection lane, it overwrites the stop position. (Not only creating stop_line, but also defining as a RoadMaking item are needed.)
+Values of `turn_direction` must be one of “straight”(no turn signal), “right” or “left”. Autoware will light up respective turn signals 30[m] before entering the specified lane. You may also set optional tag “turn_signal_distance” to modify the distance to start lighting up turn signals.
+
+Lanes within intersections must be defined as a single Lanelet. For example, blue lane in Fig.3 cannot be split into 2 Lanelets.
+
+#### Explicitly describe a stop position [RoadMarking] (Optional) (Fig. 2)
+
+As a default, IntersectionModule estimates a stop position by the crossing point of driving lane and attention lane. But there are some cases like Fig.2 in which we would like to set a stop position explicitly. When a `stop_line` is defined as a `RoadMarking` item in the intersection lane, it overwrites the stop position. (Not only creating `stop_line`, but also defining as a `RoadMaking` item are needed.)
 
 #### Exclusion setting of attention lanes [RightOfWay] (Fig.3)
 
-By default, IntersectionModule treats all lanes crossing with the registered lane as attention targets (yellow and green lanelets). But in some cases (eg. when driving lane is priority lane or traffic light is green for the driving lane), we want to ignore some of the yield lanes. By setting RightOfWay of the RegulatoryElement item, we can define lanes to be ignored. Register ignored lanes as “yield” and register the attention lanes and driving lane as “right_of_way” lanelets in RightOfWay RegulatoryElement (For an intersection with traffic lights, we need to create items for each lane in the intersection. Please note that it needs a lot of man-hours.)
+By default, IntersectionModule treats all lanes crossing with the registered lane as attention targets (yellow and green lanelets). But in some cases (e.g. when driving lane is priority lane or traffic light is green for the driving lane), we want to ignore some of the yield lanes. By setting `RightOfWay` of the `RegulatoryElement` item, we can define lanes to be ignored. Register ignored lanes as “yield” and register the attention lanes and driving lane as “right_of_way” lanelets in `RightOfWay` RegulatoryElement (For an intersection with traffic lights, we need to create items for each lane in the intersection. Please note that it needs a lot of man-hours.)
 
 ### Attention Area
+
+Target objects are limited by lanelets to prevent unexpected behavior. See the following figures to know how to create an attention area and its rationale.
 
 ![intersection_straight](docs/intersection/intersection_straight.png)
 
 ![intersection_right](docs/intersection/intersection_right.png)
+
+![intersection_left](docs/intersection/intersection_left.png)
 
 1. 障害物が Detection area 内にいるかどうかの判定は障害物の中心座標が Detection area から一定以内にいるかどうかで判定している。基本的には”障害物の中心座標が Detection area にいるときのみ対象として検知”でよいが、非対象レーンから対象レーンにレーンチェンジして来る障害物などは、対象として検知したい。全長 4.5m の車が、経路に対して 10 度程度で対象レーンに車線変更してきたとき、車両先頭がレーンに侵入してきた瞬間の車両中心位置の対象レーンからの距離は 39cm となる。これにややマージンをもたせ、Detection area から 50cm 以内を検知の対象とした。
 
@@ -97,8 +103,6 @@ By default, IntersectionModule treats all lanes crossing with the registered lan
    predicted path の個数は、車線変更可能なレーンがあるかどうか、また各レーンがその先でいくつに分岐しているかに依存する。Path の個数によっても confidence の個数は変わるため、絶対値がそれほど意味を持たないことには注意したい。このモジュールでは、まったくレーンチェンジしてくる素振りのない障害物のレーンチェンジパスなど、無意味なものだけを無視し、他は全て考慮しておきたい。そのため、以下の様な目安で 0.05 とした。全長 1.7m 程度の車が車線変更してくるとする。この際、車の中心位置と道路境界の間の距離が 65cm 程度のところまで近づいてきた場合に 0.05 となる。つまり、”障害物と Detection area の距離”というパラメタに換算すると 65cm となり、1.よりも緩めのパラメタとなる（つまり、妥当な predicted_path が confidence によって無視されてしまう可能性は極めて低い。）
 4. 交差点モジュールで Detection area を生成する際に、経路がループしているような状況ではエゴレーンの後ろの経路は Detection area に含めない。
 5. Detection area 内にいる検知対象の自車と障害物の予測軌道をもとに衝突判定を行い、衝突しない場合は障害物が Detection area 内にいても intersection もジュールによる停止はかけない。
-
-![intersection_left](docs/intersection/intersection_left.png)
 
 ### Module Parameters
 

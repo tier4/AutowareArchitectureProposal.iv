@@ -6,16 +6,16 @@ This module plans velocity so that the vehicle can stop right before stop lines 
 
 ![stop line](docs/stop_line/stop_line.svg)
 
-### Launch Timing
+### Activation Timing
 
-Launches when there is a stop line in a target lane.
+This module is activated when there is a stop line in a target lane.
 
 ### Inner-workings / Algorithms
 
-- Obtains a stop line from map information.
-- Generates a stop point on the path before the stop line. The distance between the stop point and the stop line is the same length from base_link to the front bumper.
-- Rewrites velocities of the pass after the stop point with 0[m/s].
-- Finishes when the vehicle stopped within a radius of 2[m] from the stop point.
+- Gets a stop line from map information.
+- insert a stop point on the path from the stop line defined in the map and the ego vehicle length.
+- Sets velocities of the path after the stop point to 0[m/s].
+- Release the inserted stop velocity when the vehicle stops within a radius of 2[m] from the stop point.
 
 ### Module Parameters
 

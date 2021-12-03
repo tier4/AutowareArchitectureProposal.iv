@@ -7,9 +7,12 @@ i.e. 必ず一時停止を行う以外は交差点モジュールと同じ機能
 
 ![walkway](docs/intersection/merge_from_private.png)
 
-### Launch Timing
+### Activation Timing
 
-Launches when there is a conflicting lanelet in ego private tag lane and other no private lane.
+This module is activated when the following conditions are met:
+
+- ego-lane has a `private` tag
+- ego-lane has a conflict with other no-private lanelets
 
 ### Module Parameters
 
@@ -19,4 +22,4 @@ Launches when there is a conflicting lanelet in ego private tag lane and other n
 
 ### Known Issue
 
-If ego vehicle surpassed stop line without stopping, then ego vehicle can't restore from STOP state and can't move any more.
+If ego vehicle go over the stop line for a certain distance, then ego vehicle will not transit from STOP.

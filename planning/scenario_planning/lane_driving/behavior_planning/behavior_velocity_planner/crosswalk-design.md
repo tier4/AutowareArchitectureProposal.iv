@@ -10,7 +10,7 @@ Judgement whether a vehicle can go into a crosswalk and plan a velocity of the s
 
 tbd.
 
-### Launch Timing
+### Activation Timing
 
 Launches when there is a crosswalk on the target lane.
 
@@ -28,18 +28,27 @@ tbd.
 
 #### Scene Crosswalk
 
-For stop area, if any of conditions below is matched, the vehicle stops at stop point
+The crosswalk module considers the following objects as target objects.
 
-- There is a pedestrian or a cyclist in stop area.
-- If the predicted path of the pedestrian or the cyclist in crosswalk area enters stop area within 3 seconds
+- pedestrian
+- cyclist
 
-For deceleration area, if any of conditions below is matched, the vehicle decelerates to become 10 km/h at slow point
+##### Stop condition
 
-- There is a pedestrian or a cyclist in deceleration area
+If any of conditions below is met, the vehicle will stop at stop point.
+
+- A target object exists in the **stop area**.
+- A target object in the **crosswalk area** is predicted to enter the stop area within 3 seconds based on its prediction path.
+
+##### Decelerate condition
+
+If any of conditions below is met, the vehicle will decelerate to be 10 km/h at slow point.
+
+- A target object exists in the **deceleration area**.
 
 #### Scene Walkway
 
-- There is a walkway in the middle of ego path.
+- TBD
 
 #### Module Parameters
 
