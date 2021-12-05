@@ -59,8 +59,7 @@ std::pair<double, double> extractTargetRoadArcLength(
   return std::pair<int, int>(start_dist, dist_sum);
 }
 
-[[maybe_unused]] lanelet::ConstLanelet toPathLanelet(
-  const autoware_planning_msgs::msg::PathWithLaneId & path)
+[[maybe_unused]] lanelet::ConstLanelet toPathLanelet(const PathWithLaneId & path)
 {
   lanelet::Points3d path_points;
   for (const auto & point_with_id : path.points) {
@@ -132,7 +131,7 @@ bool OcclusionSpotInPublicModule::modifyPathVelocity(
     *path, routing_graph_ptr, lanelet_map_ptr, attension_line);
   debug_data_.attension_line = attension_line;
   std::vector<Point> debug_points;
-  std::vector<DynamicObject> obj = occlusion_spot_utils::getParkedVehicles(
+  std::vector<PredictedObject> obj = occlusion_spot_utils::getParkedVehicles(
     *dynamic_obj_arr_ptr, attension_line, param_, debug_data_.parked_vehicle_point);
   PathWithLaneId interp_path;
   occlusion_spot_utils::splineInterpolate(*path, 0.5, &interp_path, logger_);

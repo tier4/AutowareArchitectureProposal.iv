@@ -22,6 +22,8 @@
 #include <scene_module/occlusion_spot/grid_utils.hpp>
 
 #include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/predicted_object.hpp>
+#include <autoware_auto_perception_msgs/msg/object_classification.hpp>
 #include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 
@@ -36,18 +38,16 @@
 
 namespace behavior_velocity_planner
 {
-using DynamicObject = autoware_perception_msgs::msg::DynamicObject;
 using autoware_auto_perception_msgs::msg::PredictedObjects;
 using autoware_auto_perception_msgs::msg::PredictedObject;
+using autoware_auto_perception_msgs::msg::ObjectClassification;
 using autoware_auto_planning_msgs::msg::PathPoint;
-using PathWithLaneId = autoware_planning_msgs::msg::PathWithLaneId;
+using PathWithLaneId = autoware_auto_planning_msgs::msg::PathWithLaneId;
 using ArcCoordinates = lanelet::ArcCoordinates;
 using ConstLineString2d = lanelet::ConstLineString2d;
 using Point = geometry_msgs::msg::Point;
 using BasicPoint2d = lanelet::BasicPoint2d;
 using BasicLineString2d = lanelet::BasicLineString2d;
-using DynamicObject = autoware_perception_msgs::msg::DynamicObject;
-using DynamicObjectArray = autoware_perception_msgs::msg::DynamicObjectArray;
 using lanelet::geometry::toArcCoordinates;
 using lanelet::geometry::fromArcCoordinates;
 
@@ -140,14 +140,14 @@ struct PossibleCollisionInfo
   }
 };
 
-inline bool isStuckVehicle(autoware_perception_msgs::msg::DynamicObject obj, const double min_vel)
+inline bool isStuckVehicle(PredictedObject obj, const double min_vel)
 {
   if (
-    obj.semantic.type == autoware_perception_msgs::msg::Semantic::CAR ||
-    obj.semantic.type == autoware_perception_msgs::msg::Semantic::TRUCK ||
-    obj.semantic.type == autoware_perception_msgs::msg::Semantic::BUS)
+    obj.classification.label == ObjectClassification::CAR ||
+    obj.classification.label == ObjectClassification::TRUCK ||
+    obj.classification.label == ObjectClassification::BUS)
   {
-    if (obj.state.twist_covariance.twist.linear.x < min_vel) {return true;}
+    if (obj.kinematics.initial_twist_with_covariance.twist.linear.x < min_vel) {return true;}
   }
   return false;
 }
@@ -161,13 +161,13 @@ void generateCenterLaneLine(
   const lanelet::routing::RoutingGraphPtr & routing_graph_ptr,
   const lanelet::LaneletMapPtr & lanelet_map_ptr,
   std::vector<lanelet::BasicLineString2d> & attension_line);
-std::vector<DynamicObject> getParkedVehicles(
-  const DynamicObjectArray & dyn_objects, const std::vector<BasicLineString2d> & attension_line,
+std::vector<PredictedObject> getParkedVehicles(
+  const PredictedObjects & dyn_objects, const std::vector<BasicLineString2d> & attension_line,
   const PlannerParam & param, std::vector<Point> & debug_point);
 std::vector<PossibleCollisionInfo> generatePossibleCollisionBehindParkedVehicle(
   const lanelet::ConstLanelet & path_lanelet, const PlannerParam & param,
   const double offset_from_start_to_ego,
-  const std::vector<DynamicObject> & dyn_objects);
+  const std::vector<PredictedObject> & dyn_objects);
 
 ROAD_TYPE getCurrentRoadType(
   const lanelet::ConstLanelet & current_lanelet, const lanelet::LaneletMapPtr & lanelet_map_ptr);

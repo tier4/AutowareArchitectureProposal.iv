@@ -374,7 +374,7 @@ PossibleCollisionInfo  calculateCollisionPathPointFromOcclusionSpot(
 std::vector<PossibleCollisionInfo> generatePossibleCollisionBehindParkedVehicle(
   const lanelet::ConstLanelet & path_lanelet, const PlannerParam & param,
   [[maybe_unused]] const double offset_from_start_to_ego,
-  const std::vector<autoware_perception_msgs::msg::DynamicObject> & dyn_objects)
+  const std::vector<DynamicObject> & dyn_objects)
 {
   std::vector<PossibleCollisionInfo> possible_collisions;
   const double half_vehicle_width = 0.5 * param.vehicle_info.vehicle_width;
@@ -412,7 +412,7 @@ std::vector<PossibleCollisionInfo> generatePossibleCollisionBehindParkedVehicle(
 
 // -------------------------------------------------------------------------------------------
 
-lanelet::ConstLanelet buildPathLanelet(const autoware_planning_msgs::msg::PathWithLaneId & path)
+lanelet::ConstLanelet buildPathLanelet(const PathWithLaneId & path)
 {
   autoware_auto_planning_msgs::msg::Path converted_path = filterLitterPathPoint(toPath(path));
   if (converted_path.points.empty()) {
