@@ -27,6 +27,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <deque>
+#include <set>
 
 namespace behavior_velocity_planner
 {
@@ -49,10 +51,12 @@ bool splineInterpolate(
   std::vector<double> base_x;
   std::vector<double> base_y;
   std::vector<double> base_z;
+  std::vector<double> base_v;
   for (const auto & p : input.points) {
     base_x.push_back(p.point.pose.position.x);
     base_y.push_back(p.point.pose.position.y);
     base_z.push_back(p.point.pose.position.z);
+    base_v.push_back(p.point.twist.linear.x);
   }
   std::vector<double> base_s = interpolation::calcEuclidDist(base_x, base_y);
 
@@ -66,6 +70,7 @@ bool splineInterpolate(
         base_x.erase(base_x.begin() + i);
         base_y.erase(base_y.begin() + i);
         base_z.erase(base_z.begin() + i);
+        base_v.erase(base_v.begin() + i);
         Ns -= 1;
         i -= 1;
       }
@@ -82,6 +87,7 @@ bool splineInterpolate(
   const std::vector<double> resampled_x = ::interpolation::slerp(base_s, base_x, resampled_s);
   const std::vector<double> resampled_y = ::interpolation::slerp(base_s, base_y, resampled_s);
   const std::vector<double> resampled_z = ::interpolation::slerp(base_s, base_z, resampled_s);
+  const std::vector<double> resampled_v = ::interpolation::slerp(base_s, base_v, resampled_s);
 
   // set xy
   output->points.clear();
@@ -90,6 +96,7 @@ bool splineInterpolate(
     p.point.pose.position.x = resampled_x.at(i);
     p.point.pose.position.y = resampled_y.at(i);
     p.point.pose.position.z = resampled_z.at(i);
+    p.point.twist.linear.x = resampled_v.at(i);
     output->points.push_back(p);
   }
 
@@ -141,28 +148,19 @@ ROAD_TYPE getCurrentRoadType(
   return road_type;
 }
 
-geometry_msgs::msg::Point setPoint(double x, double y, double z)
+Point setPoint(const double x, const double y, const double z)
 {
-  geometry_msgs::msg::Point p;
+  Point p;
   p.x = x;
   p.y = y;
   p.z = z;
   return p;
 }
-
 void calcSlowDownPointsForPossibleCollision(
-  const int closest_idx, const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
-  const double offset_from_ego_to_target, std::vector<PossibleCollisionInfo> & possible_collisions)
+  const int closest_idx, const PathWithLaneId & path,
+  const double offset, std::vector<PossibleCollisionInfo> & possible_collisions)
 {
-  if (possible_collisions.empty()) {
-    return;
-  }
-  std::sort(
-    possible_collisions.begin(), possible_collisions.end(),
-    [](PossibleCollisionInfo pc1, PossibleCollisionInfo pc2) {
-      return pc1.arc_lane_dist_at_collision.length < pc2.arc_lane_dist_at_collision.length;
-    });
-
+  if (possible_collisions.empty()) {return;}
   // get interpolated value between (s0,v0) - (s1,value) - (s2,v2)
   auto getInterpolatedValue = [](double s0, double v0, double s1, double s2, double v2) {
     if (s2 - s0 < std::numeric_limits<float>::min()) {
@@ -172,7 +170,7 @@ void calcSlowDownPointsForPossibleCollision(
   };
   // insert path point orientation to possible collision
   size_t collision_index = 0;
-  double dist_along_path_point = offset_from_ego_to_target;
+  double dist_along_path_point = offset;
   double dist_along_next_path_point = dist_along_path_point;
   for (size_t idx = closest_idx; idx < path.points.size() - 1; idx++) {
     auto p_prev = path.points[idx].point;
@@ -188,19 +186,19 @@ void calcSlowDownPointsForPossibleCollision(
         const double d1 = dist_along_next_path_point;
         const auto p0 = p_prev.pose.position;
         const auto p1 = p_next.pose.position;
-        auto & col = possible_collisions[collision_index];
-        auto & v = col.collision_path_point.longitudinal_velocity_mps;
-        const double current_dist2col = col.arc_lane_dist_at_collision.length;
-        v = getInterpolatedValue(
-          d0, p_prev.longitudinal_velocity_mps, dist_to_col, d1, p_next.longitudinal_velocity_mps);
+        const double v0 = p_prev.twist.linear.x;
+        const double v1 = p_next.twist.linear.x;
+        const double v = getInterpolatedValue(d0, v0, dist_to_col, d1, v1);
         const double x = getInterpolatedValue(d0, p0.x, dist_to_col, d1, p1.x);
         const double y = getInterpolatedValue(d0, p0.y, dist_to_col, d1, p1.y);
         const double z = getInterpolatedValue(d0, p0.z, dist_to_col, d1, p1.z);
         // height is used to visualize marker correctly
-
-        possible_collisions[collision_index].collision_path_point.pose.position = setPoint(x, y, z);
-        possible_collisions[collision_index].intersection_pose.position.z = z;
-        possible_collisions[collision_index].obstacle_info.position.z = z;
+        auto & col = possible_collisions[collision_index];
+        col.collision_path_point.twist.linear.x = v;
+        col.collision_path_point.pose.position = setPoint(x, y, z);
+        col.intersection_pose.position.z = z;
+        col.obstacle_info.position.z = z;
+        const double current_dist2col = col.arc_lane_dist_at_collision.length + offset;
         // break searching if dist to collision is farther than next path point
         if (dist_along_next_path_point < current_dist2col) {
           break;
@@ -224,8 +222,197 @@ autoware_auto_planning_msgs::msg::Path toPath(
   return path;
 }
 
-lanelet::ConstLanelet buildPathLanelet(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path)
+// !generate center line from right/left lanelets
+void generateCenterLaneLine(
+  const PathWithLaneId & path,
+  const lanelet::routing::RoutingGraphPtr & routing_graph_ptr,
+  const lanelet::LaneletMapPtr & lanelet_map_ptr,
+  std::vector<lanelet::BasicLineString2d> & attension_line)
+{
+  std::set<int> ids;
+  for (const auto & p : path.points) {
+    for (const int id : p.lane_ids) {
+      ids.insert(id);
+    }
+  }
+  for (const auto id : ids) {
+    const auto ll = lanelet_map_ptr->laneletLayer.get(id);
+    const auto polygon2d = ll.polygon2d().basicPolygon();
+    attension_line.emplace_back(ll.centerline2d().basicLineString());
+    const auto right_ll =
+      (!!routing_graph_ptr->right(ll)) ? routing_graph_ptr->right(ll) : routing_graph_ptr->
+      adjacentRight(ll);
+    const auto left_ll =
+      (!!routing_graph_ptr->left(ll)) ? routing_graph_ptr->left(ll) : routing_graph_ptr->
+      adjacentLeft(ll);
+    if (right_ll) {
+      attension_line.emplace_back(right_ll.get().centerline2d().basicLineString());
+      for (const auto l : routing_graph_ptr->following(right_ll.get())) {
+        attension_line.emplace_back(l.centerline2d().basicLineString());
+      }
+    }
+    if (left_ll) {
+      attension_line.emplace_back(left_ll.get().centerline2d().basicLineString());
+      for (const auto l : routing_graph_ptr->following(left_ll.get())) {
+        attension_line.emplace_back(l.centerline2d().basicLineString());
+      }
+    }
+  }
+}
+
+std::vector<DynamicObject> getParkedVehicles(
+  const DynamicObjectArray & dyn_objects, const std::vector<BasicLineString2d> & attension_line,
+  const PlannerParam & param, std::vector<Point> & debug_point)
+{
+  std::vector<DynamicObject> parked_vehicles;
+  std::vector<Point> points;
+  for (const auto & obj : dyn_objects.objects) {
+    bool is_parked_vehicle = true;
+    if (!occlusion_spot_utils::isStuckVehicle(obj, param.stuck_vehicle_vel)) {continue;}
+    const geometry_msgs::msg::Point & p = obj.state.pose_covariance.pose.position;
+    BasicPoint2d obj_point(p.x, p.y);
+    for (const auto & line : attension_line) {
+      if (boost::geometry::distance(obj_point, line) < param.lateral_deviation_thr) {
+        is_parked_vehicle = false; break;
+      }
+    }
+    if (is_parked_vehicle) {
+      parked_vehicles.emplace_back(obj);
+      points.emplace_back(p);
+    }
+  }
+  debug_point = points;
+  return parked_vehicles;
+}
+
+ArcCoordinates getOcclusionPoint(const DynamicObject & obj, const ConstLineString2d & ll_string)
+{
+  Polygon2d poly = planning_utils::toFootprintPolygon(obj);
+  std::deque<lanelet::ArcCoordinates> arcs;
+  for (const auto & p : poly.outer()) {
+    lanelet::BasicPoint2d obj_p = {p.x(), p.y()};
+    arcs.emplace_back(lanelet::geometry::toArcCoordinates(ll_string, obj_p));
+  }
+  /** remove
+   *  x--------*
+   *  |        |
+   *  x--------* <- return
+   * Ego===============> path
+   **/
+  // sort by arc length
+  std::sort(
+    arcs.begin(), arcs.end(),
+    [](ArcCoordinates arc1, ArcCoordinates arc2) {
+      return arc1.length < arc2.length;
+    });
+  // remove closests 2 polygon point
+  arcs.pop_front();
+  arcs.pop_front();
+  // sort by arc distance
+  std::sort(
+    arcs.begin(), arcs.end(),
+    [](ArcCoordinates arc1, ArcCoordinates arc2) {
+      return std::abs(arc1.distance) < std::abs(arc2.distance);
+    });
+  // return closest to path point which is choosen by farthest 2 points.
+  return arcs.at(0);
+}
+
+double calcSignedArcDistance(const double distance, const double offset)
+{
+  // if distance is lower than offset return 0;
+  if (std::abs(distance) < offset) {
+    return 0;
+  } else if (distance < 0) {
+    return distance + offset;
+  } else {
+    return distance - offset;
+  }
+  // error case
+  return -1.0;
+}
+
+
+PossibleCollisionInfo  calculateCollisionPathPointFromOcclusionSpot(
+  const ArcCoordinates & occ_arc, const ArcCoordinates & occ_arc_with_offset,
+  const lanelet::ConstLanelet & path_lanelet, const PlannerParam & param)
+{
+  /**
+ * @brief calculate obstacle collsion intersection from arc coordinate info.
+ *                                      ^
+ *                                      |
+ * Ego ---------collision----------intersection-------> path
+ *                                      |
+ *             ------------------       |
+ *            |     Vehicle      |   obstacle
+ *             ------------------
+ */
+  PossibleCollisionInfo pc;
+  const auto ll = path_lanelet.centerline2d();
+  BasicPoint2d collision_point = fromArcCoordinates(ll, {occ_arc_with_offset.length, 0.0});
+  BasicPoint2d obstacle_point = fromArcCoordinates(ll, occ_arc);
+  BasicPoint2d intersection_point = fromArcCoordinates(ll, {occ_arc.length, 0.0});
+  Point search_point = setPoint(collision_point[0], collision_point[1], 0);
+  geometry_msgs::msg::Quaternion q = autoware_utils::createQuaternionFromYaw(
+    lanelet::utils::getLaneletAngle(path_lanelet, search_point));
+  // arc length to col point
+  pc.arc_lane_dist_at_collision = occ_arc_with_offset;
+  // obstacle info
+  pc.obstacle_info.position = setPoint(obstacle_point[0], obstacle_point[1], 0);
+  pc.obstacle_info.max_velocity = param.pedestrian_vel;
+  pc.obstacle_info.min_deceleration = param.pedestrian_decel;
+  // collision_point this value is going to be recalculated later
+  // pc.collision_path_point.pose.position = search_point;
+  pc.collision_path_point.pose.orientation = q;
+  // intersection point
+  pc.intersection_pose.position = setPoint(intersection_point[0], intersection_point[1], 0);
+  pc.intersection_pose.orientation = q;
+  return pc;
+}
+
+
+std::vector<PossibleCollisionInfo> generatePossibleCollisionBehindParkedVehicle(
+  const lanelet::ConstLanelet & path_lanelet, const PlannerParam & param,
+  [[maybe_unused]] const double offset_from_start_to_ego,
+  const std::vector<autoware_perception_msgs::msg::DynamicObject> & dyn_objects)
+{
+  std::vector<PossibleCollisionInfo> possible_collisions;
+  const double half_vehicle_width = 0.5 * param.vehicle_info.vehicle_width;
+  const double baselink_to_front = param.vehicle_info.baselink_to_front;
+  auto ll = path_lanelet.centerline2d();
+  for (const auto & dyn : dyn_objects) {
+    ArcCoordinates occ_arc = getOcclusionPoint(dyn, ll);
+    ArcCoordinates occ_arc_with_offset = {
+      occ_arc.length - baselink_to_front - param.safety_margin,
+      calcSignedArcDistance(occ_arc.distance, half_vehicle_width)
+    };
+    // ignore if collision is not avoidable by velocity control.
+    if (
+      occ_arc_with_offset.length < offset_from_start_to_ego ||
+      occ_arc_with_offset.length > param.detection_area_length ||
+      occ_arc_with_offset.length > lanelet::geometry::length2d(path_lanelet) ||
+      std::abs(occ_arc_with_offset.distance) <= 1e-3 ||
+      std::abs(occ_arc_with_offset.distance) > param.lateral_distance_thr)
+    {
+      continue;
+    }
+    // occ_arc_with_offset.length -= ;
+    PossibleCollisionInfo pc = calculateCollisionPathPointFromOcclusionSpot(
+      occ_arc, occ_arc_with_offset, path_lanelet, param);
+    possible_collisions.emplace_back(pc);
+  }
+  // sort by arc length
+  std::sort(
+    possible_collisions.begin(), possible_collisions.end(),
+    [](PossibleCollisionInfo pc1, PossibleCollisionInfo pc2) {
+      return pc1.arc_lane_dist_at_collision.length < pc2.arc_lane_dist_at_collision.length;
+    });
+  return possible_collisions;
+}
+
+// -------------------------------------------------------------------------------------------
+
+lanelet::ConstLanelet buildPathLanelet(const autoware_planning_msgs::msg::PathWithLaneId & path)
 {
   autoware_auto_planning_msgs::msg::Path converted_path = filterLitterPathPoint(toPath(path));
   if (converted_path.points.empty()) {
@@ -296,89 +483,6 @@ void calculateCollisionPathPointFromOcclusionSpot(
     arc_lane_occlusion_point.length + offset_from_ego_to_target -
       param.vehicle_info.baselink_to_front,
     std::abs(signed_lateral_distance)};
-}
-
-void createPossibleCollisionBehindParkedVehicle(
-  std::vector<PossibleCollisionInfo> & possible_collisions,
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const PlannerParam & param,
-  const double offset_from_ego_to_target,
-  const autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr & dyn_obj_arr)
-{
-  lanelet::ConstLanelet path_lanelet = buildPathLanelet(path);
-  if (path_lanelet.centerline2d().empty()) {
-    return;
-  }
-  std::vector<lanelet::ArcCoordinates> arcs;
-  auto calcSignedArcDistance = [](const double lateral_distance, const double offset) {
-    if (lateral_distance < 0) {
-      return lateral_distance + offset;
-    }
-    return lateral_distance - offset;
-  };
-  const double half_vehicle_width = 0.5 * param.vehicle_info.vehicle_width;
-  for (const auto & dyn : dyn_obj_arr->objects) {
-    // consider if dynamic object is a car or bus or truck
-    if (
-      dyn.classification.at(0).label !=
-        autoware_auto_perception_msgs::msg::ObjectClassification::CAR &&
-      dyn.classification.at(0).label !=
-        autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK &&
-      dyn.classification.at(0).label !=
-        autoware_auto_perception_msgs::msg::ObjectClassification::BUS) {
-      continue;
-    }
-    const auto & state = dyn.kinematics;
-    // ignore if vehicle is moving
-    if (state.initial_twist_with_covariance.twist.linear.x > param.stuck_vehicle_vel) {
-      continue;
-    }
-    const geometry_msgs::msg::Point & p = dyn.kinematics.initial_pose_with_covariance.pose.position;
-    const geometry_msgs::msg::Quaternion & q =
-      dyn.kinematics.initial_pose_with_covariance.pose.orientation;
-    lanelet::BasicPoint2d obj_point;
-    obj_point[0] = p.x;
-    obj_point[1] = p.y;
-    lanelet::ArcCoordinates arc_lane_point_at_occlusion =
-      lanelet::geometry::toArcCoordinates(path_lanelet.centerline2d(), obj_point);
-    // add a half size of car to arc length as behind car
-    arc_lane_point_at_occlusion.length += dyn.shape.dimensions.x * 0.5;
-    // signed lateral distance used to convert obstacle position
-    double signed_lateral_distance =
-      calcSignedArcDistance(arc_lane_point_at_occlusion.distance, half_vehicle_width);
-    arc_lane_point_at_occlusion.distance =
-      std::abs(arc_lane_point_at_occlusion.distance) - 0.5 * dyn.shape.dimensions.y;
-    // ignore if obstacle is not within attention area
-    if (
-      offset_from_ego_to_target + arc_lane_point_at_occlusion.length <
-        param.vehicle_info.baselink_to_front ||
-      arc_lane_point_at_occlusion.distance < half_vehicle_width ||
-      param.lateral_distance_thr + half_vehicle_width < arc_lane_point_at_occlusion.distance) {
-      continue;
-    }
-    // subtract  baselink_to_front from longitudinal distance to occlusion point
-    double longitudinal_dist_at_collision_point =
-      arc_lane_point_at_occlusion.length - param.vehicle_info.baselink_to_front;
-    // collision point at baselink
-    lanelet::BasicPoint2d collision_point = lanelet::geometry::fromArcCoordinates(
-      path_lanelet.centerline2d(), {longitudinal_dist_at_collision_point, 0.0});
-    geometry_msgs::msg::Point search_point;
-    search_point.x = collision_point[0];
-    search_point.y = collision_point[1];
-    search_point.z = 0;
-    double path_angle = lanelet::utils::getLaneletAngle(path_lanelet, search_point);
-    // ignore if angle is more different than 10[degree]
-    double obj_angle = tf2::getYaw(q);
-    const double diff_angle = autoware_utils::normalizeRadian(path_angle - obj_angle);
-    if (std::abs(diff_angle) > param.angle_thr) {
-      continue;
-    }
-    lanelet::BasicPoint2d obstacle_point = lanelet::geometry::fromArcCoordinates(
-      path_lanelet.centerline2d(), {arc_lane_point_at_occlusion.length, signed_lateral_distance});
-    PossibleCollisionInfo pc;
-    calculateCollisionPathPointFromOcclusionSpot(
-      pc, obstacle_point, offset_from_ego_to_target, path_lanelet, param);
-    possible_collisions.emplace_back(pc);
-  }
 }
 
 bool extractTargetRoad(

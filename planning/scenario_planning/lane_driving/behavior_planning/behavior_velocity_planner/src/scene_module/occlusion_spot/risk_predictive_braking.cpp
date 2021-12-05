@@ -30,29 +30,24 @@ void applySafeVelocityConsideringPossibleCollison(
 {
   const auto logger{rclcpp::get_logger("behavior_velocity_planner").get_child("occlusion_spot")};
   rclcpp::Clock clock{RCL_ROS_TIME};
-  // return nullptr or too few points
-  if (!inout_path || inout_path->points.size() < 2) {
-    return;
-  }
   for (auto & possible_collision : possible_collisions) {
-    const double dist_to_collision = possible_collision.arc_lane_dist_at_collision.length;
-    const double original_vel = possible_collision.collision_path_point.longitudinal_velocity_mps;
-    const double d_obs = possible_collision.arc_lane_dist_at_collision.distance;
+    const double dist_to_collision = std::max(
+      possible_collision.arc_lane_dist_at_collision.length,
+      0.0);
+    const double original_vel = possible_collision.collision_path_point.twist.linear.x;
+    // d_obs can be negative by arc corrdinate
+    const double d_obs = std::abs(possible_collision.arc_lane_dist_at_collision.distance);
     const double v_obs = possible_collision.obstacle_info.max_velocity;
+    const double a_obs = possible_collision.obstacle_info.min_deceleration;
     // skip if obstacle velocity is below zero
     if (v_obs < 0) {
       RCLCPP_WARN_THROTTLE(
         logger, clock, 3000, "velocity for virtual darting object is not set correctly");
       continue;
-      // skip if distance to object is below zero
-    } else if (d_obs < 0) {
-      RCLCPP_WARN_THROTTLE(
-        logger, clock, 3000, "distance for virtual darting object is not set correctly");
-      continue;
     }
     // RPB : risk predictive braking system velocity consider ego emergency braking deceleration
     const double risk_predictive_braking_velocity =
-      calculateSafeRPBVelocity(param.safety_time_buffer, d_obs, v_obs, ego.ebs_decel);
+      calculateSafeRPBVelocity(param.safety_time_buffer, d_obs, v_obs, a_obs, ego.ebs_decel);
 
     // PBS : predictive braking system velocity consider ego predictive braking deceleration
     const double predictive_braking_system_velocity =
