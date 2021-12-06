@@ -194,7 +194,7 @@ inline geometry_msgs::msg::Pose generatePose(double x)
 }
 
 inline lanelet::ConstLanelet toPathLanelet(
-  const autoware_planning_msgs::msg::PathWithLaneId & path)
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path)
 {
   lanelet::Points3d path_points;
   for (const auto & point_with_id : path.points) {

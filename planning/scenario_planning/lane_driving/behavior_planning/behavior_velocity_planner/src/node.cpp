@@ -230,10 +230,6 @@ void BehaviorVelocityPlannerNode::onVehicleVelocity(
 
   planner_data_.updateCurrentAcc();
 
-  RCLCPP_ERROR_STREAM(
-    get_logger(), "twist callback!" << planner_data_.velocity_buffer.size() << ", " <<
-      msg->header.stamp.sec << ":" << msg->header.stamp.nanosec);
-
   // Add velocity to buffer
   planner_data_.velocity_buffer.push_front(*current_velocity);
   const auto now = this->now();

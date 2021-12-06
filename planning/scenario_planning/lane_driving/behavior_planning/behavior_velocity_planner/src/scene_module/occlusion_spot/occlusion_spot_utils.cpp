@@ -35,8 +35,7 @@ namespace behavior_velocity_planner
 namespace occlusion_spot_utils
 {
 bool splineInterpolate(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & input, const double interval,
-  autoware_auto_planning_msgs::msg::PathWithLaneId * output, const rclcpp::Logger logger)
+  const PathWithLaneId & input, const double interval, PathWithLaneId * output, const rclcpp::Logger logger)
 {
   *output = input;
 
@@ -56,7 +55,7 @@ bool splineInterpolate(
     base_x.push_back(p.point.pose.position.x);
     base_y.push_back(p.point.pose.position.y);
     base_z.push_back(p.point.pose.position.z);
-    base_v.push_back(p.point.twist.linear.x);
+    base_v.push_back(p.point.longitudinal_velocity_mps);
   }
   std::vector<double> base_s = interpolation::calcEuclidDist(base_x, base_y);
 
@@ -96,7 +95,7 @@ bool splineInterpolate(
     p.point.pose.position.x = resampled_x.at(i);
     p.point.pose.position.y = resampled_y.at(i);
     p.point.pose.position.z = resampled_z.at(i);
-    p.point.twist.linear.x = resampled_v.at(i);
+    p.point.longitudinal_velocity_mps = resampled_v.at(i);
     output->points.push_back(p);
   }
 
@@ -186,15 +185,15 @@ void calcSlowDownPointsForPossibleCollision(
         const double d1 = dist_along_next_path_point;
         const auto p0 = p_prev.pose.position;
         const auto p1 = p_next.pose.position;
-        const double v0 = p_prev.twist.linear.x;
-        const double v1 = p_next.twist.linear.x;
+        const double v0 = p_prev.longitudinal_velocity_mps;
+        const double v1 = p_next.longitudinal_velocity_mps;
         const double v = getInterpolatedValue(d0, v0, dist_to_col, d1, v1);
         const double x = getInterpolatedValue(d0, p0.x, dist_to_col, d1, p1.x);
         const double y = getInterpolatedValue(d0, p0.y, dist_to_col, d1, p1.y);
         const double z = getInterpolatedValue(d0, p0.z, dist_to_col, d1, p1.z);
         // height is used to visualize marker correctly
         auto & col = possible_collisions[collision_index];
-        col.collision_path_point.twist.linear.x = v;
+        col.collision_path_point.longitudinal_velocity_mps = v;
         col.collision_path_point.pose.position = setPoint(x, y, z);
         col.intersection_pose.position.z = z;
         col.obstacle_info.position.z = z;
@@ -212,10 +211,9 @@ void calcSlowDownPointsForPossibleCollision(
   }
 }
 
-autoware_auto_planning_msgs::msg::Path toPath(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path_with_id)
+autoware_auto_planning_msgs::msg::Path toPath(const PathWithLaneId & path_with_id)
 {
-  autoware_auto_planning_msgs::msg::Path path;
+  Path path;
   for (const auto & p : path_with_id.points) {
     path.points.push_back(p.point);
   }
@@ -260,16 +258,16 @@ void generateCenterLaneLine(
   }
 }
 
-std::vector<DynamicObject> getParkedVehicles(
-  const DynamicObjectArray & dyn_objects, const std::vector<BasicLineString2d> & attension_line,
+std::vector<PredictedObject> getParkedVehicles(
+  const PredictedObjects & dyn_objects, const std::vector<BasicLineString2d> & attension_line,
   const PlannerParam & param, std::vector<Point> & debug_point)
 {
-  std::vector<DynamicObject> parked_vehicles;
+  std::vector<PredictedObject> parked_vehicles;
   std::vector<Point> points;
   for (const auto & obj : dyn_objects.objects) {
     bool is_parked_vehicle = true;
     if (!occlusion_spot_utils::isStuckVehicle(obj, param.stuck_vehicle_vel)) {continue;}
-    const geometry_msgs::msg::Point & p = obj.state.pose_covariance.pose.position;
+    const geometry_msgs::msg::Point & p = obj.kinematics.initial_pose_with_covariance.pose.position;
     BasicPoint2d obj_point(p.x, p.y);
     for (const auto & line : attension_line) {
       if (boost::geometry::distance(obj_point, line) < param.lateral_deviation_thr) {
@@ -285,7 +283,7 @@ std::vector<DynamicObject> getParkedVehicles(
   return parked_vehicles;
 }
 
-ArcCoordinates getOcclusionPoint(const DynamicObject & obj, const ConstLineString2d & ll_string)
+ArcCoordinates getOcclusionPoint(const PredictedObject & obj, const ConstLineString2d & ll_string)
 {
   Polygon2d poly = planning_utils::toFootprintPolygon(obj);
   std::deque<lanelet::ArcCoordinates> arcs;
@@ -374,7 +372,7 @@ PossibleCollisionInfo  calculateCollisionPathPointFromOcclusionSpot(
 std::vector<PossibleCollisionInfo> generatePossibleCollisionBehindParkedVehicle(
   const lanelet::ConstLanelet & path_lanelet, const PlannerParam & param,
   [[maybe_unused]] const double offset_from_start_to_ego,
-  const std::vector<DynamicObject> & dyn_objects)
+  const std::vector<PredictedObject> & dyn_objects)
 {
   std::vector<PossibleCollisionInfo> possible_collisions;
   const double half_vehicle_width = 0.5 * param.vehicle_info.vehicle_width;
@@ -414,7 +412,7 @@ std::vector<PossibleCollisionInfo> generatePossibleCollisionBehindParkedVehicle(
 
 lanelet::ConstLanelet buildPathLanelet(const PathWithLaneId & path)
 {
-  autoware_auto_planning_msgs::msg::Path converted_path = filterLitterPathPoint(toPath(path));
+  Path converted_path = filterLitterPathPoint(toPath(path));
   if (converted_path.points.empty()) {
     return lanelet::ConstLanelet();
   }
@@ -465,7 +463,7 @@ void calculateCollisionPathPointFromOcclusionSpot(
   double path_angle = lanelet::utils::getLaneletAngle(path_lanelet, search_point);
   tf2::Quaternion quat;
   quat.setRPY(0, 0, path_angle);
-  autoware_auto_planning_msgs::msg::PathPoint collision_path_point;
+  PathPoint collision_path_point;
   pc.collision_path_point.pose.position.x = col_point[0];
   pc.collision_path_point.pose.position.y = col_point[1];
   pc.collision_path_point.pose.orientation = tf2::toMsg(quat);
@@ -487,9 +485,9 @@ void calculateCollisionPathPointFromOcclusionSpot(
 
 bool extractTargetRoad(
   const int closest_idx, const lanelet::LaneletMapPtr lanelet_map_ptr, const double max_range,
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & src_path,
+  const PathWithLaneId & src_path,
   double & offset_from_closest_to_target,
-  autoware_auto_planning_msgs::msg::PathWithLaneId & tar_path, const ROAD_TYPE & target_road_type)
+  PathWithLaneId & tar_path, const ROAD_TYPE & target_road_type)
 {
   bool found_target = false;
   // search lanelet that includes target_road_type only
@@ -518,7 +516,7 @@ bool extractTargetRoad(
 
 void generatePossibleCollisions(
   std::vector<PossibleCollisionInfo> & possible_collisions,
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const grid_map::GridMap & grid,
+  const PathWithLaneId & path, const grid_map::GridMap & grid,
   const double offset_from_ego_to_closest, const double offset_from_closest_to_target,
   const PlannerParam & param, std::vector<lanelet::BasicPolygon2d> & debug)
 {

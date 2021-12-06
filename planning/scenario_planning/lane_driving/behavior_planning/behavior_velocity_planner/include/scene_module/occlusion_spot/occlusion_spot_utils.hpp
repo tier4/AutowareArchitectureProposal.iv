@@ -25,6 +25,7 @@
 #include <autoware_auto_perception_msgs/msg/predicted_object.hpp>
 #include <autoware_auto_perception_msgs/msg/object_classification.hpp>
 #include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
+#include <autoware_auto_planning_msgs/msg/path.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 
 #include <lanelet2_core/LaneletMap.h>
@@ -42,7 +43,8 @@ using autoware_auto_perception_msgs::msg::PredictedObjects;
 using autoware_auto_perception_msgs::msg::PredictedObject;
 using autoware_auto_perception_msgs::msg::ObjectClassification;
 using autoware_auto_planning_msgs::msg::PathPoint;
-using PathWithLaneId = autoware_auto_planning_msgs::msg::PathWithLaneId;
+using autoware_auto_planning_msgs::msg::Path;
+using autoware_auto_planning_msgs::msg::PathWithLaneId;
 using ArcCoordinates = lanelet::ArcCoordinates;
 using ConstLineString2d = lanelet::ConstLineString2d;
 using Point = geometry_msgs::msg::Point;
@@ -143,9 +145,9 @@ struct PossibleCollisionInfo
 inline bool isStuckVehicle(PredictedObject obj, const double min_vel)
 {
   if (
-    obj.classification.label == ObjectClassification::CAR ||
-    obj.classification.label == ObjectClassification::TRUCK ||
-    obj.classification.label == ObjectClassification::BUS)
+    obj.classification.at(0).label == ObjectClassification::CAR ||
+    obj.classification.at(0).label == ObjectClassification::TRUCK ||
+    obj.classification.at(0).label == ObjectClassification::BUS)
   {
     if (obj.kinematics.initial_twist_with_covariance.twist.linear.x < min_vel) {return true;}
   }
@@ -168,7 +170,6 @@ std::vector<PossibleCollisionInfo> generatePossibleCollisionBehindParkedVehicle(
   const lanelet::ConstLanelet & path_lanelet, const PlannerParam & param,
   const double offset_from_start_to_ego,
   const std::vector<PredictedObject> & dyn_objects);
-
 ROAD_TYPE getCurrentRoadType(
   const lanelet::ConstLanelet & current_lanelet, const lanelet::LaneletMapPtr & lanelet_map_ptr);
 //!< @brief build a Lanelet from a interpolated path
@@ -182,9 +183,9 @@ void calculateCollisionPathPointFromOcclusionSpot(
 //!< @brief create hidden collision behind parked car
 void createPossibleCollisionBehindParkedVehicle(
   std::vector<PossibleCollisionInfo> & possible_collisions,
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const PlannerParam & param,
+  const PathWithLaneId & path, const PlannerParam & param,
   const double offset_from_ego_to_target,
-  const autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr & dyn_obj_arr);
+  const PredictedObjects::ConstSharedPtr & dyn_obj_arr);
 //!< @brief set velocity and orientation to collision point based on previous Path with laneId
 void calcSlowDownPointsForPossibleCollision(
   const int closest_idx, const PathWithLaneId & path,
@@ -192,9 +193,9 @@ void calcSlowDownPointsForPossibleCollision(
 //!< @brief extract lanelet that includes target_road_type only
 bool extractTargetRoad(
   const int closest_idx, const lanelet::LaneletMapPtr lanelet_map_ptr, const double max_range,
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & src_path,
+  const PathWithLaneId & src_path,
   double & offset_from_closest_to_target,
-  autoware_auto_planning_msgs::msg::PathWithLaneId & tar_path, const ROAD_TYPE & target_road_type);
+  PathWithLaneId & tar_path, const ROAD_TYPE & target_road_type);
 //!< @brief generate collision coming from occlusion spots of the given grid map and lanelet map
 void generatePossibleCollisions(
   std::vector<PossibleCollisionInfo> & possible_collisions,

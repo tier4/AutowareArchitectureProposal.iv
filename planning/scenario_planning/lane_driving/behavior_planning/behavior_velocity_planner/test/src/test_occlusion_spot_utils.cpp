@@ -26,6 +26,12 @@
 
 using Point = geometry_msgs::msg::Point;
 using Vector3 = geometry_msgs::msg::Vector3;
+using DynamicObjects = autoware_auto_perception_msgs::msg::PredictedObjects;
+using DynamicObject = autoware_auto_perception_msgs::msg::PredictedObject;
+using Semantic = autoware_auto_perception_msgs::msg::ObjectClassification;
+using autoware_auto_planning_msgs::msg::PathPoint;
+using autoware_auto_planning_msgs::msg::Path;
+using autoware_auto_planning_msgs::msg::PathWithLaneId;
 
 autoware_auto_planning_msgs::msg::Path toPath(
   const autoware_auto_planning_msgs::msg::PathWithLaneId & path_with_id)
@@ -138,7 +144,7 @@ TEST(calcSlowDownPointsForPossibleCollision, Nominal)
     const double offset_from_start_to_ego = 0;
     PathWithLaneId path = test::generatePath(0.0, 3.0, 6.0, 3.0, 7);
     for (size_t i = 0; i < path.points.size(); i++) {
-      path.points[i].point.twist.linear.x = static_cast<double>(i);
+      path.points[i].point.longitudinal_velocity_mps = static_cast<double>(i);
     }
     test::generatePossibleCollisions(pcs, 3.0, 3.0, 6.0, 3.0, 3);
     /**
@@ -153,9 +159,9 @@ TEST(calcSlowDownPointsForPossibleCollision, Nominal)
       *    c : collision
     */
     calcSlowDownPointsForPossibleCollision(0, path, -offset_from_start_to_ego, pcs);
-    if (pcs[0].collision_path_point.twist.linear.x - 3.0 > 1e-3) {
+    if (pcs[0].collision_path_point.longitudinal_velocity_mps - 3.0 > 1e-3) {
       for (size_t i = 0; i < path.points.size(); i++) {
-        std::cout << "v : " << path.points[i].point.twist.linear.x << "\t";
+        std::cout << "v : " << path.points[i].point.longitudinal_velocity_mps << "\t";
       }
       std::cout << std::endl;
       for (const auto pc : pcs) {
@@ -163,9 +169,9 @@ TEST(calcSlowDownPointsForPossibleCollision, Nominal)
       }
       std::cout << std::endl;
     }
-    EXPECT_DOUBLE_EQ(pcs[0].collision_path_point.twist.linear.x, 3);
-    EXPECT_DOUBLE_EQ(pcs[1].collision_path_point.twist.linear.x, 4.5);
-    EXPECT_DOUBLE_EQ(pcs[2].collision_path_point.twist.linear.x, 6);
+    EXPECT_DOUBLE_EQ(pcs[0].collision_path_point.longitudinal_velocity_mps, 3);
+    EXPECT_DOUBLE_EQ(pcs[1].collision_path_point.longitudinal_velocity_mps, 4.5);
+    EXPECT_DOUBLE_EQ(pcs[2].collision_path_point.longitudinal_velocity_mps, 6);
   }
 
   pcs.clear();
@@ -197,14 +203,14 @@ TEST(generatePossibleCollisionBehindParkedVehicle, TargetVehicle)
     "-1 -   |   |   |   |   |                 \n" <<
     "-2 | 0 | 1 | 2 | 3 | 4 | \n";
 
-  std::vector<autoware_perception_msgs::msg::DynamicObject> objects;
-  autoware_perception_msgs::msg::DynamicObject obj;
+  std::vector<autoware_auto_perception_msgs::msg::PredictedObject> objects;
+  autoware_auto_perception_msgs::msg::PredictedObject obj;
   const double RIGHT = 0.0;
   const double LEFT = M_PI;
-  auto & tmp_obj_pose = obj.state.pose_covariance.pose;
-  auto & tmp_obj_type = obj.semantic.type;
+  auto & tmp_obj_pose = obj.kinematics.initial_pose_with_covariance.pose;
+  auto & tmp_obj_type = obj.classification.at(0).label;
   //! assume all vehicle is stopping
-  obj.state.twist_covariance.twist.linear.x = 0.0;
+  obj.kinematics.initial_twist_with_covariance.twist.linear.x = 0.0;
   const double eps = 1e-6;
   const double dim = 1e-7;
   const double dim_h = 0.5 * dim;
@@ -217,30 +223,30 @@ TEST(generatePossibleCollisionBehindParkedVehicle, TargetVehicle)
 
   //! case within lateral distance
   tmp_obj_pose.position = setPoint(truck_position_x, 1.0, 0.0);
-  tmp_obj_type = autoware_perception_msgs::msg::Semantic::TRUCK;
+  tmp_obj_type = Semantic::TRUCK;
   tmp_obj_pose.orientation = autoware_utils::createQuaternionFromYaw(RIGHT);
   objects.emplace_back(obj);
 
   tmp_obj_pose.position = setPoint(bus_position_x, -1.0, 0.0);
   tmp_obj_pose.orientation = autoware_utils::createQuaternionFromYaw(LEFT);
-  tmp_obj_type = autoware_perception_msgs::msg::Semantic::BUS;
+  tmp_obj_type = Semantic::BUS;
   objects.emplace_back(obj);
 
   //! case farther than lateral distance
   tmp_obj_pose.position = setPoint(1.5, 3.0, 0.0);
-  tmp_obj_type = autoware_perception_msgs::msg::Semantic::CAR;
+  tmp_obj_type = Semantic::CAR;
   tmp_obj_pose.orientation = autoware_utils::createQuaternionFromYaw(RIGHT);
   objects.emplace_back(obj);
 
   //! case farther than detection area max length
   tmp_obj_pose.position = setPoint(10, 2.0, 0.0);
-  tmp_obj_type = autoware_perception_msgs::msg::Semantic::CAR;
+  tmp_obj_type = Semantic::CAR;
   tmp_obj_pose.orientation = autoware_utils::createQuaternionFromYaw(RIGHT);
   objects.emplace_back(obj);
 
   //! case too close
   tmp_obj_pose.position = setPoint(2.0, 0.0, 0.0);
-  tmp_obj_type = autoware_perception_msgs::msg::Semantic::CAR;
+  tmp_obj_type = Semantic::CAR;
   tmp_obj_pose.orientation = autoware_utils::createQuaternionFromYaw(LEFT);
   objects.emplace_back(obj);
 
@@ -254,7 +260,7 @@ TEST(generatePossibleCollisionBehindParkedVehicle, TargetVehicle)
   if (pcs.size() != static_cast<size_t>(2)) {
     // print position
     for (size_t i = 0; i < objects.size(); i++) {
-      const auto p = objects.at(i).state.pose_covariance.pose.position;
+      const auto p = objects.at(i).kinematics.initial_pose_with_covariance.pose.position;
       std::cout << "obj x: " << p.x << " y: " << p.y << std::endl;
     }
     // print lanelet

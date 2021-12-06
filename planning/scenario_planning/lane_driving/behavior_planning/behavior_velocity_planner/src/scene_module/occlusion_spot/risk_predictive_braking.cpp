@@ -34,7 +34,7 @@ void applySafeVelocityConsideringPossibleCollison(
     const double dist_to_collision = std::max(
       possible_collision.arc_lane_dist_at_collision.length,
       0.0);
-    const double original_vel = possible_collision.collision_path_point.twist.linear.x;
+    const double original_vel = possible_collision.collision_path_point.longitudinal_velocity_mps;
     // d_obs can be negative by arc corrdinate
     const double d_obs = std::abs(possible_collision.arc_lane_dist_at_collision.distance);
     const double v_obs = possible_collision.obstacle_info.max_velocity;
