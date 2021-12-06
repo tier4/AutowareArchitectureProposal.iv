@@ -16,6 +16,7 @@
 
 #include "behavior_path_planner/path_utilities.hpp"
 #include "behavior_path_planner/scene_module/avoidance/avoidance_module.hpp"
+#include "behavior_path_planner/scene_module/empty_module/empty_module.hpp"
 #include "behavior_path_planner/scene_module/lane_change/lane_change_module.hpp"
 #include "behavior_path_planner/scene_module/pull_out/pull_out_module.hpp"
 #include "behavior_path_planner/scene_module/pull_over/pull_over_module.hpp"
@@ -86,41 +87,47 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
   {
     bt_manager_ = std::make_shared<BehaviorTreeManager>(*this, getBehaviorTreeManagerParam());
 
-    const auto register_default_module = [&](const std::string & module_name, const auto module_param){
-      auto default_module =
-      std::make_shared<LaneFollowingModule>(module_name, *this, module_param);
-      bt_manager_->registerSceneModule(default_module);
+    const auto register_empty_module = [&](const std::string & module_name) {
+      auto empty_module = std::make_shared<EmptyModule>(module_name, *this, EmptyParameters());
+      bt_manager_->registerSceneModule(empty_module);
+
     };
 
-    const auto lane_following_param = getLaneFollowingParam();
+
     auto lane_following_module =
       std::make_shared<LaneFollowingModule>("LaneFollowing", *this, getLaneFollowingParam());
     bt_manager_->registerSceneModule(lane_following_module);
-
     const bool launch_side_sift_module = true;
-    if(launch_side_sift_module){
-    auto side_shift_module =
-      std::make_shared<SideShiftModule>("SideShift", *this, getSideShiftParam());
-    bt_manager_->registerSceneModule(side_shift_module);
-    }else{
-       register_default_module("SideShift",lane_following_param);
+    if (launch_side_sift_module) {
+      auto side_shift_module =
+        std::make_shared<SideShiftModule>("SideShift", *this, getSideShiftParam());
+      bt_manager_->registerSceneModule(side_shift_module);
+    } else {
+      register_empty_module("SideShift");
     }
+
+    //xxx(flag, "shideShift", getSideShiftParam())
 
     auto avoidance_module =
       std::make_shared<AvoidanceModule>("Avoidance", *this, getAvoidanceParam());
     bt_manager_->registerSceneModule(avoidance_module);
 
     const auto lane_change_param = getLaneChangeParam();
-
+    bool launch_lane_change_module=false;
+    if(launch_lane_change_module){
     auto lane_change_module =
       std::make_shared<LaneChangeModule>("LaneChange", *this, lane_change_param);
     bt_manager_->registerSceneModule(lane_change_module);
-
+   
     auto force_lane_change_module =
       std::make_shared<LaneChangeModule>("ForceLaneChange", *this, lane_change_param);
     bt_manager_->registerSceneModule(force_lane_change_module);
 
     bt_manager_->registerForceApproval("ForceLaneChange");
+    }else{
+      register_empty_module("LaneChange");
+      register_empty_module("ForceLaneChange");
+    }
 
     auto pull_over_module = std::make_shared<PullOverModule>("PullOver", *this, getPullOverParam());
     bt_manager_->registerSceneModule(pull_over_module);
@@ -189,6 +196,12 @@ BehaviorPathPlannerParameters BehaviorPathPlannerNode::getCommonParam()
 
   return p;
 }
+
+// EmptyParameters BehaviorPathPlannerNode::getEmptyParam()
+// {
+//   EmptyParameters p{};
+//   return p;
+// }
 
 SideShiftParameters BehaviorPathPlannerNode::getSideShiftParam()
 {
