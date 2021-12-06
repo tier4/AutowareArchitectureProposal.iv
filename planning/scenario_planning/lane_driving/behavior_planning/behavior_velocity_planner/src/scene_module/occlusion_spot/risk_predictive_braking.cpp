@@ -24,9 +24,8 @@ namespace behavior_velocity_planner
 namespace occlusion_spot_utils
 {
 void applySafeVelocityConsideringPossibleCollison(
-  autoware_auto_planning_msgs::msg::PathWithLaneId * inout_path,
-  std::vector<PossibleCollisionInfo> & possible_collisions, const double current_vel,
-  const EgoVelocity & ego, const PlannerParam & param)
+  PathWithLaneId * inout_path, std::vector<PossibleCollisionInfo> & possible_collisions,
+  const double current_vel, const EgoVelocity & ego, const PlannerParam & param)
 {
   const auto logger{rclcpp::get_logger("behavior_velocity_planner").get_child("occlusion_spot")};
   rclcpp::Clock clock{RCL_ROS_TIME};
@@ -62,9 +61,9 @@ void applySafeVelocityConsideringPossibleCollison(
   }
 }
 
-bool isAheadOf(const geometry_msgs::msg::Pose & target, const geometry_msgs::msg::Pose & origin)
+bool isAheadOf(const Pose & target, const Pose & origin)
 {
-  geometry_msgs::msg::Pose p = planning_utils::transformRelCoordinate2D(target, origin);
+  Pose p = planning_utils::transformRelCoordinate2D(target, origin);
   bool is_target_ahead = (p.position.x > 0.0);
   return is_target_ahead;
 }
@@ -80,15 +79,15 @@ bool setVelocityFrom(
 }
 
 int insertSafeVelocityToPath(
-  const geometry_msgs::msg::Pose & in_pose, const double safe_vel, const PlannerParam & param,
-  autoware_auto_planning_msgs::msg::PathWithLaneId * inout_path)
+  const Pose & in_pose, const double safe_vel, const PlannerParam & param,
+  PathWithLaneId * inout_path)
 {
   int closest_idx = -1;
   if (!planning_utils::calcClosestIndex(
         *inout_path, in_pose, closest_idx, param.dist_thr, param.angle_thr)) {
     return -1;
   }
-  autoware_auto_planning_msgs::msg::PathPointWithLaneId inserted_point;
+  PathPointWithLaneId inserted_point;
   inserted_point = inout_path->points.at(closest_idx);
   int insert_idx = closest_idx;
   // insert velocity to path if distance is not too close else insert new collision point

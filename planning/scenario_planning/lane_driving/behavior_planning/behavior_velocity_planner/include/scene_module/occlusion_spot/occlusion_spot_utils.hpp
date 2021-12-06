@@ -45,6 +45,7 @@ using autoware_auto_perception_msgs::msg::PredictedObjects;
 using autoware_auto_planning_msgs::msg::Path;
 using autoware_auto_planning_msgs::msg::PathPoint;
 using autoware_auto_planning_msgs::msg::PathWithLaneId;
+using geometry_msgs::msg::Pose;
 using ArcCoordinates = lanelet::ArcCoordinates;
 using ConstLineString2d = lanelet::ConstLineString2d;
 using Point = geometry_msgs::msg::Point;
@@ -125,14 +126,12 @@ struct PossibleCollisionInfo
   ObstacleInfo obstacle_info;                          // For hidden obstacle
   PathPoint collision_path_point;                      // For baselink at collision point
   PathPoint safety_margin_start;                       // For safety margin
-  geometry_msgs::msg::Pose intersection_pose;          // For egp path and hidden obstacle
+  Pose intersection_pose;                              // For egp path and hidden obstacle
   lanelet::ArcCoordinates arc_lane_dist_at_collision;  // For ego distance to obstacle in s-d
   PossibleCollisionInfo() = default;
   PossibleCollisionInfo(
-    const ObstacleInfo & obstacle_info,
-    const autoware_auto_planning_msgs::msg::PathPoint & collision_path_point,
-    const geometry_msgs::msg::Pose & intersection_pose,
-    const lanelet::ArcCoordinates & arc_lane_dist_to_occlusion)
+    const ObstacleInfo & obstacle_info, const PathPoint & collision_path_point,
+    const Pose & intersection_pose, const lanelet::ArcCoordinates & arc_lane_dist_to_occlusion)
   : obstacle_info(obstacle_info),
     collision_path_point(collision_path_point),
     intersection_pose(intersection_pose),

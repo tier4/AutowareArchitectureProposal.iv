@@ -27,9 +27,10 @@ namespace behavior_velocity_planner
 {
 namespace
 {
+using autoware_auto_planning_msgs::msg::PathWithLaneId;
+
 std::vector<lanelet::ConstLanelet> getLaneletsOnPath(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
-  const lanelet::LaneletMapPtr lanelet_map)
+  const PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
 {
   std::vector<lanelet::ConstLanelet> lanelets;
 
@@ -40,9 +41,7 @@ std::vector<lanelet::ConstLanelet> getLaneletsOnPath(
   return lanelets;
 }
 
-bool hasPublicRoadOnPath(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
-  const lanelet::LaneletMapPtr lanelet_map)
+bool hasPublicRoadOnPath(const PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
 {
   for (const auto & ll : getLaneletsOnPath(path, lanelet_map)) {
     // Is public load ?
@@ -54,9 +53,7 @@ bool hasPublicRoadOnPath(
   return false;
 }
 
-bool hasPrivateRoadOnPath(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
-  const lanelet::LaneletMapPtr lanelet_map)
+bool hasPrivateRoadOnPath(const PathWithLaneId & path, const lanelet::LaneletMapPtr lanelet_map)
 {
   for (const auto & ll : getLaneletsOnPath(path, lanelet_map)) {
     // Is private load ?
@@ -79,45 +76,47 @@ OcclusionSpotModuleManager::OcclusionSpotModuleManager(rclcpp::Node & node)
 
   // for crosswalk parameters
   auto & pp = planner_param_;
+  const auto dp = [this](const std::string & str, auto def_val) {
+    std::string name = ns + "." + str;
+    return this->declare_parameter(name, def_val);
+  };
   // assume pedestrian coming out from occlusion spot with this velocity
-  pp.pedestrian_vel = node.declare_parameter(ns + ".pedestrian_vel", 1.0);
-  pp.pedestrian_decel = node.declare_parameter(ns + ".pedestrian_decel", -0.2);
-  pp.safety_time_buffer = node.declare_parameter(ns + ".safety_time_buffer", 0.1);
-  pp.safety_margin = node.declare_parameter(ns + ".safety_margin", 2.0);
-  pp.launch_public = node.declare_parameter(ns + ".launch_public", true);
-  pp.launch_private = node.declare_parameter(ns + ".launch_private", true);
-  pp.consider_road_type = node.declare_parameter(ns + ".consider_road_type", true);
-  pp.detection_area_length = node.declare_parameter(ns + ".threshold.detection_area_length", 200.0);
-  pp.stuck_vehicle_vel = node.declare_parameter(ns + ".threshold.stuck_vehicle_vel", 1.0);
-  pp.lateral_distance_thr = node.declare_parameter(ns + ".threshold.lateral_distance", 10.0);
-  pp.lateral_deviation_thr = node.declare_parameter(ns + ".threshold.lateral_deviation", 0.5);
+  pp.pedestrian_vel = dp("pedestrian_vel", 1.0);
+  pp.pedestrian_decel = dp("pedestrian_decel", -0.2);
+  pp.safety_time_buffer = dp("safety_time_buffer", 0.1);
+  pp.safety_margin = dp("safety_margin", 2.0);
+  pp.launch_public = dp("launch_public", true);
+  pp.launch_private = dp("launch_private", true);
+  pp.consider_road_type = dp("consider_road_type", true);
+  pp.detection_area_length = dp("threshold.detection_area_length", 200.0);
+  pp.stuck_vehicle_vel = dp("threshold.stuck_vehicle_vel", 1.0);
+  pp.lateral_distance_thr = dp("threshold.lateral_distance", 10.0);
+  pp.lateral_deviation_thr = dp("threshold.lateral_deviation", 0.5);
 
-  pp.dist_thr = node.declare_parameter(ns + ".threshold.search_dist", 10.0);
-  pp.angle_thr = node.declare_parameter(ns + ".threshold.search_angle", M_PI / 5.0);
-  pp.show_debug_grid = node.declare_parameter(ns + ".show_debug_grid", false);
+  pp.dist_thr = dp("threshold.search_dist", 10.0);
+  pp.angle_thr = dp("threshold.search_angle", M_PI / 5.0);
+  pp.show_debug_grid = dp("show_debug_grid", false);
 
   // public road ego param
-  pp.public_road.min_velocity = node.declare_parameter(ns + ".public_road.min_velocity", 2.7);
-  pp.public_road.ebs_decel = node.declare_parameter(ns + ".public_road.ebs_decel", -5.0);
-  pp.public_road.pbs_decel = node.declare_parameter(ns + ".public_road.pbs_decel", -1.5);
+  pp.public_road.min_velocity = dp("public_road.min_velocity", 2.7);
+  pp.public_road.ebs_decel = dp("public_road.ebs_decel", -5.0);
+  pp.public_road.pbs_decel = dp("public_road.pbs_decel", -1.5);
 
   // private road
-  pp.private_road.min_velocity = node.declare_parameter(ns + ".private_road.min_velocity", 1.5);
-  pp.private_road.ebs_decel = node.declare_parameter(ns + ".private_road.ebs_decel", -4.0);
-  pp.private_road.pbs_decel = node.declare_parameter(ns + ".private_road.pbs_decel", -2.5);
+  pp.private_road.min_velocity = dp("private_road.min_velocity", 1.5);
+  pp.private_road.ebs_decel = dp("private_road.ebs_decel", -4.0);
+  pp.private_road.pbs_decel = dp("private_road.pbs_decel", -2.5);
 
   // sidewalk param
-  pp.sidewalk.min_occlusion_spot_size =
-    node.declare_parameter(ns + ".sidewalk.min_occlusion_spot_size", 2.0);
-  pp.sidewalk.focus_range = node.declare_parameter(ns + ".sidewalk.focus_range", 4.0);
-  pp.sidewalk.slice_size = node.declare_parameter(ns + ".sidewalk.slice_size", 1.5);
+  pp.sidewalk.min_occlusion_spot_size = dp("sidewalk.min_occlusion_spot_size", 2.0);
+  pp.sidewalk.focus_range = dp("sidewalk.focus_range", 4.0);
+  pp.sidewalk.slice_size = dp("sidewalk.slice_size", 1.5);
   // occupancy grid param
-  pp.grid.free_space_max = node.declare_parameter(ns + ".grid.free_space_max", 10);
-  pp.grid.occupied_min = node.declare_parameter(ns + ".grid.occupied_min", 51);
+  pp.grid.free_space_max = dp("grid.free_space_max", 10);
+  pp.grid.occupied_min = dp("grid.occupied_min", 51);
 }
 
-void OcclusionSpotModuleManager::launchNewModules(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path)
+void OcclusionSpotModuleManager::launchNewModules(const PathWithLaneId & path)
 {
   const int64_t private_road_module_id = static_cast<int64_t>(ModuleID::PRIVATE);
   const int64_t public_road_module_id = static_cast<int64_t>(ModuleID::PUBLIC);
@@ -142,8 +141,7 @@ void OcclusionSpotModuleManager::launchNewModules(
 }
 
 std::function<bool(const std::shared_ptr<SceneModuleInterface> &)>
-OcclusionSpotModuleManager::getModuleExpiredFunction(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path)
+OcclusionSpotModuleManager::getModuleExpiredFunction(const PathWithLaneId & path)
 {
   const bool has_public_road = hasPublicRoadOnPath(path, planner_data_->lanelet_map);
   const bool has_private_road = hasPrivateRoadOnPath(path, planner_data_->lanelet_map);

@@ -92,7 +92,7 @@ bool splineInterpolate(
   // set xy
   output->points.clear();
   for (size_t i = 0; i < resampled_s.size(); i++) {
-    autoware_auto_planning_msgs::msg::PathPointWithLaneId p;
+    PathPointWithLaneId p;
     p.point.pose.position.x = resampled_x.at(i);
     p.point.pose.position.y = resampled_y.at(i);
     p.point.pose.position.z = resampled_z.at(i);
@@ -466,7 +466,7 @@ void calculateCollisionPathPointFromOcclusionSpot(
   pc.obstacle_info.position.x = obstacle_point[0];
   pc.obstacle_info.position.y = obstacle_point[1];
   pc.obstacle_info.max_velocity = param.pedestrian_vel;
-  geometry_msgs::msg::Pose intersection_pose;
+  Pose intersection_pose;
   pc.intersection_pose.position.x = intersection_point[0];
   pc.intersection_pose.position.y = intersection_point[1];
   pc.intersection_pose.orientation = tf2::toMsg(quat);
