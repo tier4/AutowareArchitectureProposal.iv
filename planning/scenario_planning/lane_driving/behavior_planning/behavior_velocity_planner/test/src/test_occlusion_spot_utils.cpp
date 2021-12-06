@@ -12,25 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "utils.hpp"
-
-#include "gtest/gtest.h"
 #include "autoware_utils/autoware_utils.hpp"
+#include "gtest/gtest.h"
 #include "scene_module/occlusion_spot/occlusion_spot_utils.hpp"
-#include "geometry_msgs/msg/point.hpp"
-#include "geometry_msgs/msg/vector3.hpp"
-
-#include "utils.hpp"
 #include "utilization/path_utilization.hpp"
 #include "utilization/util.hpp"
+#include "utils.hpp"
+
+#include "geometry_msgs/msg/point.hpp"
+#include "geometry_msgs/msg/vector3.hpp"
 
 using Point = geometry_msgs::msg::Point;
 using Vector3 = geometry_msgs::msg::Vector3;
 using DynamicObjects = autoware_auto_perception_msgs::msg::PredictedObjects;
 using DynamicObject = autoware_auto_perception_msgs::msg::PredictedObject;
 using Semantic = autoware_auto_perception_msgs::msg::ObjectClassification;
-using autoware_auto_planning_msgs::msg::PathPoint;
 using autoware_auto_planning_msgs::msg::Path;
+using autoware_auto_planning_msgs::msg::PathPoint;
 using autoware_auto_planning_msgs::msg::PathWithLaneId;
 
 autoware_auto_planning_msgs::msg::Path toPath(
@@ -148,16 +146,16 @@ TEST(calcSlowDownPointsForPossibleCollision, Nominal)
     }
     test::generatePossibleCollisions(pcs, 3.0, 3.0, 6.0, 3.0, 3);
     /**
-      * @brief generated path and possible collisions : path start from 2 to 6
-      *    0 1 2 3 4 5 6
-      * x: e-p-p-p-p-p-p-> path
-      * v: 0-1-2-3-4-5-6-> velocity
-      * c: N-N-N-c-NcN-c-> collision
-      *    --->| longitudinal offset
-      *    e : ego
-      *    p : path
-      *    c : collision
-    */
+     * @brief generated path and possible collisions : path start from 2 to 6
+     *    0 1 2 3 4 5 6
+     * x: e-p-p-p-p-p-p-> path
+     * v: 0-1-2-3-4-5-6-> velocity
+     * c: N-N-N-c-NcN-c-> collision
+     *    --->| longitudinal offset
+     *    e : ego
+     *    p : path
+     *    c : collision
+     */
     calcSlowDownPointsForPossibleCollision(0, path, -offset_from_start_to_ego, pcs);
     if (pcs[0].collision_path_point.longitudinal_velocity_mps - 3.0 > 1e-3) {
       for (size_t i = 0; i < path.points.size(); i++) {
@@ -179,8 +177,8 @@ TEST(calcSlowDownPointsForPossibleCollision, Nominal)
 
 TEST(generatePossibleCollisionBehindParkedVehicle, TargetVehicle)
 {
-  using behavior_velocity_planner::occlusion_spot_utils::PossibleCollisionInfo;
   using behavior_velocity_planner::occlusion_spot_utils::createPossibleCollisionBehindParkedVehicle;
+  using behavior_velocity_planner::occlusion_spot_utils::PossibleCollisionInfo;
   using std::chrono::duration;
   using std::chrono::duration_cast;
   using std::chrono::high_resolution_clock;
@@ -194,14 +192,14 @@ TEST(generatePossibleCollisionBehindParkedVehicle, TargetVehicle)
   // make a path lanelet with 2 points from x=0 to x=6
   lanelet::ConstLanelet ll = test::toPathLanelet(test::generatePath(0.0, 0.0, 6.0, 0.0, 2));
   // There is a parked bus,car,truck along with ego path.
-  std::cout << "\n" <<
-    " 4 -   |CAR|   |   |   |  -> ignored     \n" <<
-    " 3 -   |   |   |   |   |                 \n" <<
-    " 2 -   |TRU|   |   |   |  -> considered  \n" <<
-    " 1 Ego-|---|RAC|-path->|  -> ignored     \n" <<
-    " 0 -   |   |   |SUB|   |  -> considered  \n" <<
-    "-1 -   |   |   |   |   |                 \n" <<
-    "-2 | 0 | 1 | 2 | 3 | 4 | \n";
+  std::cout << "\n"
+            << " 4 -   |CAR|   |   |   |  -> ignored     \n"
+            << " 3 -   |   |   |   |   |                 \n"
+            << " 2 -   |TRU|   |   |   |  -> considered  \n"
+            << " 1 Ego-|---|RAC|-path->|  -> ignored     \n"
+            << " 0 -   |   |   |SUB|   |  -> considered  \n"
+            << "-1 -   |   |   |   |   |                 \n"
+            << "-2 | 0 | 1 | 2 | 3 | 4 | \n";
 
   std::vector<autoware_auto_perception_msgs::msg::PredictedObject> objects;
   autoware_auto_perception_msgs::msg::PredictedObject obj;
@@ -272,14 +270,16 @@ TEST(generatePossibleCollisionBehindParkedVehicle, TargetVehicle)
     for (size_t i = 0; i < pcs.size(); i++) {
       const auto o = pcs.at(i).obstacle_info.position;
       std::cout << "idx: " << i << std::endl;
-      std::cout << "occ x: " << " " << o.x << " y: " << o.y << std::endl;
+      std::cout << "occ x: "
+                << " " << o.x << " y: " << o.y << std::endl;
       const auto arc = pcs.at(i).arc_lane_dist_at_collision;
-      std::cout << "arc l: " << " " << arc.length << " d: " << arc.distance << std::endl;
+      std::cout << "arc l: "
+                << " " << arc.length << " d: " << arc.distance << std::endl;
     }
   }
   ASSERT_EQ(pcs.size(), static_cast<size_t>(2));
   EXPECT_DOUBLE_EQ(pcs.at(0).obstacle_info.position.x, truck_position_x + dim_h);
   EXPECT_DOUBLE_EQ(pcs.at(1).obstacle_info.position.x, bus_position_x + dim_h);
-  std::cout << "success :  runtime (microsec) " <<
-    duration_cast<microseconds>(end_naive - start_naive).count() << std::endl;
+  std::cout << "success :  runtime (microsec) "
+            << duration_cast<microseconds>(end_naive - start_naive).count() << std::endl;
 }

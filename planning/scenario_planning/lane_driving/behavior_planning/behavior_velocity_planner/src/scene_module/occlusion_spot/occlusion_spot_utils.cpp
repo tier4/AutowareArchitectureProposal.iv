@@ -21,21 +21,22 @@
 #include <utilization/path_utilization.hpp>
 #include <utilization/util.hpp>
 
+#include <deque>
 #include <functional>
 #include <limits>
 #include <numeric>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
-#include <deque>
-#include <set>
 
 namespace behavior_velocity_planner
 {
 namespace occlusion_spot_utils
 {
 bool splineInterpolate(
-  const PathWithLaneId & input, const double interval, PathWithLaneId * output, const rclcpp::Logger logger)
+  const PathWithLaneId & input, const double interval, PathWithLaneId * output,
+  const rclcpp::Logger logger)
 {
   *output = input;
 
@@ -156,10 +157,12 @@ Point setPoint(const double x, const double y, const double z)
   return p;
 }
 void calcSlowDownPointsForPossibleCollision(
-  const int closest_idx, const PathWithLaneId & path,
-  const double offset, std::vector<PossibleCollisionInfo> & possible_collisions)
+  const int closest_idx, const PathWithLaneId & path, const double offset,
+  std::vector<PossibleCollisionInfo> & possible_collisions)
 {
-  if (possible_collisions.empty()) {return;}
+  if (possible_collisions.empty()) {
+    return;
+  }
   // get interpolated value between (s0,v0) - (s1,value) - (s2,v2)
   auto getInterpolatedValue = [](double s0, double v0, double s1, double s2, double v2) {
     if (s2 - s0 < std::numeric_limits<float>::min()) {
@@ -222,8 +225,7 @@ autoware_auto_planning_msgs::msg::Path toPath(const PathWithLaneId & path_with_i
 
 // !generate center line from right/left lanelets
 void generateCenterLaneLine(
-  const PathWithLaneId & path,
-  const lanelet::routing::RoutingGraphPtr & routing_graph_ptr,
+  const PathWithLaneId & path, const lanelet::routing::RoutingGraphPtr & routing_graph_ptr,
   const lanelet::LaneletMapPtr & lanelet_map_ptr,
   std::vector<lanelet::BasicLineString2d> & attension_line)
 {
@@ -237,12 +239,10 @@ void generateCenterLaneLine(
     const auto ll = lanelet_map_ptr->laneletLayer.get(id);
     const auto polygon2d = ll.polygon2d().basicPolygon();
     attension_line.emplace_back(ll.centerline2d().basicLineString());
-    const auto right_ll =
-      (!!routing_graph_ptr->right(ll)) ? routing_graph_ptr->right(ll) : routing_graph_ptr->
-      adjacentRight(ll);
-    const auto left_ll =
-      (!!routing_graph_ptr->left(ll)) ? routing_graph_ptr->left(ll) : routing_graph_ptr->
-      adjacentLeft(ll);
+    const auto right_ll = (!!routing_graph_ptr->right(ll)) ? routing_graph_ptr->right(ll)
+                                                           : routing_graph_ptr->adjacentRight(ll);
+    const auto left_ll = (!!routing_graph_ptr->left(ll)) ? routing_graph_ptr->left(ll)
+                                                         : routing_graph_ptr->adjacentLeft(ll);
     if (right_ll) {
       attension_line.emplace_back(right_ll.get().centerline2d().basicLineString());
       for (const auto l : routing_graph_ptr->following(right_ll.get())) {
@@ -266,12 +266,15 @@ std::vector<PredictedObject> getParkedVehicles(
   std::vector<Point> points;
   for (const auto & obj : dyn_objects.objects) {
     bool is_parked_vehicle = true;
-    if (!occlusion_spot_utils::isStuckVehicle(obj, param.stuck_vehicle_vel)) {continue;}
+    if (!occlusion_spot_utils::isStuckVehicle(obj, param.stuck_vehicle_vel)) {
+      continue;
+    }
     const geometry_msgs::msg::Point & p = obj.kinematics.initial_pose_with_covariance.pose.position;
     BasicPoint2d obj_point(p.x, p.y);
     for (const auto & line : attension_line) {
       if (boost::geometry::distance(obj_point, line) < param.lateral_deviation_thr) {
-        is_parked_vehicle = false; break;
+        is_parked_vehicle = false;
+        break;
       }
     }
     if (is_parked_vehicle) {
@@ -298,20 +301,16 @@ ArcCoordinates getOcclusionPoint(const PredictedObject & obj, const ConstLineStr
    * Ego===============> path
    **/
   // sort by arc length
-  std::sort(
-    arcs.begin(), arcs.end(),
-    [](ArcCoordinates arc1, ArcCoordinates arc2) {
-      return arc1.length < arc2.length;
-    });
+  std::sort(arcs.begin(), arcs.end(), [](ArcCoordinates arc1, ArcCoordinates arc2) {
+    return arc1.length < arc2.length;
+  });
   // remove closests 2 polygon point
   arcs.pop_front();
   arcs.pop_front();
   // sort by arc distance
-  std::sort(
-    arcs.begin(), arcs.end(),
-    [](ArcCoordinates arc1, ArcCoordinates arc2) {
-      return std::abs(arc1.distance) < std::abs(arc2.distance);
-    });
+  std::sort(arcs.begin(), arcs.end(), [](ArcCoordinates arc1, ArcCoordinates arc2) {
+    return std::abs(arc1.distance) < std::abs(arc2.distance);
+  });
   // return closest to path point which is choosen by farthest 2 points.
   return arcs.at(0);
 }
@@ -330,21 +329,20 @@ double calcSignedArcDistance(const double distance, const double offset)
   return -1.0;
 }
 
-
-PossibleCollisionInfo  calculateCollisionPathPointFromOcclusionSpot(
+PossibleCollisionInfo calculateCollisionPathPointFromOcclusionSpot(
   const ArcCoordinates & occ_arc, const ArcCoordinates & occ_arc_with_offset,
   const lanelet::ConstLanelet & path_lanelet, const PlannerParam & param)
 {
   /**
- * @brief calculate obstacle collsion intersection from arc coordinate info.
- *                                      ^
- *                                      |
- * Ego ---------collision----------intersection-------> path
- *                                      |
- *             ------------------       |
- *            |     Vehicle      |   obstacle
- *             ------------------
- */
+   * @brief calculate obstacle collsion intersection from arc coordinate info.
+   *                                      ^
+   *                                      |
+   * Ego ---------collision----------intersection-------> path
+   *                                      |
+   *             ------------------       |
+   *            |     Vehicle      |   obstacle
+   *             ------------------
+   */
   PossibleCollisionInfo pc;
   const auto ll = path_lanelet.centerline2d();
   BasicPoint2d collision_point = fromArcCoordinates(ll, {occ_arc_with_offset.length, 0.0});
@@ -368,7 +366,6 @@ PossibleCollisionInfo  calculateCollisionPathPointFromOcclusionSpot(
   return pc;
 }
 
-
 std::vector<PossibleCollisionInfo> generatePossibleCollisionBehindParkedVehicle(
   const lanelet::ConstLanelet & path_lanelet, const PlannerParam & param,
   [[maybe_unused]] const double offset_from_start_to_ego,
@@ -382,16 +379,14 @@ std::vector<PossibleCollisionInfo> generatePossibleCollisionBehindParkedVehicle(
     ArcCoordinates occ_arc = getOcclusionPoint(dyn, ll);
     ArcCoordinates occ_arc_with_offset = {
       occ_arc.length - baselink_to_front - param.safety_margin,
-      calcSignedArcDistance(occ_arc.distance, half_vehicle_width)
-    };
+      calcSignedArcDistance(occ_arc.distance, half_vehicle_width)};
     // ignore if collision is not avoidable by velocity control.
     if (
       occ_arc_with_offset.length < offset_from_start_to_ego ||
       occ_arc_with_offset.length > param.detection_area_length ||
       occ_arc_with_offset.length > lanelet::geometry::length2d(path_lanelet) ||
       std::abs(occ_arc_with_offset.distance) <= 1e-3 ||
-      std::abs(occ_arc_with_offset.distance) > param.lateral_distance_thr)
-    {
+      std::abs(occ_arc_with_offset.distance) > param.lateral_distance_thr) {
       continue;
     }
     // occ_arc_with_offset.length -= ;
@@ -485,8 +480,7 @@ void calculateCollisionPathPointFromOcclusionSpot(
 
 bool extractTargetRoad(
   const int closest_idx, const lanelet::LaneletMapPtr lanelet_map_ptr, const double max_range,
-  const PathWithLaneId & src_path,
-  double & offset_from_closest_to_target,
+  const PathWithLaneId & src_path, double & offset_from_closest_to_target,
   PathWithLaneId & tar_path, const ROAD_TYPE & target_road_type)
 {
   bool found_target = false;
@@ -515,10 +509,10 @@ bool extractTargetRoad(
 }
 
 void generatePossibleCollisions(
-  std::vector<PossibleCollisionInfo> & possible_collisions,
-  const PathWithLaneId & path, const grid_map::GridMap & grid,
-  const double offset_from_ego_to_closest, const double offset_from_closest_to_target,
-  const PlannerParam & param, std::vector<lanelet::BasicPolygon2d> & debug)
+  std::vector<PossibleCollisionInfo> & possible_collisions, const PathWithLaneId & path,
+  const grid_map::GridMap & grid, const double offset_from_ego_to_closest,
+  const double offset_from_closest_to_target, const PlannerParam & param,
+  std::vector<lanelet::BasicPolygon2d> & debug)
 {
   // NOTE : buildPathLanelet first index should always be zero because path is already limited
   lanelet::ConstLanelet path_lanelet = buildPathLanelet(path);

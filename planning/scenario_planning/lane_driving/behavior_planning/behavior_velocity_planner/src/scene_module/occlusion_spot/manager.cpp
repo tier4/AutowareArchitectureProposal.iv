@@ -130,9 +130,9 @@ void OcclusionSpotModuleManager::launchNewModules(
     }
   }
   // public
-  if (!isModuleRegistered(public_road_module_id) &&
-    (planner_param_.launch_public || !planner_param_.consider_road_type))
-  {
+  if (
+    !isModuleRegistered(public_road_module_id) &&
+    (planner_param_.launch_public || !planner_param_.consider_road_type)) {
     if (hasPublicRoadOnPath(path, planner_data_->lanelet_map)) {
       registerModule(std::make_shared<OcclusionSpotInPublicModule>(
         public_road_module_id, planner_data_, planner_param_,

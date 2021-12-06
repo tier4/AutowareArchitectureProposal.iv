@@ -31,9 +31,8 @@ void applySafeVelocityConsideringPossibleCollison(
   const auto logger{rclcpp::get_logger("behavior_velocity_planner").get_child("occlusion_spot")};
   rclcpp::Clock clock{RCL_ROS_TIME};
   for (auto & possible_collision : possible_collisions) {
-    const double dist_to_collision = std::max(
-      possible_collision.arc_lane_dist_at_collision.length,
-      0.0);
+    const double dist_to_collision =
+      std::max(possible_collision.arc_lane_dist_at_collision.length, 0.0);
     const double original_vel = possible_collision.collision_path_point.longitudinal_velocity_mps;
     // d_obs can be negative by arc corrdinate
     const double d_obs = std::abs(possible_collision.arc_lane_dist_at_collision.distance);

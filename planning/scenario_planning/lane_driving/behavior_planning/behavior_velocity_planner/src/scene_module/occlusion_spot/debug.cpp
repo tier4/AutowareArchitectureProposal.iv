@@ -210,8 +210,7 @@ visualization_msgs::msg::MarkerArray createMarkers(
   return occlusion_spot_slowdown_markers;
 }
 
-
-visualization_msgs::msg::MarkerArray  makeLineMarker(
+visualization_msgs::msg::MarkerArray makeLineMarker(
   const std::vector<lanelet::BasicLineString2d> & lines, double z, int id)
 {
   visualization_msgs::msg::MarkerArray debug_markers;
@@ -267,14 +266,13 @@ visualization_msgs::msg::MarkerArray OcclusionSpotInPublicModule::createDebugMar
   visualization_msgs::msg::MarkerArray debug_marker_array;
   if (!debug_data_.parked_vehicle_point.empty()) {
     appendMarkerArray(
-      createParkedVehicleMarkerArray(
-        debug_data_.parked_vehicle_point, current_time), current_time, &debug_marker_array);
+      createParkedVehicleMarkerArray(debug_data_.parked_vehicle_point, current_time), current_time,
+      &debug_marker_array);
   }
   if (!debug_data_.attension_line.empty()) {
     appendMarkerArray(
-      makeLineMarker(
-        debug_data_.attension_line, debug_data_.z,
-        0), current_time, &debug_marker_array);
+      makeLineMarker(debug_data_.attension_line, debug_data_.z, 0), current_time,
+      &debug_marker_array);
   }
   appendMarkerArray(createMarkers(debug_data_, module_id_), current_time, &debug_marker_array);
 

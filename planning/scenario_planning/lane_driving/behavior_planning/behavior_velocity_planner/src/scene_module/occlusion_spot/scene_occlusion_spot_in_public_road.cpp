@@ -12,29 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-#include <vector>
-#include <utility>
-#include <set>
+#include "scene_module/occlusion_spot/scene_occlusion_spot_in_public_road.hpp"
 
 #include "autoware_utils/geometry/geometry.hpp"
 #include "lanelet2_core/primitives/BasicRegulatoryElements.h"
-
-#include "geometry_msgs/msg/point.h"
 #include "lanelet2_extension/utility/utilities.hpp"
 #include "scene_module/occlusion_spot/occlusion_spot_utils.hpp"
 #include "scene_module/occlusion_spot/risk_predictive_braking.hpp"
-#include "scene_module/occlusion_spot/scene_occlusion_spot_in_public_road.hpp"
 #include "utilization/boost_geometry_helper.hpp"
 #include "utilization/util.hpp"
+
+#include "geometry_msgs/msg/point.h"
+
+#include <memory>
+#include <set>
+#include <utility>
+#include <vector>
 
 namespace behavior_velocity_planner
 {
 using occlusion_spot_utils::PossibleCollisionInfo;
 using occlusion_spot_utils::ROAD_TYPE;
 std::pair<double, double> extractTargetRoadArcLength(
-  const lanelet::LaneletMapPtr lanelet_map_ptr, const double max_range,
-  const PathWithLaneId & path, const ROAD_TYPE & target_road_type)
+  const lanelet::LaneletMapPtr lanelet_map_ptr, const double max_range, const PathWithLaneId & path,
+  const ROAD_TYPE & target_road_type)
 {
   bool found_target = false;
   double start_dist = 0;
@@ -47,7 +48,9 @@ std::pair<double, double> extractTargetRoadArcLength(
       break;
     }
     // ignore path farther than max range
-    if (dist_sum > max_range) {break;}
+    if (dist_sum > max_range) {
+      break;
+    }
     if (!found_target && search_road_type == target_road_type) {
       start_dist = dist_sum;
       found_target = true;
@@ -82,7 +85,7 @@ double offsetFromStartToEgo(
   }
   const double offset_from_closest_to_target =
     -planning_utils::transformRelCoordinate2D(ego_pose, path.points[closest_idx].point.pose)
-    .position.x;
+       .position.x;
   return offset_from_ego_to_closest + offset_from_closest_to_target;
 }
 
@@ -137,15 +140,13 @@ bool OcclusionSpotInPublicModule::modifyPathVelocity(
   occlusion_spot_utils::splineInterpolate(*path, 0.5, &interp_path, logger_);
   int closest_idx = -1;
   if (!planning_utils::calcClosestIndex<PathWithLaneId>(
-      interp_path, ego_pose, closest_idx, param_.dist_thr, param_.angle_thr))
-  {
+        interp_path, ego_pose, closest_idx, param_.dist_thr, param_.angle_thr)) {
     return true;
   }
   offset_from_start_to_ego = offsetFromStartToEgo(interp_path, ego_pose, closest_idx);
   const auto path_lanelet = toPathLanelet(interp_path);
   //! Note : Arc Lane from idx[0] to end therefore DO NOT consider offset here
-  possible_collisions =
-    occlusion_spot_utils::generatePossibleCollisionBehindParkedVehicle(
+  possible_collisions = occlusion_spot_utils::generatePossibleCollisionBehindParkedVehicle(
     path_lanelet, param_, offset_from_start_to_ego, obj);
   //! Note : consider offset_from_start_to_ego here
   for (auto & pc : possible_collisions) {
@@ -158,7 +159,9 @@ bool OcclusionSpotInPublicModule::modifyPathVelocity(
     int idx = 0;
     for (const auto pc : possible_collisions) {
       const auto pc_len = pc.arc_lane_dist_at_collision.length;
-      if (focus_length.first < pc_len && pc_len < focus_length.second) {continue;}
+      if (focus_length.first < pc_len && pc_len < focus_length.second) {
+        continue;
+      }
       // -----erase-----|start------target-------end|----erase---
       possible_collisions.erase(possible_collisions.begin() + idx);
     }
