@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "behavior_path_planner/scene_module/empty_module/empty_module.hpp"
+
 #include "behavior_path_planner/utilities.hpp"
 
 #include <memory>
@@ -22,17 +23,22 @@ namespace behavior_path_planner
 {
 EmptyModule::EmptyModule(
   const std::string & name, rclcpp::Node & node, const EmptyParameters & parameters)
-: SceneModuleInterface{name, node}, parameters_{parameters}{
+: SceneModuleInterface{name, node}, parameters_{parameters}
+{
   approval_handler_.clearWaitApproval();
   current_state_ = BT::NodeStatus::IDLE;
 }
 bool EmptyModule::isExecutionRequested() const { return false; }
 bool EmptyModule::isExecutionReady() const { return false; }
-BT::NodeStatus EmptyModule::updateState(){return BT::NodeStatus::SUCCESS;}
-BehaviorModuleOutput EmptyModule::plan(){return BehaviorModuleOutput();}
-PathWithLaneId EmptyModule::planCandidate() const { PathWithLaneId path; return path; }
-BehaviorModuleOutput EmptyModule::planWaitingApproval(){ return BehaviorModuleOutput();}
-void EmptyModule::onEntry(){  RCLCPP_ERROR(getLogger(), "Dont Entry This");}
-void EmptyModule::onExit(){}
+BT::NodeStatus EmptyModule::updateState() { return BT::NodeStatus::SUCCESS; }
+BehaviorModuleOutput EmptyModule::plan() { return BehaviorModuleOutput(); }
+PathWithLaneId EmptyModule::planCandidate() const
+{
+  PathWithLaneId path;
+  return path;
+}
+BehaviorModuleOutput EmptyModule::planWaitingApproval() { return BehaviorModuleOutput(); }
+void EmptyModule::onEntry() { RCLCPP_ERROR(getLogger(), "Dont Entry This"); }
+void EmptyModule::onExit() {}
 
 }  // namespace behavior_path_planner

@@ -28,12 +28,13 @@
 
 namespace behavior_path_planner
 {
-struct EmptyParameters{};
+struct EmptyParameters
+{
+};
 class EmptyModule : public SceneModuleInterface
 {
 public:
-  EmptyModule(
-    const std::string & name, rclcpp::Node & node, const EmptyParameters & parameters);
+  EmptyModule(const std::string & name, rclcpp::Node & node, const EmptyParameters & parameters);
   bool isExecutionRequested() const override;
   bool isExecutionReady() const override;
   BT::NodeStatus updateState() override;

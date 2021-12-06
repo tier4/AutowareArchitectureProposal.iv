@@ -87,53 +87,47 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
   {
     bt_manager_ = std::make_shared<BehaviorTreeManager>(*this, getBehaviorTreeManagerParam());
 
-    const auto register_empty_module = [&](const std::string & module_name) {
-      auto empty_module = std::make_shared<EmptyModule>(module_name, *this, EmptyParameters());
-      bt_manager_->registerSceneModule(empty_module);
-
-    };
-
-
-    auto lane_following_module =
-      std::make_shared<LaneFollowingModule>("LaneFollowing", *this, getLaneFollowingParam());
-    bt_manager_->registerSceneModule(lane_following_module);
-    const bool launch_side_sift_module = true;
-    if (launch_side_sift_module) {
-      auto side_shift_module =
-        std::make_shared<SideShiftModule>("SideShift", *this, getSideShiftParam());
-      bt_manager_->registerSceneModule(side_shift_module);
-    } else {
-      register_empty_module("SideShift");
-    }
-
-    //xxx(flag, "shideShift", getSideShiftParam())
-
-    auto avoidance_module =
-      std::make_shared<AvoidanceModule>("Avoidance", *this, getAvoidanceParam());
-    bt_manager_->registerSceneModule(avoidance_module);
+    [[maybe_unused]] const auto register_module =
+      [&](const bool launch, const std::string & name, const auto & ptr) {
+        if (launch) {
+          bt_manager_->registerSceneModule(ptr);
+        } else {
+          auto empty_module = std::make_shared<EmptyModule>(name, *this, EmptyParameters());
+          bt_manager_->registerSceneModule(empty_module);
+        }
+      };
+    const bool launch_lane_following_module = true;
+    // TODO lane change needs some extra setting that is registered in bt
+    const bool launch_lane_change_module = true;
+    const bool launch_side_sift_module = false;
+    const bool launch_avoidance_module = false;
+    const bool launch_pull_over_module = false;
+    const bool launch_pull_out_module = false;
 
     const auto lane_change_param = getLaneChangeParam();
-    bool launch_lane_change_module=false;
-    if(launch_lane_change_module){
-    auto lane_change_module =
-      std::make_shared<LaneChangeModule>("LaneChange", *this, lane_change_param);
-    bt_manager_->registerSceneModule(lane_change_module);
-   
-    auto force_lane_change_module =
-      std::make_shared<LaneChangeModule>("ForceLaneChange", *this, lane_change_param);
-    bt_manager_->registerSceneModule(force_lane_change_module);
-
-    bt_manager_->registerForceApproval("ForceLaneChange");
-    }else{
-      register_empty_module("LaneChange");
-      register_empty_module("ForceLaneChange");
-    }
-
-    auto pull_over_module = std::make_shared<PullOverModule>("PullOver", *this, getPullOverParam());
-    bt_manager_->registerSceneModule(pull_over_module);
-
-    auto pull_out_module = std::make_shared<PullOutModule>("PullOut", *this, getPullOutParam());
-    bt_manager_->registerSceneModule(pull_out_module);
+    // TODO somehow passing class type to lambda function
+    register_module(
+      launch_lane_following_module, "LaneFollowing",
+      std::make_shared<LaneFollowingModule>("LaneFollowing", *this, getLaneFollowingParam()));
+    register_module(
+      launch_side_sift_module, "SideShift",
+      std::make_shared<SideShiftModule>("SideShift", *this, getSideShiftParam()));
+    register_module(
+      launch_avoidance_module, "Avoidance",
+      std::make_shared<AvoidanceModule>("Avoidance", *this, getAvoidanceParam()));
+    register_module(
+      launch_pull_over_module, "PullOver",
+      std::make_shared<PullOverModule>("PullOver", *this, getPullOverParam()));
+    register_module(
+      launch_pull_out_module, "PullOut",
+      std::make_shared<PullOutModule>("PullOut", *this, getPullOutParam()));
+    register_module(
+      launch_lane_change_module, "LaneChange",
+      std::make_shared<LaneChangeModule>("LaneChange", *this, lane_change_param));
+    register_module(
+      launch_lane_change_module, "ForceLaneChange",
+      std::make_shared<LaneChangeModule>("ForceLaneChange", *this, lane_change_param));
+    if (launch_lane_change_module) bt_manager_->registerForceApproval("ForceLaneChange");
 
     bt_manager_->createBehaviorTree();
   }
