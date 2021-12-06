@@ -4,10 +4,10 @@
 
 The purpose of this node is that remove the ground points from the input pointcloud.
 
-
 ## Inner-workings / Algorithms
 
 Apply the input points to the plane, and set the points at a certain distance from the plane as points other than the ground. Normally, whn using this method, the input points is filtered so that it is almost flat before use. Since the drivable area is often flat, there are methods such as filtering by lane.
+
 ## Inputs / Outputs
 
 This implementation inherits `pointcloud_preprocessor::Filter` class, please refer [README](../README.md).
@@ -44,6 +44,6 @@ This implementation inherits `pointcloud_preprocessor::Filter` class, please ref
 
 ## References/External links
 
-https://pcl.readthedocs.io/projects/tutorials/en/latest/planar_segmentation.html
+<https://pcl.readthedocs.io/projects/tutorials/en/latest/planar_segmentation.html>
 
 ## (Optional) Future extensions / Unimplemented parts
