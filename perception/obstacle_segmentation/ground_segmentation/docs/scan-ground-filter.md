@@ -2,6 +2,8 @@
 
 ## Purpose
 
+The purpose of this node is that remove the ground points from the input pointcloud.
+
 ## Inner-workings / Algorithms
 
 This algorithm works by following steps,
