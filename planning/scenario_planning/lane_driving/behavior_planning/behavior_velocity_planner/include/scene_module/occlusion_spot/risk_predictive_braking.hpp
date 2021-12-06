@@ -60,6 +60,35 @@ inline double calculateSafeRPBVelocity(
   return v_safe;
 }
 
+/**
+  * @param: safety_time: safety time buffer for reaction
+  * @param: dist_to_obj: distance to virtual darting object
+  * @param: v_obs: relative  velocity for virtual darting object
+  * @param: a_obs: relative  deceleration for virtual darting object
+  * @param: ebs_decel: emergency brake
+  * @return safe velocity considering rpb
+  **/
+inline double calculateSafeRPBVelocity(
+  const double safety_time, const double dist_to_obj, const double v_obs, const double a_obs,
+  const double ebs_decel)
+{
+  // 0.5*a*t^2 + v*t =d convert to t = ~
+  double t_vir = 0;
+  if (std::abs(a_obs) < 1e-3) {
+    t_vir = dist_to_obj / v_obs;
+  }
+  if (v_obs > std::sqrt(std::pow(v_obs, 2) + 2.0 * a_obs * dist_to_obj)) {
+    t_vir = (-v_obs + std::sqrt(std::pow(v_obs, 2) + 2.0 * a_obs * dist_to_obj)) / a_obs;
+  } else {
+    t_vir = dist_to_obj / v_obs;
+  }
+  // min safety time buffer is at least more than 0
+  const double ttc_virtual = std::max(t_vir - safety_time, 0.0);
+  // safe velocity consider emergency brake
+  const double v_safe = std::abs(ebs_decel) * ttc_virtual;
+  return v_safe;
+}
+
 inline double getPBSLimitedRPBVelocity(
   const double pbs_vel, const double rpb_vel, const double min_vel, const double original_vel)
 {

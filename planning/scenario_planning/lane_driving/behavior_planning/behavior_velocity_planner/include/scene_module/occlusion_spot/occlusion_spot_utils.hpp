@@ -22,6 +22,8 @@
 #include <scene_module/occlusion_spot/grid_utils.hpp>
 
 #include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/predicted_object.hpp>
+#include <autoware_auto_perception_msgs/msg/object_classification.hpp>
 #include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 
@@ -36,8 +38,22 @@
 
 namespace behavior_velocity_planner
 {
+using autoware_auto_perception_msgs::msg::PredictedObjects;
+using autoware_auto_perception_msgs::msg::PredictedObject;
+using autoware_auto_perception_msgs::msg::ObjectClassification;
+using autoware_auto_planning_msgs::msg::PathPoint;
+using PathWithLaneId = autoware_auto_planning_msgs::msg::PathWithLaneId;
+using ArcCoordinates = lanelet::ArcCoordinates;
+using ConstLineString2d = lanelet::ConstLineString2d;
+using Point = geometry_msgs::msg::Point;
+using BasicPoint2d = lanelet::BasicPoint2d;
+using BasicLineString2d = lanelet::BasicLineString2d;
+using lanelet::geometry::toArcCoordinates;
+using lanelet::geometry::fromArcCoordinates;
+
 namespace occlusion_spot_utils
 {
+
 enum ROAD_TYPE { PRIVATE, PUBLIC, HIGHWAY, UNKNOWN };
 
 struct Sidewalk
@@ -64,10 +80,16 @@ struct PlannerParam
 {
   // parameters in yaml
   double safety_time_buffer;     // [s]
+  double safety_margin;          // [m]
   double detection_area_length;  // [m]
   double stuck_vehicle_vel;      // [m/s]
   double lateral_distance_thr;   // [m] lateral distance threshold to consider
+  double lateral_deviation_thr;  // [m] lateral distance threshold to consider
   double pedestrian_vel;         // [m/s]
+  double pedestrian_decel;       // [m/s^2]
+  bool launch_private;           // [-] weather to launch module for private road
+  bool launch_public;           // [-] whether to launch module for public road
+  bool consider_road_type;       // [-] whether to limit target road
 
   double dist_thr;       // [m]
   double angle_thr;      // [rad]
@@ -84,6 +106,7 @@ struct ObstacleInfo
 {
   geometry_msgs::msg::Point position;
   double max_velocity;  // [m/s] Maximum velocity of the possible obstacle
+  double min_deceleration;     // [m/s^2] Minimum deceleration of the possible obstacle
 };
 
 /**
@@ -98,10 +121,10 @@ struct ObstacleInfo
  */
 struct PossibleCollisionInfo
 {
-  ObstacleInfo obstacle_info;  // For hidden obstacle
-  autoware_auto_planning_msgs::msg::PathPoint
-    collision_path_point;                              // For baselink at collision point
-  geometry_msgs::msg::Pose intersection_pose;          // For egp path and hidden obstacle
+  ObstacleInfo obstacle_info;                                   // For hidden obstacle
+  PathPoint collision_path_point;  // For baselink at collision point
+  PathPoint safety_margin_start;   // For safety margin
+  geometry_msgs::msg::Pose intersection_pose;                   // For egp path and hidden obstacle
   lanelet::ArcCoordinates arc_lane_dist_at_collision;  // For ego distance to obstacle in s-d
   PossibleCollisionInfo() = default;
   PossibleCollisionInfo(
@@ -117,9 +140,35 @@ struct PossibleCollisionInfo
   }
 };
 
+inline bool isStuckVehicle(PredictedObject obj, const double min_vel)
+{
+  if (
+    obj.classification.label == ObjectClassification::CAR ||
+    obj.classification.label == ObjectClassification::TRUCK ||
+    obj.classification.label == ObjectClassification::BUS)
+  {
+    if (obj.kinematics.initial_twist_with_covariance.twist.linear.x < min_vel) {return true;}
+  }
+  return false;
+}
 bool splineInterpolate(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & input, const double interval,
-  autoware_auto_planning_msgs::msg::PathWithLaneId * output, const rclcpp::Logger logger);
+  const PathWithLaneId & input, const double interval,
+  PathWithLaneId * output, const rclcpp::Logger logger);
+lanelet::ConstLanelet toPathLanelet(const PathWithLaneId & path);
+// !generate center line from right/left lanelets
+void generateCenterLaneLine(
+  const PathWithLaneId & path,
+  const lanelet::routing::RoutingGraphPtr & routing_graph_ptr,
+  const lanelet::LaneletMapPtr & lanelet_map_ptr,
+  std::vector<lanelet::BasicLineString2d> & attension_line);
+std::vector<PredictedObject> getParkedVehicles(
+  const PredictedObjects & dyn_objects, const std::vector<BasicLineString2d> & attension_line,
+  const PlannerParam & param, std::vector<Point> & debug_point);
+std::vector<PossibleCollisionInfo> generatePossibleCollisionBehindParkedVehicle(
+  const lanelet::ConstLanelet & path_lanelet, const PlannerParam & param,
+  const double offset_from_start_to_ego,
+  const std::vector<PredictedObject> & dyn_objects);
+
 ROAD_TYPE getCurrentRoadType(
   const lanelet::ConstLanelet & current_lanelet, const lanelet::LaneletMapPtr & lanelet_map_ptr);
 //!< @brief build a Lanelet from a interpolated path
@@ -138,8 +187,8 @@ void createPossibleCollisionBehindParkedVehicle(
   const autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr & dyn_obj_arr);
 //!< @brief set velocity and orientation to collision point based on previous Path with laneId
 void calcSlowDownPointsForPossibleCollision(
-  const int closest_idx, const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
-  const double offset_from_ego_to_target, std::vector<PossibleCollisionInfo> & possible_collisions);
+  const int closest_idx, const PathWithLaneId & path,
+  const double offset, std::vector<PossibleCollisionInfo> & possible_collisions);
 //!< @brief extract lanelet that includes target_road_type only
 bool extractTargetRoad(
   const int closest_idx, const lanelet::LaneletMapPtr lanelet_map_ptr, const double max_range,

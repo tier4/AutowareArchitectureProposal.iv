@@ -39,6 +39,7 @@ bool OcclusionSpotInPrivateModule::modifyPathVelocity(
   autoware_auto_planning_msgs::msg::PathWithLaneId * path,
   [[maybe_unused]] autoware_planning_msgs::msg::StopReason * stop_reason)
 {
+  return true;
   if (path->points.size() < 2) {
     return true;
   }

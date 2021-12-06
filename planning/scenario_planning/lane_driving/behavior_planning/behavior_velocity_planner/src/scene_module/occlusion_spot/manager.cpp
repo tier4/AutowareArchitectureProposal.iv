@@ -81,10 +81,16 @@ OcclusionSpotModuleManager::OcclusionSpotModuleManager(rclcpp::Node & node)
   auto & pp = planner_param_;
   // assume pedestrian coming out from occlusion spot with this velocity
   pp.pedestrian_vel = node.declare_parameter(ns + ".pedestrian_vel", 1.0);
+  pp.pedestrian_decel = node.declare_parameter(ns + ".pedestrian_decel", -0.2);
   pp.safety_time_buffer = node.declare_parameter(ns + ".safety_time_buffer", 0.1);
+  pp.safety_margin = node.declare_parameter(ns + ".safety_margin", 2.0);
+  pp.launch_public = node.declare_parameter(ns + ".launch_public", true);
+  pp.launch_private = node.declare_parameter(ns + ".launch_private", true);
+  pp.consider_road_type = node.declare_parameter(ns + ".consider_road_type", true);
   pp.detection_area_length = node.declare_parameter(ns + ".threshold.detection_area_length", 200.0);
   pp.stuck_vehicle_vel = node.declare_parameter(ns + ".threshold.stuck_vehicle_vel", 1.0);
   pp.lateral_distance_thr = node.declare_parameter(ns + ".threshold.lateral_distance", 10.0);
+  pp.lateral_deviation_thr = node.declare_parameter(ns + ".threshold.lateral_deviation", 0.5);
 
   pp.dist_thr = node.declare_parameter(ns + ".threshold.search_dist", 10.0);
   pp.angle_thr = node.declare_parameter(ns + ".threshold.search_angle", M_PI / 5.0);
@@ -116,7 +122,7 @@ void OcclusionSpotModuleManager::launchNewModules(
   const int64_t private_road_module_id = static_cast<int64_t>(ModuleID::PRIVATE);
   const int64_t public_road_module_id = static_cast<int64_t>(ModuleID::PUBLIC);
   // private
-  if (!isModuleRegistered(private_road_module_id)) {
+  if (!isModuleRegistered(private_road_module_id) && planner_param_.launch_private) {
     if (hasPrivateRoadOnPath(path, planner_data_->lanelet_map)) {
       registerModule(std::make_shared<OcclusionSpotInPrivateModule>(
         private_road_module_id, planner_data_, planner_param_,
@@ -124,7 +130,9 @@ void OcclusionSpotModuleManager::launchNewModules(
     }
   }
   // public
-  if (!isModuleRegistered(public_road_module_id)) {
+  if (!isModuleRegistered(public_road_module_id) &&
+    (planner_param_.launch_public || !planner_param_.consider_road_type))
+  {
     if (hasPublicRoadOnPath(path, planner_data_->lanelet_map)) {
       registerModule(std::make_shared<OcclusionSpotInPublicModule>(
         public_road_module_id, planner_data_, planner_param_,

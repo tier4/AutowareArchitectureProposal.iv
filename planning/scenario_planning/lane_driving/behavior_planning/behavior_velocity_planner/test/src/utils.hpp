@@ -122,7 +122,7 @@ inline void generatePossibleCollisions(
   using behavior_velocity_planner::occlusion_spot_utils::PossibleCollisionInfo;
   const double lon = 0.0;  // assume col_x = intersection_x
   const double lat = -1.0;
-  const double velocity = 1.0;
+  const double velocity = 10.0;
   /**
    * @brief representation of a possible collision between ego and some obstacle
    *                                      ^
@@ -191,6 +191,20 @@ inline geometry_msgs::msg::Pose generatePose(double x)
   q.setRPY(0, 0, 0);
   p.orientation = tf2::toMsg(q);
   return p;
+}
+
+inline lanelet::ConstLanelet toPathLanelet(
+  const autoware_planning_msgs::msg::PathWithLaneId & path)
+{
+  lanelet::Points3d path_points;
+  for (const auto & point_with_id : path.points) {
+    const auto & p = point_with_id.point.pose.position;
+    path_points.emplace_back(lanelet::InvalId, p.x, p.y, p.z);
+  }
+  lanelet::LineString3d centerline(lanelet::InvalId, path_points);
+  lanelet::Lanelet path_lanelet(lanelet::InvalId);
+  path_lanelet.setCenterline(centerline);
+  return lanelet::ConstLanelet(path_lanelet);
 }
 
 }  // namespace test
