@@ -2,7 +2,7 @@
 
 ### Role
 
-Blind spot check while turning right/left by a dynamic object information, and planning and planning of a velocity of the start/stop.
+Blind spot check while turning right/left by a dynamic object information and planning a velocity of the start/stop.
 
 ![brief](./docs/blind_spot/blind_spot.svg)
 
