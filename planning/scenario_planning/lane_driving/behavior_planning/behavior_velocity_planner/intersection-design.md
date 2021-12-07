@@ -54,16 +54,16 @@ The following process is performed for the attention targets to determine whethe
 2. extract the predicted path of the target object whose confidence is greater than `min_predicted_path_confidence`.
 3. detect collision between the extracted predicted path and ego's predicted path in the following process.
    1. obtain the passing area of the ego vehicle $A_{ego}$ in $t_s$ ~ $t_e$.
-   2. calculate the passing area of the target object $A_{target}$ at $t_s$ - `collision_start_margin_time` ~ $t_e$ + `collision_end_margin_time` for each predicted path (*1).
+   2. calculate the passing area of the target object $A_{target}$ at $t_s$ - `collision_start_margin_time` ~ $t_e$ + `collision_end_margin_time` for each predicted path (\*1).
    3. check if $A_{ego}$ and $A_{target}$ regions are overlapped (has collision).
-4. when a collision is detected, the module inserts a stop velocity in front of the intersection. Note that there is a time margin for the stop release (*2).
+4. when a collision is detected, the module inserts a stop velocity in front of the intersection. Note that there is a time margin for the stop release (\*2).
 
-(*1) The parameters `collision_start_margin_time` and `collision_end_margin_time` can be interpreted as follows:
+(\*1) The parameters `collision_start_margin_time` and `collision_end_margin_time` can be interpreted as follows:
 
 - If the ego vehicle passes through the intersection earlier than the target object, the collision is detected if the time difference between the two is less than `collision_start_margin_time`.
 - If the ego vehicle passes through the intersection later than the target object, the collision is detected if the time difference between the two is less than `collision_end_margin_time`.
 
-(*2) If the collision is detected, the state transits to "stop" immediately. On the other hand, the collision judgment must be clear for a certain period (default : 2.0[s]) to transit from "stop" to "go" to prevent to prevent chattering of decisions.
+(\*2) If the collision is detected, the state transits to "stop" immediately. On the other hand, the collision judgment must be clear for a certain period (default : 2.0[s]) to transit from "stop" to "go" to prevent to prevent chattering of decisions.
 
 ### Stop Line Automatic Generation
 
