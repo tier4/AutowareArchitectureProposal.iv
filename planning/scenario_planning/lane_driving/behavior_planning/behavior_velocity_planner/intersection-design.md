@@ -51,10 +51,17 @@ See the following figures to know how to create an attention area and its ration
 （TODO　木村）
 Attention target に対して以下の処理を行い、egoとの衝突判定を行う。余裕を持って交差点を通過することができないと判断した場合は、停止線に停止速度を埋め込む
 
-1. 交差点の通過時間を計算
-2. 対象物体の予測経路の中でconfidenceが `min_predicted_path_confidence` 以上のものを抽出
-3. 抽出された予測経路とegoの予測経路の衝突検知をして〜〜〜 `collsiion_start_margin_time` と `collision_end_margin_time` がなんちゃら〜〜
-4. こうなったら停止。なお、停止解除にはマージンが存在する（下参照）
+1. 自車の交差点の通過時間を計算. この通過時間を$t_s$ ~ $t_e$とする
+2. 対象物体の予測経路の中でconfidenceが `min_predicted_path_confidence` 以上のものを抽出の
+3. 以下の方法で抽出された予測経路とegoの予測経路の衝突検知をする
+ - 自車の$t_s$ ~ $t_e$における通過領域$A_{ego}$を求める
+ - 対象物体の$t_s$ - `collsiion_start_margin_time` ~ $t_e$ + `collision_end_margin_time`における通過領域$A_{target}$を各予測経路に対して求める*
+ - $A_{ego}$と$A_{target}$領域が重なっていたら衝突検知.
+4. 衝突検知された場合に交差点前で停止する。なお、停止解除にはマージンが存在する（下参照）
+
+* なお. 3.の`collsiion_start_margin_time`, `collision_end_margin_time`は以下のような意味を持つ
+- 自車の方が対象物体より早く交差点を通過する場合, 両者の交差点通過が`collsiion_start_margin_time`以下の時間差である場合, 衝突検知される
+- 対象物体の方が自車より早く交差点を通過する場合, 両者の交差点通過が`collsiion_end_margin_time`以下の時間差である場合, 衝突検知される
 
 ### State Transition (go / stop)
 
