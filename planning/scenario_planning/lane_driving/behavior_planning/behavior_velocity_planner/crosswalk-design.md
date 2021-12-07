@@ -18,7 +18,7 @@ Launches when there is a crosswalk on the target lane.
 
 #### For Crosswalk
 
-横断歩道の減速エリアや停止エリアはパラメータで定義されており、このエリアの外にいる歩行者や自転車には対応できない。
+In order to prevent perception failure, the detection area is limited by using pre-defined areas (deceleration area and stop area). Therefore this module does not respond to pedestrians or bicycles outside these areas.
 
 #### For Walkway
 
@@ -71,8 +71,9 @@ flow chart is almost the same as stop line.
 
 #### Crosswalk
 
-横断歩道の減速エリアで埋め込む速度が一律 10[km/h]となっているが、衝突点と歩行者との距離が加味されていないため、高速走行しているときに歩行者が横断歩道に飛び出してきても停止できない可能性がある。
+- The logic for determining speed should be set more strictly from safety reasons.
+- The deceleration speed from the deceleration area logic is set to a constant value (10 [km/h]), which does not take into account the safety distance from obstacles.
 
 #### Walkway
 
-停止せずに停止線を超えてしまった場合 STOP の state に入ったままでその後に永遠に動き出すことはない。
+- If the vehicle exceeds the stop line more than the threshold distance, this module will get stuck in STOP state and will not start moving.
