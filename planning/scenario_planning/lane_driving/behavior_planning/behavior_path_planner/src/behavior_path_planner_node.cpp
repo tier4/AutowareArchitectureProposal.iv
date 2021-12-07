@@ -87,46 +87,24 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
   {
     bt_manager_ = std::make_shared<BehaviorTreeManager>(*this, getBehaviorTreeManagerParam());
 
-    [[maybe_unused]] const auto register_module =
-      [&](const bool launch, const std::string & name, const auto & ptr) {
-        if (launch) {
-          bt_manager_->registerSceneModule(ptr);
-        } else {
-          auto empty_module = std::make_shared<EmptyModule>(name, *this, EmptyParameters());
-          bt_manager_->registerSceneModule(empty_module);
-        }
-      };
     const bool launch_lane_following_module = true;
-    // TODO lane change needs some extra setting that is registered in bt
     const bool launch_lane_change_module = true;
     const bool launch_side_sift_module = false;
     const bool launch_avoidance_module = false;
     const bool launch_pull_over_module = false;
     const bool launch_pull_out_module = false;
 
+    // get lc param in order to use twice
     const auto lane_change_param = getLaneChangeParam();
-    // TODO somehow passing class type to lambda function
-    register_module(
-      launch_lane_following_module, "LaneFollowing",
-      std::make_shared<LaneFollowingModule>("LaneFollowing", *this, getLaneFollowingParam()));
-    register_module(
-      launch_side_sift_module, "SideShift",
-      std::make_shared<SideShiftModule>("SideShift", *this, getSideShiftParam()));
-    register_module(
-      launch_avoidance_module, "Avoidance",
-      std::make_shared<AvoidanceModule>("Avoidance", *this, getAvoidanceParam()));
-    register_module(
-      launch_pull_over_module, "PullOver",
-      std::make_shared<PullOverModule>("PullOver", *this, getPullOverParam()));
-    register_module(
-      launch_pull_out_module, "PullOut",
-      std::make_shared<PullOutModule>("PullOut", *this, getPullOutParam()));
-    register_module(
-      launch_lane_change_module, "LaneChange",
-      std::make_shared<LaneChangeModule>("LaneChange", *this, lane_change_param));
-    register_module(
-      launch_lane_change_module, "ForceLaneChange",
-      std::make_shared<LaneChangeModule>("ForceLaneChange", *this, lane_change_param));
+    registerModule<LaneFollowingModule>(
+      launch_lane_following_module, "LaneFollowing", getLaneFollowingParam());
+    registerModule<SideShiftModule>(launch_side_sift_module, "SideShift", getSideShiftParam());
+    registerModule<AvoidanceModule>(launch_avoidance_module, "Avoidance", getAvoidanceParam());
+    registerModule<PullOverModule>(launch_pull_over_module, "PullOverModule", getPullOverParam());
+    registerModule<PullOutModule>(launch_pull_out_module, "PullOut", getPullOutParam());
+    registerModule<LaneChangeModule>(launch_lane_change_module, "LaneChange", lane_change_param);
+    registerModule<LaneChangeModule>(
+      launch_lane_change_module, "ForceLaneChange", lane_change_param);
     if (launch_lane_change_module) bt_manager_->registerForceApproval("ForceLaneChange");
 
     bt_manager_->createBehaviorTree();
@@ -150,6 +128,19 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
       this->get_clock(), period, std::move(on_timer),
       this->get_node_base_interface()->get_context());
     this->get_node_timers_interface()->add_timer(timer_, nullptr);
+  }
+}
+
+template <typename T, typename P>
+void BehaviorPathPlannerNode::registerModule(
+  const bool launch, const std::string & name, const P & p)
+{
+  if (launch) {
+    const auto m = std::make_shared<T>(name, *this, p);
+    bt_manager_->registerSceneModule(m);
+  } else {
+    auto e = std::make_shared<EmptyModule>(name, *this, EmptyParameters());
+    bt_manager_->registerSceneModule(e);
   }
 }
 
@@ -190,12 +181,6 @@ BehaviorPathPlannerParameters BehaviorPathPlannerNode::getCommonParam()
 
   return p;
 }
-
-// EmptyParameters BehaviorPathPlannerNode::getEmptyParam()
-// {
-//   EmptyParameters p{};
-//   return p;
-// }
 
 SideShiftParameters BehaviorPathPlannerNode::getSideShiftParam()
 {

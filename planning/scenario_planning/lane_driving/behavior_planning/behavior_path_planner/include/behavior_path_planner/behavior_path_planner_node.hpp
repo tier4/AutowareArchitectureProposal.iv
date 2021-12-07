@@ -101,6 +101,10 @@ private:
   // setup
   void waitForData();
 
+  // register new module
+  template <typename T, typename P>
+  void registerModule(const bool launch, const std::string & name, const P & param);
+
   // parameters
   BehaviorPathPlannerParameters getCommonParam();
   BehaviorTreeManagerParam getBehaviorTreeManagerParam();
