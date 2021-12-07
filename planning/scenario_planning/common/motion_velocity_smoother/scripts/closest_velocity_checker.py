@@ -136,8 +136,11 @@ class VelocityChecker(Node):
 
         # distance_to_stopline
         self.pub12 = self.create_subscription(
-            Float32Stamped, scenario + '/motion_velocity_smoother/distance_to_stopline',
-            self.CallBackDistanceToStopline, 1)
+            Float32Stamped,
+            scenario + '/motion_velocity_smoother/distance_to_stopline',
+            self.CallBackDistanceToStopline,
+            1,
+        )
 
         # publish data
         self.pub_v_arr = self.create_publisher(Float32MultiArrayStamped, "closest_speeds", 1)
