@@ -22,7 +22,7 @@
 #include "autoware_utils/math/unit_conversion.hpp"
 
 #include <rclcpp/time.hpp>
-#include <tf2/util.h>
+#include <tf2/utils.h>
 
 #include <autoware_auto_planning_msgs/msg/had_map_route.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
