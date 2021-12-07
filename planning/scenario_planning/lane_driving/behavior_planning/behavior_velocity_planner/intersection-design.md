@@ -46,26 +46,24 @@ See the following figures to know how to create an attention area and its ration
 
 ![intersection_left](docs/intersection/intersection_left.png)
 
-### Crossing Judgement
+### Collision Check and Crossing Judgement
 
-（TODO　木村）
-Attention target に対して以下の処理を行い、egoとの衝突判定を行う。余裕を持って交差点を通過することができないと判断した場合は、停止線に停止速度を埋め込む
+The following process is performed for the attention targets to determine whether the ego vehicle can cross the intersection safely. If it is judged that the ego vehicle cannot pass through the intersection with enough margin, it will insert the stopping speed on the stop line of the intersection.
 
-1. 自車の交差点の通過時間を計算. この通過時間を$t_s$ ~ $t_e$とする
-2. 対象物体の予測経路の中でconfidenceが `min_predicted_path_confidence` 以上のものを抽出の
-3. 以下の方法で抽出された予測経路とegoの予測経路の衝突検知をする
- - 自車の$t_s$ ~ $t_e$における通過領域$A_{ego}$を求める
- - 対象物体の$t_s$ - `collsiion_start_margin_time` ~ $t_e$ + `collision_end_margin_time`における通過領域$A_{target}$を各予測経路に対して求める*
- - $A_{ego}$と$A_{target}$領域が重なっていたら衝突検知.
-4. 衝突検知された場合に交差点前で停止する。なお、停止解除にはマージンが存在する（下参照）
+1. calculate the passing time and the time that the ego vehicle is in the intersection. This time is set as $t_s$ ~ $t_e$
+2. extract the predicted path of the target object whose confidence is greater than `min_predicted_path_confidence`.
+3. detect collision between the extracted predicted path and ego's predicted path in the following process.
+   1. obtain the passing area of the ego vehicle $A_{ego}$ in $t_s$ ~ $t_e$.
+   2. calculate the passing area of the target object $A_{target}$ at $t_s$ - `collision_start_margin_time` ~ $t_e$ + `collision_end_margin_time` for each predicted path (*1).
+   3. check if $A_{ego}$ and $A_{target}$ regions are overlapped (has collision).
+4. when a collision is detected, the module inserts a stop velocity in front of the intersection. Note that there is a time margin for the stop release (*2).
 
-* なお. 3.の`collsiion_start_margin_time`, `collision_end_margin_time`は以下のような意味を持つ
-- 自車の方が対象物体より早く交差点を通過する場合, 両者の交差点通過が`collsiion_start_margin_time`以下の時間差である場合, 衝突検知される
-- 対象物体の方が自車より早く交差点を通過する場合, 両者の交差点通過が`collsiion_end_margin_time`以下の時間差である場合, 衝突検知される
+(*1) The parameters `collision_start_margin_time` and `collision_end_margin_time` can be interpreted as follows:
 
-### State Transition (go / stop)
+- If the ego vehicle passes through the intersection earlier than the target object, the collision is detected if the time difference between the two is less than `collision_start_margin_time`.
+- If the ego vehicle passes through the intersection later than the target object, the collision is detected if the time difference between the two is less than `collision_end_margin_time`.
 
-If there is no crossing more than a certain period (default : 2.0[s]), the state transits to “go”. If crossing is detected even once, the state transits to “stop”.
+(*2) If the collision is detected, the state transits to "stop" immediately. On the other hand, the collision judgment must be clear for a certain period (default : 2.0[s]) to transit from "stop" to "go" to prevent to prevent chattering of decisions.
 
 ### Stop Line Automatic Generation
 
