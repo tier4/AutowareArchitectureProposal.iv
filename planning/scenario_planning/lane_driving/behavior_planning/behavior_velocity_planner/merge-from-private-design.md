@@ -2,8 +2,9 @@
 
 ### Role
 
-私有地（例えば駐車場）から公道へ出る際には面出しする必要がある. もし交差点のレーンに私有地タグ(location = private)がついていて、次のレーンが私有地ではない場合は必ず一時停止をして交差点に侵入する. 停止位置の算出方法は交差点モジュールと同じで、注視領域も同じ
-i.e. 必ず一時停止を行う以外は交差点モジュールと同じ機能になる.
+When an ego vehicle enters a public road from a private road (e.g. a parking lot), it needs to face and stop before entering the public road to make sure it is safe.
+
+This module is activated when there is an intersection at the location where the vehicle enters the public road from the private road. The basic behavior is the same as the intersection module, but the ego vehicle must stop once at the stop line.
 
 ![merge-from-private](docs/intersection/merge_from_private.png)
 
