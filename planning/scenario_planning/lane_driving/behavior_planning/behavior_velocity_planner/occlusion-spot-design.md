@@ -12,13 +12,7 @@ This module is activated when the ego-lane has a private/public attribute.
 
 ### Limitation
 
-`point cloud` vs `occupancy grid` vs `object detection`
-
-このモジュールでは`occupancy grid` と `object detection`の情報を使用している。安全を担保するために point cloud の生の情報を利用する方法もあるが、その点群が草なのか、落ち葉なのか、柱なのか、信号待ちの車両によるものなのかの判定がつかない。そこでこのモジュールでは Occupancy Grid を用いて死角と判定する際に死角の大きさ、死角と自分のレーンとの間に専有グリッドがないかどうかなどの判定を入れている。これによって死角の誤検知は減った。しかしながら植え込みや柵の形状などによっては OccupancyGrid の生成がうまく行かないシーンもありその場合は不要な減速が入ってしまうこともある。こちらは OccupancyGrid の改善が課題となっている。また、公道では信号待ちの車両や、渋滞しているレーンにいる車両など人が飛び出てくるとは考えづらいシーンで減速をかけないために、減速対象の死角を作成する車両が路駐しているのかどうかなど判定をいれている。
-
-`point cloud` vs `occupancy grid` vs `object detection`.
-
-This module uses information from `occupancy grid` and `object detection`. There is a way to use the raw information of point cloud to ensure safety, but it is not possible to determine whether the point cloud is grass, leaves, pillars, or a vehicle waiting at a traffic light. Therefore, this module uses Occupancy Grid to determine the size of the occlusion spot and whether or not there is a proprietary grid between the occlusion spot and the user's lane. This has reduced the number of false occlusion spot detections. However, there are some scenes where OccupancyGrid generation does not work properly due to the shape of planted trees or fences, and in such cases, unnecessary deceleration may occur. Improving the Occupancy Grid is an issue that needs to be addressed. Also, on public roads, in order to avoid slowing down in scenes where it is difficult to imagine people jumping out, such as when a vehicle is waiting at a traffic light or in a congested lane, a judgment is made as to whether or not the vehicle creating the occlusion spot for slowing down is parked on the road.
+To solve the excessive deceleration due to false positive of the perception, the logic of collision spot is switched according to the road type (public/private). This point has not been discussed in detail and needs to be improved (see the description below).
 
 ### Inner-workings / Algorithms
 
