@@ -193,7 +193,7 @@ NOTE current state is treated as `STOP` if `is_entry_prohibited` = `true` else `
 
 ---
 
-## How to Set Lanelet Map fot the Intersection
+## How to Set Lanelet Map fot Intersection
 
 ![intersection_fig](docs/intersection/intersection_fig.png)
 
