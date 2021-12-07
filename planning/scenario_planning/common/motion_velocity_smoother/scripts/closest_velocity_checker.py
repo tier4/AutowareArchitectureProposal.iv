@@ -187,7 +187,7 @@ class VelocityChecker(Node):
         self.get_logger().info(
             "| {0: 9.2f} | {1: 8.2f} | {2: 9.2f} | {3: 8.2f} | {4: 12.2f} "
             "| {5: 15.2f} | {6: 9.2f} | {7: 14.2f} | {8: 14.2f} | {9: 14.2f} | {10: 14.2f} "
-            "| {11:>9s} | {12:>9s} | {13: 16.2f} | {14: 11.2f} |        | {14: 10.2f}".format(  # noqa: E501
+            "| {11:>9s} | {12:>9s} | {13: 16.2f} | {14: 11.2f} |        | {15: 10.2f}".format(  # noqa: E501
                 vel_map_lim,
                 vel_behavior,
                 vel_obs_avoid,
