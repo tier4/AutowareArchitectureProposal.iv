@@ -6,29 +6,11 @@ The `compare_map_segmentation` is a node that filters the ground points from the
 
 ## Inner-workings / Algorithms
 
-### Compare Elevation Map Filter
+Detail description of each ground segmentation algorithm is in the following links.
 
-Compare the z of the input points with the value of elevation_map. The height difference is calculated by the binary integration of neighboring cells. Remove points whose height difference is below the `height_diff_thresh`.
-
-<p align="center">
-  <img src="./media/compare_elevation_map.png" width="1000">
-</p>
-
-### Distance Based Compare Map Filter
-
-WIP
-
-### Voxel Based Approximate Compare Map Filter
-
-WIP
-
-### Voxel Based Compare Map Filter
-
-WIP
-
-### Voxel Distance based Compare Map Filter
-
-WIP
+| Filter Name       | Description | Detail                            |
+| ----------------- | ----------- | --------------------------------- |
+| ray_ground_filter |             | [link](docs/ray-ground-filter.md) |
 
 ## Inputs / Outputs
 
@@ -47,20 +29,21 @@ WIP
 
 ## Parameters
 
-### Core Parameters
+### Node Parameters
 
-| Name                 | Type   | Description                                                                     | Default value |
-| :------------------- | :----- | :------------------------------------------------------------------------------ | :------------ |
-| `map_layer_name`     | string | elevation map layer name                                                        | elevation     |
-| `map_frame`          | float  | frame_id of the map that is temporarily used before elevation_map is subscribed | map           |
-| `height_diff_thresh` | float  | Remove points whose height difference is below this value [m]                   | 0.15          |
+| Name               | Type   | Default Value | Description                           |
+| ------------------ | ------ | ------------- | ------------------------------------- |
+| `input_frame`      | string | " "           | input frame id                        |
+| `output_frame`     | string | " "           | output frame id                       |
+| `max_queue_size`   | int    | 5             | max queue size of input/output topics |
+| `use_indices`      | bool   | false         | flag to use pointcloud indices        |
+| `latched_indices`  | bool   | false         | flag to latch pointcloud indices      |
+| `approximate_sync` | bool   | false         | flag to use approximate sync option   |
 
 ## Assumptions / Known limits
 
-## (Optional) Error detection and handling
+`pointcloud_preprocessor::Filter` is implemented based on pcl_perception [1] because of [this issue](https://github.com/ros-perception/perception_pcl/issues/9).
 
-## (Optional) Performance characterization
+## References/External links
 
-## (Optional) References/External links
-
-## (Optional) Future extensions / Unimplemented parts
+[1] <https://github.com/ros-perception/perception_pcl/blob/ros2/pcl_ros/src/pcl_ros/filters/filter.cpp>
