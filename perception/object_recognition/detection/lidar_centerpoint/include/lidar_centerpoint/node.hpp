@@ -17,7 +17,6 @@
 
 #include <centerpoint_trt.hpp>
 #include <config.hpp>
-#include <pointcloud_densification.hpp>
 #include <rclcpp/rclcpp.hpp>
 
 #include <autoware_auto_perception_msgs/msg/detected_object_kinematics.hpp>
@@ -45,6 +44,9 @@ private:
   static uint8_t getSemanticType(const std::string & class_name);
   static bool isCarLikeVehicleLabel(const uint8_t label);
 
+  tf2_ros::Buffer tf_buffer_;
+  tf2_ros::TransformListener tf_listener_{tf_buffer_};
+
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_sub_;
   rclcpp::Publisher<autoware_auto_perception_msgs::msg::DetectedObjects>::SharedPtr objects_pub_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_pub_;
@@ -66,7 +68,6 @@ private:
   std::vector<std::string> class_names_;
   bool rename_car_to_truck_and_bus_{false};
 
-  std::unique_ptr<PointCloudDensification> densification_ptr_{nullptr};
   std::unique_ptr<CenterPointTRT> detector_ptr_{nullptr};
 };
 

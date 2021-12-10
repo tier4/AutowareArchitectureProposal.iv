@@ -26,16 +26,16 @@
 #include <string>
 #include <vector>
 
-#define DEBUG_NAN 0
-
 namespace centerpoint
 {
 using torch::indexing::Slice;
 
 CenterPointTRT::CenterPointTRT(
-  const NetworkParam & encoder_param, const NetworkParam & head_param, const bool verbose)
+  const NetworkParam & encoder_param, const NetworkParam & head_param,
+  const DensificationParam & densification_param)
 {
-  vg_ptr_ = std::make_unique<VoxelGenerator>();
+  vg_ptr_ = std::make_unique<VoxelGenerator>(densification_param);
+  bool verbose = false;
 
   if (encoder_param.use_trt()) {
     encoder_trt_ptr_ = std::make_unique<VoxelEncoderTRT>(verbose);
@@ -109,8 +109,9 @@ bool CenterPointTRT::initPtr(const bool use_encoder_trt, const bool use_head_trt
 }
 
 std::vector<float> CenterPointTRT::detect(
-  const sensor_msgs::msg::PointCloud2 & input_pointcloud_msg)
+  const sensor_msgs::msg::PointCloud2 & input_pointcloud_msg, const tf2_ros::Buffer & tf_buffer)
 {
+  // TODO(yukke42): not initialize all data
   voxels_t_ = torch::zeros(
     {Config::max_num_voxels, Config::max_num_points_per_voxel, Config::num_point_features},
     torch::TensorOptions().device(torch::kCPU).dtype(torch::kFloat));
@@ -120,8 +121,8 @@ std::vector<float> CenterPointTRT::detect(
   num_points_per_voxel_t_ = torch::zeros(
     {Config::max_num_voxels}, torch::TensorOptions().device(torch::kCPU).dtype(torch::kInt));
 
-  int num_voxels = vg_ptr_->pointsToVoxels(
-    input_pointcloud_msg, voxels_t_, coordinates_t_, num_points_per_voxel_t_);
+  vg_ptr_->pd_ptr_->enqueuePointCloud(input_pointcloud_msg, tf_buffer);
+  int num_voxels = vg_ptr_->pointsToVoxels(voxels_t_, coordinates_t_, num_points_per_voxel_t_);
   // Note: unlike python implementation, no slicing by num_voxels
   //       .s.t voxels_t_ = voxels_t_[:num_voxels].
   //       w/ slicing more GPU memories are allocated

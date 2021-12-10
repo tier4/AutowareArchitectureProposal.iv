@@ -66,11 +66,13 @@ class CenterPointTRT
 {
 public:
   explicit CenterPointTRT(
-    const NetworkParam & encoder_param, const NetworkParam & head_param, bool verbose);
+    const NetworkParam & encoder_param, const NetworkParam & head_param,
+    const DensificationParam & densification_param);
 
   ~CenterPointTRT();
 
-  std::vector<float> detect(const sensor_msgs::msg::PointCloud2 & input_pointcloud_msg);
+  std::vector<float> detect(
+    const sensor_msgs::msg::PointCloud2 &, const tf2_ros::Buffer & tf_buffer);
 
 private:
   bool initPtr(bool use_encoder_trt, bool use_head_trt);

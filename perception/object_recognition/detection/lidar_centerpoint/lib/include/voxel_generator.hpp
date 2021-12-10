@@ -16,10 +16,13 @@
 #define VOXEL_GENERATOR_HPP_
 
 #include <config.hpp>
+#include <pointcloud_densification.hpp>
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <torch/torch.h>
+
+#include <memory>
 
 namespace centerpoint
 {
@@ -27,8 +30,9 @@ class VoxelGeneratorTemplate
 {
 public:
   virtual int pointsToVoxels(
-    const sensor_msgs::msg::PointCloud2 & input_pointcloud_msg, at::Tensor & voxels,
-    at::Tensor & coordinates, at::Tensor & num_points_per_voxel) = 0;
+    at::Tensor & voxels, at::Tensor & coordinates, at::Tensor & num_points_per_voxel) = 0;
+
+  std::unique_ptr<PointCloudDensification> pd_ptr_{nullptr};
 
 protected:
   float pointcloud_range_[6] = {Config::pointcloud_range_xmin, Config::pointcloud_range_ymin,
@@ -41,9 +45,10 @@ protected:
 class VoxelGenerator : public VoxelGeneratorTemplate
 {
 public:
+  explicit VoxelGenerator(const DensificationParam & param);
+
   int pointsToVoxels(
-    const sensor_msgs::msg::PointCloud2 & input_pointcloud_msg, at::Tensor & voxels,
-    at::Tensor & coordinates, at::Tensor & num_points_per_voxel) override;
+    at::Tensor & voxels, at::Tensor & coordinates, at::Tensor & num_points_per_voxel) override;
 };
 
 }  // namespace centerpoint
