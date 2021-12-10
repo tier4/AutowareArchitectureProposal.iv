@@ -15,15 +15,19 @@
 #ifndef POINTCLOUD_PREPROCESSOR__OUTLIER_FILTER__RING_OUTLIER_FILTER_NODELET_HPP_
 #define POINTCLOUD_PREPROCESSOR__OUTLIER_FILTER__RING_OUTLIER_FILTER_NODELET_HPP_
 
-#include "pointcloud_preprocessor/filter.hpp"
-
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/search/pcl_search.h>
-
+#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <vector>
+
+#include "autoware_utils/point_types/types.hpp"
+#include "pointcloud_preprocessor/filter.hpp"
 
 namespace pointcloud_preprocessor
 {
+using autoware::common::types::PointXYZI;
+using autoware::common::types::PointXYZIRADRT;
+using autoware::common::types::PointXYZIRADRTGenerator;
+using point_cloud_msg_wrapper::PointCloud2Modifier;
+
 class RingOutlierFilterComponent : public pointcloud_preprocessor::Filter
 {
 protected:
@@ -41,41 +45,21 @@ private:
   /** \brief Parameter service callback */
   rcl_interfaces::msg::SetParametersResult paramCallback(const std::vector<rclcpp::Parameter> & p);
 
+  bool isCluster(const PointCloud2Modifier<PointXYZI> & tmp_modifier)
+  {
+    const auto x_diff = tmp_modifier.front().x - tmp_modifier.back().x;
+    const auto y_diff = tmp_modifier.front().y - tmp_modifier.back().y;
+    const auto z_diff = tmp_modifier.front().z - tmp_modifier.back().z;
+    const auto xx = x_diff * x_diff;
+    const auto yy = y_diff * y_diff;
+    const auto zz = z_diff * z_diff;
+    return static_cast<int>(tmp_modifier.size()) > num_points_threshold_ ||
+           xx + yy + zz >= object_length_threshold_ * object_length_threshold_;
+  }
+
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   explicit RingOutlierFilterComponent(const rclcpp::NodeOptions & options);
 };
 
 }  // namespace pointcloud_preprocessor
-
-namespace custom_pcl
-{
-struct PointXYZIRADT
-{
-  PCL_ADD_POINT4D;
-  float intensity;
-  std::uint16_t ring;
-  float azimuth;
-  float distance;
-  double time_stamp;
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-} EIGEN_ALIGN16;
-
-struct PointXYZI
-{
-  PCL_ADD_POINT4D;
-  float intensity;
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-} EIGEN_ALIGN16;
-
-}  // namespace custom_pcl
-
-POINT_CLOUD_REGISTER_POINT_STRUCT(
-  custom_pcl::PointXYZIRADT,
-  (float, x, x)(float, y, y)(float, z, z)(float, intensity, intensity)(std::uint16_t, ring, ring)(
-    float, azimuth, azimuth)(float, distance, distance)(double, time_stamp, time_stamp))
-
-POINT_CLOUD_REGISTER_POINT_STRUCT(
-  custom_pcl::PointXYZI, (float, x, x)(float, y, y)(float, z, z)(float, intensity, intensity))
-
 #endif  // POINTCLOUD_PREPROCESSOR__OUTLIER_FILTER__RING_OUTLIER_FILTER_NODELET_HPP_

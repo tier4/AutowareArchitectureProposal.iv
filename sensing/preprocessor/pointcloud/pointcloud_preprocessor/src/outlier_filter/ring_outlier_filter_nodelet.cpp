@@ -14,10 +14,6 @@
 
 #include "pointcloud_preprocessor/outlier_filter/ring_outlier_filter_nodelet.hpp"
 
-#include <pcl/kdtree/kdtree_flann.h>
-#include <pcl/search/kdtree.h>
-#include <pcl/segmentation/segment_differences.h>
-
 #include <algorithm>
 #include <vector>
 
@@ -44,38 +40,49 @@ void RingOutlierFilterComponent::filter(
   PointCloud2 & output)
 {
   boost::mutex::scoped_lock lock(mutex_);
-  pcl::PointCloud<custom_pcl::PointXYZIRADT>::Ptr pcl_input(
-    new pcl::PointCloud<custom_pcl::PointXYZIRADT>);
-  pcl::fromROSMsg(*input, *pcl_input);
-
-  if (pcl_input->points.empty()) {
+  if (input->width * input->height < 1) {
     return;
   }
-  std::vector<pcl::PointCloud<custom_pcl::PointXYZIRADT>> pcl_input_ring_array;
-  pcl_input_ring_array.resize(128);  // TODO(Yamato Ando)
-  for (const auto & p : pcl_input->points) {
-    pcl_input_ring_array.at(p.ring).push_back(p);
+  std::string frame_id = input->header.frame_id;
+
+  std::vector<std::unique_ptr<PointCloud2Modifier<PointXYZIRADRT, PointXYZIRADRTGenerator>>>
+    input_ring_array(128);
+  {
+    sensor_msgs::msg::PointCloud2::SharedPtr input_ptr =
+      std::make_shared<sensor_msgs::msg::PointCloud2>(*input);
+
+    std::vector<sensor_msgs::msg::PointCloud2> clouds(128);
+    for (std::size_t i = 0; i < input_ring_array.size(); i++) {
+      input_ring_array.at(i) =
+        std::make_unique<PointCloud2Modifier<PointXYZIRADRT, PointXYZIRADRTGenerator>>(
+          clouds.at(i), input_ptr->header.frame_id);
+    }
+
+    for (std::size_t idx = 0U; idx < input_ptr->data.size(); idx += input_ptr->point_step) {
+      PointXYZIRADRT * pt = reinterpret_cast<PointXYZIRADRT *>(&input_ptr->data[idx]);
+      (input_ring_array.at(pt->ring).get())
+        ->push_back(PointXYZIRADRT{
+          pt->x, pt->y, pt->z, pt->intensity, pt->ring, pt->azimuth, pt->distance, pt->return_type,
+          pt->time_stamp});
+    }
   }
 
-  pcl::PointCloud<custom_pcl::PointXYZI>::Ptr pcl_output(
-    new pcl::PointCloud<custom_pcl::PointXYZI>);
-  pcl_output->points.reserve(pcl_input->points.size());
+  output.header = input->header;
+  PointCloud2Modifier<PointXYZI> output_modifier{output, frame_id};
+  output_modifier.reserve(input->row_step);
 
-  pcl::PointCloud<custom_pcl::PointXYZI> pcl_tmp;
-  custom_pcl::PointXYZI p{};
-  for (const auto & ring_pointcloud : pcl_input_ring_array) {
-    if (ring_pointcloud.points.size() < 2) {
+  sensor_msgs::msg::PointCloud2 tmp_cloud;
+  PointCloud2Modifier<PointXYZI> tmp_modifier{tmp_cloud, frame_id};
+  tmp_modifier.reserve(input->row_step);
+
+  for (const auto & ring_modifier : input_ring_array) {
+    if (ring_modifier.get()->size() < 2) {
       continue;
     }
 
-    for (auto iter = std::begin(ring_pointcloud.points);
-         iter != std::end(ring_pointcloud.points) - 1; ++iter) {
-      p.x = iter->x;
-      p.y = iter->y;
-      p.z = iter->z;
-      p.intensity = iter->intensity;
-      pcl_tmp.points.push_back(p);
-      // if(std::abs(iter->distance - (iter+1)->distance) <= std::sqrt(iter->distance) * 0.08) {
+    for (auto iter = std::begin(*ring_modifier); iter != std::end(*ring_modifier) - 1; ++iter) {
+      tmp_modifier.push_back(PointXYZI{iter->x, iter->y, iter->z, iter->intensity});
+      // if(std::abs(iter->distance - (iter+1)->distance) <= std::sqrt(iter->distance) * 0.08)
       const float min_dist = std::min(iter->distance, (iter + 1)->distance);
       const float max_dist = std::max(iter->distance, (iter + 1)->distance);
       float azimuth_diff = (iter + 1)->azimuth - iter->azimuth;
@@ -84,42 +91,25 @@ void RingOutlierFilterComponent::filter(
       if (max_dist < min_dist * distance_ratio_ && azimuth_diff < 100.f) {
         continue;
       }
-      // same code
-      if (
-        static_cast<int>(pcl_tmp.points.size()) > num_points_threshold_ ||
-        (pcl_tmp.points.front().x - pcl_tmp.points.back().x) *
-              (pcl_tmp.points.front().x - pcl_tmp.points.back().x) +
-            (pcl_tmp.points.front().y - pcl_tmp.points.back().y) *
-              (pcl_tmp.points.front().y - pcl_tmp.points.back().y) +
-            (pcl_tmp.points.front().z - pcl_tmp.points.back().z) *
-              (pcl_tmp.points.front().z - pcl_tmp.points.back().z) >=
-          object_length_threshold_ * object_length_threshold_) {
-        for (const auto & tmp_p : pcl_tmp.points) {
-          pcl_output->points.push_back(tmp_p);
+      if (isCluster(tmp_modifier)) {
+        for (auto tmp_iter = std::begin(tmp_modifier); tmp_iter != std::end(tmp_modifier);
+             ++tmp_iter) {
+          output_modifier.push_back(
+            PointXYZI{tmp_iter->x, tmp_iter->y, tmp_iter->z, tmp_iter->intensity});
         }
       }
-      pcl_tmp.points.clear();
+      tmp_modifier.clear();
     }
 
-    // same code
-    if (
-      static_cast<int>(pcl_tmp.points.size()) > num_points_threshold_ ||
-      (pcl_tmp.points.front().x - pcl_tmp.points.back().x) *
-            (pcl_tmp.points.front().x - pcl_tmp.points.back().x) +
-          (pcl_tmp.points.front().y - pcl_tmp.points.back().y) *
-            (pcl_tmp.points.front().y - pcl_tmp.points.back().y) +
-          (pcl_tmp.points.front().z - pcl_tmp.points.back().z) *
-            (pcl_tmp.points.front().z - pcl_tmp.points.back().z) >=
-        object_length_threshold_ * object_length_threshold_) {
-      for (const auto & tmp_p : pcl_tmp.points) {
-        pcl_output->points.push_back(tmp_p);
+    if (isCluster(tmp_modifier)) {
+      for (auto tmp_iter = std::begin(tmp_modifier); tmp_iter != std::end(tmp_modifier);
+           ++tmp_iter) {
+        output_modifier.push_back(
+          PointXYZI{tmp_iter->x, tmp_iter->y, tmp_iter->z, tmp_iter->intensity});
       }
     }
-    pcl_tmp.points.clear();
+    tmp_modifier.clear();
   }
-
-  pcl::toROSMsg(*pcl_output, output);
-  output.header = input->header;
 }
 
 rcl_interfaces::msg::SetParametersResult RingOutlierFilterComponent::paramCallback(
