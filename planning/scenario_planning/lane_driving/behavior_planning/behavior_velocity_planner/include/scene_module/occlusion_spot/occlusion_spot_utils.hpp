@@ -45,6 +45,7 @@ using autoware_auto_perception_msgs::msg::PredictedObjects;
 using autoware_auto_planning_msgs::msg::Path;
 using autoware_auto_planning_msgs::msg::PathPoint;
 using autoware_auto_planning_msgs::msg::PathWithLaneId;
+using autoware_auto_planning_msgs::msg::PathPointWithLaneId;
 using geometry_msgs::msg::Pose;
 using ArcCoordinates = lanelet::ArcCoordinates;
 using ConstLineString2d = lanelet::ConstLineString2d;

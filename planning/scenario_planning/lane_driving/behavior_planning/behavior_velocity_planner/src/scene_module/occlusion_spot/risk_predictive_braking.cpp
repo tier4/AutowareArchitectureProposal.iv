@@ -21,6 +21,8 @@
 
 namespace behavior_velocity_planner
 {
+using autoware_auto_planning_msgs::msg::PathPointWithLaneId;
+using autoware_auto_planning_msgs::msg::PathWithLaneId;
 namespace occlusion_spot_utils
 {
 void applySafeVelocityConsideringPossibleCollison(
@@ -69,7 +71,7 @@ bool isAheadOf(const Pose & target, const Pose & origin)
 }
 
 bool setVelocityFrom(
-  const size_t idx, const double vel, autoware_auto_planning_msgs::msg::PathWithLaneId * input)
+  const size_t idx, const double vel, PathWithLaneId * input)
 {
   for (size_t i = idx; i < input->points.size(); ++i) {
     input->points.at(i).point.longitudinal_velocity_mps =

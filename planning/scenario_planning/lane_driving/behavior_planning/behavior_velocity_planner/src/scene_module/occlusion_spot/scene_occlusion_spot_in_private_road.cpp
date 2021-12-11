@@ -39,14 +39,13 @@ bool OcclusionSpotInPrivateModule::modifyPathVelocity(
   autoware_auto_planning_msgs::msg::PathWithLaneId * path,
   [[maybe_unused]] autoware_planning_msgs::msg::StopReason * stop_reason)
 {
-  return true;
   if (path->points.size() < 2) {
     return true;
   }
   param_.vehicle_info.baselink_to_front = planner_data_->vehicle_info_.max_longitudinal_offset_m;
   param_.vehicle_info.vehicle_width = planner_data_->vehicle_info_.vehicle_width_m;
 
-  const geometry_msgs::msg::Pose ego_pose = planner_data_->current_pose.pose;
+  const Pose ego_pose = planner_data_->current_pose.pose;
   const double ego_velocity = planner_data_->current_velocity->twist.linear.x;
   const auto & lanelet_map_ptr = planner_data_->lanelet_map;
   const auto & traffic_rules_ptr = planner_data_->traffic_rules;

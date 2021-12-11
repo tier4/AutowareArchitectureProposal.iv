@@ -73,27 +73,6 @@ TEST(spline, splineInterpolate)
   ASSERT_EQ(path_interp.points.size(), path.points.size() * 2 - +1);
 }
 
-TEST(buildPathLanelet, nominal)
-{
-  using behavior_velocity_planner::occlusion_spot_utils::buildPathLanelet;
-  lanelet::ConstLanelet path_lanelet;
-  /* straight diagonal path
-      0 1 2 3 4
-    0 x
-    1   x
-    2     x
-    3       x
-    4         x
-  */
-  autoware_auto_planning_msgs::msg::PathWithLaneId path = test::generatePath(0, 0, 4, 4, 5);
-  path_lanelet = buildPathLanelet(path);
-  ASSERT_EQ(path_lanelet.centerline2d().front().x(), 0.0);
-  ASSERT_EQ(path_lanelet.centerline2d().front().y(), 0.0);
-  ASSERT_NE(path_lanelet.centerline2d().back().x(), 4.0);
-  ASSERT_NE(path_lanelet.centerline2d().back().y(), 4.0);
-  std::cout << "path lanelet size: " << path_lanelet.centerline2d().size() << std::endl;
-}
-
 TEST(calcSlowDownPointsForPossibleCollision, TooManyPossibleCollisions)
 {
   using behavior_velocity_planner::occlusion_spot_utils::calcSlowDownPointsForPossibleCollision;
