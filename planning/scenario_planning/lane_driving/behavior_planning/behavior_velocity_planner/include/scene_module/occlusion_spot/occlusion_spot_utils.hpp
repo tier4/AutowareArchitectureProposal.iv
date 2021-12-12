@@ -15,11 +15,13 @@
 #ifndef SCENE_MODULE__OCCLUSION_SPOT__OCCLUSION_SPOT_UTILS_HPP_
 #define SCENE_MODULE__OCCLUSION_SPOT__OCCLUSION_SPOT_UTILS_HPP_
 
+#include <autoware_utils/geometry/geometry.hpp>
 #include <lanelet2_extension/utility/query.hpp>
 #include <lanelet2_extension/utility/utilities.hpp>
 #include <lanelet2_extension/visualization/visualization.hpp>
 #include <scene_module/occlusion_spot/geometry.hpp>
 #include <scene_module/occlusion_spot/grid_utils.hpp>
+#include <utilization/util.hpp>
 
 #include <autoware_auto_perception_msgs/msg/object_classification.hpp>
 #include <autoware_auto_perception_msgs/msg/predicted_object.hpp>
@@ -44,16 +46,45 @@ using autoware_auto_perception_msgs::msg::PredictedObject;
 using autoware_auto_perception_msgs::msg::PredictedObjects;
 using autoware_auto_planning_msgs::msg::Path;
 using autoware_auto_planning_msgs::msg::PathPoint;
-using autoware_auto_planning_msgs::msg::PathWithLaneId;
 using autoware_auto_planning_msgs::msg::PathPointWithLaneId;
+using autoware_auto_planning_msgs::msg::PathWithLaneId;
 using geometry_msgs::msg::Pose;
 using ArcCoordinates = lanelet::ArcCoordinates;
 using ConstLineString2d = lanelet::ConstLineString2d;
 using Point = geometry_msgs::msg::Point;
 using BasicPoint2d = lanelet::BasicPoint2d;
 using BasicLineString2d = lanelet::BasicLineString2d;
+using lanelet::LaneletMapPtr;
 using lanelet::geometry::fromArcCoordinates;
 using lanelet::geometry::toArcCoordinates;
+
+inline lanelet::ConstLanelet toPathLanelet(const PathWithLaneId & path)
+{
+  lanelet::Points3d path_points;
+  for (const auto & point_with_id : path.points) {
+    const auto & p = point_with_id.point.pose.position;
+    path_points.emplace_back(lanelet::InvalId, p.x, p.y, p.z);
+  }
+  lanelet::LineString3d centerline(lanelet::InvalId, path_points);
+  lanelet::Lanelet path_lanelet(lanelet::InvalId);
+  path_lanelet.setCenterline(centerline);
+  return lanelet::ConstLanelet(path_lanelet);
+}
+
+inline double offsetFromStartToEgo(
+  const PathWithLaneId & path, const Pose & ego_pose, const int closest_idx)
+{
+  double offset_from_ego_to_closest = 0;
+  for (int i = 0; i < closest_idx; i++) {
+    const auto & curr_p = path.points[i].point.pose.position;
+    const auto & next_p = path.points[i + 1].point.pose.position;
+    offset_from_ego_to_closest += autoware_utils::calcDistance2d(curr_p, next_p);
+  }
+  const double offset_from_closest_to_target =
+    -planning_utils::transformRelCoordinate2D(ego_pose, path.points[closest_idx].point.pose)
+       .position.x;
+  return offset_from_ego_to_closest + offset_from_closest_to_target;
+}
 
 namespace occlusion_spot_utils
 {
@@ -156,12 +187,10 @@ inline bool isStuckVehicle(PredictedObject obj, const double min_vel)
 bool splineInterpolate(
   const PathWithLaneId & input, const double interval, PathWithLaneId * output,
   const rclcpp::Logger logger);
-lanelet::ConstLanelet toPathLanelet(const PathWithLaneId & path);
 // !generate center line from right/left lanelets
 void generateCenterLaneLine(
   const PathWithLaneId & path, const lanelet::routing::RoutingGraphPtr & routing_graph_ptr,
-  const lanelet::LaneletMapPtr & lanelet_map_ptr,
-  std::vector<lanelet::BasicLineString2d> & attension_line);
+  const LaneletMapPtr & lanelet_map_ptr, std::vector<lanelet::BasicLineString2d> & attension_line);
 std::vector<PredictedObject> getParkedVehicles(
   const PredictedObjects & dyn_objects, const std::vector<BasicLineString2d> & attension_line,
   const PlannerParam & param, std::vector<Point> & debug_point);
@@ -169,10 +198,7 @@ std::vector<PossibleCollisionInfo> generatePossibleCollisionBehindParkedVehicle(
   const lanelet::ConstLanelet & path_lanelet, const PlannerParam & param,
   const double offset_from_start_to_ego, const std::vector<PredictedObject> & dyn_objects);
 ROAD_TYPE getCurrentRoadType(
-  const lanelet::ConstLanelet & current_lanelet, const lanelet::LaneletMapPtr & lanelet_map_ptr);
-//!< @brief build a Lanelet from a interpolated path
-lanelet::ConstLanelet buildPathLanelet(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path);
+  const lanelet::ConstLanelet & current_lanelet, const LaneletMapPtr & lanelet_map_ptr);
 //!< @brief calculate intersection and collision point from occlusion spot
 void calculateCollisionPathPointFromOcclusionSpot(
   PossibleCollisionInfo & pc, const lanelet::BasicPoint2d & obstacle_point,
@@ -188,26 +214,22 @@ void calcSlowDownPointsForPossibleCollision(
   const int closest_idx, const PathWithLaneId & path, const double offset,
   std::vector<PossibleCollisionInfo> & possible_collisions);
 //!< @brief extract lanelet that includes target_road_type only
-bool extractTargetRoad(
-  const int closest_idx, const lanelet::LaneletMapPtr lanelet_map_ptr, const double max_range,
-  const PathWithLaneId & src_path, double & offset_from_closest_to_target,
-  PathWithLaneId & tar_path, const ROAD_TYPE & target_road_type);
+std::pair<double, double> extractTargetRoadArcLength(
+  const LaneletMapPtr lanelet_map_ptr, const double max_range, const PathWithLaneId & path,
+  const ROAD_TYPE & target_road_type);
 //!< @brief generate collision coming from occlusion spots of the given grid map and lanelet map
 void generatePossibleCollisions(
-  std::vector<PossibleCollisionInfo> & possible_collisions,
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const grid_map::GridMap & grid,
-  const double offset_from_ego_to_closest, const double offset_from_closest_to_target,
-  const PlannerParam & param, std::vector<lanelet::BasicPolygon2d> & debug);
+  std::vector<PossibleCollisionInfo> & possible_collisions, const PathWithLaneId & path,
+  const grid_map::GridMap & grid, const PlannerParam & param,
+  std::vector<lanelet::BasicPolygon2d> & debug);
 //!< @brief convert a set of occlusion spots found on sidewalk slice
 void generateSidewalkPossibleCollisionFromOcclusionSpot(
   std::vector<PossibleCollisionInfo> & possible_collisions, const grid_map::GridMap & grid,
   const std::vector<grid_map::Position> & occlusion_spot_positions,
-  const double offset_form_ego_to_target, const lanelet::ConstLanelet & path_lanelet,
-  const PlannerParam & param);
+  const lanelet::ConstLanelet & path_lanelet, const PlannerParam & param);
 //!< @brief generate possible collisions coming from occlusion spots on the side of the path
 void generateSidewalkPossibleCollisions(
   std::vector<PossibleCollisionInfo> & possible_collisions, const grid_map::GridMap & grid,
-  const double offset_from_ego_to_closest, const double offset_from_closest_to_target,
   const lanelet::ConstLanelet & path_lanelet, const PlannerParam & param,
   std::vector<lanelet::BasicPolygon2d> & debug);
 

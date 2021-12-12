@@ -70,8 +70,7 @@ bool isAheadOf(const Pose & target, const Pose & origin)
   return is_target_ahead;
 }
 
-bool setVelocityFrom(
-  const size_t idx, const double vel, PathWithLaneId * input)
+bool setVelocityFrom(const size_t idx, const double vel, PathWithLaneId * input)
 {
   for (size_t i = idx; i < input->points.size(); ++i) {
     input->points.at(i).point.longitudinal_velocity_mps =

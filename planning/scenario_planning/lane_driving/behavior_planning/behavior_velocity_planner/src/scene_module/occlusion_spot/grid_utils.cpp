@@ -83,6 +83,7 @@ void findOcclusionSpots(
       }
       std::vector<grid_map::Position> corner_positions;
       getCornerPositions(corner_positions, grid, occlusion_spot_square);
+      // get each corner positions
       for (const grid_map::Position & corner : corner_positions) {
         occlusion_spot_positions.emplace_back(corner);
       }

@@ -305,17 +305,17 @@ if(BUILD_TESTING)
   )
 
   # Gtest for occlusion spot
-  ament_add_gtest(occlusion_spot-test
-    test/src/test_occlusion_spot_utils.cpp
-    test/src/test_risk_predictive_braking.cpp
-    test/src/test_geometry.cpp
-    test/src/test_grid_utils.cpp
-    test/src/test_performances.cpp
-  )
-  target_link_libraries(occlusion_spot-test
-    gtest_main
-    scene_module_occlusion_spot
-  )
+  #ament_add_gtest(occlusion_spot-test
+  #  test/src/test_occlusion_spot_utils.cpp
+  #  test/src/test_risk_predictive_braking.cpp
+  #  test/src/test_geometry.cpp
+  #  test/src/test_grid_utils.cpp
+  #  test/src/test_performances.cpp
+  #)
+  #target_link_libraries(occlusion_spot-test
+  #  gtest_main
+  #  scene_module_occlusion_spot
+  #)
 
 endif()
 

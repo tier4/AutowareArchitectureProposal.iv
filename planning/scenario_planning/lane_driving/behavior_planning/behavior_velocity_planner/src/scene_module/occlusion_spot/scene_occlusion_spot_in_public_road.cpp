@@ -14,7 +14,6 @@
 
 #include "scene_module/occlusion_spot/scene_occlusion_spot_in_public_road.hpp"
 
-#include "autoware_utils/geometry/geometry.hpp"
 #include "lanelet2_core/primitives/BasicRegulatoryElements.h"
 #include "lanelet2_extension/utility/utilities.hpp"
 #include "scene_module/occlusion_spot/occlusion_spot_utils.hpp"
@@ -32,62 +31,7 @@
 namespace behavior_velocity_planner
 {
 using occlusion_spot_utils::PossibleCollisionInfo;
-using occlusion_spot_utils::ROAD_TYPE;
-std::pair<double, double> extractTargetRoadArcLength(
-  const lanelet::LaneletMapPtr lanelet_map_ptr, const double max_range, const PathWithLaneId & path,
-  const ROAD_TYPE & target_road_type)
-{
-  bool found_target = false;
-  double start_dist = 0;
-  double dist_sum = 0;
-  // search lanelet that includes target_road_type only
-  for (size_t i = 0; i < path.points.size() - 1; i++) {
-    ROAD_TYPE search_road_type = occlusion_spot_utils::getCurrentRoadType(
-      lanelet_map_ptr->laneletLayer.get(path.points[i].lane_ids[0]), lanelet_map_ptr);
-    if (found_target && search_road_type != target_road_type) {
-      break;
-    }
-    // ignore path farther than max range
-    if (dist_sum > max_range) {
-      break;
-    }
-    if (!found_target && search_road_type == target_road_type) {
-      start_dist = dist_sum;
-      found_target = true;
-    }
-    const auto & curr_p = path.points[i].point.pose.position;
-    const auto & next_p = path.points[i + 1].point.pose.position;
-    dist_sum += autoware_utils::calcDistance2d(curr_p, next_p);
-  }
-  return std::pair<int, int>(start_dist, dist_sum);
-}
-
-[[maybe_unused]] lanelet::ConstLanelet toPathLanelet(const PathWithLaneId & path)
-{
-  lanelet::Points3d path_points;
-  for (const auto & point_with_id : path.points) {
-    const auto & p = point_with_id.point.pose.position;
-    path_points.emplace_back(lanelet::InvalId, p.x, p.y, p.z);
-  }
-  lanelet::LineString3d centerline(lanelet::InvalId, path_points);
-  lanelet::Lanelet path_lanelet(lanelet::InvalId);
-  path_lanelet.setCenterline(centerline);
-  return lanelet::ConstLanelet(path_lanelet);
-}
-double offsetFromStartToEgo(
-  const PathWithLaneId & path, const geometry_msgs::msg::Pose & ego_pose, const int closest_idx)
-{
-  double offset_from_ego_to_closest = 0;
-  for (int i = 0; i < closest_idx; i++) {
-    const auto & curr_p = path.points[i].point.pose.position;
-    const auto & next_p = path.points[i + 1].point.pose.position;
-    offset_from_ego_to_closest += autoware_utils::calcDistance2d(curr_p, next_p);
-  }
-  const double offset_from_closest_to_target =
-    -planning_utils::transformRelCoordinate2D(ego_pose, path.points[closest_idx].point.pose)
-       .position.x;
-  return offset_from_ego_to_closest + offset_from_closest_to_target;
-}
+using occlusion_spot_utils::ROAD_TYPE::PUBLIC;
 
 OcclusionSpotInPublicModule::OcclusionSpotInPublicModule(
   const int64_t module_id, [[maybe_unused]] std::shared_ptr<const PlannerData> planner_data,
@@ -122,7 +66,6 @@ bool OcclusionSpotInPublicModule::modifyPathVelocity(
   }
 
   std::vector<PossibleCollisionInfo> possible_collisions;
-  double offset_from_start_to_ego = 0;
   std::vector<lanelet::BasicLineString2d> attension_line;
   std::set<int> ids;
   for (const auto & p : path->points) {
@@ -143,7 +86,7 @@ bool OcclusionSpotInPublicModule::modifyPathVelocity(
         interp_path, ego_pose, closest_idx, param_.dist_thr, param_.angle_thr)) {
     return true;
   }
-  offset_from_start_to_ego = offsetFromStartToEgo(interp_path, ego_pose, closest_idx);
+  double offset_from_start_to_ego = offsetFromStartToEgo(interp_path, ego_pose, closest_idx);
   const auto path_lanelet = toPathLanelet(interp_path);
   //! Note : Arc Lane from idx[0] to end therefore DO NOT consider offset here
   possible_collisions = occlusion_spot_utils::generatePossibleCollisionBehindParkedVehicle(
@@ -154,8 +97,8 @@ bool OcclusionSpotInPublicModule::modifyPathVelocity(
     pc.arc_lane_dist_at_collision.length -= param_.safety_margin;
   }
   if (param_.consider_road_type) {
-    std::pair<double, double> focus_length = extractTargetRoadArcLength(
-      lanelet_map_ptr, param_.detection_area_length, *path, occlusion_spot_utils::PUBLIC);
+    std::pair<double, double> focus_length = occlusion_spot_utils::extractTargetRoadArcLength(
+      lanelet_map_ptr, param_.detection_area_length, *path, PUBLIC);
     int idx = 0;
     for (const auto pc : possible_collisions) {
       const auto pc_len = pc.arc_lane_dist_at_collision.length;
