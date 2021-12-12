@@ -92,7 +92,7 @@ void CropBoxFilterComponent::filter(
 
   output.data.clear();
   output.data.reserve(input->data.size());
-  for (size_t i = 0U; i < input->data.size(); i += input->point_step) {
+  for (size_t i = 0U; i + input->point_step < input->data.size(); i += input->point_step) {
     const pcl::PointXYZ * pt = reinterpret_cast<const pcl::PointXYZ *>(&input->data[i]);
     // If inside the cropbox
     if (
