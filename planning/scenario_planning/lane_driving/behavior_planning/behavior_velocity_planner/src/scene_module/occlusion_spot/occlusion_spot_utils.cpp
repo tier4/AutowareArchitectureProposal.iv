@@ -349,7 +349,7 @@ PossibleCollisionInfo calculateCollisionPathPointFromOcclusionSpot(
   pc.obstacle_info.max_velocity = param.pedestrian_vel;
   pc.obstacle_info.min_deceleration = param.pedestrian_decel;
   // collision_point this value is going to be recalculated later
-  // pc.collision_path_point.pose.position = search_point;
+  pc.collision_path_point.pose.position = search_point;
   pc.collision_path_point.pose.orientation = q;
   // intersection point
   pc.intersection_pose.position = setPoint(intersection_point[0], intersection_point[1], 0);
