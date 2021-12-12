@@ -28,6 +28,7 @@ namespace geometry
 {
 using lanelet::BasicLineString2d;
 using lanelet::BasicPoint2d;
+using lanelet::BasicPolygon2d;
 namespace bg = boost::geometry;
 namespace lg = lanelet::geometry;
 
@@ -95,7 +96,6 @@ void buildSlices(
   // ignore the last point
   const int num_longitudinal_slice =
     static_cast<int>(std::abs(range.max_length - range.min_length) / slice_length);
-  slices.reserve(num_lateral_slice * num_longitudinal_slice);
   // Note: offsetNoThrow is necessary
   // as the sharp turn at the end of the trajectory can "reverse" the linestring
   /**
@@ -111,16 +111,15 @@ void buildSlices(
    *       5 |-s-|-s-|---|---|---|--  inner bound     --> length ratio
    *       Ego--------------------->     total_slice_length
    */
-  lanelet::BasicLineString2d inner_bounds = path_boundary;
-  lanelet::BasicLineString2d outer_bounds;
-  outer_bounds = lanelet::geometry::offsetNoThrow(path_boundary, range.max_distance);
+  BasicLineString2d inner_bounds = path_boundary;
+  BasicLineString2d outer_bounds;
+  outer_bounds = lg::offsetNoThrow(path_boundary, range.max_distance);
   // correct self crossing with best effort
-  boost::geometry::correct(outer_bounds);
+  bg::correct(outer_bounds);
   rclcpp::Clock clock{RCL_ROS_TIME};
   try {
     // if correct couldn't solve self crossing skip this area
-    lanelet::geometry::internal::checkForInversion(
-      path_boundary, outer_bounds, std::abs(range.max_distance));
+    lg::internal::checkForInversion(path_boundary, outer_bounds, std::abs(range.max_distance));
   } catch (...) {
     RCLCPP_DEBUG_STREAM_THROTTLE(
       rclcpp::get_logger("behavior_velocity_planner").get_child("occlusion_spot"), clock, 5000,
@@ -140,8 +139,7 @@ void buildSlices(
   for (int s = 0; s < num_longitudinal_slice; s++) {
     const double length = range.min_length + s * slice_length;
     const double next_length = range.min_length + (s + 1.0) * slice_length;
-    const double min_length =
-      std::min(lanelet::geometry::length(outer_bounds), lanelet::geometry::length(inner_bounds));
+    const double min_length = std::min(lg::length(outer_bounds), lg::length(inner_bounds));
     if (next_length > min_length) {
       break;
     }
@@ -162,35 +160,32 @@ void buildSlices(
 }
 
 void buildInterpolatedPolygon(
-  lanelet::BasicPolygon2d & polygons, const lanelet::BasicLineString2d & inner_bounds,
-  const lanelet::BasicLineString2d & outer_bounds, const double current_length,
-  const double next_length, const double from_ratio_dist, const double to_ratio_dist)
+  BasicPolygon2d & polygons, const BasicLineString2d & inner_bounds,
+  const BasicLineString2d & outer_bounds, const double current_length, const double next_length,
+  const double from_ratio_dist, const double to_ratio_dist)
 {
   if (current_length >= next_length) {
     RCLCPP_WARN(
       rclcpp::get_logger("behavior_velocity_planner").get_child("occlusion_spot"),
       "buildInterpolatedPolygon: starting length must be lower than target length");
   }
-  lanelet::BasicLineString2d inner_polygons;
-  lanelet::BasicLineString2d outer_polygons;
-  inner_polygons.reserve(inner_bounds.size());
-  outer_polygons.reserve(outer_bounds.size());
+  BasicLineString2d inner_polygons;
+  BasicLineString2d outer_polygons;
   // Find starting point. Interpolate it if necessary
   double length = 0.0;
   size_t point_index = 0;
-  lanelet::BasicPoint2d inner_polygon_from;
-  lanelet::BasicPoint2d inner_polygon_to;
-  lanelet::BasicPoint2d outer_polygon_from;
-  lanelet::BasicPoint2d outer_polygon_to;
+  BasicPoint2d inner_polygon_from;
+  BasicPoint2d inner_polygon_to;
+  BasicPoint2d outer_polygon_from;
+  BasicPoint2d outer_polygon_to;
   // Search first points of polygon
   for (; length < current_length && point_index < inner_bounds.size() - 1; ++point_index) {
-    length +=
-      lanelet::geometry::distance2d(inner_bounds[point_index], inner_bounds[point_index + 1]);
+    length += lg::distance2d(inner_bounds[point_index], inner_bounds[point_index + 1]);
   }
   // if find current bound point index
   if (length > current_length) {
     const double length_between_points =
-      lanelet::geometry::distance2d(inner_bounds[point_index - 1], inner_bounds[point_index]);
+      lg::distance2d(inner_bounds[point_index - 1], inner_bounds[point_index]);
     const double length_ratio =
       (length_between_points - (length - current_length)) / length_between_points;
     inner_polygon_from =
@@ -201,8 +196,7 @@ void buildInterpolatedPolygon(
     inner_polygon_from = inner_bounds[point_index];
     outer_polygon_from = outer_bounds[point_index];
     if (length < next_length && point_index < inner_bounds.size() - 1) {
-      length +=
-        lanelet::geometry::distance2d(inner_bounds[point_index], inner_bounds[point_index + 1]);
+      length += lg::distance2d(inner_bounds[point_index], inner_bounds[point_index + 1]);
       ++point_index;
     }
   }
@@ -215,13 +209,12 @@ void buildInterpolatedPolygon(
       lerp(inner_bounds[point_index], outer_bounds[point_index], from_ratio_dist));
     outer_polygons.emplace_back(
       lerp(inner_bounds[point_index], outer_bounds[point_index], to_ratio_dist));
-    length +=
-      lanelet::geometry::distance2d(inner_bounds[point_index], inner_bounds[point_index + 1]);
+    length += lg::distance2d(inner_bounds[point_index], inner_bounds[point_index + 1]);
   }
   // Last points
   if (length > next_length) {
     const double length_between_points =
-      lanelet::geometry::distance2d(inner_bounds[point_index - 1], inner_bounds[point_index]);
+      lg::distance2d(inner_bounds[point_index - 1], inner_bounds[point_index]);
     const double length_ratio =
       (length_between_points - (length - next_length)) / length_between_points;
     inner_polygon_to = lerp(inner_bounds[point_index - 1], inner_bounds[point_index], length_ratio);
@@ -314,11 +307,10 @@ std::vector<geometry::Slice> buildSidewalkSlices(
   std::vector<geometry::Slice> right_slices;
   geometry::SliceRange left_slice_range = {
     longitudinal_offset, 0.0, lateral_offset, lateral_offset + lateral_max_dist};
-  geometry::buildSlicePolygons(left_slices, path_lanelet, left_slice_range, slice_size, slice_size);
+  geometry::buildSlices(left_slices, path_lanelet, left_slice_range, slice_size, slice_size);
   geometry::SliceRange right_slice_range = {
     longitudinal_offset, 0.0, -lateral_offset, -lateral_offset - lateral_max_dist};
-  geometry::buildSlicePolygons(
-    right_slices, path_lanelet, right_slice_range, slice_size, slice_size);
+  geometry::buildSlices(right_slices, path_lanelet, right_slice_range, slice_size, slice_size);
   // Properly order lanelets from closest to furthest
   for (size_t i = 0; i < right_slices.size(); ++i) {
     slices.emplace_back(right_slices[i]);
