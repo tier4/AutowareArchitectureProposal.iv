@@ -185,6 +185,10 @@ inline bool isStuckVehicle(PredictedObject obj, const double min_vel)
   }
   return false;
 }
+void filterPossibleCollisionByRoadType(
+  const LaneletMapPtr & lanelet_map_ptr, const double offset, const PathWithLaneId & path,
+  std::vector<PossibleCollisionInfo> & possible_collisions, const ROAD_TYPE road_type,
+  const PlannerParam & param);
 bool splineInterpolate(
   const PathWithLaneId & input, const double interval, PathWithLaneId * output,
   const rclcpp::Logger logger);

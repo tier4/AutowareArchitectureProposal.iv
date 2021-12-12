@@ -425,6 +425,32 @@ std::pair<double, double> extractTargetRoadArcLength(
   return std::pair<int, int>(start_dist, dist_sum);
 }
 
+void filterPossibleCollisionByRoadType(
+  const LaneletMapPtr & lanelet_map_ptr, const double offset, const PathWithLaneId & path,
+  std::vector<PossibleCollisionInfo> & possible_collisions, const ROAD_TYPE road_type,
+  const PlannerParam & param)
+{
+  //! Note : consider offset_from_start_to_ego here
+  for (auto & pc : possible_collisions) {
+    pc.arc_lane_dist_at_collision.length -= offset;
+    pc.arc_lane_dist_at_collision.length -= param.safety_margin;
+  }
+  if (param.consider_road_type) {
+    std::pair<double, double> focus_length =
+      extractTargetRoadArcLength(lanelet_map_ptr, param.detection_area_length, path, road_type);
+    int idx = 0;
+    for (const auto pc : possible_collisions) {
+      const auto pc_len = pc.arc_lane_dist_at_collision.length;
+      if (focus_length.first < pc_len && pc_len < focus_length.second) {
+        continue;
+      }
+      // -----erase-----|start------target-------end|----erase---
+      possible_collisions.erase(possible_collisions.begin() + idx);
+    }
+    idx++;
+  }
+}
+
 void generatePossibleCollisions(
   std::vector<PossibleCollisionInfo> & possible_collisions, const PathWithLaneId & path,
   const grid_map::GridMap & grid, const PlannerParam & param,

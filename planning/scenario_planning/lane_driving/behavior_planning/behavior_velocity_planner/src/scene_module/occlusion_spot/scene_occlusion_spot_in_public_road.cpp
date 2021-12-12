@@ -92,24 +92,8 @@ bool OcclusionSpotInPublicModule::modifyPathVelocity(
   possible_collisions = occlusion_spot_utils::generatePossibleCollisionBehindParkedVehicle(
     path_lanelet, param_, offset_from_start_to_ego, obj);
   //! Note : consider offset_from_start_to_ego here
-  for (auto & pc : possible_collisions) {
-    pc.arc_lane_dist_at_collision.length -= offset_from_start_to_ego;
-    pc.arc_lane_dist_at_collision.length -= param_.safety_margin;
-  }
-  if (param_.consider_road_type) {
-    std::pair<double, double> focus_length = occlusion_spot_utils::extractTargetRoadArcLength(
-      lanelet_map_ptr, param_.detection_area_length, *path, PUBLIC);
-    int idx = 0;
-    for (const auto pc : possible_collisions) {
-      const auto pc_len = pc.arc_lane_dist_at_collision.length;
-      if (focus_length.first < pc_len && pc_len < focus_length.second) {
-        continue;
-      }
-      // -----erase-----|start------target-------end|----erase---
-      possible_collisions.erase(possible_collisions.begin() + idx);
-    }
-    idx++;
-  }
+  occlusion_spot_utils::filterPossibleCollisionByRoadType(
+    lanelet_map_ptr, offset_from_start_to_ego, *path, possible_collisions, PUBLIC, param_);
   //! Arc Lane from idx[0] to end therefore DO NOT consider offset here
   occlusion_spot_utils::calcSlowDownPointsForPossibleCollision(
     0, interp_path, -offset_from_start_to_ego - param_.safety_margin, possible_collisions);
