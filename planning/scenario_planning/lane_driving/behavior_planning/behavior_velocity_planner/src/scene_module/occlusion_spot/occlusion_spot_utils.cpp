@@ -446,7 +446,7 @@ void generateSidewalkPossibleCollisions(
   std::vector<lanelet::BasicPolygon2d> & debug)
 {
   //! Max length
-  const double half_vehicle_width =  param.vehicle_info.vehicle_width * 0.5;
+  const double half_vehicle_width = param.vehicle_info.vehicle_width * 0.5;
   std::vector<geometry::Slice> sidewalk_slices = geometry::buildSidewalkSlices(
     path_lanelet, 0, half_vehicle_width, param.sidewalk.slice_size, param.sidewalk.focus_range);
   double length_lower_bound = std::numeric_limits<double>::max();
@@ -491,9 +491,7 @@ void generateSidewalkPossibleCollisionFromOcclusionSpot(
     ArcCoordinates arc_coord_occlusion_point = toArcCoordinates(center_line, obstacle_point);
     const double length_to_col = arc_coord_occlusion_point.length - baselink_to_front;
     ArcCoordinates arc_coord_collision_point = {
-      length_to_col,
-      calcSignedArcDistance(arc_coord_occlusion_point.distance, half_vehicle_width)
-    };
+      length_to_col, calcSignedArcDistance(arc_coord_occlusion_point.distance, half_vehicle_width)};
     BasicPoint2d collision_point = fromArcCoordinates(center_line, {length_to_col, 0.0});
     if (arc_coord_occlusion_point.length - baselink_to_front < 0) {
       continue;
