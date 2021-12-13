@@ -64,8 +64,6 @@ bool OcclusionSpotInPublicModule::modifyPathVelocity(
   if (!lanelet_map_ptr || !traffic_rules_ptr || !dynamic_obj_arr_ptr || !routing_graph_ptr) {
     return true;
   }
-
-  std::vector<PossibleCollisionInfo> possible_collisions;
   std::vector<lanelet::BasicLineString2d> attension_line;
   std::set<int> ids;
   for (const auto & p : path->points) {
@@ -87,18 +85,17 @@ bool OcclusionSpotInPublicModule::modifyPathVelocity(
     return true;
   }
   double offset_from_start_to_ego = offsetFromStartToEgo(interp_path, ego_pose, closest_idx);
-  const auto path_lanelet = toPathLanelet(interp_path);
   //! Note : Arc Lane from idx[0] to end therefore DO NOT consider offset here
-  possible_collisions = occlusion_spot_utils::generatePossibleCollisionBehindParkedVehicle(
-    path_lanelet, param_, offset_from_start_to_ego, obj);
+  std::vector<PossibleCollisionInfo> possible_collisions =
+    occlusion_spot_utils::generatePossibleCollisionBehindParkedVehicle(
+      interp_path, param_, offset_from_start_to_ego, obj);
   //! Note : consider offset_from_start_to_ego here
   occlusion_spot_utils::filterPossibleCollisionByRoadType(
     lanelet_map_ptr, offset_from_start_to_ego, *path, possible_collisions, PUBLIC, param_);
   //! Arc Lane from idx[0] to end therefore DO NOT consider offset here
   occlusion_spot_utils::calcSlowDownPointsForPossibleCollision(
     0, interp_path, -offset_from_start_to_ego - param_.safety_margin, possible_collisions);
-
-  // apply safe velocity using ebs and pbs deceleration
+  //! apply safe velocity using ebs and pbs deceleration
   applySafeVelocityConsideringPossibleCollison(
     path, possible_collisions, ego_velocity, param_.public_road, param_);
 

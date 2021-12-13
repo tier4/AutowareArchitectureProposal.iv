@@ -134,6 +134,7 @@ void buildSlices(
   if (inner_bounds.size() < 2 || outer_bounds.size() < 2) {
     return;
   }
+  std::cout << "len: " << lg::length(outer_bounds) << std::endl;
   const double ratio_dist_start = std::abs(range.min_distance / range.max_distance);
   const double ratio_dist_increment = std::min(1.0, slice_width / std::abs(range.max_distance));
   for (int s = 0; s < num_longitudinal_slice; s++) {
@@ -178,6 +179,8 @@ void buildInterpolatedPolygon(
   BasicPoint2d inner_polygon_to;
   BasicPoint2d outer_polygon_from;
   BasicPoint2d outer_polygon_to;
+  inner_polygons.reserve(inner_bounds.size());
+  outer_polygons.reserve(outer_bounds.size());
   // Search first points of polygon
   for (; length < current_length && point_index < inner_bounds.size() - 1; ++point_index) {
     length += lg::distance2d(inner_bounds[point_index], inner_bounds[point_index + 1]);
@@ -310,11 +313,11 @@ std::vector<geometry::Slice> buildSidewalkSlices(
   geometry::SliceRange left_slice_range = {
     slice_range.min_length, max_length, slice_range.min_distance,
     slice_range.min_distance + slice_range.max_distance};
-  geometry::buildSlicePolygons(left_slices, path_lanelet, left_slice_range, slice_size, slice_size);
+  geometry::buildSlices(left_slices, path_lanelet, left_slice_range, slice_size, slice_size);
   geometry::SliceRange right_slice_range = {
     slice_range.min_length, max_length, -slice_range.min_distance,
     -slice_range.min_distance - slice_range.max_distance};
-  geometry::buildSlicePolygons(right_slices, path_lanelet, right_slice_range, slice_size, slice_size);
+  geometry::buildSlices(right_slices, path_lanelet, right_slice_range, slice_size, slice_size);
   // Properly order lanelets from closest to furthest
   for (size_t i = 0; i < right_slices.size(); ++i) {
     slices.emplace_back(right_slices[i]);

@@ -200,8 +200,8 @@ std::vector<PredictedObject> getParkedVehicles(
   const PredictedObjects & dyn_objects, const std::vector<BasicLineString2d> & attension_line,
   const PlannerParam & param, std::vector<Point> & debug_point);
 std::vector<PossibleCollisionInfo> generatePossibleCollisionBehindParkedVehicle(
-  const lanelet::ConstLanelet & path_lanelet, const PlannerParam & param,
-  const double offset_from_start_to_ego, const std::vector<PredictedObject> & dyn_objects);
+  const PathWithLaneId & path, const PlannerParam & param, const double offset_from_start_to_ego,
+  const std::vector<PredictedObject> & dyn_objects);
 ROAD_TYPE getCurrentRoadType(
   const lanelet::ConstLanelet & current_lanelet, const LaneletMapPtr & lanelet_map_ptr);
 //!< @brief calculate intersection and collision point from occlusion spot

@@ -358,10 +358,10 @@ PossibleCollisionInfo calculateCollisionPathPointFromOcclusionSpot(
 }
 
 std::vector<PossibleCollisionInfo> generatePossibleCollisionBehindParkedVehicle(
-  const lanelet::ConstLanelet & path_lanelet, const PlannerParam & param,
-  [[maybe_unused]] const double offset_from_start_to_ego,
+  const PathWithLaneId & path, const PlannerParam & param, const double offset_from_start_to_ego,
   const std::vector<PredictedObject> & dyn_objects)
 {
+  lanelet::ConstLanelet path_lanelet = toPathLanelet(path);
   std::vector<PossibleCollisionInfo> possible_collisions;
   const double half_vehicle_width = 0.5 * param.vehicle_info.vehicle_width;
   const double baselink_to_front = param.vehicle_info.baselink_to_front;

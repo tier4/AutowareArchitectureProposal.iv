@@ -71,8 +71,8 @@ bool OcclusionSpotInPrivateModule::modifyPathVelocity(
     publisher_->publish(occ_grid);
   }
   double offset_from_start_to_ego = offsetFromStartToEgo(interp_path, ego_pose, closest_idx);
-  std::vector<occlusion_spot_utils::PossibleCollisionInfo> possible_collisions;
   RCLCPP_DEBUG_STREAM_THROTTLE(logger_, *clock_, 3000, "closest_idx : " << closest_idx);
+  std::vector<occlusion_spot_utils::PossibleCollisionInfo> possible_collisions;
   occlusion_spot_utils::generatePossibleCollisions(
     possible_collisions, interp_path, grid_map, param_, debug_data_.sidewalks);
   //! Note : consider offset_from_start_to_ego here
