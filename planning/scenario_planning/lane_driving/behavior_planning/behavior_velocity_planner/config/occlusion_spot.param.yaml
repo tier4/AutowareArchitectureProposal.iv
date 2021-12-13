@@ -7,7 +7,7 @@
       safety_margin: 1.0                   # [m] for ego vehicle to slow down to desired speed near occlusion spot
       launch_private: true
       launch_public: true
-      consider_road_type: false
+      consider_road_type: true
       threshold:
         detection_area_length: 200.0        # [m] the length of path to consider occlusion spot
         stuck_vehicle_vel: 1.0              # [m/s] velocity below this value is assumed to stop

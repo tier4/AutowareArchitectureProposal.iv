@@ -117,19 +117,18 @@ void OcclusionSpotModuleManager::launchNewModules(const PathWithLaneId & path)
 {
   const int64_t private_road_module_id = static_cast<int64_t>(ModuleID::PRIVATE);
   const int64_t public_road_module_id = static_cast<int64_t>(ModuleID::PUBLIC);
+  const auto & pp = planner_param_;
   // private
-  if (!isModuleRegistered(private_road_module_id) && planner_param_.launch_private) {
-    if (hasPrivateRoadOnPath(path, planner_data_->lanelet_map)) {
+  if (!isModuleRegistered(private_road_module_id) && pp.launch_private) {
+    if (hasPrivateRoadOnPath(path, planner_data_->lanelet_map) || !pp.consider_road_type) {
       registerModule(std::make_shared<OcclusionSpotInPrivateModule>(
         private_road_module_id, planner_data_, planner_param_,
         logger_.get_child("occlusion_spot_in_private_module"), clock_, pub_debug_occupancy_grid_));
     }
   }
   // public
-  if (
-    !isModuleRegistered(public_road_module_id) &&
-    (planner_param_.launch_public || !planner_param_.consider_road_type)) {
-    if (hasPublicRoadOnPath(path, planner_data_->lanelet_map)) {
+  if (!isModuleRegistered(public_road_module_id) && pp.launch_public) {
+    if (hasPublicRoadOnPath(path, planner_data_->lanelet_map) || !pp.consider_road_type) {
       registerModule(std::make_shared<OcclusionSpotInPublicModule>(
         public_road_module_id, planner_data_, planner_param_,
         logger_.get_child("occlusion_spot_in_public_module"), clock_));

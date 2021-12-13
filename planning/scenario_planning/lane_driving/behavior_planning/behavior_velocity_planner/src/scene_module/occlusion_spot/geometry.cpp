@@ -299,18 +299,22 @@ void buildSlicePolygons(
 }
 
 std::vector<geometry::Slice> buildSidewalkSlices(
-  const lanelet::ConstLanelet & path_lanelet, const double longitudinal_offset,
-  const double lateral_offset, const double slice_size, const double lateral_max_dist)
+  const lanelet::ConstLanelet & path_lanelet, const geometry::SliceRange & slice_range,
+  const double slice_size)
 {
   std::vector<geometry::Slice> slices;
   std::vector<geometry::Slice> left_slices;
   std::vector<geometry::Slice> right_slices;
+  const double max_length =
+    std::min(lanelet::geometry::length2d(path_lanelet), slice_range.max_length);
   geometry::SliceRange left_slice_range = {
-    longitudinal_offset, 0.0, lateral_offset, lateral_offset + lateral_max_dist};
-  geometry::buildSlices(left_slices, path_lanelet, left_slice_range, slice_size, slice_size);
+    slice_range.min_length, max_length, slice_range.min_distance,
+    slice_range.min_distance + slice_range.max_distance};
+  geometry::buildSlicePolygons(left_slices, path_lanelet, left_slice_range, slice_size, slice_size);
   geometry::SliceRange right_slice_range = {
-    longitudinal_offset, 0.0, -lateral_offset, -lateral_offset - lateral_max_dist};
-  geometry::buildSlices(right_slices, path_lanelet, right_slice_range, slice_size, slice_size);
+    slice_range.min_length, max_length, -slice_range.min_distance,
+    -slice_range.min_distance - slice_range.max_distance};
+  geometry::buildSlicePolygons(right_slices, path_lanelet, right_slice_range, slice_size, slice_size);
   // Properly order lanelets from closest to furthest
   for (size_t i = 0; i < right_slices.size(); ++i) {
     slices.emplace_back(right_slices[i]);

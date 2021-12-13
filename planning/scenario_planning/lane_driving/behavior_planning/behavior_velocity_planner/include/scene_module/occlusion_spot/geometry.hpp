@@ -57,8 +57,8 @@ void buildInterpolatedPolygon(
   const double from_ratio_dist, const double to_ratio_dist);
 //!< @brief build sidewalk slice from path
 std::vector<geometry::Slice> buildSidewalkSlices(
-  const lanelet::ConstLanelet & path_lanelet, const double longitudinal_offset,
-  const double lateral_offset, const double min_size, const double lateral_max_dist);
+  const lanelet::ConstLanelet & path_lanelet, const geometry::SliceRange & slice_range,
+  const double lateral_max_dist);
 //!< @brief calculate interpolation between a and b at distance ratio t
 template <typename T>
 T lerp(T a, T b, double t)
