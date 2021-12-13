@@ -51,6 +51,8 @@
 
 #include "pointcloud_preprocessor/crop_box_filter/crop_box_filter_nodelet.hpp"
 
+#include <sensor_msgs/point_cloud2_iterator.hpp>
+
 #include <vector>
 
 namespace pointcloud_preprocessor
@@ -92,15 +94,15 @@ void CropBoxFilterComponent::filter(
 
   output.data.clear();
   output.data.reserve(input->data.size());
-  for (size_t i = 0U; i + input->point_step < input->data.size(); i += input->point_step) {
-    const pcl::PointXYZ * pt = reinterpret_cast<const pcl::PointXYZ *>(&input->data[i]);
+  size_t i = 0;
+  for (sensor_msgs::PointCloud2ConstIterator<float> iter_x(*input, "x"), iter_y(*input, "y"),
+       iter_z(*input, "z");
+       iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
     // If inside the cropbox
     if (
-      param_.min_x < pt->x && pt->x < param_.max_x && param_.min_y < pt->y &&
-      pt->y < param_.max_y && param_.min_z < pt->z && pt->z < param_.max_z) {
-      if (param_.negative) {
-        continue;
-      } else {
+      param_.min_z < *iter_z && *iter_z < param_.max_z && param_.min_y < *iter_y &&
+      *iter_y < param_.max_y && param_.min_x < *iter_x && *iter_x < param_.max_x) {
+      if (!param_.negative) {
         std::move(
           input->data.begin() + i, input->data.begin() + i + input->point_step,
           std::back_inserter(output.data));
@@ -111,12 +113,11 @@ void CropBoxFilterComponent::filter(
         std::move(
           input->data.begin() + i, input->data.begin() + i + input->point_step,
           std::back_inserter(output.data));
-      } else {
-        continue;
       }
     }
+
+    i += input->point_step;
   }
-  output.data.shrink_to_fit();
   output.header.frame_id = input->header.frame_id;
   output.height = input->height;
   output.fields = input->fields;
