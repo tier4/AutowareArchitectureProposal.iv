@@ -15,19 +15,22 @@
 #ifndef STEER_OFFSET_ESTIMATOR__STEER_OFFSET_ESTIMATOR_NODE_HPP_
 #define STEER_OFFSET_ESTIMATOR__STEER_OFFSET_ESTIMATOR_NODE_HPP_
 
-#include "autoware_debug_msgs/msg/float32_stamped.hpp"
-#include "autoware_auto_vehicle_msgs/msg/steering_report.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "diagnostic_updater/diagnostic_updater.hpp"
 #include "rclcpp/rclcpp.hpp"
 
+#include "autoware_auto_vehicle_msgs/msg/steering_report.hpp"
+#include "autoware_debug_msgs/msg/float32_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
+
+#include <memory>
+
 namespace steer_offset_estimator
 {
-using geometry_msgs::msg::TwistStamped;
 using autoware_debug_msgs::msg::Float32Stamped;
+using geometry_msgs::msg::TwistStamped;
 using Steering = autoware_auto_vehicle_msgs::msg::SteeringReport;
-using diagnostic_updater::Updater;
 using diagnostic_updater::DiagnosticStatusWrapper;
+using diagnostic_updater::Updater;
 
 class SteerOffsetEstimatorNode : public rclcpp::Node
 {

@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <memory>
-#include <utility>
-
 #include "steer_offset_estimator/steer_offset_estimator_node.hpp"
 
 #include "vehicle_info_util/vehicle_info_util.hpp"
+
+#include <memory>
+#include <utility>
 
 namespace steer_offset_estimator
 {
@@ -37,8 +37,8 @@ SteerOffsetEstimatorNode::SteerOffsetEstimatorNode(const rclcpp::NodeOptions & n
 
   // publisher
   pub_steer_offset_ = this->create_publisher<Float32Stamped>("~/output/steering_offset", 1);
-  pub_steer_offset_cov_ = this->create_publisher<Float32Stamped>(
-    "~/output/steering_offset_covariance", 1);
+  pub_steer_offset_cov_ =
+    this->create_publisher<Float32Stamped>("~/output/steering_offset_covariance", 1);
 
   // subscriber
   sub_twist_ = this->create_subscription<TwistStamped>(
@@ -66,27 +66,21 @@ SteerOffsetEstimatorNode::SteerOffsetEstimatorNode(const rclcpp::NodeOptions & n
 void SteerOffsetEstimatorNode::monitorSteerOffset(DiagnosticStatusWrapper & stat)
 {
   using DiagStatus = diagnostic_msgs::msg::DiagnosticStatus;
-  const double eps=1e-3;
+  const double eps = 1e-3;
   if (covariance_ > eps) {
     stat.summary(DiagStatus::OK, "Preparation");
     return;
   }
-  if(estimated_steer_offset_ > warn_steer_offset_){
+  if (estimated_steer_offset_ > warn_steer_offset_) {
     stat.summary(DiagStatus::WARN, "Steer offset is larger than tolerance");
     return;
   }
   stat.summary(DiagStatus::OK, "Calibration OK");
 }
 
-void SteerOffsetEstimatorNode::onTwist(const TwistStamped::ConstSharedPtr msg)
-{
-  twist_ptr_ = msg;
-}
+void SteerOffsetEstimatorNode::onTwist(const TwistStamped::ConstSharedPtr msg) { twist_ptr_ = msg; }
 
-void SteerOffsetEstimatorNode::onSteer(const Steering::ConstSharedPtr msg)
-{
-  steer_ptr_ = msg;
-}
+void SteerOffsetEstimatorNode::onSteer(const Steering::ConstSharedPtr msg) { steer_ptr_ = msg; }
 
 bool SteerOffsetEstimatorNode::updateSteeringOffset()
 {
@@ -110,7 +104,8 @@ bool SteerOffsetEstimatorNode::updateSteeringOffset()
 
   const double phi = vel / wheel_base_;
   covariance_ = (covariance_ - (covariance_ * phi * phi * covariance_) /
-    (forgetting_factor_ + phi * covariance_ * phi)) / forgetting_factor_;
+                                 (forgetting_factor_ + phi * covariance_ * phi)) /
+                forgetting_factor_;
 
   const double coef = (covariance_ * phi) / (forgetting_factor_ + phi * covariance_ * phi);
   const double measured_wz_offset = wz - phi * steer;
