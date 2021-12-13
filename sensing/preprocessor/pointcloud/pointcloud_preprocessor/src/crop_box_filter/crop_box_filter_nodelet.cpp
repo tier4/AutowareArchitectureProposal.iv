@@ -194,7 +194,8 @@ rcl_interfaces::msg::SetParametersResult CropBoxFilterComponent::paramCallback(
     if (
       param_.min_x != new_param.min_x || param_.max_x != new_param.max_x ||
       param_.min_y != new_param.min_y || param_.max_y != new_param.max_y ||
-      param_.min_z != new_param.min_z || param_.max_z != new_param.max_z) {
+      param_.min_z != new_param.min_z || param_.max_z != new_param.max_z ||
+      param_.negative != new_param.negative) {
       RCLCPP_DEBUG(
         get_logger(), "[%s::paramCallback] Setting the minimum point to: %f %f %f.", get_name(),
         new_param.min_x, new_param.min_y, new_param.min_z);
@@ -204,7 +205,6 @@ rcl_interfaces::msg::SetParametersResult CropBoxFilterComponent::paramCallback(
       RCLCPP_DEBUG(
         get_logger(), "[%s::paramCallback] Setting the filter negative flag to: %s.", get_name(),
         new_param.negative ? "true" : "false");
-      // Set the filter min point if different
       param_ = new_param;
     }
   }
