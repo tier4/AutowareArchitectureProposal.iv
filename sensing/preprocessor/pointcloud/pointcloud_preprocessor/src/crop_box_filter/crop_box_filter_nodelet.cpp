@@ -101,14 +101,14 @@ void CropBoxFilterComponent::filter(
       if (param_.negative) {
         continue;
       } else {
-        std::copy(
+        std::move(
           input->data.begin() + i, input->data.begin() + i + input->point_step,
           std::back_inserter(output.data));
       }
       // If outside the cropbox
     } else {
       if (param_.negative) {
-        std::copy(
+        std::move(
           input->data.begin() + i, input->data.begin() + i + input->point_step,
           std::back_inserter(output.data));
       } else {
@@ -116,6 +116,7 @@ void CropBoxFilterComponent::filter(
       }
     }
   }
+  output.data.shrink_to_fit();
   output.header.frame_id = input->header.frame_id;
   output.height = input->height;
   output.fields = input->fields;
