@@ -97,7 +97,7 @@ void CropBoxFilterComponent::filter(
   size_t i = 0;
   for (sensor_msgs::PointCloud2ConstIterator<float> iter_x(*input, "x"), iter_y(*input, "y"),
        iter_z(*input, "z");
-       iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
+       i + input->point_step < input->data.size(); ++iter_x, ++iter_y, ++iter_z) {
     // If inside the cropbox
     if (
       param_.min_z < *iter_z && *iter_z < param_.max_z && param_.min_y < *iter_y &&
