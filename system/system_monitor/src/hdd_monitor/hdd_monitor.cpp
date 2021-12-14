@@ -156,8 +156,8 @@ void HDDMonitor::checkTemp(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
   for (auto itr = hdd_params_.begin(); itr != hdd_params_.end(); ++itr, ++index) {
     // Retrieve HDD information
-    auto itrh = list.find(itr->second.device_);
-    if (itrh == list.end()) {
+    auto hdd_itr = list.find(itr->second.device_);
+    if (hdd_itr == list.end()) {
       stat.add(fmt::format("HDD {}: status", index), "hdd_reader error");
       stat.add(fmt::format("HDD {}: name", index), itr->first.c_str());
       stat.add(fmt::format("HDD {}: hdd_reader", index), strerror(ENOENT));
@@ -165,15 +165,15 @@ void HDDMonitor::checkTemp(diagnostic_updater::DiagnosticStatusWrapper & stat)
       continue;
     }
 
-    if (itrh->second.error_code_ != 0) {
+    if (hdd_itr->second.error_code_ != 0) {
       stat.add(fmt::format("HDD {}: status", index), "hdd_reader error");
       stat.add(fmt::format("HDD {}: name", index), itr->first.c_str());
-      stat.add(fmt::format("HDD {}: hdd_reader", index), strerror(itrh->second.error_code_));
+      stat.add(fmt::format("HDD {}: hdd_reader", index), strerror(hdd_itr->second.error_code_));
       error_str = "hdd_reader error";
       continue;
     }
 
-    float temp = static_cast<float>(itrh->second.temp_);
+    float temp = static_cast<float>(hdd_itr->second.temp_);
 
     level = DiagStatus::OK;
     if (temp >= itr->second.temp_error_) {
@@ -184,8 +184,8 @@ void HDDMonitor::checkTemp(diagnostic_updater::DiagnosticStatusWrapper & stat)
 
     stat.add(fmt::format("HDD {}: status", index), temp_dict_.at(level));
     stat.add(fmt::format("HDD {}: name", index), itr->second.device_.c_str());
-    stat.add(fmt::format("HDD {}: model", index), itrh->second.model_.c_str());
-    stat.add(fmt::format("HDD {}: serial", index), itrh->second.serial_.c_str());
+    stat.add(fmt::format("HDD {}: model", index), hdd_itr->second.model_.c_str());
+    stat.add(fmt::format("HDD {}: serial", index), hdd_itr->second.serial_.c_str());
     stat.addf(fmt::format("HDD {}: temperature", index), "%.1f DegC", temp);
 
     whole_level = std::max(whole_level, level);
