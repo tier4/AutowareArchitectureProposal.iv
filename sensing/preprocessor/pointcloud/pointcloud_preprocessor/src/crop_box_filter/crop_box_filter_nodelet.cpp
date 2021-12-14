@@ -95,6 +95,7 @@ void CropBoxFilterComponent::filter(
   output.data.clear();
   output.data.reserve(input->data.size());
   size_t i = 0;
+  size_t j = 0;
   for (sensor_msgs::PointCloud2ConstIterator<float> iter_x(*input, "x"), iter_y(*input, "y"),
        iter_z(*input, "z");
        i + input->point_step < input->data.size(); ++iter_x, ++iter_y, ++iter_z) {
@@ -104,15 +105,15 @@ void CropBoxFilterComponent::filter(
       *iter_y < param_.max_y && param_.min_x < *iter_x && *iter_x < param_.max_x) {
       if (!param_.negative) {
         std::move(
-          input->data.begin() + i, input->data.begin() + i + input->point_step,
-          std::back_inserter(output.data));
+          input->data.begin() + i, input->data.begin() + i + input->point_step, &output.data[j]);
+        j += input->point_step;
       }
       // If outside the cropbox
     } else {
       if (param_.negative) {
         std::move(
-          input->data.begin() + i, input->data.begin() + i + input->point_step,
-          std::back_inserter(output.data));
+          input->data.begin() + i, input->data.begin() + i + input->point_step, &output.data[j]);
+        j += input->point_step;
       }
     }
 
