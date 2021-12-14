@@ -348,5 +348,5 @@ std::string HDDMonitor::getDeviceFromMountPoint(const std::string & mount_point)
   return ret;
 }
 
-#include <rclcpp_components/register_node_macro.hpp>  // NOLINT
+#include <rclcpp_components/register_node_macro.hpp>
 RCLCPP_COMPONENTS_REGISTER_NODE(HDDMonitor)
