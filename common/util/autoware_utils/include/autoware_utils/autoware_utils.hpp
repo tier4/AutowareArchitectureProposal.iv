@@ -33,5 +33,6 @@
 #include "autoware_utils/ros/wait_for_param.hpp"
 #include "autoware_utils/system/stop_watch.hpp"
 #include "autoware_utils/trajectory/trajectory.hpp"
+#include "autoware_utils/point_types/types.hpp"
 
 #endif  // AUTOWARE_UTILS__AUTOWARE_UTILS_HPP_
