@@ -92,33 +92,42 @@ void CropBoxFilterComponent::filter(
 {
   boost::mutex::scoped_lock lock(mutex_);
 
-  output.data.clear();
-  output.data.reserve(input->data.size());
+  output.data.resize(input->data.size());
   size_t i = 0;
   size_t j = 0;
-  for (sensor_msgs::PointCloud2ConstIterator<float> iter_x(*input, "x"), iter_y(*input, "y"),
-       iter_z(*input, "z");
-       i + input->point_step < input->data.size(); ++iter_x, ++iter_y, ++iter_z) {
-    // If inside the cropbox
-    if (
-      param_.min_z < *iter_z && *iter_z < param_.max_z && param_.min_y < *iter_y &&
-      *iter_y < param_.max_y && param_.min_x < *iter_x && *iter_x < param_.max_x) {
-      if (!param_.negative) {
-        std::move(
-          input->data.begin() + i, input->data.begin() + i + input->point_step, &output.data[j]);
-        j += input->point_step;
+  const auto data_size = input->data.size();
+  const auto point_step = input->point_step;
+  // If inside the cropbox
+  if (!param_.negative) {
+    for (sensor_msgs::PointCloud2ConstIterator<float> iter_x(*input, "x"), iter_y(*input, "y"),
+         iter_z(*input, "z");
+         i + point_step < data_size; ++iter_x, ++iter_y, ++iter_z) {
+      if (
+        param_.min_z < *iter_z && *iter_z < param_.max_z && param_.min_y < *iter_y &&
+        *iter_y < param_.max_y && param_.min_x < *iter_x && *iter_x < param_.max_x) {
+        memcpy(&output.data[j], &input->data[i], point_step);
+        j += point_step;
       }
-      // If outside the cropbox
-    } else {
-      if (param_.negative) {
-        std::move(
-          input->data.begin() + i, input->data.begin() + i + input->point_step, &output.data[j]);
-        j += input->point_step;
-      }
-    }
 
-    i += input->point_step;
+      i += input->point_step;
+    }
+    // If outside the cropbox
+  } else {
+    for (sensor_msgs::PointCloud2ConstIterator<float> iter_x(*input, "x"), iter_y(*input, "y"),
+         iter_z(*input, "z");
+         i + point_step < data_size; ++iter_x, ++iter_y, ++iter_z) {
+      if (
+        param_.min_z > *iter_z || *iter_z > param_.max_z || param_.min_y > *iter_y ||
+        *iter_y > param_.max_y || param_.min_x > *iter_x || *iter_x > param_.max_x) {
+        memcpy(&output.data[j], &input->data[i], point_step);
+        j += point_step;
+      }
+
+      i += input->point_step;
+    }
   }
+
+  output.data.resize(j);
   output.header.frame_id = input->header.frame_id;
   output.height = input->height;
   output.fields = input->fields;
