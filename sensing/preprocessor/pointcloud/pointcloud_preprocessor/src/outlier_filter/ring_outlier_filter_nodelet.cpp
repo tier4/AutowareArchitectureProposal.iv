@@ -47,11 +47,11 @@ void RingOutlierFilterComponent::filter(
 
   std::vector<std::unique_ptr<PointCloud2Modifier<PointXYZIRADRT, PointXYZIRADRTGenerator>>>
     input_ring_array(128);
+  std::vector<sensor_msgs::msg::PointCloud2> clouds(128);
   {
     sensor_msgs::msg::PointCloud2::SharedPtr input_ptr =
       std::make_shared<sensor_msgs::msg::PointCloud2>(*input);
 
-    std::vector<sensor_msgs::msg::PointCloud2> clouds(128);
     for (std::size_t i = 0; i < input_ring_array.size(); i++) {
       input_ring_array.at(i) =
         std::make_unique<PointCloud2Modifier<PointXYZIRADRT, PointXYZIRADRTGenerator>>(
