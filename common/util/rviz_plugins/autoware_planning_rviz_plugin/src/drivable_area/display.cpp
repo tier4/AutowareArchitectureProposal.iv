@@ -72,7 +72,7 @@
 
 namespace rviz_plugins
 {
-using namespace rviz_default_plugins::displays;
+using namespace rviz_default_plugins::displays;  // NOLINT
 
 AutowareDrivableAreaDisplay::AutowareDrivableAreaDisplay()
 : loaded_(false),
