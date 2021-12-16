@@ -46,16 +46,21 @@ private:
   /** \brief Parameter service callback */
   rcl_interfaces::msg::SetParametersResult paramCallback(const std::vector<rclcpp::Parameter> & p);
 
-  bool isCluster(const PointCloud2Modifier<PointXYZI> & tmp_modifier)
+  bool isCluster(
+    sensor_msgs::msg::PointCloud2::SharedPtr & input_ptr,
+    const std::vector<std::size_t> & tmp_indices)
   {
-    const auto x_diff = tmp_modifier.front().x - tmp_modifier.back().x;
-    const auto y_diff = tmp_modifier.front().y - tmp_modifier.back().y;
-    const auto z_diff = tmp_modifier.front().z - tmp_modifier.back().z;
-    const auto xx = x_diff * x_diff;
-    const auto yy = y_diff * y_diff;
-    const auto zz = z_diff * z_diff;
-    return static_cast<int>(tmp_modifier.size()) > num_points_threshold_ ||
-           xx + yy + zz >= object_length_threshold_ * object_length_threshold_;
+    PointXYZI * front_pt =
+      reinterpret_cast<PointXYZI *>(&input_ptr->data[tmp_indices.front()]);
+    PointXYZI * back_pt =
+      reinterpret_cast<PointXYZI *>(&input_ptr->data[tmp_indices.back()]);
+
+    const auto x_diff = front_pt->x - back_pt->x;
+    const auto y_diff = front_pt->y - back_pt->y;
+    const auto z_diff = front_pt->z - back_pt->z;
+    return static_cast<int>(tmp_indices.size()) > num_points_threshold_ ||
+           (x_diff * x_diff) + (y_diff * y_diff) + (z_diff * z_diff) >=
+             object_length_threshold_ * object_length_threshold_;
   }
 
 public:

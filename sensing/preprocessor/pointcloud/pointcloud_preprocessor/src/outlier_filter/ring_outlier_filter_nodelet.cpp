@@ -16,7 +16,6 @@
 
 #include <algorithm>
 #include <vector>
-
 namespace pointcloud_preprocessor
 {
 RingOutlierFilterComponent::RingOutlierFilterComponent(const rclcpp::NodeOptions & options)
@@ -40,75 +39,68 @@ void RingOutlierFilterComponent::filter(
   PointCloud2 & output)
 {
   boost::mutex::scoped_lock lock(mutex_);
-  if (input->width * input->height < 1) {
+  if (input->row_step < 1) {
     return;
   }
-  std::string frame_id = input->header.frame_id;
+  std::vector<std::vector<std::size_t>> input_ring_array(128);
+  sensor_msgs::msg::PointCloud2::SharedPtr input_ptr =
+    std::make_shared<sensor_msgs::msg::PointCloud2>(*input);
 
-  std::vector<std::unique_ptr<PointCloud2Modifier<PointXYZIRADRT, PointXYZIRADRTGenerator>>>
-    input_ring_array(128);
-  std::vector<sensor_msgs::msg::PointCloud2> clouds(128);
-  {
-    sensor_msgs::msg::PointCloud2::SharedPtr input_ptr =
-      std::make_shared<sensor_msgs::msg::PointCloud2>(*input);
-
-    for (std::size_t i = 0; i < input_ring_array.size(); i++) {
-      input_ring_array.at(i) =
-        std::make_unique<PointCloud2Modifier<PointXYZIRADRT, PointXYZIRADRTGenerator>>(
-          clouds.at(i), input_ptr->header.frame_id);
-    }
-
-    for (std::size_t idx = 0U; idx < input_ptr->data.size(); idx += input_ptr->point_step) {
-      PointXYZIRADRT * pt = reinterpret_cast<PointXYZIRADRT *>(&input_ptr->data[idx]);
-      (input_ring_array.at(pt->ring).get())
-        ->push_back(PointXYZIRADRT{
-          pt->x, pt->y, pt->z, pt->intensity, pt->ring, pt->azimuth, pt->distance, pt->return_type,
-          pt->time_stamp});
-    }
+  const auto ring_offset =
+    input->fields.at(static_cast<size_t>(autoware::common::types::PointIndex::Ring)).offset;
+  for (std::size_t idx = 0U; idx < input_ptr->data.size(); idx += input_ptr->point_step) {
+    input_ring_array.at(*reinterpret_cast<uint16_t *>(&input_ptr->data[idx + ring_offset]))
+      .emplace_back(idx);
   }
 
   output.header = input->header;
-  PointCloud2Modifier<PointXYZI> output_modifier{output, frame_id};
-  output_modifier.reserve(input->row_step);
+  PointCloud2Modifier<PointXYZI> output_modifier{output, input->header.frame_id};
+  output_modifier.reserve(input->width);
 
-  sensor_msgs::msg::PointCloud2 tmp_cloud;
-  PointCloud2Modifier<PointXYZI> tmp_modifier{tmp_cloud, frame_id};
-  tmp_modifier.reserve(input->row_step);
+  std::vector<std::size_t> tmp_indices;
+  tmp_indices.reserve(input->width);
 
-  for (const auto & ring_modifier : input_ring_array) {
-    if (ring_modifier.get()->size() < 2) {
+  for (const auto & ring_indices : input_ring_array) {
+    if (ring_indices.size() < 2) {
       continue;
     }
 
-    for (auto iter = std::begin(*ring_modifier); iter != std::end(*ring_modifier) - 1; ++iter) {
-      tmp_modifier.push_back(PointXYZI{iter->x, iter->y, iter->z, iter->intensity});
+    for (size_t idx = 0; idx < ring_indices.size() - 1; ++idx) {
+      const auto current_idx = ring_indices.at(idx);
+      const auto next_idx = ring_indices.at(idx + 1);
+      PointXYZIRADRT * current_pt =
+        reinterpret_cast<PointXYZIRADRT *>(&input_ptr->data[current_idx]);
+      PointXYZIRADRT * next_pt = reinterpret_cast<PointXYZIRADRT *>(&input_ptr->data[next_idx]);
+      tmp_indices.emplace_back(current_idx);
+
       // if(std::abs(iter->distance - (iter+1)->distance) <= std::sqrt(iter->distance) * 0.08)
-      const float min_dist = std::min(iter->distance, (iter + 1)->distance);
-      const float max_dist = std::max(iter->distance, (iter + 1)->distance);
-      float azimuth_diff = (iter + 1)->azimuth - iter->azimuth;
+      float azimuth_diff = next_pt->azimuth - current_pt->azimuth;
       azimuth_diff = azimuth_diff < 0.f ? azimuth_diff + 36000.f : azimuth_diff;
 
-      if (max_dist < min_dist * distance_ratio_ && azimuth_diff < 100.f) {
+      if (
+        std::max(current_pt->distance, next_pt->distance) <
+          std::min(current_pt->distance, next_pt->distance) * distance_ratio_ &&
+        azimuth_diff < 100.f) {
         continue;
       }
-      if (isCluster(tmp_modifier)) {
-        for (auto tmp_iter = std::begin(tmp_modifier); tmp_iter != std::end(tmp_modifier);
-             ++tmp_iter) {
+      if (isCluster(input_ptr, tmp_indices)) {
+        for (const auto tmp_idx : tmp_indices) {
           output_modifier.push_back(
-            PointXYZI{tmp_iter->x, tmp_iter->y, tmp_iter->z, tmp_iter->intensity});
+            std::move(*reinterpret_cast<PointXYZI *>(&input_ptr->data[tmp_idx])));
         }
       }
-      tmp_modifier.clear();
+      tmp_indices.clear();
     }
-
-    if (isCluster(tmp_modifier)) {
-      for (auto tmp_iter = std::begin(tmp_modifier); tmp_iter != std::end(tmp_modifier);
-           ++tmp_iter) {
+    if (tmp_indices.empty()) {
+      continue;
+    }
+    if (isCluster(input_ptr, tmp_indices)) {
+      for (const auto tmp_idx : tmp_indices) {
         output_modifier.push_back(
-          PointXYZI{tmp_iter->x, tmp_iter->y, tmp_iter->z, tmp_iter->intensity});
+          std::move(*reinterpret_cast<PointXYZI *>(&input_ptr->data[tmp_idx])));
       }
     }
-    tmp_modifier.clear();
+    tmp_indices.clear();
   }
 }
 
