@@ -1,8 +1,13 @@
 <library path="autoware_planning_rviz_plugin">
+  <class name="rviz_plugins/DrivableArea"
+    type="rviz_plugins::AutowareDrivableAreaDisplay"
+    base_class_type="rviz_common::Display">
+    <description>Display drivable area of autoware_planning_msg::Path</description>
+  </class>
   <class name="rviz_plugins/Path"
     type="rviz_plugins::AutowarePathDisplay"
     base_class_type="rviz_common::Display">
-    <description>Display autoware_planning_msg::Path</description>
+    <description>Display path points of autoware_planning_msg::Path</description>
   </class>
   <class name="rviz_plugins/PathFootprint"
     type="rviz_plugins::AutowarePathFootprintDisplay"
