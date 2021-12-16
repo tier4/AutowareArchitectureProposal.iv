@@ -15,11 +15,12 @@
 #ifndef POINTCLOUD_PREPROCESSOR__OUTLIER_FILTER__RING_OUTLIER_FILTER_NODELET_HPP_
 #define POINTCLOUD_PREPROCESSOR__OUTLIER_FILTER__RING_OUTLIER_FILTER_NODELET_HPP_
 
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
-#include <vector>
-
 #include "autoware_utils/point_types/types.hpp"
 #include "pointcloud_preprocessor/filter.hpp"
+
+#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
+
+#include <vector>
 
 namespace pointcloud_preprocessor
 {
