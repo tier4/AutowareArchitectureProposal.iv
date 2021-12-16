@@ -93,37 +93,31 @@ void CropBoxFilterComponent::filter(
   boost::mutex::scoped_lock lock(mutex_);
 
   output.data.resize(input->data.size());
-  size_t i = 0;
+  Eigen::Vector3f pt(Eigen::Vector3f::Zero());
   size_t j = 0;
   const auto data_size = input->data.size();
   const auto point_step = input->point_step;
   // If inside the cropbox
   if (!param_.negative) {
-    for (sensor_msgs::PointCloud2ConstIterator<float> iter_x(*input, "x"), iter_y(*input, "y"),
-         iter_z(*input, "z");
-         i + point_step < data_size; ++iter_x, ++iter_y, ++iter_z) {
+    for (size_t i = 0; i + point_step < data_size; i += point_step) {
+      memcpy(pt.data(), &input->data[i], sizeof(float) * 3);
       if (
-        param_.min_z < *iter_z && *iter_z < param_.max_z && param_.min_y < *iter_y &&
-        *iter_y < param_.max_y && param_.min_x < *iter_x && *iter_x < param_.max_x) {
+        param_.min_z < pt.z() && pt.z() < param_.max_z && param_.min_y < pt.y() &&
+        pt.y() < param_.max_y && param_.min_x < pt.x() && pt.x() < param_.max_x) {
         memcpy(&output.data[j], &input->data[i], point_step);
         j += point_step;
       }
-
-      i += input->point_step;
     }
     // If outside the cropbox
   } else {
-    for (sensor_msgs::PointCloud2ConstIterator<float> iter_x(*input, "x"), iter_y(*input, "y"),
-         iter_z(*input, "z");
-         i + point_step < data_size; ++iter_x, ++iter_y, ++iter_z) {
+    for (size_t i = 0; i + point_step < data_size; i += point_step) {
+      memcpy(pt.data(), &input->data[i], sizeof(float) * 3);
       if (
-        param_.min_z > *iter_z || *iter_z > param_.max_z || param_.min_y > *iter_y ||
-        *iter_y > param_.max_y || param_.min_x > *iter_x || *iter_x > param_.max_x) {
+        param_.min_z > pt.z() || pt.z() > param_.max_z || param_.min_y > pt.y() ||
+        pt.y() > param_.max_y || param_.min_x > pt.x() || pt.x() > param_.max_x) {
         memcpy(&output.data[j], &input->data[i], point_step);
         j += point_step;
       }
-
-      i += input->point_step;
     }
   }
 
