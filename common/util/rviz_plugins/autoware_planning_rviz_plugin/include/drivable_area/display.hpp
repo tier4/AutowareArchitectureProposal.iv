@@ -77,7 +77,6 @@ namespace rviz_common
 {
 namespace properties
 {
-
 class EnumProperty;
 class FloatProperty;
 class IntProperty;
