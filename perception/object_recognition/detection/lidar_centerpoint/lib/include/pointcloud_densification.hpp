@@ -56,7 +56,7 @@ public:
   void enqueuePointCloud(
     const sensor_msgs::msg::PointCloud2 & input_pointcloud_msg, const tf2_ros::Buffer & tf_buffer);
 
-  float getCurrentTimestamp() const { return current_timestamp_; }
+  double getCurrentTimestamp() const { return current_timestamp_; }
   Eigen::Affine3f getAffineGlobalToCurrent() const { return affine_global2current_; }
   std::list<PointCloudWithTransform>::iterator getPointCloudCacheIter()
   {
@@ -72,7 +72,7 @@ private:
   void dequeue();
 
   DensificationParam param_;
-  float current_timestamp_ = 0.0f;
+  double current_timestamp_{0.0};
   Eigen::Affine3f affine_global2current_;
   std::list<PointCloudWithTransform> pointcloud_cache_;
 };

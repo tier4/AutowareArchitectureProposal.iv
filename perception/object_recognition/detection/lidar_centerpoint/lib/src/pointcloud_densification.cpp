@@ -75,7 +75,7 @@ void PointCloudDensification::enqueue(
   const sensor_msgs::msg::PointCloud2 & msg, const Eigen::Affine3f & affine_global2current)
 {
   affine_global2current_ = affine_global2current;
-  current_timestamp_ = static_cast<float>(rclcpp::Time(msg.header.stamp).seconds());
+  current_timestamp_ = rclcpp::Time(msg.header.stamp).seconds();
   PointCloudWithTransform pointcloud = {msg, affine_global2current.inverse()};
   pointcloud_cache_.push_front(pointcloud);
 }

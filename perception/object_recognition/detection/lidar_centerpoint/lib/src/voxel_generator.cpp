@@ -56,8 +56,8 @@ int VoxelGenerator::pointsToVoxels(
     auto pc_msg = pc_cache_iter->pointcloud_msg;
     auto affine_past2current =
       pd_ptr_->getAffineGlobalToCurrent() * pc_cache_iter->affine_past2global;
-    float timelag = pd_ptr_->getCurrentTimestamp() -
-                    static_cast<float>(rclcpp::Time(pc_msg.header.stamp).seconds());
+    float timelag = static_cast<float>(
+      pd_ptr_->getCurrentTimestamp() - rclcpp::Time(pc_msg.header.stamp).seconds());
 
     for (sensor_msgs::PointCloud2ConstIterator<float> x_iter(pc_msg, "x"), y_iter(pc_msg, "y"),
          z_iter(pc_msg, "z");
