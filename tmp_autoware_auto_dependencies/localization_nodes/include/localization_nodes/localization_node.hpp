@@ -25,6 +25,9 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <time_utils/time_utils.hpp>
+
+#include <autoware_utils/geometry/geometry.hpp>
+
 #include <helper_functions/message_adapters.hpp>
 #include <localization_nodes/visibility_control.hpp>
 #include <localization_nodes/constraints.hpp>
@@ -462,10 +465,7 @@ private:
     geometry_msgs::msg::TransformStamped input_pose_stamped;
     input_pose_stamped.header = msg_ptr->header;
     input_pose_stamped.child_frame_id = "base_link";
-    input_pose_stamped.transform.rotation = msg_ptr->pose.pose.orientation;
-    input_pose_stamped.transform.translation.x = msg_ptr->pose.pose.position.x;
-    input_pose_stamped.transform.translation.y = msg_ptr->pose.pose.position.y;
-    input_pose_stamped.transform.translation.z = msg_ptr->pose.pose.position.z;
+    input_pose_stamped.transform = autoware_utils::pose2transform(msg_ptr->pose.pose);
     geometry_msgs::msg::TransformStamped transformed_pose_stamped;
     tf2::doTransform(input_pose_stamped, transformed_pose_stamped, transform);
 
