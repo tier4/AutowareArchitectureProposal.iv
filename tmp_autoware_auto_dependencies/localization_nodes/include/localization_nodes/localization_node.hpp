@@ -394,6 +394,15 @@ private:
     }
   }
 
+  geometry_msgs::msg::TransformStamped get_odom(const builtin_interfaces::msg::Time & pose_stamp)
+  {
+    try {
+      return m_tf_buffer.lookupTransform("odom", "base_link", time_utils::from_message(pose_stamp));
+    } catch (const tf2::ExtrapolationException &) {
+      return m_tf_buffer.lookupTransform("odom", "base_link", tf2::TimePointZero);
+    }
+  }
+
   /// Publish the pose message as a transform.
   void publish_tf(const PoseWithCovarianceStamped & pose_msg)
   {
@@ -413,15 +422,7 @@ private:
       odom_to_bl_found = m_tf_buffer.canTransform("odom", "base_link", tf2::TimePointZero);
     }
 
-    geometry_msgs::msg::TransformStamped odom_tf;
-    try {
-      odom_tf = m_tf_buffer.lookupTransform(
-        "odom", "base_link",
-        time_utils::from_message(pose_msg.header.stamp));
-    } catch (const tf2::ExtrapolationException &) {
-      odom_tf = m_tf_buffer.lookupTransform("odom", "base_link", tf2::TimePointZero);
-    }
-
+    const geometry_msgs::msg::TransformStamped odom_tf = get_odom(pose_msg.header.stamp);
     tf2::Transform odom_base_link_transform;
     tf2::fromMsg(odom_tf.transform, odom_base_link_transform);
 
