@@ -111,7 +111,6 @@ bool CenterPointTRT::initPtr(const bool use_encoder_trt, const bool use_head_trt
 std::vector<float> CenterPointTRT::detect(
   const sensor_msgs::msg::PointCloud2 & input_pointcloud_msg, const tf2_ros::Buffer & tf_buffer)
 {
-  // TODO(yukke42): not initialize all data
   voxels_t_ = torch::zeros(
     {Config::max_num_voxels, Config::max_num_points_per_voxel, Config::num_point_features},
     torch::TensorOptions().device(torch::kCPU).dtype(torch::kFloat));

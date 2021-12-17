@@ -32,7 +32,6 @@ int VoxelGenerator::pointsToVoxels(
   // coordinates (int): (max_num_voxels, num_point_dims)
   // num_points_per_voxel (int): (max_num_voxels)
 
-  // TODO(yukke42): not initialize all data
   at::Tensor coord_to_voxel_idx = torch::full(
     {Config::grid_size_z, Config::grid_size_y, Config::grid_size_x}, -1,
     at::TensorOptions().dtype(torch::kInt));
