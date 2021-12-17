@@ -50,7 +50,8 @@ LidarCenterPointNode::LidarCenterPointNode(const rclcpp::NodeOptions & node_opti
   NetworkParam head_param(
     head_onnx_path_, head_engine_path_, head_pt_path_, trt_precision_, use_head_trt_);
   DensificationParam densification_param(densification_base_frame_, densification_past_frames_);
-  detector_ptr_ = std::make_unique<CenterPointTRT>(encoder_param, head_param, densification_param);
+  detector_ptr_ = std::make_unique<CenterPointTRT>(
+    static_cast<int>(class_names_.size()), encoder_param, head_param, densification_param);
 
   pointcloud_sub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
     "~/input/pointcloud", rclcpp::SensorDataQoS{}.keep_last(1),

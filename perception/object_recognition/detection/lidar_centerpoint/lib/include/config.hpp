@@ -21,7 +21,6 @@ class Config
 {
 public:
   // input params
-  constexpr static int num_class = 3;           // car, bicycle and pedestrian
   constexpr static int num_point_dims = 3;      // x, y and z
   constexpr static int num_point_features = 4;  // x, y, z and timelag
   constexpr static int max_num_points_per_voxel = 32;

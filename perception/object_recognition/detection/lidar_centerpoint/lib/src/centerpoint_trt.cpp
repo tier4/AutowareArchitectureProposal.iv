@@ -31,8 +31,9 @@ namespace centerpoint
 using torch::indexing::Slice;
 
 CenterPointTRT::CenterPointTRT(
-  const NetworkParam & encoder_param, const NetworkParam & head_param,
+  const int num_class, const NetworkParam & encoder_param, const NetworkParam & head_param,
   const DensificationParam & densification_param)
+: num_class_(num_class)
 {
   vg_ptr_ = std::make_unique<VoxelGenerator>(densification_param);
   bool verbose = false;
@@ -46,7 +47,7 @@ CenterPointTRT::CenterPointTRT(
   }
 
   if (head_param.use_trt()) {
-    head_trt_ptr_ = std::make_unique<HeadTRT>(verbose);
+    head_trt_ptr_ = std::make_unique<HeadTRT>(num_class, verbose);
     head_trt_ptr_->init(
       head_param.onnx_path(), head_param.engine_path(), head_param.trt_precision());
     head_trt_ptr_->context_->setBindingDimensions(
@@ -86,8 +87,8 @@ bool CenterPointTRT::initPtr(const bool use_encoder_trt, const bool use_head_trt
       static_cast<int>(static_cast<float>(Config::grid_size_y) / Config::downsample_factor);
     const int batch_size = 1;
     auto torch_options = torch::TensorOptions().device(device_).dtype(torch::kFloat);
-    output_heatmap_t_ = torch::zeros(
-      {batch_size, Config::num_class, downsample_grid_y, downsample_grid_x}, torch_options);
+    output_heatmap_t_ =
+      torch::zeros({batch_size, num_class_, downsample_grid_y, downsample_grid_x}, torch_options);
     output_offset_t_ = torch::zeros(
       {batch_size, Config::num_output_offset_features, downsample_grid_y, downsample_grid_x},
       torch_options);
