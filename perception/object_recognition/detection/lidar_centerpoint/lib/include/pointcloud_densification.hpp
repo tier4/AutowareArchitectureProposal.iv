@@ -28,24 +28,24 @@ namespace centerpoint
 class DensificationParam
 {
 public:
-  DensificationParam(const std::string & global_frame_id, const unsigned int num_past_frames)
-  : global_frame_id_(std::move(global_frame_id)),
+  DensificationParam(const std::string & world_frame_id, const unsigned int num_past_frames)
+  : world_frame_id_(std::move(world_frame_id)),
     pointcloud_cache_size_(num_past_frames + /*current frame*/ 1)
   {
   }
 
-  std::string global_frame_id() const { return global_frame_id_; }
+  std::string world_frame_id() const { return world_frame_id_; }
   unsigned int pointcloud_cache_size() const { return pointcloud_cache_size_; }
 
 private:
-  std::string global_frame_id_;
+  std::string world_frame_id_;
   unsigned int pointcloud_cache_size_{1};
 };
 
 struct PointCloudWithTransform
 {
   sensor_msgs::msg::PointCloud2 pointcloud_msg;
-  Eigen::Affine3f affine_past2global;
+  Eigen::Affine3f affine_past2world;
 };
 
 class PointCloudDensification
@@ -57,7 +57,7 @@ public:
     const sensor_msgs::msg::PointCloud2 & input_pointcloud_msg, const tf2_ros::Buffer & tf_buffer);
 
   double getCurrentTimestamp() const { return current_timestamp_; }
-  Eigen::Affine3f getAffineGlobalToCurrent() const { return affine_global2current_; }
+  Eigen::Affine3f getAffineWorldToCurrent() const { return affine_world2current_; }
   std::list<PointCloudWithTransform>::iterator getPointCloudCacheIter()
   {
     return pointcloud_cache_.begin();
@@ -73,7 +73,7 @@ private:
 
   DensificationParam param_;
   double current_timestamp_{0.0};
-  Eigen::Affine3f affine_global2current_;
+  Eigen::Affine3f affine_world2current_;
   std::list<PointCloudWithTransform> pointcloud_cache_;
 };
 

@@ -60,23 +60,23 @@ void PointCloudDensification::enqueuePointCloud(
 {
   const auto header = pointcloud_msg.header;
 
-  auto transform_global2current =
-    getTransform(tf_buffer, header.frame_id, param_.global_frame_id(), header.stamp);
-  if (!transform_global2current) {
+  auto transform_world2current =
+    getTransform(tf_buffer, header.frame_id, param_.world_frame_id(), header.stamp);
+  if (!transform_world2current) {
     return;
   }
-  auto affine_global2current = transformToEigen(transform_global2current.get());
+  auto affine_world2current = transformToEigen(transform_world2current.get());
 
-  enqueue(pointcloud_msg, affine_global2current);
+  enqueue(pointcloud_msg, affine_world2current);
   dequeue();
 }
 
 void PointCloudDensification::enqueue(
-  const sensor_msgs::msg::PointCloud2 & msg, const Eigen::Affine3f & affine_global2current)
+  const sensor_msgs::msg::PointCloud2 & msg, const Eigen::Affine3f & affine_world2current)
 {
-  affine_global2current_ = affine_global2current;
+  affine_world2current_ = affine_world2current;
   current_timestamp_ = rclcpp::Time(msg.header.stamp).seconds();
-  PointCloudWithTransform pointcloud = {msg, affine_global2current.inverse()};
+  PointCloudWithTransform pointcloud = {msg, affine_world2current.inverse()};
   pointcloud_cache_.push_front(pointcloud);
 }
 

@@ -31,8 +31,9 @@ LidarCenterPointNode::LidarCenterPointNode(const rclcpp::NodeOptions & node_opti
 : Node("lidar_center_point", node_options), tf_buffer_(this->get_clock())
 {
   score_threshold_ = this->declare_parameter("score_threshold", 0.4);
-  densification_base_frame_ = this->declare_parameter("densification_base_frame", "map");
-  densification_past_frames_ = this->declare_parameter("densification_past_frames", 1);
+  std::string densification_world_frame_id =
+    this->declare_parameter("densification_world_frame_id", "map");
+  int densification_num_past_frames = this->declare_parameter("densification_num_past_frames", 1);
   use_encoder_trt_ = this->declare_parameter("use_encoder_trt", false);
   use_head_trt_ = this->declare_parameter("use_head_trt", true);
   trt_precision_ = this->declare_parameter("trt_precision", "fp16");
@@ -49,7 +50,8 @@ LidarCenterPointNode::LidarCenterPointNode(const rclcpp::NodeOptions & node_opti
     encoder_onnx_path_, encoder_engine_path_, encoder_pt_path_, trt_precision_, use_encoder_trt_);
   NetworkParam head_param(
     head_onnx_path_, head_engine_path_, head_pt_path_, trt_precision_, use_head_trt_);
-  DensificationParam densification_param(densification_base_frame_, densification_past_frames_);
+  DensificationParam densification_param(
+    densification_world_frame_id, densification_num_past_frames);
   detector_ptr_ = std::make_unique<CenterPointTRT>(
     static_cast<int>(class_names_.size()), encoder_param, head_param, densification_param);
 

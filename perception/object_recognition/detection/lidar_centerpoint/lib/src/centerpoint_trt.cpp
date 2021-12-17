@@ -85,24 +85,24 @@ bool CenterPointTRT::initPtr(const bool use_encoder_trt, const bool use_head_trt
       static_cast<int>(static_cast<float>(Config::grid_size_x) / Config::downsample_factor);
     const int downsample_grid_y =
       static_cast<int>(static_cast<float>(Config::grid_size_y) / Config::downsample_factor);
-    const int batch_size = 1;
     auto torch_options = torch::TensorOptions().device(device_).dtype(torch::kFloat);
-    output_heatmap_t_ =
-      torch::zeros({batch_size, num_class_, downsample_grid_y, downsample_grid_x}, torch_options);
+    output_heatmap_t_ = torch::zeros(
+      {Config::batch_size, num_class_, downsample_grid_y, downsample_grid_x}, torch_options);
     output_offset_t_ = torch::zeros(
-      {batch_size, Config::num_output_offset_features, downsample_grid_y, downsample_grid_x},
+      {Config::batch_size, Config::num_output_offset_features, downsample_grid_y,
+       downsample_grid_x},
       torch_options);
     output_z_t_ = torch::zeros(
-      {batch_size, Config::num_output_z_features, downsample_grid_y, downsample_grid_x},
+      {Config::batch_size, Config::num_output_z_features, downsample_grid_y, downsample_grid_x},
       torch_options);
     output_dim_t_ = torch::zeros(
-      {batch_size, Config::num_output_dim_features, downsample_grid_y, downsample_grid_x},
+      {Config::batch_size, Config::num_output_dim_features, downsample_grid_y, downsample_grid_x},
       torch_options);
     output_rot_t_ = torch::zeros(
-      {batch_size, Config::num_output_rot_features, downsample_grid_y, downsample_grid_x},
+      {Config::batch_size, Config::num_output_rot_features, downsample_grid_y, downsample_grid_x},
       torch_options);
     output_vel_t_ = torch::zeros(
-      {batch_size, Config::num_output_vel_features, downsample_grid_y, downsample_grid_x},
+      {Config::batch_size, Config::num_output_vel_features, downsample_grid_y, downsample_grid_x},
       torch_options);
   }
 

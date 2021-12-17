@@ -52,8 +52,6 @@ private:
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pointcloud_pub_;
 
   float score_threshold_{0.0};
-  std::string densification_base_frame_;
-  int densification_past_frames_{0};
   bool use_encoder_trt_{false};
   bool use_head_trt_{false};
   std::string trt_precision_;

@@ -20,7 +20,7 @@
 
 namespace centerpoint
 {
-VoxelGenerator::VoxelGenerator(const DensificationParam & param)
+VoxelGeneratorTemplate::VoxelGeneratorTemplate(const DensificationParam & param)
 {
   pd_ptr_ = std::make_unique<PointCloudDensification>(param);
 }
@@ -42,10 +42,8 @@ int VoxelGenerator::pointsToVoxels(
   auto coord_to_voxel_idx_p = coord_to_voxel_idx.data_ptr<int>();
 
   int voxel_cnt = 0;  // @return
-  float recip_voxel_size[3] = {
-    1 / Config::voxel_size_x, 1 / Config::voxel_size_y, 1 / Config::voxel_size_z};
-  float point[Config::num_point_features];
-  int coord_zyx[Config::num_point_dims];
+  std::array<float, Config::num_point_features> point;
+  std::array<float, Config::num_point_dims> coord_zyx;
   bool out_of_range;
   int c, coord_idx, voxel_idx, point_cnt;
   Eigen::Vector3f point_current, point_past;
@@ -54,7 +52,7 @@ int VoxelGenerator::pointsToVoxels(
        pc_cache_iter++) {
     auto pc_msg = pc_cache_iter->pointcloud_msg;
     auto affine_past2current =
-      pd_ptr_->getAffineGlobalToCurrent() * pc_cache_iter->affine_past2global;
+      pd_ptr_->getAffineWorldToCurrent() * pc_cache_iter->affine_past2world;
     float timelag = static_cast<float>(
       pd_ptr_->getCurrentTimestamp() - rclcpp::Time(pc_msg.header.stamp).seconds());
 
@@ -71,7 +69,7 @@ int VoxelGenerator::pointsToVoxels(
 
       out_of_range = false;
       for (int di = 0; di < Config::num_point_dims; di++) {
-        c = static_cast<int>((point[di] - pointcloud_range_[di]) * recip_voxel_size[di]);
+        c = static_cast<int>((point[di] - pointcloud_range_[di]) * recip_voxel_size_[di]);
         if (c < 0 || c >= grid_size_[di]) {
           out_of_range = true;
           break;
