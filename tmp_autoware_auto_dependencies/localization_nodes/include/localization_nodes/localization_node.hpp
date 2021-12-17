@@ -421,11 +421,9 @@ private:
     } catch (const tf2::ExtrapolationException &) {
       odom_tf = m_tf_buffer.lookupTransform("odom", "base_link", tf2::TimePointZero);
     }
-    tf2::Quaternion odom_rotation{odom_tf.transform.rotation.x,
-      odom_tf.transform.rotation.y, odom_tf.transform.rotation.z, odom_tf.transform.rotation.w};
-    tf2::Vector3 odom_translation{odom_tf.transform.translation.x, odom_tf.transform.translation.y,
-      odom_tf.transform.translation.z};
-    const tf2::Transform odom_base_link_transform{odom_rotation, odom_translation};
+
+    tf2::Transform odom_base_link_transform;
+    tf2::fromMsg(odom_tf.transform, odom_base_link_transform);
 
     const auto map_odom_tf = map_base_link_transform * odom_base_link_transform.inverse();
 
@@ -455,7 +453,6 @@ private:
     const auto transform = m_tf_buffer.lookupTransform(
       map_frame, msg_ptr->header.frame_id,
       tf2::TimePointZero);
-
 
     geometry_msgs::msg::TransformStamped input_pose_stamped;
     input_pose_stamped.header = msg_ptr->header;
