@@ -434,12 +434,7 @@ private:
     tf_stamped.header.stamp = pose_msg.header.stamp;
     tf_stamped.header.frame_id = map_frame_id;
     tf_stamped.child_frame_id = "odom";
-    const auto & tf_trans = map_odom_tf.getOrigin();
-    const auto & tf_rot = map_odom_tf.getRotation();
-    tf_stamped.transform.translation.set__x(tf_trans.x()).set__y(tf_trans.y()).
-    set__z(tf_trans.z());
-    tf_stamped.transform.rotation.set__x(tf_rot.x()).set__y(tf_rot.y()).set__z(tf_rot.z()).
-    set__w(tf_rot.w());
+    tf_stamped.transform = tf2::toMsg(map_odom_tf);
     tf_message.transforms.push_back(tf_stamped);
     m_tf_publisher->publish(tf_message);
   }
