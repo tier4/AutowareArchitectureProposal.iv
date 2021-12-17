@@ -50,10 +50,8 @@ private:
     sensor_msgs::msg::PointCloud2::SharedPtr & input_ptr,
     const std::vector<std::size_t> & tmp_indices)
   {
-    PointXYZI * front_pt =
-      reinterpret_cast<PointXYZI *>(&input_ptr->data[tmp_indices.front()]);
-    PointXYZI * back_pt =
-      reinterpret_cast<PointXYZI *>(&input_ptr->data[tmp_indices.back()]);
+    PointXYZI * front_pt = reinterpret_cast<PointXYZI *>(&input_ptr->data[tmp_indices.front()]);
+    PointXYZI * back_pt = reinterpret_cast<PointXYZI *>(&input_ptr->data[tmp_indices.back()]);
 
     const auto x_diff = front_pt->x - back_pt->x;
     const auto y_diff = front_pt->y - back_pt->y;
