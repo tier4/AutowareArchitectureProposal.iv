@@ -226,12 +226,8 @@ class NDT_PUBLIC P2DNDTLocalizer : public NDTLocalizerBase<
     P2DNDTScan, P2DNDTOptimizationProblem<MapT>, P2DNDTOptimizationConfig, OptimizerT>
 {
 public:
-  using CloudT = sensor_msgs::msg::PointCloud2;
   using ParentT = NDTLocalizerBase<
     P2DNDTScan, P2DNDTOptimizationProblem<MapT>, P2DNDTOptimizationConfig, OptimizerT>;
-  using Transform = typename ParentT::Transform;
-  using PoseWithCovarianceStamped = typename ParentT::PoseWithCovarianceStamped;
-  using ScanT = P2DNDTScan;
 
   explicit P2DNDTLocalizer(
     const P2DNDTLocalizerConfig & config,
@@ -241,7 +237,7 @@ public:
       config,
       P2DNDTOptimizationConfig{outlier_ratio},
       optimizer,
-      ScanT{config.scan_capacity()}} {}
+      P2DNDTScan{config.scan_capacity()}} {}
 };
 
 }  // namespace ndt
