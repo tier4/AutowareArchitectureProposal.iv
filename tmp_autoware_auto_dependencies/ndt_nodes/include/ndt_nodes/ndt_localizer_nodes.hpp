@@ -46,6 +46,10 @@ using Optimizer_ =
   common::optimization::NewtonsMethodOptimizer<common::optimization::MoreThuenteLineSearch>;
 using PoseInitializer_ = localization_common::BestEffortInitializer;
 
+Eigen::Quaterniond to_eigen_rotation(const geometry_msgs::msg::Quaternion & orientation) {
+  return Eigen::Quaterniond(orientation.w, orientation.x, orientation.y, orientation.z);
+}
+
 /// P2D NDT localizer node. Currently uses the hard coded optimizer and pose initializers.
 /// \tparam OptimizerT Hard coded for Newton optimizer. TODO(yunus.caliskan): Make Configurable
 /// \tparam PoseInitializerT Hard coded for Best effort. TODO(yunus.caliskan): Make Configurable
@@ -147,16 +151,8 @@ private:
   /// \return True if rotation estimate is valid.
   virtual bool rotation_valid(const PoseWithCovarianceStamped & pose, const Transform guess)
   {
-    Eigen::Quaterniond pose_rotation{pose.pose.pose.orientation.w,
-      pose.pose.pose.orientation.x,
-      pose.pose.pose.orientation.y,
-      pose.pose.pose.orientation.z
-    };
-    Eigen::Quaterniond guess_rotation{guess.transform.rotation.w,
-      guess.transform.rotation.x,
-      guess.transform.rotation.y,
-      guess.transform.rotation.z
-    };
+    const Eigen::Quaterniond pose_rotation = to_eigen_rotation(pose.pose.pose.orientation);
+    const Eigen::Quaterniond guess_rotation = to_eigen_rotation(guess.transform.rotation);
     return std::fabs(pose_rotation.angularDistance(guess_rotation)) <=
            (m_predict_rotation_threshold + EPS);
   }
