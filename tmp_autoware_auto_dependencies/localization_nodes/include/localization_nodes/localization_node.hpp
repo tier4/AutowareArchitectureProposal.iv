@@ -60,6 +60,12 @@ enum class LocalizerPublishMode
   NO_PUBLISH_TF
 };
 
+template <class Rep, class Period>
+double as_microsecond(const std::chrono::duration<Rep,Period> & d)
+{
+  return static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(d).count());
+}
+
 /// Base relative localizer node that publishes map->base_link relative
 /// transform messages for a given observation source and map.
 /// \tparam ObservationMsgT Message type to register against a map.
@@ -376,9 +382,7 @@ private:
       on_bad_registration(std::current_exception());
     }
     const auto exe_end_time = std::chrono::system_clock::now();
-    const double exe_time =
-      static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(exe_end_time - exe_start_time).count()) /
-      1000.0;
+    const double exe_time = as_microsecond(exe_end_time - exe_start_time) / 1000.0;
     std::cerr << "exe_time: " << exe_time << std::endl;
   }
 
