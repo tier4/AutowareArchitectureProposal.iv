@@ -143,10 +143,9 @@ private:
   /// \return True if translation estimate is valid.
   virtual bool translation_valid(const PoseWithCovarianceStamped & pose, const Transform guess)
   {
-    const Eigen::Vector3d pose_translation = to_eigen_vector(pose.pose.pose.position);
-    const Eigen::Vector3d guess_translation = to_eigen_vector(guess.transform.translation);
-    Eigen::Vector3d diff = pose_translation - guess_translation;
-    return diff.norm() <= (m_predict_translation_threshold + EPS);
+    const Eigen::Vector3d p = to_eigen_vector(pose.pose.pose.position);
+    const Eigen::Vector3d g = to_eigen_vector(guess.transform.translation);
+    return (p - g).norm() <= (m_predict_translation_threshold + EPS);
   }
 
   /// Check if rotation of pose estimate is within the allowed range from the initial guess.
@@ -155,10 +154,9 @@ private:
   /// \return True if rotation estimate is valid.
   virtual bool rotation_valid(const PoseWithCovarianceStamped & pose, const Transform guess)
   {
-    const Eigen::Quaterniond pose_rotation = to_eigen_rotation(pose.pose.pose.orientation);
-    const Eigen::Quaterniond guess_rotation = to_eigen_rotation(guess.transform.rotation);
-    return std::fabs(pose_rotation.angularDistance(guess_rotation)) <=
-           (m_predict_rotation_threshold + EPS);
+    const Eigen::Quaterniond p = to_eigen_rotation(pose.pose.pose.orientation);
+    const Eigen::Quaterniond g = to_eigen_rotation(guess.transform.rotation);
+    return std::fabs(p.angularDistance(g)) <= (m_predict_rotation_threshold + EPS);
   }
 
   void init()
