@@ -50,6 +50,14 @@ Eigen::Quaterniond to_eigen_rotation(const geometry_msgs::msg::Quaternion & orie
   return Eigen::Quaterniond(orientation.w, orientation.x, orientation.y, orientation.z);
 }
 
+Eigen::Vector3d to_eigen_vector(const geometry_msgs::msg::Point & point) {
+  return Eigen::Vector3d(point.x, point.y, point.z);
+}
+
+Eigen::Vector3d to_eigen_vector(const geometry_msgs::msg::Vector3 & point) {
+  return Eigen::Vector3d(point.x, point.y, point.z);
+}
+
 /// P2D NDT localizer node. Currently uses the hard coded optimizer and pose initializers.
 /// \tparam OptimizerT Hard coded for Newton optimizer. TODO(yunus.caliskan): Make Configurable
 /// \tparam PoseInitializerT Hard coded for Best effort. TODO(yunus.caliskan): Make Configurable
@@ -135,12 +143,8 @@ private:
   /// \return True if translation estimate is valid.
   virtual bool translation_valid(const PoseWithCovarianceStamped & pose, const Transform guess)
   {
-    Eigen::Vector3d pose_translation{pose.pose.pose.position.x,
-      pose.pose.pose.position.y,
-      pose.pose.pose.position.z};
-    Eigen::Vector3d guess_translation{guess.transform.translation.x,
-      guess.transform.translation.y,
-      guess.transform.translation.z};
+    const Eigen::Vector3d pose_translation = to_eigen_vector(pose.pose.pose.position);
+    const Eigen::Vector3d guess_translation = to_eigen_vector(guess.transform.translation);
     Eigen::Vector3d diff = pose_translation - guess_translation;
     return diff.norm() <= (m_predict_translation_threshold + EPS);
   }
