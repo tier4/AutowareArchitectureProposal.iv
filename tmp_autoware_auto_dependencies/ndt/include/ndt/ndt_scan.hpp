@@ -40,21 +40,20 @@ namespace ndt
 /// CRTP Base class defining the required minimal API of an NDTScan.
 /// \tparam Derived Derived class
 /// \tparam NDTUnit The unit representing a single element within the scan.
-/// \tparam IteratorT The type of iterator to iterate the scan.
-template<typename Derived, typename NDTUnit, typename IteratorT>
+template<typename Derived, typename NDTUnit>
 class NDTScanBase : public common::helper_functions::crtp<Derived>
 {
 public:
   /// Get iterator pointing to the beginning of the internal container.
   /// \return Begin iterator.
-  IteratorT begin() const
+  typename std::vector<NDTUnit>::const_iterator begin() const
   {
     return this->impl().begin_();
   }
 
   /// Get iterator pointing to the end of the internal container.
   /// \return End iterator.
-  IteratorT end() const
+  typename std::vector<NDTUnit>::const_iterator end() const
   {
     return this->impl().end_();
   }
@@ -95,8 +94,7 @@ public:
 
 /// Represents a lidar scan in a P2D optimization problem. It is a wrapper around an
 /// std::vector<Eigen::Vector3d>
-class NDT_PUBLIC P2DNDTScan : public NDTScanBase<P2DNDTScan,
-    Eigen::Vector3d, std::vector<Eigen::Vector3d>::const_iterator>
+class NDT_PUBLIC P2DNDTScan : public NDTScanBase<P2DNDTScan, Eigen::Vector3d>
 {
 public:
   using Container = std::vector<Eigen::Vector3d>;
