@@ -131,7 +131,6 @@ public:
     pose_out.header.frame_id = map.frame_id();
 
     // Populate covariance information. It is implementation defined.
-    set_covariance(problem, eig_pose_initial, eig_pose_result, pose_out);
     if (summary != nullptr) {
       *summary = localization_common::OptimizedRegistrationSummary{opt_summary};
     }
@@ -168,25 +167,6 @@ public:
   }
 
 protected:
-  /// Populate the covariance information of an ndt estimate using the information using existing
-  /// information regarding scan, map and the optimization problem.
-  /// \param[in] problem Optimization problem.
-  /// \param[in] initial_guess Initial transformation guess as a pose.
-  /// \param[in] pose_result Estimated transformation as a pose.
-  /// \param[out] solution Estimated transform message.
-  virtual void set_covariance(
-    const NDTOptimizationProblemT & problem,
-    const EigenPose<Real> & initial_guess,
-    const EigenPose<Real> & pose_result,
-    PoseWithCovarianceStamped & solution) const
-  {
-    (void) problem;
-    (void) initial_guess;
-    (void) pose_result;
-    (void) solution;
-    // For now, do nothing.
-  }
-
   /// Check if the received message is valid to be registered. Following checks are made:
   /// * Message timestamp is not older than the map timestamp.
   /// \param msg Message to register.
@@ -262,16 +242,6 @@ public:
       P2DNDTOptimizationConfig{outlier_ratio},
       optimizer,
       ScanT{config.scan_capacity()}} {}
-
-protected:
-  void set_covariance(
-    const P2DNDTOptimizationProblem<MapT> &,
-    const EigenPose<Real> &,
-    const EigenPose<Real> &,
-    PoseWithCovarianceStamped &) const override
-  {
-    // For now, do nothing.
-  }
 };
 
 }  // namespace ndt
