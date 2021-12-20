@@ -72,24 +72,6 @@ public:
 
   static constexpr auto EPS = std::numeric_limits<ndt::Real>::epsilon();
 
-  /// Constructor
-  /// \param node_name node name
-  /// \param name_space node namespace
-  /// \param pose_initializer pose initializer to use.
-  P2DNDTLocalizerNode(
-    const std::string & node_name,
-    const std::string & name_space,
-    const PoseInitializerT & pose_initializer)
-  : ParentT(node_name, name_space, pose_initializer),
-    m_predict_translation_threshold{
-      this->declare_parameter("predict_pose_threshold.translation").template get<double>()},
-    m_predict_rotation_threshold{
-      this->declare_parameter("predict_pose_threshold.rotation").template get<double>()}
-  {
-    init();
-  }
-
-
   P2DNDTLocalizerNode(
     const std::string & node_name,
     const rclcpp::NodeOptions & node_options,
