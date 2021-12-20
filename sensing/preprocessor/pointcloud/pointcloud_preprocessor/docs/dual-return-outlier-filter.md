@@ -43,13 +43,14 @@ This implementation inherits `pointcloud_preprocessor::Filter` class, please ref
 | ---------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
 | `vertical_bins`                    | int    | The number of vertical bin for visibility histogram                                                                       |
 | `max_azimuth_diff`                 | float  | Threshold for ring_outlier_filter                                                                                         |
-| `weak_first_distance_ratio`        | double | TODO                                                                                                                      |
-| `general_distance_ratio`           | double | TODO                                                                                                                      |
-| `weak_first_local_noise_threshold` | int    | TODO                                                                                                                      |
+| `weak_first_distance_ratio`        | double | Threshold for ring_outlier_filter                                                                                         |
+| `general_distance_ratio`           | double | Threshold for ring_outlier_filter                                                                                         |
+| `weak_first_local_noise_threshold` | int    | The parameter for determining whether it is noise                                                                         |
 | `visibility_threshold`             | float  | When the percentage of white pixels in the binary histogram falls below this parameter the diagnostic status becomes WARN |
 
 ## Assumptions / Known limits
 
+Not recommended for use as it is under development.
 Input data must be `PointXYZIRADT` type data including `return_type`.
 
 ## (Optional) Error detection and handling
