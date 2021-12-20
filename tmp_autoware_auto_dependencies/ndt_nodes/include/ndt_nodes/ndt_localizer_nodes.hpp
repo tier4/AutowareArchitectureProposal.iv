@@ -205,8 +205,8 @@ private:
     this->set_map(std::move(map_ptr));
   }
 
-  ndt::Real m_predict_translation_threshold;
-  ndt::Real m_predict_rotation_threshold;
+  const ndt::Real m_predict_translation_threshold;
+  const ndt::Real m_predict_rotation_threshold;
 };
 }  // namespace ndt_nodes
 }  // namespace localization
