@@ -45,7 +45,6 @@ template<typename Derived, typename NDTUnit, typename IteratorT>
 class NDTScanBase : public common::helper_functions::crtp<Derived>
 {
 public:
-  using Point = NDTUnit;
   using TimePoint = std::chrono::system_clock::time_point;
 
   /// Get iterator pointing to the beginning of the internal container.
