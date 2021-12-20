@@ -45,8 +45,6 @@ template<typename Derived, typename NDTUnit, typename IteratorT>
 class NDTScanBase : public common::helper_functions::crtp<Derived>
 {
 public:
-  using TimePoint = std::chrono::system_clock::time_point;
-
   /// Get iterator pointing to the beginning of the internal container.
   /// \return Begin iterator.
   IteratorT begin() const
@@ -89,7 +87,7 @@ public:
     return this->impl().size_();
   }
 
-  TimePoint stamp()
+  std::chrono::system_clock::time_point stamp()
   {
     return this->impl().stamp_();
   }
@@ -198,14 +196,14 @@ public:
     return m_points.size();
   }
 
-  TimePoint stamp_()
+  std::chrono::system_clock::time_point stamp_()
   {
     return m_stamp;
   }
 
 private:
   Container m_points;
-  NDTScanBase::TimePoint m_stamp{};
+  std::chrono::system_clock::time_point m_stamp{};
 };
 
 }  // namespace ndt
