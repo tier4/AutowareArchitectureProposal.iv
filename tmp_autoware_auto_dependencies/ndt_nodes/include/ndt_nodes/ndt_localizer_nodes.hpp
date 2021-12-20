@@ -70,8 +70,6 @@ public:
   using PoseWithCovarianceStamped = typename Localizer::PoseWithCovarianceStamped;
   using Transform = typename Localizer::Transform;
 
-  using EigTranslation = Eigen::Vector3d;
-  using EigRotation = Eigen::Quaterniond;
   static constexpr auto EPS = std::numeric_limits<ndt::Real>::epsilon();
 
   /// Constructor
@@ -151,13 +149,13 @@ private:
   /// \return True if translation estimate is valid.
   virtual bool translation_valid(const PoseWithCovarianceStamped & pose, const Transform guess)
   {
-    EigTranslation pose_translation{pose.pose.pose.position.x,
+    Eigen::Vector3d pose_translation{pose.pose.pose.position.x,
       pose.pose.pose.position.y,
       pose.pose.pose.position.z};
-    EigTranslation guess_translation{guess.transform.translation.x,
+    Eigen::Vector3d guess_translation{guess.transform.translation.x,
       guess.transform.translation.y,
       guess.transform.translation.z};
-    EigTranslation diff = pose_translation - guess_translation;
+    Eigen::Vector3d diff = pose_translation - guess_translation;
     return diff.norm() <= (m_predict_translation_threshold + EPS);
   }
 
@@ -167,12 +165,12 @@ private:
   /// \return True if rotation estimate is valid.
   virtual bool rotation_valid(const PoseWithCovarianceStamped & pose, const Transform guess)
   {
-    EigRotation pose_rotation{pose.pose.pose.orientation.w,
+    Eigen::Quaterniond pose_rotation{pose.pose.pose.orientation.w,
       pose.pose.pose.orientation.x,
       pose.pose.pose.orientation.y,
       pose.pose.pose.orientation.z
     };
-    EigRotation guess_rotation{guess.transform.rotation.w,
+    Eigen::Quaterniond guess_rotation{guess.transform.rotation.w,
       guess.transform.rotation.x,
       guess.transform.rotation.y,
       guess.transform.rotation.z
