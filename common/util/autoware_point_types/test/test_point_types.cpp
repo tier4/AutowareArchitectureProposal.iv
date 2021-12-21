@@ -16,7 +16,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(PointXYZI, output)
+TEST(PointEquality, PointXYZI)
 {
   using autoware_point_types::PointXYZI;
 
@@ -25,7 +25,7 @@ TEST(PointXYZI, output)
   EXPECT_EQ(pt0, pt1);
 }
 
-TEST(PointXYZIRADRT, output)
+TEST(PointEquality, PointXYZIRADRT)
 {
   using autoware_point_types::PointXYZIRADRT;
 
@@ -34,7 +34,7 @@ TEST(PointXYZIRADRT, output)
   EXPECT_EQ(pt0, pt1);
 }
 
-TEST(ApproximateEqual, output)
+TEST(PointEquality, ApproximateEqual)
 {
   // test template
   EXPECT_TRUE(autoware_point_types::approximate_equal<float>(1, 1));
