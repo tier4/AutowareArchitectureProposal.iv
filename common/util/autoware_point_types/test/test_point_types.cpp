@@ -42,7 +42,7 @@ TEST(ApproximateEqual, output)
 
   // test floating point error
   EXPECT_TRUE(autoware_point_types::approximate_equal<float>(1, 1 + 1 - 1));
-  EXPECT_TRUE(autoware_point_types::approximate_equal<float>(-2, -2));
+  EXPECT_TRUE(autoware_point_types::approximate_equal<float>(-2, -2 + 10e9 - 10e9));
 
   // test difference of sign
   EXPECT_FALSE(autoware_point_types::approximate_equal<float>(2, -2));
