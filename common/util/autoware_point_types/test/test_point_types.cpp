@@ -36,23 +36,22 @@ TEST(PointEquality, PointXYZIRADRT)
   EXPECT_EQ(pt0, pt1);
 }
 
-TEST(PointEquality, ApproximateEqual)
+TEST(PointEquality, FloatEq)
 {
   // test template
-  EXPECT_TRUE(autoware_point_types::approximate_equal<float>(1, 1));
-  EXPECT_TRUE(autoware_point_types::approximate_equal<double>(1, 1));
+  EXPECT_TRUE(autoware_point_types::float_eq<float>(1, 1));
+  EXPECT_TRUE(autoware_point_types::float_eq<double>(1, 1));
 
   // test floating point error
-  EXPECT_TRUE(
-    autoware_point_types::approximate_equal<float>(1, 1 + std::numeric_limits<float>::epsilon()));
+  EXPECT_TRUE(autoware_point_types::float_eq<float>(1, 1 + std::numeric_limits<float>::epsilon()));
 
   // test difference of sign
-  EXPECT_FALSE(autoware_point_types::approximate_equal<float>(2, -2));
-  EXPECT_FALSE(autoware_point_types::approximate_equal<float>(-2, 2));
+  EXPECT_FALSE(autoware_point_types::float_eq<float>(2, -2));
+  EXPECT_FALSE(autoware_point_types::float_eq<float>(-2, 2));
 
   // small value difference
-  EXPECT_FALSE(autoware_point_types::approximate_equal<float>(2, 2 + 10e-6));
+  EXPECT_FALSE(autoware_point_types::float_eq<float>(2, 2 + 10e-6));
 
   // expect same value if epsilon is larger than difference
-  EXPECT_TRUE(autoware_point_types::approximate_equal<float>(2, 2 + 10e-6, 10e-5));
+  EXPECT_TRUE(autoware_point_types::float_eq<float>(2, 2 + 10e-6, 10e-5));
 }

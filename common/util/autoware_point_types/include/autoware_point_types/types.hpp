@@ -23,7 +23,7 @@
 namespace autoware_point_types
 {
 template <class T>
-bool approximate_equal(const T a, const T b, const T eps = 10e-6)
+bool float_eq(const T a, const T b, const T eps = 10e-6)
 {
   return std::fabs(a - b) < eps;
 }
@@ -36,9 +36,8 @@ struct PointXYZI
   float intensity{0.0F};
   friend bool operator==(const PointXYZI & p1, const PointXYZI & p2) noexcept
   {
-    return approximate_equal<float>(p1.x, p2.x) && approximate_equal<float>(p1.y, p2.y) &&
-           approximate_equal<float>(p1.z, p2.z) &&
-           approximate_equal<float>(p1.intensity, p2.intensity);
+    return float_eq<float>(p1.x, p2.x) && float_eq<float>(p1.y, p2.y) &&
+           float_eq<float>(p1.z, p2.z) && float_eq<float>(p1.intensity, p2.intensity);
   }
 };
 
@@ -55,12 +54,11 @@ struct PointXYZIRADRT
   double time_stamp{0.0};
   friend bool operator==(const PointXYZIRADRT & p1, const PointXYZIRADRT & p2) noexcept
   {
-    return approximate_equal<float>(p1.x, p2.x) && approximate_equal<float>(p1.y, p2.y) &&
-           approximate_equal<float>(p1.z, p2.z) &&
-           approximate_equal<float>(p1.intensity, p2.intensity) && p1.ring == p2.ring &&
-           approximate_equal<float>(p1.azimuth, p2.azimuth) &&
-           approximate_equal<float>(p1.distance, p2.distance) && p1.return_type == p2.return_type &&
-           approximate_equal<float>(p1.time_stamp, p2.time_stamp);
+    return float_eq<float>(p1.x, p2.x) && float_eq<float>(p1.y, p2.y) &&
+           float_eq<float>(p1.z, p2.z) && float_eq<float>(p1.intensity, p2.intensity) &&
+           p1.ring == p2.ring && float_eq<float>(p1.azimuth, p2.azimuth) &&
+           float_eq<float>(p1.distance, p2.distance) && p1.return_type == p2.return_type &&
+           float_eq<float>(p1.time_stamp, p2.time_stamp);
   }
 };
 
