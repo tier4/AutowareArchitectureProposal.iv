@@ -18,6 +18,7 @@
 #include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 
 #include <limits>
+#include <tuple>
 
 namespace
 {
