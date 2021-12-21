@@ -21,7 +21,7 @@
 #include <limits>
 #include <tuple>
 
-namespace
+namespace autoware_point_types
 {
 template <class T>
 bool approximate_equal(const T a, const T b, const T eps = std::numeric_limits<T>::epsilon())
@@ -31,10 +31,6 @@ bool approximate_equal(const T a, const T b, const T eps = std::numeric_limits<T
   return std::fabs(a - b) <= (a_abs < b_abs ? b_abs : a_abs) * eps;
 }
 
-}  // namespace
-
-namespace autoware_point_types
-{
 struct PointXYZI
 {
   float x{0.0F};
