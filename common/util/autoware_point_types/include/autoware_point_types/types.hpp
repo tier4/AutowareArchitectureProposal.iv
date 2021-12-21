@@ -18,15 +18,14 @@
 #include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 
 #include <cmath>
-#include <limits>
 #include <tuple>
 
 namespace autoware_point_types
 {
 template <class T>
-bool approximate_equal(const T a, const T b, const T eps = std::numeric_limits<T>::epsilon())
+bool approximate_equal(const T a, const T b, const T eps = 10e-6)
 {
-  return std::fabs(a - b) <= std::max(std::fabs(a), std::fabs(b)) * eps;
+  return std::fabs(a - b) < eps;
 }
 
 struct PointXYZI
