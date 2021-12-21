@@ -26,9 +26,7 @@ namespace autoware_point_types
 template <class T>
 bool approximate_equal(const T a, const T b, const T eps = std::numeric_limits<T>::epsilon())
 {
-  const auto a_abs = std::fabs(a);
-  const auto b_abs = std::fabs(b);
-  return std::fabs(a - b) <= (a_abs < b_abs ? b_abs : a_abs) * eps;
+  return std::fabs(a - b) <= std::max(std::fabs(a), std::fabs(b)) * eps;
 }
 
 struct PointXYZI
