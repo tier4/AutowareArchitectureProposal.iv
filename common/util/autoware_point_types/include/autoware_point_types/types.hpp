@@ -24,12 +24,11 @@
 namespace
 {
 template <class T>
-bool approximate_equal(const T a, const T b)
+bool approximate_equal(const T a, const T b, const T eps = std::numeric_limits<T>::epsilon())
 {
-  const T e = std::numeric_limits<T>::epsilon();
   const auto a_abs = std::fabs(a);
   const auto b_abs = std::fabs(b);
-  return std::fabs(a - b) <= (a_abs < b_abs ? b_abs : a_abs) * e;
+  return std::fabs(a - b) <= (a_abs < b_abs ? b_abs : a_abs) * eps;
 }
 
 }  // namespace
