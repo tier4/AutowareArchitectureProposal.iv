@@ -16,6 +16,8 @@
 
 #include <gtest/gtest.h>
 
+#include <limits>
+
 TEST(PointEquality, PointXYZI)
 {
   using autoware_point_types::PointXYZI;
@@ -41,8 +43,8 @@ TEST(PointEquality, ApproximateEqual)
   EXPECT_TRUE(autoware_point_types::approximate_equal<double>(1, 1));
 
   // test floating point error
-  EXPECT_TRUE(autoware_point_types::approximate_equal<float>(1, 1 + 1 - 1));
-  EXPECT_TRUE(autoware_point_types::approximate_equal<float>(-2, -2 + 10e9 - 10e9));
+  EXPECT_TRUE(
+    autoware_point_types::approximate_equal<float>(1, 1 + std::numeric_limits<float>::epsilon()));
 
   // test difference of sign
   EXPECT_FALSE(autoware_point_types::approximate_equal<float>(2, -2));
