@@ -15,7 +15,7 @@
 #ifndef POINTCLOUD_PREPROCESSOR__OUTLIER_FILTER__RING_OUTLIER_FILTER_NODELET_HPP_
 #define POINTCLOUD_PREPROCESSOR__OUTLIER_FILTER__RING_OUTLIER_FILTER_NODELET_HPP_
 
-#include "autoware_utils/point_types/types.hpp"
+#include "autoware_point_types/types.hpp"
 #include "pointcloud_preprocessor/filter.hpp"
 
 #include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
@@ -24,9 +24,9 @@
 
 namespace pointcloud_preprocessor
 {
-using autoware::common::types::PointXYZI;
-using autoware::common::types::PointXYZIRADRT;
-using autoware::common::types::PointXYZIRADRTGenerator;
+using autoware_point_types::PointXYZI;
+using autoware_point_types::PointXYZIRADRT;
+using autoware_point_types::PointXYZIRADRTGenerator;
 using point_cloud_msg_wrapper::PointCloud2Modifier;
 
 class RingOutlierFilterComponent : public pointcloud_preprocessor::Filter

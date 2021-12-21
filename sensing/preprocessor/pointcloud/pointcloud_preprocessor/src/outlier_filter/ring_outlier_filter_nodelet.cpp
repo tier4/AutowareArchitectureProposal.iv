@@ -47,7 +47,7 @@ void RingOutlierFilterComponent::filter(
     std::make_shared<sensor_msgs::msg::PointCloud2>(*input);
 
   const auto ring_offset =
-    input->fields.at(static_cast<size_t>(autoware::common::types::PointIndex::Ring)).offset;
+    input->fields.at(static_cast<size_t>(autoware_point_types::PointIndex::Ring)).offset;
   for (std::size_t idx = 0U; idx < input_ptr->data.size(); idx += input_ptr->point_step) {
     input_ring_array.at(*reinterpret_cast<uint16_t *>(&input_ptr->data[idx + ring_offset]))
       .emplace_back(idx);
