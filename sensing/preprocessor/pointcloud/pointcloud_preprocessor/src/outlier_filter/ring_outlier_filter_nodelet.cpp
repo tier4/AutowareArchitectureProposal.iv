@@ -51,10 +51,11 @@ void RingOutlierFilterComponent::filter(
   if (pcl_input->points.empty()) {
     return;
   }
-  std::vector<pcl::PointCloud<custom_pcl::PointXYZIRADT>> pcl_input_ring_array;
-  pcl_input_ring_array.resize(128);  // TODO(Yamato Ando)
+
+  std::unordered_map<uint16_t, pcl::PointCloud<custom_pcl::PointXYZIRADT>> pcl_input_ring_map;
+  pcl_input_ring_map.reserve(128);
   for (const auto & p : pcl_input->points) {
-    pcl_input_ring_array.at(p.ring).push_back(p);
+    pcl_input_ring_map[p.ring].push_back(p);
   }
 
   pcl::PointCloud<custom_pcl::PointXYZI>::Ptr pcl_output(
@@ -63,13 +64,13 @@ void RingOutlierFilterComponent::filter(
 
   pcl::PointCloud<custom_pcl::PointXYZI> pcl_tmp;
   custom_pcl::PointXYZI p{};
-  for (const auto & ring_pointcloud : pcl_input_ring_array) {
-    if (ring_pointcloud.points.size() < 2) {
+  for (const auto & ring_pointcloud : pcl_input_ring_map) {
+    if (ring_pointcloud.second.points.size() < 2) {
       continue;
     }
 
-    for (auto iter = std::begin(ring_pointcloud.points);
-         iter != std::end(ring_pointcloud.points) - 1; ++iter) {
+    for (auto iter = std::begin(ring_pointcloud.second.points);
+         iter != std::end(ring_pointcloud.second.points) - 1; ++iter) {
       p.x = iter->x;
       p.y = iter->y;
       p.z = iter->z;
