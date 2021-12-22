@@ -137,11 +137,11 @@ private:
   std::deque<geometry_msgs::msg::TwistStamped::ConstSharedPtr> twist_ptr_queue_;
 
   std::map<std::string, sensor_msgs::msg::PointCloud2::ConstSharedPtr> cloud_stdmap_;
-  std::map<std::string, sensor_msgs::msg::PointCloud2::ConstSharedPtr> cloud_stdmap_tmp_;
   std::mutex mutex_;
 
+  std::unique_ptr<rclcpp::Time> timer_start_time_;
+
   std::vector<double> input_offset_;
-  std::map<std::string, double> offset_map_;
 
   void transformPointCloud(const PointCloud2::ConstSharedPtr & in, PointCloud2::SharedPtr & out);
   void combineClouds(
@@ -152,7 +152,6 @@ private:
   void removeRADTFields(
     const sensor_msgs::msg::PointCloud2 & input_cloud,
     sensor_msgs::msg::PointCloud2 & output_cloud);
-  void setPeriod(const int64_t new_period);
   void cloud_callback(
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr & input_ptr,
     const std::string & topic_name);
@@ -160,6 +159,21 @@ private:
   void timer_callback();
 
   void checkConcatStatus(diagnostic_updater::DiagnosticStatusWrapper & stat);
+
+  void resetTimer() { timer_start_time_ = std::make_unique<rclcpp::Time>(this->now()); }
+  bool isTimeout() { return (this->now() - *timer_start_time_).seconds() > timeout_sec_; };
+  bool hasAnyTopic()
+  {
+    return std::any_of(std::begin(cloud_stdmap_), std::end(cloud_stdmap_), [](const auto & e) {
+      return e.second != nullptr;
+    });
+  };
+  bool hasAllTopics()
+  {
+    return std::all_of(std::begin(cloud_stdmap_), std::end(cloud_stdmap_), [](const auto & e) {
+      return e.second != nullptr;
+    });
+  };
 };
 
 struct PointXYZI
