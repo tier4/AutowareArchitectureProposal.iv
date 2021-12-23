@@ -28,6 +28,18 @@ bool float_eq(const T a, const T b, const T eps = 10e-6)
   return std::fabs(a - b) < eps;
 }
 
+struct PointXYZ
+{
+  float x{0.0F};
+  float y{0.0F};
+  float z{0.0F};
+  friend bool operator==(const PointXYZ & p1, const PointXYZ & p2) noexcept
+  {
+    return float_eq<float>(p1.x, p2.x) && float_eq<float>(p1.y, p2.y) &&
+           float_eq<float>(p1.z, p2.z);
+  }
+};
+
 struct PointXYZI
 {
   float x{0.0F};
