@@ -298,28 +298,6 @@ void PointCloudConcatenateDataSynchronizerComponent::publish()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PointCloudConcatenateDataSynchronizerComponent::removeRADTFields(
-  const sensor_msgs::msg::PointCloud2 & input_cloud, sensor_msgs::msg::PointCloud2 & output_cloud)
-{
-  bool has_intensity = std::any_of(
-    input_cloud.fields.begin(), input_cloud.fields.end(),
-    [](auto & field) { return field.name == "intensity"; });
-
-  if (input_cloud.fields.size() == 3 || (input_cloud.fields.size() == 4 && has_intensity)) {
-    output_cloud = input_cloud;
-  } else if (has_intensity) {
-    pcl::PointCloud<PointXYZI> tmp_cloud;
-    pcl::fromROSMsg(input_cloud, tmp_cloud);
-    pcl::toROSMsg(tmp_cloud, output_cloud);
-    output_cloud.header = input_cloud.header;
-  } else {
-    pcl::PointCloud<pcl::PointXYZ> tmp_cloud;
-    pcl::fromROSMsg(input_cloud, tmp_cloud);
-    pcl::toROSMsg(tmp_cloud, output_cloud);
-    output_cloud.header = input_cloud.header;
-  }
-}
-
 void PointCloudConcatenateDataSynchronizerComponent::setPeriod(const int64_t new_period)
 {
   if (!timer_) {
@@ -337,14 +315,16 @@ void PointCloudConcatenateDataSynchronizerComponent::setPeriod(const int64_t new
 }
 
 void PointCloudConcatenateDataSynchronizerComponent::cloud_callback(
-  const sensor_msgs::msg::PointCloud2::ConstSharedPtr & input_ptr, const std::string & topic_name)
+  const sensor_msgs::msg::PointCloud2::SharedPtr & input_ptr, const std::string & topic_name)
 {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  sensor_msgs::msg::PointCloud2 xyz_cloud;
-  removeRADTFields(*input_ptr, xyz_cloud);
-  sensor_msgs::msg::PointCloud2::ConstSharedPtr xyz_input_ptr(
-    new sensor_msgs::msg::PointCloud2(xyz_cloud));
+  sensor_msgs::msg::PointCloud2::SharedPtr xyz_input_ptr(new sensor_msgs::msg::PointCloud2());
+  PointCloud2Modifier<PointXYZ> xyz_input_modifier{*xyz_input_ptr, input_ptr->header.frame_id};
+  xyz_input_modifier.reserve(input_ptr->width);
+  for (std::size_t idx = 0U; idx < input_ptr->data.size(); idx += input_ptr->point_step) {
+    xyz_input_modifier.push_back(std::move(*reinterpret_cast<PointXYZ *>(&input_ptr->data[idx])));
+  }
 
   const bool is_already_subscribed_this = (cloud_stdmap_[topic_name] != nullptr);
   const bool is_already_subscribed_tmp = std::any_of(
