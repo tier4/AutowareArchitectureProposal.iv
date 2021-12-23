@@ -18,6 +18,7 @@
 #include <autoware_utils/math/normalization.hpp>
 #include <autoware_utils/math/unit_conversion.hpp>
 #include <pcl_ros/transforms.hpp>
+#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <vehicle_info_util/vehicle_info_util.hpp>
 
 #include <memory>
@@ -78,15 +79,17 @@ bool ScanGroundFilterComponent::transformPointCloud(
 }
 
 void ScanGroundFilterComponent::convertPointcloud(
-  const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud,
+  const PointCloud2::SharedPtr in_cloud_ptr,
   std::vector<PointCloudRefVector> & out_radial_ordered_points)
 {
   out_radial_ordered_points.resize(radial_dividers_num_);
   PointRef current_point;
 
-  for (size_t i = 0; i < in_cloud->points.size(); ++i) {
-    auto radius{static_cast<float>(std::hypot(in_cloud->points[i].x, in_cloud->points[i].y))};
-    auto theta{normalizeRadian(std::atan2(in_cloud->points[i].x, in_cloud->points[i].y), 0.0)};
+  auto point_step = in_cloud_ptr->point_step;
+  for (size_t i = 0; i < in_cloud_ptr->data.size(); i += point_step) {
+    GeometryPointXYZ * p = reinterpret_cast<GeometryPointXYZ *>(&in_cloud_ptr->data[i]);
+    auto radius{static_cast<float>(std::hypot(p->x, p->y))};
+    auto theta{normalizeRadian(std::atan2(p->x, p->y), 0.0)};
     auto radial_div{static_cast<size_t>(std::floor(theta / radial_divider_angle_rad_))};
 
     current_point.radius = radius;
@@ -94,7 +97,7 @@ void ScanGroundFilterComponent::convertPointcloud(
     current_point.radial_div = radial_div;
     current_point.point_state = PointLabel::INIT;
     current_point.orig_index = i;
-    current_point.orig_point = &in_cloud->points[i];
+    current_point.orig_point = p;
 
     // radial divisions
     out_radial_ordered_points[radial_div].emplace_back(current_point);
@@ -108,7 +111,7 @@ void ScanGroundFilterComponent::convertPointcloud(
   }
 }
 
-void ScanGroundFilterComponent::calcVirtualGroundOrigin(pcl::PointXYZ & point)
+void ScanGroundFilterComponent::calcVirtualGroundOrigin(GeometryPointXYZ & point)
 {
   point.x = vehicle_info_.wheel_base_m;
   point.y = 0;
@@ -117,12 +120,12 @@ void ScanGroundFilterComponent::calcVirtualGroundOrigin(pcl::PointXYZ & point)
 
 void ScanGroundFilterComponent::classifyPointCloud(
   std::vector<PointCloudRefVector> & in_radial_ordered_clouds,
-  pcl::PointIndices & out_no_ground_indices)
+  std::vector<size_t> & out_no_ground_indices)
 {
-  out_no_ground_indices.indices.clear();
+  out_no_ground_indices.clear();
 
-  const pcl::PointXYZ init_ground_point(0, 0, 0);
-  pcl::PointXYZ virtual_ground_point(0, 0, 0);
+  const GeometryPointXYZ init_ground_point;
+  GeometryPointXYZ virtual_ground_point;
   calcVirtualGroundOrigin(virtual_ground_point);
 
   // point classification algorithm
@@ -134,7 +137,7 @@ void ScanGroundFilterComponent::classifyPointCloud(
     PointsCentroid ground_cluster, non_ground_cluster;
     float local_slope = 0.0f;
     PointLabel prev_point_label = PointLabel::INIT;
-    pcl::PointXYZ prev_gnd_point(0, 0, 0);
+    GeometryPointXYZ prev_gnd_point;
     // loop through each point in the radial div
     for (size_t j = 0; j < in_radial_ordered_clouds[i].size(); j++) {
       const float global_slope_max_angle = global_slope_max_angle_rad_;
@@ -200,12 +203,12 @@ void ScanGroundFilterComponent::classifyPointCloud(
         non_ground_cluster.initialize();
       }
       if (p->point_state == PointLabel::NON_GROUND) {
-        out_no_ground_indices.indices.push_back(p->orig_index);
+        out_no_ground_indices.push_back(p->orig_index);
       } else if (  // NOLINT
         (prev_point_label == PointLabel::NON_GROUND) &&
         (p->point_state == PointLabel::POINT_FOLLOW)) {
         p->point_state = PointLabel::NON_GROUND;
-        out_no_ground_indices.indices.push_back(p->orig_index);
+        out_no_ground_indices.push_back(p->orig_index);
       } else if (  // NOLINT
         (prev_point_label == PointLabel::GROUND) && (p->point_state == PointLabel::POINT_FOLLOW)) {
         p->point_state = PointLabel::GROUND;
@@ -216,7 +219,7 @@ void ScanGroundFilterComponent::classifyPointCloud(
       prev_point_label = p->point_state;
       if (p->point_state == PointLabel::GROUND) {
         prev_gnd_radius = p->radius;
-        prev_gnd_point = pcl::PointXYZ(p->orig_point->x, p->orig_point->y, p->orig_point->z);
+        prev_gnd_point = *p->orig_point;
         ground_cluster.addPoint(p->radius, p->orig_point->z);
         prev_gnd_slope = ground_cluster.getAverageSlope();
       }
@@ -229,11 +232,13 @@ void ScanGroundFilterComponent::classifyPointCloud(
 }
 
 void ScanGroundFilterComponent::extractObjectPoints(
-  const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr, const pcl::PointIndices & in_indices,
-  pcl::PointCloud<pcl::PointXYZ>::Ptr out_object_cloud_ptr)
+  const PointCloud2::SharedPtr in_cloud_ptr, const std::vector<size_t> & in_indices,
+  PointCloud2Modifier<GeometryPointXYZ> & out_object_cloud)
 {
-  for (const auto & i : in_indices.indices) {
-    out_object_cloud_ptr->points.emplace_back(in_cloud_ptr->points[i]);
+  GeometryPointXYZ * p;
+  for (const auto & i : in_indices) {
+    p = reinterpret_cast<GeometryPointXYZ *>(&in_cloud_ptr->data[i]);
+    out_object_cloud.push_back(*p);
   }
 }
 
@@ -251,27 +256,20 @@ void ScanGroundFilterComponent::filter(
     return;
   }
 
-  pcl::PointCloud<pcl::PointXYZ>::Ptr current_sensor_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::fromROSMsg(*input_transformed_ptr, *current_sensor_cloud_ptr);
-
   std::vector<PointCloudRefVector> radial_ordered_points;
 
-  convertPointcloud(current_sensor_cloud_ptr, radial_ordered_points);
+  convertPointcloud(input_transformed_ptr, radial_ordered_points);
 
-  pcl::PointIndices no_ground_indices;
-  pcl::PointCloud<pcl::PointXYZ>::Ptr no_ground_cloud_ptr(new pcl::PointCloud<pcl::PointXYZ>);
-  no_ground_cloud_ptr->points.reserve(current_sensor_cloud_ptr->points.size());
+  std::vector<size_t> no_ground_indices;
 
   classifyPointCloud(radial_ordered_points, no_ground_indices);
 
-  extractObjectPoints(current_sensor_cloud_ptr, no_ground_indices, no_ground_cloud_ptr);
+  PointCloud2Modifier<GeometryPointXYZ> output_modifier{output, base_frame_};
+  output_modifier.reserve(no_ground_indices.size());
 
-  auto no_ground_cloud_msg_ptr = std::make_shared<PointCloud2>();
-  pcl::toROSMsg(*no_ground_cloud_ptr, *no_ground_cloud_msg_ptr);
+  extractObjectPoints(input_transformed_ptr, no_ground_indices, output_modifier);
 
-  no_ground_cloud_msg_ptr->header.stamp = input->header.stamp;
-  no_ground_cloud_msg_ptr->header.frame_id = base_frame_;
-  output = *no_ground_cloud_msg_ptr;
+  output.header.stamp = input->header.stamp;
 }
 
 rcl_interfaces::msg::SetParametersResult ScanGroundFilterComponent::onParameter(

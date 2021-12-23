@@ -17,13 +17,12 @@
 
 #include "pointcloud_preprocessor/filter.hpp"
 
+#include <autoware_point_types/types.hpp>
 #include <vehicle_info_util/vehicle_info.hpp>
 
+#include <geometry_msgs/msg/point32.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
-#include <pcl/filters/extract_indices.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl_conversions/pcl_conversions.h>
 #include <tf2/transform_datatypes.h>
 #include <tf2_eigen/tf2_eigen.h>
 #include <tf2_ros/transform_listener.h>
@@ -33,6 +32,8 @@
 
 namespace ground_segmentation
 {
+using GeometryPointXYZ = geometry_msgs::msg::Point32;
+using point_cloud_msg_wrapper::PointCloud2Modifier;
 using vehicle_info_util::VehicleInfo;
 
 class ScanGroundFilterComponent : public pointcloud_preprocessor::Filter
@@ -56,8 +57,8 @@ private:
     size_t radial_div;  // index of the radial division to which this point belongs to
     PointLabel point_state{PointLabel::INIT};
 
-    size_t orig_index;  // index of this point in the source pointcloud
-    pcl::PointXYZ * orig_point;
+    size_t orig_index;  // index of this point in the source pointcloud2_msg.data
+    GeometryPointXYZ * orig_point;
   };
   using PointCloudRefVector = std::vector<PointRef>;
 
@@ -130,20 +131,20 @@ private:
     const PointCloud2::SharedPtr & out_cloud_ptr);
 
   /*!
-   * Convert pcl::PointCloud to sorted PointCloudRefVector
-   * @param[in] in_cloud Input Point Cloud to be organized in radial segments
+   * Convert PointCloud to sorted PointCloudRefVector
+   * @param[in] in_cloud_ptr Input Point Cloud to be organized in radial segments
    * @param[out] out_radial_ordered_points_manager Vector of Points Clouds,
    *     each element will contain the points ordered
    */
   void convertPointcloud(
-    const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud,
+    const PointCloud2::SharedPtr in_cloud_ptr,
     std::vector<PointCloudRefVector> & out_radial_ordered_points_manager);
 
   /*!
    * Output ground center of front wheels as the virtual ground point
    * @param[out] point Virtual ground origin point
    */
-  void calcVirtualGroundOrigin(pcl::PointXYZ & point);
+  void calcVirtualGroundOrigin(GeometryPointXYZ & point);
 
   /*!
    * Classifies Points in the PointCloud as Ground and Not Ground
@@ -154,7 +155,7 @@ private:
    */
   void classifyPointCloud(
     std::vector<PointCloudRefVector> & in_radial_ordered_clouds,
-    pcl::PointIndices & out_no_ground_indices);
+    std::vector<size_t> & out_no_ground_indices);
 
   /*!
    * Returns the resulting complementary PointCloud, one with the points kept
@@ -164,8 +165,8 @@ private:
    * @param out_object_cloud_ptr Resulting PointCloud with the indices kept
    */
   void extractObjectPoints(
-    const pcl::PointCloud<pcl::PointXYZ>::Ptr in_cloud_ptr, const pcl::PointIndices & in_indices,
-    pcl::PointCloud<pcl::PointXYZ>::Ptr out_object_cloud_ptr);
+    const PointCloud2::SharedPtr in_cloud_ptr, const std::vector<size_t> & in_indices,
+    PointCloud2Modifier<GeometryPointXYZ> & out_object_cloud);
 
   /** \brief Parameter service callback result : needed to be hold */
   OnSetParametersCallbackHandle::SharedPtr set_param_res_;
