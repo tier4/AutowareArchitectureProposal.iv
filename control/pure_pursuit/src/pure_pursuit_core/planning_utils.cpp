@@ -18,6 +18,8 @@
 #include <utility>
 #include <vector>
 
+namespace pure_pursuit
+{
 namespace planning_utils
 {
 double calcCurvature(
@@ -84,7 +86,7 @@ double convertCurvatureToSteeringAngle(double wheel_base, double kappa)
 }
 
 std::vector<geometry_msgs::msg::Pose> extractPoses(
-  const autoware_planning_msgs::msg::Trajectory & trajectory)
+  const autoware_auto_planning_msgs::msg::Trajectory & trajectory)
 {
   std::vector<geometry_msgs::msg::Pose> poses;
 
@@ -246,3 +248,4 @@ geometry_msgs::msg::Quaternion getQuaternionFromYaw(const double _yaw)
 }
 
 }  // namespace planning_utils
+}  // namespace pure_pursuit

@@ -19,6 +19,8 @@
 #include <iostream>
 #include <vector>
 
+namespace pure_pursuit
+{
 class LinearInterpolate
 {
 public:
@@ -48,5 +50,6 @@ public:
     const std::vector<double> & return_index, std::vector<double> & return_value);
   void getValueVector(const std::vector<double> & s_v, std::vector<double> & value_v);
 };
+}  // namespace pure_pursuit
 
 #endif  // PURE_PURSUIT__UTIL__INTERPOLATE_HPP_

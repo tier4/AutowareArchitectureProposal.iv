@@ -36,7 +36,7 @@
 #include <utility>
 #include <vector>
 
-namespace planning_utils
+namespace pure_pursuit
 {
 bool PurePursuit::isDataReady()
 {
@@ -55,8 +55,8 @@ std::pair<bool, double> PurePursuit::run()
     return std::make_pair(false, std::numeric_limits<double>::quiet_NaN());
   }
 
-  auto clst_pair =
-    findClosestIdxWithDistAngThr(*curr_wps_ptr_, *curr_pose_ptr_, clst_thr_dist_, clst_thr_ang_);
+  auto clst_pair = planning_utils::findClosestIdxWithDistAngThr(
+    *curr_wps_ptr_, *curr_pose_ptr_, clst_thr_dist_, clst_thr_ang_);
 
   if (!clst_pair.first) {
     RCLCPP_WARN(
@@ -89,7 +89,7 @@ std::pair<bool, double> PurePursuit::run()
   }
   loc_next_tgt_ = next_tgt_pos;
 
-  double kappa = calcCurvature(next_tgt_pos, *curr_pose_ptr_);
+  double kappa = planning_utils::calcCurvature(next_tgt_pos, *curr_pose_ptr_);
 
   return std::make_pair(true, kappa);
 }
@@ -110,7 +110,8 @@ std::pair<bool, geometry_msgs::msg::Point> PurePursuit::lerpNextTarget(int32_t n
     return std::make_pair(false, geometry_msgs::msg::Point());
   }
 
-  const double lateral_error = calcLateralError2D(vec_start, vec_end, curr_pose.position);
+  const double lateral_error =
+    planning_utils::calcLateralError2D(vec_start, vec_end, curr_pose.position);
 
   if (fabs(lateral_error) > lookahead_distance_) {
     RCLCPP_ERROR(logger, "lateral error is larger than lookahead distance");
@@ -185,7 +186,7 @@ int32_t PurePursuit::findNextPointIdx(int32_t search_start_idx)
     const geometry_msgs::msg::Point & curr_motion_point = curr_wps_ptr_->at(i).position;
     const geometry_msgs::msg::Point & curr_pose_point = curr_pose_ptr_->position;
     // if there exists an effective waypoint
-    const double ds = calcDistSquared2D(curr_motion_point, curr_pose_point);
+    const double ds = planning_utils::calcDistSquared2D(curr_motion_point, curr_pose_point);
     if (ds > std::pow(lookahead_distance_, 2)) {
       return i;
     }
@@ -207,4 +208,4 @@ void PurePursuit::setWaypoints(const std::vector<geometry_msgs::msg::Pose> & msg
   *curr_wps_ptr_ = msg;
 }
 
-}  // namespace planning_utils
+}  // namespace pure_pursuit

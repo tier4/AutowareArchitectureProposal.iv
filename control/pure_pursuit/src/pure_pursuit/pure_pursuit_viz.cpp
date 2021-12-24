@@ -43,7 +43,7 @@ std::vector<geometry_msgs::msg::Point> generateTrajectoryCircle(
   constexpr double theta_range = M_PI / 10;
   constexpr double step_rad = 0.005;
 
-  const double radius = planning_utils::calcRadius(target, current_pose);
+  const double radius = pure_pursuit::planning_utils::calcRadius(target, current_pose);
 
   std::vector<geometry_msgs::msg::Point> trajectory_circle;
   for (double theta = -theta_range; theta <= theta_range; theta += step_rad) {
@@ -52,7 +52,8 @@ std::vector<geometry_msgs::msg::Point> generateTrajectoryCircle(
     p.y = radius * (1 - cos(theta));
     p.z = target.z;
 
-    trajectory_circle.push_back(planning_utils::transformToAbsoluteCoordinate2D(p, current_pose));
+    trajectory_circle.push_back(
+      pure_pursuit::planning_utils::transformToAbsoluteCoordinate2D(p, current_pose));
   }
 
   return trajectory_circle;
@@ -60,6 +61,8 @@ std::vector<geometry_msgs::msg::Point> generateTrajectoryCircle(
 
 }  // namespace
 
+namespace pure_pursuit
+{
 visualization_msgs::msg::Marker createNextTargetMarker(
   const geometry_msgs::msg::Point & next_target)
 {
@@ -87,3 +90,4 @@ visualization_msgs::msg::Marker createTrajectoryCircleMarker(
 
   return marker;
 }
+}  // namespace pure_pursuit

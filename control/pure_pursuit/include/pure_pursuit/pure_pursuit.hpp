@@ -42,7 +42,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
-namespace planning_utils
+namespace pure_pursuit
 {
 class PurePursuit
 {
@@ -83,6 +83,6 @@ private:
   std::pair<bool, geometry_msgs::msg::Point> lerpNextTarget(int32_t next_wp_idx);
 };
 
-}  // namespace planning_utils
+}  // namespace pure_pursuit
 
 #endif  // PURE_PURSUIT__PURE_PURSUIT_HPP_

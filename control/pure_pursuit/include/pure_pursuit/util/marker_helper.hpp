@@ -21,6 +21,8 @@
 
 #include <string>
 
+namespace pure_pursuit
+{
 inline geometry_msgs::msg::Point createMarkerPosition(double x, double y, double z)
 {
   geometry_msgs::msg::Point point;
@@ -100,5 +102,6 @@ inline void appendMarkerArray(
     marker_array->markers.push_back(marker);
   }
 }
+}  // namespace pure_pursuit
 
 #endif  // PURE_PURSUIT__UTIL__MARKER_HELPER_HPP_

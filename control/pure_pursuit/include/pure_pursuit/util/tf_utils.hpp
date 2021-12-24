@@ -26,6 +26,8 @@
 
 #define TF_UTILS_LOGGER "tf_utils"
 
+namespace pure_pursuit
+{
 namespace tf_utils
 {
 rclcpp::Logger logger = rclcpp::get_logger(TF_UTILS_LOGGER);
@@ -85,5 +87,6 @@ inline boost::optional<geometry_msgs::msg::PoseStamped> getCurrentPose(
 }
 
 }  // namespace tf_utils
+}  // namespace pure_pursuit
 
 #endif  // PURE_PURSUIT__UTIL__TF_UTILS_HPP_

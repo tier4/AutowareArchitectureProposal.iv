@@ -42,16 +42,6 @@
 
 namespace
 {
-autoware_control_msgs::msg::ControlCommand createControlCommand(
-  const double kappa, const double velocity, const double acceleration, const double wheel_base)
-{
-  autoware_control_msgs::msg::ControlCommand cmd;
-  cmd.velocity = velocity;
-  cmd.acceleration = acceleration;
-  cmd.steering_angle = planning_utils::convertCurvatureToSteeringAngle(wheel_base, kappa);
-  return cmd;
-}
-
 double calcLookaheadDistance(
   const double velocity, const double lookahead_distance_ratio, const double min_lookahead_distance)
 {
@@ -61,10 +51,12 @@ double calcLookaheadDistance(
 
 }  // namespace
 
+namespace pure_pursuit
+{
 PurePursuitNode::PurePursuitNode(const rclcpp::NodeOptions & node_options)
 : Node("pure_pursuit", node_options), tf_buffer_(this->get_clock()), tf_listener_(tf_buffer_)
 {
-  pure_pursuit_ = std::make_unique<planning_utils::PurePursuit>();
+  pure_pursuit_ = std::make_unique<PurePursuit>();
 
   // Vehicle Parameters
   const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo();
@@ -82,13 +74,13 @@ PurePursuitNode::PurePursuitNode(const rclcpp::NodeOptions & node_options)
 
   // Subscribers
   using std::placeholders::_1;
-  sub_trajectory_ = this->create_subscription<autoware_planning_msgs::msg::Trajectory>(
+  sub_trajectory_ = this->create_subscription<autoware_auto_planning_msgs::msg::Trajectory>(
     "input/reference_trajectory", 1, std::bind(&PurePursuitNode::onTrajectory, this, _1));
-  sub_current_velocity_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
-    "input/current_velocity", 1, std::bind(&PurePursuitNode::onCurrentVelocity, this, _1));
+  sub_current_odometry_ = this->create_subscription<nav_msgs::msg::Odometry>(
+    "input/current_odometry", 1, std::bind(&PurePursuitNode::onCurrentOdometry, this, _1));
 
   // Publishers
-  pub_ctrl_cmd_ = this->create_publisher<autoware_control_msgs::msg::ControlCommandStamped>(
+  pub_ctrl_cmd_ = this->create_publisher<autoware_auto_control_msgs::msg::AckermannLateralCommand>(
     "output/control_raw", 1);
 
   // Debug Publishers
@@ -112,8 +104,8 @@ PurePursuitNode::PurePursuitNode(const rclcpp::NodeOptions & node_options)
 
 bool PurePursuitNode::isDataReady()
 {
-  if (!current_velocity_) {
-    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "waiting for current_velocity...");
+  if (!current_odometry_) {
+    RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "waiting for current_odometry...");
     return false;
   }
 
@@ -130,42 +122,42 @@ bool PurePursuitNode::isDataReady()
   return true;
 }
 
-void PurePursuitNode::onCurrentVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg)
+void PurePursuitNode::onCurrentOdometry(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
 {
-  current_velocity_ = msg;
+  current_odometry_ = msg;
 }
 
 void PurePursuitNode::onTrajectory(
-  const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg)
+  const autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr msg)
 {
   trajectory_ = msg;
 }
 
 void PurePursuitNode::onTimer()
 {
-  current_pose_ = tf_utils::getCurrentPose(tf_buffer_);
+  current_pose_ = self_pose_listener_.getCurrentPose();
 
   if (!isDataReady()) {
     return;
   }
 
-  const auto target_values = calcTargetValues();
+  const auto target_curvature = calcTargetCurvature();
 
-  if (target_values) {
-    publishCommand(*target_values);
+  if (target_curvature) {
+    publishCommand(*target_curvature);
     publishDebugMarker();
   } else {
     RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 5000, "failed to solve pure_pursuit");
-    publishCommand({0.0, 0.0, 0.0});
+    publishCommand({0.0});
   }
 }
 
-void PurePursuitNode::publishCommand(const TargetValues & targets)
+void PurePursuitNode::publishCommand(const double target_curvature)
 {
-  autoware_control_msgs::msg::ControlCommandStamped cmd;
-  cmd.header.stamp = get_clock()->now();
-  cmd.control =
-    createControlCommand(targets.kappa, targets.velocity, targets.acceleration, param_.wheel_base);
+  autoware_auto_control_msgs::msg::AckermannLateralCommand cmd;
+  cmd.stamp = get_clock()->now();
+  cmd.steering_tire_angle =
+    planning_utils::convertCurvatureToSteeringAngle(param_.wheel_base, target_curvature);
   pub_ctrl_cmd_->publish(cmd);
 }
 
@@ -180,7 +172,7 @@ void PurePursuitNode::publishDebugMarker() const
   pub_debug_marker_->publish(marker_array);
 }
 
-boost::optional<TargetValues> PurePursuitNode::calcTargetValues()
+boost::optional<double> PurePursuitNode::calcTargetCurvature()
 {
   // Ignore invalid trajectory
   if (trajectory_->points.size() < 3) {
@@ -194,15 +186,15 @@ boost::optional<TargetValues> PurePursuitNode::calcTargetValues()
     return {};
   }
 
-  const double target_vel = target_point->twist.linear.x;
-  const double target_acc = target_point->accel.linear.x;
+  const double target_vel = target_point->longitudinal_velocity_mps;
 
   // Calculate lookahead distance
   const bool is_reverse = (target_vel < 0);
   const double min_lookahead_distance =
     is_reverse ? param_.reverse_min_lookahead_distance : param_.min_lookahead_distance;
   const double lookahead_distance = calcLookaheadDistance(
-    current_velocity_->twist.linear.x, param_.lookahead_distance_ratio, min_lookahead_distance);
+    current_odometry_->twist.twist.linear.x, param_.lookahead_distance_ratio,
+    min_lookahead_distance);
 
   // Set PurePursuit data
   pure_pursuit_->setCurrentPose(current_pose_->pose);
@@ -220,11 +212,11 @@ boost::optional<TargetValues> PurePursuitNode::calcTargetValues()
   // Set debug data
   debug_data_.next_target = pure_pursuit_->getLocationOfNextTarget();
 
-  return TargetValues{kappa, target_vel, target_acc};
+  return kappa;
 }
 
-boost::optional<autoware_planning_msgs::msg::TrajectoryPoint> PurePursuitNode::calcTargetPoint()
-  const
+boost::optional<autoware_auto_planning_msgs::msg::TrajectoryPoint>
+PurePursuitNode::calcTargetPoint() const
 {
   const auto closest_idx_result = planning_utils::findClosestIdxWithDistAngThr(
     planning_utils::extractPoses(*trajectory_), current_pose_->pose, 3.0, M_PI_4);
@@ -236,6 +228,7 @@ boost::optional<autoware_planning_msgs::msg::TrajectoryPoint> PurePursuitNode::c
 
   return trajectory_->points.at(closest_idx_result.second);
 }
+}  // namespace pure_pursuit
 
 #include <rclcpp_components/register_node_macro.hpp>
-RCLCPP_COMPONENTS_REGISTER_NODE(PurePursuitNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(pure_pursuit::PurePursuitNode)

@@ -33,12 +33,14 @@
 #include "pure_pursuit/pure_pursuit.hpp"
 #include "pure_pursuit/pure_pursuit_viz.hpp"
 
+#include <autoware_utils/ros/self_pose_listener.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-#include <autoware_control_msgs/msg/control_command_stamped.hpp>
-#include <autoware_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_control_msgs/msg/ackermann_lateral_command.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 
 #include <boost/optional.hpp>  // To be replaced by std::optional in C++17
 
@@ -48,6 +50,8 @@
 #include <memory>
 #include <vector>
 
+namespace pure_pursuit
+{
 struct Param
 {
   // Global Parameters
@@ -62,13 +66,6 @@ struct Param
   double reverse_min_lookahead_distance;  // min_lookahead_distance in reverse gear
 };
 
-struct TargetValues
-{
-  double kappa;
-  double velocity;
-  double acceleration;
-};
-
 struct DebugData
 {
   geometry_msgs::msg::Point next_target;
@@ -81,26 +78,28 @@ public:
 
 private:
   // Subscriber
-  rclcpp::Subscription<autoware_planning_msgs::msg::Trajectory>::SharedPtr sub_trajectory_;
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr sub_current_velocity_;
+  autoware_utils::SelfPoseListener self_pose_listener_{this};
+  rclcpp::Subscription<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr sub_trajectory_;
+  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr sub_current_odometry_;
 
-  autoware_planning_msgs::msg::Trajectory::ConstSharedPtr trajectory_;
-  geometry_msgs::msg::TwistStamped::ConstSharedPtr current_velocity_;
+  autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr trajectory_;
+  nav_msgs::msg::Odometry::ConstSharedPtr current_odometry_;
 
   bool isDataReady();
 
-  void onTrajectory(const autoware_planning_msgs::msg::Trajectory::ConstSharedPtr msg);
-  void onCurrentVelocity(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
+  void onTrajectory(const autoware_auto_planning_msgs::msg::Trajectory::ConstSharedPtr msg);
+  void onCurrentOdometry(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
 
   // TF
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
-  boost::optional<geometry_msgs::msg::PoseStamped> current_pose_;
+  geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose_;
 
   // Publisher
-  rclcpp::Publisher<autoware_control_msgs::msg::ControlCommandStamped>::SharedPtr pub_ctrl_cmd_;
+  rclcpp::Publisher<autoware_auto_control_msgs::msg::AckermannLateralCommand>::SharedPtr
+    pub_ctrl_cmd_;
 
-  void publishCommand(const TargetValues & targets);
+  void publishCommand(const double target_curvature);
 
   // Debug Publisher
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_debug_marker_;
@@ -115,13 +114,15 @@ private:
   Param param_;
 
   // Algorithm
-  std::unique_ptr<planning_utils::PurePursuit> pure_pursuit_;
+  std::unique_ptr<PurePursuit> pure_pursuit_;
 
-  boost::optional<TargetValues> calcTargetValues();
-  boost::optional<autoware_planning_msgs::msg::TrajectoryPoint> calcTargetPoint() const;
+  boost::optional<double> calcTargetCurvature();
+  boost::optional<autoware_auto_planning_msgs::msg::TrajectoryPoint> calcTargetPoint() const;
 
   // Debug
   mutable DebugData debug_data_;
 };
+
+}  // namespace pure_pursuit
 
 #endif  // PURE_PURSUIT__PURE_PURSUIT_NODE_HPP_

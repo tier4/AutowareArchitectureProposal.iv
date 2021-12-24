@@ -17,6 +17,8 @@
 #include <algorithm>
 #include <vector>
 
+namespace pure_pursuit
+{
 bool LinearInterpolate::interpolate(
   const std::vector<double> & base_index, const std::vector<double> & base_value,
   const std::vector<double> & return_index, std::vector<double> & return_value)
@@ -225,3 +227,4 @@ bool SplineInterpolate::interpolate(
   }
   return true;
 }
+}  // namespace pure_pursuit

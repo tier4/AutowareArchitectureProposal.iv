@@ -38,8 +38,8 @@ target_link_libraries(pure_pursuit_node
 )
 
 rclcpp_components_register_node(pure_pursuit_node
-  PLUGIN "PurePursuitNode"
-  EXECUTABLE pure_pursuit
+  PLUGIN "pure_pursuit::PurePursuitNode"
+  EXECUTABLE pure_pursuit_node_exe
 )
 
 if(BUILD_TESTING)
