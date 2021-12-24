@@ -70,16 +70,16 @@ Example:
 
 ### Core Parameters
 
-| Name                        | Type   | Description                                                    |
-| --------------------------- | ------ | -------------------------------------------------------------- |
-| `can_assign_matrix`         | double | Assignment table for data association                          |
-| `max_dist_matrix`           | double | Maximum distance table for data association                    |
-| `max_area_matrix`           | double | Maximum area table for data association                        |
-| `min_area_matrix`           | double | Minimum area table for data association                        |
-| `max_rad_matrix`            | double | Maximum angle table for data association                       |
-| `world_frame_id`            | double | tracking frame                                                 |
-| `enable_delay_compensation` | bool   | Estimate obstacles at current time considering detection delay |
-| `publish_rate`              | double | if enable_delay_compensation is true, how many hertz to output |
+| Name                        | Type   | Description                                                                                                                                                                                                                                                                    |
+| --------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `can_assign_matrix`         | double | Assignment table for data association. Association is possible only if the value is 1.                                                                                                                                                                                         |
+| `max_dist_matrix`           | double | Maximum distance table for data association. The score is maximum when the distance between the tracked object and the observed one is 0, and the score is 0 when it is larger than max_dist. The euclidean distance in the x-y plane is used as distance between two objects. |
+| `max_area_matrix`           | double | Maximum area table for data association. If the area of the observed object's shape is larger than corresponding parameter, the association score is set to 0 to prevent erroneous association.                                                                                |
+| `min_area_matrix`           | double | Minimum area table for data. If the area of the observed object's shape is smaller than corresponding parameter, the association score is set to 0 to prevent erroneous association.                                                                                           |
+| `max_rad_matrix`            | double | Maximum angle table for data association. If the angle between the tracked object and observed one exceeds max_rad, the score becomes 0.                                                                                                                                       |
+| `world_frame_id`            | double | tracking frame                                                                                                                                                                                                                                                                 |
+| `enable_delay_compensation` | bool   | Estimate obstacles at current time considering detection delay                                                                                                                                                                                                                 |
+| `publish_rate`              | double | if enable_delay_compensation is true, how many hertz to output                                                                                                                                                                                                                 |
 
 ## Assumptions / Known limits
 
