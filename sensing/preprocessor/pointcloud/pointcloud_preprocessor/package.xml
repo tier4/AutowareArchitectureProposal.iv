@@ -19,6 +19,7 @@
 
   <depend>autoware_auto_vehicle_msgs</depend>
   <depend>autoware_debug_msgs</depend>
+  <depend>autoware_point_types</depend>
   <depend>autoware_utils</depend>
   <depend>diagnostic_updater</depend>
   <depend>image_transport</depend>
@@ -30,6 +31,7 @@
   <depend>pcl_conversions</depend>
   <depend>pcl_msgs</depend>
   <depend>pcl_ros</depend>
+  <depend>point_cloud_msg_wrapper</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
   <depend>sensor_msgs</depend>
