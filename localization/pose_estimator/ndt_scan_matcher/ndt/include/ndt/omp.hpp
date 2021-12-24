@@ -17,10 +17,11 @@
 
 #include "ndt/base.hpp"
 
+#include <pclomp/ndt_omp.hpp>
+
 #include <pcl/io/io.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
-#include <pclomp/ndt_omp.h>
 
 #include <vector>
 
