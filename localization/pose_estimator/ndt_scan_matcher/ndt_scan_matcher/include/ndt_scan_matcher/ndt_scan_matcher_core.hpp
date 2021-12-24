@@ -102,7 +102,7 @@ private:
     geometry_msgs::msg::PoseWithCovarianceStamped::ConstSharedPtr pose_conv_msg_ptr);
 
   geometry_msgs::msg::PoseWithCovarianceStamped alignUsingMonteCarlo(
-    const std::shared_ptr<NormalDistributionsTransformBase<PointSource, PointTarget>> & ndt_ptr,
+    const std::shared_ptr<pclomp::NormalDistributionsTransform<PointSource, PointTarget>> & ndt_ptr,
     const geometry_msgs::msg::PoseWithCovarianceStamped & initial_pose_with_cov);
 
   void updateTransforms();
@@ -145,8 +145,7 @@ private:
   tf2_ros::TransformListener tf2_listener_;
   tf2_ros::TransformBroadcaster tf2_broadcaster_;
 
-  NDTImplementType ndt_implement_type_;
-  std::shared_ptr<NormalDistributionsTransformBase<PointSource, PointTarget>> ndt_ptr_;
+  std::shared_ptr<pclomp::NormalDistributionsTransform<PointSource, PointTarget>> ndt_ptr_;
 
   Eigen::Matrix4f base_to_sensor_matrix_;
   std::string base_frame_;

@@ -97,7 +97,6 @@ NDTScanMatcher::NDTScanMatcher()
   tf2_buffer_(this->get_clock()),
   tf2_listener_(tf2_buffer_),
   tf2_broadcaster_(*this),
-  ndt_implement_type_(NDTImplementType::PCL_GENERIC),
   base_frame_("base_link"),
   ndt_base_frame_("ndt_base_link"),
   map_frame_("map"),
@@ -107,33 +106,18 @@ NDTScanMatcher::NDTScanMatcher()
 {
   key_value_stdmap_["state"] = "Initializing";
 
-  int ndt_implement_type_tmp = this->declare_parameter("ndt_implement_type", 0);
-  ndt_implement_type_ = static_cast<NDTImplementType>(ndt_implement_type_tmp);
+  ndt_ptr_ = std::make_shared<pclomp::NormalDistributionsTransform<PointSource, PointTarget>>();
 
-  RCLCPP_INFO(get_logger(), "NDT Implement Type is %d", ndt_implement_type_tmp);
-  try {
-    ndt_ptr_ = getNDT<PointSource, PointTarget>(ndt_implement_type_);
-  } catch (std::exception & e) {
-    RCLCPP_ERROR(get_logger(), "%s", e.what());
-    return;
-  }
+  // FIXME(IshitaTakeshi) Not sure if this is safe
+  int search_method = static_cast<int>(omp_params_.search_method);
+  search_method = this->declare_parameter("omp_neighborhood_search_method", search_method);
+  omp_params_.search_method = static_cast<pclomp::NeighborSearchMethod>(search_method);
+  // TODO(Tier IV): check search_method is valid value.
+  ndt_ptr_->setNeighborhoodSearchMethod(omp_params_.search_method);
 
-  if (ndt_implement_type_ == NDTImplementType::OMP) {
-    using T = NormalDistributionsTransformOMP<PointSource, PointTarget>;
-
-    // FIXME(IshitaTakeshi) Not sure if this is safe
-    std::shared_ptr<T> ndt_omp_ptr = std::dynamic_pointer_cast<T>(ndt_ptr_);
-    int search_method = static_cast<int>(omp_params_.search_method);
-    search_method = this->declare_parameter("omp_neighborhood_search_method", search_method);
-    omp_params_.search_method = static_cast<pclomp::NeighborSearchMethod>(search_method);
-    // TODO(Tier IV): check search_method is valid value.
-    ndt_omp_ptr->setNeighborhoodSearchMethod(omp_params_.search_method);
-
-    omp_params_.num_threads = this->declare_parameter("omp_num_threads", omp_params_.num_threads);
-    omp_params_.num_threads = std::max(omp_params_.num_threads, 1);
-    ndt_omp_ptr->setNumThreads(omp_params_.num_threads);
-    ndt_ptr_ = ndt_omp_ptr;
-  }
+  omp_params_.num_threads = this->declare_parameter("omp_num_threads", omp_params_.num_threads);
+  omp_params_.num_threads = std::max(omp_params_.num_threads, 1);
+  ndt_ptr_->setNumThreads(omp_params_.num_threads);
 
   int points_queue_size = this->declare_parameter("input_sensor_points_queue_size", 0);
   points_queue_size = std::max(points_queue_size, 0);
@@ -353,36 +337,26 @@ void NDTScanMatcher::callbackMapPoints(
   const auto step_size = ndt_ptr_->getStepSize();
   const auto resolution = ndt_ptr_->getResolution();
   const auto max_iterations = ndt_ptr_->getMaximumIterations();
+  ndt_map_mtx_.lock();
 
-  using NDTBase = NormalDistributionsTransformBase<PointSource, PointTarget>;
-  std::shared_ptr<NDTBase> new_ndt_ptr_ = getNDT<PointSource, PointTarget>(ndt_implement_type_);
+  ndt_ptr_ = std::make_shared<pclomp::NormalDistributionsTransform<PointSource, PointTarget>>();
 
-  if (ndt_implement_type_ == NDTImplementType::OMP) {
-    using T = NormalDistributionsTransformOMP<PointSource, PointTarget>;
+  ndt_ptr_->setNeighborhoodSearchMethod(omp_params_.search_method);
+  ndt_ptr_->setNumThreads(omp_params_.num_threads);
 
-    // FIXME(IshitaTakeshi) Not sure if this is safe
-    std::shared_ptr<T> ndt_omp_ptr = std::dynamic_pointer_cast<T>(ndt_ptr_);
-    ndt_omp_ptr->setNeighborhoodSearchMethod(omp_params_.search_method);
-    ndt_omp_ptr->setNumThreads(omp_params_.num_threads);
-    new_ndt_ptr_ = ndt_omp_ptr;
-  }
-
-  new_ndt_ptr_->setTransformationEpsilon(trans_epsilon);
-  new_ndt_ptr_->setStepSize(step_size);
-  new_ndt_ptr_->setResolution(resolution);
-  new_ndt_ptr_->setMaximumIterations(max_iterations);
+  ndt_ptr_->setTransformationEpsilon(trans_epsilon);
+  ndt_ptr_->setStepSize(step_size);
+  ndt_ptr_->setResolution(resolution);
+  ndt_ptr_->setMaximumIterations(max_iterations);
 
   boost::shared_ptr<pcl::PointCloud<PointTarget>> map_points_ptr(new pcl::PointCloud<PointTarget>);
   pcl::fromROSMsg(*map_points_msg_ptr, *map_points_ptr);
-  new_ndt_ptr_->setInputTarget(map_points_ptr);
+  ndt_ptr_->setInputTarget(map_points_ptr);
   // create Thread
   // detach
   auto output_cloud = std::make_shared<pcl::PointCloud<PointSource>>();
-  new_ndt_ptr_->align(*output_cloud, Eigen::Matrix4f::Identity());
+  ndt_ptr_->align(*output_cloud, Eigen::Matrix4f::Identity());
 
-  // swap
-  ndt_map_mtx_.lock();
-  ndt_ptr_ = new_ndt_ptr_;
   ndt_map_mtx_.unlock();
 }
 
@@ -596,7 +570,7 @@ void NDTScanMatcher::callbackSensorPoints(
 }
 
 geometry_msgs::msg::PoseWithCovarianceStamped NDTScanMatcher::alignUsingMonteCarlo(
-  const std::shared_ptr<NormalDistributionsTransformBase<PointSource, PointTarget>> & ndt_ptr,
+  const std::shared_ptr<pclomp::NormalDistributionsTransform<PointSource, PointTarget>> & ndt_ptr,
   const geometry_msgs::msg::PoseWithCovarianceStamped & initial_pose_with_cov)
 {
   if (ndt_ptr->getInputTarget() == nullptr || ndt_ptr->getInputSource() == nullptr) {
