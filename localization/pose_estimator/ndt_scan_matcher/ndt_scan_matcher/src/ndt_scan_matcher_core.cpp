@@ -370,19 +370,11 @@ void NDTScanMatcher::callbackSensorPoints(
   const std::string & sensor_frame = sensor_points_sensorTF_msg_ptr->header.frame_id;
   const rclcpp::Time sensor_ros_time = sensor_points_sensorTF_msg_ptr->header.stamp;
 
-  boost::shared_ptr<pcl::PointCloud<PointSource>> sensor_points_sensorTF_ptr(
-    new pcl::PointCloud<PointSource>);
-  pcl::fromROSMsg(*sensor_points_sensorTF_msg_ptr, *sensor_points_sensorTF_ptr);
-  // get TF base to sensor
-  auto TF_base_to_sensor_ptr = std::make_shared<geometry_msgs::msg::TransformStamped>();
-  getTransform(base_frame_, sensor_frame, TF_base_to_sensor_ptr);
-  const Eigen::Affine3d base_to_sensor_affine = tf2::transformToEigen(*TF_base_to_sensor_ptr);
-  const Eigen::Matrix4f base_to_sensor_matrix = base_to_sensor_affine.matrix().cast<float>();
-  boost::shared_ptr<pcl::PointCloud<PointSource>> sensor_points_baselinkTF_ptr(
-    new pcl::PointCloud<PointSource>);
-  pcl::transformPointCloud(
-    *sensor_points_sensorTF_ptr, *sensor_points_baselinkTF_ptr, base_to_sensor_matrix);
-  ndt_ptr_->setInputSource(sensor_points_baselinkTF_ptr);
+  auto base_to_sensor = std::make_shared<geometry_msgs::msg::TransformStamped>();
+  getTransform(base_frame_, sensor_frame, base_to_sensor);
+  const auto sensor_points =
+    getBaseLinkSensorPoints<PointSource>(*base_to_sensor, sensor_points_sensorTF_msg_ptr);
+  ndt_ptr_->setInputSource(sensor_points);
 
   // start of critical section for initial_pose_msg_ptr_array_
   std::unique_lock<std::mutex> initial_pose_array_lock(initial_pose_array_mtx_);
@@ -502,14 +494,13 @@ void NDTScanMatcher::callbackSensorPoints(
 
   publishTF(ndt_base_frame_, result_pose_stamped_msg);
 
-  auto sensor_points_mapTF_ptr = std::make_shared<pcl::PointCloud<PointSource>>();
-  pcl::transformPointCloud(
-    *sensor_points_baselinkTF_ptr, *sensor_points_mapTF_ptr, result_pose_matrix);
-  sensor_msgs::msg::PointCloud2 sensor_points_mapTF_msg;
-  pcl::toROSMsg(*sensor_points_mapTF_ptr, sensor_points_mapTF_msg);
-  sensor_points_mapTF_msg.header.stamp = sensor_ros_time;
-  sensor_points_mapTF_msg.header.frame_id = map_frame_;
-  sensor_aligned_pose_pub_->publish(sensor_points_mapTF_msg);
+  auto sensor_points_on_map = std::make_shared<pcl::PointCloud<PointSource>>();
+  pcl::transformPointCloud(*sensor_points, *sensor_points_on_map, result_pose_matrix);
+  sensor_msgs::msg::PointCloud2 sensor_points_msg_on_map;
+  pcl::toROSMsg(*sensor_points_on_map, sensor_points_msg_on_map);
+  sensor_points_msg_on_map.header.stamp = sensor_ros_time;
+  sensor_points_msg_on_map.header.frame_id = map_frame_;
+  sensor_aligned_pose_pub_->publish(sensor_points_msg_on_map);
 
   initial_pose_with_covariance_pub_->publish(initial_pose_cov_msg);
 
@@ -606,15 +597,14 @@ geometry_msgs::msg::PoseWithCovarianceStamped NDTScanMatcher::alignUsingMonteCar
       this->now(), map_frame_, autoware_utils::createMarkerScale(0.3, 0.1, 0.1), particle, i);
     ndt_monte_carlo_initial_pose_marker_pub_->publish(marker_array);
 
-    auto sensor_points_mapTF_ptr = std::make_shared<pcl::PointCloud<PointSource>>();
-    const auto sensor_points_baselinkTF_ptr = ndt_ptr->getInputSource();
-    pcl::transformPointCloud(
-      *sensor_points_baselinkTF_ptr, *sensor_points_mapTF_ptr, result_pose_matrix);
-    sensor_msgs::msg::PointCloud2 sensor_points_mapTF_msg;
-    pcl::toROSMsg(*sensor_points_mapTF_ptr, sensor_points_mapTF_msg);
-    sensor_points_mapTF_msg.header.stamp = initial_pose_with_cov.header.stamp;
-    sensor_points_mapTF_msg.header.frame_id = map_frame_;
-    sensor_aligned_pose_pub_->publish(sensor_points_mapTF_msg);
+    auto sensor_points_on_map = std::make_shared<pcl::PointCloud<PointSource>>();
+    const auto sensor_points = ndt_ptr->getInputSource();
+    pcl::transformPointCloud(*sensor_points, *sensor_points_on_map, result_pose_matrix);
+    sensor_msgs::msg::PointCloud2 sensor_points_msg_on_map;
+    pcl::toROSMsg(*sensor_points_on_map, sensor_points_msg_on_map);
+    sensor_points_msg_on_map.header.stamp = initial_pose_with_cov.header.stamp;
+    sensor_points_msg_on_map.header.frame_id = map_frame_;
+    sensor_aligned_pose_pub_->publish(sensor_points_msg_on_map);
   }
 
   auto best_particle_ptr = std::max_element(

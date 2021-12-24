@@ -35,7 +35,9 @@
 #include <visualization_msgs/msg/marker_array.hpp>
 
 #include <fmt/format.h>
+#include <pcl_conversions/pcl_conversions.h>
 #include <tf2/transform_datatypes.h>
+#include <tf2_eigen/tf2_eigen.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_broadcaster.h>
@@ -52,6 +54,22 @@
 #include <vector>
 
 enum class NDTImplementType { PCL_GENERIC = 0, PCL_MODIFIED = 1, OMP = 2 };
+
+template <typename PointSource>
+boost::shared_ptr<pcl::PointCloud<PointSource>> getBaseLinkSensorPoints(
+  const geometry_msgs::msg::TransformStamped & base_to_sensor,
+  const sensor_msgs::msg::PointCloud2::ConstSharedPtr sensor_points_sensor_tf_msg)
+{
+  boost::shared_ptr<pcl::PointCloud<PointSource>> sensor_points_sensor_tf(
+    new pcl::PointCloud<PointSource>);
+  pcl::fromROSMsg(*sensor_points_sensor_tf_msg, *sensor_points_sensor_tf);
+  // get TF base to sensor
+  const Eigen::Affine3d base_to_sensor_affine = tf2::transformToEigen(base_to_sensor);
+  const Eigen::Matrix4f base_to_sensor_matrix = base_to_sensor_affine.matrix().cast<float>();
+  boost::shared_ptr<pcl::PointCloud<PointSource>> sensor_points(new pcl::PointCloud<PointSource>);
+  pcl::transformPointCloud(*sensor_points_sensor_tf, *sensor_points, base_to_sensor_matrix);
+  return sensor_points;
+}
 
 template <typename PointSource, typename PointTarget>
 std::shared_ptr<NormalDistributionsTransformBase<PointSource, PointTarget>> getNDT(
