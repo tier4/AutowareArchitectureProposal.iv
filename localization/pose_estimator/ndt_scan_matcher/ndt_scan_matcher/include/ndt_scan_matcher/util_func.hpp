@@ -17,9 +17,11 @@
 
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 #include <std_msgs/msg/color_rgba.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
+#include <pcl_conversions/pcl_conversions.h>
 #include <tf2_eigen/tf2_eigen.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
@@ -74,6 +76,14 @@ T transform(const T & input, const geometry_msgs::msg::TransformStamped & transf
   T output;
   tf2::doTransform<T>(input, output, transform);
   return output;
+}
+
+template <typename T>
+sensor_msgs::msg::PointCloud2 toROSMsg(const pcl::PointCloud<T> & pointcloud)
+{
+  sensor_msgs::msg::PointCloud2 msg;
+  pcl::toROSMsg(pointcloud, msg);
+  return msg;
 }
 
 #endif  // NDT_SCAN_MATCHER__UTIL_FUNC_HPP_

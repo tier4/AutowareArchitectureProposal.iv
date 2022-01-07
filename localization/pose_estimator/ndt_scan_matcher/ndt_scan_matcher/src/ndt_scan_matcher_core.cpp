@@ -496,8 +496,7 @@ void NDTScanMatcher::callbackSensorPoints(
 
   auto sensor_points_on_map = std::make_shared<pcl::PointCloud<PointSource>>();
   pcl::transformPointCloud(*sensor_points, *sensor_points_on_map, result_pose_matrix);
-  sensor_msgs::msg::PointCloud2 sensor_points_msg_on_map;
-  pcl::toROSMsg(*sensor_points_on_map, sensor_points_msg_on_map);
+  sensor_msgs::msg::PointCloud2 sensor_points_msg_on_map = toROSMsg(*sensor_points_on_map);
   sensor_points_msg_on_map.header.stamp = sensor_ros_time;
   sensor_points_msg_on_map.header.frame_id = map_frame_;
   sensor_aligned_pose_pub_->publish(sensor_points_msg_on_map);
@@ -600,8 +599,7 @@ geometry_msgs::msg::PoseWithCovarianceStamped NDTScanMatcher::alignUsingMonteCar
     auto sensor_points_on_map = std::make_shared<pcl::PointCloud<PointSource>>();
     const auto sensor_points = ndt_ptr->getInputSource();
     pcl::transformPointCloud(*sensor_points, *sensor_points_on_map, result_pose_matrix);
-    sensor_msgs::msg::PointCloud2 sensor_points_msg_on_map;
-    pcl::toROSMsg(*sensor_points_on_map, sensor_points_msg_on_map);
+    sensor_msgs::msg::PointCloud2 sensor_points_msg_on_map = toROSMsg(*sensor_points_on_map);
     sensor_points_msg_on_map.header.stamp = initial_pose_with_cov.header.stamp;
     sensor_points_msg_on_map.header.frame_id = map_frame_;
     sensor_aligned_pose_pub_->publish(sensor_points_msg_on_map);
