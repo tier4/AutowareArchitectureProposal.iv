@@ -83,6 +83,8 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
 
   /* vehicle model setup */
   const std::string vehicle_model_type = declare_parameter<std::string>("vehicle_model_type");
+  std::shared_ptr<trajectory_follower::VehicleModelInterface4ws> vehicle_model_ptr;
+  /*
   std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr;
   if (vehicle_model_type == "kinematics") {
     vehicle_model_ptr =
@@ -107,6 +109,11 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
     RCLCPP_ERROR(get_logger(), "vehicle_model_type is undefined");
   }
 
+  */
+    vehicle_model_ptr =
+      std::make_shared<trajectory_follower::FwsModel>(
+      wheelbase, m_mpc.m_steer_lim,
+      m_mpc.m_param.steer_tau);
   /* QP solver setup */
   const std::string qp_solver_type = declare_parameter<std::string>("qp_solver_type");
   std::shared_ptr<trajectory_follower::QPSolverInterface> qpsolver_ptr;

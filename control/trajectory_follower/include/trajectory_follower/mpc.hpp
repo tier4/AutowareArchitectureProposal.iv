@@ -30,6 +30,7 @@
 #include "trajectory_follower/qp_solver/qp_solver_osqp.hpp"
 #include "trajectory_follower/qp_solver/qp_solver_unconstr_fast.hpp"
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_dynamics.hpp"
+#include "trajectory_follower/vehicle_model/vehicle_model_4ws.hpp"
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics.hpp"
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp"
 #include "trajectory_follower/visibility_control.hpp"
@@ -156,7 +157,7 @@ private:
   //!< @brief vehicle model type for MPC
   std::string m_vehicle_model_type;
   //!< @brief vehicle model for MPC
-  std::shared_ptr<trajectory_follower::VehicleModelInterface> m_vehicle_model_ptr;
+  std::shared_ptr<trajectory_follower::VehicleModelInterface4ws> m_vehicle_model_ptr;
   //!< @brief qp solver for MPC
   std::shared_ptr<trajectory_follower::QPSolverInterface> m_qpsolver_ptr;
   //!< @brief lowpass filter for steering command
@@ -394,7 +395,7 @@ public:
    * @brief set the vehicle model of this MPC
    */
   inline void setVehicleModel(
-    std::shared_ptr<trajectory_follower::VehicleModelInterface> vehicle_model_ptr,
+    std::shared_ptr<trajectory_follower::VehicleModelInterface4ws> vehicle_model_ptr,
     const std::string & vehicle_model_type)
   {
     m_vehicle_model_ptr = vehicle_model_ptr;

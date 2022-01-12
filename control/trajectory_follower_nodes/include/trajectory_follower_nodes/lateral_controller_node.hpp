@@ -28,6 +28,7 @@
 #include "trajectory_follower/mpc_utils.hpp"
 #include "trajectory_follower/qp_solver/qp_solver_osqp.hpp"
 #include "trajectory_follower/qp_solver/qp_solver_unconstr_fast.hpp"
+#include "trajectory_follower/vehicle_model/vehicle_model_4ws.hpp"
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_dynamics.hpp"
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics.hpp"
 #include "trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp"

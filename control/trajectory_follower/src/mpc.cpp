@@ -543,9 +543,12 @@ MPCMatrix MPC::generateMPCMatrix(
 
   const int64_t N = m_param.prediction_horizon;
   const float64_t DT = m_param.prediction_dt;
-  const int64_t DIM_X = m_vehicle_model_ptr->getDimX();
-  const int64_t DIM_U = m_vehicle_model_ptr->getDimU();
+  const int64_t DIM_X = 3;
+  const int64_t DIM_U = 1;
   const int64_t DIM_Y = m_vehicle_model_ptr->getDimY();
+  //const int64_t DIM_X = m_vehicle_model_ptr->getDimX();
+  //const int64_t DIM_U = m_vehicle_model_ptr->getDimU();
+  //const int64_t DIM_Y = m_vehicle_model_ptr->getDimY();
 
   MPCMatrix m;
   m.Aex = MatrixXd::Zero(DIM_X * N, DIM_X);
@@ -584,6 +587,7 @@ MPCMatrix MPC::generateMPCMatrix(
     /* get discrete state matrix A, B, C, W */
     m_vehicle_model_ptr->setVelocity(ref_vx);
     m_vehicle_model_ptr->setCurvature(ref_k);
+    m_vehicle_model_ptr->setPosture(0);
     m_vehicle_model_ptr->calculateDiscreteMatrix(Ad, Bd, Cd, Wd, DT);
 
     Q = Eigen::MatrixXd::Zero(DIM_Y, DIM_Y);

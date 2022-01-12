@@ -36,7 +36,9 @@ set(LATERAL_CONTROLLER_LIB_SRC
   src/vehicle_model/vehicle_model_bicycle_dynamics.cpp
   src/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.cpp
   src/vehicle_model/vehicle_model_bicycle_kinematics.cpp
+  src/vehicle_model/vehicle_model_4ws.cpp
   src/vehicle_model/vehicle_model_interface.cpp
+  src/vehicle_model/vehicle_model_interface_4ws.cpp
 )
 
 set(LATERAL_CONTROLLER_LIB_HEADERS
@@ -52,7 +54,9 @@ set(LATERAL_CONTROLLER_LIB_HEADERS
   include/trajectory_follower/vehicle_model/vehicle_model_bicycle_dynamics.hpp
   include/trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics_no_delay.hpp
   include/trajectory_follower/vehicle_model/vehicle_model_bicycle_kinematics.hpp
+  include/trajectory_follower/vehicle_model/vehicle_model_4ws.hpp
   include/trajectory_follower/vehicle_model/vehicle_model_interface.hpp
+  include/trajectory_follower/vehicle_model/vehicle_model_interface_4ws.hpp
 )
 
 # generate library
