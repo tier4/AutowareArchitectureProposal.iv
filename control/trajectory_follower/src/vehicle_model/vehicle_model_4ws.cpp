@@ -50,11 +50,11 @@ void FwsModel::calculateDiscreteMatrix(
   }
   //float64_t cos_delta_r_squared_inv = 1 / (cos(delta_r) * cos(delta_r));
   float64_t velocity = m_velocity;
-  float64_t sigma_1 = m_wheelbase *sqrt(tan(delta_rr)+tan(delta_rr)+1.0);
+  float64_t sigma_1 = m_wheelbase *sqrt(tan(delta_rr)*tan(delta_rr)+1.0);
   if (std::abs(m_velocity) < 1e-04) {velocity = 1e-04 * (m_velocity >= 0 ? 1 : -1);}
 
   a_d << 0.0, velocity, 0.0,
-	  0.0, 0.0, velocity * sqrt(tan(delta_fr)*tan(delta_fr)+1.0)/sigma_1, 
+	  0.0, 0.0, velocity * (tan(delta_fr)*tan(delta_fr)+1.0)/sigma_1, 
 	  0.0, 0.0, -1.0 / m_steer_tau;
   Eigen::MatrixXd I = Eigen::MatrixXd::Identity(m_dim_x, m_dim_x);
   a_d = (I - dt * 0.5 * a_d).inverse() * (I + dt * 0.5 * a_d);  // bilinear discretization
@@ -70,7 +70,7 @@ void FwsModel::calculateDiscreteMatrix(
   w_d << 0.0,
 	  velocity*(tan(delta_fr)-tan(delta_rr))/sigma_1
 		  -m_curvature*velocity
-		  -delta_fr*velocity * sqrt(tan(delta_fr)*tan(delta_fr)+1)/sigma_1
+		  -delta_fr*velocity * (tan(delta_fr)*tan(delta_fr)+1)/sigma_1
 	  +delta_rr*(m_steer_tau*velocity*(1+tan(delta_fr)*tan(delta_rr))+sigma_1)/(m_steer_tau*sigma_1),
 	0.0;
   w_d *= dt;
@@ -127,7 +127,7 @@ void FwsModel::calculateDiscreteMatrix(
 void FwsModel::calculateReferenceInput(Eigen::MatrixXd & u_ref)
 {
   float64_t beta_r = -m_posture; 
-  u_ref(0,0) = atan((sin(beta_r)+m_wheelbase * m_curvature)/cos(beta_r));
+  u_ref(0,0) = std::atan((sin(beta_r)+m_wheelbase * m_curvature)/cos(beta_r));
 }
 }  // namespace trajectory_follower
 }  // namespace control

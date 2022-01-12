@@ -96,28 +96,28 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
-  set(TEST_LAT_SOURCES
-    test/test_mpc.cpp
-    test/test_mpc_trajectory.cpp
-    test/test_mpc_utils.cpp
-    test/test_interpolate.cpp
-    test/test_lowpass_filter.cpp
-  )
-  set(TEST_LATERAL_CONTROLLER_EXE test_lateral_controller)
-  ament_add_gtest(${TEST_LATERAL_CONTROLLER_EXE} ${TEST_LAT_SOURCES})
-  autoware_set_compile_options(${TEST_LATERAL_CONTROLLER_EXE})
-  target_link_libraries(${TEST_LATERAL_CONTROLLER_EXE} ${LATERAL_CONTROLLER_LIB})
+  #set(TEST_LAT_SOURCES
+  #  test/test_mpc.cpp
+  #  test/test_mpc_trajectory.cpp
+  #  test/test_mpc_utils.cpp
+  #  test/test_interpolate.cpp
+  #  test/test_lowpass_filter.cpp
+  #)
+  #set(TEST_LATERAL_CONTROLLER_EXE test_lateral_controller)
+  #ament_add_gtest(${TEST_LATERAL_CONTROLLER_EXE} ${TEST_LAT_SOURCES})
+  #autoware_set_compile_options(${TEST_LATERAL_CONTROLLER_EXE})
+  #target_link_libraries(${TEST_LATERAL_CONTROLLER_EXE} ${LATERAL_CONTROLLER_LIB})
 
-  set(TEST_LON_SOURCES
-    test/test_debug_values.cpp
-    test/test_pid.cpp
-    test/test_smooth_stop.cpp
-    test/test_longitudinal_controller_utils.cpp
-  )
-  set(TEST_LONGITUDINAL_CONTROLLER_EXE test_longitudinal_controller)
-  ament_add_gtest(${TEST_LONGITUDINAL_CONTROLLER_EXE} ${TEST_LON_SOURCES})
-  autoware_set_compile_options(${TEST_LONGITUDINAL_CONTROLLER_EXE})
-  target_link_libraries(${TEST_LONGITUDINAL_CONTROLLER_EXE} ${LONGITUDINAL_CONTROLLER_LIB})
+  #set(TEST_LON_SOURCES
+  #  test/test_debug_values.cpp
+  #  test/test_pid.cpp
+  #  test/test_smooth_stop.cpp
+  #  test/test_longitudinal_controller_utils.cpp
+  #)
+  #set(TEST_LONGITUDINAL_CONTROLLER_EXE test_longitudinal_controller)
+  #ament_add_gtest(${TEST_LONGITUDINAL_CONTROLLER_EXE} ${TEST_LON_SOURCES})
+  #autoware_set_compile_options(${TEST_LONGITUDINAL_CONTROLLER_EXE})
+  #target_link_libraries(${TEST_LONGITUDINAL_CONTROLLER_EXE} ${LONGITUDINAL_CONTROLLER_LIB})
 endif()
 
 # ament package generation and installing
