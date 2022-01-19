@@ -184,6 +184,7 @@ void SimplePlanningSimulator::initialize_vehicle_model()
   const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(*this).getVehicleInfo();
   const float64_t wheelbase = vehicle_info.wheel_base_m;
 
+
   if (vehicle_model_type_str == "IDEAL_STEER_VEL") {
     vehicle_model_type_ = VehicleModelType::IDEAL_STEER_VEL;
     vehicle_model_ptr_ = std::make_shared<SimModelIdealSteerVel>(wheelbase);
@@ -207,9 +208,19 @@ void SimplePlanningSimulator::initialize_vehicle_model()
       steer_rate_lim, wheelbase,
       timer_sampling_time_ms_ / 1000.0, acc_time_delay, acc_time_constant, steer_time_delay,
       steer_time_constant);
-  } else {
-    throw std::invalid_argument("Invalid vehicle_model_type: " + vehicle_model_type_str);
+  //for 4ws debug.Be sure to delete later.
   }
+  //} else if (vehicle_model_type_str == "DELAY_STEER_ACC_4WS") {
+    vehicle_model_type_ = VehicleModelType::DELAY_STEER_ACC_4WS;
+    vehicle_model_ptr_ = std::make_shared<SimModelDelaySteerAcc4ws>(
+      vel_lim, steer_lim, steer_lim, vel_rate_lim,
+      steer_rate_lim, steer_rate_lim, wheelbase,
+      timer_sampling_time_ms_ / 1000.0, acc_time_delay, acc_time_constant,
+	  steer_time_delay, steer_time_constant,
+	  steer_time_delay, steer_time_constant);
+  //} else {
+  //  throw std::invalid_argument("Invalid vehicle_model_type: " + vehicle_model_type_str);
+  //}
 }
 
 rcl_interfaces::msg::SetParametersResult SimplePlanningSimulator::on_parameter(
@@ -332,6 +343,10 @@ void SimplePlanningSimulator::set_input(const float steer, const float vel, cons
     vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC_GEARED)
   {
     input << acc, steer;
+  } else if (  // NOLINT
+    vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC_4WS)
+  {
+    input << acc, steer, 0;
   }
   vehicle_model_ptr_->setInput(input);
 }
@@ -419,6 +434,10 @@ void SimplePlanningSimulator::set_initial_state(
     vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC_GEARED)
   {
     state << x, y, yaw, vx, steer, accx;
+  } else if (  // NOLINT
+    vehicle_model_type_ == VehicleModelType::DELAY_STEER_ACC_4WS)
+  {
+    state << x, y, yaw, vx, steer, 0, accx;
   }
   vehicle_model_ptr_->setState(state);
 
