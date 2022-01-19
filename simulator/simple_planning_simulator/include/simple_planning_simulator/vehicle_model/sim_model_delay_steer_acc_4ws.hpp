@@ -23,6 +23,7 @@
 #include "eigen3/Eigen/Core"
 
 #include "simple_planning_simulator/vehicle_model/sim_model_interface.hpp"
+#include "autoware_auto_vehicle_msgs/msg/gear_command.hpp"
 
 class SimModelDelaySteerAcc4ws : public SimModelInterface
 {
@@ -75,8 +76,8 @@ private:
   const float64_t vx_lim_;          //!< @brief velocity limit [m/s]
   const float64_t vx_rate_lim_;     //!< @brief acceleration limit [m/ss]
   const float64_t f_steer_lim_;       //!< @brief steering limit [rad]
-  const float64_t f_steer_rate_lim_;  //!< @brief steering angular velocity limit [rad/s]
   const float64_t r_steer_lim_;       //!< @brief steering limit [rad]
+  const float64_t f_steer_rate_lim_;  //!< @brief steering angular velocity limit [rad/s]
   const float64_t r_steer_rate_lim_;  //!< @brief steering angular velocity limit [rad/s]
   const float64_t wheelbase_;       //!< @brief vehicle wheelbase length [m]
 
@@ -148,6 +149,14 @@ private:
    * @param [in] input input vector to model
    */
   Eigen::VectorXd calcModel(const Eigen::VectorXd & state, const Eigen::VectorXd & input) override;
+/**
+   * @brief calculate velocity with considering current velocity and gear
+   * @param [in] state current state
+   * @param [in] gear current gear (defined in autoware_auto_msgs/VehicleStateCommand)
+   */
+  float64_t calcVelocityWithGear(const Eigen::VectorXd & state, const uint8_t gear) const;
+
 };
+
 
 #endif  // SIMPLE_PLANNING_SIMULATOR__VEHICLE_MODEL__SIM_MODEL_DELAY_STEER_ACC_4WS_HPP_

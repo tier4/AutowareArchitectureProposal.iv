@@ -348,6 +348,9 @@ void SimplePlanningSimulator::set_input(const float steer, const float vel, cons
   {
     input << acc, steer, 0;
   }
+  /* for 4ws debug*/
+  input << acc, steer, 0;
+  /**/
   vehicle_model_ptr_->setInput(input);
 }
 
@@ -439,6 +442,11 @@ void SimplePlanningSimulator::set_initial_state(
   {
     state << x, y, yaw, vx, steer, 0, accx;
   }
+
+  /*for 4ws debug*/
+    state << x, y, yaw, 0, 0, 0, 0;
+	/**/
+
   vehicle_model_ptr_->setState(state);
 
   is_initialized_ = true;
