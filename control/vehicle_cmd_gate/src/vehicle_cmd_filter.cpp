@@ -50,7 +50,7 @@ void VehicleCmdFilter::limitLateralWithLatAcc(
     double v_sq =
       std::max(static_cast<double>(input.longitudinal.speed * input.longitudinal.speed), 0.001);
     double steer_lim = std::atan(lat_acc_lim_ * wheel_base_ / v_sq);
-    input.lateral.steering_tire_angle = latacc > 0.0 ? steer_lim : -steer_lim;
+    input.lateral.front_steering_tire_angle = latacc > 0.0 ? steer_lim : -steer_lim;
   }
 }
 
@@ -64,9 +64,9 @@ void VehicleCmdFilter::limitLateralWithLatJerk(
   const double latacc_min = prev_latacc - lat_jerk_lim_ * dt;
 
   if (curr_latacc > latacc_max) {
-    input.lateral.steering_tire_angle = calcSteerFromLatacc(input.longitudinal.speed, latacc_max);
+    input.lateral.front_steering_tire_angle = calcSteerFromLatacc(input.longitudinal.speed, latacc_max);
   } else if (curr_latacc < latacc_min) {
-    input.lateral.steering_tire_angle = calcSteerFromLatacc(input.longitudinal.speed, latacc_min);
+    input.lateral.front_steering_tire_angle = calcSteerFromLatacc(input.longitudinal.speed, latacc_min);
   }
 }
 
@@ -80,7 +80,7 @@ double VehicleCmdFilter::calcLatAcc(
   const autoware_auto_control_msgs::msg::AckermannControlCommand & cmd) const
 {
   double v = cmd.longitudinal.speed;
-  return v * v * std::tan(cmd.lateral.steering_tire_angle) / wheel_base_;
+  return v * v * std::tan(cmd.lateral.front_steering_tire_angle) / wheel_base_;
 }
 
 double VehicleCmdFilter::limitDiff(

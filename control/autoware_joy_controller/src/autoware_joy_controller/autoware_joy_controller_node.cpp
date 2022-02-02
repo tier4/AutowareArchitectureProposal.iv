@@ -251,8 +251,8 @@ void AutowareJoyControllerNode::publishControlCommand()
   autoware_auto_control_msgs::msg::AckermannControlCommand cmd;
   cmd.stamp = this->now();
   {
-    cmd.lateral.steering_tire_angle = steer_ratio_ * joy_->steer();
-    cmd.lateral.steering_tire_rotation_rate = steering_angle_velocity_;
+    cmd.lateral.front_steering_tire_angle = steer_ratio_ * joy_->steer();
+    cmd.lateral.front_steering_tire_rotation_rate = steering_angle_velocity_;
 
     if (joy_->accel()) {
       cmd.longitudinal.acceleration = accel_ratio_ * joy_->accel();

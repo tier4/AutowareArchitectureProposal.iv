@@ -215,8 +215,8 @@ TEST_F(FakeNodeFixture, straight_trajectory)
 
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
-  EXPECT_EQ(cmd_msg->steering_tire_angle, 0.0f);
-  EXPECT_EQ(cmd_msg->steering_tire_rotation_rate, 0.0f);
+  EXPECT_EQ(cmd_msg->front_steering_tire_angle, 0.0f);
+  EXPECT_EQ(cmd_msg->front_steering_tire_rotation_rate, 0.0f);
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
@@ -289,8 +289,8 @@ TEST_F(FakeNodeFixture, right_turn)
 
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
-  EXPECT_LT(cmd_msg->steering_tire_angle, 0.0f);
-  EXPECT_LT(cmd_msg->steering_tire_rotation_rate, 0.0f);
+  EXPECT_LT(cmd_msg->front_steering_tire_angle, 0.0f);
+  EXPECT_LT(cmd_msg->front_steering_tire_rotation_rate, 0.0f);
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
@@ -363,8 +363,8 @@ TEST_F(FakeNodeFixture, left_turn)
 
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
-  EXPECT_GT(cmd_msg->steering_tire_angle, 0.0f);
-  EXPECT_GT(cmd_msg->steering_tire_rotation_rate, 0.0f);
+  EXPECT_GT(cmd_msg->front_steering_tire_angle, 0.0f);
+  EXPECT_GT(cmd_msg->front_steering_tire_rotation_rate, 0.0f);
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
@@ -438,8 +438,8 @@ TEST_F(FakeNodeFixture, stopped)
 
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
-  EXPECT_EQ(cmd_msg->steering_tire_angle, steer_msg.steering_tire_angle);
-  EXPECT_EQ(cmd_msg->steering_tire_rotation_rate, 0.0f);
+  EXPECT_EQ(cmd_msg->front_steering_tire_angle, steer_msg.steering_tire_angle);
+  EXPECT_EQ(cmd_msg->front_steering_tire_rotation_rate, 0.0f);
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 

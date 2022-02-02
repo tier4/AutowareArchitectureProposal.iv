@@ -63,8 +63,8 @@ TEST_F(FakeNodeFixture, TestCorrectOutput)
     });
   // Publish messages
   LateralCommand lat_msg;
-  lat_msg.steering_tire_angle = 1.5;
-  lat_msg.steering_tire_rotation_rate = 0.2f;
+  lat_msg.front_steering_tire_angle = 1.5;
+  lat_msg.front_steering_tire_rotation_rate = 0.2f;
   LongitudinalCommand lon_msg;
   lon_msg.speed = 5.0;
   lon_msg.acceleration = -1.0;
@@ -77,8 +77,8 @@ TEST_F(FakeNodeFixture, TestCorrectOutput)
   test_utils::waitForMessage(node, this, received_combined_command);
   // Ensure the combined control command was published and contains correct data
   ASSERT_TRUE(received_combined_command);
-  EXPECT_EQ(cmd_msg->lateral.steering_tire_angle, lat_msg.steering_tire_angle);
-  EXPECT_EQ(cmd_msg->lateral.steering_tire_rotation_rate, lat_msg.steering_tire_rotation_rate);
+  EXPECT_EQ(cmd_msg->lateral.front_steering_tire_angle, lat_msg.front_steering_tire_angle);
+  EXPECT_EQ(cmd_msg->lateral.front_steering_tire_rotation_rate, lat_msg.front_steering_tire_rotation_rate);
   EXPECT_EQ(cmd_msg->longitudinal.speed, lon_msg.speed);
   EXPECT_EQ(cmd_msg->longitudinal.acceleration, lon_msg.acceleration);
   EXPECT_EQ(cmd_msg->longitudinal.jerk, lon_msg.jerk);

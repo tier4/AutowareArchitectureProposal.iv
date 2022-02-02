@@ -207,10 +207,10 @@ void LateralController::onTimer()
   if (isStoppedState()) {
     // Reset input buffer
     for (auto & value : m_mpc.m_input_buffer) {
-      value = m_ctrl_cmd_prev.steering_tire_angle;
+      value = m_ctrl_cmd_prev.front_steering_tire_angle;
     }
     // Use previous command value as previous raw steer command
-    m_mpc.m_raw_steer_cmd_prev = m_ctrl_cmd_prev.steering_tire_angle;
+    m_mpc.m_raw_steer_cmd_prev = m_ctrl_cmd_prev.front_steering_tire_angle;
 
     publishCtrlCmd(m_ctrl_cmd_prev);
     publishPredictedTraj(predicted_traj);
@@ -334,8 +334,10 @@ autoware_auto_control_msgs::msg::AckermannLateralCommand LateralController::getS
 const
 {
   autoware_auto_control_msgs::msg::AckermannLateralCommand cmd;
-  cmd.steering_tire_angle = static_cast<decltype(cmd.steering_tire_angle)>(m_steer_cmd_prev);
-  cmd.steering_tire_rotation_rate = 0.0;
+  cmd.front_steering_tire_angle = static_cast<decltype(cmd.front_steering_tire_angle)>(m_f_steer_cmd_prev);
+  cmd.front_steering_tire_rotation_rate = 0.0;
+  cmd.rear_steering_tire_angle = static_cast<decltype(cmd.rear_steering_tire_angle)>(m_r_steer_cmd_prev);
+  cmd.rear_steering_tire_rotation_rate = 0.0;
   return cmd;
 }
 
@@ -343,8 +345,8 @@ autoware_auto_control_msgs::msg::AckermannLateralCommand LateralController::getI
 const
 {
   autoware_auto_control_msgs::msg::AckermannLateralCommand cmd;
-  cmd.steering_tire_angle = m_current_steering_ptr->steering_tire_angle;
-  cmd.steering_tire_rotation_rate = 0.0;
+  cmd.front_steering_tire_angle = m_current_steering_ptr->steering_tire_angle;
+  cmd.front_steering_tire_rotation_rate = 0.0;
   return cmd;
 }
 
@@ -379,7 +381,8 @@ void LateralController::publishCtrlCmd(
 {
   ctrl_cmd.stamp = this->now();
   m_pub_ctrl_cmd->publish(ctrl_cmd);
-  m_steer_cmd_prev = ctrl_cmd.steering_tire_angle;
+  m_f_steer_cmd_prev = ctrl_cmd.front_steering_tire_angle;
+  m_r_steer_cmd_prev = ctrl_cmd.rear_steering_tire_angle;
 }
 
 void LateralController::publishPredictedTraj(

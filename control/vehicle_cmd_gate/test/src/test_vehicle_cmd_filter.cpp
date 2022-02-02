@@ -42,8 +42,8 @@ void setFilterParams(
 AckermannControlCommand genCmd(double s, double sr, double v, double a)
 {
   AckermannControlCommand cmd;
-  cmd.lateral.steering_tire_angle = s;
-  cmd.lateral.steering_tire_rotation_rate = sr;
+  cmd.lateral.front_steering_tire_angle = s;
+  cmd.lateral.front_steering_tire_rotation_rate = sr;
   cmd.longitudinal.speed = v;
   cmd.longitudinal.acceleration = a;
   return cmd;
@@ -52,7 +52,7 @@ AckermannControlCommand genCmd(double s, double sr, double v, double a)
 double calcLatAcc(const AckermannControlCommand & cmd, const double wheelbase)
 {
   double v = cmd.longitudinal.speed;
-  return v * v * std::tan(cmd.lateral.steering_tire_angle) / wheelbase;
+  return v * v * std::tan(cmd.lateral.front_steering_tire_angle) / wheelbase;
 }
 
 void test_all(
@@ -160,7 +160,7 @@ void test_all(
     const double raw_lateral_jerk = (raw_lat_acc - prev_lat_acc) / DT;
     if (std::abs(raw_lateral_jerk) < LAT_J_LIM) {
       ASSERT_NEAR(
-        filtered_cmd.lateral.steering_tire_angle, raw_cmd.lateral.steering_tire_angle, THRESHOLD);
+        filtered_cmd.lateral.front_steering_tire_angle, raw_cmd.lateral.front_steering_tire_angle, THRESHOLD);
     }
   }
 }

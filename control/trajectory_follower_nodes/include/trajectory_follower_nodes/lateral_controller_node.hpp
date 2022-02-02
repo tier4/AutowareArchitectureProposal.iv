@@ -128,7 +128,8 @@ private:
     m_current_trajectory_ptr;
 
   //!< @brief mpc filtered output in previous period
-  float64_t m_steer_cmd_prev = 0.0;
+  float64_t m_f_steer_cmd_prev = 0.0;
+  float64_t m_r_steer_cmd_prev = 0.0;
 
   //!< @brief flag of m_ctrl_cmd_prev initialization
   bool8_t m_is_ctrl_cmd_prev_initialized = false;

@@ -216,7 +216,7 @@ std::pair<bool, TargetPerformanceMsgVars> ControlPerformanceAnalysisCore::getPer
   target_vars.lateral_error = lateral_error;
   target_vars.heading_error = heading_yaw_error;
 
-  double steering_val = current_control_ptr_->steering_tire_angle;
+  double steering_val = current_control_ptr_->front_steering_tire_angle;
   target_vars.control_effort_energy = contR * steering_val * steering_val;  // u*R*u';
 
   Eigen::Vector2d error_vec;
