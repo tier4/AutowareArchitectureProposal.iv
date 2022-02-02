@@ -359,7 +359,7 @@ void PacmodInterface::publishCommands()
   /* calculate desired steering wheel */
   double adaptive_gear_ratio = calculateVariableGearRatio(current_velocity, current_steer_wheel);
   double desired_steer_wheel =
-    (control_cmd_ptr_->lateral.steering_tire_angle + steering_offset_) * adaptive_gear_ratio;
+    (control_cmd_ptr_->lateral.front_steering_tire_angle + steering_offset_) * adaptive_gear_ratio;
   desired_steer_wheel =
     std::min(std::max(desired_steer_wheel, -max_steering_wheel_), max_steering_wheel_);
 
@@ -467,7 +467,7 @@ void PacmodInterface::publishCommands()
     raw_steer_cmd.clear_override = clear_override;
     raw_steer_cmd.command = desired_steer_wheel;
     raw_steer_cmd.rotation_rate =
-      control_cmd_ptr_->lateral.steering_tire_rotation_rate * adaptive_gear_ratio;
+      control_cmd_ptr_->lateral.front_steering_tire_rotation_rate * adaptive_gear_ratio;
     raw_steer_cmd_pub_->publish(raw_steer_cmd);
   }
 
@@ -513,7 +513,7 @@ double PacmodInterface::calcSteerWheelRateCmd(const double gear_ratio)
   }
 
   constexpr double margin = 1.5;
-  const double rate = margin * control_cmd_ptr_->lateral.steering_tire_rotation_rate * gear_ratio;
+  const double rate = margin * control_cmd_ptr_->lateral.front_steering_tire_rotation_rate * gear_ratio;
   return std::min(std::max(std::fabs(rate), min_steering_wheel_rate_), max_steering_wheel_rate_);
 }
 
