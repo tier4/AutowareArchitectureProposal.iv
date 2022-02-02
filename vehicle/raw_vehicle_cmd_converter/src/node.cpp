@@ -107,12 +107,15 @@ void RawVehicleCommandConverterNode::publishActuationCmd()
   }
   double desired_accel_cmd = 0.0;
   double desired_brake_cmd = 0.0;
-  double desired_steer_cmd = 0.0;
+  double desired_f_steer_cmd = 0.0;
+  double desired_r_steer_cmd = 0.0;
   ActuationCommandStamped actuation_cmd;
   const double acc = control_cmd_ptr_->longitudinal.acceleration;
   const double vel = current_twist_ptr_->twist.linear.x;
-  const double steer = control_cmd_ptr_->lateral.steering_tire_angle;
-  const double steer_rate = control_cmd_ptr_->lateral.steering_tire_rotation_rate;
+  const double f_steer = control_cmd_ptr_->lateral.front_steering_tire_angle;
+  const double f_steer_rate = control_cmd_ptr_->lateral.front_steering_tire_rotation_rate;
+  const double r_steer = control_cmd_ptr_->lateral.rear_steering_tire_angle;
+  const double r_steer_rate = control_cmd_ptr_->lateral.rear_steering_tire_rotation_rate;
   bool accel_cmd_is_zero = true;
   if (convert_accel_cmd_) {
     desired_accel_cmd = calculateAccelMap(vel, acc, accel_cmd_is_zero);
@@ -129,16 +132,18 @@ void RawVehicleCommandConverterNode::publishActuationCmd()
     desired_brake_cmd = (acc < 0) ? acc : 0;
   }
   if (convert_steer_cmd_) {
-    desired_steer_cmd = calculateSteer(vel, steer, steer_rate);
+    desired_f_steer_cmd = calculateSteer(vel, f_steer, f_steer_rate);
+    desired_r_steer_cmd = calculateSteer(vel, r_steer, r_steer_rate);
   } else {
     // if conversion is disabled use steering angle as steer cmd
-    desired_steer_cmd = steer;
+    desired_f_steer_cmd = f_steer;
+    desired_r_steer_cmd = r_steer;
   }
   actuation_cmd.header.frame_id = "base_link";
   actuation_cmd.header.stamp = control_cmd_ptr_->stamp;
   actuation_cmd.actuation.accel_cmd = desired_accel_cmd;
   actuation_cmd.actuation.brake_cmd = desired_brake_cmd;
-  actuation_cmd.actuation.steer_cmd = desired_steer_cmd;
+  actuation_cmd.actuation.steer_cmd = desired_f_steer_cmd; //need to fix
   pub_actuation_cmd_->publish(actuation_cmd);
 }
 

@@ -124,8 +124,8 @@ void AutowareIvVehicleStatePublisher::getVehicleCmdInfo(
   // get command
   status->target_acceleration = vehicle_cmd_ptr->longitudinal.acceleration;
   status->target_velocity = vehicle_cmd_ptr->longitudinal.speed;
-  status->target_steering = vehicle_cmd_ptr->lateral.steering_tire_angle;
-  status->target_steering_velocity = vehicle_cmd_ptr->lateral.steering_tire_rotation_rate;
+  status->target_steering = vehicle_cmd_ptr->lateral.front_steering_tire_angle;
+  status->target_steering_velocity = vehicle_cmd_ptr->lateral.front_steering_tire_rotation_rate;
 }
 
 void AutowareIvVehicleStatePublisher::getTurnSignalInfo(

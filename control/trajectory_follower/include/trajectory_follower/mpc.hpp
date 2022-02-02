@@ -203,7 +203,7 @@ private:
   /**
    * @brief set the reference trajectory to follow
    */
-  void storeSteerCmd(const float64_t steer);
+  void storeSteerCmd(const Eigen::VectorXd steer);
   /**
    * @brief reset previous result of MPC
    */

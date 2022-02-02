@@ -87,20 +87,38 @@ bool8_t MPC::calculateMPC(
   }
 
   /* apply saturation and filter */
-  const float64_t u_saturated = std::max(std::min(Uex(0), m_steer_lim), -m_steer_lim);
-  const float64_t u_filtered = m_lpf_steering_cmd.filter(u_saturated);
+  Eigen::VectorXd u_saturated;
+  Eigen::VectorXd u_filtered;
+  if(Uex.size()==1)
+  {
+    u_saturated << std::max(std::min(Uex(0), m_steer_lim), -m_steer_lim),0.0;
+    u_filtered << m_lpf_steering_cmd.filter(u_saturated(0)),0.0;
+  }else if(Uex.size()==2){
+    u_saturated << std::max(std::min(Uex(0), m_steer_lim), -m_steer_lim), std::max(std::min(Uex(1), m_steer_lim), -m_steer_lim);
+    u_filtered << m_lpf_steering_cmd.filter(u_saturated(0)),m_lpf_steering_cmd.filter(u_saturated(1));
+  }
 
   /* set control command */
   {
     const auto & dt = m_param.prediction_dt;
-    ctrl_cmd.steering_tire_angle = static_cast<float>(u_filtered);
-    ctrl_cmd.steering_tire_rotation_rate = static_cast<float>((Uex(1) - Uex(0)) / dt);
+    if(Uex.size()==1)
+	{
+    ctrl_cmd.front_steering_tire_angle = static_cast<float>(u_filtered(0));//need to fix
+    ctrl_cmd.front_steering_tire_rotation_rate = static_cast<float>((Uex(1) - Uex(0)) / dt);
+    ctrl_cmd.rear_steering_tire_angle = 0; 
+    ctrl_cmd.rear_steering_tire_rotation_rate = 0;
+	}else if(Uex.size()==2){
+    ctrl_cmd.front_steering_tire_angle = static_cast<float>(u_filtered(0));
+    ctrl_cmd.front_steering_tire_rotation_rate = static_cast<float>((Uex(2) - Uex(0)) / dt);
+    ctrl_cmd.rear_steering_tire_angle = static_cast<float>(u_filtered(1));
+    ctrl_cmd.rear_steering_tire_rotation_rate = static_cast<float>((Uex(3) - Uex(1)) / dt);
+	}
   }
 
   storeSteerCmd(u_filtered);
 
   /* save input to buffer for delay compensation*/
-  m_input_buffer.push_back(ctrl_cmd.steering_tire_angle);
+  m_input_buffer.push_back(ctrl_cmd.front_steering_tire_angle);
   m_input_buffer.pop_front();
   m_raw_steer_cmd_pprev = m_raw_steer_cmd_prev;
   m_raw_steer_cmd_prev = Uex(0);
@@ -129,7 +147,7 @@ bool8_t MPC::calculateMPC(
   const float64_t nearest_k = reference_trajectory.k[static_cast<size_t>(mpc_data.nearest_idx)];
   const float64_t nearest_smooth_k =
     reference_trajectory.smooth_k[static_cast<size_t>(mpc_data.nearest_idx)];
-  const float64_t steer_cmd = ctrl_cmd.steering_tire_angle;
+  const float64_t steer_cmd = ctrl_cmd.front_steering_tire_angle;
   const float64_t wb = m_vehicle_model_ptr->getWheelbase();
 
   typedef decltype (diagnostic.diag_array.data) ::value_type DiagnosticValueType;
@@ -373,7 +391,7 @@ float64_t MPC::getSteerCmdSum(
     t = rclcpp::Time(m_ctrl_cmd_vec.at(idx).stamp);
     steer_sum +=
       (1 - std::exp(-duration / time_constant)) *
-      static_cast<float64_t>(m_ctrl_cmd_vec.at(idx - 1).steering_tire_angle);
+      static_cast<float64_t>(m_ctrl_cmd_vec.at(idx - 1).front_steering_tire_angle);
     ++idx;
     if (idx >= m_ctrl_cmd_vec.size()) {break;}
   }
@@ -381,22 +399,23 @@ float64_t MPC::getSteerCmdSum(
   const float64_t duration = (t_end - t).seconds();
   steer_sum +=
     (1 - std::exp(-duration / time_constant)) *
-    static_cast<float64_t>(m_ctrl_cmd_vec.at(idx - 1).steering_tire_angle);
+    static_cast<float64_t>(m_ctrl_cmd_vec.at(idx - 1).front_steering_tire_angle);
 
   return steer_sum;
 }
 
-void MPC::storeSteerCmd(const float64_t steer)
+void MPC::storeSteerCmd(const Eigen::VectorXd steer)
 {
   const auto time_delayed = m_clock->now() + rclcpp::Duration::from_seconds(m_param.input_delay);
   autoware_auto_control_msgs::msg::AckermannLateralCommand cmd;
   cmd.stamp = time_delayed;
-  cmd.steering_tire_angle = static_cast<float>(steer);
+  cmd.front_steering_tire_angle = static_cast<float>(steer(0));
+  cmd.rear_steering_tire_angle = static_cast<float>(steer(1));
 
   // store published ctrl cmd
   m_ctrl_cmd_vec.emplace_back(cmd);
 
-  if (m_ctrl_cmd_vec.size() <= 2) {
+  if (m_ctrl_cmd_vec.size() <= 3) {
     return;
   }
 
@@ -543,12 +562,9 @@ MPCMatrix MPC::generateMPCMatrix(
 
   const int64_t N = m_param.prediction_horizon;
   const float64_t DT = m_param.prediction_dt;
-  const int64_t DIM_X = 3;
-  const int64_t DIM_U = 1;
+  const int64_t DIM_X = m_vehicle_model_ptr->getDimX();
+  const int64_t DIM_U = m_vehicle_model_ptr->getDimU();
   const int64_t DIM_Y = m_vehicle_model_ptr->getDimY();
-  //const int64_t DIM_X = m_vehicle_model_ptr->getDimX();
-  //const int64_t DIM_U = m_vehicle_model_ptr->getDimU();
-  //const int64_t DIM_Y = m_vehicle_model_ptr->getDimY();
 
   MPCMatrix m;
   m.Aex = MatrixXd::Zero(DIM_X * N, DIM_X);

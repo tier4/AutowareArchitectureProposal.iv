@@ -145,8 +145,8 @@ void ExternalCmdConverterNode::onExternalCmd(const ExternalControlCommand::Const
   // Publish ControlCommand
   autoware_auto_control_msgs::msg::AckermannControlCommand output;
   output.stamp = cmd_ptr->stamp;
-  output.lateral.steering_tire_angle = cmd_ptr->control.steering_angle;
-  output.lateral.steering_tire_rotation_rate = cmd_ptr->control.steering_angle_velocity;
+  output.lateral.front_steering_tire_angle = cmd_ptr->control.steering_angle;
+  output.lateral.front_steering_tire_rotation_rate = cmd_ptr->control.steering_angle_velocity;
   output.longitudinal.speed = ref_velocity;
   output.longitudinal.acceleration = ref_acceleration;
 
