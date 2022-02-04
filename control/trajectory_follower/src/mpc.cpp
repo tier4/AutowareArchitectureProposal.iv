@@ -85,34 +85,38 @@ bool8_t MPC::calculateMPC(
     RCLCPP_WARN_THROTTLE(m_logger, *m_clock, 1000 /*ms*/, "optimization failed.");
     return false;
   }
-
+  const int64_t DIM_U = m_vehicle_model_ptr->getDimU();
   /* apply saturation and filter */
-  Eigen::VectorXd u_saturated;
-  Eigen::VectorXd u_filtered;
-  if(Uex.size()==1)
+  Eigen::Vector2d u_saturated;
+  Eigen::Vector2d u_filtered;
+  if(DIM_U==1)
   {
     u_saturated << std::max(std::min(Uex(0), m_steer_lim), -m_steer_lim),0.0;
     u_filtered << m_lpf_steering_cmd.filter(u_saturated(0)),0.0;
-  }else if(Uex.size()==2){
+  }else if(DIM_U==2){
     u_saturated << std::max(std::min(Uex(0), m_steer_lim), -m_steer_lim), std::max(std::min(Uex(1), m_steer_lim), -m_steer_lim);
     u_filtered << m_lpf_steering_cmd.filter(u_saturated(0)),m_lpf_steering_cmd.filter(u_saturated(1));
+  }else{
+	  RCLCPP_ERROR(m_logger, "Input dimension is greater than 2.");
   }
 
   /* set control command */
   {
     const auto & dt = m_param.prediction_dt;
-    if(Uex.size()==1)
+    if(DIM_U==1)
 	{
     ctrl_cmd.front_steering_tire_angle = static_cast<float>(u_filtered(0));//need to fix
     ctrl_cmd.front_steering_tire_rotation_rate = static_cast<float>((Uex(1) - Uex(0)) / dt);
     ctrl_cmd.rear_steering_tire_angle = 0; 
     ctrl_cmd.rear_steering_tire_rotation_rate = 0;
-	}else if(Uex.size()==2){
+	}else if(DIM_U==2){
     ctrl_cmd.front_steering_tire_angle = static_cast<float>(u_filtered(0));
     ctrl_cmd.front_steering_tire_rotation_rate = static_cast<float>((Uex(2) - Uex(0)) / dt);
     ctrl_cmd.rear_steering_tire_angle = static_cast<float>(u_filtered(1));
     ctrl_cmd.rear_steering_tire_rotation_rate = static_cast<float>((Uex(3) - Uex(1)) / dt);
-	}
+    }else{
+        RCLCPP_ERROR(m_logger, "Input dimension is greater than 2.");
+    }
   }
 
   storeSteerCmd(u_filtered);
