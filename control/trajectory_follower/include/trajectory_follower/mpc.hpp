@@ -123,8 +123,10 @@ struct MPCData
   int64_t nearest_idx;
   float64_t nearest_time;
   geometry_msgs::msg::Pose nearest_pose;
-  float64_t steer;
-  float64_t predicted_steer;
+  float64_t f_steer;
+  float64_t r_steer;
+  float64_t predicted_f_steer;
+  float64_t predicted_r_steer;
   float64_t lateral_err;
   float64_t yaw_err;
 };
@@ -168,13 +170,17 @@ private:
   trajectory_follower::Butterworth2dFilter m_lpf_yaw_error;
 
   //!< @brief raw output computed two iterations ago
-  float64_t m_raw_steer_cmd_pprev = 0.0;
+  float64_t m_raw_f_steer_cmd_pprev = 0.0;
+  //!< @brief raw output computed two iterations ago
+  float64_t m_raw_r_steer_cmd_pprev = 0.0;
   //!< @brief previous lateral error for derivative
   float64_t m_lateral_error_prev = 0.0;
   //!< @brief previous lateral error for derivative
   float64_t m_yaw_error_prev = 0.0;
   //!< @brief previous predicted steering
-  std::shared_ptr<float64_t> m_steer_prediction_prev;
+  std::shared_ptr<float64_t> m_f_steer_prediction_prev;
+  //!< @brief previous predicted steering
+  std::shared_ptr<float64_t> m_r_steer_prediction_prev;
   //!< @brief previous computation time
   rclcpp::Time m_time_prev = rclcpp::Time(0, 0, RCL_ROS_TIME);
   //!< @brief sign of previous target speed to calculate curvature when the target speed is 0.
@@ -193,11 +199,11 @@ private:
   /**
    * @brief calculate predicted steering
    */
-  float64_t calcSteerPrediction();
+  std::tuple<float64_t,float64_t> calcSteerPrediction();
   /**
    * @brief get the sum of all steering commands over the given time range
    */
-  float64_t getSteerCmdSum(
+  std::tuple<float64_t,float64_t> getSteerCmdSum(
     const rclcpp::Time & t_start, const rclcpp::Time & t_end,
     const float64_t time_constant) const;
   /**
@@ -343,7 +349,9 @@ public:
   //!< @brief mpc_output buffer for delay time compensation
   std::deque<float64_t> m_input_buffer;
   //!< @brief mpc raw output in previous period
-  float64_t m_raw_steer_cmd_prev = 0.0;
+  float64_t m_raw_f_steer_cmd_prev = 0.0;
+  //!< @brief mpc raw output in previous period
+  float64_t m_raw_r_steer_cmd_prev = 0.0;
   /* parameters for control*/
   //!< @brief use stop cmd when lateral error exceeds this [m]
   float64_t m_admissible_position_error;

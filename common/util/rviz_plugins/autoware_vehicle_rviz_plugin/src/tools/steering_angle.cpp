@@ -99,7 +99,7 @@ void SteeringAngleDisplay::update(float wall_dt, float ros_dt)
     if (!last_msg_ptr_) {
       return;
     }
-    steering = last_msg_ptr_->steering_tire_angle;
+    steering = last_msg_ptr_->front_steering_tire_angle;
   }
 
   QColor background_color;

@@ -313,7 +313,7 @@ void AccelBrakeMapCalibrator::timerCallback()
       &output_log_, rclcpp::Time(twist_ptr_->header.stamp).seconds(), twist_ptr_->twist.linear.x,
       acceleration_, getPitchCompensatedAcceleration(), delayed_accel_pedal_ptr_->data,
       delayed_brake_pedal_ptr_->data, accel_pedal_speed_, brake_pedal_speed_, pitch_,
-      steer_ptr_->steering_tire_angle, jerk_, full_original_accel_rmse_, part_original_accel_rmse_,
+      steer_ptr_->front_steering_tire_angle, jerk_, full_original_accel_rmse_, part_original_accel_rmse_,
       new_accel_rmse_);
   }
 
@@ -354,7 +354,7 @@ void AccelBrakeMapCalibrator::timerCallback()
   }
 
   // steer check
-  if (std::fabs(steer_ptr_->steering_tire_angle) > max_steer_threshold_) {
+  if (std::fabs(steer_ptr_->front_steering_tire_angle) > max_steer_threshold_) {
     // too large steer
     too_large_steer_count_++;
     return;
@@ -485,7 +485,7 @@ void AccelBrakeMapCalibrator::callbackVelocity(
 void AccelBrakeMapCalibrator::callbackSteer(
   const autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr msg)
 {
-  debug_values_.data.at(CURRENT_STEER) = msg->steering_tire_angle;
+  debug_values_.data.at(CURRENT_STEER) = msg->front_steering_tire_angle;
   steer_ptr_ = msg;
 }
 

@@ -288,7 +288,7 @@ void PacmodInterface::callbackPacmodRpt(
   {
     autoware_auto_vehicle_msgs::msg::SteeringReport steer_msg;
     steer_msg.stamp = header.stamp;
-    steer_msg.steering_tire_angle = current_steer;
+    steer_msg.front_steering_tire_angle = current_steer;
     steering_status_pub_->publish(steer_msg);
   }
 

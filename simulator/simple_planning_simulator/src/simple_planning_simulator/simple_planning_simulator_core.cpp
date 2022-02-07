@@ -64,7 +64,8 @@ autoware_auto_vehicle_msgs::msg::SteeringReport to_steering_report(
   const std::shared_ptr<SimModelInterface> vehicle_model_ptr)
 {
   autoware_auto_vehicle_msgs::msg::SteeringReport steer;
-  steer.steering_tire_angle = static_cast<float32_t>(vehicle_model_ptr->getSteer());
+  steer.front_steering_tire_angle = static_cast<float32_t>(vehicle_model_ptr->getSteer());
+  steer.rear_steering_tire_angle = static_cast<float32_t>(vehicle_model_ptr->getRearSteer());
   return steer;
 }
 
@@ -397,7 +398,8 @@ void SimplePlanningSimulator::add_measurement_noise(
 
   vel.longitudinal_velocity += static_cast<float32_t>(velocity_noise);
 
-  steer.steering_tire_angle += static_cast<float32_t>((*n.steer_dist_)(*n.rand_engine_));
+  steer.front_steering_tire_angle += static_cast<float32_t>((*n.steer_dist_)(*n.rand_engine_));
+  steer.rear_steering_tire_angle += static_cast<float32_t>((*n.steer_dist_)(*n.rand_engine_));
 }
 
 

@@ -51,6 +51,7 @@ float64_t SimModelDelaySteerAcc4ws::getWz()
   return state_(IDX::VX) * std::cos((state_(IDX::R_STEER))) * (std::tan(state_(IDX::F_STEER))-std::tan(state_(IDX::R_STEER))) / wheelbase_;
 }
 float64_t SimModelDelaySteerAcc4ws::getSteer() {return state_(IDX::F_STEER);}
+float64_t SimModelDelaySteerAcc4ws::getRearSteer() {return state_(IDX::R_STEER);}
 void SimModelDelaySteerAcc4ws::update(const float64_t & dt)
 {
   Eigen::VectorXd delayed_input = Eigen::VectorXd::Zero(dim_u_);

@@ -129,6 +129,11 @@ private:
   float64_t getSteer() override;
 
   /**
+   * @brief get vehicle steering angle
+   */
+  float64_t getRearSteer() override;
+
+  /**
    * @brief update vehicle states
    * @param [in] dt delta time [s]
    */

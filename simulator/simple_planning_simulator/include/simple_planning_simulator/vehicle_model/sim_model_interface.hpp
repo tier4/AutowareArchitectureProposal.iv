@@ -142,6 +142,11 @@ public:
   virtual float64_t getSteer() = 0;
 
   /**
+   * @brief get vehicle steering angle
+   */
+  virtual float64_t getRearSteer() = 0;
+
+  /**
    * @brief get state vector dimension
    */
   inline int getDimX() {return dim_x_;}

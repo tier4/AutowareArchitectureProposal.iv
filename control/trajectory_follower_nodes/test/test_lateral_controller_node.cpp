@@ -137,7 +137,7 @@ TEST_F(FakeNodeFixture, empty_trajectory)
   odom_msg.header.stamp = node->now();
   odom_msg.twist.twist.linear.x = 0.0;
   steer_msg.stamp = node->now();
-  steer_msg.steering_tire_angle = 0.0;
+  steer_msg.front_steering_tire_angle = 0.0;
   traj_pub->publish(traj_msg);
   odom_pub->publish(odom_msg);
   steer_pub->publish(steer_msg);
@@ -209,7 +209,7 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   odom_msg.header.stamp = node->now();
   odom_msg.twist.twist.linear.x = 1.0;
   steer_msg.stamp = node->now();
-  steer_msg.steering_tire_angle = 0.0;
+  steer_msg.front_steering_tire_angle = 0.0;
   odom_pub->publish(odom_msg);
   steer_pub->publish(steer_msg);
 
@@ -283,7 +283,7 @@ TEST_F(FakeNodeFixture, right_turn)
   odom_msg.header.stamp = node->now();
   odom_msg.twist.twist.linear.x = 1.0;
   steer_msg.stamp = node->now();
-  steer_msg.steering_tire_angle = 0.0;
+  steer_msg.front_steering_tire_angle = 0.0;
   odom_pub->publish(odom_msg);
   steer_pub->publish(steer_msg);
 
@@ -357,7 +357,7 @@ TEST_F(FakeNodeFixture, left_turn)
   odom_msg.header.stamp = node->now();
   odom_msg.twist.twist.linear.x = 1.0;
   steer_msg.stamp = node->now();
-  steer_msg.steering_tire_angle = 0.0;
+  steer_msg.front_steering_tire_angle = 0.0;
   odom_pub->publish(odom_msg);
   steer_pub->publish(steer_msg);
 
@@ -432,13 +432,13 @@ TEST_F(FakeNodeFixture, stopped)
   odom_msg.header.stamp = node->now();
   odom_msg.twist.twist.linear.x = 0.0;
   steer_msg.stamp = node->now();
-  steer_msg.steering_tire_angle = -0.5;
+  steer_msg.front_steering_tire_angle = -0.5;
   odom_pub->publish(odom_msg);
   steer_pub->publish(steer_msg);
 
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
-  EXPECT_EQ(cmd_msg->front_steering_tire_angle, steer_msg.steering_tire_angle);
+  EXPECT_EQ(cmd_msg->front_steering_tire_angle, steer_msg.front_steering_tire_angle);
   EXPECT_EQ(cmd_msg->front_steering_tire_rotation_rate, 0.0f);
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }

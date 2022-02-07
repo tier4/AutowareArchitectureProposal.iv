@@ -29,6 +29,7 @@ float64_t SimModelIdealSteerAcc::getWz()
   return state_(IDX::VX) * std::tan(input_(IDX_U::STEER_DES)) / wheelbase_;
 }
 float64_t SimModelIdealSteerAcc::getSteer() {return input_(IDX_U::STEER_DES);}
+float64_t SimModelIdealSteerAcc::getRearSteer() {return 0.0;}
 void SimModelIdealSteerAcc::update(const float64_t & dt)
 {
   updateRungeKutta(dt, input_);

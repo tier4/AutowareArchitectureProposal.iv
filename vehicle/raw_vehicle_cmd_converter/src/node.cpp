@@ -219,7 +219,7 @@ double RawVehicleCommandConverterNode::calculateBrakeMap(
 
 void RawVehicleCommandConverterNode::onSteering(const Steering::ConstSharedPtr msg)
 {
-  current_steer_ptr_ = std::make_unique<double>(msg->steering_tire_angle);
+  current_steer_ptr_ = std::make_unique<double>(msg->front_steering_tire_angle);
 }
 
 void RawVehicleCommandConverterNode::onVelocity(const Odometry::ConstSharedPtr msg)

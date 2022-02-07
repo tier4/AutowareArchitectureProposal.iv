@@ -31,6 +31,7 @@ float64_t SimModelIdealSteerAccGeared::getWz()
   return state_(IDX::VX) * std::tan(input_(IDX_U::STEER_DES)) / wheelbase_;
 }
 float64_t SimModelIdealSteerAccGeared::getSteer() {return input_(IDX_U::STEER_DES);}
+float64_t SimModelIdealSteerAccGeared::getRearSteer() {return 0.0;}
 void SimModelIdealSteerAccGeared::update(const float64_t & dt)
 {
   const auto prev_vx = state_(IDX::VX);

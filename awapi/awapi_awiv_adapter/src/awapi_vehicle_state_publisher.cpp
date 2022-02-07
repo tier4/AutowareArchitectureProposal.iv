@@ -99,7 +99,7 @@ void AutowareIvVehicleStatePublisher::getSteerInfo(
   // get steer vel
   if (previous_steer_ptr_) {
     // calculate steer vel from steer
-    const double ds = steer_ptr->steering_tire_angle - previous_steer_ptr_->steering_tire_angle;
+    const double ds = steer_ptr->front_steering_tire_angle - previous_steer_ptr_->front_steering_tire_angle;
     const double dt = std::max(
       (rclcpp::Time(steer_ptr->stamp) - rclcpp::Time(previous_steer_ptr_->stamp)).seconds(), 1e-03);
     const double steer_vel = ds / dt;

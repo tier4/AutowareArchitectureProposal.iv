@@ -582,7 +582,7 @@ void VehicleCmdGate::onEngageService(
 
 void VehicleCmdGate::onSteering(autoware_auto_vehicle_msgs::msg::SteeringReport::ConstSharedPtr msg)
 {
-  current_steer_ = msg->steering_tire_angle;
+  current_steer_ = msg->front_steering_tire_angle;
 }
 
 double VehicleCmdGate::getDt()
