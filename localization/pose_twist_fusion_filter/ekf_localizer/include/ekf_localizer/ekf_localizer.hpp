@@ -36,6 +36,7 @@
 #include <tf2_ros/transform_listener.h>
 
 #include <chrono>
+#include <deque>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -77,8 +78,12 @@ private:
   //!< @brief measurement twist with covariance subscriber
   rclcpp::Subscription<geometry_msgs::msg::TwistWithCovarianceStamped>::SharedPtr
     sub_twist_with_cov_;
+  //!< @brief clock
+  rclcpp::Clock::SharedPtr clock_;
   //!< @brief time for ekf calculation callback
   rclcpp::TimerBase::SharedPtr timer_control_;
+  //!< @brief time buffer for updating ekf rate
+  std::deque<rclcpp::Time> time_buffer_;
   //!< @brief timer to send transform
   rclcpp::TimerBase::SharedPtr timer_tf_;
   //!< @brief tf broadcaster
@@ -120,6 +125,12 @@ private:
   double twist_gate_dist_;
   double twist_stddev_vx_;  //!< @brief  standard deviation for linear vx
   double twist_stddev_wz_;  //!< @brief  standard deviation for angular wx
+
+  /* process noise standard deviation */
+  double proc_stddev_yaw_c_;       //!< @brief  yaw process noise
+  double proc_stddev_yaw_bias_c_;  //!< @brief  yaw bias process noise
+  double proc_stddev_vx_c_;        //!< @brief  vx process noise
+  double proc_stddev_wz_c_;        //!< @brief  wz process noise
 
   /* process noise variance for discrete model */
   double proc_cov_yaw_d_;       //!< @brief  discrete yaw process noise
@@ -186,6 +197,18 @@ private:
    * @brief initialization of EKF
    */
   void initEKF();
+
+  /**
+   * @brief calculate timer rate
+   * @param window_size calculate the average rate of this size
+   * @return average timer rate
+   */
+  double calcTimerRate(size_t window_size) const;
+
+  /**
+   * @brief update predict ferequncy because timer rate will be /clock rate when using /clock.
+   */
+  void updatePredictFrequency();
 
   /**
    * @brief compute EKF prediction
